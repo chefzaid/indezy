@@ -4,9 +4,9 @@
 
 # **Product Requirements Document (PRD)**
 
-**Title:** Indezy - Job Tracking App for Freelancers (French Market)
-**Owner:** Zaid Chefchaouni | byteworks.dev
-**Date:** 2025-06-15
+**Title:** Indezy - Job Tracking App for Freelancers (French Market)  
+**Owner:** Zaid Chefchaouni \| byteworks.dev  
+**Date:** 2025-06-15  
 **Version:** 1.0
 
 ---
