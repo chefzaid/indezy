@@ -46,15 +46,15 @@ Build a cross-platform (web + mobile) job tracking system tailored for freelance
 
 ### 4.2 Visualization
 
-* **Kanban board**: drag-and-drop to manage status
-* **Dashboard**: analytics on rate, domains, client types, success rates
+* **Kanban board:** drag-and-drop to manage status
+* **Dashboard:** analytics on rate, domains, client types, success rates
 
 ### 4.3 Integrations
 
-* **Job boards**: Freework, CherryPick, Malt, LinkedIn
-* **Email**: Outlook, Gmail – fetch emails, send/receive templates
-* **AI**: for auto-detecting job info, generating follow-ups, CV screening insights
-* **Chrome Extension**: to capture jobs directly from job boards or LinkedIn
+* **Job boards:** Freework, CherryPick, Malt, LinkedIn
+* **Email:** Outlook, Gmail – fetch emails, send/receive templates
+* **AI:** for auto-detecting job info, generating follow-ups, CV screening insights
+* **Chrome Extension:** to capture jobs directly from job boards or LinkedIn
 
 ### 4.4 Filtering & Sorting
 
@@ -80,9 +80,9 @@ Build a cross-platform (web + mobile) job tracking system tailored for freelance
 
 ### 5.3 Logged-In Dashboard
 
-* **Main menu**: Freelance Profile, Projects, Clients, Sources, Contacts
-* **Kanban View**: All active projects, sortable by status
-* **Graphs Section**: (Phase 2) Show application trends, rates evolution, source efficiency
+* **Main menu:** Freelance Profile, Projects, Clients, Sources, Contacts
+* **Kanban View:** All active projects, sortable by status
+* **Graphs Section:** (Phase 2) Show application trends, rates evolution, source efficiency
 
 ---
 
@@ -109,9 +109,9 @@ Build a cross-platform (web + mobile) job tracking system tailored for freelance
 
 ## **8. Competitor Analysis**
 
-* **Huntr.co**: Visual Kanban, email tracking, resume features
-* **TealHQ.com**: Resume builder, AI, job tracker
-  → *Opportunity*: focus on French market, deeper integrations (Freework, CherryPick, Malt), and freelance-specific needs
+* **Huntr.co:** Visual Kanban, email tracking, resume features
+* **TealHQ.com:** Resume builder, AI, job tracker
+  → *Opportunity:* focus on French market, deeper integrations (Freework, CherryPick, Malt), and freelance-specific needs
 
 ---
 
@@ -125,7 +125,7 @@ Build a cross-platform (web + mobile) job tracking system tailored for freelance
 
 ## **10. Future Enhancements (Phase 2+)**
 
-* Sort jobs by commuting time (home address to job location).
+* Sort jobs by commuting time (home address to job location)
 * Email integration (view + template generation)
 * Dashboard (basic graphs)
 * In-app calendar with interview reminders
@@ -140,103 +140,110 @@ Build a cross-platform (web + mobile) job tracking system tailored for freelance
 
 **Written in pseudo-code**
 
+<details>
+<summary>Expand Data Model</summary>
+
+```
 entity Freelance {
-	firstName String required
-	lastName String required
-	email String required
-	phone String
-	birthDate Date
-	address String
-	city String
-	status EmploymentStatus
-	noticePeriodInDays Integer
-	availabilityDate Date
-	reversionRate Double
-	cv File
-	@OneToMany
-	projects List<Project>
+  firstName String required
+  lastName String required
+  email String required
+  phone String
+  birthDate Date
+  address String
+  city String
+  status EmploymentStatus
+  noticePeriodInDays Integer
+  availabilityDate Date
+  reversionRate Double
+  cv File
+  @OneToMany
+  projects List<Project>
 }
 
 entity Client {
-	companyName String required
-	adress String
-	city String required
-	domain String
-	final Boolean required
-	notes String
-	@OneToMany
-	projects List<Project>
-	@OneToMany
-	contacts List<Contact>
+  companyName String required
+  adress String
+  city String required
+  domain String
+  final Boolean required
+  notes String
+  @OneToMany
+  projects List<Project>
+  @OneToMany
+  contacts List<Contact>
 }
 
 entity Project {
-	role String required
-	description String
-	techStack String
-	dailyRate Integer required
-	workMode WorkMode
-	remoteDaysPerMonth Integer (if hybrid)
-	onsiteDaysPerMonth Integer (if hybrid)
-	advantages String
-	startDate Date
-	durationInMonths Integer
-	orderRenewalInMonths Integer
-	daysPerYear Integer
-	documents List<File>
-	link String
-	source Source
-	personalRating Integer
-	notes String
-	@ManyToOne
-	middleman Client
-	@ManyToOne
-	client Client required
-	@ManyToOne
-	source Source
-	@OneToMany
-	steps List<InterviewStep>
+  role String required
+  description String
+  techStack String
+  dailyRate Integer required
+  workMode WorkMode
+  remoteDaysPerMonth Integer (if hybrid)
+  onsiteDaysPerMonth Integer (if hybrid)
+  advantages String
+  startDate Date
+  durationInMonths Integer
+  orderRenewalInMonths Integer
+  daysPerYear Integer
+  documents List<File>
+  link String
+  source Source
+  personalRating Integer
+  notes String
+  @ManyToOne
+  middleman Client
+  @ManyToOne
+  client Client required
+  @ManyToOne
+  source Source
+  @OneToMany
+  steps List<InterviewStep>
 }
 
 entity InterviewStep {
-	title String required
-	date Date
-	status StepStatus required
+  title String required
+  date Date
+  status StepStatus required
 }
 
 entity Contact {
-	firstName String required
-	lastName String
-	email String
-	phone String
-	notes String
+  firstName String required
+  lastName String
+  email String
+  phone String
+  notes String
 }
 
 entity Source {
-	name String required
-	type SourceType required
-	link String
-	isListing Boolean
-	popularityRating Integer
-	usefulnessRating Integer
-	notes String
+  name String required
+  type SourceType required
+  link String
+  isListing Boolean
+  popularityRating Integer
+  usefulnessRating Integer
+  notes String
 }
 
 enum EmploymentStatus {
-	FREELANCE, PORTAGE, CDI
+  FREELANCE, PORTAGE, CDI
 }
 
 enum StepStatus {
-	VALIDATED, FAILED, PLANNED
+  VALIDATED, FAILED, PLANNED
 }
 
 enum SourceType {
-	JOB_BOARD, SOCIAL_MEDIA, EMAIL, CALL, SMS
+  JOB_BOARD, SOCIAL_MEDIA, EMAIL, CALL, SMS
 }
 
 enum WorkMode {
-	ONSITE, REMOTE, HYBRID
+  ONSITE, REMOTE, HYBRID
 }
+```
+
+</details>
 
 ---
 
