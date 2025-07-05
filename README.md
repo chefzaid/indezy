@@ -2,9 +2,9 @@
 
 <div align="center">
   <img src="frontend/src/assets/images/indezy-logo.svg" alt="Indezy Logo" height="80">
-  
+
   **A comprehensive job tracking and project management platform designed specifically for freelancers in the French tech market.**
-  
+
   [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/projects/jdk/21/)
   [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.3-brightgreen.svg)](https://spring.io/projects/spring-boot)
   [![Angular](https://img.shields.io/badge/Angular-20.0.6-red.svg)](https://angular.io/)
@@ -15,6 +15,34 @@
 ## 🎯 Overview
 
 Indezy is a modern, full-stack web application that helps freelancers manage their job applications, track project opportunities, and maintain organized dashboards. Built with enterprise-grade technologies and designed for the French tech market, it provides a comprehensive solution for freelance project management.
+
+## 🚀 Quick Start
+
+### One-Command Setup
+```bash
+# For new developers - installs everything and sets up the database
+make quick-start
+
+# Start the full application
+make run
+```
+
+### Using Docker (Recommended)
+```bash
+# Start everything with Docker
+make docker-up
+
+# Access the application:
+# Frontend: http://localhost:4200
+# Backend: http://localhost:8080/api
+# Swagger: http://localhost:8080/api/swagger-ui.html
+```
+
+### Prerequisites
+- **Docker & Docker Compose** (recommended)
+- **Node.js 18+** (for local development)
+- **Java 21** (for local development)
+- **Maven 3.9+** (for local development)
 
 ## ✨ Key Features
 
@@ -66,96 +94,136 @@ Indezy is a modern, full-stack web application that helps freelancers manage the
 - **Sources**: Project source tracking (job boards, referrals, etc.)
 - **Interview Steps**: Detailed interview process management
 
-## 🚀 Getting Started
+## 🛠️ Development Commands (Mask)
 
-### Prerequisites
-- **Docker & Docker Compose** (recommended)
-- **Node.js 18+** (for local development)
-- **Java 21** (for local development)
-- **Maven 3.9+** (for local development)
+**All development tasks can be performed using [Mask](https://github.com/jacobdeichert/mask) commands:**
 
-### Quick Start with Docker
+### Installation
+First, install mask:
 ```bash
-# Clone the repository
-git clone https://github.com/chefzaid/indezy.git
-cd indezy
+# Using cargo (Rust)
+cargo install mask
 
-# Start all services
-docker-compose up -d
+# Using npm
+npm install -g @jacobdeichert/mask
 
-# Access the application
-# Frontend: http://localhost:4200
-# Backend API: http://localhost:8080/api
-# Swagger UI: http://localhost:8080/api/swagger-ui.html
+# Using homebrew (macOS/Linux)
+brew install mask
 ```
 
-### Development Setup
+### 🚀 Quick Start Commands
+```bash
+mask                  # Show all available commands
+mask quick-start      # Complete setup for new developers
+mask dev              # Start development environment
+mask demo             # Start demo with sample data
+```
+
+### 📦 Installation & Build
+```bash
+mask install          # Install all dependencies
+mask install-backend  # Backend dependencies only
+mask install-frontend # Frontend dependencies only
+mask build            # Build everything
+mask build-prod       # Production build
+```
+
+### 🧪 Testing
+```bash
+mask test             # Run all tests
+mask test-backend     # Backend tests with coverage
+mask test-frontend    # Frontend tests with coverage
+mask coverage         # Generate coverage reports
+```
+
+### 🏃 Running Applications
+```bash
+mask run              # Start both frontend and backend
+mask run-backend      # Backend development server
+mask run-frontend     # Frontend development server
+```
+
+### 🐳 Docker Commands
+```bash
+mask docker-up        # Start all services with Docker
+mask docker-down      # Stop Docker services
+mask docker-db        # Start database only
+mask docker-logs      # View Docker logs
+mask docker-clean     # Clean Docker resources
+```
+
+### 🔧 Utilities
+```bash
+mask clean            # Clean build artifacts
+mask status           # Check application status
+mask swagger          # Open API documentation
+mask lint             # Run code linting
+mask format           # Format code
+mask dev-reset        # Reset entire development environment
+```
+
+> **Note**: All commands are cross-platform compatible (Windows, macOS, Linux). See `maskfile.md` for detailed command documentation.
+
+### Manual Development Setup
 
 #### 1. Database Setup
 ```bash
-# Start PostgreSQL
-docker-compose up -d postgres
+# Using Mask
+mask docker-db
 
-# Database will be available at:
-# Host: localhost:5432
-# Database: indezy
-# Username: indezy_user
-# Password: indezy_password
+# Or manually
+docker-compose up -d postgres
+# Database: localhost:5432, indezy/indezy_user/indezy_password
 ```
 
 #### 2. Backend Development
 ```bash
-cd backend
+# Using Mask
+mask install-backend
+mask run-backend
 
-# Install dependencies and run tests
-./mvnw clean install
+# Or manually (Windows)
+cd backend && ./mvnw.cmd clean install && ./mvnw.cmd spring-boot:run
 
-# Start the Spring Boot application
-./mvnw spring-boot:run
-
-# API will be available at http://localhost:8080/api
+# Or manually (Linux/macOS)
+cd backend && ./mvnw clean install && ./mvnw spring-boot:run
 ```
 
 #### 3. Frontend Development
 ```bash
-cd frontend
+# Using Mask
+mask install-frontend
+mask run-frontend
 
-# Install dependencies
-npm install
-
-# Start development server
-npm start
-
-# Application will be available at http://localhost:4200
+# Or manually
+cd frontend && npm install && npm start
 ```
+
+### DevContainer Support
+1. Open project in VS Code
+2. Install "Dev Containers" extension
+3. Press `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
+4. Wait for container setup to complete
 
 ## 🧪 Testing
 
-### Backend Testing
 ```bash
-cd backend
+# Run all tests (frontend + backend)
+mask test
 
-# Run all tests
-./mvnw test
+# Individual test commands
+mask test-backend          # Backend tests with coverage
+mask test-frontend         # Frontend tests with coverage
+mask test-backend-watch    # Backend tests in watch mode
+mask test-frontend-watch   # Frontend tests in watch mode
 
-# Run tests with coverage report
-./mvnw clean test jacoco:report
-
-# Coverage reports available at: target/site/jacoco/index.html
+# Generate and view coverage reports
+mask coverage
+# Backend: backend/target/site/jacoco/index.html
+# Frontend: frontend/coverage/index.html
 ```
 
-### Frontend Testing
-```bash
-cd frontend
-
-# Run unit tests
-npm test
-
-# Run tests with coverage
-npm run test -- --code-coverage
-
-# Coverage reports available at: coverage/index.html
-```
+**Test Coverage**: Both frontend and backend maintain 60% code coverage threshold.
 
 ## 📚 API Documentation
 
@@ -175,65 +243,124 @@ The backend provides comprehensive API documentation through OpenAPI 3:
 ## 🔧 Configuration
 
 ### Environment Variables
-```bash
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=indezy
-DB_USERNAME=indezy_user
-DB_PASSWORD=indezy_password
+Create a `.env` file in the root directory:
 
+```env
 # JWT Configuration
-JWT_SECRET=your-secret-key
-JWT_EXPIRATION=86400000
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
 
 # OAuth Configuration (optional)
 GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
 MICROSOFT_CLIENT_ID=your-microsoft-client-id
+MICROSOFT_CLIENT_SECRET=your-microsoft-client-secret
 ```
 
 ### Application Profiles
-- **Development**: `application.yml` - Default development configuration
-- **Testing**: `application-test.properties` - H2 in-memory database for tests
+- **Development**: `application.yml` - Default configuration with PostgreSQL
+- **Testing**: `application-test.properties` - H2 in-memory database
 - **Production**: Environment-specific configuration
 
-## 🛠️ Development Tools
-
-### DevContainer Support
-The project includes a complete DevContainer configuration for consistent development environments:
-
-```bash
-# Using VS Code
-1. Install "Dev Containers" extension
-2. Open project in VS Code
-3. Press Ctrl+Shift+P → "Dev Containers: Reopen in Container"
-4. Wait for container setup to complete
-```
-
-### Code Quality
-- **Backend**: Maven Checkstyle, SpotBugs, and JaCoCo for code quality
-- **Frontend**: ESLint, Prettier, and Angular CLI linting
-- **Testing**: 60% code coverage threshold for both frontend and backend
+### Database Configuration
+- **Host**: localhost:5432
+- **Database**: indezy
+- **Username**: indezy_user
+- **Password**: indezy_password
 
 ## 🚀 Deployment
 
-### Production Build
 ```bash
-# Backend
-cd backend
-./mvnw clean package -Pprod
+# Build for production
+mask build-prod
 
-# Frontend
-cd frontend
-npm run build --prod
+# Or manually (Windows)
+cd backend && ./mvnw.cmd clean package -Pprod
+cd frontend && npm run build --configuration=production
+
+# Or manually (Linux/macOS)
+cd backend && ./mvnw clean package -Pprod
+cd frontend && npm run build --configuration=production
 ```
 
-### Docker Deployment
-```bash
-# Build and deploy all services
-docker-compose -f docker-compose.prod.yml up -d
+## 📁 Project Structure
+
 ```
+indezy/
+├── .devcontainer/          # DevContainer configuration
+├── backend/                # Spring Boot backend
+│   ├── src/main/java/      # Java source code
+│   ├── src/main/resources/ # Configuration files
+│   └── pom.xml            # Maven dependencies
+├── frontend/               # Angular frontend
+│   ├── src/app/           # Angular application
+│   ├── src/assets/        # Static assets
+│   └── package.json       # NPM dependencies
+├── database/              # Database initialization scripts
+├── maskfile.md            # Development commands (Mask file)
+├── docker-compose.yml     # Docker services
+└── README.md             # This file
+```
+
+## 🔍 Development Workflow
+
+### URLs
+- **Frontend**: http://localhost:4200
+- **Backend API**: http://localhost:8080/api
+- **Swagger Documentation**: http://localhost:8080/api/swagger-ui.html
+- **Database**: localhost:5432
+
+### Code Quality Tools
+- **Backend**: Maven Checkstyle, SpotBugs, JaCoCo (60% coverage)
+- **Frontend**: ESLint, Prettier, Angular CLI linting (60% coverage)
+- **Testing**: JUnit 5 + Mockito, Jasmine + Karma
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+1. **Port conflicts**: Ensure ports 4200, 8080, and 5432 are available
+2. **Database connection**: Check PostgreSQL is running (`mask status`)
+3. **CORS issues**: Verify frontend URL in backend CORS configuration
+4. **OAuth setup**: Confirm OAuth client IDs and secrets are configured
+
+### Useful Commands
+```bash
+mask status           # Check application status
+mask docker-logs      # View Docker logs
+mask clean           # Clean build artifacts
+mask dev-reset       # Reset entire development environment
+```
+
+### Logs
+- **Backend**: Spring Boot console output
+- **Frontend**: Browser developer console
+- **Database**: `docker-compose logs postgres`
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Run tests: `mask test`
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+### Development Guidelines
+- Use `mask` commands for consistency across platforms
+- Maintain 60% test coverage for both frontend and backend
+- Follow existing code style and conventions
+- Update documentation for API changes
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Author
+
+**Zaid Chefchaouni** - [byteworks.dev](https://byteworks.dev)
+- GitHub: [@chefzaid](https://github.com/chefzaid)
+- Email: c.zaid@outlook.com
 
 ## 🙏 Acknowledgments
 
