@@ -12,21 +12,20 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ContactDto } from '../../../services/contact.service';
 
 @Component({
-  selector: 'app-contact-view-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCardModule,
-    MatChipsModule,
-    MatDividerModule,
-    MatTooltipModule,
-    MatSnackBarModule
-  ],
-  templateUrl: './contact-view-dialog.component.html',
-  styleUrls: ['./contact-view-dialog.component.scss']
+    selector: 'app-contact-view-dialog',
+    imports: [
+        CommonModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatIconModule,
+        MatCardModule,
+        MatChipsModule,
+        MatDividerModule,
+        MatTooltipModule,
+        MatSnackBarModule
+    ],
+    templateUrl: './contact-view-dialog.component.html',
+    styleUrls: ['./contact-view-dialog.component.scss']
 })
 export class ContactViewDialogComponent {
   constructor(

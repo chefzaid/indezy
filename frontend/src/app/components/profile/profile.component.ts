@@ -20,30 +20,29 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { UserManagementService, UserProfile, UserPreferences, UserNotificationSettings, PasswordChangeRequest } from '../../services/user-management.service';
 
 @Component({
-  selector: 'app-profile',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTabsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatSlideToggleModule,
-    MatChipsModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    MatListModule,
-    MatDialogModule
-  ],
-  templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss']
+    selector: 'app-profile',
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTabsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatSlideToggleModule,
+        MatChipsModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
+        MatDividerModule,
+        MatListModule,
+        MatDialogModule
+    ],
+    templateUrl: './profile.component.html',
+    styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
   userProfile: UserProfile | null = null;

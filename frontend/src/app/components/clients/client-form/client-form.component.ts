@@ -22,28 +22,27 @@ import { ClientService, ClientDto, CreateClientDto, UpdateClientDto } from '../.
 import { ContactService, ContactDto } from '../../../services/contact.service';
 
 @Component({
-  selector: 'app-client-form',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    MatTableModule,
-    MatMenuModule,
-    MatDialogModule,
-    MatChipsModule,
-    MatDividerModule
-  ],
-  templateUrl: './client-form.component.html',
-  styleUrls: ['./client-form.component.scss']
+    selector: 'app-client-form',
+    imports: [
+        CommonModule,
+        RouterModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatTabsModule,
+        MatTableModule,
+        MatMenuModule,
+        MatDialogModule,
+        MatChipsModule,
+        MatDividerModule
+    ],
+    templateUrl: './client-form.component.html',
+    styleUrls: ['./client-form.component.scss']
 })
 export class ClientFormComponent implements OnInit, OnDestroy {
   clientForm: FormGroup;

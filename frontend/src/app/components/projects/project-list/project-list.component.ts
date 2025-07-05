@@ -21,30 +21,29 @@ import { ProjectService, ProjectDto } from '../../../services/project.service';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
-  selector: 'app-project-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSliderModule,
-    MatCheckboxModule,
-    MatExpansionModule,
-    MatDividerModule
-  ],
-  templateUrl: './project-list.component.html',
-  styleUrls: ['./project-list.component.scss']
+    selector: 'app-project-list',
+    imports: [
+        CommonModule,
+        RouterModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatChipsModule,
+        MatProgressSpinnerModule,
+        MatSnackBarModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatSliderModule,
+        MatCheckboxModule,
+        MatExpansionModule,
+        MatDividerModule
+    ],
+    templateUrl: './project-list.component.html',
+    styleUrls: ['./project-list.component.scss']
 })
 export class ProjectListComponent implements OnInit {
   projects: ProjectDto[] = [];

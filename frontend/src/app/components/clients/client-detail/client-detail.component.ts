@@ -19,24 +19,23 @@ import { ContactService, ContactDto } from '../../../services/contact.service';
 
 
 @Component({
-  selector: 'app-client-detail',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
-    MatDividerModule,
-    MatProgressSpinnerModule,
-    MatTableModule,
-    MatTabsModule,
-    MatMenuModule,
-    MatDialogModule
-  ],
-  templateUrl: './client-detail.component.html',
-  styleUrls: ['./client-detail.component.scss']
+    selector: 'app-client-detail',
+    imports: [
+        CommonModule,
+        RouterModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatChipsModule,
+        MatDividerModule,
+        MatProgressSpinnerModule,
+        MatTableModule,
+        MatTabsModule,
+        MatMenuModule,
+        MatDialogModule
+    ],
+    templateUrl: './client-detail.component.html',
+    styleUrls: ['./client-detail.component.scss']
 })
 export class ClientDetailComponent implements OnInit, OnDestroy {
   client?: ClientDto;

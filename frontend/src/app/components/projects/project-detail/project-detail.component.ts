@@ -13,20 +13,19 @@ import { Subject, takeUntil } from 'rxjs';
 import { ProjectService, ProjectDto } from '../../../services/project.service';
 
 @Component({
-  selector: 'app-project-detail',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
-    MatDividerModule
-  ],
-  templateUrl: './project-detail.component.html',
-  styleUrls: ['./project-detail.component.scss']
+    selector: 'app-project-detail',
+    imports: [
+        CommonModule,
+        RouterModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatChipsModule,
+        MatProgressSpinnerModule,
+        MatDividerModule
+    ],
+    templateUrl: './project-detail.component.html',
+    styleUrls: ['./project-detail.component.scss']
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {
   project?: ProjectDto;

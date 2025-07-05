@@ -4,14 +4,13 @@ import { RouterModule } from '@angular/router';
 import { ErrorDisplayComponent, ErrorDisplayConfig } from '../../../shared/components/error-display/error-display.component';
 
 @Component({
-  selector: 'app-not-found',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    ErrorDisplayComponent
-  ],
-  template: `
+    selector: 'app-not-found',
+    imports: [
+        CommonModule,
+        RouterModule,
+        ErrorDisplayComponent
+    ],
+    template: `
     <div class="not-found-container">
       <app-error-display 
         [config]="errorConfig"
@@ -19,7 +18,7 @@ import { ErrorDisplayComponent, ErrorDisplayConfig } from '../../../shared/compo
       </app-error-display>
     </div>
   `,
-  styles: [`
+    styles: [`
     .not-found-container {
       min-height: 100vh;
       display: flex;

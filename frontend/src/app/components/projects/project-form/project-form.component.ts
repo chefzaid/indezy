@@ -19,24 +19,23 @@ import { ClientService, ClientDto } from '../../../services/client.service';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
-  selector: 'app-project-form',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatProgressSpinnerModule
-  ],
-  templateUrl: './project-form.component.html',
-  styleUrls: ['./project-form.component.scss']
+    selector: 'app-project-form',
+    imports: [
+        CommonModule,
+        RouterModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatProgressSpinnerModule
+    ],
+    templateUrl: './project-form.component.html',
+    styleUrls: ['./project-form.component.scss']
 })
 export class ProjectFormComponent implements OnInit, OnDestroy {
   projectForm: FormGroup;

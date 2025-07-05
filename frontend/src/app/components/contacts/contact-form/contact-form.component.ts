@@ -16,23 +16,21 @@ import { ContactService, ContactDto } from '../../../services/contact.service';
 import { ClientService, ClientDto } from '../../../services/client.service';
 
 @Component({
-  selector: 'app-contact-form',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatProgressSpinnerModule,
-
-  ],
-  templateUrl: './contact-form.component.html',
-  styleUrls: ['./contact-form.component.scss']
+    selector: 'app-contact-form',
+    imports: [
+        CommonModule,
+        RouterModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatProgressSpinnerModule,
+    ],
+    templateUrl: './contact-form.component.html',
+    styleUrls: ['./contact-form.component.scss']
 })
 export class ContactFormComponent implements OnInit, OnDestroy {
   contactForm: FormGroup;

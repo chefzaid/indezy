@@ -4,14 +4,13 @@ import { RouterModule, Router } from '@angular/router';
 import { ErrorDisplayComponent, ErrorDisplayConfig } from '../../../shared/components/error-display/error-display.component';
 
 @Component({
-  selector: 'app-server-error',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    ErrorDisplayComponent
-  ],
-  template: `
+    selector: 'app-server-error',
+    imports: [
+        CommonModule,
+        RouterModule,
+        ErrorDisplayComponent
+    ],
+    template: `
     <div class="server-error-container">
       <app-error-display 
         [config]="errorConfig"
@@ -19,7 +18,7 @@ import { ErrorDisplayComponent, ErrorDisplayConfig } from '../../../shared/compo
       </app-error-display>
     </div>
   `,
-  styles: [`
+    styles: [`
     .server-error-container {
       min-height: 100vh;
       display: flex;

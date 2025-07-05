@@ -13,21 +13,19 @@ import { Subject, takeUntil } from 'rxjs';
 import { ContactService, ContactDto } from '../../../services/contact.service';
 
 @Component({
-  selector: 'app-contact-detail',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
-    MatDividerModule,
-
-    MatProgressSpinnerModule
-  ],
-  templateUrl: './contact-detail.component.html',
-  styleUrls: ['./contact-detail.component.scss']
+    selector: 'app-contact-detail',
+    imports: [
+        CommonModule,
+        RouterModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatChipsModule,
+        MatDividerModule,
+        MatProgressSpinnerModule
+    ],
+    templateUrl: './contact-detail.component.html',
+    styleUrls: ['./contact-detail.component.scss']
 })
 export class ContactDetailComponent implements OnInit, OnDestroy {
   contact?: ContactDto;

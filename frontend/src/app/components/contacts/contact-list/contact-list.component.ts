@@ -19,26 +19,24 @@ import { ContactService, ContactDto } from '../../../services/contact.service';
 import { ClientService, ClientDto } from '../../../services/client.service';
 
 @Component({
-  selector: 'app-contact-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    FormsModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatChipsModule,
-    MatCardModule,
-    MatProgressSpinnerModule,
-
-    MatDialogModule
-  ],
-  templateUrl: './contact-list.component.html',
-  styleUrls: ['./contact-list.component.scss']
+    selector: 'app-contact-list',
+    imports: [
+        CommonModule,
+        RouterModule,
+        FormsModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatChipsModule,
+        MatCardModule,
+        MatProgressSpinnerModule,
+        MatDialogModule
+    ],
+    templateUrl: './contact-list.component.html',
+    styleUrls: ['./contact-list.component.scss']
 })
 export class ContactListComponent implements OnInit, OnDestroy {
   contacts: ContactDto[] = [];

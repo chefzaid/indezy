@@ -26,33 +26,32 @@ import { ContactService } from '../../../services/contact.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 
 @Component({
-  selector: 'app-client-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCardModule,
-    MatChipsModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatDialogModule,
-    MatProgressSpinnerModule,
-    MatExpansionModule,
-    MatDividerModule,
-    MatSliderModule,
-    MatCheckboxModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    LoadingComponent
-  ],
-  templateUrl: './client-list.component.html',
-  styleUrls: ['./client-list.component.scss']
+    selector: 'app-client-list',
+    imports: [
+        CommonModule,
+        RouterModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatCardModule,
+        MatChipsModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatDialogModule,
+        MatProgressSpinnerModule,
+        MatExpansionModule,
+        MatDividerModule,
+        MatSliderModule,
+        MatCheckboxModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        LoadingComponent
+    ],
+    templateUrl: './client-list.component.html',
+    styleUrls: ['./client-list.component.scss']
 })
 export class ClientListComponent implements OnInit, OnDestroy {
   clients: ClientDto[] = [];

@@ -16,16 +16,15 @@ export interface ErrorDisplayConfig {
 }
 
 @Component({
-  selector: 'app-error-display',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCardModule,
-    RouterModule
-  ],
-  template: `
+    selector: 'app-error-display',
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatIconModule,
+        MatCardModule,
+        RouterModule
+    ],
+    template: `
     <div class="error-container">
       <mat-card class="error-card">
         <mat-card-content>
@@ -64,7 +63,7 @@ export interface ErrorDisplayConfig {
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .error-container {
       display: flex;
       justify-content: center;

@@ -4,14 +4,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-loading',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatProgressSpinnerModule,
-    MatIconModule
-  ],
-  template: `
+    selector: 'app-loading',
+    imports: [
+        CommonModule,
+        MatProgressSpinnerModule,
+        MatIconModule
+    ],
+    template: `
     <div class="loading-container" [class.fullscreen]="fullscreen">
       <div class="loading-content">
         <div class="loading-logo" *ngIf="showLogo">
@@ -31,7 +30,7 @@ import { MatIconModule } from '@angular/material/icon';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .loading-container {
       display: flex;
       justify-content: center;
