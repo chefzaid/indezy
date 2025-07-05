@@ -17,7 +17,7 @@
             font-size: 1.5rem;
             width: 1.5rem;
             height: 1.5rem;
-            color: var(--mdc-theme-primary, #1976d2);
+            color: var(--mat-theme-primary, #1976d2);
           }
         }
       }
@@ -48,7 +48,7 @@
             font-size: 1.1rem;
             font-weight: 500;
             color: rgba(0, 0, 0, 0.8);
-            border-bottom: 2px solid var(--mdc-theme-primary, #1976d2);
+            border-bottom: 2px solid var(--mat-theme-primary, #1976d2);
             padding-bottom: 8px;
           }
           
@@ -132,7 +132,7 @@
     }
     
     &.mat-focused .mat-mdc-form-field-outline {
-      color: var(--mdc-theme-primary, #1976d2);
+      color: var(--mat-theme-primary, #1976d2);
     }
     
     &.mat-form-field-invalid .mat-mdc-form-field-outline {
@@ -145,7 +145,7 @@
   }
   
   &.mat-focused .mat-mdc-form-field-label {
-    color: var(--mdc-theme-primary, #1976d2);
+    color: var(--mat-theme-primary, #1976d2);
   }
   
   &.mat-form-field-invalid .mat-mdc-form-field-label {
@@ -176,7 +176,7 @@
 // Button styling
 .mat-mdc-raised-button {
   &.mat-primary {
-    background-color: var(--mdc-theme-primary, #1976d2);
+    background-color: var(--mat-theme-primary, #1976d2);
     color: white;
     
     &:disabled {

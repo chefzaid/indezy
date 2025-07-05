@@ -160,7 +160,7 @@ textarea.mat-mdc-input-element {
 // Button styling
 .mat-mdc-raised-button {
   &.mat-primary {
-    background-color: var(--mdc-theme-primary, #1976d2);
+    background-color: var(--mat-theme-primary, #1976d2);
     color: white;
     
     &:disabled {

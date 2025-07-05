@@ -276,14 +276,14 @@
             }
             
             &:hover {
-              color: var(--mdc-theme-primary, #1976d2);
+              color: var(--mat-theme-primary, #1976d2);
             }
           }
         }
         
         .email-link,
         .phone-link {
-          color: var(--mdc-theme-primary, #1976d2);
+          color: var(--mat-theme-primary, #1976d2);
           text-decoration: none;
           
           &:hover {
