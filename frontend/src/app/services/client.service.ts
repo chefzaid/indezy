@@ -4,23 +4,38 @@ import { delay, map } from 'rxjs/operators';
 
 export interface ClientDto {
   id: number;
-  name: string;
-  industry: string;
+  companyName: string;
   address?: string;
-  website?: string;
+  city: string;
+  domain?: string;
+  isFinal: boolean;
   notes?: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'PROSPECT';
-  createdAt: Date;
-  updatedAt: Date;
+  freelanceId?: number;
+  totalProjects?: number;
+  totalContacts?: number;
+  averageProjectRating?: number;
+  // Legacy properties for compatibility
+  name?: string;
+  industry?: string;
+  website?: string;
+  status?: 'ACTIVE' | 'INACTIVE' | 'PROSPECT';
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface CreateClientDto {
-  name: string;
-  industry: string;
+  companyName: string;
   address?: string;
-  website?: string;
+  city: string;
+  domain?: string;
+  isFinal: boolean;
   notes?: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'PROSPECT';
+  freelanceId?: number;
+  // Legacy properties for compatibility
+  name?: string;
+  industry?: string;
+  website?: string;
+  status?: 'ACTIVE' | 'INACTIVE' | 'PROSPECT';
 }
 
 export interface UpdateClientDto extends Partial<CreateClientDto> {
@@ -43,41 +58,70 @@ export class ClientService {
     const mockClients: ClientDto[] = [
       {
         id: 1,
+        companyName: 'TechCorp Solutions',
+        city: 'Paris',
+        address: '123 Avenue des Champs-Élysées, 75008 Paris',
+        domain: 'https://techcorp.fr',
+        isFinal: true,
+        notes: 'Client principal, projets récurrents',
+        totalProjects: 5,
+        totalContacts: 3,
+        averageProjectRating: 4.5,
+        // Legacy properties for compatibility
         name: 'TechCorp Solutions',
         industry: 'Technology',
-        address: '123 Avenue des Champs-Élysées, 75008 Paris',
         website: 'https://techcorp.fr',
-        notes: 'Client principal, projets récurrents',
         status: 'ACTIVE',
         createdAt: new Date('2024-01-15'),
         updatedAt: new Date('2024-06-20')
       },
       {
         id: 2,
+        companyName: 'StartupInnovate',
+        city: 'Paris',
+        address: '45 Rue de Rivoli, 75001 Paris',
+        domain: 'https://startupinnovate.com',
+        isFinal: false,
+        notes: 'Startup prometteuse, budget limité',
+        totalProjects: 2,
+        totalContacts: 2,
+        averageProjectRating: 4.0,
+        // Legacy properties for compatibility
         name: 'StartupInnovate',
         industry: 'Fintech',
-        address: '45 Rue de Rivoli, 75001 Paris',
         website: 'https://startupinnovate.com',
-        notes: 'Startup prometteuse, budget limité',
         status: 'ACTIVE',
         createdAt: new Date('2024-02-10'),
         updatedAt: new Date('2024-06-15')
       },
       {
         id: 3,
+        companyName: 'E-Commerce Plus',
+        city: 'Paris',
+        address: '78 Boulevard Saint-Germain, 75006 Paris',
+        isFinal: false,
+        totalProjects: 0,
+        totalContacts: 1,
+        // Legacy properties for compatibility
         name: 'E-Commerce Plus',
         industry: 'E-commerce',
-        address: '78 Boulevard Saint-Germain, 75006 Paris',
         status: 'PROSPECT',
         createdAt: new Date('2024-06-01'),
         updatedAt: new Date('2024-06-01')
       },
       {
         id: 4,
+        companyName: 'ConsultingPro',
+        city: 'Paris',
+        address: '12 Place Vendôme, 75001 Paris',
+        isFinal: true,
+        notes: 'Client exigeant mais bien payeur',
+        totalProjects: 1,
+        totalContacts: 2,
+        averageProjectRating: 3.5,
+        // Legacy properties for compatibility
         name: 'ConsultingPro',
         industry: 'Consulting',
-        address: '12 Place Vendôme, 75001 Paris',
-        notes: 'Client exigeant mais bien payeur',
         status: 'INACTIVE',
         createdAt: new Date('2023-12-01'),
         updatedAt: new Date('2024-03-15')
@@ -156,9 +200,9 @@ export class ClientService {
     return this.clients$.pipe(
       map(clients =>
         clients.filter(client =>
-          client.name.toLowerCase().includes(query.toLowerCase()) ||
-          client.industry.toLowerCase().includes(query.toLowerCase()) ||
-          (client.notes && client.notes.toLowerCase().includes(query.toLowerCase()))
+          client.name?.toLowerCase().includes(query.toLowerCase()) ||
+          client.industry?.toLowerCase().includes(query.toLowerCase()) ||
+          client.notes?.toLowerCase().includes(query.toLowerCase())
         )
       ),
       delay(300)

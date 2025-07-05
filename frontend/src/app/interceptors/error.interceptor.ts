@@ -16,10 +16,18 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         router.navigate(['/login']);
       } else if (error.status === 403) {
         // Forbidden - redirect to unauthorized page
-        router.navigate(['/unauthorized']);
+        router.navigate(['/404']);
+      } else if (error.status === 404) {
+        // Not found - redirect to 404 page
+        router.navigate(['/404']);
       } else if (error.status === 0) {
         // Network error
         console.error('Network error occurred:', error);
+        router.navigate(['/error']);
+      } else if (error.status >= 500) {
+        // Server errors - redirect to error page
+        console.error('Server error occurred:', error);
+        router.navigate(['/error']);
       } else {
         // Other HTTP errors
         console.error('HTTP error occurred:', error);

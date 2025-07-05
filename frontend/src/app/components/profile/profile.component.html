@@ -1,0 +1,539 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>
+      <mat-icon>person</mat-icon>
+      Mon Profil
+    </h1>
+    <p class="profile-subtitle">Gérez vos informations personnelles et préférences</p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Chargement du profil...</p>
+  </div>
+
+  <div *ngIf="!isLoading && userProfile" class="profile-content">
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex" class="profile-tabs">
+      
+      <!-- Profile Information Tab -->
+      <mat-tab label="Informations personnelles">
+        <div class="tab-content">
+          <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()">
+            
+            <!-- Avatar Section -->
+            <mat-card class="avatar-section">
+              <div class="avatar-container">
+                <div class="avatar-wrapper">
+                  <img [src]="userProfile.avatar || 'assets/images/default-avatar.png'" 
+                       [alt]="userProfile.firstName + ' ' + userProfile.lastName"
+                       class="user-avatar">
+                  <div class="avatar-overlay">
+                    <input type="file" 
+                           #avatarInput 
+                           (change)="onAvatarUpload($event)"
+                           accept="image/*"
+                           style="display: none;">
+                    <button type="button" 
+                            mat-icon-button 
+                            (click)="avatarInput.click()"
+                            class="avatar-edit-btn">
+                      <mat-icon>camera_alt</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="avatar-info">
+                  <h3>{{ userProfile.firstName }} {{ userProfile.lastName }}</h3>
+                  <p>{{ userProfile.position || 'Freelance' }}</p>
+                </div>
+              </div>
+            </mat-card>
+
+            <!-- Basic Information -->
+            <mat-card class="form-section">
+              <mat-card-header>
+                <mat-card-title>Informations de base</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Prénom</mat-label>
+                    <input matInput formControlName="firstName" required>
+                    <mat-error *ngIf="profileForm.get('firstName')?.hasError('required')">
+                      Le prénom est requis
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Nom</mat-label>
+                    <input matInput formControlName="lastName" required>
+                    <mat-error *ngIf="profileForm.get('lastName')?.hasError('required')">
+                      Le nom est requis
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Email</mat-label>
+                    <input matInput formControlName="email" type="email" required>
+                    <mat-error *ngIf="profileForm.get('email')?.hasError('required')">
+                      L'email est requis
+                    </mat-error>
+                    <mat-error *ngIf="profileForm.get('email')?.hasError('email')">
+                      Format d'email invalide
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Téléphone</mat-label>
+                    <input matInput formControlName="phone" type="tel">
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Date de naissance</mat-label>
+                    <input matInput [matDatepicker]="birthDatePicker" formControlName="birthDate">
+                    <mat-datepicker-toggle matIconSuffix [for]="birthDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #birthDatePicker></mat-datepicker>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Ville</mat-label>
+                    <input matInput formControlName="city">
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Adresse</mat-label>
+                  <input matInput formControlName="address">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Bio</mat-label>
+                  <textarea matInput formControlName="bio" rows="3" maxlength="500"></textarea>
+                  <mat-hint>{{ profileForm.get('bio')?.value?.length || 0 }}/500</mat-hint>
+                </mat-form-field>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Professional Information -->
+            <mat-card class="form-section">
+              <mat-card-header>
+                <mat-card-title>Informations professionnelles</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Entreprise</mat-label>
+                    <input matInput formControlName="company">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Poste</mat-label>
+                    <input matInput formControlName="position">
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Site web</mat-label>
+                    <input matInput formControlName="website" type="url">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>LinkedIn</mat-label>
+                    <input matInput formControlName="linkedin" type="url">
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>GitHub</mat-label>
+                  <input matInput formControlName="github" type="url">
+                </mat-form-field>
+
+                <!-- Skills -->
+                <div class="skills-section">
+                  <h4>Compétences</h4>
+                  <div class="chips-container">
+                    <mat-chip-set>
+                      <mat-chip *ngFor="let skill of profileForm.get('skills')?.value" 
+                               (removed)="removeSkill(skill)">
+                        {{ skill }}
+                        <button matChipRemove>
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </mat-chip>
+                    </mat-chip-set>
+                  </div>
+                  <mat-form-field appearance="outline" class="skill-input">
+                    <mat-label>Ajouter une compétence</mat-label>
+                    <mat-select (selectionChange)="addSkill($event.value)" [value]="">
+                      <mat-option *ngFor="let skill of availableSkills" 
+                                 [value]="skill"
+                                 [disabled]="profileForm.get('skills')?.value?.includes(skill)">
+                        {{ skill }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <!-- Languages -->
+                <div class="languages-section">
+                  <h4>Langues</h4>
+                  <div class="chips-container">
+                    <mat-chip-set>
+                      <mat-chip *ngFor="let language of profileForm.get('languages')?.value" 
+                               (removed)="removeLanguage(language)">
+                        {{ language }}
+                        <button matChipRemove>
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </mat-chip>
+                    </mat-chip-set>
+                  </div>
+                  <mat-form-field appearance="outline" class="language-input">
+                    <mat-label>Ajouter une langue</mat-label>
+                    <mat-select (selectionChange)="addLanguage($event.value)" [value]="">
+                      <mat-option *ngFor="let language of availableLanguages" 
+                                 [value]="language"
+                                 [disabled]="profileForm.get('languages')?.value?.includes(language)">
+                        {{ language }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Regional Settings -->
+            <mat-card class="form-section">
+              <mat-card-header>
+                <mat-card-title>Paramètres régionaux</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Fuseau horaire</mat-label>
+                    <mat-select formControlName="timezone">
+                      <mat-option *ngFor="let tz of timezones" [value]="tz">
+                        {{ tz }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Devise</mat-label>
+                    <mat-select formControlName="currency">
+                      <mat-option *ngFor="let currency of currencies" [value]="currency.value">
+                        {{ currency.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <div class="form-actions">
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit"
+                      [disabled]="profileForm.invalid || isUpdating">
+                <mat-spinner *ngIf="isUpdating" diameter="20"></mat-spinner>
+                <span *ngIf="!isUpdating">Sauvegarder</span>
+                <span *ngIf="isUpdating">Sauvegarde...</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Security Tab -->
+      <mat-tab label="Sécurité">
+        <div class="tab-content">
+          <!-- Password Change -->
+          <mat-card class="form-section">
+            <mat-card-header>
+              <mat-card-title>Changer le mot de passe</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Mot de passe actuel</mat-label>
+                  <input matInput formControlName="currentPassword" type="password" required>
+                  <mat-error *ngIf="passwordForm.get('currentPassword')?.hasError('required')">
+                    Le mot de passe actuel est requis
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Nouveau mot de passe</mat-label>
+                  <input matInput formControlName="newPassword" type="password" required>
+                  <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('required')">
+                    Le nouveau mot de passe est requis
+                  </mat-error>
+                  <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">
+                    Le mot de passe doit contenir au moins 8 caractères
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Confirmer le nouveau mot de passe</mat-label>
+                  <input matInput formControlName="confirmPassword" type="password" required>
+                  <mat-error *ngIf="passwordForm.get('confirmPassword')?.hasError('required')">
+                    La confirmation est requise
+                  </mat-error>
+                  <mat-error *ngIf="passwordForm.get('confirmPassword')?.hasError('passwordMismatch')">
+                    Les mots de passe ne correspondent pas
+                  </mat-error>
+                </mat-form-field>
+
+                <div class="form-actions">
+                  <button mat-raised-button 
+                          color="primary" 
+                          type="submit"
+                          [disabled]="passwordForm.invalid || isUpdating">
+                    <mat-spinner *ngIf="isUpdating" diameter="20"></mat-spinner>
+                    <span *ngIf="!isUpdating">Changer le mot de passe</span>
+                    <span *ngIf="isUpdating">Modification...</span>
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Preferences Tab -->
+      <mat-tab label="Préférences">
+        <div class="tab-content">
+          <form [formGroup]="preferencesForm" (ngSubmit)="onUpdatePreferences()">
+            <mat-card class="form-section">
+              <mat-card-header>
+                <mat-card-title>Préférences d'affichage</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Thème</mat-label>
+                    <mat-select formControlName="theme">
+                      <mat-option value="light">Clair</mat-option>
+                      <mat-option value="dark">Sombre</mat-option>
+                      <mat-option value="auto">Automatique</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Langue</mat-label>
+                    <mat-select formControlName="language">
+                      <mat-option value="fr">Français</mat-option>
+                      <mat-option value="en">English</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Format de date</mat-label>
+                    <mat-select formControlName="dateFormat">
+                      <mat-option value="DD/MM/YYYY">DD/MM/YYYY</mat-option>
+                      <mat-option value="MM/DD/YYYY">MM/DD/YYYY</mat-option>
+                      <mat-option value="YYYY-MM-DD">YYYY-MM-DD</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Format d'heure</mat-label>
+                    <mat-select formControlName="timeFormat">
+                      <mat-option value="24h">24 heures</mat-option>
+                      <mat-option value="12h">12 heures</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Vue par défaut</mat-label>
+                    <mat-select formControlName="defaultView">
+                      <mat-option value="dashboard">Tableau de bord</mat-option>
+                      <mat-option value="projects">Projets</mat-option>
+                      <mat-option value="clients">Clients</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Éléments par page</mat-label>
+                    <mat-select formControlName="itemsPerPage">
+                      <mat-option value="10">10</mat-option>
+                      <mat-option value="25">25</mat-option>
+                      <mat-option value="50">50</mat-option>
+                      <mat-option value="100">100</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="toggle-section">
+                  <mat-slide-toggle formControlName="autoSave">
+                    Sauvegarde automatique
+                  </mat-slide-toggle>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <div class="form-actions">
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit"
+                      [disabled]="preferencesForm.invalid || isUpdating">
+                <mat-spinner *ngIf="isUpdating" diameter="20"></mat-spinner>
+                <span *ngIf="!isUpdating">Sauvegarder</span>
+                <span *ngIf="isUpdating">Sauvegarde...</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Notifications Tab -->
+      <mat-tab label="Notifications">
+        <div class="tab-content">
+          <form [formGroup]="notificationForm" (ngSubmit)="onUpdateNotifications()">
+            <mat-card class="form-section">
+              <mat-card-header>
+                <mat-card-title>Paramètres de notification</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="notification-settings">
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="emailNotifications">
+                      Notifications par email
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      Recevoir des notifications importantes par email
+                    </p>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="pushNotifications">
+                      Notifications push
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      Recevoir des notifications push dans le navigateur
+                    </p>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="projectUpdates">
+                      Mises à jour de projets
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      Être notifié des changements sur vos projets
+                    </p>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="clientMessages">
+                      Messages clients
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      Recevoir les messages de vos clients
+                    </p>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="systemAlerts">
+                      Alertes système
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      Alertes importantes du système
+                    </p>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="weeklyReports">
+                      Rapports hebdomadaires
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      Recevoir un résumé hebdomadaire de votre activité
+                    </p>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="marketingEmails">
+                      Emails marketing
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      Recevoir des informations sur les nouvelles fonctionnalités
+                    </p>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <div class="form-actions">
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit"
+                      [disabled]="notificationForm.invalid || isUpdating">
+                <mat-spinner *ngIf="isUpdating" diameter="20"></mat-spinner>
+                <span *ngIf="!isUpdating">Sauvegarder</span>
+                <span *ngIf="isUpdating">Sauvegarde...</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Account Tab -->
+      <mat-tab label="Compte">
+        <div class="tab-content">
+          <mat-card class="form-section">
+            <mat-card-header>
+              <mat-card-title>Gestion du compte</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="account-actions">
+                <div class="action-item">
+                  <div class="action-info">
+                    <h4>Exporter mes données</h4>
+                    <p>Télécharger une copie de toutes vos données</p>
+                  </div>
+                  <button mat-stroked-button (click)="onExportData()">
+                    <mat-icon>download</mat-icon>
+                    Exporter
+                  </button>
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <div class="action-item danger">
+                  <div class="action-info">
+                    <h4>Supprimer mon compte</h4>
+                    <p>Supprimer définitivement votre compte et toutes vos données</p>
+                  </div>
+                  <button mat-stroked-button color="warn">
+                    <mat-icon>delete_forever</mat-icon>
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+</div>

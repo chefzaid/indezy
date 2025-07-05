@@ -12,11 +12,18 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { FormsModule } from '@angular/forms';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { ClientService, ClientDto } from '../../../services/client.service';
 import { ContactService } from '../../../services/contact.service';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 
 @Component({
   selector: 'app-client-list',
@@ -25,6 +32,7 @@ import { ContactService } from '../../../services/contact.service';
     CommonModule,
     RouterModule,
     FormsModule,
+    ReactiveFormsModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -34,8 +42,14 @@ import { ContactService } from '../../../services/contact.service';
     MatFormFieldModule,
     MatSelectModule,
     MatDialogModule,
-
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatExpansionModule,
+    MatDividerModule,
+    MatSliderModule,
+    MatCheckboxModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    LoadingComponent
   ],
   templateUrl: './client-list.component.html',
   styleUrls: ['./client-list.component.scss']
@@ -44,21 +58,78 @@ export class ClientListComponent implements OnInit, OnDestroy {
   clients: ClientDto[] = [];
   filteredClients: ClientDto[] = [];
   displayedColumns: string[] = ['name', 'industry', 'status', 'actions'];
-  
+
+  // Legacy filters (keeping for compatibility)
   searchQuery = '';
   statusFilter = 'ALL';
   searchType = 'CLIENT'; // 'CLIENT' or 'CONTACT'
   isLoading = false;
-  
+
+  // Advanced filters
+  filterForm: FormGroup;
+  showAdvancedFilters = false;
+
   private destroy$ = new Subject<void>();
   private searchSubject = new Subject<string>();
+
+  // Filter options
+  industryOptions = [
+    'Technologie', 'Finance', 'Santé', 'Éducation', 'Commerce', 'Industrie',
+    'Services', 'Immobilier', 'Transport', 'Énergie', 'Média', 'Autre'
+  ];
+
+  statusOptions = [
+    { value: 'ACTIVE', label: 'Actif' },
+    { value: 'INACTIVE', label: 'Inactif' },
+    { value: 'PROSPECT', label: 'Prospect' },
+    { value: 'ARCHIVED', label: 'Archivé' }
+  ];
+
+  projectCountRanges = [
+    { value: '0', label: 'Aucun projet' },
+    { value: '1-5', label: '1-5 projets' },
+    { value: '6-10', label: '6-10 projets' },
+    { value: '11-20', label: '11-20 projets' },
+    { value: '20+', label: '20+ projets' }
+  ];
+
+  sortOptions = [
+    { value: 'name', label: 'Nom' },
+    { value: 'industry', label: 'Secteur' },
+    { value: 'createdAt', label: 'Date de création' },
+    { value: 'lastContact', label: 'Dernier contact' },
+    { value: 'projectCount', label: 'Nombre de projets' }
+  ];
 
   constructor(
     private clientService: ClientService,
     private contactService: ContactService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private fb: FormBuilder
   ) {
+    // Initialize filter form
+    this.filterForm = this.fb.group({
+      // Basic filters
+      searchQuery: [''],
+      searchType: ['CLIENT'],
+      status: ['ALL'],
+
+      // Advanced filters
+      industry: [''],
+      location: [''],
+      projectCountRange: [''],
+      createdDateFrom: [''],
+      createdDateTo: [''],
+      lastContactFrom: [''],
+      lastContactTo: [''],
+      selectedIndustries: [[]],
+
+      // Sorting
+      sortBy: ['name'],
+      sortOrder: ['asc']
+    });
+
     // Setup search debouncing
     this.searchSubject.pipe(
       debounceTime(300),
@@ -66,6 +137,14 @@ export class ClientListComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(query => {
       this.performSearch(query);
+    });
+
+    // Setup form value changes
+    this.filterForm.valueChanges.pipe(
+      debounceTime(300),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.applyAdvancedFilters();
     });
   }
 
@@ -200,5 +279,216 @@ export class ClientListComponent implements OnInit, OnDestroy {
       default:
         return status;
     }
+  }
+
+  // Advanced filtering methods
+  applyAdvancedFilters(): void {
+    const filters = this.filterForm.value;
+
+    let filtered = this.clients.filter(client => {
+      // Search query filter
+      if (filters.searchQuery && filters.searchQuery.trim()) {
+        const query = filters.searchQuery.toLowerCase();
+        const searchableText = [
+          client.companyName || client.name,
+          client.industry,
+          client.notes,
+          client.address,
+          client.domain
+        ].filter(Boolean).join(' ').toLowerCase();
+
+        if (!searchableText.includes(query)) {
+          return false;
+        }
+      }
+
+      // Status filter
+      if (filters.status && filters.status !== 'ALL' && client.status !== filters.status) {
+        return false;
+      }
+
+      // Industry filter
+      if (filters.industry && client.industry !== filters.industry) {
+        return false;
+      }
+
+      // Selected industries filter (multi-select)
+      if (filters.selectedIndustries && filters.selectedIndustries.length > 0) {
+        if (!filters.selectedIndustries.includes(client.industry)) {
+          return false;
+        }
+      }
+
+      // Location filter
+      if (filters.location && filters.location.trim()) {
+        const locationQuery = filters.location.toLowerCase();
+        const clientLocation = [client.address, client.city]
+          .filter(Boolean).join(' ').toLowerCase();
+        if (!clientLocation.includes(locationQuery)) {
+          return false;
+        }
+      }
+
+      // Project count range filter
+      if (filters.projectCountRange && client.totalProjects !== undefined) {
+        const projectCount = client.totalProjects;
+        switch (filters.projectCountRange) {
+          case '0':
+            if (projectCount !== 0) return false;
+            break;
+          case '1-5':
+            if (projectCount < 1 || projectCount > 5) return false;
+            break;
+          case '6-10':
+            if (projectCount < 6 || projectCount > 10) return false;
+            break;
+          case '11-20':
+            if (projectCount < 11 || projectCount > 20) return false;
+            break;
+          case '20+':
+            if (projectCount < 20) return false;
+            break;
+        }
+      }
+
+      // Date filters
+      if (filters.createdDateFrom && client.createdAt) {
+        const createdDate = new Date(client.createdAt);
+        const filterDate = new Date(filters.createdDateFrom);
+        if (createdDate < filterDate) {
+          return false;
+        }
+      }
+
+      if (filters.createdDateTo && client.createdAt) {
+        const createdDate = new Date(client.createdAt);
+        const filterDate = new Date(filters.createdDateTo);
+        if (createdDate > filterDate) {
+          return false;
+        }
+      }
+
+      // TODO: Implement lastContactDate filtering when backend supports it
+      // if (filters.lastContactFrom && client.lastContactDate) {
+      //   const lastContactDate = new Date(client.lastContactDate);
+      //   const filterDate = new Date(filters.lastContactFrom);
+      //   if (lastContactDate < filterDate) {
+      //     return false;
+      //   }
+      // }
+
+      // if (filters.lastContactTo && client.lastContactDate) {
+      //   const lastContactDate = new Date(client.lastContactDate);
+      //   const filterDate = new Date(filters.lastContactTo);
+      //   if (lastContactDate > filterDate) {
+      //     return false;
+      //   }
+      // }
+
+      return true;
+    });
+
+    // Apply sorting
+    if (filters.sortBy) {
+      filtered = this.sortClients(filtered, filters.sortBy, filters.sortOrder);
+    }
+
+    this.filteredClients = filtered;
+  }
+
+  private sortClients(clients: ClientDto[], sortBy: string, sortOrder: string): ClientDto[] {
+    return clients.sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortBy) {
+        case 'name':
+          aValue = a.name?.toLowerCase() || '';
+          bValue = b.name?.toLowerCase() || '';
+          break;
+        case 'industry':
+          aValue = a.industry?.toLowerCase() || '';
+          bValue = b.industry?.toLowerCase() || '';
+          break;
+        case 'createdAt':
+          aValue = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          bValue = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          break;
+        case 'lastContact':
+          // TODO: Implement when backend supports lastContactDate
+          aValue = 0;
+          bValue = 0;
+          break;
+        case 'projectCount':
+          aValue = a.totalProjects || 0;
+          bValue = b.totalProjects || 0;
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) {
+        return sortOrder === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortOrder === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  toggleAdvancedFilters(): void {
+    this.showAdvancedFilters = !this.showAdvancedFilters;
+  }
+
+  addIndustry(industry: string): void {
+    const selectedIndustries = this.filterForm.get('selectedIndustries')?.value || [];
+    if (!selectedIndustries.includes(industry)) {
+      selectedIndustries.push(industry);
+      this.filterForm.get('selectedIndustries')?.setValue([...selectedIndustries]);
+    }
+  }
+
+  removeIndustry(industry: string): void {
+    const selectedIndustries = this.filterForm.get('selectedIndustries')?.value || [];
+    const index = selectedIndustries.indexOf(industry);
+    if (index >= 0) {
+      selectedIndustries.splice(index, 1);
+      this.filterForm.get('selectedIndustries')?.setValue([...selectedIndustries]);
+    }
+  }
+
+  clearAdvancedFilters(): void {
+    this.filterForm.reset({
+      searchQuery: '',
+      searchType: 'CLIENT',
+      status: 'ALL',
+      sortBy: 'name',
+      sortOrder: 'asc'
+    });
+    this.applyAdvancedFilters();
+  }
+
+  getFilterCount(): number {
+    const filters = this.filterForm.value;
+    let count = 0;
+
+    if (filters.searchQuery?.trim()) count++;
+    if (filters.status && filters.status !== 'ALL') count++;
+    if (filters.industry) count++;
+    if (filters.selectedIndustries?.length > 0) count++;
+    if (filters.location?.trim()) count++;
+    if (filters.projectCountRange) count++;
+    if (filters.createdDateFrom) count++;
+    if (filters.createdDateTo) count++;
+    if (filters.lastContactFrom) count++;
+    if (filters.lastContactTo) count++;
+
+    return count;
+  }
+
+  editClient(client: ClientDto): void {
+    // Navigate to edit form or open edit dialog
+    console.log('Edit client:', client);
   }
 }

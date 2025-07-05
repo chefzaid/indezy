@@ -40,9 +40,7 @@ export class AppComponent implements OnInit {
     { label: 'Tableau de bord', route: '/dashboard', icon: 'dashboard' },
     { label: 'Projets', route: '/projects', icon: 'work' },
     { label: 'Clients', route: '/clients', icon: 'business' },
-    { label: 'Sources', route: '/sources', icon: 'source' },
-    { label: 'Kanban', route: '/kanban', icon: 'view_kanban' },
-    { label: 'Profil', route: '/profile', icon: 'person' }
+    { label: 'Sources', route: '/sources', icon: 'source' }
   ];
 
   constructor(

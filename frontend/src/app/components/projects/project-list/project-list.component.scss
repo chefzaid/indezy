@@ -33,10 +33,112 @@
   margin-bottom: 24px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  mat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .filter-count {
+        background-color: var(--mat-primary-500);
+        color: white;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+
+      .toggle-advanced-btn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .clear-filters-btn {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+    }
+  }
 }
 
 .filters-form {
   margin-top: 16px;
+
+  .filter-section {
+    margin-bottom: 16px;
+  }
+
+  .advanced-filters {
+    margin-top: 16px;
+    box-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+
+    .advanced-filter-content {
+      padding: 16px 0;
+
+      .filter-group {
+        margin-bottom: 24px;
+
+        h4 {
+          margin: 0 0 16px 0;
+          font-size: 1rem;
+          font-weight: 500;
+          color: var(--mat-primary-600);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          &::before {
+            content: '';
+            width: 3px;
+            height: 16px;
+            background-color: var(--mat-primary-500);
+            border-radius: 2px;
+          }
+        }
+
+        .tech-stack-section {
+          .selected-tech-chips {
+            margin-bottom: 16px;
+
+            mat-chip-set {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 8px;
+            }
+
+            mat-chip {
+              background-color: var(--mat-primary-100);
+              color: var(--mat-primary-700);
+            }
+          }
+
+          .tech-select-field {
+            margin-right: 16px;
+            min-width: 250px;
+          }
+        }
+      }
+
+      mat-divider {
+        margin: 24px 0;
+      }
+    }
+  }
 }
 
 .filter-row {
@@ -44,11 +146,17 @@
   gap: 16px;
   align-items: flex-end;
   flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
 .filter-field {
-  min-width: 150px;
+  min-width: 200px;
   flex: 1;
+
+  &.search-field {
+    min-width: 300px;
+    flex: 2;
+  }
 }
 
 .clear-filters-btn {

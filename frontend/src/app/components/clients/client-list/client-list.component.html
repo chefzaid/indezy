@@ -11,40 +11,186 @@
     </mat-card-header>
     
     <mat-card-content>
+      <!-- Basic Filters -->
+      <div class="filters-section" [formGroup]="filterForm">
+        <div class="basic-filters">
+          <div class="filter-row">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Rechercher</mat-label>
+              <input matInput
+                     formControlName="searchQuery"
+                     placeholder="Nom, secteur, adresse, email...">
+              <mat-icon matPrefix>search</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="status-filter">
+              <mat-label>Statut</mat-label>
+              <mat-select formControlName="status">
+                <mat-option value="ALL">Tous les statuts</mat-option>
+                <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                  {{ status.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="sort-field">
+              <mat-label>Trier par</mat-label>
+              <mat-select formControlName="sortBy">
+                <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+                  {{ option.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="sort-order-field">
+              <mat-label>Ordre</mat-label>
+              <mat-select formControlName="sortOrder">
+                <mat-option value="asc">Croissant</mat-option>
+                <mat-option value="desc">Décroissant</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="filter-actions">
+            <button mat-button
+                    (click)="toggleAdvancedFilters()"
+                    class="advanced-toggle">
+              <mat-icon>{{ showAdvancedFilters ? 'expand_less' : 'expand_more' }}</mat-icon>
+              Filtres avancés
+              <span class="filter-count" *ngIf="getFilterCount() > 0">({{ getFilterCount() }})</span>
+            </button>
+
+            <button mat-button
+                    (click)="clearAdvancedFilters()"
+                    *ngIf="getFilterCount() > 0"
+                    class="clear-filters">
+              <mat-icon>clear</mat-icon>
+              Effacer
+            </button>
+          </div>
+        </div>
+
+        <!-- Advanced Filters -->
+        <mat-expansion-panel [expanded]="showAdvancedFilters" class="advanced-filters">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>tune</mat-icon>
+              Filtres avancés
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="advanced-filter-content">
+            <!-- Industry Filters -->
+            <div class="filter-group">
+              <h4>Secteur d'activité</h4>
+              <div class="filter-row">
+                <mat-form-field appearance="outline" class="industry-select">
+                  <mat-label>Secteur principal</mat-label>
+                  <mat-select formControlName="industry">
+                    <mat-option value="">Tous les secteurs</mat-option>
+                    <mat-option *ngFor="let industry of industryOptions" [value]="industry">
+                      {{ industry }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="industry-multi-select">
+                  <mat-label>Ajouter un secteur</mat-label>
+                  <mat-select #industrySelect>
+                    <mat-option *ngFor="let industry of industryOptions"
+                               [value]="industry"
+                               (click)="addIndustry(industry)">
+                      {{ industry }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="selected-industries" *ngIf="filterForm.get('selectedIndustries')?.value?.length > 0">
+                <mat-chip-listbox>
+                  <mat-chip-option *ngFor="let industry of filterForm.get('selectedIndustries')?.value"
+                                   (removed)="removeIndustry(industry)">
+                    {{ industry }}
+                    <mat-icon matChipRemove>cancel</mat-icon>
+                  </mat-chip-option>
+                </mat-chip-listbox>
+              </div>
+            </div>
+
+            <!-- Location and Project Count -->
+            <div class="filter-group">
+              <h4>Localisation et projets</h4>
+              <div class="filter-row">
+                <mat-form-field appearance="outline" class="location-field">
+                  <mat-label>Localisation</mat-label>
+                  <input matInput
+                         formControlName="location"
+                         placeholder="Ville, région, pays...">
+                  <mat-icon matPrefix>location_on</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="project-count-field">
+                  <mat-label>Nombre de projets</mat-label>
+                  <mat-select formControlName="projectCountRange">
+                    <mat-option value="">Tous</mat-option>
+                    <mat-option *ngFor="let range of projectCountRanges" [value]="range.value">
+                      {{ range.label }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Date Filters -->
+            <div class="filter-group">
+              <h4>Dates</h4>
+              <div class="filter-row">
+                <mat-form-field appearance="outline" class="date-field">
+                  <mat-label>Créé après le</mat-label>
+                  <input matInput
+                         [matDatepicker]="createdFromPicker"
+                         formControlName="createdDateFrom">
+                  <mat-datepicker-toggle matIconSuffix [for]="createdFromPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #createdFromPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="date-field">
+                  <mat-label>Créé avant le</mat-label>
+                  <input matInput
+                         [matDatepicker]="createdToPicker"
+                         formControlName="createdDateTo">
+                  <mat-datepicker-toggle matIconSuffix [for]="createdToPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #createdToPicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+
+              <div class="filter-row">
+                <mat-form-field appearance="outline" class="date-field">
+                  <mat-label>Dernier contact après le</mat-label>
+                  <input matInput
+                         [matDatepicker]="lastContactFromPicker"
+                         formControlName="lastContactFrom">
+                  <mat-datepicker-toggle matIconSuffix [for]="lastContactFromPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #lastContactFromPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="date-field">
+                  <mat-label>Dernier contact avant le</mat-label>
+                  <input matInput
+                         [matDatepicker]="lastContactToPicker"
+                         formControlName="lastContactTo">
+                  <mat-datepicker-toggle matIconSuffix [for]="lastContactToPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #lastContactToPicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </div>
+
       <div class="actions-row">
-        <div class="search-filters">
-          <mat-form-field appearance="outline" class="search-type-field">
-            <mat-label>Rechercher par</mat-label>
-            <mat-select [(ngModel)]="searchType" (selectionChange)="onSearchTypeChange()">
-              <mat-option value="CLIENT">
-                <mat-icon>business</mat-icon>
-                Client
-              </mat-option>
-              <mat-option value="CONTACT">
-                <mat-icon>person</mat-icon>
-                Contact
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ searchType === 'CLIENT' ? 'Rechercher un client' : 'Rechercher par contact' }}</mat-label>
-            <input matInput
-                   [(ngModel)]="searchQuery"
-                   (input)="onSearchChange($any($event.target).value || '')"
-                   [placeholder]="searchType === 'CLIENT' ? 'Nom, secteur, adresse...' : 'Nom du contact, email, téléphone...'">
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="status-filter">
-            <mat-label>Statut</mat-label>
-            <mat-select [(ngModel)]="statusFilter" (selectionChange)="onStatusFilterChange()">
-              <mat-option value="ALL">Tous</mat-option>
-              <mat-option value="ACTIVE">Actifs</mat-option>
-              <mat-option value="INACTIVE">Inactifs</mat-option>
-              <mat-option value="PROSPECT">Prospects</mat-option>
-            </mat-select>
-          </mat-form-field>
+        <div class="results-info">
+          <span class="results-count">{{ filteredClients.length }} client(s) trouvé(s)</span>
         </div>
         
         <button mat-raised-button color="primary" routerLink="/clients/create">
@@ -57,10 +203,11 @@
 
   <mat-card class="table-card">
     <mat-card-content>
-      <div *ngIf="isLoading" class="loading-container">
-        <mat-spinner></mat-spinner>
-        <p>Chargement des clients...</p>
-      </div>
+      <app-loading
+        *ngIf="isLoading"
+        message="Chargement des clients..."
+        subtitle="Veuillez patienter pendant que nous récupérons vos données">
+      </app-loading>
 
       <div *ngIf="!isLoading && filteredClients.length === 0" class="no-data">
         <mat-icon>business_center</mat-icon>

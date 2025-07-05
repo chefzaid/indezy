@@ -183,7 +183,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/clients']);
   }
 
-  getStatusColor(status: string): string {
+  getStatusColor(status?: string): string {
     switch (status) {
       case 'ACTIVE':
         return 'primary';
@@ -196,7 +196,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  getStatusLabel(status: string): string {
+  getStatusLabel(status?: string): string {
     switch (status) {
       case 'ACTIVE':
         return 'Actif';
@@ -205,11 +205,12 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
       case 'PROSPECT':
         return 'Prospect';
       default:
-        return status;
+        return status || 'N/A';
     }
   }
 
-  formatDate(date: Date): string {
+  formatDate(date?: Date): string {
+    if (!date) return 'N/A';
     return new Date(date).toLocaleDateString('fr-FR', {
       year: 'numeric',
       month: 'long',

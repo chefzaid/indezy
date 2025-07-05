@@ -16,43 +16,194 @@
   <!-- Filters -->
   <mat-card class="filters-card">
     <mat-card-header>
-      <mat-card-title>Filtres</mat-card-title>
+      <mat-card-title>
+        Filtres
+        <span *ngIf="getFilterCount() > 0" class="filter-count">({{ getFilterCount() }})</span>
+      </mat-card-title>
+      <div class="filter-actions">
+        <button mat-button (click)="toggleAdvancedFilters()" class="toggle-advanced-btn">
+          <mat-icon>{{ showAdvancedFilters ? 'expand_less' : 'expand_more' }}</mat-icon>
+          {{ showAdvancedFilters ? 'Masquer' : 'Filtres avancés' }}
+        </button>
+        <button mat-stroked-button type="button" (click)="clearFilters()" class="clear-filters-btn">
+          <mat-icon>clear</mat-icon>
+          Effacer
+        </button>
+      </div>
     </mat-card-header>
     <mat-card-content>
       <form [formGroup]="filterForm" class="filters-form">
-        <div class="filter-row">
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>TJM minimum</mat-label>
-            <input matInput type="number" formControlName="minRate" placeholder="400">
-            <span matSuffix>€</span>
-          </mat-form-field>
+        <!-- Basic Filters -->
+        <div class="filter-section">
+          <div class="filter-row">
+            <mat-form-field appearance="outline" class="filter-field search-field">
+              <mat-label>Recherche</mat-label>
+              <input matInput formControlName="searchQuery" placeholder="Nom du projet, client, technologies...">
+              <mat-icon matPrefix>search</mat-icon>
+            </mat-form-field>
 
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>TJM maximum</mat-label>
-            <input matInput type="number" formControlName="maxRate" placeholder="800">
-            <span matSuffix>€</span>
-          </mat-form-field>
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>TJM minimum</mat-label>
+              <input matInput type="number" formControlName="minRate" placeholder="400">
+              <span matSuffix>€</span>
+            </mat-form-field>
 
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Mode de travail</mat-label>
-            <mat-select formControlName="workMode">
-              <mat-option value="">Tous</mat-option>
-              <mat-option *ngFor="let mode of workModeOptions" [value]="mode.value">
-                {{ mode.label }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>TJM maximum</mat-label>
+              <input matInput type="number" formControlName="maxRate" placeholder="800">
+              <span matSuffix>€</span>
+            </mat-form-field>
 
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Technologies</mat-label>
-            <input matInput formControlName="techStack" placeholder="React, Angular...">
-          </mat-form-field>
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Mode de travail</mat-label>
+              <mat-select formControlName="workMode">
+                <mat-option value="">Tous</mat-option>
+                <mat-option *ngFor="let mode of workModeOptions" [value]="mode.value">
+                  {{ mode.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-          <button mat-stroked-button type="button" (click)="clearFilters()" class="clear-filters-btn">
-            <mat-icon>clear</mat-icon>
-            Effacer
-          </button>
+          <div class="filter-row">
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Statut</mat-label>
+              <mat-select formControlName="status">
+                <mat-option value="">Tous</mat-option>
+                <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                  {{ status.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Durée</mat-label>
+              <mat-select formControlName="duration">
+                <mat-option value="">Toutes</mat-option>
+                <mat-option *ngFor="let duration of durationOptions" [value]="duration.value">
+                  {{ duration.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Trier par</mat-label>
+              <mat-select formControlName="sortBy">
+                <mat-option *ngFor="let sort of sortOptions" [value]="sort.value">
+                  {{ sort.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Ordre</mat-label>
+              <mat-select formControlName="sortOrder">
+                <mat-option value="asc">Croissant</mat-option>
+                <mat-option value="desc">Décroissant</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
         </div>
+
+        <!-- Advanced Filters -->
+        <mat-expansion-panel [expanded]="showAdvancedFilters" class="advanced-filters">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Filtres avancés</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="advanced-filter-content">
+            <!-- Date Filters -->
+            <div class="filter-group">
+              <h4>Dates</h4>
+              <div class="filter-row">
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Début après le</mat-label>
+                  <input matInput [matDatepicker]="startFromPicker" formControlName="startDateFrom">
+                  <mat-datepicker-toggle matIconSuffix [for]="startFromPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #startFromPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Début avant le</mat-label>
+                  <input matInput [matDatepicker]="startToPicker" formControlName="startDateTo">
+                  <mat-datepicker-toggle matIconSuffix [for]="startToPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #startToPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Fin après le</mat-label>
+                  <input matInput [matDatepicker]="endFromPicker" formControlName="endDateFrom">
+                  <mat-datepicker-toggle matIconSuffix [for]="endFromPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #endFromPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Fin avant le</mat-label>
+                  <input matInput [matDatepicker]="endToPicker" formControlName="endDateTo">
+                  <mat-datepicker-toggle matIconSuffix [for]="endToPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #endToPicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <!-- Location and Client Filters -->
+            <div class="filter-group">
+              <h4>Localisation et Client</h4>
+              <div class="filter-row">
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Client</mat-label>
+                  <input matInput formControlName="client" placeholder="Nom du client">
+                  <mat-icon matPrefix>business</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Localisation</mat-label>
+                  <input matInput formControlName="location" placeholder="Ville, région...">
+                  <mat-icon matPrefix>location_on</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <!-- Technology Stack Filter -->
+            <div class="filter-group">
+              <h4>Technologies</h4>
+              <div class="tech-stack-section">
+                <div class="selected-tech-chips" *ngIf="filterForm.get('selectedTechStack')?.value?.length > 0">
+                  <mat-chip-set>
+                    <mat-chip *ngFor="let tech of filterForm.get('selectedTechStack')?.value"
+                             (removed)="removeTechStack(tech)">
+                      {{ tech }}
+                      <button matChipRemove>
+                        <mat-icon>cancel</mat-icon>
+                      </button>
+                    </mat-chip>
+                  </mat-chip-set>
+                </div>
+
+                <mat-form-field appearance="outline" class="tech-select-field">
+                  <mat-label>Ajouter une technologie</mat-label>
+                  <mat-select (selectionChange)="addTechStack($event.value); $event.source.value = ''">
+                    <mat-option *ngFor="let tech of techStackOptions"
+                               [value]="tech"
+                               [disabled]="filterForm.get('selectedTechStack')?.value?.includes(tech)">
+                      {{ tech }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Recherche libre</mat-label>
+                  <input matInput formControlName="techStack" placeholder="React, Angular...">
+                  <mat-icon matPrefix>code</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
       </form>
     </mat-card-content>
   </mat-card>

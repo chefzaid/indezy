@@ -31,4 +31,4 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Create a default admin user (optional)
 -- This would be handled by the application's user registration system
 
-COMMENT ON DATABASE indezy IS 'Indezy - Job tracking application for freelancers in France';
+COMMENT ON DATABASE indezy IS 'Indezy - Job tracking application for freelancers';
