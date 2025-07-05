@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,13 +9,10 @@ import { MatBadgeModule } from '@angular/material/badge';
 
 import { 
   AdvancedSearchFilterComponent, 
-  SearchFilterConfig,
   DateRangeFilterComponent,
-  DateRangeFilterConfig,
   DateRange,
   MultiSelectFilterComponent,
   MultiSelectOption,
-  MultiSelectFilterConfig,
   RangeSliderFilterComponent,
   RangeSliderConfig,
   RangeValue,
@@ -287,7 +284,7 @@ export class ComprehensiveFilterPanelComponent implements OnInit {
   isExpanded: boolean = true;
   visibleSections: FilterSection[] = [];
 
-  constructor(private fb: FormBuilder) {}
+  constructor() {}
 
   ngOnInit(): void {
     this.isExpanded = this.config.initiallyExpanded ?? true;
@@ -343,14 +340,14 @@ export class ComprehensiveFilterPanelComponent implements OnInit {
     }).length;
   }
 
-  private getDateRange(sectionId: string): DateRange {
+  getDateRange(sectionId: string): DateRange {
     return {
-      from: this.currentFilters[`${sectionId}_from`] || null,
-      to: this.currentFilters[`${sectionId}_to`] || null
+      from: this.currentFilters[`${sectionId}_from`] ?? null,
+      to: this.currentFilters[`${sectionId}_to`] ?? null
     };
   }
 
-  private getRangeValue(sectionId: string): RangeValue {
+  getRangeValue(sectionId: string): RangeValue {
     const section = this.config.sections.find(s => s.id === sectionId);
     const config = section?.config as RangeSliderConfig;
     

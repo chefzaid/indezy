@@ -58,7 +58,7 @@ export class AdvancedSearchFilterComponent implements OnInit {
 
   searchForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private readonly fb: FormBuilder) {
     this.searchForm = this.fb.group({
       query: ['']
     });

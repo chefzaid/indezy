@@ -2,6 +2,8 @@ package dev.byteworks.indezy.mapper;
 
 import dev.byteworks.indezy.dto.FreelanceDto;
 import dev.byteworks.indezy.model.Freelance;
+import dev.byteworks.indezy.model.Project;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,7 +36,7 @@ public class FreelanceMapper {
             dto.setAverageDailyRate(
                 freelance.getProjects().stream()
                     .filter(p -> p.getDailyRate() != null)
-                    .mapToInt(p -> p.getDailyRate())
+                    .mapToInt(Project::getDailyRate)
                     .average()
                     .orElse(0.0)
             );

@@ -2,7 +2,7 @@
 // This file demonstrates how to implement the advanced filter components
 
 import { Component } from '@angular/core';
-import { ComprehensiveFilterPanelComponent, ComprehensiveFilterConfig, FilterSection } from './comprehensive-filter-panel/comprehensive-filter-panel.component';
+import { ComprehensiveFilterPanelComponent, ComprehensiveFilterConfig } from './comprehensive-filter-panel/comprehensive-filter-panel.component';
 
 @Component({
   selector: 'app-example-usage',
@@ -209,42 +209,3 @@ export class FilterUsageExampleComponent {
     // Handle preset application
   }
 }
-
-// Usage in a real component would look like this:
-
-/*
-@Component({
-  selector: 'app-client-list',
-  template: `
-    <div class="client-management">
-      <app-comprehensive-filter-panel
-        [config]="filterConfig"
-        [initialFilters]="initialFilters"
-        (filtersChange)="applyFilters($event)">
-      </app-comprehensive-filter-panel>
-      
-      <div class="client-results">
-        <mat-table [dataSource]="filteredClients">
-          <!-- table content -->
-        </mat-table>
-      </div>
-    </div>
-  `
-})
-export class ClientListComponent {
-  filterConfig = this.createFilterConfig();
-  filteredClients = [];
-  
-  applyFilters(filters: any) {
-    // Apply filters to your data
-    this.clientService.getFilteredClients(filters)
-      .subscribe(clients => this.filteredClients = clients);
-  }
-  
-  private createFilterConfig(): ComprehensiveFilterConfig {
-    return {
-      // ... configuration as shown above
-    };
-  }
-}
-*/
