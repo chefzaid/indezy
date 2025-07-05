@@ -1,0 +1,155 @@
+<div class="project-list-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon>work</mat-icon>
+        Mes Projets
+      </h1>
+      <button mat-raised-button color="primary" routerLink="/projects/new">
+        <mat-icon>add</mat-icon>
+        Nouveau projet
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <mat-card-header>
+      <mat-card-title>Filtres</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="filterForm" class="filters-form">
+        <div class="filter-row">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>TJM minimum</mat-label>
+            <input matInput type="number" formControlName="minRate" placeholder="400">
+            <span matSuffix>€</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>TJM maximum</mat-label>
+            <input matInput type="number" formControlName="maxRate" placeholder="800">
+            <span matSuffix>€</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Mode de travail</mat-label>
+            <mat-select formControlName="workMode">
+              <mat-option value="">Tous</mat-option>
+              <mat-option *ngFor="let mode of workModeOptions" [value]="mode.value">
+                {{ mode.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Technologies</mat-label>
+            <input matInput formControlName="techStack" placeholder="React, Angular...">
+          </mat-form-field>
+
+          <button mat-stroked-button type="button" (click)="clearFilters()" class="clear-filters-btn">
+            <mat-icon>clear</mat-icon>
+            Effacer
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Chargement des projets...</p>
+  </div>
+
+  <!-- Projects Grid -->
+  <div *ngIf="!isLoading && filteredProjects.length > 0" class="projects-grid">
+    <mat-card class="project-card" *ngFor="let project of filteredProjects">
+      <mat-card-header>
+        <mat-card-title class="project-title">
+          {{ project.role }}
+        </mat-card-title>
+        <mat-card-subtitle class="project-client">
+          {{ project.clientName }}
+        </mat-card-subtitle>
+        <div class="project-status">
+          <mat-chip [color]="getProjectStatusColor(project)" selected>
+            {{ getProjectStatusText(project) }}
+          </mat-chip>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="project-details">
+          <div class="detail-item" *ngIf="project.dailyRate">
+            <mat-icon>euro</mat-icon>
+            <span>{{ project.dailyRate }}€/jour</span>
+          </div>
+
+          <div class="detail-item" *ngIf="project.workMode">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ getWorkModeLabel(project.workMode) }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="project.durationInMonths">
+            <mat-icon>schedule</mat-icon>
+            <span>{{ project.durationInMonths }} mois</span>
+          </div>
+
+          <div class="detail-item" *ngIf="project.startDate">
+            <mat-icon>event</mat-icon>
+            <span>{{ project.startDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <div class="project-tech" *ngIf="project.techStack">
+          <mat-icon>code</mat-icon>
+          <span>{{ project.techStack }}</span>
+        </div>
+
+        <p class="project-description" *ngIf="project.description">
+          {{ project.description }}
+        </p>
+      </mat-card-content>
+
+      <mat-card-actions class="project-actions">
+        <button mat-button [routerLink]="['/projects', project.id]">
+          <mat-icon>visibility</mat-icon>
+          Voir
+        </button>
+        <button mat-button [routerLink]="['/projects', project.id, 'edit']">
+          <mat-icon>edit</mat-icon>
+          Modifier
+        </button>
+        <button mat-button color="warn" (click)="deleteProject(project.id!)">
+          <mat-icon>delete</mat-icon>
+          Supprimer
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredProjects.length === 0" class="empty-state">
+    <mat-card>
+      <mat-card-content>
+        <div class="empty-content">
+          <mat-icon class="empty-icon">work_off</mat-icon>
+          <h3 *ngIf="projects.length === 0">Aucun projet trouvé</h3>
+          <h3 *ngIf="projects.length > 0">Aucun projet ne correspond aux filtres</h3>
+          <p *ngIf="projects.length === 0">Commencez par ajouter votre premier projet !</p>
+          <p *ngIf="projects.length > 0">Essayez de modifier vos critères de recherche.</p>
+          <button *ngIf="projects.length === 0" mat-raised-button color="primary" routerLink="/projects/new">
+            <mat-icon>add</mat-icon>
+            Ajouter un projet
+          </button>
+          <button *ngIf="projects.length > 0" mat-stroked-button (click)="clearFilters()">
+            <mat-icon>clear</mat-icon>
+            Effacer les filtres
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,184 @@
+<div class="project-form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <div class="header-content">
+          <mat-icon>{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+          {{ pageTitle }}
+        </div>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Chargement du projet...</p>
+      </div>
+
+      <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+        <div class="form-grid">
+          <!-- Basic Information Section -->
+          <div class="form-section">
+            <h3>Informations générales</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Rôle / Poste *</mat-label>
+                <input matInput formControlName="role" placeholder="Ex: Développeur Full Stack">
+                <mat-error>{{ getFieldError('role') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Description</mat-label>
+                <textarea matInput formControlName="description" rows="3" 
+                         placeholder="Description détaillée du projet..."></textarea>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Stack technique</mat-label>
+                <input matInput formControlName="techStack" 
+                       placeholder="Ex: React, Node.js, PostgreSQL">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Client</mat-label>
+                <mat-select formControlName="clientId">
+                  <mat-option *ngFor="let client of clients" [value]="client.id">
+                    {{ client.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>TJM *</mat-label>
+                <input matInput type="number" formControlName="dailyRate" placeholder="600">
+                <span matSuffix>€</span>
+                <mat-error>{{ getFieldError('dailyRate') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Work Mode Section -->
+          <div class="form-section">
+            <h3>Mode de travail</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Mode de travail</mat-label>
+                <mat-select formControlName="workMode">
+                  <mat-option *ngFor="let mode of workModeOptions" [value]="mode.value">
+                    {{ mode.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row" *ngIf="projectForm.get('workMode')?.value === 'HYBRID'">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Jours télétravail/mois</mat-label>
+                <input matInput type="number" formControlName="remoteDaysPerMonth" placeholder="15">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Jours sur site/mois</mat-label>
+                <input matInput type="number" formControlName="onsiteDaysPerMonth" placeholder="5">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Avantages</mat-label>
+                <textarea matInput formControlName="advantages" rows="2" 
+                         placeholder="Ex: Équipe dynamique, technologies modernes..."></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Timeline Section -->
+          <div class="form-section">
+            <h3>Planning</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Date de début</mat-label>
+                <input matInput [matDatepicker]="startDatePicker" formControlName="startDate">
+                <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #startDatePicker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Durée (mois)</mat-label>
+                <input matInput type="number" formControlName="durationInMonths" placeholder="6">
+                <mat-error>{{ getFieldError('durationInMonths') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Renouvellement (mois)</mat-label>
+                <input matInput type="number" formControlName="orderRenewalInMonths" placeholder="3">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Jours travaillés/an</mat-label>
+                <input matInput type="number" formControlName="daysPerYear" placeholder="220">
+                <mat-error>{{ getFieldError('daysPerYear') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Additional Information Section -->
+          <div class="form-section">
+            <h3>Informations complémentaires</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Lien du projet</mat-label>
+                <input matInput formControlName="link" placeholder="https://...">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Évaluation personnelle</mat-label>
+                <mat-select formControlName="personalRating">
+                  <mat-option *ngFor="let rating of ratingOptions" [value]="rating.value">
+                    {{ rating.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Notes</mat-label>
+                <textarea matInput formControlName="notes" rows="4" 
+                         placeholder="Notes personnelles sur le projet..."></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions class="form-actions">
+      <button mat-button type="button" (click)="onCancel()">
+        <mat-icon>cancel</mat-icon>
+        Annuler
+      </button>
+      <button mat-raised-button color="primary" 
+              [disabled]="projectForm.invalid || isSubmitting"
+              (click)="onSubmit()">
+        <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
+        <mat-icon *ngIf="!isSubmitting">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        {{ submitButtonText }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

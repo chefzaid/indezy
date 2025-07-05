@@ -1,0 +1,330 @@
+.client-form-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+  
+  .form-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    mat-card-header {
+      flex-shrink: 0;
+
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.5rem;
+
+        mat-icon {
+          font-size: 1.5rem;
+          width: 1.5rem;
+          height: 1.5rem;
+        }
+      }
+
+      mat-card-subtitle {
+        margin-top: 8px;
+        color: rgba(0, 0, 0, 0.6);
+      }
+    }
+
+    mat-card-content {
+      flex: 1;
+      overflow: auto;
+      padding-top: 24px;
+      
+      .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px;
+        
+        mat-spinner {
+          margin-bottom: 16px;
+        }
+      }
+      
+      .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        
+        .form-section {
+          h3 {
+            margin: 0 0 20px 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.87);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+            padding-bottom: 8px;
+          }
+          
+          .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            
+            &:last-child {
+              margin-bottom: 0;
+            }
+            
+            .full-width {
+              flex: 1;
+            }
+            
+            .half-width {
+              flex: 1;
+              min-width: 0;
+            }
+            
+            @media (max-width: 600px) {
+              flex-direction: column;
+              gap: 0;
+              
+              .half-width {
+                width: 100%;
+              }
+            }
+          }
+        }
+      }
+      
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+        
+        button {
+          min-width: 120px;
+          
+          &[type="submit"] {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            
+            mat-spinner {
+              margin-right: 8px;
+            }
+            
+            mat-icon {
+              font-size: 1.2rem;
+              width: 1.2rem;
+              height: 1.2rem;
+            }
+          }
+        }
+        
+        @media (max-width: 600px) {
+          flex-direction: column-reverse;
+          
+          button {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Material Design form field customizations
+.mat-mdc-form-field {
+  &.full-width,
+  &.half-width {
+    .mat-mdc-text-field-wrapper {
+      width: 100%;
+    }
+  }
+  
+  .mat-mdc-form-field-subscript-wrapper {
+    .mat-mdc-form-field-error-wrapper {
+      .mat-mdc-form-field-error {
+        font-size: 0.75rem;
+        color: #f44336;
+      }
+    }
+  }
+}
+
+// Textarea styling
+textarea.mat-mdc-input-element {
+  resize: vertical;
+  min-height: 60px;
+}
+
+// Select dropdown styling
+.mat-mdc-select {
+  .mat-mdc-select-trigger {
+    .mat-mdc-select-value {
+      color: rgba(0, 0, 0, 0.87);
+    }
+  }
+}
+
+// Button styling
+.mat-mdc-raised-button {
+  &.mat-primary {
+    background-color: var(--mdc-theme-primary, #1976d2);
+    color: white;
+    
+    &:disabled {
+      background-color: rgba(0, 0, 0, 0.12);
+      color: rgba(0, 0, 0, 0.26);
+    }
+  }
+}
+
+.mat-mdc-button {
+  &:not(.mat-mdc-raised-button) {
+    color: rgba(0, 0, 0, 0.6);
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .client-form-container {
+    padding: 16px;
+    
+    .form-card {
+      mat-card-content {
+        padding: 16px;
+        
+        .form-grid {
+          gap: 24px;
+          
+          .form-section {
+            .form-row {
+              margin-bottom: 12px;
+            }
+          }
+        }
+        
+        .form-actions {
+          margin-top: 24px;
+          padding-top: 16px;
+        }
+      }
+
+      // Tabs styling
+      .client-tabs {
+        .mat-mdc-tab-group {
+          .mat-mdc-tab-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+          }
+        }
+
+        .tab-content {
+          padding: 24px 0;
+        }
+      }
+
+      // Contacts section styling
+      .contacts-section {
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 24px;
+
+          h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.87);
+          }
+
+          button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+        }
+
+        .empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 40px;
+          text-align: center;
+          color: rgba(0, 0, 0, 0.6);
+
+          mat-icon {
+            font-size: 3rem;
+            width: 3rem;
+            height: 3rem;
+            margin-bottom: 16px;
+            color: rgba(0, 0, 0, 0.3);
+          }
+
+          p {
+            margin: 0 0 24px 0;
+            font-size: 1rem;
+          }
+        }
+
+        .contacts-table {
+          .mat-mdc-table {
+            width: 100%;
+
+            .mat-mdc-header-cell {
+              font-weight: 500;
+              color: rgba(0, 0, 0, 0.87);
+            }
+
+            .mat-mdc-cell {
+              .contact-name {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                mat-icon {
+                  color: rgba(0, 0, 0, 0.6);
+                  font-size: 1.2rem;
+                  width: 1.2rem;
+                  height: 1.2rem;
+                }
+              }
+
+              a {
+                color: var(--mdc-theme-primary, #1976d2);
+                text-decoration: none;
+
+                &:hover {
+                  text-decoration: underline;
+                }
+              }
+
+              .no-data {
+                color: rgba(0, 0, 0, 0.4);
+                font-style: italic;
+              }
+            }
+          }
+
+          .mat-mdc-menu-item {
+            &.delete-action {
+              color: #f44336;
+
+              mat-icon {
+                color: #f44336;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

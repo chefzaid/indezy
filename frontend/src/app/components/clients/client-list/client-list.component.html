@@ -1,0 +1,146 @@
+<div class="client-list-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>business</mat-icon>
+        Gestion des Clients
+      </mat-card-title>
+      <mat-card-subtitle>
+        Gérez vos clients et prospects
+      </mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="actions-row">
+        <div class="search-filters">
+          <mat-form-field appearance="outline" class="search-type-field">
+            <mat-label>Rechercher par</mat-label>
+            <mat-select [(ngModel)]="searchType" (selectionChange)="onSearchTypeChange()">
+              <mat-option value="CLIENT">
+                <mat-icon>business</mat-icon>
+                Client
+              </mat-option>
+              <mat-option value="CONTACT">
+                <mat-icon>person</mat-icon>
+                Contact
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>{{ searchType === 'CLIENT' ? 'Rechercher un client' : 'Rechercher par contact' }}</mat-label>
+            <input matInput
+                   [(ngModel)]="searchQuery"
+                   (input)="onSearchChange($any($event.target).value || '')"
+                   [placeholder]="searchType === 'CLIENT' ? 'Nom, secteur, adresse...' : 'Nom du contact, email, téléphone...'">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="status-filter">
+            <mat-label>Statut</mat-label>
+            <mat-select [(ngModel)]="statusFilter" (selectionChange)="onStatusFilterChange()">
+              <mat-option value="ALL">Tous</mat-option>
+              <mat-option value="ACTIVE">Actifs</mat-option>
+              <mat-option value="INACTIVE">Inactifs</mat-option>
+              <mat-option value="PROSPECT">Prospects</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <button mat-raised-button color="primary" routerLink="/clients/create">
+          <mat-icon>add</mat-icon>
+          Nouveau Client
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Chargement des clients...</p>
+      </div>
+
+      <div *ngIf="!isLoading && filteredClients.length === 0" class="no-data">
+        <mat-icon>business_center</mat-icon>
+        <h3>Aucun client trouvé</h3>
+        <p *ngIf="searchQuery || statusFilter !== 'ALL'">
+          Essayez de modifier vos critères de recherche ou de filtrage.
+        </p>
+        <p *ngIf="!searchQuery && statusFilter === 'ALL'">
+          Commencez par ajouter votre premier client.
+        </p>
+        <button mat-raised-button color="primary" routerLink="/clients/create">
+          <mat-icon>add</mat-icon>
+          Ajouter un Client
+        </button>
+      </div>
+
+      <div *ngIf="!isLoading && filteredClients.length > 0" class="table-container">
+        <table mat-table [dataSource]="filteredClients" class="clients-table">
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Nom</th>
+            <td mat-cell *matCellDef="let client">
+              <div class="client-name">
+                <strong>{{ client.name }}</strong>
+                <small *ngIf="client.website">
+                  <a [href]="client.website" target="_blank" class="website-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </small>
+              </div>
+            </td>
+          </ng-container>
+
+
+
+          <!-- Industry Column -->
+          <ng-container matColumnDef="industry">
+            <th mat-header-cell *matHeaderCellDef>Secteur</th>
+            <td mat-cell *matCellDef="let client">{{ client.industry }}</td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Statut</th>
+            <td mat-cell *matCellDef="let client">
+              <mat-chip [color]="getStatusColor(client.status)" selected>
+                {{ getStatusLabel(client.status) }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let client">
+              <div class="action-buttons">
+                <button mat-icon-button 
+                        [routerLink]="['/clients', client.id]"
+                        matTooltip="Voir les détails">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button 
+                        [routerLink]="['/clients', client.id, 'edit']"
+                        matTooltip="Modifier">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button 
+                        color="warn"
+                        (click)="deleteClient(client)"
+                        matTooltip="Supprimer">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

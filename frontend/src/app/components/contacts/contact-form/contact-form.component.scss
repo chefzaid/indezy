@@ -1,0 +1,209 @@
+.contact-form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  
+  .form-card {
+    mat-card-header {
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.5rem;
+        
+        mat-icon {
+          font-size: 1.5rem;
+          width: 1.5rem;
+          height: 1.5rem;
+        }
+      }
+      
+      mat-card-subtitle {
+        margin-top: 8px;
+        color: rgba(0, 0, 0, 0.6);
+      }
+    }
+    
+    mat-card-content {
+      padding-top: 24px;
+      
+      .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px;
+        
+        mat-spinner {
+          margin-bottom: 16px;
+        }
+      }
+      
+      .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        
+        .form-section {
+          h3 {
+            margin: 0 0 20px 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.87);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+            padding-bottom: 8px;
+          }
+          
+          .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            
+            &:last-child {
+              margin-bottom: 0;
+            }
+            
+            .full-width {
+              flex: 1;
+            }
+            
+            .half-width {
+              flex: 1;
+              min-width: 0;
+            }
+            
+            @media (max-width: 600px) {
+              flex-direction: column;
+              gap: 0;
+              
+              .half-width {
+                width: 100%;
+              }
+            }
+          }
+        }
+      }
+      
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+        
+        button {
+          min-width: 120px;
+          
+          &[type="submit"] {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            
+            mat-spinner {
+              margin-right: 8px;
+            }
+            
+            mat-icon {
+              font-size: 1.2rem;
+              width: 1.2rem;
+              height: 1.2rem;
+            }
+          }
+        }
+        
+        @media (max-width: 600px) {
+          flex-direction: column-reverse;
+          
+          button {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Material Design form field customizations
+.mat-mdc-form-field {
+  &.full-width,
+  &.half-width {
+    .mat-mdc-text-field-wrapper {
+      width: 100%;
+    }
+  }
+  
+  .mat-mdc-form-field-subscript-wrapper {
+    .mat-mdc-form-field-error-wrapper {
+      .mat-mdc-form-field-error {
+        font-size: 0.75rem;
+        color: #f44336;
+      }
+    }
+  }
+}
+
+// Textarea styling
+textarea.mat-mdc-input-element {
+  resize: vertical;
+  min-height: 60px;
+}
+
+// Select dropdown styling
+.mat-mdc-select {
+  .mat-mdc-select-trigger {
+    .mat-mdc-select-value {
+      color: rgba(0, 0, 0, 0.87);
+    }
+  }
+}
+
+// Button styling
+.mat-mdc-raised-button {
+  &.mat-primary {
+    background-color: var(--mdc-theme-primary, #1976d2);
+    color: white;
+    
+    &:disabled {
+      background-color: rgba(0, 0, 0, 0.12);
+      color: rgba(0, 0, 0, 0.26);
+    }
+  }
+}
+
+.mat-mdc-button {
+  &:not(.mat-mdc-raised-button) {
+    color: rgba(0, 0, 0, 0.6);
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .contact-form-container {
+    padding: 16px;
+    
+    .form-card {
+      mat-card-content {
+        padding: 16px;
+        
+        .form-grid {
+          gap: 24px;
+          
+          .form-section {
+            .form-row {
+              margin-bottom: 12px;
+            }
+          }
+        }
+        
+        .form-actions {
+          margin-top: 24px;
+          padding-top: 16px;
+        }
+      }
+    }
+  }
+}

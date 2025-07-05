@@ -1,0 +1,124 @@
+<div class="dashboard-container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+          <h1 class="welcome-title">
+            {{ getGreeting() }}, {{ currentUser?.firstName }} ! 👋
+          </h1>
+          <p class="welcome-subtitle">
+            Voici un aperçu de vos missions freelance
+          </p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-content">
+                <div class="stat-icon projects">
+                  <mat-icon>work</mat-icon>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-number">{{ stats.totalProjects }}</div>
+                  <div class="stat-label">Projets totaux</div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-content">
+                <div class="stat-icon rate">
+                  <mat-icon>euro</mat-icon>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-number">{{ stats.averageDailyRate | number:'1.0-0' }}€</div>
+                  <div class="stat-label">TJM moyen</div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-content">
+                <div class="stat-icon revenue">
+                  <mat-icon>trending_up</mat-icon>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-number">{{ stats.totalRevenue | number:'1.0-0' }}€</div>
+                  <div class="stat-label">Revenus estimés</div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-content">
+                <div class="stat-icon active">
+                  <mat-icon>play_circle</mat-icon>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-number">{{ stats.activeProjects }}</div>
+                  <div class="stat-label">Projets actifs</div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Recent Projects -->
+        <div class="recent-projects-section">
+          <div class="section-header">
+            <h2>Projets récents</h2>
+            <button mat-raised-button color="primary" routerLink="/projects">
+              Voir tous les projets
+            </button>
+          </div>
+
+          <div class="projects-grid" *ngIf="recentProjects.length > 0; else noProjects">
+            <mat-card class="project-card" *ngFor="let project of recentProjects">
+              <mat-card-header>
+                <mat-card-title>{{ project.role }}</mat-card-title>
+                <mat-card-subtitle>{{ project.clientName }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="project-info">
+                  <div class="project-rate">
+                    <mat-icon>euro</mat-icon>
+                    <span>{{ project.dailyRate }}€/jour</span>
+                  </div>
+                  <div class="project-mode" *ngIf="project.workMode">
+                    <mat-icon>location_on</mat-icon>
+                    <span>{{ project.workMode | titlecase }}</span>
+                  </div>
+                </div>
+                <p class="project-tech" *ngIf="project.techStack">
+                  {{ project.techStack }}
+                </p>
+              </mat-card-content>
+              <mat-card-actions>
+                <button mat-button [routerLink]="['/projects', project.id]">
+                  Voir détails
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+
+          <ng-template #noProjects>
+            <mat-card class="empty-state">
+              <mat-card-content>
+                <div class="empty-content">
+                  <mat-icon class="empty-icon">work_off</mat-icon>
+                  <h3>Aucun projet pour le moment</h3>
+                  <p>Commencez par ajouter votre premier projet !</p>
+                  <button mat-raised-button color="primary" routerLink="/projects/new">
+                    Ajouter un projet
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </ng-template>
+  </div>
+</div>

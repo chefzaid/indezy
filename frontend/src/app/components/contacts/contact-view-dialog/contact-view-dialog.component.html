@@ -1,0 +1,132 @@
+<div class="contact-view-dialog">
+  <div mat-dialog-title class="dialog-header">
+    <div class="contact-info">
+      <mat-icon>person</mat-icon>
+      <div class="contact-details">
+        <div class="name-section">
+          <h2>{{ getFullName() }}</h2>
+          <button mat-icon-button
+                  class="copy-button-header"
+                  (click)="copyToClipboard(getFullName(), 'Nom')"
+                  matTooltip="Copier le nom">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </div>
+        <p class="contact-subtitle">{{ contact.position }} • {{ contact.clientName }}</p>
+      </div>
+    </div>
+    <mat-chip [color]="getStatusColor(contact.status)" selected>
+      {{ getStatusLabel(contact.status) }}
+    </mat-chip>
+  </div>
+
+  <div mat-dialog-content class="dialog-content">
+    <div class="contact-details-grid">
+      <!-- Contact Information -->
+      <mat-card class="info-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>contact_mail</mat-icon>
+            Informations de contact
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-item" *ngIf="contact.email">
+            <div class="info-label">
+              <mat-icon>email</mat-icon>
+              Email
+            </div>
+            <div class="info-value">
+              <a [href]="'mailto:' + contact.email" class="contact-link" (click)="sendEmail()">
+                {{ contact.email }}
+              </a>
+              <button mat-icon-button
+                      class="copy-button"
+                      (click)="copyToClipboard(contact.email, 'Email')"
+                      matTooltip="Copier l'email">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <mat-divider *ngIf="contact.email && contact.phone"></mat-divider>
+
+          <div class="info-item" *ngIf="contact.phone">
+            <div class="info-label">
+              <mat-icon>phone</mat-icon>
+              Téléphone
+            </div>
+            <div class="info-value">
+              <a [href]="'tel:' + contact.phone" class="contact-link" (click)="callPhone()">
+                {{ contact.phone }}
+              </a>
+              <button mat-icon-button
+                      class="copy-button"
+                      (click)="copyToClipboard(contact.phone, 'Téléphone')"
+                      matTooltip="Copier le téléphone">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Additional Information -->
+      <mat-card class="info-section" *ngIf="contact.notes">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>note</mat-icon>
+            Notes
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="notes-text">{{ contact.notes }}</p>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Dates -->
+      <mat-card class="info-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>schedule</mat-icon>
+            Informations système
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>add</mat-icon>
+              Créé le
+            </div>
+            <div class="info-value">
+              {{ contact.createdAt | date:'dd/MM/yyyy à HH:mm' }}
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>edit</mat-icon>
+              Modifié le
+            </div>
+            <div class="info-value">
+              {{ contact.updatedAt | date:'dd/MM/yyyy à HH:mm' }}
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-button (click)="onClose()">
+      <mat-icon>close</mat-icon>
+      Fermer
+    </button>
+    <button mat-raised-button color="primary" (click)="onEdit()">
+      <mat-icon>edit</mat-icon>
+      Modifier
+    </button>
+  </div>
+</div>

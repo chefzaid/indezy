@@ -1,0 +1,114 @@
+<div class="contact-form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>{{ isEditMode ? 'edit' : 'person_add' }}</mat-icon>
+        {{ pageTitle }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ isEditMode ? 'Modifiez les informations du contact' : 'Ajoutez un nouveau contact à votre base de données' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Chargement des informations du contact...</p>
+      </div>
+
+      <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+        <div class="form-grid">
+          <!-- Personal Information Section -->
+          <div class="form-section">
+            <h3>Informations personnelles</h3>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Prénom *</mat-label>
+                <input matInput formControlName="firstName">
+                <mat-error>{{ getFieldError('firstName') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Nom *</mat-label>
+                <input matInput formControlName="lastName">
+                <mat-error>{{ getFieldError('lastName') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Email *</mat-label>
+                <input matInput type="email" formControlName="email">
+                <mat-error>{{ getFieldError('email') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Téléphone *</mat-label>
+                <input matInput type="tel" formControlName="phone">
+                <mat-error>{{ getFieldError('phone') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Professional Information Section -->
+          <div class="form-section">
+            <h3>Informations professionnelles</h3>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Poste *</mat-label>
+                <input matInput formControlName="position">
+                <mat-error>{{ getFieldError('position') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Client *</mat-label>
+                <mat-select formControlName="clientId">
+                  <mat-option value="">Sélectionner un client</mat-option>
+                  <mat-option *ngFor="let client of clients" [value]="client.id">
+                    {{ client.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>{{ getFieldError('clientId') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Statut *</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option value="ACTIVE">Actif</mat-option>
+                  <mat-option value="INACTIVE">Inactif</mat-option>
+                </mat-select>
+                <mat-error>{{ getFieldError('status') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Additional Information Section -->
+          <div class="form-section">
+            <h3>Informations complémentaires</h3>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Notes</mat-label>
+                <textarea matInput formControlName="notes" rows="4"
+                          placeholder="Notes sur le contact, préférences, remarques..."></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="onCancel()">
+            <mat-icon>cancel</mat-icon>
+            Annuler
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="isSubmitting">
+            <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
+            <mat-icon *ngIf="!isSubmitting">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+            {{ submitButtonText }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

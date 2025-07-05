@@ -1,0 +1,255 @@
+.project-form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  
+  .form-card {
+    mat-card-header {
+      mat-card-title {
+        .header-content {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 1.5rem;
+          font-weight: 500;
+          
+          mat-icon {
+            font-size: 1.5rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--mdc-theme-primary, #1976d2);
+          }
+        }
+      }
+    }
+    
+    mat-card-content {
+      padding: 24px;
+      
+      .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px;
+        
+        mat-spinner {
+          margin-bottom: 16px;
+        }
+      }
+      
+      .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        
+        .form-section {
+          h3 {
+            margin: 0 0 20px 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid var(--mdc-theme-primary, #1976d2);
+            padding-bottom: 8px;
+          }
+          
+          .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            
+            &:last-child {
+              margin-bottom: 0;
+            }
+            
+            .full-width {
+              flex: 1;
+              width: 100%;
+            }
+            
+            .half-width {
+              flex: 1;
+              min-width: 0;
+            }
+            
+            @media (max-width: 600px) {
+              flex-direction: column;
+              gap: 0;
+              
+              .half-width {
+                width: 100%;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 16px 24px;
+      border-top: 1px solid rgba(0, 0, 0, 0.12);
+      
+      button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 120px;
+        
+        mat-icon {
+          font-size: 1.1rem;
+          width: 1.1rem;
+          height: 1.1rem;
+        }
+        
+        mat-spinner {
+          margin-right: 8px;
+        }
+      }
+      
+      @media (max-width: 600px) {
+        flex-direction: column-reverse;
+        
+        button {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
+// Form field customizations
+.mat-mdc-form-field {
+  &.mat-form-field-appearance-outline {
+    .mat-mdc-form-field-flex {
+      align-items: center;
+    }
+    
+    .mat-mdc-form-field-outline {
+      color: rgba(0, 0, 0, 0.12);
+    }
+    
+    &.mat-focused .mat-mdc-form-field-outline {
+      color: var(--mdc-theme-primary, #1976d2);
+    }
+    
+    &.mat-form-field-invalid .mat-mdc-form-field-outline {
+      color: #f44336;
+    }
+  }
+  
+  .mat-mdc-form-field-label {
+    color: rgba(0, 0, 0, 0.6);
+  }
+  
+  &.mat-focused .mat-mdc-form-field-label {
+    color: var(--mdc-theme-primary, #1976d2);
+  }
+  
+  &.mat-form-field-invalid .mat-mdc-form-field-label {
+    color: #f44336;
+  }
+}
+
+// Input and textarea styling
+.mat-mdc-input-element {
+  color: rgba(0, 0, 0, 0.87);
+  
+  &::placeholder {
+    color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Select styling
+.mat-mdc-select {
+  .mat-mdc-select-value {
+    color: rgba(0, 0, 0, 0.87);
+  }
+  
+  .mat-mdc-select-placeholder {
+    color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Button styling
+.mat-mdc-raised-button {
+  &.mat-primary {
+    background-color: var(--mdc-theme-primary, #1976d2);
+    color: white;
+    
+    &:disabled {
+      background-color: rgba(0, 0, 0, 0.12);
+      color: rgba(0, 0, 0, 0.26);
+    }
+  }
+}
+
+.mat-mdc-button {
+  color: rgba(0, 0, 0, 0.6);
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+// Error message styling
+.mat-mdc-form-field-error {
+  color: #f44336;
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+
+// Datepicker styling
+.mat-datepicker-toggle {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .project-form-container {
+    padding: 16px;
+    
+    .form-card {
+      mat-card-content {
+        padding: 16px;
+        
+        .form-grid {
+          gap: 24px;
+          
+          .form-section {
+            h3 {
+              font-size: 1rem;
+              margin-bottom: 16px;
+            }
+            
+            .form-row {
+              margin-bottom: 12px;
+            }
+          }
+        }
+      }
+      
+      .form-actions {
+        padding: 12px 16px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .project-form-container {
+    padding: 8px;
+    
+    .form-card {
+      mat-card-header {
+        mat-card-title {
+          .header-content {
+            font-size: 1.3rem;
+          }
+        }
+      }
+    }
+  }
+}

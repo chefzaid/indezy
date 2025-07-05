@@ -1,0 +1,311 @@
+<div class="project-detail-container">
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Chargement des détails du projet...</p>
+  </div>
+
+  <div *ngIf="!isLoading && project" class="project-content">
+    <!-- Header Card -->
+    <mat-card class="header-card">
+      <mat-card-header>
+        <mat-card-title>
+          <div class="title-row">
+            <div class="project-name">
+              <mat-icon>work</mat-icon>
+              {{ project.role }}
+            </div>
+            <mat-chip [color]="getWorkModeColor(project.workMode)" selected>
+              {{ getWorkModeLabel(project.workMode) }}
+            </mat-chip>
+          </div>
+        </mat-card-title>
+        <mat-card-subtitle>
+          Client: {{ project.clientName }} • {{ project.dailyRate }}€/jour
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-actions>
+        <button mat-button (click)="onBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Retour
+        </button>
+        <button mat-raised-button color="primary" (click)="onEdit()">
+          <mat-icon>edit</mat-icon>
+          Modifier
+        </button>
+        <button mat-button color="warn" (click)="onDelete()">
+          <mat-icon>delete</mat-icon>
+          Supprimer
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <div class="details-grid">
+      <!-- Project Information -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            Informations du projet
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>description</mat-icon>
+              Description
+            </div>
+            <div class="info-value">
+              {{ project.description || 'Non spécifiée' }}
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>code</mat-icon>
+              Stack technique
+            </div>
+            <div class="info-value">
+              {{ project.techStack || 'Non spécifiée' }}
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>star</mat-icon>
+              Avantages
+            </div>
+            <div class="info-value">
+              {{ project.advantages || 'Non spécifiés' }}
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Financial Information -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>euro</mat-icon>
+            Informations financières
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>payments</mat-icon>
+              TJM
+            </div>
+            <div class="info-value">
+              {{ project.dailyRate }}€/jour
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>calculate</mat-icon>
+              Revenus estimés
+            </div>
+            <div class="info-value">
+              {{ calculateTotalRevenue() | number:'1.0-0' }}€
+            </div>
+          </div>
+
+          <mat-divider *ngIf="project.daysPerYear"></mat-divider>
+
+          <div class="info-item" *ngIf="project.daysPerYear">
+            <div class="info-label">
+              <mat-icon>event</mat-icon>
+              Jours/an
+            </div>
+            <div class="info-value">
+              {{ project.daysPerYear }} jours
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Timeline Information -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>schedule</mat-icon>
+            Planning
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>play_arrow</mat-icon>
+              Date de début
+            </div>
+            <div class="info-value">
+              {{ formatDate(project.startDate) }}
+            </div>
+          </div>
+
+          <mat-divider *ngIf="project.durationInMonths"></mat-divider>
+
+          <div class="info-item" *ngIf="project.durationInMonths">
+            <div class="info-label">
+              <mat-icon>hourglass_empty</mat-icon>
+              Durée
+            </div>
+            <div class="info-value">
+              {{ project.durationInMonths }} mois
+            </div>
+          </div>
+
+          <mat-divider *ngIf="project.orderRenewalInMonths"></mat-divider>
+
+          <div class="info-item" *ngIf="project.orderRenewalInMonths">
+            <div class="info-label">
+              <mat-icon>refresh</mat-icon>
+              Renouvellement
+            </div>
+            <div class="info-value">
+              Tous les {{ project.orderRenewalInMonths }} mois
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Work Mode Details -->
+      <mat-card class="info-card" *ngIf="project.workMode === 'HYBRID'">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>work</mat-icon>
+            Mode de travail
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-item" *ngIf="project.remoteDaysPerMonth">
+            <div class="info-label">
+              <mat-icon>home</mat-icon>
+              Télétravail
+            </div>
+            <div class="info-value">
+              {{ project.remoteDaysPerMonth }} jours/mois
+            </div>
+          </div>
+
+          <mat-divider *ngIf="project.remoteDaysPerMonth && project.onsiteDaysPerMonth"></mat-divider>
+
+          <div class="info-item" *ngIf="project.onsiteDaysPerMonth">
+            <div class="info-label">
+              <mat-icon>business</mat-icon>
+              Sur site
+            </div>
+            <div class="info-value">
+              {{ project.onsiteDaysPerMonth }} jours/mois
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Progress Information -->
+      <mat-card class="info-card" *ngIf="project.totalSteps">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>trending_up</mat-icon>
+            Progression
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="progress-info">
+            <div class="progress-stats">
+              <div class="stat-item">
+                <span class="stat-value">{{ project.completedSteps || 0 }}</span>
+                <span class="stat-label">Terminées</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">{{ (project.totalSteps || 0) - (project.completedSteps || 0) - (project.failedSteps || 0) }}</span>
+                <span class="stat-label">En cours</span>
+              </div>
+              <div class="stat-item" *ngIf="project.failedSteps">
+                <span class="stat-value">{{ project.failedSteps }}</span>
+                <span class="stat-label">Échouées</span>
+              </div>
+            </div>
+            <div class="progress-percentage">
+              {{ getProgressPercentage() }}% complété
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Personal Rating -->
+      <mat-card class="info-card" *ngIf="project.personalRating">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>grade</mat-icon>
+            Évaluation personnelle
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="rating-display">
+            <mat-icon *ngFor="let star of getRatingStars(project.personalRating)" 
+                     [class.filled]="star === 'star'">
+              {{ star }}
+            </mat-icon>
+            <span class="rating-text">{{ project.personalRating }}/5</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Documents and Links -->
+      <mat-card class="info-card" *ngIf="project.documents?.length || project.link">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>folder</mat-icon>
+            Documents et liens
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="documents-list" *ngIf="project.documents?.length">
+            <div class="document-item" *ngFor="let document of project.documents">
+              <mat-icon>description</mat-icon>
+              <span>{{ document }}</span>
+            </div>
+          </div>
+
+          <mat-divider *ngIf="project.documents?.length && project.link"></mat-divider>
+
+          <div class="info-item" *ngIf="project.link">
+            <div class="info-label">
+              <mat-icon>link</mat-icon>
+              Lien projet
+            </div>
+            <div class="info-value">
+              <a [href]="project.link" target="_blank" class="project-link" (click)="openLink()">
+                {{ project.link }}
+                <mat-icon>open_in_new</mat-icon>
+              </a>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Notes -->
+      <mat-card class="info-card notes-card" *ngIf="project.notes">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>note</mat-icon>
+            Notes
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="notes-content">
+            {{ project.notes }}
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

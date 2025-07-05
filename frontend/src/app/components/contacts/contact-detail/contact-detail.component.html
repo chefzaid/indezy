@@ -1,0 +1,175 @@
+<div class="contact-detail-container">
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Chargement des détails du contact...</p>
+  </div>
+
+  <div *ngIf="!isLoading && contact" class="contact-content">
+    <!-- Header Card -->
+    <mat-card class="header-card">
+      <mat-card-header>
+        <mat-card-title>
+          <div class="title-row">
+            <div class="contact-name">
+              <mat-icon>person</mat-icon>
+              {{ getFullName() }}
+            </div>
+            <mat-chip [color]="getStatusColor(contact.status)" selected>
+              {{ getStatusLabel(contact.status) }}
+            </mat-chip>
+          </div>
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ contact.position }} • {{ contact.clientName }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-actions>
+        <button mat-button (click)="onBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Retour
+        </button>
+        <button mat-raised-button color="primary" (click)="onEdit()">
+          <mat-icon>edit</mat-icon>
+          Modifier
+        </button>
+        <button mat-button color="warn" (click)="onDelete()">
+          <mat-icon>delete</mat-icon>
+          Supprimer
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <div class="details-grid">
+      <!-- Contact Information -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>contact_mail</mat-icon>
+            Informations de contact
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>email</mat-icon>
+              Email
+            </div>
+            <div class="info-value">
+              <a [href]="'mailto:' + contact.email" class="contact-link" (click)="sendEmail()">
+                {{ contact.email }}
+              </a>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>phone</mat-icon>
+              Téléphone
+            </div>
+            <div class="info-value">
+              <a [href]="'tel:' + contact.phone" class="contact-link" (click)="callPhone()">
+                {{ contact.phone }}
+              </a>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Professional Information -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>work</mat-icon>
+            Informations professionnelles
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>badge</mat-icon>
+              Poste
+            </div>
+            <div class="info-value">
+              {{ contact.position }}
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>business</mat-icon>
+              Client
+            </div>
+            <div class="info-value">
+              {{ contact.clientName }}
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>info</mat-icon>
+              Statut
+            </div>
+            <div class="info-value">
+              <mat-chip [color]="getStatusColor(contact.status)" selected>
+                {{ getStatusLabel(contact.status) }}
+              </mat-chip>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Timeline Information -->
+      <mat-card class="info-card timeline-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>schedule</mat-icon>
+            Historique
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="timeline-item">
+            <div class="timeline-icon">
+              <mat-icon>add_circle</mat-icon>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Contact créé</div>
+              <div class="timeline-date">{{ formatDate(contact.createdAt) }}</div>
+            </div>
+          </div>
+
+          <div class="timeline-item" *ngIf="contact.updatedAt !== contact.createdAt">
+            <div class="timeline-icon">
+              <mat-icon>edit</mat-icon>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Dernière modification</div>
+              <div class="timeline-date">{{ formatDate(contact.updatedAt) }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Notes -->
+      <mat-card class="info-card notes-card" *ngIf="contact.notes">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>note</mat-icon>
+            Notes
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="notes-content">
+            {{ contact.notes }}
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

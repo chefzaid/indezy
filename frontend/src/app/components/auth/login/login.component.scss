@@ -1,0 +1,94 @@
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.login-card-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-card {
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.login-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.login-icon {
+  font-size: 28px;
+  color: #667eea;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.login-button {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 8px;
+  position: relative;
+}
+
+.login-spinner {
+  margin-right: 8px;
+}
+
+.login-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+}
+
+.signup-link {
+  margin: 0;
+  text-align: center;
+  color: #666;
+}
+
+.signup-link-text {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .login-container {
+    padding: 10px;
+  }
+  
+  .login-card {
+    padding: 16px;
+  }
+  
+  .login-title {
+    font-size: 20px;
+  }
+}

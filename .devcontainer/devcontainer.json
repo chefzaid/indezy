@@ -1,0 +1,37 @@
+{
+  "name": "Indezy Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/java:21-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "angular.ng-template",
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker",
+        "GitLab.gitlab-workflow"
+      ],
+      "settings": {
+        "java.configuration.runtimes": [
+          {
+            "name": "JavaSE-21",
+            "path": "/usr/local/sdkman/candidates/java/current"
+          }
+        ],
+        "java.compile.nullAnalysis.mode": "automatic"
+      }
+    }
+  },
+  "forwardPorts": [8080, 4200, 5432],
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "remoteUser": "vscode"
+}

@@ -1,0 +1,301 @@
+<div class="client-form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+        {{ isEditMode ? 'Modifier le Client' : 'Nouveau Client' }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ isEditMode ? 'Modifiez les informations du client' : 'Ajoutez un nouveau client à votre portefeuille' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Chargement des données...</p>
+      </div>
+
+      <div *ngIf="!isLoading">
+        <!-- Tabs for edit mode, simple form for create mode -->
+        <mat-tab-group *ngIf="isEditMode" class="client-tabs">
+          <mat-tab label="Informations Client">
+            <div class="tab-content">
+              <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+        <div class="form-grid">
+          <!-- Basic Information Section -->
+          <div class="form-section">
+            <h3>Informations générales</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Nom de l'entreprise *</mat-label>
+                <input matInput formControlName="name" placeholder="Ex: TechCorp Solutions">
+                <mat-error>{{ getFieldError('name') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Secteur d'activité *</mat-label>
+                <mat-select formControlName="industry">
+                  <mat-option *ngFor="let industry of industries" [value]="industry">
+                    {{ industry }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>{{ getFieldError('industry') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Adresse</mat-label>
+                <textarea matInput formControlName="address" rows="2"
+                         placeholder="123 Avenue des Champs-Élysées, 75008 Paris"></textarea>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Site web</mat-label>
+                <input matInput formControlName="website" placeholder="https://www.entreprise.com">
+                <mat-icon matSuffix>link</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Statut *</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option *ngFor="let status of statuses" [value]="status.value">
+                    {{ status.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>{{ getFieldError('status') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Additional Information Section -->
+          <div class="form-section">
+            <h3>Informations complémentaires</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Notes</mat-label>
+                <textarea matInput formControlName="notes" rows="4" 
+                         placeholder="Notes sur le client, historique, préférences..."></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+                <!-- Action Buttons -->
+                <div class="form-actions">
+                  <button type="button" mat-button (click)="onCancel()" [disabled]="isSaving">
+                    Annuler
+                  </button>
+                  <button type="submit" mat-raised-button color="primary" [disabled]="isSaving">
+                    <mat-spinner *ngIf="isSaving" diameter="20"></mat-spinner>
+                    <mat-icon *ngIf="!isSaving">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+                    {{ isSaving ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+
+          <!-- Contacts Tab -->
+          <mat-tab label="Contacts">
+            <div class="tab-content">
+              <div class="contacts-header">
+                <h3>Contacts associés</h3>
+                <button mat-raised-button color="primary" (click)="onAddContact()">
+                  <mat-icon>add</mat-icon>
+                  Ajouter un contact
+                </button>
+              </div>
+
+              <div *ngIf="isLoadingContacts" class="loading-container">
+                <mat-spinner></mat-spinner>
+                <p>Chargement des contacts...</p>
+              </div>
+
+              <div *ngIf="!isLoadingContacts && contacts.length === 0" class="empty-state">
+                <mat-icon>person_off</mat-icon>
+                <h4>Aucun contact</h4>
+                <p>Ce client n'a pas encore de contacts associés.</p>
+                <button mat-raised-button color="primary" (click)="onAddContact()">
+                  <mat-icon>add</mat-icon>
+                  Ajouter le premier contact
+                </button>
+              </div>
+
+                <div *ngIf="!isLoadingContacts && contacts.length > 0" class="contacts-table-container">
+                  <table mat-table [dataSource]="contacts" class="contacts-table">
+                    <ng-container matColumnDef="name">
+                      <th mat-header-cell *matHeaderCellDef>Nom</th>
+                      <td mat-cell *matCellDef="let contact">
+                        <div class="contact-name">
+                          <mat-icon>person</mat-icon>
+                          <span>{{ contact.firstName }} {{ contact.lastName }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="email">
+                      <th mat-header-cell *matHeaderCellDef>Email</th>
+                      <td mat-cell *matCellDef="let contact">
+                        <a [href]="'mailto:' + contact.email" class="contact-link" (click)="sendContactEmail(contact)">
+                          {{ contact.email }}
+                        </a>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="phone">
+                      <th mat-header-cell *matHeaderCellDef>Téléphone</th>
+                      <td mat-cell *matCellDef="let contact">
+                        <a [href]="'tel:' + contact.phone" class="contact-link" (click)="callContactPhone(contact)">
+                          {{ contact.phone }}
+                        </a>
+                      </td>
+                    </ng-container>
+
+                    <!-- Position Column -->
+                    <ng-container matColumnDef="position">
+                      <th mat-header-cell *matHeaderCellDef>Poste</th>
+                      <td mat-cell *matCellDef="let contact">{{ contact.position }}</td>
+                    </ng-container>
+
+                    <!-- Status Column -->
+                    <ng-container matColumnDef="status">
+                      <th mat-header-cell *matHeaderCellDef>Statut</th>
+                      <td mat-cell *matCellDef="let contact">
+                        <mat-chip [color]="getContactStatusColor(contact.status)" selected>
+                          {{ getContactStatusLabel(contact.status) }}
+                        </mat-chip>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="actions">
+                      <th mat-header-cell *matHeaderCellDef>Actions</th>
+                      <td mat-cell *matCellDef="let contact">
+                        <button mat-icon-button [matMenuTriggerFor]="contactMenu">
+                          <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #contactMenu="matMenu">
+                          <button mat-menu-item (click)="onViewContact(contact)">
+                            <mat-icon>visibility</mat-icon>
+                            Voir détails
+                          </button>
+                          <button mat-menu-item (click)="onEditContact(contact)">
+                            <mat-icon>edit</mat-icon>
+                            Modifier
+                          </button>
+                          <button mat-menu-item (click)="sendContactEmail(contact)" *ngIf="contact.email">
+                            <mat-icon>email</mat-icon>
+                            Envoyer email
+                          </button>
+                          <button mat-menu-item (click)="callContactPhone(contact)" *ngIf="contact.phone">
+                            <mat-icon>phone</mat-icon>
+                            Appeler
+                          </button>
+                          <mat-divider></mat-divider>
+                          <button mat-menu-item (click)="onDeleteContact(contact)" class="delete-action">
+                            <mat-icon>delete</mat-icon>
+                            Supprimer
+                          </button>
+                        </mat-menu>
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedContactColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedContactColumns;"></tr>
+                  </table>
+                </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+
+        <!-- Simple form for create mode -->
+        <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" *ngIf="!isEditMode">
+          <div class="form-grid">
+            <!-- Basic Information Section -->
+            <div class="form-section">
+              <h3>Informations générales</h3>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Nom de l'entreprise *</mat-label>
+                  <input matInput formControlName="name" placeholder="Ex: TechCorp Solutions">
+                  <mat-error>{{ getFieldError('name') }}</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Secteur d'activité *</mat-label>
+                  <mat-select formControlName="industry">
+                    <mat-option *ngFor="let industry of industries" [value]="industry">
+                      {{ industry }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error>{{ getFieldError('industry') }}</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Adresse</mat-label>
+                  <textarea matInput formControlName="address" rows="2"
+                           placeholder="123 Avenue des Champs-Élysées, 75008 Paris"></textarea>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="half-width">
+                  <mat-label>Site web</mat-label>
+                  <input matInput formControlName="website" placeholder="https://www.entreprise.com">
+                  <mat-icon matSuffix>link</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="half-width">
+                  <mat-label>Statut *</mat-label>
+                  <mat-select formControlName="status">
+                    <mat-option *ngFor="let status of statuses" [value]="status.value">
+                      {{ status.label }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error>{{ getFieldError('status') }}</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Additional Information Section -->
+            <div class="form-section">
+              <h3>Informations complémentaires</h3>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Notes</mat-label>
+                  <textarea matInput formControlName="notes" rows="4"
+                           placeholder="Notes sur le client, historique, préférences..."></textarea>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="form-actions">
+            <button type="button" mat-button (click)="onCancel()" [disabled]="isSaving">
+              Annuler
+            </button>
+            <button type="submit" mat-raised-button color="primary" [disabled]="isSaving">
+              <mat-spinner *ngIf="isSaving" diameter="20"></mat-spinner>
+              <mat-icon *ngIf="!isSaving">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+              {{ isSaving ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

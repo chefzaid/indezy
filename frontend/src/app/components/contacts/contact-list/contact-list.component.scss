@@ -1,0 +1,243 @@
+.contact-list-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  
+  .header-card {
+    margin-bottom: 20px;
+    
+    mat-card-header {
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.5rem;
+        
+        mat-icon {
+          font-size: 1.5rem;
+          width: 1.5rem;
+          height: 1.5rem;
+          color: var(--mdc-theme-primary, #1976d2);
+        }
+      }
+      
+      mat-card-subtitle {
+        margin-top: 8px;
+        color: rgba(0, 0, 0, 0.6);
+      }
+    }
+  }
+  
+  .filters-card {
+    margin-bottom: 20px;
+    
+    .actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      flex-wrap: wrap;
+      
+      .search-filters {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        flex: 1;
+        
+        .search-field {
+          min-width: 300px;
+          flex: 1;
+        }
+        
+        .filter-field {
+          min-width: 150px;
+        }
+        
+        .clear-filters-btn {
+          align-self: flex-end;
+          margin-bottom: 1.34375em;
+        }
+      }
+      
+      .action-buttons {
+        display: flex;
+        gap: 12px;
+        
+        button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          
+          mat-icon {
+            font-size: 1.1rem;
+            width: 1.1rem;
+            height: 1.1rem;
+          }
+        }
+      }
+      
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: stretch;
+        
+        .search-filters {
+          .search-field {
+            min-width: 100%;
+          }
+        }
+        
+        .action-buttons {
+          justify-content: center;
+        }
+      }
+    }
+  }
+  
+  .table-card {
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      
+      mat-spinner {
+        margin-bottom: 16px;
+      }
+    }
+    
+    .table-container {
+      .contacts-table {
+        width: 100%;
+        
+        .contact-name {
+          strong {
+            color: rgba(0, 0, 0, 0.87);
+          }
+        }
+        
+        .email-link,
+        .phone-link {
+          color: var(--mdc-theme-primary, #1976d2);
+          text-decoration: none;
+          
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+        
+        .client-info {
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.7);
+        }
+        
+        .action-buttons {
+          display: flex;
+          gap: 4px;
+          
+          button {
+            mat-icon {
+              font-size: 1.1rem;
+              width: 1.1rem;
+              height: 1.1rem;
+            }
+          }
+        }
+        
+        .contact-row {
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+          }
+        }
+      }
+      
+      .no-data {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 60px 20px;
+        text-align: center;
+        
+        mat-icon {
+          font-size: 4rem;
+          width: 4rem;
+          height: 4rem;
+          color: rgba(0, 0, 0, 0.3);
+          margin-bottom: 16px;
+        }
+        
+        h3 {
+          margin: 0 0 8px 0;
+          color: rgba(0, 0, 0, 0.6);
+        }
+        
+        p {
+          margin: 0 0 24px 0;
+          color: rgba(0, 0, 0, 0.5);
+          max-width: 400px;
+        }
+        
+        button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          
+          mat-icon {
+            font-size: 1.1rem;
+            width: 1.1rem;
+            height: 1.1rem;
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Material Design chip customizations
+.mat-mdc-chip {
+  font-size: 0.75rem;
+  min-height: 28px;
+  
+  &.mat-primary {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+  }
+  
+  &.mat-warn {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+}
+
+// Table responsive behavior
+@media (max-width: 1200px) {
+  .contacts-table {
+    .mat-column-phone {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .contacts-table {
+    .mat-column-position {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .contact-list-container {
+    padding: 16px;
+    
+    .contacts-table {
+      .mat-column-client {
+        display: none;
+      }
+      
+      .mat-column-status {
+        display: none;
+      }
+    }
+  }
+}

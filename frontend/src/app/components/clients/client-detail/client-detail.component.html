@@ -1,0 +1,298 @@
+<div class="client-detail-container">
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Chargement des détails du client...</p>
+  </div>
+
+  <div *ngIf="!isLoading && client" class="client-content">
+    <!-- Header Card -->
+    <mat-card class="header-card">
+      <mat-card-header>
+        <mat-card-title>
+          <div class="title-row">
+            <div class="client-name">
+              <mat-icon>business</mat-icon>
+              {{ client.name }}
+            </div>
+            <mat-chip [color]="getStatusColor(client.status)" selected>
+              {{ getStatusLabel(client.status) }}
+            </mat-chip>
+          </div>
+        </mat-card-title>
+        <mat-card-subtitle>
+          {{ client.industry }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-actions>
+        <button mat-button (click)="onBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Retour
+        </button>
+        <button mat-raised-button color="primary" (click)="onEdit()">
+          <mat-icon>edit</mat-icon>
+          Modifier
+        </button>
+        <button mat-button color="warn" (click)="onDelete()">
+          <mat-icon>delete</mat-icon>
+          Supprimer
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Tabbed Content -->
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex" class="client-tabs">
+      <!-- Client Details Tab -->
+      <mat-tab label="Détails du client">
+        <div class="tab-content">
+
+          <div class="details-grid">
+            <!-- Company Information -->
+            <mat-card class="info-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>business</mat-icon>
+                  Informations entreprise
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="info-item">
+                  <div class="info-label">
+                    <mat-icon>category</mat-icon>
+                    Secteur d'activité
+                  </div>
+                  <div class="info-value">
+                    {{ client.industry }}
+                  </div>
+                </div>
+
+                <mat-divider *ngIf="client.address"></mat-divider>
+
+                <div class="info-item" *ngIf="client.address">
+                  <div class="info-label">
+                    <mat-icon>location_on</mat-icon>
+                    Adresse
+                  </div>
+                  <div class="info-value">
+                    {{ client.address }}
+                  </div>
+                </div>
+
+                <mat-divider *ngIf="client.website"></mat-divider>
+
+                <div class="info-item" *ngIf="client.website">
+                  <div class="info-label">
+                    <mat-icon>link</mat-icon>
+                    Site web
+                  </div>
+                  <div class="info-value">
+                    <a [href]="client.website" target="_blank" class="contact-link" (click)="openWebsite()">
+                      {{ client.website }}
+                      <mat-icon>open_in_new</mat-icon>
+                    </a>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Status Information -->
+            <mat-card class="info-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>info</mat-icon>
+                  Statut et informations
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="info-item">
+                  <div class="info-label">
+                    <mat-icon>info</mat-icon>
+                    Statut
+                  </div>
+                  <div class="info-value">
+                    <mat-chip [color]="getStatusColor(client.status)" selected>
+                      {{ getStatusLabel(client.status) }}
+                    </mat-chip>
+                  </div>
+                </div>
+
+                <mat-divider *ngIf="client.notes"></mat-divider>
+
+                <div class="info-item" *ngIf="client.notes">
+                  <div class="info-label">
+                    <mat-icon>note</mat-icon>
+                    Notes
+                  </div>
+                  <div class="info-value">
+                    {{ client.notes }}
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Timeline Information -->
+            <mat-card class="info-card timeline-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>schedule</mat-icon>
+                  Historique
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="timeline-item">
+                  <div class="timeline-icon">
+                    <mat-icon>add_circle</mat-icon>
+                  </div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Client créé</div>
+                    <div class="timeline-date">{{ formatDate(client.createdAt) }}</div>
+                  </div>
+                </div>
+
+                <div class="timeline-item" *ngIf="client.updatedAt !== client.createdAt">
+                  <div class="timeline-icon">
+                    <mat-icon>edit</mat-icon>
+                  </div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Dernière modification</div>
+                    <div class="timeline-date">{{ formatDate(client.updatedAt) }}</div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Notes -->
+            <mat-card class="info-card notes-card" *ngIf="client.notes">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>note</mat-icon>
+                  Notes
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="notes-content">
+                  {{ client.notes }}
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Contacts Tab -->
+      <mat-tab label="Contacts">
+        <div class="tab-content">
+          <div class="contacts-header">
+            <h3>Contacts associés</h3>
+            <button mat-raised-button color="primary" (click)="onAddContact()">
+              <mat-icon>add</mat-icon>
+              Ajouter un contact
+            </button>
+          </div>
+
+          <div *ngIf="isLoadingContacts" class="loading-container">
+            <mat-spinner></mat-spinner>
+            <p>Chargement des contacts...</p>
+          </div>
+
+          <div *ngIf="!isLoadingContacts && contacts.length === 0" class="empty-state">
+            <mat-icon>person_off</mat-icon>
+            <h4>Aucun contact</h4>
+            <p>Ce client n'a pas encore de contacts associés.</p>
+            <button mat-raised-button color="primary" (click)="onAddContact()">
+              <mat-icon>add</mat-icon>
+              Ajouter le premier contact
+            </button>
+          </div>
+
+          <div *ngIf="!isLoadingContacts && contacts.length > 0" class="contacts-table-container">
+            <table mat-table [dataSource]="contacts" class="contacts-table">
+              <!-- Name Column -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Nom</th>
+                <td mat-cell *matCellDef="let contact">
+                  <div class="contact-name">
+                    <mat-icon>person</mat-icon>
+                    {{ contact.firstName }} {{ contact.lastName }}
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Email Column -->
+              <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef>Email</th>
+                <td mat-cell *matCellDef="let contact">
+                  <a [href]="'mailto:' + contact.email" class="contact-link" (click)="sendContactEmail(contact)">
+                    {{ contact.email }}
+                  </a>
+                </td>
+              </ng-container>
+
+              <!-- Phone Column -->
+              <ng-container matColumnDef="phone">
+                <th mat-header-cell *matHeaderCellDef>Téléphone</th>
+                <td mat-cell *matCellDef="let contact">
+                  <a [href]="'tel:' + contact.phone" class="contact-link" (click)="callContactPhone(contact)">
+                    {{ contact.phone }}
+                  </a>
+                </td>
+              </ng-container>
+
+              <!-- Position Column -->
+              <ng-container matColumnDef="position">
+                <th mat-header-cell *matHeaderCellDef>Poste</th>
+                <td mat-cell *matCellDef="let contact">{{ contact.position }}</td>
+              </ng-container>
+
+              <!-- Status Column -->
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Statut</th>
+                <td mat-cell *matCellDef="let contact">
+                  <mat-chip [color]="getContactStatusColor(contact.status)" selected>
+                    {{ getContactStatusLabel(contact.status) }}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let contact">
+                  <button mat-icon-button [matMenuTriggerFor]="contactMenu">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                  <mat-menu #contactMenu="matMenu">
+                    <button mat-menu-item (click)="onViewContact(contact)">
+                      <mat-icon>visibility</mat-icon>
+                      Voir détails
+                    </button>
+                    <button mat-menu-item (click)="onEditContact(contact)">
+                      <mat-icon>edit</mat-icon>
+                      Modifier
+                    </button>
+                    <button mat-menu-item (click)="sendContactEmail(contact)" *ngIf="contact.email">
+                      <mat-icon>email</mat-icon>
+                      Envoyer email
+                    </button>
+                    <button mat-menu-item (click)="callContactPhone(contact)" *ngIf="contact.phone">
+                      <mat-icon>phone</mat-icon>
+                      Appeler
+                    </button>
+                    <mat-divider></mat-divider>
+                    <button mat-menu-item (click)="onDeleteContact(contact)" class="delete-action">
+                      <mat-icon>delete</mat-icon>
+                      Supprimer
+                    </button>
+                  </mat-menu>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="contactDisplayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: contactDisplayedColumns;"></tr>
+            </table>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

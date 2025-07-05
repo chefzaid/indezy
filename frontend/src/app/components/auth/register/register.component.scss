@@ -1,0 +1,112 @@
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.register-card-container {
+  width: 100%;
+  max-width: 500px;
+}
+
+.register-card {
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.register-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.register-icon {
+  font-size: 28px;
+  color: #667eea;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.name-row {
+  display: flex;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.register-button {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 8px;
+  position: relative;
+}
+
+.register-spinner {
+  margin-right: 8px;
+}
+
+.register-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+}
+
+.login-link {
+  margin: 0;
+  text-align: center;
+  color: #666;
+}
+
+.login-link-text {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Responsive design
+@media (max-width: 600px) {
+  .register-container {
+    padding: 10px;
+  }
+  
+  .register-card {
+    padding: 16px;
+  }
+  
+  .register-title {
+    font-size: 20px;
+  }
+  
+  .name-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .half-width {
+    width: 100%;
+  }
+}
