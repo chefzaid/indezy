@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class SourceDto {
     private Long id;
@@ -31,8 +33,17 @@ public class SourceDto {
     private String notes;
 
     // Related entities
+    @NotNull(message = "Freelance ID is required")
     private Long freelanceId;
 
     // Computed fields
     private Integer totalProjects;
+    private Double averageDailyRate;
+
+    // Related collections (for detailed views)
+    private java.util.List<dev.byteworks.indezy.dto.ProjectDto> projects;
+
+    // Audit fields
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

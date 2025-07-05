@@ -36,4 +36,7 @@ public interface SourceRepository extends JpaRepository<Source, Long> {
 
     @Query("SELECT AVG(s.usefulnessRating) FROM Source s WHERE s.freelance.id = :freelanceId AND s.usefulnessRating IS NOT NULL")
     Double findAverageUsefulnessRatingByFreelanceId(@Param("freelanceId") Long freelanceId);
+
+    @Query("SELECT DISTINCT s.type FROM Source s WHERE s.freelance.id = :freelanceId ORDER BY s.type")
+    List<SourceType> findDistinctTypesByFreelanceId(@Param("freelanceId") Long freelanceId);
 }
