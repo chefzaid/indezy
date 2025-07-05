@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ import static org.hamcrest.Matchers.*;
 @ActiveProfiles("test")
 @Transactional
 @WithMockUser
+@Sql("/test-data.sql")
 class ProjectIntegrationTest {
 
     @Autowired
@@ -55,7 +57,7 @@ class ProjectIntegrationTest {
         projectDto.setDailyRate(600);
         projectDto.setWorkMode(WorkMode.REMOTE);
         projectDto.setStartDate(LocalDate.now());
-        projectDto.setEndDate(LocalDate.now().plusMonths(6));
+        projectDto.setDurationInMonths(6);
         projectDto.setFreelanceId(1L);
         projectDto.setClientId(1L);
         projectDto.setSourceId(1L);
@@ -86,7 +88,7 @@ class ProjectIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.error", is("Validation Failed")))
-                .andExpect(jsonPath("$.errors", hasSize(greaterThan(0))));
+                .andExpect(jsonPath("$.validationErrors").exists());
     }
 
     @Test
@@ -179,7 +181,7 @@ class ProjectIntegrationTest {
         projectDto.setDailyRate(600);
         projectDto.setWorkMode(WorkMode.REMOTE);
         projectDto.setStartDate(LocalDate.now());
-        projectDto.setEndDate(LocalDate.now().plusMonths(6));
+        projectDto.setDurationInMonths(6);
         projectDto.setFreelanceId(1L);
         projectDto.setClientId(1L);
         projectDto.setSourceId(1L);

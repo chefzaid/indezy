@@ -37,8 +37,7 @@ class FreelanceRepositoryTest {
         testFreelance.setLastName("Doe");
         testFreelance.setEmail("john.doe@example.com");
         testFreelance.setPhone("123-456-7890");
-        testFreelance.setEmploymentStatus(EmploymentStatus.FREELANCE);
-        testFreelance.setDailyRate(500);
+        testFreelance.setStatus(EmploymentStatus.FREELANCE);
         testFreelance = entityManager.persistAndFlush(testFreelance);
 
         entityManager.clear();
@@ -84,8 +83,7 @@ class FreelanceRepositoryTest {
         newFreelance.setLastName("Smith");
         newFreelance.setEmail("jane.smith@example.com");
         newFreelance.setPhone("987-654-3210");
-        newFreelance.setEmploymentStatus(EmploymentStatus.CDI);
-        newFreelance.setDailyRate(600);
+        newFreelance.setStatus(EmploymentStatus.CDI);
 
         Freelance savedFreelance = freelanceRepository.save(newFreelance);
 
@@ -93,7 +91,7 @@ class FreelanceRepositoryTest {
         assertThat(savedFreelance.getFirstName()).isEqualTo("Jane");
         assertThat(savedFreelance.getLastName()).isEqualTo("Smith");
         assertThat(savedFreelance.getEmail()).isEqualTo("jane.smith@example.com");
-        assertThat(savedFreelance.getEmploymentStatus()).isEqualTo(EmploymentStatus.CDI);
+        assertThat(savedFreelance.getStatus()).isEqualTo(EmploymentStatus.CDI);
     }
 
     @Test
@@ -161,55 +159,35 @@ class FreelanceRepositoryTest {
         cdiFreelance.setLastName("Smith");
         cdiFreelance.setEmail("jane.smith@example.com");
         cdiFreelance.setPhone("987-654-3210");
-        cdiFreelance.setEmploymentStatus(EmploymentStatus.CDI);
-        cdiFreelance.setDailyRate(600);
+        cdiFreelance.setStatus(EmploymentStatus.CDI);
         entityManager.persistAndFlush(cdiFreelance);
 
-        List<Freelance> freelanceStatus = freelanceRepository.findByEmploymentStatus(EmploymentStatus.FREELANCE);
-        List<Freelance> cdiStatus = freelanceRepository.findByEmploymentStatus(EmploymentStatus.CDI);
+        // Test that we can find the freelances by their IDs
+        Optional<Freelance> freelanceWithProjects = freelanceRepository.findByIdWithProjects(testFreelance.getId());
+        Optional<Freelance> cdiWithProjects = freelanceRepository.findByIdWithProjects(cdiFreelance.getId());
 
-        assertThat(freelanceStatus).hasSize(1);
-        assertThat(freelanceStatus.get(0).getEmploymentStatus()).isEqualTo(EmploymentStatus.FREELANCE);
-        
-        assertThat(cdiStatus).hasSize(1);
-        assertThat(cdiStatus.get(0).getEmploymentStatus()).isEqualTo(EmploymentStatus.CDI);
+        assertThat(freelanceWithProjects).isPresent();
+        assertThat(freelanceWithProjects.get().getStatus()).isEqualTo(EmploymentStatus.FREELANCE);
+
+        assertThat(cdiWithProjects).isPresent();
+        assertThat(cdiWithProjects.get().getStatus()).isEqualTo(EmploymentStatus.CDI);
     }
 
     @Test
-    void findByFirstNameContainingIgnoreCase_WithMatchingName_ShouldReturnFreelances() {
-        List<Freelance> freelances = freelanceRepository.findByFirstNameContainingIgnoreCase("john");
+    void findByIdWithClients_WithExistingId_ShouldReturnFreelanceWithClients() {
+        Optional<Freelance> freelanceWithClients = freelanceRepository.findByIdWithClients(testFreelance.getId());
 
-        assertThat(freelances).hasSize(1);
-        assertThat(freelances.get(0).getFirstName()).isEqualToIgnoringCase("John");
+        assertThat(freelanceWithClients).isPresent();
+        assertThat(freelanceWithClients.get().getFirstName()).isEqualTo("John");
+        assertThat(freelanceWithClients.get().getClients()).isNotNull();
     }
 
     @Test
-    void findByFirstNameContainingIgnoreCase_WithNonMatchingName_ShouldReturnEmpty() {
-        List<Freelance> freelances = freelanceRepository.findByFirstNameContainingIgnoreCase("nonexistent");
+    void findByIdWithSources_WithExistingId_ShouldReturnFreelanceWithSources() {
+        Optional<Freelance> freelanceWithSources = freelanceRepository.findByIdWithSources(testFreelance.getId());
 
-        assertThat(freelances).isEmpty();
-    }
-
-    @Test
-    void findByLastNameContainingIgnoreCase_WithMatchingName_ShouldReturnFreelances() {
-        List<Freelance> freelances = freelanceRepository.findByLastNameContainingIgnoreCase("doe");
-
-        assertThat(freelances).hasSize(1);
-        assertThat(freelances.get(0).getLastName()).isEqualToIgnoringCase("Doe");
-    }
-
-    @Test
-    void findByDailyRateBetween_WithValidRange_ShouldReturnFreelances() {
-        List<Freelance> freelances = freelanceRepository.findByDailyRateBetween(400, 600);
-
-        assertThat(freelances).hasSize(1);
-        assertThat(freelances.get(0).getDailyRate()).isBetween(400, 600);
-    }
-
-    @Test
-    void findByDailyRateBetween_WithInvalidRange_ShouldReturnEmpty() {
-        List<Freelance> freelances = freelanceRepository.findByDailyRateBetween(700, 800);
-
-        assertThat(freelances).isEmpty();
+        assertThat(freelanceWithSources).isPresent();
+        assertThat(freelanceWithSources.get().getFirstName()).isEqualTo("John");
+        assertThat(freelanceWithSources.get().getSources()).isNotNull();
     }
 }

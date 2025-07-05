@@ -2,6 +2,7 @@ package dev.byteworks.indezy.repository;
 
 import dev.byteworks.indezy.model.*;
 import dev.byteworks.indezy.model.enums.EmploymentStatus;
+import dev.byteworks.indezy.model.enums.SourceType;
 import dev.byteworks.indezy.model.enums.WorkMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,23 +53,23 @@ class ProjectRepositoryTest {
         testFreelance.setLastName("Doe");
         testFreelance.setEmail("john.doe@example.com");
         testFreelance.setPhone("123-456-7890");
-        testFreelance.setEmploymentStatus(EmploymentStatus.FREELANCE);
-        testFreelance.setDailyRate(500);
+        testFreelance.setStatus(EmploymentStatus.FREELANCE);
         testFreelance = entityManager.persistAndFlush(testFreelance);
 
         // Create test client
         testClient = new Client();
-        testClient.setName("Test Client");
+        testClient.setCompanyName("Test Client");
         testClient.setAddress("123 Test St");
         testClient.setCity("Test City");
-        testClient.setPostalCode("12345");
-        testClient.setCountry("Test Country");
+        testClient.setIsFinal(true);
+        testClient.setFreelance(testFreelance);
         testClient = entityManager.persistAndFlush(testClient);
 
         // Create test source
         testSource = new Source();
         testSource.setName("Test Source");
-        testSource.setType("LinkedIn");
+        testSource.setType(SourceType.JOB_BOARD);
+        testSource.setFreelance(testFreelance);
         testSource = entityManager.persistAndFlush(testSource);
 
         // Create test project
@@ -79,7 +80,7 @@ class ProjectRepositoryTest {
         testProject.setDailyRate(600);
         testProject.setWorkMode(WorkMode.REMOTE);
         testProject.setStartDate(LocalDate.now());
-        testProject.setEndDate(LocalDate.now().plusMonths(6));
+        testProject.setDurationInMonths(6);
         testProject.setFreelance(testFreelance);
         testProject.setClient(testClient);
         testProject.setSource(testSource);
@@ -105,55 +106,55 @@ class ProjectRepositoryTest {
     }
 
     @Test
-    void findByFreelanceIdWithFilters_WithMinRate_ShouldReturnFilteredProjects() {
-        List<Project> projects = projectRepository.findByFreelanceIdWithFilters(
-                testFreelance.getId(), 500, null, null, null, null);
+    void findByFreelanceIdAndDailyRateGreaterThanEqual_WithMinRate_ShouldReturnFilteredProjects() {
+        List<Project> projects = projectRepository.findByFreelanceIdAndDailyRateGreaterThanEqual(
+                testFreelance.getId(), 500);
 
         assertThat(projects).hasSize(1);
         assertThat(projects.get(0).getDailyRate()).isGreaterThanOrEqualTo(500);
     }
 
     @Test
-    void findByFreelanceIdWithFilters_WithMaxRate_ShouldReturnFilteredProjects() {
-        List<Project> projects = projectRepository.findByFreelanceIdWithFilters(
-                testFreelance.getId(), null, 700, null, null, null);
+    void findByFreelanceIdAndDailyRateLessThanEqual_WithMaxRate_ShouldReturnFilteredProjects() {
+        List<Project> projects = projectRepository.findByFreelanceIdAndDailyRateLessThanEqual(
+                testFreelance.getId(), 700);
 
         assertThat(projects).hasSize(1);
         assertThat(projects.get(0).getDailyRate()).isLessThanOrEqualTo(700);
     }
 
     @Test
-    void findByFreelanceIdWithFilters_WithWorkMode_ShouldReturnFilteredProjects() {
-        List<Project> projects = projectRepository.findByFreelanceIdWithFilters(
-                testFreelance.getId(), null, null, WorkMode.REMOTE, null, null);
+    void findByFreelanceIdAndWorkMode_WithWorkMode_ShouldReturnFilteredProjects() {
+        List<Project> projects = projectRepository.findByFreelanceIdAndWorkMode(
+                testFreelance.getId(), WorkMode.REMOTE);
 
         assertThat(projects).hasSize(1);
         assertThat(projects.get(0).getWorkMode()).isEqualTo(WorkMode.REMOTE);
     }
 
     @Test
-    void findByFreelanceIdWithFilters_WithStartDate_ShouldReturnFilteredProjects() {
+    void findByFreelanceIdAndStartDateAfter_WithStartDate_ShouldReturnFilteredProjects() {
         LocalDate filterDate = LocalDate.now().minusDays(1);
-        List<Project> projects = projectRepository.findByFreelanceIdWithFilters(
-                testFreelance.getId(), null, null, null, filterDate, null);
+        List<Project> projects = projectRepository.findByFreelanceIdAndStartDateAfter(
+                testFreelance.getId(), filterDate);
 
         assertThat(projects).hasSize(1);
         assertThat(projects.get(0).getStartDate()).isAfterOrEqualTo(filterDate);
     }
 
     @Test
-    void findByFreelanceIdWithFilters_WithTechStack_ShouldReturnFilteredProjects() {
-        List<Project> projects = projectRepository.findByFreelanceIdWithFilters(
-                testFreelance.getId(), null, null, null, null, "Java");
+    void findByFreelanceIdAndTechStackContaining_WithTechStack_ShouldReturnFilteredProjects() {
+        List<Project> projects = projectRepository.findByFreelanceIdAndTechStackContaining(
+                testFreelance.getId(), "Java");
 
         assertThat(projects).hasSize(1);
         assertThat(projects.get(0).getTechStack()).containsIgnoringCase("Java");
     }
 
     @Test
-    void findByFreelanceIdWithFilters_WithNoMatches_ShouldReturnEmptyList() {
-        List<Project> projects = projectRepository.findByFreelanceIdWithFilters(
-                testFreelance.getId(), 1000, null, null, null, null);
+    void findByFreelanceIdAndDailyRateGreaterThanEqual_WithNoMatches_ShouldReturnEmptyList() {
+        List<Project> projects = projectRepository.findByFreelanceIdAndDailyRateGreaterThanEqual(
+                testFreelance.getId(), 1000);
 
         assertThat(projects).isEmpty();
     }
@@ -164,7 +165,7 @@ class ProjectRepositoryTest {
 
         assertThat(project).isPresent();
         assertThat(project.get().getRole()).isEqualTo("Full Stack Developer");
-        assertThat(project.get().getInterviewSteps()).isNotNull();
+        assertThat(project.get().getSteps()).isNotNull();
     }
 
     @Test
@@ -175,15 +176,15 @@ class ProjectRepositoryTest {
     }
 
     @Test
-    void getAverageDailyRateByFreelanceId_WithExistingFreelanceId_ShouldReturnAverage() {
-        Double averageRate = projectRepository.getAverageDailyRateByFreelanceId(testFreelance.getId());
+    void findAverageDailyRateByFreelanceId_WithExistingFreelanceId_ShouldReturnAverage() {
+        Double averageRate = projectRepository.findAverageDailyRateByFreelanceId(testFreelance.getId());
 
         assertThat(averageRate).isEqualTo(600.0);
     }
 
     @Test
-    void getAverageDailyRateByFreelanceId_WithNonExistentFreelanceId_ShouldReturnNull() {
-        Double averageRate = projectRepository.getAverageDailyRateByFreelanceId(999L);
+    void findAverageDailyRateByFreelanceId_WithNonExistentFreelanceId_ShouldReturnNull() {
+        Double averageRate = projectRepository.findAverageDailyRateByFreelanceId(999L);
 
         assertThat(averageRate).isNull();
     }
@@ -211,7 +212,7 @@ class ProjectRepositoryTest {
         newProject.setDailyRate(550);
         newProject.setWorkMode(WorkMode.HYBRID);
         newProject.setStartDate(LocalDate.now());
-        newProject.setEndDate(LocalDate.now().plusMonths(3));
+        newProject.setDurationInMonths(3);
         newProject.setFreelance(testFreelance);
         newProject.setClient(testClient);
         newProject.setSource(testSource);

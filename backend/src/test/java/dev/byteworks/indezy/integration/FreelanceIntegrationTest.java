@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,8 +53,7 @@ class FreelanceIntegrationTest {
         freelanceDto.setLastName("Doe");
         freelanceDto.setEmail("john.doe@example.com");
         freelanceDto.setPhone("123-456-7890");
-        freelanceDto.setEmploymentStatus(EmploymentStatus.FREELANCE);
-        freelanceDto.setDailyRate(500);
+        freelanceDto.setStatus(EmploymentStatus.FREELANCE);
 
         mockMvc.perform(post("/freelances")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -63,8 +63,7 @@ class FreelanceIntegrationTest {
                 .andExpect(jsonPath("$.lastName", is("Doe")))
                 .andExpect(jsonPath("$.email", is("john.doe@example.com")))
                 .andExpect(jsonPath("$.phone", is("123-456-7890")))
-                .andExpect(jsonPath("$.employmentStatus", is("FREELANCE")))
-                .andExpect(jsonPath("$.dailyRate", is(500)))
+                .andExpect(jsonPath("$.status", is("FREELANCE")))
                 .andExpect(jsonPath("$.id", notNullValue()));
     }
 
@@ -79,7 +78,7 @@ class FreelanceIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.error", is("Validation Failed")))
-                .andExpect(jsonPath("$.errors", hasSize(greaterThan(0))));
+                .andExpect(jsonPath("$.validationErrors").exists());
     }
 
     @Test
@@ -131,14 +130,12 @@ class FreelanceIntegrationTest {
 
         // Update the freelance
         createdFreelance.setFirstName("Jane");
-        createdFreelance.setDailyRate(600);
 
         mockMvc.perform(put("/freelances/{id}", createdFreelance.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createdFreelance)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName", is("Jane")))
-                .andExpect(jsonPath("$.dailyRate", is(600)));
+                .andExpect(jsonPath("$.firstName", is("Jane")));
     }
 
     @Test
@@ -217,8 +214,7 @@ class FreelanceIntegrationTest {
         freelanceDto.setLastName("Doe");
         freelanceDto.setEmail("john.doe@example.com");
         freelanceDto.setPhone("123-456-7890");
-        freelanceDto.setEmploymentStatus(EmploymentStatus.FREELANCE);
-        freelanceDto.setDailyRate(500);
+        freelanceDto.setStatus(EmploymentStatus.FREELANCE);
         return freelanceDto;
     }
 }
