@@ -3,6 +3,13 @@ package dev.byteworks.indezy.controller;
 import dev.byteworks.indezy.dto.ProjectDto;
 import dev.byteworks.indezy.model.enums.WorkMode;
 import dev.byteworks.indezy.service.ProjectService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +26,16 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = {"http://localhost:4200", "http://127.0.0.1:4200"})
+@Tag(name = "Projects", description = "Project management operations")
 public class ProjectController {
 
     private final ProjectService projectService;
 
+    @Operation(summary = "Get all projects", description = "Retrieve a list of all projects")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved projects",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class)))
+    })
     @GetMapping
     public ResponseEntity<List<ProjectDto>> getAllProjects() {
         log.debug("GET /projects - Getting all projects");
@@ -30,8 +43,15 @@ public class ProjectController {
         return ResponseEntity.ok(projects);
     }
 
+    @Operation(summary = "Get project by ID", description = "Retrieve a specific project by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved project",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class))),
+        @ApiResponse(responseCode = "404", description = "Project not found")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectDto> getProjectById(@PathVariable Long id) {
+    public ResponseEntity<ProjectDto> getProjectById(
+            @Parameter(description = "Project ID", required = true) @PathVariable Long id) {
         log.debug("GET /projects/{} - Getting project by id", id);
         ProjectDto project = projectService.findById(id);
         return ResponseEntity.ok(project);
@@ -73,23 +93,44 @@ public class ProjectController {
         return ResponseEntity.ok(projects);
     }
 
+    @Operation(summary = "Create new project", description = "Create a new project with the provided details")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Project created successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid project data")
+    })
     @PostMapping
-    public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody ProjectDto projectDto) {
+    public ResponseEntity<ProjectDto> createProject(
+            @Parameter(description = "Project details", required = true) @Valid @RequestBody ProjectDto projectDto) {
         log.debug("POST /projects - Creating new project");
         ProjectDto createdProject = projectService.create(projectDto);
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Update project", description = "Update an existing project with new details")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Project updated successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class))),
+        @ApiResponse(responseCode = "404", description = "Project not found"),
+        @ApiResponse(responseCode = "400", description = "Invalid project data")
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<ProjectDto> updateProject(@PathVariable Long id, 
-                                                   @Valid @RequestBody ProjectDto projectDto) {
+    public ResponseEntity<ProjectDto> updateProject(
+            @Parameter(description = "Project ID", required = true) @PathVariable Long id,
+            @Parameter(description = "Updated project details", required = true) @Valid @RequestBody ProjectDto projectDto) {
         log.debug("PUT /projects/{} - Updating project", id);
         ProjectDto updatedProject = projectService.update(id, projectDto);
         return ResponseEntity.ok(updatedProject);
     }
 
+    @Operation(summary = "Delete project", description = "Delete a project by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Project deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Project not found")
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProject(
+            @Parameter(description = "Project ID", required = true) @PathVariable Long id) {
         log.debug("DELETE /projects/{} - Deleting project", id);
         projectService.delete(id);
         return ResponseEntity.noContent().build();

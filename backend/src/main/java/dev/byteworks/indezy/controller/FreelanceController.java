@@ -2,6 +2,13 @@ package dev.byteworks.indezy.controller;
 
 import dev.byteworks.indezy.dto.FreelanceDto;
 import dev.byteworks.indezy.service.FreelanceService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +23,16 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = {"http://localhost:4200", "http://127.0.0.1:4200"})
+@Tag(name = "Freelances", description = "Freelance profile management operations")
 public class FreelanceController {
 
     private final FreelanceService freelanceService;
 
+    @Operation(summary = "Get all freelances", description = "Retrieve a list of all freelance profiles")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved freelances",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = FreelanceDto.class)))
+    })
     @GetMapping
     public ResponseEntity<List<FreelanceDto>> getAllFreelances() {
         log.debug("GET /freelances - Getting all freelances");
@@ -27,15 +40,29 @@ public class FreelanceController {
         return ResponseEntity.ok(freelances);
     }
 
+    @Operation(summary = "Get freelance by ID", description = "Retrieve a specific freelance profile by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved freelance",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = FreelanceDto.class))),
+        @ApiResponse(responseCode = "404", description = "Freelance not found")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<FreelanceDto> getFreelanceById(@PathVariable Long id) {
+    public ResponseEntity<FreelanceDto> getFreelanceById(
+            @Parameter(description = "Freelance ID", required = true) @PathVariable Long id) {
         log.debug("GET /freelances/{} - Getting freelance by id", id);
         FreelanceDto freelance = freelanceService.findById(id);
         return ResponseEntity.ok(freelance);
     }
 
+    @Operation(summary = "Get freelance with projects", description = "Retrieve a freelance profile with associated projects")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved freelance with projects",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = FreelanceDto.class))),
+        @ApiResponse(responseCode = "404", description = "Freelance not found")
+    })
     @GetMapping("/{id}/with-projects")
-    public ResponseEntity<FreelanceDto> getFreelanceByIdWithProjects(@PathVariable Long id) {
+    public ResponseEntity<FreelanceDto> getFreelanceByIdWithProjects(
+            @Parameter(description = "Freelance ID", required = true) @PathVariable Long id) {
         log.debug("GET /freelances/{}/with-projects - Getting freelance with projects", id);
         FreelanceDto freelance = freelanceService.findByIdWithProjects(id);
         return ResponseEntity.ok(freelance);
