@@ -172,7 +172,12 @@ describe('AuthService', () => {
 
   describe('getUser', () => {
     it('should return user from localStorage', () => {
-      const mockUser = { id: 1, email: 'test@example.com' };
+      const mockUser = {
+        id: 1,
+        email: 'test@example.com',
+        firstName: 'Test',
+        lastName: 'User'
+      };
       localStorageSpy.and.returnValue(JSON.stringify(mockUser));
       
       const user = service.getUser();
