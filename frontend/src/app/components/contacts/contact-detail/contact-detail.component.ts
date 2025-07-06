@@ -87,8 +87,11 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
   }
 
   onDelete(): void {
-    if (!this.contact) { return; }
-    
+    if (!this.contact || !this.contact.id) {
+      this.snackBar.open('Erreur: Contact ou ID manquant', 'Fermer', { duration: 3000 });
+      return;
+    }
+
     if (confirm(`Êtes-vous sûr de vouloir supprimer le contact "${this.contact.firstName} ${this.contact.lastName}" ?`)) {
       this.contactService.deleteContact(this.contact.id)
         .pipe(takeUntil(this.destroy$))

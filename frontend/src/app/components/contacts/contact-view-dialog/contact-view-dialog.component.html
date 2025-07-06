@@ -15,8 +15,8 @@
         <p class="contact-subtitle">{{ contact.position }} • {{ contact.clientName }}</p>
       </div>
     </div>
-    <mat-chip [color]="getStatusColor(contact.status)" selected>
-      {{ getStatusLabel(contact.status) }}
+    <mat-chip [color]="getStatusColor(contact.status || 'ACTIVE')" selected>
+      {{ getStatusLabel(contact.status || 'ACTIVE') }}
     </mat-chip>
   </div>
 

@@ -153,7 +153,7 @@ export class ContactListComponent implements OnInit, OnDestroy {
         contact.lastName.toLowerCase().includes(query) ||
         contact.email.toLowerCase().includes(query) ||
         contact.position.toLowerCase().includes(query) ||
-        contact.clientName.toLowerCase().includes(query)
+        (contact.clientName && contact.clientName.toLowerCase().includes(query))
       );
     }
 
@@ -196,6 +196,11 @@ export class ContactListComponent implements OnInit, OnDestroy {
   }
 
   onDelete(contact: ContactDto): void {
+    if (!contact.id) {
+      this.snackBar.open('Erreur: ID du contact manquant', 'Fermer', { duration: 3000 });
+      return;
+    }
+
     if (confirm(`Êtes-vous sûr de vouloir supprimer le contact "${contact.firstName} ${contact.lastName}" ?`)) {
       this.contactService.deleteContact(contact.id)
         .pipe(takeUntil(this.destroy$))

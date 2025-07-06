@@ -1,0 +1,24 @@
+# Build outputs
+dist/
+coverage/
+.angular/
+
+# Dependencies
+node_modules/
+
+# Backend build artifacts (in case ESLint runs from root)
+../backend/target/
+**/target/
+
+# Generated files
+**/*.generated.ts
+**/*.generated.js
+
+# Test outputs
+test-results/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

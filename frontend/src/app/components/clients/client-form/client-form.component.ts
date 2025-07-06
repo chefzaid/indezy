@@ -275,6 +275,11 @@ export class ClientFormComponent implements OnInit, OnDestroy {
   }
 
   onDeleteContact(contact: ContactDto): void {
+    if (!contact.id) {
+      this.snackBar.open('Erreur: ID du contact manquant', 'Fermer', { duration: 3000 });
+      return;
+    }
+
     if (confirm(`Êtes-vous sûr de vouloir supprimer le contact "${contact.firstName} ${contact.lastName}" ?`)) {
       this.contactService.deleteContact(contact.id)
         .pipe(takeUntil(this.destroy$))

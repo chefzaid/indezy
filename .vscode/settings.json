@@ -1,0 +1,61 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "makefile.configureOnOpen": false,
+
+    // Exclude target directories from file watchers and analysis
+    "files.watcherExclude": {
+        "**/target/**": true,
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/coverage/**": true,
+        "**/.angular/**": true
+    },
+
+    // Exclude target directories from search
+    "search.exclude": {
+        "**/target/**": true,
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/coverage/**": true,
+        "**/.angular/**": true
+    },
+
+    // Exclude target directories from file explorer
+    "files.exclude": {
+        "**/target/**": true,
+        "**/node_modules/**": true,
+        "**/dist/**": true,
+        "**/coverage/**": true,
+        "**/.angular/**": true
+    },
+
+    // SonarLint exclusions
+    "sonarlint.pathToNodeExecutable": "",
+    "sonarlint.excludeRules": [],
+    "sonarlint.analysisExcludePatterns": [
+        "**/target/**",
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/coverage/**",
+        "**/.angular/**",
+        "**/generated/**"
+    ],
+
+    // Java extension exclusions
+    "java.project.sourcePaths": [],
+    "java.project.outputPath": "",
+    "java.project.referencedLibraries": [],
+
+    // ESLint exclusions for frontend
+    "eslint.workingDirectories": ["frontend"],
+    "eslint.ignoreUntitled": true,
+
+    // TypeScript exclusions
+    "typescript.preferences.exclude": [
+        "**/target/**",
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/coverage/**"
+    ]
+}

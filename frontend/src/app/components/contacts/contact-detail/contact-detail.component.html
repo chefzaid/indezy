@@ -14,8 +14,8 @@
               <mat-icon>person</mat-icon>
               {{ getFullName() }}
             </div>
-            <mat-chip [color]="getStatusColor(contact.status)" selected>
-              {{ getStatusLabel(contact.status) }}
+            <mat-chip [color]="getStatusColor(contact.status || 'ACTIVE')" selected>
+              {{ getStatusLabel(contact.status || 'ACTIVE') }}
             </mat-chip>
           </div>
         </mat-card-title>
@@ -117,8 +117,8 @@
               Statut
             </div>
             <div class="info-value">
-              <mat-chip [color]="getStatusColor(contact.status)" selected>
-                {{ getStatusLabel(contact.status) }}
+              <mat-chip [color]="getStatusColor(contact.status || 'ACTIVE')" selected>
+                {{ getStatusLabel(contact.status || 'ACTIVE') }}
               </mat-chip>
             </div>
           </div>
@@ -140,7 +140,7 @@
             </div>
             <div class="timeline-content">
               <div class="timeline-title">Contact créé</div>
-              <div class="timeline-date">{{ formatDate(contact.createdAt) }}</div>
+              <div class="timeline-date">{{ contact.createdAt ? formatDate(contact.createdAt) : 'Non disponible' }}</div>
             </div>
           </div>
 
@@ -150,7 +150,7 @@
             </div>
             <div class="timeline-content">
               <div class="timeline-title">Dernière modification</div>
-              <div class="timeline-date">{{ formatDate(contact.updatedAt) }}</div>
+              <div class="timeline-date">{{ contact.updatedAt ? formatDate(contact.updatedAt) : 'Non disponible' }}</div>
             </div>
           </div>
         </mat-card-content>

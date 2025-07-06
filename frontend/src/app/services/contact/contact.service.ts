@@ -4,6 +4,9 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ContactDto } from '../../models/contact.models';
 
+// Export the interface for use in other components
+export { ContactDto } from '../../models/contact.models';
+
 @Injectable({
   providedIn: 'root'
 })

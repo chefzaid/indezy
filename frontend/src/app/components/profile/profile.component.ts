@@ -17,7 +17,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { UserManagementService, UserProfile, UserPreferences, UserNotificationSettings, PasswordChangeRequest } from '../../services/user-management.service';
+import { UserManagementService } from '../../services/user-management/user-management.service';
+import { UserProfile, UserPreferences, UserNotificationSettings, PasswordChangeRequest } from '../../models/user-management.models';
 
 @Component({
     selector: 'app-profile',
@@ -164,12 +165,12 @@ export class ProfileComponent implements OnInit {
     this.isLoading = true;
 
     this.userManagementService.getUserProfile().subscribe({
-      next: (profile) => {
+      next: (profile: UserProfile) => {
         this.userProfile = profile;
         this.populateForms(profile);
         this.isLoading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading profile:', error);
         this.snackBar.open('Erreur lors du chargement du profil', 'Fermer', {
           duration: 3000,
@@ -202,12 +203,12 @@ export class ProfileComponent implements OnInit {
     });
 
     // Load preferences
-    this.userManagementService.getUserPreferences().subscribe(preferences => {
+    this.userManagementService.getUserPreferences().subscribe((preferences: UserPreferences) => {
       this.preferencesForm.patchValue(preferences);
     });
 
     // Load notification settings
-    this.userManagementService.getNotificationSettings().subscribe(settings => {
+    this.userManagementService.getNotificationSettings().subscribe((settings: UserNotificationSettings) => {
       this.notificationForm.patchValue(settings);
     });
   }
@@ -223,7 +224,7 @@ export class ProfileComponent implements OnInit {
       };
 
       this.userManagementService.updateUserProfile(updatedProfile).subscribe({
-        next: (profile) => {
+        next: (profile: UserProfile) => {
           this.userProfile = profile;
           this.isUpdating = false;
           this.snackBar.open('Profil mis à jour avec succès', 'Fermer', {
@@ -231,7 +232,7 @@ export class ProfileComponent implements OnInit {
             panelClass: ['success-snackbar']
           });
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error updating profile:', error);
           this.isUpdating = false;
           this.snackBar.open('Erreur lors de la mise à jour du profil', 'Fermer', {
@@ -257,7 +258,7 @@ export class ProfileComponent implements OnInit {
             panelClass: ['success-snackbar']
           });
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error changing password:', error);
           this.isUpdating = false;
           this.snackBar.open('Erreur lors du changement de mot de passe', 'Fermer', {
@@ -282,7 +283,7 @@ export class ProfileComponent implements OnInit {
             panelClass: ['success-snackbar']
           });
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error updating preferences:', error);
           this.isUpdating = false;
           this.snackBar.open('Erreur lors de la mise à jour des préférences', 'Fermer', {
@@ -307,7 +308,7 @@ export class ProfileComponent implements OnInit {
             panelClass: ['success-snackbar']
           });
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error updating notifications:', error);
           this.isUpdating = false;
           this.snackBar.open('Erreur lors de la mise à jour des notifications', 'Fermer', {
@@ -343,7 +344,7 @@ export class ProfileComponent implements OnInit {
 
       this.isUpdating = true;
       this.userManagementService.uploadAvatar(file).subscribe({
-        next: (avatarUrl) => {
+        next: (avatarUrl: string) => {
           if (this.userProfile) {
             this.userProfile.avatar = avatarUrl;
           }
@@ -353,7 +354,7 @@ export class ProfileComponent implements OnInit {
             panelClass: ['success-snackbar']
           });
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error uploading avatar:', error);
           this.isUpdating = false;
           this.snackBar.open('Erreur lors du téléchargement de l\'avatar', 'Fermer', {
@@ -367,7 +368,7 @@ export class ProfileComponent implements OnInit {
 
   onExportData(): void {
     this.userManagementService.exportUserData().subscribe({
-      next: (blob) => {
+      next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -380,7 +381,7 @@ export class ProfileComponent implements OnInit {
           panelClass: ['success-snackbar']
         });
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error exporting data:', error);
         this.snackBar.open('Erreur lors de l\'export des données', 'Fermer', {
           duration: 3000,

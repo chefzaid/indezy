@@ -6,6 +6,9 @@ import { MatCardModule } from '@angular/material/card';
 import { RouterModule } from '@angular/router';
 import { ErrorDisplayConfig } from '../../../models/ui.models';
 
+// Export the interface for use in other components
+export { ErrorDisplayConfig } from '../../../models/ui.models';
+
 @Component({
     selector: 'app-error-display',
     imports: [

@@ -1,0 +1,21 @@
+{
+  "rules": {},
+  "excludeRules": [],
+  "pathToNodeExecutable": "",
+  "analysisExcludePatterns": [
+    "**/target/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/.angular/**",
+    "**/generated/**",
+    "**/*.class",
+    "**/*.jar",
+    "**/*.war"
+  ],
+  "connectedMode": {
+    "project": {
+      "projectKey": "indezy-backend"
+    }
+  }
+}
