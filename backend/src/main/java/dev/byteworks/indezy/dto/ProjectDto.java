@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -54,4 +55,13 @@ public class ProjectDto {
     private Integer totalSteps;
     private Integer completedSteps;
     private Integer failedSteps;
+
+    // Custom getters and setters for collections to prevent EI_EXPOSE_REP
+    public List<String> getDocuments() {
+        return documents != null ? new ArrayList<>(documents) : new ArrayList<>();
+    }
+
+    public void setDocuments(final List<String> documents) {
+        this.documents = documents != null ? new ArrayList<>(documents) : new ArrayList<>();
+    }
 }

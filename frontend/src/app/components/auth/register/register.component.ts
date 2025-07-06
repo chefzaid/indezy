@@ -35,10 +35,10 @@ export class RegisterComponent implements OnInit {
   hideConfirmPassword = true;
 
   constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private snackBar: MatSnackBar
+    private readonly fb: FormBuilder,
+    private readonly authService: AuthService,
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar
   ) {
     this.registerForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2)]],
@@ -56,7 +56,7 @@ export class RegisterComponent implements OnInit {
     }
   }
 
-  passwordMatchValidator(form: FormGroup) {
+  passwordMatchValidator(form: FormGroup): void {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
     
@@ -80,7 +80,7 @@ export class RegisterComponent implements OnInit {
       };
 
       this.authService.register(userData).subscribe({
-        next: (response) => {
+        next: () => {
           this.isLoading = false;
           this.snackBar.open('Compte créé avec succès!', 'Fermer', {
             duration: 3000,

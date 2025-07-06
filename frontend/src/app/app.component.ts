@@ -33,7 +33,7 @@ interface MenuItem {
 })
 export class AppComponent implements OnInit {
   title = 'Indezy - Suivi de missions pour freelances';
-  currentUser: any = null;
+  currentUser: { id: number; email: string; firstName: string; lastName: string; role?: string } | null = null;
 
   menuItems: MenuItem[] = [
     { label: 'Tableau de bord', route: '/dashboard', icon: 'dashboard' },

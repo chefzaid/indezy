@@ -16,7 +16,7 @@ import { Subject, takeUntil } from 'rxjs';
 
 import { ProjectService, ProjectDto } from '../../../services/project.service';
 import { ClientService, ClientDto } from '../../../services/client.service';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService, User } from '../../../services/auth.service';
 
 @Component({
     selector: 'app-project-form',
@@ -44,7 +44,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   isEditMode = false;
   projectId?: number;
-  currentUser: any;
+  currentUser: User | null = null;
 
   workModeOptions = [
     { value: 'REMOTE', label: 'Télétravail' },
@@ -128,7 +128,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   }
 
   private loadProject(): void {
-    if (!this.projectId) return;
+    if (!this.projectId) { return; }
     
     this.isLoading = true;
     this.projectService.getById(this.projectId)
@@ -177,7 +177,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       const selectedClient = this.clients.find(client => client.id === formValue.clientId);
       const projectData: ProjectDto = {
         ...formValue,
-        clientName: selectedClient?.name || '',
+        clientName: selectedClient?.name ?? '',
         freelanceId: this.currentUser?.id,
         startDate: formValue.startDate ? formValue.startDate.toISOString().split('T')[0] : undefined
       };

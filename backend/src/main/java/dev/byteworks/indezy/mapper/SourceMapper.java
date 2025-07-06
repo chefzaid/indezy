@@ -1,6 +1,7 @@
 package dev.byteworks.indezy.mapper;
 
 import dev.byteworks.indezy.dto.SourceDto;
+import dev.byteworks.indezy.model.Project;
 import dev.byteworks.indezy.model.Source;
 import org.springframework.stereotype.Component;
 
@@ -28,19 +29,17 @@ public class SourceMapper {
             dto.setFreelanceId(source.getFreelance().getId());
         }
 
-        // Computed fields
-        if (source.getProjects() != null) {
-            dto.setTotalProjects(source.getProjects().size());
-            dto.setAverageDailyRate(
-                source.getProjects().stream()
-                    .filter(p -> p.getDailyRate() != null)
-                    .mapToInt(p -> p.getDailyRate())
-                    .average()
-                    .orElse(0.0)
-            );
-            // Note: Projects collection mapping would be handled by ProjectMapper if needed
-            dto.setProjects(new java.util.ArrayList<>());
-        }
+        // Computed fields - getProjects() never returns null due to defensive copying
+        dto.setTotalProjects(source.getProjects().size());
+        dto.setAverageDailyRate(
+            source.getProjects().stream()
+                .filter(p -> p.getDailyRate() != null)
+                .mapToInt(Project::getDailyRate)
+                .average()
+                .orElse(0.0)
+        );
+        // Note: Projects collection mapping would be handled by ProjectMapper if needed
+        dto.setProjects(new java.util.ArrayList<>());
 
         return dto;
     }

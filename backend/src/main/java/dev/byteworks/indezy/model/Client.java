@@ -48,4 +48,29 @@ public class Client extends BaseEntity {
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Contact> contacts = new ArrayList<>();
+
+    // Custom getters and setters for collections to prevent EI_EXPOSE_REP
+    public List<Project> getProjects() {
+        return projects != null ? new ArrayList<>(projects) : new ArrayList<>();
+    }
+
+    public void setProjects(final List<Project> projects) {
+        this.projects = projects != null ? new ArrayList<>(projects) : new ArrayList<>();
+    }
+
+    public List<Project> getMiddlemanProjects() {
+        return middlemanProjects != null ? new ArrayList<>(middlemanProjects) : new ArrayList<>();
+    }
+
+    public void setMiddlemanProjects(final List<Project> middlemanProjects) {
+        this.middlemanProjects = middlemanProjects != null ? new ArrayList<>(middlemanProjects) : new ArrayList<>();
+    }
+
+    public List<Contact> getContacts() {
+        return contacts != null ? new ArrayList<>(contacts) : new ArrayList<>();
+    }
+
+    public void setContacts(final List<Contact> contacts) {
+        this.contacts = contacts != null ? new ArrayList<>(contacts) : new ArrayList<>();
+    }
 }

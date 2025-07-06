@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 export interface FilterPreset {
   id: string;
   name: string;
   description?: string;
-  filters: any;
+  filters: Record<string, any>;
   isDefault?: boolean;
   createdAt?: Date;
 }
@@ -186,7 +186,7 @@ export interface FilterPresetsConfig {
 })
 export class FilterPresetsComponent implements OnInit {
   @Input() config: FilterPresetsConfig = {};
-  @Input() currentFilters: any = {};
+  @Input() currentFilters: Record<string, any> = {};
   @Input() hasActiveFilters: boolean = false;
   @Output() presetApplied = new EventEmitter<FilterPreset>();
   @Output() presetSaved = new EventEmitter<FilterPreset>();
@@ -196,8 +196,7 @@ export class FilterPresetsComponent implements OnInit {
   customPresets: FilterPreset[] = [];
 
   constructor(
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -213,7 +212,7 @@ export class FilterPresetsComponent implements OnInit {
 
   saveCurrentAsPreset(): void {
     const name = prompt('Nom du filtre prédéfini:');
-    if (name && name.trim()) {
+    if (name?.trim()) {
       const preset: FilterPreset = {
         id: this.generateId(),
         name: name.trim(),
@@ -292,7 +291,7 @@ export class FilterPresetsComponent implements OnInit {
 
     // Load custom presets from storage
     if (this.config.allowCustomPresets) {
-      const storageKey = this.config.storageKey || 'filter-presets';
+      const storageKey = this.config.storageKey ?? 'filter-presets';
       const stored = localStorage.getItem(storageKey);
       if (stored) {
         try {
@@ -309,12 +308,12 @@ export class FilterPresetsComponent implements OnInit {
 
   private savePresets(): void {
     if (this.config.allowCustomPresets) {
-      const storageKey = this.config.storageKey || 'filter-presets';
+      const storageKey = this.config.storageKey ?? 'filter-presets';
       localStorage.setItem(storageKey, JSON.stringify(this.customPresets));
     }
   }
 
   private generateId(): string {
-    return 'preset-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    return 'preset-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
   }
 }

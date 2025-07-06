@@ -18,7 +18,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
 import { ProjectService, ProjectDto } from '../../../services/project.service';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService, User } from '../../../services/auth.service';
 
 @Component({
     selector: 'app-project-list',
@@ -50,7 +50,7 @@ export class ProjectListComponent implements OnInit {
   filteredProjects: ProjectDto[] = [];
   isLoading = false;
   filterForm: FormGroup;
-  currentUser: any;
+  currentUser: User | null = null;
   showAdvancedFilters = false;
 
   workModeOptions = [
@@ -86,10 +86,10 @@ export class ProjectListComponent implements OnInit {
   ];
 
   constructor(
-    private projectService: ProjectService,
-    private authService: AuthService,
-    private fb: FormBuilder,
-    private snackBar: MatSnackBar
+    private readonly projectService: ProjectService,
+    private readonly authService: AuthService,
+    private readonly fb: FormBuilder,
+    private readonly snackBar: MatSnackBar
   ) {
     this.filterForm = this.fb.group({
       // Basic filters
@@ -123,7 +123,9 @@ export class ProjectListComponent implements OnInit {
   }
 
   loadProjects(): void {
-    if (!this.currentUser?.id) return;
+    if (!this.currentUser?.id) {
+      return;
+    }
 
     this.isLoading = true;
     this.projectService.getByFreelanceId(this.currentUser.id).subscribe({
@@ -154,7 +156,7 @@ export class ProjectListComponent implements OnInit {
 
     let filtered = this.projects.filter(project => {
       // Search query filter
-      if (filters.searchQuery && filters.searchQuery.trim()) {
+      if (filters.searchQuery?.trim()) {
         const query = filters.searchQuery.toLowerCase();
         const searchableText = [
           project.role,
@@ -194,7 +196,7 @@ export class ProjectListComponent implements OnInit {
 
       // Selected tech stack filter (new multi-select)
       if (filters.selectedTechStack && filters.selectedTechStack.length > 0) {
-        const projectTechStack = project.techStack?.toLowerCase() || '';
+        const projectTechStack = project.techStack?.toLowerCase() ?? '';
         const hasRequiredTech = filters.selectedTechStack.some((tech: string) =>
           projectTechStack.includes(tech.toLowerCase())
         );
@@ -242,16 +244,24 @@ export class ProjectListComponent implements OnInit {
         const duration = project.durationInMonths;
         switch (filters.duration) {
           case '1-3':
-            if (duration < 1 || duration > 3) return false;
+            if (duration < 1 || duration > 3) {
+              return false;
+            }
             break;
           case '3-6':
-            if (duration < 3 || duration > 6) return false;
+            if (duration < 3 || duration > 6) {
+              return false;
+            }
             break;
           case '6-12':
-            if (duration < 6 || duration > 12) return false;
+            if (duration < 6 || duration > 12) {
+              return false;
+            }
             break;
           case '12+':
-            if (duration < 12) return false;
+            if (duration < 12) {
+              return false;
+            }
             break;
         }
       }
@@ -286,8 +296,8 @@ export class ProjectListComponent implements OnInit {
 
   private sortProjects(projects: ProjectDto[], sortBy: string, sortOrder: string): ProjectDto[] {
     return projects.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
+      let aValue: string | number | Date;
+      let bValue: string | number | Date;
 
       switch (sortBy) {
         case 'startDate':
@@ -353,20 +363,48 @@ export class ProjectListComponent implements OnInit {
     const filters = this.filterForm.value;
     let count = 0;
 
-    if (filters.searchQuery?.trim()) count++;
-    if (filters.minRate) count++;
-    if (filters.maxRate) count++;
-    if (filters.workMode) count++;
-    if (filters.status) count++;
-    if (filters.techStack?.trim()) count++;
-    if (filters.selectedTechStack?.length > 0) count++;
-    if (filters.startDateFrom) count++;
-    if (filters.startDateTo) count++;
-    if (filters.endDateFrom) count++;
-    if (filters.endDateTo) count++;
-    if (filters.duration) count++;
-    if (filters.client?.trim()) count++;
-    if (filters.location?.trim()) count++;
+    if (filters.searchQuery?.trim()) {
+      count++;
+    }
+    if (filters.minRate) {
+      count++;
+    }
+    if (filters.maxRate) {
+      count++;
+    }
+    if (filters.workMode) {
+      count++;
+    }
+    if (filters.status) {
+      count++;
+    }
+    if (filters.techStack?.trim()) {
+      count++;
+    }
+    if (filters.selectedTechStack?.length > 0) {
+      count++;
+    }
+    if (filters.startDateFrom) {
+      count++;
+    }
+    if (filters.startDateTo) {
+      count++;
+    }
+    if (filters.endDateFrom) {
+      count++;
+    }
+    if (filters.endDateTo) {
+      count++;
+    }
+    if (filters.duration) {
+      count++;
+    }
+    if (filters.client?.trim()) {
+      count++;
+    }
+    if (filters.location?.trim()) {
+      count++;
+    }
 
     return count;
   }

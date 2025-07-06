@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 
+                              http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  
+  <!-- Local repository location -->
+  <localRepository>/home/vscode/.m2/repository</localRepository>
+  
+  <!-- Offline mode -->
+  <offline>false</offline>
+  
+  <!-- Plugin groups -->
+  <pluginGroups>
+    <pluginGroup>org.springframework.boot</pluginGroup>
+  </pluginGroups>
+  
+  <!-- Servers for authentication -->
+  <servers>
+    <!-- Add server configurations here if needed -->
+  </servers>
+  
+  <!-- Mirrors for faster downloads -->
+  <mirrors>
+    <!-- Uncomment if you want to use a specific mirror
+    <mirror>
+      <id>central-mirror</id>
+      <name>Central Repository Mirror</name>
+      <url>https://repo1.maven.org/maven2</url>
+      <mirrorOf>central</mirrorOf>
+    </mirror>
+    -->
+  </mirrors>
+  
+  <!-- Profiles -->
+  <profiles>
+    <profile>
+      <id>development</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+      </properties>
+    </profile>
+  </profiles>
+  
+  <!-- Active profiles -->
+  <activeProfiles>
+    <activeProfile>development</activeProfile>
+  </activeProfiles>
+  
+</settings>

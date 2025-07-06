@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of, delay, map } from 'rxjs';
+import { Observable, of, delay } from 'rxjs';
 
 export interface ContactDto {
   id: number;
@@ -21,9 +20,10 @@ export interface ContactDto {
   providedIn: 'root'
 })
 export class ContactService {
-  private apiUrl = '/api/contacts';
 
-  constructor(private http: HttpClient) {}
+  constructor() {
+    // Service initialization
+  }
 
   // Mock data for development
   private mockContacts: ContactDto[] = [
@@ -138,9 +138,7 @@ export class ContactService {
   }
 
   getContactsByClient(clientId: number): Observable<ContactDto[]> {
-    console.log('ContactService.getContactsByClient called with clientId:', clientId);
     const filtered = this.mockContacts.filter(contact => contact.clientId === clientId);
-    console.log('Found contacts for client:', filtered.length);
     return of(filtered).pipe(delay(300));
   }
 

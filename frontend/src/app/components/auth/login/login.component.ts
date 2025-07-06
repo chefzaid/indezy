@@ -34,10 +34,10 @@ export class LoginComponent implements OnInit {
   hidePassword = true;
 
   constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private snackBar: MatSnackBar
+    private readonly fb: FormBuilder,
+    private readonly authService: AuthService,
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
       const credentials = this.loginForm.value;
 
       this.authService.login(credentials).subscribe({
-        next: (response) => {
+        next: () => {
           this.isLoading = false;
           this.snackBar.open('Connexion réussie!', 'Fermer', {
             duration: 3000,

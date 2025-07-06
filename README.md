@@ -18,11 +18,38 @@ Indezy is a modern, full-stack web application that helps freelancers manage the
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- **Docker & Docker Compose** (recommended)
-- **Node.js 18+** (for local development)
-- **Java 21** (for local development)
-- **Maven 3.9+** (for local development)
+### 🐳 Development Container (Recommended)
+
+The fastest way to get started is using the pre-configured development container:
+
+1. **Open in VS Code**: Open the project in VS Code
+2. **Reopen in Container**: Select "Reopen in Container" when prompted
+3. **Wait for Setup**: The container will build and configure automatically (~5-10 minutes first time)
+4. **Start Developing**: Use the provided commands to start the application
+
+```bash
+# Start backend server
+indezy-backend
+
+# Start frontend server (in another terminal)
+indezy-frontend
+
+# Access the application at http://localhost:4200
+```
+
+**What's included in the devcontainer:**
+- ✅ Java 21 + Maven pre-configured
+- ✅ Node.js 18 + Angular CLI
+- ✅ PostgreSQL database with sample data
+- ✅ pgAdmin for database management
+- ✅ All VS Code extensions and settings
+- ✅ No additional configuration needed!
+
+### 📋 Manual Setup Prerequisites
+- **Docker & Docker Compose** (for database)
+- **Node.js 18+** (for frontend development)
+- **Java 21** (for backend development)
+- **Maven 3.9+** (for backend development)
 
 ## ✨ Key Features
 
@@ -176,11 +203,47 @@ mask run-frontend
 cd frontend && npm install && npm start
 ```
 
-### DevContainer Support
-1. Open project in VS Code
-2. Install "Dev Containers" extension
-3. Press `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
-4. Wait for container setup to complete
+### 🐳 DevContainer Support (Standalone Development Environment)
+
+The devcontainer provides a complete, standalone development environment with **zero additional configuration required**:
+
+**Features:**
+- ✅ **Complete Environment**: Java 21, Node.js 18, Maven, Angular CLI pre-installed
+- ✅ **Database Included**: PostgreSQL with sample data and pgAdmin
+- ✅ **VS Code Ready**: All extensions and settings pre-configured
+- ✅ **Cross-Platform**: Works on Windows, macOS, and Linux
+- ✅ **Isolated**: No conflicts with your local environment
+
+**Setup:**
+1. **Prerequisites**: Install VS Code and Docker Desktop
+2. **Open Project**: Open the project folder in VS Code
+3. **Install Extension**: Install "Dev Containers" extension if not already installed
+4. **Reopen in Container**: Select "Reopen in Container" when prompted (or `Ctrl+Shift+P` → "Dev Containers: Reopen in Container")
+5. **Wait for Setup**: First build takes ~5-10 minutes to download and configure everything
+6. **Start Developing**: Use the provided aliases or mask commands
+
+**Quick Commands (available in devcontainer):**
+```bash
+# Start applications
+indezy-backend          # Start Spring Boot backend
+indezy-frontend         # Start Angular frontend
+
+# Database management
+indezy-db              # Connect to PostgreSQL
+.devcontainer/db-utils.sh check    # Check database health
+
+# Development utilities
+.devcontainer/health-check.sh      # Check environment health
+mask --help            # Show all available mask commands
+```
+
+**Access Points:**
+- **Frontend**: http://localhost:4200
+- **Backend API**: http://localhost:8080/api
+- **pgAdmin**: http://localhost:5050 (admin@indezy.com / admin)
+- **Database**: localhost:5432 (indezy_user / indezy_password)
+
+> **💡 Tip**: The devcontainer is the recommended way to develop Indezy as it provides a consistent environment across all platforms and requires no manual configuration.
 
 ## 🧪 Testing
 

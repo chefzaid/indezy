@@ -18,7 +18,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { Subject, takeUntil } from 'rxjs';
 
-import { ClientService, ClientDto, CreateClientDto, UpdateClientDto } from '../../../services/client.service';
+import { ClientService, CreateClientDto, UpdateClientDto } from '../../../services/client.service';
 import { ContactService, ContactDto } from '../../../services/contact.service';
 
 @Component({
@@ -122,7 +122,9 @@ export class ClientFormComponent implements OnInit, OnDestroy {
   }
 
   private loadClient(): void {
-    if (!this.clientId) return;
+    if (!this.clientId) {
+      return;
+    }
 
     this.isLoading = true;
     this.clientService.getClient(this.clientId)
@@ -147,7 +149,9 @@ export class ClientFormComponent implements OnInit, OnDestroy {
   }
 
   private loadContacts(): void {
-    if (!this.clientId) return;
+    if (!this.clientId) {
+      return;
+    }
 
     this.isLoadingContacts = true;
     this.contactService.getContactsByClient(this.clientId)

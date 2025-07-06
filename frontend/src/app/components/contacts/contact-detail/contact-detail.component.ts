@@ -32,13 +32,13 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
   isLoading = false;
   contactId?: number;
   
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
-    private contactService: ContactService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar
+    private readonly contactService: ContactService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -56,7 +56,7 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
   }
 
   private loadContact(): void {
-    if (!this.contactId) return;
+    if (!this.contactId) { return; }
     
     this.isLoading = true;
     this.contactService.getContact(this.contactId)
@@ -86,7 +86,7 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
   }
 
   onDelete(): void {
-    if (!this.contact) return;
+    if (!this.contact) { return; }
     
     if (confirm(`Êtes-vous sûr de vouloir supprimer le contact "${this.contact.firstName} ${this.contact.lastName}" ?`)) {
       this.contactService.deleteContact(this.contact.id)
@@ -151,7 +151,7 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
   }
 
   getFullName(): string {
-    if (!this.contact) return '';
+    if (!this.contact) { return ''; }
     return `${this.contact.firstName} ${this.contact.lastName}`;
   }
 }

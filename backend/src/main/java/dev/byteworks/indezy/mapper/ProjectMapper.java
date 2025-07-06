@@ -51,15 +51,14 @@ public class ProjectMapper {
 
         // Computed fields
         dto.setTotalRevenue(project.getTotalRevenue());
-        if (project.getSteps() != null) {
-            dto.setTotalSteps(project.getSteps().size());
-            dto.setCompletedSteps((int) project.getSteps().stream()
-                .filter(step -> StepStatus.VALIDATED.equals(step.getStatus()))
-                .count());
-            dto.setFailedSteps((int) project.getSteps().stream()
-                .filter(step -> StepStatus.FAILED.equals(step.getStatus()))
-                .count());
-        }
+        // getSteps() never returns null due to defensive copying
+        dto.setTotalSteps(project.getSteps().size());
+        dto.setCompletedSteps((int) project.getSteps().stream()
+            .filter(step -> StepStatus.VALIDATED.equals(step.getStatus()))
+            .count());
+        dto.setFailedSteps((int) project.getSteps().stream()
+            .filter(step -> StepStatus.FAILED.equals(step.getStatus()))
+            .count());
 
         return dto;
     }
@@ -83,9 +82,8 @@ public class ProjectMapper {
         project.setDurationInMonths(dto.getDurationInMonths());
         project.setOrderRenewalInMonths(dto.getOrderRenewalInMonths());
         project.setDaysPerYear(dto.getDaysPerYear());
-        if (dto.getDocuments() != null) {
-            project.setDocuments(dto.getDocuments());
-        }
+        // getDocuments() never returns null due to defensive copying in DTO
+        project.setDocuments(dto.getDocuments());
         project.setLink(dto.getLink());
         project.setPersonalRating(dto.getPersonalRating());
         project.setNotes(dto.getNotes());
@@ -110,9 +108,8 @@ public class ProjectMapper {
         project.setDurationInMonths(dto.getDurationInMonths());
         project.setOrderRenewalInMonths(dto.getOrderRenewalInMonths());
         project.setDaysPerYear(dto.getDaysPerYear());
-        if (dto.getDocuments() != null) {
-            project.setDocuments(dto.getDocuments());
-        }
+        // getDocuments() never returns null due to defensive copying in DTO
+        project.setDocuments(dto.getDocuments());
         project.setLink(dto.getLink());
         project.setPersonalRating(dto.getPersonalRating());
         project.setNotes(dto.getNotes());

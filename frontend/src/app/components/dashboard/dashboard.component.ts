@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, User } from '../../services/auth.service';
 import { ProjectService, ProjectDto } from '../../services/project.service';
 import { FreelanceService, FreelanceDto } from '../../services/freelance.service';
 
@@ -21,7 +21,7 @@ import { FreelanceService, FreelanceDto } from '../../services/freelance.service
     styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  currentUser: any;
+  currentUser: User | null = null;
   freelanceProfile: FreelanceDto | null = null;
   recentProjects: ProjectDto[] = [];
   stats = {
@@ -34,9 +34,9 @@ export class DashboardComponent implements OnInit {
 
 
   constructor(
-    private authService: AuthService,
-    private projectService: ProjectService,
-    private freelanceService: FreelanceService
+    private readonly authService: AuthService,
+    private readonly projectService: ProjectService,
+    private readonly freelanceService: FreelanceService
   ) {}
 
   ngOnInit(): void {
@@ -90,8 +90,8 @@ export class DashboardComponent implements OnInit {
 
   getGreeting(): string {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Bonjour';
-    if (hour < 18) return 'Bon après-midi';
+    if (hour < 12) { return 'Bonjour'; }
+    if (hour < 18) { return 'Bon après-midi'; }
     return 'Bonsoir';
   }
 }

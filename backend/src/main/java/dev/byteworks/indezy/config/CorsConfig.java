@@ -7,6 +7,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -20,27 +21,27 @@ public class CorsConfig {
 
     // Getters and setters
     public List<String> getAllowedOrigins() {
-        return allowedOrigins;
+        return allowedOrigins != null ? new ArrayList<>(allowedOrigins) : new ArrayList<>();
     }
 
-    public void setAllowedOrigins(List<String> allowedOrigins) {
-        this.allowedOrigins = allowedOrigins;
+    public void setAllowedOrigins(final List<String> allowedOrigins) {
+        this.allowedOrigins = allowedOrigins != null ? new ArrayList<>(allowedOrigins) : new ArrayList<>();
     }
 
     public List<String> getAllowedMethods() {
-        return allowedMethods;
+        return allowedMethods != null ? new ArrayList<>(allowedMethods) : new ArrayList<>();
     }
 
-    public void setAllowedMethods(List<String> allowedMethods) {
-        this.allowedMethods = allowedMethods;
+    public void setAllowedMethods(final List<String> allowedMethods) {
+        this.allowedMethods = allowedMethods != null ? new ArrayList<>(allowedMethods) : new ArrayList<>();
     }
 
     public List<String> getAllowedHeaders() {
-        return allowedHeaders;
+        return allowedHeaders != null ? new ArrayList<>(allowedHeaders) : new ArrayList<>();
     }
 
-    public void setAllowedHeaders(List<String> allowedHeaders) {
-        this.allowedHeaders = allowedHeaders;
+    public void setAllowedHeaders(final List<String> allowedHeaders) {
+        this.allowedHeaders = allowedHeaders != null ? new ArrayList<>(allowedHeaders) : new ArrayList<>();
     }
 
     public boolean isAllowCredentials() {

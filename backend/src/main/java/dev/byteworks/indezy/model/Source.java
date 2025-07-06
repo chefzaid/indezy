@@ -52,4 +52,13 @@ public class Source extends BaseEntity {
 
     @OneToMany(mappedBy = "source", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Project> projects = new ArrayList<>();
+
+    // Custom getters and setters for collections to prevent EI_EXPOSE_REP
+    public List<Project> getProjects() {
+        return projects != null ? new ArrayList<>(projects) : new ArrayList<>();
+    }
+
+    public void setProjects(final List<Project> projects) {
+        this.projects = projects != null ? new ArrayList<>(projects) : new ArrayList<>();
+    }
 }

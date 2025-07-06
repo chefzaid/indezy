@@ -27,25 +27,21 @@ public class ClientMapper {
             dto.setFreelanceId(client.getFreelance().getId());
         }
 
-        // Computed fields
-        if (client.getProjects() != null) {
-            dto.setTotalProjects(client.getProjects().size());
-            dto.setAverageDailyRate(
-                client.getProjects().stream()
-                    .filter(p -> p.getDailyRate() != null)
-                    .mapToInt(p -> p.getDailyRate())
-                    .average()
-                    .orElse(0.0)
-            );
-            // Note: Projects collection mapping would be handled by ProjectMapper if needed
-            dto.setProjects(new java.util.ArrayList<>());
-        }
+        // Computed fields - getProjects() and getContacts() never return null due to defensive copying
+        dto.setTotalProjects(client.getProjects().size());
+        dto.setAverageDailyRate(
+            client.getProjects().stream()
+                .filter(p -> p.getDailyRate() != null)
+                .mapToInt(p -> p.getDailyRate())
+                .average()
+                .orElse(0.0)
+        );
+        // Note: Projects collection mapping would be handled by ProjectMapper if needed
+        dto.setProjects(new java.util.ArrayList<>());
 
-        if (client.getContacts() != null) {
-            dto.setTotalContacts(client.getContacts().size());
-            // Note: Contacts collection mapping would be handled by ContactMapper if needed
-            dto.setContacts(new java.util.ArrayList<>());
-        }
+        dto.setTotalContacts(client.getContacts().size());
+        // Note: Contacts collection mapping would be handled by ContactMapper if needed
+        dto.setContacts(new java.util.ArrayList<>());
 
         return dto;
     }

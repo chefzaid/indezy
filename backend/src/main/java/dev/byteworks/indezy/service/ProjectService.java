@@ -1,5 +1,6 @@
 package dev.byteworks.indezy.service;
 
+import dev.byteworks.indezy.constants.ErrorMessages;
 import dev.byteworks.indezy.dto.ProjectDto;
 import dev.byteworks.indezy.exception.ResourceNotFoundException;
 import dev.byteworks.indezy.mapper.ProjectMapper;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +47,7 @@ public class ProjectService {
     public ProjectDto findById(Long id) {
         log.debug("Finding project by id: {}", id);
         Project project = projectRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
         return projectMapper.toDto(project);
     }
 
@@ -53,7 +55,7 @@ public class ProjectService {
     public ProjectDto findByIdWithSteps(Long id) {
         log.debug("Finding project with steps by id: {}", id);
         Project project = projectRepository.findByIdWithSteps(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
         return projectMapper.toDto(project);
     }
 
@@ -109,8 +111,8 @@ public class ProjectService {
         
         if (techStack != null && !techStack.trim().isEmpty()) {
             projects = projects.stream()
-                .filter(p -> p.getTechStack() != null && 
-                           p.getTechStack().toLowerCase().contains(techStack.toLowerCase()))
+                .filter(p -> p.getTechStack() != null &&
+                           p.getTechStack().toLowerCase(Locale.ROOT).contains(techStack.toLowerCase(Locale.ROOT)))
                 .toList();
         }
         
@@ -127,25 +129,25 @@ public class ProjectService {
         // Set required relationships
         if (projectDto.getFreelanceId() != null) {
             Freelance freelance = freelanceRepository.findById(projectDto.getFreelanceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Freelance not found with id: " + projectDto.getFreelanceId()));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.FREELANCE_NOT_FOUND, projectDto.getFreelanceId())));
             project.setFreelance(freelance);
         }
         
         if (projectDto.getClientId() != null) {
             Client client = clientRepository.findById(projectDto.getClientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + projectDto.getClientId()));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.CLIENT_NOT_FOUND, projectDto.getClientId())));
             project.setClient(client);
         }
         
         if (projectDto.getMiddlemanId() != null) {
             Client middleman = clientRepository.findById(projectDto.getMiddlemanId())
-                .orElseThrow(() -> new ResourceNotFoundException("Middleman not found with id: " + projectDto.getMiddlemanId()));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.CLIENT_NOT_FOUND, projectDto.getMiddlemanId())));
             project.setMiddleman(middleman);
         }
         
         if (projectDto.getSourceId() != null) {
             Source source = sourceRepository.findById(projectDto.getSourceId())
-                .orElseThrow(() -> new ResourceNotFoundException("Source not found with id: " + projectDto.getSourceId()));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.SOURCE_NOT_FOUND, projectDto.getSourceId())));
             project.setSource(source);
         }
         
@@ -159,21 +161,21 @@ public class ProjectService {
         log.debug("Updating project with id: {}", id);
         
         Project existingProject = projectRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
 
         projectMapper.updateEntity(projectDto, existingProject);
         
         // Update relationships if provided
         if (projectDto.getClientId() != null && !projectDto.getClientId().equals(existingProject.getClient().getId())) {
             Client client = clientRepository.findById(projectDto.getClientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + projectDto.getClientId()));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.CLIENT_NOT_FOUND, projectDto.getClientId())));
             existingProject.setClient(client);
         }
         
         if (projectDto.getMiddlemanId() != null) {
             if (existingProject.getMiddleman() == null || !projectDto.getMiddlemanId().equals(existingProject.getMiddleman().getId())) {
                 Client middleman = clientRepository.findById(projectDto.getMiddlemanId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Middleman not found with id: " + projectDto.getMiddlemanId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.CLIENT_NOT_FOUND, projectDto.getMiddlemanId())));
                 existingProject.setMiddleman(middleman);
             }
         } else {
@@ -183,7 +185,7 @@ public class ProjectService {
         if (projectDto.getSourceId() != null) {
             if (existingProject.getSource() == null || !projectDto.getSourceId().equals(existingProject.getSource().getId())) {
                 Source source = sourceRepository.findById(projectDto.getSourceId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Source not found with id: " + projectDto.getSourceId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.SOURCE_NOT_FOUND, projectDto.getSourceId())));
                 existingProject.setSource(source);
             }
         } else {
@@ -200,7 +202,7 @@ public class ProjectService {
         log.debug("Deleting project with id: {}", id);
         
         if (!projectRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Project not found with id: " + id);
+            throw new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id));
         }
 
         projectRepository.deleteById(id);

@@ -48,7 +48,7 @@ export interface ProjectFilters {
 export class ProjectService {
   private readonly API_URL = `${environment.apiUrl}/projects`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   getAll(): Observable<ProjectDto[]> {
     return this.http.get<ProjectDto[]>(this.API_URL);

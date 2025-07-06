@@ -1,11 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { ClientService, ClientDto, CreateClientDto, UpdateClientDto } from './client.service';
-import { of } from 'rxjs';
 
 describe('ClientService', () => {
   let service: ClientService;
 
-  const mockClient: ClientDto = {
+  const _mockClient: ClientDto = {
     id: 1,
     companyName: 'TechCorp Solutions',
     name: 'TechCorp Solutions',
@@ -25,17 +24,18 @@ describe('ClientService', () => {
     updatedAt: new Date('2024-01-15')
   };
 
-  const mockClients: ClientDto[] = [
-    mockClient,
-    {
-      ...mockClient,
-      id: 2,
-      companyName: 'StartupBoost',
-      name: 'StartupBoost',
-      status: 'PROSPECT',
-      isFinal: false
-    }
-  ];
+  // Mock clients for testing
+  // const mockClients: ClientDto[] = [
+  //   mockClient,
+  //   {
+  //     ...mockClient,
+  //     id: 2,
+  //     companyName: 'StartupBoost',
+  //     name: 'StartupBoost',
+  //     status: 'PROSPECT',
+  //     isFinal: false
+  //   }
+  // ];
 
   beforeEach(() => {
     TestBed.configureTestingModule({

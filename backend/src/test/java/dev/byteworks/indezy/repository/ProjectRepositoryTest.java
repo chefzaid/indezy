@@ -31,15 +31,6 @@ class ProjectRepositoryTest {
     @Autowired
     private ProjectRepository projectRepository;
 
-    @Autowired
-    private FreelanceRepository freelanceRepository;
-
-    @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
-    private SourceRepository sourceRepository;
-
     private Freelance testFreelance;
     private Client testClient;
     private Source testSource;

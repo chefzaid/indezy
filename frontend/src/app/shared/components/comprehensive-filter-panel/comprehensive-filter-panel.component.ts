@@ -26,7 +26,23 @@ export interface FilterSection {
   title: string;
   icon?: string;
   type: 'search' | 'dateRange' | 'multiSelect' | 'rangeSlider' | 'custom';
-  config?: any;
+  config?: {
+    label?: string;
+    placeholder?: string;
+    icon?: string;
+    debounceTime?: number;
+    fromLabel?: string;
+    toLabel?: string;
+    fromPlaceholder?: string;
+    toPlaceholder?: string;
+    maxSelections?: number;
+    min?: number;
+    max?: number;
+    step?: number;
+    unit?: string;
+    showInputs?: boolean;
+    [key: string]: string | number | boolean | undefined;
+  };
   options?: MultiSelectOption[];
   visible?: boolean;
   required?: boolean;
@@ -276,15 +292,17 @@ export interface ComprehensiveFilterConfig {
 })
 export class ComprehensiveFilterPanelComponent implements OnInit {
   @Input() config: ComprehensiveFilterConfig = { sections: [] };
-  @Input() initialFilters: any = {};
-  @Output() filtersChange = new EventEmitter<any>();
+  @Input() initialFilters: Record<string, any> = {};
+  @Output() filtersChange = new EventEmitter<Record<string, any>>();
   @Output() presetApplied = new EventEmitter<FilterPreset>();
 
-  currentFilters: any = {};
+  currentFilters: Record<string, any> = {};
   isExpanded: boolean = true;
   visibleSections: FilterSection[] = [];
 
-  constructor() {}
+  constructor() {
+    // Component initialization
+  }
 
   ngOnInit(): void {
     this.isExpanded = this.config.initiallyExpanded ?? true;
@@ -292,7 +310,7 @@ export class ComprehensiveFilterPanelComponent implements OnInit {
     this.visibleSections = this.config.sections.filter(section => section.visible !== false);
   }
 
-  onFilterChange(sectionId: string, value: any): void {
+  onFilterChange(sectionId: string, value: string | number | string[] | boolean): void {
     this.currentFilters[sectionId] = value;
     this.filtersChange.emit({ ...this.currentFilters });
   }
@@ -317,10 +335,12 @@ export class ComprehensiveFilterPanelComponent implements OnInit {
 
   onPresetSaved(preset: FilterPreset): void {
     // Handle preset saved event if needed
+    console.log('Preset saved:', preset.name);
   }
 
   onPresetDeleted(preset: FilterPreset): void {
     // Handle preset deleted event if needed
+    console.log('Preset deleted:', preset.name);
   }
 
   clearAllFilters(): void {

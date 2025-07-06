@@ -333,19 +333,19 @@ export class ClientListComponent implements OnInit, OnDestroy {
         const projectCount = client.totalProjects;
         switch (filters.projectCountRange) {
           case '0':
-            if (projectCount !== 0) return false;
+            if (projectCount !== 0) { return false; }
             break;
           case '1-5':
-            if (projectCount < 1 || projectCount > 5) return false;
+            if (projectCount < 1 || projectCount > 5) { return false; }
             break;
           case '6-10':
-            if (projectCount < 6 || projectCount > 10) return false;
+            if (projectCount < 6 || projectCount > 10) { return false; }
             break;
           case '11-20':
-            if (projectCount < 11 || projectCount > 20) return false;
+            if (projectCount < 11 || projectCount > 20) { return false; }
             break;
           case '20+':
-            if (projectCount < 20) return false;
+            if (projectCount < 20) { return false; }
             break;
         }
       }
@@ -397,8 +397,8 @@ export class ClientListComponent implements OnInit, OnDestroy {
 
   private sortClients(clients: ClientDto[], sortBy: string, sortOrder: string): ClientDto[] {
     return clients.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
+      let aValue: string | number | Date;
+      let bValue: string | number | Date;
 
       switch (sortBy) {
         case 'name':
@@ -472,22 +472,22 @@ export class ClientListComponent implements OnInit, OnDestroy {
     const filters = this.filterForm.value;
     let count = 0;
 
-    if (filters.searchQuery?.trim()) count++;
-    if (filters.status && filters.status !== 'ALL') count++;
-    if (filters.industry) count++;
-    if (filters.selectedIndustries?.length > 0) count++;
-    if (filters.location?.trim()) count++;
-    if (filters.projectCountRange) count++;
-    if (filters.createdDateFrom) count++;
-    if (filters.createdDateTo) count++;
-    if (filters.lastContactFrom) count++;
-    if (filters.lastContactTo) count++;
+    if (filters.searchQuery?.trim()) { count++; }
+    if (filters.status && filters.status !== 'ALL') { count++; }
+    if (filters.industry) { count++; }
+    if (filters.selectedIndustries?.length > 0) { count++; }
+    if (filters.location?.trim()) { count++; }
+    if (filters.projectCountRange) { count++; }
+    if (filters.createdDateFrom) { count++; }
+    if (filters.createdDateTo) { count++; }
+    if (filters.lastContactFrom) { count++; }
+    if (filters.lastContactTo) { count++; }
 
     return count;
   }
 
   editClient(client: ClientDto): void {
     // Navigate to edit form or open edit dialog
-    console.log('Edit client:', client);
+    // TODO: Implement client editing functionality
   }
 }

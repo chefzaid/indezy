@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 
-import { ContactService, ContactDto } from '../../../services/contact.service';
+import { ContactService } from '../../../services/contact.service';
 import { ClientService, ClientDto } from '../../../services/client.service';
 
 @Component({
@@ -40,15 +40,15 @@ export class ContactFormComponent implements OnInit, OnDestroy {
   isEditMode = false;
   contactId?: number;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
-    private fb: FormBuilder,
-    private contactService: ContactService,
-    private clientService: ClientService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar
+    private readonly fb: FormBuilder,
+    private readonly contactService: ContactService,
+    private readonly clientService: ClientService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly snackBar: MatSnackBar
   ) {
     this.contactForm = this.createForm();
   }
@@ -114,7 +114,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
   }
 
   private loadContact(): void {
-    if (!this.contactId) return;
+    if (!this.contactId) { return; }
     
     this.isLoading = true;
     this.contactService.getContact(this.contactId)
@@ -155,7 +155,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
       const selectedClient = this.clients.find(client => client.id === formValue.clientId);
       const contactData = {
         ...formValue,
-        clientName: selectedClient?.name || ''
+        clientName: selectedClient?.name ?? ''
       };
 
       const operation = this.isEditMode
@@ -168,7 +168,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
           this.snackBar.open(message, 'Fermer', { duration: 3000 });
 
           // Get clientId from form or route params
-          const clientId = formValue.clientId || this.route.snapshot.params['id'];
+          const clientId = formValue.clientId ?? this.route.snapshot.params['id'];
           if (clientId) {
             // Redirect back to client detail page
             this.router.navigate(['/clients', clientId]);
@@ -191,7 +191,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
 
   onCancel(): void {
     // Get clientId from form or route params
-    const clientId = this.contactForm.get('clientId')?.value || this.route.snapshot.params['id'];
+    const clientId = this.contactForm.get('clientId')?.value ?? this.route.snapshot.params['id'];
     if (clientId) {
       // Redirect back to client detail page
       this.router.navigate(['/clients', clientId]);

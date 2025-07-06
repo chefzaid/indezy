@@ -20,7 +20,7 @@ describe('ContactService', () => {
     updatedAt: new Date('2024-01-15')
   };
 
-  const mockContacts: ContactDto[] = [
+  // const mockContacts: ContactDto[] = [
     mockContact,
     {
       id: 2,

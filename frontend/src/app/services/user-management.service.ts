@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -83,10 +82,10 @@ export interface SecurityQuestion {
 export class UserManagementService {
   private readonly API_URL = `${environment.apiUrl}/users`;
   
-  private userProfileSubject = new BehaviorSubject<UserProfile | null>(null);
+  private readonly userProfileSubject = new BehaviorSubject<UserProfile | null>(null);
   public userProfile$ = this.userProfileSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor() {
     this.loadUserProfile();
   }
 
@@ -112,6 +111,8 @@ export class UserManagementService {
     // Mock implementation - replace with real API call
     return new Observable(observer => {
       setTimeout(() => {
+        // Mock implementation - file would be uploaded in real implementation
+        console.log('Uploading avatar file:', file.name);
         const mockAvatarUrl = 'assets/images/default-avatar.png';
         observer.next(mockAvatarUrl);
         observer.complete();
@@ -175,10 +176,14 @@ export class UserManagementService {
   }
 
   disableTwoFactor(code: string): Observable<boolean> {
+    // Mock implementation - code would be validated in real implementation
+    console.log('Disabling 2FA with code:', code);
     return of(true);
   }
 
   terminateSession(sessionId: string): Observable<boolean> {
+    // Mock implementation - sessionId would be used in real implementation
+    console.log('Terminating session:', sessionId);
     return of(true);
   }
 
@@ -186,6 +191,8 @@ export class UserManagementService {
   deleteAccount(password: string): Observable<boolean> {
     return new Observable(observer => {
       setTimeout(() => {
+        // Mock implementation - password would be validated in real implementation
+        console.log('Deleting account with password validation');
         observer.next(true);
         observer.complete();
       }, 2000);

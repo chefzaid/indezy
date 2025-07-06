@@ -1,5 +1,6 @@
 package dev.byteworks.indezy.service;
 
+import dev.byteworks.indezy.constants.ErrorMessages;
 import dev.byteworks.indezy.dto.FreelanceDto;
 import dev.byteworks.indezy.exception.ResourceNotFoundException;
 import dev.byteworks.indezy.mapper.FreelanceMapper;
@@ -36,7 +37,7 @@ public class FreelanceService {
     public FreelanceDto findById(Long id) {
         log.debug("Finding freelance by id: {}", id);
         Freelance freelance = freelanceRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Freelance not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.FREELANCE_NOT_FOUND, id)));
         return freelanceMapper.toDto(freelance);
     }
 
@@ -44,7 +45,7 @@ public class FreelanceService {
     public FreelanceDto findByEmail(String email) {
         log.debug("Finding freelance by email: {}", email);
         Freelance freelance = freelanceRepository.findByEmail(email)
-            .orElseThrow(() -> new ResourceNotFoundException("Freelance not found with email: " + email));
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.FREELANCE_EMAIL_NOT_FOUND, email)));
         return freelanceMapper.toDto(freelance);
     }
 
@@ -52,7 +53,7 @@ public class FreelanceService {
     public FreelanceDto findByIdWithProjects(Long id) {
         log.debug("Finding freelance with projects by id: {}", id);
         Freelance freelance = freelanceRepository.findByIdWithProjects(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Freelance not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.FREELANCE_NOT_FOUND, id)));
         return freelanceMapper.toDto(freelance);
     }
 
@@ -60,7 +61,7 @@ public class FreelanceService {
         log.debug("Creating new freelance: {}", freelanceDto.getEmail());
         
         if (freelanceRepository.existsByEmail(freelanceDto.getEmail())) {
-            throw new IllegalArgumentException("Freelance already exists with email: " + freelanceDto.getEmail());
+            throw new IllegalArgumentException(String.format(ErrorMessages.FREELANCE_EMAIL_EXISTS, freelanceDto.getEmail()));
         }
 
         Freelance freelance = freelanceMapper.toEntity(freelanceDto);
@@ -74,7 +75,7 @@ public class FreelanceService {
         log.debug("Updating freelance with id: {}", id);
         
         Freelance existingFreelance = freelanceRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Freelance not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.FREELANCE_NOT_FOUND, id)));
 
         // Check if email is being changed and if it's already taken
         if (!existingFreelance.getEmail().equals(freelanceDto.getEmail()) && 
@@ -93,7 +94,7 @@ public class FreelanceService {
         log.debug("Deleting freelance with id: {}", id);
         
         if (!freelanceRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Freelance not found with id: " + id);
+            throw new ResourceNotFoundException(String.format(ErrorMessages.FREELANCE_NOT_FOUND, id));
         }
 
         freelanceRepository.deleteById(id);

@@ -141,7 +141,7 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  private passwordMatchValidator(group: FormGroup) {
+  private passwordMatchValidator(group: FormGroup): { passwordMismatch: boolean } | null {
     const newPassword = group.get('newPassword');
     const confirmPassword = group.get('confirmPassword');
 

@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class SourceDto {
@@ -41,9 +43,18 @@ public class SourceDto {
     private Double averageDailyRate;
 
     // Related collections (for detailed views)
-    private java.util.List<dev.byteworks.indezy.dto.ProjectDto> projects;
+    private List<ProjectDto> projects;
 
     // Audit fields
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    // Custom getters and setters for collections to prevent EI_EXPOSE_REP
+    public List<ProjectDto> getProjects() {
+        return projects != null ? new ArrayList<>(projects) : new ArrayList<>();
+    }
+
+    public void setProjects(final List<ProjectDto> projects) {
+        this.projects = projects != null ? new ArrayList<>(projects) : new ArrayList<>();
+    }
 }

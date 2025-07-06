@@ -4,6 +4,14 @@
 import { Component } from '@angular/core';
 import { ComprehensiveFilterPanelComponent, ComprehensiveFilterConfig } from './comprehensive-filter-panel/comprehensive-filter-panel.component';
 
+export interface FilterValues {
+  search?: string;
+  industries?: string[];
+  projectCount_min?: number;
+  projectCount_max?: number;
+  [key: string]: any;
+}
+
 @Component({
   selector: 'app-example-usage',
   standalone: true,
@@ -32,7 +40,7 @@ import { ComprehensiveFilterPanelComponent, ComprehensiveFilterConfig } from './
   `
 })
 export class FilterUsageExampleComponent {
-  currentFilters: any = {};
+  currentFilters: FilterValues = {};
   initialFilters = {
     search: '',
     industries: [],
@@ -189,23 +197,22 @@ export class FilterUsageExampleComponent {
     ]
   };
 
-  onFiltersChange(filters: any): void {
+  onFiltersChange(filters: FilterValues): void {
     this.currentFilters = filters;
-    console.log('Filters changed:', filters);
-    
+
     // Here you would typically:
     // 1. Apply filters to your data source
     // 2. Update the displayed results
     // 3. Save filter state if needed
-    
+
     // Example:
     // this.clientService.getClients(filters).subscribe(clients => {
     //   this.filteredClients = clients;
     // });
   }
 
-  onPresetApplied(preset: any): void {
-    console.log('Preset applied:', preset);
+  onPresetApplied(preset: FilterValues): void {
     // Handle preset application
+    console.log('Preset applied:', preset);
   }
 }

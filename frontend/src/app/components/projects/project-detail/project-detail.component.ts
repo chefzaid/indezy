@@ -56,7 +56,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   }
 
   private loadProject(): void {
-    if (!this.projectId) return;
+    if (!this.projectId) { return; }
     
     this.isLoading = true;
     this.projectService.getById(this.projectId)
@@ -90,7 +90,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   }
 
   onDelete(): void {
-    if (!this.project) return;
+    if (!this.project) { return; }
     
     if (confirm(`Êtes-vous sûr de vouloir supprimer le projet "${this.project.role}" ?`)) {
       this.projectService.delete(this.project.id!)
@@ -130,25 +130,25 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   getRatingStars(rating?: number): string[] {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
-      stars.push(i <= (rating || 0) ? 'star' : 'star_border');
+      stars.push(i <= (rating ?? 0) ? 'star' : 'star_border');
     }
     return stars;
   }
 
   formatDate(dateString?: string): string {
-    if (!dateString) return 'Non spécifié';
+    if (!dateString) { return 'Non spécifié'; }
     return new Date(dateString).toLocaleDateString('fr-FR');
   }
 
   calculateTotalRevenue(): number {
-    if (!this.project?.dailyRate || !this.project?.durationInMonths) return 0;
-    const daysPerMonth = (this.project.daysPerYear || 220) / 12;
+    if (!this.project?.dailyRate || !this.project?.durationInMonths) { return 0; }
+    const daysPerMonth = (this.project.daysPerYear ?? 220) / 12;
     return this.project.dailyRate * daysPerMonth * this.project.durationInMonths;
   }
 
   getProgressPercentage(): number {
-    if (!this.project?.totalSteps) return 0;
-    return Math.round((this.project.completedSteps || 0) / this.project.totalSteps * 100);
+    if (!this.project?.totalSteps) { return 0; }
+    return Math.round((this.project.completedSteps ?? 0) / this.project.totalSteps * 100);
   }
 
   openLink(): void {

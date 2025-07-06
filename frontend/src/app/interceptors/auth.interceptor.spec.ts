@@ -223,7 +223,7 @@ describe('authInterceptor', () => {
     });
 
     it('should handle undefined token', () => {
-      authService.getToken.and.returnValue(undefined as any);
+      authService.getToken.and.returnValue(undefined as string | undefined);
 
       httpClient.get('/api/test').subscribe();
 

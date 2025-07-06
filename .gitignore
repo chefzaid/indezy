@@ -3,6 +3,9 @@
 .env.local
 .env.production
 
+# DevContainer
+.devcontainer/.env.local
+
 # IDE
 .vscode/
 .idea/

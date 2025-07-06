@@ -60,15 +60,10 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('ClientDetailComponent ngOnInit called');
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      console.log('Route params received:', params);
       if (params['id']) {
         this.clientId = +params['id'];
-        console.log('Client ID set to:', this.clientId);
         this.loadClientAndContacts();
-      } else {
-        console.log('No ID parameter found in route');
       }
     });
   }
@@ -79,37 +74,28 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
   }
 
   private loadClientAndContacts(): void {
-    console.log('loadClientAndContacts called with clientId:', this.clientId);
     if (!this.clientId) {
-      console.log('No clientId, returning early');
       return;
     }
 
-    console.log('Setting loading states to true');
     this.isLoading = true;
     this.isLoadingContacts = true;
 
-    // Try loading just the client first to isolate the issue
-    console.log('Loading client only first...');
     this.clientService.getClient(this.clientId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (client) => {
-          console.log('Client service returned:', client);
           if (client) {
             this.client = client;
-            console.log('Client set successfully, now loading contacts...');
 
             // Now load contacts
             this.contactService.getContactsByClient(this.clientId!)
               .pipe(takeUntil(this.destroy$))
               .subscribe({
                 next: (contacts) => {
-                  console.log('Contacts loaded:', contacts);
                   this.contacts = contacts;
                   this.isLoading = false;
                   this.isLoadingContacts = false;
-                  console.log('All data loaded successfully');
                 },
                 error: (contactError) => {
                   console.error('Error loading contacts:', contactError);
@@ -118,7 +104,6 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
                 }
               });
           } else {
-            console.log('Client not found, showing error and navigating back');
             this.snackBar.open('Client non trouvé', 'Fermer', { duration: 3000 });
             this.router.navigate(['/clients']);
             this.isLoading = false;
@@ -135,7 +120,9 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
   }
 
   private loadContacts(): void {
-    if (!this.clientId) return;
+    if (!this.clientId) {
+      return;
+    }
 
     this.isLoadingContacts = true;
     this.contactService.getContactsByClient(this.clientId)
@@ -160,7 +147,9 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
   }
 
   onDelete(): void {
-    if (!this.client) return;
+    if (!this.client) {
+      return;
+    }
     
     if (confirm(`Êtes-vous sûr de vouloir supprimer le client "${this.client.name}" ?`)) {
       this.clientService.deleteClient(this.client.id)
@@ -204,12 +193,14 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
       case 'PROSPECT':
         return 'Prospect';
       default:
-        return status || 'N/A';
+        return status ?? 'N/A';
     }
   }
 
   formatDate(date?: Date): string {
-    if (!date) return 'N/A';
+    if (!date) {
+      return 'N/A';
+    }
     return new Date(date).toLocaleDateString('fr-FR', {
       year: 'numeric',
       month: 'long',
@@ -227,13 +218,17 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
 
   // Contact management methods
   onAddContact(): void {
-    if (!this.clientId) return;
+    if (!this.clientId) {
+      return;
+    }
 
     this.router.navigate(['/clients', this.clientId, 'contacts', 'create']);
   }
 
   onEditContact(contact: ContactDto): void {
-    if (!this.clientId) return;
+    if (!this.clientId) {
+      return;
+    }
     this.router.navigate(['/clients', this.clientId, 'contacts', contact.id, 'edit']);
   }
 

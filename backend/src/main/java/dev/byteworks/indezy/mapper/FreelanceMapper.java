@@ -31,16 +31,15 @@ public class FreelanceMapper {
 
         // Computed fields
         dto.setFullName(freelance.getFullName());
-        if (freelance.getProjects() != null) {
-            dto.setTotalProjects(freelance.getProjects().size());
-            dto.setAverageDailyRate(
-                freelance.getProjects().stream()
-                    .filter(p -> p.getDailyRate() != null)
-                    .mapToInt(Project::getDailyRate)
-                    .average()
-                    .orElse(0.0)
-            );
-        }
+        // getProjects() never returns null due to defensive copying
+        dto.setTotalProjects(freelance.getProjects().size());
+        dto.setAverageDailyRate(
+            freelance.getProjects().stream()
+                .filter(p -> p.getDailyRate() != null)
+                .mapToInt(Project::getDailyRate)
+                .average()
+                .orElse(0.0)
+        );
 
         return dto;
     }

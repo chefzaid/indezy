@@ -93,6 +93,23 @@ public class Project extends BaseEntity {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<InterviewStep> steps = new ArrayList<>();
 
+    // Custom getters and setters for collections to prevent EI_EXPOSE_REP
+    public List<String> getDocuments() {
+        return documents != null ? new ArrayList<>(documents) : new ArrayList<>();
+    }
+
+    public void setDocuments(final List<String> documents) {
+        this.documents = documents != null ? new ArrayList<>(documents) : new ArrayList<>();
+    }
+
+    public List<InterviewStep> getSteps() {
+        return steps != null ? new ArrayList<>(steps) : new ArrayList<>();
+    }
+
+    public void setSteps(final List<InterviewStep> steps) {
+        this.steps = steps != null ? new ArrayList<>(steps) : new ArrayList<>();
+    }
+
     // Helper methods
     public Integer getTotalRevenue() {
         if (dailyRate != null && daysPerYear != null && durationInMonths != null) {

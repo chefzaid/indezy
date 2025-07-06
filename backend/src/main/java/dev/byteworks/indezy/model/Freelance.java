@@ -75,6 +75,39 @@ public class Freelance extends BaseEntity {
     @OneToMany(mappedBy = "freelance", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Source> sources = new ArrayList<>();
 
+    // Custom getters and setters for collections to prevent EI_EXPOSE_REP
+    public List<Project> getProjects() {
+        return projects != null ? new ArrayList<>(projects) : new ArrayList<>();
+    }
+
+    public void setProjects(final List<Project> projects) {
+        this.projects = projects != null ? new ArrayList<>(projects) : new ArrayList<>();
+    }
+
+    public List<Client> getClients() {
+        return clients != null ? new ArrayList<>(clients) : new ArrayList<>();
+    }
+
+    public void setClients(final List<Client> clients) {
+        this.clients = clients != null ? new ArrayList<>(clients) : new ArrayList<>();
+    }
+
+    public List<Contact> getContacts() {
+        return contacts != null ? new ArrayList<>(contacts) : new ArrayList<>();
+    }
+
+    public void setContacts(final List<Contact> contacts) {
+        this.contacts = contacts != null ? new ArrayList<>(contacts) : new ArrayList<>();
+    }
+
+    public List<Source> getSources() {
+        return sources != null ? new ArrayList<>(sources) : new ArrayList<>();
+    }
+
+    public void setSources(final List<Source> sources) {
+        this.sources = sources != null ? new ArrayList<>(sources) : new ArrayList<>();
+    }
+
     // Helper methods
     public String getFullName() {
         return firstName + " " + lastName;

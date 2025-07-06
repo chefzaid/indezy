@@ -26,6 +26,14 @@ export interface RegisterRequest {
   password: string;
 }
 
+export interface User {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -34,12 +42,12 @@ export class AuthService {
   private readonly TOKEN_KEY = 'indezy_token';
   private readonly USER_KEY = 'indezy_user';
 
-  private currentUserSubject = new BehaviorSubject<any>(this.getUserFromStorage());
+  private readonly currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
-    private http: HttpClient,
-    private router: Router
+    private readonly http: HttpClient,
+    private readonly router: Router
   ) {}
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
@@ -105,7 +113,7 @@ export class AuthService {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  getUser(): any {
+  getUser(): User | null {
     return this.getUserFromStorage();
   }
 
@@ -134,11 +142,11 @@ export class AuthService {
     localStorage.setItem(this.TOKEN_KEY, token);
   }
 
-  private setUser(user: any): void {
+  private setUser(user: User): void {
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
   }
 
-  private getUserFromStorage(): any {
+  private getUserFromStorage(): User | null {
     const userStr = localStorage.getItem(this.USER_KEY);
     return userStr ? JSON.parse(userStr) : null;
   }

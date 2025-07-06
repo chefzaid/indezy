@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 
+export type ClientStatus = 'ACTIVE' | 'INACTIVE' | 'PROSPECT';
+
 export interface ClientDto {
   id: number;
   companyName: string;
@@ -18,7 +20,7 @@ export interface ClientDto {
   name?: string;
   industry?: string;
   website?: string;
-  status?: 'ACTIVE' | 'INACTIVE' | 'PROSPECT';
+  status?: ClientStatus;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -35,7 +37,7 @@ export interface CreateClientDto {
   name?: string;
   industry?: string;
   website?: string;
-  status?: 'ACTIVE' | 'INACTIVE' | 'PROSPECT';
+  status?: ClientStatus;
 }
 
 export interface UpdateClientDto extends Partial<CreateClientDto> {
@@ -46,7 +48,7 @@ export interface UpdateClientDto extends Partial<CreateClientDto> {
   providedIn: 'root'
 })
 export class ClientService {
-  private clients$ = new BehaviorSubject<ClientDto[]>([]);
+  private readonly clients$ = new BehaviorSubject<ClientDto[]>([]);
   private nextId = 1;
 
   constructor() {
@@ -137,14 +139,8 @@ export class ClientService {
   }
 
   getClient(id: number): Observable<ClientDto | undefined> {
-    console.log('ClientService.getClient called with id:', id);
     return this.clients$.pipe(
-      map(clients => {
-        console.log('Available clients:', clients.map(c => ({ id: c.id, name: c.name })));
-        const foundClient = clients.find(client => client.id === id);
-        console.log('Found client:', foundClient ? { id: foundClient.id, name: foundClient.name } : 'null');
-        return foundClient;
-      }),
+      map(clients => clients.find(client => client.id === id)),
       delay(300) // Simulate API delay
     );
   }
@@ -209,7 +205,7 @@ export class ClientService {
     );
   }
 
-  getClientsByStatus(status: 'ACTIVE' | 'INACTIVE' | 'PROSPECT'): Observable<ClientDto[]> {
+  getClientsByStatus(status: ClientStatus): Observable<ClientDto[]> {
     return this.clients$.pipe(
       map(clients => clients.filter(client => client.status === status)),
       delay(300)

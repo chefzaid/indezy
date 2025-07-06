@@ -1,24 +1,52 @@
 {
   "name": "Indezy Development Environment",
-  "image": "mcr.microsoft.com/devcontainers/java:21-bullseye",
-  "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "18"
-    },
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/git:1": {}
-  },
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspace",
   "customizations": {
     "vscode": {
       "extensions": [
+        // Java Development
         "vscjava.vscode-java-pack",
+        "vscjava.vscode-spring-boot-dashboard",
+        "vmware.vscode-spring-boot",
+        "vscjava.vscode-maven",
+        "sonarsource.sonarlint-vscode",
+
+        // Angular/TypeScript Development
         "angular.ng-template",
         "ms-vscode.vscode-typescript-next",
+        "johnpapa.angular2",
+        "cyrilletuzi.angular-schematics",
+        "ms-vscode.vscode-eslint",
+        "esbenp.prettier-vscode",
+
+        // CSS/Styling
         "bradlc.vscode-tailwindcss",
+        "angular.ng-template",
+
+        // General Development
         "ms-vscode.vscode-json",
         "redhat.vscode-yaml",
         "ms-azuretools.vscode-docker",
-        "GitLab.gitlab-workflow"
+        "ms-vscode.vscode-postgresql",
+        "humao.rest-client",
+
+        // Code Quality & Testing
+        "sonarsource.sonarlint-vscode",
+        "ms-vscode.test-adapter-converter",
+        "hbenl.vscode-test-explorer",
+        "kavod-io.vscode-jest-test-adapter",
+
+        // Git & Version Control
+        "eamodio.gitlens",
+        "github.vscode-pull-request-github",
+
+        // Productivity
+        "ms-vscode.vscode-todo-highlight",
+        "streetsidesoftware.code-spell-checker",
+        "ms-vscode.vscode-markdown-preview-enhanced",
+        "bierner.markdown-mermaid"
       ],
       "settings": {
         "java.configuration.runtimes": [
@@ -27,11 +55,31 @@
             "path": "/usr/local/sdkman/candidates/java/current"
           }
         ],
-        "java.compile.nullAnalysis.mode": "automatic"
+        "java.compile.nullAnalysis.mode": "automatic",
+        "java.configuration.maven.userSettings": "/workspace/.devcontainer/maven-settings.xml"
       }
     }
   },
-  "forwardPorts": [8080, 4200, 5432],
+  "forwardPorts": [8080, 4200, 5432, 5050],
+  "portsAttributes": {
+    "8080": {
+      "label": "Spring Boot Backend",
+      "onAutoForward": "notify"
+    },
+    "4200": {
+      "label": "Angular Frontend",
+      "onAutoForward": "openBrowser"
+    },
+    "5432": {
+      "label": "PostgreSQL Database",
+      "onAutoForward": "silent"
+    },
+    "5050": {
+      "label": "pgAdmin",
+      "onAutoForward": "notify"
+    }
+  },
   "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "remoteUser": "vscode"
+  "remoteUser": "vscode",
+  "shutdownAction": "stopCompose"
 }
