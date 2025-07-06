@@ -14,8 +14,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 
-import { ClientService, ClientDto } from '../../../services/client.service';
-import { ContactService, ContactDto } from '../../../services/contact.service';
+import { ClientService } from '../../../services/client/client.service';
+import { ContactService } from '../../../services/contact/contact.service';
+import { ClientDto, ContactDto } from '../../../models';
 
 
 @Component({

@@ -17,8 +17,9 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
-import { ProjectService, ProjectDto } from '../../../services/project.service';
-import { AuthService, User } from '../../../services/auth.service';
+import { ProjectService } from '../../../services/project/project.service';
+import { AuthService } from '../../../services/auth/auth.service';
+import { ProjectDto, User } from '../../../models';
 
 @Component({
     selector: 'app-project-list',

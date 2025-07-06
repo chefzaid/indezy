@@ -8,6 +8,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProjectMapper {
 
+    private final InterviewStepMapper interviewStepMapper;
+
+    public ProjectMapper(InterviewStepMapper interviewStepMapper) {
+        this.interviewStepMapper = interviewStepMapper;
+    }
+
     public ProjectDto toDto(Project project) {
         if (project == null) {
             return null;
@@ -59,6 +65,13 @@ public class ProjectMapper {
         dto.setFailedSteps((int) project.getSteps().stream()
             .filter(step -> StepStatus.FAILED.equals(step.getStatus()))
             .count());
+
+        // Map interview steps if they are loaded (not empty collection)
+        if (!project.getSteps().isEmpty()) {
+            dto.setSteps(project.getSteps().stream()
+                .map(interviewStepMapper::toDto)
+                .toList());
+        }
 
         return dto;
     }

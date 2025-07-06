@@ -27,7 +27,8 @@ class ProjectMapperTest {
 
     @BeforeEach
     void setUp() {
-        projectMapper = new ProjectMapper();
+        InterviewStepMapper interviewStepMapper = new InterviewStepMapper();
+        projectMapper = new ProjectMapper(interviewStepMapper);
 
         // Create test freelance
         testFreelance = new Freelance();

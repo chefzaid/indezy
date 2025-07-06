@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
-import { AuthService } from './services/auth.service';
+import { AuthService } from './services/auth/auth.service';
 
 interface MenuItem {
   label: string;

@@ -12,8 +12,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 
-import { ContactService } from '../../../services/contact.service';
-import { ClientService, ClientDto } from '../../../services/client.service';
+import { ContactService } from '../../../services/contact/contact.service';
+import { ClientService } from '../../../services/client/client.service';
+import { ClientDto } from '../../../models';
 
 @Component({
     selector: 'app-contact-form',

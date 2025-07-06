@@ -2,15 +2,8 @@
 // This file demonstrates how to implement the advanced filter components
 
 import { Component } from '@angular/core';
-import { ComprehensiveFilterPanelComponent, ComprehensiveFilterConfig } from './comprehensive-filter-panel/comprehensive-filter-panel.component';
-
-export interface FilterValues {
-  search?: string;
-  industries?: string[];
-  projectCount_min?: number;
-  projectCount_max?: number;
-  [key: string]: any;
-}
+import { ComprehensiveFilterPanelComponent } from './comprehensive-filter-panel/comprehensive-filter-panel.component';
+import { ComprehensiveFilterConfig, FilterValues } from '../../models/filter.models';
 
 @Component({
   selector: 'app-example-usage',

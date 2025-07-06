@@ -6,19 +6,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-
-export interface MultiSelectOption {
-  value: string;
-  label: string;
-  disabled?: boolean;
-}
-
-export interface MultiSelectFilterConfig {
-  label?: string;
-  placeholder?: string;
-  maxSelections?: number;
-  allowCustomValues?: boolean;
-}
+import { MultiSelectOption, MultiSelectFilterConfig } from '../../../models/filter.models';
 
 @Component({
   selector: 'app-multi-select-filter',
@@ -32,87 +20,8 @@ export interface MultiSelectFilterConfig {
     MatIconModule,
     MatButtonModule
   ],
-  template: `
-    <div class="multi-select-filter" [formGroup]="selectForm">
-      <mat-form-field appearance="outline" class="select-field">
-        <mat-label>{{ config.label || 'Sélectionner' }}</mat-label>
-        <mat-select formControlName="selection"
-                    [placeholder]="config.placeholder || 'Choisir des options'"
-                    (selectionChange)="onSelectionChange($event.value)">
-          <mat-option *ngFor="let option of availableOptions" 
-                     [value]="option.value"
-                     [disabled]="option.disabled">
-            {{ option.label }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <div class="selected-items" *ngIf="selectedValues.length > 0">
-        <mat-chip-listbox>
-          <mat-chip-option *ngFor="let value of selectedValues"
-                           (removed)="removeSelection(value)">
-            {{ getOptionLabel(value) }}
-            <mat-icon matChipRemove>cancel</mat-icon>
-          </mat-chip-option>
-        </mat-chip-listbox>
-      </div>
-
-      <div class="filter-actions" *ngIf="selectedValues.length > 0">
-        <button mat-button 
-                (click)="clearAll()"
-                class="clear-button">
-          <mat-icon>clear_all</mat-icon>
-          Tout effacer
-        </button>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .multi-select-filter {
-      width: 100%;
-
-      .select-field {
-        width: 100%;
-        margin-bottom: 8px;
-      }
-
-      .selected-items {
-        margin-bottom: 12px;
-
-        mat-chip-listbox {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-
-          mat-chip-option {
-            background-color: #e3f2fd;
-            color: #1976d2;
-            border: 1px solid #bbdefb;
-
-            mat-icon {
-              color: #1976d2;
-            }
-
-            &:hover {
-              background-color: #bbdefb;
-            }
-          }
-        }
-      }
-
-      .filter-actions {
-        display: flex;
-        justify-content: flex-end;
-
-        .clear-button {
-          color: #f44336;
-          font-size: 12px;
-          min-height: 32px;
-          padding: 0 12px;
-        }
-      }
-    }
-  `]
+  templateUrl: './multi-select-filter.component.html',
+  styleUrls: ['./multi-select-filter.component.scss']
 })
 export class MultiSelectFilterComponent implements OnInit {
   @Input() options: MultiSelectOption[] = [];

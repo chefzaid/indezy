@@ -21,8 +21,9 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { ClientService, ClientDto } from '../../../services/client.service';
-import { ContactService } from '../../../services/contact.service';
+import { ClientService } from '../../../services/client/client.service';
+import { ClientDto } from '../../../models';
+import { ContactService } from '../../../services/contact/contact.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 
 @Component({
@@ -196,7 +197,9 @@ export class ClientListComponent implements OnInit, OnDestroy {
     if (query.trim()) {
       if (this.searchType === 'CLIENT') {
         // Search by client name/info
-        this.clientService.searchClients(query)
+        // TODO: Get freelanceId from authentication context
+        const freelanceId = 1; // Temporary hardcoded value
+        this.clientService.searchClients(freelanceId, query)
           .pipe(takeUntil(this.destroy$))
           .subscribe(clients => {
             this.filteredClients = this.filterByStatus(clients);

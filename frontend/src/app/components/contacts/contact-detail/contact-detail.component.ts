@@ -10,7 +10,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject, takeUntil } from 'rxjs';
 
-import { ContactService, ContactDto } from '../../../services/contact.service';
+import { ContactService } from '../../../services/contact/contact.service';
+import { ContactDto } from '../../../models';
 
 @Component({
     selector: 'app-contact-detail',

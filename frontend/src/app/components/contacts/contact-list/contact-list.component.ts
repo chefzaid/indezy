@@ -15,8 +15,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { ContactService, ContactDto } from '../../../services/contact.service';
-import { ClientService, ClientDto } from '../../../services/client.service';
+import { ContactService } from '../../../services/contact/contact.service';
+import { ClientService } from '../../../services/client/client.service';
+import { ContactDto, ClientDto } from '../../../models';
 
 @Component({
     selector: 'app-contact-list',

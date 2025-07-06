@@ -1,38 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
-
-export interface ProjectDto {
-  id?: number;
-  role: string;
-  description?: string;
-  techStack?: string;
-  dailyRate: number;
-  workMode?: 'REMOTE' | 'ONSITE' | 'HYBRID';
-  remoteDaysPerMonth?: number;
-  onsiteDaysPerMonth?: number;
-  advantages?: string;
-  startDate?: string;
-  durationInMonths?: number;
-  orderRenewalInMonths?: number;
-  daysPerYear?: number;
-  documents?: string[];
-  link?: string;
-  personalRating?: number;
-  notes?: string;
-  freelanceId?: number;
-  clientId?: number;
-  clientName?: string;
-  middlemanId?: number;
-  middlemanName?: string;
-  sourceId?: number;
-  sourceName?: string;
-  totalRevenue?: number;
-  totalSteps?: number;
-  completedSteps?: number;
-  failedSteps?: number;
-}
+import { environment } from '../../../environments/environment';
+import { ProjectDto } from '../../models/project.models';
 
 export interface ProjectFilters {
   minRate?: number;

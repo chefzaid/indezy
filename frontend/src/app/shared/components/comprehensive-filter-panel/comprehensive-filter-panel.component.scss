@@ -1,0 +1,116 @@
+.comprehensive-filter-panel {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+  overflow: hidden;
+
+  .filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+
+    .filter-title {
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .filter-subtitle {
+        margin: 4px 0 0 0;
+        font-size: 14px;
+        color: #666;
+      }
+    }
+
+    .filter-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .clear-all-button {
+        color: #f44336;
+      }
+    }
+  }
+
+  .filter-content {
+    transition: all 0.3s ease;
+    overflow: hidden;
+
+    &.collapsed {
+      max-height: 0;
+      padding: 0;
+    }
+
+    .filter-sections {
+      padding: 20px;
+
+      .filter-section {
+        margin-bottom: 24px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .section-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 12px;
+
+          mat-icon {
+            color: #666;
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+
+          .section-title {
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+        }
+
+        .section-content {
+          padding-left: 28px;
+        }
+
+        mat-divider {
+          margin-top: 16px;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .filter-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+
+      .filter-actions {
+        justify-content: space-between;
+      }
+    }
+
+    .filter-content {
+      .filter-sections {
+        padding: 16px;
+
+        .filter-section {
+          .section-content {
+            padding-left: 0;
+          }
+        }
+      }
+    }
+  }
+}

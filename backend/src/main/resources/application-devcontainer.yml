@@ -22,6 +22,12 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         show_sql: true
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data-dev.sql
+      continue-on-error: false
   
   servlet:
     multipart:

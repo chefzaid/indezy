@@ -10,7 +10,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 
-import { ProjectService, ProjectDto } from '../../../services/project.service';
+import { ProjectService } from '../../../services/project/project.service';
+import { ProjectDto } from '../../../models';
 
 @Component({
     selector: 'app-project-detail',

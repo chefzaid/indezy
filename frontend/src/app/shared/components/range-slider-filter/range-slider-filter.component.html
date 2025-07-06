@@ -1,0 +1,55 @@
+<div class="range-slider-filter" [formGroup]="rangeForm">
+  <div class="range-header">
+    <label class="range-label">{{ config.label || 'Plage de valeurs' }}</label>
+    <button mat-icon-button 
+            *ngIf="hasCustomValues()"
+            (click)="resetRange()"
+            matTooltip="Réinitialiser"
+            type="button">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <div class="range-content">
+    <div class="range-inputs" *ngIf="config.showInputs">
+      <mat-form-field appearance="outline" class="range-input">
+        <mat-label>Min</mat-label>
+        <input matInput 
+               type="number"
+               formControlName="minInput"
+               [min]="config.min || 0"
+               [max]="config.max || 100">
+        <span matTextSuffix *ngIf="config.unit">{{ config.unit }}</span>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="range-input">
+        <mat-label>Max</mat-label>
+        <input matInput 
+               type="number"
+               formControlName="maxInput"
+               [min]="config.min || 0"
+               [max]="config.max || 100">
+        <span matTextSuffix *ngIf="config.unit">{{ config.unit }}</span>
+      </mat-form-field>
+    </div>
+
+    <div class="slider-container">
+      <mat-slider 
+        [min]="config.min || 0"
+        [max]="config.max || 100"
+        [step]="config.step || 1"
+        [discrete]="true"
+        [showTickMarks]="false">
+        <input matSliderStartThumb formControlName="minSlider">
+        <input matSliderEndThumb formControlName="maxSlider">
+      </mat-slider>
+    </div>
+
+    <div class="range-display">
+      <span class="range-value">
+        {{ rangeForm.get('minSlider')?.value }}{{ config.unit || '' }} - 
+        {{ rangeForm.get('maxSlider')?.value }}{{ config.unit || '' }}
+      </span>
+    </div>
+  </div>
+</div>

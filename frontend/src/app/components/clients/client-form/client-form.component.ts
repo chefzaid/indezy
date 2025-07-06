@@ -18,8 +18,9 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { Subject, takeUntil } from 'rxjs';
 
-import { ClientService, CreateClientDto, UpdateClientDto } from '../../../services/client.service';
-import { ContactService, ContactDto } from '../../../services/contact.service';
+import { ClientService } from '../../../services/client/client.service';
+import { ContactService } from '../../../services/contact/contact.service';
+import { CreateClientDto, UpdateClientDto, ContactDto } from '../../../models';
 
 @Component({
     selector: 'app-client-form',

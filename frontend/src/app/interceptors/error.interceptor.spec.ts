@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { HttpClient, provideHttpClient, withInterceptors, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { errorInterceptor } from './error.interceptor';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../services/auth/auth.service';
 
 describe('errorInterceptor', () => {
   let httpClient: HttpClient;

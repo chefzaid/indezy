@@ -9,7 +9,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebM
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,8 @@ import static org.hamcrest.Matchers.*;
 @ActiveProfiles("test")
 @Transactional
 @WithMockUser
+@Sql(scripts = "/test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class FreelanceIntegrationTest {
 
     @Autowired
@@ -48,9 +52,9 @@ class FreelanceIntegrationTest {
     @Test
     void createFreelance_WithValidData_ShouldCreateAndReturnFreelance() throws Exception {
         FreelanceDto freelanceDto = new FreelanceDto();
-        freelanceDto.setFirstName("John");
-        freelanceDto.setLastName("Doe");
-        freelanceDto.setEmail("john.doe@example.com");
+        freelanceDto.setFirstName("Jane");
+        freelanceDto.setLastName("Smith");
+        freelanceDto.setEmail("jane.smith@example.com");
         freelanceDto.setPhone("123-456-7890");
         freelanceDto.setStatus(EmploymentStatus.FREELANCE);
 
@@ -58,9 +62,9 @@ class FreelanceIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(freelanceDto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.firstName", is("John")))
-                .andExpect(jsonPath("$.lastName", is("Doe")))
-                .andExpect(jsonPath("$.email", is("john.doe@example.com")))
+                .andExpect(jsonPath("$.firstName", is("Jane")))
+                .andExpect(jsonPath("$.lastName", is("Smith")))
+                .andExpect(jsonPath("$.email", is("jane.smith@example.com")))
                 .andExpect(jsonPath("$.phone", is("123-456-7890")))
                 .andExpect(jsonPath("$.status", is("FREELANCE")))
                 .andExpect(jsonPath("$.id", notNullValue()));
@@ -99,9 +103,9 @@ class FreelanceIntegrationTest {
         mockMvc.perform(get("/freelances/{id}", createdFreelance.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(createdFreelance.getId().intValue())))
-                .andExpect(jsonPath("$.firstName", is("John")))
-                .andExpect(jsonPath("$.lastName", is("Doe")))
-                .andExpect(jsonPath("$.email", is("john.doe@example.com")));
+                .andExpect(jsonPath("$.firstName", is("Alice")))
+                .andExpect(jsonPath("$.lastName", is("Johnson")))
+                .andExpect(jsonPath("$.email", is("alice.johnson@example.com")));
     }
 
     @Test
@@ -175,8 +179,8 @@ class FreelanceIntegrationTest {
         mockMvc.perform(get("/freelances"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThan(0))))
-                .andExpect(jsonPath("$[0].firstName", is("John")))
-                .andExpect(jsonPath("$[0].lastName", is("Doe")));
+                .andExpect(jsonPath("$[1].firstName", is("Alice")))
+                .andExpect(jsonPath("$[1].lastName", is("Johnson")));
     }
 
     @Test
@@ -191,11 +195,11 @@ class FreelanceIntegrationTest {
 
         // Then retrieve by email
         mockMvc.perform(get("/freelances/by-email")
-                .param("email", "john.doe@example.com"))
+                .param("email", "alice.johnson@example.com"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName", is("John")))
-                .andExpect(jsonPath("$.lastName", is("Doe")))
-                .andExpect(jsonPath("$.email", is("john.doe@example.com")));
+                .andExpect(jsonPath("$.firstName", is("Alice")))
+                .andExpect(jsonPath("$.lastName", is("Johnson")))
+                .andExpect(jsonPath("$.email", is("alice.johnson@example.com")));
     }
 
     @Test
@@ -209,9 +213,9 @@ class FreelanceIntegrationTest {
 
     private FreelanceDto createValidFreelanceDto() {
         FreelanceDto freelanceDto = new FreelanceDto();
-        freelanceDto.setFirstName("John");
-        freelanceDto.setLastName("Doe");
-        freelanceDto.setEmail("john.doe@example.com");
+        freelanceDto.setFirstName("Alice");
+        freelanceDto.setLastName("Johnson");
+        freelanceDto.setEmail("alice.johnson@example.com");
         freelanceDto.setPhone("123-456-7890");
         freelanceDto.setStatus(EmploymentStatus.FREELANCE);
         return freelanceDto;

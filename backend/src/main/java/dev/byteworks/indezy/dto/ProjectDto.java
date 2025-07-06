@@ -56,6 +56,9 @@ public class ProjectDto {
     private Integer completedSteps;
     private Integer failedSteps;
 
+    // Interview steps (only populated when explicitly requested)
+    private List<InterviewStepDto> steps;
+
     // Custom getters and setters for collections to prevent EI_EXPOSE_REP
     public List<String> getDocuments() {
         return documents != null ? new ArrayList<>(documents) : new ArrayList<>();
@@ -63,5 +66,13 @@ public class ProjectDto {
 
     public void setDocuments(final List<String> documents) {
         this.documents = documents != null ? new ArrayList<>(documents) : new ArrayList<>();
+    }
+
+    public List<InterviewStepDto> getSteps() {
+        return steps != null ? new ArrayList<>(steps) : new ArrayList<>();
+    }
+
+    public void setSteps(final List<InterviewStepDto> steps) {
+        this.steps = steps != null ? new ArrayList<>(steps) : new ArrayList<>();
     }
 }

@@ -1,0 +1,56 @@
+<div class="filter-presets">
+  <div class="preset-actions">
+    <button mat-button 
+            [matMenuTriggerFor]="presetsMenu"
+            class="presets-button">
+      <mat-icon>bookmark</mat-icon>
+      Filtres prédéfinis
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+
+    <button mat-icon-button 
+            *ngIf="config.allowCustomPresets && hasActiveFilters"
+            (click)="saveCurrentAsPreset()"
+            matTooltip="Sauvegarder les filtres actuels"
+            class="save-preset-button">
+      <mat-icon>bookmark_add</mat-icon>
+    </button>
+  </div>
+
+  <mat-menu #presetsMenu="matMenu" class="presets-menu">
+    <div class="preset-header">
+      <span class="preset-title">Filtres prédéfinis</span>
+    </div>
+
+    <div class="preset-list">
+      <button mat-menu-item 
+              *ngFor="let preset of presets"
+              (click)="applyPreset(preset)"
+              class="preset-item">
+        <mat-icon>{{ preset.isDefault ? 'star' : 'bookmark' }}</mat-icon>
+        <div class="preset-info">
+          <span class="preset-name">{{ preset.name }}</span>
+          <span class="preset-description" *ngIf="preset.description">
+            {{ preset.description }}
+          </span>
+        </div>
+        <button mat-icon-button 
+                *ngIf="!preset.isDefault && config.allowCustomPresets"
+                (click)="deletePreset(preset, $event)"
+                class="delete-preset">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </button>
+    </div>
+
+    <div class="preset-footer" *ngIf="config.allowCustomPresets">
+      <button mat-menu-item 
+              (click)="clearAllPresets()"
+              *ngIf="customPresets.length > 0"
+              class="clear-presets">
+        <mat-icon>clear_all</mat-icon>
+        Effacer tous les filtres personnalisés
+      </button>
+    </div>
+  </mat-menu>
+</div>

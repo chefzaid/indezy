@@ -7,18 +7,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-
-export interface DateRangeFilterConfig {
-  fromLabel?: string;
-  toLabel?: string;
-  fromPlaceholder?: string;
-  toPlaceholder?: string;
-}
-
-export interface DateRange {
-  from: Date | null;
-  to: Date | null;
-}
+import { DateRangeFilterConfig, DateRange } from '../../../models/filter.models';
 
 @Component({
   selector: 'app-date-range-filter',
@@ -33,83 +22,8 @@ export interface DateRange {
     MatIconModule,
     MatButtonModule
   ],
-  template: `
-    <div class="date-range-filter" [formGroup]="dateForm">
-      <div class="date-fields">
-        <mat-form-field appearance="outline" class="date-field">
-          <mat-label>{{ config.fromLabel || 'Date de début' }}</mat-label>
-          <input matInput 
-                 [matDatepicker]="fromPicker" 
-                 formControlName="from"
-                 [placeholder]="config.fromPlaceholder || 'Sélectionner une date'">
-          <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
-          <mat-datepicker #fromPicker></mat-datepicker>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="date-field">
-          <mat-label>{{ config.toLabel || 'Date de fin' }}</mat-label>
-          <input matInput 
-                 [matDatepicker]="toPicker" 
-                 formControlName="to"
-                 [placeholder]="config.toPlaceholder || 'Sélectionner une date'">
-          <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
-          <mat-datepicker #toPicker></mat-datepicker>
-        </mat-form-field>
-      </div>
-
-      <div class="date-actions" *ngIf="hasValues()">
-        <button mat-icon-button 
-                (click)="clearDates()"
-                matTooltip="Effacer les dates"
-                type="button">
-          <mat-icon>clear</mat-icon>
-        </button>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .date-range-filter {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-
-      .date-fields {
-        display: flex;
-        gap: 16px;
-        flex: 1;
-
-        .date-field {
-          flex: 1;
-          min-width: 150px;
-        }
-      }
-
-      .date-actions {
-        display: flex;
-        align-items: center;
-      }
-
-      @media (max-width: 768px) {
-        flex-direction: column;
-        align-items: stretch;
-
-        .date-fields {
-          flex-direction: column;
-          gap: 12px;
-
-          .date-field {
-            width: 100%;
-          }
-        }
-
-        .date-actions {
-          justify-content: center;
-          margin-top: 8px;
-        }
-      }
-    }
-  `]
+  templateUrl: './date-range-filter.component.html',
+  styleUrls: ['./date-range-filter.component.scss']
 })
 export class DateRangeFilterComponent implements OnInit {
   @Input() config: DateRangeFilterConfig = {};

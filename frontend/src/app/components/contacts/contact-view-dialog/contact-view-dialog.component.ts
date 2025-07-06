@@ -9,7 +9,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { ContactDto } from '../../../services/contact.service';
+import { ContactDto } from '../../../services/contact/contact.service';
 
 @Component({
     selector: 'app-contact-view-dialog',

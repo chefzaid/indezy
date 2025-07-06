@@ -2,37 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment';
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  token: string;
-  user: {
-    id: number;
-    email: string;
-    firstName: string;
-    lastName: string;
-  };
-}
-
-export interface RegisterRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}
-
-export interface User {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role?: string;
-}
+import { environment } from '../../../environments/environment';
+import { LoginRequest, LoginResponse, RegisterRequest, User } from '../../models/auth.models';
 
 @Injectable({
   providedIn: 'root'

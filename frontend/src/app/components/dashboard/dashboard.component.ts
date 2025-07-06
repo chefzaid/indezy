@@ -4,9 +4,10 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { AuthService, User } from '../../services/auth.service';
-import { ProjectService, ProjectDto } from '../../services/project.service';
-import { FreelanceService, FreelanceDto } from '../../services/freelance.service';
+import { AuthService } from '../../services/auth/auth.service';
+import { ProjectService } from '../../services/project/project.service';
+import { FreelanceService } from '../../services/freelance/freelance.service';
+import { User, ProjectDto, FreelanceDto } from '../../models';
 
 @Component({
     selector: 'app-dashboard',

@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { ProjectService, ProjectDto } from './project.service';
-import { environment } from '../../environments/environment';
+import { ProjectService } from './project.service';
+import { ProjectDto } from '../../models';
+import { environment } from '../../../environments/environment';
 
 describe('ProjectService', () => {
   let service: ProjectService;

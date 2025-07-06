@@ -6,13 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
-
-export interface SearchFilterConfig {
-  placeholder?: string;
-  label?: string;
-  icon?: string;
-  debounceTime?: number;
-}
+import { SearchFilterConfig } from '../../../models/filter.models';
 
 @Component({
   selector: 'app-advanced-search-filter',
@@ -25,31 +19,8 @@ export interface SearchFilterConfig {
     MatIconModule,
     MatButtonModule
   ],
-  template: `
-    <mat-form-field appearance="outline" class="search-filter">
-      <mat-label>{{ config.label || 'Rechercher' }}</mat-label>
-      <input matInput
-             [formControl]="searchForm.get('query')!"
-             [placeholder]="config.placeholder || 'Tapez votre recherche...'">
-      <mat-icon matPrefix *ngIf="config.icon">{{ config.icon }}</mat-icon>
-      <button mat-icon-button 
-              matSuffix 
-              *ngIf="searchForm.get('query')?.value"
-              (click)="clearSearch()"
-              type="button">
-        <mat-icon>clear</mat-icon>
-      </button>
-    </mat-form-field>
-  `,
-  styles: [`
-    .search-filter {
-      width: 100%;
-      
-      .mat-mdc-form-field-subscript-wrapper {
-        display: none;
-      }
-    }
-  `]
+  templateUrl: './advanced-search-filter.component.html',
+  styleUrls: ['./advanced-search-filter.component.scss']
 })
 export class AdvancedSearchFilterComponent implements OnInit {
   @Input() config: SearchFilterConfig = {};

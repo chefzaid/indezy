@@ -7,21 +7,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
-
-export interface RangeSliderConfig {
-  label?: string;
-  min?: number;
-  max?: number;
-  step?: number;
-  unit?: string;
-  showInputs?: boolean;
-  debounceTime?: number;
-}
-
-export interface RangeValue {
-  min: number;
-  max: number;
-}
+import { RangeSliderConfig, RangeValue } from '../../../models/filter.models';
 
 @Component({
   selector: 'app-range-slider-filter',
@@ -35,126 +21,8 @@ export interface RangeValue {
     MatIconModule,
     MatButtonModule
   ],
-  template: `
-    <div class="range-slider-filter" [formGroup]="rangeForm">
-      <div class="range-header">
-        <label class="range-label">{{ config.label || 'Plage de valeurs' }}</label>
-        <button mat-icon-button 
-                *ngIf="hasCustomValues()"
-                (click)="resetRange()"
-                matTooltip="Réinitialiser"
-                type="button">
-          <mat-icon>refresh</mat-icon>
-        </button>
-      </div>
-
-      <div class="range-content">
-        <div class="range-inputs" *ngIf="config.showInputs">
-          <mat-form-field appearance="outline" class="range-input">
-            <mat-label>Min</mat-label>
-            <input matInput 
-                   type="number"
-                   formControlName="minInput"
-                   [min]="config.min || 0"
-                   [max]="config.max || 100">
-            <span matTextSuffix *ngIf="config.unit">{{ config.unit }}</span>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="range-input">
-            <mat-label>Max</mat-label>
-            <input matInput 
-                   type="number"
-                   formControlName="maxInput"
-                   [min]="config.min || 0"
-                   [max]="config.max || 100">
-            <span matTextSuffix *ngIf="config.unit">{{ config.unit }}</span>
-          </mat-form-field>
-        </div>
-
-        <div class="slider-container">
-          <mat-slider 
-            [min]="config.min || 0"
-            [max]="config.max || 100"
-            [step]="config.step || 1"
-            [discrete]="true"
-            [showTickMarks]="false">
-            <input matSliderStartThumb formControlName="minSlider">
-            <input matSliderEndThumb formControlName="maxSlider">
-          </mat-slider>
-        </div>
-
-        <div class="range-display">
-          <span class="range-value">
-            {{ rangeForm.get('minSlider')?.value }}{{ config.unit || '' }} - 
-            {{ rangeForm.get('maxSlider')?.value }}{{ config.unit || '' }}
-          </span>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .range-slider-filter {
-      width: 100%;
-      padding: 16px;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      background-color: #fafafa;
-
-      .range-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-
-        .range-label {
-          font-weight: 500;
-          color: #333;
-          font-size: 14px;
-        }
-      }
-
-      .range-content {
-        .range-inputs {
-          display: flex;
-          gap: 16px;
-          margin-bottom: 16px;
-
-          .range-input {
-            flex: 1;
-          }
-        }
-
-        .slider-container {
-          margin: 16px 0;
-          padding: 0 8px;
-
-          mat-slider {
-            width: 100%;
-          }
-        }
-
-        .range-display {
-          text-align: center;
-          margin-top: 8px;
-
-          .range-value {
-            font-size: 14px;
-            color: #666;
-            font-weight: 500;
-          }
-        }
-      }
-
-      @media (max-width: 768px) {
-        .range-content {
-          .range-inputs {
-            flex-direction: column;
-            gap: 12px;
-          }
-        }
-      }
-    }
-  `]
+  templateUrl: './range-slider-filter.component.html',
+  styleUrls: ['./range-slider-filter.component.scss']
 })
 export class RangeSliderFilterComponent implements OnInit {
   @Input() config: RangeSliderConfig = {};

@@ -46,7 +46,8 @@
         "ms-vscode.vscode-todo-highlight",
         "streetsidesoftware.code-spell-checker",
         "ms-vscode.vscode-markdown-preview-enhanced",
-        "bierner.markdown-mermaid"
+        "bierner.markdown-mermaid",
+        "augment.vscode-augment"
       ],
       "settings": {
         "java.configuration.runtimes": [

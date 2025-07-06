@@ -1,26 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
-
-export interface FreelanceDto {
-  id?: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  birthDate?: string;
-  address?: string;
-  city?: string;
-  status: 'AVAILABLE' | 'EMPLOYED' | 'UNAVAILABLE';
-  noticePeriodInDays?: number;
-  availabilityDate?: string;
-  reversionRate?: number;
-  cvFilePath?: string;
-  fullName?: string;
-  totalProjects?: number;
-  averageDailyRate?: number;
-}
+import { environment } from '../../../environments/environment';
+import { FreelanceDto } from '../../models/freelance.models';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +10,7 @@ export interface FreelanceDto {
 export class FreelanceService {
   private readonly API_URL = `${environment.apiUrl}/freelances`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   getAll(): Observable<FreelanceDto[]> {
     return this.http.get<FreelanceDto[]>(this.API_URL);
@@ -39,24 +21,7 @@ export class FreelanceService {
   }
 
   getByIdWithProjects(id: number): Observable<FreelanceDto> {
-    // Mock data for development - replace with real API call when backend is ready
-    return new Observable(observer => {
-      setTimeout(() => {
-        const mockFreelance: FreelanceDto = {
-          id: id,
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'john.doe@email.com',
-          phone: '+33 6 12 34 56 78',
-          address: '123 Rue de la Paix, 75001 Paris',
-          status: 'AVAILABLE',
-          totalProjects: 3,
-          averageDailyRate: 633
-        };
-        observer.next(mockFreelance);
-        observer.complete();
-      }, 500);
-    });
+    return this.http.get<FreelanceDto>(`${this.API_URL}/${id}/with-projects`);
   }
 
   getByEmail(email: string): Observable<FreelanceDto> {

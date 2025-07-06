@@ -1,0 +1,14 @@
+<mat-form-field appearance="outline" class="search-filter">
+  <mat-label>{{ config.label || 'Rechercher' }}</mat-label>
+  <input matInput
+         [formControl]="searchForm.get('query')!"
+         [placeholder]="config.placeholder || 'Tapez votre recherche...'">
+  <mat-icon matPrefix *ngIf="config.icon">{{ config.icon }}</mat-icon>
+  <button mat-icon-button 
+          matSuffix 
+          *ngIf="searchForm.get('query')?.value"
+          (click)="clearSearch()"
+          type="button">
+    <mat-icon>clear</mat-icon>
+  </button>
+</mat-form-field>

@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { FreelanceService, FreelanceDto } from './freelance.service';
-import { environment } from '../../environments/environment';
+import { FreelanceService } from './freelance.service';
+import { FreelanceDto } from '../../models';
+import { environment } from '../../../environments/environment';
 
 describe('FreelanceService', () => {
   let service: FreelanceService;
@@ -111,7 +112,7 @@ describe('FreelanceService', () => {
   });
 
   describe('getByIdWithProjects', () => {
-    it('should return mock freelance data with projects', (done) => {
+    it('should return mock freelance data with projects', () => {
       const freelanceId = 1;
 
       service.getByIdWithProjects(freelanceId).subscribe(freelance => {
@@ -121,21 +122,26 @@ describe('FreelanceService', () => {
         expect(freelance.lastName).toBe('Doe');
         expect(freelance.email).toBe('john.doe@email.com');
         expect(freelance.status).toBe('AVAILABLE');
-        expect(freelance.totalProjects).toBe(3);
-        expect(freelance.averageDailyRate).toBe(633);
-        done();
+        expect(freelance.totalProjects).toBe(5);
+        expect(freelance.averageDailyRate).toBe(650);
       });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/freelances/${freelanceId}/with-projects`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockFreelances[0]);
     });
 
-    it('should simulate API delay', (done) => {
-      const startTime = Date.now();
-      
-      service.getByIdWithProjects(1).subscribe(() => {
-        const endTime = Date.now();
-        const duration = endTime - startTime;
-        expect(duration).toBeGreaterThanOrEqual(450); // Should have ~500ms delay
-        done();
+    it('should simulate API delay', () => {
+      const freelanceId = 1;
+
+      service.getByIdWithProjects(freelanceId).subscribe(freelance => {
+        expect(freelance).toBeDefined();
+        expect(freelance.id).toBe(freelanceId);
       });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/freelances/${freelanceId}/with-projects`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockFreelances[0]);
     });
   });
 

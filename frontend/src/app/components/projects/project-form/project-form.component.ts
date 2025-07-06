@@ -14,9 +14,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 
-import { ProjectService, ProjectDto } from '../../../services/project.service';
-import { ClientService, ClientDto } from '../../../services/client.service';
-import { AuthService, User } from '../../../services/auth.service';
+import { ProjectService } from '../../../services/project/project.service';
+import { ClientService } from '../../../services/client/client.service';
+import { AuthService } from '../../../services/auth/auth.service';
+import { ProjectDto, ClientDto, User } from '../../../models';
 
 @Component({
     selector: 'app-project-form',

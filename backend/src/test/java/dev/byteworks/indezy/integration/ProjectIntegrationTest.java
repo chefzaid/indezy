@@ -5,11 +5,14 @@ import dev.byteworks.indezy.dto.ProjectDto;
 import dev.byteworks.indezy.model.enums.WorkMode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -29,10 +32,16 @@ import static org.hamcrest.Matchers.*;
  */
 @SpringBootTest
 @AutoConfigureWebMvc
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
+@TestPropertySource(properties = {
+    "spring.datasource.url=jdbc:h2:mem:projecttestdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
+    "spring.jpa.hibernate.ddl-auto=create-drop"
+})
 @ActiveProfiles("test")
 @Transactional
 @WithMockUser
-@Sql("/test-data.sql")
+@Sql(scripts = "/project-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class ProjectIntegrationTest {
 
     @Autowired
@@ -58,9 +67,9 @@ class ProjectIntegrationTest {
         projectDto.setWorkMode(WorkMode.REMOTE);
         projectDto.setStartDate(LocalDate.now());
         projectDto.setDurationInMonths(6);
-        projectDto.setFreelanceId(1L);
-        projectDto.setClientId(1L);
-        projectDto.setSourceId(1L);
+        projectDto.setFreelanceId(100L);
+        projectDto.setClientId(100L);
+        projectDto.setSourceId(100L);
 
         mockMvc.perform(post("/projects")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -71,9 +80,9 @@ class ProjectIntegrationTest {
                 .andExpect(jsonPath("$.techStack", is("Java, Spring Boot, Angular")))
                 .andExpect(jsonPath("$.dailyRate", is(600)))
                 .andExpect(jsonPath("$.workMode", is("REMOTE")))
-                .andExpect(jsonPath("$.freelanceId", is(1)))
-                .andExpect(jsonPath("$.clientId", is(1)))
-                .andExpect(jsonPath("$.sourceId", is(1)))
+                .andExpect(jsonPath("$.freelanceId", is(100)))  // Updated to match project-test-data.sql
+                .andExpect(jsonPath("$.clientId", is(100)))     // Updated to match project-test-data.sql
+                .andExpect(jsonPath("$.sourceId", is(100)))     // Updated to match project-test-data.sql
                 .andExpect(jsonPath("$.id", notNullValue()));
     }
 
@@ -182,9 +191,9 @@ class ProjectIntegrationTest {
         projectDto.setWorkMode(WorkMode.REMOTE);
         projectDto.setStartDate(LocalDate.now());
         projectDto.setDurationInMonths(6);
-        projectDto.setFreelanceId(1L);
-        projectDto.setClientId(1L);
-        projectDto.setSourceId(1L);
+        projectDto.setFreelanceId(100L);  // Updated to match project-test-data.sql
+        projectDto.setClientId(100L);     // Updated to match project-test-data.sql
+        projectDto.setSourceId(100L);     // Updated to match project-test-data.sql
         return projectDto;
     }
 }
