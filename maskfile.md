@@ -30,7 +30,7 @@ echo "🚀 Setting up Indezy for development..."
 echo "📦 Installing all dependencies..."
 echo "📦 Installing backend dependencies..."
 cd backend
-if command -v cmd.exe >/dev/null 2>&1; then
+if [[ -f "mvnw.cmd" ]]; then
     cmd.exe /c "mvnw.cmd clean install -DskipTests"
 else
     chmod +x mvnw 2>/dev/null || true
@@ -44,11 +44,7 @@ cd ..
 echo "🐳 Starting database..."
 docker-compose up -d postgres
 echo "⏳ Waiting for database to be ready..."
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    timeout /t 5 /nobreak > nul
-else
-    sleep 5
-fi
+sleep 5
 echo "✅ Setup complete! Run 'mask run' to start the application"
 ```
 
@@ -76,7 +72,7 @@ echo "Login with any email/password combination"
 echo "📦 Installing all dependencies..."
 echo "📦 Installing backend dependencies..."
 cd backend
-if command -v cmd.exe >/dev/null 2>&1; then
+if [[ -f "mvnw.cmd" ]]; then
     cmd.exe /c "mvnw.cmd clean install -DskipTests"
 else
     chmod +x mvnw 2>/dev/null || true
@@ -97,7 +93,7 @@ echo "✅ All dependencies installed!"
 ```bash
 echo "📦 Installing backend dependencies..."
 cd backend
-if command -v cmd.exe >/dev/null 2>&1; then
+if [[ -f "mvnw.cmd" ]]; then
     cmd.exe /c "mvnw.cmd clean install -DskipTests"
 else
     chmod +x mvnw 2>/dev/null || true
@@ -125,9 +121,10 @@ cd ..
 echo "🔨 Building application..."
 echo "🔨 Building backend..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean package -DskipTests
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean package -DskipTests"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean package -DskipTests
 fi
 cd ..
@@ -145,9 +142,10 @@ echo "✅ Build completed!"
 ```bash
 echo "🔨 Building backend..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean package -DskipTests
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean package -DskipTests"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean package -DskipTests
 fi
 cd ..
@@ -171,9 +169,10 @@ cd ..
 ```bash
 echo "🔨 Building for production..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean package -Pprod
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean package -Pprod"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean package -Pprod
 fi
 cd ..
@@ -190,15 +189,16 @@ cd ..
 echo "🧪 Running all tests..."
 echo "🧪 Running backend tests..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean test jacoco:report
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean test jacoco:report"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean test jacoco:report
 fi
 cd ..
 echo "🧪 Running frontend tests..."
 cd frontend
-npm test -- --watch=false --code-coverage
+npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
 cd ..
 echo "✅ All tests completed!"
 ```
@@ -210,9 +210,10 @@ echo "✅ All tests completed!"
 ```bash
 echo "🧪 Running backend tests..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean test jacoco:report
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean test jacoco:report"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean test jacoco:report
 fi
 cd ..
@@ -225,7 +226,7 @@ cd ..
 ```bash
 echo "🧪 Running frontend tests..."
 cd frontend
-npm test -- --watch=false --code-coverage
+npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
 cd ..
 ```
 
@@ -236,9 +237,10 @@ cd ..
 ```bash
 echo "🧪 Running backend tests in watch mode..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd test -Dspring-boot.run.fork=false
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd test -Dspring-boot.run.fork=false"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw test -Dspring-boot.run.fork=false
 fi
 cd ..
@@ -262,14 +264,16 @@ cd ..
 ```bash
 echo "🚀 Starting full application..."
 echo "Starting backend in background..."
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    start /B cmd /c "cd backend && ./mvnw.cmd spring-boot:run"
+if [[ -f "backend/mvnw.cmd" ]]; then
+    start /B cmd /c "cd backend && cmd.exe /c \"mvnw.cmd spring-boot:run\""
     echo "⏳ Waiting for backend to start..."
-    timeout /t 10 /nobreak > nul
+    sleep 10
     echo "Starting frontend..."
     cd frontend && npm start
 else
-    cd backend && ./mvnw spring-boot:run &
+    cd backend
+    chmod +x mvnw 2>/dev/null || true
+    ./mvnw spring-boot:run &
     BACKEND_PID=$!
     echo "Backend PID: $BACKEND_PID"
     echo "⏳ Waiting for backend to start..."
@@ -286,9 +290,10 @@ fi
 ```bash
 echo "🚀 Starting backend server..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd spring-boot:run
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd spring-boot:run"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw spring-boot:run
 fi
 cd ..
@@ -364,21 +369,19 @@ echo "🚀 Starting development environment..."
 echo "🐳 Starting database..."
 docker-compose up -d postgres
 echo "⏳ Waiting for database to start..."
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    timeout /t 5 /nobreak > nul
-else
-    sleep 5
-fi
+sleep 5
 echo "🚀 Starting full application..."
 echo "Starting backend in background..."
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    start /B cmd /c "cd backend && ./mvnw.cmd spring-boot:run"
+if [[ -f "backend/mvnw.cmd" ]]; then
+    start /B cmd /c "cd backend && cmd.exe /c \"mvnw.cmd spring-boot:run\""
     echo "⏳ Waiting for backend to start..."
-    timeout /t 10 /nobreak > nul
+    sleep 10
     echo "Starting frontend..."
     cd frontend && npm start
 else
-    cd backend && ./mvnw spring-boot:run &
+    cd backend
+    chmod +x mvnw 2>/dev/null || true
+    ./mvnw spring-boot:run &
     BACKEND_PID=$!
     echo "Backend PID: $BACKEND_PID"
     echo "⏳ Waiting for backend to start..."
@@ -399,26 +402,23 @@ docker-compose down -v --remove-orphans
 docker system prune -f
 echo "🧹 Cleaning build artifacts..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean
 fi
 cd ..
 cd frontend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    if exist "dist" rmdir /s /q dist
-    if exist "node_modules\.cache" rmdir /s /q "node_modules\.cache"
-else
-    rm -rf dist/ node_modules/.cache/
-fi
+rm -rf dist/ node_modules/.cache/ 2>/dev/null || true
 cd ..
 echo "📦 Installing all dependencies..."
 echo "📦 Installing backend dependencies..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean install -DskipTests
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean install -DskipTests"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean install -DskipTests
 fi
 cd ..
@@ -429,11 +429,7 @@ cd ..
 echo "🐳 Starting database..."
 docker-compose up -d postgres
 echo "⏳ Waiting for database to start..."
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    timeout /t 5 /nobreak > nul
-else
-    sleep 5
-fi
+sleep 5
 echo "✅ Development environment reset complete!"
 ```
 
@@ -444,19 +440,15 @@ echo "✅ Development environment reset complete!"
 ```bash
 echo "🧹 Cleaning build artifacts..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean
 fi
 cd ..
 cd frontend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    if exist "dist" rmdir /s /q dist
-    if exist "node_modules\.cache" rmdir /s /q "node_modules\.cache"
-else
-    rm -rf dist/ node_modules/.cache/
-fi
+rm -rf dist/ node_modules/.cache/ 2>/dev/null || true
 cd ..
 echo "✅ Clean completed!"
 ```
@@ -491,15 +483,16 @@ cd ..
 echo "📊 Generating coverage reports..."
 echo "🧪 Running backend tests..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean test jacoco:report
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean test jacoco:report"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean test jacoco:report
 fi
 cd ..
 echo "🧪 Running frontend tests..."
 cd frontend
-npm test -- --watch=false --code-coverage
+npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
 cd ..
 echo "Backend coverage: backend/target/site/jacoco/index.html"
 echo "Frontend coverage: frontend/coverage/index.html"
@@ -511,7 +504,7 @@ echo "Frontend coverage: frontend/coverage/index.html"
 
 ```bash
 echo "📚 Opening Swagger documentation..."
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
     start http://localhost:8080/api/swagger-ui.html
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     open http://localhost:8080/api/swagger-ui.html
@@ -588,9 +581,10 @@ echo "  mask docker-up   - Start with Docker"
 echo "🔄 Running CI tests..."
 echo "📦 Installing backend dependencies..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean install -DskipTests
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean install -DskipTests"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean install -DskipTests
 fi
 cd ..
@@ -600,21 +594,23 @@ npm install
 cd ..
 echo "🧪 Running backend tests..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean test jacoco:report
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean test jacoco:report"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean test jacoco:report
 fi
 cd ..
 echo "🧪 Running frontend tests..."
 cd frontend
-npm test -- --watch=false --code-coverage
+npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
 cd ..
 echo "🔨 Building backend..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean package -DskipTests
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean package -DskipTests"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean package -DskipTests
 fi
 cd ..
@@ -632,9 +628,10 @@ cd ..
 echo "🔄 Running CI build..."
 echo "🔨 Building for production..."
 cd backend
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
-    ./mvnw.cmd clean package -Pprod
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean package -Pprod"
 else
+    chmod +x mvnw 2>/dev/null || true
     ./mvnw clean package -Pprod
 fi
 cd ..

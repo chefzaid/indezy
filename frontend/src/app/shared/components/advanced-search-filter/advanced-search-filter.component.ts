@@ -75,7 +75,7 @@ export class AdvancedSearchFilterComponent implements OnInit {
       debounceTime(this.config.debounceTime || 300),
       distinctUntilChanged()
     ).subscribe(value => {
-      this.searchChange.emit(value || '');
+      this.searchChange.emit(value ?? '');
     });
   }
 
