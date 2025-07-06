@@ -2,55 +2,26 @@ package dev.byteworks.indezy.mapper;
 
 import dev.byteworks.indezy.dto.InterviewStepDto;
 import dev.byteworks.indezy.model.InterviewStep;
-import org.springframework.stereotype.Component;
+import org.mapstruct.*;
 
-@Component
-public class InterviewStepMapper {
+@Mapper(componentModel = "spring")
+public interface InterviewStepMapper {
 
-    public InterviewStepDto toDto(InterviewStep interviewStep) {
-        if (interviewStep == null) {
-            return null;
-        }
+    @Mapping(target = "projectId", source = "project.id")
+    @Mapping(target = "projectRole", source = "project.role")
+    InterviewStepDto toDto(InterviewStep interviewStep);
 
-        InterviewStepDto dto = new InterviewStepDto();
-        dto.setId(interviewStep.getId());
-        dto.setTitle(interviewStep.getTitle());
-        dto.setDate(interviewStep.getDate());
-        dto.setStatus(interviewStep.getStatus());
-        dto.setNotes(interviewStep.getNotes());
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    InterviewStep toEntity(InterviewStepDto dto);
 
-        // Related entities
-        if (interviewStep.getProject() != null) {
-            dto.setProjectId(interviewStep.getProject().getId());
-            dto.setProjectRole(interviewStep.getProject().getRole());
-        }
-
-        return dto;
-    }
-
-    public InterviewStep toEntity(InterviewStepDto dto) {
-        if (dto == null) {
-            return null;
-        }
-
-        InterviewStep interviewStep = new InterviewStep();
-        interviewStep.setId(dto.getId());
-        interviewStep.setTitle(dto.getTitle());
-        interviewStep.setDate(dto.getDate());
-        interviewStep.setStatus(dto.getStatus());
-        interviewStep.setNotes(dto.getNotes());
-
-        return interviewStep;
-    }
-
-    public void updateEntity(InterviewStepDto dto, InterviewStep interviewStep) {
-        if (dto == null || interviewStep == null) {
-            return;
-        }
-
-        interviewStep.setTitle(dto.getTitle());
-        interviewStep.setDate(dto.getDate());
-        interviewStep.setStatus(dto.getStatus());
-        interviewStep.setNotes(dto.getNotes());
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    void updateEntity(InterviewStepDto dto, @MappingTarget InterviewStep interviewStep);
 }

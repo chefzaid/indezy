@@ -2,77 +2,34 @@ package dev.byteworks.indezy.mapper;
 
 import dev.byteworks.indezy.dto.ClientDto;
 import dev.byteworks.indezy.model.Client;
-import org.springframework.stereotype.Component;
+import org.mapstruct.*;
 
-@Component
-public class ClientMapper {
+@Mapper(componentModel = "spring")
+public interface ClientMapper {
 
-    public ClientDto toDto(Client client) {
-        if (client == null) {
-            return null;
-        }
+    @Mapping(target = "freelanceId", source = "freelance.id")
+    @Mapping(target = "totalProjects", expression = "java(client.getProjects().size())")
+    @Mapping(target = "averageDailyRate", expression = "java(client.getProjects().stream().filter(p -> p.getDailyRate() != null).mapToInt(p -> p.getDailyRate()).average().orElse(0.0))")
+    @Mapping(target = "totalContacts", expression = "java(client.getContacts().size())")
+    @Mapping(target = "projects", expression = "java(new java.util.ArrayList<>())")
+    @Mapping(target = "contacts", expression = "java(new java.util.ArrayList<>())")
+    ClientDto toDto(Client client);
 
-        ClientDto dto = new ClientDto();
-        dto.setId(client.getId());
-        dto.setCompanyName(client.getCompanyName());
-        dto.setAddress(client.getAddress());
-        dto.setCity(client.getCity());
-        dto.setDomain(client.getDomain());
-        dto.setIsFinal(client.getIsFinal());
-        dto.setNotes(client.getNotes());
-        dto.setCreatedAt(client.getCreatedAt());
-        dto.setUpdatedAt(client.getUpdatedAt());
-        
-        if (client.getFreelance() != null) {
-            dto.setFreelanceId(client.getFreelance().getId());
-        }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "freelance", ignore = true)
+    @Mapping(target = "projects", ignore = true)
+    @Mapping(target = "contacts", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    Client toEntity(ClientDto dto);
 
-        // Computed fields - getProjects() and getContacts() never return null due to defensive copying
-        dto.setTotalProjects(client.getProjects().size());
-        dto.setAverageDailyRate(
-            client.getProjects().stream()
-                .filter(p -> p.getDailyRate() != null)
-                .mapToInt(p -> p.getDailyRate())
-                .average()
-                .orElse(0.0)
-        );
-        // Note: Projects collection mapping would be handled by ProjectMapper if needed
-        dto.setProjects(new java.util.ArrayList<>());
-
-        dto.setTotalContacts(client.getContacts().size());
-        // Note: Contacts collection mapping would be handled by ContactMapper if needed
-        dto.setContacts(new java.util.ArrayList<>());
-
-        return dto;
-    }
-
-    public Client toEntity(ClientDto dto) {
-        if (dto == null) {
-            return null;
-        }
-
-        Client client = new Client();
-        client.setId(dto.getId());
-        client.setCompanyName(dto.getCompanyName());
-        client.setAddress(dto.getAddress());
-        client.setCity(dto.getCity());
-        client.setDomain(dto.getDomain());
-        client.setIsFinal(dto.getIsFinal());
-        client.setNotes(dto.getNotes());
-
-        return client;
-    }
-
-    public void updateEntity(ClientDto dto, Client client) {
-        if (dto == null || client == null) {
-            return;
-        }
-
-        client.setCompanyName(dto.getCompanyName());
-        client.setAddress(dto.getAddress());
-        client.setCity(dto.getCity());
-        client.setDomain(dto.getDomain());
-        client.setIsFinal(dto.getIsFinal());
-        client.setNotes(dto.getNotes());
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "freelance", ignore = true)
+    @Mapping(target = "projects", ignore = true)
+    @Mapping(target = "contacts", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    void updateEntity(ClientDto dto, @MappingTarget Client client);
 }

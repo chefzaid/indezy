@@ -155,6 +155,13 @@
             <version>${mapstruct.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Lombok-MapStruct binding for compatibility -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-mapstruct-binding</artifactId>
+            <version>0.2.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -180,6 +187,30 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
+                    <annotationProcessorPaths>
+                        <!-- Lombok must be processed first -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <!-- MapStruct processes after Lombok -->
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                        <!-- Lombok-MapStruct binding for compatibility -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <compilerArg>-Amapstruct.defaultComponentModel=spring</compilerArg>
+                        <compilerArg>-Amapstruct.unmappedTargetPolicy=IGNORE</compilerArg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 

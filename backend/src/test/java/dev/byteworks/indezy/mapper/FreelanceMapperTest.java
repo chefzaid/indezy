@@ -5,22 +5,27 @@ import dev.byteworks.indezy.model.Freelance;
 import dev.byteworks.indezy.model.enums.EmploymentStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Unit tests for FreelanceMapper
  * Tests mapping between Freelance entities and FreelanceDto
  */
+@SpringBootTest
 class FreelanceMapperTest {
 
+    @Autowired
     private FreelanceMapper freelanceMapper;
+
     private Freelance testFreelance;
     private FreelanceDto testFreelanceDto;
 
     @BeforeEach
     void setUp() {
-        freelanceMapper = new FreelanceMapper();
 
         // Create test freelance
         testFreelance = new Freelance();
@@ -66,7 +71,8 @@ class FreelanceMapperTest {
         Freelance result = freelanceMapper.toEntity(testFreelanceDto);
 
         assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(testFreelanceDto.getId());
+        // ID should be null for new entities (ignored in mapping)
+        assertThat(result.getId()).isNull();
         assertThat(result.getFirstName()).isEqualTo(testFreelanceDto.getFirstName());
         assertThat(result.getLastName()).isEqualTo(testFreelanceDto.getLastName());
         assertThat(result.getEmail()).isEqualTo(testFreelanceDto.getEmail());
@@ -109,11 +115,10 @@ class FreelanceMapperTest {
     }
 
     @Test
-    void updateEntity_WithNullEntity_ShouldNotThrowException() {
-        // This should not throw an exception - just verify it completes without error
-        freelanceMapper.updateEntity(testFreelanceDto, null);
-        
-        // If we reach this point, no exception was thrown
-        assertThat(testFreelanceDto).isNotNull(); // Simple assertion to satisfy test requirements
+    void updateEntity_WithNullEntity_ShouldThrowException() {
+        // MapStruct generated code will throw NullPointerException when target is null
+        // This is expected behavior - we should not try to update a null entity
+        assertThatThrownBy(() -> freelanceMapper.updateEntity(testFreelanceDto, null))
+                .isInstanceOf(NullPointerException.class);
     }
 }

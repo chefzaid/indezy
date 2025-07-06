@@ -2,89 +2,36 @@ package dev.byteworks.indezy.mapper;
 
 import dev.byteworks.indezy.dto.FreelanceDto;
 import dev.byteworks.indezy.model.Freelance;
-import dev.byteworks.indezy.model.Project;
+import org.mapstruct.*;
 
-import org.springframework.stereotype.Component;
+@Mapper(componentModel = "spring")
+public interface FreelanceMapper {
 
-@Component
-public class FreelanceMapper {
+    @Mapping(target = "fullName", expression = "java(freelance.getFirstName() + \" \" + freelance.getLastName())")
+    @Mapping(target = "totalProjects", expression = "java(freelance.getProjects().size())")
+    @Mapping(target = "averageDailyRate", expression = "java(freelance.getProjects().stream().filter(p -> p.getDailyRate() != null).mapToInt(p -> p.getDailyRate()).average().orElse(0.0))")
+    FreelanceDto toDto(Freelance freelance);
 
-    public FreelanceDto toDto(Freelance freelance) {
-        if (freelance == null) {
-            return null;
-        }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "projects", ignore = true)
+    @Mapping(target = "clients", ignore = true)
+    @Mapping(target = "contacts", ignore = true)
+    @Mapping(target = "sources", ignore = true)
+    @Mapping(target = "passwordHash", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    Freelance toEntity(FreelanceDto dto);
 
-        FreelanceDto dto = new FreelanceDto();
-        dto.setId(freelance.getId());
-        dto.setFirstName(freelance.getFirstName());
-        dto.setLastName(freelance.getLastName());
-        dto.setEmail(freelance.getEmail());
-        dto.setPhone(freelance.getPhone());
-        dto.setBirthDate(freelance.getBirthDate());
-        dto.setAddress(freelance.getAddress());
-        dto.setCity(freelance.getCity());
-        dto.setStatus(freelance.getStatus());
-        dto.setNoticePeriodInDays(freelance.getNoticePeriodInDays());
-        dto.setAvailabilityDate(freelance.getAvailabilityDate());
-        dto.setReversionRate(freelance.getReversionRate());
-        dto.setCvFilePath(freelance.getCvFilePath());
-
-        // Computed fields
-        dto.setFullName(freelance.getFullName());
-        // getProjects() never returns null due to defensive copying
-        dto.setTotalProjects(freelance.getProjects().size());
-        dto.setAverageDailyRate(
-            freelance.getProjects().stream()
-                .filter(p -> p.getDailyRate() != null)
-                .mapToInt(Project::getDailyRate)
-                .average()
-                .orElse(0.0)
-        );
-
-        return dto;
-    }
-
-    public Freelance toEntity(FreelanceDto dto) {
-        if (dto == null) {
-            return null;
-        }
-
-        Freelance freelance = new Freelance();
-        freelance.setId(dto.getId());
-        freelance.setFirstName(dto.getFirstName());
-        freelance.setLastName(dto.getLastName());
-        freelance.setEmail(dto.getEmail());
-        freelance.setPhone(dto.getPhone());
-        freelance.setBirthDate(dto.getBirthDate());
-        freelance.setAddress(dto.getAddress());
-        freelance.setCity(dto.getCity());
-        freelance.setStatus(dto.getStatus());
-        freelance.setNoticePeriodInDays(dto.getNoticePeriodInDays());
-        freelance.setAvailabilityDate(dto.getAvailabilityDate());
-        freelance.setReversionRate(dto.getReversionRate());
-        freelance.setCvFilePath(dto.getCvFilePath());
-
-        return freelance;
-    }
-
-    public void updateEntity(FreelanceDto dto, Freelance freelance) {
-        if (dto == null || freelance == null) {
-            return;
-        }
-
-        freelance.setFirstName(dto.getFirstName());
-        freelance.setLastName(dto.getLastName());
-        freelance.setEmail(dto.getEmail());
-        freelance.setPhone(dto.getPhone());
-        freelance.setBirthDate(dto.getBirthDate());
-        freelance.setAddress(dto.getAddress());
-        freelance.setCity(dto.getCity());
-        freelance.setStatus(dto.getStatus());
-        freelance.setNoticePeriodInDays(dto.getNoticePeriodInDays());
-        freelance.setAvailabilityDate(dto.getAvailabilityDate());
-        freelance.setReversionRate(dto.getReversionRate());
-        if (dto.getCvFilePath() != null) {
-            freelance.setCvFilePath(dto.getCvFilePath());
-        }
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "projects", ignore = true)
+    @Mapping(target = "clients", ignore = true)
+    @Mapping(target = "contacts", ignore = true)
+    @Mapping(target = "sources", ignore = true)
+    @Mapping(target = "passwordHash", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "cvFilePath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntity(FreelanceDto dto, @MappingTarget Freelance freelance);
 }
