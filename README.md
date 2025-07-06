@@ -18,26 +18,6 @@ Indezy is a modern, full-stack web application that helps freelancers manage the
 
 ## 🚀 Quick Start
 
-### One-Command Setup
-```bash
-# For new developers - installs everything and sets up the database
-make quick-start
-
-# Start the full application
-make run
-```
-
-### Using Docker (Recommended)
-```bash
-# Start everything with Docker
-make docker-up
-
-# Access the application:
-# Frontend: http://localhost:4200
-# Backend: http://localhost:8080/api
-# Swagger: http://localhost:8080/api/swagger-ui.html
-```
-
 ### Prerequisites
 - **Docker & Docker Compose** (recommended)
 - **Node.js 18+** (for local development)
@@ -101,13 +81,10 @@ make docker-up
 ### Installation
 First, install mask:
 ```bash
-# Using cargo (Rust)
+# Using cargo (Windows/Rust)
 cargo install mask
 
-# Using npm
-npm install -g @jacobdeichert/mask
-
-# Using homebrew (macOS/Linux)
+# Using homebrew (Linux/macOS)
 brew install mask
 ```
 
@@ -336,31 +313,6 @@ mask dev-reset       # Reset entire development environment
 - **Backend**: Spring Boot console output
 - **Frontend**: Browser developer console
 - **Database**: `docker-compose logs postgres`
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Run tests: `mask test`
-4. Commit your changes (`git commit -m 'Add amazing feature'`)
-5. Push to the branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
-
-### Development Guidelines
-- Use `mask` commands for consistency across platforms
-- Maintain 60% test coverage for both frontend and backend
-- Follow existing code style and conventions
-- Update documentation for API changes
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
-
-**Zaid Chefchaouni** - [byteworks.dev](https://byteworks.dev)
-- GitHub: [@chefzaid](https://github.com/chefzaid)
-- Email: c.zaid@outlook.com
 
 ## 🙏 Acknowledgments
 
