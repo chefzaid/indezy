@@ -17,8 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Integration test for the full stack application.
- * Tests the complete integration between frontend services and backend APIs
- * after removing mock data and connecting frontend services to backend APIs.
+ * Tests the complete integration between frontend services and backend APIs.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
