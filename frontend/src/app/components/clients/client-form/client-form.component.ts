@@ -16,6 +16,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subject, takeUntil } from 'rxjs';
 
 import { ClientService } from '../../../services/client/client.service';
@@ -40,7 +41,8 @@ import { CreateClientDto, UpdateClientDto, ContactDto } from '../../../models';
         MatMenuModule,
         MatDialogModule,
         MatChipsModule,
-        MatDividerModule
+        MatDividerModule,
+        MatSlideToggleModule
     ],
     templateUrl: './client-form.component.html',
     styleUrls: ['./client-form.component.scss']
@@ -113,12 +115,12 @@ export class ClientFormComponent implements OnInit, OnDestroy {
 
   private createForm(): FormGroup {
     return this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
-      industry: ['', [Validators.required]],
+      companyName: ['', [Validators.required, Validators.minLength(2)]],
+      city: [''],
       address: [''],
-      website: [''],
+      domain: [''],
       notes: [''],
-      status: ['ACTIVE', [Validators.required]]
+      isFinal: [false, [Validators.required]]
     });
   }
 

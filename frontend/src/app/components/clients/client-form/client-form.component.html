@@ -30,20 +30,16 @@
             <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Nom de l'entreprise *</mat-label>
-                <input matInput formControlName="name" placeholder="Ex: TechCorp Solutions">
-                <mat-error>{{ getFieldError('name') }}</mat-error>
+                <input matInput formControlName="companyName" placeholder="Ex: TechCorp Solutions">
+                <mat-error>{{ getFieldError('companyName') }}</mat-error>
               </mat-form-field>
             </div>
 
             <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Secteur d'activité *</mat-label>
-                <mat-select formControlName="industry">
-                  <mat-option *ngFor="let industry of industries" [value]="industry">
-                    {{ industry }}
-                  </mat-option>
-                </mat-select>
-                <mat-error>{{ getFieldError('industry') }}</mat-error>
+                <mat-label>Ville</mat-label>
+                <input matInput formControlName="city" placeholder="Ex: Paris">
+                <mat-error>{{ getFieldError('city') }}</mat-error>
               </mat-form-field>
             </div>
 
@@ -58,19 +54,15 @@
             <div class="form-row">
               <mat-form-field appearance="outline" class="half-width">
                 <mat-label>Site web</mat-label>
-                <input matInput formControlName="website" placeholder="https://www.entreprise.com">
+                <input matInput formControlName="domain" placeholder="https://www.entreprise.com">
                 <mat-icon matSuffix>link</mat-icon>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="half-width">
-                <mat-label>Statut *</mat-label>
-                <mat-select formControlName="status">
-                  <mat-option *ngFor="let status of statuses" [value]="status.value">
-                    {{ status.label }}
-                  </mat-option>
-                </mat-select>
-                <mat-error>{{ getFieldError('status') }}</mat-error>
-              </mat-form-field>
+              <div class="half-width">
+                <mat-slide-toggle formControlName="isFinal" class="status-toggle">
+                  Client final (sinon prospect)
+                </mat-slide-toggle>
+              </div>
             </div>
           </div>
 
@@ -225,20 +217,16 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Nom de l'entreprise *</mat-label>
-                  <input matInput formControlName="name" placeholder="Ex: TechCorp Solutions">
-                  <mat-error>{{ getFieldError('name') }}</mat-error>
+                  <input matInput formControlName="companyName" placeholder="Ex: TechCorp Solutions">
+                  <mat-error>{{ getFieldError('companyName') }}</mat-error>
                 </mat-form-field>
               </div>
 
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Secteur d'activité *</mat-label>
-                  <mat-select formControlName="industry">
-                    <mat-option *ngFor="let industry of industries" [value]="industry">
-                      {{ industry }}
-                    </mat-option>
-                  </mat-select>
-                  <mat-error>{{ getFieldError('industry') }}</mat-error>
+                  <mat-label>Ville</mat-label>
+                  <input matInput formControlName="city" placeholder="Ex: Paris">
+                  <mat-error>{{ getFieldError('city') }}</mat-error>
                 </mat-form-field>
               </div>
 
@@ -253,19 +241,15 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>Site web</mat-label>
-                  <input matInput formControlName="website" placeholder="https://www.entreprise.com">
+                  <input matInput formControlName="domain" placeholder="https://www.entreprise.com">
                   <mat-icon matSuffix>link</mat-icon>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>Statut *</mat-label>
-                  <mat-select formControlName="status">
-                    <mat-option *ngFor="let status of statuses" [value]="status.value">
-                      {{ status.label }}
-                    </mat-option>
-                  </mat-select>
-                  <mat-error>{{ getFieldError('status') }}</mat-error>
-                </mat-form-field>
+                <div class="half-width">
+                  <mat-slide-toggle formControlName="isFinal" class="status-toggle">
+                    Client final (sinon prospect)
+                  </mat-slide-toggle>
+                </div>
               </div>
             </div>
 

@@ -77,7 +77,17 @@ echo "✅ Backend dependencies installed!"
 ```bash
 echo "📦 Installing frontend dependencies..."
 cd frontend
-npm ci
+# Clean node_modules if it exists to avoid permission issues on Windows
+if [ -d "node_modules" ]; then
+    echo "🧹 Cleaning existing node_modules..."
+    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
+        # On Windows, use rmdir which handles locked files better
+        cmd.exe /c "rmdir /s /q node_modules" 2>/dev/null || rm -rf node_modules 2>/dev/null || true
+    else
+        rm -rf node_modules
+    fi
+fi
+npm install
 cd ..
 echo "✅ Frontend dependencies installed!"
 ```
@@ -88,8 +98,34 @@ echo "✅ Frontend dependencies installed!"
 
 ```bash
 echo "📦 Installing all dependencies..."
-mask install-backend
-mask install-frontend
+
+# Install backend dependencies
+echo "📦 Installing backend dependencies..."
+cd backend
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd dependency:go-offline"
+else
+    chmod +x mvnw 2>/dev/null || true
+    ./mvnw dependency:go-offline
+fi
+cd ..
+
+# Install frontend dependencies
+echo "📦 Installing frontend dependencies..."
+cd frontend
+# Clean node_modules if it exists to avoid permission issues on Windows
+if [ -d "node_modules" ]; then
+    echo "🧹 Cleaning existing node_modules..."
+    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
+        # On Windows, use rmdir which handles locked files better
+        cmd.exe /c "rmdir /s /q node_modules" 2>/dev/null || rm -rf node_modules 2>/dev/null || true
+    else
+        rm -rf node_modules
+    fi
+fi
+npm install
+cd ..
+
 echo "✅ All dependencies installed!"
 ```
 
@@ -128,8 +164,24 @@ echo "✅ Frontend built successfully!"
 
 ```bash
 echo "🔨 Building all components..."
-mask build-backend
-mask build-frontend
+
+# Build backend
+echo "🔨 Building backend..."
+cd backend
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean package -DskipTests"
+else
+    chmod +x mvnw 2>/dev/null || true
+    ./mvnw clean package -DskipTests
+fi
+cd ..
+
+# Build frontend
+echo "🔨 Building frontend..."
+cd frontend
+npm run build
+cd ..
+
 echo "✅ All components built successfully!"
 ```
 
@@ -168,8 +220,24 @@ echo "✅ Frontend tests completed!"
 
 ```bash
 echo "🧪 Running all tests..."
-mask test-backend
-mask test-frontend
+
+# Run backend tests
+echo "🧪 Running backend tests..."
+cd backend
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd test"
+else
+    chmod +x mvnw 2>/dev/null || true
+    ./mvnw test
+fi
+cd ..
+
+# Run frontend tests
+echo "🧪 Running frontend tests..."
+cd frontend
+npm test -- --watch=false --browsers=ChromeHeadless
+cd ..
+
 echo "✅ All tests completed!"
 ```
 
@@ -231,12 +299,31 @@ cd ..
 ```bash
 echo "🚀 Starting local development environment..."
 echo "🔨 Building applications first..."
-mask build
+
+# Build backend
+echo "🔨 Building backend..."
+cd backend
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean package -DskipTests"
+else
+    chmod +x mvnw 2>/dev/null || true
+    ./mvnw clean package -DskipTests
+fi
+cd ..
+
+# Build frontend
+echo "🔨 Building frontend..."
+cd frontend
+npm run build
+cd ..
+
 echo "🚀 Starting backend with H2..."
 cd backend
 if [[ -f "mvnw.cmd" ]]; then
-    start cmd.exe /c "mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local"
+    # Windows: Start in background using cmd.exe
+    cmd.exe /c "mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local"
 else
+    # Unix: Start in background
     chmod +x mvnw 2>/dev/null || true
     ./mvnw spring-boot:run -Dspring-boot.run.profiles=local &
 fi
@@ -286,7 +373,24 @@ cd ..
 ```bash
 echo "🚀 Starting development environment..."
 echo "🔨 Building applications first..."
-mask build
+
+# Build backend
+echo "🔨 Building backend..."
+cd backend
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd clean package -DskipTests"
+else
+    chmod +x mvnw 2>/dev/null || true
+    ./mvnw clean package -DskipTests
+fi
+cd ..
+
+# Build frontend
+echo "🔨 Building frontend..."
+cd frontend
+npm run build
+cd ..
+
 echo "🐳 Starting PostgreSQL..."
 docker-compose up -d postgres
 echo "⏳ Waiting for database..."
@@ -294,8 +398,10 @@ sleep 10
 echo "🚀 Starting backend..."
 cd backend
 if [[ -f "mvnw.cmd" ]]; then
-    start cmd.exe /c "mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=devcontainer"
+    # Windows: Start in background using cmd.exe
+    cmd.exe /c "start /B mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=devcontainer"
 else
+    # Unix: Start in background
     chmod +x mvnw 2>/dev/null || true
     ./mvnw spring-boot:run -Dspring-boot.run.profiles=devcontainer &
 fi
@@ -361,29 +467,58 @@ echo ""
 echo "🔍 Checking local services..."
 echo ""
 echo "Frontend (port 4200):"
-if lsof -Pi :4200 -sTCP:LISTEN -t >/dev/null 2>&1; then
-    echo "  ✅ Running"
+if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
+    if netstat -an | findstr :4200 >/dev/null 2>&1; then
+        echo "  ✅ Running"
+    else
+        echo "  ❌ Not running"
+    fi
 else
-    echo "  ❌ Not running"
+    if lsof -Pi :4200 -sTCP:LISTEN -t >/dev/null 2>&1; then
+        echo "  ✅ Running"
+    else
+        echo "  ❌ Not running"
+    fi
 fi
 echo ""
 echo "Backend (port 8080):"
-if lsof -Pi :8080 -sTCP:LISTEN -t >/dev/null 2>&1; then
-    echo "  ✅ Running"
-    if curl -s http://localhost:8080/api/actuator/health >/dev/null 2>&1; then
-        echo "  ✅ Health check passed"
+if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
+    if netstat -an | findstr :8080 >/dev/null 2>&1; then
+        echo "  ✅ Running"
+        if curl -s http://localhost:8080/api/actuator/health >/dev/null 2>&1; then
+            echo "  ✅ Health check passed"
+        else
+            echo "  ⚠️  Health check failed"
+        fi
     else
-        echo "  ⚠️  Health check failed"
+        echo "  ❌ Not running"
     fi
 else
-    echo "  ❌ Not running"
+    if lsof -Pi :8080 -sTCP:LISTEN -t >/dev/null 2>&1; then
+        echo "  ✅ Running"
+        if curl -s http://localhost:8080/api/actuator/health >/dev/null 2>&1; then
+            echo "  ✅ Health check passed"
+        else
+            echo "  ⚠️  Health check failed"
+        fi
+    else
+        echo "  ❌ Not running"
+    fi
 fi
 echo ""
 echo "Database (port 5432):"
-if lsof -Pi :5432 -sTCP:LISTEN -t >/dev/null 2>&1; then
-    echo "  ✅ Running"
+if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
+    if netstat -an | findstr :5432 >/dev/null 2>&1; then
+        echo "  ✅ Running"
+    else
+        echo "  ❌ Not running"
+    fi
 else
-    echo "  ❌ Not running"
+    if lsof -Pi :5432 -sTCP:LISTEN -t >/dev/null 2>&1; then
+        echo "  ✅ Running"
+    else
+        echo "  ❌ Not running"
+    fi
 fi
 echo ""
 echo "🐳 Docker services:"
@@ -393,7 +528,3 @@ else
     echo "  Docker Compose not available"
 fi
 ```
-
-
-
-

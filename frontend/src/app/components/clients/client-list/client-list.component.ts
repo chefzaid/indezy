@@ -57,7 +57,7 @@ import { LoadingComponent } from '../../../shared/components/loading/loading.com
 export class ClientListComponent implements OnInit, OnDestroy {
   clients: ClientDto[] = [];
   filteredClients: ClientDto[] = [];
-  displayedColumns: string[] = ['name', 'industry', 'status', 'actions'];
+  displayedColumns: string[] = ['name', 'city', 'status', 'actions'];
 
   // Legacy filters (keeping for compatibility)
   searchQuery = '';
@@ -259,12 +259,14 @@ export class ClientListComponent implements OnInit, OnDestroy {
 
   getStatusColor(status: string): string {
     switch (status) {
+      case 'FINAL':
+        return 'primary';
+      case 'PROSPECT':
+        return 'accent';
       case 'ACTIVE':
         return 'primary';
       case 'INACTIVE':
         return 'warn';
-      case 'PROSPECT':
-        return 'accent';
       default:
         return '';
     }
@@ -272,12 +274,14 @@ export class ClientListComponent implements OnInit, OnDestroy {
 
   getStatusLabel(status: string): string {
     switch (status) {
+      case 'FINAL':
+        return 'Client Final';
+      case 'PROSPECT':
+        return 'Prospect';
       case 'ACTIVE':
         return 'Actif';
       case 'INACTIVE':
         return 'Inactif';
-      case 'PROSPECT':
-        return 'Prospect';
       default:
         return status;
     }
@@ -293,9 +297,9 @@ export class ClientListComponent implements OnInit, OnDestroy {
         const query = filters.searchQuery.toLowerCase();
         const searchableText = [
           client.companyName || client.name,
-          client.industry,
           client.notes,
           client.address,
+          client.city,
           client.domain
         ].filter(Boolean).join(' ').toLowerCase();
 
@@ -304,19 +308,25 @@ export class ClientListComponent implements OnInit, OnDestroy {
         }
       }
 
-      // Status filter
-      if (filters.status && filters.status !== 'ALL' && client.status !== filters.status) {
+      // Status filter based on isFinal
+      if (filters.status && filters.status !== 'ALL') {
+        const clientStatus = client.isFinal ? 'FINAL' : 'PROSPECT';
+        if (clientStatus !== filters.status && client.status !== filters.status) {
+          return false;
+        }
+      }
+
+      // Industry filter (using domain as industry substitute)
+      if (filters.industry && client.domain && !client.domain.toLowerCase().includes(filters.industry.toLowerCase())) {
         return false;
       }
 
-      // Industry filter
-      if (filters.industry && client.industry !== filters.industry) {
-        return false;
-      }
-
-      // Selected industries filter (multi-select)
+      // Selected industries filter (using domain as industry substitute)
       if (filters.selectedIndustries && filters.selectedIndustries.length > 0) {
-        if (!filters.selectedIndustries.includes(client.industry)) {
+        const hasMatchingIndustry = filters.selectedIndustries.some((industry: string) =>
+          client.domain && client.domain.toLowerCase().includes(industry.toLowerCase())
+        );
+        if (!hasMatchingIndustry) {
           return false;
         }
       }

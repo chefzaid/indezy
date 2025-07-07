@@ -172,30 +172,22 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/clients']);
   }
 
-  getStatusColor(status?: string): string {
-    switch (status) {
-      case 'ACTIVE':
-        return 'primary';
-      case 'INACTIVE':
-        return 'warn';
-      case 'PROSPECT':
-        return 'accent';
-      default:
-        return '';
+  getStatusColor(isFinal?: boolean): string {
+    if (isFinal === true) {
+      return 'primary'; // Client Final
+    } else if (isFinal === false) {
+      return 'accent'; // Prospect
     }
+    return '';
   }
 
-  getStatusLabel(status?: string): string {
-    switch (status) {
-      case 'ACTIVE':
-        return 'Actif';
-      case 'INACTIVE':
-        return 'Inactif';
-      case 'PROSPECT':
-        return 'Prospect';
-      default:
-        return status ?? 'N/A';
+  getStatusLabel(isFinal?: boolean): string {
+    if (isFinal === true) {
+      return 'Client Final';
+    } else if (isFinal === false) {
+      return 'Prospect';
     }
+    return 'N/A';
   }
 
   formatDate(date?: Date): string {

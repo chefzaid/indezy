@@ -12,15 +12,15 @@
           <div class="title-row">
             <div class="client-name">
               <mat-icon>business</mat-icon>
-              {{ client.name }}
+              {{ client.companyName || client.name }}
             </div>
-            <mat-chip [color]="getStatusColor(client.status)" selected>
-              {{ getStatusLabel(client.status) }}
+            <mat-chip [color]="getStatusColor(client.isFinal)" selected>
+              {{ getStatusLabel(client.isFinal) }}
             </mat-chip>
           </div>
         </mat-card-title>
         <mat-card-subtitle>
-          {{ client.industry }}
+          {{ client.city }}
         </mat-card-subtitle>
       </mat-card-header>
 
@@ -58,11 +58,14 @@
               <mat-card-content>
                 <div class="info-item">
                   <div class="info-label">
-                    <mat-icon>category</mat-icon>
-                    Secteur d'activité
+                    <mat-icon>language</mat-icon>
+                    Site web
                   </div>
                   <div class="info-value">
-                    {{ client.industry }}
+                    <a *ngIf="client.domain" [href]="client.domain" target="_blank" class="website-link">
+                      {{ client.domain }}
+                    </a>
+                    <span *ngIf="!client.domain">Non renseigné</span>
                   </div>
                 </div>
 
@@ -110,8 +113,8 @@
                     Statut
                   </div>
                   <div class="info-value">
-                    <mat-chip [color]="getStatusColor(client.status)" selected>
-                      {{ getStatusLabel(client.status) }}
+                    <mat-chip [color]="getStatusColor(client.isFinal)" selected>
+                      {{ getStatusLabel(client.isFinal) }}
                     </mat-chip>
                   </div>
                 </div>
