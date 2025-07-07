@@ -36,7 +36,7 @@ describe('ClientService', () => {
       id: 2,
       companyName: 'StartupBoost',
       name: 'StartupBoost',
-      status: 'PROSPECT',
+      status: 'ESN',
       isFinal: false
     }
   ];
@@ -138,7 +138,7 @@ describe('ClientService', () => {
         city: 'Lyon',
         domain: 'AI/ML',
         isFinal: false,
-        status: 'PROSPECT'
+        status: 'ESN'
       };
 
       const expectedClient = { ...mockClient, ...newClientData, id: 3 };
@@ -319,20 +319,20 @@ describe('ClientService', () => {
       req.flush(activeClients);
     });
 
-    it('should filter clients by PROSPECT status', () => {
+    it('should filter clients by ESN status', () => {
       const freelanceId = 1;
-      const prospectClients = mockClients.filter(client => client.status === 'PROSPECT');
+      const prospectClients = mockClients.filter(client => client.status === 'ESN');
 
-      service.getClientsByStatus(freelanceId, 'PROSPECT').subscribe(results => {
+      service.getClientsByStatus(freelanceId, 'ESN').subscribe(results => {
         expect(results).toBeDefined();
         expect(Array.isArray(results)).toBeTruthy();
         expect(results).toEqual(prospectClients);
         results.forEach(client => {
-          expect(client.status).toBe('PROSPECT');
+          expect(client.status).toBe('ESN');
         });
       });
 
-      const req = httpMock.expectOne(`${API_URL}/by-status?freelanceId=${freelanceId}&status=PROSPECT`);
+      const req = httpMock.expectOne(`${API_URL}/by-status?freelanceId=${freelanceId}&status=ESN`);
       expect(req.request.method).toBe('GET');
       req.flush(prospectClients);
     });

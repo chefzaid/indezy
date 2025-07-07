@@ -176,7 +176,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     if (isFinal === true) {
       return 'primary'; // Client Final
     } else if (isFinal === false) {
-      return 'accent'; // Prospect
+      return 'accent'; // ESN
     }
     return '';
   }
@@ -185,7 +185,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     if (isFinal === true) {
       return 'Client Final';
     } else if (isFinal === false) {
-      return 'Prospect';
+      return 'ESN';
     }
     return 'N/A';
   }

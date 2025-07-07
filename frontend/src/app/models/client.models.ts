@@ -1,6 +1,6 @@
 // Client related interfaces and types
 
-export type ClientStatus = 'ACTIVE' | 'INACTIVE' | 'PROSPECT';
+export type ClientStatus = 'ACTIVE' | 'INACTIVE' | 'ESN';
 
 export interface ClientDto {
   id: number;

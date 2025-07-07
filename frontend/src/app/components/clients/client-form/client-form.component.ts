@@ -81,7 +81,7 @@ export class ClientFormComponent implements OnInit, OnDestroy {
   statuses = [
     { value: 'ACTIVE', label: 'Actif' },
     { value: 'INACTIVE', label: 'Inactif' },
-    { value: 'PROSPECT', label: 'Prospect' }
+    { value: 'ESN', label: 'ESN' }
   ];
   
   private destroy$ = new Subject<void>();

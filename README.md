@@ -181,27 +181,6 @@ mask run-backend      # Backend development server
 mask run-frontend     # Frontend development server
 ```
 
-### 🐳 Docker Commands
-
-The application provides a unified Docker setup that serves both development and production needs using Docker Compose profiles.
-
-#### Production Deployment
-```bash
-mask docker-up        # Start production services (backend-prod, frontend-prod, postgres)
-mask docker-down      # Stop production services
-mask docker-admin     # Start with pgAdmin included
-mask docker-build     # Build production images
-mask docker-logs      # View production logs
-mask docker-clean     # Clean production resources
-```
-
-#### Development Environment
-```bash
-mask dev-docker-up    # Start development services (postgres, pgAdmin)
-mask dev-docker-down  # Stop development services
-mask dev-docker-clean # Clean development resources
-```
-
 #### VS Code DevContainer
 ```bash
 # Open in VS Code and use "Dev Containers: Reopen in Container"
@@ -214,7 +193,6 @@ docker-compose --profile devcontainer up -d
 - **Dockerfiles in respective directories**: `backend/Dockerfile` and `frontend/Dockerfile` with multi-stage builds
 - **Environment Profiles**:
   - `--profile prod`: Production services (optimized runtime)
-  - `--profile dev`: Development services (with development tools)
   - `--profile devcontainer`: VS Code development container
   - `--profile admin`: Includes pgAdmin for database management
 
@@ -225,21 +203,10 @@ cp .env.example .env
 # Edit .env with your database credentials and ports
 ```
 
-### 🔧 Utilities
-```bash
-mask clean            # Clean build artifacts
-mask status           # Check application status
-mask swagger          # Open API documentation
-mask lint             # Run code linting
-mask format           # Format code
-mask dev-reset        # Reset entire development environment
-```
-
 ### 💾 Local H2 Development (No Docker Required)
 ```bash
 mask local            # Start full local environment with H2
 mask local-backend    # Start backend with H2 only
-mask local-info       # Show H2 development information
 ```
 
 **Perfect for:**
@@ -261,10 +228,7 @@ mask local-info       # Show H2 development information
 
 #### 1. Database Setup
 ```bash
-# Using Mask
-mask docker-db
-
-# Or manually
+# Manually
 docker-compose up -d postgres
 # Database: localhost:5432, indezy/indezy_user/indezy_password
 ```
@@ -314,15 +278,9 @@ The devcontainer provides a complete, standalone development environment with **
 **Quick Commands (available in devcontainer):**
 ```bash
 # Start applications
-indezy-backend          # Start Spring Boot backend
-indezy-frontend         # Start Angular frontend
+run-backend          # Start Spring Boot backend
+run-frontend         # Start Angular frontend
 
-# Database management
-indezy-db              # Connect to PostgreSQL
-.devcontainer/db-utils.sh check    # Check database health
-
-# Development utilities
-.devcontainer/health-check.sh      # Check environment health
 mask --help            # Show all available mask commands
 ```
 
@@ -343,11 +301,9 @@ mask test
 # Individual test commands
 mask test-backend          # Backend tests with coverage
 mask test-frontend         # Frontend tests with coverage
-mask test-backend-watch    # Backend tests in watch mode
-mask test-frontend-watch   # Frontend tests in watch mode
 
 # Generate and view coverage reports
-mask coverage
+mask test-coverage
 # Backend: backend/target/site/jacoco/index.html
 # Frontend: frontend/coverage/index.html
 ```
@@ -452,14 +408,6 @@ indezy/
 2. **Database connection**: Check PostgreSQL is running (`mask status`)
 3. **CORS issues**: Verify frontend URL in backend CORS configuration
 4. **OAuth setup**: Confirm OAuth client IDs and secrets are configured
-
-### Useful Commands
-```bash
-mask status           # Check application status
-mask docker-logs      # View Docker logs
-mask clean           # Clean build artifacts
-mask dev-reset       # Reset entire development environment
-```
 
 ### Logs
 - **Backend**: Spring Boot console output

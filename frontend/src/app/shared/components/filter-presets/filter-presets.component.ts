@@ -118,9 +118,9 @@ export class FilterPresetsComponent implements OnInit {
       },
       {
         id: 'prospects',
-        name: 'Prospects',
-        description: 'Clients avec statut prospect',
-        filters: { status: 'PROSPECT' },
+        name: 'ESN',
+        description: 'Clients avec statut ESN',
+        filters: { status: 'ESN' },
         isDefault: true
       }
     ];

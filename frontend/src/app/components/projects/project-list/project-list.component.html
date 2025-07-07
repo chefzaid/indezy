@@ -21,13 +21,9 @@
         <span *ngIf="getFilterCount() > 0" class="filter-count">({{ getFilterCount() }})</span>
       </mat-card-title>
       <div class="filter-actions">
-        <button mat-button (click)="toggleAdvancedFilters()" class="toggle-advanced-btn">
-          <mat-icon>{{ showAdvancedFilters ? 'expand_less' : 'expand_more' }}</mat-icon>
-          {{ showAdvancedFilters ? 'Masquer' : 'Filtres avancés' }}
-        </button>
         <button mat-stroked-button type="button" (click)="clearFilters()" class="clear-filters-btn">
           <mat-icon>clear</mat-icon>
-          Effacer
+          Effacer filtres
         </button>
       </div>
     </mat-card-header>

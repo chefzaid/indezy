@@ -81,7 +81,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
   statusOptions = [
     { value: 'ACTIVE', label: 'Actif' },
     { value: 'INACTIVE', label: 'Inactif' },
-    { value: 'PROSPECT', label: 'Prospect' },
+    { value: 'ESN', label: 'ESN' },
     { value: 'ARCHIVED', label: 'Archivé' }
   ];
 
@@ -261,7 +261,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
     switch (status) {
       case 'FINAL':
         return 'primary';
-      case 'PROSPECT':
+      case 'ESN':
         return 'accent';
       case 'ACTIVE':
         return 'primary';
@@ -276,8 +276,8 @@ export class ClientListComponent implements OnInit, OnDestroy {
     switch (status) {
       case 'FINAL':
         return 'Client Final';
-      case 'PROSPECT':
-        return 'Prospect';
+      case 'ESN':
+        return 'ESN';
       case 'ACTIVE':
         return 'Actif';
       case 'INACTIVE':
@@ -310,7 +310,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
 
       // Status filter based on isFinal
       if (filters.status && filters.status !== 'ALL') {
-        const clientStatus = client.isFinal ? 'FINAL' : 'PROSPECT';
+        const clientStatus = client.isFinal ? 'FINAL' : 'ESN';
         if (clientStatus !== filters.status && client.status !== filters.status) {
           return false;
         }

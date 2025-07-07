@@ -43,31 +43,6 @@
             min-width: 140px;
           }
         }
-
-        .filter-actions {
-          display: flex;
-          gap: 12px;
-          align-items: center;
-
-          .advanced-toggle {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-
-            .filter-count {
-              background: #1976d2;
-              color: white;
-              border-radius: 12px;
-              padding: 2px 8px;
-              font-size: 12px;
-              margin-left: 4px;
-            }
-          }
-
-          .clear-filters {
-            color: #f44336;
-          }
-        }
       }
 
       .advanced-filters {
@@ -189,10 +164,6 @@
               width: 100%;
               min-width: auto;
             }
-          }
-
-          .filter-actions {
-            justify-content: center;
           }
         }
 
