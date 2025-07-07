@@ -568,7 +568,8 @@ echo "  database/  - Database initialization scripts"
 echo ""
 echo "🚀 Quick Commands:"
 echo "  mask quick-start  - Setup everything for new developers"
-echo "  mask dev         - Start development environment"
+echo "  mask dev         - Start development environment (with PostgreSQL)"
+echo "  mask local       - Start local development (with H2, no Docker)"
 echo "  mask test        - Run all tests"
 echo "  mask docker-up   - Start with Docker"
 ```
@@ -638,6 +639,100 @@ cd ..
 cd frontend
 npm run build --configuration=production
 cd ..
+```
+
+## local
+
+> Start local development with H2 database (no Docker required)
+
+```bash
+echo "🚀 Starting local development with H2 database..."
+echo "📦 Installing dependencies if needed..."
+cd backend
+if [[ ! -d "target" ]]; then
+    echo "📦 Installing backend dependencies..."
+    if [[ -f "mvnw.cmd" ]]; then
+        cmd.exe /c "mvnw.cmd clean install -DskipTests"
+    else
+        chmod +x mvnw 2>/dev/null || true
+        ./mvnw clean install -DskipTests
+    fi
+fi
+cd ..
+cd frontend
+if [[ ! -d "node_modules" ]]; then
+    echo "📦 Installing frontend dependencies..."
+    npm install
+fi
+cd ..
+echo "🚀 Starting backend with H2 database..."
+echo "Starting backend in background..."
+if [[ -f "backend/mvnw.cmd" ]]; then
+    start /B cmd /c "cd backend && cmd.exe /c \"mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local\""
+    echo "⏳ Waiting for backend to start..."
+    sleep 15
+    echo "Starting frontend..."
+    cd frontend && npm start
+else
+    cd backend
+    chmod +x mvnw 2>/dev/null || true
+    ./mvnw spring-boot:run -Dspring-boot.run.profiles=local &
+    BACKEND_PID=$!
+    echo "Backend PID: $BACKEND_PID"
+    echo "⏳ Waiting for backend to start..."
+    sleep 15
+    echo "Starting frontend..."
+    cd ../frontend && npm start
+fi
+```
+
+## local-backend
+
+> Start backend with H2 database only
+
+```bash
+echo "🚀 Starting backend with H2 database..."
+cd backend
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local"
+else
+    chmod +x mvnw 2>/dev/null || true
+    ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+fi
+cd ..
+```
+
+## local-info
+
+> Show local H2 development information
+
+```bash
+echo "📋 Local H2 Development Information:"
+echo ""
+echo "🌐 URLs:"
+echo "  Frontend:    http://localhost:4200"
+echo "  Backend:     http://localhost:8080/api"
+echo "  Swagger:     http://localhost:8080/api/swagger-ui.html"
+echo "  H2 Console:  http://localhost:8080/api/h2-console"
+echo ""
+echo "🗄️ H2 Database Connection:"
+echo "  JDBC URL:    jdbc:h2:mem:indezy"
+echo "  Username:    sa"
+echo "  Password:    password"
+echo "  Driver:      org.h2.Driver"
+echo ""
+echo "✨ Features:"
+echo "  • No Docker required"
+echo "  • In-memory H2 database with sample data"
+echo "  • Automatic schema creation"
+echo "  • H2 web console for database inspection"
+echo "  • Same sample data as PostgreSQL version"
+echo ""
+echo "🚀 Quick Start:"
+echo "  mask local        - Start full local environment"
+echo "  mask local-backend - Start only backend with H2"
+echo ""
+echo "💡 Note: Data is reset on each restart (in-memory database)"
 ```
 
 

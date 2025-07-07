@@ -1,5 +1,6 @@
 package dev.byteworks.indezy.config;
 
+import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -20,14 +21,18 @@ public class DataInitializationConfig {
      * Only runs in dev and devcontainer profiles.
      */
     @Bean
-    @Profile({"dev", "devcontainer"})
+    @Profile({"dev", "devcontainer", "local"})
     public CommandLineRunner dataInitializer(Environment environment) {
         return args -> {
             String[] activeProfiles = environment.getActiveProfiles();
             log.info("=== DEVELOPMENT MODE ACTIVE ===");
             log.info("Active profiles: {}", String.join(", ", activeProfiles));
             log.info("Sample data initialization enabled for development");
-            log.info("Database will be populated with sample data from data-dev.sql");
+            if (Arrays.asList(activeProfiles).contains("local")) {
+                log.info("Database will be populated with sample data from data-local.sql (H2)");
+            } else {
+                log.info("Database will be populated with sample data from data-dev.sql (PostgreSQL)");
+            }
             log.info("===============================");
         };
     }
@@ -37,7 +42,7 @@ public class DataInitializationConfig {
      * Only runs when neither dev nor devcontainer profiles are active.
      */
     @Bean
-    @Profile("!dev & !devcontainer")
+    @Profile("!dev & !devcontainer & !local")
     public CommandLineRunner productionWarning(Environment environment) {
         return args -> {
             String[] activeProfiles = environment.getActiveProfiles();

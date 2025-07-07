@@ -166,6 +166,26 @@ mask format           # Format code
 mask dev-reset        # Reset entire development environment
 ```
 
+### 💾 Local H2 Development (No Docker Required)
+```bash
+mask local            # Start full local environment with H2
+mask local-backend    # Start backend with H2 only
+mask local-info       # Show H2 development information
+```
+
+**Perfect for:**
+- ✅ Quick local development without Docker
+- ✅ Testing without external dependencies
+- ✅ Offline development
+- ✅ Lightweight development setup
+
+**H2 Database Access:**
+- **H2 Console**: http://localhost:8080/api/h2-console
+- **JDBC URL**: `jdbc:h2:mem:indezy`
+- **Username**: `sa` | **Password**: `password`
+
+> **Note**: H2 is an in-memory database - data resets on each restart but includes the same sample data as PostgreSQL.
+
 > **Note**: All commands are cross-platform compatible (Windows, macOS, Linux). See `maskfile.md` for detailed command documentation.
 
 ### Manual Development Setup
