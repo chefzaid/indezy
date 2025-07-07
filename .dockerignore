@@ -1,0 +1,103 @@
+# Comprehensive .dockerignore for the entire project
+
+# Development container files
+.devcontainer/
+
+# Git
+.git/
+.gitignore
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+*.md
+docs/
+DOCKER.md
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Test results and coverage
+test-results/
+coverage/
+.nyc_output/
+
+# Backup files
+*.bak
+*.backup
+
+# Backend specific
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.ctxt
+.mtj.tmp/
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
+# Frontend specific
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+frontend/.nyc_output/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# Node modules at any level
+node_modules/
+package-lock.json
+
+# Build artifacts
+build/
+out/
+target/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker files (don't include in build context)
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Uploads and temporary data
+uploads/
+files/

@@ -1,6 +1,6 @@
 # Indezy Development Container
 
-This devcontainer provides a complete, standalone development environment for the Indezy application with all dependencies pre-configured.
+This devcontainer provides a complete, standalone development environment for the Indezy application with all dependencies pre-configured. It uses the unified Docker setup with the backend Dockerfile for the development container.
 
 ## 🚀 Features
 
@@ -14,7 +14,7 @@ This devcontainer provides a complete, standalone development environment for th
 ## 📋 What's Included
 
 ### Services
-- **Development Container**: Main workspace with Java, Node.js, and development tools
+- **Development Container**: Uses `backend/Dockerfile` in development mode with Java, Node.js, and development tools
 - **PostgreSQL Database**: Fully configured with the Indezy schema
 - **pgAdmin**: Web-based database administration tool
 
@@ -28,19 +28,24 @@ This devcontainer provides a complete, standalone development environment for th
 - Essential development utilities
 
 ### VS Code Extensions
+All necessary extensions are automatically installed from `.devcontainer/extensions.json`:
 - Java Extension Pack
+- Spring Boot Tools
 - Angular Language Service
 - TypeScript support
+- ESLint & Prettier
 - Tailwind CSS IntelliSense
 - PostgreSQL extension
 - Docker support
-- GitLab Workflow
+- Git & Version Control tools
+- Code Quality & Testing tools
+- Productivity extensions
 
 ## 🏃‍♂️ Quick Start
 
 1. **Open in VS Code**: Open the project in VS Code and select "Reopen in Container" when prompted
 2. **Wait for setup**: The container will build and configure automatically (first time takes ~5-10 minutes)
-3. **Start development**: Use the provided aliases or mask commands
+3. **Start development**: Use the simplified mask commands
 
 ### Quick Commands
 
@@ -170,9 +175,9 @@ To update the development environment:
 
 2. Or manually:
    ```bash
-   docker-compose down
-   docker-compose build --no-cache
-   docker-compose up -d
+   docker-compose --profile devcontainer down
+   docker-compose --profile devcontainer build --no-cache
+   docker-compose --profile devcontainer up -d
    ```
 
 ## 📝 Environment Variables

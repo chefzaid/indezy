@@ -93,6 +93,13 @@ indezy-frontend
 - **Testing**: Jasmine and Karma with code coverage
 - **Build System**: Angular CLI with modern build pipeline
 
+### Docker & Deployment
+- **Development**: VS Code devcontainer with full development environment
+- **Production**: Multi-stage Docker builds with security hardening
+- **Database**: PostgreSQL with initialization scripts and health checks
+- **Web Server**: Nginx for frontend with optimized static file serving
+- **Orchestration**: Docker Compose for both development and production
+
 ### Database Schema
 - **Freelance**: User profiles with employment status and availability
 - **Projects**: Comprehensive project tracking with rates, tech stack, and timeline
@@ -118,9 +125,36 @@ brew install mask
 ### 🚀 Quick Start Commands
 ```bash
 mask                  # Show all available commands
-mask quick-start      # Complete setup for new developers
-mask dev              # Start development environment
-mask demo             # Start demo with sample data
+
+# Dependencies
+mask install          # Install all dependencies
+mask install-backend  # Install backend dependencies only
+mask install-frontend # Install frontend dependencies only
+
+# Build
+mask build            # Build all components
+mask build-backend    # Build backend only
+mask build-frontend   # Build frontend only
+
+# Testing
+mask test             # Run all tests
+mask test-backend     # Run backend tests only
+mask test-frontend    # Run frontend tests only
+mask test-coverage    # Run tests with coverage reports
+
+# Local Development (H2 database)
+mask run-local        # Run both frontend and backend locally with H2
+mask run-frontend-local # Run frontend only in local mode
+mask run-backend-local  # Run backend only in local mode
+
+# Development Environment (PostgreSQL)
+mask run-dev          # Run both frontend and backend in dev mode with PostgreSQL
+mask run-frontend-dev # Run frontend only in dev mode
+mask run-backend-dev  # Run backend only in dev mode
+
+# Information
+mask info             # Show environment information
+mask status           # Show service status
 ```
 
 ### 📦 Installation & Build
@@ -148,12 +182,47 @@ mask run-frontend     # Frontend development server
 ```
 
 ### 🐳 Docker Commands
+
+The application provides a unified Docker setup that serves both development and production needs using Docker Compose profiles.
+
+#### Production Deployment
 ```bash
-mask docker-up        # Start all services with Docker
-mask docker-down      # Stop Docker services
-mask docker-db        # Start database only
-mask docker-logs      # View Docker logs
-mask docker-clean     # Clean Docker resources
+mask docker-up        # Start production services (backend-prod, frontend-prod, postgres)
+mask docker-down      # Stop production services
+mask docker-admin     # Start with pgAdmin included
+mask docker-build     # Build production images
+mask docker-logs      # View production logs
+mask docker-clean     # Clean production resources
+```
+
+#### Development Environment
+```bash
+mask dev-docker-up    # Start development services (postgres, pgAdmin)
+mask dev-docker-down  # Stop development services
+mask dev-docker-clean # Clean development resources
+```
+
+#### VS Code DevContainer
+```bash
+# Open in VS Code and use "Dev Containers: Reopen in Container"
+# Or manually start the devcontainer service:
+docker-compose --profile devcontainer up -d
+```
+
+**Docker Architecture:**
+- **Single docker-compose.yml**: Unified configuration with profiles for different environments
+- **Dockerfiles in respective directories**: `backend/Dockerfile` and `frontend/Dockerfile` with multi-stage builds
+- **Environment Profiles**:
+  - `--profile prod`: Production services (optimized runtime)
+  - `--profile dev`: Development services (with development tools)
+  - `--profile devcontainer`: VS Code development container
+  - `--profile admin`: Includes pgAdmin for database management
+
+**Environment Configuration:**
+For production deployment, copy `.env.example` to `.env` and configure:
+```bash
+cp .env.example .env
+# Edit .env with your database credentials and ports
 ```
 
 ### 🔧 Utilities

@@ -1,0 +1,210 @@
+# Unified Docker Compose for Development and Production
+# Use profiles to control which services run in different environments
+# Development: docker-compose --profile dev up
+# Production: docker-compose --profile prod up
+# Full stack: docker-compose --profile dev --profile prod up
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database (used in both dev and prod)
+  postgres:
+    image: postgres:15-alpine
+    container_name: indezy-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-indezy}
+      POSTGRES_USER: ${POSTGRES_USER:-indezy_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-indezy_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - indezy-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-indezy_user} -d ${POSTGRES_DB:-indezy}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Development Backend (for devcontainer and local development)
+  backend-dev:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        BUILD_ENV: development
+    container_name: indezy-backend-dev
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-devcontainer}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-indezy}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-indezy_user}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-indezy_password}
+      SERVER_PORT: 8080
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - ./backend:/app:cached  # Mount source for development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - indezy-network
+    profiles:
+      - dev
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Production Backend
+  backend-prod:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        BUILD_ENV: production
+    container_name: indezy-backend-prod
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-indezy}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-indezy_user}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-indezy_password}
+      SERVER_PORT: 8080
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - indezy-network
+    profiles:
+      - prod
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Development Frontend (Angular dev server)
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        BUILD_ENV: development
+        NG_BUILD_CONFIG: development
+    container_name: indezy-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-4200}:4200"
+    volumes:
+      - ./frontend:/app:cached  # Mount source for development
+    depends_on:
+      - postgres
+    networks:
+      - indezy-network
+    profiles:
+      - dev
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4200/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Production Frontend (Nginx)
+  frontend-prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        BUILD_ENV: production
+        NG_BUILD_CONFIG: production
+    container_name: indezy-frontend-prod
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-4200}:8080"
+    depends_on:
+      backend-prod:
+        condition: service_healthy
+    networks:
+      - indezy-network
+    profiles:
+      - prod
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # pgAdmin (Optional - for database management in both dev and prod)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: indezy-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@indezy.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - indezy-network
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./.devcontainer/pgadmin-servers.json:/pgadmin4/servers.json:ro
+    profiles:
+      - admin
+
+  # DevContainer service (for VS Code development)
+  devcontainer:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        BUILD_ENV: development
+    container_name: indezy-devcontainer
+    volumes:
+      - ..:/workspace:cached
+      - maven-cache:/home/appuser/.m2
+      - node-cache:/home/appuser/.npm
+      - vscode-extensions:/home/appuser/.vscode-server/extensions
+    command: sleep infinity
+    networks:
+      - indezy-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=devcontainer
+    profiles:
+      - devcontainer
+
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  maven-cache:
+    driver: local
+  node-cache:
+    driver: local
+  vscode-extensions:
+    driver: local
+
+networks:
+  indezy-network:
+    driver: bridge

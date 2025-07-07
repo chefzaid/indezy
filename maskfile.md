@@ -21,70 +21,37 @@ brew install mask
 
 Run `mask` or `mask --help` to see all available commands.
 
-## quick-start
+## Available Commands
 
-> Complete setup for new developers
+### Dependencies
+- `mask install` - Install all dependencies
+- `mask install-backend` - Install backend dependencies only
+- `mask install-frontend` - Install frontend dependencies only
 
-```bash
-echo "🚀 Setting up Indezy for development..."
-echo "📦 Installing all dependencies..."
-echo "📦 Installing backend dependencies..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean install -DskipTests"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean install -DskipTests
-fi
-cd ..
-echo "📦 Installing frontend dependencies..."
-cd frontend
-npm install
-cd ..
-echo "🐳 Starting database..."
-docker-compose up -d postgres
-echo "⏳ Waiting for database to be ready..."
-sleep 5
-echo "✅ Setup complete! Run 'mask run' to start the application"
-```
+### Build
+- `mask build` - Build all components
+- `mask build-backend` - Build backend only
+- `mask build-frontend` - Build frontend only
 
-## demo
+### Testing
+- `mask test` - Run all tests
+- `mask test-backend` - Run backend tests only
+- `mask test-frontend` - Run frontend tests only
+- `mask test-coverage` - Run tests with coverage reports
 
-> Start demo environment with sample data
+### Local Development (H2 database, no Docker)
+- `mask run-local` - Run both frontend and backend locally with H2
+- `mask run-frontend-local` - Run frontend only in local mode
+- `mask run-backend-local` - Run backend only in local mode
 
-```bash
-echo "🎬 Starting demo environment..."
-echo "🐳 Starting Docker services..."
-docker-compose up -d
-echo "✅ Demo ready!"
-echo "Frontend: http://localhost:4200"
-echo "Backend: http://localhost:8080/api"
-echo "Swagger: http://localhost:8080/api/swagger-ui.html"
-echo "Database: localhost:5432"
-echo "Login with any email/password combination"
-```
+### Development Environment (PostgreSQL, needs Docker/Devcontainer)
+- `mask run-dev` - Run both frontend and backend in dev mode with PostgreSQL
+- `mask run-frontend-dev` - Run frontend only in dev mode
+- `mask run-backend-dev` - Run backend only in dev mode
 
-## install
-
-> Install all dependencies (frontend + backend)
-
-```bash
-echo "📦 Installing all dependencies..."
-echo "📦 Installing backend dependencies..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean install -DskipTests"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean install -DskipTests
-fi
-cd ..
-echo "📦 Installing frontend dependencies..."
-cd frontend
-npm install
-cd ..
-echo "✅ All dependencies installed!"
-```
+### Information
+- `mask info` - Show environment information
+- `mask status` - Show service status
 
 ## install-backend
 
@@ -94,12 +61,13 @@ echo "✅ All dependencies installed!"
 echo "📦 Installing backend dependencies..."
 cd backend
 if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean install -DskipTests"
+    cmd.exe /c "mvnw.cmd dependency:go-offline"
 else
     chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean install -DskipTests
+    ./mvnw dependency:go-offline
 fi
 cd ..
+echo "✅ Backend dependencies installed!"
 ```
 
 ## install-frontend
@@ -109,35 +77,25 @@ cd ..
 ```bash
 echo "📦 Installing frontend dependencies..."
 cd frontend
-npm install
+npm ci
 cd ..
+echo "✅ Frontend dependencies installed!"
 ```
 
-## build
+## install
 
-> Build both frontend and backend
+> Install all dependencies
 
 ```bash
-echo "🔨 Building application..."
-echo "🔨 Building backend..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean package -DskipTests"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean package -DskipTests
-fi
-cd ..
-echo "🔨 Building frontend..."
-cd frontend
-npm run build
-cd ..
-echo "✅ Build completed!"
+echo "📦 Installing all dependencies..."
+mask install-backend
+mask install-frontend
+echo "✅ All dependencies installed!"
 ```
 
 ## build-backend
 
-> Build backend only
+> Build backend application
 
 ```bash
 echo "🔨 Building backend..."
@@ -149,549 +107,102 @@ else
     ./mvnw clean package -DskipTests
 fi
 cd ..
+echo "✅ Backend built successfully!"
 ```
 
 ## build-frontend
 
-> Build frontend only
+> Build frontend application
 
 ```bash
 echo "🔨 Building frontend..."
 cd frontend
 npm run build
 cd ..
+echo "✅ Frontend built successfully!"
 ```
 
-## build-prod
+## build
 
-> Build for production
-
-```bash
-echo "🔨 Building for production..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean package -Pprod"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean package -Pprod
-fi
-cd ..
-cd frontend
-npm run build --configuration=production
-cd ..
-```
-
-## test
-
-> Run all tests (frontend + backend)
+> Build all components
 
 ```bash
-echo "🧪 Running all tests..."
-echo "🧪 Running backend tests..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean test jacoco:report"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean test jacoco:report
-fi
-cd ..
-echo "🧪 Running frontend tests..."
-cd frontend
-npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
-cd ..
-echo "✅ All tests completed!"
+echo "🔨 Building all components..."
+mask build-backend
+mask build-frontend
+echo "✅ All components built successfully!"
 ```
 
 ## test-backend
 
-> Run backend tests with coverage
+> Run backend tests
 
 ```bash
 echo "🧪 Running backend tests..."
 cd backend
 if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean test jacoco:report"
+    cmd.exe /c "mvnw.cmd test"
 else
     chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean test jacoco:report
+    ./mvnw test
 fi
 cd ..
+echo "✅ Backend tests completed!"
 ```
 
 ## test-frontend
 
-> Run frontend tests with coverage
+> Run frontend tests
 
 ```bash
 echo "🧪 Running frontend tests..."
 cd frontend
-npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
+npm test -- --watch=false --browsers=ChromeHeadless
 cd ..
+echo "✅ Frontend tests completed!"
 ```
 
-## test-backend-watch
+## test
 
-> Run backend tests in watch mode
+> Run all tests
 
 ```bash
-echo "🧪 Running backend tests in watch mode..."
+echo "🧪 Running all tests..."
+mask test-backend
+mask test-frontend
+echo "✅ All tests completed!"
+```
+
+## test-coverage
+
+> Run tests with coverage reports
+
+```bash
+echo "🧪 Running tests with coverage..."
+echo "📊 Backend coverage..."
 cd backend
 if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd test -Dspring-boot.run.fork=false"
+    cmd.exe /c "mvnw.cmd test jacoco:report"
 else
     chmod +x mvnw 2>/dev/null || true
-    ./mvnw test -Dspring-boot.run.fork=false
+    ./mvnw test jacoco:report
 fi
 cd ..
-```
-
-## test-frontend-watch
-
-> Run frontend tests in watch mode
-
-```bash
-echo "🧪 Running frontend tests in watch mode..."
+echo "📊 Frontend coverage..."
 cd frontend
-npm test
+npm run test:coverage
 cd ..
+echo "✅ Coverage reports generated!"
+echo "📊 Backend coverage: backend/target/site/jacoco/index.html"
+echo "📊 Frontend coverage: frontend/coverage/index.html"
 ```
 
-## run
+## run-backend-local
 
-> Start both frontend and backend in development mode
-
-```bash
-echo "🚀 Starting full application..."
-echo "Starting backend in background..."
-if [[ -f "backend/mvnw.cmd" ]]; then
-    start /B cmd /c "cd backend && cmd.exe /c \"mvnw.cmd spring-boot:run\""
-    echo "⏳ Waiting for backend to start..."
-    sleep 10
-    echo "Starting frontend..."
-    cd frontend && npm start
-else
-    cd backend
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw spring-boot:run &
-    BACKEND_PID=$!
-    echo "Backend PID: $BACKEND_PID"
-    echo "⏳ Waiting for backend to start..."
-    sleep 10
-    echo "Starting frontend..."
-    cd ../frontend && npm start
-fi
-```
-
-## run-backend
-
-> Start backend development server
+> Run backend locally with H2 database
 
 ```bash
-echo "🚀 Starting backend server..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd spring-boot:run"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw spring-boot:run
-fi
-cd ..
-```
-
-## run-frontend
-
-> Start frontend development server
-
-```bash
-echo "🚀 Starting frontend server..."
-cd frontend
-npm start
-cd ..
-```
-
-## docker-up
-
-> Start all services with Docker Compose
-
-```bash
-echo "🐳 Starting Docker services..."
-docker-compose up -d
-echo "✅ Services started!"
-echo "Frontend: http://localhost:4200"
-echo "Backend: http://localhost:8080/api"
-echo "Swagger: http://localhost:8080/api/swagger-ui.html"
-echo "Database: localhost:5432"
-```
-
-## docker-down
-
-> Stop all Docker services
-
-```bash
-echo "🐳 Stopping Docker services..."
-docker-compose down
-```
-
-## docker-logs
-
-> Show Docker logs
-
-```bash
-docker-compose logs -f
-```
-
-## docker-clean
-
-> Clean Docker containers, images, and volumes
-
-```bash
-echo "🧹 Cleaning Docker resources..."
-docker-compose down -v --remove-orphans
-docker system prune -f
-```
-
-## docker-db
-
-> Start only the database
-
-```bash
-echo "🐳 Starting database..."
-docker-compose up -d postgres
-```
-
-## dev
-
-> Start development environment (database + backend + frontend)
-
-```bash
-echo "🚀 Starting development environment..."
-echo "🐳 Starting database..."
-docker-compose up -d postgres
-echo "⏳ Waiting for database to start..."
-sleep 5
-echo "🚀 Starting full application..."
-echo "Starting backend in background..."
-if [[ -f "backend/mvnw.cmd" ]]; then
-    start /B cmd /c "cd backend && cmd.exe /c \"mvnw.cmd spring-boot:run\""
-    echo "⏳ Waiting for backend to start..."
-    sleep 10
-    echo "Starting frontend..."
-    cd frontend && npm start
-else
-    cd backend
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw spring-boot:run &
-    BACKEND_PID=$!
-    echo "Backend PID: $BACKEND_PID"
-    echo "⏳ Waiting for backend to start..."
-    sleep 10
-    echo "Starting frontend..."
-    cd ../frontend && npm start
-fi
-```
-
-## dev-reset
-
-> Reset development environment
-
-```bash
-echo "🔄 Resetting development environment..."
-echo "🧹 Cleaning Docker resources..."
-docker-compose down -v --remove-orphans
-docker system prune -f
-echo "🧹 Cleaning build artifacts..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean
-fi
-cd ..
-cd frontend
-rm -rf dist/ node_modules/.cache/ 2>/dev/null || true
-cd ..
-echo "📦 Installing all dependencies..."
-echo "📦 Installing backend dependencies..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean install -DskipTests"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean install -DskipTests
-fi
-cd ..
-echo "📦 Installing frontend dependencies..."
-cd frontend
-npm install
-cd ..
-echo "🐳 Starting database..."
-docker-compose up -d postgres
-echo "⏳ Waiting for database to start..."
-sleep 5
-echo "✅ Development environment reset complete!"
-```
-
-## clean
-
-> Clean build artifacts
-
-```bash
-echo "🧹 Cleaning build artifacts..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean
-fi
-cd ..
-cd frontend
-rm -rf dist/ node_modules/.cache/ 2>/dev/null || true
-cd ..
-echo "✅ Clean completed!"
-```
-
-## lint
-
-> Run linting for frontend
-
-```bash
-echo "🔍 Running linter..."
-cd frontend
-npm run lint
-cd ..
-```
-
-## format
-
-> Format code (frontend)
-
-```bash
-echo "✨ Formatting code..."
-cd frontend
-npm run lint -- --fix
-cd ..
-```
-
-## coverage
-
-> Generate and open coverage reports
-
-```bash
-echo "📊 Generating coverage reports..."
-echo "🧪 Running backend tests..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean test jacoco:report"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean test jacoco:report
-fi
-cd ..
-echo "🧪 Running frontend tests..."
-cd frontend
-npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
-cd ..
-echo "Backend coverage: backend/target/site/jacoco/index.html"
-echo "Frontend coverage: frontend/coverage/index.html"
-```
-
-## swagger
-
-> Open Swagger documentation
-
-```bash
-echo "📚 Opening Swagger documentation..."
-if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
-    start http://localhost:8080/api/swagger-ui.html
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    open http://localhost:8080/api/swagger-ui.html
-else
-    xdg-open http://localhost:8080/api/swagger-ui.html
-fi
-```
-
-## status
-
-> Show application status
-
-```bash
-echo "📊 Application Status:"
-echo ""
-echo "Backend:"
-if curl -s http://localhost:8080/api/actuator/health 2>/dev/null | grep -q "UP"; then
-    echo "  ✅ Backend is running"
-else
-    echo "  ❌ Backend is not running"
-fi
-echo ""
-echo "Frontend:"
-if curl -s http://localhost:4200 >/dev/null 2>&1; then
-    echo "  ✅ Frontend is running"
-else
-    echo "  ❌ Frontend is not running"
-fi
-echo ""
-echo "Database:"
-if docker-compose ps postgres | grep -q "Up"; then
-    echo "  ✅ Database is running"
-else
-    echo "  ❌ Database is not running"
-fi
-```
-
-## info
-
-> Show application information
-
-```bash
-echo "📋 Indezy Application Information:"
-echo ""
-echo "🌐 URLs:"
-echo "  Frontend:  http://localhost:4200"
-echo "  Backend:   http://localhost:8080/api"
-echo "  Swagger:   http://localhost:8080/api/swagger-ui.html"
-echo "  Database:  localhost:5432"
-echo ""
-echo "🔧 Tech Stack:"
-echo "  Backend:   Java 21 + Spring Boot 3.5.3"
-echo "  Frontend:  Angular 20.0.6 + TypeScript 5.8.3"
-echo "  Database:  PostgreSQL"
-echo "  Testing:   JUnit 5 + Jasmine/Karma"
-echo ""
-echo "📁 Project Structure:"
-echo "  backend/   - Spring Boot API"
-echo "  frontend/  - Angular application"
-echo "  database/  - Database initialization scripts"
-echo ""
-echo "🚀 Quick Commands:"
-echo "  mask quick-start  - Setup everything for new developers"
-echo "  mask dev         - Start development environment (with PostgreSQL)"
-echo "  mask local       - Start local development (with H2, no Docker)"
-echo "  mask test        - Run all tests"
-echo "  mask docker-up   - Start with Docker"
-```
-
-## ci-test
-
-> Run tests for CI/CD pipeline
-
-```bash
-echo "🔄 Running CI tests..."
-echo "📦 Installing backend dependencies..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean install -DskipTests"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean install -DskipTests
-fi
-cd ..
-echo "📦 Installing frontend dependencies..."
-cd frontend
-npm install
-cd ..
-echo "🧪 Running backend tests..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean test jacoco:report"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean test jacoco:report
-fi
-cd ..
-echo "🧪 Running frontend tests..."
-cd frontend
-npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
-cd ..
-echo "🔨 Building backend..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean package -DskipTests"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean package -DskipTests
-fi
-cd ..
-echo "🔨 Building frontend..."
-cd frontend
-npm run build
-cd ..
-```
-
-## ci-build
-
-> Build for CI/CD pipeline
-
-```bash
-echo "🔄 Running CI build..."
-echo "🔨 Building for production..."
-cd backend
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean package -Pprod"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean package -Pprod
-fi
-cd ..
-cd frontend
-npm run build --configuration=production
-cd ..
-```
-
-## local
-
-> Start local development with H2 database (no Docker required)
-
-```bash
-echo "🚀 Starting local development with H2 database..."
-echo "📦 Installing dependencies if needed..."
-cd backend
-if [[ ! -d "target" ]]; then
-    echo "📦 Installing backend dependencies..."
-    if [[ -f "mvnw.cmd" ]]; then
-        cmd.exe /c "mvnw.cmd clean install -DskipTests"
-    else
-        chmod +x mvnw 2>/dev/null || true
-        ./mvnw clean install -DskipTests
-    fi
-fi
-cd ..
-cd frontend
-if [[ ! -d "node_modules" ]]; then
-    echo "📦 Installing frontend dependencies..."
-    npm install
-fi
-cd ..
-echo "🚀 Starting backend with H2 database..."
-echo "Starting backend in background..."
-if [[ -f "backend/mvnw.cmd" ]]; then
-    start /B cmd /c "cd backend && cmd.exe /c \"mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local\""
-    echo "⏳ Waiting for backend to start..."
-    sleep 15
-    echo "Starting frontend..."
-    cd frontend && npm start
-else
-    cd backend
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw spring-boot:run -Dspring-boot.run.profiles=local &
-    BACKEND_PID=$!
-    echo "Backend PID: $BACKEND_PID"
-    echo "⏳ Waiting for backend to start..."
-    sleep 15
-    echo "Starting frontend..."
-    cd ../frontend && npm start
-fi
-```
-
-## local-backend
-
-> Start backend with H2 database only
-
-```bash
-echo "🚀 Starting backend with H2 database..."
+echo "🚀 Starting backend locally with H2..."
 cd backend
 if [[ -f "mvnw.cmd" ]]; then
     cmd.exe /c "mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local"
@@ -702,37 +213,187 @@ fi
 cd ..
 ```
 
-## local-info
+## run-frontend-local
 
-> Show local H2 development information
+> Run frontend locally
 
 ```bash
-echo "📋 Local H2 Development Information:"
-echo ""
-echo "🌐 URLs:"
-echo "  Frontend:    http://localhost:4200"
-echo "  Backend:     http://localhost:8080/api"
-echo "  Swagger:     http://localhost:8080/api/swagger-ui.html"
-echo "  H2 Console:  http://localhost:8080/api/h2-console"
-echo ""
-echo "🗄️ H2 Database Connection:"
-echo "  JDBC URL:    jdbc:h2:mem:indezy"
-echo "  Username:    sa"
-echo "  Password:    password"
-echo "  Driver:      org.h2.Driver"
-echo ""
-echo "✨ Features:"
-echo "  • No Docker required"
-echo "  • In-memory H2 database with sample data"
-echo "  • Automatic schema creation"
-echo "  • H2 web console for database inspection"
-echo "  • Same sample data as PostgreSQL version"
-echo ""
-echo "🚀 Quick Start:"
-echo "  mask local        - Start full local environment"
-echo "  mask local-backend - Start only backend with H2"
-echo ""
-echo "💡 Note: Data is reset on each restart (in-memory database)"
+echo "🚀 Starting frontend locally..."
+cd frontend
+npm start
+cd ..
 ```
+
+## run-local
+
+> Run both frontend and backend locally with H2
+
+```bash
+echo "🚀 Starting local development environment..."
+echo "🔨 Building applications first..."
+mask build
+echo "🚀 Starting backend with H2..."
+cd backend
+if [[ -f "mvnw.cmd" ]]; then
+    start cmd.exe /c "mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local"
+else
+    chmod +x mvnw 2>/dev/null || true
+    ./mvnw spring-boot:run -Dspring-boot.run.profiles=local &
+fi
+cd ..
+echo "⏳ Waiting for backend to start..."
+sleep 10
+echo "🚀 Starting frontend..."
+cd frontend
+npm start
+cd ..
+```
+## run-backend-dev
+
+> Run backend in dev mode with PostgreSQL
+
+```bash
+echo "🚀 Starting backend in dev mode..."
+echo "🐳 Starting PostgreSQL..."
+docker-compose up -d postgres
+echo "⏳ Waiting for database..."
+sleep 5
+cd backend
+if [[ -f "mvnw.cmd" ]]; then
+    cmd.exe /c "mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=devcontainer"
+else
+    chmod +x mvnw 2>/dev/null || true
+    ./mvnw spring-boot:run -Dspring-boot.run.profiles=devcontainer
+fi
+cd ..
+```
+
+## run-frontend-dev
+
+> Run frontend in dev mode
+
+```bash
+echo "🚀 Starting frontend in dev mode..."
+cd frontend
+npm start
+cd ..
+```
+
+## run-dev
+
+> Run both frontend and backend in dev mode with PostgreSQL
+
+```bash
+echo "🚀 Starting development environment..."
+echo "🔨 Building applications first..."
+mask build
+echo "🐳 Starting PostgreSQL..."
+docker-compose up -d postgres
+echo "⏳ Waiting for database..."
+sleep 10
+echo "🚀 Starting backend..."
+cd backend
+if [[ -f "mvnw.cmd" ]]; then
+    start cmd.exe /c "mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=devcontainer"
+else
+    chmod +x mvnw 2>/dev/null || true
+    ./mvnw spring-boot:run -Dspring-boot.run.profiles=devcontainer &
+fi
+cd ..
+echo "⏳ Waiting for backend to start..."
+sleep 15
+echo "🚀 Starting frontend..."
+cd frontend
+npm start
+cd ..
+```
+## info
+
+> Show environment information
+
+```bash
+echo "📋 Indezy Development Environment Information"
+echo "============================================="
+echo ""
+echo "🔧 System Information:"
+echo "  OS: $(uname -s 2>/dev/null || echo 'Windows')"
+echo "  Architecture: $(uname -m 2>/dev/null || echo 'Unknown')"
+echo ""
+echo "☕ Java:"
+if command -v java &> /dev/null; then
+    java -version 2>&1 | head -n 1
+else
+    echo "  Java not found"
+fi
+echo ""
+echo "📦 Node.js:"
+if command -v node &> /dev/null; then
+    echo "  Version: $(node --version)"
+    echo "  NPM: $(npm --version)"
+else
+    echo "  Node.js not found"
+fi
+echo ""
+echo "🐳 Docker:"
+if command -v docker &> /dev/null; then
+    echo "  Version: $(docker --version)"
+    echo "  Compose: $(docker-compose --version 2>/dev/null || echo 'Not available')"
+else
+    echo "  Docker not found"
+fi
+echo ""
+echo "🌐 Default URLs:"
+echo "  Frontend: http://localhost:4200"
+echo "  Backend: http://localhost:8080/api"
+echo "  Swagger: http://localhost:8080/api/swagger-ui.html"
+echo "  Database: localhost:5432"
+echo "  pgAdmin: http://localhost:5050"
+```
+
+## status
+
+> Show service status
+
+```bash
+echo "📋 Indezy Service Status"
+echo "======================="
+echo ""
+echo "🔍 Checking local services..."
+echo ""
+echo "Frontend (port 4200):"
+if lsof -Pi :4200 -sTCP:LISTEN -t >/dev/null 2>&1; then
+    echo "  ✅ Running"
+else
+    echo "  ❌ Not running"
+fi
+echo ""
+echo "Backend (port 8080):"
+if lsof -Pi :8080 -sTCP:LISTEN -t >/dev/null 2>&1; then
+    echo "  ✅ Running"
+    if curl -s http://localhost:8080/api/actuator/health >/dev/null 2>&1; then
+        echo "  ✅ Health check passed"
+    else
+        echo "  ⚠️  Health check failed"
+    fi
+else
+    echo "  ❌ Not running"
+fi
+echo ""
+echo "Database (port 5432):"
+if lsof -Pi :5432 -sTCP:LISTEN -t >/dev/null 2>&1; then
+    echo "  ✅ Running"
+else
+    echo "  ❌ Not running"
+fi
+echo ""
+echo "🐳 Docker services:"
+if command -v docker-compose &> /dev/null; then
+    docker-compose ps 2>/dev/null || echo "  No Docker services running"
+else
+    echo "  Docker Compose not available"
+fi
+```
+
+
 
 
