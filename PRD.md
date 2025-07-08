@@ -143,6 +143,7 @@ Build a cross-platform (web + mobile) job tracking system tailored for freelance
 * Email integration (view + template generation)
 * Dashboard (basic graphs)
 * In-app calendar with interview reminders
+* Integration with external calendar or notification systems
 * AI-powered job parsing from PDF, URLs, Outlook/Gmail
 * Help calculate reversion rate for better insights into revenue
 * Chrome extension (basic scraping)
