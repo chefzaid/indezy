@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Tests mapping between Freelance entities and FreelanceDto
  */
 @SpringBootTest
+@org.springframework.test.context.ActiveProfiles("test")
 class FreelanceMapperTest {
 
     @Autowired

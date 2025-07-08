@@ -22,6 +22,7 @@ import jakarta.annotation.PostConstruct;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Integration tests for Freelance functionality
@@ -52,9 +53,9 @@ class FreelanceIntegrationTest {
     @Test
     void createFreelance_WithValidData_ShouldCreateAndReturnFreelance() throws Exception {
         FreelanceDto freelanceDto = new FreelanceDto();
-        freelanceDto.setFirstName("Jane");
-        freelanceDto.setLastName("Smith");
-        freelanceDto.setEmail("jane.smith@example.com");
+        freelanceDto.setFirstName("Alice");
+        freelanceDto.setLastName("Johnson");
+        freelanceDto.setEmail("alice.johnson@example.com");
         freelanceDto.setPhone("123-456-7890");
         freelanceDto.setStatus(EmploymentStatus.FREELANCE);
 
@@ -62,9 +63,9 @@ class FreelanceIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(freelanceDto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.firstName", is("Jane")))
-                .andExpect(jsonPath("$.lastName", is("Smith")))
-                .andExpect(jsonPath("$.email", is("jane.smith@example.com")))
+                .andExpect(jsonPath("$.firstName", is("Alice")))
+                .andExpect(jsonPath("$.lastName", is("Johnson")))
+                .andExpect(jsonPath("$.email", is("alice.johnson@example.com")))
                 .andExpect(jsonPath("$.phone", is("123-456-7890")))
                 .andExpect(jsonPath("$.status", is("FREELANCE")))
                 .andExpect(jsonPath("$.id", notNullValue()));
@@ -169,18 +170,28 @@ class FreelanceIntegrationTest {
     void getAllFreelances_ShouldReturnFreelancesList() throws Exception {
         // Create a freelance first
         FreelanceDto freelanceDto = createValidFreelanceDto();
-        
-        mockMvc.perform(post("/freelances")
+
+        String response = mockMvc.perform(post("/freelances")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(freelanceDto)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        FreelanceDto createdFreelance = objectMapper.readValue(response, FreelanceDto.class);
 
         // Get all freelances
-        mockMvc.perform(get("/freelances"))
+        String allFreelancesResponse = mockMvc.perform(get("/freelances"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThan(0))))
-                .andExpect(jsonPath("$[1].firstName", is("Alice")))
-                .andExpect(jsonPath("$[1].lastName", is("Johnson")));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // Verify that our created freelance is in the list
+        assertTrue(allFreelancesResponse.contains("\"id\":" + createdFreelance.getId()));
+        assertTrue(allFreelancesResponse.contains("\"email\":\"alice.johnson@example.com\""));
     }
 
     @Test

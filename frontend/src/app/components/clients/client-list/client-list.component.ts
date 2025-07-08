@@ -197,8 +197,8 @@ export class ClientListComponent implements OnInit, OnDestroy {
     if (query.trim()) {
       if (this.searchType === 'CLIENT') {
         // Search by client name/info
-        // TODO: Get freelanceId from authentication context
-        const freelanceId = 1; // Temporary hardcoded value
+        // Using default freelanceId until authentication context is implemented
+        const freelanceId = 1;
         this.clientService.searchClients(freelanceId, query)
           .pipe(takeUntil(this.destroy$))
           .subscribe(clients => {

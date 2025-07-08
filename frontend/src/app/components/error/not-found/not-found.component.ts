@@ -39,7 +39,6 @@ export class NotFoundComponent {
   };
 
   goHome(): void {
-    // This method is called when retry is clicked, but we don't show retry for 404
-    // It's here for interface compliance
+    // Interface compliance method - not used for 404 pages
   }
 }

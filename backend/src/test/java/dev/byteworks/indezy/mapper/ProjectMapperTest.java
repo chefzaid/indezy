@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Tests mapping between Project entities and ProjectDto
  */
 @SpringBootTest
+@org.springframework.test.context.ActiveProfiles("test")
 class ProjectMapperTest {
 
     @Autowired

@@ -10,6 +10,11 @@ DELETE FROM projects;
 DELETE FROM sources;
 DELETE FROM clients;
 DELETE FROM freelances;
+DELETE FROM user_sessions;
+DELETE FROM user_security_questions;
+DELETE FROM user_skills;
+DELETE FROM user_languages;
+DELETE FROM users;
 
 -- Reset sequences
 ALTER SEQUENCE freelances_id_seq RESTART WITH 1;
@@ -18,6 +23,9 @@ ALTER SEQUENCE contacts_id_seq RESTART WITH 1;
 ALTER SEQUENCE projects_id_seq RESTART WITH 1;
 ALTER SEQUENCE sources_id_seq RESTART WITH 1;
 ALTER SEQUENCE interview_steps_id_seq RESTART WITH 1;
+ALTER SEQUENCE users_id_seq RESTART WITH 1;
+ALTER SEQUENCE user_sessions_id_seq RESTART WITH 1;
+ALTER SEQUENCE user_security_questions_id_seq RESTART WITH 1;
 
 -- Insert Freelances
 INSERT INTO freelances (id, first_name, last_name, email, phone, birth_date, address, city, status, notice_period_in_days, availability_date, reversion_rate, cv_file_path, password_hash, created_at, updated_at, version) VALUES
@@ -106,3 +114,27 @@ INSERT INTO interview_steps (id, title, date, status, notes, project_id, created
 (16, 'Audit sécurité initial', '2024-04-20 09:00:00', 'VALIDATED', 'Évaluation des besoins sécurité avec Nathalie Girard.', 6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
 (17, 'Présentation solution technique', '2024-04-25 15:00:00', 'WAITING_FEEDBACK', 'Solution blockchain présentée. Attente validation comité.', 6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
 (18, 'Entretien final', '2024-05-02 10:00:00', 'PLANNED', 'Entretien final avec la direction technique.', 6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
+
+-- Insert test user (using actual column names from User entity)
+-- Password is 'password123' hashed with BCrypt
+INSERT INTO users (id, first_name, last_name, email, phone, birth_date, address, city, avatar, bio, company, position, website, linkedin, github, timezone, currency, password_hash, last_password_change, theme, language_preference, date_format, time_format, default_view, items_per_page, auto_save, email_notifications, push_notifications, project_updates, client_messages, system_alerts, weekly_reports, marketing_emails, two_factor_enabled, created_at, updated_at, version) VALUES
+(1, 'John', 'Doe', 'john.doe@example.com', '+1234567890', '1990-01-01', '123 Main St', 'New York', 'avatar.jpg', 'Software developer', 'Tech Corp', 'Senior Developer', 'https://johndoe.com', 'https://linkedin.com/in/johndoe', 'https://github.com/johndoe', 'America/New_York', 'USD', '$2a$10$XgbOojgg.CTmnSP8gwpOT.aikY7bnfM4cgCrQhgJOh5UAY1lOpC9S', '2024-01-01 00:00:00', 'dark', 'en', 'MM/dd/yyyy', '12h', 'dashboard', 10, true, true, false, true, true, true, false, false, false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
+
+-- Insert test user skills
+INSERT INTO user_skills (user_id, skill) VALUES
+(1, 'JavaScript'),
+(1, 'TypeScript'),
+(1, 'Angular');
+
+-- Insert test user languages
+INSERT INTO user_languages (user_id, language) VALUES
+(1, 'English'),
+(1, 'French');
+
+-- Insert test user session
+INSERT INTO user_sessions (id, session_id, device, browser, location, ip_address, last_active, is_current, user_id, created_at, updated_at, version) VALUES
+(1, 'session1', 'Chrome on Windows', 'Chrome', 'New York, NY', '192.168.1.1', CURRENT_TIMESTAMP, true, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
+
+-- Insert test security question
+INSERT INTO user_security_questions (id, question, answer_hash, user_id, created_at, updated_at, version) VALUES
+(1, 'What is your mother''s maiden name?', '$2a$10$encrypted_answer_hash', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);

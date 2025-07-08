@@ -184,10 +184,7 @@ export class ProjectListComponent implements OnInit {
         return false;
       }
 
-      // TODO: Implement status filter when backend supports it
-      // if (filters.status && project.status !== filters.status) {
-      //   return false;
-      // }
+
 
       // Tech stack filter (legacy)
       if (filters.techStack && project.techStack &&
@@ -223,22 +220,7 @@ export class ProjectListComponent implements OnInit {
         }
       }
 
-      // TODO: Implement endDate filtering when backend supports it
-      // if (filters.endDateFrom && project.endDate) {
-      //   const endDate = new Date(project.endDate);
-      //   const filterDate = new Date(filters.endDateFrom);
-      //   if (endDate < filterDate) {
-      //     return false;
-      //   }
-      // }
 
-      // if (filters.endDateTo && project.endDate) {
-      //   const endDate = new Date(project.endDate);
-      //   const filterDate = new Date(filters.endDateTo);
-      //   if (endDate > filterDate) {
-      //     return false;
-      //   }
-      // }
 
       // Duration filter
       if (filters.duration && project.durationInMonths) {
@@ -268,21 +250,14 @@ export class ProjectListComponent implements OnInit {
       }
 
       // Client filter
-      if (filters.client && filters.client.trim()) {
+      if (filters.client?.trim()) {
         const clientQuery = filters.client.toLowerCase();
         if (!project.clientName?.toLowerCase().includes(clientQuery)) {
           return false;
         }
       }
 
-      // TODO: Implement location filtering when backend supports it
-      // if (filters.location && filters.location.trim()) {
-      //   const locationQuery = filters.location.toLowerCase();
-      //   const projectLocation = project.location?.toLowerCase() || '';
-      //   if (!projectLocation.includes(locationQuery)) {
-      //     return false;
-      //   }
-      // }
+
 
       return true;
     });
