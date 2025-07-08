@@ -61,6 +61,20 @@ Build a cross-platform (web + mobile) job tracking system tailored for freelance
 * By daily rate, location (based on distance from home), tech stack, match score
 * By start date, duration, and status
 
+### 4.5 Social & Networking Features
+
+* **Freelancer Network:** Connect with other freelancers as “contacts” or “friends”
+* **Project Sharing:** Recommend/forward a project to another freelancer in your network
+* **Lightweight Messaging:** Basic chat interface to communicate with contacts
+* **Freelancer Status:** Indicate availability (Actively Looking, Not Looking, Just Found a Project)
+
+  * Auto-reminder email if status is unchanged after 2 weeks
+* **Fidelity Points System:**
+
+  * Earn points by sharing jobs and interacting with community
+  * Future: points can unlock premium features
+* **Feature Requests Box:** Allow users to submit feature suggestions directly in-app
+
 ---
 
 ## **5. User Interface (UI/UX)**
@@ -133,121 +147,15 @@ Build a cross-platform (web + mobile) job tracking system tailored for freelance
 * Help calculate reversion rate for better insights into revenue
 * Chrome extension (basic scraping)
 * Advanced analytics: daily rate evolution, client rating, conversion funnel
+* Social graph for freelancers: see mutual connections, recommended contacts
+* Project recommendation engine based on peer shares and skill match
+* Gamification using fidelity points
+* Automated status update suggestions based on user behavior
+* Community board or chatroom for discussions (later phase)
 
 ---
 
-## **11. Data Model**
-
-**Written in pseudo-code**
-
-<details>
-<summary>Expand Data Model</summary>
-
-```
-entity Freelance {
-  firstName String required
-  lastName String required
-  email String required
-  phone String
-  birthDate Date
-  address String
-  city String
-  status EmploymentStatus
-  noticePeriodInDays Integer
-  availabilityDate Date
-  reversionRate Double
-  cv File
-  @OneToMany
-  projects List<Project>
-}
-
-entity Client {
-  companyName String required
-  adress String
-  city String required
-  domain String
-  final Boolean required
-  notes String
-  @OneToMany
-  projects List<Project>
-  @OneToMany
-  contacts List<Contact>
-}
-
-entity Project {
-  role String required
-  description String
-  techStack String
-  dailyRate Integer required
-  workMode WorkMode
-  remoteDaysPerMonth Integer (if hybrid)
-  onsiteDaysPerMonth Integer (if hybrid)
-  advantages String
-  startDate Date
-  durationInMonths Integer
-  orderRenewalInMonths Integer
-  daysPerYear Integer
-  documents List<File>
-  link String
-  source Source
-  personalRating Integer
-  notes String
-  @ManyToOne
-  middleman Client
-  @ManyToOne
-  client Client required
-  @ManyToOne
-  source Source
-  @OneToMany
-  steps List<InterviewStep>
-}
-
-entity InterviewStep {
-  title String required
-  date Date
-  status StepStatus required
-}
-
-entity Contact {
-  firstName String required
-  lastName String
-  email String
-  phone String
-  notes String
-}
-
-entity Source {
-  name String required
-  type SourceType required
-  link String
-  isListing Boolean
-  popularityRating Integer
-  usefulnessRating Integer
-  notes String
-}
-
-enum EmploymentStatus {
-  FREELANCE, PORTAGE, CDI
-}
-
-enum StepStatus {
-  VALIDATED, FAILED, PLANNED
-}
-
-enum SourceType {
-  JOB_BOARD, SOCIAL_MEDIA, EMAIL, CALL, SMS
-}
-
-enum WorkMode {
-  ONSITE, REMOTE, HYBRID
-}
-```
-
-</details>
-
----
-
-## **12. Tech Stack**
+## **11. Tech Stack**
 
 * **Frontend:** HTML + CSS + Material + Angular
 * **Backend:** Java 21 + Spring Boot + Lombok
