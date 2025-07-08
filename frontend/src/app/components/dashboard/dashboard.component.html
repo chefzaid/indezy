@@ -1,16 +1,42 @@
 <div class="dashboard-container">
         <!-- Welcome Section -->
         <div class="welcome-section">
-          <h1 class="welcome-title">
-            {{ getGreeting() }}, {{ currentUser?.firstName }} ! 👋
-          </h1>
-          <p class="welcome-subtitle">
-            Voici un aperçu de vos missions freelance
-          </p>
+          <div class="welcome-content">
+            <div class="welcome-text">
+              <h1 class="welcome-title">
+                {{ getGreeting() }}, {{ currentUser?.firstName }} ! 👋
+              </h1>
+              <p class="welcome-subtitle">
+                Voici un aperçu de vos missions freelance
+              </p>
+            </div>
+            <div class="view-toggle">
+              <mat-button-toggle-group
+                [value]="viewMode"
+                (change)="switchView($event.value)"
+                aria-label="Mode d'affichage">
+                <mat-button-toggle value="overview" matTooltip="Vue d'ensemble">
+                  <mat-icon>dashboard</mat-icon>
+                  Aperçu
+                </mat-button-toggle>
+                <mat-button-toggle value="kanban" matTooltip="Tableau Kanban">
+                  <mat-icon>view_kanban</mat-icon>
+                  Kanban
+                </mat-button-toggle>
+              </mat-button-toggle-group>
+            </div>
+          </div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="stats-grid">
+        <!-- Kanban Board Mode -->
+        <div class="kanban-mode" *ngIf="viewMode === 'kanban'">
+          <app-kanban-board></app-kanban-board>
+        </div>
+
+        <!-- Overview Mode -->
+        <div class="overview-content" *ngIf="isOverviewMode()">
+          <!-- Stats Cards -->
+          <div class="stats-grid">
           <mat-card class="stat-card">
             <mat-card-content>
               <div class="stat-content">
@@ -120,5 +146,8 @@
               </mat-card-content>
             </mat-card>
           </ng-template>
+        </div>
+
+
   </div>
 </div>

@@ -5,6 +5,38 @@
 
 .welcome-section {
   margin-bottom: 32px;
+
+  .welcome-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .welcome-text {
+    flex: 1;
+  }
+
+  .view-toggle {
+    mat-button-toggle-group {
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      mat-button-toggle {
+        border: none;
+
+        &.mat-button-toggle-checked {
+          background-color: #2196f3;
+          color: white;
+        }
+
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
 }
 
 .welcome-title {
@@ -179,6 +211,21 @@
   }
 }
 
+// View mode specific styles
+.overview-content {
+  // Existing styles are already applied to the content
+}
+
+.kanban-content {
+  // Remove default dashboard padding for full-width kanban board
+  margin: -20px;
+
+  app-kanban-board {
+    display: block;
+    height: calc(100vh - 120px); // Adjust based on header height
+  }
+}
+
 // Responsive design
 @media (max-width: 768px) {
   .dashboard-container {
@@ -202,5 +249,30 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+
+  .welcome-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .view-toggle {
+    width: 100%;
+
+    mat-button-toggle-group {
+      width: 100%;
+
+      mat-button-toggle {
+        flex: 1;
+      }
+    }
+  }
+
+  .kanban-content {
+    margin: -16px;
+
+    app-kanban-board {
+      height: calc(100vh - 100px);
+    }
   }
 }

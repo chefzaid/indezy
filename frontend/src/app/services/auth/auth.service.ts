@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, LoginResponse, RegisterRequest, User } from '../../models/auth.models';
@@ -22,55 +23,23 @@ export class AuthService {
   ) {}
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    // TODO: Replace mock login with real API call when backend is ready
-    return new Observable(observer => {
-      setTimeout(() => {
-        if (credentials.email && credentials.password) {
-          const mockResponse: LoginResponse = {
-            token: 'mock-jwt-token-' + Date.now(), // TODO: Replace with real JWT token from backend
-            user: {
-              id: 1, // TODO: Get real user ID from backend response
-              email: credentials.email,
-              firstName: 'John', // TODO: Get real user data from backend response
-              lastName: 'Doe' // TODO: Get real user data from backend response
-            }
-          };
-          this.setToken(mockResponse.token);
-          this.setUser(mockResponse.user);
-          this.currentUserSubject.next(mockResponse.user);
-          observer.next(mockResponse);
-          observer.complete();
-        } else {
-          observer.error({ status: 401, message: 'Invalid credentials' });
-        }
-      }, 1000); // TODO: Remove artificial delay when using real API
-    });
+    return this.http.post<LoginResponse>(`${this.API_URL}/login`, credentials).pipe(
+      tap((response: LoginResponse) => {
+        this.setToken(response.token);
+        this.setUser(response.user);
+        this.currentUserSubject.next(response.user);
+      })
+    );
   }
 
   register(userData: RegisterRequest): Observable<LoginResponse> {
-    // TODO: Replace mock register with real API call when backend is ready
-    return new Observable(observer => {
-      setTimeout(() => {
-        if (userData.email && userData.password && userData.firstName && userData.lastName) {
-          const mockResponse: LoginResponse = {
-            token: 'mock-jwt-token-' + Date.now(), // TODO: Replace with real JWT token from backend
-            user: {
-              id: 1, // TODO: Get real user ID from backend response
-              email: userData.email,
-              firstName: userData.firstName,
-              lastName: userData.lastName
-            }
-          };
-          this.setToken(mockResponse.token);
-          this.setUser(mockResponse.user);
-          this.currentUserSubject.next(mockResponse.user);
-          observer.next(mockResponse);
-          observer.complete();
-        } else {
-          observer.error({ status: 400, message: 'Invalid user data' });
-        }
-      }, 1000); // TODO: Remove artificial delay when using real API
-    });
+    return this.http.post<LoginResponse>(`${this.API_URL}/register`, userData).pipe(
+      tap((response: LoginResponse) => {
+        this.setToken(response.token);
+        this.setUser(response.user);
+        this.currentUserSubject.next(response.user);
+      })
+    );
   }
 
   logout(): void {
@@ -94,12 +63,7 @@ export class AuthService {
       return false;
     }
 
-    // TODO: Remove mock token handling when real JWT validation is implemented
-    if (token.startsWith('mock-jwt-token-')) {
-      return this.getUser() !== null;
-    }
-
-    // Check if real JWT token is expired (basic check)
+    // Check if JWT token is expired (basic check)
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const currentTime = Math.floor(Date.now() / 1000);

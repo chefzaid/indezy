@@ -16,7 +16,7 @@ describe('AuthService', () => {
   };
 
   const mockLoginResponse: LoginResponse = {
-    token: 'mock-jwt-token-123456789',
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwidXNlcklkIjoxLCJpYXQiOjE2MzQ1Njc4OTAsImV4cCI6MTYzNDY1NDI5MH0.test-signature',
     user: {
       id: 1,
       email: 'test@example.com',
@@ -63,44 +63,52 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should login successfully with valid credentials', (done) => {
+    it('should login successfully with valid credentials', () => {
       service.login(mockLoginRequest).subscribe({
         next: (response) => {
-          expect(response.token).toMatch(/^mock-jwt-token-\d+$/);
+          expect(response.token).toBe(mockLoginResponse.token);
           expect(response.user).toEqual(mockLoginResponse.user);
           expect(localStorage.setItem).toHaveBeenCalledWith('indezy_token', response.token);
           expect(localStorage.setItem).toHaveBeenCalledWith('indezy_user', JSON.stringify(response.user));
-          done();
         }
       });
+
+      const req = httpMock.expectOne('http://localhost:8080/api/auth/login');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(mockLoginRequest);
+      req.flush(mockLoginResponse);
     });
 
-    it('should handle login error with invalid credentials', (done) => {
+    it('should handle login error with invalid credentials', () => {
       const invalidCredentials = { email: '', password: '' };
-      
+
       service.login(invalidCredentials).subscribe({
         error: (error) => {
           expect(error.status).toBe(401);
-          expect(error.message).toBe('Invalid credentials');
-          done();
         }
       });
+
+      const req = httpMock.expectOne('http://localhost:8080/api/auth/login');
+      expect(req.request.method).toBe('POST');
+      req.flush({}, { status: 401, statusText: 'Unauthorized' });
     });
 
-    it('should update currentUser$ observable on successful login', (done) => {
+    it('should update currentUser$ observable on successful login', () => {
+      service.login(mockLoginRequest).subscribe();
+
+      const req = httpMock.expectOne('http://localhost:8080/api/auth/login');
+      req.flush(mockLoginResponse);
+
       service.currentUser$.subscribe(user => {
         if (user) {
           expect(user).toEqual(mockLoginResponse.user);
-          done();
         }
       });
-
-      service.login(mockLoginRequest).subscribe();
     });
   });
 
   describe('register', () => {
-    it('should register successfully with valid data', (done) => {
+    it('should register successfully with valid data', () => {
       service.register(mockRegisterRequest).subscribe({
         next: (response) => {
           expect(response.user.email).toBe(mockRegisterRequest.email);
@@ -108,21 +116,27 @@ describe('AuthService', () => {
           expect(response.user.lastName).toBe(mockRegisterRequest.lastName);
           expect(localStorage.setItem).toHaveBeenCalledWith('indezy_token', jasmine.any(String));
           expect(localStorage.setItem).toHaveBeenCalledWith('indezy_user', jasmine.any(String));
-          done();
         }
       });
+
+      const req = httpMock.expectOne('http://localhost:8080/api/auth/register');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(mockRegisterRequest);
+      req.flush(mockLoginResponse);
     });
 
-    it('should handle registration error with invalid data', (done) => {
+    it('should handle registration error with invalid data', () => {
       const invalidData = { firstName: '', lastName: '', email: '', password: '' };
-      
+
       service.register(invalidData).subscribe({
         error: (error) => {
           expect(error.status).toBe(400);
-          expect(error.message).toBe('Invalid user data');
-          done();
         }
       });
+
+      const req = httpMock.expectOne('http://localhost:8080/api/auth/register');
+      expect(req.request.method).toBe('POST');
+      req.flush({}, { status: 400, statusText: 'Bad Request' });
     });
   });
 

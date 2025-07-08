@@ -10,6 +10,7 @@ export * from './project.models';
 export * from './source.models';
 export * from './freelance.models';
 export * from './user-management.models';
+export * from './interview-step.models';
 
 // UI and filter models
 export * from './filter.models';

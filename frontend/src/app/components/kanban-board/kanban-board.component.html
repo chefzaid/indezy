@@ -1,0 +1,163 @@
+<div class="kanban-board-container">
+  <div class="board-header">
+    <h2>Tableau de bord - Suivi des entretiens</h2>
+    <button mat-icon-button (click)="loadKanbanBoard()" [disabled]="isLoading" matTooltip="Actualiser">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </div>
+
+  <div class="kanban-board" *ngIf="kanbanBoard && !isLoading">
+    <div class="step-column" *ngFor="let stepTitle of getStepColumns()">
+      <div class="column-header">
+        <h3>{{ stepTitle }}</h3>
+        <span class="project-count">{{ getProjectsForStep(stepTitle).length }}</span>
+      </div>
+
+      <div 
+        class="project-list"
+        cdkDropList
+        [id]="getStepColumnId(stepTitle)"
+        [cdkDropListData]="getProjectsForStep(stepTitle)"
+        [cdkDropListConnectedTo]="getConnectedDropLists()"
+        (cdkDropListDropped)="onCardDrop($event)">
+        
+        <div 
+          class="project-card"
+          *ngFor="let card of getProjectsForStep(stepTitle)"
+          cdkDrag>
+          
+          <mat-card class="card-content">
+            <mat-card-header>
+              <mat-card-title>{{ card.role }}</mat-card-title>
+              <mat-card-subtitle *ngIf="card.clientName">{{ card.clientName }}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="card-info">
+                <div class="rate-info" *ngIf="card.dailyRate">
+                  <mat-icon>euro</mat-icon>
+                  <span>{{ formatCurrency(card.dailyRate) }}/jour</span>
+                </div>
+                
+                <div class="work-mode" *ngIf="card.workMode">
+                  <mat-icon>location_on</mat-icon>
+                  <span>{{ card.workMode }}</span>
+                </div>
+              </div>
+
+              <div class="tech-stack" *ngIf="card.techStack">
+                <mat-icon>code</mat-icon>
+                <span>{{ card.techStack }}</span>
+              </div>
+
+              <div class="status-info">
+                <mat-chip 
+                  [style.background-color]="getStatusChipColor(card.currentStepStatus)"
+                  [style.color]="'white'">
+                  {{ getStatusLabel(card.currentStepStatus) }}
+                </mat-chip>
+              </div>
+
+              <div class="date-info" *ngIf="card.currentStepDate">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ formatDate(card.currentStepDate) }}</span>
+              </div>
+
+              <div class="progress-info">
+                <div class="progress-text">
+                  <span>Progression: {{ card.completedSteps }}/{{ card.totalSteps }}</span>
+                  <span class="progress-percentage">{{ getProgressPercentage(card) }}%</span>
+                </div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="getProgressPercentage(card)"
+                  [color]="card.failedSteps > 0 ? 'warn' : 'primary'">
+                </mat-progress-bar>
+              </div>
+
+              <div class="notes" *ngIf="card.notes">
+                <mat-icon>note</mat-icon>
+                <span>{{ card.notes }}</span>
+              </div>
+            </mat-card-content>
+
+            <mat-card-actions>
+              <button mat-icon-button [matMenuTriggerFor]="cardMenu" matTooltip="Actions">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+
+              <mat-menu #cardMenu="matMenu">
+                <button mat-menu-item (click)="onScheduleStep(card)">
+                  <mat-icon>schedule</mat-icon>
+                  <span>Planifier</span>
+                </button>
+                <button mat-menu-item (click)="onMarkAsWaitingFeedback(card)">
+                  <mat-icon>hourglass_empty</mat-icon>
+                  <span>En attente de retour</span>
+                </button>
+                <button mat-menu-item (click)="onMarkAsValidated(card)">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Marquer comme validé</span>
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="onMarkAsFailed(card)" class="warn-action">
+                  <mat-icon>cancel</mat-icon>
+                  <span>Marquer comme échoué</span>
+                </button>
+                <button mat-menu-item (click)="onMarkAsCanceled(card)" class="warn-action">
+                  <mat-icon>block</mat-icon>
+                  <span>Annuler</span>
+                </button>
+              </mat-menu>
+            </mat-card-actions>
+          </mat-card>
+
+          <!-- Drag placeholder -->
+          <div class="drag-placeholder" *cdkDragPlaceholder></div>
+        </div>
+
+        <!-- Empty state for columns -->
+        <div class="empty-column" *ngIf="getProjectsForStep(stepTitle).length === 0">
+          <mat-icon>work_off</mat-icon>
+          <p>Aucun projet à cette étape</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state for entire board -->
+  <div class="empty-board" *ngIf="isBoardEmpty()">
+    <mat-card>
+      <mat-card-content>
+        <div class="empty-content">
+          <mat-icon class="empty-icon">dashboard</mat-icon>
+          <h3>Aucun projet en cours</h3>
+          <p>Commencez par ajouter votre premier projet pour voir le tableau de bord !</p>
+          <button mat-raised-button color="primary" routerLink="/projects/new">
+            Ajouter un projet
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Error/No data state -->
+  <div class="no-data-state" *ngIf="!kanbanBoard && !isLoading">
+    <mat-card>
+      <mat-card-content>
+        <div class="empty-content">
+          <mat-icon class="empty-icon">error_outline</mat-icon>
+          <h3>Impossible de charger le tableau</h3>
+          <p>Une erreur s'est produite lors du chargement des données.</p>
+          <button mat-raised-button color="primary" (click)="loadKanbanBoard()">
+            Réessayer
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

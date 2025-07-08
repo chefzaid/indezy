@@ -1,0 +1,75 @@
+<div class="schedule-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>schedule</mat-icon>
+    Planifier l'entretien
+  </h2>
+
+  <mat-dialog-content>
+    <div class="project-info">
+      <h3>{{ data.projectCard.role }}</h3>
+      <p *ngIf="data.projectCard.clientName">{{ data.projectCard.clientName }}</p>
+      <p class="current-step">Étape: {{ data.projectCard.currentStepTitle }}</p>
+    </div>
+
+    <form [formGroup]="scheduleForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>Date</mat-label>
+          <input 
+            matInput 
+            [matDatepicker]="datePicker" 
+            formControlName="date"
+            [matDatepickerFilter]="dateFilter"
+            readonly>
+          <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
+          <mat-datepicker #datePicker></mat-datepicker>
+          <mat-error *ngIf="scheduleForm.get('date')?.hasError('required')">
+            La date est requise
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="time-field">
+          <mat-label>Heure</mat-label>
+          <input 
+            matInput 
+            type="time" 
+            formControlName="time"
+            placeholder="HH:MM">
+          <mat-icon matSuffix>access_time</mat-icon>
+          <mat-error *ngIf="scheduleForm.get('time')?.hasError('required')">
+            L'heure est requise
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Notes (optionnel)</mat-label>
+        <textarea 
+          matInput 
+          formControlName="notes"
+          rows="3"
+          placeholder="Ajouter des notes sur cet entretien..."></textarea>
+        <mat-icon matSuffix>note</mat-icon>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button 
+      mat-button 
+      type="button" 
+      (click)="onCancel()"
+      [disabled]="isSubmitting">
+      Annuler
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSubmit()"
+      [disabled]="scheduleForm.invalid || isSubmitting">
+      <mat-icon *ngIf="isSubmitting">hourglass_empty</mat-icon>
+      <mat-icon *ngIf="!isSubmitting">schedule</mat-icon>
+      {{ isSubmitting ? 'Planification...' : 'Planifier' }}
+    </button>
+  </mat-dialog-actions>
+</div>
