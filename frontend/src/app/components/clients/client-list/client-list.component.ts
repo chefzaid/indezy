@@ -381,6 +381,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
       }
 
       // TODO: Implement lastContactDate filtering when backend supports it
+      // TODO: Uncomment and implement when lastContactDate field is added to ClientDto
       // if (filters.lastContactFrom && client.lastContactDate) {
       //   const lastContactDate = new Date(client.lastContactDate);
       //   const filterDate = new Date(filters.lastContactFrom);
@@ -427,9 +428,9 @@ export class ClientListComponent implements OnInit, OnDestroy {
           bValue = b.createdAt ? new Date(b.createdAt).getTime() : 0;
           break;
         case 'lastContact':
-          // TODO: Implement when backend supports lastContactDate
-          aValue = 0;
-          bValue = 0;
+          // TODO: Implement when backend supports lastContactDate field in ClientDto
+          aValue = 0; // TODO: Replace with actual lastContactDate comparison
+          bValue = 0; // TODO: Replace with actual lastContactDate comparison
           break;
         case 'projectCount':
           aValue = a.totalProjects || 0;
@@ -500,7 +501,8 @@ export class ClientListComponent implements OnInit, OnDestroy {
   }
 
   editClient(client: ClientDto): void {
-    // Navigate to edit form or open edit dialog
+    // TODO: Navigate to edit form or open edit dialog
     // TODO: Implement client editing functionality
+    console.warn('Client editing not yet implemented', client);
   }
 }

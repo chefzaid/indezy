@@ -22,17 +22,17 @@ export class AuthService {
   ) {}
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    // Mock login for development - replace with real API call when backend is ready
+    // TODO: Replace mock login with real API call when backend is ready
     return new Observable(observer => {
       setTimeout(() => {
         if (credentials.email && credentials.password) {
           const mockResponse: LoginResponse = {
-            token: 'mock-jwt-token-' + Date.now(),
+            token: 'mock-jwt-token-' + Date.now(), // TODO: Replace with real JWT token from backend
             user: {
-              id: 1,
+              id: 1, // TODO: Get real user ID from backend response
               email: credentials.email,
-              firstName: 'John',
-              lastName: 'Doe'
+              firstName: 'John', // TODO: Get real user data from backend response
+              lastName: 'Doe' // TODO: Get real user data from backend response
             }
           };
           this.setToken(mockResponse.token);
@@ -43,19 +43,19 @@ export class AuthService {
         } else {
           observer.error({ status: 401, message: 'Invalid credentials' });
         }
-      }, 1000);
+      }, 1000); // TODO: Remove artificial delay when using real API
     });
   }
 
   register(userData: RegisterRequest): Observable<LoginResponse> {
-    // Mock register for development - replace with real API call when backend is ready
+    // TODO: Replace mock register with real API call when backend is ready
     return new Observable(observer => {
       setTimeout(() => {
         if (userData.email && userData.password && userData.firstName && userData.lastName) {
           const mockResponse: LoginResponse = {
-            token: 'mock-jwt-token-' + Date.now(),
+            token: 'mock-jwt-token-' + Date.now(), // TODO: Replace with real JWT token from backend
             user: {
-              id: 1,
+              id: 1, // TODO: Get real user ID from backend response
               email: userData.email,
               firstName: userData.firstName,
               lastName: userData.lastName
@@ -69,7 +69,7 @@ export class AuthService {
         } else {
           observer.error({ status: 400, message: 'Invalid user data' });
         }
-      }, 1000);
+      }, 1000); // TODO: Remove artificial delay when using real API
     });
   }
 
@@ -94,7 +94,7 @@ export class AuthService {
       return false;
     }
 
-    // For mock tokens, just check if token exists and user exists
+    // TODO: Remove mock token handling when real JWT validation is implemented
     if (token.startsWith('mock-jwt-token-')) {
       return this.getUser() !== null;
     }

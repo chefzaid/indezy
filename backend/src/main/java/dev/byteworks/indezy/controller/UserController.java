@@ -29,8 +29,8 @@ public class UserController {
 
     private final UserService userService;
 
-    // For now, we'll use a hardcoded user ID until authentication is implemented
-    private static final Long CURRENT_USER_ID = 1L;
+    // TODO: Replace hardcoded user ID with authenticated user context
+    private static final Long CURRENT_USER_ID = 1L; // TODO: Get from SecurityContext when authentication is implemented
 
     @GetMapping("/profile")
     @Operation(summary = "Get user profile", description = "Retrieve the current user's profile information")

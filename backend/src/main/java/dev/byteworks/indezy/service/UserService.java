@@ -1,5 +1,6 @@
 package dev.byteworks.indezy.service;
 
+import dev.byteworks.indezy.constants.ErrorMessages;
 import dev.byteworks.indezy.dto.*;
 import dev.byteworks.indezy.exception.ResourceNotFoundException;
 import dev.byteworks.indezy.mapper.UserMapper;
@@ -19,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -42,7 +42,7 @@ public class UserService {
     public UserDto getUserProfile(Long userId) {
         log.debug("Getting user profile for user ID: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
         return userMapper.toDto(user);
     }
 
@@ -52,7 +52,7 @@ public class UserService {
     public UserDto updateUserProfile(Long userId, UserDto userDto) {
         log.debug("Updating user profile for user ID: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
         
         userMapper.updateEntity(userDto, user);
         User savedUser = userRepository.save(user);
@@ -65,7 +65,7 @@ public class UserService {
     public String uploadAvatar(Long userId, MultipartFile file) throws IOException {
         log.debug("Uploading avatar for user ID: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
 
         // Create upload directory if it doesn't exist
         Path uploadPath = Paths.get(UPLOAD_DIR);
@@ -102,7 +102,7 @@ public class UserService {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
 
         // Verify current password
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
@@ -124,7 +124,7 @@ public class UserService {
     public UserPreferencesDto getUserPreferences(Long userId) {
         log.debug("Getting user preferences for user ID: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
         return userMapper.toPreferencesDto(user);
     }
 
@@ -134,7 +134,7 @@ public class UserService {
     public UserPreferencesDto updateUserPreferences(Long userId, UserPreferencesDto preferencesDto) {
         log.debug("Updating user preferences for user ID: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
         
         userMapper.updatePreferences(preferencesDto, user);
         User savedUser = userRepository.save(user);
@@ -148,7 +148,7 @@ public class UserService {
     public UserNotificationSettingsDto getNotificationSettings(Long userId) {
         log.debug("Getting notification settings for user ID: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
         return userMapper.toNotificationSettingsDto(user);
     }
 
@@ -158,7 +158,7 @@ public class UserService {
     public UserNotificationSettingsDto updateNotificationSettings(Long userId, UserNotificationSettingsDto settingsDto) {
         log.debug("Updating notification settings for user ID: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
         
         userMapper.updateNotificationSettings(settingsDto, user);
         User savedUser = userRepository.save(user);
@@ -172,7 +172,7 @@ public class UserService {
     public UserSecuritySettingsDto getSecuritySettings(Long userId) {
         log.debug("Getting security settings for user ID: {}", userId);
         User user = userRepository.findByIdWithSecurityData(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
         return userMapper.toSecuritySettingsDto(user);
     }
 
@@ -182,15 +182,15 @@ public class UserService {
     public String enableTwoFactor(Long userId) {
         log.debug("Enabling 2FA for user ID: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
 
-        // Generate secret and QR code (simplified implementation)
-        String secret = UUID.randomUUID().toString();
+        // TODO: Replace with proper TOTP secret generation and QR code creation
+        String secret = UUID.randomUUID().toString(); // TODO: Generate proper TOTP secret
         user.setTwoFactorSecret(secret);
         user.setTwoFactorEnabled(true);
         userRepository.save(user);
 
-        // In a real implementation, this would generate a proper QR code
+        // TODO: Generate proper QR code with TOTP URI for authenticator apps
         return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
     }
 
@@ -200,10 +200,10 @@ public class UserService {
     public boolean disableTwoFactor(Long userId, String code) {
         log.debug("Disabling 2FA for user ID: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
 
-        // In a real implementation, this would verify the TOTP code
-        // For now, we'll accept any 6-digit code
+        // TODO: Implement proper TOTP code verification
+        // TODO: Replace with actual TOTP validation using user's secret
         if (code == null || code.length() != 6) {
             throw new IllegalArgumentException("Invalid verification code");
         }
@@ -238,7 +238,7 @@ public class UserService {
     public boolean deleteAccount(Long userId, String password) {
         log.debug("Deleting account for user ID: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
 
         // Verify password
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
@@ -256,18 +256,18 @@ public class UserService {
     public byte[] exportUserData(Long userId) {
         log.debug("Exporting user data for user ID: {}", userId);
         User user = userRepository.findByIdWithSecurityData(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
 
         UserDto userDto = userMapper.toDto(user);
         
-        // Convert to JSON (simplified implementation)
+        // TODO: Replace with proper JSON serialization and include all user data
         String jsonData = "{\n" +
                 "  \"profile\": {\n" +
                 "    \"firstName\": \"" + userDto.getFirstName() + "\",\n" +
                 "    \"lastName\": \"" + userDto.getLastName() + "\",\n" +
                 "    \"email\": \"" + userDto.getEmail() + "\"\n" +
                 "  }\n" +
-                "}";
+                "}"; // TODO: Include all user data (projects, clients, contacts, etc.)
 
         return jsonData.getBytes();
     }
@@ -279,7 +279,7 @@ public class UserService {
     public UserDto findByEmail(String email) {
         log.debug("Finding user by email: {}", email);
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_EMAIL_NOT_FOUND, email)));
         return userMapper.toDto(user);
     }
 

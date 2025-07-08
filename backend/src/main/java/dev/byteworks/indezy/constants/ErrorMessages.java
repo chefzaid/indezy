@@ -49,4 +49,8 @@ public final class ErrorMessages {
     public static final String FILE_UPLOAD_FAILED = "Failed to upload file: %s";
     public static final String INVALID_FILE_TYPE = "Invalid file type. Allowed types: %s";
     public static final String FILE_SIZE_EXCEEDED = "File size exceeds maximum allowed size of %d MB";
+
+    // User related error messages
+    public static final String USER_NOT_FOUND = "User not found with id: %d";
+    public static final String USER_EMAIL_NOT_FOUND = "User not found with email: %s";
 }

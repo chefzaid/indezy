@@ -78,8 +78,8 @@ export class ContactService {
 
   searchContacts(query: string): Observable<ContactDto[]> {
     // For backward compatibility, search by name for the current freelance
-    // Using default freelanceId until authentication context is implemented
-    const freelanceId = 1;
+    // TODO: Replace hardcoded freelanceId with authenticated user context
+    const freelanceId = 1; // TODO: Get from authentication service
     return this.searchByName(freelanceId, query);
   }
 

@@ -39,6 +39,7 @@ export class NotFoundComponent {
   };
 
   goHome(): void {
-    // Interface compliance method - not used for 404 pages
+    // TODO: Implement navigation to home page if needed
+    // Currently not used for 404 pages as showRetry is false
   }
 }

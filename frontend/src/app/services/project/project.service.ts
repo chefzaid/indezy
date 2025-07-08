@@ -25,9 +25,10 @@ export class ProjectService {
   }
 
   getById(id: number): Observable<ProjectDto> {
-    // Mock data for development - replace with real API call when backend is ready
+    // TODO: Replace mock data with real API call when backend is ready
     return new Observable(observer => {
       setTimeout(() => {
+        // TODO: Remove mock data and use real API endpoint
         const mockProjects: ProjectDto[] = [
           {
             id: 1,
@@ -122,7 +123,7 @@ export class ProjectService {
           observer.error(new Error('Project not found'));
         }
         observer.complete();
-      }, 300);
+      }, 300); // TODO: Remove artificial delay when using real API
     });
   }
 
@@ -131,9 +132,10 @@ export class ProjectService {
   }
 
   getByFreelanceId(freelanceId: number): Observable<ProjectDto[]> {
-    // Mock data for development - replace with real API call when backend is ready
+    // TODO: Replace mock data with real API call when backend is ready
     return new Observable(observer => {
       setTimeout(() => {
+        // TODO: Remove mock data and use real API endpoint
         const mockProjects: ProjectDto[] = [
           {
             id: 1,
@@ -174,7 +176,7 @@ export class ProjectService {
         ];
         observer.next(mockProjects);
         observer.complete();
-      }, 500);
+      }, 500); // TODO: Remove artificial delay when using real API
     });
   }
 
