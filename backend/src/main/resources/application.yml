@@ -80,5 +80,8 @@ cors:
 logging:
   level:
     dev.byteworks.indezy: DEBUG
-    org.springframework.security: INFO
-    org.hibernate.SQL: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    

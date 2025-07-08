@@ -52,6 +52,8 @@ Run `mask` or `mask --help` to see all available commands.
 ### Information
 - `mask info` - Show environment information
 - `mask status` - Show service status
+- `mask stop` - Stop all running services
+- `mask logs` - View backend logs
 
 ## install-backend
 
@@ -320,15 +322,21 @@ cd ..
 echo "🚀 Starting backend with H2..."
 cd backend
 if [[ -f "mvnw.cmd" ]]; then
-    # Windows: Start in background using cmd.exe
-    cmd.exe /c "mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local"
+    # Windows: Start backend in a new window
+    echo "Starting backend in new window..."
+    cmd.exe /c "start mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local"
+    echo "Backend started in separate window"
 else
     # Unix: Start in background
     chmod +x mvnw 2>/dev/null || true
-    ./mvnw spring-boot:run -Dspring-boot.run.profiles=local &
+    nohup ./mvnw spring-boot:run -Dspring-boot.run.profiles=local > ../backend.log 2>&1 &
+    BACKEND_PID=$!
+    echo "Backend started with PID: $BACKEND_PID"
 fi
 cd ..
 echo "⏳ Waiting for backend to start..."
+echo "💡 You can monitor backend logs with: mask logs"
+echo "💡 You can stop all services with: mask stop"
 sleep 10
 echo "🚀 Starting frontend..."
 cd frontend
@@ -398,12 +406,16 @@ sleep 10
 echo "🚀 Starting backend..."
 cd backend
 if [[ -f "mvnw.cmd" ]]; then
-    # Windows: Start in background using cmd.exe
-    cmd.exe /c "start /B mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=devcontainer"
+    # Windows: Start backend in a new window
+    echo "Starting backend in new window..."
+    cmd.exe /c "start mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=devcontainer"
+    echo "Backend started in separate window"
 else
     # Unix: Start in background
     chmod +x mvnw 2>/dev/null || true
-    ./mvnw spring-boot:run -Dspring-boot.run.profiles=devcontainer &
+    nohup ./mvnw spring-boot:run -Dspring-boot.run.profiles=devcontainer > ../backend.log 2>&1 &
+    BACKEND_PID=$!
+    echo "Backend started with PID: $BACKEND_PID"
 fi
 cd ..
 echo "⏳ Waiting for backend to start..."
@@ -526,5 +538,52 @@ if command -v docker-compose &> /dev/null; then
     docker-compose ps 2>/dev/null || echo "  No Docker services running"
 else
     echo "  Docker Compose not available"
+fi
+```
+
+## stop
+
+> Stop all running services
+
+```bash
+echo "🛑 Stopping all services..."
+
+# Stop backend processes
+echo "Stopping backend processes..."
+if [[ -f "backend.log" ]]; then
+    # Try to find and kill backend processes
+    pkill -f "spring-boot:run" 2>/dev/null || true
+    pkill -f "mvnw" 2>/dev/null || true
+    echo "Backend processes stopped"
+else
+    echo "No backend log file found"
+fi
+
+# Stop frontend processes (if running)
+echo "Stopping frontend processes..."
+pkill -f "ng serve" 2>/dev/null || true
+pkill -f "npm start" 2>/dev/null || true
+
+# Stop Docker services
+echo "Stopping Docker services..."
+if command -v docker-compose &> /dev/null; then
+    docker-compose down 2>/dev/null || true
+fi
+
+echo "✅ All services stopped"
+```
+
+## logs
+
+> View backend logs
+
+```bash
+if [[ -f "backend.log" ]]; then
+    echo "📋 Backend logs (last 50 lines):"
+    echo "=================================="
+    tail -f backend.log
+else
+    echo "❌ Backend log file not found"
+    echo "Make sure you've started the backend with 'mask run-local' or 'mask run-dev'"
 fi
 ```

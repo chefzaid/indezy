@@ -56,16 +56,22 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
+        // Set allowed origins
         configuration.setAllowedOrigins(getAllowedOrigins());
+        // Set allowed methods
         configuration.setAllowedMethods(getAllowedMethods());
+        // Set allowed headers
         configuration.setAllowedHeaders(getAllowedHeaders());
-        configuration.setAllowCredentials(isAllowCredentials());
 
-        // Allow common headers
+        // Always allow common headers explicitly
         configuration.addAllowedHeader("Authorization");
         configuration.addAllowedHeader("Content-Type");
         configuration.addAllowedHeader("Accept");
         configuration.addAllowedHeader("X-Requested-With");
+        configuration.addAllowedHeader("Origin");
+
+        // Set credentials
+        configuration.setAllowCredentials(isAllowCredentials());
 
         // Expose headers that the client can access
         configuration.addExposedHeader("Authorization");
