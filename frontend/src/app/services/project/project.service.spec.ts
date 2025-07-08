@@ -87,47 +87,76 @@ describe('ProjectService', () => {
   });
 
   describe('getById', () => {
-    it('should fetch project by id', (done) => {
+    it('should fetch project by id', () => {
       const projectId = 1;
 
       service.getById(projectId).subscribe(project => {
-        expect(project).toBeDefined();
-        expect(project?.id).toBe(1);
-        expect(project?.role).toBe('Développeur Full Stack');
-        expect(project?.clientName).toBe('TechCorp');
-        expect(project?.workMode).toBe('HYBRID');
-        done();
+        expect(project).toEqual(mockProject);
+        expect(project.id).toBe(projectId);
       });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/projects/${projectId}`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockProject);
     });
 
-    it('should return error for non-existent project', (done) => {
+    it('should handle error when project not found', () => {
       const projectId = 999;
 
       service.getById(projectId).subscribe({
-        next: () => {
-          fail('Expected error but got success');
-        },
+        next: () => fail('Expected error'),
         error: (error) => {
-          expect(error.message).toBe('Project not found');
-          done();
+          expect(error.status).toBe(404);
         }
       });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/projects/${projectId}`);
+      req.flush('Project not found', { status: 404, statusText: 'Not Found' });
     });
   });
 
   describe('getByFreelanceId', () => {
-    it('should fetch projects by freelance id', (done) => {
+    it('should fetch projects by freelance id', () => {
       const freelanceId = 1;
 
       service.getByFreelanceId(freelanceId).subscribe(projects => {
-        expect(projects).toBeDefined();
-        expect(projects.length).toBe(3);
-        expect(projects[0].id).toBe(1);
-        expect(projects[0].role).toBe('Développeur Full Stack');
-        expect(projects[1].id).toBe(2);
-        expect(projects[2].id).toBe(3);
-        done();
+        expect(projects).toEqual(mockProjects);
+        expect(projects.length).toBe(2);
       });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/projects/by-freelance/${freelanceId}`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockProjects);
+    });
+
+    it('should handle error when fetching projects by freelance id', () => {
+      const freelanceId = 999;
+
+      service.getByFreelanceId(freelanceId).subscribe({
+        next: () => fail('Expected error'),
+        error: (error) => {
+          expect(error.status).toBe(404);
+        }
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/projects/by-freelance/${freelanceId}`);
+      req.flush('Freelance not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
+
+  describe('getByIdWithSteps', () => {
+    it('should fetch project by id with steps', () => {
+      const projectId = 1;
+      const projectWithSteps = { ...mockProject, steps: [] };
+
+      service.getByIdWithSteps(projectId).subscribe(project => {
+        expect(project).toEqual(projectWithSteps);
+        expect(project.id).toBe(projectId);
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/projects/${projectId}/with-steps`);
+      expect(req.request.method).toBe('GET');
+      req.flush(projectWithSteps);
     });
   });
 
@@ -140,6 +169,51 @@ describe('ProjectService', () => {
       });
 
       const req = httpMock.expectOne(`${environment.apiUrl}/projects/by-client/${clientId}`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockProjects);
+    });
+  });
+
+  describe('getByFreelanceIdWithFilters', () => {
+    it('should fetch filtered projects by freelance id', () => {
+      const freelanceId = 1;
+      const filters = {
+        minRate: 500,
+        maxRate: 700,
+        workMode: 'REMOTE' as const,
+        startDateAfter: '2024-01-01',
+        techStack: 'Angular'
+      };
+
+      service.getByFreelanceIdWithFilters(freelanceId, filters).subscribe(projects => {
+        expect(projects).toEqual(mockProjects);
+      });
+
+      const req = httpMock.expectOne(req =>
+        req.url === `${environment.apiUrl}/projects/by-freelance/${freelanceId}/filtered` &&
+        req.params.get('minRate') === '500' &&
+        req.params.get('maxRate') === '700' &&
+        req.params.get('workMode') === 'REMOTE' &&
+        req.params.get('startDateAfter') === '2024-01-01' &&
+        req.params.get('techStack') === 'Angular'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockProjects);
+    });
+
+    it('should fetch projects with partial filters', () => {
+      const freelanceId = 1;
+      const filters = { minRate: 500 };
+
+      service.getByFreelanceIdWithFilters(freelanceId, filters).subscribe(projects => {
+        expect(projects).toEqual(mockProjects);
+      });
+
+      const req = httpMock.expectOne(req =>
+        req.url === `${environment.apiUrl}/projects/by-freelance/${freelanceId}/filtered` &&
+        req.params.get('minRate') === '500' &&
+        !req.params.has('maxRate')
+      );
       expect(req.request.method).toBe('GET');
       req.flush(mockProjects);
     });

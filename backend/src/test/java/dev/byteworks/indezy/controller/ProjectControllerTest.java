@@ -127,6 +127,36 @@ class ProjectControllerTest {
 
     @Test
     @WithMockUser
+    void getProjectByIdWithSteps_ShouldReturnProjectWithSteps() throws Exception {
+        // Given
+        when(projectService.findByIdWithSteps(1L)).thenReturn(testProjectDto);
+
+        // When & Then
+        mockMvc.perform(get("/projects/1/with-steps"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.role", is("Full Stack Developer")))
+                .andExpect(jsonPath("$.dailyRate", is(600)));
+
+        verify(projectService).findByIdWithSteps(1L);
+    }
+
+    @Test
+    @WithMockUser
+    void getProjectByIdWithSteps_WhenProjectNotExists_ShouldReturn404() throws Exception {
+        // Given
+        when(projectService.findByIdWithSteps(1L)).thenThrow(new ResourceNotFoundException("Project not found with id: 1"));
+
+        // When & Then
+        mockMvc.perform(get("/projects/1/with-steps"))
+                .andExpect(status().isNotFound());
+
+        verify(projectService).findByIdWithSteps(1L);
+    }
+
+    @Test
+    @WithMockUser
     void getProjectsByFreelanceId_ShouldReturnProjectsForFreelance() throws Exception {
         // Given
         List<ProjectDto> projects = Arrays.asList(testProjectDto);
