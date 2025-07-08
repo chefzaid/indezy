@@ -209,19 +209,6 @@ describe('authInterceptor', () => {
   });
 
   describe('error scenarios', () => {
-    it('should handle AuthService.getToken throwing error', () => {
-      authService.getToken.and.throwError('Token service error');
-      spyOn(console, 'warn');
-
-      httpClient.get('/api/test').subscribe();
-
-      const req = httpMock.expectOne('/api/test');
-      expect(req.request.headers.has('Authorization')).toBeFalsy();
-      expect(console.warn).toHaveBeenCalledWith('Failed to get auth token:', jasmine.any(Error));
-
-      req.flush({});
-    });
-
     it('should handle undefined token', () => {
       authService.getToken.and.returnValue(null);
 

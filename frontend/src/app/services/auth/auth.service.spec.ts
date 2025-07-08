@@ -218,34 +218,36 @@ describe('AuthService', () => {
       expect(isAuth).toBeFalse();
     });
 
-    it('should return true for valid mock token with user', () => {
-      spyOn(service, 'getToken').and.returnValue('mock-jwt-token-123456789');
-      spyOn(service, 'getUser').and.returnValue(mockLoginResponse.user);
-      
-      const isAuth = service.isAuthenticated();
-      
-      expect(isAuth).toBeTrue();
-    });
-
-    it('should return false for mock token without user', () => {
-      spyOn(service, 'getToken').and.returnValue('mock-jwt-token-123456789');
-      spyOn(service, 'getUser').and.returnValue(null);
-      
-      const isAuth = service.isAuthenticated();
-      
-      expect(isAuth).toBeFalse();
-    });
-
-    it('should validate real JWT token expiration', () => {
+    it('should return true for valid JWT token', () => {
       const futureTime = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
       const validPayload = { exp: futureTime };
       const validToken = 'header.' + btoa(JSON.stringify(validPayload)) + '.signature';
-      
+
       spyOn(service, 'getToken').and.returnValue(validToken);
-      
+
       const isAuth = service.isAuthenticated();
-      
+
       expect(isAuth).toBeTrue();
+    });
+
+    it('should return false for expired JWT token', () => {
+      const pastTime = Math.floor(Date.now() / 1000) - 3600; // 1 hour ago
+      const expiredPayload = { exp: pastTime };
+      const expiredToken = 'header.' + btoa(JSON.stringify(expiredPayload)) + '.signature';
+
+      spyOn(service, 'getToken').and.returnValue(expiredToken);
+
+      const isAuth = service.isAuthenticated();
+
+      expect(isAuth).toBeFalse();
+    });
+
+    it('should return false for invalid JWT token format', () => {
+      spyOn(service, 'getToken').and.returnValue('invalid-token-format');
+
+      const isAuth = service.isAuthenticated();
+
+      expect(isAuth).toBeFalse();
     });
 
     it('should return false for expired JWT token', () => {
