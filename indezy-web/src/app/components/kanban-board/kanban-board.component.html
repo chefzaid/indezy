@@ -1,0 +1,111 @@
+<div class="kanban-board-container">
+  <div class="board-header">
+    <h2>{{ 'kanban.title' | translate }}</h2>
+    <button mat-icon-button (click)="loadKanbanBoard()" [disabled]="isLoading" [matTooltip]="'common.refresh' | translate">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </div>
+
+  <div class="kanban-board" *ngIf="kanbanBoard && !isLoading">
+    <div class="kanban-column" *ngFor="let status of getColumns()"
+         [style.--column-color]="getColumnColor(status)">
+      <div class="column-header" [style.border-top-color]="getColumnColor(status)">
+        <div class="column-title">
+          <mat-icon [style.color]="getColumnColor(status)">{{ getColumnIcon(status) }}</mat-icon>
+          <h3>{{ getColumnLabel(status) }}</h3>
+        </div>
+        <span class="column-count" [style.background-color]="getColumnColor(status)">
+          {{ getColumnCount(status) }}
+        </span>
+      </div>
+
+      <div class="card-list"
+           cdkDropList
+           [id]="getColumnId(status)"
+           [cdkDropListData]="getCardsForColumn(status)"
+           [cdkDropListConnectedTo]="getConnectedDropLists()"
+           (cdkDropListDropped)="onCardDrop($event)">
+
+        <div class="project-card" *ngFor="let card of getCardsForColumn(status)" cdkDrag>
+          <mat-card class="card-content" [routerLink]="['/projects', card.projectId]" style="cursor: pointer;">
+            <mat-card-header>
+              <mat-card-title class="card-role">{{ card.role }}</mat-card-title>
+              <mat-card-subtitle *ngIf="card.clientName">
+                <mat-icon class="subtitle-icon">business</mat-icon>
+                {{ card.clientName }}
+              </mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="card-meta">
+                <span class="meta-item rate" *ngIf="card.dailyRate">
+                  <mat-icon>euro</mat-icon>
+                  {{ formatCurrency(card.dailyRate) }}/j
+                </span>
+                <span class="meta-item mode" *ngIf="card.workMode">
+                  <mat-icon>{{ card.workMode === 'REMOTE' ? 'home' : card.workMode === 'HYBRID' ? 'sync_alt' : 'apartment' }}</mat-icon>
+                  {{ card.workMode === 'REMOTE' ? ('projects.workModes.remote' | translate) : card.workMode === 'HYBRID' ? ('projects.workModes.hybrid' | translate) : ('projects.workModes.onsite' | translate) }}
+                </span>
+              </div>
+
+              <div class="card-tech" *ngIf="card.techStack">
+                <mat-icon>code</mat-icon>
+                <span>{{ card.techStack }}</span>
+              </div>
+
+              <div class="card-source" *ngIf="card.sourceName">
+                <mat-icon>source</mat-icon>
+                <span>{{ card.sourceName }}</span>
+              </div>
+
+              <div class="card-rating" *ngIf="card.personalRating">
+                <mat-icon *ngFor="let s of getRatingStars(card.personalRating)"
+                          class="star-icon">star</mat-icon>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <div class="drag-placeholder" *cdkDragPlaceholder></div>
+        </div>
+
+        <div class="empty-column" *ngIf="getCardsForColumn(status).length === 0">
+          <mat-icon [style.color]="getColumnColor(status)">{{ getColumnIcon(status) }}</mat-icon>
+          <p>{{ 'kanban.noProjects' | translate }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-board" *ngIf="isBoardEmpty()">
+    <mat-card>
+      <mat-card-content>
+        <div class="empty-content">
+          <mat-icon class="empty-icon">view_kanban</mat-icon>
+          <h3>{{ 'kanban.emptyBoard' | translate }}</h3>
+          <p>{{ 'kanban.addFirstProject' | translate }}</p>
+          <button mat-raised-button color="primary" routerLink="/projects/new">
+            {{ 'kanban.addProject' | translate }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="no-data-state" *ngIf="!kanbanBoard && !isLoading">
+    <mat-card>
+      <mat-card-content>
+        <div class="empty-content">
+          <mat-icon class="empty-icon">error_outline</mat-icon>
+          <h3>{{ 'kanban.loadError' | translate }}</h3>
+          <button mat-raised-button color="primary" (click)="loadKanbanBoard()">
+            {{ 'common.retry' | translate }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

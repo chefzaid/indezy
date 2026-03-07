@@ -1,0 +1,44 @@
+.multi-select-filter {
+  width: 100%;
+
+  .select-field {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .selected-items {
+    margin-bottom: 12px;
+
+    mat-chip-listbox {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      mat-chip-option {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        border: 1px solid #bbdefb;
+
+        mat-icon {
+          color: #1976d2;
+        }
+
+        &:hover {
+          background-color: #bbdefb;
+        }
+      }
+    }
+  }
+
+  .filter-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    .clear-button {
+      color: #f44336;
+      font-size: 12px;
+      min-height: 32px;
+      padding: 0 12px;
+    }
+  }
+}

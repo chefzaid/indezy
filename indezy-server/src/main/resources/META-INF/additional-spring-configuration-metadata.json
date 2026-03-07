@@ -1,0 +1,34 @@
+{
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret key used for signing JWT tokens."
+    },
+    {
+      "name": "jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "JWT token expiration time in milliseconds."
+    },
+    {
+      "name": "cors.allowed-origins",
+      "type": "java.util.List<java.lang.String>",
+      "description": "List of allowed CORS origins."
+    },
+    {
+      "name": "cors.allowed-methods",
+      "type": "java.util.List<java.lang.String>",
+      "description": "List of allowed CORS HTTP methods."
+    },
+    {
+      "name": "cors.allowed-headers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "List of allowed CORS headers."
+    },
+    {
+      "name": "cors.allow-credentials",
+      "type": "java.lang.Boolean",
+      "description": "Whether CORS credentials are allowed."
+    }
+  ]
+}

@@ -1,0 +1,276 @@
+<div class="client-list-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>business</mat-icon>
+        {{ 'clients.title' | translate }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ 'clients.subtitle' | translate }}
+      </mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <!-- Basic Filters -->
+      <div class="filters-section" [formGroup]="filterForm">
+        <div class="basic-filters">
+          <div class="filter-row">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>{{ 'common.search' | translate }}</mat-label>
+              <input matInput
+                     formControlName="searchQuery"
+                     [placeholder]="'clients.searchPlaceholder' | translate">
+              <mat-icon matPrefix>search</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="status-filter">
+              <mat-label>{{ 'common.status' | translate }}</mat-label>
+              <mat-select formControlName="status">
+                <mat-option value="ALL">{{ 'clients.allStatuses' | translate }}</mat-option>
+                <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                  {{ status.labelKey | translate }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="sort-field">
+              <mat-label>{{ 'common.sortBy' | translate }}</mat-label>
+              <mat-select formControlName="sortBy">
+                <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+                  {{ option.labelKey | translate }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="sort-order-field">
+              <mat-label>{{ 'common.order' | translate }}</mat-label>
+              <mat-select formControlName="sortOrder">
+                <mat-option value="asc">{{ 'common.ascending' | translate }}</mat-option>
+                <mat-option value="desc">{{ 'common.descending' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Advanced Filters -->
+        <mat-expansion-panel [expanded]="showAdvancedFilters" class="advanced-filters">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>tune</mat-icon>
+              {{ 'common.advancedFilters' | translate }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="advanced-filter-content">
+            <!-- Industry Filters -->
+            <div class="filter-group">
+              <h4>{{ 'clients.industry' | translate }}</h4>
+              <div class="filter-row">
+                <mat-form-field appearance="outline" class="industry-select">
+                  <mat-label>{{ 'clients.mainIndustry' | translate }}</mat-label>
+                  <mat-select formControlName="industry">
+                    <mat-option value="">{{ 'clients.allIndustries' | translate }}</mat-option>
+                    <mat-option *ngFor="let industry of industryOptions" [value]="industry">
+                      {{ industry }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="industry-multi-select">
+                  <mat-label>{{ 'clients.addIndustry' | translate }}</mat-label>
+                  <mat-select #industrySelect>
+                    <mat-option *ngFor="let industry of industryOptions"
+                               [value]="industry"
+                               (click)="addIndustry(industry)"
+                               (keydown.enter)="addIndustry(industry)">
+                      {{ industry }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="selected-industries" *ngIf="filterForm.get('selectedIndustries')?.value?.length > 0">
+                <mat-chip-listbox>
+                  <mat-chip-option *ngFor="let industry of filterForm.get('selectedIndustries')?.value"
+                                   (removed)="removeIndustry(industry)">
+                    {{ industry }}
+                    <mat-icon matChipRemove>cancel</mat-icon>
+                  </mat-chip-option>
+                </mat-chip-listbox>
+              </div>
+            </div>
+
+            <!-- Location and Project Count -->
+            <div class="filter-group">
+              <h4>{{ 'clients.locationAndProjects' | translate }}</h4>
+              <div class="filter-row">
+                <mat-form-field appearance="outline" class="location-field">
+                  <mat-label>{{ 'projects.location' | translate }}</mat-label>
+                  <input matInput
+                         formControlName="location"
+                         [placeholder]="'clients.locationPlaceholder' | translate">
+                  <mat-icon matPrefix>location_on</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="project-count-field">
+                  <mat-label>{{ 'clients.projectCount' | translate }}</mat-label>
+                  <mat-select formControlName="projectCountRange">
+                    <mat-option value="">{{ 'common.all' | translate }}</mat-option>
+                    <mat-option *ngFor="let range of projectCountRanges" [value]="range.value">
+                      {{ range.labelKey | translate }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Date Filters -->
+            <div class="filter-group">
+              <h4>{{ 'projects.dates' | translate }}</h4>
+              <div class="filter-row">
+                <mat-form-field appearance="outline" class="date-field">
+                  <mat-label>{{ 'clients.createdAfter' | translate }}</mat-label>
+                  <input matInput
+                         [matDatepicker]="createdFromPicker"
+                         formControlName="createdDateFrom">
+                  <mat-datepicker-toggle matIconSuffix [for]="createdFromPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #createdFromPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="date-field">
+                  <mat-label>{{ 'clients.createdBefore' | translate }}</mat-label>
+                  <input matInput
+                         [matDatepicker]="createdToPicker"
+                         formControlName="createdDateTo">
+                  <mat-datepicker-toggle matIconSuffix [for]="createdToPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #createdToPicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+
+              <div class="filter-row">
+                <mat-form-field appearance="outline" class="date-field">
+                  <mat-label>{{ 'clients.lastContactAfter' | translate }}</mat-label>
+                  <input matInput
+                         [matDatepicker]="lastContactFromPicker"
+                         formControlName="lastContactFrom">
+                  <mat-datepicker-toggle matIconSuffix [for]="lastContactFromPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #lastContactFromPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="date-field">
+                  <mat-label>{{ 'clients.lastContactBefore' | translate }}</mat-label>
+                  <input matInput
+                         [matDatepicker]="lastContactToPicker"
+                         formControlName="lastContactTo">
+                  <mat-datepicker-toggle matIconSuffix [for]="lastContactToPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #lastContactToPicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </div>
+
+      <div class="actions-row">
+        <div class="results-info">
+          <span class="results-count">{{ filteredClients.length }} {{ 'clients.clientsFound' | translate }}</span>
+        </div>
+        
+        <button mat-raised-button color="primary" routerLink="/clients/create">
+          <mat-icon>add</mat-icon>
+          {{ 'clients.newClient' | translate }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="table-card">
+    <mat-card-content>
+      <app-loading
+        *ngIf="isLoading"
+        [message]="'clients.loading' | translate"
+        [subtitle]="'common.pleaseWait' | translate">
+      </app-loading>
+
+      <div *ngIf="!isLoading && filteredClients.length === 0" class="no-data">
+        <mat-icon>business_center</mat-icon>
+        <h3>{{ 'clients.noClientsFound' | translate }}</h3>
+        <p *ngIf="searchQuery || statusFilter !== 'ALL'">
+          {{ 'clients.tryDifferentCriteria' | translate }}
+        </p>
+        <p *ngIf="!searchQuery && statusFilter === 'ALL'">
+          {{ 'clients.startFirstClient' | translate }}
+        </p>
+        <button mat-raised-button color="primary" routerLink="/clients/create">
+          <mat-icon>add</mat-icon>
+          {{ 'clients.addClient' | translate }}
+        </button>
+      </div>
+
+      <div *ngIf="!isLoading && filteredClients.length > 0" class="table-container">
+        <table mat-table [dataSource]="filteredClients" class="clients-table">
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>{{ 'clients.name' | translate }}</th>
+            <td mat-cell *matCellDef="let client">
+              <div class="client-name">
+                <strong>{{ client.companyName || client.name }}</strong>
+                <small *ngIf="client.domain || client.website">
+                  <a [href]="client.domain || client.website" target="_blank" class="website-link">
+                    <mat-icon>link</mat-icon>
+                  </a>
+                </small>
+              </div>
+            </td>
+          </ng-container>
+
+
+
+          <!-- City Column -->
+          <ng-container matColumnDef="city">
+            <th mat-header-cell *matHeaderCellDef>{{ 'clients.city' | translate }}</th>
+            <td mat-cell *matCellDef="let client">{{ client.city }}</td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>{{ 'common.status' | translate }}</th>
+            <td mat-cell *matCellDef="let client">
+              <mat-chip [color]="getStatusColor(client.isFinal ? 'FINAL' : 'ESN')" selected>
+                {{ client.isFinal ? ('clients.finalClient' | translate) : ('clients.esn' | translate) }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>{{ 'common.actions' | translate }}</th>
+            <td mat-cell *matCellDef="let client">
+              <div class="action-buttons">
+                <button mat-icon-button 
+                        [routerLink]="['/clients', client.id]"
+                        [matTooltip]="'common.viewDetails' | translate">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button 
+                        [routerLink]="['/clients', client.id, 'edit']"
+                        [matTooltip]="'common.edit' | translate">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button 
+                        color="warn"
+                        (click)="deleteClient(client)"
+                        [matTooltip]="'common.delete' | translate">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,104 @@
+<div class="source-list-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>source</mat-icon>
+        {{ 'sources.title' | translate }}
+      </mat-card-title>
+      <mat-card-subtitle>
+                {{ 'sources.subtitle' | translate }}
+      </mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <mat-card class="actions-card">
+    <mat-card-content>
+      <div class="actions-row">
+        <span class="results-count" *ngIf="!isLoading">{{ sources.length }} source(s)</span>
+        <button mat-raised-button color="primary" (click)="onCreate()">
+          <mat-icon>add</mat-icon>
+          {{ 'sources.newSource' | translate }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>{{ 'sources.loading' | translate }}</p>
+      </div>
+
+      <div *ngIf="!isLoading && sources.length > 0" class="table-container">
+        <table mat-table [dataSource]="sources" class="sources-table">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>{{ 'common.name' | translate }}</th>
+            <td mat-cell *matCellDef="let source">
+              <strong>{{ source.name }}</strong>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>{{ 'common.type' | translate }}</th>
+            <td mat-cell *matCellDef="let source">
+              <mat-chip>
+                <mat-icon class="chip-icon">{{ getTypeIcon(source.type) }}</mat-icon>
+                {{ getTypeLabel(source.type) }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="link">
+            <th mat-header-cell *matHeaderCellDef>{{ 'sources.link' | translate }}</th>
+            <td mat-cell *matCellDef="let source">
+              <a *ngIf="source.link" [href]="source.link" target="_blank" rel="noopener noreferrer" class="source-link">
+                <mat-icon>open_in_new</mat-icon>
+                {{ 'sources.visit' | translate }}
+              </a>
+              <span *ngIf="!source.link" class="no-link">-</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="popularityRating">
+            <th mat-header-cell *matHeaderCellDef>{{ 'sources.popularity' | translate }}</th>
+            <td mat-cell *matCellDef="let source" class="rating-cell">
+              {{ getRatingDisplay(source.popularityRating) }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="usefulnessRating">
+            <th mat-header-cell *matHeaderCellDef>{{ 'sources.usefulness' | translate }}</th>
+            <td mat-cell *matCellDef="let source" class="rating-cell">
+              {{ getRatingDisplay(source.usefulnessRating) }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>{{ 'common.actions' | translate }}</th>
+            <td mat-cell *matCellDef="let source">
+              <button mat-icon-button [matTooltip]="'common.edit' | translate" (click)="onEdit(source)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button [matTooltip]="'common.delete' | translate" color="warn" (click)="onDelete(source)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+
+      <div *ngIf="!isLoading && sources.length === 0" class="empty-state">
+        <mat-icon class="empty-icon">source</mat-icon>
+        <h3>{{ 'sources.noSources' | translate }}</h3>
+        <p>{{ 'sources.addPlatforms' | translate }}</p>
+        <button mat-raised-button color="primary" (click)="onCreate()">
+          {{ 'sources.addSource' | translate }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

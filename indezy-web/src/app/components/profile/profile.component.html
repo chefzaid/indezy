@@ -1,0 +1,539 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>
+      <mat-icon>person</mat-icon>
+      {{ 'profile.title' | translate }}
+    </h1>
+    <p class="profile-subtitle">{{ 'profile.subtitle' | translate }}</p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>{{ 'profile.loading' | translate }}</p>
+  </div>
+
+  <div *ngIf="!isLoading && userProfile" class="profile-content">
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex" class="profile-tabs">
+      
+      <!-- Profile Information Tab -->
+      <mat-tab [label]="'profile.tabs.personalInfo' | translate">
+        <div class="tab-content">
+          <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()">
+            
+            <!-- Avatar Section -->
+            <mat-card class="avatar-section">
+              <div class="avatar-container">
+                <div class="avatar-wrapper">
+                  <img [src]="userProfile.avatar || 'assets/images/default-avatar.png'" 
+                       [alt]="userProfile.firstName + ' ' + userProfile.lastName"
+                       class="user-avatar">
+                  <div class="avatar-overlay">
+                    <input type="file" 
+                           #avatarInput 
+                           (change)="onAvatarUpload($event)"
+                           accept="image/*"
+                           style="display: none;">
+                    <button type="button" 
+                            mat-icon-button 
+                            (click)="avatarInput.click()"
+                            class="avatar-edit-btn">
+                      <mat-icon>camera_alt</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="avatar-info">
+                  <h3>{{ userProfile.firstName }} {{ userProfile.lastName }}</h3>
+                  <p>{{ userProfile.position || 'Freelance' }}</p>
+                </div>
+              </div>
+            </mat-card>
+
+            <!-- Basic Information -->
+            <mat-card class="form-section">
+              <mat-card-header>
+                <mat-card-title>{{ 'profile.basicInfo' | translate }}</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'contacts.firstName' | translate }}</mat-label>
+                    <input matInput formControlName="firstName" required>
+                    <mat-error *ngIf="profileForm.get('firstName')?.hasError('required')">
+                      {{ 'profile.errors.firstNameRequired' | translate }}
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'common.name' | translate }}</mat-label>
+                    <input matInput formControlName="lastName" required>
+                    <mat-error *ngIf="profileForm.get('lastName')?.hasError('required')">
+                      {{ 'profile.errors.lastNameRequired' | translate }}
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'common.email' | translate }}</mat-label>
+                    <input matInput formControlName="email" type="email" required>
+                    <mat-error *ngIf="profileForm.get('email')?.hasError('required')">
+                      {{ 'profile.errors.emailRequired' | translate }}
+                    </mat-error>
+                    <mat-error *ngIf="profileForm.get('email')?.hasError('email')">
+                      {{ 'errors.invalidEmail' | translate }}
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'contacts.phone' | translate }}</mat-label>
+                    <input matInput formControlName="phone" type="tel">
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'profile.birthDate' | translate }}</mat-label>
+                    <input matInput [matDatepicker]="birthDatePicker" formControlName="birthDate">
+                    <mat-datepicker-toggle matIconSuffix [for]="birthDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #birthDatePicker></mat-datepicker>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'clients.city' | translate }}</mat-label>
+                    <input matInput formControlName="city">
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'clients.address' | translate }}</mat-label>
+                  <input matInput formControlName="address">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'profile.bio' | translate }}</mat-label>
+                  <textarea matInput formControlName="bio" rows="3" maxlength="500"></textarea>
+                  <mat-hint>{{ profileForm.get('bio')?.value?.length || 0 }}/500</mat-hint>
+                </mat-form-field>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Professional Information -->
+            <mat-card class="form-section">
+              <mat-card-header>
+                <mat-card-title>{{ 'contacts.professionalInfo' | translate }}</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'profile.company' | translate }}</mat-label>
+                    <input matInput formControlName="company">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'contacts.position' | translate }}</mat-label>
+                    <input matInput formControlName="position">
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'clients.website' | translate }}</mat-label>
+                    <input matInput formControlName="website" type="url">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>LinkedIn</mat-label>
+                    <input matInput formControlName="linkedin" type="url">
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>GitHub</mat-label>
+                  <input matInput formControlName="github" type="url">
+                </mat-form-field>
+
+                <!-- Skills -->
+                <div class="skills-section">
+                  <h4>{{ 'profile.skills' | translate }}</h4>
+                  <div class="chips-container">
+                    <mat-chip-set>
+                      <mat-chip *ngFor="let skill of profileForm.get('skills')?.value" 
+                               (removed)="removeSkill(skill)">
+                        {{ skill }}
+                        <button matChipRemove>
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </mat-chip>
+                    </mat-chip-set>
+                  </div>
+                  <mat-form-field appearance="outline" class="skill-input">
+                    <mat-label>{{ 'profile.addSkill' | translate }}</mat-label>
+                    <mat-select (selectionChange)="addSkill($event.value)" [value]="">
+                      <mat-option *ngFor="let skill of availableSkills" 
+                                 [value]="skill"
+                                 [disabled]="profileForm.get('skills')?.value?.includes(skill)">
+                        {{ skill }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <!-- Languages -->
+                <div class="languages-section">
+                  <h4>{{ 'profile.languages' | translate }}</h4>
+                  <div class="chips-container">
+                    <mat-chip-set>
+                      <mat-chip *ngFor="let language of profileForm.get('languages')?.value" 
+                               (removed)="removeLanguage(language)">
+                        {{ language }}
+                        <button matChipRemove>
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </mat-chip>
+                    </mat-chip-set>
+                  </div>
+                  <mat-form-field appearance="outline" class="language-input">
+                    <mat-label>{{ 'profile.addLanguage' | translate }}</mat-label>
+                    <mat-select (selectionChange)="addLanguage($event.value)" [value]="">
+                      <mat-option *ngFor="let language of availableLanguages" 
+                                 [value]="language"
+                                 [disabled]="profileForm.get('languages')?.value?.includes(language)">
+                        {{ language }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Regional Settings -->
+            <mat-card class="form-section">
+              <mat-card-header>
+                <mat-card-title>{{ 'profile.regionalSettings' | translate }}</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'profile.timezone' | translate }}</mat-label>
+                    <mat-select formControlName="timezone">
+                      <mat-option *ngFor="let tz of timezones" [value]="tz">
+                        {{ tz }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'profile.currency' | translate }}</mat-label>
+                    <mat-select formControlName="currency">
+                      <mat-option *ngFor="let currency of currencies" [value]="currency.value">
+                        {{ currency.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <div class="form-actions">
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit"
+                      [disabled]="profileForm.invalid || isUpdating">
+                <mat-spinner *ngIf="isUpdating" diameter="20"></mat-spinner>
+                <span *ngIf="!isUpdating">{{ 'common.save' | translate }}</span>
+                <span *ngIf="isUpdating">{{ 'common.saving' | translate }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Security Tab -->
+      <mat-tab [label]="'profile.tabs.security' | translate">
+        <div class="tab-content">
+          <!-- Password Change -->
+          <mat-card class="form-section">
+            <mat-card-header>
+                <mat-card-title>{{ 'profile.changePassword' | translate }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'profile.currentPassword' | translate }}</mat-label>
+                  <input matInput formControlName="currentPassword" type="password" required>
+                  <mat-error *ngIf="passwordForm.get('currentPassword')?.hasError('required')">
+                    {{ 'profile.errors.currentPasswordRequired' | translate }}
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'profile.newPassword' | translate }}</mat-label>
+                  <input matInput formControlName="newPassword" type="password" required>
+                  <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('required')">
+                    {{ 'profile.errors.newPasswordRequired' | translate }}
+                  </mat-error>
+                  <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">
+                    {{ 'profile.errors.passwordMinLength' | translate }}
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'profile.confirmPassword' | translate }}</mat-label>
+                  <input matInput formControlName="confirmPassword" type="password" required>
+                  <mat-error *ngIf="passwordForm.get('confirmPassword')?.hasError('required')">
+                    {{ 'profile.errors.confirmRequired' | translate }}
+                  </mat-error>
+                  <mat-error *ngIf="passwordForm.get('confirmPassword')?.hasError('passwordMismatch')">
+                    {{ 'profile.errors.passwordMismatch' | translate }}
+                  </mat-error>
+                </mat-form-field>
+
+                <div class="form-actions">
+                  <button mat-raised-button 
+                          color="primary" 
+                          type="submit"
+                          [disabled]="passwordForm.invalid || isUpdating">
+                    <mat-spinner *ngIf="isUpdating" diameter="20"></mat-spinner>
+                    <span *ngIf="!isUpdating">{{ 'profile.changePassword' | translate }}</span>
+                    <span *ngIf="isUpdating">{{ 'profile.changing' | translate }}</span>
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Preferences Tab -->
+      <mat-tab [label]="'profile.tabs.preferences' | translate">
+        <div class="tab-content">
+          <form [formGroup]="preferencesForm" (ngSubmit)="onUpdatePreferences()">
+            <mat-card class="form-section">
+              <mat-card-header>
+                <mat-card-title>{{ 'profile.displayPreferences' | translate }}</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'profile.theme' | translate }}</mat-label>
+                    <mat-select formControlName="theme">
+                      <mat-option value="light">{{ 'profile.themes.light' | translate }}</mat-option>
+                      <mat-option value="dark">{{ 'profile.themes.dark' | translate }}</mat-option>
+                      <mat-option value="auto">{{ 'profile.themes.auto' | translate }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'profile.language' | translate }}</mat-label>
+                    <mat-select formControlName="language">
+                      <mat-option value="fr">Français</mat-option>
+                      <mat-option value="en">English</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'profile.dateFormat' | translate }}</mat-label>
+                    <mat-select formControlName="dateFormat">
+                      <mat-option value="DD/MM/YYYY">DD/MM/YYYY</mat-option>
+                      <mat-option value="MM/DD/YYYY">MM/DD/YYYY</mat-option>
+                      <mat-option value="YYYY-MM-DD">YYYY-MM-DD</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'profile.timeFormat' | translate }}</mat-label>
+                    <mat-select formControlName="timeFormat">
+                      <mat-option value="24h">{{ 'profile.timeFormats.h24' | translate }}</mat-option>
+                      <mat-option value="12h">{{ 'profile.timeFormats.h12' | translate }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'profile.defaultView' | translate }}</mat-label>
+                    <mat-select formControlName="defaultView">
+                      <mat-option value="dashboard">{{ 'nav.dashboard' | translate }}</mat-option>
+                      <mat-option value="projects">{{ 'nav.projects' | translate }}</mat-option>
+                      <mat-option value="clients">{{ 'nav.clients' | translate }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'profile.itemsPerPage' | translate }}</mat-label>
+                    <mat-select formControlName="itemsPerPage">
+                      <mat-option value="10">10</mat-option>
+                      <mat-option value="25">25</mat-option>
+                      <mat-option value="50">50</mat-option>
+                      <mat-option value="100">100</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div class="toggle-section">
+                  <mat-slide-toggle formControlName="autoSave">
+                    {{ 'profile.autoSave' | translate }}
+                  </mat-slide-toggle>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <div class="form-actions">
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit"
+                      [disabled]="preferencesForm.invalid || isUpdating">
+                <mat-spinner *ngIf="isUpdating" diameter="20"></mat-spinner>
+                <span *ngIf="!isUpdating">{{ 'common.save' | translate }}</span>
+                <span *ngIf="isUpdating">{{ 'common.saving' | translate }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Notifications Tab -->
+      <mat-tab [label]="'profile.tabs.notifications' | translate">
+        <div class="tab-content">
+          <form [formGroup]="notificationForm" (ngSubmit)="onUpdateNotifications()">
+            <mat-card class="form-section">
+              <mat-card-header>
+                <mat-card-title>{{ 'profile.notificationSettings' | translate }}</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="notification-settings">
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="emailNotifications">
+                      {{ 'profile.notifications.email' | translate }}
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      {{ 'profile.notifications.emailDesc' | translate }}
+                    </p>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="pushNotifications">
+                      {{ 'profile.notifications.push' | translate }}
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      {{ 'profile.notifications.pushDesc' | translate }}
+                    </p>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="projectUpdates">
+                      {{ 'profile.notifications.projectUpdates' | translate }}
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      {{ 'profile.notifications.projectUpdatesDesc' | translate }}
+                    </p>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="clientMessages">
+                      {{ 'profile.notifications.clientMessages' | translate }}
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      {{ 'profile.notifications.clientMessagesDesc' | translate }}
+                    </p>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="systemAlerts">
+                      {{ 'profile.notifications.systemAlerts' | translate }}
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      {{ 'profile.notifications.systemAlertsDesc' | translate }}
+                    </p>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="weeklyReports">
+                      {{ 'profile.notifications.weeklyReports' | translate }}
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      {{ 'profile.notifications.weeklyReportsDesc' | translate }}
+                    </p>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="notification-item">
+                    <mat-slide-toggle formControlName="marketingEmails">
+                      {{ 'profile.notifications.marketing' | translate }}
+                    </mat-slide-toggle>
+                    <p class="notification-description">
+                      {{ 'profile.notifications.marketingDesc' | translate }}
+                    </p>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <div class="form-actions">
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit"
+                      [disabled]="notificationForm.invalid || isUpdating">
+                <mat-spinner *ngIf="isUpdating" diameter="20"></mat-spinner>
+                <span *ngIf="!isUpdating">{{ 'common.save' | translate }}</span>
+                <span *ngIf="isUpdating">{{ 'common.saving' | translate }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Account Tab -->
+      <mat-tab [label]="'profile.tabs.account' | translate">
+        <div class="tab-content">
+          <mat-card class="form-section">
+            <mat-card-header>
+                <mat-card-title>{{ 'profile.accountManagement' | translate }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="account-actions">
+                <div class="action-item">
+                  <div class="action-info">
+                    <h4>{{ 'profile.exportData' | translate }}</h4>
+                    <p>{{ 'profile.exportDataDesc' | translate }}</p>
+                  </div>
+                  <button mat-stroked-button (click)="onExportData()">
+                    <mat-icon>download</mat-icon>
+                    {{ 'common.export' | translate }}
+                  </button>
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <div class="action-item danger">
+                  <div class="action-info">
+                    <h4>{{ 'profile.deleteAccount' | translate }}</h4>
+                    <p>{{ 'profile.deleteAccountDesc' | translate }}</p>
+                  </div>
+                  <button mat-stroked-button color="warn">
+                    <mat-icon>delete_forever</mat-icon>
+                    {{ 'common.delete' | translate }}
+                  </button>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+</div>

@@ -1,0 +1,8 @@
+
+Update and enrich PRD
+Harden backend security config (currently permissive for non-auth routes).
+Authentication + Gmail / Outlook / LinkedIn authentication
+Necessary deployment files (k8s, jenkins, ...)
+Enhance devcontainer
+Code coverage (unit + e2e)
+Enhanced database seeding for development

@@ -1,0 +1,89 @@
+# Environment variables
+.env
+.env.local
+.env.production
+
+# DevContainer
+.devcontainer/.env.local
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Backend (Java/Maven)
+indezy-server/target/
+indezy-server/.mvn/wrapper/maven-wrapper.jar
+
+# Compiled class file
+*.class
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+replay_pid*
+
+# Frontend (Node/Angular)
+indezy-web/node_modules/
+indezy-web/dist/
+indezy-web/.angular/
+indezy-web/coverage/
+indezy-web/.nyc_output/
+
+# Node.js (any location)
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+docker-compose.override.yml
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Build artifacts
+build/
+out/
+
+# Test results
+test-results/
+coverage/
+
+# File uploads (development)
+uploads/
+files/
+
+# Backup files
+*.bak
+*.backup

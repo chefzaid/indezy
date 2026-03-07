@@ -1,0 +1,122 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: indezy-server-secret
+  namespace: application
+type: Opaque
+data:
+  # base64("indezy_password") — change before go-live
+  DB_PASSWORD: aW5kZXp5X3Bhc3N3b3Jk
+  # base64("indezy-jwt-secret-change-in-production") — change before go-live
+  JWT_SECRET: aW5kZXp5LWp3dC1zZWNyZXQtY2hhbmdlLWluLXByb2R1Y3Rpb24=
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: indezy-server-config
+  namespace: application
+  labels:
+    app: indezy-server
+data:
+  SPRING_PROFILES_ACTIVE: kubernetes
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres.infrastructure.svc.cluster.local:5432/indezy"
+  SPRING_DATASOURCE_USERNAME: indezy_user
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: indezy-server
+  namespace: application
+  labels:
+    app: indezy-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: indezy-server
+  template:
+    metadata:
+      labels:
+        app: indezy-server
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: postgres:15-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h postgres.infrastructure.svc.cluster.local -p 5432 -U indezy_user -d indezy; do
+                echo "Waiting for infrastructure postgres (indezy db)..."; sleep 3
+              done
+      containers:
+        - name: indezy-server
+          image: nexus.swirlit.dev:5000/indezy/indezy-server:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: indezy-server-config
+                  key: SPRING_PROFILES_ACTIVE
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: indezy-server-config
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: indezy-server-config
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: indezy-server-secret
+                  key: DB_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: indezy-server-secret
+                  key: JWT_SECRET
+          livenessProbe:
+            httpGet:
+              path: /api/actuator/health
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: indezy-server
+  namespace: application
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: indezy-server

@@ -1,0 +1,32 @@
+<div class="date-range-filter" [formGroup]="dateForm">
+  <div class="date-fields">
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-label>{{ config.fromLabel || 'Date de début' }}</mat-label>
+      <input matInput 
+             [matDatepicker]="fromPicker" 
+             formControlName="from"
+             [placeholder]="config.fromPlaceholder || 'Sélectionner une date'">
+      <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+      <mat-datepicker #fromPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-label>{{ config.toLabel || 'Date de fin' }}</mat-label>
+      <input matInput 
+             [matDatepicker]="toPicker" 
+             formControlName="to"
+             [placeholder]="config.toPlaceholder || 'Sélectionner une date'">
+      <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+      <mat-datepicker #toPicker></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <div class="date-actions" *ngIf="hasValues()">
+    <button mat-icon-button 
+            (click)="clearDates()"
+            matTooltip="Effacer les dates"
+            type="button">
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,275 @@
+.kanban-board-container {
+  padding: 16px;
+  height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
+}
+
+.board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+  }
+}
+
+.loading-container {
+  margin-bottom: 12px;
+}
+
+.kanban-board {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  flex: 1;
+  padding-bottom: 8px;
+}
+
+.kanban-column {
+  min-width: 220px;
+  flex: 1;
+  max-width: 280px;
+  background-color: #fafafa;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-top: 3px solid;
+  border-radius: 10px 10px 0 0;
+
+  .column-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      white-space: nowrap;
+    }
+  }
+
+  .column-count {
+    color: white;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+  }
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 60px;
+  padding: 0 8px 8px;
+}
+
+.project-card {
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  .card-content {
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    padding: 0;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    mat-card-header {
+      padding: 10px 12px 4px;
+
+      .card-role {
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.3;
+      }
+
+      .subtitle-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        vertical-align: middle;
+        margin-right: 2px;
+      }
+    }
+
+    mat-card-content {
+      padding: 0 12px 10px;
+    }
+  }
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 12px;
+    color: #666;
+
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+
+    &.rate {
+      font-weight: 600;
+      color: #2e7d32;
+    }
+  }
+}
+
+.card-tech, .card-source {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  mat-icon {
+    font-size: 13px;
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+}
+
+.card-rating {
+  display: flex;
+  gap: 1px;
+
+  .star-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: #ffc107;
+  }
+}
+
+.drag-placeholder {
+  background: rgba(0, 0, 0, 0.04);
+  border: 2px dashed #ccc;
+  min-height: 50px;
+  border-radius: 8px;
+}
+
+.empty-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 12px;
+  color: #bbb;
+  text-align: center;
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    margin-bottom: 8px;
+    opacity: 0.4;
+  }
+
+  p {
+    margin: 0;
+    font-size: 12px;
+  }
+}
+
+.empty-board, .no-data-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+
+  mat-card {
+    max-width: 360px;
+    text-align: center;
+  }
+
+  .empty-content {
+    padding: 32px 20px;
+
+    .empty-icon {
+      font-size: 56px;
+      width: 56px;
+      height: 56px;
+      color: #ccc;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      margin: 0 0 12px;
+      color: #333;
+    }
+
+    p {
+      margin: 0 0 20px;
+      color: #666;
+    }
+  }
+}
+
+// CDK Drag and Drop
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cdk-drag-animating {
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.card-list.cdk-drop-list-dragging .project-card:not(.cdk-drag-placeholder) {
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+@media (max-width: 768px) {
+  .kanban-column {
+    min-width: 200px;
+  }
+}

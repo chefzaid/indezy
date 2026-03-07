@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: indezy-ingress
+  namespace: application
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "16m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - indezy.swirlit.dev
+      secretName: indezy-swirlit-dev-tls
+  rules:
+    - host: indezy.swirlit.dev
+      http:
+        paths:
+          # Route API traffic to the Spring Boot backend (/api context path)
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: indezy-server
+                port:
+                  number: 8080
+          # Route everything else to the Angular frontend
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: indezy-web
+                port:
+                  number: 8080

@@ -1,0 +1,184 @@
+<div class="project-form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <div class="header-content">
+          <mat-icon>{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+          {{ pageTitle }}
+        </div>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>{{ 'projects.form.loading' | translate }}</p>
+      </div>
+
+      <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+        <div class="form-grid">
+          <!-- Basic Information Section -->
+          <div class="form-section">
+            <h3>{{ 'projects.form.generalInfo' | translate }}</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'projects.form.role' | translate }} *</mat-label>
+                <input matInput formControlName="role" [placeholder]="'projects.form.rolePlaceholder' | translate">
+                <mat-error>{{ getFieldError('role') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'projects.form.description' | translate }}</mat-label>
+                <textarea matInput formControlName="description" rows="3" 
+                         [placeholder]="'projects.form.descriptionPlaceholder' | translate"></textarea>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'projects.form.techStack' | translate }}</mat-label>
+                <input matInput formControlName="techStack" 
+                       placeholder="Ex: React, Node.js, PostgreSQL">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'projects.form.client' | translate }}</mat-label>
+                <mat-select formControlName="clientId">
+                  <mat-option *ngFor="let client of clients" [value]="client.id">
+                    {{ client.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'projects.form.dailyRate' | translate }} *</mat-label>
+                <input matInput type="number" formControlName="dailyRate" placeholder="600">
+                <span matSuffix>€</span>
+                <mat-error>{{ getFieldError('dailyRate') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Work Mode Section -->
+          <div class="form-section">
+            <h3>{{ 'projects.workMode' | translate }}</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'projects.workMode' | translate }}</mat-label>
+                <mat-select formControlName="workMode">
+                  <mat-option *ngFor="let mode of workModeOptions" [value]="mode.value">
+                    {{ mode.labelKey | translate }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row" *ngIf="projectForm.get('workMode')?.value === 'HYBRID'">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'projects.form.remoteDaysPerMonth' | translate }}</mat-label>
+                <input matInput type="number" formControlName="remoteDaysPerMonth" placeholder="15">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'projects.form.onsiteDaysPerMonth' | translate }}</mat-label>
+                <input matInput type="number" formControlName="onsiteDaysPerMonth" placeholder="5">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'projects.form.advantages' | translate }}</mat-label>
+                <textarea matInput formControlName="advantages" rows="2" 
+                         [placeholder]="'projects.form.advantagesPlaceholder' | translate"></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Timeline Section -->
+          <div class="form-section">
+            <h3>{{ 'projects.form.timeline' | translate }}</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'projects.form.startDate' | translate }}</mat-label>
+                <input matInput [matDatepicker]="startDatePicker" formControlName="startDate">
+                <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #startDatePicker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'projects.form.durationMonths' | translate }}</mat-label>
+                <input matInput type="number" formControlName="durationInMonths" placeholder="6">
+                <mat-error>{{ getFieldError('durationInMonths') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'projects.form.renewalMonths' | translate }}</mat-label>
+                <input matInput type="number" formControlName="orderRenewalInMonths" placeholder="3">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'projects.form.daysPerYear' | translate }}</mat-label>
+                <input matInput type="number" formControlName="daysPerYear" placeholder="220">
+                <mat-error>{{ getFieldError('daysPerYear') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Additional Information Section -->
+          <div class="form-section">
+            <h3>{{ 'projects.form.additionalInfo' | translate }}</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'projects.form.projectLink' | translate }}</mat-label>
+                <input matInput formControlName="link" placeholder="https://...">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'projects.form.personalRating' | translate }}</mat-label>
+                <mat-select formControlName="personalRating">
+                  <mat-option *ngFor="let rating of ratingOptions" [value]="rating.value">
+                    {{ rating.labelKey | translate }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'common.notes' | translate }}</mat-label>
+                <textarea matInput formControlName="notes" rows="4" 
+                         [placeholder]="'projects.form.notesPlaceholder' | translate"></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions class="form-actions">
+      <button mat-button type="button" (click)="onCancel()">
+        <mat-icon>cancel</mat-icon>
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button mat-raised-button color="primary" 
+              [disabled]="projectForm.invalid || isSubmitting"
+              (click)="onSubmit()">
+        <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
+        <mat-icon *ngIf="!isSubmitting">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        {{ submitButtonText }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

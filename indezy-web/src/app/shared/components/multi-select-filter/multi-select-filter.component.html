@@ -1,0 +1,33 @@
+<div class="multi-select-filter" [formGroup]="selectForm">
+  <mat-form-field appearance="outline" class="select-field">
+    <mat-label>{{ config.label || 'Sélectionner' }}</mat-label>
+    <mat-select formControlName="selection"
+                [placeholder]="config.placeholder || 'Choisir des options'"
+                (selectionChange)="onSelectionChange($event.value)">
+      <mat-option *ngFor="let option of availableOptions" 
+                 [value]="option.value"
+                 [disabled]="option.disabled">
+        {{ option.label }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div class="selected-items" *ngIf="selectedValues.length > 0">
+    <mat-chip-listbox>
+      <mat-chip-option *ngFor="let value of selectedValues"
+                       (removed)="removeSelection(value)">
+        {{ getOptionLabel(value) }}
+        <mat-icon matChipRemove>cancel</mat-icon>
+      </mat-chip-option>
+    </mat-chip-listbox>
+  </div>
+
+  <div class="filter-actions" *ngIf="selectedValues.length > 0">
+    <button mat-button 
+            (click)="clearAll()"
+            class="clear-button">
+      <mat-icon>clear_all</mat-icon>
+      Tout effacer
+    </button>
+  </div>
+</div>

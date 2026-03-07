@@ -1,0 +1,302 @@
+<div class="project-list-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon>work</mat-icon>
+        {{ 'projects.title' | translate }}
+      </h1>
+      <button mat-raised-button color="primary" routerLink="/projects/new">
+        <mat-icon>add</mat-icon>
+        {{ 'projects.newProject' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <mat-card-header>
+      <mat-card-title>
+        {{ 'common.filters' | translate }}
+        <span *ngIf="getFilterCount() > 0" class="filter-count">({{ getFilterCount() }})</span>
+      </mat-card-title>
+      <div class="filter-actions">
+        <button mat-stroked-button type="button" (click)="clearFilters()" class="clear-filters-btn">
+          <mat-icon>clear</mat-icon>
+          {{ 'common.clearFilters' | translate }}
+        </button>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="filterForm" class="filters-form">
+        <!-- Basic Filters -->
+        <div class="filter-section">
+          <div class="filter-row">
+            <mat-form-field appearance="outline" class="filter-field search-field">
+              <mat-label>{{ 'common.search' | translate }}</mat-label>
+              <input matInput formControlName="searchQuery" [placeholder]="'projects.searchPlaceholder' | translate">
+              <mat-icon matPrefix>search</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>{{ 'projects.minRate' | translate }}</mat-label>
+              <input matInput type="number" formControlName="minRate" placeholder="400">
+              <span matSuffix>€</span>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>{{ 'projects.maxRate' | translate }}</mat-label>
+              <input matInput type="number" formControlName="maxRate" placeholder="800">
+              <span matSuffix>€</span>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>{{ 'projects.workMode' | translate }}</mat-label>
+              <mat-select formControlName="workMode">
+                <mat-option value="">{{ 'common.all' | translate }}</mat-option>
+                <mat-option *ngFor="let mode of workModeOptions" [value]="mode.value">
+                  {{ mode.labelKey | translate }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="filter-row">
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>{{ 'projects.status' | translate }}</mat-label>
+              <mat-select formControlName="status">
+                <mat-option value="">{{ 'common.all' | translate }}</mat-option>
+                <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                  {{ status.labelKey | translate }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>{{ 'projects.duration' | translate }}</mat-label>
+              <mat-select formControlName="duration">
+                <mat-option value="">{{ 'common.allFeminine' | translate }}</mat-option>
+                <mat-option *ngFor="let duration of durationOptions" [value]="duration.value">
+                  {{ duration.labelKey | translate }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>{{ 'common.sortBy' | translate }}</mat-label>
+              <mat-select formControlName="sortBy">
+                <mat-option *ngFor="let sort of sortOptions" [value]="sort.value">
+                  {{ sort.labelKey | translate }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>{{ 'common.order' | translate }}</mat-label>
+              <mat-select formControlName="sortOrder">
+                <mat-option value="asc">{{ 'common.ascending' | translate }}</mat-option>
+                <mat-option value="desc">{{ 'common.descending' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Advanced Filters -->
+        <mat-expansion-panel [expanded]="showAdvancedFilters" class="advanced-filters">
+          <mat-expansion-panel-header>
+            <mat-panel-title>{{ 'common.advancedFilters' | translate }}</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="advanced-filter-content">
+            <!-- Date Filters -->
+            <div class="filter-group">
+              <h4>{{ 'projects.dates' | translate }}</h4>
+              <div class="filter-row">
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>{{ 'projects.startAfter' | translate }}</mat-label>
+                  <input matInput [matDatepicker]="startFromPicker" formControlName="startDateFrom">
+                  <mat-datepicker-toggle matIconSuffix [for]="startFromPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #startFromPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>{{ 'projects.startBefore' | translate }}</mat-label>
+                  <input matInput [matDatepicker]="startToPicker" formControlName="startDateTo">
+                  <mat-datepicker-toggle matIconSuffix [for]="startToPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #startToPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>{{ 'projects.endAfter' | translate }}</mat-label>
+                  <input matInput [matDatepicker]="endFromPicker" formControlName="endDateFrom">
+                  <mat-datepicker-toggle matIconSuffix [for]="endFromPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #endFromPicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>{{ 'projects.endBefore' | translate }}</mat-label>
+                  <input matInput [matDatepicker]="endToPicker" formControlName="endDateTo">
+                  <mat-datepicker-toggle matIconSuffix [for]="endToPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #endToPicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <!-- Location and Client Filters -->
+            <div class="filter-group">
+              <h4>{{ 'projects.locationAndClient' | translate }}</h4>
+              <div class="filter-row">
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>{{ 'projects.client' | translate }}</mat-label>
+                  <input matInput formControlName="client" [placeholder]="'projects.clientPlaceholder' | translate">
+                  <mat-icon matPrefix>business</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>{{ 'projects.location' | translate }}</mat-label>
+                  <input matInput formControlName="location" [placeholder]="'projects.locationPlaceholder' | translate">
+                  <mat-icon matPrefix>location_on</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <!-- Technology Stack Filter -->
+            <div class="filter-group">
+              <h4>{{ 'projects.technologies' | translate }}</h4>
+              <div class="tech-stack-section">
+                <div class="selected-tech-chips" *ngIf="filterForm.get('selectedTechStack')?.value?.length > 0">
+                  <mat-chip-set>
+                    <mat-chip *ngFor="let tech of filterForm.get('selectedTechStack')?.value"
+                             (removed)="removeTechStack(tech)">
+                      {{ tech }}
+                      <button matChipRemove>
+                        <mat-icon>cancel</mat-icon>
+                      </button>
+                    </mat-chip>
+                  </mat-chip-set>
+                </div>
+
+                <mat-form-field appearance="outline" class="tech-select-field">
+                  <mat-label>{{ 'projects.addTechnology' | translate }}</mat-label>
+                  <mat-select (selectionChange)="addTechStack($event.value); $event.source.value = ''">
+                    <mat-option *ngFor="let tech of techStackOptions"
+                               [value]="tech"
+                               [disabled]="filterForm.get('selectedTechStack')?.value?.includes(tech)">
+                      {{ tech }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>{{ 'projects.freeSearch' | translate }}</mat-label>
+                  <input matInput formControlName="techStack" [placeholder]="'projects.freeSearchPlaceholder' | translate">
+                  <mat-icon matPrefix>code</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>{{ 'projects.loading' | translate }}</p>
+  </div>
+
+  <!-- Projects Grid -->
+  <div *ngIf="!isLoading && filteredProjects.length > 0" class="projects-grid">
+    <mat-card class="project-card" *ngFor="let project of filteredProjects">
+      <mat-card-header>
+        <mat-card-title class="project-title">
+          {{ project.role }}
+        </mat-card-title>
+        <mat-card-subtitle class="project-client">
+          {{ project.clientName }}
+        </mat-card-subtitle>
+        <div class="project-status">
+          <mat-chip [color]="getProjectStatusColor(project)" selected>
+            {{ getProjectStatusText(project) }}
+          </mat-chip>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="project-details">
+          <div class="detail-item" *ngIf="project.dailyRate">
+            <mat-icon>euro</mat-icon>
+            <span>{{ project.dailyRate }}€{{ 'common.perDay' | translate }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="project.workMode">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ getWorkModeLabel(project.workMode) }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="project.durationInMonths">
+            <mat-icon>schedule</mat-icon>
+            <span>{{ project.durationInMonths }} {{ 'common.months' | translate }}</span>
+          </div>
+
+          <div class="detail-item" *ngIf="project.startDate">
+            <mat-icon>event</mat-icon>
+            <span>{{ project.startDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <div class="project-tech" *ngIf="project.techStack">
+          <mat-icon>code</mat-icon>
+          <span>{{ project.techStack }}</span>
+        </div>
+
+        <p class="project-description" *ngIf="project.description">
+          {{ project.description }}
+        </p>
+      </mat-card-content>
+
+      <mat-card-actions class="project-actions">
+        <button mat-button [routerLink]="['/projects', project.id]">
+          <mat-icon>visibility</mat-icon>
+          {{ 'common.view' | translate }}
+        </button>
+        <button mat-button [routerLink]="['/projects', project.id, 'edit']">
+          <mat-icon>edit</mat-icon>
+          {{ 'common.edit' | translate }}
+        </button>
+        <button mat-button color="warn" (click)="deleteProject(project.id!)">
+          <mat-icon>delete</mat-icon>
+          {{ 'common.delete' | translate }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredProjects.length === 0" class="empty-state">
+    <mat-card>
+      <mat-card-content>
+        <div class="empty-content">
+          <mat-icon class="empty-icon">work_off</mat-icon>
+          <h3 *ngIf="projects.length === 0">{{ 'projects.noProjects' | translate }}</h3>
+          <h3 *ngIf="projects.length > 0">{{ 'projects.noMatchingProjects' | translate }}</h3>
+          <p *ngIf="projects.length === 0">{{ 'projects.startFirstProject' | translate }}</p>
+          <p *ngIf="projects.length > 0">{{ 'projects.tryDifferentFilters' | translate }}</p>
+          <button *ngIf="projects.length === 0" mat-raised-button color="primary" routerLink="/projects/new">
+            <mat-icon>add</mat-icon>
+            {{ 'projects.addProject' | translate }}
+          </button>
+          <button *ngIf="projects.length > 0" mat-stroked-button (click)="clearFilters()">
+            <mat-icon>clear</mat-icon>
+            {{ 'common.clearAllFilters' | translate }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

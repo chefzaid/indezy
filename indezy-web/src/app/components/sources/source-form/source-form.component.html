@@ -1,0 +1,102 @@
+<div class="source-form-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>{{ isEditMode ? 'edit' : 'add_circle' }}</mat-icon>
+        {{ pageTitle }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ isEditMode ? ('sources.editSubtitle' | translate) : ('sources.newSubtitle' | translate) }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>{{ 'common.loadingInfo' | translate }}</p>
+      </div>
+
+      <form [formGroup]="sourceForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+        <div class="form-grid">
+          <!-- General Information -->
+          <div class="form-section">
+            <h3>{{ 'common.generalInfo' | translate }}</h3>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'common.name' | translate }} *</mat-label>
+                <input matInput formControlName="name" [placeholder]="'sources.namePlaceholder' | translate">
+                <mat-error>{{ getFieldError('name') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'common.type' | translate }} *</mat-label>
+                <mat-select formControlName="type">
+                  <mat-option *ngFor="let t of sourceTypes" [value]="t.value">
+                    <mat-icon>{{ t.icon }}</mat-icon>
+                    {{ t.labelKey | translate }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>{{ getFieldError('type') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'sources.link' | translate }}</mat-label>
+                <input matInput formControlName="link" placeholder="https://...">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-checkbox formControlName="isListing" color="primary">
+                {{ 'sources.isListing' | translate }}
+              </mat-checkbox>
+            </div>
+          </div>
+
+          <!-- Ratings -->
+          <div class="form-section">
+            <h3>{{ 'sources.ratings' | translate }}</h3>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'sources.popularity' | translate }} (1-5)</mat-label>
+                <input matInput type="number" formControlName="popularityRating" min="1" max="5">
+                <mat-error>{{ getFieldError('popularityRating') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'sources.usefulness' | translate }} (1-5)</mat-label>
+                <input matInput type="number" formControlName="usefulnessRating" min="1" max="5">
+                <mat-error>{{ getFieldError('usefulnessRating') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="form-section">
+            <h3>{{ 'common.notes' | translate }}</h3>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'common.notes' | translate }}</mat-label>
+                <textarea matInput formControlName="notes" rows="4"
+                          [placeholder]="'sources.notesPlaceholder' | translate"></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="onCancel()">
+            <mat-icon>cancel</mat-icon>
+            {{ 'common.cancel' | translate }}
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="isSubmitting">
+            <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
+            <mat-icon *ngIf="!isSubmitting">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+            {{ submitButtonText }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

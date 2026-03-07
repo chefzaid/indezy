@@ -1,0 +1,94 @@
+<div class="comprehensive-filter-panel">
+  <div class="filter-header">
+    <div class="filter-title">
+      <h3>{{ config.title || 'Filtres' }}</h3>
+      <p *ngIf="config.subtitle" class="filter-subtitle">{{ config.subtitle }}</p>
+    </div>
+    
+    <div class="filter-actions">
+      <app-filter-presets
+        *ngIf="config.showPresets"
+        [config]="config.presetsConfig || {}"
+        [currentFilters]="currentFilters"
+        [hasActiveFilters]="getActiveFilterCount() > 0"
+        (presetApplied)="onPresetApplied($event)"
+        (presetSaved)="onPresetSaved($event)"
+        (presetDeleted)="onPresetDeleted($event)">
+      </app-filter-presets>
+
+      <button mat-button 
+              *ngIf="getActiveFilterCount() > 0"
+              (click)="clearAllFilters()"
+              class="clear-all-button">
+        <mat-icon>clear_all</mat-icon>
+        Tout effacer
+      </button>
+
+      <button mat-icon-button 
+              *ngIf="config.collapsible"
+              (click)="toggleExpanded()"
+              [matBadge]="getActiveFilterCount()"
+              [matBadgeHidden]="getActiveFilterCount() === 0"
+              matBadgeColor="primary"
+              matBadgeSize="small">
+        <mat-icon>{{ isExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="filter-content" [class.collapsed]="config.collapsible && !isExpanded">
+    <div class="filter-sections">
+      <div *ngFor="let section of visibleSections; let last = last" 
+           class="filter-section">
+        
+        <div class="section-header" *ngIf="section.title">
+          <mat-icon *ngIf="section.icon">{{ section.icon }}</mat-icon>
+          <span class="section-title">{{ section.title }}</span>
+        </div>
+
+        <div class="section-content">
+          <!-- Search Filter -->
+          <app-advanced-search-filter
+            *ngIf="section.type === 'search'"
+            [config]="section.config || {}"
+            [initialValue]="currentFilters[section.id] || ''"
+            (searchChange)="onFilterChange(section.id, $event)">
+          </app-advanced-search-filter>
+
+          <!-- Date Range Filter -->
+          <app-date-range-filter
+            *ngIf="section.type === 'dateRange'"
+            [config]="section.config || {}"
+            [initialRange]="getDateRange(section.id)"
+            (rangeChange)="onDateRangeChange(section.id, $event)">
+          </app-date-range-filter>
+
+          <!-- Multi Select Filter -->
+          <app-multi-select-filter
+            *ngIf="section.type === 'multiSelect'"
+            [options]="section.options || []"
+            [config]="section.config || {}"
+            [initialValues]="currentFilters[section.id] || []"
+            (selectionChange)="onFilterChange(section.id, $event)">
+          </app-multi-select-filter>
+
+          <!-- Range Slider Filter -->
+          <app-range-slider-filter
+            *ngIf="section.type === 'rangeSlider'"
+            [config]="section.config || {}"
+            [initialRange]="getRangeValue(section.id)"
+            (rangeChange)="onRangeChange(section.id, $event)">
+          </app-range-slider-filter>
+
+          <!-- Custom Content Slot -->
+          <ng-content 
+            *ngIf="section.type === 'custom'"
+            [select]="'[slot=' + section.id + ']'">
+          </ng-content>
+        </div>
+
+        <mat-divider *ngIf="!last"></mat-divider>
+      </div>
+    </div>
+  </div>
+</div>
