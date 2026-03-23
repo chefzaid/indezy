@@ -12,6 +12,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -35,6 +36,7 @@ import { ProjectDto, ClientDto, User } from '../../../models';
         MatDatepickerModule,
         MatNativeDateModule,
         MatProgressSpinnerModule,
+        MatTooltipModule,
         TranslateModule
     ],
     templateUrl: './project-form.component.html',
@@ -109,7 +111,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       startDate: [''],
       durationInMonths: ['', [Validators.min(1)]],
       orderRenewalInMonths: [''],
-      daysPerYear: ['', [Validators.min(1), Validators.max(365)]],
+      daysPerYear: [218, [Validators.min(1), Validators.max(365)]],
       link: [''],
       personalRating: [''],
       notes: [''],
@@ -244,5 +246,80 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
 
   get submitButtonText(): string {
     return this.isEditMode ? this.translate.instant('common.edit') : this.translate.instant('common.create');
+  }
+
+  setMaxWorkableDays(): void {
+    const now = new Date();
+    const year = now.getMonth() >= 10 ? now.getFullYear() + 1 : now.getFullYear();
+    const maxDays = this.getMaxWorkableDays(year);
+    this.projectForm.get('daysPerYear')?.setValue(maxDays);
+  }
+
+  private getMaxWorkableDays(year: number): number {
+    let businessDays = 0;
+    const date = new Date(year, 0, 1);
+    while (date.getFullYear() === year) {
+      const day = date.getDay();
+      if (day !== 0 && day !== 6) {
+        businessDays++;
+      }
+      date.setDate(date.getDate() + 1);
+    }
+
+    const holidays = this.getFrenchPublicHolidays(year);
+    let holidaysOnBusinessDays = 0;
+    for (const holiday of holidays) {
+      const day = holiday.getDay();
+      if (day !== 0 && day !== 6) {
+        holidaysOnBusinessDays++;
+      }
+    }
+
+    return businessDays - holidaysOnBusinessDays;
+  }
+
+  private getFrenchPublicHolidays(year: number): Date[] {
+    const easter = this.computeEasterDate(year);
+
+    const easterMonday = new Date(easter);
+    easterMonday.setDate(easterMonday.getDate() + 1);
+
+    const ascension = new Date(easter);
+    ascension.setDate(ascension.getDate() + 39);
+
+    const whitMonday = new Date(easter);
+    whitMonday.setDate(whitMonday.getDate() + 50);
+
+    return [
+      new Date(year, 0, 1),   // New Year
+      easterMonday,
+      new Date(year, 4, 1),   // Labour Day
+      new Date(year, 4, 8),   // Victory Day
+      ascension,
+      whitMonday,
+      new Date(year, 6, 14),  // Bastille Day
+      new Date(year, 7, 15),  // Assumption
+      new Date(year, 10, 1),  // All Saints
+      new Date(year, 10, 11), // Armistice
+      new Date(year, 11, 25)  // Christmas
+    ];
+  }
+
+  private computeEasterDate(year: number): Date {
+    const a = year % 19;
+    const b = Math.floor(year / 100);
+    const c = year % 100;
+    const d = Math.floor(b / 4);
+    const e = b % 4;
+    const f = Math.floor((b + 8) / 25);
+    const g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4);
+    const k = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - k) % 7;
+    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+    const day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(year, month, day);
   }
 }

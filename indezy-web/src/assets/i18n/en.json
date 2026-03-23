@@ -128,7 +128,16 @@
     "viewAllProjects": "View all projects",
     "noProjectsYet": "No projects yet",
     "startFirstProject": "Start by adding your first project!",
-    "addProject": "Add a project"
+    "addProject": "Add a project",
+    "charts": {
+      "projectsByStatus": "Projects by Status",
+      "projectsByWorkMode": "Projects by Work Mode",
+      "dailyRateDistribution": "Daily Rate Distribution",
+      "projects": "Projects",
+      "won": "Won",
+      "lost": "Lost",
+      "active": "Active"
+    }
   },
   "projects": {
     "title": "My Projects",
@@ -199,6 +208,8 @@
       "renewalMonths": "Renewal (months)",
       "daysPerYear": "Working days/year",
       "workingDaysPerYear": "Working days/year",
+      "maxDays": "max",
+      "maxDaysTooltip": "Set to max workable days in France for the current/next year (excluding public holidays)",
       "additionalInfo": "Additional information",
       "projectLink": "Project link",
       "personalRating": "Personal rating",
@@ -277,6 +288,29 @@
       "average": "3 - Average",
       "good": "4 - Good",
       "excellent": "5 - Excellent"
+    },
+    "commuteTime": "Commute time",
+    "commuteLoadError": "Error loading commute data",
+    "commute": {
+      "travelMode": "Travel mode",
+      "car": "Car",
+      "transit": "Transit",
+      "byCar": "Sort by driving time",
+      "byTransit": "Sort by public transport time",
+      "unavailable": "Route not available"
+    },
+    "reversion": {
+      "title": "Reversion Rate",
+      "rate": "Reversion rate (%)",
+      "incomeTax": "Income tax / PAS (%)",
+      "saved": "Reversion rate saved",
+      "saveError": "Error saving reversion rate",
+      "saveTooltip": "Save reversion rate to your profile",
+      "formula": "Net = Gross × (1 - {{rate}}%). Rate = 40% social charges + income tax (PAS).",
+      "net": "net",
+      "netTooltip": "Net daily rate after applying reversion rate",
+      "perMonth": "/month",
+      "perYear": "/year"
     }
   },
   "clients": {

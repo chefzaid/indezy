@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ProjectDto, ProjectStatus, KanbanBoardDto, WorkMode } from '../../models/project.models';
+import { ProjectDto, ProjectStatus, KanbanBoardDto, WorkMode, DashboardStatsDto } from '../../models/project.models';
 
 export interface ProjectFilters {
   minRate?: number;
@@ -89,5 +89,9 @@ export class ProjectService {
 
   getKanbanBoard(freelanceId: number): Observable<KanbanBoardDto> {
     return this.http.get<KanbanBoardDto>(`${this.API_URL}/kanban/${freelanceId}`);
+  }
+
+  getDashboardStats(freelanceId: number): Observable<DashboardStatsDto> {
+    return this.http.get<DashboardStatsDto>(`${this.API_URL}/stats/dashboard/${freelanceId}`);
   }
 }

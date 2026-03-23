@@ -57,6 +57,9 @@ public class Freelance extends BaseEntity {
     @Column(name = "reversion_rate")
     private Double reversionRate;
 
+    @Column(name = "income_tax_rate")
+    private Double incomeTaxRate;
+
     @Column(name = "cv_file_path")
     private String cvFilePath;
 

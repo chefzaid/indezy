@@ -43,4 +43,19 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Query("SELECT COUNT(p) FROM Project p WHERE p.freelance.id = :freelanceId")
     Long countByFreelanceId(@Param("freelanceId") Long freelanceId);
+
+    @Query("SELECT p.status, COUNT(p) FROM Project p WHERE p.freelance.id = :freelanceId GROUP BY p.status")
+    List<Object[]> countByFreelanceIdGroupByStatus(@Param("freelanceId") Long freelanceId);
+
+    @Query("SELECT p.workMode, COUNT(p) FROM Project p WHERE p.freelance.id = :freelanceId AND p.workMode IS NOT NULL GROUP BY p.workMode")
+    List<Object[]> countByFreelanceIdGroupByWorkMode(@Param("freelanceId") Long freelanceId);
+
+    @Query("SELECT COUNT(p) FROM Project p WHERE p.freelance.id = :freelanceId AND p.status = 'WON'")
+    Long countWonByFreelanceId(@Param("freelanceId") Long freelanceId);
+
+    @Query("SELECT COUNT(p) FROM Project p WHERE p.freelance.id = :freelanceId AND p.status = 'LOST'")
+    Long countLostByFreelanceId(@Param("freelanceId") Long freelanceId);
+
+    @Query("SELECT COUNT(p) FROM Project p WHERE p.freelance.id = :freelanceId AND p.status NOT IN ('LOST', 'WON')")
+    Long countActiveByFreelanceId(@Param("freelanceId") Long freelanceId);
 }

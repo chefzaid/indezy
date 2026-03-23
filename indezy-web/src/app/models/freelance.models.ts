@@ -13,6 +13,7 @@ export interface FreelanceDto {
   noticePeriodInDays?: number;
   availabilityDate?: string;
   reversionRate?: number;
+  incomeTaxRate?: number;
   cvFilePath?: string;
   fullName?: string;
   totalProjects?: number;
@@ -31,6 +32,7 @@ export interface CreateFreelanceDto {
   noticePeriodInDays?: number;
   availabilityDate?: string;
   reversionRate?: number;
+  incomeTaxRate?: number;
   cvFilePath?: string;
 }
 
@@ -47,5 +49,6 @@ export interface UpdateFreelanceDto {
   noticePeriodInDays?: number;
   availabilityDate?: string;
   reversionRate?: number;
+  incomeTaxRate?: number;
   cvFilePath?: string;
 }

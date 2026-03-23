@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.constants.ErrorMessages;
+import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.KanbanBoardDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -299,5 +300,73 @@ public class ProjectService {
         card.setFailedSteps((int) steps.stream().filter(InterviewStep::isFailed).count());
 
         return card;
+    }
+
+    @Transactional(readOnly = true)
+    public DashboardStatsDto getDashboardStats(Long freelanceId) {
+        log.debug("Getting dashboard stats for freelance: {}", freelanceId);
+
+        Long totalProjects = projectRepository.countByFreelanceId(freelanceId);
+        Double averageDailyRate = projectRepository.findAverageDailyRateByFreelanceId(freelanceId);
+        Long wonProjects = projectRepository.countWonByFreelanceId(freelanceId);
+        Long lostProjects = projectRepository.countLostByFreelanceId(freelanceId);
+        Long activeProjects = projectRepository.countActiveByFreelanceId(freelanceId);
+
+        // Projects by status
+        Map<String, Long> projectsByStatus = new LinkedHashMap<>();
+        for (ProjectStatus status : ProjectStatus.values()) {
+            projectsByStatus.put(status.name(), 0L);
+        }
+        for (Object[] row : projectRepository.countByFreelanceIdGroupByStatus(freelanceId)) {
+            ProjectStatus status = (ProjectStatus) row[0];
+            Long count = (Long) row[1];
+            projectsByStatus.put(status.name(), count);
+        }
+
+        // Projects by work mode
+        Map<String, Long> projectsByWorkMode = new LinkedHashMap<>();
+        for (WorkMode mode : WorkMode.values()) {
+            projectsByWorkMode.put(mode.name(), 0L);
+        }
+        for (Object[] row : projectRepository.countByFreelanceIdGroupByWorkMode(freelanceId)) {
+            WorkMode mode = (WorkMode) row[0];
+            Long count = (Long) row[1];
+            projectsByWorkMode.put(mode.name(), count);
+        }
+
+        // Daily rate ranges
+        List<Project> projects = projectRepository.findByFreelanceId(freelanceId);
+        int[][] ranges = {{0, 300}, {300, 500}, {500, 700}, {700, 900}, {900, Integer.MAX_VALUE}};
+        String[] rangeLabels = {"0-300", "300-500", "500-700", "700-900", "900+"};
+        List<DashboardStatsDto.DailyRateRange> dailyRateRanges = new ArrayList<>();
+        for (int i = 0; i < ranges.length; i++) {
+            int min = ranges[i][0];
+            int max = ranges[i][1];
+            long count = projects.stream()
+                .filter(p -> p.getDailyRate() != null && p.getDailyRate() >= min && p.getDailyRate() < max)
+                .count();
+            dailyRateRanges.add(DashboardStatsDto.DailyRateRange.builder()
+                .label(rangeLabels[i])
+                .count(count)
+                .build());
+        }
+
+        // Total estimated revenue
+        double totalRevenue = projects.stream()
+            .filter(p -> p.getTotalRevenue() != null)
+            .mapToDouble(Project::getTotalRevenue)
+            .sum();
+
+        return DashboardStatsDto.builder()
+            .totalProjects(totalProjects != null ? totalProjects : 0)
+            .averageDailyRate(averageDailyRate != null ? averageDailyRate : 0)
+            .totalEstimatedRevenue(totalRevenue)
+            .activeProjects(activeProjects != null ? activeProjects : 0)
+            .wonProjects(wonProjects != null ? wonProjects : 0)
+            .lostProjects(lostProjects != null ? lostProjects : 0)
+            .projectsByStatus(projectsByStatus)
+            .projectsByWorkMode(projectsByWorkMode)
+            .dailyRateRanges(dailyRateRanges)
+            .build();
     }
 }

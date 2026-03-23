@@ -84,7 +84,7 @@
 
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'common.sortBy' | translate }}</mat-label>
-              <mat-select formControlName="sortBy">
+              <mat-select formControlName="sortBy" (selectionChange)="onSortByChange($event.value)">
                 <mat-option *ngFor="let sort of sortOptions" [value]="sort.value">
                   {{ sort.labelKey | translate }}
                 </mat-option>
@@ -98,6 +98,24 @@
                 <mat-option value="desc">{{ 'common.descending' | translate }}</mat-option>
               </mat-select>
             </mat-form-field>
+          </div>
+
+          <!-- Commute Travel Mode -->
+          <div class="commute-controls" *ngIf="filterForm.get('sortBy')?.value === 'commuteTime'">
+            <div class="travel-mode-toggle">
+              <span class="travel-mode-label">{{ 'projects.commute.travelMode' | translate }}:</span>
+              <mat-button-toggle-group [value]="commuteTravelMode" (change)="onTravelModeChange($event.value)">
+                <mat-button-toggle value="DRIVING" [matTooltip]="'projects.commute.byCar' | translate">
+                  <mat-icon>directions_car</mat-icon>
+                  {{ 'projects.commute.car' | translate }}
+                </mat-button-toggle>
+                <mat-button-toggle value="TRANSIT" [matTooltip]="'projects.commute.byTransit' | translate">
+                  <mat-icon>directions_transit</mat-icon>
+                  {{ 'projects.commute.transit' | translate }}
+                </mat-button-toggle>
+              </mat-button-toggle-group>
+              <mat-spinner *ngIf="isCommuteLoading" diameter="24" class="commute-spinner"></mat-spinner>
+            </div>
           </div>
         </div>
 
@@ -210,6 +228,37 @@
     <p>{{ 'projects.loading' | translate }}</p>
   </div>
 
+  <!-- Reversion Rate Settings -->
+  <mat-card class="reversion-card" *ngIf="!isLoading && filteredProjects.length > 0">
+    <mat-card-content>
+      <div class="reversion-header">
+        <mat-icon>account_balance</mat-icon>
+        <span class="reversion-title">{{ 'projects.reversion.title' | translate }}</span>
+      </div>
+      <div class="reversion-controls">
+        <mat-form-field appearance="outline" class="reversion-field">
+          <mat-label>{{ 'projects.reversion.rate' | translate }}</mat-label>
+          <input matInput type="number" [value]="reversionRate" min="0" max="100" step="0.5"
+                 (change)="onReversionRateChange($any($event.target).value)">
+          <span matSuffix>%</span>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="reversion-field">
+          <mat-label>{{ 'projects.reversion.incomeTax' | translate }}</mat-label>
+          <input matInput type="number" [value]="incomeTaxRate" min="0" max="50" step="0.5"
+                 (change)="onIncomeTaxRateChange($any($event.target).value)">
+          <span matSuffix>%</span>
+        </mat-form-field>
+        <button mat-stroked-button color="primary" (click)="saveReversionRate()"
+                [matTooltip]="'projects.reversion.saveTooltip' | translate">
+          <mat-icon>save</mat-icon>
+        </button>
+      </div>
+      <div class="reversion-info">
+        {{ 'projects.reversion.formula' | translate:{ rate: reversionRate } }}
+      </div>
+    </mat-card-content>
+  </mat-card>
+
   <!-- Projects Grid -->
   <div *ngIf="!isLoading && filteredProjects.length > 0" class="projects-grid">
     <mat-card class="project-card" *ngFor="let project of filteredProjects">
@@ -232,6 +281,17 @@
           <div class="detail-item" *ngIf="project.dailyRate">
             <mat-icon>euro</mat-icon>
             <span>{{ project.dailyRate }}€{{ 'common.perDay' | translate }}</span>
+            <span class="net-rate" [matTooltip]="'projects.reversion.netTooltip' | translate">
+              ({{ 'projects.reversion.net' | translate }}: {{ getNetDailyRate(project) }}€)
+            </span>
+          </div>
+
+          <div class="detail-item revenue-item" *ngIf="project.dailyRate">
+            <mat-icon>account_balance_wallet</mat-icon>
+            <span class="net-revenue">
+              {{ getNetMonthly(project) | number:'1.0-0' }}€{{ 'projects.reversion.perMonth' | translate }}
+              · {{ getNetYearly(project) | number:'1.0-0' }}€{{ 'projects.reversion.perYear' | translate }}
+            </span>
           </div>
 
           <div class="detail-item" *ngIf="project.workMode">
@@ -247,6 +307,13 @@
           <div class="detail-item" *ngIf="project.startDate">
             <mat-icon>event</mat-icon>
             <span>{{ project.startDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          <div class="detail-item commute-detail" *ngIf="getCommuteInfo(project.id) as commute">
+            <mat-icon>{{ getCommuteIcon(commute.travelMode) }}</mat-icon>
+            <span *ngIf="commute.durationText">{{ commute.durationText }}</span>
+            <span *ngIf="commute.distanceText" class="commute-distance">({{ commute.distanceText }})</span>
+            <span *ngIf="!commute.durationText" class="commute-unavailable">{{ 'projects.commute.unavailable' | translate }}</span>
           </div>
         </div>
 

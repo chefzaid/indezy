@@ -128,7 +128,16 @@
     "viewAllProjects": "Voir toutes les missions",
     "noProjectsYet": "Aucune mission pour le moment",
     "startFirstProject": "Commencez par ajouter votre première mission !",
-    "addProject": "Ajouter une mission"
+    "addProject": "Ajouter une mission",
+    "charts": {
+      "projectsByStatus": "Missions par statut",
+      "projectsByWorkMode": "Missions par mode de travail",
+      "dailyRateDistribution": "R\u00e9partition des TJM",
+      "projects": "Missions",
+      "won": "Gagn\u00e9es",
+      "lost": "Perdues",
+      "active": "En cours"
+    }
   },
   "projects": {
     "title": "Mes Missions",
@@ -199,6 +208,8 @@
       "renewalMonths": "Renouvellement (mois)",
       "daysPerYear": "Jours travaillés/an",
       "workingDaysPerYear": "Jours travaillés/an",
+      "maxDays": "max",
+      "maxDaysTooltip": "Définir le nombre max de jours ouvrés en France pour l'année en cours/prochaine (hors jours fériés)",
       "additionalInfo": "Informations complémentaires",
       "projectLink": "Lien de la mission",
       "personalRating": "Évaluation personnelle",
@@ -277,6 +288,29 @@
       "average": "3 - Moyen",
       "good": "4 - Bon",
       "excellent": "5 - Excellent"
+    },
+    "commuteTime": "Temps de trajet",
+    "commuteLoadError": "Erreur lors du chargement des données de trajet",
+    "commute": {
+      "travelMode": "Mode de transport",
+      "car": "Voiture",
+      "transit": "Transport",
+      "byCar": "Trier par temps en voiture",
+      "byTransit": "Trier par temps en transport en commun",
+      "unavailable": "Itinéraire non disponible"
+    },
+    "reversion": {
+      "title": "Taux de réversion",
+      "rate": "Taux de réversion (%)",
+      "incomeTax": "Impôt sur le revenu / PAS (%)",
+      "saved": "Taux de réversion sauvegardé",
+      "saveError": "Erreur lors de la sauvegarde du taux de réversion",
+      "saveTooltip": "Sauvegarder le taux de réversion dans votre profil",
+      "formula": "Net = Brut × (1 - {{rate}}%). Taux = 40% charges sociales + impôt sur le revenu (PAS).",
+      "net": "net",
+      "netTooltip": "Taux journalier net après application du taux de réversion",
+      "perMonth": "/mois",
+      "perYear": "/an"
     }
   },
   "clients": {

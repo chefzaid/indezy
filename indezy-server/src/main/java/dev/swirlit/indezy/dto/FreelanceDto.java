@@ -33,6 +33,7 @@ public class FreelanceDto {
     private Integer noticePeriodInDays;
     private LocalDate availabilityDate;
     private Double reversionRate;
+    private Double incomeTaxRate;
     private String cvFilePath;
 
     // Computed fields

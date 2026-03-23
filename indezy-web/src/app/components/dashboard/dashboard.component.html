@@ -94,6 +94,71 @@
           </mat-card>
         </div>
 
+        <!-- Charts Section -->
+        <div class="charts-section" *ngIf="dashboardStats">
+          <div class="charts-grid">
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>pie_chart</mat-icon>
+                  {{ 'dashboard.charts.projectsByStatus' | translate }}
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="chart-container">
+                  <canvas #statusChart></canvas>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>location_on</mat-icon>
+                  {{ 'dashboard.charts.projectsByWorkMode' | translate }}
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="chart-container">
+                  <canvas #workModeChart></canvas>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="chart-card chart-card-wide">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>bar_chart</mat-icon>
+                  {{ 'dashboard.charts.dailyRateDistribution' | translate }}
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="chart-container">
+                  <canvas #dailyRateChart></canvas>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <div class="stats-summary">
+            <div class="summary-item won">
+              <mat-icon>emoji_events</mat-icon>
+              <span class="summary-value">{{ dashboardStats.wonProjects }}</span>
+              <span class="summary-label">{{ 'dashboard.charts.won' | translate }}</span>
+            </div>
+            <div class="summary-item lost">
+              <mat-icon>thumb_down</mat-icon>
+              <span class="summary-value">{{ dashboardStats.lostProjects }}</span>
+              <span class="summary-label">{{ 'dashboard.charts.lost' | translate }}</span>
+            </div>
+            <div class="summary-item active">
+              <mat-icon>trending_up</mat-icon>
+              <span class="summary-value">{{ dashboardStats.activeProjects }}</span>
+              <span class="summary-label">{{ 'dashboard.charts.active' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Recent Projects -->
         <div class="recent-projects-section">
           <div class="section-header">

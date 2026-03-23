@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.KanbanBoardDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
@@ -168,5 +169,13 @@ public class ProjectController {
         log.debug("GET /projects/kanban/{} - Getting kanban board", freelanceId);
         KanbanBoardDto kanbanBoard = projectService.getKanbanBoard(freelanceId);
         return ResponseEntity.ok(kanbanBoard);
+    }
+
+    @Operation(summary = "Get dashboard stats", description = "Get aggregated dashboard statistics for charts")
+    @GetMapping("/stats/dashboard/{freelanceId}")
+    public ResponseEntity<DashboardStatsDto> getDashboardStats(@PathVariable Long freelanceId) {
+        log.debug("GET /projects/stats/dashboard/{} - Getting dashboard stats", freelanceId);
+        DashboardStatsDto stats = projectService.getDashboardStats(freelanceId);
+        return ResponseEntity.ok(stats);
     }
 }

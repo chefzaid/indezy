@@ -63,6 +63,10 @@ jwt:
   secret: ${JWT_SECRET:indezy-super-secret-key-change-in-production}
   expiration: 86400000 # 24 hours in milliseconds
 
+google:
+  maps:
+    api-key: ${GOOGLE_MAPS_API_KEY:}
+
 cors:
   allowed-origins: 
     - http://localhost:4200

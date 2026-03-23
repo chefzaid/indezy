@@ -93,6 +93,23 @@ export interface ProjectDto {
   failedSteps?: number;
 }
 
+export interface DashboardStatsDto {
+  totalProjects: number;
+  averageDailyRate: number;
+  totalEstimatedRevenue: number;
+  activeProjects: number;
+  wonProjects: number;
+  lostProjects: number;
+  projectsByStatus: { [status: string]: number };
+  projectsByWorkMode: { [mode: string]: number };
+  dailyRateRanges: DailyRateRange[];
+}
+
+export interface DailyRateRange {
+  label: string;
+  count: number;
+}
+
 export interface CreateProjectDto {
   role: string;
   status?: ProjectStatus;
