@@ -21,20 +21,21 @@ Indezy is a modern, full-stack web application that helps freelancers manage the
 - Interview steps tracking (status transitions and scheduling)
 - Kanban board with drag-and-drop status changes
 - Dashboard page and project/client filtering capabilities
+- Dashboard graphs and stats (projects by status, work mode distribution, daily rate chart)
+- Commute-time sorting (home address and job location, Google Maps Distance Matrix API, driving/transit modes)
+- Reversion rate calculator (net daily/monthly/yearly revenue, configurable income tax, max workable days with French public holidays)
 - Internationalization (French/English)
 
 ## Next Phases
 
 - Job board integrations (Freework, CherryPick, Malt, LinkedIn)
-- Commute-time sorting (home address and job location)
 - Email integrations (Outlook/Gmail sync, templated follow-ups)
-- Dashboard (basic graphs and stats)
 - Advanced analytics: daily rate evolution, client rating, conversion funnel
 - In-app calendar with interview reminders
 - Integration with external calendar or notification systems
 - AI-powered job parsing from PDF, URLs, Outlook/Gmail
-- Help calculate reversion rate for better insights into revenue
 - Project recommendation engine based on peer shares and skill match
+- Make reversiuon rate calculator more customizable (deductible expenses, social contributions, etc.)
 - Automated status update suggestions based on user behavior
 - Social/network features (freelancer network, sharing, chat, community engagement points/gamification, mutual connections, recommended contacts)
 - Community/feature request board
@@ -143,6 +144,30 @@ echo -n 'YOUR_POSTGRES_ADMIN_PASSWORD' | base64
 ```
 
 Edit `deployments/indezy-db-setup.yaml` and `deployments/indezy-server.yaml` with the new values.
+
+### Google Maps API Key (Commute-Time Sorting)
+
+The commute-time sorting feature uses the Google Maps Distance Matrix API.
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create or select a project
+3. Enable the **Distance Matrix API** (`Routes > Distance Matrix API`)
+4. Create an API key under **APIs & Services > Credentials**
+5. (Recommended) Restrict the key to the Distance Matrix API and to your server's IP
+6. Set the environment variable before starting the backend:
+
+```bash
+export GOOGLE_MAPS_API_KEY=your-api-key-here
+```
+
+For Kubernetes, add the key to `deployments/indezy-server.yaml` as a Secret or env var:
+
+```yaml
+- name: GOOGLE_MAPS_API_KEY
+  value: "your-api-key-here"   # or use a secretKeyRef
+```
+
+> **Note:** Without a valid API key the feature still works — projects are returned but without commute time/distance data.
 
 ## Commands
 
