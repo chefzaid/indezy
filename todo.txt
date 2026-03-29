@@ -7,5 +7,10 @@ Enhance devcontainer
 Code coverage (unit + e2e)
 Enhanced database seeding for development
 
+Not all freelance jobs share the same recruitment process
+Some have 3 steps others 5, others different styles, and they aren't in the same order neither. Technical test before or after interview...
+So we have to go with generic columns: Contact => ESN => Client => Go => Chosen
+Each item in the Kanban would have a label of the intermediate step in which it is, and scheduled next step (while staying in the same colum)
+
 Use OpenClaw to automate job posting for platforms without an API. 
 Web scraping and data fetching based on some criteria.
