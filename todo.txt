@@ -1,16 +1,173 @@
+==================================================================
+FEATURE BACKLOG (grouped by domain)
+==================================================================
 
-Update and enrich PRD
-Harden backend security config (currently permissive for non-auth routes).
+--- Pipeline & Kanban ---
+Not all freelance jobs share the same recruitment process:
+  Some have 3 steps others 5, others different styles, and they aren't in the same order neither. Technical test before or after interview...
+  So we have to go with generic columns: Contact => ESN => Client => Go => Chosen
+  Each item in the Kanban would have a label of the intermediate step in which it is, and scheduled next step (while staying in the same column)
+Customizable pipeline templates per client/ESN (save a recruitment process and reuse it)
+Bulk actions on Kanban cards (archive, change status, assign source)
+Card aging indicators (highlight opportunities with no activity for X days)
+Drag-and-drop reordering within a column (manual priority)
+Quick-add card directly from the Kanban board (minimal form, enrich later)
+Pinned/favorite opportunities (keep hot leads at the top, dedicated view)
+Lost/rejected reason tracking (rate too low, position filled, no response...) with stats
+Automatic stale-opportunity detection and suggested follow-up or archival
+Duplicate opportunity detection (same client + same role posted on several job boards)
+
+--- Opportunities & Projects ---
+Attachments per project (job description PDF, contract, technical test brief) with inline preview (image, PDF) instead of forcing downloads
+Notes/journal timeline per project (every call, email, decision logged chronologically), with Markdown support and live preview
+Note templates (call debrief, interview debrief, negotiation summary) selectable when adding a note
+Voice memo after a call: record, transcribe, attach the transcript as a project note
+Skill tags on projects + match score against the freelancer's skill profile (with global tag rename across all projects)
+Daily rate negotiation history (asked / offered / agreed) per project
+Project archive view with full-text search across past opportunities
+Contract milestones tracking (start date, renewal date, notice period alerts)
+Mission end-date reminders to restart prospection N weeks before the bench
+Prospection campaigns: separate pipeline per job-search period (e.g. "2026 search"), each with its own stats, comparable against the global view
+
+--- Clients, ESN & Contacts ---
+Client rating and blacklist (payment delays, ghosting, bad process)
+ESN/intermediary margin tracking (rate paid by client vs rate received)
+Contact interaction history (last contacted, response rate, preferred channel)
+Org chart linking contacts to clients and ESNs (who works with whom)
+Reminder to nurture dormant contacts (no exchange in 6 months)
+"On this day last year": resurface contacts/opportunities from the same period to re-engage
+Import contacts from LinkedIn / vCard / CSV
+
+--- Finance ---
+Revenue forecast based on signed contracts and pipeline probability
+TJM benchmark by skill/seniority/region (anonymized aggregated data from users)
+Expense tracking (deductible expenses feeding the reversion calculator)
+URSSAF/social contribution estimation per status (micro-entreprise, EI, EURL, SASU, portage)
+Invoice generation from project data (rate x days worked, French mentions légales)
+Invoice status tracking (draft, sent, paid, overdue) with payment delay alerts
+Yearly summary export for the accountant (CSV/Excel)
+Multi-currency support for international clients
+
+--- Calendar & Scheduling ---
+In-app calendar with interview reminders (already in roadmap - implement)
+Two-way sync with Google Calendar / Outlook Calendar
+Availability sharing link (let recruiters book a slot, Calendly-style)
+Interview preparation checklist attached to each scheduled step
+Timeline view of all upcoming steps across all opportunities
+
+--- Communications ---
+Email templates (follow-up, rate proposal, availability announcement) with variables
+AI polish of outgoing messages (grammar/tone fix before sending a follow-up or proposal)
+Gmail/Outlook inbox sync: auto-link emails to the matching project/contact
+Follow-up sequences (auto-remind me to relance after N days without reply)
+Email open/reply tracking on sent follow-ups
+Centralized message history per opportunity (email + notes + LinkedIn exchanges)
+
+--- Job Board Integrations ---
+Use OpenClaw to automate job posting for platforms without an API
+Web scraping and data fetching based on some criteria
+Freework / Malt / LinkedIn / CherryPick connectors (already in roadmap - implement)
+Unified job feed with dedup across boards
+Saved searches with notification on new matching postings
+One-click import of a job posting into the pipeline (URL paste -> parsed project)
+Chrome extension to capture postings from any site (already in roadmap - implement)
+
+--- AI & Automation ---
+AI parsing of job descriptions (PDF/URL/email -> structured project: rate, stack, location, duration, suggested skill tags)
+AI-suggested daily rate based on stack, seniority and market data
+AI-generated personalized follow-up and application messages
+AI chat scoped to a project: the opportunity (description, notes, history) becomes the conversation context — interview prep, negotiation angles, post-mortem; history stored per project
+Semantic search across past opportunities and notes (by meaning, not just keywords)
+CV/Dossier de compétences generator tailored to a specific opportunity
+Automated status update suggestions from email content (e.g. detect rejection or interview invite)
+Weekly digest: pipeline summary, actions due, market trends
+Bring-your-own API key support with per-user preferred model; different models per task type to optimize token cost
+Local LLM feature for more privacy
+
+--- Analytics & Reporting ---
+Conversion funnel by source, client type and ESN (where do opportunities die?)
+Average process duration per client/ESN (time from contact to signature)
+Daily rate evolution over time (asked vs obtained)
+Bench time tracking (gaps between missions, cost of bench)
+Source ROI ranking (which job board/contact yields signed contracts)
+Prospection activity heatmap (calendar view of applications/calls/interviews to spot active and quiet periods)
+Skill demand trends: which skills/stacks appear most in captured opportunities over time, and at what rates
+Personal yearly review (missions, revenue, top skills, network growth), exportable as a polished PDF report
+
+--- User Experience ---
+Global search (projects, clients, contacts, notes) with keyboard shortcut and match highlighting in results
+Consistent error handling and user feedback (toasts instead of pop-ups, explicit loading and empty states)
+Composable filters (text + tags + status + date + archive) with state encoded in the URL for bookmarkable views
+Stable deep links to any project or Kanban card (?project=<id>) for sharing and reopening directly
+Multi-select mode on project/client/contact lists (bulk delete, tag, status change, archive)
+Dark mode
+Customizable dashboard widgets (drag, resize, show/hide)
+Onboarding wizard for first-time setup (profile, rate, address, pipeline template)
+Keyboard shortcuts for power users (new project, move card, search)
+Offline-tolerant PWA mode for consulting data on the go
+Accessibility pass (aria-labels, screen reader support, keyboard-only navigation)
+
+--- Data & Backup ---
+Data export/import (full account backup as JSON/CSV), with preview-first import: parsed items shown before commit, duplicates flagged, result reports imported/skipped
+Scheduled automatic backup to Google Drive / OneDrive / Dropbox (OAuth connect, skip upload when nothing changed, manual Sync Now)
+
+--- Mobile ---
+Responsive polish of all pages (Kanban usable on phone)
+Cross-platform mobile app (already in roadmap - implement)
+Push notifications (interview reminder, follow-up due, new matching posting)
+
+--- Social & Community ---
+Freelancer network: share opportunities you decline with peers
+Co-optation tracking (who referred whom, referral bonuses)
+Community TJM and client reviews (anonymized)
+Public profile page (shareable mini-portfolio with availability status)
+Feature request / community board with upvoting (already in roadmap - implement)
+
+--- Product & Website ---
+Landing page with features presentation, screenshots and sign-up call to action
+Terms of Service, Privacy Policy, and Contact/Support pages with FAQ
+Subscription/freemium model: premium features (AI, integrations) behind a paywall with free trial; billing management in profile
+Admin console (usage monitoring, user moderation, AI model/cost management, app settings)
+
+--- Platform & Security ---
+Harden backend security config (currently permissive for non-auth routes)
 Authentication + Gmail / Outlook / LinkedIn authentication
-Necessary deployment files (k8s, jenkins, ...)
-Enhance devcontainer
-Code coverage (unit + e2e)
-Enhanced database seeding for development
+Email validation and password reset flows
+Two-factor authentication (TOTP)
+Account deletion (soft-delete with confirmation) and GDPR data export (droit à la portabilité)
+Audit log of account activity and active session management
+Rate limiting and brute-force protection on auth endpoints
+API tokens for third-party integrations (read-only scopes)
+Notification preferences per channel (email, push, in-app) and per event type
 
-Not all freelance jobs share the same recruitment process
-Some have 3 steps others 5, others different styles, and they aren't in the same order neither. Technical test before or after interview...
-So we have to go with generic columns: Contact => ESN => Client => Go => Chosen
-Each item in the Kanban would have a label of the intermediate step in which it is, and scheduled next step (while staying in the same colum)
+--- Technical Improvements ---
+Modernize codebase with latest Java and React versions/features
+Split the docs into dedicated files and enrich them (development, deployment, ADRs, features, etc.), reusing existing content
+Complete the deployment setup (Kubernetes manifests, Jenkins pipeline, ...)
+Improve the devcontainer setup
+Measure and raise test coverage (unit + e2e)
+Playwright e2e tests for critical user flows (register, login, create project, move Kanban card, filter lists)
+Add Spring Boot Actuator: K8s probes already reference /api/actuator/health but the actuator dependency is missing from pom.xml
+Richer database seeding for development (realistic projects, clients, pipeline states)
+Mask commands to reset/reseed the dev database with test data
+Caching of frequent requests (dashboard stats, job feed)
+Lazy loading of routes/components for faster initial load
+Feature flags to enable/disable features without redeploying
+Structured JSON logging, request tracing, monitoring and alerting
+Usage telemetry to learn which features are used and prioritize development
+Automated DB backups with point-in-time recovery; versioned migrations; connection pooling
+CI: tests on every PR, scheduled e2e runs, dependency vulnerability scanning, zero-downtime deployments
+Keep OpenAPI docs complete with request/response examples
 
-Use OpenClaw to automate job posting for platforms without an API. 
-Web scraping and data fetching based on some criteria.
+--- Recurrent Tasks (mixed domains) ---
+Break huge files and blocks of code (500+ LOC) into smaller maintainable chunks and refactor them
+Linting, quality checks, and resolve issues reported in Problems tab
+Optimize codebase for better performance
+Hunt for memory leaks, null references, bugs, and fix them
+Always consider reusing existing code; centralize reusable code instead of adding new code when similar code already exists
+Code reviews, refactor, and clean up code for readability and maintainability
+Update dependencies and fix any breaking changes
+Update documentation to reflect changes in features, architecture, or deployment process
+Always keep code coverage above 85% for both backend and frontend
+Tighten code security and fix vulnerabilities (OWASP Top 10: XSS, CSRF, SQL injection, etc.)
+Security and performance audits and remediation
