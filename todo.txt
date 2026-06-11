@@ -15,7 +15,7 @@ Quick-add card directly from the Kanban board (minimal form, enrich later)
 Pinned/favorite opportunities (keep hot leads at the top, dedicated view)
 Lost/rejected reason tracking (rate too low, position filled, no response...) with stats
 Automatic stale-opportunity detection and suggested follow-up or archival
-Duplicate opportunity detection (same client + same role posted on several job boards)
+Duplicate opportunity detection (same client + same role posted on several job boards), flagged for manual deduplication
 
 --- Opportunities & Projects ---
 Attachments per project (job description PDF, contract, technical test brief) with inline preview (image, PDF) instead of forcing downloads
@@ -75,6 +75,8 @@ Chrome extension to capture postings from any site (already in roadmap - impleme
 --- AI & Automation ---
 AI parsing of job descriptions (PDF/URL/email -> structured project: rate, stack, location, duration, suggested skill tags)
 AI-suggested daily rate based on stack, seniority and market data
+AI job-fit analysis: which job is more adapted to your profile, pros vs cons per opportunity, including soft criteria in decision making (management style, team spirit, ...)
+Auto-adapt CV to postulate for each job with adapted tech stack and experiences
 AI-generated personalized follow-up and application messages
 AI chat scoped to a project: the opportunity (description, notes, history) becomes the conversation context — interview prep, negotiation angles, post-mortem; history stored per project
 Semantic search across past opportunities and notes (by meaning, not just keywords)
