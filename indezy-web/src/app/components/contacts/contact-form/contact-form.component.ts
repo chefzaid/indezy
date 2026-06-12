@@ -9,13 +9,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ContactService } from '../../../services/contact/contact.service';
 import { ClientService } from '../../../services/client/client.service';
 import { ClientDto } from '../../../models';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 @Component({
     selector: 'app-contact-form',
@@ -51,7 +51,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
     private readonly clientService: ClientService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService,
     private readonly translate: TranslateService
   ) {
     this.contactForm = this.createForm();
@@ -112,7 +112,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading clients:', error);
-          this.snackBar.open(this.translate.instant('errors.loadingClients'), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error('errors.loadingClients');
         }
       });
   }
@@ -137,14 +137,14 @@ export class ContactFormComponent implements OnInit, OnDestroy {
               status: contact.status
             });
           } else {
-            this.snackBar.open(this.translate.instant('errors.contactNotFound'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.error('errors.contactNotFound');
             this.router.navigate(['/contacts']);
           }
           this.isLoading = false;
         },
         error: (error) => {
           console.error('Error loading contact:', error);
-          this.snackBar.open(this.translate.instant('errors.loadingContact'), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error('errors.loadingContact');
           this.isLoading = false;
         }
       });
@@ -168,8 +168,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
 
       operation.pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
-          const message = this.isEditMode ? this.translate.instant('contacts.updateSuccess') : this.translate.instant('contacts.createSuccess');
-          this.snackBar.open(message, this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.success(this.isEditMode ? 'contacts.updateSuccess' : 'contacts.createSuccess');
 
           // Get clientId from form or route params
           const clientId = formValue.clientId ?? this.route.snapshot.params['id'];
@@ -183,8 +182,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error saving contact:', error);
-          const message = this.isEditMode ? this.translate.instant('errors.updatingContact') : this.translate.instant('errors.creatingContact');
-          this.snackBar.open(message, this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error(this.isEditMode ? 'errors.updatingContact' : 'errors.creatingContact');
           this.isSubmitting = false;
         }
       });

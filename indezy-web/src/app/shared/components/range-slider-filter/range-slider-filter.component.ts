@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, DestroyRef, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,6 +32,7 @@ export class RangeSliderFilterComponent implements OnInit {
 
   rangeForm: FormGroup;
 
+  private readonly destroyRef = inject(DestroyRef);
   constructor(private fb: FormBuilder) {
     this.rangeForm = this.fb.group({
       minSlider: [0],
@@ -53,21 +55,21 @@ export class RangeSliderFilterComponent implements OnInit {
     });
 
     // Sync slider and input values
-    this.rangeForm.get('minSlider')?.valueChanges.subscribe(value => {
+    this.rangeForm.get('minSlider')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
       this.rangeForm.get('minInput')?.setValue(value, { emitEvent: false });
     });
 
-    this.rangeForm.get('maxSlider')?.valueChanges.subscribe(value => {
+    this.rangeForm.get('maxSlider')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
       this.rangeForm.get('maxInput')?.setValue(value, { emitEvent: false });
     });
 
-    this.rangeForm.get('minInput')?.valueChanges.subscribe(value => {
+    this.rangeForm.get('minInput')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
       if (value !== null && value !== undefined) {
         this.rangeForm.get('minSlider')?.setValue(value, { emitEvent: false });
       }
     });
 
-    this.rangeForm.get('maxInput')?.valueChanges.subscribe(value => {
+    this.rangeForm.get('maxInput')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
       if (value !== null && value !== undefined) {
         this.rangeForm.get('maxSlider')?.setValue(value, { emitEvent: false });
       }
@@ -75,6 +77,7 @@ export class RangeSliderFilterComponent implements OnInit {
 
     // Emit range changes with debouncing
     this.rangeForm.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef),
       debounceTime(this.config.debounceTime || 300),
       distinctUntilChanged()
     ).subscribe(value => {

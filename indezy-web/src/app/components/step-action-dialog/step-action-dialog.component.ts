@@ -6,11 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { InterviewStepService } from '../../services/interview-step/interview-step.service';
 import { ProjectCardDto } from '../../models/interview-step.models';
+import { NotificationService } from '../../services/notification/notification.service';
 
 export interface StepActionDialogData {
   projectCard: ProjectCardDto;
@@ -46,7 +46,7 @@ export class StepActionDialogComponent {
     private readonly dialogRef: MatDialogRef<StepActionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: StepActionDialogData,
     private readonly interviewStepService: InterviewStepService,
-    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService,
     private readonly translate: TranslateService
   ) {
     this.actionForm = this.fb.group({
@@ -80,12 +80,12 @@ export class StepActionDialogComponent {
 
       actionObservable.subscribe({
         next: (updatedStep) => {
-          this.snackBar.open(this.getSuccessMessage(), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.successText(this.getSuccessMessage());
           this.dialogRef.close(updatedStep);
         },
         error: (error) => {
           console.error('Error updating step status:', error);
-          this.snackBar.open(this.translate.instant('errors.updatingStep'), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error('errors.updatingStep');
           this.isSubmitting = false;
         }
       });

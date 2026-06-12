@@ -2,11 +2,12 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { StepScheduleDialogComponent, StepScheduleDialogData } from './step-schedule-dialog.component';
 import { InterviewStepService } from '../../services/interview-step/interview-step.service';
+import { NotificationService } from '../../services/notification/notification.service';
 import { ProjectCardDto, StepStatus } from '../../models/interview-step.models';
 
 describe('StepScheduleDialogComponent', () => {
@@ -14,7 +15,7 @@ describe('StepScheduleDialogComponent', () => {
   let fixture: ComponentFixture<StepScheduleDialogComponent>;
   let mockDialogRef: jasmine.SpyObj<MatDialogRef<StepScheduleDialogComponent>>;
   let mockInterviewStepService: jasmine.SpyObj<InterviewStepService>;
-  let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
+  let mockNotificationService: jasmine.SpyObj<NotificationService>;
 
   const mockProjectCard: ProjectCardDto = {
     projectId: 1,
@@ -50,20 +51,21 @@ describe('StepScheduleDialogComponent', () => {
   beforeEach(async () => {
     const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
     const interviewStepServiceSpy = jasmine.createSpyObj('InterviewStepService', ['scheduleStep']);
-    const snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+    const notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['success', 'error', 'successText', 'errorText']);
 
     await TestBed.configureTestingModule({
       imports: [
         StepScheduleDialogComponent,
         ReactiveFormsModule,
-        NoopAnimationsModule
+        NoopAnimationsModule,
+        TranslateModule.forRoot()
       ],
       providers: [
         FormBuilder,
         { provide: MatDialogRef, useValue: dialogRefSpy },
         { provide: MAT_DIALOG_DATA, useValue: mockDialogData },
         { provide: InterviewStepService, useValue: interviewStepServiceSpy },
-        { provide: MatSnackBar, useValue: snackBarSpy }
+        { provide: NotificationService, useValue: notificationServiceSpy }
       ]
     }).compileComponents();
 
@@ -71,7 +73,7 @@ describe('StepScheduleDialogComponent', () => {
     component = fixture.componentInstance;
     mockDialogRef = TestBed.inject(MatDialogRef) as jasmine.SpyObj<MatDialogRef<StepScheduleDialogComponent>>;
     mockInterviewStepService = TestBed.inject(InterviewStepService) as jasmine.SpyObj<InterviewStepService>;
-    mockSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+    mockNotificationService = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
 
     fixture.detectChanges();
   });
@@ -90,14 +92,15 @@ describe('StepScheduleDialogComponent', () => {
         imports: [
           StepScheduleDialogComponent,
           ReactiveFormsModule,
-          NoopAnimationsModule
+          NoopAnimationsModule,
+          TranslateModule.forRoot()
         ],
         providers: [
           FormBuilder,
           { provide: MatDialogRef, useValue: mockDialogRef },
           { provide: MAT_DIALOG_DATA, useValue: dialogDataWithoutDate },
           { provide: InterviewStepService, useValue: mockInterviewStepService },
-          { provide: MatSnackBar, useValue: mockSnackBar }
+          { provide: NotificationService, useValue: mockNotificationService }
         ]
       }).compileComponents();
 
@@ -160,11 +163,7 @@ describe('StepScheduleDialogComponent', () => {
       component.onSubmit();
       tick(); // Process the observable
 
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Entretien planifié avec succès',
-        'Fermer',
-        { duration: 3000 }
-      );
+      expect(mockNotificationService.success).toHaveBeenCalledWith('steps.scheduledSuccess');
       expect(mockDialogRef.close).toHaveBeenCalledWith(mockUpdatedStep);
     }));
 
@@ -176,11 +175,7 @@ describe('StepScheduleDialogComponent', () => {
       component.onSubmit();
       tick(); // Process the observable
 
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Erreur lors de la planification',
-        'Fermer',
-        { duration: 3000 }
-      );
+      expect(mockNotificationService.error).toHaveBeenCalledWith('errors.schedulingStep');
       expect(component.isSubmitting).toBe(false);
       expect(mockDialogRef.close).not.toHaveBeenCalled();
     }));

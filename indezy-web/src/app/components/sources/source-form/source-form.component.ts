@@ -10,13 +10,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { SourceService } from '../../../services/source/source.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { SourceType } from '../../../models/source.models';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 @Component({
     selector: 'app-source-form',
@@ -60,7 +60,7 @@ export class SourceFormComponent implements OnInit, OnDestroy {
     private readonly authService: AuthService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService,
     private readonly translate: TranslateService
   ) {
     this.sourceForm = this.createForm();
@@ -114,7 +114,7 @@ export class SourceFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading source:', error);
-          this.snackBar.open(this.translate.instant('errors.loadingSource'), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error('errors.loadingSource');
           this.isLoading = false;
           this.router.navigate(['/sources']);
         }
@@ -128,7 +128,7 @@ export class SourceFormComponent implements OnInit, OnDestroy {
 
       const freelanceId = this.authService.getUser()?.id;
       if (!freelanceId) {
-        this.snackBar.open(this.translate.instant('errors.freelanceNotFound'), this.translate.instant('common.close'), { duration: 3000 });
+        this.notificationService.error('errors.freelanceNotFound');
         this.isSubmitting = false;
         return;
       }
@@ -141,14 +141,12 @@ export class SourceFormComponent implements OnInit, OnDestroy {
 
       operation.pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
-          const message = this.isEditMode ? this.translate.instant('sources.updateSuccess') : this.translate.instant('sources.createSuccess');
-          this.snackBar.open(message, this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.success(this.isEditMode ? 'sources.updateSuccess' : 'sources.createSuccess');
           this.router.navigate(['/sources']);
         },
         error: (error) => {
           console.error('Error saving source:', error);
-          const message = this.isEditMode ? this.translate.instant('errors.updatingSource') : this.translate.instant('errors.creatingSource');
-          this.snackBar.open(message, this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error(this.isEditMode ? 'errors.updatingSource' : 'errors.creatingSource');
           this.isSubmitting = false;
         }
       });

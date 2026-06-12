@@ -7,12 +7,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProjectService } from '../../../services/project/project.service';
 import { ProjectDto } from '../../../models';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 @Component({
     selector: 'app-project-detail',
@@ -41,7 +41,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     private readonly projectService: ProjectService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService,
     private readonly translate: TranslateService
   ) {}
 
@@ -70,14 +70,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           if (project) {
             this.project = project;
           } else {
-            this.snackBar.open(this.translate.instant('errors.projectNotFound'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.error('errors.projectNotFound');
             this.router.navigate(['/projects']);
           }
           this.isLoading = false;
         },
         error: (error) => {
           console.error('Error loading project:', error);
-          this.snackBar.open(this.translate.instant('errors.loadingProject'), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error('errors.loadingProject');
           this.isLoading = false;
         }
       });
@@ -101,12 +101,12 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.snackBar.open(this.translate.instant('projects.deleteSuccess'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.success('projects.deleteSuccess');
             this.router.navigate(['/projects']);
           },
           error: (error) => {
             console.error('Error deleting project:', error);
-            this.snackBar.open(this.translate.instant('errors.deletingProject'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.error('errors.deletingProject');
           }
         });
     }

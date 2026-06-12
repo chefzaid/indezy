@@ -7,10 +7,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ContactDto } from '../../../services/contact/contact.service';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 @Component({
     selector: 'app-contact-view-dialog',
@@ -33,7 +34,7 @@ export class ContactViewDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ContactViewDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public contact: ContactDto,
-    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService,
     private readonly translate: TranslateService
   ) {}
 
@@ -87,18 +88,10 @@ export class ContactViewDialogComponent {
     const type = this.translate.instant(typeKey);
     try {
       await navigator.clipboard.writeText(text);
-      this.snackBar.open(this.translate.instant('common.copiedToClipboard', { type }), this.translate.instant('common.close'), {
-        duration: 2000,
-        horizontalPosition: 'center',
-        verticalPosition: 'bottom'
-      });
+      this.notificationService.success('common.copiedToClipboard', 2000, { type });
     } catch (err) {
       console.error('Erreur lors de la copie:', err);
-      this.snackBar.open(this.translate.instant('errors.copying', { type: type.toLowerCase() }), this.translate.instant('common.close'), {
-        duration: 3000,
-        horizontalPosition: 'center',
-        verticalPosition: 'bottom'
-      });
+      this.notificationService.error('errors.copying', 3000, { type: type.toLowerCase() });
     }
   }
 }

@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { InterviewStepService } from './interview-step.service';
-import { 
-  InterviewStepDto, 
-  CreateInterviewStepDto, 
-  UpdateInterviewStepDto, 
-  KanbanBoardDto, 
-  StepTransitionDto, 
-  StepStatus 
+import {
+  InterviewStepDto,
+  CreateInterviewStepDto,
+  UpdateInterviewStepDto,
+  StepTransitionDto,
+  StepStatus
 } from '../../models/interview-step.models';
+import { KanbanBoardDto } from '../../models/project.models';
 import { environment } from '../../../environments/environment';
 
 describe('InterviewStepService', () => {
@@ -36,7 +36,7 @@ describe('InterviewStepService', () => {
       'Entretien Manager': [],
       'Validation': []
     },
-    stepOrder: [
+    columnOrder: [
       'Prise de Contact',
       'Entretien Commercial',
       'Positionnement',

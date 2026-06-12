@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, DestroyRef, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -33,6 +34,7 @@ export class AdvancedSearchFilterComponent implements OnInit {
     return this.searchForm.get('query') as FormControl;
   }
 
+  private readonly destroyRef = inject(DestroyRef);
   constructor(private readonly fb: FormBuilder) {
     this.searchForm = this.fb.group({
       query: ['']
@@ -47,6 +49,7 @@ export class AdvancedSearchFilterComponent implements OnInit {
 
     // Setup debounced search
     this.searchForm.get('query')?.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef),
       debounceTime(this.config.debounceTime || 300),
       distinctUntilChanged()
     ).subscribe(value => {

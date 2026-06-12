@@ -9,17 +9,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { UserManagementService } from '../../services/user-management/user-management.service';
 import { UserProfile, UserPreferences, UserNotificationSettings, PasswordChangeRequest } from '../../models/user-management.models';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { NotificationService } from '../../services/notification/notification.service';
+import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-info.component';
 
 @Component({
     selector: 'app-profile',
@@ -34,15 +30,10 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
         MatInputModule,
         MatSelectModule,
         MatSlideToggleModule,
-        MatChipsModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatSnackBarModule,
         MatProgressSpinnerModule,
         MatDividerModule,
-        MatListModule,
-        MatDialogModule,
-        TranslateModule
+        TranslateModule,
+        ProfilePersonalInfoComponent
     ],
     templateUrl: './profile.component.html',
     styleUrls: ['./profile.component.scss']
@@ -58,35 +49,10 @@ export class ProfileComponent implements OnInit {
   isUpdating = false;
   selectedTabIndex = 0;
 
-  availableSkills = [
-    'Angular', 'React', 'Vue.js', 'Node.js', 'Python', 'Java', 'C#', 'PHP',
-    'PostgreSQL', 'MongoDB', 'MySQL', 'Docker', 'Kubernetes', 'AWS', 'Azure',
-    'TypeScript', 'JavaScript', 'HTML/CSS', 'Git', 'Jenkins', 'GraphQL'
-  ];
-
-  availableLanguages = [
-    'Français', 'Anglais', 'Espagnol', 'Allemand', 'Italien', 'Portugais',
-    'Chinois', 'Japonais', 'Arabe', 'Russe', 'Néerlandais'
-  ];
-
-  timezones = [
-    'Europe/Paris', 'Europe/London', 'Europe/Berlin', 'Europe/Madrid',
-    'America/New_York', 'America/Los_Angeles', 'Asia/Tokyo', 'Asia/Shanghai'
-  ];
-
-  currencies = [
-    { value: 'EUR', label: '€ Euro' },
-    { value: 'USD', label: '$ Dollar US' },
-    { value: 'GBP', label: '£ Livre Sterling' },
-    { value: 'CHF', label: 'CHF Franc Suisse' }
-  ];
-
   constructor(
     private readonly fb: FormBuilder,
     private readonly userManagementService: UserManagementService,
-    private readonly snackBar: MatSnackBar,
-    private readonly dialog: MatDialog,
-    private readonly translate: TranslateService
+    private readonly notificationService: NotificationService
   ) {
     this.initializeForms();
   }
@@ -175,10 +141,7 @@ export class ProfileComponent implements OnInit {
       },
       error: (error: unknown) => {
         console.error('Error loading profile:', error);
-        this.snackBar.open(this.translate.instant('profile.errors.loadingProfile'), this.translate.instant('common.close'), {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        this.notificationService.error('profile.errors.loadingProfile');
         this.isLoading = false;
       }
     });
@@ -230,18 +193,12 @@ export class ProfileComponent implements OnInit {
         next: (profile: UserProfile) => {
           this.userProfile = profile;
           this.isUpdating = false;
-          this.snackBar.open(this.translate.instant('profile.updateSuccess'), this.translate.instant('common.close'), {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
+          this.notificationService.success('profile.updateSuccess');
         },
         error: (error: unknown) => {
           console.error('Error updating profile:', error);
           this.isUpdating = false;
-          this.snackBar.open(this.translate.instant('profile.errors.updatingProfile'), this.translate.instant('common.close'), {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
+          this.notificationService.error('profile.errors.updatingProfile');
         }
       });
     }
@@ -256,18 +213,12 @@ export class ProfileComponent implements OnInit {
         next: () => {
           this.isUpdating = false;
           this.passwordForm.reset();
-          this.snackBar.open(this.translate.instant('profile.passwordChanged'), this.translate.instant('common.close'), {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
+          this.notificationService.success('profile.passwordChanged');
         },
         error: (error: unknown) => {
           console.error('Error changing password:', error);
           this.isUpdating = false;
-          this.snackBar.open(this.translate.instant('profile.errors.changingPassword'), this.translate.instant('common.close'), {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
+          this.notificationService.error('profile.errors.changingPassword');
         }
       });
     }
@@ -281,18 +232,12 @@ export class ProfileComponent implements OnInit {
       this.userManagementService.updateUserPreferences(preferences).subscribe({
         next: () => {
           this.isUpdating = false;
-          this.snackBar.open(this.translate.instant('profile.preferencesUpdated'), this.translate.instant('common.close'), {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
+          this.notificationService.success('profile.preferencesUpdated');
         },
         error: (error: unknown) => {
           console.error('Error updating preferences:', error);
           this.isUpdating = false;
-          this.snackBar.open(this.translate.instant('profile.errors.updatingPreferences'), this.translate.instant('common.close'), {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
+          this.notificationService.error('profile.errors.updatingPreferences');
         }
       });
     }
@@ -306,18 +251,12 @@ export class ProfileComponent implements OnInit {
       this.userManagementService.updateNotificationSettings(settings).subscribe({
         next: () => {
           this.isUpdating = false;
-          this.snackBar.open(this.translate.instant('profile.notificationsUpdated'), this.translate.instant('common.close'), {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
+          this.notificationService.success('profile.notificationsUpdated');
         },
         error: (error: unknown) => {
           console.error('Error updating notifications:', error);
           this.isUpdating = false;
-          this.snackBar.open(this.translate.instant('profile.errors.updatingNotifications'), this.translate.instant('common.close'), {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
+          this.notificationService.error('profile.errors.updatingNotifications');
         }
       });
     }
@@ -330,18 +269,12 @@ export class ProfileComponent implements OnInit {
 
       // Validate file type and size
       if (!file.type.startsWith('image/')) {
-        this.snackBar.open(this.translate.instant('profile.errors.selectImage'), this.translate.instant('common.close'), {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        this.notificationService.error('profile.errors.selectImage');
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        this.snackBar.open(this.translate.instant('profile.errors.imageTooLarge'), this.translate.instant('common.close'), {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        this.notificationService.error('profile.errors.imageTooLarge');
         return;
       }
 
@@ -352,18 +285,12 @@ export class ProfileComponent implements OnInit {
             this.userProfile.avatar = avatarUrl;
           }
           this.isUpdating = false;
-          this.snackBar.open(this.translate.instant('profile.avatarUpdated'), this.translate.instant('common.close'), {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
+          this.notificationService.success('profile.avatarUpdated');
         },
         error: (error: unknown) => {
           console.error('Error uploading avatar:', error);
           this.isUpdating = false;
-          this.snackBar.open(this.translate.instant('profile.errors.uploadingAvatar'), this.translate.instant('common.close'), {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
+          this.notificationService.error('profile.errors.uploadingAvatar');
         }
       });
     }
@@ -379,52 +306,13 @@ export class ProfileComponent implements OnInit {
         link.click();
         globalThis.URL.revokeObjectURL(url);
 
-        this.snackBar.open(this.translate.instant('profile.dataExported'), this.translate.instant('common.close'), {
-          duration: 3000,
-          panelClass: ['success-snackbar']
-        });
+        this.notificationService.success('profile.dataExported');
       },
       error: (error: unknown) => {
         console.error('Error exporting data:', error);
-        this.snackBar.open(this.translate.instant('profile.errors.exportingData'), this.translate.instant('common.close'), {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        this.notificationService.error('profile.errors.exportingData');
       }
     });
   }
 
-  removeSkill(skill: string): void {
-    const skills = this.profileForm.get('skills')?.value || [];
-    const index = skills.indexOf(skill);
-    if (index >= 0) {
-      skills.splice(index, 1);
-      this.profileForm.get('skills')?.setValue([...skills]);
-    }
-  }
-
-  addSkill(skill: string): void {
-    const skills = this.profileForm.get('skills')?.value || [];
-    if (!skills.includes(skill)) {
-      skills.push(skill);
-      this.profileForm.get('skills')?.setValue([...skills]);
-    }
-  }
-
-  removeLanguage(language: string): void {
-    const languages = this.profileForm.get('languages')?.value || [];
-    const index = languages.indexOf(language);
-    if (index >= 0) {
-      languages.splice(index, 1);
-      this.profileForm.get('languages')?.setValue([...languages]);
-    }
-  }
-
-  addLanguage(language: string): void {
-    const languages = this.profileForm.get('languages')?.value || [];
-    if (!languages.includes(language)) {
-      languages.push(language);
-      this.profileForm.get('languages')?.setValue([...languages]);
-    }
-  }
 }

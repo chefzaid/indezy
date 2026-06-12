@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('AppComponent', () => {
   let mockAuthService: jasmine.SpyObj<AuthService>;
@@ -28,7 +29,8 @@ describe('AppComponent', () => {
         MatIconModule,
         MatSidenavModule,
         MatListModule,
-        MatMenuModule
+        MatMenuModule,
+        TranslateModule.forRoot()
       ],
       providers: [
         { provide: AuthService, useValue: mockAuthService }
@@ -45,6 +47,6 @@ describe('AppComponent', () => {
   it('should have title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('Indezy - Suivi de missions pour freelances');
+    expect(app.title).toEqual('Indezy');
   });
 });

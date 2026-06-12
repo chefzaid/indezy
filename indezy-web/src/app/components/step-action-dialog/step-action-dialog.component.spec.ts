@@ -2,11 +2,12 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { StepActionDialogComponent, StepActionDialogData } from './step-action-dialog.component';
 import { InterviewStepService } from '../../services/interview-step/interview-step.service';
+import { NotificationService } from '../../services/notification/notification.service';
 import { ProjectCardDto, StepStatus } from '../../models/interview-step.models';
 
 describe('StepActionDialogComponent', () => {
@@ -14,7 +15,7 @@ describe('StepActionDialogComponent', () => {
   let fixture: ComponentFixture<StepActionDialogComponent>;
   let mockDialogRef: jasmine.SpyObj<MatDialogRef<StepActionDialogComponent>>;
   let mockInterviewStepService: jasmine.SpyObj<InterviewStepService>;
-  let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
+  let mockNotificationService: jasmine.SpyObj<NotificationService>;
 
   const mockProjectCard: ProjectCardDto = {
     projectId: 1,
@@ -60,19 +61,20 @@ describe('StepActionDialogComponent', () => {
       'markAsFailed',
       'markAsCanceled'
     ]);
-    const snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+    const notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['success', 'error', 'successText', 'errorText']);
 
     await TestBed.configureTestingModule({
       imports: [
         StepActionDialogComponent,
         ReactiveFormsModule,
-        NoopAnimationsModule
+        NoopAnimationsModule,
+        TranslateModule.forRoot()
       ],
       providers: [
         { provide: MatDialogRef, useValue: dialogRefSpy },
         { provide: MAT_DIALOG_DATA, useValue: mockDialogData },
         { provide: InterviewStepService, useValue: interviewStepServiceSpy },
-        { provide: MatSnackBar, useValue: snackBarSpy }
+        { provide: NotificationService, useValue: notificationServiceSpy }
       ]
     }).compileComponents();
 
@@ -80,7 +82,7 @@ describe('StepActionDialogComponent', () => {
     component = fixture.componentInstance;
     mockDialogRef = TestBed.inject(MatDialogRef) as jasmine.SpyObj<MatDialogRef<StepActionDialogComponent>>;
     mockInterviewStepService = TestBed.inject(InterviewStepService) as jasmine.SpyObj<InterviewStepService>;
-    mockSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+    mockNotificationService = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
 
     // Set up default return values for all service methods
     mockInterviewStepService.markAsValidated.and.returnValue(of(mockUpdatedStep));
@@ -111,11 +113,7 @@ describe('StepActionDialogComponent', () => {
       tick(); // Process the observable
 
       expect(mockInterviewStepService.markAsValidated).toHaveBeenCalledWith(1);
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Étape validée avec succès',
-        'Fermer',
-        { duration: 3000 }
-      );
+      expect(mockNotificationService.successText).toHaveBeenCalledWith('steps.validated');
       expect(mockDialogRef.close).toHaveBeenCalledWith(mockUpdatedStep);
     }));
 
@@ -126,11 +124,7 @@ describe('StepActionDialogComponent', () => {
       component.onConfirm();
 
       expect(mockInterviewStepService.markAsWaitingFeedback).toHaveBeenCalledWith(1);
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Étape marquée en attente de retour',
-        'Fermer',
-        { duration: 3000 }
-      );
+      expect(mockNotificationService.successText).toHaveBeenCalledWith('steps.markedWaitingFeedback');
     });
 
     it('should call markAsFailed for failed action', () => {
@@ -140,11 +134,7 @@ describe('StepActionDialogComponent', () => {
       component.onConfirm();
 
       expect(mockInterviewStepService.markAsFailed).toHaveBeenCalledWith(1);
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Étape marquée comme échouée',
-        'Fermer',
-        { duration: 3000 }
-      );
+      expect(mockNotificationService.successText).toHaveBeenCalledWith('steps.markedFailed');
     });
 
     it('should call markAsCanceled for canceled action', () => {
@@ -154,11 +144,7 @@ describe('StepActionDialogComponent', () => {
       component.onConfirm();
 
       expect(mockInterviewStepService.markAsCanceled).toHaveBeenCalledWith(1);
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Étape annulée',
-        'Fermer',
-        { duration: 3000 }
-      );
+      expect(mockNotificationService.successText).toHaveBeenCalledWith('steps.canceled');
     });
 
     it('should handle unknown action', () => {
@@ -183,11 +169,7 @@ describe('StepActionDialogComponent', () => {
       component.onConfirm();
       tick(); // Process the observable
 
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Erreur lors de la mise à jour',
-        'Fermer',
-        { duration: 3000 }
-      );
+      expect(mockNotificationService.error).toHaveBeenCalledWith('errors.updatingStep');
       expect(component.isSubmitting).toBe(false);
       expect(mockDialogRef.close).not.toHaveBeenCalled();
     }));
@@ -243,19 +225,19 @@ describe('StepActionDialogComponent', () => {
     it('should return correct success message for each action', () => {
       // Reset to original action
       component.data.action = 'validated';
-      expect(component['getSuccessMessage']()).toBe('Étape validée avec succès');
+      expect(component['getSuccessMessage']()).toBe('steps.validated');
 
       component.data.action = 'waiting_feedback';
-      expect(component['getSuccessMessage']()).toBe('Étape marquée en attente de retour');
+      expect(component['getSuccessMessage']()).toBe('steps.markedWaitingFeedback');
 
       component.data.action = 'failed';
-      expect(component['getSuccessMessage']()).toBe('Étape marquée comme échouée');
+      expect(component['getSuccessMessage']()).toBe('steps.markedFailed');
 
       component.data.action = 'canceled';
-      expect(component['getSuccessMessage']()).toBe('Étape annulée');
+      expect(component['getSuccessMessage']()).toBe('steps.canceled');
 
       component.data.action = 'unknown' as any;
-      expect(component['getSuccessMessage']()).toBe('Statut mis à jour');
+      expect(component['getSuccessMessage']()).toBe('steps.statusUpdated');
     });
   });
 });

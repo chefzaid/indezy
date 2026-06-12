@@ -11,7 +11,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -20,6 +19,7 @@ import { ProjectService } from '../../../services/project/project.service';
 import { ClientService } from '../../../services/client/client.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ProjectDto, ClientDto, User } from '../../../models';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 @Component({
     selector: 'app-project-form',
@@ -74,7 +74,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     private readonly authService: AuthService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService,
     private readonly translate: TranslateService
   ) {
     this.projectForm = this.createForm();
@@ -128,7 +128,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading clients:', error);
-          this.snackBar.open(this.translate.instant('errors.loadingClients'), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error('errors.loadingClients');
         }
       });
   }
@@ -161,14 +161,14 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
               clientId: project.clientId
             });
           } else {
-            this.snackBar.open(this.translate.instant('errors.projectNotFound'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.error('errors.projectNotFound');
             this.router.navigate(['/projects']);
           }
           this.isLoading = false;
         },
         error: (error) => {
           console.error('Error loading project:', error);
-          this.snackBar.open(this.translate.instant('errors.loadingProject'), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error('errors.loadingProject');
           this.isLoading = false;
         }
       });
@@ -194,14 +194,12 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
 
       operation.pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
-          const message = this.isEditMode ? this.translate.instant('projects.updateSuccess') : this.translate.instant('projects.createSuccess');
-          this.snackBar.open(message, this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.success(this.isEditMode ? 'projects.updateSuccess' : 'projects.createSuccess');
           this.router.navigate(['/projects']);
         },
         error: (error) => {
           console.error('Error saving project:', error);
-          const message = this.isEditMode ? this.translate.instant('errors.updatingProject') : this.translate.instant('errors.creatingProject');
-          this.snackBar.open(message, this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error(this.isEditMode ? 'errors.updatingProject' : 'errors.creatingProject');
           this.isSubmitting = false;
         }
       });

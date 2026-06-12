@@ -13,6 +13,7 @@ import dev.swirlit.indezy.model.enums.TravelMode;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,14 +37,24 @@ public class CommuteService {
     private String googleMapsApiKey;
 
     private static final String DISTANCE_MATRIX_URL = "https://maps.googleapis.com/maps/api/distancematrix/json";
+    private static final String STATUS_FIELD = "status";
+    private static final String STATUS_OK = "OK";
 
+    @Autowired
     public CommuteService(FreelanceRepository freelanceRepository,
                           ProjectRepository projectRepository,
                           ProjectMapper projectMapper) {
+        this(freelanceRepository, projectRepository, projectMapper, new RestTemplate());
+    }
+
+    CommuteService(FreelanceRepository freelanceRepository,
+                   ProjectRepository projectRepository,
+                   ProjectMapper projectMapper,
+                   RestTemplate restTemplate) {
         this.freelanceRepository = freelanceRepository;
         this.projectRepository = projectRepository;
         this.projectMapper = projectMapper;
-        this.restTemplate = new RestTemplate();
+        this.restTemplate = restTemplate;
     }
 
     @Transactional(readOnly = true)
@@ -150,11 +161,11 @@ public class CommuteService {
 
             JsonNode response = restTemplate.getForObject(url, JsonNode.class);
 
-            if (response != null && "OK".equals(response.path("status").asString())) {
+            if (response != null && STATUS_OK.equals(response.path(STATUS_FIELD).asString())) {
                 JsonNode element = response.path("rows").path(0).path("elements").path(0);
-                String elementStatus = element.path("status").asString();
+                String elementStatus = element.path(STATUS_FIELD).asString();
 
-                if ("OK".equals(elementStatus)) {
+                if (STATUS_OK.equals(elementStatus)) {
                     return CommuteInfoDto.builder()
                         .projectId(projectId)
                         .projectRole(projectRole)
@@ -173,7 +184,7 @@ public class CommuteService {
                 }
             } else {
                 log.warn("Distance Matrix API returned status: {}",
-                    response != null ? response.path("status").asString() : "null response");
+                    response != null ? response.path(STATUS_FIELD).asString() : "null response");
             }
         } catch (Exception e) {
             log.error("Error calling Google Maps Distance Matrix API", e);
@@ -207,7 +218,7 @@ public class CommuteService {
             sb.append(address.trim());
         }
         if (city != null && !city.isBlank()) {
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
                 sb.append(", ");
             }
             sb.append(city.trim());

@@ -6,14 +6,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Subject, takeUntil } from 'rxjs';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { ProjectService } from '../../services/project/project.service';
 import { AuthService } from '../../services/auth/auth.service';
+import { NotificationService } from '../../services/notification/notification.service';
 import {
   KanbanBoardDto,
   KanbanProjectCardDto,
@@ -55,8 +56,7 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
   constructor(
     private readonly projectService: ProjectService,
     private readonly authService: AuthService,
-    private readonly snackBar: MatSnackBar,
-    private readonly translate: TranslateService
+    private readonly notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -87,7 +87,7 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: () => {
-          this.snackBar.open(this.translate.instant('errors.loadingBoard'), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error('errors.loadingBoard');
           this.isLoading = false;
         }
       });
@@ -113,13 +113,13 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: () => {
-              this.snackBar.open(
+              this.notificationService.successText(
                 `"${card.role}" → ${this.STATUS_LABELS[newStatus as ProjectStatus]}`,
-                'OK', { duration: 2000 }
+                2000
               );
             },
             error: () => {
-              this.snackBar.open(this.translate.instant('errors.movingCard'), this.translate.instant('common.close'), { duration: 3000 });
+              this.notificationService.error('errors.movingCard');
               this.loadKanbanBoard();
             }
           });

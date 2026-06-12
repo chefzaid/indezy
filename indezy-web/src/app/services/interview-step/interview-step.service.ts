@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { 
-  InterviewStepDto, 
-  CreateInterviewStepDto, 
-  UpdateInterviewStepDto, 
-  KanbanBoardDto, 
-  StepTransitionDto, 
-  StepStatus 
+import {
+  InterviewStepDto,
+  CreateInterviewStepDto,
+  UpdateInterviewStepDto,
+  StepTransitionDto,
+  StepStatus
 } from '../../models/interview-step.models';
+import { KanbanBoardDto } from '../../models/project.models';
 
 @Injectable({
   providedIn: 'root'

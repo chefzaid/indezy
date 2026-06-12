@@ -5,8 +5,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { FilterPreset, FilterPresetsConfig, FilterValue } from '../../../models/filter.models';
+import { NotificationService } from '../../../services/notification/notification.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -36,7 +36,7 @@ export class FilterPresetsComponent implements OnInit {
   customPresets: FilterPreset[] = [];
 
   constructor(
-    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService,
     private readonly translate: TranslateService
   ) {}
 
@@ -46,9 +46,7 @@ export class FilterPresetsComponent implements OnInit {
 
   applyPreset(preset: FilterPreset): void {
     this.presetApplied.emit(preset);
-    this.snackBar.open(this.translate.instant('filters.applied', { name: preset.name }), this.translate.instant('common.close'), {
-      duration: 2000
-    });
+    this.notificationService.success('filters.applied', 2000, { name: preset.name });
   }
 
   saveCurrentAsPreset(): void {
@@ -66,9 +64,7 @@ export class FilterPresetsComponent implements OnInit {
       this.loadPresets();
       
       this.presetSaved.emit(preset);
-      this.snackBar.open(this.translate.instant('filters.saved', { name: preset.name }), this.translate.instant('common.close'), {
-        duration: 2000
-      });
+      this.notificationService.success('filters.saved', 2000, { name: preset.name });
     }
   }
 
@@ -83,9 +79,7 @@ export class FilterPresetsComponent implements OnInit {
         this.loadPresets();
         
         this.presetDeleted.emit(preset);
-        this.snackBar.open(this.translate.instant('filters.deleted', { name: preset.name }), this.translate.instant('common.close'), {
-          duration: 2000
-        });
+        this.notificationService.success('filters.deleted', 2000, { name: preset.name });
       }
     }
   }
@@ -96,9 +90,7 @@ export class FilterPresetsComponent implements OnInit {
       this.savePresets();
       this.loadPresets();
       
-      this.snackBar.open(this.translate.instant('filters.allCleared'), this.translate.instant('common.close'), {
-        duration: 2000
-      });
+      this.notificationService.success('filters.allCleared', 2000);
     }
   }
 

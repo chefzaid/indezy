@@ -6,11 +6,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject, takeUntil } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 import { ContactService } from '../../../services/contact/contact.service';
+import { NotificationService } from '../../../services/notification/notification.service';
 import { ContactDto } from '../../../models';
 
 @Component({
@@ -39,7 +40,8 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
     private readonly contactService: ContactService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly snackBar: MatSnackBar
+    private readonly notificationService: NotificationService,
+    private readonly translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -67,14 +69,14 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
           if (contact) {
             this.contact = contact;
           } else {
-            this.snackBar.open('Contact non trouvé', 'Fermer', { duration: 3000 });
+            this.notificationService.error('errors.contactNotFound');
             this.router.navigate(['/contacts']);
           }
           this.isLoading = false;
         },
         error: (error) => {
           console.error('Error loading contact:', error);
-          this.snackBar.open('Erreur lors du chargement du contact', 'Fermer', { duration: 3000 });
+          this.notificationService.error('errors.loadingContact');
           this.isLoading = false;
         }
       });
@@ -88,21 +90,21 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
 
   onDelete(): void {
     if (!this.contact || !this.contact.id) {
-      this.snackBar.open('Erreur: Contact ou ID manquant', 'Fermer', { duration: 3000 });
+      this.notificationService.error('errors.missingContactId');
       return;
     }
 
-    if (confirm(`Êtes-vous sûr de vouloir supprimer le contact "${this.contact.firstName} ${this.contact.lastName}" ?`)) {
+    if (confirm(this.translate.instant('contacts.deleteConfirm'))) {
       this.contactService.deleteContact(this.contact.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.snackBar.open('Contact supprimé avec succès', 'Fermer', { duration: 3000 });
+            this.notificationService.success('contacts.deleteSuccess');
             this.router.navigate(['/contacts']);
           },
           error: (error) => {
             console.error('Error deleting contact:', error);
-            this.snackBar.open('Erreur lors de la suppression du contact', 'Fermer', { duration: 3000 });
+            this.notificationService.error('errors.deletingContact');
           }
         });
     }

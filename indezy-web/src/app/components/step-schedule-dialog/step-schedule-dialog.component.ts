@@ -8,11 +8,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { InterviewStepService } from '../../services/interview-step/interview-step.service';
 import { ProjectCardDto } from '../../models/interview-step.models';
+import { NotificationService } from '../../services/notification/notification.service';
 
 export interface StepScheduleDialogData {
   projectCard: ProjectCardDto;
@@ -45,7 +45,7 @@ export class StepScheduleDialogComponent {
     private readonly dialogRef: MatDialogRef<StepScheduleDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: StepScheduleDialogData,
     private readonly interviewStepService: InterviewStepService,
-    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService,
     private readonly translate: TranslateService
   ) {
     this.scheduleForm = this.fb.group({
@@ -74,12 +74,12 @@ export class StepScheduleDialogComponent {
       this.interviewStepService.scheduleStep(this.data.stepId, scheduledDateTime)
         .subscribe({
           next: (updatedStep) => {
-            this.snackBar.open(this.translate.instant('steps.scheduledSuccess'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.success('steps.scheduledSuccess');
             this.dialogRef.close(updatedStep);
           },
           error: (error) => {
             console.error('Error scheduling step:', error);
-            this.snackBar.open(this.translate.instant('errors.schedulingStep'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.error('errors.schedulingStep');
             this.isSubmitting = false;
           }
         });

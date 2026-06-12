@@ -10,7 +10,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
@@ -27,6 +26,7 @@ import { ClientService } from '../../../services/client/client.service';
 import { ClientDto } from '../../../models';
 import { ContactService } from '../../../services/contact/contact.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 interface ClientFilterValues {
   searchQuery?: string;
@@ -123,7 +123,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
     private readonly clientService: ClientService,
     private readonly contactService: ContactService,
     private readonly dialog: MatDialog,
-    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService,
     private readonly fb: FormBuilder,
     private readonly translateService: TranslateService
   ) {
@@ -188,9 +188,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading clients:', error);
-          this.snackBar.open(this.translateService.instant('errors.loadingClients'), this.translateService.instant('common.close'), {
-            duration: 3000
-          });
+          this.notificationService.error('errors.loadingClients');
           this.isLoading = false;
         }
       });
@@ -261,16 +259,12 @@ export class ClientListComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.snackBar.open(this.translateService.instant('clients.deleteSuccess'), this.translateService.instant('common.close'), {
-              duration: 3000
-            });
+            this.notificationService.success('clients.deleteSuccess');
             this.loadClients();
           },
           error: (error) => {
             console.error('Error deleting client:', error);
-            this.snackBar.open(this.translateService.instant('errors.deletingClient'), this.translateService.instant('common.close'), {
-              duration: 3000
-            });
+            this.notificationService.error('errors.deletingClient');
           }
         });
     }

@@ -15,12 +15,11 @@ Current implemented pieces:
 - public Swagger/OpenAPI endpoints
 - configurable JWT secret and expiration
 - model fields for sessions, notification settings, security questions, and two-factor settings
+- JWT bearer-token authentication enforced server-side: `JwtAuthenticationFilter` validates the `Authorization: Bearer` header and `SecurityConfig` requires authentication for all non-public endpoints (`anyRequest().authenticated()`)
 
-Important current risk:
+Test escape hatch:
 
-- `SecurityConfig` currently ends with `.anyRequest().permitAll()`.
-
-That means backend endpoints are not fully protected even though the frontend has route guards and token handling. This is already represented in the backlog as backend security hardening and should be treated as a priority before production use with real user data.
+- `indezy.security.permit-all` (default `false`) relaxes the catch-all rule to `permitAll`. It is enabled only in `src/test/resources/application-test.properties` so integration tests can call endpoints without authenticating. It must never be enabled in a deployed environment.
 
 ## Authentication
 
@@ -48,19 +47,17 @@ Current backend rules:
 - `/auth/**` is public
 - `/public/**` is public
 - `/health` is public
-- `/actuator/**` is public
+- `/actuator/health` is public (other actuator endpoints require authentication)
 - `/v3/api-docs/**` is public
 - `/swagger-ui/**` is public
 - `/swagger-ui.html` is public
-- all other requests are currently permitted
+- all other requests require a valid JWT (`anyRequest().authenticated()`); unauthenticated requests receive `401`
 
-Desired hardening direction:
+Remaining hardening direction:
 
-1. Keep auth, health, and explicitly public docs endpoints public.
-2. Require authentication for user, freelance, project, client, contact, source, commute, and interview-step endpoints.
-3. Enforce ownership checks in services so one user cannot access another freelancer workspace.
-4. Add tests for anonymous, authenticated, and cross-owner access.
-5. Consider disabling Swagger in production or restricting it behind authentication/IP allowlists.
+1. Enforce ownership checks in services so one user cannot access another freelancer workspace.
+2. Add tests for anonymous, authenticated, and cross-owner access.
+3. Consider disabling Swagger in production or restricting it behind authentication/IP allowlists.
 
 ## Frontend Route Protection
 
@@ -239,7 +236,6 @@ Before enabling broad uploads:
 
 Priority items:
 
-- replace `.anyRequest().permitAll()` with authenticated rules
 - enforce ownership checks for every user-owned resource
 - add password reset and email validation
 - add rate limiting and brute-force protection on auth endpoints

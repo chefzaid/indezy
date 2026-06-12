@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, DestroyRef, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -32,6 +33,7 @@ export class DateRangeFilterComponent implements OnInit {
 
   dateForm: FormGroup;
 
+  private readonly destroyRef = inject(DestroyRef);
   constructor(private fb: FormBuilder) {
     this.dateForm = this.fb.group({
       from: [null],
@@ -49,7 +51,7 @@ export class DateRangeFilterComponent implements OnInit {
     }
 
     // Setup value changes
-    this.dateForm.valueChanges.subscribe(value => {
+    this.dateForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
       this.rangeChange.emit({
         from: value.from,
         to: value.to

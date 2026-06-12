@@ -216,6 +216,8 @@ When the frontend adds end-to-end tests later, selectors should prefer roles, la
 
 The Maven JaCoCo configuration currently checks a 60 percent instruction and branch coverage minimum. The product backlog tracks a higher direction: keep backend and frontend coverage above 85 percent.
 
+Current measured coverage (June 2026): backend ~83 percent instruction / ~64 percent branch overall (JaCoCo, includes generated MapStruct mappers and Lombok code); frontend ~93 percent statements (Karma). The frontend meets the 85 percent target; the backend gate passes with the largest remaining gaps in generated mapper code and file-upload IO paths.
+
 When adding risky behavior, use the higher target as the practical bar even if the current build gate is lower.
 
 ## E2E Direction

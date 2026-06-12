@@ -11,7 +11,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
@@ -20,6 +19,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ContactService } from '../../../services/contact/contact.service';
 import { ClientService } from '../../../services/client/client.service';
 import { ContactDto, ClientDto } from '../../../models';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 @Component({
     selector: 'app-contact-list',
@@ -62,7 +62,7 @@ export class ContactListComponent implements OnInit, OnDestroy {
     private readonly clientService: ClientService,
     private readonly router: Router,
     private readonly dialog: MatDialog,
-    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService,
     private readonly translate: TranslateService
   ) {
     this.searchSubject.pipe(
@@ -96,7 +96,7 @@ export class ContactListComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading contacts:', error);
-          this.snackBar.open(this.translate.instant('errors.loadingContacts'), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error('errors.loadingContacts');
           this.isLoading = false;
         }
       });
@@ -202,7 +202,7 @@ export class ContactListComponent implements OnInit, OnDestroy {
 
   onDelete(contact: ContactDto): void {
     if (!contact.id) {
-      this.snackBar.open(this.translate.instant('errors.missingContactId'), this.translate.instant('common.close'), { duration: 3000 });
+      this.notificationService.error('errors.missingContactId');
       return;
     }
 
@@ -211,12 +211,12 @@ export class ContactListComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.snackBar.open(this.translate.instant('contacts.deleteSuccess'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.success('contacts.deleteSuccess');
             this.loadContacts();
           },
           error: (error) => {
             console.error('Error deleting contact:', error);
-            this.snackBar.open(this.translate.instant('errors.deletingContact'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.error('errors.deletingContact');
           }
         });
     }

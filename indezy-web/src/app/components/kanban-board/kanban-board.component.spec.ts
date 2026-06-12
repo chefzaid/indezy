@@ -1,433 +1,197 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
-import { of, throwError } from 'rxjs';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { ActivatedRoute } from '@angular/router';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { of, throwError, BehaviorSubject } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { KanbanBoardComponent } from './kanban-board.component';
-import { InterviewStepService } from '../../services/interview-step/interview-step.service';
+import { ProjectService } from '../../services/project/project.service';
 import { AuthService } from '../../services/auth/auth.service';
-import {
-  KanbanBoardDto,
-  ProjectCardDto,
-  INTERVIEW_STEPS_ORDER
-} from '../../models/interview-step.models';
+import { NotificationService } from '../../services/notification/notification.service';
+import { KanbanBoardDto, KanbanProjectCardDto, ProjectDto, ProjectStatus } from '../../models/project.models';
+import { User } from '../../models';
 
 describe('KanbanBoardComponent', () => {
   let component: KanbanBoardComponent;
   let fixture: ComponentFixture<KanbanBoardComponent>;
-  let mockInterviewStepService: jasmine.SpyObj<InterviewStepService>;
-  let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
-  let mockDialog: jasmine.SpyObj<MatDialog>;
+  let mockProjectService: jasmine.SpyObj<ProjectService>;
+  let mockNotificationService: jasmine.SpyObj<NotificationService>;
+  let currentUser$: BehaviorSubject<User | null>;
 
-  const mockUser = { id: 1, email: 'test@example.com', firstName: 'John', lastName: 'Doe' };
-  
-  const mockProjectCard: ProjectCardDto = {
-    projectId: 1,
+  const mockUser = { id: 1, email: 'test@example.com', firstName: 'Test', lastName: 'User' } as User;
+
+  const mockCard: KanbanProjectCardDto = {
+    projectId: 42,
     role: 'Full Stack Developer',
-    clientName: 'Test Company',
+    status: ProjectStatus.APPLIED,
+    clientName: 'Acme',
     dailyRate: 600,
-    workMode: 'HYBRID',
-    techStack: 'Angular, Spring Boot',
-    currentStepTitle: 'Test Technique',
-    currentStepStatus: 'PLANNED',
-    currentStepDate: '2024-01-10T14:30:00',
-    notes: 'Technical interview notes',
-    totalSteps: 7,
+    totalSteps: 5,
     completedSteps: 2,
-    failedSteps: 0
+    failedSteps: 0,
+    personalRating: 4
   };
 
-  const mockKanbanBoard: KanbanBoardDto = {
+  const mockBoard: KanbanBoardDto = {
     columns: {
-      'Prise de Contact': [],
-      'Entretien Commercial': [],
-      'Positionnement': [],
-      'Test Technique': [mockProjectCard],
-      'Entretien Technique': [],
-      'Entretien Manager': [],
-      'Validation': []
+      [ProjectStatus.IDENTIFIED]: [],
+      [ProjectStatus.APPLIED]: [mockCard],
+      [ProjectStatus.INTERVIEW]: []
     },
-    stepOrder: [...INTERVIEW_STEPS_ORDER]
+    columnOrder: [ProjectStatus.IDENTIFIED, ProjectStatus.APPLIED, ProjectStatus.INTERVIEW]
   };
 
   beforeEach(async () => {
-    const interviewStepServiceSpy = jasmine.createSpyObj('InterviewStepService', [
-      'getKanbanBoard',
-      'transitionProjectToNextStep'
-    ]);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', [], {
-      currentUser$: of(mockUser)
-    });
-    const snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
-    const dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+    mockProjectService = jasmine.createSpyObj('ProjectService', ['getKanbanBoard', 'updateStatus']);
+    mockNotificationService = jasmine.createSpyObj('NotificationService', ['success', 'error', 'successText', 'errorText']);
+    currentUser$ = new BehaviorSubject<User | null>(mockUser);
+    const mockAuthService = jasmine.createSpyObj('AuthService', ['getUser'], { currentUser$ });
 
     await TestBed.configureTestingModule({
-      imports: [
-        KanbanBoardComponent,
-        NoopAnimationsModule
-      ],
+      imports: [KanbanBoardComponent, TranslateModule.forRoot()],
       providers: [
-        { provide: InterviewStepService, useValue: interviewStepServiceSpy },
-        { provide: AuthService, useValue: authServiceSpy },
-        { provide: MatSnackBar, useValue: snackBarSpy },
-        { provide: MatDialog, useValue: dialogSpy }
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: ProjectService, useValue: mockProjectService },
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: NotificationService, useValue: mockNotificationService },
+        { provide: ActivatedRoute, useValue: { snapshot: { params: {} } } }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(KanbanBoardComponent);
     component = fixture.componentInstance;
-    mockInterviewStepService = TestBed.inject(InterviewStepService) as jasmine.SpyObj<InterviewStepService>;
-    mockSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
-    mockDialog = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('Component initialization', () => {
-    it('should load kanban board on init when user is available', () => {
-      mockInterviewStepService.getKanbanBoard.and.returnValue(of(mockKanbanBoard));
+  describe('Initialization', () => {
+    it('should load the board for the current user', () => {
+      mockProjectService.getKanbanBoard.and.returnValue(of(mockBoard));
 
-      component.ngOnInit();
+      fixture.detectChanges();
 
-      expect(component.currentUserId).toBe(1);
-      expect(mockInterviewStepService.getKanbanBoard).toHaveBeenCalledWith(1);
-      expect(component.kanbanBoard).toEqual(mockKanbanBoard);
-      expect(component.isLoading).toBe(false);
+      expect(mockProjectService.getKanbanBoard).toHaveBeenCalledWith(1);
+      expect(component.kanbanBoard).toEqual(mockBoard);
+      expect(component.isLoading).toBeFalse();
     });
 
-    it('should not load kanban board when user is not available', async () => {
-      // Create a new auth service spy with null user
-      const authServiceWithNullUser = jasmine.createSpyObj('AuthService', [], {
-        currentUser$: of(null)
-      });
+    it('should not load the board when there is no user', () => {
+      currentUser$.next(null);
 
-      // Reset and reconfigure TestBed with null user
-      TestBed.resetTestingModule();
-      await TestBed.configureTestingModule({
-        imports: [
-          KanbanBoardComponent,
-          NoopAnimationsModule
-        ],
-        providers: [
-          { provide: InterviewStepService, useValue: mockInterviewStepService },
-          { provide: AuthService, useValue: authServiceWithNullUser },
-          { provide: MatSnackBar, useValue: mockSnackBar },
-          { provide: MatDialog, useValue: mockDialog }
-        ]
-      }).compileComponents();
+      fixture.detectChanges();
 
-      const fixtureWithNullUser = TestBed.createComponent(KanbanBoardComponent);
-      const componentWithNullUser = fixtureWithNullUser.componentInstance;
-
-      // Reset the spy call count
-      mockInterviewStepService.getKanbanBoard.calls.reset();
-
-      componentWithNullUser.ngOnInit();
-
-      expect(mockInterviewStepService.getKanbanBoard).not.toHaveBeenCalled();
+      expect(mockProjectService.getKanbanBoard).not.toHaveBeenCalled();
     });
 
-    it('should handle error when loading kanban board', fakeAsync(() => {
-      mockInterviewStepService.getKanbanBoard.and.returnValue(throwError(() => new Error('API Error')));
+    it('should notify on load error', () => {
+      mockProjectService.getKanbanBoard.and.returnValue(throwError(() => new Error('boom')));
 
-      // Test the service call directly without takeUntil
-      component.currentUserId = 1;
-      component.isLoading = true;
+      fixture.detectChanges();
 
-      // Directly subscribe to the service call to test error handling
-      mockInterviewStepService.getKanbanBoard(1).subscribe({
-        next: (board) => {
-          component.kanbanBoard = board;
-          component.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading kanban board:', error);
-          mockSnackBar.open('Erreur lors du chargement du tableau', 'Fermer', { duration: 3000 });
-          component.isLoading = false;
-        }
-      });
-
-      tick(); // Process the getKanbanBoard observable (error case)
-
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Erreur lors du chargement du tableau',
-        'Fermer',
-        { duration: 3000 }
-      );
-      expect(component.isLoading).toBe(false);
-    }));
+      expect(mockNotificationService.error).toHaveBeenCalledWith('errors.loadingBoard');
+      expect(component.isLoading).toBeFalse();
+    });
   });
 
-  describe('Kanban board data methods', () => {
+  describe('Board data accessors', () => {
     beforeEach(() => {
-      component.kanbanBoard = mockKanbanBoard;
+      mockProjectService.getKanbanBoard.and.returnValue(of(mockBoard));
+      fixture.detectChanges();
     });
 
-    it('should get step columns', () => {
-      const columns = component.getStepColumns();
-      expect(columns).toEqual(INTERVIEW_STEPS_ORDER);
+    it('should return columns in order', () => {
+      expect(component.getColumns()).toEqual(mockBoard.columnOrder);
     });
 
-    it('should get projects for step', () => {
-      const projects = component.getProjectsForStep('Test Technique');
-      expect(projects).toEqual([mockProjectCard]);
+    it('should return cards for a column', () => {
+      expect(component.getCardsForColumn(ProjectStatus.APPLIED)).toEqual([mockCard]);
+      expect(component.getCardsForColumn(ProjectStatus.INTERVIEW)).toEqual([]);
     });
 
-    it('should get empty array for step with no projects', () => {
-      const projects = component.getProjectsForStep('Validation');
-      expect(projects).toEqual([]);
+    it('should build column ids and connected drop lists', () => {
+      expect(component.getColumnId(ProjectStatus.APPLIED)).toBe(`kanban-col-${ProjectStatus.APPLIED}`);
+      expect(component.getConnectedDropLists()).toEqual(
+        mockBoard.columnOrder.map(s => `kanban-col-${s}`)
+      );
     });
 
-    it('should get step column id', () => {
-      const columnId = component.getStepColumnId('Test Technique');
-      expect(columnId).toBe('step-column-Test Technique');
+    it('should count cards per column', () => {
+      expect(component.getColumnCount(ProjectStatus.APPLIED)).toBe(1);
+      expect(component.getColumnCount(ProjectStatus.IDENTIFIED)).toBe(0);
     });
 
-    it('should get connected drop lists', () => {
-      const connectedLists = component.getConnectedDropLists();
-      expect(connectedLists).toEqual([
-        'step-column-Prise de Contact',
-        'step-column-Entretien Commercial',
-        'step-column-Positionnement',
-        'step-column-Test Technique',
-        'step-column-Entretien Technique',
-        'step-column-Entretien Manager',
-        'step-column-Validation'
-      ]);
+    it('should detect a non-empty board', () => {
+      expect(component.isBoardEmpty()).toBeFalse();
+    });
+
+    it('should detect an empty board', () => {
+      component.kanbanBoard = {
+        columns: { [ProjectStatus.APPLIED]: [] },
+        columnOrder: [ProjectStatus.APPLIED]
+      };
+      expect(component.isBoardEmpty()).toBeTrue();
     });
   });
 
-  describe('Project card utilities', () => {
-    it('should calculate progress percentage', () => {
-      const percentage = component.getProgressPercentage(mockProjectCard);
-      expect(percentage).toBe(29); // 2/7 * 100 = 28.57, rounded to 29
+  function dropEvent(previousId: string, containerId: string): CdkDragDrop<KanbanProjectCardDto[]> {
+    return {
+      previousContainer: { data: [mockCard], id: previousId },
+      container: { data: [], id: containerId },
+      previousIndex: 0,
+      currentIndex: 0
+    } as unknown as CdkDragDrop<KanbanProjectCardDto[]>;
+  }
+
+  describe('Card drag and drop', () => {
+    beforeEach(() => {
+      mockProjectService.getKanbanBoard.and.returnValue(of(mockBoard));
+      fixture.detectChanges();
     });
 
-    it('should handle zero total steps', () => {
-      const cardWithZeroSteps = { ...mockProjectCard, totalSteps: 0 };
-      const percentage = component.getProgressPercentage(cardWithZeroSteps);
-      expect(percentage).toBe(0);
+    it('should update status and notify on cross-column drop', () => {
+      mockProjectService.updateStatus.and.returnValue(of({} as ProjectDto));
+
+      component.onCardDrop(dropEvent(
+        `kanban-col-${ProjectStatus.APPLIED}`,
+        `kanban-col-${ProjectStatus.INTERVIEW}`
+      ));
+
+      expect(mockProjectService.updateStatus).toHaveBeenCalledWith(42, ProjectStatus.INTERVIEW);
+      expect(mockNotificationService.successText).toHaveBeenCalled();
     });
 
-    it('should get status chip color', () => {
-      const color = component.getStatusChipColor('PLANNED');
-      expect(color).toBe('#42a5f5');
-    });
+    it('should reload the board when the status update fails', () => {
+      mockProjectService.updateStatus.and.returnValue(throwError(() => new Error('boom')));
 
-    it('should format date correctly', () => {
-      const formatted = component.formatDate('2024-01-10T14:30:00');
-      // The actual format is "10/01/2024 14:30" (DD/MM/YYYY HH:mm)
-      expect(formatted).toMatch(/\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/);
-    });
+      component.onCardDrop(dropEvent(
+        `kanban-col-${ProjectStatus.APPLIED}`,
+        `kanban-col-${ProjectStatus.INTERVIEW}`
+      ));
 
-    it('should handle empty date', () => {
-      const formatted = component.formatDate();
-      expect(formatted).toBe('');
+      expect(mockNotificationService.error).toHaveBeenCalledWith('errors.movingCard');
+      expect(mockProjectService.getKanbanBoard).toHaveBeenCalledTimes(2);
     });
+  });
 
-    it('should format currency correctly', () => {
+  describe('Display helpers', () => {
+    it('should format currency in euros', () => {
       const formatted = component.formatCurrency(600);
-      expect(formatted).toMatch(/600\s*€/);
+      expect(formatted).toContain('600');
+      expect(formatted).toContain('€');
+    });
+
+    it('should build rating stars', () => {
+      expect(component.getRatingStars(3)).toEqual(['star', 'star', 'star']);
+      expect(component.getRatingStars()).toEqual([]);
     });
   });
 
-  describe('Drag and drop functionality', () => {
-    beforeEach(() => {
-      component.kanbanBoard = mockKanbanBoard;
-      component.currentUserId = 1;
-    });
-
-    it('should handle card drop within same container', () => {
-      const mockEvent = {
-        previousContainer: { data: [mockProjectCard], id: 'step-column-Test Technique' },
-        container: { data: [mockProjectCard], id: 'step-column-Test Technique' },
-        previousIndex: 0,
-        currentIndex: 0
-      } as any;
-
-      spyOn(component, 'transitionProject' as any);
-
-      component.onCardDrop(mockEvent);
-
-      expect(component['transitionProject']).not.toHaveBeenCalled();
-    });
-
-    it('should handle card drop between different containers', () => {
-      const mockEvent = {
-        previousContainer: { 
-          data: [mockProjectCard], 
-          id: 'step-column-Test Technique' 
-        },
-        container: { 
-          data: [], 
-          id: 'step-column-Entretien Technique' 
-        },
-        previousIndex: 0,
-        currentIndex: 0
-      } as any;
-
-      spyOn(component, 'transitionProject' as any);
-
-      component.onCardDrop(mockEvent);
-
-      expect(component['transitionProject']).toHaveBeenCalledWith(
-        mockProjectCard,
-        'Test Technique',
-        'Entretien Technique'
-      );
-    });
-
-    it('should transition project successfully', fakeAsync(() => {
-      mockInterviewStepService.transitionProjectToNextStep.and.returnValue(of({} as any));
-      mockInterviewStepService.getKanbanBoard.and.returnValue(of(mockKanbanBoard));
-
-      // Set up currentUserId for loadKanbanBoard call
-      component.currentUserId = 1;
-
-      // Test the service call directly without takeUntil
-      const transition = {
-        projectId: mockProjectCard.projectId,
-        fromStepTitle: 'Test Technique',
-        toStepTitle: 'Entretien Technique'
-      };
-
-      // Directly subscribe to the service call to test success handling
-      mockInterviewStepService.transitionProjectToNextStep(transition).subscribe({
-        next: () => {
-          mockSnackBar.open(
-            `Projet "${mockProjectCard.role}" déplacé vers "Entretien Technique"`,
-            'Fermer',
-            { duration: 3000 }
-          );
-          // Simulate loadKanbanBoard call
-          mockInterviewStepService.getKanbanBoard(1);
-        },
-        error: (error) => {
-          console.error('Error transitioning project:', error);
-          mockSnackBar.open('Erreur lors du déplacement du projet', 'Fermer', { duration: 3000 });
-          mockInterviewStepService.getKanbanBoard(1);
-        }
-      });
-
-      expect(mockInterviewStepService.transitionProjectToNextStep).toHaveBeenCalledWith(transition);
-
-      tick(); // Process the transitionProjectToNextStep observable
-
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Projet "Full Stack Developer" déplacé vers "Entretien Technique"',
-        'Fermer',
-        { duration: 3000 }
-      );
-
-      expect(mockInterviewStepService.getKanbanBoard).toHaveBeenCalledWith(1);
-    }));
-
-    it('should handle transition error', fakeAsync(() => {
-      mockInterviewStepService.transitionProjectToNextStep.and.returnValue(
-        throwError(() => new Error('Transition failed'))
-      );
-      mockInterviewStepService.getKanbanBoard.and.returnValue(of(mockKanbanBoard));
-
-      // Set up currentUserId for loadKanbanBoard call
-      component.currentUserId = 1;
-
-      // Test the service call directly without takeUntil
-      const transition = {
-        projectId: mockProjectCard.projectId,
-        fromStepTitle: 'Test Technique',
-        toStepTitle: 'Entretien Technique'
-      };
-
-      // Directly subscribe to the service call to test error handling
-      mockInterviewStepService.transitionProjectToNextStep(transition).subscribe({
-        next: () => {
-          mockSnackBar.open(
-            `Projet "${mockProjectCard.role}" déplacé vers "Entretien Technique"`,
-            'Fermer',
-            { duration: 3000 }
-          );
-          mockInterviewStepService.getKanbanBoard(1);
-        },
-        error: (error) => {
-          console.error('Error transitioning project:', error);
-          mockSnackBar.open('Erreur lors du déplacement du projet', 'Fermer', { duration: 3000 });
-          mockInterviewStepService.getKanbanBoard(1);
-        }
-      });
-
-      tick(); // Process the transitionProjectToNextStep observable (error case)
-
-      expect(mockSnackBar.open).toHaveBeenCalledWith(
-        'Erreur lors du déplacement du projet',
-        'Fermer',
-        { duration: 3000 }
-      );
-
-      expect(mockInterviewStepService.getKanbanBoard).toHaveBeenCalledWith(1);
-    }));
-  });
-
-  describe('Action methods', () => {
-    it('should open schedule dialog', () => {
-      const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-      dialogRefSpy.afterClosed.and.returnValue(of({}));
-      mockDialog.open.and.returnValue(dialogRefSpy);
-      mockInterviewStepService.getKanbanBoard.and.returnValue(of(mockKanbanBoard));
-
-      component.onScheduleStep(mockProjectCard);
-
-      expect(mockDialog.open).toHaveBeenCalled();
-    });
-
-    it('should open action dialog for waiting feedback', () => {
-      const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-      dialogRefSpy.afterClosed.and.returnValue(of({}));
-      mockDialog.open.and.returnValue(dialogRefSpy);
-      mockInterviewStepService.getKanbanBoard.and.returnValue(of(mockKanbanBoard));
-
-      component.onMarkAsWaitingFeedback(mockProjectCard);
-
-      expect(mockDialog.open).toHaveBeenCalled();
-    });
-
-    it('should open action dialog for validation', () => {
-      const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-      dialogRefSpy.afterClosed.and.returnValue(of({}));
-      mockDialog.open.and.returnValue(dialogRefSpy);
-      mockInterviewStepService.getKanbanBoard.and.returnValue(of(mockKanbanBoard));
-
-      component.onMarkAsValidated(mockProjectCard);
-
-      expect(mockDialog.open).toHaveBeenCalled();
-    });
-
-    it('should open action dialog for failure', () => {
-      const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-      dialogRefSpy.afterClosed.and.returnValue(of({}));
-      mockDialog.open.and.returnValue(dialogRefSpy);
-      mockInterviewStepService.getKanbanBoard.and.returnValue(of(mockKanbanBoard));
-
-      component.onMarkAsFailed(mockProjectCard);
-
-      expect(mockDialog.open).toHaveBeenCalled();
-    });
-
-    it('should open action dialog for cancellation', () => {
-      const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-      dialogRefSpy.afterClosed.and.returnValue(of({}));
-      mockDialog.open.and.returnValue(dialogRefSpy);
-      mockInterviewStepService.getKanbanBoard.and.returnValue(of(mockKanbanBoard));
-
-      component.onMarkAsCanceled(mockProjectCard);
-
-      expect(mockDialog.open).toHaveBeenCalled();
-    });
-  });
-
-  describe('Component cleanup', () => {
+  describe('Cleanup', () => {
     it('should complete destroy subject on destroy', () => {
       spyOn(component['destroy$'], 'next');
       spyOn(component['destroy$'], 'complete');

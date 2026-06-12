@@ -7,7 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -17,6 +16,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { SourceDto, SourceType } from '../../../models/source.models';
 import { ComprehensiveFilterPanelComponent } from '../../../shared/components';
 import { ComprehensiveFilterConfig } from '../../../models/filter.models';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 @Component({
   selector: 'app-source-list',
@@ -51,7 +51,7 @@ export class SourceListComponent implements OnInit, OnDestroy {
     private readonly sourceService: SourceService,
     private readonly authService: AuthService,
     private readonly router: Router,
-    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService,
     private readonly translate: TranslateService
   ) {}
 
@@ -162,7 +162,7 @@ export class SourceListComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: () => {
-          this.snackBar.open(this.translate.instant('errors.loadingSources'), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error('errors.loadingSources');
           this.isLoading = false;
         }
       });
@@ -183,11 +183,11 @@ export class SourceListComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.snackBar.open(this.translate.instant('sources.deleteSuccess'), 'OK', { duration: 2000 });
+            this.notificationService.success('sources.deleteSuccess', 2000);
             this.loadSources();
           },
           error: () => {
-            this.snackBar.open(this.translate.instant('errors.deletingSource'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.error('errors.deletingSource');
           }
         });
     }

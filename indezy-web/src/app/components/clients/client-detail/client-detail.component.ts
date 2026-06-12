@@ -6,7 +6,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -18,6 +17,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ClientService } from '../../../services/client/client.service';
 import { ContactService } from '../../../services/contact/contact.service';
 import { ClientDto, ContactDto } from '../../../models';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 
 @Component({
@@ -58,7 +58,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     private readonly contactService: ContactService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly snackBar: MatSnackBar,
+    private readonly notificationService: NotificationService,
     private readonly dialog: MatDialog,
     private readonly translate: TranslateService
   ) {}
@@ -108,7 +108,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
                 }
               });
           } else {
-            this.snackBar.open(this.translate.instant('errors.clientNotFound'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.error('errors.clientNotFound');
             this.router.navigate(['/clients']);
             this.isLoading = false;
             this.isLoadingContacts = false;
@@ -116,7 +116,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading client:', error);
-          this.snackBar.open(this.translate.instant('errors.loadingData'), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error('errors.loadingData');
           this.isLoading = false;
           this.isLoadingContacts = false;
         }
@@ -138,7 +138,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading contacts:', error);
-          this.snackBar.open(this.translate.instant('errors.loadingContacts'), this.translate.instant('common.close'), { duration: 3000 });
+          this.notificationService.error('errors.loadingContacts');
           this.isLoadingContacts = false;
         }
       });
@@ -160,12 +160,12 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.snackBar.open(this.translate.instant('clients.deleteSuccess'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.success('clients.deleteSuccess');
             this.router.navigate(['/clients']);
           },
           error: (error) => {
             console.error('Error deleting client:', error);
-            this.snackBar.open(this.translate.instant('errors.deletingClient'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.error('errors.deletingClient');
           }
         });
     }
@@ -256,7 +256,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
 
   onDeleteContact(contact: ContactDto): void {
     if (!contact.id) {
-      this.snackBar.open(this.translate.instant('errors.missingContactId'), this.translate.instant('common.close'), { duration: 3000 });
+      this.notificationService.error('errors.missingContactId');
       return;
     }
 
@@ -265,12 +265,12 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.snackBar.open(this.translate.instant('contacts.deleteSuccess'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.success('contacts.deleteSuccess');
             this.loadClientAndContacts(); // Reload client and contacts
           },
           error: (error) => {
             console.error('Error deleting contact:', error);
-            this.snackBar.open(this.translate.instant('errors.deletingContact'), this.translate.instant('common.close'), { duration: 3000 });
+            this.notificationService.error('errors.deletingContact');
           }
         });
     }

@@ -1,15 +1,22 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.dto.DashboardStatsDto;
+import dev.swirlit.indezy.dto.KanbanBoardDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.ProjectMapper;
 import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Freelance;
+import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
+import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
+import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.model.enums.StepStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +49,9 @@ class ProjectServiceTest {
 
     @Mock
     private SourceRepository sourceRepository;
+
+    @Mock
+    private InterviewStepRepository interviewStepRepository;
 
     @Mock
     private ProjectMapper projectMapper;
@@ -314,5 +324,273 @@ class ProjectServiceTest {
         // Then
         assertThat(result).isEqualTo(3L);
         verify(projectRepository).countByFreelanceId(1L);
+    }
+
+    @Test
+    void findByClientId_ShouldReturnProjectsForClient() {
+        // Given
+        when(projectRepository.findByClientId(1L)).thenReturn(Arrays.asList(testProject));
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When
+        List<ProjectDto> result = projectService.findByClientId(1L);
+
+        // Then
+        assertThat(result).hasSize(1);
+        verify(projectRepository).findByClientId(1L);
+    }
+
+    @Test
+    void findByIdWithSteps_WhenProjectNotExists_ShouldThrowResourceNotFoundException() {
+        // Given
+        when(projectRepository.findByIdWithSteps(999L)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> projectService.findByIdWithSteps(999L))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void findByFreelanceIdAndFilters_WithAllFilters_ShouldApplyEachFilter() {
+        // Given
+        Project nonMatching = new Project();
+        nonMatching.setDailyRate(800);
+        nonMatching.setWorkMode(WorkMode.REMOTE);
+        nonMatching.setStartDate(LocalDate.of(2023, 1, 1));
+        nonMatching.setTechStack("Python");
+        nonMatching.setFreelance(testFreelance);
+
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(Arrays.asList(testProject, nonMatching));
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When
+        List<ProjectDto> result = projectService.findByFreelanceIdAndFilters(
+                1L, 500, 700, WorkMode.HYBRID, LocalDate.of(2024, 1, 1), "java");
+
+        // Then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getWorkMode()).isEqualTo(WorkMode.HYBRID);
+    }
+
+    @Test
+    void create_WithMiddlemanAndSource_ShouldResolveAllRelationships() {
+        // Given
+        Client middleman = new Client();
+        middleman.setId(2L);
+        Source source = new Source();
+        source.setId(3L);
+        testProjectDto.setMiddlemanId(2L);
+        testProjectDto.setSourceId(3L);
+
+        when(projectMapper.toEntity(testProjectDto)).thenReturn(testProject);
+        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(testClient));
+        when(clientRepository.findById(2L)).thenReturn(Optional.of(middleman));
+        when(sourceRepository.findById(3L)).thenReturn(Optional.of(source));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When
+        ProjectDto result = projectService.create(testProjectDto);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(testProject.getMiddleman()).isEqualTo(middleman);
+        assertThat(testProject.getSource()).isEqualTo(source);
+    }
+
+    @Test
+    void create_WithoutStatus_ShouldDefaultToIdentified() {
+        // Given
+        testProject.setStatus(null);
+        when(projectMapper.toEntity(testProjectDto)).thenReturn(testProject);
+        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(testClient));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When
+        projectService.create(testProjectDto);
+
+        // Then
+        assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.IDENTIFIED);
+    }
+
+    @Test
+    void update_WhenProjectNotExists_ShouldThrowResourceNotFoundException() {
+        // Given
+        when(projectRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> projectService.update(999L, testProjectDto))
+                .isInstanceOf(ResourceNotFoundException.class);
+        verify(projectRepository, never()).save(any());
+    }
+
+    @Test
+    void update_WithNewMiddlemanAndSource_ShouldReassignRelationships() {
+        // Given
+        Client middleman = new Client();
+        middleman.setId(2L);
+        Source source = new Source();
+        source.setId(3L);
+        testProjectDto.setMiddlemanId(2L);
+        testProjectDto.setSourceId(3L);
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(clientRepository.findById(2L)).thenReturn(Optional.of(middleman));
+        when(sourceRepository.findById(3L)).thenReturn(Optional.of(source));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When
+        projectService.update(1L, testProjectDto);
+
+        // Then
+        assertThat(testProject.getMiddleman()).isEqualTo(middleman);
+        assertThat(testProject.getSource()).isEqualTo(source);
+    }
+
+    @Test
+    void update_WithoutMiddlemanAndSource_ShouldClearRelationships() {
+        // Given
+        Client middleman = new Client();
+        middleman.setId(2L);
+        Source source = new Source();
+        source.setId(3L);
+        testProject.setMiddleman(middleman);
+        testProject.setSource(source);
+        testProjectDto.setMiddlemanId(null);
+        testProjectDto.setSourceId(null);
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When
+        projectService.update(1L, testProjectDto);
+
+        // Then
+        assertThat(testProject.getMiddleman()).isNull();
+        assertThat(testProject.getSource()).isNull();
+    }
+
+    @Test
+    void updateStatus_WhenProjectExists_ShouldUpdateStatus() {
+        // Given
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When
+        ProjectDto result = projectService.updateStatus(1L, ProjectStatus.WON);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.WON);
+        verify(projectRepository).save(testProject);
+    }
+
+    @Test
+    void updateStatus_WhenProjectNotExists_ShouldThrowResourceNotFoundException() {
+        // Given
+        when(projectRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> projectService.updateStatus(999L, ProjectStatus.WON))
+                .isInstanceOf(ResourceNotFoundException.class);
+        verify(projectRepository, never()).save(any());
+    }
+
+    @Test
+    void getKanbanBoard_ShouldGroupProjectsByStatusInColumnOrder() {
+        // Given
+        testProject.setStatus(ProjectStatus.APPLIED);
+
+        Project projectWithoutStatus = new Project();
+        projectWithoutStatus.setId(2L);
+        projectWithoutStatus.setRole("Backend Developer");
+        projectWithoutStatus.setFreelance(testFreelance);
+
+        InterviewStep completedStep = new InterviewStep();
+        completedStep.setStatus(StepStatus.VALIDATED);
+        InterviewStep failedStep = new InterviewStep();
+        failedStep.setStatus(StepStatus.FAILED);
+
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(Arrays.asList(testProject, projectWithoutStatus));
+        when(interviewStepRepository.findByProjectId(1L)).thenReturn(Arrays.asList(completedStep, failedStep));
+        when(interviewStepRepository.findByProjectId(2L)).thenReturn(List.of());
+
+        // When
+        KanbanBoardDto board = projectService.getKanbanBoard(1L);
+
+        // Then
+        assertThat(board.getColumnOrder()).containsExactly(
+                "IDENTIFIED", "APPLIED", "INTERVIEW", "OFFER", "WON", "LOST");
+        assertThat(board.getColumns().get("APPLIED")).hasSize(1);
+        assertThat(board.getColumns().get("IDENTIFIED")).hasSize(1); // null status defaults to IDENTIFIED
+
+        KanbanBoardDto.ProjectCardDto card = board.getColumns().get("APPLIED").get(0);
+        assertThat(card.getProjectId()).isEqualTo(1L);
+        assertThat(card.getClientName()).isEqualTo("Test Company");
+        assertThat(card.getTotalSteps()).isEqualTo(2);
+        assertThat(card.getCompletedSteps()).isEqualTo(1);
+        assertThat(card.getFailedSteps()).isEqualTo(1);
+    }
+
+    @Test
+    void getDashboardStats_ShouldAggregateCountsRatesAndRanges() {
+        // Given
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(2L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L))
+                .thenReturn(List.<Object[]>of(new Object[]{ProjectStatus.WON, 1L}));
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L))
+                .thenReturn(List.<Object[]>of(new Object[]{WorkMode.HYBRID, 2L}));
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
+
+        // When
+        DashboardStatsDto stats = projectService.getDashboardStats(1L);
+
+        // Then
+        assertThat(stats.getTotalProjects()).isEqualTo(2L);
+        assertThat(stats.getAverageDailyRate()).isEqualTo(600.0);
+        assertThat(stats.getWonProjects()).isEqualTo(1L);
+        assertThat(stats.getLostProjects()).isZero();
+        assertThat(stats.getActiveProjects()).isEqualTo(1L);
+        assertThat(stats.getProjectsByStatus().get("WON")).isEqualTo(1L);
+        assertThat(stats.getProjectsByWorkMode().get("HYBRID")).isEqualTo(2L);
+        // testProject has dailyRate 600 -> falls in the 500-700 bucket
+        assertThat(stats.getDailyRateRanges())
+                .filteredOn(r -> r.getLabel().equals("500-700"))
+                .first()
+                .satisfies(r -> assertThat(r.getCount()).isEqualTo(1L));
+    }
+
+    @Test
+    void getDashboardStats_WithNoData_ShouldReturnZeroDefaults() {
+        // Given
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(null);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(null);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(null);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(null);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(null);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of());
+
+        // When
+        DashboardStatsDto stats = projectService.getDashboardStats(1L);
+
+        // Then
+        assertThat(stats.getTotalProjects()).isZero();
+        assertThat(stats.getAverageDailyRate()).isZero();
+        assertThat(stats.getTotalEstimatedRevenue()).isZero();
+        assertThat(stats.getWonProjects()).isZero();
+        assertThat(stats.getLostProjects()).isZero();
+        assertThat(stats.getActiveProjects()).isZero();
     }
 }
