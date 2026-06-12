@@ -2,11 +2,9 @@ package dev.swirlit.indezy.repository;
 
 import dev.swirlit.indezy.model.UserSecurityQuestion;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface UserSecurityQuestionRepository extends JpaRepository<UserSecurityQuestion, Long> {
 
     /**

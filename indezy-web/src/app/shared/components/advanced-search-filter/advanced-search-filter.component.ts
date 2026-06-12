@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,6 +28,10 @@ export class AdvancedSearchFilterComponent implements OnInit {
   @Output() searchChange = new EventEmitter<string>();
 
   searchForm: FormGroup;
+
+  get queryControl(): FormControl {
+    return this.searchForm.get('query') as FormControl;
+  }
 
   constructor(private readonly fb: FormBuilder) {
     this.searchForm = this.fb.group({

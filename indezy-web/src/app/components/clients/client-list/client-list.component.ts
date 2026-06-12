@@ -28,6 +28,20 @@ import { ClientDto } from '../../../models';
 import { ContactService } from '../../../services/contact/contact.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 
+interface ClientFilterValues {
+  searchQuery?: string;
+  searchType?: string;
+  status?: string;
+  industry?: string;
+  location?: string;
+  projectCountRange?: string;
+  createdDateFrom?: string | Date | null;
+  createdDateTo?: string | Date | null;
+  selectedIndustries?: string[];
+  sortBy?: string;
+  sortOrder?: string;
+}
+
 @Component({
     selector: 'app-client-list',
     imports: [
@@ -294,19 +308,19 @@ export class ClientListComponent implements OnInit, OnDestroy {
 
   // Advanced filtering methods
   applyAdvancedFilters(): void {
-    const filters = this.filterForm.value;
+    const filters: ClientFilterValues = this.filterForm.value;
 
     let filtered = this.clients.filter(client => this.matchesAllFilters(client, filters));
 
     // Apply sorting
     if (filters.sortBy) {
-      filtered = this.sortClients(filtered, filters.sortBy, filters.sortOrder);
+      filtered = this.sortClients(filtered, filters.sortBy, filters.sortOrder ?? 'asc');
     }
 
     this.filteredClients = filtered;
   }
 
-  private matchesAllFilters(client: ClientDto, filters: any): boolean {
+  private matchesAllFilters(client: ClientDto, filters: ClientFilterValues): boolean {
     return this.matchesSearchQuery(client, filters)
       && this.matchesStatus(client, filters)
       && this.matchesIndustry(client, filters)
@@ -316,7 +330,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
       && this.matchesDateRange(client, filters);
   }
 
-  private matchesSearchQuery(client: ClientDto, filters: any): boolean {
+  private matchesSearchQuery(client: ClientDto, filters: ClientFilterValues): boolean {
     if (!filters.searchQuery?.trim()) { return true; }
     const query = filters.searchQuery.toLowerCase();
     const searchableText = [
@@ -329,25 +343,25 @@ export class ClientListComponent implements OnInit, OnDestroy {
     return searchableText.includes(query);
   }
 
-  private matchesStatus(client: ClientDto, filters: any): boolean {
+  private matchesStatus(client: ClientDto, filters: ClientFilterValues): boolean {
     if (!filters.status || filters.status === 'ALL') { return true; }
     const clientStatus = client.isFinal ? 'FINAL' : 'ESN';
     return clientStatus === filters.status || client.status === filters.status;
   }
 
-  private matchesIndustry(client: ClientDto, filters: any): boolean {
+  private matchesIndustry(client: ClientDto, filters: ClientFilterValues): boolean {
     if (!filters.industry || !client.domain) { return true; }
     return client.domain.toLowerCase().includes(filters.industry.toLowerCase());
   }
 
-  private matchesSelectedIndustries(client: ClientDto, filters: any): boolean {
+  private matchesSelectedIndustries(client: ClientDto, filters: ClientFilterValues): boolean {
     if (!filters.selectedIndustries?.length) { return true; }
     return filters.selectedIndustries.some((industry: string) =>
       client.domain?.toLowerCase().includes(industry.toLowerCase())
     );
   }
 
-  private matchesLocation(client: ClientDto, filters: any): boolean {
+  private matchesLocation(client: ClientDto, filters: ClientFilterValues): boolean {
     if (!filters.location?.trim()) { return true; }
     const locationQuery = filters.location.toLowerCase();
     const clientLocation = [client.address, client.city]
@@ -355,7 +369,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
     return clientLocation.includes(locationQuery);
   }
 
-  private matchesProjectCount(client: ClientDto, filters: any): boolean {
+  private matchesProjectCount(client: ClientDto, filters: ClientFilterValues): boolean {
     if (!filters.projectCountRange || client.totalProjects === undefined) { return true; }
     const count = client.totalProjects;
     switch (filters.projectCountRange) {
@@ -368,7 +382,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
     }
   }
 
-  private matchesDateRange(client: ClientDto, filters: any): boolean {
+  private matchesDateRange(client: ClientDto, filters: ClientFilterValues): boolean {
     if (filters.createdDateFrom && client.createdAt) {
       if (new Date(client.createdAt) < new Date(filters.createdDateFrom)) { return false; }
     }

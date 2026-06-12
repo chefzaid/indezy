@@ -4,8 +4,8 @@ This devcontainer provides a complete, standalone development environment for th
 
 ## 🚀 Features
 
-- **Java 21** with Maven pre-configured
-- **Node.js 18** with Angular CLI
+- **Java 25** with Maven pre-configured
+- **Node.js 26** with Angular CLI
 - **PostgreSQL 15** database with sample data
 - **pgAdmin 4** for database management
 - **VS Code extensions** for Java, Angular, and database development
@@ -19,9 +19,9 @@ This devcontainer provides a complete, standalone development environment for th
 - **pgAdmin**: Web-based database administration tool
 
 ### Pre-installed Tools
-- Java 21 (OpenJDK)
-- Maven 3.9.6
-- Node.js 18
+- Java 25 (OpenJDK)
+- Maven 3.9.9
+- Node.js 26
 - Angular CLI (latest)
 - PostgreSQL client
 - Git
@@ -199,5 +199,5 @@ The container sets up these environment variables automatically:
 
 - [VS Code Dev Containers Documentation](https://code.visualstudio.com/docs/remote/containers)
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)
-- [Angular Documentation](https://angular.io/docs)
+- [Angular Documentation](https://angular.dev/)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)

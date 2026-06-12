@@ -1,7 +1,7 @@
 <mat-form-field appearance="outline" class="search-filter">
   <mat-label>{{ config.label || 'Rechercher' }}</mat-label>
   <input matInput
-         [formControl]="searchForm.get('query')!"
+         [formControl]="queryControl"
          [placeholder]="config.placeholder || 'Tapez votre recherche...'">
   <mat-icon matPrefix *ngIf="config.icon">{{ config.icon }}</mat-icon>
   <button mat-icon-button 

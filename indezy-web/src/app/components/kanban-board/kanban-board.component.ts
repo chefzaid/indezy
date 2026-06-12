@@ -76,7 +76,7 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
   }
 
   loadKanbanBoard(): void {
-    if (!this.currentUserId) return;
+    if (!this.currentUserId) {return;}
 
     this.isLoading = true;
     this.projectService.getKanbanBoard(this.currentUserId)
@@ -176,7 +176,7 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
   }
 
   getRatingStars(rating?: number): string[] {
-    if (!rating) return [];
+    if (!rating) {return [];}
     return new Array(rating).fill('star');
   }
 }

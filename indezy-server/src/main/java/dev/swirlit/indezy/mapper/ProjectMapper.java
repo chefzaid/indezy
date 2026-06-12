@@ -1,10 +1,14 @@
 package dev.swirlit.indezy.mapper;
 
+import dev.swirlit.indezy.dto.InterviewStepDto;
 import dev.swirlit.indezy.dto.ProjectDto;
+import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", uses = {InterviewStepMapper.class})
+import java.util.List;
+
+@Mapper(componentModel = "spring")
 public interface ProjectMapper {
 
     @Mapping(target = "freelanceId", source = "freelance.id")
@@ -42,4 +46,35 @@ public interface ProjectMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
     void updateEntity(ProjectDto dto, @MappingTarget Project project);
+
+    default InterviewStepDto toInterviewStepDto(final InterviewStep interviewStep) {
+        if (interviewStep == null) {
+            return null;
+        }
+
+        InterviewStepDto dto = new InterviewStepDto();
+        dto.setId(interviewStep.getId());
+        dto.setTitle(interviewStep.getTitle());
+        dto.setDate(interviewStep.getDate());
+        dto.setStatus(interviewStep.getStatus());
+        dto.setNotes(interviewStep.getNotes());
+
+        Project project = interviewStep.getProject();
+        if (project != null) {
+            dto.setProjectId(project.getId());
+            dto.setProjectRole(project.getRole());
+        }
+
+        return dto;
+    }
+
+    default List<InterviewStepDto> toInterviewStepDtos(final List<InterviewStep> interviewSteps) {
+        if (interviewSteps == null) {
+            return null;
+        }
+
+        return interviewSteps.stream()
+            .map(this::toInterviewStepDto)
+            .toList();
+    }
 }

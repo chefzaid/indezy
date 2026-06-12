@@ -10,6 +10,7 @@
     "add": "Ajouter",
     "back": "Retour",
     "search": "Recherche",
+    "noResults": "Aucun résultat ne correspond à vos filtres",
     "loading": "Chargement...",
     "all": "Tous",
     "allFeminine": "Toutes",

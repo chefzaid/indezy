@@ -4,11 +4,9 @@ import dev.swirlit.indezy.model.Freelance;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
 public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
 
     Optional<Freelance> findByEmail(String email);

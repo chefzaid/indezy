@@ -103,7 +103,7 @@ export class StepScheduleDialogComponent {
 
   // Date filter to disable past dates
   dateFilter = (date: Date | null): boolean => {
-    if (!date) return false;
+    if (!date) {return false;}
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return date >= today;

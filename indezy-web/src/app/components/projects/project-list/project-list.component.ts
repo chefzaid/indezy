@@ -27,6 +27,27 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { ProjectDto, User, FreelanceDto } from '../../../models';
 import { TravelMode, ProjectCommuteDto, CommuteInfoDto } from '../../../models/commute.models';
 
+type DateFilterValue = string | Date | null;
+
+interface ProjectFilterValues {
+  searchQuery?: string;
+  minRate?: number | string | null;
+  maxRate?: number | string | null;
+  workMode?: string;
+  techStack?: string;
+  status?: string;
+  startDateFrom?: DateFilterValue;
+  startDateTo?: DateFilterValue;
+  endDateFrom?: DateFilterValue;
+  endDateTo?: DateFilterValue;
+  duration?: string;
+  client?: string;
+  location?: string;
+  selectedTechStack?: string[];
+  sortBy?: string;
+  sortOrder?: string;
+}
+
 @Component({
     selector: 'app-project-list',
     imports: [
@@ -180,7 +201,7 @@ export class ProjectListComponent implements OnInit {
   }
 
   applyFilters(): void {
-    const filters = this.filterForm.value;
+    const filters: ProjectFilterValues = this.filterForm.value;
 
     let filtered = this.projects.filter(project =>
       this.matchesSearchQuery(project, filters) &&
@@ -194,13 +215,13 @@ export class ProjectListComponent implements OnInit {
     );
 
     if (filters.sortBy) {
-      filtered = this.sortProjects(filtered, filters.sortBy, filters.sortOrder);
+      filtered = this.sortProjects(filtered, filters.sortBy, filters.sortOrder ?? 'desc');
     }
 
     this.filteredProjects = filtered;
   }
 
-  private matchesSearchQuery(project: ProjectDto, filters: any): boolean {
+  private matchesSearchQuery(project: ProjectDto, filters: ProjectFilterValues): boolean {
     if (!filters.searchQuery?.trim()) {
       return true;
     }
@@ -211,21 +232,23 @@ export class ProjectListComponent implements OnInit {
     return searchableText.includes(query);
   }
 
-  private matchesRate(project: ProjectDto, filters: any): boolean {
-    if (filters.minRate && project.dailyRate && project.dailyRate < filters.minRate) {
+  private matchesRate(project: ProjectDto, filters: ProjectFilterValues): boolean {
+    const min = filters.minRate ? Number(filters.minRate) : null;
+    const max = filters.maxRate ? Number(filters.maxRate) : null;
+    if (min !== null && project.dailyRate && project.dailyRate < min) {
       return false;
     }
-    if (filters.maxRate && project.dailyRate && project.dailyRate > filters.maxRate) {
+    if (max !== null && project.dailyRate && project.dailyRate > max) {
       return false;
     }
     return true;
   }
 
-  private matchesWorkMode(project: ProjectDto, filters: any): boolean {
+  private matchesWorkMode(project: ProjectDto, filters: ProjectFilterValues): boolean {
     return !filters.workMode || project.workMode === filters.workMode;
   }
 
-  private matchesTechStack(project: ProjectDto, filters: any): boolean {
+  private matchesTechStack(project: ProjectDto, filters: ProjectFilterValues): boolean {
     if (filters.techStack && project.techStack &&
         !project.techStack.toLowerCase().includes(filters.techStack.toLowerCase())) {
       return false;
@@ -233,7 +256,7 @@ export class ProjectListComponent implements OnInit {
     return true;
   }
 
-  private matchesSelectedTechStack(project: ProjectDto, filters: any): boolean {
+  private matchesSelectedTechStack(project: ProjectDto, filters: ProjectFilterValues): boolean {
     if (!filters.selectedTechStack || filters.selectedTechStack.length === 0) {
       return true;
     }
@@ -243,7 +266,7 @@ export class ProjectListComponent implements OnInit {
     );
   }
 
-  private matchesDateRange(project: ProjectDto, filters: any): boolean {
+  private matchesDateRange(project: ProjectDto, filters: ProjectFilterValues): boolean {
     if (filters.startDateFrom && project.startDate) {
       if (new Date(project.startDate) < new Date(filters.startDateFrom)) {
         return false;
@@ -257,7 +280,7 @@ export class ProjectListComponent implements OnInit {
     return true;
   }
 
-  private matchesDuration(project: ProjectDto, filters: any): boolean {
+  private matchesDuration(project: ProjectDto, filters: ProjectFilterValues): boolean {
     if (!filters.duration || !project.durationInMonths) {
       return true;
     }
@@ -272,7 +295,7 @@ export class ProjectListComponent implements OnInit {
     return duration >= range[0] && duration <= range[1];
   }
 
-  private matchesClient(project: ProjectDto, filters: any): boolean {
+  private matchesClient(project: ProjectDto, filters: ProjectFilterValues): boolean {
     if (!filters.client?.trim()) {
       return true;
     }
@@ -539,19 +562,19 @@ export class ProjectListComponent implements OnInit {
 
   // Reversion rate methods
   private loadFreelanceProfile(): void {
-    if (!this.currentUser?.id) return;
+    if (!this.currentUser?.id) {return;}
     this.freelanceService.getById(this.currentUser.id).subscribe({
       next: (profile) => {
         this.freelanceProfile = profile;
-        if (profile.reversionRate != null) {
+        if (profile.reversionRate !== undefined) {
           this.reversionRate = profile.reversionRate;
           this.useCustomRate = true;
         }
-        if (profile.incomeTaxRate != null) {
+        if (profile.incomeTaxRate !== undefined) {
           this.incomeTaxRate = profile.incomeTaxRate;
         }
       },
-      error: () => {}
+      error: (err) => console.error('Error loading freelance profile:', err)
     });
   }
 
@@ -566,7 +589,7 @@ export class ProjectListComponent implements OnInit {
   }
 
   saveReversionRate(): void {
-    if (!this.currentUser?.id || !this.freelanceProfile) return;
+    if (!this.currentUser?.id || !this.freelanceProfile) {return;}
     const updated = { ...this.freelanceProfile, reversionRate: this.reversionRate, incomeTaxRate: this.incomeTaxRate };
     this.freelanceService.update(this.currentUser.id, updated).subscribe({
       next: () => {
@@ -579,7 +602,7 @@ export class ProjectListComponent implements OnInit {
   }
 
   getNetDailyRate(project: ProjectDto): number {
-    if (!project.dailyRate) return 0;
+    if (!project.dailyRate) {return 0;}
     return Math.round(project.dailyRate * (1 - this.reversionRate / 100));
   }
 

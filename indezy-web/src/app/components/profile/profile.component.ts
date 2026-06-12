@@ -173,7 +173,7 @@ export class ProfileComponent implements OnInit {
         this.populateForms(profile);
         this.isLoading = false;
       },
-      error: (error: any) => {
+      error: (error: unknown) => {
         console.error('Error loading profile:', error);
         this.snackBar.open(this.translate.instant('profile.errors.loadingProfile'), this.translate.instant('common.close'), {
           duration: 3000,
@@ -235,7 +235,7 @@ export class ProfileComponent implements OnInit {
             panelClass: ['success-snackbar']
           });
         },
-        error: (error: any) => {
+        error: (error: unknown) => {
           console.error('Error updating profile:', error);
           this.isUpdating = false;
           this.snackBar.open(this.translate.instant('profile.errors.updatingProfile'), this.translate.instant('common.close'), {
@@ -261,7 +261,7 @@ export class ProfileComponent implements OnInit {
             panelClass: ['success-snackbar']
           });
         },
-        error: (error: any) => {
+        error: (error: unknown) => {
           console.error('Error changing password:', error);
           this.isUpdating = false;
           this.snackBar.open(this.translate.instant('profile.errors.changingPassword'), this.translate.instant('common.close'), {
@@ -286,7 +286,7 @@ export class ProfileComponent implements OnInit {
             panelClass: ['success-snackbar']
           });
         },
-        error: (error: any) => {
+        error: (error: unknown) => {
           console.error('Error updating preferences:', error);
           this.isUpdating = false;
           this.snackBar.open(this.translate.instant('profile.errors.updatingPreferences'), this.translate.instant('common.close'), {
@@ -311,7 +311,7 @@ export class ProfileComponent implements OnInit {
             panelClass: ['success-snackbar']
           });
         },
-        error: (error: any) => {
+        error: (error: unknown) => {
           console.error('Error updating notifications:', error);
           this.isUpdating = false;
           this.snackBar.open(this.translate.instant('profile.errors.updatingNotifications'), this.translate.instant('common.close'), {
@@ -357,7 +357,7 @@ export class ProfileComponent implements OnInit {
             panelClass: ['success-snackbar']
           });
         },
-        error: (error: any) => {
+        error: (error: unknown) => {
           console.error('Error uploading avatar:', error);
           this.isUpdating = false;
           this.snackBar.open(this.translate.instant('profile.errors.uploadingAvatar'), this.translate.instant('common.close'), {
@@ -384,7 +384,7 @@ export class ProfileComponent implements OnInit {
           panelClass: ['success-snackbar']
         });
       },
-      error: (error: any) => {
+      error: (error: unknown) => {
         console.error('Error exporting data:', error);
         this.snackBar.open(this.translate.instant('profile.errors.exportingData'), this.translate.instant('common.close'), {
           duration: 3000,

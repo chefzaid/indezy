@@ -5,7 +5,7 @@ ARG BUILD_ENV=production
 ARG NG_BUILD_CONFIG=production
 
 # Stage 1: Build stage
-FROM node:18-alpine AS builder
+FROM node:26-alpine AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production --silent
+RUN npm ci --silent
 
 # Copy source code
 COPY . .
@@ -23,7 +23,7 @@ ARG NG_BUILD_CONFIG
 RUN npm run build -- --configuration=${NG_BUILD_CONFIG}
 
 # Stage 2: Development runtime (with Node.js for development server)
-FROM node:18-alpine AS development
+FROM node:26-alpine AS development
 
 # Install development tools
 RUN apk update && apk upgrade && \

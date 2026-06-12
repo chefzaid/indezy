@@ -39,33 +39,33 @@ public class ErrorResponse {
         private String path;
         private Map<String, String> validationErrors;
 
-        public ErrorResponseBuilder timestamp(final LocalDateTime timestamp) {
-            this.timestamp = timestamp;
+        public ErrorResponseBuilder timestamp(final LocalDateTime value) {
+            this.timestamp = value;
             return this;
         }
 
-        public ErrorResponseBuilder status(final int status) {
-            this.status = status;
+        public ErrorResponseBuilder status(final int value) {
+            this.status = value;
             return this;
         }
 
-        public ErrorResponseBuilder error(final String error) {
-            this.error = error;
+        public ErrorResponseBuilder error(final String value) {
+            this.error = value;
             return this;
         }
 
-        public ErrorResponseBuilder message(final String message) {
-            this.message = message;
+        public ErrorResponseBuilder message(final String value) {
+            this.message = value;
             return this;
         }
 
-        public ErrorResponseBuilder path(final String path) {
-            this.path = path;
+        public ErrorResponseBuilder path(final String value) {
+            this.path = value;
             return this;
         }
 
-        public ErrorResponseBuilder validationErrors(final Map<String, String> validationErrors) {
-            this.validationErrors = validationErrors != null ? new HashMap<>(validationErrors) : new HashMap<>();
+        public ErrorResponseBuilder validationErrors(final Map<String, String> value) {
+            this.validationErrors = value != null ? new HashMap<>(value) : new HashMap<>();
             return this;
         }
 

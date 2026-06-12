@@ -80,14 +80,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.freelanceProfile = profile;
           this.updateStats(profile);
         },
-        error: () => {}
+        error: (err) => console.error('Error loading profile:', err)
       });
 
       this.projectService.getByFreelanceId(this.currentUser.id).subscribe({
         next: (projects) => {
           this.recentProjects = projects.slice(0, 5);
         },
-        error: () => {}
+        error: (err) => console.error('Error loading recent projects:', err)
       });
 
       this.projectService.getDashboardStats(this.currentUser.id).subscribe({
@@ -102,7 +102,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
           this.buildCharts();
         },
-        error: () => {}
+        error: (err) => console.error('Error loading dashboard stats:', err)
       });
     }
   }
@@ -130,9 +130,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.authService.logout();
   }
 
-  switchView(mode: any): void {
+  switchView(mode: string): void {
     if (mode === 'overview' || mode === 'kanban') {
-      this.viewMode = mode as ViewMode;
+      this.viewMode = mode;
       this.cdr.detectChanges();
       if (mode === 'overview' && this.dashboardStats) {
         setTimeout(() => this.buildCharts());
@@ -174,7 +174,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private buildCharts(): void {
-    if (!this.dashboardStats) return;
+    if (!this.dashboardStats) {return;}
     this.destroyCharts();
     this.buildStatusChart();
     this.buildWorkModeChart();
@@ -191,7 +191,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private buildStatusChart(): void {
-    if (!this.statusChartRef?.nativeElement || !this.dashboardStats) return;
+    if (!this.statusChartRef?.nativeElement || !this.dashboardStats) {return;}
 
     const statusKeys = Object.keys(this.dashboardStats.projectsByStatus);
     const statusLabels = statusKeys.map(s => this.translate.instant('projects.statuses.' + s));
@@ -225,7 +225,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private buildWorkModeChart(): void {
-    if (!this.workModeChartRef?.nativeElement || !this.dashboardStats) return;
+    if (!this.workModeChartRef?.nativeElement || !this.dashboardStats) {return;}
 
     const modeKeys = Object.keys(this.dashboardStats.projectsByWorkMode);
     const modeLabels = modeKeys.map(m => this.translate.instant('projects.workModes.' + m));
@@ -259,7 +259,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private buildDailyRateChart(): void {
-    if (!this.dailyRateChartRef?.nativeElement || !this.dashboardStats) return;
+    if (!this.dailyRateChartRef?.nativeElement || !this.dashboardStats) {return;}
 
     const ranges = this.dashboardStats.dailyRateRanges;
     const labels = ranges.map(r => r.label + '€');

@@ -1,6 +1,6 @@
 package dev.swirlit.indezy.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import dev.swirlit.indezy.dto.CommuteInfoDto;
 import dev.swirlit.indezy.dto.ProjectCommuteDto;
 import dev.swirlit.indezy.dto.ProjectDto;
@@ -22,7 +22,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 @Slf4j
@@ -141,7 +140,7 @@ public class CommuteService {
         try {
             String googleTravelMode = travelMode == TravelMode.DRIVING ? "driving" : "transit";
 
-            String url = UriComponentsBuilder.fromHttpUrl(DISTANCE_MATRIX_URL)
+            String url = UriComponentsBuilder.fromUriString(DISTANCE_MATRIX_URL)
                 .queryParam("origins", origin)
                 .queryParam("destinations", destination)
                 .queryParam("mode", googleTravelMode)
@@ -151,9 +150,9 @@ public class CommuteService {
 
             JsonNode response = restTemplate.getForObject(url, JsonNode.class);
 
-            if (response != null && "OK".equals(response.path("status").asText())) {
+            if (response != null && "OK".equals(response.path("status").asString())) {
                 JsonNode element = response.path("rows").path(0).path("elements").path(0);
-                String elementStatus = element.path("status").asText();
+                String elementStatus = element.path("status").asString();
 
                 if ("OK".equals(elementStatus)) {
                     return CommuteInfoDto.builder()
@@ -164,9 +163,9 @@ public class CommuteService {
                         .destination(destination)
                         .travelMode(travelMode)
                         .durationInSeconds(element.path("duration").path("value").asInt())
-                        .durationText(element.path("duration").path("text").asText())
+                        .durationText(element.path("duration").path("text").asString())
                         .distanceInMeters(element.path("distance").path("value").asInt())
-                        .distanceText(element.path("distance").path("text").asText())
+                        .distanceText(element.path("distance").path("text").asString())
                         .build();
                 } else {
                     log.warn("Distance Matrix API returned element status: {} for origin={}, destination={}",
@@ -174,7 +173,7 @@ public class CommuteService {
                 }
             } else {
                 log.warn("Distance Matrix API returned status: {}",
-                    response != null ? response.path("status").asText() : "null response");
+                    response != null ? response.path("status").asString() : "null response");
             }
         } catch (Exception e) {
             log.error("Error calling Google Maps Distance Matrix API", e);

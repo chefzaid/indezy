@@ -7,19 +7,16 @@ import { of, throwError } from 'rxjs';
 import { KanbanBoardComponent } from './kanban-board.component';
 import { InterviewStepService } from '../../services/interview-step/interview-step.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { 
-  KanbanBoardDto, 
-  ProjectCardDto, 
-  StepTransitionDto, 
-  StepStatus,
-  INTERVIEW_STEPS_ORDER 
+import {
+  KanbanBoardDto,
+  ProjectCardDto,
+  INTERVIEW_STEPS_ORDER
 } from '../../models/interview-step.models';
 
 describe('KanbanBoardComponent', () => {
   let component: KanbanBoardComponent;
   let fixture: ComponentFixture<KanbanBoardComponent>;
   let mockInterviewStepService: jasmine.SpyObj<InterviewStepService>;
-  let mockAuthService: jasmine.SpyObj<AuthService>;
   let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
   let mockDialog: jasmine.SpyObj<MatDialog>;
 
@@ -81,7 +78,6 @@ describe('KanbanBoardComponent', () => {
     fixture = TestBed.createComponent(KanbanBoardComponent);
     component = fixture.componentInstance;
     mockInterviewStepService = TestBed.inject(InterviewStepService) as jasmine.SpyObj<InterviewStepService>;
-    mockAuthService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     mockSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     mockDialog = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
   });

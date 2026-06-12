@@ -11,9 +11,7 @@
         [config]="config.presetsConfig || {}"
         [currentFilters]="currentFilters"
         [hasActiveFilters]="getActiveFilterCount() > 0"
-        (presetApplied)="onPresetApplied($event)"
-        (presetSaved)="onPresetSaved($event)"
-        (presetDeleted)="onPresetDeleted($event)">
+        (presetApplied)="onPresetApplied($event)">
       </app-filter-presets>
 
       <button mat-button 
@@ -51,7 +49,7 @@
           <app-advanced-search-filter
             *ngIf="section.type === 'search'"
             [config]="section.config || {}"
-            [initialValue]="currentFilters[section.id] || ''"
+            [initialValue]="getSearchValue(section.id)"
             (searchChange)="onFilterChange(section.id, $event)">
           </app-advanced-search-filter>
 
@@ -68,7 +66,7 @@
             *ngIf="section.type === 'multiSelect'"
             [options]="section.options || []"
             [config]="section.config || {}"
-            [initialValues]="currentFilters[section.id] || []"
+            [initialValues]="getMultiSelectValues(section.id)"
             (selectionChange)="onFilterChange(section.id, $event)">
           </app-multi-select-filter>
 

@@ -10,6 +10,7 @@
     "add": "Add",
     "back": "Back",
     "search": "Search",
+    "noResults": "No results match your filters",
     "loading": "Loading...",
     "all": "All",
     "allFeminine": "All",

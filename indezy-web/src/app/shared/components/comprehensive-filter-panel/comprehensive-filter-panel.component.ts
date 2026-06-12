@@ -20,6 +20,7 @@ import {
   RangeValue,
   FilterPreset,
   FilterSection,
+  FilterValue,
   ComprehensiveFilterConfig
 } from '../../../models/filter.models';
 
@@ -45,11 +46,11 @@ import {
 })
 export class ComprehensiveFilterPanelComponent implements OnInit {
   @Input() config: ComprehensiveFilterConfig = { sections: [] };
-  @Input() initialFilters: Record<string, any> = {};
-  @Output() filtersChange = new EventEmitter<Record<string, any>>();
+  @Input() initialFilters: Record<string, FilterValue> = {};
+  @Output() filtersChange = new EventEmitter<Record<string, FilterValue>>();
   @Output() presetApplied = new EventEmitter<FilterPreset>();
 
-  currentFilters: Record<string, any> = {};
+  currentFilters: Record<string, FilterValue> = {};
   isExpanded: boolean = true;
   visibleSections: FilterSection[] = [];
 
@@ -86,14 +87,12 @@ export class ComprehensiveFilterPanelComponent implements OnInit {
     this.presetApplied.emit(preset);
   }
 
-  onPresetSaved(preset: FilterPreset): void {
-    // Handle preset saved event if needed
-    console.log('Preset saved:', preset.name);
+  getSearchValue(sectionId: string): string {
+    return (this.currentFilters[sectionId] as string) ?? '';
   }
 
-  onPresetDeleted(preset: FilterPreset): void {
-    // Handle preset deleted event if needed
-    console.log('Preset deleted:', preset.name);
+  getMultiSelectValues(sectionId: string): string[] {
+    return (this.currentFilters[sectionId] as string[]) ?? [];
   }
 
   clearAllFilters(): void {
@@ -115,18 +114,18 @@ export class ComprehensiveFilterPanelComponent implements OnInit {
 
   getDateRange(sectionId: string): DateRange {
     return {
-      from: this.currentFilters[`${sectionId}_from`] ?? null,
-      to: this.currentFilters[`${sectionId}_to`] ?? null
+      from: (this.currentFilters[`${sectionId}_from`] as Date | null) ?? null,
+      to: (this.currentFilters[`${sectionId}_to`] as Date | null) ?? null
     };
   }
 
   getRangeValue(sectionId: string): RangeValue {
     const section = this.config.sections.find(s => s.id === sectionId);
     const config = section?.config as RangeSliderConfig;
-    
+
     return {
-      min: this.currentFilters[`${sectionId}_min`] ?? config?.min ?? 0,
-      max: this.currentFilters[`${sectionId}_max`] ?? config?.max ?? 100
+      min: (this.currentFilters[`${sectionId}_min`] as number) ?? config?.min ?? 0,
+      max: (this.currentFilters[`${sectionId}_max`] as number) ?? config?.max ?? 100
     };
   }
 }

@@ -15,6 +15,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SourceService } from '../../../services/source/source.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { SourceDto, SourceType } from '../../../models/source.models';
+import { ComprehensiveFilterPanelComponent } from '../../../shared/components';
+import { ComprehensiveFilterConfig } from '../../../models/filter.models';
 
 @Component({
   selector: 'app-source-list',
@@ -28,15 +30,20 @@ import { SourceDto, SourceType } from '../../../models/source.models';
     MatChipsModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    TranslateModule
+    TranslateModule,
+    ComprehensiveFilterPanelComponent
   ],
   templateUrl: './source-list.component.html',
   styleUrls: ['./source-list.component.scss']
 })
 export class SourceListComponent implements OnInit, OnDestroy {
   sources: SourceDto[] = [];
+  filteredSources: SourceDto[] = [];
   isLoading = false;
   displayedColumns: string[] = ['name', 'type', 'link', 'popularityRating', 'usefulnessRating', 'actions'];
+
+  filterConfig: ComprehensiveFilterConfig = { sections: [] };
+  private activeFilters: Record<string, unknown> = {};
 
   private readonly destroy$ = new Subject<void>();
 
@@ -49,7 +56,91 @@ export class SourceListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.buildFilterConfig();
     this.loadSources();
+  }
+
+  private buildFilterConfig(): void {
+    const t = (key: string): string => this.translate.instant(key);
+    this.filterConfig = {
+      title: t('common.filters'),
+      collapsible: true,
+      initiallyExpanded: false,
+      sections: [
+        {
+          id: 'search',
+          type: 'search',
+          title: t('common.search'),
+          icon: 'search',
+          config: { placeholder: t('sources.namePlaceholder') }
+        },
+        {
+          id: 'type',
+          type: 'multiSelect',
+          title: t('common.type'),
+          icon: 'category',
+          config: { placeholder: t('common.type') },
+          options: this.sourceService.getSourceTypes().map(type => ({
+            value: type,
+            label: this.getTypeLabel(type)
+          }))
+        },
+        {
+          id: 'popularity',
+          type: 'rangeSlider',
+          title: t('sources.popularity'),
+          icon: 'star',
+          config: { min: 0, max: 5, step: 1, unit: '★', showInputs: false }
+        },
+        {
+          id: 'usefulness',
+          type: 'rangeSlider',
+          title: t('sources.usefulness'),
+          icon: 'recommend',
+          config: { min: 0, max: 5, step: 1, unit: '★', showInputs: false }
+        }
+      ]
+    };
+  }
+
+  onFiltersChange(filters: Record<string, unknown>): void {
+    this.activeFilters = filters;
+    this.applyFilters();
+  }
+
+  private applyFilters(): void {
+    const f = this.activeFilters;
+    const search = ((f['search'] as string) ?? '').trim().toLowerCase();
+    const types = (f['type'] as string[]) ?? [];
+    const popMin = f['popularity_min'] as number | undefined;
+    const popMax = f['popularity_max'] as number | undefined;
+    const useMin = f['usefulness_min'] as number | undefined;
+    const useMax = f['usefulness_max'] as number | undefined;
+
+    this.filteredSources = this.sources.filter(source =>
+      this.matchesSearch(source, search) &&
+      this.matchesType(source, types) &&
+      this.inRange(source.popularityRating, popMin, popMax) &&
+      this.inRange(source.usefulnessRating, useMin, useMax)
+    );
+  }
+
+  private matchesSearch(source: SourceDto, search: string): boolean {
+    if (!search) {return true;}
+    const haystack = [source.name, source.notes, source.link].filter(Boolean).join(' ').toLowerCase();
+    return haystack.includes(search);
+  }
+
+  private matchesType(source: SourceDto, types: string[]): boolean {
+    return types.length === 0 || types.includes(source.type);
+  }
+
+  private inRange(value: number | undefined, min?: number, max?: number): boolean {
+    if (min === undefined && max === undefined) {return true;}
+    const rating = value ?? 0;
+    if (min !== undefined && rating < min) {return false;}
+    if (max !== undefined && rating > max) {return false;}
+    return true;
   }
 
   ngOnDestroy(): void {
@@ -60,13 +151,14 @@ export class SourceListComponent implements OnInit, OnDestroy {
   private loadSources(): void {
     this.isLoading = true;
     const user = this.authService.getUser();
-    if (!user?.id) return;
+    if (!user?.id) {return;}
 
     this.sourceService.getByFreelanceId(user.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (sources) => {
           this.sources = sources;
+          this.applyFilters();
           this.isLoading = false;
         },
         error: () => {
@@ -85,7 +177,7 @@ export class SourceListComponent implements OnInit, OnDestroy {
   }
 
   onDelete(source: SourceDto): void {
-    if (!source.id) return;
+    if (!source.id) {return;}
     if (confirm(this.translate.instant('sources.confirmDelete', { name: source.name }))) {
       this.sourceService.delete(source.id)
         .pipe(takeUntil(this.destroy$))
@@ -117,7 +209,7 @@ export class SourceListComponent implements OnInit, OnDestroy {
   }
 
   getRatingDisplay(rating?: number): string {
-    if (!rating) return '-';
+    if (!rating) {return '-';}
     return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   }
 }

@@ -1,5 +1,8 @@
 // Filter related interfaces and types
 
+// Value held by a single filter section (search text, range bounds, selections, dates, ...)
+export type FilterValue = string | number | boolean | string[] | Date | null;
+
 // Search Filter
 export interface SearchFilterConfig {
   placeholder?: string;
@@ -56,7 +59,7 @@ export interface FilterPreset {
   id: string;
   name: string;
   description?: string;
-  filters: Record<string, any>;
+  filters: Record<string, FilterValue>;
   isDefault?: boolean;
   createdAt?: Date;
 }
@@ -111,5 +114,5 @@ export interface FilterValues {
   industries?: string[];
   projectCount_min?: number;
   projectCount_max?: number;
-  [key: string]: any;
+  [key: string]: FilterValue | undefined;
 }

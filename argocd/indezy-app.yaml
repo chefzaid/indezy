@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: indezy
-  namespace: infrastructure
+  namespace: infra
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:

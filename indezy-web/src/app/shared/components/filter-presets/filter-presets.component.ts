@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { FilterPreset, FilterPresetsConfig } from '../../../models/filter.models';
+import { FilterPreset, FilterPresetsConfig, FilterValue } from '../../../models/filter.models';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -26,7 +26,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 })
 export class FilterPresetsComponent implements OnInit {
   @Input() config: FilterPresetsConfig = {};
-  @Input() currentFilters: Record<string, any> = {};
+  @Input() currentFilters: Record<string, FilterValue> = {};
   @Input() hasActiveFilters: boolean = false;
   @Output() presetApplied = new EventEmitter<FilterPreset>();
   @Output() presetSaved = new EventEmitter<FilterPreset>();

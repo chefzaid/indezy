@@ -1,8 +1,8 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
+    "rootDir": "./src",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "strict": true,
@@ -24,22 +24,22 @@
     ],
     "paths": {
       "@/*": [
-        "src/*"
+        "./src/*"
       ],
       "@/components/*": [
-        "src/app/components/*"
+        "./src/app/components/*"
       ],
       "@/services/*": [
-        "src/app/services/*"
+        "./src/app/services/*"
       ],
       "@/models/*": [
-        "src/app/models/*"
+        "./src/app/models/*"
       ],
       "@/guards/*": [
-        "src/app/guards/*"
+        "./src/app/guards/*"
       ],
       "@/utils/*": [
-        "src/app/utils/*"
+        "./src/app/utils/*"
       ]
     }
   },

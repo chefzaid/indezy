@@ -2,7 +2,7 @@
 # Credentials for the shared infrastructure postgres admin user (appuser).
 # Used only by the setup Job below.
 # The password value must match postgres-secret.POSTGRES_PASSWORD in the
-# infrastructure namespace. Default value: base64("mypassword").
+# infra namespace. Default value: base64("mypassword").
 # Update this if the infrastructure postgres password has been rotated.
 apiVersion: v1
 kind: Secret
@@ -15,7 +15,7 @@ data:
 
 ---
 # One-time Job: provisions the `indezy` database and `indezy_user` inside the
-# shared PostgreSQL instance that runs in the infrastructure namespace.
+# shared PostgreSQL instance that runs in the infra namespace.
 # ArgoCD will apply this Job on first sync. Kubernetes does not re-run completed
 # Jobs, so it is safe to leave in the manifests directory.
 apiVersion: batch/v1
@@ -40,7 +40,7 @@ spec:
             - |
               set -e
               export PGPASSWORD="${POSTGRES_ADMIN_PASSWORD}"
-              PSQL="psql -h postgres.infrastructure.svc.cluster.local -U appuser -d appdb"
+              PSQL="psql -h postgres.infra.svc.cluster.local -U appuser -d appdb"
 
               echo "Creating indezy_user if not exists, ensuring password is current..."
               $PSQL -c "DO \$\$
@@ -60,7 +60,7 @@ spec:
               echo "Granting connect and schema privileges, enabling extensions..."
               $PSQL -c "GRANT CONNECT ON DATABASE indezy TO indezy_user;"
               PGPASSWORD="${INDEZY_DB_PASSWORD}" psql \
-                -h postgres.infrastructure.svc.cluster.local \
+                -h postgres.infra.svc.cluster.local \
                 -U indezy_user -d indezy <<-SQL
                   GRANT ALL ON SCHEMA public TO indezy_user;
                   CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
