@@ -255,19 +255,19 @@ Prefer a Kubernetes Secret instead of a plain manifest value when moving beyond 
 
 ## Health Checks
 
-Backend probes currently reference:
+Backend probes reference the Spring Boot Actuator health endpoint:
 
 ```text
 /api/actuator/health
 ```
+
+Liveness and readiness probe groups are also available at `/api/actuator/health/liveness` and `/api/actuator/health/readiness`. The actuator exposes only the `health` and `info` endpoints, and `/api/actuator/health` is permitted without authentication so probes can reach it; full component details require authentication (`management.endpoint.health.show-details: when-authorized`).
 
 Frontend probes reference:
 
 ```text
 /health
 ```
-
-Important current caveat: the technical backlog notes that Kubernetes probes reference `/api/actuator/health` while the backend actuator dependency may be missing. Before relying on rollout health gates, verify the endpoint exists in the running image.
 
 Check manually:
 

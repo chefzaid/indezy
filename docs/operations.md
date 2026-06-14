@@ -75,7 +75,7 @@ curl -I https://indezy.swirlit.dev/api/swagger-ui.html
 - `indezy-web` has one ready replica.
 - ingress has host `indezy.swirlit.dev`.
 - frontend `/health` returns success.
-- backend health endpoint exists and returns success, or the probe mismatch has been intentionally fixed.
+- backend health endpoint `/api/actuator/health` (Spring Boot Actuator) returns `{"status":"UP"}`.
 - login page loads in the browser.
 - authenticated dashboard loads after login.
 - project, client, contact, and source lists load without API errors.
@@ -157,12 +157,12 @@ curl http://localhost:8080/api/actuator/health
 
 Likely cause:
 
-- actuator endpoint is referenced by probes but the backend dependency or endpoint configuration is missing.
+- the app failed to start or a dependency it reports on (e.g. the database) is down, so `/api/actuator/health` returns `DOWN` or never comes up.
 
 Recovery:
 
-1. Add and configure Spring Boot Actuator, or change probes to an endpoint that exists.
-2. Rebuild image.
+1. Check the pod logs for startup failures; confirm the database is reachable.
+2. Rebuild image if the actuator dependency or `management.*` config was changed.
 3. Let Jenkins update manifests and ArgoCD sync.
 
 ### Frontend serves but API calls fail

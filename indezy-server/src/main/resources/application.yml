@@ -81,6 +81,20 @@ cors:
     - "*"
   allow-credentials: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+  endpoint:
+    health:
+      # Probes only need UP/DOWN; full component details require authentication to avoid leaking internals.
+      show-details: when-authorized
+      probes:
+        enabled: true
+
 logging:
   level:
     "[dev.swirlit.indezy]": DEBUG
