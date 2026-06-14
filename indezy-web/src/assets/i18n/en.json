@@ -556,7 +556,9 @@
     "moveError": "Error moving project",
     "moveSuccess": "Project moved successfully",
     "pinFavorite": "Pin as favorite",
-    "unpinFavorite": "Remove from favorites"
+    "unpinFavorite": "Remove from favorites",
+    "daysAgo": "{{days}}d",
+    "lastActivity": "No activity for {{days}} day(s)"
   },
   "profile": {
     "title": "My Profile",

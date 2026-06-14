@@ -73,6 +73,13 @@
                 <mat-icon *ngFor="let s of getRatingStars(card.personalRating)"
                           class="star-icon">star</mat-icon>
               </div>
+
+              <div class="card-aging" *ngIf="getDaysSinceActivity(card) !== null"
+                   [class.stale]="isStale(card)"
+                   [matTooltip]="'kanban.lastActivity' | translate:{ days: getDaysSinceActivity(card) }">
+                <mat-icon>{{ isStale(card) ? 'hourglass_bottom' : 'schedule' }}</mat-icon>
+                <span>{{ 'kanban.daysAgo' | translate:{ days: getDaysSinceActivity(card) } }}</span>
+              </div>
             </mat-card-content>
           </mat-card>
 

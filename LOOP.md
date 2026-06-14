@@ -6,8 +6,8 @@ This file governs the automated iteration cycle for this codebase. Follow this l
 
 ## The Master Loop Control
 
-1. **DISCOVER:** Scan the file `TODO.md`.
-2. **TRIAGE:** Identify the **simplest, lowest-complexity task** that is not yet implemented.
+1. **DISCOVER:** Scan the file `TODO.md` and identify the **simplest, lowest-complexity task** that is not yet implemented.
+2. **PLAN:** Write a concise implementation plan for the task at hand, including acceptance criteria, files to modify, tests to update, and any other relevant details.
 3. **IMPLEMENT:** Write the clean, minimal code required to satisfy the task requirements.
 4. **RECURRENT CHECKS:** Immediately pass the new implementation through the **Recurrent Tasks Checklist** below.
 5. **COMMIT & REPEAT:** Create a clean Git commit for the completed task, with a very brief message without putting any co-author, then restart the loop at Step 1.

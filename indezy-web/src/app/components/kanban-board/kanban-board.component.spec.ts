@@ -229,6 +229,32 @@ describe('KanbanBoardComponent', () => {
     });
   });
 
+  describe('Card aging', () => {
+    function cardUpdatedDaysAgo(days: number): KanbanProjectCardDto {
+      const date = new Date();
+      date.setDate(date.getDate() - days);
+      return { ...mockCard, updatedAt: date.toISOString() };
+    }
+
+    it('should compute whole days since last activity', () => {
+      expect(component.getDaysSinceActivity(cardUpdatedDaysAgo(5))).toBe(5);
+    });
+
+    it('should return null when the timestamp is missing or invalid', () => {
+      expect(component.getDaysSinceActivity({ ...mockCard, updatedAt: undefined })).toBeNull();
+      expect(component.getDaysSinceActivity({ ...mockCard, updatedAt: 'not-a-date' })).toBeNull();
+    });
+
+    it('should flag cards as stale past the threshold', () => {
+      expect(component.isStale(cardUpdatedDaysAgo(1))).toBeFalse();
+      expect(component.isStale(cardUpdatedDaysAgo(20))).toBeTrue();
+    });
+
+    it('should not flag cards without a timestamp as stale', () => {
+      expect(component.isStale({ ...mockCard, updatedAt: undefined })).toBeFalse();
+    });
+  });
+
   describe('Cleanup', () => {
     it('should complete destroy subject on destroy', () => {
       spyOn(component['destroy$'], 'next');

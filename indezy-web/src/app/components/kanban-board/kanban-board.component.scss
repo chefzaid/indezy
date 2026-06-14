@@ -212,6 +212,26 @@
   }
 }
 
+.card-aging {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.45);
+
+  mat-icon {
+    font-size: 13px;
+    width: 13px;
+    height: 13px;
+  }
+
+  &.stale {
+    color: #e65100;
+    font-weight: 600;
+  }
+}
+
 .drag-placeholder {
   background: rgba(0, 0, 0, 0.04);
   border: 2px dashed #ccc;

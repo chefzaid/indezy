@@ -55,6 +55,7 @@ export interface KanbanProjectCardDto {
   notes?: string;
   personalRating?: number;
   isFavorite?: boolean;
+  updatedAt?: string;
   totalSteps: number;
   completedSteps: number;
   failedSteps: number;

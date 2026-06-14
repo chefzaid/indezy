@@ -140,7 +140,7 @@ The UI includes scheduling and action dialogs. The backend exposes interview-ste
 
 ## Kanban And Pipeline View
 
-The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs. Cards can be pinned as favorites (`PATCH /projects/{id}/favorite`), which keeps hot leads at the top of their column.
+The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs. Cards can be pinned as favorites (`PATCH /projects/{id}/favorite`), which keeps hot leads at the top of their column. Each card shows a card-aging indicator (days since last activity) and highlights opportunities with no activity for 14+ days so stale leads stand out.
 
 The current Kanban implementation is status-driven. The roadmap in [TODO.md](../TODO.md) tracks a richer pipeline model where generic columns can coexist with custom intermediate recruitment steps.
 

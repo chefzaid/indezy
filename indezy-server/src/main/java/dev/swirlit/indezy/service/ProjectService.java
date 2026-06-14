@@ -310,6 +310,7 @@ public class ProjectService {
         card.setNotes(project.getNotes());
         card.setPersonalRating(project.getPersonalRating());
         card.setIsFavorite(project.getIsFavorite());
+        card.setUpdatedAt(project.getUpdatedAt() != null ? project.getUpdatedAt().toString() : null);
 
         List<InterviewStep> steps = interviewStepRepository.findByProjectId(project.getId());
         card.setTotalSteps(steps.size());

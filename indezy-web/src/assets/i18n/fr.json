@@ -556,7 +556,9 @@
     "moveError": "Erreur lors du déplacement",
     "moveSuccess": "Mission déplacée avec succès",
     "pinFavorite": "Épingler comme favori",
-    "unpinFavorite": "Retirer des favoris"
+    "unpinFavorite": "Retirer des favoris",
+    "daysAgo": "{{days}}j",
+    "lastActivity": "Aucune activité depuis {{days}} jour(s)"
   },
   "profile": {
     "title": "Mon Profil",

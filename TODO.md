@@ -15,7 +15,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] Drag-and-drop status changes from the Kanban board
 - [ ] Customizable pipeline templates per client/ESN (save a recruitment process and reuse it)
 - [ ] Bulk actions on Kanban cards (archive, change status, assign source)
-- [ ] Card aging indicators (highlight opportunities with no activity for X days)
+- [x] Card aging indicators (highlight opportunities with no activity for X days)
 - [ ] Drag-and-drop reordering within a column (manual priority)
 - [ ] Quick-add card directly from the Kanban board (minimal form, enrich later)
 - [x] Pinned/favorite opportunities (keep hot leads at the top, dedicated view)
