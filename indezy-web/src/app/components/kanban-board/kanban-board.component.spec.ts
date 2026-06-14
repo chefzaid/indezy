@@ -3,6 +3,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+// MatDialog is used to obtain the component's dialog instance for spying.
 import { of, throwError, BehaviorSubject } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -213,6 +215,40 @@ describe('KanbanBoardComponent', () => {
       component.toggleFavorite(target, event);
 
       expect(mockNotificationService.error).toHaveBeenCalledWith('errors.updatingFavorite');
+    });
+  });
+
+  describe('Quick add', () => {
+    let dialogOpenSpy: jasmine.Spy;
+
+    beforeEach(() => {
+      mockProjectService.getKanbanBoard.and.returnValue(of(mockBoard));
+      fixture.detectChanges();
+      // The component imports MatDialogModule, which re-provides MatDialog in its own
+      // injector, so spy on the instance the component actually uses.
+      dialogOpenSpy = spyOn(fixture.debugElement.injector.get(MatDialog), 'open');
+    });
+
+    it('should open the quick-add dialog with the column status and reload on create', () => {
+      dialogOpenSpy.and.returnValue({ afterClosed: () => of(true) } as MatDialogRef<unknown>);
+
+      component.openQuickAdd(ProjectStatus.APPLIED);
+
+      const config = dialogOpenSpy.calls.mostRecent().args[1];
+      expect(config?.data).toEqual(jasmine.objectContaining({
+        status: ProjectStatus.APPLIED,
+        freelanceId: 1
+      }));
+      // Board is reloaded: once on init, once after the dialog returns a created project.
+      expect(mockProjectService.getKanbanBoard).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not reload when the dialog is dismissed', () => {
+      dialogOpenSpy.and.returnValue({ afterClosed: () => of(undefined) } as MatDialogRef<unknown>);
+
+      component.openQuickAdd(ProjectStatus.APPLIED);
+
+      expect(mockProjectService.getKanbanBoard).toHaveBeenCalledTimes(1);
     });
   });
 

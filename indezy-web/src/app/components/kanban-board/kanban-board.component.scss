@@ -70,6 +70,29 @@
     }
   }
 
+  .column-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .quick-add-btn {
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      color: rgba(0, 0, 0, 0.45);
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+
+      &:hover {
+        color: rgba(0, 0, 0, 0.75);
+      }
+    }
+  }
+
   .column-count {
     color: white;
     border-radius: 10px;

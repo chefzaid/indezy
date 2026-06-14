@@ -17,7 +17,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Bulk actions on Kanban cards (archive, change status, assign source)
 - [x] Card aging indicators (highlight opportunities with no activity for X days)
 - [ ] Drag-and-drop reordering within a column (manual priority)
-- [ ] Quick-add card directly from the Kanban board (minimal form, enrich later)
+- [x] Quick-add card directly from the Kanban board (minimal form, enrich later)
 - [x] Pinned/favorite opportunities (keep hot leads at the top, dedicated view)
 - [ ] Lost/rejected reason tracking (rate too low, position filled, no response...) with stats
 - [ ] Automatic stale-opportunity detection and suggested follow-up or archival

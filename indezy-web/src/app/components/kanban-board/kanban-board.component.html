@@ -18,9 +18,16 @@
           <mat-icon [style.color]="getColumnColor(status)">{{ getColumnIcon(status) }}</mat-icon>
           <h3>{{ getColumnLabel(status) }}</h3>
         </div>
-        <span class="column-count" [style.background-color]="getColumnColor(status)">
-          {{ getColumnCount(status) }}
-        </span>
+        <div class="column-actions">
+          <button mat-icon-button class="quick-add-btn" (click)="openQuickAdd(status)"
+                  [matTooltip]="'kanban.addCard' | translate"
+                  [attr.aria-label]="'kanban.addCard' | translate">
+            <mat-icon>add</mat-icon>
+          </button>
+          <span class="column-count" [style.background-color]="getColumnColor(status)">
+            {{ getColumnCount(status) }}
+          </span>
+        </div>
       </div>
 
       <div class="card-list"

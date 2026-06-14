@@ -8,6 +8,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,6 +16,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ProjectService } from '../../services/project/project.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { NotificationService } from '../../services/notification/notification.service';
+import {
+  KanbanQuickAddDialogComponent,
+  KanbanQuickAddDialogData
+} from '../kanban-quick-add-dialog/kanban-quick-add-dialog.component';
 import {
   KanbanBoardDto,
   KanbanProjectCardDto,
@@ -36,6 +41,7 @@ import {
     MatProgressBarModule,
     MatSnackBarModule,
     MatTooltipModule,
+    MatDialogModule,
     DragDropModule,
     TranslateModule
   ],
@@ -59,7 +65,8 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
   constructor(
     private readonly projectService: ProjectService,
     private readonly authService: AuthService,
-    private readonly notificationService: NotificationService
+    private readonly notificationService: NotificationService,
+    private readonly dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -92,6 +99,25 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
         error: () => {
           this.notificationService.error('errors.loadingBoard');
           this.isLoading = false;
+        }
+      });
+  }
+
+  openQuickAdd(status: string): void {
+    if (!this.currentUserId) {return;}
+
+    const dialogData: KanbanQuickAddDialogData = {
+      status: status as ProjectStatus,
+      statusLabel: this.getColumnLabel(status),
+      freelanceId: this.currentUserId
+    };
+
+    this.dialog.open(KanbanQuickAddDialogComponent, { data: dialogData })
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(created => {
+        if (created) {
+          this.loadKanbanBoard();
         }
       });
   }

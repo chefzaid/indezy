@@ -1,0 +1,23 @@
+.quick-add-dialog {
+  min-width: 360px;
+
+  h2[mat-dialog-title] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    padding-top: 8px;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  mat-dialog-actions {
+    gap: 8px;
+  }
+}

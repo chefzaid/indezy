@@ -558,7 +558,11 @@
     "pinFavorite": "Épingler comme favori",
     "unpinFavorite": "Retirer des favoris",
     "daysAgo": "{{days}}j",
-    "lastActivity": "Aucune activité depuis {{days}} jour(s)"
+    "lastActivity": "Aucune activité depuis {{days}} jour(s)",
+    "addCard": "Ajout rapide d'une carte",
+    "quickAddTitle": "Nouvelle opportunité – {{status}}",
+    "quickAddSuccess": "Opportunité ajoutée",
+    "quickAddError": "Erreur lors de l'ajout de l'opportunité"
   },
   "profile": {
     "title": "Mon Profil",

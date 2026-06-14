@@ -1,0 +1,51 @@
+<div class="quick-add-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>add_circle</mat-icon>
+    {{ 'kanban.quickAddTitle' | translate:{ status: data.statusLabel } }}
+  </h2>
+
+  <mat-dialog-content>
+    <form [formGroup]="quickAddForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'projects.form.role' | translate }}</mat-label>
+        <input matInput formControlName="role" [placeholder]="'projects.form.rolePlaceholder' | translate">
+        <mat-icon matSuffix>work</mat-icon>
+        <mat-error *ngIf="quickAddForm.get('role')?.hasError('required')">
+          {{ 'errors.fieldRequired' | translate }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'projects.form.client' | translate }}</mat-label>
+        <mat-select formControlName="clientId">
+          <mat-option *ngFor="let client of clients" [value]="client.id">
+            {{ client.companyName }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="quickAddForm.get('clientId')?.hasError('required')">
+          {{ 'errors.fieldRequired' | translate }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'projects.form.dailyRate' | translate }}</mat-label>
+        <input matInput type="number" formControlName="dailyRate" placeholder="600">
+        <span matSuffix>€/j</span>
+        <mat-error *ngIf="quickAddForm.get('dailyRate')?.hasError('required')">
+          {{ 'errors.fieldRequired' | translate }}
+        </mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button mat-raised-button color="primary" (click)="onSubmit()"
+            [disabled]="quickAddForm.invalid || isSubmitting">
+      <mat-icon>add</mat-icon>
+      {{ isSubmitting ? ('common.saving' | translate) : ('common.add' | translate) }}
+    </button>
+  </mat-dialog-actions>
+</div>
