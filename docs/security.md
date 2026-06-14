@@ -239,7 +239,6 @@ Priority items:
 - enforce ownership checks for every user-owned resource
 - add password reset and email validation
 - add rate limiting and brute-force protection on auth endpoints
-- wire Actuator safely and expose only appropriate endpoints
 - introduce account deletion and GDPR export
 - add audit log for sensitive account actions
 - add dependency vulnerability scanning in CI

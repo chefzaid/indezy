@@ -11,6 +11,7 @@ import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Source;
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.ClientRepository;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -248,9 +250,49 @@ public class ProjectService {
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
         project.setStatus(status);
+        // A lost reason only makes sense for lost opportunities.
+        if (status != ProjectStatus.LOST) {
+            project.setLostReason(null);
+        }
         Project updatedProject = projectRepository.save(project);
         log.info("Updated project status with id: {} to status: {}", id, status);
         return projectMapper.toDto(updatedProject);
+    }
+
+    public ProjectDto markAsLost(Long id, LostReason lostReason) {
+        log.debug("Marking project {} as lost with reason: {}", id, lostReason);
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
+        project.setStatus(ProjectStatus.LOST);
+        project.setLostReason(lostReason);
+        Project updatedProject = projectRepository.save(project);
+        log.info("Marked project {} as lost with reason: {}", id, lostReason);
+        return projectMapper.toDto(updatedProject);
+    }
+
+    public ProjectDto setFavorite(Long id, boolean favorite) {
+        log.debug("Setting favorite={} on project with id: {}", favorite, id);
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
+        project.setFavorite(favorite);
+        Project updatedProject = projectRepository.save(project);
+        log.info("Set favorite={} on project with id: {}", favorite, id);
+        return projectMapper.toDto(updatedProject);
+    }
+
+    public void reorderColumn(List<Long> orderedProjectIds) {
+        log.debug("Reordering {} projects within a column", orderedProjectIds != null ? orderedProjectIds.size() : 0);
+        if (orderedProjectIds == null || orderedProjectIds.isEmpty()) {
+            return;
+        }
+        for (int position = 0; position < orderedProjectIds.size(); position++) {
+            Long projectId = orderedProjectIds.get(position);
+            Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, projectId)));
+            project.setOrderIndex(position);
+            projectRepository.save(project);
+        }
+        log.info("Reordered {} projects within a column", orderedProjectIds.size());
     }
 
     @Transactional(readOnly = true)
@@ -273,6 +315,13 @@ public class ProjectService {
             }
         }
 
+        // Favorites pinned to the top, then manual priority (ascending order index) within each column.
+        for (List<KanbanBoardDto.ProjectCardDto> column : columns.values()) {
+            column.sort(Comparator
+                .comparing((KanbanBoardDto.ProjectCardDto card) -> Boolean.TRUE.equals(card.getFavorite())).reversed()
+                .thenComparing(card -> card.getOrderIndex() != null ? card.getOrderIndex() : 0));
+        }
+
         KanbanBoardDto kanbanBoard = new KanbanBoardDto();
         kanbanBoard.setColumns(columns);
         kanbanBoard.setColumnOrder(KANBAN_COLUMN_ORDER.stream().map(Enum::name).toList());
@@ -293,6 +342,9 @@ public class ProjectService {
         card.setDurationInMonths(project.getDurationInMonths());
         card.setNotes(project.getNotes());
         card.setPersonalRating(project.getPersonalRating());
+        card.setUpdatedAt(project.getUpdatedAt() != null ? project.getUpdatedAt().toString() : null);
+        card.setFavorite(Boolean.TRUE.equals(project.getFavorite()));
+        card.setOrderIndex(project.getOrderIndex());
 
         List<InterviewStep> steps = interviewStepRepository.findByProjectId(project.getId());
         card.setTotalSteps(steps.size());
@@ -357,6 +409,8 @@ public class ProjectService {
             .mapToDouble(Project::getTotalRevenue)
             .sum();
 
+        Map<String, Long> lostReasonsBreakdown = buildLostReasonsBreakdown(projects);
+
         return DashboardStatsDto.builder()
             .totalProjects(totalProjects != null ? totalProjects : 0)
             .averageDailyRate(averageDailyRate != null ? averageDailyRate : 0)
@@ -367,6 +421,19 @@ public class ProjectService {
             .projectsByStatus(projectsByStatus)
             .projectsByWorkMode(projectsByWorkMode)
             .dailyRateRanges(dailyRateRanges)
+            .lostReasonsBreakdown(lostReasonsBreakdown)
             .build();
+    }
+
+    private Map<String, Long> buildLostReasonsBreakdown(List<Project> projects) {
+        Map<String, Long> breakdown = new LinkedHashMap<>();
+        for (Project project : projects) {
+            if (project.getStatus() != ProjectStatus.LOST) {
+                continue;
+            }
+            String reasonKey = project.getLostReason() != null ? project.getLostReason().name() : "UNSPECIFIED";
+            breakdown.merge(reasonKey, 1L, Long::sum);
+        }
+        return breakdown;
     }
 }

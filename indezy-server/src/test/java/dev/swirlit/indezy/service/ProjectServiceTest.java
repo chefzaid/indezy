@@ -11,6 +11,7 @@ import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.StepStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
@@ -27,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -503,9 +505,70 @@ class ProjectServiceTest {
     }
 
     @Test
+    void updateStatus_WhenLeavingLost_ShouldClearLostReason() {
+        // Given a previously lost project
+        testProject.setStatus(ProjectStatus.LOST);
+        testProject.setLostReason(LostReason.NO_RESPONSE);
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When moving back into the pipeline
+        projectService.updateStatus(1L, ProjectStatus.INTERVIEW);
+
+        // Then the lost reason is cleared
+        assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.INTERVIEW);
+        assertThat(testProject.getLostReason()).isNull();
+    }
+
+    @Test
+    void markAsLost_ShouldSetStatusAndReason() {
+        // Given
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When
+        projectService.markAsLost(1L, LostReason.RATE_TOO_LOW);
+
+        // Then
+        assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.LOST);
+        assertThat(testProject.getLostReason()).isEqualTo(LostReason.RATE_TOO_LOW);
+        verify(projectRepository).save(testProject);
+    }
+
+    @Test
+    void markAsLost_WithNullReason_ShouldStillMarkLost() {
+        // Given
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When
+        projectService.markAsLost(1L, null);
+
+        // Then
+        assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.LOST);
+        assertThat(testProject.getLostReason()).isNull();
+    }
+
+    @Test
+    void markAsLost_WhenProjectNotExists_ShouldThrowResourceNotFoundException() {
+        // Given
+        when(projectRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> projectService.markAsLost(999L, LostReason.OTHER))
+                .isInstanceOf(ResourceNotFoundException.class);
+        verify(projectRepository, never()).save(any());
+    }
+
+    @Test
     void getKanbanBoard_ShouldGroupProjectsByStatusInColumnOrder() {
         // Given
         testProject.setStatus(ProjectStatus.APPLIED);
+        LocalDateTime lastActivity = LocalDateTime.of(2026, 1, 10, 9, 30);
+        testProject.setUpdatedAt(lastActivity);
 
         Project projectWithoutStatus = new Project();
         projectWithoutStatus.setId(2L);
@@ -536,6 +599,109 @@ class ProjectServiceTest {
         assertThat(card.getTotalSteps()).isEqualTo(2);
         assertThat(card.getCompletedSteps()).isEqualTo(1);
         assertThat(card.getFailedSteps()).isEqualTo(1);
+        assertThat(card.getUpdatedAt()).isEqualTo(lastActivity.toString());
+
+        // Project without an updatedAt yields a null timestamp (no aging info).
+        KanbanBoardDto.ProjectCardDto cardWithoutDate = board.getColumns().get("IDENTIFIED").get(0);
+        assertThat(cardWithoutDate.getUpdatedAt()).isNull();
+    }
+
+    @Test
+    void getKanbanBoard_ShouldPinFavoritesToTopOfColumn() {
+        // Given two APPLIED projects, only the second is a favorite
+        testProject.setStatus(ProjectStatus.APPLIED);
+        testProject.setFavorite(false);
+
+        Project favorite = new Project();
+        favorite.setId(2L);
+        favorite.setRole("Favorite Lead");
+        favorite.setStatus(ProjectStatus.APPLIED);
+        favorite.setFavorite(true);
+        favorite.setFreelance(testFreelance);
+        favorite.setClient(testClient);
+
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(Arrays.asList(testProject, favorite));
+        when(interviewStepRepository.findByProjectId(anyLong())).thenReturn(List.of());
+
+        // When
+        KanbanBoardDto board = projectService.getKanbanBoard(1L);
+
+        // Then the favorite is first in the column
+        List<KanbanBoardDto.ProjectCardDto> applied = board.getColumns().get("APPLIED");
+        assertThat(applied).hasSize(2);
+        assertThat(applied.get(0).getProjectId()).isEqualTo(2L);
+        assertThat(applied.get(0).getFavorite()).isTrue();
+        assertThat(applied.get(1).getFavorite()).isFalse();
+    }
+
+    @Test
+    void setFavorite_WhenProjectExists_ShouldUpdateFlag() {
+        // Given
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When
+        projectService.setFavorite(1L, true);
+
+        // Then
+        assertThat(testProject.getFavorite()).isTrue();
+        verify(projectRepository).save(testProject);
+    }
+
+    @Test
+    void setFavorite_WhenProjectNotExists_ShouldThrowResourceNotFoundException() {
+        // Given
+        when(projectRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> projectService.setFavorite(1L, true))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Project not found with id: 1");
+        verify(projectRepository, never()).save(any());
+    }
+
+    @Test
+    void reorderColumn_ShouldAssignOrderIndexByPosition() {
+        // Given three projects to be ordered as [3, 1, 2]
+        Project p1 = new Project();
+        p1.setId(1L);
+        Project p2 = new Project();
+        p2.setId(2L);
+        Project p3 = new Project();
+        p3.setId(3L);
+        when(projectRepository.findById(3L)).thenReturn(Optional.of(p3));
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(p1));
+        when(projectRepository.findById(2L)).thenReturn(Optional.of(p2));
+
+        // When
+        projectService.reorderColumn(Arrays.asList(3L, 1L, 2L));
+
+        // Then order index reflects the position in the list
+        assertThat(p3.getOrderIndex()).isZero();
+        assertThat(p1.getOrderIndex()).isEqualTo(1);
+        assertThat(p2.getOrderIndex()).isEqualTo(2);
+        verify(projectRepository, times(3)).save(any(Project.class));
+    }
+
+    @Test
+    void reorderColumn_WithEmptyList_ShouldDoNothing() {
+        // When
+        projectService.reorderColumn(List.of());
+
+        // Then
+        verify(projectRepository, never()).save(any());
+    }
+
+    @Test
+    void reorderColumn_WhenProjectNotExists_ShouldThrowResourceNotFoundException() {
+        // Given
+        when(projectRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> projectService.reorderColumn(List.of(99L)))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Project not found with id: 99");
     }
 
     @Test
@@ -568,6 +734,36 @@ class ProjectServiceTest {
                 .filteredOn(r -> r.getLabel().equals("500-700"))
                 .first()
                 .satisfies(r -> assertThat(r.getCount()).isEqualTo(1L));
+    }
+
+    @Test
+    void getDashboardStats_ShouldBuildLostReasonsBreakdown() {
+        // Given two lost projects (one with a reason, one without) plus a non-lost one
+        Project lostWithReason = new Project();
+        lostWithReason.setStatus(ProjectStatus.LOST);
+        lostWithReason.setLostReason(LostReason.RATE_TOO_LOW);
+        Project lostNoReason = new Project();
+        lostNoReason.setStatus(ProjectStatus.LOST);
+        testProject.setStatus(ProjectStatus.WON);
+
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(3L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(2L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        when(projectRepository.findByFreelanceId(1L))
+                .thenReturn(Arrays.asList(testProject, lostWithReason, lostNoReason));
+
+        // When
+        DashboardStatsDto stats = projectService.getDashboardStats(1L);
+
+        // Then only lost projects are counted, grouped by reason (null -> UNSPECIFIED)
+        assertThat(stats.getLostReasonsBreakdown())
+                .containsEntry("RATE_TOO_LOW", 1L)
+                .containsEntry("UNSPECIFIED", 1L)
+                .doesNotContainKey("WON");
     }
 
     @Test

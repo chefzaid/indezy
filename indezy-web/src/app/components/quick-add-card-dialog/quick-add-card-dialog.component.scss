@@ -1,0 +1,38 @@
+.quick-add-dialog {
+  min-width: 360px;
+
+  h2[mat-dialog-title] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  .loading-clients {
+    display: flex;
+    justify-content: center;
+    padding: 24px 0;
+  }
+
+  .no-clients {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 0;
+    color: #666;
+    font-size: 14px;
+
+    mat-icon {
+      color: #f9a825;
+    }
+  }
+
+  mat-dialog-actions {
+    button mat-icon {
+      margin-right: 4px;
+    }
+  }
+}

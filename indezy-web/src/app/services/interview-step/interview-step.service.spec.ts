@@ -8,7 +8,6 @@ import {
   StepTransitionDto,
   StepStatus
 } from '../../models/interview-step.models';
-import { KanbanBoardDto } from '../../models/project.models';
 import { environment } from '../../../environments/environment';
 
 describe('InterviewStepService', () => {
@@ -26,26 +25,6 @@ describe('InterviewStepService', () => {
     projectRole: 'Full Stack Developer'
   };
 
-  const mockKanbanBoard: KanbanBoardDto = {
-    columns: {
-      'Prise de Contact': [],
-      'Entretien Commercial': [],
-      'Positionnement': [],
-      'Test Technique': [],
-      'Entretien Technique': [],
-      'Entretien Manager': [],
-      'Validation': []
-    },
-    columnOrder: [
-      'Prise de Contact',
-      'Entretien Commercial',
-      'Positionnement',
-      'Test Technique',
-      'Entretien Technique',
-      'Entretien Manager',
-      'Validation'
-    ]
-  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -230,16 +209,6 @@ describe('InterviewStepService', () => {
   });
 
   describe('Kanban board operations', () => {
-    it('should get kanban board', () => {
-      service.getKanbanBoard(1).subscribe(board => {
-        expect(board).toEqual(mockKanbanBoard);
-      });
-
-      const req = httpMock.expectOne(`${API_URL}/kanban/1`);
-      expect(req.request.method).toBe('GET');
-      req.flush(mockKanbanBoard);
-    });
-
     it('should transition project to next step', () => {
       const transition: StepTransitionDto = {
         projectId: 1,

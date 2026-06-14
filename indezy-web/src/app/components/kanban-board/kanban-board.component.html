@@ -1,9 +1,18 @@
 <div class="kanban-board-container">
   <div class="board-header">
     <h2>{{ 'kanban.title' | translate }}</h2>
-    <button mat-icon-button (click)="loadKanbanBoard()" [disabled]="isLoading" [matTooltip]="'common.refresh' | translate">
-      <mat-icon>refresh</mat-icon>
-    </button>
+    <div class="board-actions">
+      <button mat-icon-button
+              class="favorites-filter-btn"
+              [class.active]="showFavoritesOnly"
+              (click)="toggleFavoritesFilter()"
+              [matTooltip]="(showFavoritesOnly ? 'kanban.favorite.showAll' : 'kanban.favorite.showFavorites') | translate">
+        <mat-icon>{{ showFavoritesOnly ? 'star' : 'star_border' }}</mat-icon>
+      </button>
+      <button mat-icon-button (click)="loadKanbanBoard()" [disabled]="isLoading" [matTooltip]="'common.refresh' | translate">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
   </div>
 
   <div class="loading-container" *ngIf="isLoading">
@@ -18,9 +27,15 @@
           <mat-icon [style.color]="getColumnColor(status)">{{ getColumnIcon(status) }}</mat-icon>
           <h3>{{ getColumnLabel(status) }}</h3>
         </div>
-        <span class="column-count" [style.background-color]="getColumnColor(status)">
-          {{ getColumnCount(status) }}
-        </span>
+        <div class="column-actions">
+          <button mat-icon-button class="quick-add-btn" (click)="openQuickAdd(status)"
+                  [matTooltip]="'kanban.quickAdd.tooltip' | translate">
+            <mat-icon>add</mat-icon>
+          </button>
+          <span class="column-count" [style.background-color]="getColumnColor(status)">
+            {{ getColumnCount(status) }}
+          </span>
+        </div>
       </div>
 
       <div class="card-list"
@@ -30,8 +45,21 @@
            [cdkDropListConnectedTo]="getConnectedDropLists()"
            (cdkDropListDropped)="onCardDrop($event)">
 
-        <div class="project-card" *ngFor="let card of getCardsForColumn(status)" cdkDrag>
+        <div class="project-card" *ngFor="let card of getCardsForColumn(status)" cdkDrag
+             [class.aging-warn]="getAgingLevel(card) === 'warn'"
+             [class.aging-stale]="getAgingLevel(card) === 'stale'">
           <mat-card class="card-content" [routerLink]="['/projects', card.projectId]" style="cursor: pointer;">
+            <button mat-icon-button class="favorite-btn" [class.is-favorite]="card.favorite"
+                    (click)="toggleFavorite(card, $event)"
+                    [matTooltip]="(card.favorite ? 'kanban.favorite.unpin' : 'kanban.favorite.pin') | translate">
+              <mat-icon>{{ card.favorite ? 'star' : 'star_border' }}</mat-icon>
+            </button>
+            <span class="aging-indicator" *ngIf="isAging(card)"
+                  [class.stale]="getAgingLevel(card) === 'stale'"
+                  [matTooltip]="'kanban.aging.inactiveFor' | translate:{ days: getDaysSinceActivity(card) }">
+              <mat-icon>schedule</mat-icon>
+              {{ getDaysSinceActivity(card) }}{{ 'kanban.aging.daysSuffix' | translate }}
+            </span>
             <mat-card-header>
               <mat-card-title class="card-role">{{ card.role }}</mat-card-title>
               <mat-card-subtitle *ngIf="card.clientName">

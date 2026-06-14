@@ -157,6 +157,23 @@
               <span class="summary-label">{{ 'dashboard.charts.active' | translate }}</span>
             </div>
           </div>
+
+          <mat-card class="lost-reasons-card" *ngIf="hasLostReasons()">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>do_not_disturb</mat-icon>
+                {{ 'dashboard.lostReasons.title' | translate }}
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <ul class="lost-reasons-list">
+                <li *ngFor="let entry of getLostReasonEntries()">
+                  <span class="reason-label">{{ 'kanban.lost.reasons.' + entry.reason | translate }}</span>
+                  <span class="reason-count">{{ entry.count }}</span>
+                </li>
+              </ul>
+            </mat-card-content>
+          </mat-card>
         </div>
 
         <!-- Recent Projects -->

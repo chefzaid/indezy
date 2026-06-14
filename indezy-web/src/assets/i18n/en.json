@@ -138,6 +138,9 @@
       "won": "Won",
       "lost": "Lost",
       "active": "Active"
+    },
+    "lostReasons": {
+      "title": "Lost reasons"
     }
   },
   "projects": {
@@ -338,6 +341,7 @@
     "domain": "Industry",
     "isFinal": "Client type",
     "finalClient": "End client",
+    "blacklisted": "Blacklisted",
     "esn": "Consulting firm",
     "archived": "Archived",
     "companyInfo": "Company information",
@@ -404,6 +408,10 @@
       "website": "Website",
       "websitePlaceholder": "https://...",
       "isFinal": "End client",
+      "rating": "Client rating",
+      "blacklisted": "Blacklist this client",
+      "blacklistReason": "Blacklist reason",
+      "blacklistReasonPlaceholder": "e.g. payment delays, ghosting, bad process...",
       "associatedContacts": "Associated contacts",
       "notesPlaceholder": "Notes about the client...",
       "createButton": "Create client",
@@ -547,7 +555,44 @@
     "addProject": "Add a project",
     "loadError": "Error loading board",
     "moveError": "Error moving project",
-    "moveSuccess": "Project moved successfully"
+    "moveSuccess": "Project moved successfully",
+    "aging": {
+      "inactiveFor": "No activity for {{days}} days",
+      "daysSuffix": "d"
+    },
+    "quickAdd": {
+      "title": "Quick add opportunity",
+      "tooltip": "Quick add a card to this column",
+      "noClients": "Create a client first to add an opportunity.",
+      "dailyRatePositive": "The daily rate must be positive",
+      "success": "Opportunity added",
+      "error": "Error adding the opportunity"
+    },
+    "favorite": {
+      "pin": "Pin as favorite",
+      "unpin": "Remove from favorites",
+      "showFavorites": "Show favorites only",
+      "showAll": "Show all opportunities",
+      "error": "Error updating the favorite"
+    },
+    "reorder": {
+      "error": "Error saving the new order"
+    },
+    "lost": {
+      "title": "Mark as lost",
+      "hint": "Record why this opportunity was lost (optional).",
+      "reason": "Reason",
+      "confirm": "Mark as lost",
+      "reasons": {
+        "RATE_TOO_LOW": "Rate too low",
+        "POSITION_FILLED": "Position filled",
+        "NO_RESPONSE": "No response",
+        "NOT_SELECTED": "Not selected",
+        "WITHDREW": "I withdrew",
+        "OTHER": "Other",
+        "UNSPECIFIED": "Unspecified"
+      }
+    }
   },
   "profile": {
     "title": "My Profile",

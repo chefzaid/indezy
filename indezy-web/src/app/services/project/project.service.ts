@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ProjectDto, ProjectStatus, KanbanBoardDto, WorkMode, DashboardStatsDto } from '../../models/project.models';
+import { ProjectDto, ProjectStatus, KanbanBoardDto, WorkMode, DashboardStatsDto, LostReason } from '../../models/project.models';
 
 export interface ProjectFilters {
   minRate?: number;
@@ -85,6 +85,23 @@ export class ProjectService {
   updateStatus(id: number, status: ProjectStatus): Observable<ProjectDto> {
     const params = new HttpParams().set('status', status);
     return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/status`, null, { params });
+  }
+
+  setFavorite(id: number, favorite: boolean): Observable<ProjectDto> {
+    const params = new HttpParams().set('favorite', favorite);
+    return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/favorite`, null, { params });
+  }
+
+  reorderColumn(projectIds: number[]): Observable<void> {
+    return this.http.patch<void>(`${this.API_URL}/reorder`, projectIds);
+  }
+
+  markAsLost(id: number, reason?: LostReason): Observable<ProjectDto> {
+    let params = new HttpParams();
+    if (reason) {
+      params = params.set('reason', reason);
+    }
+    return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/lost-reason`, null, { params });
   }
 
   getKanbanBoard(freelanceId: number): Observable<KanbanBoardDto> {

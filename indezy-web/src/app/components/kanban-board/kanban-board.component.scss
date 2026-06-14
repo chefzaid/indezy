@@ -17,6 +17,16 @@
     font-weight: 600;
     color: #333;
   }
+
+  .board-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .favorites-filter-btn.active mat-icon {
+    color: #f6c244;
+  }
 }
 
 .loading-container {
@@ -70,6 +80,29 @@
     }
   }
 
+  .column-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .quick-add-btn {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    color: #777;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      color: #333;
+    }
+  }
+
   .column-count {
     color: white;
     border-radius: 10px;
@@ -98,7 +131,17 @@
     cursor: grabbing;
   }
 
+  // Card aging indicators: highlight opportunities with no recent activity.
+  &.aging-warn .card-content {
+    border-left: 3px solid #f9a825;
+  }
+
+  &.aging-stale .card-content {
+    border-left: 3px solid #e53935;
+  }
+
   .card-content {
+    position: relative;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -110,7 +153,7 @@
     }
 
     mat-card-header {
-      padding: 10px 12px 4px;
+      padding: 10px 12px 4px 38px;
 
       .card-role {
         font-size: 13px;
@@ -130,6 +173,54 @@
     mat-card-content {
       padding: 0 12px 10px;
     }
+  }
+}
+
+.favorite-btn {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  color: #bbb;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &.is-favorite {
+    color: #f6c244;
+  }
+}
+
+.aging-indicator {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  background-color: #fff3e0;
+  color: #ef6c00;
+
+  &.stale {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+
+  mat-icon {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
   }
 }
 

@@ -57,9 +57,28 @@ export interface KanbanProjectCardDto {
   totalSteps: number;
   completedSteps: number;
   failedSteps: number;
+  updatedAt?: string;
+  favorite?: boolean;
 }
 
 export type WorkMode = 'REMOTE' | 'ONSITE' | 'HYBRID';
+
+export type LostReason =
+  | 'RATE_TOO_LOW'
+  | 'POSITION_FILLED'
+  | 'NO_RESPONSE'
+  | 'NOT_SELECTED'
+  | 'WITHDREW'
+  | 'OTHER';
+
+export const LOST_REASONS: LostReason[] = [
+  'RATE_TOO_LOW',
+  'POSITION_FILLED',
+  'NO_RESPONSE',
+  'NOT_SELECTED',
+  'WITHDREW',
+  'OTHER'
+];
 
 export interface ProjectDto {
   id?: number;
@@ -79,6 +98,8 @@ export interface ProjectDto {
   documents?: string[];
   link?: string;
   personalRating?: number;
+  favorite?: boolean;
+  lostReason?: LostReason;
   notes?: string;
   freelanceId?: number;
   clientId?: number;
@@ -103,6 +124,7 @@ export interface DashboardStatsDto {
   projectsByStatus: { [status: string]: number };
   projectsByWorkMode: { [mode: string]: number };
   dailyRateRanges: DailyRateRange[];
+  lostReasonsBreakdown?: { [reason: string]: number };
 }
 
 export interface DailyRateRange {

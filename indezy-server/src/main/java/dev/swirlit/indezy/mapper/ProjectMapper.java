@@ -34,6 +34,10 @@ public interface ProjectMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
+    // Favorite is toggled through its own endpoint, never through create/update payloads.
+    @Mapping(target = "favorite", ignore = true)
+    // Lost reason is set through the status/lost-reason endpoint, never through create/update payloads.
+    @Mapping(target = "lostReason", ignore = true)
     Project toEntity(ProjectDto dto);
 
     @Mapping(target = "id", ignore = true)
@@ -45,6 +49,10 @@ public interface ProjectMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
+    // Favorite is toggled through its own endpoint, never through create/update payloads.
+    @Mapping(target = "favorite", ignore = true)
+    // Lost reason is set through the status/lost-reason endpoint, never through create/update payloads.
+    @Mapping(target = "lostReason", ignore = true)
     void updateEntity(ProjectDto dto, @MappingTarget Project project);
 
     default InterviewStepDto toInterviewStepDto(final InterviewStep interviewStep) {

@@ -27,5 +27,11 @@ public class KanbanBoardDto {
         private Integer totalSteps;
         private Integer completedSteps;
         private Integer failedSteps;
+        // ISO-8601 timestamp of the last activity on the project; drives card aging indicators.
+        private String updatedAt;
+        // Pinned/favorite opportunities are kept at the top of their column.
+        private Boolean favorite;
+        // Manual priority within the column (favorites first, then ascending order index).
+        private Integer orderIndex;
     }
 }

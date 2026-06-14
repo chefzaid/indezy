@@ -114,6 +114,9 @@ class ClientIntegrationTest {
         updateDto.setDomain("Updated Domain");
         updateDto.setIsFinal(true);
         updateDto.setNotes("Updated notes");
+        updateDto.setRating(4);
+        updateDto.setBlacklisted(true);
+        updateDto.setBlacklistReason("Payment delays");
         updateDto.setFreelanceId(1L);
 
         // When & Then
@@ -125,7 +128,10 @@ class ClientIntegrationTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.companyName", is("Updated Company")))
                 .andExpect(jsonPath("$.domain", is("Updated Domain")))
-                .andExpect(jsonPath("$.isFinal", is(true)));
+                .andExpect(jsonPath("$.isFinal", is(true)))
+                .andExpect(jsonPath("$.rating", is(4)))
+                .andExpect(jsonPath("$.blacklisted", is(true)))
+                .andExpect(jsonPath("$.blacklistReason", is("Payment delays")));
     }
 
     @Test

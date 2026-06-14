@@ -1,6 +1,8 @@
 package dev.swirlit.indezy.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -35,6 +37,19 @@ public class Client extends BaseEntity {
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
+
+    // Manual relationship rating (1-5): payment reliability, process quality, etc.
+    @Min(1)
+    @Max(5)
+    @Column(name = "rating")
+    private Integer rating;
+
+    // Blacklist a client (payment delays, ghosting, bad process) to flag/avoid it.
+    @Column(name = "blacklisted")
+    private Boolean blacklisted = false;
+
+    @Column(name = "blacklist_reason", columnDefinition = "TEXT")
+    private String blacklistReason;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "freelance_id", nullable = false)

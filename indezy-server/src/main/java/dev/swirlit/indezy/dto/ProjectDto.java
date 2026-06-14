@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.dto;
 
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import jakarta.validation.constraints.Max;
@@ -40,6 +41,10 @@ public class ProjectDto {
     @Min(value = 1, message = "Personal rating must be between 1 and 5")
     @Max(value = 5, message = "Personal rating must be between 1 and 5")
     private Integer personalRating;
+
+    private Boolean favorite;
+
+    private LostReason lostReason;
 
     private String notes;
 

@@ -123,9 +123,14 @@ export class ClientFormComponent implements OnInit, OnDestroy {
       address: [''],
       domain: [''],
       notes: [''],
-      isFinal: [false, [Validators.required]]
+      isFinal: [false, [Validators.required]],
+      rating: [null],
+      blacklisted: [false],
+      blacklistReason: ['']
     });
   }
+
+  readonly ratingOptions = [1, 2, 3, 4, 5];
 
   private loadClient(): void {
     if (!this.clientId) {

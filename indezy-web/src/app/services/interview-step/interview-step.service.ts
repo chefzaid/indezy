@@ -9,7 +9,6 @@ import {
   StepTransitionDto,
   StepStatus
 } from '../../models/interview-step.models';
-import { KanbanBoardDto } from '../../models/project.models';
 
 @Injectable({
   providedIn: 'root'
@@ -84,10 +83,6 @@ export class InterviewStepService {
   }
 
   // Kanban board operations
-  getKanbanBoard(freelanceId: number): Observable<KanbanBoardDto> {
-    return this.http.get<KanbanBoardDto>(`${this.API_URL}/kanban/${freelanceId}`);
-  }
-
   transitionProjectToNextStep(transition: StepTransitionDto): Observable<InterviewStepDto> {
     return this.http.post<InterviewStepDto>(`${this.API_URL}/transition`, transition);
   }

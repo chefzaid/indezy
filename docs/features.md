@@ -84,6 +84,7 @@ Client data includes:
 - domain
 - final-client flag
 - notes
+- a manual rating (1-5) and a blacklist flag with an optional reason (payment delays, ghosting, bad process); blacklisted clients and their rating are surfaced as badges in the client list
 - freelance owner
 - linked projects, middleman projects, and contacts
 
@@ -139,6 +140,16 @@ The UI includes scheduling and action dialogs. The backend exposes interview-ste
 ## Kanban And Pipeline View
 
 The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs.
+
+Cards show an aging indicator: opportunities with no activity (no update to the project) for 7+ days are flagged with an amber badge, and 14+ days with a red badge, so stale leads stand out. Won and Lost cards are never flagged. The thresholds live in `KanbanBoardComponent` (`AGING_WARN_DAYS`, `AGING_STALE_DAYS`).
+
+Each column has a quick-add button that opens a minimal dialog (role, client, daily rate) to create an opportunity directly in that column's status, to be enriched later from the project form.
+
+Opportunities can be pinned as favorites (the star on each card). Favorites are kept at the top of their column, and a star toggle in the board header switches to a favorites-only view to focus on hot leads. The pinned flag is persisted on the project and toggled through `PATCH /projects/{id}/favorite`.
+
+Cards can be dragged to reorder them within a column to set a manual priority. The new order is persisted via `PATCH /projects/reorder` (an ordered list of project IDs) and stored as `orderIndex` on each project; columns are sorted by favorites first, then ascending order index.
+
+Dragging a card into the **Lost** column opens a dialog to record why the opportunity was lost (rate too low, position filled, no response, not selected, withdrew, other). The reason is persisted via `PATCH /projects/{id}/lost-reason` and cleared automatically if the project later leaves the Lost status. The dashboard surfaces a "Lost reasons" breakdown so you can see where opportunities die.
 
 The current Kanban implementation is status-driven. The roadmap in [TODO.md](../TODO.md) tracks a richer pipeline model where generic columns can coexist with custom intermediate recruitment steps.
 

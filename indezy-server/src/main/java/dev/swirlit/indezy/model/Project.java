@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.model;
 
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import jakarta.persistence.*;
@@ -76,6 +77,18 @@ public class Project extends BaseEntity {
     @Max(5)
     @Column(name = "personal_rating")
     private Integer personalRating;
+
+    @Column(name = "is_favorite")
+    private Boolean favorite = false;
+
+    // Manual priority within a Kanban column (lower = higher in the column).
+    @Column(name = "board_order")
+    private Integer orderIndex = 0;
+
+    // Why the opportunity was lost; only meaningful when status is LOST.
+    @Enumerated(EnumType.STRING)
+    @Column(name = "lost_reason")
+    private LostReason lostReason;
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;

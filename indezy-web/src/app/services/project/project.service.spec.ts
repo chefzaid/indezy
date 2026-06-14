@@ -310,5 +310,60 @@ describe('ProjectService', () => {
     });
   });
 
+  describe('setFavorite', () => {
+    it('should PATCH the favorite flag with a query param', () => {
+      const favorited = { ...mockProject, favorite: true };
+
+      service.setFavorite(mockProject.id!, true).subscribe(project => {
+        expect(project.favorite).toBeTrue();
+      });
+
+      const req = httpMock.expectOne(
+        `${environment.apiUrl}/projects/${mockProject.id}/favorite?favorite=true`);
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toBeNull();
+      req.flush(favorited);
+    });
+  });
+
+  describe('markAsLost', () => {
+    it('should PATCH the lost reason as a query param', () => {
+      const lost = { ...mockProject, status: 'LOST', lostReason: 'RATE_TOO_LOW' };
+
+      service.markAsLost(mockProject.id!, 'RATE_TOO_LOW').subscribe(project => {
+        expect(project.lostReason).toBe('RATE_TOO_LOW');
+      });
+
+      const req = httpMock.expectOne(
+        `${environment.apiUrl}/projects/${mockProject.id}/lost-reason?reason=RATE_TOO_LOW`);
+      expect(req.request.method).toBe('PATCH');
+      req.flush(lost);
+    });
+
+    it('should PATCH without a reason param when none is given', () => {
+      service.markAsLost(mockProject.id!).subscribe();
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/projects/${mockProject.id}/lost-reason`);
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.params.has('reason')).toBeFalse();
+      req.flush({ ...mockProject, status: 'LOST' });
+    });
+  });
+
+  describe('reorderColumn', () => {
+    it('should PATCH the ordered project ids', () => {
+      const orderedIds = [3, 1, 2];
+
+      service.reorderColumn(orderedIds).subscribe(response => {
+        expect(response).toBeNull();
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/projects/reorder`);
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toEqual(orderedIds);
+      req.flush(null);
+    });
+  });
+
 
 });

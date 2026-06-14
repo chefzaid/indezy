@@ -138,6 +138,9 @@
       "won": "Gagn\u00e9es",
       "lost": "Perdues",
       "active": "En cours"
+    },
+    "lostReasons": {
+      "title": "Raisons de perte"
     }
   },
   "projects": {
@@ -338,6 +341,7 @@
     "domain": "Domaine d'activité",
     "isFinal": "Type de client",
     "finalClient": "Client final",
+    "blacklisted": "Sur liste noire",
     "esn": "ESN",
     "archived": "Archivé",
     "companyInfo": "Informations entreprise",
@@ -404,6 +408,10 @@
       "website": "Site web",
       "websitePlaceholder": "https://...",
       "isFinal": "Client final",
+      "rating": "Note du client",
+      "blacklisted": "Mettre ce client sur liste noire",
+      "blacklistReason": "Raison de la liste noire",
+      "blacklistReasonPlaceholder": "ex. retards de paiement, ghosting, mauvais process...",
       "associatedContacts": "Contacts associés",
       "notesPlaceholder": "Notes sur le client...",
       "createButton": "Créer le client",
@@ -547,7 +555,44 @@
     "addProject": "Ajouter une mission",
     "loadError": "Erreur lors du chargement du tableau",
     "moveError": "Erreur lors du déplacement",
-    "moveSuccess": "Mission déplacée avec succès"
+    "moveSuccess": "Mission déplacée avec succès",
+    "aging": {
+      "inactiveFor": "Aucune activité depuis {{days}} jours",
+      "daysSuffix": "j"
+    },
+    "quickAdd": {
+      "title": "Ajout rapide d'une opportunité",
+      "tooltip": "Ajouter rapidement une carte dans cette colonne",
+      "noClients": "Créez d'abord un client pour ajouter une opportunité.",
+      "dailyRatePositive": "Le TJM doit être positif",
+      "success": "Opportunité ajoutée",
+      "error": "Erreur lors de l'ajout de l'opportunité"
+    },
+    "favorite": {
+      "pin": "Épingler en favori",
+      "unpin": "Retirer des favoris",
+      "showFavorites": "Afficher les favoris uniquement",
+      "showAll": "Afficher toutes les opportunités",
+      "error": "Erreur lors de la mise à jour du favori"
+    },
+    "reorder": {
+      "error": "Erreur lors de l'enregistrement du nouvel ordre"
+    },
+    "lost": {
+      "title": "Marquer comme perdue",
+      "hint": "Indiquez pourquoi cette opportunité a été perdue (facultatif).",
+      "reason": "Raison",
+      "confirm": "Marquer comme perdue",
+      "reasons": {
+        "RATE_TOO_LOW": "TJM trop bas",
+        "POSITION_FILLED": "Poste pourvu",
+        "NO_RESPONSE": "Pas de réponse",
+        "NOT_SELECTED": "Non retenu",
+        "WITHDREW": "Je me suis retiré",
+        "OTHER": "Autre",
+        "UNSPECIFIED": "Non précisé"
+      }
+    }
   },
   "profile": {
     "title": "Mon Profil",

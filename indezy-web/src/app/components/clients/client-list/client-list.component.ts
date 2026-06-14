@@ -285,6 +285,10 @@ export class ClientListComponent implements OnInit, OnDestroy {
     }
   }
 
+  getRatingStars(rating?: number): number[] {
+    return rating && rating > 0 ? new Array(rating).fill(0) : [];
+  }
+
   getStatusLabel(status: string): string {
     switch (status) {
       case 'FINAL':

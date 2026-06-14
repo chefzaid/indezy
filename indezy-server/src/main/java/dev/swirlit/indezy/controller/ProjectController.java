@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.KanbanBoardDto;
 import dev.swirlit.indezy.dto.ProjectDto;
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.service.ProjectService;
@@ -161,6 +162,36 @@ public class ProjectController {
         log.debug("PATCH /projects/{}/status - Updating project status to: {}", id, status);
         ProjectDto updatedProject = projectService.updateStatus(id, status);
         return ResponseEntity.ok(updatedProject);
+    }
+
+    @Operation(summary = "Set project favorite", description = "Pin or unpin a project as a favorite/hot lead")
+    @PatchMapping("/{id}/favorite")
+    public ResponseEntity<ProjectDto> setProjectFavorite(
+            @PathVariable Long id,
+            @RequestParam boolean favorite) {
+        log.debug("PATCH /projects/{}/favorite - Setting favorite to: {}", id, favorite);
+        ProjectDto updatedProject = projectService.setFavorite(id, favorite);
+        return ResponseEntity.ok(updatedProject);
+    }
+
+    @Operation(summary = "Mark project as lost",
+        description = "Set a project to LOST and record the reason it was lost/rejected")
+    @PatchMapping("/{id}/lost-reason")
+    public ResponseEntity<ProjectDto> markProjectAsLost(
+            @PathVariable Long id,
+            @RequestParam(required = false) LostReason reason) {
+        log.debug("PATCH /projects/{}/lost-reason - Marking project as lost with reason: {}", id, reason);
+        ProjectDto updatedProject = projectService.markAsLost(id, reason);
+        return ResponseEntity.ok(updatedProject);
+    }
+
+    @Operation(summary = "Reorder a Kanban column",
+        description = "Persist the manual order of projects within a column (list of project IDs, top to bottom)")
+    @PatchMapping("/reorder")
+    public ResponseEntity<Void> reorderColumn(@RequestBody List<Long> projectIds) {
+        log.debug("PATCH /projects/reorder - Reordering {} projects", projectIds != null ? projectIds.size() : 0);
+        projectService.reorderColumn(projectIds);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Get kanban board", description = "Get kanban board data grouped by project status")

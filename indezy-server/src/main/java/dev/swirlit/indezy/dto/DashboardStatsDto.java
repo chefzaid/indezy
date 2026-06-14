@@ -22,6 +22,8 @@ public class DashboardStatsDto {
     private Map<String, Long> projectsByStatus;
     private Map<String, Long> projectsByWorkMode;
     private List<DailyRateRange> dailyRateRanges;
+    // Breakdown of lost opportunities by reason (reason name -> count), including UNSPECIFIED.
+    private Map<String, Long> lostReasonsBreakdown;
 
     @Data
     @Builder

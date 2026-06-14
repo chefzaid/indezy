@@ -17,11 +17,11 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] Drag-and-drop status changes from the Kanban board
 - [ ] Customizable pipeline templates per client/ESN (save a recruitment process and reuse it)
 - [ ] Bulk actions on Kanban cards (archive, change status, assign source)
-- [ ] Card aging indicators (highlight opportunities with no activity for X days)
-- [ ] Drag-and-drop reordering within a column (manual priority)
-- [ ] Quick-add card directly from the Kanban board (minimal form, enrich later)
-- [ ] Pinned/favorite opportunities (keep hot leads at the top, dedicated view)
-- [ ] Lost/rejected reason tracking (rate too low, position filled, no response...) with stats
+- [x] Card aging indicators (highlight opportunities with no activity for X days)
+- [x] Drag-and-drop reordering within a column (manual priority)
+- [x] Quick-add card directly from the Kanban board (minimal form, enrich later)
+- [x] Pinned/favorite opportunities (keep hot leads at the top, dedicated view)
+- [x] Lost/rejected reason tracking (rate too low, position filled, no response...) with stats
 - [ ] Automatic stale-opportunity detection and suggested follow-up or archival
 - [ ] Duplicate opportunity detection (same client + same role posted on several job boards), flagged for manual deduplication
 
@@ -56,7 +56,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] Client management for final clients and intermediaries/ESNs
 - [x] Client final/intermediary distinction through the `isFinal` flag
 - [x] Contact management linked to both client and freelancer
-- [ ] Client rating and blacklist (payment delays, ghosting, bad process)
+- [x] Client rating and blacklist (payment delays, ghosting, bad process)
 - [ ] ESN/intermediary margin tracking (rate paid by client vs rate received)
 - [ ] Contact interaction history (last contacted, response rate, preferred channel)
 - [ ] Org chart linking contacts to clients and ESNs (who works with whom)
@@ -207,7 +207,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Improve the devcontainer setup
 - [ ] Measure and raise test coverage to at least 85% for both backend and frontend, with a focus on critical business logic and edge cases
 - [ ] Playwright e2e tests for critical user flows (register, login, create project, move Kanban card, filter lists)
-- [ ] Add Spring Boot Actuator: K8s probes already reference /api/actuator/health but the actuator dependency is missing from pom.xml
+- [x] Add Spring Boot Actuator: K8s probes already reference /api/actuator/health but the actuator dependency is missing from pom.xml
 - [ ] Richer database seeding for development (realistic projects, clients, pipeline states)
 - [ ] Mask commands to reset/reseed the dev database with test data
 - [ ] Caching of frequent requests (dashboard stats, job feed)
@@ -221,14 +221,16 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 
 ## Recurrent Tasks (mixed domains)
 
-- [ ] Break huge files and blocks of code (500+ LOC) into smaller maintainable chunks and refactor them
-- [ ] Linting, quality checks, and resolve issues reported in Problems tab
+- [ ] Break huge files and blocks of code (500+ LOC) into smaller more maintainable chunks and refactor them
+- [ ] Linting, quality checks, and resolving issues reported in the Problems tab
 - [ ] Optimize codebase for better performance
-- [ ] Hunt for memory leaks, null references, bugs, and fix them
-- [ ] Always consider reusing existing code; centralize reusable code instead of adding new code when similar code already exists
-- [ ] Code reviews, refactor, and clean up code for readability and maintainability
-- [ ] Update dependencies and fix any breaking changes
-- [ ] Update documentation to reflect changes in features, architecture, or deployment process
+- [ ] Hunt for memory leaks, null references, bugs (UI + backend), and fix them
+- [ ] Always consider reusing existing code, and refactor to centralize similar reusable code instead of adding new one
+- [ ] Code reviews, refactor, and clean up code for better readability and maintainability
+- [ ] Verify that there are no regressions in the app after each new feature or bug fix, and that all existing features still work as expected
+- [ ] Keep implemented architecture, design patterns, and best practices up to date with the used tech stack and industry standards
+- [ ] Update dependencies to latest stable version and fix any breaking changes, try to use latest features of the used frameworks and libraries when necessary
+- [ ] Update documentation to reflect any changes in features, architecture, or deployment process
 - [ ] Always keep code coverage above 85% for both backend and frontend
 - [ ] Tighten code security and fix vulnerabilities (OWASP Top 10: XSS, CSRF, SQL injection, etc.)
 - [ ] Security and performance audits and remediation

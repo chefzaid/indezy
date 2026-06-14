@@ -221,6 +221,16 @@
                   </a>
                 </small>
               </div>
+              <div class="client-flags" *ngIf="client.blacklisted || client.rating">
+                <span class="blacklist-badge" *ngIf="client.blacklisted"
+                      [title]="client.blacklistReason || ('clients.blacklisted' | translate)">
+                  <mat-icon>block</mat-icon>
+                  {{ 'clients.blacklisted' | translate }}
+                </span>
+                <span class="client-rating" *ngIf="client.rating" [title]="client.rating + '/5'">
+                  <mat-icon *ngFor="let s of getRatingStars(client.rating)" class="rating-star">star</mat-icon>
+                </span>
+              </div>
             </td>
           </ng-container>
 

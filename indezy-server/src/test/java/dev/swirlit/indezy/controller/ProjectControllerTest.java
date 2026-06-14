@@ -3,6 +3,8 @@ package dev.swirlit.indezy.controller;
 import tools.jackson.databind.ObjectMapper;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.enums.LostReason;
+import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.service.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
@@ -324,5 +326,72 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$", is(3)));
 
         verify(projectService).countByFreelanceId(1L);
+    }
+
+    @Test
+    @WithMockUser
+    void setProjectFavorite_ShouldPinProject() throws Exception {
+        // Given
+        testProjectDto.setFavorite(true);
+        when(projectService.setFavorite(1L, true)).thenReturn(testProjectDto);
+
+        // When & Then
+        mockMvc.perform(patch("/projects/1/favorite")
+                        .with(csrf())
+                        .param("favorite", "true"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.favorite", is(true)));
+
+        verify(projectService).setFavorite(1L, true);
+    }
+
+    @Test
+    @WithMockUser
+    void markProjectAsLost_ShouldSetStatusAndReason() throws Exception {
+        // Given
+        testProjectDto.setStatus(ProjectStatus.LOST);
+        testProjectDto.setLostReason(LostReason.RATE_TOO_LOW);
+        when(projectService.markAsLost(1L, LostReason.RATE_TOO_LOW)).thenReturn(testProjectDto);
+
+        // When & Then
+        mockMvc.perform(patch("/projects/1/lost-reason")
+                        .with(csrf())
+                        .param("reason", "RATE_TOO_LOW"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lostReason", is("RATE_TOO_LOW")));
+
+        verify(projectService).markAsLost(1L, LostReason.RATE_TOO_LOW);
+    }
+
+    @Test
+    @WithMockUser
+    void markProjectAsLost_WithoutReason_ShouldStillMarkLost() throws Exception {
+        // Given
+        testProjectDto.setStatus(ProjectStatus.LOST);
+        when(projectService.markAsLost(1L, null)).thenReturn(testProjectDto);
+
+        // When & Then
+        mockMvc.perform(patch("/projects/1/lost-reason")
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        verify(projectService).markAsLost(1L, null);
+    }
+
+    @Test
+    @WithMockUser
+    void reorderColumn_ShouldPersistOrderAndReturnNoContent() throws Exception {
+        // Given
+        doNothing().when(projectService).reorderColumn(anyList());
+
+        // When & Then
+        mockMvc.perform(patch("/projects/reorder")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(List.of(3L, 1L, 2L))))
+                .andExpect(status().isNoContent());
+
+        verify(projectService).reorderColumn(List.of(3L, 1L, 2L));
     }
 }

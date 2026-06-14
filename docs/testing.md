@@ -278,7 +278,7 @@ Check whether `test:coverage` exists in `indezy-web/package.json`. The current M
 
 ### Health checks fail in local status output
 
-`mask status` checks `/api/actuator/health`. The Kubernetes manifests also reference that path. If Actuator is not wired into the backend build, this check can fail even when the server port is open.
+`mask status` checks `/api/actuator/health`. The Kubernetes manifests reference the same path. Spring Boot Actuator is wired into the backend build, so this endpoint returns `{"status":"UP"}` once the app has started; a failing check therefore points to a real startup/dependency problem rather than a missing endpoint.
 
 ## Related Guides
 

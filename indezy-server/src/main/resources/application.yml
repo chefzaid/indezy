@@ -59,6 +59,27 @@ spring:
             user-info-uri: https://graph.microsoft.com/v1.0/me
             user-name-attribute: id
 
+management:
+  endpoints:
+    web:
+      exposure:
+        # Only expose health and info; keep sensitive endpoints (env, beans, ...) off the network.
+        include:
+          - health
+          - info
+  endpoint:
+    health:
+      # Enables /actuator/health/liveness and /actuator/health/readiness groups.
+      probes:
+        enabled: true
+      # Only authenticated callers see component details; probes get a bare {"status":"UP"}.
+      show-details: when_authorized
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
 jwt:
   secret: ${JWT_SECRET:indezy-super-secret-key-change-in-production}
   expiration: 86400000 # 24 hours in milliseconds

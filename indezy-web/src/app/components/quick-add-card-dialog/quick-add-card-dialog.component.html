@@ -1,0 +1,63 @@
+<div class="quick-add-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>add_circle</mat-icon>
+    {{ 'kanban.quickAdd.title' | translate }}
+  </h2>
+
+  <mat-dialog-content>
+    <div class="loading-clients" *ngIf="isLoadingClients">
+      <mat-spinner diameter="28"></mat-spinner>
+    </div>
+
+    <div class="no-clients" *ngIf="hasNoClients">
+      <mat-icon>info</mat-icon>
+      <span>{{ 'kanban.quickAdd.noClients' | translate }}</span>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!isLoadingClients && !hasNoClients">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'projects.form.role' | translate }}</mat-label>
+        <input matInput formControlName="role" [placeholder]="'projects.form.rolePlaceholder' | translate">
+        <mat-icon matSuffix>work</mat-icon>
+        <mat-error *ngIf="form.get('role')?.hasError('required')">
+          {{ 'common.required' | translate }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'common.client' | translate }}</mat-label>
+        <mat-select formControlName="clientId">
+          <mat-option *ngFor="let client of clients" [value]="client.id">
+            {{ client.companyName }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.get('clientId')?.hasError('required')">
+          {{ 'common.required' | translate }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'projects.form.dailyRate' | translate }}</mat-label>
+        <input matInput type="number" formControlName="dailyRate" min="0">
+        <span matTextSuffix>€</span>
+        <mat-error *ngIf="form.get('dailyRate')?.hasError('required')">
+          {{ 'common.required' | translate }}
+        </mat-error>
+        <mat-error *ngIf="form.get('dailyRate')?.hasError('min')">
+          {{ 'kanban.quickAdd.dailyRatePositive' | translate }}
+        </mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button mat-raised-button color="primary" type="button" (click)="onSubmit()"
+            [disabled]="form.invalid || isSubmitting || hasNoClients">
+      <mat-icon>{{ isSubmitting ? 'hourglass_empty' : 'add' }}</mat-icon>
+      {{ 'common.create' | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>
