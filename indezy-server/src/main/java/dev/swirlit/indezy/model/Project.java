@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.model;
 
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import jakarta.persistence.*;
@@ -79,6 +80,11 @@ public class Project extends BaseEntity {
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
+
+    /** Why the opportunity was lost; only meaningful when status is LOST. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "lost_reason")
+    private LostReason lostReason;
 
     /** Pins hot leads to the top of their Kanban column and the favorites view. */
     @Column(name = "is_favorite", nullable = false, columnDefinition = "boolean default false")

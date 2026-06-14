@@ -11,6 +11,7 @@ import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.StepStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
@@ -483,12 +484,45 @@ class ProjectServiceTest {
         when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
 
         // When
-        ProjectDto result = projectService.updateStatus(1L, ProjectStatus.WON);
+        ProjectDto result = projectService.updateStatus(1L, ProjectStatus.WON, null);
 
         // Then
         assertThat(result).isNotNull();
         assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.WON);
+        assertThat(testProject.getLostReason()).isNull();
         verify(projectRepository).save(testProject);
+    }
+
+    @Test
+    void updateStatus_WhenLost_ShouldStoreLostReason() {
+        // Given
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When
+        projectService.updateStatus(1L, ProjectStatus.LOST, LostReason.RATE_TOO_LOW);
+
+        // Then
+        assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.LOST);
+        assertThat(testProject.getLostReason()).isEqualTo(LostReason.RATE_TOO_LOW);
+    }
+
+    @Test
+    void updateStatus_WhenNotLost_ShouldClearLostReason() {
+        // Given a project that was previously lost
+        testProject.setStatus(ProjectStatus.LOST);
+        testProject.setLostReason(LostReason.NO_RESPONSE);
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When it moves back into the pipeline
+        projectService.updateStatus(1L, ProjectStatus.INTERVIEW, LostReason.NO_RESPONSE);
+
+        // Then the stale reason is cleared
+        assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.INTERVIEW);
+        assertThat(testProject.getLostReason()).isNull();
     }
 
     @Test
@@ -497,7 +531,7 @@ class ProjectServiceTest {
         when(projectRepository.findById(999L)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> projectService.updateStatus(999L, ProjectStatus.WON))
+        assertThatThrownBy(() -> projectService.updateStatus(999L, ProjectStatus.WON, null))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(projectRepository, never()).save(any());
     }
@@ -622,6 +656,30 @@ class ProjectServiceTest {
                 .filteredOn(r -> r.getLabel().equals("500-700"))
                 .first()
                 .satisfies(r -> assertThat(r.getCount()).isEqualTo(1L));
+    }
+
+    @Test
+    void getDashboardStats_ShouldBreakDownLostReasons() {
+        // Given a lost project with a reason and a non-lost project
+        Project lost = new Project();
+        lost.setStatus(ProjectStatus.LOST);
+        lost.setLostReason(LostReason.RATE_TOO_LOW);
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(2L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject, lost));
+
+        // When
+        DashboardStatsDto stats = projectService.getDashboardStats(1L);
+
+        // Then only the lost project contributes to the breakdown
+        assertThat(stats.getLostReasonsBreakdown())
+                .containsEntry("RATE_TOO_LOW", 1L)
+                .containsEntry("NO_RESPONSE", 0L);
     }
 
     @Test

@@ -21,9 +21,14 @@ import {
   KanbanQuickAddDialogData
 } from '../kanban-quick-add-dialog/kanban-quick-add-dialog.component';
 import {
+  KanbanLostReasonDialogComponent,
+  KanbanLostReasonDialogData
+} from '../kanban-lost-reason-dialog/kanban-lost-reason-dialog.component';
+import {
   KanbanBoardDto,
   KanbanProjectCardDto,
   ProjectStatus,
+  LostReason,
   PROJECT_STATUS_LABELS,
   PROJECT_STATUS_COLORS,
   PROJECT_STATUS_ICONS
@@ -138,22 +143,47 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
           event.currentIndex
         );
 
-        this.projectService.updateStatus(card.projectId, newStatus as ProjectStatus)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: () => {
-              this.notificationService.successText(
-                `"${card.role}" → ${this.STATUS_LABELS[newStatus as ProjectStatus]}`,
-                2000
-              );
-            },
-            error: () => {
-              this.notificationService.error('errors.movingCard');
-              this.loadKanbanBoard();
-            }
-          });
+        if (newStatus === ProjectStatus.LOST) {
+          this.promptLostReasonAndPersist(card);
+        } else {
+          this.persistStatusChange(card, newStatus as ProjectStatus);
+        }
       }
     }
+  }
+
+  /** Ask why the opportunity was lost before persisting; reverts the move if cancelled. */
+  private promptLostReasonAndPersist(card: KanbanProjectCardDto): void {
+    const dialogData: KanbanLostReasonDialogData = { role: card.role };
+    this.dialog.open(KanbanLostReasonDialogComponent, { data: dialogData })
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((reason?: LostReason) => {
+        if (reason) {
+          this.persistStatusChange(card, ProjectStatus.LOST, reason);
+        } else {
+          this.loadKanbanBoard();
+        }
+      });
+  }
+
+  private persistStatusChange(card: KanbanProjectCardDto, newStatus: ProjectStatus, lostReason?: LostReason): void {
+    this.projectService.updateStatus(card.projectId, newStatus, lostReason)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          card.status = newStatus;
+          card.lostReason = newStatus === ProjectStatus.LOST ? lostReason : undefined;
+          this.notificationService.successText(
+            `"${card.role}" → ${this.STATUS_LABELS[newStatus]}`,
+            2000
+          );
+        },
+        error: () => {
+          this.notificationService.error('errors.movingCard');
+          this.loadKanbanBoard();
+        }
+      });
   }
 
   private getStatusFromContainerId(id: string): string | null {

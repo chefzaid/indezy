@@ -152,6 +152,7 @@ Important fields:
 - link
 - personal rating
 - notes
+- `lostReason` (why a lost opportunity was rejected: rate too low, position filled, no response, profile mismatch, client canceled, accepted another offer, other; cleared when the project leaves the LOST status)
 - `isFavorite` flag (pins hot leads to the top of their Kanban column)
 
 Relationships:

@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.dto;
 
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import jakarta.validation.constraints.Max;
@@ -42,6 +43,8 @@ public class ProjectDto {
     private Integer personalRating;
 
     private String notes;
+
+    private LostReason lostReason;
 
     private Boolean isFavorite;
 

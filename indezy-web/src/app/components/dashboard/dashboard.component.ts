@@ -148,6 +148,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.viewMode === 'kanban';
   }
 
+  /** Lost-reason breakdown entries that actually occurred, sorted by frequency. */
+  getLostReasonsBreakdown(): { reason: string; count: number }[] {
+    const breakdown = this.dashboardStats?.lostReasonsBreakdown;
+    if (!breakdown) { return []; }
+    return Object.entries(breakdown)
+      .filter(([, count]) => count > 0)
+      .map(([reason, count]) => ({ reason, count }))
+      .sort((a, b) => b.count - a.count);
+  }
+
 
 
   setKanbanMode(): void {

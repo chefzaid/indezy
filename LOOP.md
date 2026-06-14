@@ -10,7 +10,8 @@ This file governs the automated iteration cycle for this codebase. Follow this l
 2. **PLAN:** Write a concise implementation plan for the task at hand, including acceptance criteria, files to modify, tests to update, and any other relevant details.
 3. **IMPLEMENT:** Write the clean, minimal code required to satisfy the task requirements.
 4. **RECURRENT CHECKS:** Immediately pass the new implementation through the **Recurrent Tasks Checklist** below.
-5. **COMMIT & REPEAT:** Create a clean Git commit for the completed task, with a very brief message without putting any co-author, then restart the loop at Step 1.
+5. **COMMIT:** Create a clean Git commit for the completed task, with a very brief message without putting any co-author.
+6. **DONE & REPEAT:** Mark the task as done in TODO once all related items are completed. Then restart the loop at Step 1.
 
 ---
 
@@ -55,4 +56,3 @@ This file governs the automated iteration cycle for this codebase. Follow this l
 ### Phase 7: Documentation & Dependency Sync
 - [ ] **Dependency Update:** Make sure that all dependencies are up-to-date with latest LTS versions and that no unused packages remain in the project.
 - [ ] **Docs Update:** Update documentation files and schemas to perfectly reflect the new functionality and its setup.
-- [ ] **Backlog Update:** Mark the task as done in TODO once all related items are completed.

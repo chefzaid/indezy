@@ -2,6 +2,7 @@
   "common": {
     "close": "Close",
     "cancel": "Cancel",
+    "confirm": "Confirm",
     "save": "Save",
     "delete": "Delete",
     "edit": "Edit",
@@ -137,7 +138,8 @@
       "projects": "Projects",
       "won": "Won",
       "lost": "Lost",
-      "active": "Active"
+      "active": "Active",
+      "lostReasons": "Why opportunities were lost"
     }
   },
   "projects": {
@@ -225,6 +227,16 @@
       "loadError": "Error loading project",
       "projectNotFound": "Project not found",
       "loadClientsError": "Error loading clients"
+    },
+    "lostReason": {
+      "label": "Reason for loss",
+      "RATE_TOO_LOW": "Rate too low",
+      "POSITION_FILLED": "Position filled",
+      "NO_RESPONSE": "No response",
+      "PROFILE_MISMATCH": "Profile mismatch",
+      "CLIENT_CANCELED": "Client canceled",
+      "ACCEPTED_OTHER_OFFER": "Accepted another offer",
+      "OTHER": "Other"
     },
     "detail": {
       "loading": "Loading project...",
@@ -562,7 +574,8 @@
     "addCard": "Quick-add a card",
     "quickAddTitle": "New opportunity – {{status}}",
     "quickAddSuccess": "Opportunity added",
-    "quickAddError": "Error adding opportunity"
+    "quickAddError": "Error adding opportunity",
+    "lostReasonTitle": "Why was this opportunity lost?"
   },
   "profile": {
     "title": "My Profile",

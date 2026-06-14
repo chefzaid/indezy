@@ -211,6 +211,42 @@
   }
 }
 
+.lost-reasons {
+  max-width: 420px;
+  margin: 20px auto 0;
+
+  .lost-reasons-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #c62828;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .lost-reason-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+
+    &:nth-child(even) {
+      background: #f8f9fa;
+    }
+
+    .lost-reason-count {
+      font-weight: 700;
+    }
+  }
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;

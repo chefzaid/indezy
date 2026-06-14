@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.KanbanBoardDto;
 import dev.swirlit.indezy.dto.ProjectDto;
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.service.ProjectService;
@@ -157,9 +158,10 @@ public class ProjectController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<ProjectDto> updateProjectStatus(
             @PathVariable Long id,
-            @RequestParam ProjectStatus status) {
+            @RequestParam ProjectStatus status,
+            @RequestParam(required = false) LostReason lostReason) {
         log.debug("PATCH /projects/{}/status - Updating project status to: {}", id, status);
-        ProjectDto updatedProject = projectService.updateStatus(id, status);
+        ProjectDto updatedProject = projectService.updateStatus(id, status, lostReason);
         return ResponseEntity.ok(updatedProject);
     }
 

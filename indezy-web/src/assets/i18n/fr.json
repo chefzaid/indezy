@@ -2,6 +2,7 @@
   "common": {
     "close": "Fermer",
     "cancel": "Annuler",
+    "confirm": "Confirmer",
     "save": "Sauvegarder",
     "delete": "Supprimer",
     "edit": "Modifier",
@@ -137,7 +138,8 @@
       "projects": "Missions",
       "won": "Gagn\u00e9es",
       "lost": "Perdues",
-      "active": "En cours"
+      "active": "En cours",
+      "lostReasons": "Pourquoi les opportunit\u00e9s ont \u00e9t\u00e9 perdues"
     }
   },
   "projects": {
@@ -225,6 +227,16 @@
       "loadError": "Erreur lors du chargement de la mission",
       "projectNotFound": "Mission non trouvée",
       "loadClientsError": "Erreur lors du chargement des clients"
+    },
+    "lostReason": {
+      "label": "Raison de la perte",
+      "RATE_TOO_LOW": "TJM trop bas",
+      "POSITION_FILLED": "Poste pourvu",
+      "NO_RESPONSE": "Sans réponse",
+      "PROFILE_MISMATCH": "Profil non adapté",
+      "CLIENT_CANCELED": "Client a annulé",
+      "ACCEPTED_OTHER_OFFER": "Autre offre acceptée",
+      "OTHER": "Autre"
     },
     "detail": {
       "loading": "Chargement de la mission...",
@@ -562,7 +574,8 @@
     "addCard": "Ajout rapide d'une carte",
     "quickAddTitle": "Nouvelle opportunité – {{status}}",
     "quickAddSuccess": "Opportunité ajoutée",
-    "quickAddError": "Erreur lors de l'ajout de l'opportunité"
+    "quickAddError": "Erreur lors de l'ajout de l'opportunité",
+    "lostReasonTitle": "Pourquoi cette opportunité a-t-elle été perdue ?"
   },
   "profile": {
     "title": "Mon Profil",

@@ -163,7 +163,7 @@ describe('KanbanBoardComponent', () => {
         `kanban-col-${ProjectStatus.INTERVIEW}`
       ));
 
-      expect(mockProjectService.updateStatus).toHaveBeenCalledWith(42, ProjectStatus.INTERVIEW);
+      expect(mockProjectService.updateStatus).toHaveBeenCalledWith(42, ProjectStatus.INTERVIEW, undefined);
       expect(mockNotificationService.successText).toHaveBeenCalled();
     });
 
@@ -176,6 +176,33 @@ describe('KanbanBoardComponent', () => {
       ));
 
       expect(mockNotificationService.error).toHaveBeenCalledWith('errors.movingCard');
+      expect(mockProjectService.getKanbanBoard).toHaveBeenCalledTimes(2);
+    });
+
+    it('should prompt for a reason and persist it when dropping into LOST', () => {
+      spyOn(fixture.debugElement.injector.get(MatDialog), 'open')
+        .and.returnValue({ afterClosed: () => of('RATE_TOO_LOW') } as MatDialogRef<unknown>);
+      mockProjectService.updateStatus.and.returnValue(of({} as ProjectDto));
+
+      component.onCardDrop(dropEvent(
+        `kanban-col-${ProjectStatus.APPLIED}`,
+        `kanban-col-${ProjectStatus.LOST}`
+      ));
+
+      expect(mockProjectService.updateStatus).toHaveBeenCalledWith(42, ProjectStatus.LOST, 'RATE_TOO_LOW');
+    });
+
+    it('should revert the move when the lost-reason prompt is cancelled', () => {
+      spyOn(fixture.debugElement.injector.get(MatDialog), 'open')
+        .and.returnValue({ afterClosed: () => of(undefined) } as MatDialogRef<unknown>);
+
+      component.onCardDrop(dropEvent(
+        `kanban-col-${ProjectStatus.APPLIED}`,
+        `kanban-col-${ProjectStatus.LOST}`
+      ));
+
+      expect(mockProjectService.updateStatus).not.toHaveBeenCalled();
+      // Board reloaded to undo the optimistic move (once on init, once on cancel).
       expect(mockProjectService.getKanbanBoard).toHaveBeenCalledTimes(2);
     });
   });

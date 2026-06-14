@@ -157,6 +157,17 @@
               <span class="summary-label">{{ 'dashboard.charts.active' | translate }}</span>
             </div>
           </div>
+
+          <div class="lost-reasons" *ngIf="getLostReasonsBreakdown().length > 0">
+            <h4 class="lost-reasons-title">
+              <mat-icon>report_problem</mat-icon>
+              {{ 'dashboard.charts.lostReasons' | translate }}
+            </h4>
+            <div class="lost-reason-row" *ngFor="let entry of getLostReasonsBreakdown()">
+              <span class="lost-reason-label">{{ 'projects.lostReason.' + entry.reason | translate }}</span>
+              <span class="lost-reason-count">{{ entry.count }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- Recent Projects -->

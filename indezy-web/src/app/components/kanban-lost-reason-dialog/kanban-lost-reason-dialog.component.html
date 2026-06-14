@@ -1,0 +1,33 @@
+<div class="lost-reason-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>thumb_down</mat-icon>
+    {{ 'kanban.lostReasonTitle' | translate }}
+  </h2>
+
+  <mat-dialog-content>
+    <p class="project-role">{{ data.role }}</p>
+
+    <form [formGroup]="reasonForm" (ngSubmit)="onConfirm()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'projects.lostReason.label' | translate }}</mat-label>
+        <mat-select formControlName="lostReason">
+          <mat-option *ngFor="let reason of lostReasons" [value]="reason">
+            {{ 'projects.lostReason.' + reason | translate }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="reasonForm.get('lostReason')?.hasError('required')">
+          {{ 'errors.fieldRequired' | translate }}
+        </mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button mat-raised-button color="warn" (click)="onConfirm()" [disabled]="reasonForm.invalid">
+      {{ 'common.confirm' | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>

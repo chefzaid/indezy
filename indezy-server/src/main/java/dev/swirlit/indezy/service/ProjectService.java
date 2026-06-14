@@ -11,6 +11,7 @@ import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Source;
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.ClientRepository;
@@ -244,11 +245,13 @@ public class ProjectService {
         return projectRepository.countByFreelanceId(freelanceId);
     }
 
-    public ProjectDto updateStatus(Long id, ProjectStatus status) {
+    public ProjectDto updateStatus(Long id, ProjectStatus status, LostReason lostReason) {
         log.debug("Updating project status with id: {} to status: {}", id, status);
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
         project.setStatus(status);
+        // The lost reason only applies to lost opportunities; clear it otherwise.
+        project.setLostReason(ProjectStatus.LOST.equals(status) ? lostReason : null);
         Project updatedProject = projectRepository.save(project);
         log.info("Updated project status with id: {} to status: {}", id, status);
         return projectMapper.toDto(updatedProject);
@@ -311,6 +314,7 @@ public class ProjectService {
         card.setPersonalRating(project.getPersonalRating());
         card.setIsFavorite(project.getIsFavorite());
         card.setUpdatedAt(project.getUpdatedAt() != null ? project.getUpdatedAt().toString() : null);
+        card.setLostReason(project.getLostReason() != null ? project.getLostReason().name() : null);
 
         List<InterviewStep> steps = interviewStepRepository.findByProjectId(project.getId());
         card.setTotalSteps(steps.size());
@@ -354,6 +358,15 @@ public class ProjectService {
 
         // Daily rate ranges
         List<Project> projects = projectRepository.findByFreelanceId(freelanceId);
+
+        // Lost-reason breakdown (only lost opportunities that carry a reason)
+        Map<String, Long> lostReasonsBreakdown = new LinkedHashMap<>();
+        for (LostReason reason : LostReason.values()) {
+            lostReasonsBreakdown.put(reason.name(), 0L);
+        }
+        projects.stream()
+            .filter(p -> ProjectStatus.LOST.equals(p.getStatus()) && p.getLostReason() != null)
+            .forEach(p -> lostReasonsBreakdown.merge(p.getLostReason().name(), 1L, Long::sum));
         int[][] ranges = {{0, 300}, {300, 500}, {500, 700}, {700, 900}, {900, Integer.MAX_VALUE}};
         String[] rangeLabels = {"0-300", "300-500", "500-700", "700-900", "900+"};
         List<DashboardStatsDto.DailyRateRange> dailyRateRanges = new ArrayList<>();
@@ -384,6 +397,7 @@ public class ProjectService {
             .lostProjects(lostProjects != null ? lostProjects : 0)
             .projectsByStatus(projectsByStatus)
             .projectsByWorkMode(projectsByWorkMode)
+            .lostReasonsBreakdown(lostReasonsBreakdown)
             .dailyRateRanges(dailyRateRanges)
             .build();
     }

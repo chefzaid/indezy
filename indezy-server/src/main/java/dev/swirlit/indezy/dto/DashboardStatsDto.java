@@ -21,6 +21,7 @@ public class DashboardStatsDto {
     private long lostProjects;
     private Map<String, Long> projectsByStatus;
     private Map<String, Long> projectsByWorkMode;
+    private Map<String, Long> lostReasonsBreakdown;
     private List<DailyRateRange> dailyRateRanges;
 
     @Data

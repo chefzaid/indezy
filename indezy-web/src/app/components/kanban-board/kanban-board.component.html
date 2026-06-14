@@ -81,6 +81,11 @@
                           class="star-icon">star</mat-icon>
               </div>
 
+              <div class="card-lost-reason" *ngIf="card.lostReason">
+                <mat-icon>thumb_down</mat-icon>
+                <span>{{ 'projects.lostReason.' + card.lostReason | translate }}</span>
+              </div>
+
               <div class="card-aging" *ngIf="getDaysSinceActivity(card) !== null"
                    [class.stale]="isStale(card)"
                    [matTooltip]="'kanban.lastActivity' | translate:{ days: getDaysSinceActivity(card) }">

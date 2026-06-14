@@ -1,0 +1,23 @@
+.lost-reason-dialog {
+  min-width: 340px;
+
+  h2[mat-dialog-title] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .project-role {
+    margin: 0 0 12px;
+    font-weight: 600;
+    color: #444;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  mat-dialog-actions {
+    gap: 8px;
+  }
+}
