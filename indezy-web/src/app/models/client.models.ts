@@ -10,6 +10,9 @@ export interface ClientDto {
   domain?: string;
   isFinal: boolean;
   notes?: string;
+  rating?: number;
+  isBlacklisted?: boolean;
+  blacklistReason?: string;
   freelanceId?: number;
   totalProjects?: number;
   totalContacts?: number;
@@ -30,6 +33,9 @@ export interface CreateClientDto {
   domain?: string;
   isFinal: boolean;
   notes?: string;
+  rating?: number;
+  isBlacklisted?: boolean;
+  blacklistReason?: string;
   freelanceId?: number;
   // Legacy properties for compatibility
   name?: string;

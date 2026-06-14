@@ -85,7 +85,9 @@ export class ClientFormComponent implements OnInit, OnDestroy {
     { value: 'INACTIVE', labelKey: 'common.inactive' },
     { value: 'ESN', labelKey: 'clients.esn' }
   ];
-  
+
+  ratingOptions = [1, 2, 3, 4, 5];
+
   private readonly destroy$ = new Subject<void>();
 
   constructor(
@@ -123,7 +125,10 @@ export class ClientFormComponent implements OnInit, OnDestroy {
       address: [''],
       domain: [''],
       notes: [''],
-      isFinal: [false, [Validators.required]]
+      isFinal: [false, [Validators.required]],
+      rating: [null],
+      isBlacklisted: [false],
+      blacklistReason: ['']
     });
   }
 

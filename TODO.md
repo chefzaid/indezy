@@ -1,7 +1,5 @@
 # TODO
 
-Feature backlog and recurring product/engineering tasks, grouped by domain. Completed items stay marked in place.
-
 ## Pipeline & Kanban
 
 Not all freelance jobs share the same recruitment process:
@@ -56,7 +54,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] Client management for final clients and intermediaries/ESNs
 - [x] Client final/intermediary distinction through the `isFinal` flag
 - [x] Contact management linked to both client and freelancer
-- [ ] Client rating and blacklist (payment delays, ghosting, bad process)
+- [x] Client rating and blacklist (payment delays, ghosting, bad process)
 - [ ] ESN/intermediary margin tracking (rate paid by client vs rate received)
 - [ ] Contact interaction history (last contacted, response rate, preferred channel)
 - [ ] Org chart linking contacts to clients and ESNs (who works with whom)
@@ -207,7 +205,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Improve the devcontainer setup
 - [ ] Measure and raise test coverage to at least 85% for both backend and frontend, with a focus on critical business logic and edge cases
 - [ ] Playwright e2e tests for critical user flows (register, login, create project, move Kanban card, filter lists)
-- [ ] Add Spring Boot Actuator: K8s probes already reference /api/actuator/health but the actuator dependency is missing from pom.xml
+- [x] Add Spring Boot Actuator: K8s probes already reference /api/actuator/health but the actuator dependency is missing from pom.xml
 - [ ] Richer database seeding for development (realistic projects, clients, pipeline states)
 - [ ] Mask commands to reset/reseed the dev database with test data
 - [ ] Caching of frequent requests (dashboard stats, job feed)
@@ -218,17 +216,3 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Automated DB backups with point-in-time recovery; versioned migrations; connection pooling
 - [ ] CI: tests on every PR, scheduled e2e runs, dependency vulnerability scanning, zero-downtime deployments
 - [ ] Keep OpenAPI docs complete with request/response examples
-
-## Recurrent Tasks (mixed domains)
-
-- [ ] Break huge files and blocks of code (500+ LOC) into smaller maintainable chunks and refactor them
-- [ ] Linting, quality checks, and resolve issues reported in Problems tab
-- [ ] Optimize codebase for better performance
-- [ ] Hunt for memory leaks, null references, bugs, and fix them
-- [ ] Always consider reusing existing code; centralize reusable code instead of adding new code when similar code already exists
-- [ ] Code reviews, refactor, and clean up code for readability and maintainability
-- [ ] Update dependencies and fix any breaking changes
-- [ ] Update documentation to reflect changes in features, architecture, or deployment process
-- [ ] Always keep code coverage above 85% for both backend and frontend
-- [ ] Tighten code security and fix vulnerabilities (OWASP Top 10: XSS, CSRF, SQL injection, etc.)
-- [ ] Security and performance audits and remediation

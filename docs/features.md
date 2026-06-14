@@ -84,6 +84,7 @@ Client data includes:
 - domain
 - final-client flag
 - notes
+- quality rating (1-5) and blacklist flag with reason (track clients to avoid: payment delays, ghosting, bad process)
 - freelance owner
 - linked projects, middleman projects, and contacts
 

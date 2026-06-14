@@ -252,4 +252,34 @@ class ClientRepositoryTest {
         Optional<Client> deletedClient = clientRepository.findById(clientId);
         assertThat(deletedClient).isEmpty();
     }
+
+    @Test
+    void save_ShouldPersistRatingAndBlacklist() {
+        Client blacklisted = new Client();
+        blacklisted.setCompanyName("Bad Payer Inc");
+        blacklisted.setCity("Paris");
+        blacklisted.setIsFinal(true);
+        blacklisted.setRating(2);
+        blacklisted.setIsBlacklisted(true);
+        blacklisted.setBlacklistReason("Repeated payment delays");
+        blacklisted.setFreelance(testFreelance);
+
+        Client saved = clientRepository.saveAndFlush(blacklisted);
+        entityManager.clear();
+
+        Client reloaded = clientRepository.findById(saved.getId()).orElseThrow();
+        assertThat(reloaded.getRating()).isEqualTo(2);
+        assertThat(reloaded.getIsBlacklisted()).isTrue();
+        assertThat(reloaded.getBlacklistReason()).isEqualTo("Repeated payment delays");
+    }
+
+    @Test
+    void setIsBlacklisted_ShouldCoerceNullToFalse() {
+        // The non-nullable column must always be populated, even when callers omit the flag.
+        testClient.setIsBlacklisted(null);
+
+        Client saved = clientRepository.saveAndFlush(testClient);
+
+        assertThat(saved.getIsBlacklisted()).isFalse();
+    }
 }

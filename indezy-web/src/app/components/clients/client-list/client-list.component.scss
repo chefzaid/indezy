@@ -235,7 +235,27 @@
           strong {
             font-weight: 500;
           }
-          
+
+          .blacklist-icon {
+            font-size: 1.1rem;
+            width: 1.1rem;
+            height: 1.1rem;
+          }
+
+          .client-rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            color: rgba(0, 0, 0, 0.6);
+
+            mat-icon {
+              font-size: 1rem;
+              width: 1rem;
+              height: 1rem;
+              color: #f5b301;
+            }
+          }
+
           .website-link {
             color: rgba(0, 0, 0, 0.5);
             text-decoration: none;

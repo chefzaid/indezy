@@ -119,6 +119,30 @@
                   </div>
                 </div>
 
+                <mat-divider *ngIf="client.rating"></mat-divider>
+
+                <div class="info-item" *ngIf="client.rating">
+                  <div class="info-label">
+                    <mat-icon>star</mat-icon>
+                    {{ 'clients.form.rating' | translate }}
+                  </div>
+                  <div class="info-value">
+                    {{ client.rating }} / 5
+                  </div>
+                </div>
+
+                <mat-divider *ngIf="client.isBlacklisted"></mat-divider>
+
+                <div class="info-item" *ngIf="client.isBlacklisted">
+                  <div class="info-label">
+                    <mat-icon color="warn">block</mat-icon>
+                    {{ 'clients.form.blacklisted' | translate }}
+                  </div>
+                  <div class="info-value">
+                    {{ client.blacklistReason || ('common.notSpecified' | translate) }}
+                  </div>
+                </div>
+
                 <mat-divider *ngIf="client.notes"></mat-divider>
 
                 <div class="info-item" *ngIf="client.notes">

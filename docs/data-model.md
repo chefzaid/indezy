@@ -197,6 +197,8 @@ Important fields:
 - domain
 - `isFinal` flag
 - notes
+- `rating` (1-5 quality score, optional)
+- `isBlacklisted` flag with `blacklistReason` (clients to avoid: payment delays, ghosting, bad process)
 - freelance owner
 
 Relationships:

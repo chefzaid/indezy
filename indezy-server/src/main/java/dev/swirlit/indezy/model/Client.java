@@ -36,6 +36,18 @@ public class Client extends BaseEntity {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
+    /** Quality rating from 1 (poor) to 5 (excellent); null when not yet rated. */
+    @Column(name = "rating")
+    private Integer rating;
+
+    /** Flags clients to avoid (payment delays, ghosting, bad process). */
+    @Column(name = "is_blacklisted", nullable = false, columnDefinition = "boolean default false")
+    private Boolean isBlacklisted = false;
+
+    /** Explanation shown when the client is blacklisted. */
+    @Column(name = "blacklist_reason", columnDefinition = "TEXT")
+    private String blacklistReason;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "freelance_id", nullable = false)
     private Freelance freelance;
@@ -48,6 +60,11 @@ public class Client extends BaseEntity {
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Contact> contacts = new ArrayList<>();
+
+    /** Coerce null to false so the non-nullable column is always populated. */
+    public void setIsBlacklisted(final Boolean isBlacklisted) {
+        this.isBlacklisted = isBlacklisted != null && isBlacklisted;
+    }
 
     // Custom getters and setters for collections to prevent EI_EXPOSE_REP
     public List<Project> getProjects() {

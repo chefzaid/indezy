@@ -69,11 +69,36 @@
           <!-- Additional Information Section -->
           <div class="form-section">
             <h3>{{ 'projects.form.additionalInfo' | translate }}</h3>
-            
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'clients.form.rating' | translate }}</mat-label>
+                <mat-select formControlName="rating">
+                  <mat-option [value]="null">{{ 'clients.form.noRating' | translate }}</mat-option>
+                  <mat-option *ngFor="let r of ratingOptions" [value]="r">{{ r }} / 5</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>star</mat-icon>
+              </mat-form-field>
+
+              <div class="half-width">
+                <mat-slide-toggle formControlName="isBlacklisted" color="warn" class="status-toggle">
+                  {{ 'clients.form.blacklisted' | translate }}
+                </mat-slide-toggle>
+              </div>
+            </div>
+
+            <div class="form-row" *ngIf="clientForm.get('isBlacklisted')?.value">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'clients.form.blacklistReason' | translate }}</mat-label>
+                <textarea matInput formControlName="blacklistReason" rows="2"
+                         [placeholder]="'clients.form.blacklistReasonPlaceholder' | translate"></textarea>
+              </mat-form-field>
+            </div>
+
             <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'common.notes' | translate }}</mat-label>
-                <textarea matInput formControlName="notes" rows="4" 
+                <textarea matInput formControlName="notes" rows="4"
                          [placeholder]="'clients.form.notesPlaceholder' | translate"></textarea>
               </mat-form-field>
             </div>
@@ -256,6 +281,31 @@
             <!-- Additional Information Section -->
             <div class="form-section">
               <h3>{{ 'projects.form.additionalInfo' | translate }}</h3>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="half-width">
+                  <mat-label>{{ 'clients.form.rating' | translate }}</mat-label>
+                  <mat-select formControlName="rating">
+                    <mat-option [value]="null">{{ 'clients.form.noRating' | translate }}</mat-option>
+                    <mat-option *ngFor="let r of ratingOptions" [value]="r">{{ r }} / 5</mat-option>
+                  </mat-select>
+                  <mat-icon matSuffix>star</mat-icon>
+                </mat-form-field>
+
+                <div class="half-width">
+                  <mat-slide-toggle formControlName="isBlacklisted" color="warn" class="status-toggle">
+                    {{ 'clients.form.blacklisted' | translate }}
+                  </mat-slide-toggle>
+                </div>
+              </div>
+
+              <div class="form-row" *ngIf="clientForm.get('isBlacklisted')?.value">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'clients.form.blacklistReason' | translate }}</mat-label>
+                  <textarea matInput formControlName="blacklistReason" rows="2"
+                           [placeholder]="'clients.form.blacklistReasonPlaceholder' | translate"></textarea>
+                </mat-form-field>
+              </div>
 
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">

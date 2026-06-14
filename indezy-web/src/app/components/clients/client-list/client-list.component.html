@@ -215,6 +215,11 @@
             <td mat-cell *matCellDef="let client">
               <div class="client-name">
                 <strong>{{ client.companyName || client.name }}</strong>
+                <mat-icon *ngIf="client.isBlacklisted" color="warn" class="blacklist-icon"
+                          [matTooltip]="client.blacklistReason || ('clients.blacklisted' | translate)">block</mat-icon>
+                <small *ngIf="client.rating" class="client-rating">
+                  <mat-icon>star</mat-icon>{{ client.rating }}/5
+                </small>
                 <small *ngIf="client.domain || client.website">
                   <a [href]="client.domain || client.website" target="_blank" class="website-link">
                     <mat-icon>link</mat-icon>
