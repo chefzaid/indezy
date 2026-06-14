@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -33,6 +34,7 @@ import { NotificationService } from '../../../services/notification/notification
         MatInputModule,
         MatFormFieldModule,
         MatSelectModule,
+        MatSlideToggleModule,
         MatDatepickerModule,
         MatNativeDateModule,
         MatProgressSpinnerModule,
@@ -115,6 +117,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       link: [''],
       personalRating: [''],
       notes: [''],
+      isFavorite: [false],
       clientId: ['']
     });
   }
@@ -158,6 +161,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
               link: project.link,
               personalRating: project.personalRating,
               notes: project.notes,
+              isFavorite: project.isFavorite ?? false,
               clientId: project.clientId
             });
           } else {

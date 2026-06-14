@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -273,10 +274,25 @@ public class ProjectService {
             }
         }
 
+        // Pin favorites to the top of each column while preserving the existing order otherwise.
+        columns.values().forEach(cards ->
+            cards.sort(Comparator.comparing(
+                card -> Boolean.TRUE.equals(card.getIsFavorite()) ? 0 : 1)));
+
         KanbanBoardDto kanbanBoard = new KanbanBoardDto();
         kanbanBoard.setColumns(columns);
         kanbanBoard.setColumnOrder(KANBAN_COLUMN_ORDER.stream().map(Enum::name).toList());
         return kanbanBoard;
+    }
+
+    public ProjectDto toggleFavorite(Long id) {
+        log.debug("Toggling favorite flag for project with id: {}", id);
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
+        project.setIsFavorite(!Boolean.TRUE.equals(project.getIsFavorite()));
+        Project updatedProject = projectRepository.save(project);
+        log.info("Toggled favorite flag for project with id: {} to: {}", id, updatedProject.getIsFavorite());
+        return projectMapper.toDto(updatedProject);
     }
 
     private KanbanBoardDto.ProjectCardDto createProjectCard(Project project) {
@@ -293,6 +309,7 @@ public class ProjectService {
         card.setDurationInMonths(project.getDurationInMonths());
         card.setNotes(project.getNotes());
         card.setPersonalRating(project.getPersonalRating());
+        card.setIsFavorite(project.getIsFavorite());
 
         List<InterviewStep> steps = interviewStepRepository.findByProjectId(project.getId());
         card.setTotalSteps(steps.size());

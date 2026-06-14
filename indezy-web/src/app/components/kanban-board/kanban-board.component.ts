@@ -179,4 +179,27 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
     if (!rating) {return [];}
     return new Array(rating).fill('star');
   }
+
+  toggleFavorite(card: KanbanProjectCardDto, event: Event): void {
+    // The card itself is a router link; don't navigate when toggling the star.
+    event.stopPropagation();
+    event.preventDefault();
+
+    this.projectService.toggleFavorite(card.projectId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updated) => {
+          card.isFavorite = updated.isFavorite;
+          this.sortColumn(card.status);
+        },
+        error: () => this.notificationService.error('errors.updatingFavorite')
+      });
+  }
+
+  /** Re-pin favorites to the top of a column after a toggle (mirrors the backend ordering). */
+  private sortColumn(status: string): void {
+    this.getCardsForColumn(status).sort(
+      (a, b) => Number(b.isFavorite ?? false) - Number(a.isFavorite ?? false)
+    );
+  }
 }

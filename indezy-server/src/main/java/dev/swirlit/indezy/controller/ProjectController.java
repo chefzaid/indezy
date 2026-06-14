@@ -163,6 +163,14 @@ public class ProjectController {
         return ResponseEntity.ok(updatedProject);
     }
 
+    @Operation(summary = "Toggle favorite", description = "Pin or unpin a project as a favorite (kept at the top of its Kanban column)")
+    @PatchMapping("/{id}/favorite")
+    public ResponseEntity<ProjectDto> toggleFavorite(@PathVariable Long id) {
+        log.debug("PATCH /projects/{}/favorite - Toggling favorite flag", id);
+        ProjectDto updatedProject = projectService.toggleFavorite(id);
+        return ResponseEntity.ok(updatedProject);
+    }
+
     @Operation(summary = "Get kanban board", description = "Get kanban board data grouped by project status")
     @GetMapping("/kanban/{freelanceId}")
     public ResponseEntity<KanbanBoardDto> getKanbanBoard(@PathVariable Long freelanceId) {

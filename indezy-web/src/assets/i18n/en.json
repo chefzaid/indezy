@@ -214,6 +214,7 @@
       "additionalInfo": "Additional information",
       "projectLink": "Project link",
       "personalRating": "Personal rating",
+      "favorite": "Favorite (pin to top)",
       "notesPlaceholder": "Personal notes about the project...",
       "createButton": "Create project",
       "saveButton": "Save changes",
@@ -553,7 +554,9 @@
     "addProject": "Add a project",
     "loadError": "Error loading board",
     "moveError": "Error moving project",
-    "moveSuccess": "Project moved successfully"
+    "moveSuccess": "Project moved successfully",
+    "pinFavorite": "Pin as favorite",
+    "unpinFavorite": "Remove from favorites"
   },
   "profile": {
     "title": "My Profile",
@@ -692,6 +695,7 @@
     "deletingSource": "Error deleting source",
     "missingContactId": "Error: Contact ID missing",
     "movingCard": "Error moving card",
+    "updatingFavorite": "Error updating favorite",
     "schedulingStep": "Error scheduling interview",
     "copying": "Error copying",
     "fieldRequired": "This field is required",

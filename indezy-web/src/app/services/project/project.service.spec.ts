@@ -266,6 +266,21 @@ describe('ProjectService', () => {
     });
   });
 
+  describe('toggleFavorite', () => {
+    it('should patch the favorite flag for a project', () => {
+      const updated = { ...mockProject, isFavorite: true };
+
+      service.toggleFavorite(mockProject.id!).subscribe(project => {
+        expect(project.isFavorite).toBe(true);
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}/projects/${mockProject.id}/favorite`);
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toBeNull();
+      req.flush(updated);
+    });
+  });
+
   describe('delete', () => {
     it('should delete a project', () => {
       const projectId = 1;

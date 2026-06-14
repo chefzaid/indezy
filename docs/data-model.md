@@ -152,6 +152,7 @@ Important fields:
 - link
 - personal rating
 - notes
+- `isFavorite` flag (pins hot leads to the top of their Kanban column)
 
 Relationships:
 

@@ -539,6 +539,60 @@ class ProjectServiceTest {
     }
 
     @Test
+    void getKanbanBoard_ShouldPinFavoritesToTopOfColumn() {
+        // Given two projects in the same column, only the second is a favorite.
+        testProject.setStatus(ProjectStatus.APPLIED);
+        testProject.setIsFavorite(false);
+
+        Project favorite = new Project();
+        favorite.setId(2L);
+        favorite.setRole("Lead Developer");
+        favorite.setStatus(ProjectStatus.APPLIED);
+        favorite.setFreelance(testFreelance);
+        favorite.setIsFavorite(true);
+
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(Arrays.asList(testProject, favorite));
+        when(interviewStepRepository.findByProjectId(any())).thenReturn(List.of());
+
+        // When
+        KanbanBoardDto board = projectService.getKanbanBoard(1L);
+
+        // Then the favorite is listed first.
+        List<KanbanBoardDto.ProjectCardDto> applied = board.getColumns().get("APPLIED");
+        assertThat(applied).hasSize(2);
+        assertThat(applied.get(0).getProjectId()).isEqualTo(2L);
+        assertThat(applied.get(0).getIsFavorite()).isTrue();
+        assertThat(applied.get(1).getProjectId()).isEqualTo(1L);
+    }
+
+    @Test
+    void toggleFavorite_ShouldFlipFlagAndPersist() {
+        // Given
+        testProject.setIsFavorite(false);
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When
+        projectService.toggleFavorite(1L);
+
+        // Then
+        assertThat(testProject.getIsFavorite()).isTrue();
+        verify(projectRepository).save(testProject);
+    }
+
+    @Test
+    void toggleFavorite_WhenProjectNotExists_ShouldThrowResourceNotFoundException() {
+        // Given
+        when(projectRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> projectService.toggleFavorite(999L))
+                .isInstanceOf(ResourceNotFoundException.class);
+        verify(projectRepository, never()).save(any());
+    }
+
+    @Test
     void getDashboardStats_ShouldAggregateCountsRatesAndRanges() {
         // Given
         when(projectRepository.countByFreelanceId(1L)).thenReturn(2L);

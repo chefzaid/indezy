@@ -43,6 +43,8 @@ public class ProjectDto {
 
     private String notes;
 
+    private Boolean isFavorite;
+
     // Related entities
     private Long freelanceId;
     private Long clientId;

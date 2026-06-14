@@ -87,6 +87,10 @@ export class ProjectService {
     return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/status`, null, { params });
   }
 
+  toggleFavorite(id: number): Observable<ProjectDto> {
+    return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/favorite`, null);
+  }
+
   getKanbanBoard(freelanceId: number): Observable<KanbanBoardDto> {
     return this.http.get<KanbanBoardDto>(`${this.API_URL}/kanban/${freelanceId}`);
   }

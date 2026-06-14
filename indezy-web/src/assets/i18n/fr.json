@@ -214,6 +214,7 @@
       "additionalInfo": "Informations complémentaires",
       "projectLink": "Lien de la mission",
       "personalRating": "Évaluation personnelle",
+      "favorite": "Favori (épingler en haut)",
       "notesPlaceholder": "Notes personnelles sur la mission...",
       "createButton": "Créer la mission",
       "saveButton": "Enregistrer les modifications",
@@ -553,7 +554,9 @@
     "addProject": "Ajouter une mission",
     "loadError": "Erreur lors du chargement du tableau",
     "moveError": "Erreur lors du déplacement",
-    "moveSuccess": "Mission déplacée avec succès"
+    "moveSuccess": "Mission déplacée avec succès",
+    "pinFavorite": "Épingler comme favori",
+    "unpinFavorite": "Retirer des favoris"
   },
   "profile": {
     "title": "Mon Profil",
@@ -692,6 +695,7 @@
     "deletingSource": "Erreur lors de la suppression de la source",
     "missingContactId": "Erreur : ID du contact manquant",
     "movingCard": "Erreur lors du déplacement de la carte",
+    "updatingFavorite": "Erreur lors de la mise à jour du favori",
     "schedulingStep": "Erreur lors de la planification de l'entretien",
     "copying": "Erreur lors de la copie",
     "fieldRequired": "Ce champ est requis",

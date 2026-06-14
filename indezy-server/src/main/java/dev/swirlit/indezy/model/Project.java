@@ -80,6 +80,10 @@ public class Project extends BaseEntity {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
+    /** Pins hot leads to the top of their Kanban column and the favorites view. */
+    @Column(name = "is_favorite", nullable = false, columnDefinition = "boolean default false")
+    private Boolean isFavorite = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "freelance_id", nullable = false)
     private Freelance freelance;
@@ -98,6 +102,11 @@ public class Project extends BaseEntity {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<InterviewStep> steps = new ArrayList<>();
+
+    /** Coerce null to false so the non-nullable column is always populated. */
+    public void setIsFavorite(final Boolean isFavorite) {
+        this.isFavorite = isFavorite != null && isFavorite;
+    }
 
     // Custom getters and setters for collections to prevent EI_EXPOSE_REP
     public List<String> getDocuments() {

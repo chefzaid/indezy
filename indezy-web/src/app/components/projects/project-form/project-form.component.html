@@ -159,6 +159,12 @@
             </div>
 
             <div class="form-row">
+              <mat-slide-toggle formControlName="isFavorite" color="accent">
+                {{ 'projects.form.favorite' | translate }}
+              </mat-slide-toggle>
+            </div>
+
+            <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>{{ 'common.notes' | translate }}</mat-label>
                 <textarea matInput formControlName="notes" rows="4" 

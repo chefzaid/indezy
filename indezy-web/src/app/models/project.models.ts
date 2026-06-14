@@ -54,6 +54,7 @@ export interface KanbanProjectCardDto {
   durationInMonths?: number;
   notes?: string;
   personalRating?: number;
+  isFavorite?: boolean;
   totalSteps: number;
   completedSteps: number;
   failedSteps: number;
@@ -80,6 +81,7 @@ export interface ProjectDto {
   link?: string;
   personalRating?: number;
   notes?: string;
+  isFavorite?: boolean;
   freelanceId?: number;
   clientId?: number;
   clientName?: string;
@@ -128,6 +130,7 @@ export interface CreateProjectDto {
   link?: string;
   personalRating?: number;
   notes?: string;
+  isFavorite?: boolean;
   freelanceId: number;
   clientId?: number;
   middlemanId?: number;

@@ -44,7 +44,7 @@ describe('KanbanBoardComponent', () => {
   };
 
   beforeEach(async () => {
-    mockProjectService = jasmine.createSpyObj('ProjectService', ['getKanbanBoard', 'updateStatus']);
+    mockProjectService = jasmine.createSpyObj('ProjectService', ['getKanbanBoard', 'updateStatus', 'toggleFavorite']);
     mockNotificationService = jasmine.createSpyObj('NotificationService', ['success', 'error', 'successText', 'errorText']);
     currentUser$ = new BehaviorSubject<User | null>(mockUser);
     const mockAuthService = jasmine.createSpyObj('AuthService', ['getUser'], { currentUser$ });
@@ -175,6 +175,44 @@ describe('KanbanBoardComponent', () => {
 
       expect(mockNotificationService.error).toHaveBeenCalledWith('errors.movingCard');
       expect(mockProjectService.getKanbanBoard).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('Favorites', () => {
+    let event: jasmine.SpyObj<Event>;
+    let target: KanbanProjectCardDto;
+
+    beforeEach(() => {
+      // Use a fresh board so toggling does not mutate the shared fixtures.
+      target = { ...mockCard, isFavorite: false };
+      const other: KanbanProjectCardDto = { ...mockCard, projectId: 99, isFavorite: false };
+      mockProjectService.getKanbanBoard.and.returnValue(of({
+        columns: { [ProjectStatus.APPLIED]: [other, target] },
+        columnOrder: [ProjectStatus.APPLIED]
+      }));
+      fixture.detectChanges();
+      event = jasmine.createSpyObj('Event', ['stopPropagation', 'preventDefault']);
+    });
+
+    it('should toggle the favorite flag and pin the card to the top', () => {
+      mockProjectService.toggleFavorite.and.returnValue(of({ isFavorite: true } as ProjectDto));
+
+      component.toggleFavorite(target, event);
+
+      expect(event.stopPropagation).toHaveBeenCalled();
+      expect(event.preventDefault).toHaveBeenCalled();
+      expect(mockProjectService.toggleFavorite).toHaveBeenCalledWith(42);
+      expect(target.isFavorite).toBeTrue();
+      // Favorite is pinned to the top of its column.
+      expect(component.getCardsForColumn(ProjectStatus.APPLIED)[0]).toBe(target);
+    });
+
+    it('should notify on toggle failure', () => {
+      mockProjectService.toggleFavorite.and.returnValue(throwError(() => new Error('boom')));
+
+      component.toggleFavorite(target, event);
+
+      expect(mockNotificationService.error).toHaveBeenCalledWith('errors.updatingFavorite');
     });
   });
 

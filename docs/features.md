@@ -60,6 +60,7 @@ Implemented project fields include:
 - original link
 - personal rating
 - notes
+- favorite flag (pins hot leads to the top of their Kanban column)
 - client, optional middleman, source, and freelance owner
 
 Current opportunity statuses:
@@ -139,7 +140,7 @@ The UI includes scheduling and action dialogs. The backend exposes interview-ste
 
 ## Kanban And Pipeline View
 
-The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs.
+The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs. Cards can be pinned as favorites (`PATCH /projects/{id}/favorite`), which keeps hot leads at the top of their column.
 
 The current Kanban implementation is status-driven. The roadmap in [TODO.md](../TODO.md) tracks a richer pipeline model where generic columns can coexist with custom intermediate recruitment steps.
 
