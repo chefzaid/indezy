@@ -90,6 +90,7 @@ export interface ProjectDto {
   description?: string;
   techStack?: string;
   dailyRate: number;
+  clientDailyRate?: number;
   workMode?: WorkMode;
   remoteDaysPerMonth?: number;
   onsiteDaysPerMonth?: number;
@@ -112,6 +113,8 @@ export interface ProjectDto {
   sourceId?: number;
   sourceName?: string;
   totalRevenue?: number;
+  margin?: number;
+  marginPercentage?: number;
   totalSteps?: number;
   completedSteps?: number;
   failedSteps?: number;
@@ -141,6 +144,7 @@ export interface CreateProjectDto {
   description?: string;
   techStack?: string;
   dailyRate: number;
+  clientDailyRate?: number;
   workMode?: WorkMode;
   remoteDaysPerMonth?: number;
   onsiteDaysPerMonth?: number;
@@ -167,6 +171,7 @@ export interface UpdateProjectDto {
   description?: string;
   techStack?: string;
   dailyRate?: number;
+  clientDailyRate?: number;
   workMode?: WorkMode;
   remoteDaysPerMonth?: number;
   onsiteDaysPerMonth?: number;

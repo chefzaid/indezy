@@ -50,6 +50,7 @@ Implemented project fields include:
 - description
 - tech stack
 - daily rate
+- client daily rate (rate the end client pays the intermediary/ESN), with the per-day margin and margin percentage derived from the gap with the freelance daily rate
 - work mode: onsite, remote, or hybrid
 - remote and onsite days per month
 - advantages

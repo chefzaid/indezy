@@ -27,6 +27,8 @@ public class ProjectDto {
     @NotNull(message = "Daily rate is required")
     private Integer dailyRate;
 
+    private Integer clientDailyRate;
+
     private WorkMode workMode;
     private Integer remoteDaysPerMonth;
     private Integer onsiteDaysPerMonth;
@@ -59,6 +61,8 @@ public class ProjectDto {
 
     // Computed fields
     private Integer totalRevenue;
+    private Integer margin;
+    private Integer marginPercentage;
     private Integer totalSteps;
     private Integer completedSteps;
     private Integer failedSteps;

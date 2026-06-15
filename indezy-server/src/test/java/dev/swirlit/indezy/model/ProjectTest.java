@@ -152,6 +152,75 @@ class ProjectTest {
     }
 
     @Test
+    void getMargin_WithClientAndFreelanceRate_ShouldReturnDifference() {
+        // Given
+        project.setDailyRate(600);
+        project.setClientDailyRate(750);
+
+        // When / Then
+        assertThat(project.getMargin()).isEqualTo(150);
+    }
+
+    @Test
+    void getMargin_WithNullClientRate_ShouldReturnNull() {
+        // Given
+        project.setClientDailyRate(null);
+
+        // When / Then
+        assertThat(project.getMargin()).isNull();
+    }
+
+    @Test
+    void getMargin_WithNullDailyRate_ShouldReturnNull() {
+        // Given
+        project.setDailyRate(null);
+        project.setClientDailyRate(750);
+
+        // When / Then
+        assertThat(project.getMargin()).isNull();
+    }
+
+    @Test
+    void getMarginPercentage_WithClientAndFreelanceRate_ShouldReturnRoundedPercentage() {
+        // Given
+        project.setDailyRate(600);
+        project.setClientDailyRate(750);
+
+        // When / Then
+        // 150 / 750 * 100 = 20
+        assertThat(project.getMarginPercentage()).isEqualTo(20);
+    }
+
+    @Test
+    void getMarginPercentage_ShouldRoundToNearestPoint() {
+        // Given
+        project.setDailyRate(600);
+        project.setClientDailyRate(700);
+
+        // When / Then
+        // 100 / 700 * 100 = 14.28 -> 14
+        assertThat(project.getMarginPercentage()).isEqualTo(14);
+    }
+
+    @Test
+    void getMarginPercentage_WithZeroClientRate_ShouldReturnNull() {
+        // Given
+        project.setClientDailyRate(0);
+
+        // When / Then
+        assertThat(project.getMarginPercentage()).isNull();
+    }
+
+    @Test
+    void getMarginPercentage_WithNullClientRate_ShouldReturnNull() {
+        // Given
+        project.setClientDailyRate(null);
+
+        // When / Then
+        assertThat(project.getMarginPercentage()).isNull();
+    }
+
+    @Test
     void project_GettersAndSetters_ShouldWorkCorrectly() {
         // Given
         String role = "Backend Developer";

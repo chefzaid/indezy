@@ -19,6 +19,8 @@ public interface ProjectMapper {
     @Mapping(target = "sourceId", source = "source.id")
     @Mapping(target = "sourceName", source = "source.name")
     @Mapping(target = "totalRevenue", expression = "java(project.getTotalRevenue())")
+    @Mapping(target = "margin", expression = "java(project.getMargin())")
+    @Mapping(target = "marginPercentage", expression = "java(project.getMarginPercentage())")
     @Mapping(target = "totalSteps", expression = "java(project.getSteps().size())")
     @Mapping(target = "completedSteps", expression = "java((int) project.getSteps().stream().filter(step -> dev.swirlit.indezy.model.enums.StepStatus.VALIDATED.equals(step.getStatus())).count())")
     @Mapping(target = "failedSteps", expression = "java((int) project.getSteps().stream().filter(step -> dev.swirlit.indezy.model.enums.StepStatus.FAILED.equals(step.getStatus())).count())")

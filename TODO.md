@@ -55,7 +55,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] Client final/intermediary distinction through the `isFinal` flag
 - [x] Contact management linked to both client and freelancer
 - [x] Client rating and blacklist (payment delays, ghosting, bad process)
-- [ ] ESN/intermediary margin tracking (rate paid by client vs rate received)
+- [x] ESN/intermediary margin tracking (rate paid by client vs rate received)
 - [ ] Contact interaction history (last contacted, response rate, preferred channel)
 - [ ] Org chart linking contacts to clients and ESNs (who works with whom)
 - [ ] Reminder to nurture dormant contacts (no exchange in 6 months)

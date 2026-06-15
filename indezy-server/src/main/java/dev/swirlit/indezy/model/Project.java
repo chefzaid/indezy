@@ -40,6 +40,10 @@ public class Project extends BaseEntity {
     @Column(name = "daily_rate", nullable = false)
     private Integer dailyRate;
 
+    /** Daily rate the end client pays the intermediary/ESN; the margin is the gap with {@link #dailyRate}. */
+    @Column(name = "client_daily_rate")
+    private Integer clientDailyRate;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "work_mode")
     private WorkMode workMode;
@@ -135,6 +139,23 @@ public class Project extends BaseEntity {
     public Integer getTotalRevenue() {
         if (dailyRate != null && daysPerYear != null && durationInMonths != null) {
             return dailyRate * daysPerYear * durationInMonths / 12;
+        }
+        return null;
+    }
+
+    /** Intermediary/ESN margin per day (client rate minus the freelance rate), or null when the client rate is unknown. */
+    public Integer getMargin() {
+        if (clientDailyRate != null && dailyRate != null) {
+            return clientDailyRate - dailyRate;
+        }
+        return null;
+    }
+
+    /** Margin as a percentage of the client rate, rounded to the nearest point, or null when the client rate is missing or zero. */
+    public Integer getMarginPercentage() {
+        Integer margin = getMargin();
+        if (margin != null && clientDailyRate != null && clientDailyRate != 0) {
+            return Math.round(margin * 100f / clientDailyRate);
         }
         return null;
     }

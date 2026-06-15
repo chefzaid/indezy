@@ -105,6 +105,33 @@
             </div>
           </div>
 
+          <ng-container *ngIf="project.clientDailyRate">
+            <mat-divider></mat-divider>
+
+            <div class="info-item">
+              <div class="info-label">
+                <mat-icon>business_center</mat-icon>
+                {{ 'projects.form.clientDailyRate' | translate }}
+              </div>
+              <div class="info-value">
+                {{ project.clientDailyRate }}€{{ 'common.perDay' | translate }}
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="info-item">
+              <div class="info-label">
+                <mat-icon>trending_up</mat-icon>
+                {{ 'projects.detail.margin' | translate }}
+              </div>
+              <div class="info-value">
+                {{ project.margin }}€{{ 'common.perDay' | translate }}
+                <span *ngIf="project.marginPercentage != null"> ({{ project.marginPercentage }}%)</span>
+              </div>
+            </div>
+          </ng-container>
+
           <mat-divider></mat-divider>
 
           <div class="info-item">

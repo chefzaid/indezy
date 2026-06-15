@@ -114,6 +114,27 @@ class ProjectMapperTest {
     }
 
     @Test
+    void toDto_WithClientDailyRate_ShouldMapMargin() {
+        testProject.setDailyRate(600);
+        testProject.setClientDailyRate(750);
+
+        ProjectDto result = projectMapper.toDto(testProject);
+
+        assertThat(result.getClientDailyRate()).isEqualTo(750);
+        assertThat(result.getMargin()).isEqualTo(150);
+        assertThat(result.getMarginPercentage()).isEqualTo(20);
+    }
+
+    @Test
+    void toEntity_WithClientDailyRate_ShouldMapToProject() {
+        testProjectDto.setClientDailyRate(750);
+
+        Project result = projectMapper.toEntity(testProjectDto);
+
+        assertThat(result.getClientDailyRate()).isEqualTo(750);
+    }
+
+    @Test
     void toEntity_WithValidProjectDto_ShouldMapToProject() {
         Project result = projectMapper.toEntity(testProjectDto);
 
