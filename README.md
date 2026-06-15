@@ -6,13 +6,6 @@ Indezy is a full-stack web application that helps freelancers manage job applica
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Angular](https://img.shields.io/badge/Angular-22.0.1-red.svg)](https://angular.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0.3-blue.svg)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-26-5FA04E.svg)](https://nodejs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791.svg)](https://www.postgresql.org/)
-[![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://www.docker.com/)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-326CE5.svg)](https://kubernetes.io/)
-[![Jenkins](https://img.shields.io/badge/Jenkins-CI%2FCD-D24939.svg)](https://www.jenkins.io/)
-[![ArgoCD](https://img.shields.io/badge/ArgoCD-GitOps-EF7B4D.svg)](https://argo-cd.readthedocs.io/)
-[![Maven](https://img.shields.io/badge/Maven-3.9.9-C71A36.svg)](https://maven.apache.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 
 ## Documentation
