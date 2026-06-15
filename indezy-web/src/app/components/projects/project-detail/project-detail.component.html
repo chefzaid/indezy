@@ -132,6 +132,34 @@
             </div>
           </ng-container>
 
+          <ng-container *ngIf="project.askedDailyRate">
+            <mat-divider></mat-divider>
+
+            <div class="info-item">
+              <div class="info-label">
+                <mat-icon>request_quote</mat-icon>
+                {{ 'projects.form.askedDailyRate' | translate }}
+              </div>
+              <div class="info-value">
+                {{ project.askedDailyRate }}€{{ 'common.perDay' | translate }}
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="project.offeredDailyRate">
+            <mat-divider></mat-divider>
+
+            <div class="info-item">
+              <div class="info-label">
+                <mat-icon>local_offer</mat-icon>
+                {{ 'projects.form.offeredDailyRate' | translate }}
+              </div>
+              <div class="info-value">
+                {{ project.offeredDailyRate }}€{{ 'common.perDay' | translate }}
+              </div>
+            </div>
+          </ng-container>
+
           <mat-divider></mat-divider>
 
           <div class="info-item">

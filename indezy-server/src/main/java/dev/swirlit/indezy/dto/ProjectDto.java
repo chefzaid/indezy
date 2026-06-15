@@ -28,6 +28,8 @@ public class ProjectDto {
     private Integer dailyRate;
 
     private Integer clientDailyRate;
+    private Integer askedDailyRate;
+    private Integer offeredDailyRate;
 
     private WorkMode workMode;
     private Integer remoteDaysPerMonth;

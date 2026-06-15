@@ -91,6 +91,8 @@ export interface ProjectDto {
   techStack?: string;
   dailyRate: number;
   clientDailyRate?: number;
+  askedDailyRate?: number;
+  offeredDailyRate?: number;
   workMode?: WorkMode;
   remoteDaysPerMonth?: number;
   onsiteDaysPerMonth?: number;
@@ -145,6 +147,8 @@ export interface CreateProjectDto {
   techStack?: string;
   dailyRate: number;
   clientDailyRate?: number;
+  askedDailyRate?: number;
+  offeredDailyRate?: number;
   workMode?: WorkMode;
   remoteDaysPerMonth?: number;
   onsiteDaysPerMonth?: number;
@@ -172,6 +176,8 @@ export interface UpdateProjectDto {
   techStack?: string;
   dailyRate?: number;
   clientDailyRate?: number;
+  askedDailyRate?: number;
+  offeredDailyRate?: number;
   workMode?: WorkMode;
   remoteDaysPerMonth?: number;
   onsiteDaysPerMonth?: number;

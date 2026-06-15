@@ -142,6 +142,7 @@ Important fields:
 - tech stack
 - daily rate
 - client daily rate (rate paid by the client to the intermediary/ESN; margin and margin percentage are derived from it)
+- asked and offered daily rates (negotiation history; the daily rate above is the agreed one)
 - work mode
 - remote and onsite days per month
 - advantages

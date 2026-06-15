@@ -44,6 +44,14 @@ public class Project extends BaseEntity {
     @Column(name = "client_daily_rate")
     private Integer clientDailyRate;
 
+    /** Rate first asked by the freelance during negotiation; {@link #dailyRate} holds the agreed rate. */
+    @Column(name = "asked_daily_rate")
+    private Integer askedDailyRate;
+
+    /** Rate offered by the client/intermediary during negotiation; {@link #dailyRate} holds the agreed rate. */
+    @Column(name = "offered_daily_rate")
+    private Integer offeredDailyRate;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "work_mode")
     private WorkMode workMode;

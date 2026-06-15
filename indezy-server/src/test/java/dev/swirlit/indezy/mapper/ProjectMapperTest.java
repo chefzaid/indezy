@@ -135,6 +135,28 @@ class ProjectMapperTest {
     }
 
     @Test
+    void toDto_WithNegotiationRates_ShouldMapAskedAndOffered() {
+        testProject.setAskedDailyRate(650);
+        testProject.setOfferedDailyRate(580);
+
+        ProjectDto result = projectMapper.toDto(testProject);
+
+        assertThat(result.getAskedDailyRate()).isEqualTo(650);
+        assertThat(result.getOfferedDailyRate()).isEqualTo(580);
+    }
+
+    @Test
+    void toEntity_WithNegotiationRates_ShouldMapAskedAndOffered() {
+        testProjectDto.setAskedDailyRate(650);
+        testProjectDto.setOfferedDailyRate(580);
+
+        Project result = projectMapper.toEntity(testProjectDto);
+
+        assertThat(result.getAskedDailyRate()).isEqualTo(650);
+        assertThat(result.getOfferedDailyRate()).isEqualTo(580);
+    }
+
+    @Test
     void toEntity_WithValidProjectDto_ShouldMapToProject() {
         Project result = projectMapper.toEntity(testProjectDto);
 

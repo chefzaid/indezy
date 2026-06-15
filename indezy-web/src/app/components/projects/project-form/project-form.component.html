@@ -72,6 +72,24 @@
                 <mat-error>{{ getFieldError('clientDailyRate') }}</mat-error>
               </mat-form-field>
             </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'projects.form.askedDailyRate' | translate }}</mat-label>
+                <input matInput type="number" formControlName="askedDailyRate" placeholder="650">
+                <span matSuffix>€</span>
+                <mat-hint>{{ 'projects.form.askedDailyRateHint' | translate }}</mat-hint>
+                <mat-error>{{ getFieldError('askedDailyRate') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>{{ 'projects.form.offeredDailyRate' | translate }}</mat-label>
+                <input matInput type="number" formControlName="offeredDailyRate" placeholder="580">
+                <span matSuffix>€</span>
+                <mat-hint>{{ 'projects.form.offeredDailyRateHint' | translate }}</mat-hint>
+                <mat-error>{{ getFieldError('offeredDailyRate') }}</mat-error>
+              </mat-form-field>
+            </div>
           </div>
 
           <!-- Work Mode Section -->
