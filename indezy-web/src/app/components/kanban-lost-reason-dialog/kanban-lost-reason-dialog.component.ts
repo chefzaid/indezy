@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,7 +17,6 @@ export interface KanbanLostReasonDialogData {
 @Component({
   selector: 'app-kanban-lost-reason-dialog',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
@@ -25,7 +24,7 @@ export interface KanbanLostReasonDialogData {
     MatSelectModule,
     MatIconModule,
     TranslateModule
-  ],
+],
   templateUrl: './kanban-lost-reason-dialog.component.html',
   styleUrls: ['./kanban-lost-reason-dialog.component.scss']
 })

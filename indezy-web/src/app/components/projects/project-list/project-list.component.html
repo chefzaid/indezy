@@ -18,7 +18,9 @@
     <mat-card-header>
       <mat-card-title>
         {{ 'common.filters' | translate }}
-        <span *ngIf="getFilterCount() > 0" class="filter-count">({{ getFilterCount() }})</span>
+        @if (getFilterCount() > 0) {
+          <span class="filter-count">({{ getFilterCount() }})</span>
+        }
       </mat-card-title>
       <div class="filter-actions">
         <button mat-stroked-button type="button" (click)="clearFilters()" class="clear-filters-btn">
@@ -54,9 +56,11 @@
               <mat-label>{{ 'projects.workMode' | translate }}</mat-label>
               <mat-select formControlName="workMode">
                 <mat-option value="">{{ 'common.all' | translate }}</mat-option>
-                <mat-option *ngFor="let mode of workModeOptions" [value]="mode.value">
-                  {{ mode.labelKey | translate }}
-                </mat-option>
+                @for (mode of workModeOptions; track mode) {
+                  <mat-option [value]="mode.value">
+                    {{ mode.labelKey | translate }}
+                  </mat-option>
+                }
               </mat-select>
             </mat-form-field>
           </div>
@@ -66,9 +70,11 @@
               <mat-label>{{ 'projects.status' | translate }}</mat-label>
               <mat-select formControlName="status">
                 <mat-option value="">{{ 'common.all' | translate }}</mat-option>
-                <mat-option *ngFor="let status of statusOptions" [value]="status.value">
-                  {{ status.labelKey | translate }}
-                </mat-option>
+                @for (status of statusOptions; track status) {
+                  <mat-option [value]="status.value">
+                    {{ status.labelKey | translate }}
+                  </mat-option>
+                }
               </mat-select>
             </mat-form-field>
 
@@ -76,18 +82,22 @@
               <mat-label>{{ 'projects.duration' | translate }}</mat-label>
               <mat-select formControlName="duration">
                 <mat-option value="">{{ 'common.allFeminine' | translate }}</mat-option>
-                <mat-option *ngFor="let duration of durationOptions" [value]="duration.value">
-                  {{ duration.labelKey | translate }}
-                </mat-option>
+                @for (duration of durationOptions; track duration) {
+                  <mat-option [value]="duration.value">
+                    {{ duration.labelKey | translate }}
+                  </mat-option>
+                }
               </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'common.sortBy' | translate }}</mat-label>
               <mat-select formControlName="sortBy" (selectionChange)="onSortByChange($event.value)">
-                <mat-option *ngFor="let sort of sortOptions" [value]="sort.value">
-                  {{ sort.labelKey | translate }}
-                </mat-option>
+                @for (sort of sortOptions; track sort) {
+                  <mat-option [value]="sort.value">
+                    {{ sort.labelKey | translate }}
+                  </mat-option>
+                }
               </mat-select>
             </mat-form-field>
 
@@ -101,22 +111,26 @@
           </div>
 
           <!-- Commute Travel Mode -->
-          <div class="commute-controls" *ngIf="filterForm.get('sortBy')?.value === 'commuteTime'">
-            <div class="travel-mode-toggle">
-              <span class="travel-mode-label">{{ 'projects.commute.travelMode' | translate }}:</span>
-              <mat-button-toggle-group [value]="commuteTravelMode" (change)="onTravelModeChange($event.value)">
-                <mat-button-toggle value="DRIVING" [matTooltip]="'projects.commute.byCar' | translate">
-                  <mat-icon>directions_car</mat-icon>
-                  {{ 'projects.commute.car' | translate }}
-                </mat-button-toggle>
-                <mat-button-toggle value="TRANSIT" [matTooltip]="'projects.commute.byTransit' | translate">
-                  <mat-icon>directions_transit</mat-icon>
-                  {{ 'projects.commute.transit' | translate }}
-                </mat-button-toggle>
-              </mat-button-toggle-group>
-              <mat-spinner *ngIf="isCommuteLoading" diameter="24" class="commute-spinner"></mat-spinner>
+          @if (filterForm.get('sortBy')?.value === 'commuteTime') {
+            <div class="commute-controls">
+              <div class="travel-mode-toggle">
+                <span class="travel-mode-label">{{ 'projects.commute.travelMode' | translate }}:</span>
+                <mat-button-toggle-group [value]="commuteTravelMode" (change)="onTravelModeChange($event.value)">
+                  <mat-button-toggle value="DRIVING" [matTooltip]="'projects.commute.byCar' | translate">
+                    <mat-icon>directions_car</mat-icon>
+                    {{ 'projects.commute.car' | translate }}
+                  </mat-button-toggle>
+                  <mat-button-toggle value="TRANSIT" [matTooltip]="'projects.commute.byTransit' | translate">
+                    <mat-icon>directions_transit</mat-icon>
+                    {{ 'projects.commute.transit' | translate }}
+                  </mat-button-toggle>
+                </mat-button-toggle-group>
+                @if (isCommuteLoading) {
+                  <mat-spinner diameter="24" class="commute-spinner"></mat-spinner>
+                }
+              </div>
             </div>
-          </div>
+          }
         </div>
 
         <!-- Advanced Filters -->
@@ -186,26 +200,32 @@
             <div class="filter-group">
               <h4>{{ 'projects.technologies' | translate }}</h4>
               <div class="tech-stack-section">
-                <div class="selected-tech-chips" *ngIf="filterForm.get('selectedTechStack')?.value?.length > 0">
-                  <mat-chip-set>
-                    <mat-chip *ngFor="let tech of filterForm.get('selectedTechStack')?.value"
-                             (removed)="removeTechStack(tech)">
-                      {{ tech }}
-                      <button matChipRemove>
-                        <mat-icon>cancel</mat-icon>
-                      </button>
-                    </mat-chip>
-                  </mat-chip-set>
-                </div>
+                @if (filterForm.get('selectedTechStack')?.value?.length > 0) {
+                  <div class="selected-tech-chips">
+                    <mat-chip-set>
+                      @for (tech of filterForm.get('selectedTechStack')?.value; track tech) {
+                        <mat-chip
+                          (removed)="removeTechStack(tech)">
+                          {{ tech }}
+                          <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                          </button>
+                        </mat-chip>
+                      }
+                    </mat-chip-set>
+                  </div>
+                }
 
                 <mat-form-field appearance="outline" class="tech-select-field">
                   <mat-label>{{ 'projects.addTechnology' | translate }}</mat-label>
                   <mat-select (selectionChange)="addTechStack($event.value); $event.source.value = ''">
-                    <mat-option *ngFor="let tech of techStackOptions"
-                               [value]="tech"
-                               [disabled]="filterForm.get('selectedTechStack')?.value?.includes(tech)">
-                      {{ tech }}
-                    </mat-option>
+                    @for (tech of techStackOptions; track tech) {
+                      <mat-option
+                        [value]="tech"
+                        [disabled]="filterForm.get('selectedTechStack')?.value?.includes(tech)">
+                        {{ tech }}
+                      </mat-option>
+                    }
                   </mat-select>
                 </mat-form-field>
 
@@ -223,147 +243,182 @@
   </mat-card>
 
   <!-- Loading -->
-  <div *ngIf="isLoading" class="loading-container">
-    <mat-spinner></mat-spinner>
-    <p>{{ 'projects.loading' | translate }}</p>
-  </div>
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>{{ 'projects.loading' | translate }}</p>
+    </div>
+  }
 
   <!-- Reversion Rate Settings -->
-  <mat-card class="reversion-card" *ngIf="!isLoading && filteredProjects.length > 0">
-    <mat-card-content>
-      <div class="reversion-header">
-        <mat-icon>account_balance</mat-icon>
-        <span class="reversion-title">{{ 'projects.reversion.title' | translate }}</span>
-      </div>
-      <div class="reversion-controls">
-        <mat-form-field appearance="outline" class="reversion-field">
-          <mat-label>{{ 'projects.reversion.rate' | translate }}</mat-label>
-          <input matInput type="number" [value]="reversionRate" min="0" max="100" step="0.5"
-                 (change)="onReversionRateChange($any($event.target).value)">
-          <span matSuffix>%</span>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="reversion-field">
-          <mat-label>{{ 'projects.reversion.incomeTax' | translate }}</mat-label>
-          <input matInput type="number" [value]="incomeTaxRate" min="0" max="50" step="0.5"
-                 (change)="onIncomeTaxRateChange($any($event.target).value)">
-          <span matSuffix>%</span>
-        </mat-form-field>
-        <button mat-stroked-button color="primary" (click)="saveReversionRate()"
-                [matTooltip]="'projects.reversion.saveTooltip' | translate">
-          <mat-icon>save</mat-icon>
-        </button>
-      </div>
-      <div class="reversion-info">
-        {{ 'projects.reversion.formula' | translate:{ rate: reversionRate } }}
-      </div>
-    </mat-card-content>
-  </mat-card>
+  @if (!isLoading && filteredProjects.length > 0) {
+    <mat-card class="reversion-card">
+      <mat-card-content>
+        <div class="reversion-header">
+          <mat-icon>account_balance</mat-icon>
+          <span class="reversion-title">{{ 'projects.reversion.title' | translate }}</span>
+        </div>
+        <div class="reversion-controls">
+          <mat-form-field appearance="outline" class="reversion-field">
+            <mat-label>{{ 'projects.reversion.rate' | translate }}</mat-label>
+            <input matInput type="number" [value]="reversionRate" min="0" max="100" step="0.5"
+              (change)="onReversionRateChange($any($event.target).value)">
+            <span matSuffix>%</span>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="reversion-field">
+            <mat-label>{{ 'projects.reversion.incomeTax' | translate }}</mat-label>
+            <input matInput type="number" [value]="incomeTaxRate" min="0" max="50" step="0.5"
+              (change)="onIncomeTaxRateChange($any($event.target).value)">
+            <span matSuffix>%</span>
+          </mat-form-field>
+          <button mat-stroked-button color="primary" (click)="saveReversionRate()"
+            [matTooltip]="'projects.reversion.saveTooltip' | translate">
+            <mat-icon>save</mat-icon>
+          </button>
+        </div>
+        <div class="reversion-info">
+          {{ 'projects.reversion.formula' | translate:{ rate: reversionRate } }}
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
 
   <!-- Projects Grid -->
-  <div *ngIf="!isLoading && filteredProjects.length > 0" class="projects-grid">
-    <mat-card class="project-card" *ngFor="let project of filteredProjects">
-      <mat-card-header>
-        <mat-card-title class="project-title">
-          {{ project.role }}
-        </mat-card-title>
-        <mat-card-subtitle class="project-client">
-          {{ project.clientName }}
-        </mat-card-subtitle>
-        <div class="project-status">
-          <mat-chip [color]="getProjectStatusColor(project)" selected>
-            {{ getProjectStatusText(project) }}
-          </mat-chip>
-        </div>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="project-details">
-          <div class="detail-item" *ngIf="project.dailyRate">
-            <mat-icon>euro</mat-icon>
-            <span>{{ project.dailyRate }}€{{ 'common.perDay' | translate }}</span>
-            <span class="net-rate" [matTooltip]="'projects.reversion.netTooltip' | translate">
-              ({{ 'projects.reversion.net' | translate }}: {{ getNetDailyRate(project) }}€)
-            </span>
-          </div>
-
-          <div class="detail-item revenue-item" *ngIf="project.dailyRate">
-            <mat-icon>account_balance_wallet</mat-icon>
-            <span class="net-revenue">
-              {{ getNetMonthly(project) | number:'1.0-0' }}€{{ 'projects.reversion.perMonth' | translate }}
-              · {{ getNetYearly(project) | number:'1.0-0' }}€{{ 'projects.reversion.perYear' | translate }}
-            </span>
-          </div>
-
-          <div class="detail-item" *ngIf="project.workMode">
-            <mat-icon>location_on</mat-icon>
-            <span>{{ getWorkModeLabel(project.workMode) }}</span>
-          </div>
-
-          <div class="detail-item" *ngIf="project.durationInMonths">
-            <mat-icon>schedule</mat-icon>
-            <span>{{ project.durationInMonths }} {{ 'common.months' | translate }}</span>
-          </div>
-
-          <div class="detail-item" *ngIf="project.startDate">
-            <mat-icon>event</mat-icon>
-            <span>{{ project.startDate | date:'dd/MM/yyyy' }}</span>
-          </div>
-
-          <div class="detail-item commute-detail" *ngIf="getCommuteInfo(project.id) as commute">
-            <mat-icon>{{ getCommuteIcon(commute.travelMode) }}</mat-icon>
-            <span *ngIf="commute.durationText">{{ commute.durationText }}</span>
-            <span *ngIf="commute.distanceText" class="commute-distance">({{ commute.distanceText }})</span>
-            <span *ngIf="!commute.durationText" class="commute-unavailable">{{ 'projects.commute.unavailable' | translate }}</span>
-          </div>
-        </div>
-
-        <div class="project-tech" *ngIf="project.techStack">
-          <mat-icon>code</mat-icon>
-          <span>{{ project.techStack }}</span>
-        </div>
-
-        <p class="project-description" *ngIf="project.description">
-          {{ project.description }}
-        </p>
-      </mat-card-content>
-
-      <mat-card-actions class="project-actions">
-        <button mat-button [routerLink]="['/projects', project.id]">
-          <mat-icon>visibility</mat-icon>
-          {{ 'common.view' | translate }}
-        </button>
-        <button mat-button [routerLink]="['/projects', project.id, 'edit']">
-          <mat-icon>edit</mat-icon>
-          {{ 'common.edit' | translate }}
-        </button>
-        <button mat-button color="warn" (click)="deleteProject(project.id!)">
-          <mat-icon>delete</mat-icon>
-          {{ 'common.delete' | translate }}
-        </button>
-      </mat-card-actions>
-    </mat-card>
-  </div>
+  @if (!isLoading && filteredProjects.length > 0) {
+    <div class="projects-grid">
+      @for (project of filteredProjects; track project) {
+        <mat-card class="project-card">
+          <mat-card-header>
+            <mat-card-title class="project-title">
+              {{ project.role }}
+            </mat-card-title>
+            <mat-card-subtitle class="project-client">
+              {{ project.clientName }}
+            </mat-card-subtitle>
+            <div class="project-status">
+              <mat-chip [color]="getProjectStatusColor(project)" selected>
+                {{ getProjectStatusText(project) }}
+              </mat-chip>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="project-details">
+              @if (project.dailyRate) {
+                <div class="detail-item">
+                  <mat-icon>euro</mat-icon>
+                  <span>{{ project.dailyRate }}€{{ 'common.perDay' | translate }}</span>
+                  <span class="net-rate" [matTooltip]="'projects.reversion.netTooltip' | translate">
+                    ({{ 'projects.reversion.net' | translate }}: {{ getNetDailyRate(project) }}€)
+                  </span>
+                </div>
+              }
+              @if (project.dailyRate) {
+                <div class="detail-item revenue-item">
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  <span class="net-revenue">
+                    {{ getNetMonthly(project) | number:'1.0-0' }}€{{ 'projects.reversion.perMonth' | translate }}
+                    · {{ getNetYearly(project) | number:'1.0-0' }}€{{ 'projects.reversion.perYear' | translate }}
+                  </span>
+                </div>
+              }
+              @if (project.workMode) {
+                <div class="detail-item">
+                  <mat-icon>location_on</mat-icon>
+                  <span>{{ getWorkModeLabel(project.workMode) }}</span>
+                </div>
+              }
+              @if (project.durationInMonths) {
+                <div class="detail-item">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ project.durationInMonths }} {{ 'common.months' | translate }}</span>
+                </div>
+              }
+              @if (project.startDate) {
+                <div class="detail-item">
+                  <mat-icon>event</mat-icon>
+                  <span>{{ project.startDate | date:'dd/MM/yyyy' }}</span>
+                </div>
+              }
+              @if (getCommuteInfo(project.id); as commute) {
+                <div class="detail-item commute-detail">
+                  <mat-icon>{{ getCommuteIcon(commute.travelMode) }}</mat-icon>
+                  @if (commute.durationText) {
+                    <span>{{ commute.durationText }}</span>
+                  }
+                  @if (commute.distanceText) {
+                    <span class="commute-distance">({{ commute.distanceText }})</span>
+                  }
+                  @if (!commute.durationText) {
+                    <span class="commute-unavailable">{{ 'projects.commute.unavailable' | translate }}</span>
+                  }
+                </div>
+              }
+            </div>
+            @if (project.techStack) {
+              <div class="project-tech">
+                <mat-icon>code</mat-icon>
+                <span>{{ project.techStack }}</span>
+              </div>
+            }
+            @if (project.description) {
+              <p class="project-description">
+                {{ project.description }}
+              </p>
+            }
+          </mat-card-content>
+          <mat-card-actions class="project-actions">
+            <button mat-button [routerLink]="['/projects', project.id]">
+              <mat-icon>visibility</mat-icon>
+              {{ 'common.view' | translate }}
+            </button>
+            <button mat-button [routerLink]="['/projects', project.id, 'edit']">
+              <mat-icon>edit</mat-icon>
+              {{ 'common.edit' | translate }}
+            </button>
+            <button mat-button color="warn" (click)="deleteProject(project.id!)">
+              <mat-icon>delete</mat-icon>
+              {{ 'common.delete' | translate }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
 
   <!-- Empty State -->
-  <div *ngIf="!isLoading && filteredProjects.length === 0" class="empty-state">
-    <mat-card>
-      <mat-card-content>
-        <div class="empty-content">
-          <mat-icon class="empty-icon">work_off</mat-icon>
-          <h3 *ngIf="projects.length === 0">{{ 'projects.noProjects' | translate }}</h3>
-          <h3 *ngIf="projects.length > 0">{{ 'projects.noMatchingProjects' | translate }}</h3>
-          <p *ngIf="projects.length === 0">{{ 'projects.startFirstProject' | translate }}</p>
-          <p *ngIf="projects.length > 0">{{ 'projects.tryDifferentFilters' | translate }}</p>
-          <button *ngIf="projects.length === 0" mat-raised-button color="primary" routerLink="/projects/new">
-            <mat-icon>add</mat-icon>
-            {{ 'projects.addProject' | translate }}
-          </button>
-          <button *ngIf="projects.length > 0" mat-stroked-button (click)="clearFilters()">
-            <mat-icon>clear</mat-icon>
-            {{ 'common.clearAllFilters' | translate }}
-          </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
+  @if (!isLoading && filteredProjects.length === 0) {
+    <div class="empty-state">
+      <mat-card>
+        <mat-card-content>
+          <div class="empty-content">
+            <mat-icon class="empty-icon">work_off</mat-icon>
+            @if (projects.length === 0) {
+              <h3>{{ 'projects.noProjects' | translate }}</h3>
+            }
+            @if (projects.length > 0) {
+              <h3>{{ 'projects.noMatchingProjects' | translate }}</h3>
+            }
+            @if (projects.length === 0) {
+              <p>{{ 'projects.startFirstProject' | translate }}</p>
+            }
+            @if (projects.length > 0) {
+              <p>{{ 'projects.tryDifferentFilters' | translate }}</p>
+            }
+            @if (projects.length === 0) {
+              <button mat-raised-button color="primary" routerLink="/projects/new">
+                <mat-icon>add</mat-icon>
+                {{ 'projects.addProject' | translate }}
+              </button>
+            }
+            @if (projects.length > 0) {
+              <button mat-stroked-button (click)="clearFilters()">
+                <mat-icon>clear</mat-icon>
+                {{ 'common.clearAllFilters' | translate }}
+              </button>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
 </div>

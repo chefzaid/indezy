@@ -1,14 +1,17 @@
 <mat-form-field appearance="outline" class="search-filter">
   <mat-label>{{ config.label || 'Rechercher' }}</mat-label>
   <input matInput
-         [formControl]="queryControl"
-         [placeholder]="config.placeholder || 'Tapez votre recherche...'">
-  <mat-icon matPrefix *ngIf="config.icon">{{ config.icon }}</mat-icon>
-  <button mat-icon-button 
-          matSuffix 
-          *ngIf="searchForm.get('query')?.value"
-          (click)="clearSearch()"
-          type="button">
-    <mat-icon>clear</mat-icon>
-  </button>
+    [formControl]="queryControl"
+    [placeholder]="config.placeholder || 'Tapez votre recherche...'">
+  @if (config.icon) {
+    <mat-icon matPrefix>{{ config.icon }}</mat-icon>
+  }
+  @if (searchForm.get('query')?.value) {
+    <button mat-icon-button
+      matSuffix
+      (click)="clearSearch()"
+      type="button">
+      <mat-icon>clear</mat-icon>
+    </button>
+  }
 </mat-form-field>

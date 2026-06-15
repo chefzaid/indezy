@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -12,14 +12,13 @@ import { MultiSelectOption, MultiSelectFilterConfig } from '../../../models/filt
   selector: 'app-multi-select-filter',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,
     MatChipsModule,
     MatIconModule,
     MatButtonModule
-  ],
+],
   templateUrl: './multi-select-filter.component.html',
   styleUrls: ['./multi-select-filter.component.scss']
 })

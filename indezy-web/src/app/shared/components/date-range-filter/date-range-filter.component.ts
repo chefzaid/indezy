@@ -1,6 +1,6 @@
 import { Component, DestroyRef, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -14,7 +14,6 @@ import { DateRangeFilterConfig, DateRange } from '../../../models/filter.models'
   selector: 'app-date-range-filter',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -22,7 +21,7 @@ import { DateRangeFilterConfig, DateRange } from '../../../models/filter.models'
     MatNativeDateModule,
     MatIconModule,
     MatButtonModule
-  ],
+],
   templateUrl: './date-range-filter.component.html',
   styleUrls: ['./date-range-filter.component.scss']
 })

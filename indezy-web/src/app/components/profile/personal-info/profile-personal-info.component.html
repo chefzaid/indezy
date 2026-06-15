@@ -6,18 +6,18 @@
       <div class="avatar-container">
         <div class="avatar-wrapper">
           <img [src]="userProfile.avatar || 'assets/images/default-avatar.png'"
-               [alt]="userProfile.firstName + ' ' + userProfile.lastName"
-               class="user-avatar">
+            [alt]="userProfile.firstName + ' ' + userProfile.lastName"
+            class="user-avatar">
           <div class="avatar-overlay">
             <input type="file"
-                   #avatarInput
-                   (change)="avatarUpload.emit($event)"
-                   accept="image/*"
-                   style="display: none;">
+              #avatarInput
+              (change)="avatarUpload.emit($event)"
+              accept="image/*"
+              style="display: none;">
             <button type="button"
-                    mat-icon-button
-                    (click)="avatarInput.click()"
-                    class="avatar-edit-btn">
+              mat-icon-button
+              (click)="avatarInput.click()"
+              class="avatar-edit-btn">
               <mat-icon>camera_alt</mat-icon>
             </button>
           </div>
@@ -39,17 +39,21 @@
           <mat-form-field appearance="outline">
             <mat-label>{{ 'contacts.firstName' | translate }}</mat-label>
             <input matInput formControlName="firstName" required>
-            <mat-error *ngIf="form.get('firstName')?.hasError('required')">
-              {{ 'profile.errors.firstNameRequired' | translate }}
-            </mat-error>
+            @if (form.get('firstName')?.hasError('required')) {
+              <mat-error>
+                {{ 'profile.errors.firstNameRequired' | translate }}
+              </mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'common.name' | translate }}</mat-label>
             <input matInput formControlName="lastName" required>
-            <mat-error *ngIf="form.get('lastName')?.hasError('required')">
-              {{ 'profile.errors.lastNameRequired' | translate }}
-            </mat-error>
+            @if (form.get('lastName')?.hasError('required')) {
+              <mat-error>
+                {{ 'profile.errors.lastNameRequired' | translate }}
+              </mat-error>
+            }
           </mat-form-field>
         </div>
 
@@ -57,12 +61,16 @@
           <mat-form-field appearance="outline">
             <mat-label>{{ 'common.email' | translate }}</mat-label>
             <input matInput formControlName="email" type="email" required>
-            <mat-error *ngIf="form.get('email')?.hasError('required')">
-              {{ 'profile.errors.emailRequired' | translate }}
-            </mat-error>
-            <mat-error *ngIf="form.get('email')?.hasError('email')">
-              {{ 'errors.invalidEmail' | translate }}
-            </mat-error>
+            @if (form.get('email')?.hasError('required')) {
+              <mat-error>
+                {{ 'profile.errors.emailRequired' | translate }}
+              </mat-error>
+            }
+            @if (form.get('email')?.hasError('email')) {
+              <mat-error>
+                {{ 'errors.invalidEmail' | translate }}
+              </mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -138,23 +146,27 @@
           <h4>{{ 'profile.skills' | translate }}</h4>
           <div class="chips-container">
             <mat-chip-set>
-              <mat-chip *ngFor="let skill of form.get('skills')?.value"
-                       (removed)="removeSkill(skill)">
-                {{ skill }}
-                <button matChipRemove>
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              </mat-chip>
+              @for (skill of form.get('skills')?.value; track skill) {
+                <mat-chip
+                  (removed)="removeSkill(skill)">
+                  {{ skill }}
+                  <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip>
+              }
             </mat-chip-set>
           </div>
           <mat-form-field appearance="outline" class="skill-input">
             <mat-label>{{ 'profile.addSkill' | translate }}</mat-label>
             <mat-select (selectionChange)="addSkill($event.value)" [value]="">
-              <mat-option *ngFor="let skill of availableSkills"
-                         [value]="skill"
-                         [disabled]="form.get('skills')?.value?.includes(skill)">
-                {{ skill }}
-              </mat-option>
+              @for (skill of availableSkills; track skill) {
+                <mat-option
+                  [value]="skill"
+                  [disabled]="form.get('skills')?.value?.includes(skill)">
+                  {{ skill }}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>
@@ -164,23 +176,27 @@
           <h4>{{ 'profile.languages' | translate }}</h4>
           <div class="chips-container">
             <mat-chip-set>
-              <mat-chip *ngFor="let language of form.get('languages')?.value"
-                       (removed)="removeLanguage(language)">
-                {{ language }}
-                <button matChipRemove>
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              </mat-chip>
+              @for (language of form.get('languages')?.value; track language) {
+                <mat-chip
+                  (removed)="removeLanguage(language)">
+                  {{ language }}
+                  <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip>
+              }
             </mat-chip-set>
           </div>
           <mat-form-field appearance="outline" class="language-input">
             <mat-label>{{ 'profile.addLanguage' | translate }}</mat-label>
             <mat-select (selectionChange)="addLanguage($event.value)" [value]="">
-              <mat-option *ngFor="let language of availableLanguages"
-                         [value]="language"
-                         [disabled]="form.get('languages')?.value?.includes(language)">
-                {{ language }}
-              </mat-option>
+              @for (language of availableLanguages; track language) {
+                <mat-option
+                  [value]="language"
+                  [disabled]="form.get('languages')?.value?.includes(language)">
+                  {{ language }}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>
@@ -197,18 +213,22 @@
           <mat-form-field appearance="outline">
             <mat-label>{{ 'profile.timezone' | translate }}</mat-label>
             <mat-select formControlName="timezone">
-              <mat-option *ngFor="let tz of timezones" [value]="tz">
-                {{ tz }}
-              </mat-option>
+              @for (tz of timezones; track tz) {
+                <mat-option [value]="tz">
+                  {{ tz }}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'profile.currency' | translate }}</mat-label>
             <mat-select formControlName="currency">
-              <mat-option *ngFor="let currency of currencies" [value]="currency.value">
-                {{ currency.label }}
-              </mat-option>
+              @for (currency of currencies; track currency) {
+                <mat-option [value]="currency.value">
+                  {{ currency.label }}
+                </mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>
@@ -217,12 +237,18 @@
 
     <div class="form-actions">
       <button mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="form.invalid || isUpdating">
-        <mat-spinner *ngIf="isUpdating" diameter="20"></mat-spinner>
-        <span *ngIf="!isUpdating">{{ 'common.save' | translate }}</span>
-        <span *ngIf="isUpdating">{{ 'common.saving' | translate }}</span>
+        color="primary"
+        type="submit"
+        [disabled]="form.invalid || isUpdating">
+        @if (isUpdating) {
+          <mat-spinner diameter="20"></mat-spinner>
+        }
+        @if (!isUpdating) {
+          <span>{{ 'common.save' | translate }}</span>
+        }
+        @if (isUpdating) {
+          <span>{{ 'common.saving' | translate }}</span>
+        }
       </button>
     </div>
   </form>

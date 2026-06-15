@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,15 +17,14 @@ import { ContactDto } from '../../../models';
 @Component({
     selector: 'app-contact-detail',
     imports: [
-        CommonModule,
-        RouterModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatChipsModule,
-        MatDividerModule,
-        MatProgressSpinnerModule
-    ],
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatDividerModule,
+    MatProgressSpinnerModule
+],
     templateUrl: './contact-detail.component.html',
     styleUrls: ['./contact-detail.component.scss']
 })

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router } from '@angular/router';
 import { ErrorDisplayComponent, ErrorDisplayConfig } from '../../../shared/components/error-display/error-display.component';
 import { TranslateService } from '@ngx-translate/core';
@@ -7,10 +7,9 @@ import { TranslateService } from '@ngx-translate/core';
 @Component({
     selector: 'app-server-error',
     imports: [
-        CommonModule,
-        RouterModule,
-        ErrorDisplayComponent
-    ],
+    RouterModule,
+    ErrorDisplayComponent
+],
     template: `
     <div class="server-error-container">
       <app-error-display 

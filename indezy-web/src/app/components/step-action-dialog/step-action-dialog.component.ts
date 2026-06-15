@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,7 +25,6 @@ export interface StepActionDialogData {
 @Component({
   selector: 'app-step-action-dialog',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
@@ -33,7 +32,7 @@ export interface StepActionDialogData {
     MatInputModule,
     MatIconModule,
     TranslateModule
-  ],
+],
   templateUrl: './step-action-dialog.component.html',
   styleUrls: ['./step-action-dialog.component.scss']
 })

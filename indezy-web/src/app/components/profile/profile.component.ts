@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { AbstractControlOptions, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,21 +20,20 @@ import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-i
 @Component({
     selector: 'app-profile',
     imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatTabsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatSlideToggleModule,
-        MatProgressSpinnerModule,
-        MatDividerModule,
-        TranslateModule,
-        ProfilePersonalInfoComponent
-    ],
+    ReactiveFormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatProgressSpinnerModule,
+    MatDividerModule,
+    TranslateModule,
+    ProfilePersonalInfoComponent
+],
     templateUrl: './profile.component.html',
     styleUrls: ['./profile.component.scss']
 })

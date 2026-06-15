@@ -18,9 +18,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final CorsConfigurationSource corsConfigurationSource;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
     /**
      * Escape hatch for test runs that exercise endpoints without authenticating.
      * Must stay false for any real deployment.
@@ -28,14 +25,13 @@ public class SecurityConfig {
     @Value("${indezy.security.permit-all:false}")
     private boolean permitAll;
 
-    public SecurityConfig(CorsConfigurationSource corsConfigurationSource,
-                          JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.corsConfigurationSource = corsConfigurationSource;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
-
+    // Spring Security's HttpSecurity.build() declares `throws Exception`, so the
+    // generic throws clause is mandated by the framework API and cannot be narrowed.
+    @SuppressWarnings({"java:S112", "java:S1130"})
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           CorsConfigurationSource corsConfigurationSource,
+                                           JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
             // CSRF protection is not needed for a stateless bearer-token API.

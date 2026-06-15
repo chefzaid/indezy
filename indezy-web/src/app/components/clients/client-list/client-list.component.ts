@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -45,30 +45,29 @@ interface ClientFilterValues {
 @Component({
     selector: 'app-client-list',
     imports: [
-        CommonModule,
-        RouterModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatTableModule,
-        MatButtonModule,
-        MatIconModule,
-        MatCardModule,
-        MatChipsModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatDialogModule,
-        MatProgressSpinnerModule,
-        MatExpansionModule,
-        MatDividerModule,
-        MatSliderModule,
-        MatTooltipModule,
-        MatCheckboxModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        LoadingComponent,
-        TranslateModule
-    ],
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatChipsModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatDialogModule,
+    MatProgressSpinnerModule,
+    MatExpansionModule,
+    MatDividerModule,
+    MatSliderModule,
+    MatTooltipModule,
+    MatCheckboxModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    LoadingComponent,
+    TranslateModule
+],
     templateUrl: './client-list.component.html',
     styleUrls: ['./client-list.component.scss']
 })

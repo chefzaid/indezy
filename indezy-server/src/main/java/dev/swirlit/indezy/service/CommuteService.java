@@ -186,7 +186,9 @@ public class CommuteService {
                 log.warn("Distance Matrix API returned status: {}",
                     response != null ? response.path(STATUS_FIELD).asString() : "null response");
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            // Any failure fetching commute data (HTTP, parsing, ...) degrades gracefully
+            // to commute info without duration rather than failing the whole request.
             log.error("Error calling Google Maps Distance Matrix API", e);
         }
 

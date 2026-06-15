@@ -2,34 +2,38 @@
   <mat-card class="error-card">
     <mat-card-content>
       <div class="error-content">
-        <div class="error-logo" *ngIf="config.showLogo">
-          <img src="assets/images/indezy-logo.svg" alt="Indezy" class="logo-image">
-        </div>
-        
+        @if (config.showLogo) {
+          <div class="error-logo">
+            <img src="assets/images/indezy-logo.svg" alt="Indezy" class="logo-image">
+          </div>
+        }
+
         <div class="error-icon" [class]="'error-' + config.type">
           <mat-icon>{{ getErrorIcon() }}</mat-icon>
         </div>
-        
+
         <div class="error-text">
           <h2 class="error-title">{{ config.title || getDefaultTitle() }}</h2>
           <p class="error-message">{{ config.message || getDefaultMessage() }}</p>
         </div>
-        
+
         <div class="error-actions">
-          <button mat-raised-button 
-                  color="primary" 
-                  *ngIf="config.showRetry"
-                  (click)="onRetry()">
-            <mat-icon>refresh</mat-icon>
-            {{ 'common.retry' | translate }}
-          </button>
-          
-          <button mat-button 
-                  *ngIf="config.showHome"
-                  routerLink="/dashboard">
-            <mat-icon>home</mat-icon>
-            {{ 'common.backToHome' | translate }}
-          </button>
+          @if (config.showRetry) {
+            <button mat-raised-button
+              color="primary"
+              (click)="onRetry()">
+              <mat-icon>refresh</mat-icon>
+              {{ 'common.retry' | translate }}
+            </button>
+          }
+
+          @if (config.showHome) {
+            <button mat-button
+              routerLink="/dashboard">
+              <mat-icon>home</mat-icon>
+              {{ 'common.backToHome' | translate }}
+            </button>
+          }
         </div>
       </div>
     </mat-card-content>

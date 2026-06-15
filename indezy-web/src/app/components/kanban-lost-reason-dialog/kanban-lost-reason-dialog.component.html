@@ -11,13 +11,17 @@
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'projects.lostReason.label' | translate }}</mat-label>
         <mat-select formControlName="lostReason">
-          <mat-option *ngFor="let reason of lostReasons" [value]="reason">
-            {{ 'projects.lostReason.' + reason | translate }}
-          </mat-option>
+          @for (reason of lostReasons; track reason) {
+            <mat-option [value]="reason">
+              {{ 'projects.lostReason.' + reason | translate }}
+            </mat-option>
+          }
         </mat-select>
-        <mat-error *ngIf="reasonForm.get('lostReason')?.hasError('required')">
-          {{ 'errors.fieldRequired' | translate }}
-        </mat-error>
+        @if (reasonForm.get('lostReason')?.hasError('required')) {
+          <mat-error>
+            {{ 'errors.fieldRequired' | translate }}
+          </mat-error>
+        }
       </mat-form-field>
     </form>
   </mat-dialog-content>

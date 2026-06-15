@@ -1,6 +1,6 @@
 import { Component, DestroyRef, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -14,14 +14,13 @@ import { RangeSliderConfig, RangeValue } from '../../../models/filter.models';
   selector: 'app-range-slider-filter',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatSliderModule,
     MatIconModule,
     MatButtonModule
-  ],
+],
   templateUrl: './range-slider-filter.component.html',
   styleUrls: ['./range-slider-filter.component.scss']
 })

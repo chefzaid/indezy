@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -21,19 +21,18 @@ import { NotificationService } from '../../../services/notification/notification
 @Component({
     selector: 'app-source-form',
     imports: [
-        CommonModule,
-        RouterModule,
-        ReactiveFormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatCheckboxModule,
-        MatProgressSpinnerModule,
-        TranslateModule
-    ],
+    RouterModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatProgressSpinnerModule,
+    TranslateModule
+],
     templateUrl: './source-form.component.html',
     styleUrls: ['./source-form.component.scss']
 })

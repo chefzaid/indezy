@@ -72,7 +72,7 @@ public interface ProjectMapper {
 
     default List<InterviewStepDto> toInterviewStepDtos(final List<InterviewStep> interviewSteps) {
         if (interviewSteps == null) {
-            return null;
+            return List.of();
         }
 
         return interviewSteps.stream()

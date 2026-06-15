@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -24,22 +24,21 @@ import { NotificationService } from '../../../services/notification/notification
 @Component({
     selector: 'app-contact-list',
     imports: [
-        CommonModule,
-        RouterModule,
-        FormsModule,
-        MatTableModule,
-        MatButtonModule,
-        MatIconModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatChipsModule,
-        MatCardModule,
-        MatProgressSpinnerModule,
-        MatDialogModule,
-        MatTooltipModule,
-        TranslateModule
-    ],
+    RouterModule,
+    FormsModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatChipsModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    MatDialogModule,
+    MatTooltipModule,
+    TranslateModule
+],
     templateUrl: './contact-list.component.html',
     styleUrls: ['./contact-list.component.scss']
 })

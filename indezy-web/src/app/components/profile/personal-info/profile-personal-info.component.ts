@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,20 +22,19 @@ import { UserProfile } from '../../../models/user-management.models';
 @Component({
     selector: 'app-profile-personal-info',
     imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatChipsModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatProgressSpinnerModule,
-        TranslateModule
-    ],
+    ReactiveFormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatChipsModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatProgressSpinnerModule,
+    TranslateModule
+],
     templateUrl: './profile-personal-info.component.html',
     styleUrls: ['../profile.component.scss']
 })

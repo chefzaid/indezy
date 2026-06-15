@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +28,6 @@ import {
   selector: 'app-comprehensive-filter-panel',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatExpansionModule,
     MatButtonModule,
@@ -40,7 +39,7 @@ import {
     MultiSelectFilterComponent,
     RangeSliderFilterComponent,
     FilterPresetsComponent
-  ],
+],
   templateUrl: './comprehensive-filter-panel.component.html',
   styleUrls: ['./comprehensive-filter-panel.component.scss']
 })

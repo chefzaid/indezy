@@ -1,6 +1,6 @@
 import { Component, DestroyRef, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,13 +13,12 @@ import { SearchFilterConfig } from '../../../models/filter.models';
   selector: 'app-advanced-search-filter',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     MatButtonModule
-  ],
+],
   templateUrl: './advanced-search-filter.component.html',
   styleUrls: ['./advanced-search-filter.component.scss']
 })

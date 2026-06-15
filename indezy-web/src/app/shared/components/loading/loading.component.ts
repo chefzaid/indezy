@@ -1,15 +1,14 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
     selector: 'app-loading',
     imports: [
-        CommonModule,
-        MatProgressSpinnerModule,
-        MatIconModule
-    ],
+    MatProgressSpinnerModule,
+    MatIconModule
+],
     templateUrl: './loading.component.html',
     styleUrls: ['./loading.component.scss']
 })

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -25,22 +25,21 @@ import { NotificationService } from '../../../services/notification/notification
 @Component({
     selector: 'app-project-form',
     imports: [
-        CommonModule,
-        RouterModule,
-        ReactiveFormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatSlideToggleModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatProgressSpinnerModule,
-        MatTooltipModule,
-        TranslateModule
-    ],
+    RouterModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    TranslateModule
+],
     templateUrl: './project-form.component.html',
     styleUrls: ['./project-form.component.scss']
 })

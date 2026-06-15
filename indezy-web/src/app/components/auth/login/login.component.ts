@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -16,18 +16,17 @@ import { NotificationService } from '../../../services/notification/notification
 @Component({
     selector: 'app-login',
     imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        RouterModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSnackBarModule,
-        MatProgressSpinnerModule,
-        TranslateModule
-    ],
+    ReactiveFormsModule,
+    RouterModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    TranslateModule
+],
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss']
 })

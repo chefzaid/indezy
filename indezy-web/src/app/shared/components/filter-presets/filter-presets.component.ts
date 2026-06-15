@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,14 +13,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   selector: 'app-filter-presets',
   standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatMenuModule,
     MatIconModule,
     MatDialogModule,
     MatTooltipModule,
     TranslateModule
-  ],
+],
   templateUrl: './filter-presets.component.html',
   styleUrls: ['./filter-presets.component.scss']
 })

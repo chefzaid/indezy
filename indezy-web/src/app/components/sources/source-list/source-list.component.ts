@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,7 +21,6 @@ import { NotificationService } from '../../../services/notification/notification
 @Component({
   selector: 'app-source-list',
   imports: [
-    CommonModule,
     RouterModule,
     MatTableModule,
     MatButtonModule,
@@ -32,7 +31,7 @@ import { NotificationService } from '../../../services/notification/notification
     MatTooltipModule,
     TranslateModule,
     ComprehensiveFilterPanelComponent
-  ],
+],
   templateUrl: './source-list.component.html',
   styleUrls: ['./source-list.component.scss']
 })

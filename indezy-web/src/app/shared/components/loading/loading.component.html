@@ -1,18 +1,24 @@
 <div class="loading-container" [class.fullscreen]="fullscreen">
   <div class="loading-content">
-    <div class="loading-logo" *ngIf="showLogo">
-      <img src="assets/images/indezy-logo.svg" alt="Indezy" class="logo-image">
-    </div>
-    
-    <mat-spinner 
-      [diameter]="spinnerSize" 
+    @if (showLogo) {
+      <div class="loading-logo">
+        <img src="assets/images/indezy-logo.svg" alt="Indezy" class="logo-image">
+      </div>
+    }
+
+    <mat-spinner
+      [diameter]="spinnerSize"
       [strokeWidth]="strokeWidth"
       [color]="color">
     </mat-spinner>
-    
-    <div class="loading-text" *ngIf="message">
-      <p class="loading-message">{{ message }}</p>
-      <p class="loading-subtitle" *ngIf="subtitle">{{ subtitle }}</p>
-    </div>
+
+    @if (message) {
+      <div class="loading-text">
+        <p class="loading-message">{{ message }}</p>
+        @if (subtitle) {
+          <p class="loading-subtitle">{{ subtitle }}</p>
+        }
+      </div>
+    }
   </div>
 </div>

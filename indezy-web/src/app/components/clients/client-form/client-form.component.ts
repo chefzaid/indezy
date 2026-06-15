@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -27,25 +27,24 @@ import { NotificationService } from '../../../services/notification/notification
 @Component({
     selector: 'app-client-form',
     imports: [
-        CommonModule,
-        RouterModule,
-        ReactiveFormsModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        MatTabsModule,
-        MatTableModule,
-        MatMenuModule,
-        MatDialogModule,
-        MatChipsModule,
-        MatDividerModule,
-        MatSlideToggleModule,
-        TranslateModule
-    ],
+    RouterModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatTabsModule,
+    MatTableModule,
+    MatMenuModule,
+    MatDialogModule,
+    MatChipsModule,
+    MatDividerModule,
+    MatSlideToggleModule,
+    TranslateModule
+],
     templateUrl: './client-form.component.html',
     styleUrls: ['./client-form.component.scss']
 })

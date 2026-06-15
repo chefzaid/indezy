@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterOutlet, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,17 +19,16 @@ interface MenuItem {
 @Component({
     selector: 'app-root',
     imports: [
-        CommonModule,
-        RouterOutlet,
-        RouterModule,
-        MatToolbarModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSidenavModule,
-        MatListModule,
-        MatMenuModule,
-        TranslateModule
-    ],
+    RouterOutlet,
+    RouterModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSidenavModule,
+    MatListModule,
+    MatMenuModule,
+    TranslateModule
+],
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss']
 })

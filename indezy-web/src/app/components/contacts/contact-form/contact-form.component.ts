@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -20,18 +20,17 @@ import { NotificationService } from '../../../services/notification/notification
 @Component({
     selector: 'app-contact-form',
     imports: [
-        CommonModule,
-        RouterModule,
-        ReactiveFormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatProgressSpinnerModule,
-        TranslateModule
-    ],
+    RouterModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    TranslateModule
+],
     templateUrl: './contact-form.component.html',
     styleUrls: ['./contact-form.component.scss']
 })

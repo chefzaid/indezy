@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,7 +22,6 @@ export interface StepScheduleDialogData {
 @Component({
   selector: 'app-step-schedule-dialog',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
@@ -32,7 +31,7 @@ export interface StepScheduleDialogData {
     MatNativeDateModule,
     MatIconModule,
     TranslateModule
-  ],
+],
   templateUrl: './step-schedule-dialog.component.html',
   styleUrls: ['./step-schedule-dialog.component.scss']
 })

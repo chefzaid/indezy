@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -269,7 +270,7 @@ public class UserService {
                 "  }\n" +
                 "}"; // TODO: Include all user data (projects, clients, contacts, etc.)
 
-        return jsonData.getBytes();
+        return jsonData.getBytes(StandardCharsets.UTF_8);
     }
 
     /**
