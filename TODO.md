@@ -130,7 +130,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Daily rate evolution over time (asked vs obtained)
 - [ ] Extend existing dashboard graphs and stats (projects by status, work mode distribution, daily rate chart, trend comparisons)
 - [ ] Bench time tracking (gaps between missions, cost of bench)
-- [ ] Source ROI ranking (which job board/contact yields signed contracts)
+- [x] Source ROI ranking (which job board/contact yields signed contracts)
 - [ ] Prospection activity heatmap (calendar view of applications/calls/interviews to spot active and quiet periods)
 - [ ] Skill demand trends: which skills/stacks appear most in captured opportunities over time, and at what rates
 - [ ] Personal yearly review (missions, revenue, top skills, network growth), exportable as a polished PDF report

@@ -418,6 +418,8 @@ public class ProjectService {
             .mapToDouble(Project::getTotalRevenue)
             .sum();
 
+        List<DashboardStatsDto.SourceRoi> sourceRoi = buildSourceRoiRanking(projects);
+
         return DashboardStatsDto.builder()
             .totalProjects(totalProjects != null ? totalProjects : 0)
             .averageDailyRate(averageDailyRate != null ? averageDailyRate : 0)
@@ -429,6 +431,42 @@ public class ProjectService {
             .projectsByWorkMode(projectsByWorkMode)
             .lostReasonsBreakdown(lostReasonsBreakdown)
             .dailyRateRanges(dailyRateRanges)
+            .sourceRoi(sourceRoi)
             .build();
+    }
+
+    /**
+     * Ranks each opportunity source by how many of its opportunities turned into signed
+     * (WON) contracts. Sorted by signed contracts, then conversion rate, then name.
+     */
+    private List<DashboardStatsDto.SourceRoi> buildSourceRoiRanking(List<Project> projects) {
+        Map<String, long[]> totalsBySource = new LinkedHashMap<>();
+        for (Project project : projects) {
+            if (project.getSource() == null || project.getSource().getName() == null) {
+                continue;
+            }
+            long[] counts = totalsBySource.computeIfAbsent(project.getSource().getName(), k -> new long[2]);
+            counts[0]++;
+            if (ProjectStatus.WON.equals(project.getStatus())) {
+                counts[1]++;
+            }
+        }
+
+        return totalsBySource.entrySet().stream()
+            .map(entry -> {
+                long total = entry.getValue()[0];
+                long won = entry.getValue()[1];
+                double rate = total == 0 ? 0 : Math.round(won * 1000.0 / total) / 10.0;
+                return DashboardStatsDto.SourceRoi.builder()
+                    .sourceName(entry.getKey())
+                    .totalProjects(total)
+                    .wonProjects(won)
+                    .conversionRate(rate)
+                    .build();
+            })
+            .sorted(Comparator.comparingLong(DashboardStatsDto.SourceRoi::getWonProjects).reversed()
+                .thenComparing(Comparator.comparingDouble(DashboardStatsDto.SourceRoi::getConversionRate).reversed())
+                .thenComparing(DashboardStatsDto.SourceRoi::getSourceName))
+            .toList();
     }
 }

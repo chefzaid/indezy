@@ -134,11 +134,19 @@ export interface DashboardStatsDto {
   projectsByWorkMode: { [mode: string]: number };
   lostReasonsBreakdown: { [reason: string]: number };
   dailyRateRanges: DailyRateRange[];
+  sourceRoi: SourceRoi[];
 }
 
 export interface DailyRateRange {
   label: string;
   count: number;
+}
+
+export interface SourceRoi {
+  sourceName: string;
+  totalProjects: number;
+  wonProjects: number;
+  conversionRate: number;
 }
 
 export interface CreateProjectDto {

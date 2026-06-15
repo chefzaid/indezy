@@ -23,6 +23,7 @@ public class DashboardStatsDto {
     private Map<String, Long> projectsByWorkMode;
     private Map<String, Long> lostReasonsBreakdown;
     private List<DailyRateRange> dailyRateRanges;
+    private List<SourceRoi> sourceRoi;
 
     @Data
     @Builder
@@ -31,5 +32,17 @@ public class DashboardStatsDto {
     public static class DailyRateRange {
         private String label;
         private long count;
+    }
+
+    /** Per-source ranking of how many opportunities turned into signed (WON) contracts. */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SourceRoi {
+        private String sourceName;
+        private long totalProjects;
+        private long wonProjects;
+        private double conversionRate;
     }
 }

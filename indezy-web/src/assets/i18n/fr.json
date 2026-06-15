@@ -139,7 +139,11 @@
       "won": "Gagn\u00e9es",
       "lost": "Perdues",
       "active": "En cours",
-      "lostReasons": "Pourquoi les opportunit\u00e9s ont \u00e9t\u00e9 perdues"
+      "lostReasons": "Pourquoi les opportunit\u00e9s ont \u00e9t\u00e9 perdues",
+      "sourceRoi": "ROI par source (contrats sign\u00e9s)",
+      "sourceRoiSource": "Source",
+      "sourceRoiWon": "Gagn\u00e9es/Total",
+      "sourceRoiRate": "Taux"
     }
   },
   "projects": {

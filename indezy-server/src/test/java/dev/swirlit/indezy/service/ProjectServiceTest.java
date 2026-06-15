@@ -737,6 +737,51 @@ class ProjectServiceTest {
     }
 
     @Test
+    void getDashboardStats_ShouldRankSourcesBySignedContracts() {
+        // Given LinkedIn with 1 won out of 2, and Malt with 1 won out of 1.
+        Source linkedin = new Source();
+        linkedin.setId(10L);
+        linkedin.setName("LinkedIn");
+        Source malt = new Source();
+        malt.setId(11L);
+        malt.setName("Malt");
+
+        Project linkedinWon = new Project();
+        linkedinWon.setSource(linkedin);
+        linkedinWon.setStatus(ProjectStatus.WON);
+        Project linkedinLost = new Project();
+        linkedinLost.setSource(linkedin);
+        linkedinLost.setStatus(ProjectStatus.LOST);
+        Project maltWon = new Project();
+        maltWon.setSource(malt);
+        maltWon.setStatus(ProjectStatus.WON);
+
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(3L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(2L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        when(projectRepository.findByFreelanceId(1L))
+                .thenReturn(List.of(linkedinWon, linkedinLost, maltWon));
+
+        // When
+        DashboardStatsDto stats = projectService.getDashboardStats(1L);
+
+        // Then both have one signed contract, but Malt's higher conversion rate ranks it first.
+        List<DashboardStatsDto.SourceRoi> roi = stats.getSourceRoi();
+        assertThat(roi).hasSize(2);
+        assertThat(roi.get(0).getSourceName()).isEqualTo("Malt");
+        assertThat(roi.get(0).getWonProjects()).isEqualTo(1L);
+        assertThat(roi.get(0).getTotalProjects()).isEqualTo(1L);
+        assertThat(roi.get(0).getConversionRate()).isEqualTo(100.0);
+        assertThat(roi.get(1).getSourceName()).isEqualTo("LinkedIn");
+        assertThat(roi.get(1).getTotalProjects()).isEqualTo(2L);
+        assertThat(roi.get(1).getConversionRate()).isEqualTo(50.0);
+    }
+
+    @Test
     void getDashboardStats_WithNoData_ShouldReturnZeroDefaults() {
         // Given
         when(projectRepository.countByFreelanceId(1L)).thenReturn(null);

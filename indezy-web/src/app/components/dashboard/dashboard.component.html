@@ -168,6 +168,26 @@
               }
             </div>
           }
+          @if (getSourceRoi().length > 0) {
+            <div class="source-roi">
+              <h4 class="source-roi-title">
+                <mat-icon>leaderboard</mat-icon>
+                {{ 'dashboard.charts.sourceRoi' | translate }}
+              </h4>
+              <div class="source-roi-row source-roi-header">
+                <span class="source-roi-name">{{ 'dashboard.charts.sourceRoiSource' | translate }}</span>
+                <span class="source-roi-metric">{{ 'dashboard.charts.sourceRoiWon' | translate }}</span>
+                <span class="source-roi-metric">{{ 'dashboard.charts.sourceRoiRate' | translate }}</span>
+              </div>
+              @for (entry of getSourceRoi(); track entry.sourceName) {
+                <div class="source-roi-row">
+                  <span class="source-roi-name">{{ entry.sourceName }}</span>
+                  <span class="source-roi-metric">{{ entry.wonProjects }}/{{ entry.totalProjects }}</span>
+                  <span class="source-roi-metric">{{ entry.conversionRate }}%</span>
+                </div>
+              }
+            </div>
+          }
         </div>
       }
       <!-- Recent Projects -->

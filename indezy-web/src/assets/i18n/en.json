@@ -139,7 +139,11 @@
       "won": "Won",
       "lost": "Lost",
       "active": "Active",
-      "lostReasons": "Why opportunities were lost"
+      "lostReasons": "Why opportunities were lost",
+      "sourceRoi": "Source ROI (signed contracts)",
+      "sourceRoiSource": "Source",
+      "sourceRoiWon": "Won/Total",
+      "sourceRoiRate": "Rate"
     }
   },
   "projects": {
