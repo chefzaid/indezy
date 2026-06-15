@@ -30,7 +30,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -597,6 +599,58 @@ class ProjectServiceTest {
         assertThat(applied.get(0).getProjectId()).isEqualTo(2L);
         assertThat(applied.get(0).getIsFavorite()).isTrue();
         assertThat(applied.get(1).getProjectId()).isEqualTo(1L);
+    }
+
+    @Test
+    void getKanbanBoard_ShouldFlagProjectsWithSameClientAndRoleAsDuplicates() {
+        // Given two opportunities for the same client with the same role (different case),
+        // plus a third with a different role for the same client.
+        testProject.setStatus(ProjectStatus.IDENTIFIED);
+
+        Project duplicate = new Project();
+        duplicate.setId(2L);
+        duplicate.setRole("full stack developer");
+        duplicate.setStatus(ProjectStatus.APPLIED);
+        duplicate.setFreelance(testFreelance);
+        duplicate.setClient(testClient);
+
+        Project distinct = new Project();
+        distinct.setId(3L);
+        distinct.setRole("DevOps Engineer");
+        distinct.setStatus(ProjectStatus.IDENTIFIED);
+        distinct.setFreelance(testFreelance);
+        distinct.setClient(testClient);
+
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(Arrays.asList(testProject, duplicate, distinct));
+        when(interviewStepRepository.findByProjectId(any())).thenReturn(List.of());
+
+        // When
+        KanbanBoardDto board = projectService.getKanbanBoard(1L);
+
+        // Then the matching pair is flagged, the unique role is not.
+        Map<Long, Boolean> flagsById = board.getColumns().values().stream()
+            .flatMap(List::stream)
+            .collect(Collectors.toMap(
+                KanbanBoardDto.ProjectCardDto::getProjectId,
+                KanbanBoardDto.ProjectCardDto::getIsPotentialDuplicate));
+        assertThat(flagsById.get(1L)).isTrue();
+        assertThat(flagsById.get(2L)).isTrue();
+        assertThat(flagsById.get(3L)).isFalse();
+    }
+
+    @Test
+    void getKanbanBoard_WithUniqueRoles_ShouldFlagNoDuplicates() {
+        // Given a single project, nothing can be a duplicate.
+        testProject.setStatus(ProjectStatus.IDENTIFIED);
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
+        when(interviewStepRepository.findByProjectId(any())).thenReturn(List.of());
+
+        // When
+        KanbanBoardDto board = projectService.getKanbanBoard(1L);
+
+        // Then
+        KanbanBoardDto.ProjectCardDto card = board.getColumns().get("IDENTIFIED").get(0);
+        assertThat(card.getIsPotentialDuplicate()).isFalse();
     }
 
     @Test

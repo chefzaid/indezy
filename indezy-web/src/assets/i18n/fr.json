@@ -578,6 +578,8 @@
     "unpinFavorite": "Retirer des favoris",
     "daysAgo": "{{days}}j",
     "lastActivity": "Aucune activité depuis {{days}} jour(s)",
+    "duplicate": "Doublon possible",
+    "duplicateTooltip": "Même client et même rôle qu'une autre opportunité – vérifiez s'il s'agit d'un doublon",
     "addCard": "Ajout rapide d'une carte",
     "quickAddTitle": "Nouvelle opportunité – {{status}}",
     "quickAddSuccess": "Opportunité ajoutée",

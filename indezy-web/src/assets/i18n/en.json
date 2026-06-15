@@ -578,6 +578,8 @@
     "unpinFavorite": "Remove from favorites",
     "daysAgo": "{{days}}d",
     "lastActivity": "No activity for {{days}} day(s)",
+    "duplicate": "Possible duplicate",
+    "duplicateTooltip": "Same client and role as another opportunity – check for a duplicate",
     "addCard": "Quick-add a card",
     "quickAddTitle": "New opportunity – {{status}}",
     "quickAddSuccess": "Opportunity added",

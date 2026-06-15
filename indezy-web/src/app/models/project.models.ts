@@ -57,6 +57,7 @@ export interface KanbanProjectCardDto {
   isFavorite?: boolean;
   updatedAt?: string;
   lostReason?: LostReason;
+  isPotentialDuplicate?: boolean;
   totalSteps: number;
   completedSteps: number;
   failedSteps: number;

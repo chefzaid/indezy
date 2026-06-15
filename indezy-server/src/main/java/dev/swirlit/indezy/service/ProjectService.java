@@ -28,10 +28,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -268,9 +271,12 @@ public class ProjectService {
             columns.put(status.name(), new ArrayList<>());
         }
 
+        Set<Long> duplicateIds = findPotentialDuplicateIds(projects);
+
         for (Project project : projects) {
             ProjectStatus status = project.getStatus() != null ? project.getStatus() : ProjectStatus.IDENTIFIED;
             KanbanBoardDto.ProjectCardDto card = createProjectCard(project);
+            card.setIsPotentialDuplicate(duplicateIds.contains(project.getId()));
             String statusKey = status.name();
             if (columns.containsKey(statusKey)) {
                 columns.get(statusKey).add(card);
@@ -322,6 +328,30 @@ public class ProjectService {
         card.setFailedSteps((int) steps.stream().filter(InterviewStep::isFailed).count());
 
         return card;
+    }
+
+    /**
+     * Flags opportunities that look like duplicates: the same client and the same role
+     * (case-insensitive), typically the same posting captured from several job boards.
+     * Returns the ids of every project that shares its client+role with at least one other.
+     */
+    private Set<Long> findPotentialDuplicateIds(List<Project> projects) {
+        Map<String, List<Long>> byClientAndRole = new HashMap<>();
+        for (Project project : projects) {
+            if (project.getClient() == null || project.getRole() == null) {
+                continue;
+            }
+            String key = project.getClient().getId() + "|" + project.getRole().trim().toLowerCase(Locale.ROOT);
+            byClientAndRole.computeIfAbsent(key, k -> new ArrayList<>()).add(project.getId());
+        }
+
+        Set<Long> duplicateIds = new HashSet<>();
+        for (List<Long> ids : byClientAndRole.values()) {
+            if (ids.size() > 1) {
+                duplicateIds.addAll(ids);
+            }
+        }
+        return duplicateIds;
     }
 
     @Transactional(readOnly = true)
