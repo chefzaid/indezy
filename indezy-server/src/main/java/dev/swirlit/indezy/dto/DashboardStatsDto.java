@@ -24,6 +24,7 @@ public class DashboardStatsDto {
     private Map<String, Long> lostReasonsBreakdown;
     private List<DailyRateRange> dailyRateRanges;
     private List<SourceRoi> sourceRoi;
+    private List<DailyRateEvolution> dailyRateEvolution;
 
     @Data
     @Builder
@@ -44,5 +45,17 @@ public class DashboardStatsDto {
         private long totalProjects;
         private long wonProjects;
         private double conversionRate;
+    }
+
+    /** Average asked vs obtained daily rate per period (year), to show rate trends over time. */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DailyRateEvolution {
+        private String period;
+        private double averageAskedRate;
+        private double averageObtainedRate;
+        private long projectCount;
     }
 }

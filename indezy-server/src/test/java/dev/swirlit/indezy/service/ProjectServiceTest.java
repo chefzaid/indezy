@@ -782,6 +782,45 @@ class ProjectServiceTest {
     }
 
     @Test
+    void getDashboardStats_ShouldBuildDailyRateEvolutionByYear() {
+        // Given two 2024 projects (asked 600/700, obtained 620/680) and one 2025 project.
+        Project p2024a = new Project();
+        p2024a.setStartDate(LocalDate.of(2024, 3, 1));
+        p2024a.setAskedDailyRate(600);
+        p2024a.setDailyRate(620);
+        Project p2024b = new Project();
+        p2024b.setStartDate(LocalDate.of(2024, 9, 1));
+        p2024b.setAskedDailyRate(700);
+        p2024b.setDailyRate(680);
+        Project p2025 = new Project();
+        p2025.setStartDate(LocalDate.of(2025, 1, 1));
+        p2025.setDailyRate(750);
+
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(3L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(680.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(3L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(p2024a, p2024b, p2025));
+
+        // When
+        DashboardStatsDto stats = projectService.getDashboardStats(1L);
+
+        // Then years are ordered ascending with averaged rates; 2025 has no asked rate.
+        List<DashboardStatsDto.DailyRateEvolution> evolution = stats.getDailyRateEvolution();
+        assertThat(evolution).hasSize(2);
+        assertThat(evolution.get(0).getPeriod()).isEqualTo("2024");
+        assertThat(evolution.get(0).getAverageAskedRate()).isEqualTo(650.0);
+        assertThat(evolution.get(0).getAverageObtainedRate()).isEqualTo(650.0);
+        assertThat(evolution.get(0).getProjectCount()).isEqualTo(2L);
+        assertThat(evolution.get(1).getPeriod()).isEqualTo("2025");
+        assertThat(evolution.get(1).getAverageAskedRate()).isZero();
+        assertThat(evolution.get(1).getAverageObtainedRate()).isEqualTo(750.0);
+    }
+
+    @Test
     void getDashboardStats_WithNoData_ShouldReturnZeroDefaults() {
         // Given
         when(projectRepository.countByFreelanceId(1L)).thenReturn(null);

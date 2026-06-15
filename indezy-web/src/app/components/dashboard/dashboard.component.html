@@ -188,6 +188,26 @@
               }
             </div>
           }
+          @if (getDailyRateEvolution().length > 0) {
+            <div class="rate-evolution">
+              <h4 class="rate-evolution-title">
+                <mat-icon>trending_up</mat-icon>
+                {{ 'dashboard.charts.rateEvolution' | translate }}
+              </h4>
+              <div class="rate-evolution-row rate-evolution-header">
+                <span class="rate-evolution-period">{{ 'dashboard.charts.rateEvolutionPeriod' | translate }}</span>
+                <span class="rate-evolution-metric">{{ 'dashboard.charts.rateEvolutionAsked' | translate }}</span>
+                <span class="rate-evolution-metric">{{ 'dashboard.charts.rateEvolutionObtained' | translate }}</span>
+              </div>
+              @for (entry of getDailyRateEvolution(); track entry.period) {
+                <div class="rate-evolution-row">
+                  <span class="rate-evolution-period">{{ entry.period }}</span>
+                  <span class="rate-evolution-metric">{{ entry.averageAskedRate ? (entry.averageAskedRate + '€') : '—' }}</span>
+                  <span class="rate-evolution-metric">{{ entry.averageObtainedRate ? (entry.averageObtainedRate + '€') : '—' }}</span>
+                </div>
+              }
+            </div>
+          }
         </div>
       }
       <!-- Recent Projects -->

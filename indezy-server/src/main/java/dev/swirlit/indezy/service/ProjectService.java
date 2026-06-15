@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 @Service
 @RequiredArgsConstructor
@@ -419,6 +420,7 @@ public class ProjectService {
             .sum();
 
         List<DashboardStatsDto.SourceRoi> sourceRoi = buildSourceRoiRanking(projects);
+        List<DashboardStatsDto.DailyRateEvolution> dailyRateEvolution = buildDailyRateEvolution(projects);
 
         return DashboardStatsDto.builder()
             .totalProjects(totalProjects != null ? totalProjects : 0)
@@ -432,7 +434,44 @@ public class ProjectService {
             .lostReasonsBreakdown(lostReasonsBreakdown)
             .dailyRateRanges(dailyRateRanges)
             .sourceRoi(sourceRoi)
+            .dailyRateEvolution(dailyRateEvolution)
             .build();
+    }
+
+    /**
+     * Average asked vs obtained (agreed) daily rate per year of start date, ordered
+     * chronologically, so a freelance can see how negotiated rates trend over time.
+     */
+    private List<DashboardStatsDto.DailyRateEvolution> buildDailyRateEvolution(List<Project> projects) {
+        // Per year: [askedSum, askedCount, obtainedSum, obtainedCount, projectCount].
+        Map<Integer, long[]> byYear = new TreeMap<>();
+        for (Project project : projects) {
+            if (project.getStartDate() == null) {
+                continue;
+            }
+            long[] acc = byYear.computeIfAbsent(project.getStartDate().getYear(), k -> new long[5]);
+            if (project.getAskedDailyRate() != null) {
+                acc[0] += project.getAskedDailyRate();
+                acc[1]++;
+            }
+            if (project.getDailyRate() != null) {
+                acc[2] += project.getDailyRate();
+                acc[3]++;
+            }
+            acc[4]++;
+        }
+
+        List<DashboardStatsDto.DailyRateEvolution> evolution = new ArrayList<>();
+        for (Map.Entry<Integer, long[]> entry : byYear.entrySet()) {
+            long[] acc = entry.getValue();
+            evolution.add(DashboardStatsDto.DailyRateEvolution.builder()
+                .period(String.valueOf(entry.getKey()))
+                .averageAskedRate(acc[1] == 0 ? 0 : Math.round((double) acc[0] / acc[1]))
+                .averageObtainedRate(acc[3] == 0 ? 0 : Math.round((double) acc[2] / acc[3]))
+                .projectCount(acc[4])
+                .build());
+        }
+        return evolution;
     }
 
     /**

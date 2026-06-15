@@ -159,10 +159,11 @@ The dashboard provides an overview of the opportunity workspace with:
 - projects by work mode
 - daily rate distribution
 - source ROI ranking (signed contracts vs total opportunities and conversion rate per source)
+- daily rate evolution by year (average asked vs obtained daily rate)
 - recent projects
 - overview and Kanban display modes
 
-The current analytics are intentionally operational: they help a freelancer understand pipeline volume, activity, rate distribution, and which sources actually yield signed contracts. More advanced analytics such as conversion funnels and daily-rate evolution remain roadmap items.
+The current analytics are intentionally operational: they help a freelancer understand pipeline volume, activity, rate distribution, which sources actually yield signed contracts, and how negotiated rates trend over time. More advanced analytics such as conversion funnels remain roadmap items.
 
 ## Filtering And Search Surfaces
 

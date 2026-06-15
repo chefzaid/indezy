@@ -10,7 +10,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth/auth.service';
 import { ProjectService } from '../../services/project/project.service';
 import { FreelanceService } from '../../services/freelance/freelance.service';
-import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, PROJECT_STATUS_COLORS } from '../../models';
+import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, PROJECT_STATUS_COLORS } from '../../models';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
@@ -161,6 +161,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   /** Per-source ROI ranking, already sorted by signed contracts from the backend. */
   getSourceRoi(): SourceRoi[] {
     return this.dashboardStats?.sourceRoi ?? [];
+  }
+
+  /** Asked vs obtained daily rate per year, already ordered chronologically by the backend. */
+  getDailyRateEvolution(): DailyRateEvolution[] {
+    return this.dashboardStats?.dailyRateEvolution ?? [];
   }
 
 

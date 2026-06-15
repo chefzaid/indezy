@@ -135,6 +135,7 @@ export interface DashboardStatsDto {
   lostReasonsBreakdown: { [reason: string]: number };
   dailyRateRanges: DailyRateRange[];
   sourceRoi: SourceRoi[];
+  dailyRateEvolution: DailyRateEvolution[];
 }
 
 export interface DailyRateRange {
@@ -147,6 +148,13 @@ export interface SourceRoi {
   totalProjects: number;
   wonProjects: number;
   conversionRate: number;
+}
+
+export interface DailyRateEvolution {
+  period: string;
+  averageAskedRate: number;
+  averageObtainedRate: number;
+  projectCount: number;
 }
 
 export interface CreateProjectDto {

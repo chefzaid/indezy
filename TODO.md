@@ -127,7 +127,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Dashboard period tagging with `YYYY-MM` labels, sprint-style but flexible so reporting periods can exist only when needed instead of forcing every month
 - [ ] Conversion funnel by source, client type and ESN (where do opportunities die?)
 - [ ] Average process duration per client/ESN (time from contact to signature)
-- [ ] Daily rate evolution over time (asked vs obtained)
+- [x] Daily rate evolution over time (asked vs obtained)
 - [ ] Extend existing dashboard graphs and stats (projects by status, work mode distribution, daily rate chart, trend comparisons)
 - [ ] Bench time tracking (gaps between missions, cost of bench)
 - [x] Source ROI ranking (which job board/contact yields signed contracts)

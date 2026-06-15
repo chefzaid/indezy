@@ -143,7 +143,11 @@
       "sourceRoi": "ROI par source (contrats sign\u00e9s)",
       "sourceRoiSource": "Source",
       "sourceRoiWon": "Gagn\u00e9es/Total",
-      "sourceRoiRate": "Taux"
+      "sourceRoiRate": "Taux",
+      "rateEvolution": "\u00c9volution du TJM (demand\u00e9 vs obtenu)",
+      "rateEvolutionPeriod": "Ann\u00e9e",
+      "rateEvolutionAsked": "Demand\u00e9",
+      "rateEvolutionObtained": "Obtenu"
     }
   },
   "projects": {

@@ -143,7 +143,11 @@
       "sourceRoi": "Source ROI (signed contracts)",
       "sourceRoiSource": "Source",
       "sourceRoiWon": "Won/Total",
-      "sourceRoiRate": "Rate"
+      "sourceRoiRate": "Rate",
+      "rateEvolution": "Daily rate evolution (asked vs obtained)",
+      "rateEvolutionPeriod": "Year",
+      "rateEvolutionAsked": "Asked",
+      "rateEvolutionObtained": "Obtained"
     }
   },
   "projects": {
