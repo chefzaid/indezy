@@ -424,6 +424,13 @@
       flex: 1 1 auto;
     }
 
+    .funnel-counts {
+      flex: 0 0 140px;
+      text-align: right;
+      color: #555;
+      font-variant-numeric: tabular-nums;
+    }
+
     .funnel-metric {
       flex: 0 0 80px;
       text-align: right;

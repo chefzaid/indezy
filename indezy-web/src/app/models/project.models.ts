@@ -141,6 +141,9 @@ export interface DashboardStatsDto {
   sourceRoi: SourceRoi[];
   dailyRateEvolution: DailyRateEvolution[];
   conversionFunnel: ConversionFunnelStage[];
+  funnelBySource: FunnelBreakdown[];
+  funnelByClientType: FunnelBreakdown[];
+  funnelByEsn: FunnelBreakdown[];
 }
 
 export interface DailyRateRange {
@@ -166,6 +169,11 @@ export interface ConversionFunnelStage {
   stage: string;
   count: number;
   conversionRate: number;
+}
+
+export interface FunnelBreakdown {
+  group: string;
+  stages: ConversionFunnelStage[];
 }
 
 export interface CreateProjectDto {

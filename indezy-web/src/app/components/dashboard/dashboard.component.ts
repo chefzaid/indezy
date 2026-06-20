@@ -10,7 +10,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth/auth.service';
 import { ProjectService } from '../../services/project/project.service';
 import { FreelanceService } from '../../services/freelance/freelance.service';
-import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, PROJECT_STATUS_COLORS } from '../../models';
+import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, PROJECT_STATUS_COLORS } from '../../models';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
@@ -174,6 +174,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
   /** Pipeline conversion funnel stages, already ordered from first to last stage by the backend. */
   getConversionFunnel(): ConversionFunnelStage[] {
     return this.dashboardStats?.conversionFunnel ?? [];
+  }
+
+  /** Per-source conversion funnels, ordered by source name by the backend. */
+  getFunnelBySource(): FunnelBreakdown[] {
+    return this.dashboardStats?.funnelBySource ?? [];
+  }
+
+  /** Conversion funnels split by direct vs intermediated (ESN) deals. */
+  getFunnelByClientType(): FunnelBreakdown[] {
+    return this.dashboardStats?.funnelByClientType ?? [];
+  }
+
+  /** Per-ESN conversion funnels, ordered by ESN name by the backend. */
+  getFunnelByEsn(): FunnelBreakdown[] {
+    return this.dashboardStats?.funnelByEsn ?? [];
+  }
+
+  /** Compact stage counts for a funnel group, e.g. "6 → 4 → 3 → 2 → 1". */
+  funnelCounts(group: FunnelBreakdown): string {
+    return group.stages.map(s => s.count).join(' → ');
+  }
+
+  /** Overall conversion rate of a funnel group (its last stage relative to the first). */
+  funnelConversion(group: FunnelBreakdown): number {
+    return group.stages.at(-1)?.conversionRate ?? 0;
   }
 
   setKanbanMode(): void {

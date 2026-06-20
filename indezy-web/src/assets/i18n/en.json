@@ -156,7 +156,14 @@
       "conversionFunnel": "Conversion funnel (where opportunities die)",
       "funnelStage": "Stage",
       "funnelCount": "Reached",
-      "funnelRate": "Conversion"
+      "funnelRate": "Conversion",
+      "funnelBySource": "Conversion funnel by source",
+      "funnelByClientType": "Conversion funnel by client type",
+      "funnelByEsn": "Conversion funnel by ESN",
+      "clientType": {
+        "DIRECT": "Direct client",
+        "INTERMEDIARY": "Through an ESN"
+      }
     }
   },
   "projects": {

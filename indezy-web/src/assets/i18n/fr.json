@@ -156,7 +156,14 @@
       "conversionFunnel": "Entonnoir de conversion (o\u00f9 les opportunit\u00e9s \u00e9chouent)",
       "funnelStage": "\u00c9tape",
       "funnelCount": "Atteint",
-      "funnelRate": "Conversion"
+      "funnelRate": "Conversion",
+      "funnelBySource": "Entonnoir de conversion par source",
+      "funnelByClientType": "Entonnoir de conversion par type de client",
+      "funnelByEsn": "Entonnoir de conversion par ESN",
+      "clientType": {
+        "DIRECT": "Client direct",
+        "INTERMEDIARY": "Via une ESN"
+      }
     }
   },
   "projects": {

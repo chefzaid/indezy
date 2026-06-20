@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.TreeMap;
 
 /**
@@ -127,7 +128,39 @@ public class DashboardStatsService {
             .sourceRoi(sourceRoi)
             .dailyRateEvolution(dailyRateEvolution)
             .conversionFunnel(buildConversionFunnel(projects))
+            .funnelBySource(buildFunnelBreakdown(projects,
+                p -> p.getSource() != null ? p.getSource().getName() : null))
+            .funnelByClientType(buildFunnelBreakdown(projects,
+                p -> p.getMiddleman() != null ? "INTERMEDIARY" : "DIRECT"))
+            .funnelByEsn(buildFunnelBreakdown(projects,
+                p -> p.getMiddleman() != null ? p.getMiddleman().getCompanyName() : null))
             .build();
+    }
+
+    /**
+     * Splits opportunities into groups by the given classifier and builds a conversion funnel for
+     * each, so drop-off can be compared across sources, client types or ESNs. Opportunities the
+     * classifier maps to {@code null} (e.g. no source/ESN) are skipped; groups are ordered by name.
+     */
+    private List<DashboardStatsDto.FunnelBreakdown> buildFunnelBreakdown(
+            List<Project> projects, Function<Project, String> classifier) {
+        Map<String, List<Project>> grouped = new TreeMap<>();
+        for (Project project : projects) {
+            String group = classifier.apply(project);
+            if (group == null) {
+                continue;
+            }
+            grouped.computeIfAbsent(group, k -> new ArrayList<>()).add(project);
+        }
+
+        List<DashboardStatsDto.FunnelBreakdown> breakdowns = new ArrayList<>();
+        for (Map.Entry<String, List<Project>> entry : grouped.entrySet()) {
+            breakdowns.add(DashboardStatsDto.FunnelBreakdown.builder()
+                .group(entry.getKey())
+                .stages(buildConversionFunnel(entry.getValue()))
+                .build());
+        }
+        return breakdowns;
     }
 
     /**

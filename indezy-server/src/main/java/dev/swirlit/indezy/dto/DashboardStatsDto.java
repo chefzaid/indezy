@@ -30,6 +30,9 @@ public class DashboardStatsDto {
     private List<SourceRoi> sourceRoi;
     private List<DailyRateEvolution> dailyRateEvolution;
     private List<ConversionFunnelStage> conversionFunnel;
+    private List<FunnelBreakdown> funnelBySource;
+    private List<FunnelBreakdown> funnelByClientType;
+    private List<FunnelBreakdown> funnelByEsn;
 
     @Data
     @Builder
@@ -77,5 +80,18 @@ public class DashboardStatsDto {
         private String stage;
         private long count;
         private double conversionRate;
+    }
+
+    /**
+     * A conversion funnel for one slice of the pipeline (a single source, client type or ESN),
+     * so drop-off can be compared across groups to see where opportunities die per dimension.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FunnelBreakdown {
+        private String group;
+        private List<ConversionFunnelStage> stages;
     }
 }

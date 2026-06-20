@@ -261,6 +261,51 @@
               }
             </div>
           }
+          @if (getFunnelBySource().length > 0) {
+            <div class="funnel">
+              <h4 class="funnel-title">
+                <mat-icon>filter_alt</mat-icon>
+                {{ 'dashboard.charts.funnelBySource' | translate }}
+              </h4>
+              @for (group of getFunnelBySource(); track group.group) {
+                <div class="funnel-row">
+                  <span class="funnel-stage">{{ group.group }}</span>
+                  <span class="funnel-counts">{{ funnelCounts(group) }}</span>
+                  <span class="funnel-metric">{{ funnelConversion(group) }}%</span>
+                </div>
+              }
+            </div>
+          }
+          @if (getFunnelByClientType().length > 0) {
+            <div class="funnel">
+              <h4 class="funnel-title">
+                <mat-icon>filter_alt</mat-icon>
+                {{ 'dashboard.charts.funnelByClientType' | translate }}
+              </h4>
+              @for (group of getFunnelByClientType(); track group.group) {
+                <div class="funnel-row">
+                  <span class="funnel-stage">{{ 'dashboard.charts.clientType.' + group.group | translate }}</span>
+                  <span class="funnel-counts">{{ funnelCounts(group) }}</span>
+                  <span class="funnel-metric">{{ funnelConversion(group) }}%</span>
+                </div>
+              }
+            </div>
+          }
+          @if (getFunnelByEsn().length > 0) {
+            <div class="funnel">
+              <h4 class="funnel-title">
+                <mat-icon>filter_alt</mat-icon>
+                {{ 'dashboard.charts.funnelByEsn' | translate }}
+              </h4>
+              @for (group of getFunnelByEsn(); track group.group) {
+                <div class="funnel-row">
+                  <span class="funnel-stage">{{ group.group }}</span>
+                  <span class="funnel-counts">{{ funnelCounts(group) }}</span>
+                  <span class="funnel-metric">{{ funnelConversion(group) }}%</span>
+                </div>
+              }
+            </div>
+          }
         </div>
       }
       <!-- Recent Projects -->

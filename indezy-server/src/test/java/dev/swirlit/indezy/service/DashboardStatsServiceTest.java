@@ -318,6 +318,69 @@ class DashboardStatsServiceTest {
     }
 
     @Test
+    void getDashboardStats_ShouldBreakDownFunnelBySourceClientTypeAndEsn() {
+        // Given sources, an ESN, and four opportunities mixing direct and intermediated deals.
+        Source linkedin = new Source();
+        linkedin.setName("LinkedIn");
+        Source malt = new Source();
+        malt.setName("Malt");
+        Client esn = new Client();
+        esn.setCompanyName("AcmeESN");
+        esn.setIsFinal(false);
+
+        Project linkedinWon = new Project();          // direct, LinkedIn, won
+        linkedinWon.setSource(linkedin);
+        linkedinWon.setStatus(ProjectStatus.WON);
+        Project linkedinApplied = new Project();        // direct, LinkedIn, applied
+        linkedinApplied.setSource(linkedin);
+        linkedinApplied.setStatus(ProjectStatus.APPLIED);
+        Project maltViaEsn = new Project();             // intermediated, Malt, interview
+        maltViaEsn.setSource(malt);
+        maltViaEsn.setMiddleman(esn);
+        maltViaEsn.setStatus(ProjectStatus.INTERVIEW);
+        Project esnWonNoSource = new Project();          // intermediated, no source, won
+        esnWonNoSource.setMiddleman(esn);
+        esnWonNoSource.setStatus(ProjectStatus.WON);
+
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(4L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(2L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(2L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        when(projectRepository.findByFreelanceId(1L))
+            .thenReturn(List.of(linkedinWon, linkedinApplied, maltViaEsn, esnWonNoSource));
+
+        // When
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        // Then by source: groups ordered by name; the source-less project is skipped.
+        assertThat(stats.getFunnelBySource())
+            .extracting(DashboardStatsDto.FunnelBreakdown::getGroup)
+            .containsExactly("LinkedIn", "Malt");
+        assertThat(stats.getFunnelBySource().get(0).getStages())
+            .extracting(DashboardStatsDto.ConversionFunnelStage::getCount)
+            .containsExactly(2L, 2L, 1L, 1L, 1L);
+
+        // And by client type: DIRECT (no ESN) vs INTERMEDIARY (through an ESN).
+        assertThat(stats.getFunnelByClientType())
+            .extracting(DashboardStatsDto.FunnelBreakdown::getGroup)
+            .containsExactly("DIRECT", "INTERMEDIARY");
+        assertThat(stats.getFunnelByClientType().get(1).getStages())
+            .extracting(DashboardStatsDto.ConversionFunnelStage::getCount)
+            .containsExactly(2L, 2L, 2L, 1L, 1L);
+
+        // And by ESN: only intermediated opportunities are grouped under the ESN name.
+        assertThat(stats.getFunnelByEsn())
+            .extracting(DashboardStatsDto.FunnelBreakdown::getGroup)
+            .containsExactly("AcmeESN");
+        assertThat(stats.getFunnelByEsn().get(0).getStages())
+            .extracting(DashboardStatsDto.ConversionFunnelStage::getCount)
+            .containsExactly(2L, 2L, 2L, 1L, 1L);
+    }
+
+    @Test
     void getDashboardStats_WithNoData_ShouldReturnZeroDefaults() {
         // Given
         when(projectRepository.countByFreelanceId(1L)).thenReturn(null);
