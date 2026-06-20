@@ -10,7 +10,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth/auth.service';
 import { ProjectService } from '../../services/project/project.service';
 import { FreelanceService } from '../../services/freelance/freelance.service';
-import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, PROJECT_STATUS_COLORS } from '../../models';
+import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, PROJECT_STATUS_COLORS } from '../../models';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
@@ -171,7 +171,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.dashboardStats?.dailyRateEvolution ?? [];
   }
 
-
+  /** Pipeline conversion funnel stages, already ordered from first to last stage by the backend. */
+  getConversionFunnel(): ConversionFunnelStage[] {
+    return this.dashboardStats?.conversionFunnel ?? [];
+  }
 
   setKanbanMode(): void {
     this.viewMode = 'kanban';

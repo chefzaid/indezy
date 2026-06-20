@@ -140,6 +140,7 @@ export interface DashboardStatsDto {
   dailyRateRanges: DailyRateRange[];
   sourceRoi: SourceRoi[];
   dailyRateEvolution: DailyRateEvolution[];
+  conversionFunnel: ConversionFunnelStage[];
 }
 
 export interface DailyRateRange {
@@ -159,6 +160,12 @@ export interface DailyRateEvolution {
   averageAskedRate: number;
   averageObtainedRate: number;
   projectCount: number;
+}
+
+export interface ConversionFunnelStage {
+  stage: string;
+  count: number;
+  conversionRate: number;
 }
 
 export interface CreateProjectDto {

@@ -126,7 +126,45 @@ public class DashboardStatsService {
             .dailyRateRanges(dailyRateRanges)
             .sourceRoi(sourceRoi)
             .dailyRateEvolution(dailyRateEvolution)
+            .conversionFunnel(buildConversionFunnel(projects))
             .build();
+    }
+
+    /**
+     * Builds the pipeline conversion funnel from the current status of each opportunity. Lost
+     * opportunities are excluded (their drop stage is not tracked). Because statuses are ordered,
+     * an opportunity at a later stage has passed every earlier one, so each stage counts every
+     * opportunity at or beyond it; the conversion rate is relative to the first stage.
+     */
+    private List<DashboardStatsDto.ConversionFunnelStage> buildConversionFunnel(List<Project> projects) {
+        ProjectStatus[] stages = {
+            ProjectStatus.IDENTIFIED, ProjectStatus.APPLIED, ProjectStatus.INTERVIEW,
+            ProjectStatus.OFFER, ProjectStatus.WON
+        };
+        long[] reached = new long[stages.length];
+        for (Project project : projects) {
+            ProjectStatus status = project.getStatus();
+            if (status == null || status == ProjectStatus.LOST) {
+                continue;
+            }
+            for (int i = 0; i < stages.length; i++) {
+                if (status.ordinal() >= stages[i].ordinal()) {
+                    reached[i]++;
+                }
+            }
+        }
+
+        long base = reached[0];
+        List<DashboardStatsDto.ConversionFunnelStage> funnel = new ArrayList<>();
+        for (int i = 0; i < stages.length; i++) {
+            double rate = base == 0 ? 0 : Math.round(reached[i] * 1000.0 / base) / 10.0;
+            funnel.add(DashboardStatsDto.ConversionFunnelStage.builder()
+                .stage(stages[i].name())
+                .count(reached[i])
+                .conversionRate(rate)
+                .build());
+        }
+        return funnel;
     }
 
     /**

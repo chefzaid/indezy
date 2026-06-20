@@ -384,6 +384,54 @@
   }
 }
 
+.funnel {
+  max-width: 420px;
+  margin: 20px auto 0;
+
+  .funnel-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #6a1b9a;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .funnel-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+
+    &:nth-child(even) {
+      background: #f8f9fa;
+    }
+
+    &.funnel-header {
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.55);
+      background: none;
+    }
+
+    .funnel-stage {
+      flex: 1 1 auto;
+    }
+
+    .funnel-metric {
+      flex: 0 0 80px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;

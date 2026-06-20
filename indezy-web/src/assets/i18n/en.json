@@ -152,7 +152,11 @@
       "benchTime": "Bench time (between signed missions)",
       "benchDays": "Total bench days",
       "benchPeriods": "Bench periods",
-      "benchCost": "Estimated cost"
+      "benchCost": "Estimated cost",
+      "conversionFunnel": "Conversion funnel (where opportunities die)",
+      "funnelStage": "Stage",
+      "funnelCount": "Reached",
+      "funnelRate": "Conversion"
     }
   },
   "projects": {

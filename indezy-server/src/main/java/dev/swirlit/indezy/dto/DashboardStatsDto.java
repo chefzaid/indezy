@@ -29,6 +29,7 @@ public class DashboardStatsDto {
     private List<DailyRateRange> dailyRateRanges;
     private List<SourceRoi> sourceRoi;
     private List<DailyRateEvolution> dailyRateEvolution;
+    private List<ConversionFunnelStage> conversionFunnel;
 
     @Data
     @Builder
@@ -61,5 +62,20 @@ public class DashboardStatsDto {
         private double averageAskedRate;
         private double averageObtainedRate;
         private long projectCount;
+    }
+
+    /**
+     * One stage of the pipeline conversion funnel. {@code count} is how many opportunities
+     * reached at least this stage; {@code conversionRate} is that count as a percentage of the
+     * first stage, so the drop between stages shows where opportunities die.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ConversionFunnelStage {
+        private String stage;
+        private long count;
+        private double conversionRate;
     }
 }

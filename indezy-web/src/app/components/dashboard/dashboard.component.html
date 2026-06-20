@@ -241,6 +241,26 @@
               </div>
             </div>
           }
+          @if (getConversionFunnel().length > 0) {
+            <div class="funnel">
+              <h4 class="funnel-title">
+                <mat-icon>filter_alt</mat-icon>
+                {{ 'dashboard.charts.conversionFunnel' | translate }}
+              </h4>
+              <div class="funnel-row funnel-header">
+                <span class="funnel-stage">{{ 'dashboard.charts.funnelStage' | translate }}</span>
+                <span class="funnel-metric">{{ 'dashboard.charts.funnelCount' | translate }}</span>
+                <span class="funnel-metric">{{ 'dashboard.charts.funnelRate' | translate }}</span>
+              </div>
+              @for (entry of getConversionFunnel(); track entry.stage) {
+                <div class="funnel-row">
+                  <span class="funnel-stage">{{ 'projects.statuses.' + entry.stage | translate }}</span>
+                  <span class="funnel-metric">{{ entry.count }}</span>
+                  <span class="funnel-metric">{{ entry.conversionRate }}%</span>
+                </div>
+              }
+            </div>
+          }
         </div>
       }
       <!-- Recent Projects -->

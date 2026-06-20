@@ -277,6 +277,47 @@ class DashboardStatsServiceTest {
     }
 
     @Test
+    void getDashboardStats_ShouldBuildPipelineConversionFunnel() {
+        // Given 6 live opportunities spread across stages and 1 lost (excluded).
+        List<Project> projects = List.of(
+            projectWithStatus(ProjectStatus.IDENTIFIED),
+            projectWithStatus(ProjectStatus.IDENTIFIED),
+            projectWithStatus(ProjectStatus.APPLIED),
+            projectWithStatus(ProjectStatus.INTERVIEW),
+            projectWithStatus(ProjectStatus.OFFER),
+            projectWithStatus(ProjectStatus.WON),
+            projectWithStatus(ProjectStatus.LOST)
+        );
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(7L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(5L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(projects);
+
+        // When
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        // Then each stage counts opportunities at or beyond it; lost ones are not counted.
+        List<DashboardStatsDto.ConversionFunnelStage> funnel = stats.getConversionFunnel();
+        assertThat(funnel).hasSize(5);
+        assertThat(funnel).extracting(DashboardStatsDto.ConversionFunnelStage::getStage)
+            .containsExactly("IDENTIFIED", "APPLIED", "INTERVIEW", "OFFER", "WON");
+        assertThat(funnel).extracting(DashboardStatsDto.ConversionFunnelStage::getCount)
+            .containsExactly(6L, 4L, 3L, 2L, 1L);
+        assertThat(funnel).extracting(DashboardStatsDto.ConversionFunnelStage::getConversionRate)
+            .containsExactly(100.0, 66.7, 50.0, 33.3, 16.7);
+    }
+
+    private Project projectWithStatus(ProjectStatus status) {
+        Project project = new Project();
+        project.setStatus(status);
+        return project;
+    }
+
+    @Test
     void getDashboardStats_WithNoData_ShouldReturnZeroDefaults() {
         // Given
         when(projectRepository.countByFreelanceId(1L)).thenReturn(null);
@@ -302,5 +343,11 @@ class DashboardStatsServiceTest {
         assertThat(stats.getWonProjects()).isZero();
         assertThat(stats.getLostProjects()).isZero();
         assertThat(stats.getActiveProjects()).isZero();
+        assertThat(stats.getConversionFunnel())
+            .hasSize(5)
+            .allSatisfy(stage -> {
+                assertThat(stage.getCount()).isZero();
+                assertThat(stage.getConversionRate()).isZero();
+            });
     }
 }
