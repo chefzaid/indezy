@@ -46,6 +46,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     totalProjects: 0,
     averageDailyRate: 0,
     totalRevenue: 0,
+    forecastRevenue: 0,
     activeProjects: 0
   };
 
@@ -97,6 +98,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             totalProjects: stats.totalProjects,
             averageDailyRate: stats.averageDailyRate,
             totalRevenue: stats.totalEstimatedRevenue,
+            forecastRevenue: stats.forecastRevenue,
             activeProjects: stats.activeProjects
           };
           this.cdr.detectChanges();
@@ -112,6 +114,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       totalProjects: profile.totalProjects || 0,
       averageDailyRate: profile.averageDailyRate || 0,
       totalRevenue: this.calculateTotalRevenue(),
+      forecastRevenue: this.dashboardStats?.forecastRevenue ?? 0,
       activeProjects: this.recentProjects.filter(p => p.startDate && new Date(p.startDate) <= new Date()).length
     };
   }

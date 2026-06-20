@@ -66,7 +66,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 
 - [x] Reversion rate calculator for net daily, monthly, and yearly revenue
 - [x] Configurable income tax and max workable days with French public holidays
-- [ ] Revenue forecast based on signed contracts and pipeline probability
+- [x] Revenue forecast based on signed contracts and pipeline probability
 - [ ] TJM benchmark by skill/seniority/region (anonymized aggregated data from users)
 - [ ] Expense tracking (deductible expenses feeding the reversion calculator)
 - [ ] Expand existing reversion rate calculator customization (deductible expenses, social contributions, status-specific assumptions, custom tax settings)

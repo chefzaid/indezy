@@ -821,6 +821,37 @@ class ProjectServiceTest {
     }
 
     @Test
+    void getDashboardStats_ShouldComputeForecastRevenueWeightedByStatus() {
+        // Given a signed contract (120,000 at 100%) and an interview-stage one (66,000 at 50%).
+        Project won = new Project();
+        won.setStatus(ProjectStatus.WON);
+        won.setDailyRate(500);
+        won.setDaysPerYear(240);
+        won.setDurationInMonths(12);
+        Project interview = new Project();
+        interview.setStatus(ProjectStatus.INTERVIEW);
+        interview.setDailyRate(600);
+        interview.setDaysPerYear(220);
+        interview.setDurationInMonths(6);
+
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(2L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(550.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(won, interview));
+
+        // When
+        DashboardStatsDto stats = projectService.getDashboardStats(1L);
+
+        // Then: 120,000 * 1.0 + 66,000 * 0.5 = 153,000, while total revenue stays unweighted.
+        assertThat(stats.getForecastRevenue()).isEqualTo(153000.0);
+        assertThat(stats.getTotalEstimatedRevenue()).isEqualTo(186000.0);
+    }
+
+    @Test
     void getDashboardStats_WithNoData_ShouldReturnZeroDefaults() {
         // Given
         when(projectRepository.countByFreelanceId(1L)).thenReturn(null);
@@ -839,6 +870,7 @@ class ProjectServiceTest {
         assertThat(stats.getTotalProjects()).isZero();
         assertThat(stats.getAverageDailyRate()).isZero();
         assertThat(stats.getTotalEstimatedRevenue()).isZero();
+        assertThat(stats.getForecastRevenue()).isZero();
         assertThat(stats.getWonProjects()).isZero();
         assertThat(stats.getLostProjects()).isZero();
         assertThat(stats.getActiveProjects()).isZero();

@@ -82,6 +82,19 @@
         <mat-card class="stat-card">
           <mat-card-content>
             <div class="stat-content">
+              <div class="stat-icon forecast">
+                <mat-icon>insights</mat-icon>
+              </div>
+              <div class="stat-info">
+                <div class="stat-number">{{ stats.forecastRevenue | number:'1.0-0' }}€</div>
+                <div class="stat-label">{{ 'dashboard.forecastRevenue' | translate }}</div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
               <div class="stat-icon active">
                 <mat-icon>play_circle</mat-icon>
               </div>

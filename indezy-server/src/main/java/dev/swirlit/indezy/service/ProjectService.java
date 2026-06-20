@@ -419,6 +419,12 @@ public class ProjectService {
             .mapToDouble(Project::getTotalRevenue)
             .sum();
 
+        // Forecast revenue: total revenue weighted by each opportunity's win probability
+        double forecastRevenue = projects.stream()
+            .filter(p -> p.getForecastRevenue() != null)
+            .mapToDouble(Project::getForecastRevenue)
+            .sum();
+
         List<DashboardStatsDto.SourceRoi> sourceRoi = buildSourceRoiRanking(projects);
         List<DashboardStatsDto.DailyRateEvolution> dailyRateEvolution = buildDailyRateEvolution(projects);
 
@@ -426,6 +432,7 @@ public class ProjectService {
             .totalProjects(totalProjects != null ? totalProjects : 0)
             .averageDailyRate(averageDailyRate != null ? averageDailyRate : 0)
             .totalEstimatedRevenue(totalRevenue)
+            .forecastRevenue(forecastRevenue)
             .activeProjects(activeProjects != null ? activeProjects : 0)
             .wonProjects(wonProjects != null ? wonProjects : 0)
             .lostProjects(lostProjects != null ? lostProjects : 0)

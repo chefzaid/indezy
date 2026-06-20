@@ -16,6 +16,7 @@ public class DashboardStatsDto {
     private long totalProjects;
     private double averageDailyRate;
     private double totalEstimatedRevenue;
+    private double forecastRevenue;
     private long activeProjects;
     private long wonProjects;
     private long lostProjects;

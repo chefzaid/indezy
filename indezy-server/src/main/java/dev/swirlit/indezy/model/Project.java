@@ -151,6 +151,19 @@ public class Project extends BaseEntity {
         return null;
     }
 
+    /**
+     * Total revenue weighted by the status win probability, giving an expected (forecast)
+     * value for the pipeline: signed contracts count fully, lost ones contribute nothing,
+     * and in-progress opportunities by their stage likelihood. Null when revenue is unknown.
+     */
+    public Double getForecastRevenue() {
+        Integer total = getTotalRevenue();
+        if (total != null && status != null) {
+            return total * status.getWinProbability();
+        }
+        return null;
+    }
+
     /** Intermediary/ESN margin per day (client rate minus the freelance rate), or null when the client rate is unknown. */
     public Integer getMargin() {
         if (clientDailyRate != null && dailyRate != null) {

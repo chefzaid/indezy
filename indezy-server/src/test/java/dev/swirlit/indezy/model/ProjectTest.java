@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
+import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -218,6 +219,42 @@ class ProjectTest {
 
         // When / Then
         assertThat(project.getMarginPercentage()).isNull();
+    }
+
+    @Test
+    void getForecastRevenue_WithIdentifiedStatus_ShouldWeightByProbability() {
+        // Given total revenue 66,000 and the default IDENTIFIED status (10% probability)
+        project.setStatus(ProjectStatus.IDENTIFIED);
+
+        // When / Then: 66,000 * 0.10 = 6,600
+        assertThat(project.getForecastRevenue()).isEqualTo(6600.0);
+    }
+
+    @Test
+    void getForecastRevenue_WithWonStatus_ShouldEqualTotalRevenue() {
+        // Given a signed contract (100% probability)
+        project.setStatus(ProjectStatus.WON);
+
+        // When / Then: signed contracts count fully
+        assertThat(project.getForecastRevenue()).isEqualTo(66000.0);
+    }
+
+    @Test
+    void getForecastRevenue_WithLostStatus_ShouldBeZero() {
+        // Given a lost opportunity (0% probability)
+        project.setStatus(ProjectStatus.LOST);
+
+        // When / Then: lost opportunities contribute nothing
+        assertThat(project.getForecastRevenue()).isZero();
+    }
+
+    @Test
+    void getForecastRevenue_WithUnknownRevenue_ShouldReturnNull() {
+        // Given total revenue cannot be computed
+        project.setDailyRate(null);
+
+        // When / Then
+        assertThat(project.getForecastRevenue()).isNull();
     }
 
     @Test

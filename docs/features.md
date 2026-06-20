@@ -154,6 +154,7 @@ The dashboard provides an overview of the opportunity workspace with:
 - total projects
 - average daily rate
 - estimated revenue
+- forecast revenue (pipeline revenue weighted by each opportunity's win probability per status)
 - active projects
 - projects by status
 - projects by work mode

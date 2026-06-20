@@ -127,6 +127,7 @@ export interface DashboardStatsDto {
   totalProjects: number;
   averageDailyRate: number;
   totalEstimatedRevenue: number;
+  forecastRevenue: number;
   activeProjects: number;
   wonProjects: number;
   lostProjects: number;
