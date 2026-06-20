@@ -163,7 +163,9 @@
       "clientType": {
         "DIRECT": "Direct client",
         "INTERMEDIARY": "Through an ESN"
-      }
+      },
+      "missionsEndingSoon": "Missions ending soon (restart prospection)",
+      "endsInDays": "ends in {{days}} days"
     }
   },
   "projects": {

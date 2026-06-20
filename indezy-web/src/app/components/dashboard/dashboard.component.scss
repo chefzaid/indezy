@@ -215,6 +215,60 @@
   }
 }
 
+.ending-soon {
+  max-width: 420px;
+  margin: 20px auto 0;
+
+  .ending-soon-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #e65100;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .ending-soon-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+
+    &:nth-child(even) {
+      background: #f8f9fa;
+    }
+
+    &:hover {
+      background: #fff3e0;
+    }
+
+    .ending-soon-role {
+      flex: 1 1 auto;
+      font-weight: 600;
+    }
+
+    .ending-soon-client {
+      flex: 0 0 auto;
+      color: #666;
+    }
+
+    .ending-soon-days {
+      flex: 0 0 auto;
+      color: #e65100;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
+
 .lost-reasons {
   max-width: 420px;
   margin: 20px auto 0;

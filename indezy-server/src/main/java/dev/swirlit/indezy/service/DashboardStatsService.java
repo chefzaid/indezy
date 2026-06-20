@@ -134,7 +134,41 @@ public class DashboardStatsService {
                 p -> p.getMiddleman() != null ? "INTERMEDIARY" : "DIRECT"))
             .funnelByEsn(buildFunnelBreakdown(projects,
                 p -> p.getMiddleman() != null ? p.getMiddleman().getCompanyName() : null))
+            .missionsEndingSoon(buildMissionsEndingSoon(projects, LocalDate.now()))
             .build();
+    }
+
+    /** Signed missions ending within this many weeks are surfaced as prospection reminders. */
+    private static final int ENDING_SOON_WEEKS = 6;
+
+    /**
+     * Lists signed (WON) missions whose end date ({@code startDate + durationInMonths}) falls
+     * between today and {@link #ENDING_SOON_WEEKS} weeks out, so the freelance can restart
+     * prospection before the bench. Already-ended missions are excluded; soonest first.
+     */
+    private List<DashboardStatsDto.MissionEndingSoon> buildMissionsEndingSoon(List<Project> projects, LocalDate today) {
+        long threshold = ENDING_SOON_WEEKS * 7L;
+        List<DashboardStatsDto.MissionEndingSoon> ending = new ArrayList<>();
+        for (Project project : projects) {
+            if (!ProjectStatus.WON.equals(project.getStatus())
+                || project.getStartDate() == null || project.getDurationInMonths() == null) {
+                continue;
+            }
+            LocalDate endDate = project.getStartDate().plusMonths(project.getDurationInMonths());
+            long daysUntilEnd = ChronoUnit.DAYS.between(today, endDate);
+            if (daysUntilEnd < 0 || daysUntilEnd > threshold) {
+                continue;
+            }
+            ending.add(DashboardStatsDto.MissionEndingSoon.builder()
+                .projectId(project.getId())
+                .role(project.getRole())
+                .clientName(project.getClient() != null ? project.getClient().getCompanyName() : null)
+                .endDate(endDate)
+                .daysUntilEnd(daysUntilEnd)
+                .build());
+        }
+        ending.sort(Comparator.comparingLong(DashboardStatsDto.MissionEndingSoon::getDaysUntilEnd));
+        return ending;
     }
 
     /**

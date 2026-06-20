@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ public class DashboardStatsDto {
     private List<FunnelBreakdown> funnelBySource;
     private List<FunnelBreakdown> funnelByClientType;
     private List<FunnelBreakdown> funnelByEsn;
+    private List<MissionEndingSoon> missionsEndingSoon;
 
     @Data
     @Builder
@@ -93,5 +95,21 @@ public class DashboardStatsDto {
     public static class FunnelBreakdown {
         private String group;
         private List<ConversionFunnelStage> stages;
+    }
+
+    /**
+     * A signed mission whose end date is approaching, so prospection can be restarted before the
+     * bench. {@code daysUntilEnd} is the number of days from today to {@code endDate}.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MissionEndingSoon {
+        private Long projectId;
+        private String role;
+        private String clientName;
+        private LocalDate endDate;
+        private long daysUntilEnd;
     }
 }

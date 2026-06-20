@@ -381,6 +381,55 @@ class DashboardStatsServiceTest {
     }
 
     @Test
+    void getDashboardStats_ShouldListSignedMissionsEndingSoon() {
+        // Given signed missions ending in ~1 month (within the 6-week window) and others outside it.
+        LocalDate today = LocalDate.now();
+        Project endingA = wonMission(1L, today.minusMonths(1), 2);   // ends ~+1 month
+        Project endingB = wonMission(2L, today, 1);                  // ends ~+1 month
+        Project farFuture = wonMission(3L, today, 6);                // ends ~+6 months, excluded
+        Project alreadyEnded = wonMission(4L, today.minusMonths(6), 2); // ended in the past, excluded
+        Project pending = wonMission(5L, today, 1);
+        pending.setStatus(ProjectStatus.INTERVIEW);                   // not signed, excluded
+        Project noDates = wonMission(6L, null, null);                 // missing dates, excluded
+
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(6L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(5L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        when(projectRepository.findByFreelanceId(1L))
+            .thenReturn(List.of(endingA, endingB, farFuture, alreadyEnded, pending, noDates));
+
+        // When
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        // Then only the two soon-ending signed missions appear, soonest first, with their details.
+        List<DashboardStatsDto.MissionEndingSoon> ending = stats.getMissionsEndingSoon();
+        assertThat(ending).hasSize(2)
+            .extracting(DashboardStatsDto.MissionEndingSoon::getProjectId)
+            .containsExactlyInAnyOrder(1L, 2L);
+        assertThat(ending).extracting(DashboardStatsDto.MissionEndingSoon::getDaysUntilEnd).isSorted();
+        assertThat(ending).allSatisfy(m -> {
+            assertThat(m.getDaysUntilEnd()).isBetween(0L, 42L);
+            assertThat(m.getEndDate()).isNotNull();
+            assertThat(m.getClientName()).isEqualTo("Test Company");
+        });
+    }
+
+    private Project wonMission(Long id, LocalDate startDate, Integer durationInMonths) {
+        Project project = new Project();
+        project.setId(id);
+        project.setStatus(ProjectStatus.WON);
+        project.setRole("Mission " + id);
+        project.setStartDate(startDate);
+        project.setDurationInMonths(durationInMonths);
+        project.setClient(testClient);
+        return project;
+    }
+
+    @Test
     void getDashboardStats_WithNoData_ShouldReturnZeroDefaults() {
         // Given
         when(projectRepository.countByFreelanceId(1L)).thenReturn(null);

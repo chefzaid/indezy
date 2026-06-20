@@ -167,6 +167,23 @@
               <span class="summary-label">{{ 'dashboard.charts.active' | translate }}</span>
             </div>
           </div>
+          @if (getMissionsEndingSoon().length > 0) {
+            <div class="ending-soon">
+              <h4 class="ending-soon-title">
+                <mat-icon>event_busy</mat-icon>
+                {{ 'dashboard.charts.missionsEndingSoon' | translate }}
+              </h4>
+              @for (mission of getMissionsEndingSoon(); track mission.projectId) {
+                <div class="ending-soon-row" [routerLink]="['/projects', mission.projectId]">
+                  <span class="ending-soon-role">{{ mission.role }}</span>
+                  <span class="ending-soon-client">{{ mission.clientName }}</span>
+                  <span class="ending-soon-days">
+                    {{ 'dashboard.charts.endsInDays' | translate:{ days: mission.daysUntilEnd } }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
           @if (getLostReasonsBreakdown().length > 0) {
             <div class="lost-reasons">
               <h4 class="lost-reasons-title">

@@ -163,6 +163,7 @@ The dashboard provides an overview of the opportunity workspace with:
 - daily rate evolution by year (average asked vs obtained daily rate)
 - bench time tracking (idle days and number of gaps between signed missions, with an estimated cost)
 - pipeline conversion funnel (how many opportunities reach each stage, to reveal where they drop off), overall and broken down by source, client type (direct vs through an ESN) and ESN
+- mission end-date reminders (signed missions ending within six weeks, so prospection can restart before the bench)
 - recent projects
 - overview and Kanban display modes
 
