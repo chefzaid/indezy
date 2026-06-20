@@ -347,6 +347,43 @@
   }
 }
 
+.bench-time {
+  max-width: 420px;
+  margin: 20px auto 0;
+
+  .bench-time-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #b26a00;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .bench-time-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+
+    &:nth-child(even) {
+      background: #f8f9fa;
+    }
+
+    .bench-time-value {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;

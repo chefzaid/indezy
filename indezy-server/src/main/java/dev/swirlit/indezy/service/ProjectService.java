@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -428,6 +429,10 @@ public class ProjectService {
         List<DashboardStatsDto.SourceRoi> sourceRoi = buildSourceRoiRanking(projects);
         List<DashboardStatsDto.DailyRateEvolution> dailyRateEvolution = buildDailyRateEvolution(projects);
 
+        // Bench time: idle days between consecutive signed missions and their estimated cost
+        double resolvedAverageRate = averageDailyRate != null ? averageDailyRate : 0;
+        long[] bench = buildBenchStats(projects);
+
         return DashboardStatsDto.builder()
             .totalProjects(totalProjects != null ? totalProjects : 0)
             .averageDailyRate(averageDailyRate != null ? averageDailyRate : 0)
@@ -436,6 +441,9 @@ public class ProjectService {
             .activeProjects(activeProjects != null ? activeProjects : 0)
             .wonProjects(wonProjects != null ? wonProjects : 0)
             .lostProjects(lostProjects != null ? lostProjects : 0)
+            .totalBenchDays(bench[0])
+            .benchPeriods(bench[1])
+            .estimatedBenchCost(bench[0] * resolvedAverageRate)
             .projectsByStatus(projectsByStatus)
             .projectsByWorkMode(projectsByWorkMode)
             .lostReasonsBreakdown(lostReasonsBreakdown)
@@ -479,6 +487,36 @@ public class ProjectService {
                 .build());
         }
         return evolution;
+    }
+
+    /**
+     * Computes idle ("bench") time between consecutive signed missions: missions are the WON
+     * projects that carry a start date and duration, ordered chronologically. A gap is counted
+     * only when a mission starts after the latest end seen so far, so overlapping or nested
+     * missions never produce negative bench. Returns {@code [totalBenchDays, benchPeriods]}.
+     */
+    private long[] buildBenchStats(List<Project> projects) {
+        List<Project> missions = projects.stream()
+            .filter(p -> ProjectStatus.WON.equals(p.getStatus())
+                && p.getStartDate() != null && p.getDurationInMonths() != null)
+            .sorted(Comparator.comparing(Project::getStartDate))
+            .toList();
+
+        long totalBenchDays = 0;
+        long benchPeriods = 0;
+        LocalDate previousEnd = null;
+        for (Project mission : missions) {
+            LocalDate start = mission.getStartDate();
+            LocalDate end = start.plusMonths(mission.getDurationInMonths());
+            if (previousEnd != null && start.isAfter(previousEnd)) {
+                totalBenchDays += ChronoUnit.DAYS.between(previousEnd, start);
+                benchPeriods++;
+            }
+            if (previousEnd == null || end.isAfter(previousEnd)) {
+                previousEnd = end;
+            }
+        }
+        return new long[]{totalBenchDays, benchPeriods};
     }
 
     /**

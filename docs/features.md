@@ -161,6 +161,7 @@ The dashboard provides an overview of the opportunity workspace with:
 - daily rate distribution
 - source ROI ranking (signed contracts vs total opportunities and conversion rate per source)
 - daily rate evolution by year (average asked vs obtained daily rate)
+- bench time tracking (idle days and number of gaps between signed missions, with an estimated cost)
 - recent projects
 - overview and Kanban display modes
 

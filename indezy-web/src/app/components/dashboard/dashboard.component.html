@@ -221,6 +221,26 @@
               }
             </div>
           }
+          @if (dashboardStats.benchPeriods > 0) {
+            <div class="bench-time">
+              <h4 class="bench-time-title">
+                <mat-icon>hourglass_empty</mat-icon>
+                {{ 'dashboard.charts.benchTime' | translate }}
+              </h4>
+              <div class="bench-time-row">
+                <span class="bench-time-label">{{ 'dashboard.charts.benchDays' | translate }}</span>
+                <span class="bench-time-value">{{ dashboardStats.totalBenchDays }}</span>
+              </div>
+              <div class="bench-time-row">
+                <span class="bench-time-label">{{ 'dashboard.charts.benchPeriods' | translate }}</span>
+                <span class="bench-time-value">{{ dashboardStats.benchPeriods }}</span>
+              </div>
+              <div class="bench-time-row">
+                <span class="bench-time-label">{{ 'dashboard.charts.benchCost' | translate }}</span>
+                <span class="bench-time-value">{{ dashboardStats.estimatedBenchCost | number:'1.0-0' }}€</span>
+              </div>
+            </div>
+          }
         </div>
       }
       <!-- Recent Projects -->

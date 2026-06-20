@@ -148,7 +148,11 @@
       "rateEvolution": "\u00c9volution du TJM (demand\u00e9 vs obtenu)",
       "rateEvolutionPeriod": "Ann\u00e9e",
       "rateEvolutionAsked": "Demand\u00e9",
-      "rateEvolutionObtained": "Obtenu"
+      "rateEvolutionObtained": "Obtenu",
+      "benchTime": "Intercontrat (entre missions sign\u00e9es)",
+      "benchDays": "Jours d'intercontrat",
+      "benchPeriods": "P\u00e9riodes d'intercontrat",
+      "benchCost": "Co\u00fbt estim\u00e9"
     }
   },
   "projects": {

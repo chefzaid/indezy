@@ -20,6 +20,9 @@ public class DashboardStatsDto {
     private long activeProjects;
     private long wonProjects;
     private long lostProjects;
+    private long totalBenchDays;
+    private long benchPeriods;
+    private double estimatedBenchCost;
     private Map<String, Long> projectsByStatus;
     private Map<String, Long> projectsByWorkMode;
     private Map<String, Long> lostReasonsBreakdown;

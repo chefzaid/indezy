@@ -148,7 +148,11 @@
       "rateEvolution": "Daily rate evolution (asked vs obtained)",
       "rateEvolutionPeriod": "Year",
       "rateEvolutionAsked": "Asked",
-      "rateEvolutionObtained": "Obtained"
+      "rateEvolutionObtained": "Obtained",
+      "benchTime": "Bench time (between signed missions)",
+      "benchDays": "Total bench days",
+      "benchPeriods": "Bench periods",
+      "benchCost": "Estimated cost"
     }
   },
   "projects": {

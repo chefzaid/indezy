@@ -131,6 +131,9 @@ export interface DashboardStatsDto {
   activeProjects: number;
   wonProjects: number;
   lostProjects: number;
+  totalBenchDays: number;
+  benchPeriods: number;
+  estimatedBenchCost: number;
   projectsByStatus: { [status: string]: number };
   projectsByWorkMode: { [mode: string]: number };
   lostReasonsBreakdown: { [reason: string]: number };

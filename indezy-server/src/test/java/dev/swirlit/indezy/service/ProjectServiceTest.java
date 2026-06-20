@@ -852,6 +852,47 @@ class ProjectServiceTest {
     }
 
     @Test
+    void getDashboardStats_ShouldComputeBenchTimeBetweenSignedMissions() {
+        // Given two signed missions: Jan-Apr 2024 (3 months) then Jun 2024 (1 month).
+        // Bench = 2024-04-01 -> 2024-06-01 = 61 days. A third, overlapping mission adds none.
+        Project first = new Project();
+        first.setStatus(ProjectStatus.WON);
+        first.setStartDate(LocalDate.of(2024, 1, 1));
+        first.setDurationInMonths(3);
+        Project second = new Project();
+        second.setStatus(ProjectStatus.WON);
+        second.setStartDate(LocalDate.of(2024, 6, 1));
+        second.setDurationInMonths(1);
+        Project overlapping = new Project();
+        overlapping.setStatus(ProjectStatus.WON);
+        overlapping.setStartDate(LocalDate.of(2024, 6, 15));
+        overlapping.setDurationInMonths(2);
+        // A non-signed project is ignored even though it has dates.
+        Project pending = new Project();
+        pending.setStatus(ProjectStatus.INTERVIEW);
+        pending.setStartDate(LocalDate.of(2025, 1, 1));
+        pending.setDurationInMonths(6);
+
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(4L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(500.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(3L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        when(projectRepository.findByFreelanceId(1L))
+                .thenReturn(List.of(first, second, overlapping, pending));
+
+        // When
+        DashboardStatsDto stats = projectService.getDashboardStats(1L);
+
+        // Then a single 61-day bench period, costed at the average daily rate.
+        assertThat(stats.getTotalBenchDays()).isEqualTo(61L);
+        assertThat(stats.getBenchPeriods()).isEqualTo(1L);
+        assertThat(stats.getEstimatedBenchCost()).isEqualTo(61 * 500.0);
+    }
+
+    @Test
     void getDashboardStats_WithNoData_ShouldReturnZeroDefaults() {
         // Given
         when(projectRepository.countByFreelanceId(1L)).thenReturn(null);
@@ -871,6 +912,9 @@ class ProjectServiceTest {
         assertThat(stats.getAverageDailyRate()).isZero();
         assertThat(stats.getTotalEstimatedRevenue()).isZero();
         assertThat(stats.getForecastRevenue()).isZero();
+        assertThat(stats.getTotalBenchDays()).isZero();
+        assertThat(stats.getBenchPeriods()).isZero();
+        assertThat(stats.getEstimatedBenchCost()).isZero();
         assertThat(stats.getWonProjects()).isZero();
         assertThat(stats.getLostProjects()).isZero();
         assertThat(stats.getActiveProjects()).isZero();
