@@ -6,6 +6,7 @@ import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.service.DashboardStatsService;
 import dev.swirlit.indezy.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +35,7 @@ import java.util.List;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final DashboardStatsService dashboardStatsService;
 
     @Operation(summary = "Get all projects", description = "Retrieve a list of all projects")
     @ApiResponses(value = {
@@ -185,7 +187,7 @@ public class ProjectController {
     @GetMapping("/stats/dashboard/{freelanceId}")
     public ResponseEntity<DashboardStatsDto> getDashboardStats(@PathVariable Long freelanceId) {
         log.debug("GET /projects/stats/dashboard/{} - Getting dashboard stats", freelanceId);
-        DashboardStatsDto stats = projectService.getDashboardStats(freelanceId);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(freelanceId);
         return ResponseEntity.ok(stats);
     }
 }
