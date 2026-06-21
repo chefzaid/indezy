@@ -176,6 +176,17 @@
     "newProject": "New project",
     "exportSummary": "Export summary",
     "exportError": "Error exporting summary",
+    "notes": {
+      "title": "Journal",
+      "addLabel": "New note",
+      "placeholder": "Log a call, email or decision...",
+      "add": "Add note",
+      "empty": "No notes yet. Log your first interaction above.",
+      "deleteConfirm": "Delete this note?",
+      "loadError": "Error loading notes",
+      "saveError": "Error saving note",
+      "deleteError": "Error deleting note"
+    },
     "loading": "Loading projects...",
     "noProjects": "No projects found",
     "noMatchingProjects": "No projects match the filters",

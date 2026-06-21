@@ -176,6 +176,17 @@
     "newProject": "Nouvelle mission",
     "exportSummary": "Exporter le récapitulatif",
     "exportError": "Erreur lors de l'export du récapitulatif",
+    "notes": {
+      "title": "Journal",
+      "addLabel": "Nouvelle note",
+      "placeholder": "Consigner un appel, un email ou une décision...",
+      "add": "Ajouter",
+      "empty": "Aucune note pour l'instant. Consignez votre première interaction ci-dessus.",
+      "deleteConfirm": "Supprimer cette note ?",
+      "loadError": "Erreur lors du chargement des notes",
+      "saveError": "Erreur lors de l'enregistrement de la note",
+      "deleteError": "Erreur lors de la suppression de la note"
+    },
     "loading": "Chargement des missions...",
     "noProjects": "Aucune mission trouvée",
     "noMatchingProjects": "Aucune mission ne correspond aux filtres",

@@ -141,6 +141,10 @@ Current step statuses:
 
 The UI includes scheduling and action dialogs. The backend exposes interview-step endpoints for creation, updates, transitions, and project-level retrieval.
 
+## Project Journal
+
+Each project has a chronological journal of free-text notes (calls, emails, decisions) exposed under `/api/projects/{projectId}/notes` (list newest-first, add, delete). The project detail page shows the timeline with timestamps and lets the user add or remove entries. Notes are stored and rendered as plain text for now; Markdown support with live preview is a planned enhancement.
+
 ## Kanban And Pipeline View
 
 The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs. Cards can be pinned as favorites (`PATCH /projects/{id}/favorite`), which keeps hot leads at the top of their column. Within a column, cards can be dragged to set a manual priority, persisted through `PUT /projects/kanban/{freelanceId}/reorder` (favorites still pin above the manual order). Each card shows a card-aging indicator (days since last activity) and highlights opportunities with no activity for 14+ days so stale leads stand out. A quick-add button on each column opens a minimal dialog (role, client, daily rate) that creates an opportunity directly in that column's status, to be enriched later. Moving a card into the LOST column prompts for a loss reason, which feeds a "why opportunities were lost" breakdown on the dashboard. Cards that share the same client and role (case-insensitive) as another opportunity are flagged as possible duplicates for manual deduplication.

@@ -195,6 +195,13 @@ export interface StaleOpportunity {
   daysSinceActivity: number;
 }
 
+export interface ProjectNote {
+  id: number;
+  projectId: number;
+  content: string;
+  createdAt: string;
+}
+
 export interface CreateProjectDto {
   role: string;
   status?: ProjectStatus;

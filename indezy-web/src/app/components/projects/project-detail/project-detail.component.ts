@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,17 +8,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProjectService } from '../../../services/project/project.service';
-import { ProjectDto } from '../../../models';
+import { ProjectDto, ProjectNote } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 
 @Component({
     selector: 'app-project-detail',
     imports: [
         CommonModule,
+        FormsModule,
         RouterModule,
         MatCardModule,
         MatButtonModule,
@@ -25,6 +29,8 @@ import { NotificationService } from '../../../services/notification/notification
         MatChipsModule,
         MatProgressSpinnerModule,
         MatDividerModule,
+        MatFormFieldModule,
+        MatInputModule,
         TranslateModule
     ],
     templateUrl: './project-detail.component.html',
@@ -34,6 +40,10 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   project?: ProjectDto;
   isLoading = false;
   projectId?: number;
+
+  notes: ProjectNote[] = [];
+  newNoteContent = '';
+  isSavingNote = false;
 
   private readonly destroy$ = new Subject<void>();
 
@@ -69,6 +79,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         next: (project) => {
           if (project) {
             this.project = project;
+            this.loadNotes();
           } else {
             this.notificationService.error('errors.projectNotFound');
             this.router.navigate(['/projects']);
@@ -80,6 +91,47 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           this.notificationService.error('errors.loadingProject');
           this.isLoading = false;
         }
+      });
+  }
+
+  private loadNotes(): void {
+    if (!this.projectId) { return; }
+    this.projectService.getProjectNotes(this.projectId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (notes) => this.notes = notes,
+        error: () => this.notificationService.error('projects.notes.loadError')
+      });
+  }
+
+  addNote(): void {
+    const content = this.newNoteContent.trim();
+    if (!content || !this.projectId || this.isSavingNote) { return; }
+
+    this.isSavingNote = true;
+    this.projectService.addProjectNote(this.projectId, content)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (note) => {
+          this.notes = [note, ...this.notes];
+          this.newNoteContent = '';
+          this.isSavingNote = false;
+        },
+        error: () => {
+          this.notificationService.error('projects.notes.saveError');
+          this.isSavingNote = false;
+        }
+      });
+  }
+
+  deleteNote(noteId: number): void {
+    if (!this.projectId || !confirm(this.translate.instant('projects.notes.deleteConfirm'))) { return; }
+
+    this.projectService.deleteProjectNote(this.projectId, noteId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => this.notes = this.notes.filter(n => n.id !== noteId),
+        error: () => this.notificationService.error('projects.notes.deleteError')
       });
   }
 

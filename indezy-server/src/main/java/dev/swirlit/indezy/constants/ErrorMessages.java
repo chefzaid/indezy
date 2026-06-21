@@ -32,6 +32,9 @@ public final class ErrorMessages {
     // Interview Step related error messages
     public static final String INTERVIEW_STEP_NOT_FOUND = "Interview step not found with id: %d";
 
+    // Project Note related error messages
+    public static final String PROJECT_NOTE_NOT_FOUND = "Project note not found with id: %d";
+
     // Validation error messages
     public static final String INVALID_EMAIL_FORMAT = "Invalid email format: %s";
     public static final String INVALID_PHONE_FORMAT = "Invalid phone format: %s";

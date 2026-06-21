@@ -323,3 +323,63 @@
     }
   }
 }
+
+.journal-card {
+  .journal-add {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    .journal-input {
+      width: 100%;
+    }
+
+    button {
+      align-self: flex-end;
+    }
+  }
+
+  .journal-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .journal-entry {
+    border-left: 3px solid #667eea;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 0 8px 8px 0;
+
+    .journal-entry-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .journal-date {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .journal-delete {
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+    }
+
+    .journal-content {
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #333;
+    }
+  }
+
+  .journal-empty {
+    color: #888;
+    font-style: italic;
+    margin: 0;
+  }
+}

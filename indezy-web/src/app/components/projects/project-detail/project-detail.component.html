@@ -373,6 +373,49 @@
             </mat-card-content>
           </mat-card>
         }
+
+        <!-- Journal timeline -->
+        <mat-card class="info-card journal-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>history_edu</mat-icon>
+              {{ 'projects.notes.title' | translate }}
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="journal-add">
+              <mat-form-field appearance="outline" class="journal-input">
+                <mat-label>{{ 'projects.notes.addLabel' | translate }}</mat-label>
+                <textarea matInput rows="3" [(ngModel)]="newNoteContent"
+                          [placeholder]="'projects.notes.placeholder' | translate"></textarea>
+              </mat-form-field>
+              <button mat-raised-button color="primary"
+                      [disabled]="!newNoteContent.trim() || isSavingNote" (click)="addNote()">
+                <mat-icon>add_comment</mat-icon>
+                {{ 'projects.notes.add' | translate }}
+              </button>
+            </div>
+
+            @if (notes.length > 0) {
+              <div class="journal-timeline">
+                @for (note of notes; track note.id) {
+                  <div class="journal-entry">
+                    <div class="journal-entry-header">
+                      <span class="journal-date">{{ note.createdAt | date:'medium' }}</span>
+                      <button mat-icon-button color="warn" class="journal-delete"
+                              [attr.aria-label]="'common.delete' | translate" (click)="deleteNote(note.id)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                    <div class="journal-content">{{ note.content }}</div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="journal-empty">{{ 'projects.notes.empty' | translate }}</p>
+            }
+          </mat-card-content>
+        </mat-card>
       </div>
     </div>
   }

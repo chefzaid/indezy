@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ProjectDto, ProjectStatus, KanbanBoardDto, WorkMode, DashboardStatsDto, LostReason } from '../../models/project.models';
+import { ProjectDto, ProjectStatus, KanbanBoardDto, WorkMode, DashboardStatsDto, LostReason, ProjectNote } from '../../models/project.models';
 
 export interface ProjectFilters {
   minRate?: number;
@@ -107,6 +107,19 @@ export class ProjectService {
   downloadYearlySummary(freelanceId: number, year: number): Observable<Blob> {
     const params = new HttpParams().set('year', year);
     return this.http.get(`${this.API_URL}/export/csv/${freelanceId}`, { params, responseType: 'blob' });
+  }
+
+  /** Project journal notes, newest first. */
+  getProjectNotes(projectId: number): Observable<ProjectNote[]> {
+    return this.http.get<ProjectNote[]>(`${this.API_URL}/${projectId}/notes`);
+  }
+
+  addProjectNote(projectId: number, content: string): Observable<ProjectNote> {
+    return this.http.post<ProjectNote>(`${this.API_URL}/${projectId}/notes`, { content });
+  }
+
+  deleteProjectNote(projectId: number, noteId: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${projectId}/notes/${noteId}`);
   }
 
   getDashboardStats(freelanceId: number): Observable<DashboardStatsDto> {

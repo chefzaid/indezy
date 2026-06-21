@@ -216,3 +216,4 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Automated DB backups with point-in-time recovery; versioned migrations; connection pooling
 - [ ] CI: tests on every PR, scheduled e2e runs, dependency vulnerability scanning, zero-downtime deployments
 - [ ] Keep OpenAPI docs complete with request/response examples
+- [ ] Ensure that all API endpoints are effectively used in the UI (either the app or the admin console). Implement the frontend that would use them if necessary, or remove the endpoints.
