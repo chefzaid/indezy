@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -426,6 +427,48 @@ class DashboardStatsServiceTest {
         project.setStartDate(startDate);
         project.setDurationInMonths(durationInMonths);
         project.setClient(testClient);
+        return project;
+    }
+
+    @Test
+    void getDashboardStats_ShouldListStaleActiveOpportunities() {
+        // Given active opportunities with varying idle times plus closed/fresh ones to exclude.
+        LocalDateTime now = LocalDateTime.now();
+        Project veryStale = activeOpportunity(1L, ProjectStatus.APPLIED, now.minusDays(30));
+        Project mildlyStale = activeOpportunity(2L, ProjectStatus.INTERVIEW, now.minusDays(15));
+        Project fresh = activeOpportunity(3L, ProjectStatus.APPLIED, now.minusDays(3));   // too recent
+        Project wonStale = activeOpportunity(4L, ProjectStatus.WON, now.minusDays(40));   // closed, excluded
+        Project noActivity = activeOpportunity(5L, ProjectStatus.OFFER, null);            // no timestamp
+
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(5L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(4L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        when(projectRepository.findByFreelanceId(1L))
+            .thenReturn(List.of(veryStale, mildlyStale, fresh, wonStale, noActivity));
+
+        // When
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        // Then only stale active opportunities appear, most stale first, with their details.
+        List<DashboardStatsDto.StaleOpportunity> stale = stats.getStaleOpportunities();
+        assertThat(stale).extracting(DashboardStatsDto.StaleOpportunity::getProjectId)
+            .containsExactly(1L, 2L);
+        assertThat(stale.get(0).getDaysSinceActivity()).isGreaterThanOrEqualTo(stale.get(1).getDaysSinceActivity());
+        assertThat(stale.get(0).getStatus()).isEqualTo("APPLIED");
+        assertThat(stale.get(0).getClientName()).isEqualTo("Test Company");
+    }
+
+    private Project activeOpportunity(Long id, ProjectStatus status, LocalDateTime updatedAt) {
+        Project project = new Project();
+        project.setId(id);
+        project.setStatus(status);
+        project.setRole("Opportunity " + id);
+        project.setClient(testClient);
+        project.setUpdatedAt(updatedAt);
         return project;
     }
 

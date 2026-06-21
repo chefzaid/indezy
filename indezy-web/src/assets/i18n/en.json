@@ -165,7 +165,9 @@
         "INTERMEDIARY": "Through an ESN"
       },
       "missionsEndingSoon": "Missions ending soon (restart prospection)",
-      "endsInDays": "ends in {{days}} days"
+      "endsInDays": "ends in {{days}} days",
+      "staleOpportunities": "Stale opportunities (follow up or archive)",
+      "idleForDays": "idle for {{days}} days"
     }
   },
   "projects": {

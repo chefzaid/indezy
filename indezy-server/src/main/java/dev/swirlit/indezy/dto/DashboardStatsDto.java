@@ -35,6 +35,7 @@ public class DashboardStatsDto {
     private List<FunnelBreakdown> funnelByClientType;
     private List<FunnelBreakdown> funnelByEsn;
     private List<MissionEndingSoon> missionsEndingSoon;
+    private List<StaleOpportunity> staleOpportunities;
 
     @Data
     @Builder
@@ -111,5 +112,21 @@ public class DashboardStatsDto {
         private String clientName;
         private LocalDate endDate;
         private long daysUntilEnd;
+    }
+
+    /**
+     * An active (in-pipeline) opportunity with no activity for a while, surfaced so it can be
+     * followed up on or archived. {@code daysSinceActivity} counts days since the last update.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class StaleOpportunity {
+        private Long projectId;
+        private String role;
+        private String clientName;
+        private String status;
+        private long daysSinceActivity;
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -135,7 +136,40 @@ public class DashboardStatsService {
             .funnelByEsn(buildFunnelBreakdown(projects,
                 p -> p.getMiddleman() != null ? p.getMiddleman().getCompanyName() : null))
             .missionsEndingSoon(buildMissionsEndingSoon(projects, LocalDate.now()))
+            .staleOpportunities(buildStaleOpportunities(projects, LocalDateTime.now()))
             .build();
+    }
+
+    /** Active opportunities idle for at least this many days are surfaced for follow-up. */
+    private static final int STALE_THRESHOLD_DAYS = 14;
+
+    /**
+     * Lists active (in-pipeline, i.e. neither WON nor LOST) opportunities whose last update is at
+     * least {@link #STALE_THRESHOLD_DAYS} days old, so they can be followed up on or archived
+     * before going cold. Most stale first.
+     */
+    private List<DashboardStatsDto.StaleOpportunity> buildStaleOpportunities(List<Project> projects, LocalDateTime now) {
+        List<DashboardStatsDto.StaleOpportunity> stale = new ArrayList<>();
+        for (Project project : projects) {
+            ProjectStatus status = project.getStatus();
+            if (status == null || status == ProjectStatus.WON || status == ProjectStatus.LOST
+                || project.getUpdatedAt() == null) {
+                continue;
+            }
+            long daysSinceActivity = ChronoUnit.DAYS.between(project.getUpdatedAt(), now);
+            if (daysSinceActivity < STALE_THRESHOLD_DAYS) {
+                continue;
+            }
+            stale.add(DashboardStatsDto.StaleOpportunity.builder()
+                .projectId(project.getId())
+                .role(project.getRole())
+                .clientName(project.getClient() != null ? project.getClient().getCompanyName() : null)
+                .status(status.name())
+                .daysSinceActivity(daysSinceActivity)
+                .build());
+        }
+        stale.sort(Comparator.comparingLong(DashboardStatsDto.StaleOpportunity::getDaysSinceActivity).reversed());
+        return stale;
     }
 
     /** Signed missions ending within this many weeks are surfaced as prospection reminders. */

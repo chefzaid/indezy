@@ -10,7 +10,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth/auth.service';
 import { ProjectService } from '../../services/project/project.service';
 import { FreelanceService } from '../../services/freelance/freelance.service';
-import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, MissionEndingSoon, PROJECT_STATUS_COLORS } from '../../models';
+import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, MissionEndingSoon, StaleOpportunity, PROJECT_STATUS_COLORS } from '../../models';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
@@ -194,6 +194,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   /** Signed missions ending within the prospection-reminder window, soonest first. */
   getMissionsEndingSoon(): MissionEndingSoon[] {
     return this.dashboardStats?.missionsEndingSoon ?? [];
+  }
+
+  /** Active opportunities idle past the stale threshold, most stale first. */
+  getStaleOpportunities(): StaleOpportunity[] {
+    return this.dashboardStats?.staleOpportunities ?? [];
   }
 
   /** Compact stage counts for a funnel group, e.g. "6 → 4 → 3 → 2 → 1". */

@@ -20,7 +20,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] Quick-add card directly from the Kanban board (minimal form, enrich later)
 - [x] Pinned/favorite opportunities (keep hot leads at the top, dedicated view)
 - [x] Lost/rejected reason tracking (rate too low, position filled, no response...) with stats
-- [ ] Automatic stale-opportunity detection and suggested follow-up or archival
+- [x] Automatic stale-opportunity detection and suggested follow-up or archival
 - [x] Duplicate opportunity detection (same client + same role posted on several job boards), flagged for manual deduplication
 
 ## Opportunities & Projects

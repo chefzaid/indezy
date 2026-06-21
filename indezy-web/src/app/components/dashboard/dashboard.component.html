@@ -184,6 +184,23 @@
               }
             </div>
           }
+          @if (getStaleOpportunities().length > 0) {
+            <div class="stale-opps">
+              <h4 class="stale-opps-title">
+                <mat-icon>hourglass_bottom</mat-icon>
+                {{ 'dashboard.charts.staleOpportunities' | translate }}
+              </h4>
+              @for (opp of getStaleOpportunities(); track opp.projectId) {
+                <div class="stale-opps-row" [routerLink]="['/projects', opp.projectId]">
+                  <span class="stale-opps-role">{{ opp.role }}</span>
+                  <span class="stale-opps-status">{{ 'projects.statuses.' + opp.status | translate }}</span>
+                  <span class="stale-opps-days">
+                    {{ 'dashboard.charts.idleForDays' | translate:{ days: opp.daysSinceActivity } }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
           @if (getLostReasonsBreakdown().length > 0) {
             <div class="lost-reasons">
               <h4 class="lost-reasons-title">
