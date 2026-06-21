@@ -98,6 +98,11 @@ export class ProjectService {
     return this.http.get<KanbanBoardDto>(`${this.API_URL}/kanban/${freelanceId}`);
   }
 
+  /** Persists the manual order of cards within a column (project ids in their new order). */
+  reorderKanbanColumn(freelanceId: number, orderedProjectIds: number[]): Observable<void> {
+    return this.http.put<void>(`${this.API_URL}/kanban/${freelanceId}/reorder`, orderedProjectIds);
+  }
+
   getDashboardStats(freelanceId: number): Observable<DashboardStatsDto> {
     return this.http.get<DashboardStatsDto>(`${this.API_URL}/stats/dashboard/${freelanceId}`);
   }

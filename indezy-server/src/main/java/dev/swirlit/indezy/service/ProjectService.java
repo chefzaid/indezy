@@ -282,10 +282,13 @@ public class ProjectService {
             }
         }
 
-        // Pin favorites to the top of each column while preserving the existing order otherwise.
-        columns.values().forEach(cards ->
-            cards.sort(Comparator.comparing(
-                card -> Boolean.TRUE.equals(card.getIsFavorite()) ? 0 : 1)));
+        // Pin favorites to the top, then honour the manual board position (cards without one last).
+        Comparator<KanbanBoardDto.ProjectCardDto> byFavorite =
+            Comparator.comparingInt(card -> Boolean.TRUE.equals(card.getIsFavorite()) ? 0 : 1);
+        Comparator<KanbanBoardDto.ProjectCardDto> byPosition =
+            Comparator.comparing(KanbanBoardDto.ProjectCardDto::getBoardPosition,
+                Comparator.nullsLast(Comparator.naturalOrder()));
+        columns.values().forEach(cards -> cards.sort(byFavorite.thenComparing(byPosition)));
 
         KanbanBoardDto kanbanBoard = new KanbanBoardDto();
         kanbanBoard.setColumns(columns);
@@ -303,6 +306,31 @@ public class ProjectService {
         return projectMapper.toDto(updatedProject);
     }
 
+    /**
+     * Persists the manual order of cards within a Kanban column: each project is assigned a
+     * board position matching its index in {@code orderedProjectIds}. Ids that do not belong to
+     * the given freelance are ignored, so a client cannot reorder another freelance's cards.
+     */
+    public void reorderKanbanColumn(Long freelanceId, List<Long> orderedProjectIds) {
+        log.debug("Reordering {} kanban cards for freelance: {}", orderedProjectIds.size(), freelanceId);
+        Map<Long, Project> projectsById = new HashMap<>();
+        for (Project project : projectRepository.findAllById(orderedProjectIds)) {
+            projectsById.put(project.getId(), project);
+        }
+
+        List<Project> toSave = new ArrayList<>();
+        for (int position = 0; position < orderedProjectIds.size(); position++) {
+            Project project = projectsById.get(orderedProjectIds.get(position));
+            if (project != null && project.getFreelance() != null
+                && project.getFreelance().getId().equals(freelanceId)) {
+                project.setBoardPosition(position);
+                toSave.add(project);
+            }
+        }
+        projectRepository.saveAll(toSave);
+        log.info("Reordered {} kanban cards for freelance: {}", toSave.size(), freelanceId);
+    }
+
     private KanbanBoardDto.ProjectCardDto createProjectCard(Project project) {
         KanbanBoardDto.ProjectCardDto card = new KanbanBoardDto.ProjectCardDto();
         card.setProjectId(project.getId());
@@ -318,6 +346,7 @@ public class ProjectService {
         card.setNotes(project.getNotes());
         card.setPersonalRating(project.getPersonalRating());
         card.setIsFavorite(project.getIsFavorite());
+        card.setBoardPosition(project.getBoardPosition());
         card.setUpdatedAt(project.getUpdatedAt() != null ? project.getUpdatedAt().toString() : null);
         card.setLostReason(project.getLostReason() != null ? project.getLostReason().name() : null);
 

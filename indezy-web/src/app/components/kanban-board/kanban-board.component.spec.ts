@@ -46,7 +46,7 @@ describe('KanbanBoardComponent', () => {
   };
 
   beforeEach(async () => {
-    mockProjectService = jasmine.createSpyObj('ProjectService', ['getKanbanBoard', 'updateStatus', 'toggleFavorite']);
+    mockProjectService = jasmine.createSpyObj('ProjectService', ['getKanbanBoard', 'updateStatus', 'toggleFavorite', 'reorderKanbanColumn']);
     mockNotificationService = jasmine.createSpyObj('NotificationService', ['success', 'error', 'successText', 'errorText']);
     currentUser$ = new BehaviorSubject<User | null>(mockUser);
     const mockAuthService = jasmine.createSpyObj('AuthService', ['getUser'], { currentUser$ });
@@ -204,6 +204,37 @@ describe('KanbanBoardComponent', () => {
       expect(mockProjectService.updateStatus).not.toHaveBeenCalled();
       // Board reloaded to undo the optimistic move (once on init, once on cancel).
       expect(mockProjectService.getKanbanBoard).toHaveBeenCalledTimes(2);
+    });
+
+    it('should persist the new order on an in-column reorder', () => {
+      mockProjectService.reorderKanbanColumn.and.returnValue(of(undefined));
+      const cardA: KanbanProjectCardDto = { ...mockCard, projectId: 1 };
+      const cardB: KanbanProjectCardDto = { ...mockCard, projectId: 2 };
+      const container = { data: [cardA, cardB], id: `kanban-col-${ProjectStatus.APPLIED}` };
+
+      component.onCardDrop({
+        previousContainer: container,
+        container,
+        previousIndex: 0,
+        currentIndex: 1
+      } as unknown as CdkDragDrop<KanbanProjectCardDto[]>);
+
+      // Cards swapped, and the new id order is persisted for the current user.
+      expect(mockProjectService.reorderKanbanColumn).toHaveBeenCalledWith(1, [2, 1]);
+      expect(mockProjectService.updateStatus).not.toHaveBeenCalled();
+    });
+
+    it('should not persist when a card is dropped back in place', () => {
+      const container = { data: [mockCard], id: `kanban-col-${ProjectStatus.APPLIED}` };
+
+      component.onCardDrop({
+        previousContainer: container,
+        container,
+        previousIndex: 0,
+        currentIndex: 0
+      } as unknown as CdkDragDrop<KanbanProjectCardDto[]>);
+
+      expect(mockProjectService.reorderKanbanColumn).not.toHaveBeenCalled();
     });
   });
 

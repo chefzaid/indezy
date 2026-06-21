@@ -128,7 +128,9 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
 
   onCardDrop(event: CdkDragDrop<KanbanProjectCardDto[]>): void {
     if (event.previousContainer === event.container) {
+      if (event.previousIndex === event.currentIndex) {return;}
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      this.persistColumnOrder(event.container.data);
     } else {
       const card = event.previousContainer.data[event.previousIndex];
       const newStatus = this.getStatusFromContainerId(event.container.id);
@@ -178,6 +180,21 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
             2000
           );
         },
+        error: () => {
+          this.notificationService.error('errors.movingCard');
+          this.loadKanbanBoard();
+        }
+      });
+  }
+
+  /** Saves the manual card order of a column after an in-column drag; reloads on failure. */
+  private persistColumnOrder(cards: KanbanProjectCardDto[]): void {
+    if (!this.currentUserId) {return;}
+
+    const orderedIds = cards.map(card => card.projectId);
+    this.projectService.reorderKanbanColumn(this.currentUserId, orderedIds)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         error: () => {
           this.notificationService.error('errors.movingCard');
           this.loadKanbanBoard();

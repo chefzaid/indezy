@@ -55,6 +55,7 @@ export interface KanbanProjectCardDto {
   notes?: string;
   personalRating?: number;
   isFavorite?: boolean;
+  boardPosition?: number;
   updatedAt?: string;
   lostReason?: LostReason;
   isPotentialDuplicate?: boolean;

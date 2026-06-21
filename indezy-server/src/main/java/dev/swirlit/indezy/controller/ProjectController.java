@@ -183,6 +183,17 @@ public class ProjectController {
         return ResponseEntity.ok(kanbanBoard);
     }
 
+    @Operation(summary = "Reorder kanban column",
+        description = "Persist the manual order of cards within a column for the given freelance")
+    @PutMapping("/kanban/{freelanceId}/reorder")
+    public ResponseEntity<Void> reorderKanbanColumn(
+            @PathVariable Long freelanceId,
+            @RequestBody List<Long> orderedProjectIds) {
+        log.debug("PUT /projects/kanban/{}/reorder - Reordering {} cards", freelanceId, orderedProjectIds.size());
+        projectService.reorderKanbanColumn(freelanceId, orderedProjectIds);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Get dashboard stats", description = "Get aggregated dashboard statistics for charts")
     @GetMapping("/stats/dashboard/{freelanceId}")
     public ResponseEntity<DashboardStatsDto> getDashboardStats(@PathVariable Long freelanceId) {

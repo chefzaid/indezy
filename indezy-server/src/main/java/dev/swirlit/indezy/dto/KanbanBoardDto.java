@@ -25,6 +25,7 @@ public class KanbanBoardDto {
         private String notes;
         private Integer personalRating;
         private Boolean isFavorite;
+        private Integer boardPosition;
         private String updatedAt;
         private String lostReason;
         private Boolean isPotentialDuplicate;

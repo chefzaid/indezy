@@ -601,6 +601,64 @@ class ProjectServiceTest {
     }
 
     @Test
+    void getKanbanBoard_ShouldOrderByBoardPositionWithinColumn() {
+        // Given three non-favorite cards with positions 2, 0 and none.
+        testProject.setStatus(ProjectStatus.APPLIED);
+        testProject.setBoardPosition(2);
+
+        Project first = new Project();
+        first.setId(2L);
+        first.setStatus(ProjectStatus.APPLIED);
+        first.setFreelance(testFreelance);
+        first.setBoardPosition(0);
+
+        Project noPosition = new Project();
+        noPosition.setId(3L);
+        noPosition.setStatus(ProjectStatus.APPLIED);
+        noPosition.setFreelance(testFreelance);
+
+        when(projectRepository.findByFreelanceId(1L))
+                .thenReturn(Arrays.asList(testProject, first, noPosition));
+        when(interviewStepRepository.findByProjectId(any())).thenReturn(List.of());
+
+        // When
+        KanbanBoardDto board = projectService.getKanbanBoard(1L);
+
+        // Then lower positions come first and the position-less card sorts last.
+        assertThat(board.getColumns().get("APPLIED"))
+                .extracting(KanbanBoardDto.ProjectCardDto::getProjectId)
+                .containsExactly(2L, 1L, 3L);
+    }
+
+    @Test
+    void reorderKanbanColumn_ShouldAssignPositionsByIndexAndIgnoreForeignProjects() {
+        // Given two cards owned by the freelance and one owned by someone else.
+        Project ownedA = new Project();
+        ownedA.setId(10L);
+        ownedA.setFreelance(testFreelance);
+        Project ownedB = new Project();
+        ownedB.setId(11L);
+        ownedB.setFreelance(testFreelance);
+        Freelance otherFreelance = new Freelance();
+        otherFreelance.setId(2L);
+        Project foreign = new Project();
+        foreign.setId(12L);
+        foreign.setFreelance(otherFreelance);
+
+        List<Long> orderedIds = List.of(11L, 10L, 12L);
+        when(projectRepository.findAllById(orderedIds)).thenReturn(List.of(ownedA, ownedB, foreign));
+
+        // When
+        projectService.reorderKanbanColumn(1L, orderedIds);
+
+        // Then owned cards get their index as position; the foreign card is left untouched.
+        assertThat(ownedB.getBoardPosition()).isZero();
+        assertThat(ownedA.getBoardPosition()).isEqualTo(1);
+        assertThat(foreign.getBoardPosition()).isNull();
+        verify(projectRepository).saveAll(any());
+    }
+
+    @Test
     void getKanbanBoard_ShouldFlagProjectsWithSameClientAndRoleAsDuplicates() {
         // Given two opportunities for the same client with the same role (different case),
         // plus a third with a different role for the same client.

@@ -102,6 +102,10 @@ public class Project extends BaseEntity {
     @Column(name = "is_favorite", nullable = false, columnDefinition = "boolean default false")
     private Boolean isFavorite = false;
 
+    /** Manual priority within a Kanban column (lower comes first); null keeps default ordering. */
+    @Column(name = "board_position")
+    private Integer boardPosition;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "freelance_id", nullable = false)
     private Freelance freelance;
