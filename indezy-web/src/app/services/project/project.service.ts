@@ -103,6 +103,12 @@ export class ProjectService {
     return this.http.put<void>(`${this.API_URL}/kanban/${freelanceId}/reorder`, orderedProjectIds);
   }
 
+  /** Downloads an accountant CSV summary of the freelance's projects for the given year. */
+  downloadYearlySummary(freelanceId: number, year: number): Observable<Blob> {
+    const params = new HttpParams().set('year', year);
+    return this.http.get(`${this.API_URL}/export/csv/${freelanceId}`, { params, responseType: 'blob' });
+  }
+
   getDashboardStats(freelanceId: number): Observable<DashboardStatsDto> {
     return this.http.get<DashboardStatsDto>(`${this.API_URL}/stats/dashboard/${freelanceId}`);
   }

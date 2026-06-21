@@ -173,6 +173,8 @@
   "projects": {
     "title": "Mes Missions",
     "newProject": "Nouvelle mission",
+    "exportSummary": "Exporter le récapitulatif",
+    "exportError": "Erreur lors de l'export du récapitulatif",
     "loading": "Chargement des missions...",
     "noProjects": "Aucune mission trouvée",
     "noMatchingProjects": "Aucune mission ne correspond aux filtres",

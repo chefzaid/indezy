@@ -6,10 +6,16 @@
         <mat-icon>work</mat-icon>
         {{ 'projects.title' | translate }}
       </h1>
-      <button mat-raised-button color="primary" routerLink="/projects/new">
-        <mat-icon>add</mat-icon>
-        {{ 'projects.newProject' | translate }}
-      </button>
+      <div class="header-actions">
+        <button mat-stroked-button type="button" (click)="exportSummary()">
+          <mat-icon>download</mat-icon>
+          {{ 'projects.exportSummary' | translate }}
+        </button>
+        <button mat-raised-button color="primary" routerLink="/projects/new">
+          <mat-icon>add</mat-icon>
+          {{ 'projects.newProject' | translate }}
+        </button>
+      </div>
     </div>
   </div>
 

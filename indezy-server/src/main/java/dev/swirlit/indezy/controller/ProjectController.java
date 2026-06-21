@@ -7,6 +7,7 @@ import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.service.DashboardStatsService;
+import dev.swirlit.indezy.service.ProjectExportService;
 import dev.swirlit.indezy.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,7 +20,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +39,7 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final DashboardStatsService dashboardStatsService;
+    private final ProjectExportService projectExportService;
 
     @Operation(summary = "Get all projects", description = "Retrieve a list of all projects")
     @ApiResponses(value = {
@@ -192,6 +196,21 @@ public class ProjectController {
         log.debug("PUT /projects/kanban/{}/reorder - Reordering {} cards", freelanceId, orderedProjectIds.size());
         projectService.reorderKanbanColumn(freelanceId, orderedProjectIds);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Export yearly summary",
+        description = "Download a CSV summary of the freelance's projects, optionally limited to a year")
+    @GetMapping("/export/csv/{freelanceId}")
+    public ResponseEntity<String> exportYearlySummary(
+            @PathVariable Long freelanceId,
+            @RequestParam(required = false) Integer year) {
+        log.debug("GET /projects/export/csv/{}?year={} - Exporting yearly summary", freelanceId, year);
+        String csv = projectExportService.buildYearlySummaryCsv(freelanceId, year);
+        String filename = "indezy-summary-" + (year != null ? year : "all") + ".csv";
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+            .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+            .body(csv);
     }
 
     @Operation(summary = "Get dashboard stats", description = "Get aggregated dashboard statistics for charts")

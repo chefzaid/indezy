@@ -207,7 +207,9 @@ Indezy includes reversion-rate oriented finance fields and calculator behavior f
 - configurable income tax
 - max workable days with French public holidays
 
-The next finance work should extend this with deductible expenses, social contributions, status-specific assumptions, invoice support, and accountant exports.
+The projects list also offers an accountant CSV export (`GET /projects/export/csv/{freelanceId}?year=YYYY`): one row per project (role, status, client, source, work mode, start date, duration, daily rate, days per year, estimated revenue) plus a totals row, optionally filtered to a single year.
+
+The next finance work should extend this with deductible expenses, social contributions, status-specific assumptions, and invoice support.
 
 ## Internationalization
 

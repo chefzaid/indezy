@@ -242,6 +242,24 @@ export class ProjectListComponent implements OnInit {
     }
   }
 
+  /** Downloads a CSV summary of the current year's projects for the accountant. */
+  exportSummary(): void {
+    if (!this.currentUser?.id) {return;}
+
+    const year = new Date().getFullYear();
+    this.projectService.downloadYearlySummary(this.currentUser.id, year).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `indezy-summary-${year}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => this.notificationService.error('projects.exportError')
+    });
+  }
+
   getWorkModeLabel(workMode: string): string {
     return this.translate.instant('projects.workModes.' + workMode);
   }

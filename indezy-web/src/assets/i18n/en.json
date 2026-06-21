@@ -173,6 +173,8 @@
   "projects": {
     "title": "My Projects",
     "newProject": "New project",
+    "exportSummary": "Export summary",
+    "exportError": "Error exporting summary",
     "loading": "Loading projects...",
     "noProjects": "No projects found",
     "noMatchingProjects": "No projects match the filters",

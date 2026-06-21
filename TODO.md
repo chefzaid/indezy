@@ -73,7 +73,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] URSSAF/social contribution estimation per status (micro-entreprise, EI, EURL, SASU, portage)
 - [ ] Invoice generation from project data (rate x days worked, French mentions légales)
 - [ ] Invoice status tracking (draft, sent, paid, overdue) with payment delay alerts
-- [ ] Yearly summary export for the accountant (CSV/Excel)
+- [x] Yearly summary export for the accountant (CSV/Excel)
 - [ ] Multi-currency support for international clients
 
 ## Calendar & Scheduling
