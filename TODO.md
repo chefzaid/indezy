@@ -187,7 +187,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] Frontend route protection through `authGuard`
 - [x] Bearer token attachment through the Angular auth interceptor
 - [x] Profile surface for account, preferences, notifications, and security-related fields
-- [ ] Harden backend security config (currently permissive for non-auth routes)
+- [x] Harden backend security config (currently permissive for non-auth routes)
 - [ ] Authentication + Gmail / Outlook / LinkedIn authentication
 - [ ] Email validation and password reset flows
 - [ ] Two-factor authentication (TOTP)
