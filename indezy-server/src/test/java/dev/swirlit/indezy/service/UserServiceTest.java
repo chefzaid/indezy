@@ -263,14 +263,16 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteAccount_WithCorrectPassword_ShouldDeleteUser() {
+    void deleteAccount_WithCorrectPassword_ShouldSoftDeleteUser() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches("pass", "hashed")).thenReturn(true);
 
         boolean result = userService.deleteAccount(1L, "pass");
 
         assertThat(result).isTrue();
-        verify(userRepository).delete(testUser);
+        assertThat(testUser.getDeletedAt()).isNotNull();
+        verify(userRepository).save(testUser);
+        verify(userRepository, never()).delete(any());
     }
 
     @Test
@@ -281,17 +283,6 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.deleteAccount(1L, "wrong"))
             .isInstanceOf(IllegalArgumentException.class);
         verify(userRepository, never()).delete(any());
-    }
-
-    @Test
-    void exportUserData_ShouldContainProfileFields() {
-        when(userRepository.findByIdWithSecurityData(1L)).thenReturn(Optional.of(testUser));
-        when(userMapper.toDto(testUser)).thenReturn(testUserDto);
-
-        String json = new String(userService.exportUserData(1L));
-
-        assertThat(json).contains("\"firstName\": \"John\"");
-        assertThat(json).contains("\"email\": \"john.doe@example.com\"");
     }
 
     @Test

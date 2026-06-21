@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.*;
+import dev.swirlit.indezy.service.UserDataExportService;
 import dev.swirlit.indezy.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,6 +29,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final UserDataExportService userDataExportService;
 
     // TODO: Replace hardcoded user ID with authenticated user context
     private static final Long CURRENT_USER_ID = 1L; // TODO: Get from SecurityContext when authentication is implemented
@@ -226,7 +228,7 @@ public class UserController {
     })
     public ResponseEntity<byte[]> exportUserData() {
         log.debug("GET /users/export - Exporting user data");
-        byte[] data = userService.exportUserData(CURRENT_USER_ID);
+        byte[] data = userDataExportService.exportUserData(CURRENT_USER_ID);
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);

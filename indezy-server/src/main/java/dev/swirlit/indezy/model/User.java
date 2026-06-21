@@ -87,6 +87,10 @@ public class User extends BaseEntity {
     @Column(name = "last_password_change")
     private LocalDateTime lastPasswordChange;
 
+    /** Set when the account is soft-deleted; such accounts can no longer log in. */
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     // User Preferences
     @Column(name = "theme")
     private String theme = "light";

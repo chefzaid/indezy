@@ -29,6 +29,11 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid email or password"));
 
+        // Soft-deleted accounts cannot log in; report the same generic error to avoid leaking state.
+        if (user.getDeletedAt() != null) {
+            throw new ResourceNotFoundException("Invalid email or password");
+        }
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new ResourceNotFoundException("Invalid email or password");
         }

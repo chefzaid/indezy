@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -241,36 +240,15 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
 
-        // Verify password
+        // Verify password (confirmation that the account owner requested the deletion)
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             throw new IllegalArgumentException("Password is incorrect");
         }
 
-        userRepository.delete(user);
+        // Soft delete: keep the record but mark it deleted so the account can no longer log in.
+        user.setDeletedAt(LocalDateTime.now());
+        userRepository.save(user);
         return true;
-    }
-
-    /**
-     * Export user data
-     */
-    @Transactional(readOnly = true)
-    public byte[] exportUserData(Long userId) {
-        log.debug("Exporting user data for user ID: {}", userId);
-        User user = userRepository.findByIdWithSecurityData(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
-
-        UserDto userDto = userMapper.toDto(user);
-        
-        // TODO: Replace with proper JSON serialization and include all user data
-        String jsonData = "{\n" +
-                "  \"profile\": {\n" +
-                "    \"firstName\": \"" + userDto.getFirstName() + "\",\n" +
-                "    \"lastName\": \"" + userDto.getLastName() + "\",\n" +
-                "    \"email\": \"" + userDto.getEmail() + "\"\n" +
-                "  }\n" +
-                "}"; // TODO: Include all user data (projects, clients, contacts, etc.)
-
-        return jsonData.getBytes(StandardCharsets.UTF_8);
     }
 
     /**

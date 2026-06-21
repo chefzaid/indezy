@@ -92,6 +92,19 @@ class AuthServiceTest {
     }
 
     @Test
+    void login_ShouldThrowException_WhenAccountIsSoftDeleted() {
+        // Given a soft-deleted account
+        testUser.setDeletedAt(java.time.LocalDateTime.now());
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
+
+        // When & Then login is refused with the generic error and the password is never checked.
+        assertThatThrownBy(() -> authService.login(loginRequest))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Invalid email or password");
+        verify(passwordEncoder, never()).matches(any(), any());
+    }
+
+    @Test
     void login_ShouldThrowException_WhenPasswordIsInvalid() {
         // Given
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));

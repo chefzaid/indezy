@@ -191,12 +191,16 @@ Indezy stores personal and commercially sensitive information:
 - possible CV file path
 - security-question answer hashes
 
+Account deletion and data portability:
+
+- `POST /api/users/account/delete` performs a **soft delete**: it requires the account password as confirmation and sets `User.deletedAt` rather than removing the row. Soft-deleted accounts can no longer log in (`AuthService.login` rejects them with the generic invalid-credentials error).
+- `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact and source they own, downloaded as an attachment.
+
 Privacy expectations:
 
 - avoid logging request bodies that may contain personal data
 - avoid exposing cross-user records
-- add data export and account deletion before production use
-- document retention and deletion behavior
+- document retention and deletion behavior (e.g. purging soft-deleted accounts after a grace period)
 - consider encrypting high-risk fields if threat model requires it
 
 ## External APIs
