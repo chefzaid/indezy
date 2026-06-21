@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.RegisterRequest;
 import dev.swirlit.indezy.service.AuthService;
+import dev.swirlit.indezy.service.LoginAttemptService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,6 +24,9 @@ class AuthControllerTest {
 
     @Mock
     private AuthService authService;
+
+    @Mock
+    private LoginAttemptService loginAttemptService;
 
     @InjectMocks
     private AuthController authController;
@@ -55,6 +61,39 @@ class AuthControllerTest {
         assertThat(response.getBody().getUser().getEmail()).isEqualTo("test@example.com");
         assertThat(response.getBody().getUser().getFirstName()).isEqualTo("John");
         assertThat(response.getBody().getUser().getLastName()).isEqualTo("Doe");
+        verify(loginAttemptService).loginSucceeded("test@example.com");
+    }
+
+    @Test
+    void login_ShouldRecordFailure_WhenCredentialsAreInvalid() {
+        // Given
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("test@example.com");
+        loginRequest.setPassword("wrongpassword");
+        when(authService.login(any(LoginRequest.class))).thenThrow(new RuntimeException("Invalid credentials"));
+
+        // When
+        ResponseEntity<LoginResponse> response = authController.login(loginRequest);
+
+        // Then the failure is recorded for brute-force tracking.
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        verify(loginAttemptService).loginFailed("test@example.com");
+    }
+
+    @Test
+    void login_ShouldReturnTooManyRequests_WhenAccountIsBlocked() {
+        // Given the account is already locked out.
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("test@example.com");
+        loginRequest.setPassword("password123");
+        when(loginAttemptService.isBlocked("test@example.com")).thenReturn(true);
+
+        // When
+        ResponseEntity<LoginResponse> response = authController.login(loginRequest);
+
+        // Then authentication is never attempted and a 429 is returned.
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
+        verify(authService, never()).login(any(LoginRequest.class));
     }
 
     @Test

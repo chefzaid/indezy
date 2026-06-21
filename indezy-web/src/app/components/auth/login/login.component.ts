@@ -72,6 +72,8 @@ export class LoginComponent implements OnInit {
           
           if (error.status === 401) {
             errorMessage = this.translateService.instant('auth.invalidCredentials');
+          } else if (error.status === 429) {
+            errorMessage = this.translateService.instant('auth.tooManyAttempts');
           } else if (error.status === 0) {
             errorMessage = this.translateService.instant('auth.serverUnavailable');
           }

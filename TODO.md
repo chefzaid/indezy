@@ -193,7 +193,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Two-factor authentication (TOTP)
 - [ ] Account deletion (soft-delete with confirmation) and GDPR data export (droit à la portabilité)
 - [ ] Audit log of account activity and active session management
-- [ ] Rate limiting and brute-force protection on auth endpoints
+- [x] Rate limiting and brute-force protection on auth endpoints
 - [ ] API tokens for third-party integrations (read-only scopes)
 - [ ] Notification preferences per channel (email, push, in-app) and per event type
 

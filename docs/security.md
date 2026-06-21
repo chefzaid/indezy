@@ -30,6 +30,8 @@ Implemented auth endpoints:
 
 Successful auth returns a JWT. The frontend stores and attaches that token through `authInterceptor`.
 
+Brute-force protection: `LoginAttemptService` tracks failed logins per account (email, case-insensitive). After 5 failures within a 15-minute window the account is temporarily locked and `POST /api/auth/login` returns `429 Too Many Requests` until the window expires; a successful login clears the counter. State is in-memory per instance; IP-based and distributed (multi-instance) rate limiting remain future hardening.
+
 Backend JWT settings:
 
 ```yaml

@@ -93,6 +93,7 @@
     "loginSuccess": "Successfully signed in!",
     "loginError": "Sign in error. Please try again.",
     "invalidCredentials": "Invalid email or password.",
+    "tooManyAttempts": "Too many failed attempts. Please try again later.",
     "serverUnavailable": "Unable to connect to the server.",
     "registerTitle": "Create an Indezy account",
     "registerSubtitle": "Join the community of organized freelancers",
