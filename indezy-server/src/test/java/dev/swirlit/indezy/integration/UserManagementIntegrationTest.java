@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 @Sql(scripts = "/test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@SuppressWarnings("null")
 class UserManagementIntegrationTest {
 
     @LocalServerPort
