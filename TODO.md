@@ -190,7 +190,8 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] Harden backend security config (currently permissive for non-auth routes)
 - [ ] Authentication + Gmail / Outlook / LinkedIn authentication
 - [ ] Email validation and password reset flows
-- [ ] Two-factor authentication (TOTP)
+- [ ] Two-factor authentication (TOTP) — currently stubbed (random UUID secret, placeholder QR, length-only code check); implement real secret generation, QR/URI, and code validation
+- [ ] Replace hardcoded user/freelance IDs with the authenticated principal from `SecurityContext` (backend `UserController.CURRENT_USER_ID = 1`, and `freelanceId = 1` in the Angular contact service) once authentication is wired through
 - [x] Account deletion (soft-delete with confirmation) and GDPR data export (droit à la portabilité)
 - [ ] Audit log of account activity and active session management
 - [x] Rate limiting and brute-force protection on auth endpoints
