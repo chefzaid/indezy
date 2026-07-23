@@ -44,7 +44,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Skill tags on projects + match score against the freelancer's skill profile (with global tag rename across all projects)
 - [x] Daily rate negotiation history (asked / offered / agreed) per project
 - [ ] Project archive view with full-text search across past opportunities
-- [ ] Contract milestones tracking (start date, renewal date, notice period alerts)
+- [x] Contract milestones tracking (start date, renewal date, notice period alerts)
 - [x] Mission end-date reminders to restart prospection N weeks before the bench
 - [ ] Prospection campaigns: separate pipeline per job-search period (e.g. "2026 search"), each with its own stats, comparable against the global view
 - [ ] Commute-aware opportunity scoring: enhance existing home-to-job commute sorting (driving/transit modes, Maps API fallback handling, caching, remote/hybrid rules)

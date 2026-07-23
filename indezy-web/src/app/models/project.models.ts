@@ -147,6 +147,7 @@ export interface DashboardStatsDto {
   funnelByEsn: FunnelBreakdown[];
   missionsEndingSoon: MissionEndingSoon[];
   staleOpportunities: StaleOpportunity[];
+  upcomingRenewals: UpcomingRenewal[];
 }
 
 export interface DailyRateRange {
@@ -193,6 +194,14 @@ export interface StaleOpportunity {
   clientName: string;
   status: string;
   daysSinceActivity: number;
+}
+
+export interface UpcomingRenewal {
+  projectId: number;
+  role: string;
+  clientName: string;
+  renewalDate: string;
+  daysUntilRenewal: number;
 }
 
 export interface ProjectNote {

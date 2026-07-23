@@ -36,6 +36,7 @@ public class DashboardStatsDto {
     private List<FunnelBreakdown> funnelByEsn;
     private List<MissionEndingSoon> missionsEndingSoon;
     private List<StaleOpportunity> staleOpportunities;
+    private List<UpcomingRenewal> upcomingRenewals;
 
     @Data
     @Builder
@@ -112,6 +113,23 @@ public class DashboardStatsDto {
         private String clientName;
         private LocalDate endDate;
         private long daysUntilEnd;
+    }
+
+    /**
+     * A signed mission whose next order-renewal date falls within the freelance's notice period,
+     * so the renewal can be confirmed or notice given in time. {@code daysUntilRenewal} is the
+     * number of days from today to {@code renewalDate}.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpcomingRenewal {
+        private Long projectId;
+        private String role;
+        private String clientName;
+        private LocalDate renewalDate;
+        private long daysUntilRenewal;
     }
 
     /**

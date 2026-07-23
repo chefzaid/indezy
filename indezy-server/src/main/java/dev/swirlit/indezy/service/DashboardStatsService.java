@@ -5,6 +5,8 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.model.Freelance;
+import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,7 @@ import java.util.TreeMap;
 public class DashboardStatsService {
 
     private final ProjectRepository projectRepository;
+    private final FreelanceRepository freelanceRepository;
 
     @Transactional(readOnly = true)
     public DashboardStatsDto getDashboardStats(Long freelanceId) {
@@ -111,6 +114,12 @@ public class DashboardStatsService {
         double resolvedAverageRate = averageDailyRate != null ? averageDailyRate : 0;
         long[] bench = buildBenchStats(projects);
 
+        // Notice period drives how early upcoming contract renewals are surfaced
+        int noticePeriodInDays = freelanceRepository.findById(freelanceId)
+            .map(Freelance::getNoticePeriodInDays)
+            .filter(days -> days > 0)
+            .orElse(DEFAULT_NOTICE_PERIOD_DAYS);
+
         return DashboardStatsDto.builder()
             .totalProjects(totalProjects != null ? totalProjects : 0)
             .averageDailyRate(averageDailyRate != null ? averageDailyRate : 0)
@@ -137,7 +146,46 @@ public class DashboardStatsService {
                 p -> p.getMiddleman() != null ? p.getMiddleman().getCompanyName() : null))
             .missionsEndingSoon(buildMissionsEndingSoon(projects, LocalDate.now()))
             .staleOpportunities(buildStaleOpportunities(projects, LocalDateTime.now()))
+            .upcomingRenewals(buildUpcomingRenewals(projects, LocalDate.now(), noticePeriodInDays))
             .build();
+    }
+
+    /** Notice period applied when the freelance has not configured one. */
+    private static final int DEFAULT_NOTICE_PERIOD_DAYS = 30;
+
+    /**
+     * Lists signed (WON) missions whose next order-renewal date ({@code startDate} advanced by
+     * whole multiples of {@code orderRenewalInMonths}) falls between today and the freelance's
+     * notice period, so the renewal can be confirmed or notice given in time. Soonest first.
+     */
+    private List<DashboardStatsDto.UpcomingRenewal> buildUpcomingRenewals(
+            List<Project> projects, LocalDate today, int noticePeriodInDays) {
+        List<DashboardStatsDto.UpcomingRenewal> renewals = new ArrayList<>();
+        for (Project project : projects) {
+            if (!ProjectStatus.WON.equals(project.getStatus())
+                || project.getStartDate() == null
+                || project.getOrderRenewalInMonths() == null
+                || project.getOrderRenewalInMonths() <= 0) {
+                continue;
+            }
+            LocalDate renewalDate = project.getStartDate().plusMonths(project.getOrderRenewalInMonths());
+            while (renewalDate.isBefore(today)) {
+                renewalDate = renewalDate.plusMonths(project.getOrderRenewalInMonths());
+            }
+            long daysUntilRenewal = ChronoUnit.DAYS.between(today, renewalDate);
+            if (daysUntilRenewal > noticePeriodInDays) {
+                continue;
+            }
+            renewals.add(DashboardStatsDto.UpcomingRenewal.builder()
+                .projectId(project.getId())
+                .role(project.getRole())
+                .clientName(project.getClient() != null ? project.getClient().getCompanyName() : null)
+                .renewalDate(renewalDate)
+                .daysUntilRenewal(daysUntilRenewal)
+                .build());
+        }
+        renewals.sort(Comparator.comparingLong(DashboardStatsDto.UpcomingRenewal::getDaysUntilRenewal));
+        return renewals;
     }
 
     /** Active opportunities idle for at least this many days are surfaced for follow-up. */

@@ -167,6 +167,8 @@
       },
       "missionsEndingSoon": "Missions bientôt terminées (relancer la prospection)",
       "endsInDays": "se termine dans {{days}} jours",
+      "upcomingRenewals": "Renouvellements de contrat à venir",
+      "renewsInDays": "renouvellement dans {{days}} jours",
       "staleOpportunities": "Opportunités dormantes (relancer ou archiver)",
       "idleForDays": "inactive depuis {{days}} jours"
     }

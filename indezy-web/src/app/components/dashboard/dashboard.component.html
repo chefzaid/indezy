@@ -184,6 +184,23 @@
               }
             </div>
           }
+          @if (getUpcomingRenewals().length > 0) {
+            <div class="ending-soon">
+              <h4 class="ending-soon-title">
+                <mat-icon>autorenew</mat-icon>
+                {{ 'dashboard.charts.upcomingRenewals' | translate }}
+              </h4>
+              @for (renewal of getUpcomingRenewals(); track renewal.projectId) {
+                <div class="ending-soon-row" [routerLink]="['/projects', renewal.projectId]">
+                  <span class="ending-soon-role">{{ renewal.role }}</span>
+                  <span class="ending-soon-client">{{ renewal.clientName }}</span>
+                  <span class="ending-soon-days">
+                    {{ 'dashboard.charts.renewsInDays' | translate:{ days: renewal.daysUntilRenewal } }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
           @if (getStaleOpportunities().length > 0) {
             <div class="stale-opps">
               <h4 class="stale-opps-title">

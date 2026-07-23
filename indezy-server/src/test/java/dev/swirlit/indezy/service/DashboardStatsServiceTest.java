@@ -9,6 +9,7 @@ import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,6 +31,9 @@ class DashboardStatsServiceTest {
 
     @Mock
     private ProjectRepository projectRepository;
+
+    @Mock
+    private FreelanceRepository freelanceRepository;
 
     @InjectMocks
     private DashboardStatsService dashboardStatsService;
@@ -504,5 +509,72 @@ class DashboardStatsServiceTest {
                 assertThat(stage.getCount()).isZero();
                 assertThat(stage.getConversionRate()).isZero();
             });
+    }
+
+    private void stubMinimalAggregates() {
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+    }
+
+    @Test
+    void getDashboardStats_ShouldSurfaceRenewalsWithinNoticePeriod() {
+        LocalDate today = LocalDate.now();
+        testProject.setStatus(ProjectStatus.WON);
+        // First renewal three months after start; start six months ago so the next one lands on today.
+        testProject.setStartDate(today.minusMonths(6));
+        testProject.setOrderRenewalInMonths(3);
+        testFreelance.setNoticePeriodInDays(30);
+
+        stubMinimalAggregates();
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
+        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        assertThat(stats.getUpcomingRenewals()).hasSize(1);
+        assertThat(stats.getUpcomingRenewals().getFirst().getProjectId()).isEqualTo(1L);
+        assertThat(stats.getUpcomingRenewals().getFirst().getClientName()).isEqualTo("Test Company");
+        assertThat(stats.getUpcomingRenewals().getFirst().getDaysUntilRenewal()).isBetween(0L, 30L);
+        assertThat(stats.getUpcomingRenewals().getFirst().getRenewalDate()).isAfterOrEqualTo(today);
+    }
+
+    @Test
+    void getDashboardStats_ShouldNotSurfaceRenewalsBeyondNoticePeriod() {
+        LocalDate today = LocalDate.now();
+        testProject.setStatus(ProjectStatus.WON);
+        // First renewal is three months out, well beyond a 30-day notice window.
+        testProject.setStartDate(today);
+        testProject.setOrderRenewalInMonths(3);
+        testFreelance.setNoticePeriodInDays(30);
+
+        stubMinimalAggregates();
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
+        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        assertThat(stats.getUpcomingRenewals()).isEmpty();
+    }
+
+    @Test
+    void getDashboardStats_ShouldIgnoreRenewalsForNonWonProjects() {
+        LocalDate today = LocalDate.now();
+        testProject.setStatus(ProjectStatus.INTERVIEW);
+        testProject.setStartDate(today.minusMonths(6));
+        testProject.setOrderRenewalInMonths(3);
+        testFreelance.setNoticePeriodInDays(30);
+
+        stubMinimalAggregates();
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
+        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        assertThat(stats.getUpcomingRenewals()).isEmpty();
     }
 }
