@@ -27,6 +27,7 @@ import { ClientDto } from '../../../models';
 import { ContactService } from '../../../services/contact/contact.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { AuthService } from '../../../services/auth/auth.service';
 
 interface ClientFilterValues {
   searchQuery?: string;
@@ -124,7 +125,8 @@ export class ClientListComponent implements OnInit, OnDestroy {
     private readonly dialog: MatDialog,
     private readonly notificationService: NotificationService,
     private readonly fb: FormBuilder,
-    private readonly translateService: TranslateService
+    private readonly translateService: TranslateService,
+    private readonly authService: AuthService
   ) {
     // Initialize filter form
     this.filterForm = this.fb.group({
@@ -212,9 +214,11 @@ export class ClientListComponent implements OnInit, OnDestroy {
   private performSearch(query: string): void {
     if (query.trim()) {
       if (this.searchType === 'CLIENT') {
-        // Search by client name/info
-        // Using default freelanceId until authentication context is implemented
-        const freelanceId = 1;
+        // Search by client name/info for the currently authenticated freelance
+        const freelanceId = this.authService.getUser()?.id;
+        if (!freelanceId) {
+          return;
+        }
         this.clientService.searchClients(freelanceId, query)
           .pipe(takeUntil(this.destroy$))
           .subscribe(clients => {

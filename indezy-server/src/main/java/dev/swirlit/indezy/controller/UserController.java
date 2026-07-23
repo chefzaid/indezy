@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.*;
 import dev.swirlit.indezy.service.UserDataExportService;
 import dev.swirlit.indezy.service.UserService;
+import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,8 +32,6 @@ public class UserController {
     private final UserService userService;
     private final UserDataExportService userDataExportService;
 
-    private static final Long CURRENT_USER_ID = 1L;
-
     @GetMapping("/profile")
     @Operation(summary = "Get user profile", description = "Retrieve the current user's profile information")
     @ApiResponses(value = {
@@ -41,7 +40,7 @@ public class UserController {
     })
     public ResponseEntity<UserDto> getUserProfile() {
         log.debug("GET /users/profile - Getting user profile");
-        UserDto userProfile = userService.getUserProfile(CURRENT_USER_ID);
+        UserDto userProfile = userService.getUserProfile(SecurityUtils.getCurrentUserId());
         return ResponseEntity.ok(userProfile);
     }
 
@@ -54,7 +53,7 @@ public class UserController {
     })
     public ResponseEntity<UserDto> updateUserProfile(@Valid @RequestBody UserDto userDto) {
         log.debug("PUT /users/profile - Updating user profile");
-        UserDto updatedProfile = userService.updateUserProfile(CURRENT_USER_ID, userDto);
+        UserDto updatedProfile = userService.updateUserProfile(SecurityUtils.getCurrentUserId(), userDto);
         return ResponseEntity.ok(updatedProfile);
     }
 
@@ -69,7 +68,7 @@ public class UserController {
             @Parameter(description = "Avatar image file") @RequestParam("file") MultipartFile file) {
         log.debug("POST /users/avatar - Uploading avatar");
         try {
-            String avatarUrl = userService.uploadAvatar(CURRENT_USER_ID, file);
+            String avatarUrl = userService.uploadAvatar(SecurityUtils.getCurrentUserId(), file);
             return ResponseEntity.ok(avatarUrl);
         } catch (IOException e) {
             log.error("Error uploading avatar", e);
@@ -87,7 +86,7 @@ public class UserController {
     public ResponseEntity<Boolean> changePassword(@Valid @RequestBody PasswordChangeRequestDto request) {
         log.debug("POST /users/change-password - Changing password");
         try {
-            boolean success = userService.changePassword(CURRENT_USER_ID, request);
+            boolean success = userService.changePassword(SecurityUtils.getCurrentUserId(), request);
             return ResponseEntity.ok(success);
         } catch (IllegalArgumentException e) {
             log.error("Password change failed: {}", e.getMessage());
@@ -103,7 +102,7 @@ public class UserController {
     })
     public ResponseEntity<UserPreferencesDto> getUserPreferences() {
         log.debug("GET /users/preferences - Getting user preferences");
-        UserPreferencesDto preferences = userService.getUserPreferences(CURRENT_USER_ID);
+        UserPreferencesDto preferences = userService.getUserPreferences(SecurityUtils.getCurrentUserId());
         return ResponseEntity.ok(preferences);
     }
 
@@ -116,7 +115,7 @@ public class UserController {
     })
     public ResponseEntity<UserPreferencesDto> updateUserPreferences(@Valid @RequestBody UserPreferencesDto preferencesDto) {
         log.debug("PUT /users/preferences - Updating user preferences");
-        UserPreferencesDto updatedPreferences = userService.updateUserPreferences(CURRENT_USER_ID, preferencesDto);
+        UserPreferencesDto updatedPreferences = userService.updateUserPreferences(SecurityUtils.getCurrentUserId(), preferencesDto);
         return ResponseEntity.ok(updatedPreferences);
     }
 
@@ -128,7 +127,7 @@ public class UserController {
     })
     public ResponseEntity<UserNotificationSettingsDto> getNotificationSettings() {
         log.debug("GET /users/notifications - Getting notification settings");
-        UserNotificationSettingsDto settings = userService.getNotificationSettings(CURRENT_USER_ID);
+        UserNotificationSettingsDto settings = userService.getNotificationSettings(SecurityUtils.getCurrentUserId());
         return ResponseEntity.ok(settings);
     }
 
@@ -141,7 +140,7 @@ public class UserController {
     })
     public ResponseEntity<UserNotificationSettingsDto> updateNotificationSettings(@Valid @RequestBody UserNotificationSettingsDto settingsDto) {
         log.debug("PUT /users/notifications - Updating notification settings");
-        UserNotificationSettingsDto updatedSettings = userService.updateNotificationSettings(CURRENT_USER_ID, settingsDto);
+        UserNotificationSettingsDto updatedSettings = userService.updateNotificationSettings(SecurityUtils.getCurrentUserId(), settingsDto);
         return ResponseEntity.ok(updatedSettings);
     }
 
@@ -153,7 +152,7 @@ public class UserController {
     })
     public ResponseEntity<UserSecuritySettingsDto> getSecuritySettings() {
         log.debug("GET /users/security - Getting security settings");
-        UserSecuritySettingsDto settings = userService.getSecuritySettings(CURRENT_USER_ID);
+        UserSecuritySettingsDto settings = userService.getSecuritySettings(SecurityUtils.getCurrentUserId());
         return ResponseEntity.ok(settings);
     }
 
@@ -165,7 +164,7 @@ public class UserController {
     })
     public ResponseEntity<String> enableTwoFactor(@RequestBody(required = false) Map<String, Object> body) {
         log.debug("POST /users/security/2fa/enable - Enabling 2FA");
-        String qrCode = userService.enableTwoFactor(CURRENT_USER_ID);
+        String qrCode = userService.enableTwoFactor(SecurityUtils.getCurrentUserId());
         return ResponseEntity.ok(qrCode);
     }
 
@@ -180,7 +179,7 @@ public class UserController {
         log.debug("POST /users/security/2fa/disable - Disabling 2FA");
         try {
             String code = request.get("code");
-            boolean success = userService.disableTwoFactor(CURRENT_USER_ID, code);
+            boolean success = userService.disableTwoFactor(SecurityUtils.getCurrentUserId(), code);
             return ResponseEntity.ok(success);
         } catch (IllegalArgumentException e) {
             log.error("2FA disable failed: {}", e.getMessage());
@@ -196,7 +195,7 @@ public class UserController {
     })
     public ResponseEntity<Boolean> terminateSession(@PathVariable String sessionId) {
         log.debug("DELETE /users/security/sessions/{} - Terminating session", sessionId);
-        boolean success = userService.terminateSession(CURRENT_USER_ID, sessionId);
+        boolean success = userService.terminateSession(SecurityUtils.getCurrentUserId(), sessionId);
         return ResponseEntity.ok(success);
     }
 
@@ -211,7 +210,7 @@ public class UserController {
         log.debug("DELETE /users/account - Deleting account");
         try {
             String password = request.get("password");
-            boolean success = userService.deleteAccount(CURRENT_USER_ID, password);
+            boolean success = userService.deleteAccount(SecurityUtils.getCurrentUserId(), password);
             return ResponseEntity.ok(success);
         } catch (IllegalArgumentException e) {
             log.error("Account deletion failed: {}", e.getMessage());
@@ -227,7 +226,7 @@ public class UserController {
     })
     public ResponseEntity<byte[]> exportUserData() {
         log.debug("GET /users/export - Exporting user data");
-        byte[] data = userDataExportService.exportUserData(CURRENT_USER_ID);
+        byte[] data = userDataExportService.exportUserData(SecurityUtils.getCurrentUserId());
         
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);

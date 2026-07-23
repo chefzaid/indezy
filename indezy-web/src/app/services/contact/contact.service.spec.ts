@@ -3,10 +3,13 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { ContactService } from './contact.service';
 import { ContactDto } from '../../models';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../auth/auth.service';
+import { User } from '../../models/auth.models';
 
 describe('ContactService', () => {
   let service: ContactService;
   let httpMock: HttpTestingController;
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   const mockContact: ContactDto = {
     id: 1,
@@ -40,9 +43,14 @@ describe('ContactService', () => {
   ];
 
   beforeEach(() => {
+    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['getUser']);
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [ContactService]
+      providers: [
+        ContactService,
+        { provide: AuthService, useValue: authServiceSpy }
+      ]
     });
 
     service = TestBed.inject(ContactService);
@@ -55,6 +63,31 @@ describe('ContactService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  it('should search contacts for the authenticated freelance', () => {
+    authServiceSpy.getUser.and.returnValue({ id: 7 } as User);
+
+    service.searchContacts('marie').subscribe(contacts => {
+      expect(contacts).toEqual(mockContacts);
+    });
+
+    const req = httpMock.expectOne(
+      r => r.url === `${environment.apiUrl}/contacts/by-freelance/7/search/name`
+    );
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('name')).toBe('marie');
+    req.flush(mockContacts);
+  });
+
+  it('should return an empty result and make no request when no user is authenticated', () => {
+    authServiceSpy.getUser.and.returnValue(null);
+
+    service.searchContacts('marie').subscribe(contacts => {
+      expect(contacts).toEqual([]);
+    });
+
+    httpMock.expectNone(() => true);
   });
 
   it('should get all contacts', () => {

@@ -1,5 +1,7 @@
 package dev.swirlit.indezy.integration;
 
+import dev.swirlit.indezy.util.JwtUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
@@ -32,6 +34,23 @@ class UserManagementIntegrationTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    /**
+     * Authenticates every request as the seeded user (id 1) by attaching a Bearer
+     * token, so the endpoints resolve the current user from the security context.
+     */
+    @BeforeEach
+    void authenticateAsSeededUser() {
+        String token = jwtUtil.generateToken("john.doe@example.com", 1L);
+        restTemplate.getRestTemplate().getInterceptors().clear();
+        restTemplate.getRestTemplate().getInterceptors().add((request, body, execution) -> {
+            request.getHeaders().setBearerAuth(token);
+            return execution.execute(request, body);
+        });
+    }
 
     private String getBaseUrl() {
         return "http://localhost:" + port + "/api/users";

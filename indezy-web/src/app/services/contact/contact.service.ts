@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ContactDto } from '../../models/contact.models';
+import { AuthService } from '../auth/auth.service';
 
 // Export the interface for use in other components
 export { ContactDto } from '../../models/contact.models';
@@ -13,7 +14,10 @@ export { ContactDto } from '../../models/contact.models';
 export class ContactService {
   private readonly API_URL = `${environment.apiUrl}/contacts`;
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly authService: AuthService
+  ) {}
   getAll(): Observable<ContactDto[]> {
     return this.http.get<ContactDto[]>(this.API_URL);
   }
@@ -77,8 +81,11 @@ export class ContactService {
   }
 
   searchContacts(query: string): Observable<ContactDto[]> {
-    // For backward compatibility, search by name for the current freelance
-    const freelanceId = 1;
+    // Search by name for the currently authenticated freelance.
+    const freelanceId = this.authService.getUser()?.id;
+    if (!freelanceId) {
+      return of([]);
+    }
     return this.searchByName(freelanceId, query);
   }
 
