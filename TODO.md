@@ -145,7 +145,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Composable filters (text + tags + status + date + archive) with state encoded in the URL for bookmarkable views
 - [ ] Stable deep links to any project or Kanban card (?project=<id>) for sharing and reopening directly
 - [ ] Multi-select mode on project/client/contact lists (bulk delete, tag, status change, archive)
-- [ ] Internationalization hardening (French/English translation coverage, language switch persistence, missing-key checks)
+- [x] Internationalization hardening (French/English translation coverage, language switch persistence, missing-key checks)
 - [ ] Dark mode
 - [ ] Customizable dashboard widgets (drag, resize, show/hide)
 - [ ] Onboarding wizard for first-time setup (profile, rate, address, pipeline template)
