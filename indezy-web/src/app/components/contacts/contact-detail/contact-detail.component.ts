@@ -12,6 +12,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { ContactDto } from '../../../models';
 
 @Component({
@@ -40,7 +41,8 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly notificationService: NotificationService,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly confirmDialog: ConfirmDialogService
   ) {}
 
   ngOnInit(): void {
@@ -93,8 +95,15 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (confirm(this.translate.instant('contacts.deleteConfirm'))) {
-      this.contactService.deleteContact(this.contact.id)
+    const contactId = this.contact.id;
+    this.confirmDialog.confirm({
+      messageKey: 'contacts.deleteConfirm',
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+      this.contactService.deleteContact(contactId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -106,7 +115,7 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
             this.notificationService.error('errors.deletingContact');
           }
         });
-    }
+    });
   }
 
   onBack(): void {

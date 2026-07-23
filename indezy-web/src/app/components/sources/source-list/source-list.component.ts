@@ -17,6 +17,7 @@ import { SourceDto, SourceType } from '../../../models/source.models';
 import { ComprehensiveFilterPanelComponent } from '../../../shared/components';
 import { ComprehensiveFilterConfig } from '../../../models/filter.models';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-source-list',
@@ -51,7 +52,8 @@ export class SourceListComponent implements OnInit, OnDestroy {
     private readonly authService: AuthService,
     private readonly router: Router,
     private readonly notificationService: NotificationService,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly confirmDialog: ConfirmDialogService
   ) {}
 
   ngOnInit(): void {
@@ -177,8 +179,16 @@ export class SourceListComponent implements OnInit, OnDestroy {
 
   onDelete(source: SourceDto): void {
     if (!source.id) {return;}
-    if (confirm(this.translate.instant('sources.confirmDelete', { name: source.name }))) {
-      this.sourceService.delete(source.id)
+    const sourceId = source.id;
+    this.confirmDialog.confirm({
+      messageKey: 'sources.confirmDelete',
+      messageParams: { name: source.name },
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+      this.sourceService.delete(sourceId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -189,7 +199,7 @@ export class SourceListComponent implements OnInit, OnDestroy {
             this.notificationService.error('errors.deletingSource');
           }
         });
-    }
+    });
   }
 
   getTypeLabel(type: SourceType): string {

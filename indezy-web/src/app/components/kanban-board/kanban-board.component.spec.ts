@@ -244,8 +244,10 @@ describe('KanbanBoardComponent', () => {
 
     beforeEach(() => {
       // Use a fresh board so toggling does not mutate the shared fixtures.
-      target = { ...mockCard, isFavorite: false };
-      const other: KanbanProjectCardDto = { ...mockCard, projectId: 99, isFavorite: false };
+      // Cards must carry the status of the column they sit in, since toggleFavorite
+      // re-sorts the column identified by card.status.
+      target = { ...mockCard, status: ProjectStatus.APPLIED, isFavorite: false };
+      const other: KanbanProjectCardDto = { ...mockCard, projectId: 99, status: ProjectStatus.APPLIED, isFavorite: false };
       mockProjectService.getKanbanBoard.and.returnValue(of({
         columns: { [ProjectStatus.APPLIED]: [other, target] },
         columnOrder: [ProjectStatus.APPLIED]

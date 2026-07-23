@@ -23,6 +23,7 @@ import { ClientService } from '../../../services/client/client.service';
 import { ContactService } from '../../../services/contact/contact.service';
 import { CreateClientDto, UpdateClientDto, ContactDto } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
 @Component({
     selector: 'app-client-form',
@@ -97,7 +98,8 @@ export class ClientFormComponent implements OnInit, OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly notificationService: NotificationService,
     private readonly dialog: MatDialog,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly confirmDialog: ConfirmDialogService
   ) {
     this.clientForm = this.createForm();
   }
@@ -289,8 +291,16 @@ export class ClientFormComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (confirm(this.translate.instant('contacts.confirmDelete', { name: `${contact.firstName} ${contact.lastName}` }))) {
-      this.contactService.deleteContact(contact.id)
+    const contactId = contact.id;
+    this.confirmDialog.confirm({
+      messageKey: 'contacts.confirmDelete',
+      messageParams: { name: `${contact.firstName} ${contact.lastName}` },
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+      this.contactService.deleteContact(contactId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -302,7 +312,7 @@ export class ClientFormComponent implements OnInit, OnDestroy {
             this.notificationService.error('errors.deletingContact');
           }
         });
-    }
+    });
   }
 
   getContactStatusColor(status: string): string {

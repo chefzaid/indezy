@@ -26,6 +26,7 @@ import { FreelanceService } from '../../../services/freelance/freelance.service'
 import { CommuteService } from '../../../services/commute/commute.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import {
   ProjectFilterValues,
   countActiveFilters,
@@ -127,7 +128,8 @@ export class ProjectListComponent implements OnInit {
     private readonly authService: AuthService,
     private readonly fb: FormBuilder,
     private readonly notificationService: NotificationService,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly confirmDialog: ConfirmDialogService
   ) {
     this.filterForm = this.fb.group({
       // Basic filters
@@ -227,7 +229,13 @@ export class ProjectListComponent implements OnInit {
   }
 
   deleteProject(projectId: number): void {
-    if (confirm(this.translate.instant('projects.deleteConfirm'))) {
+    this.confirmDialog.confirm({
+      messageKey: 'projects.deleteConfirm',
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
       this.projectService.delete(projectId).subscribe({
         next: () => {
           this.projects = this.projects.filter(p => p.id !== projectId);
@@ -239,7 +247,7 @@ export class ProjectListComponent implements OnInit {
           console.error('Error deleting project:', error);
         }
       });
-    }
+    });
   }
 
   /** Downloads a CSV summary of the current year's projects for the accountant. */

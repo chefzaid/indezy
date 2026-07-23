@@ -20,6 +20,7 @@ import { ContactService } from '../../../services/contact/contact.service';
 import { ClientService } from '../../../services/client/client.service';
 import { ContactDto, ClientDto } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
 @Component({
     selector: 'app-contact-list',
@@ -62,7 +63,8 @@ export class ContactListComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly dialog: MatDialog,
     private readonly notificationService: NotificationService,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly confirmDialog: ConfirmDialogService
   ) {
     this.searchSubject.pipe(
       debounceTime(300),
@@ -205,8 +207,16 @@ export class ContactListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (confirm(this.translate.instant('contacts.confirmDelete', { name: `${contact.firstName} ${contact.lastName}` }))) {
-      this.contactService.deleteContact(contact.id)
+    const contactId = contact.id;
+    this.confirmDialog.confirm({
+      messageKey: 'contacts.confirmDelete',
+      messageParams: { name: `${contact.firstName} ${contact.lastName}` },
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+      this.contactService.deleteContact(contactId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -218,7 +228,7 @@ export class ContactListComponent implements OnInit, OnDestroy {
             this.notificationService.error('errors.deletingContact');
           }
         });
-    }
+    });
   }
 
   getStatusColor(status: string): string {

@@ -28,6 +28,7 @@ import { ContactService } from '../../../services/contact/contact.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { AuthService } from '../../../services/auth/auth.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
 interface ClientFilterValues {
   searchQuery?: string;
@@ -126,7 +127,8 @@ export class ClientListComponent implements OnInit, OnDestroy {
     private readonly notificationService: NotificationService,
     private readonly fb: FormBuilder,
     private readonly translateService: TranslateService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly confirmDialog: ConfirmDialogService
   ) {
     // Initialize filter form
     this.filterForm = this.fb.group({
@@ -257,7 +259,14 @@ export class ClientListComponent implements OnInit, OnDestroy {
   }
 
   deleteClient(client: ClientDto): void {
-    if (confirm(this.translateService.instant('clients.confirmDelete', { name: client.name }))) {
+    this.confirmDialog.confirm({
+      messageKey: 'clients.confirmDelete',
+      messageParams: { name: client.name },
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
       this.clientService.deleteClient(client.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -270,7 +279,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
             this.notificationService.error('errors.deletingClient');
           }
         });
-    }
+    });
   }
 
   getStatusColor(status: string): string {

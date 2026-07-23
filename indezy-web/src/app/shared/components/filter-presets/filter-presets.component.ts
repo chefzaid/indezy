@@ -7,6 +7,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FilterPreset, FilterPresetsConfig, FilterValue } from '../../../models/filter.models';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { ConfirmDialogService } from '../../services/confirm-dialog.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -36,7 +37,8 @@ export class FilterPresetsComponent implements OnInit {
 
   constructor(
     private readonly notificationService: NotificationService,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly confirmDialog: ConfirmDialogService
   ) {}
 
   ngOnInit(): void {
@@ -70,27 +72,40 @@ export class FilterPresetsComponent implements OnInit {
   deletePreset(preset: FilterPreset, event: Event): void {
     event.stopPropagation();
     
-    if (confirm(this.translate.instant('filters.confirmDelete', { name: preset.name }))) {
+    this.confirmDialog.confirm({
+      messageKey: 'filters.confirmDelete',
+      messageParams: { name: preset.name },
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
       const index = this.customPresets.findIndex(p => p.id === preset.id);
       if (index >= 0) {
         this.customPresets.splice(index, 1);
         this.savePresets();
         this.loadPresets();
-        
+
         this.presetDeleted.emit(preset);
         this.notificationService.success('filters.deleted', 2000, { name: preset.name });
       }
-    }
+    });
   }
 
   clearAllPresets(): void {
-    if (confirm(this.translate.instant('filters.confirmClearAll'))) {
+    this.confirmDialog.confirm({
+      messageKey: 'filters.confirmClearAll',
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
       this.customPresets = [];
       this.savePresets();
       this.loadPresets();
-      
+
       this.notificationService.success('filters.allCleared', 2000);
-    }
+    });
   }
 
   private loadPresets(): void {

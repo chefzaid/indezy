@@ -18,6 +18,7 @@ import { ClientService } from '../../../services/client/client.service';
 import { ContactService } from '../../../services/contact/contact.service';
 import { ClientDto, ContactDto } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
 
 @Component({
@@ -59,7 +60,8 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly notificationService: NotificationService,
     private readonly dialog: MatDialog,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly confirmDialog: ConfirmDialogService
   ) {}
 
   ngOnInit(): void {
@@ -154,8 +156,16 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
       return;
     }
     
-    if (confirm(this.translate.instant('clients.confirmDelete', { name: this.client.name }))) {
-      this.clientService.deleteClient(this.client.id)
+    const client = this.client;
+    this.confirmDialog.confirm({
+      messageKey: 'clients.confirmDelete',
+      messageParams: { name: client.name },
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+      this.clientService.deleteClient(client.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -167,7 +177,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
             this.notificationService.error('errors.deletingClient');
           }
         });
-    }
+    });
   }
 
   onBack(): void {
@@ -259,8 +269,16 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (confirm(this.translate.instant('contacts.confirmDelete', { name: `${contact.firstName} ${contact.lastName}` }))) {
-      this.contactService.deleteContact(contact.id)
+    const contactId = contact.id;
+    this.confirmDialog.confirm({
+      messageKey: 'contacts.confirmDelete',
+      messageParams: { name: `${contact.firstName} ${contact.lastName}` },
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+      this.contactService.deleteContact(contactId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -272,7 +290,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
             this.notificationService.error('errors.deletingContact');
           }
         });
-    }
+    });
   }
 
   getContactStatusColor(status: string): string {

@@ -141,7 +141,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] French and English translations with `@ngx-translate`
 - [x] Language switching and saved language preference loading
 - [ ] Global search (projects, clients, contacts, notes) with keyboard shortcut and match highlighting in results
-- [ ] Consistent error handling and user feedback (toasts instead of pop-ups, explicit loading and empty states)
+- [x] Consistent error handling and user feedback (toasts instead of pop-ups, explicit loading and empty states)
 - [ ] Composable filters (text + tags + status + date + archive) with state encoded in the URL for bookmarkable views
 - [ ] Stable deep links to any project or Kanban card (?project=<id>) for sharing and reopening directly
 - [ ] Multi-select mode on project/client/contact lists (bulk delete, tag, status change, archive)

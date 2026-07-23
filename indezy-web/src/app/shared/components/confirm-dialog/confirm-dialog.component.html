@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>{{ (data.titleKey || 'common.confirm') | translate }}</h2>
+
+<mat-dialog-content>
+  <p class="confirm-message">{{ data.messageKey | translate: data.messageParams }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">
+    {{ (data.cancelKey || 'common.cancel') | translate }}
+  </button>
+  <button mat-raised-button [color]="data.danger ? 'warn' : 'primary'" (click)="onConfirm()">
+    {{ (data.confirmKey || 'common.confirm') | translate }}
+  </button>
+</mat-dialog-actions>

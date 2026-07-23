@@ -16,6 +16,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProjectService } from '../../../services/project/project.service';
 import { ProjectDto, ProjectNote } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
 @Component({
     selector: 'app-project-detail',
@@ -52,7 +53,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly notificationService: NotificationService,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly confirmDialog: ConfirmDialogService
   ) {}
 
   ngOnInit(): void {
@@ -125,14 +127,21 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   }
 
   deleteNote(noteId: number): void {
-    if (!this.projectId || !confirm(this.translate.instant('projects.notes.deleteConfirm'))) { return; }
+    if (!this.projectId) { return; }
+    const projectId = this.projectId;
 
-    this.projectService.deleteProjectNote(this.projectId, noteId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => this.notes = this.notes.filter(n => n.id !== noteId),
-        error: () => this.notificationService.error('projects.notes.deleteError')
-      });
+    this.confirmDialog.confirm({
+      messageKey: 'projects.notes.deleteConfirm',
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) { return; }
+      this.projectService.deleteProjectNote(projectId, noteId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => this.notes = this.notes.filter(n => n.id !== noteId),
+          error: () => this.notificationService.error('projects.notes.deleteError')
+        });
+    });
   }
 
   onBack(): void {
@@ -148,8 +157,16 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   onDelete(): void {
     if (!this.project) { return; }
     
-    if (confirm(this.translate.instant('projects.confirmDelete', { name: this.project.role }))) {
-      this.projectService.delete(this.project.id!)
+    const project = this.project;
+    this.confirmDialog.confirm({
+      messageKey: 'projects.confirmDelete',
+      messageParams: { name: project.role },
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+      this.projectService.delete(project.id!)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -161,7 +178,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             this.notificationService.error('errors.deletingProject');
           }
         });
-    }
+    });
   }
 
   // Utility methods
