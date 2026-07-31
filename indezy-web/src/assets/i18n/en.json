@@ -187,7 +187,22 @@
       "deleteConfirm": "Delete this note?",
       "loadError": "Error loading notes",
       "saveError": "Error saving note",
-      "deleteError": "Error deleting note"
+      "deleteError": "Error deleting note",
+      "templates": {
+        "select": "Insert a template",
+        "callDebrief": {
+          "label": "Call debrief",
+          "body": "Call debrief\n\nDate: \nContact: \nDiscussion points:\n- \nOutcome: \nNext steps:\n- "
+        },
+        "interviewDebrief": {
+          "label": "Interview debrief",
+          "body": "Interview debrief\n\nDate: \nInterviewer(s): \nTopics covered:\n- \nMy impression: \nFollow-up questions: \nNext steps:\n- "
+        },
+        "negotiationSummary": {
+          "label": "Negotiation summary",
+          "body": "Negotiation summary\n\nDate: \nAsked rate: \nOffered rate: \nAgreed terms: \nOpen points:\n- \nNext steps:\n- "
+        }
+      }
     },
     "loading": "Loading projects...",
     "noProjects": "No projects found",

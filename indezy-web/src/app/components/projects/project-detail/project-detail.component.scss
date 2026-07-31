@@ -331,6 +331,11 @@
     gap: 8px;
     margin-bottom: 16px;
 
+    .journal-template {
+      width: 100%;
+      max-width: 280px;
+    }
+
     .journal-input {
       width: 100%;
     }

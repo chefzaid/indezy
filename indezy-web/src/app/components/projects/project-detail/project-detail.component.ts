@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -17,6 +18,7 @@ import { ProjectService } from '../../../services/project/project.service';
 import { ProjectDto, ProjectNote } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { NOTE_TEMPLATES } from './note-templates';
 
 @Component({
     selector: 'app-project-detail',
@@ -32,6 +34,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
         MatDividerModule,
         MatFormFieldModule,
         MatInputModule,
+        MatSelectModule,
         TranslateModule
     ],
     templateUrl: './project-detail.component.html',
@@ -45,6 +48,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   notes: ProjectNote[] = [];
   newNoteContent = '';
   isSavingNote = false;
+  readonly noteTemplates = NOTE_TEMPLATES;
+  selectedNoteTemplate = '';
 
   private readonly destroy$ = new Subject<void>();
 
@@ -104,6 +109,19 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         next: (notes) => this.notes = notes,
         error: () => this.notificationService.error('projects.notes.loadError')
       });
+  }
+
+  /**
+   * Inserts the selected note template into the editor. Appends to any text already
+   * typed rather than overwriting it, then clears the template selection.
+   */
+  applyNoteTemplate(templateId: string): void {
+    if (!templateId) { return; }
+    const body = this.translate.instant(`projects.notes.templates.${templateId}.body`) as string;
+    this.newNoteContent = this.newNoteContent.trim()
+      ? `${this.newNoteContent.trimEnd()}\n\n${body}`
+      : body;
+    this.selectedNoteTemplate = '';
   }
 
   addNote(): void {

@@ -384,6 +384,15 @@
           </mat-card-header>
           <mat-card-content>
             <div class="journal-add">
+              <mat-form-field appearance="outline" class="journal-template">
+                <mat-label>{{ 'projects.notes.templates.select' | translate }}</mat-label>
+                <mat-select [(ngModel)]="selectedNoteTemplate"
+                            (selectionChange)="applyNoteTemplate($event.value)">
+                  @for (template of noteTemplates; track template.id) {
+                    <mat-option [value]="template.id">{{ template.labelKey | translate }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
               <mat-form-field appearance="outline" class="journal-input">
                 <mat-label>{{ 'projects.notes.addLabel' | translate }}</mat-label>
                 <textarea matInput rows="3" [(ngModel)]="newNoteContent"

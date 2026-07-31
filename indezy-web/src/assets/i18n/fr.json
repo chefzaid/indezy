@@ -187,7 +187,22 @@
       "deleteConfirm": "Supprimer cette note ?",
       "loadError": "Erreur lors du chargement des notes",
       "saveError": "Erreur lors de l'enregistrement de la note",
-      "deleteError": "Erreur lors de la suppression de la note"
+      "deleteError": "Erreur lors de la suppression de la note",
+      "templates": {
+        "select": "Insérer un modèle",
+        "callDebrief": {
+          "label": "Compte-rendu d'appel",
+          "body": "Compte-rendu d'appel\n\nDate : \nContact : \nPoints abordés :\n- \nRésultat : \nProchaines étapes :\n- "
+        },
+        "interviewDebrief": {
+          "label": "Compte-rendu d'entretien",
+          "body": "Compte-rendu d'entretien\n\nDate : \nInterlocuteur(s) : \nSujets abordés :\n- \nMon impression : \nQuestions à suivre : \nProchaines étapes :\n- "
+        },
+        "negotiationSummary": {
+          "label": "Résumé de négociation",
+          "body": "Résumé de négociation\n\nDate : \nTJM demandé : \nTJM proposé : \nConditions convenues : \nPoints ouverts :\n- \nProchaines étapes :\n- "
+        }
+      }
     },
     "loading": "Chargement des missions...",
     "noProjects": "Aucune mission trouvée",
