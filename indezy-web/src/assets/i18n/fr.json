@@ -169,6 +169,8 @@
       "endsInDays": "se termine dans {{days}} jours",
       "upcomingRenewals": "Renouvellements de contrat à venir",
       "renewsInDays": "renouvellement dans {{days}} jours",
+      "onThisDay": "Ce jour-là",
+      "yearsAgo": "il y a {{years}} an(s)",
       "staleOpportunities": "Opportunités dormantes (relancer ou archiver)",
       "idleForDays": "inactive depuis {{days}} jours"
     }

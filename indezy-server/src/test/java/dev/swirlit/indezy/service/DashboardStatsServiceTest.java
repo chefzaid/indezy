@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.model.Client;
+import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Source;
@@ -9,6 +10,7 @@ import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +36,9 @@ class DashboardStatsServiceTest {
 
     @Mock
     private FreelanceRepository freelanceRepository;
+
+    @Mock
+    private ContactRepository contactRepository;
 
     @InjectMocks
     private DashboardStatsService dashboardStatsService;
@@ -525,10 +530,11 @@ class DashboardStatsServiceTest {
     void getDashboardStats_ShouldSurfaceRenewalsWithinNoticePeriod() {
         LocalDate today = LocalDate.now();
         testProject.setStatus(ProjectStatus.WON);
-        // First renewal three months after start; start six months ago so the next one lands on today.
-        testProject.setStartDate(today.minusMonths(6));
-        testProject.setOrderRenewalInMonths(3);
-        testFreelance.setNoticePeriodInDays(30);
+        // Monthly renewals starting three months ago: the next one is always under a month out,
+        // comfortably inside a 60-day notice window regardless of which day "today" is.
+        testProject.setStartDate(today.minusMonths(3));
+        testProject.setOrderRenewalInMonths(1);
+        testFreelance.setNoticePeriodInDays(60);
 
         stubMinimalAggregates();
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
@@ -539,7 +545,7 @@ class DashboardStatsServiceTest {
         assertThat(stats.getUpcomingRenewals()).hasSize(1);
         assertThat(stats.getUpcomingRenewals().getFirst().getProjectId()).isEqualTo(1L);
         assertThat(stats.getUpcomingRenewals().getFirst().getClientName()).isEqualTo("Test Company");
-        assertThat(stats.getUpcomingRenewals().getFirst().getDaysUntilRenewal()).isBetween(0L, 30L);
+        assertThat(stats.getUpcomingRenewals().getFirst().getDaysUntilRenewal()).isBetween(0L, 60L);
         assertThat(stats.getUpcomingRenewals().getFirst().getRenewalDate()).isAfterOrEqualTo(today);
     }
 
@@ -576,5 +582,52 @@ class DashboardStatsServiceTest {
         DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
 
         assertThat(stats.getUpcomingRenewals()).isEmpty();
+    }
+
+    @Test
+    void getDashboardStats_ShouldSurfaceOnThisDayItemsFromPreviousYears() {
+        LocalDateTime now = LocalDateTime.now();
+        testProject.setCreatedAt(now.minusYears(1));
+
+        Contact contact = new Contact();
+        contact.setId(5L);
+        contact.setFirstName("Marie");
+        contact.setLastName("Dubois");
+        contact.setClient(testClient);
+        contact.setCreatedAt(now.minusYears(2));
+
+        Project recent = new Project();
+        recent.setId(9L);
+        recent.setRole("Recent Role");
+        recent.setCreatedAt(now.minusMonths(2));
+
+        stubMinimalAggregates();
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject, recent));
+        when(contactRepository.findByFreelanceId(1L)).thenReturn(List.of(contact));
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        // Two anniversaries (project 1y, contact 2y); the two-month-old project is excluded.
+        assertThat(stats.getOnThisDay()).hasSize(2);
+        assertThat(stats.getOnThisDay().getFirst().getType()).isEqualTo("PROJECT");
+        assertThat(stats.getOnThisDay().getFirst().getId()).isEqualTo(1L);
+        assertThat(stats.getOnThisDay().getFirst().getYearsAgo()).isEqualTo(1);
+        assertThat(stats.getOnThisDay().get(1).getType()).isEqualTo("CONTACT");
+        assertThat(stats.getOnThisDay().get(1).getLabel()).isEqualTo("Marie Dubois");
+        assertThat(stats.getOnThisDay().get(1).getSubLabel()).isEqualTo("Test Company");
+        assertThat(stats.getOnThisDay().get(1).getYearsAgo()).isEqualTo(2);
+    }
+
+    @Test
+    void getDashboardStats_ShouldNotSurfaceOnThisDayItemsOutsideTheWindow() {
+        testProject.setCreatedAt(LocalDateTime.now().minusYears(1).minusDays(10));
+
+        stubMinimalAggregates();
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
+        when(contactRepository.findByFreelanceId(1L)).thenReturn(List.of());
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        assertThat(stats.getOnThisDay()).isEmpty();
     }
 }

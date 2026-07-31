@@ -37,6 +37,7 @@ public class DashboardStatsDto {
     private List<MissionEndingSoon> missionsEndingSoon;
     private List<StaleOpportunity> staleOpportunities;
     private List<UpcomingRenewal> upcomingRenewals;
+    private List<OnThisDayItem> onThisDay;
 
     @Data
     @Builder
@@ -130,6 +131,24 @@ public class DashboardStatsDto {
         private String clientName;
         private LocalDate renewalDate;
         private long daysUntilRenewal;
+    }
+
+    /**
+     * An opportunity or contact created around the same calendar date in a previous year,
+     * surfaced as a re-engagement nudge. {@code type} is {@code "PROJECT"} or {@code "CONTACT"};
+     * {@code yearsAgo} is the number of calendar years since it was created.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OnThisDayItem {
+        private String type;
+        private Long id;
+        private String label;
+        private String subLabel;
+        private LocalDate date;
+        private int yearsAgo;
     }
 
     /**

@@ -10,7 +10,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth/auth.service';
 import { ProjectService } from '../../services/project/project.service';
 import { FreelanceService } from '../../services/freelance/freelance.service';
-import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, PROJECT_STATUS_COLORS } from '../../models';
+import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, OnThisDayItem, PROJECT_STATUS_COLORS } from '../../models';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
@@ -198,6 +198,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getUpcomingRenewals(): UpcomingRenewal[] {
     return this.dashboardStats?.upcomingRenewals ?? [];
+  }
+
+  getOnThisDay(): OnThisDayItem[] {
+    return this.dashboardStats?.onThisDay ?? [];
+  }
+
+  /** Router path for an "on this day" item, based on whether it is a project or a contact. */
+  getOnThisDayLink(item: OnThisDayItem): unknown[] {
+    return item.type === 'CONTACT' ? ['/contacts', item.id] : ['/projects', item.id];
   }
 
   /** Active opportunities idle past the stale threshold, most stale first. */

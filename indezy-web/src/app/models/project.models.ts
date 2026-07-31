@@ -148,6 +148,7 @@ export interface DashboardStatsDto {
   missionsEndingSoon: MissionEndingSoon[];
   staleOpportunities: StaleOpportunity[];
   upcomingRenewals: UpcomingRenewal[];
+  onThisDay: OnThisDayItem[];
 }
 
 export interface DailyRateRange {
@@ -202,6 +203,15 @@ export interface UpcomingRenewal {
   clientName: string;
   renewalDate: string;
   daysUntilRenewal: number;
+}
+
+export interface OnThisDayItem {
+  type: 'PROJECT' | 'CONTACT';
+  id: number;
+  label: string;
+  subLabel: string;
+  date: string;
+  yearsAgo: number;
 }
 
 export interface ProjectNote {

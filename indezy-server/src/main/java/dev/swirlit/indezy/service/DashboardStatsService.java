@@ -5,7 +5,9 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.Freelance;
+import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,7 @@ public class DashboardStatsService {
 
     private final ProjectRepository projectRepository;
     private final FreelanceRepository freelanceRepository;
+    private final ContactRepository contactRepository;
 
     @Transactional(readOnly = true)
     public DashboardStatsDto getDashboardStats(Long freelanceId) {
@@ -147,7 +150,63 @@ public class DashboardStatsService {
             .missionsEndingSoon(buildMissionsEndingSoon(projects, LocalDate.now()))
             .staleOpportunities(buildStaleOpportunities(projects, LocalDateTime.now()))
             .upcomingRenewals(buildUpcomingRenewals(projects, LocalDate.now(), noticePeriodInDays))
+            .onThisDay(buildOnThisDay(projects, contactRepository.findByFreelanceId(freelanceId), LocalDate.now()))
             .build();
+    }
+
+    /** How many days either side of the anniversary still counts as "on this day". */
+    private static final int ANNIVERSARY_WINDOW_DAYS = 3;
+
+    /**
+     * Surfaces opportunities and contacts created around today's calendar date in a previous
+     * year, as a re-engagement nudge. Only prior calendar years are considered; most recent
+     * (fewest years ago) first.
+     */
+    private List<DashboardStatsDto.OnThisDayItem> buildOnThisDay(
+            List<Project> projects, List<Contact> contacts, LocalDate today) {
+        List<DashboardStatsDto.OnThisDayItem> items = new ArrayList<>();
+        for (Project project : projects) {
+            addIfAnniversary(items, project.getCreatedAt(), today, "PROJECT", project.getId(),
+                project.getRole(), project.getClient() != null ? project.getClient().getCompanyName() : null);
+        }
+        for (Contact contact : contacts) {
+            addIfAnniversary(items, contact.getCreatedAt(), today, "CONTACT", contact.getId(),
+                contact.getFullName(), contact.getClient() != null ? contact.getClient().getCompanyName() : null);
+        }
+        items.sort(Comparator.comparingInt(DashboardStatsDto.OnThisDayItem::getYearsAgo));
+        return items;
+    }
+
+    private void addIfAnniversary(List<DashboardStatsDto.OnThisDayItem> items, LocalDateTime createdAt,
+            LocalDate today, String type, Long id, String label, String subLabel) {
+        if (createdAt == null) {
+            return;
+        }
+        LocalDate created = createdAt.toLocalDate();
+        int yearsAgo = today.getYear() - created.getYear();
+        if (yearsAgo < 1) {
+            return;
+        }
+        LocalDate anniversary = anniversaryInYear(created, today.getYear());
+        if (Math.abs(ChronoUnit.DAYS.between(anniversary, today)) > ANNIVERSARY_WINDOW_DAYS) {
+            return;
+        }
+        items.add(DashboardStatsDto.OnThisDayItem.builder()
+            .type(type)
+            .id(id)
+            .label(label)
+            .subLabel(subLabel)
+            .date(created)
+            .yearsAgo(yearsAgo)
+            .build());
+    }
+
+    /** The date's anniversary in the given year, mapping Feb 29 to Feb 28 in non-leap years. */
+    private LocalDate anniversaryInYear(LocalDate date, int year) {
+        if (date.getMonthValue() == 2 && date.getDayOfMonth() == 29 && !java.time.Year.isLeap(year)) {
+            return LocalDate.of(year, 2, 28);
+        }
+        return date.withYear(year);
     }
 
     /** Notice period applied when the freelance has not configured one. */

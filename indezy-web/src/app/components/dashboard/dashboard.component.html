@@ -201,6 +201,23 @@
               }
             </div>
           }
+          @if (getOnThisDay().length > 0) {
+            <div class="ending-soon">
+              <h4 class="ending-soon-title">
+                <mat-icon>cake</mat-icon>
+                {{ 'dashboard.charts.onThisDay' | translate }}
+              </h4>
+              @for (item of getOnThisDay(); track item.type + '-' + item.id) {
+                <div class="ending-soon-row" [routerLink]="getOnThisDayLink(item)">
+                  <span class="ending-soon-role">{{ item.label }}</span>
+                  <span class="ending-soon-client">{{ item.subLabel }}</span>
+                  <span class="ending-soon-days">
+                    {{ 'dashboard.charts.yearsAgo' | translate:{ years: item.yearsAgo } }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
           @if (getStaleOpportunities().length > 0) {
             <div class="stale-opps">
               <h4 class="stale-opps-title">

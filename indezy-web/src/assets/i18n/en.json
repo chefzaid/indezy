@@ -169,6 +169,8 @@
       "endsInDays": "ends in {{days}} days",
       "upcomingRenewals": "Contract renewals coming up",
       "renewsInDays": "renews in {{days}} days",
+      "onThisDay": "On this day",
+      "yearsAgo": "{{years}} year(s) ago",
       "staleOpportunities": "Stale opportunities (follow up or archive)",
       "idleForDays": "idle for {{days}} days"
     }
