@@ -123,6 +123,8 @@ public class DashboardStatsService {
             .filter(days -> days > 0)
             .orElse(DEFAULT_NOTICE_PERIOD_DAYS);
 
+        List<Contact> contacts = contactRepository.findByFreelanceId(freelanceId);
+
         return DashboardStatsDto.builder()
             .totalProjects(totalProjects != null ? totalProjects : 0)
             .averageDailyRate(averageDailyRate != null ? averageDailyRate : 0)
@@ -150,7 +152,8 @@ public class DashboardStatsService {
             .missionsEndingSoon(buildMissionsEndingSoon(projects, LocalDate.now()))
             .staleOpportunities(buildStaleOpportunities(projects, LocalDateTime.now()))
             .upcomingRenewals(buildUpcomingRenewals(projects, LocalDate.now(), noticePeriodInDays))
-            .onThisDay(buildOnThisDay(projects, contactRepository.findByFreelanceId(freelanceId), LocalDate.now()))
+            .onThisDay(buildOnThisDay(projects, contacts, LocalDate.now()))
+            .dormantContacts(buildDormantContacts(contacts, LocalDateTime.now()))
             .build();
     }
 
@@ -207,6 +210,37 @@ public class DashboardStatsService {
             return LocalDate.of(year, 2, 28);
         }
         return date.withYear(year);
+    }
+
+    /** Contacts untouched for at least this many months are surfaced as re-engagement nudges. */
+    private static final int DORMANT_THRESHOLD_MONTHS = 6;
+
+    /**
+     * Lists contacts with no recorded activity (their last update) for at least
+     * {@link #DORMANT_THRESHOLD_MONTHS} months, so the freelance can reconnect before the
+     * relationship goes cold. Most dormant first.
+     */
+    private List<DashboardStatsDto.DormantContact> buildDormantContacts(List<Contact> contacts, LocalDateTime now) {
+        List<DashboardStatsDto.DormantContact> dormant = new ArrayList<>();
+        for (Contact contact : contacts) {
+            LocalDateTime lastActivity = contact.getUpdatedAt() != null
+                ? contact.getUpdatedAt() : contact.getCreatedAt();
+            if (lastActivity == null) {
+                continue;
+            }
+            long monthsSinceActivity = ChronoUnit.MONTHS.between(lastActivity, now);
+            if (monthsSinceActivity < DORMANT_THRESHOLD_MONTHS) {
+                continue;
+            }
+            dormant.add(DashboardStatsDto.DormantContact.builder()
+                .id(contact.getId())
+                .name(contact.getFullName())
+                .clientName(contact.getClient() != null ? contact.getClient().getCompanyName() : null)
+                .monthsSinceActivity(monthsSinceActivity)
+                .build());
+        }
+        dormant.sort(Comparator.comparingLong(DashboardStatsDto.DormantContact::getMonthsSinceActivity).reversed());
+        return dormant;
     }
 
     /** Notice period applied when the freelance has not configured one. */

@@ -171,6 +171,8 @@
       "renewsInDays": "renews in {{days}} days",
       "onThisDay": "On this day",
       "yearsAgo": "{{years}} year(s) ago",
+      "dormantContacts": "Contacts to reconnect with",
+      "quietForMonths": "quiet for {{months}} months",
       "staleOpportunities": "Stale opportunities (follow up or archive)",
       "idleForDays": "idle for {{days}} days"
     }

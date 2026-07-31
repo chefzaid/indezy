@@ -630,4 +630,32 @@ class DashboardStatsServiceTest {
 
         assertThat(stats.getOnThisDay()).isEmpty();
     }
+
+    @Test
+    void getDashboardStats_ShouldSurfaceContactsDormantForSixMonthsOrMore() {
+        Contact dormant = new Contact();
+        dormant.setId(3L);
+        dormant.setFirstName("Old");
+        dormant.setLastName("Contact");
+        dormant.setClient(testClient);
+        dormant.setUpdatedAt(LocalDateTime.now().minusMonths(8));
+
+        Contact active = new Contact();
+        active.setId(4L);
+        active.setFirstName("Fresh");
+        active.setLastName("Contact");
+        active.setUpdatedAt(LocalDateTime.now().minusMonths(1));
+
+        stubMinimalAggregates();
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of());
+        when(contactRepository.findByFreelanceId(1L)).thenReturn(List.of(dormant, active));
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        assertThat(stats.getDormantContacts()).hasSize(1);
+        assertThat(stats.getDormantContacts().getFirst().getId()).isEqualTo(3L);
+        assertThat(stats.getDormantContacts().getFirst().getName()).isEqualTo("Old Contact");
+        assertThat(stats.getDormantContacts().getFirst().getClientName()).isEqualTo("Test Company");
+        assertThat(stats.getDormantContacts().getFirst().getMonthsSinceActivity()).isGreaterThanOrEqualTo(6L);
+    }
 }

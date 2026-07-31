@@ -171,6 +171,8 @@
       "renewsInDays": "renouvellement dans {{days}} jours",
       "onThisDay": "Ce jour-là",
       "yearsAgo": "il y a {{years}} an(s)",
+      "dormantContacts": "Contacts à relancer",
+      "quietForMonths": "sans activité depuis {{months}} mois",
       "staleOpportunities": "Opportunités dormantes (relancer ou archiver)",
       "idleForDays": "inactive depuis {{days}} jours"
     }

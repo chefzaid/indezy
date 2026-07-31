@@ -149,6 +149,7 @@ export interface DashboardStatsDto {
   staleOpportunities: StaleOpportunity[];
   upcomingRenewals: UpcomingRenewal[];
   onThisDay: OnThisDayItem[];
+  dormantContacts: DormantContact[];
 }
 
 export interface DailyRateRange {
@@ -212,6 +213,13 @@ export interface OnThisDayItem {
   subLabel: string;
   date: string;
   yearsAgo: number;
+}
+
+export interface DormantContact {
+  id: number;
+  name: string;
+  clientName: string;
+  monthsSinceActivity: number;
 }
 
 export interface ProjectNote {

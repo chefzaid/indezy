@@ -218,6 +218,23 @@
               }
             </div>
           }
+          @if (getDormantContacts().length > 0) {
+            <div class="ending-soon">
+              <h4 class="ending-soon-title">
+                <mat-icon>person_off</mat-icon>
+                {{ 'dashboard.charts.dormantContacts' | translate }}
+              </h4>
+              @for (contact of getDormantContacts(); track contact.id) {
+                <div class="ending-soon-row" [routerLink]="['/contacts', contact.id]">
+                  <span class="ending-soon-role">{{ contact.name }}</span>
+                  <span class="ending-soon-client">{{ contact.clientName }}</span>
+                  <span class="ending-soon-days">
+                    {{ 'dashboard.charts.quietForMonths' | translate:{ months: contact.monthsSinceActivity } }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
           @if (getStaleOpportunities().length > 0) {
             <div class="stale-opps">
               <h4 class="stale-opps-title">

@@ -58,7 +58,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] ESN/intermediary margin tracking (rate paid by client vs rate received)
 - [ ] Contact interaction history (last contacted, response rate, preferred channel)
 - [ ] Org chart linking contacts to clients and ESNs (who works with whom)
-- [ ] Reminder to nurture dormant contacts (no exchange in 6 months)
+- [x] Reminder to nurture dormant contacts (no exchange in 6 months)
 - [x] "On this day last year": resurface contacts/opportunities from the same period to re-engage
 - [ ] Import contacts from LinkedIn / vCard / CSV
 

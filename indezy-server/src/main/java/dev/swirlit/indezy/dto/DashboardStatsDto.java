@@ -38,6 +38,7 @@ public class DashboardStatsDto {
     private List<StaleOpportunity> staleOpportunities;
     private List<UpcomingRenewal> upcomingRenewals;
     private List<OnThisDayItem> onThisDay;
+    private List<DormantContact> dormantContacts;
 
     @Data
     @Builder
@@ -149,6 +150,21 @@ public class DashboardStatsDto {
         private String subLabel;
         private LocalDate date;
         private int yearsAgo;
+    }
+
+    /**
+     * A contact with no recorded activity for a while, surfaced as a nudge to reconnect.
+     * {@code monthsSinceActivity} counts whole months since the contact was last updated.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DormantContact {
+        private Long id;
+        private String name;
+        private String clientName;
+        private long monthsSinceActivity;
     }
 
     /**
