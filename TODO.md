@@ -82,7 +82,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Two-way sync with Google Calendar / Outlook Calendar and external notification systems
 - [ ] Availability sharing link (let recruiters book a slot, Calendly-style)
 - [ ] Interview preparation checklist attached to each scheduled step
-- [ ] Timeline view of all upcoming steps across all opportunities
+- [x] Timeline view of all upcoming steps across all opportunities
 
 ## Communications
 

@@ -78,12 +78,18 @@
   },
   "nav": {
     "dashboard": "Tableau de bord",
+    "timeline": "Planning",
     "projects": "Missions",
     "clients": "Clients",
     "contacts": "Contacts",
     "sources": "Sources",
     "profile": "Profil",
     "logout": "Déconnexion"
+  },
+  "timeline": {
+    "title": "Planning",
+    "subtitle": "Toutes vos étapes d'entretien planifiées, les plus proches d'abord",
+    "empty": "Aucune étape à venir planifiée"
   },
   "auth": {
     "loginTitle": "Connexion à Indezy",

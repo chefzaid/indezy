@@ -22,6 +22,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'timeline',
+    loadComponent: () => import('./components/timeline/timeline.component').then(m => m.TimelineComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'projects',
     loadChildren: () => import('./components/projects/projects.routes').then(m => m.projectRoutes),
     canActivate: [authGuard]

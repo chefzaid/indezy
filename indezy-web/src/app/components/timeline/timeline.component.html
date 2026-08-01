@@ -1,0 +1,29 @@
+<div class="timeline-container">
+  <h1 class="timeline-title">
+    <mat-icon>event</mat-icon>
+    {{ 'timeline.title' | translate }}
+  </h1>
+  <p class="timeline-subtitle">{{ 'timeline.subtitle' | translate }}</p>
+
+  @if (isLoading) {
+    <app-loading></app-loading>
+  } @else if (upcomingSteps.length === 0) {
+    <div class="timeline-empty">
+      <mat-icon>event_available</mat-icon>
+      <p>{{ 'timeline.empty' | translate }}</p>
+    </div>
+  } @else {
+    <mat-card class="timeline-card">
+      @for (step of upcomingSteps; track step.id) {
+        <div class="timeline-row" [routerLink]="['/projects', step.projectId]">
+          <div class="timeline-date">{{ step.date | date:'EEE d MMM yyyy, HH:mm' }}</div>
+          <div class="timeline-info">
+            <span class="timeline-step-title">{{ step.title }}</span>
+            <span class="timeline-project">{{ step.projectRole }}</span>
+          </div>
+          <mat-icon class="timeline-chevron">chevron_right</mat-icon>
+        </div>
+      }
+    </mat-card>
+  }
+</div>

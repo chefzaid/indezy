@@ -78,12 +78,18 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "timeline": "Timeline",
     "projects": "Projects",
     "clients": "Clients",
     "contacts": "Contacts",
     "sources": "Sources",
     "profile": "Profile",
     "logout": "Sign out"
+  },
+  "timeline": {
+    "title": "Timeline",
+    "subtitle": "All your scheduled interview steps, soonest first",
+    "empty": "No upcoming steps scheduled"
   },
   "auth": {
     "loginTitle": "Sign in to Indezy",
