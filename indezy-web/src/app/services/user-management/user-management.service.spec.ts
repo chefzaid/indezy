@@ -265,17 +265,30 @@ describe('UserManagementService', () => {
       req.flush(mockSecuritySettings);
     });
 
-    it('should enable two-factor authentication', () => {
-      const qrCode = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...';
+    it('should start two-factor setup', () => {
+      const setup = { secret: 'ABC234ABC234', otpauthUri: 'otpauth://totp/Indezy:x?secret=ABC234ABC234' };
 
       service.enableTwoFactor().subscribe(result => {
-        expect(result).toBe(qrCode);
+        expect(result).toEqual(setup);
       });
 
       const req = httpMock.expectOne(`${API_URL}/security/2fa/enable`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({});
-      req.flush(qrCode);
+      req.flush(setup);
+    });
+
+    it('should verify a two-factor code', () => {
+      const code = '123456';
+
+      service.verifyTwoFactor(code).subscribe(result => {
+        expect(result).toBeTrue();
+      });
+
+      const req = httpMock.expectOne(`${API_URL}/security/2fa/verify`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ code });
+      req.flush(true);
     });
 
     it('should disable two-factor authentication', () => {

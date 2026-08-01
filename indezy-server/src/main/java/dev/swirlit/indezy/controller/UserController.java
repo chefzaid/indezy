@@ -162,10 +162,22 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "2FA enabled successfully"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<String> enableTwoFactor(@RequestBody(required = false) Map<String, Object> body) {
-        log.debug("POST /users/security/2fa/enable - Enabling 2FA");
-        String qrCode = userService.enableTwoFactor(SecurityUtils.getCurrentUserId());
-        return ResponseEntity.ok(qrCode);
+    public ResponseEntity<TwoFactorSetupDto> enableTwoFactor(@RequestBody(required = false) Map<String, Object> body) {
+        log.debug("POST /users/security/2fa/enable - Starting 2FA setup");
+        TwoFactorSetupDto setup = userService.enableTwoFactor(SecurityUtils.getCurrentUserId());
+        return ResponseEntity.ok(setup);
+    }
+
+    @PostMapping("/security/2fa/verify")
+    @Operation(summary = "Verify two-factor code", description = "Validates a code and activates 2FA")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Verification processed"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<Boolean> verifyTwoFactor(@RequestBody Map<String, String> request) {
+        log.debug("POST /users/security/2fa/verify - Verifying 2FA code");
+        boolean success = userService.verifyTwoFactor(SecurityUtils.getCurrentUserId(), request.get("code"));
+        return ResponseEntity.ok(success);
     }
 
     @PostMapping("/security/2fa/disable")

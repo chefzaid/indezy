@@ -38,6 +38,20 @@ class UserManagementIntegrationTest {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private dev.swirlit.indezy.service.TotpService totpService;
+
+    /** Enables 2FA setup and returns the freshly generated Base32 secret. */
+    private String startTwoFactorSetupAndGetSecret() throws Exception {
+        String url = getBaseUrl() + "/security/2fa/enable";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        ResponseEntity<String> response = restTemplate.exchange(
+            url, HttpMethod.POST, new HttpEntity<>("{}", headers), String.class);
+        return new com.fasterxml.jackson.databind.ObjectMapper()
+            .readTree(response.getBody()).get("secret").asText();
+    }
+
     /**
      * Authenticates every request as the seeded user (id 1) by attaching a Bearer
      * token, so the endpoints resolve the current user from the security context.
@@ -219,7 +233,7 @@ class UserManagementIntegrationTest {
     @Test
     void testEnableTwoFactor() {
         String url = getBaseUrl() + "/security/2fa/enable";
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>("{}", headers);
@@ -227,21 +241,33 @@ class UserManagementIntegrationTest {
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        
-        // Should return QR code or setup key
-        assertFalse(response.getBody().isEmpty());
+
+        // Returns the shared secret and its provisioning URI
+        assertTrue(response.getBody().contains("secret"));
+        assertTrue(response.getBody().contains("otpauthUri"));
     }
 
     @Test
-    void testDisableTwoFactor() {
-        String url = getBaseUrl() + "/security/2fa/disable";
-        
-        String disableRequest = """
-            {
-                "code": "123456"
-            }
-            """;
+    void testVerifyTwoFactor() throws Exception {
+        String secret = startTwoFactorSetupAndGetSecret();
+        String url = getBaseUrl() + "/security/2fa/verify";
 
+        String request = "{\"code\":\"" + totpService.generateCurrentCode(secret) + "\"}";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        ResponseEntity<Boolean> response = restTemplate.exchange(
+            url, HttpMethod.POST, new HttpEntity<>(request, headers), Boolean.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody());
+    }
+
+    @Test
+    void testDisableTwoFactor() throws Exception {
+        String secret = startTwoFactorSetupAndGetSecret();
+        String url = getBaseUrl() + "/security/2fa/disable";
+
+        String disableRequest = "{\"code\":\"" + totpService.generateCurrentCode(secret) + "\"}";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(disableRequest, headers);

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { AbstractControlOptions, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControlOptions, ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { UserManagementService } from '../../services/user-management/user-management.service';
+import { UserManagementService, TwoFactorSetup } from '../../services/user-management/user-management.service';
 import { UserProfile, UserPreferences, UserNotificationSettings, PasswordChangeRequest } from '../../models/user-management.models';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../services/notification/notification.service';
@@ -21,6 +21,7 @@ import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-i
     selector: 'app-profile',
     imports: [
     ReactiveFormsModule,
+    FormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -48,6 +49,11 @@ export class ProfileComponent implements OnInit {
   isUpdating = false;
   selectedTabIndex = 0;
 
+  twoFactorEnabled = false;
+  twoFactorSetup: TwoFactorSetup | null = null;
+  twoFactorCode = '';
+  isProcessingTwoFactor = false;
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly userManagementService: UserManagementService,
@@ -58,6 +64,80 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserProfile();
+    this.loadSecuritySettings();
+  }
+
+  private loadSecuritySettings(): void {
+    this.userManagementService.getSecuritySettings().subscribe({
+      next: settings => this.twoFactorEnabled = settings.twoFactorEnabled,
+      error: () => { /* leave 2FA state at its default when settings can't be loaded */ }
+    });
+  }
+
+  /** Begins 2FA setup: fetches a secret and shows the code-entry step. */
+  startTwoFactorSetup(): void {
+    this.isProcessingTwoFactor = true;
+    this.userManagementService.enableTwoFactor().subscribe({
+      next: setup => {
+        this.twoFactorSetup = setup;
+        this.twoFactorCode = '';
+        this.isProcessingTwoFactor = false;
+      },
+      error: () => {
+        this.isProcessingTwoFactor = false;
+        this.notificationService.error('profile.twoFactor.error');
+      }
+    });
+  }
+
+  /** Confirms setup by verifying the entered code; activates 2FA on success. */
+  verifyTwoFactorSetup(): void {
+    if (!this.twoFactorCode.trim()) {
+      return;
+    }
+    this.isProcessingTwoFactor = true;
+    this.userManagementService.verifyTwoFactor(this.twoFactorCode.trim()).subscribe({
+      next: success => {
+        this.isProcessingTwoFactor = false;
+        if (success) {
+          this.twoFactorEnabled = true;
+          this.twoFactorSetup = null;
+          this.twoFactorCode = '';
+          this.notificationService.success('profile.twoFactor.enabled');
+        } else {
+          this.notificationService.error('profile.twoFactor.invalidCode');
+        }
+      },
+      error: () => {
+        this.isProcessingTwoFactor = false;
+        this.notificationService.error('profile.twoFactor.error');
+      }
+    });
+  }
+
+  /** Disables 2FA after validating a current code. */
+  disableTwoFactor(): void {
+    if (!this.twoFactorCode.trim()) {
+      return;
+    }
+    this.isProcessingTwoFactor = true;
+    this.userManagementService.disableTwoFactor(this.twoFactorCode.trim()).subscribe({
+      next: () => {
+        this.isProcessingTwoFactor = false;
+        this.twoFactorEnabled = false;
+        this.twoFactorCode = '';
+        this.notificationService.success('profile.twoFactor.disabled');
+      },
+      error: () => {
+        this.isProcessingTwoFactor = false;
+        this.notificationService.error('profile.twoFactor.invalidCode');
+      }
+    });
+  }
+
+  cancelTwoFactorSetup(): void {
+    this.twoFactorSetup = null;
+    this.twoFactorCode = '';
   }
 
   private initializeForms(): void {

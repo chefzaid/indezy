@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.PasswordChangeRequestDto;
+import dev.swirlit.indezy.dto.TwoFactorSetupDto;
 import dev.swirlit.indezy.dto.UserDto;
 import dev.swirlit.indezy.dto.UserNotificationSettingsDto;
 import dev.swirlit.indezy.dto.UserPreferencesDto;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -42,6 +44,9 @@ class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Spy
+    private TotpService totpService = new TotpService();
 
     @InjectMocks
     private UserService userService;
@@ -194,24 +199,52 @@ class UserServiceTest {
     }
 
     @Test
-    void enableTwoFactor_ShouldStoreSecretAndReturnQrCode() {
+    void enableTwoFactor_ShouldStoreSecretButLeaveDisabledUntilVerified() {
+        testUser.setEmail("john.doe@example.com");
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
 
-        String qrCode = userService.enableTwoFactor(1L);
+        TwoFactorSetupDto setup = userService.enableTwoFactor(1L);
 
-        assertThat(qrCode).startsWith("data:image/png;base64,");
-        assertThat(testUser.getTwoFactorEnabled()).isTrue();
-        assertThat(testUser.getTwoFactorSecret()).isNotBlank();
+        assertThat(setup.getSecret()).isNotBlank();
+        assertThat(setup.getOtpauthUri()).startsWith("otpauth://totp/Indezy:");
+        assertThat(testUser.getTwoFactorSecret()).isEqualTo(setup.getSecret());
+        assertThat(testUser.getTwoFactorEnabled()).isFalse();
         verify(userRepository).save(testUser);
     }
 
     @Test
-    void disableTwoFactor_WithValidCode_ShouldClearSecret() {
-        testUser.setTwoFactorEnabled(true);
-        testUser.setTwoFactorSecret("secret");
+    void verifyTwoFactor_WithValidCode_ShouldEnable() {
+        String secret = totpService.generateSecret();
+        testUser.setTwoFactorSecret(secret);
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
 
-        boolean result = userService.disableTwoFactor(1L, "123456");
+        boolean result = userService.verifyTwoFactor(1L, totpService.generateCurrentCode(secret));
+
+        assertThat(result).isTrue();
+        assertThat(testUser.getTwoFactorEnabled()).isTrue();
+        verify(userRepository).save(testUser);
+    }
+
+    @Test
+    void verifyTwoFactor_WithInvalidCode_ShouldNotEnable() {
+        testUser.setTwoFactorSecret(totpService.generateSecret());
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+
+        boolean result = userService.verifyTwoFactor(1L, "000000");
+
+        assertThat(result).isFalse();
+        assertThat(testUser.getTwoFactorEnabled()).isFalse();
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void disableTwoFactor_WithValidCode_ShouldClearSecret() {
+        String secret = totpService.generateSecret();
+        testUser.setTwoFactorEnabled(true);
+        testUser.setTwoFactorSecret(secret);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+
+        boolean result = userService.disableTwoFactor(1L, totpService.generateCurrentCode(secret));
 
         assertThat(result).isTrue();
         assertThat(testUser.getTwoFactorEnabled()).isFalse();
@@ -220,9 +253,10 @@ class UserServiceTest {
 
     @Test
     void disableTwoFactor_WithInvalidCode_ShouldThrowIllegalArgumentException() {
+        testUser.setTwoFactorSecret(totpService.generateSecret());
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
 
-        assertThatThrownBy(() -> userService.disableTwoFactor(1L, "123"))
+        assertThatThrownBy(() -> userService.disableTwoFactor(1L, "000000"))
             .isInstanceOf(IllegalArgumentException.class);
         verify(userRepository, never()).save(any());
     }

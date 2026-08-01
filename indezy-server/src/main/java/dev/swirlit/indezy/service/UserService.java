@@ -32,6 +32,9 @@ public class UserService {
     private final UserSessionRepository userSessionRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final TotpService totpService;
+
+    private static final String TWO_FACTOR_ISSUER = "Indezy";
 
     private static final String UPLOAD_DIR = "uploads/avatars/";
 
@@ -179,28 +182,47 @@ public class UserService {
     /**
      * Enable two-factor authentication
      */
-    public String enableTwoFactor(Long userId) {
-        log.debug("Enabling 2FA for user ID: {}", userId);
+    /**
+     * Starts two-factor setup: generates and stores a fresh secret (leaving 2FA disabled until a
+     * code is verified) and returns it with the provisioning URI for an authenticator app.
+     */
+    public TwoFactorSetupDto enableTwoFactor(Long userId) {
+        log.debug("Starting 2FA setup for user ID: {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
 
-        String secret = UUID.randomUUID().toString();
+        String secret = totpService.generateSecret();
         user.setTwoFactorSecret(secret);
-        user.setTwoFactorEnabled(true);
+        user.setTwoFactorEnabled(false);
         userRepository.save(user);
 
-        return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+        String otpauthUri = totpService.buildProvisioningUri(secret, user.getEmail(), TWO_FACTOR_ISSUER);
+        return new TwoFactorSetupDto(secret, otpauthUri);
+    }
+
+    /** Confirms setup by validating a code against the stored secret and activating 2FA on success. */
+    public boolean verifyTwoFactor(Long userId, String code) {
+        log.debug("Verifying 2FA code for user ID: {}", userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
+
+        if (user.getTwoFactorSecret() == null || !totpService.validateCode(user.getTwoFactorSecret(), code)) {
+            return false;
+        }
+        user.setTwoFactorEnabled(true);
+        userRepository.save(user);
+        return true;
     }
 
     /**
-     * Disable two-factor authentication
+     * Disable two-factor authentication after validating a current code.
      */
     public boolean disableTwoFactor(Long userId, String code) {
         log.debug("Disabling 2FA for user ID: {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
 
-        if (code == null || code.length() != 6) {
+        if (!totpService.validateCode(user.getTwoFactorSecret(), code)) {
             throw new IllegalArgumentException("Invalid verification code");
         }
 

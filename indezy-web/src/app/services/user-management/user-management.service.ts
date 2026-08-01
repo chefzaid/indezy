@@ -16,6 +16,11 @@ export interface SecuritySettings {
   securityQuestions: SecurityQuestion[];
 }
 
+export interface TwoFactorSetup {
+  secret: string;
+  otpauthUri: string;
+}
+
 export interface LoginSession {
   id: string;
   device: string;
@@ -87,8 +92,12 @@ export class UserManagementService {
     return this.http.get<SecuritySettings>(`${this.API_URL}/security`);
   }
 
-  enableTwoFactor(): Observable<string> {
-    return this.http.post<string>(`${this.API_URL}/security/2fa/enable`, {});
+  enableTwoFactor(): Observable<TwoFactorSetup> {
+    return this.http.post<TwoFactorSetup>(`${this.API_URL}/security/2fa/enable`, {});
+  }
+
+  verifyTwoFactor(code: string): Observable<boolean> {
+    return this.http.post<boolean>(`${this.API_URL}/security/2fa/verify`, { code });
   }
 
   disableTwoFactor(code: string): Observable<boolean> {

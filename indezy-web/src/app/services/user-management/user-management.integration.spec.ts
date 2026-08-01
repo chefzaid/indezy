@@ -381,17 +381,16 @@ describe('UserManagementService Integration Tests', () => {
       req.flush(mockSettings);
     });
 
-    it('should enable two-factor authentication via indezy-server', (done) => {
-      const mockQrCode = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...';
+    it('should start two-factor setup via indezy-server', (done) => {
+      const mockSetup = { secret: 'ABC234ABC234', otpauthUri: 'otpauth://totp/Indezy:x?secret=ABC234ABC234' };
 
       // Handle the constructor request first
       handleConstructorRequest();
 
       service.enableTwoFactor().subscribe({
-        next: (qrCode) => {
-          expect(qrCode).toBeDefined();
-          expect(typeof qrCode).toBe('string');
-          expect(qrCode.length).toBeGreaterThan(0);
+        next: (setup) => {
+          expect(setup.secret).toBe(mockSetup.secret);
+          expect(setup.otpauthUri).toContain('otpauth://');
           done();
         },
         error: (error) => {
@@ -403,7 +402,7 @@ describe('UserManagementService Integration Tests', () => {
       const req = httpMock.expectOne('http://localhost:8080/api/users/security/2fa/enable');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({});
-      req.flush(mockQrCode);
+      req.flush(mockSetup);
     });
 
     it('should terminate session via indezy-server', (done) => {
