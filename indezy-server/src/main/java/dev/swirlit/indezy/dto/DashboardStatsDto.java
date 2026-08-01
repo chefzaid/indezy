@@ -40,6 +40,7 @@ public class DashboardStatsDto {
     private List<OnThisDayItem> onThisDay;
     private List<DormantContact> dormantContacts;
     private List<SkillTrend> skillTrends;
+    private List<ProcessDuration> processDurations;
 
     @Data
     @Builder
@@ -180,6 +181,20 @@ public class DashboardStatsDto {
         private String skill;
         private long count;
         private double averageDailyRate;
+    }
+
+    /**
+     * Average time, in days, from first contact (opportunity creation) to signature (the last
+     * validated interview step) for won opportunities, grouped by the client or ESN dealt with.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ProcessDuration {
+        private String group;
+        private double averageDays;
+        private long count;
     }
 
     /**

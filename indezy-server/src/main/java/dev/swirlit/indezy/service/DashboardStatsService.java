@@ -5,10 +5,13 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.model.enums.StepStatus;
 import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.Freelance;
+import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +43,7 @@ public class DashboardStatsService {
     private final ProjectRepository projectRepository;
     private final FreelanceRepository freelanceRepository;
     private final ContactRepository contactRepository;
+    private final InterviewStepRepository interviewStepRepository;
 
     @Transactional(readOnly = true)
     public DashboardStatsDto getDashboardStats(Long freelanceId) {
@@ -155,7 +160,61 @@ public class DashboardStatsService {
             .onThisDay(buildOnThisDay(projects, contacts, LocalDate.now()))
             .dormantContacts(buildDormantContacts(contacts, LocalDateTime.now()))
             .skillTrends(buildSkillTrends(projects))
+            .processDurations(buildProcessDurations(projects, signatureDatesByProject(freelanceId)))
             .build();
+    }
+
+    /** Maps each project id to the date of its latest validated interview step (its "signature"). */
+    private Map<Long, LocalDateTime> signatureDatesByProject(Long freelanceId) {
+        Map<Long, LocalDateTime> signatures = new HashMap<>();
+        for (InterviewStep step : interviewStepRepository.findByFreelanceIdAndStatus(freelanceId, StepStatus.VALIDATED)) {
+            if (step.getDate() == null) {
+                continue;
+            }
+            Long projectId = step.getProject().getId();
+            signatures.merge(projectId, step.getDate(), (a, b) -> a.isAfter(b) ? a : b);
+        }
+        return signatures;
+    }
+
+    /**
+     * Averages the number of days from first contact (opportunity creation) to signature (latest
+     * validated step) for won opportunities, grouped by the ESN when present, otherwise the client.
+     * Longest processes first; groups with no signed opportunity are omitted.
+     */
+    private List<DashboardStatsDto.ProcessDuration> buildProcessDurations(
+            List<Project> projects, Map<Long, LocalDateTime> signatureDates) {
+        Map<String, long[] > totalsByGroup = new LinkedHashMap<>();
+        for (Project project : projects) {
+            if (!ProjectStatus.WON.equals(project.getStatus()) || project.getCreatedAt() == null) {
+                continue;
+            }
+            LocalDateTime signature = signatureDates.get(project.getId());
+            if (signature == null) {
+                continue;
+            }
+            long days = ChronoUnit.DAYS.between(project.getCreatedAt().toLocalDate(), signature.toLocalDate());
+            if (days < 0) {
+                continue;
+            }
+            String group = project.getMiddleman() != null
+                ? project.getMiddleman().getCompanyName()
+                : (project.getClient() != null ? project.getClient().getCompanyName() : null);
+            if (group == null) {
+                continue;
+            }
+            long[] totals = totalsByGroup.computeIfAbsent(group, key -> new long[2]);
+            totals[0] += days;
+            totals[1]++;
+        }
+        return totalsByGroup.entrySet().stream()
+            .map(entry -> DashboardStatsDto.ProcessDuration.builder()
+                .group(entry.getKey())
+                .averageDays((double) entry.getValue()[0] / entry.getValue()[1])
+                .count(entry.getValue()[1])
+                .build())
+            .sorted(Comparator.comparingDouble(DashboardStatsDto.ProcessDuration::getAverageDays).reversed())
+            .toList();
     }
 
     /** How many top skills to surface in the demand ranking. */

@@ -4,14 +4,17 @@ import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.Freelance;
+import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.model.enums.StepStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +42,9 @@ class DashboardStatsServiceTest {
 
     @Mock
     private ContactRepository contactRepository;
+
+    @Mock
+    private InterviewStepRepository interviewStepRepository;
 
     @InjectMocks
     private DashboardStatsService dashboardStatsService;
@@ -692,5 +698,37 @@ class DashboardStatsServiceTest {
 
         // The two-occurrence skills rank above the single-occurrence ones.
         assertThat(stats.getSkillTrends().getFirst().getCount()).isEqualTo(2);
+    }
+
+    @Test
+    void getDashboardStats_ShouldAverageProcessDurationByCounterparty() {
+        dev.swirlit.indezy.model.Client middleman = new dev.swirlit.indezy.model.Client();
+        middleman.setId(9L);
+        middleman.setCompanyName("ESN One");
+
+        Project won = new Project();
+        won.setId(50L);
+        won.setStatus(ProjectStatus.WON);
+        won.setClient(testClient);
+        won.setMiddleman(middleman);
+        won.setCreatedAt(LocalDateTime.now().minusDays(20));
+
+        InterviewStep validated = new InterviewStep();
+        validated.setStatus(StepStatus.VALIDATED);
+        validated.setDate(LocalDateTime.now().minusDays(5));
+        validated.setProject(won);
+
+        stubMinimalAggregates();
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(won));
+        when(interviewStepRepository.findByFreelanceIdAndStatus(1L, StepStatus.VALIDATED))
+            .thenReturn(List.of(validated));
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        // Signed 15 days after first contact, grouped under the ESN.
+        assertThat(stats.getProcessDurations()).hasSize(1);
+        assertThat(stats.getProcessDurations().getFirst().getGroup()).isEqualTo("ESN One");
+        assertThat(stats.getProcessDurations().getFirst().getCount()).isEqualTo(1);
+        assertThat(stats.getProcessDurations().getFirst().getAverageDays()).isEqualTo(15.0);
     }
 }

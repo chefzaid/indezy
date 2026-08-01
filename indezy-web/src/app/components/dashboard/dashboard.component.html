@@ -306,6 +306,26 @@
               }
             </div>
           }
+          @if (getProcessDurations().length > 0) {
+            <div class="source-roi">
+              <h4 class="source-roi-title">
+                <mat-icon>schedule</mat-icon>
+                {{ 'dashboard.charts.processDuration' | translate }}
+              </h4>
+              <div class="source-roi-row source-roi-header">
+                <span class="source-roi-name">{{ 'dashboard.charts.processDurationGroup' | translate }}</span>
+                <span class="source-roi-metric">{{ 'dashboard.charts.processDurationDays' | translate }}</span>
+                <span class="source-roi-metric">{{ 'dashboard.charts.processDurationSigned' | translate }}</span>
+              </div>
+              @for (duration of getProcessDurations(); track duration.group) {
+                <div class="source-roi-row">
+                  <span class="source-roi-name">{{ duration.group }}</span>
+                  <span class="source-roi-metric">{{ duration.averageDays | number:'1.0-0' }}</span>
+                  <span class="source-roi-metric">{{ duration.count }}</span>
+                </div>
+              }
+            </div>
+          }
           @if (getDailyRateEvolution().length > 0) {
             <div class="rate-evolution">
               <h4 class="rate-evolution-title">
