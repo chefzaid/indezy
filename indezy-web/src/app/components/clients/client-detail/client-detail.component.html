@@ -224,10 +224,16 @@
           <div class="tab-content">
             <div class="contacts-header">
               <h3>{{ 'clients.form.associatedContacts' | translate }}</h3>
-              <button mat-raised-button color="primary" (click)="onAddContact()">
-                <mat-icon>add</mat-icon>
-                {{ 'contacts.addContact' | translate }}
-              </button>
+              <div class="contacts-header-actions">
+                <button mat-stroked-button (click)="onImportContacts()">
+                  <mat-icon>upload_file</mat-icon>
+                  {{ 'contacts.import.action' | translate }}
+                </button>
+                <button mat-raised-button color="primary" (click)="onAddContact()">
+                  <mat-icon>add</mat-icon>
+                  {{ 'contacts.addContact' | translate }}
+                </button>
+              </div>
             </div>
             @if (isLoadingContacts) {
               <div class="loading-container">

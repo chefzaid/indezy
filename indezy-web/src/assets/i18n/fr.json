@@ -519,6 +519,15 @@
   "contacts": {
     "title": "Gestion des Contacts",
     "subtitle": "Gérez vos contacts clients et leurs informations",
+    "import": {
+      "title": "Importer des contacts",
+      "action": "Importer",
+      "hint": "Collez un contenu CSV (par ex. un export LinkedIn) ou vCard ci-dessous.",
+      "label": "Contenu CSV ou vCard",
+      "placeholder": "Prénom,Nom,Email,Téléphone\nJane,Doe,jane@example.com,+33 6 12 34 56 78",
+      "result": "{{imported}} contact(s) importé(s), {{skipped}} ignoré(s)",
+      "error": "Échec de l'import des contacts"
+    },
     "newContact": "Ajouter un contact",
     "loading": "Chargement des contacts...",
     "loadingContacts": "Chargement des contacts...",

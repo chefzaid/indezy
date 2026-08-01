@@ -8,6 +8,12 @@ import { AuthService } from '../auth/auth.service';
 // Export the interface for use in other components
 export { ContactDto } from '../../models/contact.models';
 
+export interface ContactImportResult {
+  imported: number;
+  skipped: number;
+  total: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -64,6 +70,11 @@ export class ContactService {
 
   getByClientId(clientId: number): Observable<ContactDto[]> {
     return this.http.get<ContactDto[]>(`${this.API_URL}/by-client/${clientId}`);
+  }
+
+  /** Imports contacts from a CSV or vCard payload under the given client. */
+  importForClient(clientId: number, content: string): Observable<ContactImportResult> {
+    return this.http.post<ContactImportResult>(`${this.API_URL}/import/by-client/${clientId}`, { content });
   }
 
   getContactsByClient(clientId: number): Observable<ContactDto[]> {

@@ -519,6 +519,15 @@
   "contacts": {
     "title": "Contact Management",
     "subtitle": "Manage your client contacts and their information",
+    "import": {
+      "title": "Import contacts",
+      "action": "Import",
+      "hint": "Paste a CSV (e.g. a LinkedIn export) or vCard content below.",
+      "label": "CSV or vCard content",
+      "placeholder": "First Name,Last Name,Email,Phone\nJane,Doe,jane@example.com,+33 6 12 34 56 78",
+      "result": "{{imported}} contact(s) imported, {{skipped}} skipped",
+      "error": "Contact import failed"
+    },
     "newContact": "Add a contact",
     "loading": "Loading contacts...",
     "loadingContacts": "Loading contacts...",

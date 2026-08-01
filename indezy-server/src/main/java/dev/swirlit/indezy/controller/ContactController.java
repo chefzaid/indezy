@@ -1,7 +1,10 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.ContactDto;
+import dev.swirlit.indezy.dto.ContactImportRequest;
+import dev.swirlit.indezy.dto.ContactImportResultDto;
 import dev.swirlit.indezy.service.ContactService;
+import dev.swirlit.indezy.service.ContactImportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,6 +39,24 @@ import java.util.List;
 public class ContactController {
 
     private final ContactService contactService;
+    private final ContactImportService contactImportService;
+
+    @Operation(summary = "Import contacts for a client",
+            description = "Parses a CSV or vCard payload and imports its contacts under the given client")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Import completed",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ContactImportResultDto.class))),
+        @ApiResponse(responseCode = "404", description = "Client not found"),
+        @ApiResponse(responseCode = "400", description = "Invalid import payload")
+    })
+    @PostMapping("/import/by-client/{clientId}")
+    public ResponseEntity<ContactImportResultDto> importContacts(
+            @Parameter(description = "Target client ID", required = true) @PathVariable Long clientId,
+            @Valid @RequestBody ContactImportRequest request) {
+        log.debug("POST /contacts/import/by-client/{} - Importing contacts", clientId);
+        ContactImportResultDto result = contactImportService.importForClient(clientId, request.getContent());
+        return ResponseEntity.ok(result);
+    }
 
     @Operation(summary = "Get all contacts", description = "Retrieve a list of all contacts")
     @ApiResponses(value = {

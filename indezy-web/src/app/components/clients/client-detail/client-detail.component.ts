@@ -19,6 +19,7 @@ import { ContactService } from '../../../services/contact/contact.service';
 import { ClientDto, ContactDto } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { ContactImportDialogComponent } from '../../contacts/contact-import-dialog/contact-import-dialog.component';
 
 
 @Component({
@@ -229,6 +230,31 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     }
 
     this.router.navigate(['/clients', this.clientId, 'contacts', 'create']);
+  }
+
+  onImportContacts(): void {
+    if (!this.clientId) {
+      return;
+    }
+    const clientId = this.clientId;
+    this.dialog.open(ContactImportDialogComponent, { width: '560px', autoFocus: false })
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((content: string | undefined) => {
+        if (!content) {
+          return;
+        }
+        this.contactService.importForClient(clientId, content)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: result => {
+              this.notificationService.success('contacts.import.result', 4000,
+                { imported: result.imported, skipped: result.skipped });
+              this.loadContacts();
+            },
+            error: () => this.notificationService.error('contacts.import.error')
+          });
+      });
   }
 
   onEditContact(contact: ContactDto): void {

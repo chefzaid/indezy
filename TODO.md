@@ -60,7 +60,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Org chart linking contacts to clients and ESNs (who works with whom)
 - [x] Reminder to nurture dormant contacts (no exchange in 6 months)
 - [x] "On this day last year": resurface contacts/opportunities from the same period to re-engage
-- [ ] Import contacts from LinkedIn / vCard / CSV
+- [x] Import contacts from LinkedIn / vCard / CSV
 
 ## Finance
 

@@ -253,6 +253,11 @@
       align-items: center;
       margin-bottom: 24px;
 
+      .contacts-header-actions {
+        display: flex;
+        gap: 8px;
+      }
+
       h3 {
         margin: 0;
         font-size: 1.2rem;

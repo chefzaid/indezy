@@ -1,0 +1,15 @@
+.import-hint {
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+}
+
+.import-field {
+  width: 100%;
+  min-width: 420px;
+}
+
+@media (max-width: 600px) {
+  .import-field {
+    min-width: 0;
+  }
+}

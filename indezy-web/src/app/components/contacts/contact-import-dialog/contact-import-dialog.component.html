@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>{{ 'contacts.import.title' | translate }}</h2>
+
+<mat-dialog-content>
+  <p class="import-hint">{{ 'contacts.import.hint' | translate }}</p>
+  <mat-form-field appearance="outline" class="import-field">
+    <mat-label>{{ 'contacts.import.label' | translate }}</mat-label>
+    <textarea matInput rows="10" [(ngModel)]="content"
+              [placeholder]="'contacts.import.placeholder' | translate"></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">{{ 'common.cancel' | translate }}</button>
+  <button mat-raised-button color="primary" [disabled]="!content.trim()" (click)="onImport()">
+    {{ 'contacts.import.action' | translate }}
+  </button>
+</mat-dialog-actions>
