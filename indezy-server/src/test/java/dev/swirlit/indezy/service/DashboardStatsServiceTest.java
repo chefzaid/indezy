@@ -658,4 +658,39 @@ class DashboardStatsServiceTest {
         assertThat(stats.getDormantContacts().getFirst().getClientName()).isEqualTo("Test Company");
         assertThat(stats.getDormantContacts().getFirst().getMonthsSinceActivity()).isGreaterThanOrEqualTo(6L);
     }
+
+    @Test
+    void getDashboardStats_ShouldRankSkillTrendsByFrequencyWithAverageRate() {
+        Project p1 = new Project();
+        p1.setId(1L);
+        p1.setTechStack("Java, Spring Boot, PostgreSQL");
+        p1.setDailyRate(600);
+        Project p2 = new Project();
+        p2.setId(2L);
+        p2.setTechStack("java, Angular");
+        p2.setDailyRate(800);
+        Project p3 = new Project();
+        p3.setId(3L);
+        p3.setTechStack("Angular, TypeScript");
+        p3.setDailyRate(500);
+
+        stubMinimalAggregates();
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(p1, p2, p3));
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        DashboardStatsDto.SkillTrend java = stats.getSkillTrends().stream()
+            .filter(t -> t.getSkill().equalsIgnoreCase("java")).findFirst().orElseThrow();
+        assertThat(java.getSkill()).isEqualTo("Java");
+        assertThat(java.getCount()).isEqualTo(2);
+        assertThat(java.getAverageDailyRate()).isEqualTo(700.0);
+
+        DashboardStatsDto.SkillTrend angular = stats.getSkillTrends().stream()
+            .filter(t -> t.getSkill().equalsIgnoreCase("angular")).findFirst().orElseThrow();
+        assertThat(angular.getCount()).isEqualTo(2);
+        assertThat(angular.getAverageDailyRate()).isEqualTo(650.0);
+
+        // The two-occurrence skills rank above the single-occurrence ones.
+        assertThat(stats.getSkillTrends().getFirst().getCount()).isEqualTo(2);
+    }
 }

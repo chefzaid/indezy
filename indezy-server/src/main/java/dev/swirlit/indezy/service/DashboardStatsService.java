@@ -154,7 +154,61 @@ public class DashboardStatsService {
             .upcomingRenewals(buildUpcomingRenewals(projects, LocalDate.now(), noticePeriodInDays))
             .onThisDay(buildOnThisDay(projects, contacts, LocalDate.now()))
             .dormantContacts(buildDormantContacts(contacts, LocalDateTime.now()))
+            .skillTrends(buildSkillTrends(projects))
             .build();
+    }
+
+    /** How many top skills to surface in the demand ranking. */
+    private static final int TOP_SKILLS_LIMIT = 12;
+
+    /**
+     * Ranks the skills/technologies appearing across opportunities' tech stacks by how often
+     * they occur, alongside the average daily rate of the opportunities requiring each. Tech
+     * stacks are split on commas and grouped case-insensitively. Most in-demand first.
+     */
+    private List<DashboardStatsDto.SkillTrend> buildSkillTrends(List<Project> projects) {
+        Map<String, SkillAccumulator> bySkill = new LinkedHashMap<>();
+        for (Project project : projects) {
+            String techStack = project.getTechStack();
+            if (techStack == null || techStack.isBlank()) {
+                continue;
+            }
+            for (String rawSkill : techStack.split(",")) {
+                String skill = rawSkill.trim();
+                if (skill.isEmpty()) {
+                    continue;
+                }
+                SkillAccumulator acc = bySkill.computeIfAbsent(
+                    skill.toLowerCase(java.util.Locale.ROOT), key -> new SkillAccumulator(skill));
+                acc.count++;
+                if (project.getDailyRate() != null) {
+                    acc.rateSum += project.getDailyRate();
+                    acc.rateCount++;
+                }
+            }
+        }
+        return bySkill.values().stream()
+            .map(acc -> DashboardStatsDto.SkillTrend.builder()
+                .skill(acc.displayName)
+                .count(acc.count)
+                .averageDailyRate(acc.rateCount > 0 ? acc.rateSum / acc.rateCount : 0)
+                .build())
+            .sorted(Comparator.comparingLong(DashboardStatsDto.SkillTrend::getCount).reversed()
+                .thenComparing(Comparator.comparingDouble(DashboardStatsDto.SkillTrend::getAverageDailyRate).reversed()))
+            .limit(TOP_SKILLS_LIMIT)
+            .toList();
+    }
+
+    /** Mutable tally for a single skill while aggregating tech stacks. */
+    private static final class SkillAccumulator {
+        private final String displayName;
+        private long count;
+        private double rateSum;
+        private long rateCount;
+
+        private SkillAccumulator(String displayName) {
+            this.displayName = displayName;
+        }
     }
 
     /** How many days either side of the anniversary still counts as "on this day". */

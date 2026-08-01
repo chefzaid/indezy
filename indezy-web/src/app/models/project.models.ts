@@ -150,6 +150,7 @@ export interface DashboardStatsDto {
   upcomingRenewals: UpcomingRenewal[];
   onThisDay: OnThisDayItem[];
   dormantContacts: DormantContact[];
+  skillTrends: SkillTrend[];
 }
 
 export interface DailyRateRange {
@@ -220,6 +221,12 @@ export interface DormantContact {
   name: string;
   clientName: string;
   monthsSinceActivity: number;
+}
+
+export interface SkillTrend {
+  skill: string;
+  count: number;
+  averageDailyRate: number;
 }
 
 export interface ProjectNote {

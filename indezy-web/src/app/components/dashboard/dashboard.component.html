@@ -286,6 +286,26 @@
               }
             </div>
           }
+          @if (getSkillTrends().length > 0) {
+            <div class="source-roi">
+              <h4 class="source-roi-title">
+                <mat-icon>insights</mat-icon>
+                {{ 'dashboard.charts.skillTrends' | translate }}
+              </h4>
+              <div class="source-roi-row source-roi-header">
+                <span class="source-roi-name">{{ 'dashboard.charts.skillTrendsSkill' | translate }}</span>
+                <span class="source-roi-metric">{{ 'dashboard.charts.skillTrendsCount' | translate }}</span>
+                <span class="source-roi-metric">{{ 'dashboard.charts.skillTrendsRate' | translate }}</span>
+              </div>
+              @for (trend of getSkillTrends(); track trend.skill) {
+                <div class="source-roi-row">
+                  <span class="source-roi-name">{{ trend.skill }}</span>
+                  <span class="source-roi-metric">{{ trend.count }}</span>
+                  <span class="source-roi-metric">{{ trend.averageDailyRate | number:'1.0-0' }} €</span>
+                </div>
+              }
+            </div>
+          }
           @if (getDailyRateEvolution().length > 0) {
             <div class="rate-evolution">
               <h4 class="rate-evolution-title">

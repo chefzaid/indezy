@@ -39,6 +39,7 @@ public class DashboardStatsDto {
     private List<UpcomingRenewal> upcomingRenewals;
     private List<OnThisDayItem> onThisDay;
     private List<DormantContact> dormantContacts;
+    private List<SkillTrend> skillTrends;
 
     @Data
     @Builder
@@ -165,6 +166,20 @@ public class DashboardStatsDto {
         private String name;
         private String clientName;
         private long monthsSinceActivity;
+    }
+
+    /**
+     * A skill/technology extracted from opportunities' tech stacks, with how often it appears
+     * and the average daily rate of the opportunities requiring it.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SkillTrend {
+        private String skill;
+        private long count;
+        private double averageDailyRate;
     }
 
     /**
