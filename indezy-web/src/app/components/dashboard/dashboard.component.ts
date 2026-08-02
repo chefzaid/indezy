@@ -10,8 +10,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth/auth.service';
 import { ProjectService } from '../../services/project/project.service';
 import { FreelanceService } from '../../services/freelance/freelance.service';
-import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, OnThisDayItem, DormantContact, SkillTrend, ProcessDuration, ActivityDay, PROJECT_STATUS_COLORS } from '../../models';
+import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, SkillTrend, ProcessDuration, ActivityDay, PROJECT_STATUS_COLORS } from '../../models';
 import { ActivityHeatmapComponent } from '../../shared/components/activity-heatmap/activity-heatmap.component';
+import { DashboardRemindersComponent } from './dashboard-reminders/dashboard-reminders.component';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
@@ -31,7 +32,8 @@ type ViewMode = 'overview' | 'kanban';
         MatTooltipModule,
         TranslateModule,
         KanbanBoardComponent,
-        ActivityHeatmapComponent
+        ActivityHeatmapComponent,
+        DashboardRemindersComponent
     ],
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.scss']
@@ -193,28 +195,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.dashboardStats?.funnelByEsn ?? [];
   }
 
-  /** Signed missions ending within the prospection-reminder window, soonest first. */
-  getMissionsEndingSoon(): MissionEndingSoon[] {
-    return this.dashboardStats?.missionsEndingSoon ?? [];
-  }
-
-  getUpcomingRenewals(): UpcomingRenewal[] {
-    return this.dashboardStats?.upcomingRenewals ?? [];
-  }
-
-  getOnThisDay(): OnThisDayItem[] {
-    return this.dashboardStats?.onThisDay ?? [];
-  }
-
-  /** Router path for an "on this day" item, based on whether it is a project or a contact. */
-  getOnThisDayLink(item: OnThisDayItem): unknown[] {
-    return item.type === 'CONTACT' ? ['/contacts', item.id] : ['/projects', item.id];
-  }
-
-  getDormantContacts(): DormantContact[] {
-    return this.dashboardStats?.dormantContacts ?? [];
-  }
-
   getSkillTrends(): SkillTrend[] {
     return this.dashboardStats?.skillTrends ?? [];
   }
@@ -225,11 +205,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getActivityHeatmap(): ActivityDay[] {
     return this.dashboardStats?.activityHeatmap ?? [];
-  }
-
-  /** Active opportunities idle past the stale threshold, most stale first. */
-  getStaleOpportunities(): StaleOpportunity[] {
-    return this.dashboardStats?.staleOpportunities ?? [];
   }
 
   /** Compact stage counts for a funnel group, e.g. "6 → 4 → 3 → 2 → 1". */
