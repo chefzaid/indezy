@@ -208,6 +208,8 @@
       "title": "Journal",
       "addLabel": "Nouvelle note",
       "placeholder": "Consigner un appel, un email ou une décision...",
+      "markdownHint": "Markdown pris en charge : **gras**, *italique*, `code`, - listes, [liens](https://...)",
+      "preview": "Aperçu",
       "add": "Ajouter",
       "empty": "Aucune note pour l'instant. Consignez votre première interaction ci-dessus.",
       "deleteConfirm": "Supprimer cette note ?",

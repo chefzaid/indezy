@@ -38,7 +38,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] Google Maps Distance Matrix API integration for driving and transit modes
 - [x] Graceful commute fallback when no Google Maps API key is configured
 - [ ] Attachments per project (job description PDF, contract, technical test brief) with inline preview (image, PDF) instead of forcing downloads
-- [ ] Notes/journal timeline per project (every call, email, decision logged chronologically), with Markdown support and live preview
+- [x] Notes/journal timeline per project (every call, email, decision logged chronologically), with Markdown support and live preview
 - [x] Note templates (call debrief, interview debrief, negotiation summary) selectable when adding a note
 - [ ] Voice memo after a call: record, transcribe, attach the transcript as a project note
 - [ ] Skill tags on projects + match score against the freelancer's skill profile (with global tag rename across all projects)

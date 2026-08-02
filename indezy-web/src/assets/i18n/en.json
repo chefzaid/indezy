@@ -208,6 +208,8 @@
       "title": "Journal",
       "addLabel": "New note",
       "placeholder": "Log a call, email or decision...",
+      "markdownHint": "Markdown supported: **bold**, *italic*, `code`, - lists, [links](https://...)",
+      "preview": "Preview",
       "add": "Add note",
       "empty": "No notes yet. Log your first interaction above.",
       "deleteConfirm": "Delete this note?",

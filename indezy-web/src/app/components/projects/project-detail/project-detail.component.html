@@ -397,7 +397,14 @@
                 <mat-label>{{ 'projects.notes.addLabel' | translate }}</mat-label>
                 <textarea matInput rows="3" [(ngModel)]="newNoteContent"
                           [placeholder]="'projects.notes.placeholder' | translate"></textarea>
+                <mat-hint>{{ 'projects.notes.markdownHint' | translate }}</mat-hint>
               </mat-form-field>
+              @if (newNoteContent.trim()) {
+                <div class="journal-preview">
+                  <span class="journal-preview-label">{{ 'projects.notes.preview' | translate }}</span>
+                  <div class="journal-content" [innerHTML]="renderMarkdown(newNoteContent)"></div>
+                </div>
+              }
               <button mat-raised-button color="primary"
                       [disabled]="!newNoteContent.trim() || isSavingNote" (click)="addNote()">
                 <mat-icon>add_comment</mat-icon>
@@ -416,7 +423,7 @@
                         <mat-icon>delete</mat-icon>
                       </button>
                     </div>
-                    <div class="journal-content">{{ note.content }}</div>
+                    <div class="journal-content" [innerHTML]="renderMarkdown(note.content)"></div>
                   </div>
                 }
               </div>

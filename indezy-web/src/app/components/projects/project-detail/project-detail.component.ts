@@ -18,6 +18,8 @@ import { ProjectService } from '../../../services/project/project.service';
 import { ProjectDto, ProjectNote } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { MarkdownService } from '../../../shared/services/markdown.service';
+import { SafeHtml } from '@angular/platform-browser';
 import { NOTE_TEMPLATES } from './note-templates';
 
 @Component({
@@ -59,8 +61,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly notificationService: NotificationService,
     private readonly translate: TranslateService,
-    private readonly confirmDialog: ConfirmDialogService
+    private readonly confirmDialog: ConfirmDialogService,
+    private readonly markdownService: MarkdownService
   ) {}
+
+  /** Renders note content written in Markdown as safe, bindable HTML. */
+  renderMarkdown(text: string): SafeHtml {
+    return this.markdownService.render(text);
+  }
 
   ngOnInit(): void {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
