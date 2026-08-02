@@ -1,0 +1,15 @@
+.rename-hint {
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+}
+
+.full-width {
+  width: 100%;
+  min-width: 320px;
+}
+
+@media (max-width: 600px) {
+  .full-width {
+    min-width: 0;
+  }
+}

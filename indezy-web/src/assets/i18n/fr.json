@@ -410,6 +410,17 @@
       "byTransit": "Trier par temps en transport en commun",
       "unavailable": "Itinéraire non disponible"
     },
+    "skills": {
+      "matchScore": "Correspondance",
+      "renameTitle": "Renommer une compétence",
+      "renameHint": "Renomme ce tag sur tous les projets où il apparaît.",
+      "renameFrom": "Tag à renommer",
+      "renameTo": "Nouveau nom",
+      "renameAction": "Renommer",
+      "renameTooltip": "Renommer un tag sur tous les projets",
+      "renameSuccess": "Tag renommé sur {{count}} projet(s)",
+      "renameError": "Échec du renommage du tag"
+    },
     "reversion": {
       "title": "Taux de réversion",
       "rate": "Taux de réversion (%)",

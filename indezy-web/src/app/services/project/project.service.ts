@@ -36,6 +36,11 @@ export class ProjectService {
     return this.http.get<ProjectDto[]>(`${this.API_URL}/by-freelance/${freelanceId}`);
   }
 
+  /** Renames a skill tag across all of the freelance's projects; resolves with the number changed. */
+  renameTag(freelanceId: number, from: string, to: string): Observable<number> {
+    return this.http.put<number>(`${this.API_URL}/by-freelance/${freelanceId}/tags/rename`, { from, to });
+  }
+
   getByClientId(clientId: number): Observable<ProjectDto[]> {
     return this.http.get<ProjectDto[]>(`${this.API_URL}/by-client/${clientId}`);
   }

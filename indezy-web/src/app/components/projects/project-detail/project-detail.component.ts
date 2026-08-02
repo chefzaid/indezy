@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,6 +21,11 @@ import { NotificationService } from '../../../services/notification/notification
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MarkdownService } from '../../../shared/services/markdown.service';
 import { SafeHtml } from '@angular/platform-browser';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { SkillMatchService } from '../../../shared/services/skill-match.service';
+import { UserManagementService } from '../../../services/user-management/user-management.service';
+import { AuthService } from '../../../services/auth/auth.service';
+import { RenameTagDialogComponent, RenameTagResult } from '../rename-tag-dialog/rename-tag-dialog.component';
 import { NOTE_TEMPLATES } from './note-templates';
 
 @Component({
@@ -37,6 +43,8 @@ import { NOTE_TEMPLATES } from './note-templates';
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
+        MatDialogModule,
+        MatTooltipModule,
         TranslateModule
     ],
     templateUrl: './project-detail.component.html',
@@ -62,8 +70,59 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     private readonly notificationService: NotificationService,
     private readonly translate: TranslateService,
     private readonly confirmDialog: ConfirmDialogService,
-    private readonly markdownService: MarkdownService
+    private readonly markdownService: MarkdownService,
+    private readonly skillMatchService: SkillMatchService,
+    private readonly userManagementService: UserManagementService,
+    private readonly authService: AuthService,
+    private readonly dialog: MatDialog
   ) {}
+
+  userSkills: string[] = [];
+
+  /** The opportunity's tech stack as individual skill tags. */
+  getTechTags(): string[] {
+    return this.skillMatchService.parseTags(this.project?.techStack);
+  }
+
+  /** Match score (0–100) of the opportunity against the freelancer's skill profile. */
+  getMatchScore(): number {
+    return this.skillMatchService.matchScore(this.project?.techStack, this.userSkills);
+  }
+
+  private loadUserSkills(): void {
+    this.userManagementService.getUserProfile()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: profile => this.userSkills = profile.skills ?? [],
+        error: () => { /* match score simply stays at 0 when skills can't be loaded */ }
+      });
+  }
+
+  /** Renames one of the opportunity's tags across every project. */
+  openRenameTag(): void {
+    const tags = this.getTechTags();
+    const freelanceId = this.authService.getUser()?.id;
+    if (tags.length === 0 || !freelanceId) {
+      return;
+    }
+    this.dialog.open(RenameTagDialogComponent, { data: { tags }, autoFocus: false })
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result: RenameTagResult | undefined) => {
+        if (!result) {
+          return;
+        }
+        this.projectService.renameTag(freelanceId, result.from, result.to)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: count => {
+              this.notificationService.success('projects.skills.renameSuccess', 3000, { count });
+              this.loadProject();
+            },
+            error: () => this.notificationService.error('projects.skills.renameError')
+          });
+      });
+  }
 
   /** Renders note content written in Markdown as safe, bindable HTML. */
   renderMarkdown(text: string): SafeHtml {
@@ -77,6 +136,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this.loadProject();
       }
     });
+    this.loadUserSkills();
   }
 
   ngOnDestroy(): void {

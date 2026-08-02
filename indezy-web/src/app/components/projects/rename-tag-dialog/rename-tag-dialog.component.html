@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>{{ 'projects.skills.renameTitle' | translate }}</h2>
+
+<mat-dialog-content>
+  <p class="rename-hint">{{ 'projects.skills.renameHint' | translate }}</p>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'projects.skills.renameFrom' | translate }}</mat-label>
+    <mat-select [(ngModel)]="from">
+      @for (tag of data.tags; track tag) {
+        <mat-option [value]="tag">{{ tag }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'projects.skills.renameTo' | translate }}</mat-label>
+    <input matInput [(ngModel)]="to">
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">{{ 'common.cancel' | translate }}</button>
+  <button mat-raised-button color="primary" [disabled]="!from || !to.trim()" (click)="onConfirm()">
+    {{ 'projects.skills.renameAction' | translate }}
+  </button>
+</mat-dialog-actions>

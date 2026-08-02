@@ -736,4 +736,32 @@ class ProjectServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(projectRepository, never()).save(any());
     }
+
+    @Test
+    void renameTag_ShouldReplaceTagCaseInsensitivelyAndCollapseDuplicates() {
+        Project p1 = new Project();
+        p1.setTechStack("Angular 18, Spring Boot, PostgreSQL");
+        Project p2 = new Project();
+        p2.setTechStack("angular 18, Angular, Docker");
+        Project p3 = new Project();
+        p3.setTechStack("Java, Kubernetes");
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(p1, p2, p3));
+
+        int updated = projectService.renameTag(1L, "Angular 18", "Angular");
+
+        // p1 and p2 change; p3 has no matching tag.
+        assertThat(updated).isEqualTo(2);
+        assertThat(p1.getTechStack()).isEqualTo("Angular, Spring Boot, PostgreSQL");
+        // "angular 18" -> "Angular", which already exists -> collapsed.
+        assertThat(p2.getTechStack()).isEqualTo("Angular, Docker");
+        assertThat(p3.getTechStack()).isEqualTo("Java, Kubernetes");
+        verify(projectRepository, times(2)).save(any(Project.class));
+    }
+
+    @Test
+    void renameTag_ShouldRejectBlankTagNames() {
+        assertThatThrownBy(() -> projectService.renameTag(1L, "  ", "Angular"))
+                .isInstanceOf(IllegalArgumentException.class);
+        verify(projectRepository, never()).findByFreelanceId(anyLong());
+    }
 }

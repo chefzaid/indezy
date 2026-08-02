@@ -410,6 +410,17 @@
       "byTransit": "Sort by public transport time",
       "unavailable": "Route not available"
     },
+    "skills": {
+      "matchScore": "Skill match",
+      "renameTitle": "Rename skill tag",
+      "renameHint": "Renames this tag on every project where it appears.",
+      "renameFrom": "Tag to rename",
+      "renameTo": "New name",
+      "renameAction": "Rename",
+      "renameTooltip": "Rename a tag across all projects",
+      "renameSuccess": "Tag renamed on {{count}} project(s)",
+      "renameError": "Failed to rename the tag"
+    },
     "reversion": {
       "title": "Reversion Rate",
       "rate": "Reversion rate (%)",

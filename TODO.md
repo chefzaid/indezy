@@ -41,7 +41,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] Notes/journal timeline per project (every call, email, decision logged chronologically), with Markdown support and live preview
 - [x] Note templates (call debrief, interview debrief, negotiation summary) selectable when adding a note
 - [ ] Voice memo after a call: record, transcribe, attach the transcript as a project note
-- [ ] Skill tags on projects + match score against the freelancer's skill profile (with global tag rename across all projects)
+- [x] Skill tags on projects + match score against the freelancer's skill profile (with global tag rename across all projects)
 - [x] Daily rate negotiation history (asked / offered / agreed) per project
 - [x] Project archive view with full-text search across past opportunities
 - [x] Contract milestones tracking (start date, renewal date, notice period alerts)

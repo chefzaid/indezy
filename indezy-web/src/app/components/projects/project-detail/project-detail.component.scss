@@ -427,3 +427,28 @@
     color: var(--primary-color);
   }
 }
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.skill-match {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+
+  .skill-match-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary, rgba(0, 0, 0, 0.6));
+  }
+
+  .skill-match-value {
+    font-weight: 600;
+    color: var(--mat-theme-primary, #1976d2);
+  }
+}

@@ -81,6 +81,16 @@ public class ProjectController {
         return ResponseEntity.ok(projects);
     }
 
+    @PutMapping("/by-freelance/{freelanceId}/tags/rename")
+    @Operation(summary = "Rename a skill tag across all projects",
+            description = "Renames a tech-stack tag on every project of the freelance")
+    public ResponseEntity<Integer> renameTag(@PathVariable Long freelanceId,
+                                             @RequestBody java.util.Map<String, String> body) {
+        log.debug("PUT /projects/by-freelance/{}/tags/rename", freelanceId);
+        int updated = projectService.renameTag(freelanceId, body.get("from"), body.get("to"));
+        return ResponseEntity.ok(updated);
+    }
+
     @GetMapping("/by-client/{clientId}")
     public ResponseEntity<List<ProjectDto>> getProjectsByClientId(@PathVariable Long clientId) {
         log.debug("GET /projects/by-client/{} - Getting projects by client id", clientId);

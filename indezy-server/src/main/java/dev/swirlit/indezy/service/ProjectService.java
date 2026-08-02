@@ -91,6 +91,51 @@ public class ProjectService {
             .toList();
     }
 
+    /**
+     * Renames a skill/tech-stack tag across every project of a freelance. Matching is
+     * case-insensitive; duplicates produced by the rename are collapsed. Returns the number
+     * of projects that were changed.
+     */
+    @org.springframework.transaction.annotation.Transactional
+    public int renameTag(Long freelanceId, String from, String to) {
+        String fromTag = from == null ? "" : from.trim();
+        String toTag = to == null ? "" : to.trim();
+        if (fromTag.isEmpty() || toTag.isEmpty()) {
+            throw new IllegalArgumentException("Both the current and new tag names are required");
+        }
+
+        int updated = 0;
+        for (Project project : projectRepository.findByFreelanceId(freelanceId)) {
+            String techStack = project.getTechStack();
+            if (techStack == null || techStack.isBlank()) {
+                continue;
+            }
+            List<String> renamed = new ArrayList<>();
+            boolean changed = false;
+            for (String rawTag : techStack.split(",")) {
+                String tag = rawTag.trim();
+                if (tag.isEmpty()) {
+                    continue;
+                }
+                String next = tag.equalsIgnoreCase(fromTag) ? toTag : tag;
+                if (!next.equals(tag)) {
+                    changed = true;
+                }
+                if (renamed.stream().noneMatch(existing -> existing.equalsIgnoreCase(next))) {
+                    renamed.add(next);
+                } else {
+                    changed = true;
+                }
+            }
+            if (changed) {
+                project.setTechStack(String.join(", ", renamed));
+                projectRepository.save(project);
+                updated++;
+            }
+        }
+        return updated;
+    }
+
     @Transactional(readOnly = true)
     public List<ProjectDto> findByClientId(Long clientId) {
         log.debug("Finding projects by client id: {}", clientId);

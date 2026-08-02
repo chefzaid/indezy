@@ -67,7 +67,25 @@
                 {{ 'projects.form.techStack' | translate }}
               </div>
               <div class="info-value">
-                {{ project.techStack || ('common.notSpecifiedFeminine' | translate) }}
+                @if (getTechTags().length > 0) {
+                  <div class="skill-tags">
+                    @for (tag of getTechTags(); track tag) {
+                      <mat-chip>{{ tag }}</mat-chip>
+                    }
+                  </div>
+                  <div class="skill-match">
+                    <span class="skill-match-label">{{ 'projects.skills.matchScore' | translate }}</span>
+                    <span class="skill-match-value">{{ getMatchScore() }}%</span>
+                    <button mat-icon-button class="skill-rename-btn"
+                            [matTooltip]="'projects.skills.renameTooltip' | translate"
+                            [attr.aria-label]="'projects.skills.renameAction' | translate"
+                            (click)="openRenameTag()">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </div>
+                } @else {
+                  {{ 'common.notSpecifiedFeminine' | translate }}
+                }
               </div>
             </div>
             <mat-divider></mat-divider>
