@@ -1,0 +1,93 @@
+.archive-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.archive-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+}
+
+.archive-subtitle {
+  margin: 0 0 20px;
+  color: var(--text-secondary);
+}
+
+.archive-search {
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 16px;
+}
+
+.archive-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 16px;
+  color: var(--text-secondary);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.archive-card {
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.archive-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  .archive-role {
+    font-weight: 500;
+  }
+
+  .status-won {
+    background-color: #4caf50;
+    color: #fff;
+  }
+
+  .status-lost {
+    background-color: #f44336;
+    color: #fff;
+  }
+}
+
+.archive-client {
+  color: var(--text-secondary);
+}
+
+.archive-tech {
+  margin-top: 8px;
+  font-size: 0.85em;
+  color: var(--text-secondary);
+}
+
+.archive-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 0.85em;
+  color: var(--text-secondary);
+}

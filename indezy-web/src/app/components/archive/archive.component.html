@@ -1,0 +1,49 @@
+<div class="archive-container">
+  <h1 class="archive-title">
+    <mat-icon>inventory_2</mat-icon>
+    {{ 'archive.title' | translate }}
+  </h1>
+  <p class="archive-subtitle">{{ 'archive.subtitle' | translate }}</p>
+
+  <mat-form-field appearance="outline" class="archive-search">
+    <mat-label>{{ 'archive.search' | translate }}</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput [(ngModel)]="searchQuery" (ngModelChange)="onSearch()"
+           [placeholder]="'archive.searchPlaceholder' | translate">
+  </mat-form-field>
+
+  @if (isLoading) {
+    <app-loading></app-loading>
+  } @else if (filteredProjects.length === 0) {
+    <div class="archive-empty">
+      <mat-icon>inbox</mat-icon>
+      <p>{{ 'archive.empty' | translate }}</p>
+    </div>
+  } @else {
+    <div class="archive-grid">
+      @for (project of filteredProjects; track project.id) {
+        <mat-card class="archive-card" [routerLink]="['/projects', project.id]">
+          <mat-card-content>
+            <div class="archive-card-header">
+              <span class="archive-role">{{ project.role }}</span>
+              <mat-chip [class.status-won]="project.status === 'WON'"
+                        [class.status-lost]="project.status === 'LOST'">
+                {{ 'projects.statuses.' + project.status | translate }}
+              </mat-chip>
+            </div>
+            <div class="archive-client">{{ project.clientName }}</div>
+            @if (project.techStack) {
+              <div class="archive-tech">{{ project.techStack }}</div>
+            }
+            <div class="archive-meta">
+              @if (project.startDate) {
+                <span>{{ project.startDate | date:'MMM yyyy' }}</span>
+              }
+              <span>{{ project.dailyRate }} €/j</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

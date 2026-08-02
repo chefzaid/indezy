@@ -83,6 +83,7 @@
     "clients": "Clients",
     "contacts": "Contacts",
     "sources": "Sources",
+    "archive": "Archive",
     "profile": "Profile",
     "logout": "Sign out"
   },
@@ -90,6 +91,13 @@
     "title": "Timeline",
     "subtitle": "All your scheduled interview steps, soonest first",
     "empty": "No upcoming steps scheduled"
+  },
+  "archive": {
+    "title": "Archive",
+    "subtitle": "Your past opportunities (won and lost)",
+    "search": "Search",
+    "searchPlaceholder": "Role, tech stack, client, notes...",
+    "empty": "No matching opportunities"
   },
   "auth": {
     "loginTitle": "Sign in to Indezy",

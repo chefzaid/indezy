@@ -83,6 +83,7 @@
     "clients": "Clients",
     "contacts": "Contacts",
     "sources": "Sources",
+    "archive": "Archives",
     "profile": "Profil",
     "logout": "Déconnexion"
   },
@@ -90,6 +91,13 @@
     "title": "Planning",
     "subtitle": "Toutes vos étapes d'entretien planifiées, les plus proches d'abord",
     "empty": "Aucune étape à venir planifiée"
+  },
+  "archive": {
+    "title": "Archives",
+    "subtitle": "Vos opportunités passées (gagnées et perdues)",
+    "search": "Rechercher",
+    "searchPlaceholder": "Poste, stack technique, client, notes...",
+    "empty": "Aucune opportunité correspondante"
   },
   "auth": {
     "loginTitle": "Connexion à Indezy",
