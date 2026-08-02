@@ -161,7 +161,48 @@ public class DashboardStatsService {
             .dormantContacts(buildDormantContacts(contacts, LocalDateTime.now()))
             .skillTrends(buildSkillTrends(projects))
             .processDurations(buildProcessDurations(projects, signatureDatesByProject(freelanceId)))
+            .activityHeatmap(buildActivityHeatmap(freelanceId, projects, LocalDate.now()))
             .build();
+    }
+
+    /** Days of prospection activity surfaced in the heatmap. */
+    private static final int HEATMAP_WINDOW_DAYS = 365;
+
+    /**
+     * Counts prospection activity per day over the last {@link #HEATMAP_WINDOW_DAYS} days:
+     * each opportunity created and each interview step dated that day. Only days with activity
+     * are returned, ordered chronologically.
+     */
+    private List<DashboardStatsDto.ActivityDay> buildActivityHeatmap(
+            Long freelanceId, List<Project> projects, LocalDate today) {
+        LocalDate from = today.minusDays(HEATMAP_WINDOW_DAYS);
+        Map<LocalDate, Integer> counts = new HashMap<>();
+
+        for (Project project : projects) {
+            if (project.getCreatedAt() == null) {
+                continue;
+            }
+            LocalDate day = project.getCreatedAt().toLocalDate();
+            if (!day.isBefore(from) && !day.isAfter(today)) {
+                counts.merge(day, 1, Integer::sum);
+            }
+        }
+
+        List<InterviewStep> steps = interviewStepRepository.findByFreelanceIdAndDateBetween(
+            freelanceId, from.atStartOfDay(), today.plusDays(1).atStartOfDay());
+        for (InterviewStep step : steps) {
+            if (step.getDate() != null) {
+                counts.merge(step.getDate().toLocalDate(), 1, Integer::sum);
+            }
+        }
+
+        return counts.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(entry -> DashboardStatsDto.ActivityDay.builder()
+                .date(entry.getKey())
+                .count(entry.getValue())
+                .build())
+            .toList();
     }
 
     /** Maps each project id to the date of its latest validated interview step (its "signature"). */

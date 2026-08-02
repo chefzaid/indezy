@@ -152,6 +152,7 @@ export interface DashboardStatsDto {
   dormantContacts: DormantContact[];
   skillTrends: SkillTrend[];
   processDurations: ProcessDuration[];
+  activityHeatmap: ActivityDay[];
 }
 
 export interface DailyRateRange {
@@ -233,6 +234,11 @@ export interface SkillTrend {
 export interface ProcessDuration {
   group: string;
   averageDays: number;
+  count: number;
+}
+
+export interface ActivityDay {
+  date: string;
   count: number;
 }
 

@@ -1,0 +1,21 @@
+<div class="heatmap">
+  <div class="heatmap-grid">
+    @for (week of weeks; track $index) {
+      <div class="heatmap-week">
+        @for (cell of week; track cell.date) {
+          <div class="heatmap-cell" [class]="'level-' + intensity(cell.count)"
+               [title]="cell.date + ' · ' + cell.count"></div>
+        }
+      </div>
+    }
+  </div>
+  <div class="heatmap-legend">
+    <span>{{ 'dashboard.charts.heatmapLess' | translate }}</span>
+    <span class="heatmap-cell level-0"></span>
+    <span class="heatmap-cell level-1"></span>
+    <span class="heatmap-cell level-2"></span>
+    <span class="heatmap-cell level-3"></span>
+    <span class="heatmap-cell level-4"></span>
+    <span>{{ 'dashboard.charts.heatmapMore' | translate }}</span>
+  </div>
+</div>

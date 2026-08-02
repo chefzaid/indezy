@@ -41,6 +41,7 @@ public class DashboardStatsDto {
     private List<DormantContact> dormantContacts;
     private List<SkillTrend> skillTrends;
     private List<ProcessDuration> processDurations;
+    private List<ActivityDay> activityHeatmap;
 
     @Data
     @Builder
@@ -195,6 +196,19 @@ public class DashboardStatsDto {
         private String group;
         private double averageDays;
         private long count;
+    }
+
+    /**
+     * Prospection activity on a single day: opportunities created plus interview steps dated that
+     * day, used to render an activity heatmap that highlights busy and quiet periods.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ActivityDay {
+        private LocalDate date;
+        private int count;
     }
 
     /**

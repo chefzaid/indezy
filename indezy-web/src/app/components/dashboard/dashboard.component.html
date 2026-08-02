@@ -326,6 +326,15 @@
               }
             </div>
           }
+          @if (getActivityHeatmap().length > 0) {
+            <div class="activity-heatmap-section">
+              <h4 class="source-roi-title">
+                <mat-icon>calendar_month</mat-icon>
+                {{ 'dashboard.charts.activityHeatmap' | translate }}
+              </h4>
+              <app-activity-heatmap [activity]="getActivityHeatmap()"></app-activity-heatmap>
+            </div>
+          }
           @if (getDailyRateEvolution().length > 0) {
             <div class="rate-evolution">
               <h4 class="rate-evolution-title">

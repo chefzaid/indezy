@@ -10,7 +10,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth/auth.service';
 import { ProjectService } from '../../services/project/project.service';
 import { FreelanceService } from '../../services/freelance/freelance.service';
-import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, OnThisDayItem, DormantContact, SkillTrend, ProcessDuration, PROJECT_STATUS_COLORS } from '../../models';
+import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, OnThisDayItem, DormantContact, SkillTrend, ProcessDuration, ActivityDay, PROJECT_STATUS_COLORS } from '../../models';
+import { ActivityHeatmapComponent } from '../../shared/components/activity-heatmap/activity-heatmap.component';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
@@ -29,7 +30,8 @@ type ViewMode = 'overview' | 'kanban';
         MatButtonToggleModule,
         MatTooltipModule,
         TranslateModule,
-        KanbanBoardComponent
+        KanbanBoardComponent,
+        ActivityHeatmapComponent
     ],
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.scss']
@@ -219,6 +221,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getProcessDurations(): ProcessDuration[] {
     return this.dashboardStats?.processDurations ?? [];
+  }
+
+  getActivityHeatmap(): ActivityDay[] {
+    return this.dashboardStats?.activityHeatmap ?? [];
   }
 
   /** Active opportunities idle past the stale threshold, most stale first. */

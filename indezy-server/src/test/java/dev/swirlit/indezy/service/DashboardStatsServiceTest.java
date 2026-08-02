@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -730,5 +731,28 @@ class DashboardStatsServiceTest {
         assertThat(stats.getProcessDurations().getFirst().getGroup()).isEqualTo("ESN One");
         assertThat(stats.getProcessDurations().getFirst().getCount()).isEqualTo(1);
         assertThat(stats.getProcessDurations().getFirst().getAverageDays()).isEqualTo(15.0);
+    }
+
+    @Test
+    void getDashboardStats_ShouldCountDailyProspectionActivity() {
+        LocalDateTime now = LocalDateTime.now();
+        testProject.setCreatedAt(now);
+
+        InterviewStep step = new InterviewStep();
+        step.setStatus(StepStatus.PLANNED);
+        step.setDate(now);
+
+        stubMinimalAggregates();
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
+        when(interviewStepRepository.findByFreelanceIdAndDateBetween(any(), any(), any()))
+            .thenReturn(List.of(step));
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        LocalDate today = LocalDate.now();
+        DashboardStatsDto.ActivityDay todaysActivity = stats.getActivityHeatmap().stream()
+            .filter(day -> day.getDate().equals(today)).findFirst().orElseThrow();
+        // One opportunity created + one interview step dated today.
+        assertThat(todaysActivity.getCount()).isEqualTo(2);
     }
 }
