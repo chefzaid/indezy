@@ -8,22 +8,20 @@ The local application is split into:
 
 - `indezy-server`: Spring Boot API on `http://localhost:8080/api`
 - `indezy-web`: Angular dev server on `http://localhost:4200`
-- `postgres`: PostgreSQL on `localhost:5432` when using the dev profile
+- `postgres`: PostgreSQL on `localhost:5432`
 - `pgadmin`: optional database UI on `http://localhost:5050`
 
 ```mermaid
 flowchart LR
     browser[Browser] --> web[indezy-web\nAngular dev server\nlocalhost:4200]
     web --> api[indezy-server\nSpring Boot API\nlocalhost:8080/api]
-    api --> h2[(H2\nlocal profile)]
-    api --> pg[(PostgreSQL\ndevcontainer profile\nlocalhost:5432)]
+    api --> pg[(PostgreSQL\nlocalhost:5432)]
     pgadmin[pgAdmin\nlocalhost:5050] --> pg
 ```
 
-Two backend data modes are available:
-
-- `local`: H2 in-memory database, seeded from `data-local.sql`
-- `devcontainer`: PostgreSQL database, seeded from `data-dev.sql`
+PostgreSQL is the only local application database. Normal startup preserves its data.
+The explicit `seed` profile is reserved for `mask db-reset`, which recreates the schema
+and loads `data-dev.sql`. H2 remains test-only.
 
 The frontend local environment points to `http://localhost:8080/api`. The production frontend uses the relative `/api` path so Nginx Ingress can route API traffic to the backend.
 
@@ -61,44 +59,52 @@ mask install
 
 This runs Maven dependency resolution for `indezy-server` and `npm install` for `indezy-web`.
 
-### 2. Start the local H2 stack
+### 2. Create a sample database
 
 ```bash
-mask run-local
+mask db-reset
 ```
 
-This builds both applications, starts the backend with the `local` profile, waits briefly, then starts the Angular dev server.
+This destructive command starts PostgreSQL, recreates the application schema, loads a
+large sample dataset, and prints the sample account credentials. It first stops local
+services using the configured PostgreSQL, backend, or frontend ports.
+
+### 3. Start the local stack
+
+```bash
+mask run
+```
+
+This builds both applications, starts PostgreSQL and the backend, then starts the Angular
+development server. If the configured PostgreSQL, backend, or frontend port is already
+occupied, `mask run` stops the existing container or listener first. Later backend restarts preserve changes made
+to the sample data.
 
 Local URLs:
 
 - frontend: `http://localhost:4200`
 - backend API: `http://localhost:8080/api`
 - Swagger UI: `http://localhost:8080/api/swagger-ui.html`
-- H2 console: `http://localhost:8080/api/h2-console`
 
-## PostgreSQL Development Flow
+## Running One Application Component
 
-Use this path when you want a database closer to deployed behavior.
-
-```bash
-docker-compose up -d postgres
-mask run-indezy-server-dev
-mask run-indezy-web-dev
-```
-
-Or use the combined command:
+Start only the backend and PostgreSQL:
 
 ```bash
-mask run-dev
+mask run-indezy-server
 ```
 
-The `devcontainer` backend profile connects to:
+Start only the frontend:
+
+```bash
+mask run-indezy-web
+```
+
+Inside the VS Code dev container, the `devcontainer` profile connects to:
 
 ```text
 jdbc:postgresql://postgres:5432/indezy
 ```
-
-When running the backend directly from the host, make sure the hostname and profile match how the process can reach PostgreSQL. The Mask command is optimized for the Docker/devcontainer naming model.
 
 ## Docker Compose Profiles
 
@@ -170,8 +176,8 @@ Do not commit `.env`.
 Important backend files:
 
 - `indezy-server/src/main/resources/application.yml`
-- `indezy-server/src/main/resources/application-local.yml`
 - `indezy-server/src/main/resources/application-devcontainer.yml`
+- `indezy-server/src/main/resources/application-seed.yml`
 - `indezy-server/src/main/resources/application-kubernetes.yml`
 
 Default API context path:
@@ -190,18 +196,22 @@ jwt:
   expiration: 86400000
 ```
 
-Local H2 profile:
+Default local configuration:
 
-- uses `jdbc:h2:mem:indezy`
-- enables the H2 console
-- loads `data-local.sql`
-- recreates schema with `ddl-auto: create-drop`
+- connects to PostgreSQL on `localhost:${POSTGRES_PORT}`
+- preserves the schema and data with `ddl-auto: update`
+- reads the database name and credentials from `POSTGRES_*` environment variables
 
 Devcontainer profile:
 
 - uses PostgreSQL service `postgres`
-- loads `data-dev.sql`
 - uses `ddl-auto: update`
+
+Seed profile:
+
+- is invoked only through `mask db-reset`
+- recreates the PostgreSQL schema with `ddl-auto: create`
+- loads `data-dev.sql` after Hibernate creates the tables
 
 ## Frontend Configuration
 
@@ -248,8 +258,10 @@ mask install
 mask build
 mask test
 mask test-coverage
-mask run-local
-mask run-dev
+mask db-reset
+mask run
+mask run-indezy-server
+mask run-indezy-web
 mask status
 mask logs
 mask stop
@@ -260,8 +272,7 @@ Backend commands:
 ```bash
 cd indezy-server
 ./mvnw dependency:go-offline
-./mvnw spring-boot:run -Dspring-boot.run.profiles=local
-./mvnw spring-boot:run -Dspring-boot.run.profiles=devcontainer
+./mvnw spring-boot:run
 ./mvnw test
 ./mvnw clean package -DskipTests
 ```
@@ -351,16 +362,17 @@ curl http://localhost:8080/api/swagger-ui.html
 
 Then verify `indezy-web/src/environments/environment.ts` still points to `http://localhost:8080/api`.
 
-### PostgreSQL profile cannot connect
+### PostgreSQL cannot connect
 
 Check the container:
 
 ```bash
-docker-compose ps postgres
-docker-compose logs postgres
+docker compose ps postgres
+docker compose logs postgres
 ```
 
-If the backend is running outside Docker, `postgres` may not resolve as a hostname. Use the H2 local profile or adjust the datasource URL for host-based access.
+The host-based Mask commands connect to `localhost`. The `devcontainer` profile uses the
+Docker service hostname `postgres`; do not pass that profile when starting Maven on the host.
 
 ### `mask status` reports health check failure
 

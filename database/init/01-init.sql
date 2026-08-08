@@ -10,7 +10,7 @@ COMMENT ON DATABASE indezy IS 'Indezy - Job tracking application for freelancers
 
 -- Note: Table creation and sample data are handled by:
 -- - JPA/Hibernate for table structure (ddl-auto: update)
--- - data-dev.sql for development sample data (loaded by Spring Boot)
+-- - the explicit `mask db-reset` command for development sample data
 --
 -- This script focuses on database-level setup that must happen
 -- before the application starts.

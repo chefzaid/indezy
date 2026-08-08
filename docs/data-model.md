@@ -308,12 +308,16 @@ It currently:
 - enables `uuid-ossp`
 - adds a database comment
 - leaves table creation to JPA/Hibernate
-- leaves development sample data to Spring Boot seed files
+- leaves development sample data to the explicit `mask db-reset` command
 
-Spring seed files:
+Development seed files:
 
-- `data-local.sql`
 - `data-dev.sql`
+- `application-seed.yml`
+
+`mask db-reset` runs the short-lived `seed` profile. Hibernate recreates the PostgreSQL
+schema, Spring loads the seed script, and the command prints the sample login credentials.
+Normal `mask run` startup uses `ddl-auto: update` and preserves existing data.
 
 Test seed files:
 
@@ -325,8 +329,8 @@ Test seed files:
 
 The current application relies on Hibernate `ddl-auto` behavior:
 
-- `local`: `create-drop`
-- default/dev/kubernetes style profiles: `update`
+- `seed`: `create`
+- default/devcontainer/kubernetes style profiles: `update`
 
 This is convenient during early development, but production should move to versioned migrations before data becomes valuable.
 

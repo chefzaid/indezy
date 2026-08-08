@@ -27,8 +27,11 @@ The feature backlog and roadmap live in [TODO.md](./TODO.md).
 
 ```bash
 mask install
-mask run-local
+mask db-reset
+mask run
 ```
+
+`mask db-reset` prints the sample account credentials after rebuilding the local database.
 
 Useful commands:
 

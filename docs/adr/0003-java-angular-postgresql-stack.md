@@ -24,7 +24,7 @@ The current repository already uses:
 
 Continue with Java 25, Spring Boot 4.1, Angular 22, and PostgreSQL as the primary application stack.
 
-Use H2 for lightweight local/test profiles where useful, but PostgreSQL remains the production data model target.
+Use H2 only for isolated automated tests; local application development and production target PostgreSQL.
 
 ## Rationale
 

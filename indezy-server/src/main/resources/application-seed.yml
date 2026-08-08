@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:indezy}
+    username: ${POSTGRES_USER:indezy_user}
+    password: ${POSTGRES_PASSWORD:indezy_password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    # The seed profile is intentionally destructive. Hibernate recreates the schema
+    # before Spring runs data-dev.sql.
+    hibernate:
+      ddl-auto: create
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data-dev.sql
+      continue-on-error: false

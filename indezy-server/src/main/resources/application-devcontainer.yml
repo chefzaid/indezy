@@ -23,12 +23,6 @@ spring:
         "[format_sql]": true
         "[show_sql]": true
 
-  sql:
-    init:
-      mode: always
-      data-locations: classpath:data-dev.sql
-      continue-on-error: false
-  
   servlet:
     multipart:
       max-file-size: 10MB

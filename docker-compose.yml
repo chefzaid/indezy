@@ -4,8 +4,6 @@
 # Production: docker-compose --profile prod up
 # Full stack: docker-compose --profile dev --profile prod up
 
-version: '3.8'
-
 services:
   # PostgreSQL Database (used in both dev and prod)
   postgres:

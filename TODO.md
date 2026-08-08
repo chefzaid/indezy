@@ -207,8 +207,8 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Measure and raise test coverage to at least 85% for both backend and frontend, with a focus on critical business logic and edge cases
 - [ ] Playwright e2e tests for critical user flows (register, login, create project, move Kanban card, filter lists)
 - [x] Add Spring Boot Actuator: K8s probes already reference /api/actuator/health but the actuator dependency is missing from pom.xml
-- [ ] Richer database seeding for development (realistic projects, clients, pipeline states)
-- [ ] Mask commands to reset/reseed the dev database with test data
+- [x] Richer database seeding for development (realistic projects, clients, pipeline states)
+- [x] Mask commands to reset/reseed the dev database with test data
 - [ ] Caching of frequent requests (dashboard stats, job feed)
 - [ ] Lazy loading of routes/components for faster initial load
 - [ ] Feature flags to enable/disable features without redeploying

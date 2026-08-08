@@ -8,9 +8,9 @@ spring:
     name: indezy-server
   
   datasource:
-    url: jdbc:postgresql://localhost:5432/indezy
-    username: ${DB_USERNAME:indezy_user}
-    password: ${DB_PASSWORD:indezy_password}
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:indezy}
+    username: ${POSTGRES_USER:indezy_user}
+    password: ${POSTGRES_PASSWORD:indezy_password}
     driver-class-name: org.postgresql.Driver
   
   jpa:
@@ -102,4 +102,3 @@ logging:
     "[org.springframework.web]": WARN
     "[org.hibernate.SQL]": WARN
     "[org.hibernate.type.descriptor.sql.BasicBinder]": WARN
-    
