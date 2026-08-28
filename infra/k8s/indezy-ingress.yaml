@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: indezy-ingress
-  namespace: application
+  namespace: apps
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
@@ -14,7 +14,7 @@ spec:
   tls:
     - hosts:
         - indezy.swirlit.dev
-      secretName: indezy-swirlit-dev-tls
+      secretName: swirlit-dev-tls
   rules:
     - host: indezy.swirlit.dev
       http:

@@ -242,7 +242,7 @@ When adding Playwright, document:
 
 ## CI Expectations
 
-Jenkins currently builds and pushes Docker images, then updates Kubernetes manifests. The pipeline does not yet run a full documented test gate before image publication.
+GitLab CI currently builds and pushes Docker images, then updates Kubernetes manifests. The pipeline does not yet run a full documented test gate before image publication.
 
 The intended CI quality gate should include:
 

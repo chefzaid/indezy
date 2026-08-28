@@ -1,27 +1,13 @@
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: indezy-server-secret
-  namespace: application
-type: Opaque
-data:
-  # base64("indezy_password") — change before go-live
-  DB_PASSWORD: aW5kZXp5X3Bhc3N3b3Jk
-  # base64("indezy-jwt-secret-change-in-production") — change before go-live
-  JWT_SECRET: aW5kZXp5LWp3dC1zZWNyZXQtY2hhbmdlLWluLXByb2R1Y3Rpb24=
-
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: indezy-server-config
-  namespace: application
+  namespace: apps
   labels:
     app: indezy-server
 data:
   SPRING_PROFILES_ACTIVE: kubernetes
-  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres.infra.svc.cluster.local:5432/indezy"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres.swirlit.internal:5432/indezy"
   SPRING_DATASOURCE_USERNAME: indezy_user
 
 ---
@@ -29,7 +15,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: indezy-server
-  namespace: application
+  namespace: apps
   labels:
     app: indezy-server
 spec:
@@ -42,6 +28,8 @@ spec:
       labels:
         app: indezy-server
     spec:
+      imagePullSecrets:
+        - name: indezy-registry-auth
       initContainers:
         - name: wait-for-db
           image: postgres:15-alpine
@@ -49,12 +37,12 @@ spec:
             - sh
             - -c
             - |
-              until pg_isready -h postgres.infra.svc.cluster.local -p 5432 -U indezy_user -d indezy; do
+              until pg_isready -h postgres.swirlit.internal -p 5432 -U indezy_user -d indezy; do
                 echo "Waiting for infrastructure postgres (indezy db)..."; sleep 3
               done
       containers:
         - name: indezy-server
-          image: nexus.swirlit.dev:5000/indezy/indezy-server:latest
+          image: registry.swirlit.dev/root/indezy/indezy-server:initial
           ports:
             - containerPort: 8080
           env:
@@ -112,7 +100,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: indezy-server
-  namespace: application
+  namespace: apps
 spec:
   type: ClusterIP
   ports:

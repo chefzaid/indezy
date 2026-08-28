@@ -129,7 +129,7 @@ Secrets currently used or anticipated:
 - `GOOGLE_MAPS_API_KEY`
 - OAuth client IDs and secrets for Google, GitHub, and Microsoft
 
-Kubernetes manifests currently include base64 placeholder values. Base64 is encoding, not encryption.
+Production Kubernetes manifests contain no secret values. External Secrets projects application values from `apps/indezy/*` and the database administrator contract from `infra/postgres`; base64 would be encoding, not encryption.
 
 Production expectations:
 
@@ -137,7 +137,7 @@ Production expectations:
 - store real secrets outside Git where possible
 - restrict Google Maps API key by API and server IP
 - rotate JWT secret intentionally because it invalidates active tokens
-- keep Jenkins, Nexus, and GitHub credentials scoped to the minimum necessary permissions
+- keep GitLab job-token permissions and the read-only registry deploy token scoped to the minimum necessary access
 
 ## OAuth Status
 

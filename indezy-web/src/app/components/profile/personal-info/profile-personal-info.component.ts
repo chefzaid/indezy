@@ -49,7 +49,7 @@ export class ProfilePersonalInfoComponent {
   availableSkills = [
     'Angular', 'React', 'Vue.js', 'Node.js', 'Python', 'Java', 'C#', 'PHP',
     'PostgreSQL', 'MongoDB', 'MySQL', 'Docker', 'Kubernetes', 'AWS', 'Azure',
-    'TypeScript', 'JavaScript', 'HTML/CSS', 'Git', 'Jenkins', 'GraphQL'
+    'TypeScript', 'JavaScript', 'HTML/CSS', 'Git', 'GitLab CI', 'GraphQL'
   ];
 
   availableLanguages = [

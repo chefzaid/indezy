@@ -11,9 +11,9 @@ Angular web app
   -> JPA repositories
   -> PostgreSQL
 
-Jenkins
+GitLab CI
   -> builds Docker images
-  -> pushes to Nexus
+  -> pushes to GitLab Container Registry
   -> updates Kubernetes manifests
   -> ArgoCD syncs manifests to K3s
 ```
@@ -86,11 +86,11 @@ Current caveat: backend authorization still needs hardening because non-public r
 
 ### Deployment
 
-1. Jenkins checks out the repository.
-2. Jenkins builds backend and frontend Docker images.
-3. Images are pushed to Nexus with build-number and latest tags.
-4. Jenkins updates image tags in `infra/k8s/*.yaml`.
-5. Jenkins commits and pushes manifest changes.
+1. GitLab CI checks out the repository.
+2. GitLab CI builds backend and frontend Docker images.
+3. Images are pushed to GitLab Container Registry with build-number and latest tags.
+4. GitLab CI updates image tags in `infra/k8s/*.yaml`.
+5. GitLab CI commits and pushes manifest changes.
 6. ArgoCD detects the Git change and syncs to K3s.
 
 ## Data Ownership Rules
@@ -127,7 +127,7 @@ NNNN-short-title.md
 - [ADR 0001: Split Documentation Out Of Root README](./0001-documentation-structure.md)
 - [ADR 0002: Spring Boot And Angular Modular Monolith](./0002-spring-boot-angular-modular-monolith.md)
 - [ADR 0003: Java 25, Angular 22, And PostgreSQL Stack](./0003-java-angular-postgresql-stack.md)
-- [ADR 0004: GitOps Deployment Through Jenkins And ArgoCD](./0004-jenkins-argocd-gitops.md)
+- [ADR 0004: GitOps Deployment Through GitLab CI And ArgoCD](./0004-gitlab-ci-argocd-gitops.md)
 - [ADR 0005: Security Baseline And Hardening Direction](./0005-security-baseline.md)
 - [ADR 0006: Code Quality And Verification Gates](./0006-code-quality-and-verification-gates.md)
 

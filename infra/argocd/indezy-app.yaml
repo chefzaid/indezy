@@ -8,12 +8,12 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/chefzaid/indezy.git
+    repoURL: http://gitlab.swirlit.internal/root/indezy.git
     targetRevision: main
     path: infra/k8s
   destination:
     server: https://kubernetes.default.svc
-    namespace: application
+    namespace: apps
   syncPolicy:
     automated:
       prune: true

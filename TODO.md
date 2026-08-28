@@ -202,7 +202,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 
 - [x] Modernize codebase with latest Java and Angular versions/features
 - [x] Split the docs into dedicated files and enrich them (development, deployment, ADRs, features, etc.), reusing existing content
-- [ ] Complete the deployment setup (Kubernetes manifests, Jenkins pipeline, ...)
+- [ ] Complete the deployment setup (Kubernetes manifests, GitLab CI pipeline, ...)
 - [ ] Improve the devcontainer setup
 - [ ] Measure and raise test coverage to at least 85% for both backend and frontend, with a focus on critical business logic and edge cases
 - [ ] Playwright e2e tests for critical user flows (register, login, create project, move Kanban card, filter lists)

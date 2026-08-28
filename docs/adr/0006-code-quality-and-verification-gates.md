@@ -15,7 +15,7 @@ The repository has meaningful test infrastructure:
 - Angular Karma/Jasmine tests
 - Angular ESLint
 
-The Jenkins pipeline currently focuses on image build, image push, manifest update, and ArgoCD sync.
+The GitLab CI pipeline currently focuses on image build, image push, manifest update, and ArgoCD sync.
 
 ## Decision
 
