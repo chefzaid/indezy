@@ -108,7 +108,7 @@ jdbc:postgresql://postgres:5432/indezy
 
 ## Docker Compose Profiles
 
-The root `docker-compose.yml` uses profiles:
+`infra/compose/compose.yaml` uses profiles:
 
 - `dev`: development backend and Angular dev server
 - `prod`: production-style backend and Nginx-served frontend
@@ -118,10 +118,10 @@ The root `docker-compose.yml` uses profiles:
 Examples:
 
 ```bash
-docker-compose --profile dev up
-docker-compose --profile prod up
-docker-compose --profile admin up -d pgadmin
-docker-compose down
+docker compose -f infra/compose/compose.yaml --profile dev up
+docker compose -f infra/compose/compose.yaml --profile prod up
+docker compose -f infra/compose/compose.yaml --profile admin up -d pgadmin
+docker compose -f infra/compose/compose.yaml down
 ```
 
 The PostgreSQL service is shared by development and production-style local flows.
@@ -367,8 +367,8 @@ Then verify `indezy-web/src/environments/environment.ts` still points to `http:/
 Check the container:
 
 ```bash
-docker compose ps postgres
-docker compose logs postgres
+docker compose -f infra/compose/compose.yaml ps postgres
+docker compose -f infra/compose/compose.yaml logs postgres
 ```
 
 The host-based Mask commands connect to `localhost`. The `devcontainer` profile uses the

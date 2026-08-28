@@ -10,8 +10,8 @@ Indezy targets the `ds-cluster` platform, which already provides Jenkins, ArgoCD
 The repository contains:
 
 - Dockerfiles for backend and frontend
-- Kubernetes manifests under `deployments/`
-- ArgoCD bootstrap manifest under `argocd/`
+- Kubernetes manifests under `infra/k8s/`
+- ArgoCD bootstrap manifest under `infra/argocd/`
 - Jenkins pipeline that builds images and updates manifests
 
 ## Decision

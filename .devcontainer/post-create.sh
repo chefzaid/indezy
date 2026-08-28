@@ -53,8 +53,8 @@ alias indezy-test-indezy-server='cd /workspace/indezy-server && ./mvnw test'
 alias indezy-test-indezy-web='cd /workspace/indezy-web && npm test'
 alias indezy-build='cd /workspace && mask build-all'
 alias indezy-db='PGPASSWORD=indezy_password psql -h postgres -U indezy_user -d indezy'
-alias indezy-logs='docker-compose logs -f'
-alias indezy-status='docker-compose ps'
+alias indezy-logs='docker compose -f /workspace/infra/compose/compose.yaml logs -f'
+alias indezy-status='docker compose -f /workspace/infra/compose/compose.yaml ps'
 
 # Navigation aliases
 alias indezy-server='cd /workspace/indezy-server'

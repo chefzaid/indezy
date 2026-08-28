@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 
-$repositoryRoot = Split-Path -Parent $PSScriptRoot
+$repositoryRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $backendDirectory = Join-Path $repositoryRoot 'indezy-server'
 $arguments = '/d /c "mvnw.cmd spring-boot:run > ..\indezy-server.log 2> ..\indezy-server-error.log"'
 

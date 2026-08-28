@@ -89,7 +89,7 @@ Current caveat: backend authorization still needs hardening because non-public r
 1. Jenkins checks out the repository.
 2. Jenkins builds backend and frontend Docker images.
 3. Images are pushed to Nexus with build-number and latest tags.
-4. Jenkins updates image tags in `deployments/*.yaml`.
+4. Jenkins updates image tags in `infra/k8s/*.yaml`.
 5. Jenkins commits and pushes manifest changes.
 6. ArgoCD detects the Git change and syncs to K3s.
 

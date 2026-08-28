@@ -31,13 +31,23 @@ ArgoCD application namespace:
 infra
 ```
 
+## Infrastructure Layout
+
+| Path | Purpose |
+| --- | --- |
+| `infra/k8s/` | Kubernetes workload, service, ingress, and database setup manifests |
+| `infra/argocd/` | Argo CD Application bootstrap manifest |
+| `infra/compose/` | Local and devcontainer Compose configuration |
+| `infra/database/` | PostgreSQL initialization assets |
+| `infra/scripts/` | Reusable local infrastructure helpers |
+
 ## What The Manifests Configure
 
-Manifests live in `deployments/`.
+Manifests live in `infra/k8s/`.
 
 ### Backend
 
-File: `deployments/indezy-server.yaml`
+File: `infra/k8s/indezy-server.yaml`
 
 Resources:
 
@@ -59,7 +69,7 @@ The backend has an init container named `wait-for-db` that waits for the shared 
 
 ### Frontend
 
-File: `deployments/indezy-web.yaml`
+File: `infra/k8s/indezy-web.yaml`
 
 Resources:
 
@@ -75,7 +85,7 @@ Important values:
 
 ### Ingress
 
-File: `deployments/indezy-ingress.yaml`
+File: `infra/k8s/indezy-ingress.yaml`
 
 The ingress routes:
 
@@ -91,7 +101,7 @@ Ingress annotations configure SSL redirect, request body size, and proxy timeout
 
 ### Database Setup Job
 
-File: `deployments/indezy-db-setup.yaml`
+File: `infra/k8s/indezy-db-setup.yaml`
 
 Resources:
 
@@ -110,14 +120,14 @@ The hook delete policy is `BeforeHookCreation`, so ArgoCD can recreate the hook 
 
 ## ArgoCD Application
 
-File: `argocd/indezy-app.yaml`
+File: `infra/argocd/indezy-app.yaml`
 
 The ArgoCD Application:
 
 - name: `indezy`
 - source repo: `https://github.com/chefzaid/indezy.git`
 - target revision: `main`
-- path: `deployments`
+- path: `infra/k8s`
 - destination namespace: `application`
 - automated sync enabled
 - prune enabled
@@ -128,8 +138,20 @@ The ArgoCD Application:
 Bootstrap:
 
 ```bash
-kubectl apply -f argocd/indezy-app.yaml
+kubectl apply -f infra/argocd/indezy-app.yaml
 ```
+
+### Migrating an Existing Argo CD Application
+
+An existing Application may still track the former `deployments` path. Update that live Application before publishing the commit that removes the old directory:
+
+```bash
+kubectl -n infra get application indezy -o jsonpath='{.spec.source.path}{"\n"}'
+kubectl apply -f infra/argocd/indezy-app.yaml
+kubectl -n infra get application indezy -o jsonpath='{.spec.source.path}{"\n"}'
+```
+
+The final command must report `infra/k8s` before the directory-removal commit is pushed.
 
 ## One-Time Infrastructure Setup
 
@@ -150,7 +172,7 @@ kubectl get secret swirlit-dev-tls -n infra -o json \
 ### 3. Apply ArgoCD application
 
 ```bash
-kubectl apply -f argocd/indezy-app.yaml
+kubectl apply -f infra/argocd/indezy-app.yaml
 ```
 
 ## Jenkins Deployment Flow
@@ -239,8 +261,8 @@ echo -n 'YOUR_POSTGRES_ADMIN_PASSWORD' | base64
 
 Edit:
 
-- `deployments/indezy-db-setup.yaml`
-- `deployments/indezy-server.yaml`
+- `infra/k8s/indezy-db-setup.yaml`
+- `infra/k8s/indezy-server.yaml`
 
 ### Google Maps key
 
@@ -289,7 +311,7 @@ Before merge:
 
 After Jenkins build:
 
-- image tags in `deployments/*.yaml` match the Jenkins build number
+- image tags in `infra/k8s/*.yaml` match the Jenkins build number
 - ArgoCD application is synced
 - backend pod is ready
 - frontend pod is ready

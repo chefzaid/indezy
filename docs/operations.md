@@ -203,8 +203,8 @@ Checks:
 
 ```bash
 git log --oneline -5
-Select-String -Path deployments\indezy-server.yaml -Pattern "image:"
-Select-String -Path deployments\indezy-web.yaml -Pattern "image:"
+Select-String -Path infra\k8s\indezy-server.yaml -Pattern "image:"
+Select-String -Path infra\k8s\indezy-web.yaml -Pattern "image:"
 ```
 
 Likely causes:

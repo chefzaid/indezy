@@ -95,8 +95,8 @@ spec:
         stage('Update Manifests') {
             steps {
                 sh """
-                    sed -i 's|image: ${SERVER_IMAGE}:.*|image: ${SERVER_IMAGE}:${IMAGE_TAG}|g' deployments/indezy-server.yaml
-                    sed -i 's|image: ${WEB_IMAGE}:.*|image: ${WEB_IMAGE}:${IMAGE_TAG}|g' deployments/indezy-web.yaml
+                    sed -i 's|image: ${SERVER_IMAGE}:.*|image: ${SERVER_IMAGE}:${IMAGE_TAG}|g' infra/k8s/indezy-server.yaml
+                    sed -i 's|image: ${WEB_IMAGE}:.*|image: ${WEB_IMAGE}:${IMAGE_TAG}|g' infra/k8s/indezy-web.yaml
                 """
                 withCredentials([gitUsernamePassword(
                         credentialsId: 'git-credentials',
@@ -104,7 +104,7 @@ spec:
                     sh """
                         git config user.email "jenkins@swirlit.dev"
                         git config user.name "Jenkins CI"
-                        git add deployments/indezy-server.yaml deployments/indezy-web.yaml
+                        git add infra/k8s/indezy-server.yaml infra/k8s/indezy-web.yaml
                         git diff --cached --quiet || git commit -m "ci: bump image tags to ${IMAGE_TAG} [skip ci]"
                         git pull --rebase origin HEAD
                         git push origin HEAD

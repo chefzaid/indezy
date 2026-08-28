@@ -1,8 +1,8 @@
 {
   // Development Container Configuration
-  // Uses the unified docker-compose.yml in the root directory
+  // Uses the repository's shared Compose configuration under infra/compose
   "name": "Indezy Development Environment",
-  "dockerComposeFile": "../docker-compose.yml",
+  "dockerComposeFile": "../infra/compose/compose.yaml",
   "service": "devcontainer",
   "workspaceFolder": "/workspace",
   "runServices": ["postgres", "pgadmin"],

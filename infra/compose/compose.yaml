@@ -1,8 +1,8 @@
 # Unified Docker Compose for Development and Production
 # Use profiles to control which services run in different environments
-# Development: docker-compose --profile dev up
-# Production: docker-compose --profile prod up
-# Full stack: docker-compose --profile dev --profile prod up
+# Development: docker compose -f infra/compose/compose.yaml --profile dev up
+# Production: docker compose -f infra/compose/compose.yaml --profile prod up
+# Full stack: docker compose -f infra/compose/compose.yaml --profile dev --profile prod up
 
 services:
   # PostgreSQL Database (used in both dev and prod)
@@ -18,7 +18,7 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init:/docker-entrypoint-initdb.d:ro
+      - ../database/init:/docker-entrypoint-initdb.d:ro
     networks:
       - indezy-network
     healthcheck:
@@ -31,7 +31,7 @@ services:
   # Development Backend (for devcontainer and local development)
   indezy-server-dev:
     build:
-      context: ./indezy-server
+      context: ../../indezy-server
       dockerfile: Dockerfile
       args:
         BUILD_ENV: development
@@ -46,7 +46,7 @@ services:
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     volumes:
-      - ./indezy-server:/app:cached  # Mount source for development
+      - ../../indezy-server:/app:cached  # Mount source for development
     depends_on:
       postgres:
         condition: service_healthy
@@ -64,7 +64,7 @@ services:
   # Production Backend
   indezy-server-prod:
     build:
-      context: ./indezy-server
+      context: ../../indezy-server
       dockerfile: Dockerfile
       args:
         BUILD_ENV: production
@@ -95,7 +95,7 @@ services:
   # Development Frontend (Angular dev server)
   indezy-web-dev:
     build:
-      context: ./indezy-web
+      context: ../../indezy-web
       dockerfile: Dockerfile
       args:
         BUILD_ENV: development
@@ -105,7 +105,7 @@ services:
     ports:
       - "${FRONTEND_PORT:-4200}:4200"
     volumes:
-      - ./indezy-web:/app:cached  # Mount source for development
+      - ../../indezy-web:/app:cached  # Mount source for development
     depends_on:
       - postgres
     networks:
@@ -122,7 +122,7 @@ services:
   # Production Frontend (Nginx)
   indezy-web-prod:
     build:
-      context: ./indezy-web
+      context: ../../indezy-web
       dockerfile: Dockerfile
       args:
         BUILD_ENV: production
@@ -163,20 +163,20 @@ services:
       - indezy-network
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-      - ./.devcontainer/pgadmin-servers.json:/pgadmin4/servers.json:ro
+      - ../../.devcontainer/pgadmin-servers.json:/pgadmin4/servers.json:ro
     profiles:
       - admin
 
   # DevContainer service (for VS Code development)
   devcontainer:
     build:
-      context: ./indezy-server
+      context: ../../indezy-server
       dockerfile: Dockerfile
       args:
         BUILD_ENV: development
     container_name: indezy-devcontainer
     volumes:
-      - ..:/workspace:cached
+      - ../..:/workspace:cached
       - maven-cache:/home/appuser/.m2
       - node-cache:/home/appuser/.npm
       - vscode-extensions:/home/appuser/.vscode-server/extensions

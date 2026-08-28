@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/chefzaid/indezy.git
     targetRevision: main
-    path: deployments
+    path: infra/k8s
   destination:
     server: https://kubernetes.default.svc
     namespace: application
