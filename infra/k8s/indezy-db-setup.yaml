@@ -25,7 +25,7 @@ spec:
             - |
               set -e
               export PGPASSWORD="${POSTGRES_ADMIN_PASSWORD}"
-              PSQL="psql -h postgres.swirlit.internal -U ${POSTGRES_ADMIN_USER} -d appdb"
+              PSQL="psql -h postgres.swirlit.internal -U ${POSTGRES_ADMIN_USER} -d postgres"
 
               echo "Creating indezy_user if needed and ensuring its password is current..."
               $PSQL --set=app_password="$INDEZY_DB_PASSWORD" <<'SQL'
