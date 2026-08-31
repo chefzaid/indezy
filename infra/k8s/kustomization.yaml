@@ -11,6 +11,6 @@ resources:
   - observability.yaml
 images:
   - name: registry.swirlit.dev/swirlit/indezy/indezy-server
-    newTag: 1.8.3
+    newTag: 1.0.3
   - name: registry.swirlit.dev/swirlit/indezy/indezy-web
-    newTag: 1.8.3
+    newTag: 1.0.3
