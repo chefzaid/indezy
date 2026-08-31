@@ -20,6 +20,25 @@ run_npm_audit() {
 
 run_npm_audit indezy-web indezy-web
 
+submit_sonar() {
+  local sonar_version="$1" attempt
+  for attempt in 1 2 3; do
+    if sonar-scanner-npm \
+      -Dsonar.host.url="$SONAR_HOST_URL" \
+      -Dsonar.token="$SONAR_TOKEN" \
+      -Dsonar.projectVersion="$sonar_version" \
+      -Dsonar.qualitygate.wait=false; then
+      return 0
+    fi
+    if [[ "$attempt" -lt 3 ]]; then
+      printf 'Sonar submission attempt %s failed; retrying in %s seconds.\n' \
+        "$attempt" "$((attempt * 10))" >&2
+      sleep "$((attempt * 10))"
+    fi
+  done
+  return 1
+}
+
 sonar_status=skipped
 if [[ "${CI_COMMIT_BRANCH:-}" == "${CI_DEFAULT_BRANCH:-main}" ]]; then
   if [[ -z "${SONAR_TOKEN:-}" ]]; then
@@ -31,11 +50,7 @@ if [[ "${CI_COMMIT_BRANCH:-}" == "${CI_DEFAULT_BRANCH:-main}" ]]; then
     sonar_version="$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || true)"
     sonar_version="${sonar_version#v}"
     [[ "$sonar_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || sonar_version="$APP_VERSION"
-    if sonar-scanner-npm \
-      -Dsonar.host.url="$SONAR_HOST_URL" \
-      -Dsonar.token="$SONAR_TOKEN" \
-      -Dsonar.projectVersion="$sonar_version" \
-      -Dsonar.qualitygate.wait=false; then
+    if submit_sonar "$sonar_version"; then
       sonar_status=submitted
       printf 'Sonar analysis submitted without waiting on or enforcing the quality gate.\n'
     else
