@@ -46,10 +46,7 @@ variables:
       paths:
         - .cache/maven/
       policy: pull-push
-    - key:
-        files:
-          - indezy-web/package-lock.json
-        prefix: indezy-npm-v2
+    - key: indezy-npm-v2
       paths:
         - .cache/npm/
       policy: pull-push
@@ -80,10 +77,7 @@ variables:
       paths:
         - .cache/maven/
       policy: pull-push
-    - key:
-        files:
-          - indezy-web/package-lock.json
-        prefix: indezy-npm-v2
+    - key: indezy-npm-v2
       paths:
         - .cache/npm/
       policy: pull-push
@@ -158,10 +152,7 @@ variables:
     name: mcr.microsoft.com/playwright@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e
     entrypoint: [""]
   cache:
-    - key:
-        files:
-          - indezy-web/package-lock.json
-        prefix: indezy-playwright-npm-v2
+    - key: indezy-playwright-npm-v2
       paths:
         - .cache/npm/
       policy: pull-push
