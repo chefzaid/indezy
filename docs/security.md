@@ -245,7 +245,7 @@ Before enabling broad uploads:
 
 ## Software Supply Chain and Code Quality
 
-Required `01-build` and `03-package` are separate from optional `02-test`. Optional manual `01-e2e` and allowed-to-fail `02-quality` are independent verify jobs; standard mode leaves quality manual, full mode runs it automatically, and quality reporting submits without a Sonar gate wait. `01-release` depends only on the required build path, so findings never become deployment gates.
+Required `01-build` and `03-package` are separate from optional `02-test`. Optional manual `01-e2e`, allowed-to-fail `02-quality`, and independent `03-security` are verify jobs; standard mode leaves quality/security manual and full mode runs them automatically. Trivy scans dependencies, IaC, and secrets, retains JSON/SARIF findings for seven days, and exits nonzero on high/critical findings without becoming a deployment gate. `01-release` depends only on the required build path.
 
 The manual release-publication job publishes immutable, checksummed JAR and SPA archives to GitLab's registries; deployment starts only after publication passes. Daemonless Kaniko reuses 30-day registry-backed image layers without privileged runner access. Credentials remain in Vault, masked project CI variables, or short-lived GitLab job credentials.
 
@@ -259,7 +259,6 @@ Priority items:
 - wire Actuator safely and expose only appropriate endpoints
 - introduce account deletion and GDPR export
 - add audit log for sensitive account actions
-- add dependency vulnerability scanning in CI
 - review CORS and Swagger exposure for production
 
 ## Review Checklist For Security-Sensitive Changes

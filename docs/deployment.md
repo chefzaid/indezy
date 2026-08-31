@@ -64,7 +64,7 @@ The app bootstrap generates strong runtime values when `apps/indezy/runtime` doe
 
 ## Delivery Pipeline, Images, and Artifacts
 
-The graph shows ordered build, test, package, E2E, quality, release, deploy, and version jobs. Tests are non-blocking and E2E is optional/manual. Standard mode leaves quality manual; `PIPELINE_MODE=full` runs independent non-blocking quality/security reporting automatically and automates release and deploy while E2E remains manual.
+The graph shows ordered build, test, package, E2E, quality, security, release, deploy, and version jobs. Tests are non-blocking and E2E is optional/manual. Standard mode leaves quality and Trivy security manual; `PIPELINE_MODE=full` runs both independent, non-blocking reports automatically and automates release and deploy while E2E remains manual. `03-security` is ordered after `02-quality` but has no dependency on it.
 
 The release job publishes:
 
@@ -100,7 +100,7 @@ Every GitHub push starts `.github/workflows/sync-gitlab.yml` directly. Every Git
 
 ## Delivery Flow
 
-Normal pipelines run `01-build`, `02-test`, and `03-package` automatically and expose E2E, quality, release, and version changes manually. Full mode automates quality, release, and deploy while leaving E2E manual. Release then:
+Normal pipelines run `01-build`, `02-test`, and `03-package` automatically and expose E2E, quality, security, release, and version changes manually. Full mode automates non-blocking quality/security reporting, release, and deploy while leaving E2E manual. Release then:
 
 1. consumes the successful backend and frontend build artifacts;
 2. publishes immutable application archives, checksums, server images, and web images using 30-day registry-backed Kaniko caching;

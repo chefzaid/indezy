@@ -226,7 +226,7 @@ Playwright is a first-class part of the optional manual E2E job. Run it locally 
 
 ## CI Expectations
 
-GitLab CI exposes ordered build, test, package, E2E, quality, release, deploy, and version jobs.
+GitLab CI exposes ordered build, test, package, E2E, quality, security, release, deploy, and version jobs.
 
 The current CI verification and reporting includes:
 
@@ -238,10 +238,11 @@ The current CI verification and reporting includes:
 - Playwright browser verification in the optional manual E2E job
 - non-blocking SonarQube analysis on `main`
 - non-blocking dependency vulnerability audit reports
+- independent Trivy dependency, IaC, and secret scans with JSON and SARIF artifacts
 - seven-day JUnit, coverage, browser, and compiled-output job artifacts
 - immutable JAR/SPA archives and checksums in the Generic Package Registry
 
-Required `01-build` and `03-package` own compilation and image validation; optional `02-test` owns unit-test and coverage reporting. Optional manual `01-e2e` runs Playwright. Standard mode leaves `02-quality` manual, while full mode runs it automatically to consume test artifacts for dependency reports and non-blocking Sonar submission. Release exists only on `main`, requires the successful build path, and publishes packages/images and Git state; deploy requires that release job and then waits for Argo CD plus both health checks. `PIPELINE_MODE=full` also automates release and deploy while E2E remains manual.
+Required `01-build` and `03-package` own compilation and image validation; optional `02-test` owns unit-test and coverage reporting. Optional manual `01-e2e` runs Playwright. Standard mode leaves `02-quality` and independent `03-security` manual, while full mode runs both automatically as non-blocking reports. Security has no dependency on quality and retains Trivy JSON/SARIF output. Release exists only on `main`, requires the successful build path, and publishes packages/images and Git state; deploy requires that release job and then waits for Argo CD plus both health checks. `PIPELINE_MODE=full` also automates release and deploy while E2E remains manual.
 
 ## Troubleshooting
 
