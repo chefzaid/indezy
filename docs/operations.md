@@ -1,275 +1,118 @@
 # Operations Runbook
 
-This runbook covers day-to-day checks and first-response troubleshooting for the deployed Indezy application.
+This runbook covers the Indezy application layer. Use the `bm-cluster` runbooks when GitLab, Argo CD, ingress, Vault, External Secrets, PostgreSQL, or another shared service is unhealthy.
 
 ## Runtime Surfaces
 
-Production URL:
-
-```text
-https://indezy.swirlit.dev
-```
-
-Kubernetes namespace:
-
-```text
-application
-```
-
-Core workloads:
-
-- `indezy-db-setup` PreSync job
-- `indezy-server` deployment and service
-- `indezy-web` deployment and service
-- `indezy-ingress` ingress
-
-External dependencies:
-
-- Cloudflare DNS and proxy
-- Nginx Ingress Controller
-- shared PostgreSQL in `infra`
-- Nexus registry at `nexus.swirlit.dev:5000`
-- Jenkins at `https://jenkins.swirlit.dev`
-- ArgoCD at `https://argocd.swirlit.dev`
-- optional Google Maps Distance Matrix API
+| Surface | Address |
+|---|---|
+| application | `https://indezy.swirlit.dev` |
+| GitLab project and pipelines | `https://gitlab.swirlit.dev/swirlit/indezy` |
+| SonarQube quality dashboard | `https://sonarqube.swirlit.dev/dashboard?id=swirlit%3Aindezy` |
+| Argo CD application | `https://argocd.swirlit.dev/applications/indezy` |
+| backend service | `indezy-server.apps.svc.cluster.local:8080` |
+| frontend service | `indezy-web.apps.svc.cluster.local:8080` |
+| shared PostgreSQL | `postgres.swirlit.internal:5432` |
+| Prometheus metrics | `indezy-server.apps.svc.cluster.local:8080/api/actuator/prometheus` |
 
 ## First Checks After A Rollout
 
-1. Check ArgoCD sync status.
-
 ```bash
-kubectl -n infra get application indezy
+kubectl get application indezy -n infra
+kubectl get pods,services,ingress -n apps -l app=indezy-server
+kubectl get pods,services -n apps -l app=indezy-web
+kubectl get externalsecret indezy-server-secret indezy-registry-auth \
+  indezy-db-admin-credentials -n apps
+kubectl rollout status deployment/indezy-server -n apps
+kubectl rollout status deployment/indezy-web -n apps
+curl --fail https://indezy.swirlit.dev/health
+curl --fail https://indezy.swirlit.dev/api/actuator/health
 ```
 
-2. Check pods.
-
-```bash
-kubectl -n application get pods -o wide
-```
-
-3. Check services and ingress.
-
-```bash
-kubectl -n application get svc
-kubectl -n application get ingress
-```
-
-4. Check rollout status.
-
-```bash
-kubectl -n application rollout status deploy/indezy-server
-kubectl -n application rollout status deploy/indezy-web
-```
-
-5. Smoke test from outside the cluster.
-
-```bash
-curl -I https://indezy.swirlit.dev
-curl -I https://indezy.swirlit.dev/api/swagger-ui.html
-```
-
-## What Good Looks Like
-
-- ArgoCD application is synced and healthy.
-- `indezy-server` has one ready replica.
-- `indezy-web` has one ready replica.
-- ingress has host `indezy.swirlit.dev`.
-- frontend `/health` returns success.
-- backend health endpoint `/api/actuator/health` (Spring Boot Actuator) returns `{"status":"UP"}`.
-- login page loads in the browser.
-- authenticated dashboard loads after login.
-- project, client, contact, and source lists load without API errors.
+Healthy means the expected Git revision is `Synced` and `Healthy` in Argo CD, both Deployments have an available replica, External Secrets report `Ready=True`, and both health endpoints succeed.
 
 ## Logs
 
-Backend:
-
 ```bash
-kubectl -n application logs deploy/indezy-server --tail=200
-kubectl -n application logs deploy/indezy-server -f
+kubectl logs deployment/indezy-server -n apps --tail=200
+kubectl logs deployment/indezy-web -n apps --tail=200
+kubectl get pods -n apps
 ```
 
-Frontend:
+The Kubernetes profile writes Logstash-compatible JSON to stdout. Fluent Bit
+automatically enriches and indexes it in Elasticsearch; use Kibana's generic
+**Applications Namespace Logs** dashboard and filter `app` to `indezy-server`.
+Prometheus discovers the backend pod annotations automatically, and Grafana
+loads the repository-owned **Indezy Overview** dashboard from its labeled
+ConfigMap.
+
+The repository-owned **Indezy — Application Logs** Kibana dashboard is imported
+with the platform-managed least-privilege dashboard bootstrap credential. It is
+fixed to `indezy-server` and `indezy-web`, separates warnings/errors from the
+complete recent stream, defaults to the last 24 hours, and refreshes every 30
+seconds.
+
+The database setup is an Argo CD hook and is deleted after success. During a failing sync, locate and inspect it with:
 
 ```bash
-kubectl -n application logs deploy/indezy-web --tail=200
-kubectl -n application logs deploy/indezy-web -f
-```
-
-Database setup job:
-
-```bash
-kubectl -n application logs job/indezy-db-setup
-```
-
-Describe failing resources:
-
-```bash
-kubectl -n application describe pod <pod-name>
-kubectl -n application describe ingress indezy-ingress
-kubectl -n application describe job indezy-db-setup
+kubectl get jobs -n apps
+kubectl logs job/indezy-db-setup -n apps
 ```
 
 ## Common Incidents
 
-### Backend pod waits for database
+### Keycloak SSO exchange fails
 
-Symptoms:
+An unauthenticated browser request should be sent through `https://keycloak.swirlit.dev/oauth2/start` to the `swirlit` realm. After authentication, `GET /api/auth/sso` must receive an ingress-provided access token and return an Indezy session. Check the OAuth2 Proxy and Ingress annotations first, then verify the public issuer, internal JWKS URI, and `oauth2-proxy` audience in `infra/k8s/server.yaml`. Never work around the failure by trusting identity headers without validating the signed token.
 
-- pod stuck during init
-- logs repeat "Waiting for infrastructure postgres"
-
-Checks:
+### Backend waits for PostgreSQL
 
 ```bash
-kubectl -n application logs <server-pod> -c wait-for-db
-kubectl -n infra get svc | findstr postgres
+kubectl logs -n apps <indezy-server-pod> -c wait-for-db
+kubectl get service -n infra
+kubectl get externalsecret indezy-server-secret -n apps -o yaml
 ```
 
-Likely causes:
+Verify the shared PostgreSQL service, the setup hook, and that the projected application password matches the `indezy_user` role. Fix the Vault contract or hook in Git and refresh Argo CD; do not add a plaintext Secret.
 
-- shared PostgreSQL is down
-- service DNS changed
-- `indezy_user` or `indezy` database was not created
-- secret passwords no longer match
-
-Recovery:
-
-1. Verify shared PostgreSQL.
-2. Check `indezy-db-setup` job logs.
-3. Confirm `indezy-server-secret.DB_PASSWORD` matches the role password.
-4. Re-sync ArgoCD after fixing secrets or setup job.
-
-### Backend readiness fails
-
-Symptoms:
-
-- pod running but not ready
-- readiness probe fails on `/api/actuator/health`
-
-Checks:
+### Backend is running but not ready
 
 ```bash
-kubectl -n application describe pod <server-pod>
-kubectl -n application port-forward svc/indezy-server 8080:8080
-curl http://localhost:8080/api/actuator/health
+kubectl describe pod -n apps <indezy-server-pod>
+kubectl port-forward -n apps service/indezy-server 18080:8080
+curl http://127.0.0.1:18080/api/actuator/health
 ```
 
-Likely cause:
+Check startup logs and database connectivity. The health endpoint will remain unavailable or report `DOWN` when a required dependency fails.
 
-- the app failed to start or a dependency it reports on (e.g. the database) is down, so `/api/actuator/health` returns `DOWN` or never comes up.
-
-Recovery:
-
-1. Check the pod logs for startup failures; confirm the database is reachable.
-2. Rebuild image if the actuator dependency or `management.*` config was changed.
-3. Let Jenkins update manifests and ArgoCD sync.
-
-### Frontend serves but API calls fail
-
-Symptoms:
-
-- login page loads
-- API calls return 404, 502, 503, or CORS-like browser errors
-
-Checks:
+### Frontend loads but API calls fail
 
 ```bash
-kubectl -n application get ingress indezy-ingress -o yaml
-curl -I https://indezy.swirlit.dev/api/swagger-ui.html
-kubectl -n application logs deploy/indezy-server --tail=100
+kubectl get ingress indezy-ingress -n apps -o yaml
+kubectl get endpoints indezy-server -n apps
+kubectl logs deployment/indezy-server -n apps --tail=100
 ```
 
-Likely causes:
+Confirm the `/api` ingress route, ready backend endpoints, and the backend `/api` context path.
 
-- ingress `/api` path not routing to backend
-- backend service not ready
-- frontend production API URL changed away from `/api`
-- backend context path changed away from `/api`
+### Images published but deployment did not change
 
-### ArgoCD keeps reverting manual changes
+Check the `01-release` job, the `deploy: ... [skip ci]` commit, and Argo CD's revision and conditions. CI intentionally fails when `main` advanced during a pipeline instead of overwriting newer desired state.
 
-ArgoCD self-heal is enabled. Manual Kubernetes edits are not durable.
+### Argo CD reverts a manual change
 
-Recovery:
-
-1. Make the change in Git.
-2. Push to `main`.
-3. Let Jenkins or ArgoCD sync the desired state.
-
-### Jenkins pushed images but deployment did not change
-
-Checks:
-
-```bash
-git log --oneline -5
-Select-String -Path deployments\indezy-server.yaml -Pattern "image:"
-Select-String -Path deployments\indezy-web.yaml -Pattern "image:"
-```
-
-Likely causes:
-
-- Jenkins failed before the manifest commit.
-- Git credentials could not push.
-- ArgoCD has not synced the new commit.
+This is expected with self-healing. Make the desired change in Git and let Argo CD reconcile it.
 
 ## Backup And Recovery
 
-Current state:
-
-- application data is in shared PostgreSQL
-- versioned migrations are not established yet
-- automated DB backup and point-in-time recovery are backlog items
-
-Operational expectation:
-
-- make sure the infrastructure PostgreSQL backup policy covers the `indezy` database
-- test restore procedures before production use
-- document restore time objective and restore point objective once the app stores real user data
-
-Manual safety backup before risky operations:
+Indezy data is stored in the shared PostgreSQL service. Confirm the platform backup policy includes the `indezy` database and test restores before production use. Take an additional logical backup before risky schema or data work from a trusted environment that can reach PostgreSQL:
 
 ```bash
-pg_dump -h postgres.infra.svc.cluster.local -U indezy_user -d indezy > indezy-backup.sql
+pg_dump -h postgres.swirlit.internal -U indezy_user -d indezy > indezy-backup.sql
 ```
 
-Run that from an environment that can reach the cluster database and has the right credentials.
+Keep the dump outside Git and handle it as sensitive data.
 
 ## Secret Rotation
 
-Rotate:
-
-- database password
-- JWT secret
-- infrastructure PostgreSQL admin password
-- Google Maps API key if configured
-
-Database password rotation must update:
-
-- PostgreSQL role password
-- `indezy-server-secret.DB_PASSWORD`
-- database setup job expectations
-
-JWT secret rotation invalidates existing tokens. Plan this as a user-visible session reset.
-
-## Scaling Notes
-
-Current deployment replicas:
-
-- backend: 1
-- frontend: 1
-
-Before increasing backend replicas, verify:
-
-- application is stateless between requests
-- JWT validation does not depend on local memory
-- database connection pool is configured for multiple pods
-- migrations are safe under concurrent startup
-- session records, if activated, handle multi-pod behavior
-
-## Related Guides
-
-- [Deployment](./deployment.md)
-- [Security](./security.md)
-- [Testing](./testing.md)
-- [ADR Index](./adr/README.md)
+Rotate the application database password by updating `apps/indezy/runtime` in Vault and allowing the database setup hook to update the role before the backend rollout. Rotating `jwt_secret` invalidates active sessions. Registry pull-token rotation is managed by `infra/scripts/configure-gitlab.sh` when the stored credential is absent or the managed token no longer exists.

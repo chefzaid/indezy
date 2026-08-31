@@ -154,7 +154,7 @@ check_services() {
     local all_healthy=true
     
     for service in "${services[@]}"; do
-        if docker-compose ps "$service" | grep -q "Up"; then
+        if docker compose -f /workspace/infra/compose/compose.yaml ps "$service" | grep -q "Up"; then
             print_status "Service $service is running"
         else
             print_error "Service $service is not running"

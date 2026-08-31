@@ -125,10 +125,10 @@ indezy-test-indezy-web
 ```
 /workspace/
 ├── indezy-server/           # Spring Boot application
-├── indezy-web/          # Angular application
-├── database/          # Database initialization scripts
-├── .devcontainer/     # Container configuration
-└── docs/             # Documentation
+├── indezy-web/              # Angular application
+├── infra/                   # Compose, Kubernetes, Argo CD, database, and scripts
+├── .devcontainer/           # Container configuration
+└── docs/                    # Documentation
 ```
 
 ## 🐛 Troubleshooting
@@ -141,14 +141,14 @@ indezy-test-indezy-web
 ### Database Issues
 ```bash
 # Check database status
-docker-compose ps
+docker compose -f /workspace/infra/compose/compose.yaml ps
 
 # View database logs
-docker-compose logs postgres
+docker compose -f /workspace/infra/compose/compose.yaml logs postgres
 
 # Reset database
-docker-compose down -v
-docker-compose up -d postgres
+docker compose -f /workspace/infra/compose/compose.yaml down -v
+docker compose -f /workspace/infra/compose/compose.yaml up -d postgres
 ```
 
 ### Application Issues
@@ -160,7 +160,7 @@ indezy-status
 indezy-logs
 
 # Restart services
-docker-compose restart
+docker compose -f /workspace/infra/compose/compose.yaml restart
 ```
 
 ## 🔄 Updating the Container
@@ -175,9 +175,9 @@ To update the development environment:
 
 2. Or manually:
    ```bash
-   docker-compose --profile devcontainer down
-   docker-compose --profile devcontainer build --no-cache
-   docker-compose --profile devcontainer up -d
+   docker compose -f /workspace/infra/compose/compose.yaml --profile devcontainer down
+   docker compose -f /workspace/infra/compose/compose.yaml --profile devcontainer build --no-cache
+   docker compose -f /workspace/infra/compose/compose.yaml --profile devcontainer up -d
    ```
 
 ## 📝 Environment Variables

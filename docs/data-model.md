@@ -301,7 +301,7 @@ Use element collections for simple owned scalar lists. Use real entities when va
 
 ## Database Initialization
 
-The Docker PostgreSQL init script is `database/init/01-init.sql`.
+The Docker PostgreSQL init script is `infra/database/init/01-init.sql`.
 
 It currently:
 
@@ -359,4 +359,4 @@ Practical ownership rules for new development:
 - [Features](./features.md)
 - [Development](./development.md)
 - [Security](./security.md)
-- [ADR Index](./adr/README.md)
+- [Architecture Overview and ADR Index](./architecture.md)

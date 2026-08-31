@@ -8,16 +8,23 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/chefzaid/indezy.git
+    repoURL: http://gitlab.swirlit.internal/swirlit/indezy.git
     targetRevision: main
-    path: deployments
+    path: infra/k8s
   destination:
     server: https://kubernetes.default.svc
-    namespace: application
+    namespace: apps
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - PruneLast=true

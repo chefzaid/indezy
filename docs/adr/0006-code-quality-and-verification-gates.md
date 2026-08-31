@@ -3,6 +3,8 @@
 - Status: Accepted
 - Date: 2026-06-12
 
+The pipeline-gate and future-improvement portions of this decision are superseded by [ADR 0007](./0007-explicit-delivery-jobs.md). Its local test-tooling decisions remain active.
+
 ## Context
 
 The repository has meaningful test infrastructure:
@@ -15,7 +17,7 @@ The repository has meaningful test infrastructure:
 - Angular Karma/Jasmine tests
 - Angular ESLint
 
-The Jenkins pipeline currently focuses on image build, image push, manifest update, and ArgoCD sync.
+The GitLab CI pipeline now validates Kubernetes state, runs Maven verification, runs Angular lint/headless tests and a production build, publishes deployable artifacts, builds runtime images, updates GitOps state, and verifies Argo CD rollout health.
 
 ## Decision
 
@@ -29,14 +31,14 @@ Local development should use:
 - frontend targeted Karma tests
 - frontend lint
 
-CI should grow toward:
+The local verification baseline includes:
 
-- backend test gate
-- frontend test gate
+- backend tests
+- frontend tests
 - production builds
 - lint checks
-- dependency vulnerability scanning
-- Playwright critical-flow tests
+
+CI also preserves diagnostic/build artifacts and immutable Generic Package versions. The repository-wide SonarQube analysis, dependency audits, and Playwright critical-flow gate are defined by ADR 0007.
 
 ## Rationale
 

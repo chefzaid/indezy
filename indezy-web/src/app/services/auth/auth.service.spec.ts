@@ -51,6 +51,7 @@ describe('AuthService', () => {
     localStorageSpy = spyOn(localStorage, 'getItem').and.returnValue(null);
     spyOn(localStorage, 'setItem');
     spyOn(localStorage, 'removeItem');
+    sessionStorage.clear();
   });
 
   afterEach(() => {
@@ -163,6 +164,49 @@ describe('AuthService', () => {
       service.currentUser$.subscribe(user => {
         expect(user).toBeNull();
       });
+    });
+  });
+
+  describe('initializeSso', () => {
+    it('stores the session returned by the production Keycloak exchange', async () => {
+      sessionStorage.setItem('indezy.keycloak-sso-attempt', 'pending');
+      const initialization = service.initializeSso(true);
+      const request = httpMock.expectOne('http://localhost:8080/api/auth/sso');
+      expect(request.request.method).toBe('GET');
+      request.flush(mockLoginResponse);
+
+      await initialization;
+
+      expect(localStorage.setItem).toHaveBeenCalledWith('indezy_token', mockLoginResponse.token);
+      expect(localStorage.setItem).toHaveBeenCalledWith(
+        'indezy_user',
+        JSON.stringify(mockLoginResponse.user)
+      );
+    });
+
+    it('does not exchange when SSO is disabled', async () => {
+      await service.initializeSso(false);
+      httpMock.expectNone('http://localhost:8080/api/auth/sso');
+    });
+
+    it('refreshes the Keycloak identity even when an app session already exists', async () => {
+      spyOn(service, 'isAuthenticated').and.returnValue(true);
+      const initialization = service.initializeSso(true);
+      const request = httpMock.expectOne('http://localhost:8080/api/auth/sso');
+      request.flush(mockLoginResponse);
+
+      await initialization;
+      expect(localStorage.setItem).toHaveBeenCalledWith('indezy_token', mockLoginResponse.token);
+    });
+
+    it('finishes cleanly when the Keycloak exchange is rejected', async () => {
+      sessionStorage.setItem('indezy.keycloak-sso-attempt', 'pending');
+      const initialization = service.initializeSso(true);
+      const request = httpMock.expectOne('http://localhost:8080/api/auth/sso');
+      request.flush({}, { status: 401, statusText: 'Unauthorized' });
+
+      await expectAsync(initialization).toBeResolved();
+      expect(localStorage.setItem).not.toHaveBeenCalled();
     });
   });
 

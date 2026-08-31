@@ -279,14 +279,14 @@ export SERVER_PORT="$(printenv BACKEND_PORT 2>/dev/null || echo 8080)"
 export WSLENV="$(printenv WSLENV 2>/dev/null || true):POSTGRES_PORT:POSTGRES_DB:POSTGRES_USER:POSTGRES_PASSWORD:SERVER_PORT:BACKEND_PORT:FRONTEND_PORT"
 
 if command -v docker.exe >/dev/null 2>&1 && docker.exe compose version >/dev/null 2>&1; then
-    start_postgres() { docker.exe compose up -d --force-recreate postgres; }
-    postgres_is_ready() { docker.exe compose exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
+    start_postgres() { docker.exe compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
+    postgres_is_ready() { docker.exe compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
 elif docker compose version >/dev/null 2>&1; then
-    start_postgres() { docker compose up -d --force-recreate postgres; }
-    postgres_is_ready() { docker compose exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
+    start_postgres() { docker compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
+    postgres_is_ready() { docker compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
 elif command -v docker-compose >/dev/null 2>&1; then
-    start_postgres() { docker-compose up -d --force-recreate postgres; }
-    postgres_is_ready() { docker-compose exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
+    start_postgres() { docker-compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
+    postgres_is_ready() { docker-compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
 else
     echo "❌ Docker Compose is required"
     exit 1
@@ -337,21 +337,21 @@ export SERVER_PORT="$(printenv BACKEND_PORT 2>/dev/null || echo 8080)"
 export WSLENV="$(printenv WSLENV 2>/dev/null || true):POSTGRES_PORT:POSTGRES_DB:POSTGRES_USER:POSTGRES_PASSWORD:SERVER_PORT:BACKEND_PORT:FRONTEND_PORT"
 
 if command -v docker.exe >/dev/null 2>&1 && docker.exe compose version >/dev/null 2>&1; then
-    start_postgres() { docker.exe compose up -d --force-recreate postgres; }
-    postgres_is_ready() { docker.exe compose exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
+    start_postgres() { docker.exe compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
+    postgres_is_ready() { docker.exe compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
 elif docker compose version >/dev/null 2>&1; then
-    start_postgres() { docker compose up -d --force-recreate postgres; }
-    postgres_is_ready() { docker compose exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
+    start_postgres() { docker compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
+    postgres_is_ready() { docker compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
 elif command -v docker-compose >/dev/null 2>&1; then
-    start_postgres() { docker-compose up -d --force-recreate postgres; }
-    postgres_is_ready() { docker-compose exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
+    start_postgres() { docker-compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
+    postgres_is_ready() { docker-compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
 else
     echo "❌ Docker Compose is required"
     exit 1
 fi
 
 echo "🧹 Stopping previous local run..."
-bash scripts/stop-local-ports.sh
+bash infra/scripts/stop-local-ports.sh
 
 echo "🚀 Starting local development environment..."
 echo "🔨 Building applications first..."
@@ -384,7 +384,7 @@ cd indezy-server
 if [[ -f "mvnw.cmd" ]]; then
     # Keep Windows command quoting inside PowerShell so Mask's Bash executor
     # cannot reinterpret cmd.exe's arguments.
-    powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "../scripts/start-backend.ps1"
+    powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "../infra/scripts/start-backend.ps1"
 else
     # Unix: Start in background
     chmod +x mvnw 2>/dev/null || true
@@ -395,12 +395,12 @@ fi
 cd ..
 echo "⏳ Waiting for indezy-server to start..."
 for _ in {1..60}; do
-    if bash scripts/backend-is-healthy.sh; then
+    if bash infra/scripts/check-backend-health.sh; then
         break
     fi
     sleep 1
 done
-if ! bash scripts/backend-is-healthy.sh; then
+if ! bash infra/scripts/check-backend-health.sh; then
     echo "❌ indezy-server did not become healthy. Recent logs:"
     tail -n 40 indezy-server.log 2>/dev/null || true
     tail -n 40 indezy-server-error.log 2>/dev/null || true
@@ -427,21 +427,21 @@ fi
 export WSLENV="$(printenv WSLENV 2>/dev/null || true):POSTGRES_PORT:POSTGRES_DB:POSTGRES_USER:POSTGRES_PASSWORD"
 
 if command -v docker.exe >/dev/null 2>&1 && docker.exe compose version >/dev/null 2>&1; then
-    start_postgres() { docker.exe compose up -d --force-recreate postgres; }
-    postgres_is_ready() { docker.exe compose exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
+    start_postgres() { docker.exe compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
+    postgres_is_ready() { docker.exe compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
 elif docker compose version >/dev/null 2>&1; then
-    start_postgres() { docker compose up -d --force-recreate postgres; }
-    postgres_is_ready() { docker compose exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
+    start_postgres() { docker compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
+    postgres_is_ready() { docker compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
 elif command -v docker-compose >/dev/null 2>&1; then
-    start_postgres() { docker-compose up -d --force-recreate postgres; }
-    postgres_is_ready() { docker-compose exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
+    start_postgres() { docker-compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
+    postgres_is_ready() { docker-compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
 else
     echo "❌ Docker Compose is required"
     exit 1
 fi
 
 echo "🧹 Stopping the running local stack before resetting the database..."
-bash scripts/stop-local-ports.sh
+bash infra/scripts/stop-local-ports.sh
 
 echo "🐳 Starting PostgreSQL..."
 start_postgres
@@ -553,7 +553,7 @@ echo "Backend (port 8080):"
 if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
     if netstat.exe -an | findstr.exe :8080 >/dev/null 2>&1; then
         echo "  ✅ Running"
-        if bash scripts/backend-is-healthy.sh >/dev/null 2>&1; then
+        if bash infra/scripts/check-backend-health.sh >/dev/null 2>&1; then
             echo "  ✅ Health check passed"
         else
             echo "  ⚠️  Health check failed"
@@ -591,11 +591,11 @@ fi
 echo ""
 echo "🐳 Docker services:"
 if command -v docker.exe >/dev/null 2>&1 && docker.exe compose version >/dev/null 2>&1; then
-    docker.exe compose ps 2>/dev/null || echo "  No Docker services running"
+    docker.exe compose -f infra/compose/compose.yaml ps 2>/dev/null || echo "  No Docker services running"
 elif docker compose version >/dev/null 2>&1; then
-    docker compose ps 2>/dev/null || echo "  No Docker services running"
+    docker compose -f infra/compose/compose.yaml ps 2>/dev/null || echo "  No Docker services running"
 elif command -v docker-compose &> /dev/null; then
-    docker-compose ps 2>/dev/null || echo "  No Docker services running"
+    docker-compose -f infra/compose/compose.yaml ps 2>/dev/null || echo "  No Docker services running"
 else
     echo "  Docker Compose not available"
 fi
@@ -627,11 +627,11 @@ pkill -f "npm start" 2>/dev/null || true
 # Stop Docker services
 echo "Stopping Docker services..."
 if command -v docker.exe >/dev/null 2>&1 && docker.exe compose version >/dev/null 2>&1; then
-    docker.exe compose down 2>/dev/null || true
+    docker.exe compose -f infra/compose/compose.yaml down 2>/dev/null || true
 elif docker compose version >/dev/null 2>&1; then
-    docker compose down 2>/dev/null || true
+    docker compose -f infra/compose/compose.yaml down 2>/dev/null || true
 elif command -v docker-compose &> /dev/null; then
-    docker-compose down 2>/dev/null || true
+    docker-compose -f infra/compose/compose.yaml down 2>/dev/null || true
 fi
 
 echo "✅ All services stopped"

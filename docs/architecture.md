@@ -11,11 +11,11 @@ Angular web app
   -> JPA repositories
   -> PostgreSQL
 
-Jenkins
-  -> builds Docker images
-  -> pushes to Nexus
-  -> updates Kubernetes manifests
-  -> ArgoCD syncs manifests to K3s
+GitLab CI
+  -> tests and builds backend/frontend outputs
+  -> publishes Generic Packages and immutable container images
+  -> commits Kustomize image tags
+  -> Argo CD syncs the exact Git revision to K3s
 ```
 
 Runtime entry points:
@@ -71,9 +71,7 @@ Routes are organized around the main product areas:
 3. Frontend stores the token.
 4. `authGuard` protects authenticated routes.
 5. `authInterceptor` adds `Authorization: Bearer <token>` to API calls.
-6. Backend should validate the token and enforce resource ownership.
-
-Current caveat: backend authorization still needs hardening because non-public routes are currently permitted.
+6. Backend validates the token for non-public routes; service-level resource ownership remains the next authorization hardening boundary.
 
 ### Project creation
 
@@ -86,12 +84,12 @@ Current caveat: backend authorization still needs hardening because non-public r
 
 ### Deployment
 
-1. Jenkins checks out the repository.
-2. Jenkins builds backend and frontend Docker images.
-3. Images are pushed to Nexus with build-number and latest tags.
-4. Jenkins updates image tags in `deployments/*.yaml`.
-5. Jenkins commits and pushes manifest changes.
-6. ArgoCD detects the Git change and syncs to K3s.
+1. GitLab CI checks out the repository.
+2. Required `01-build`, optional `02-test`, and required `03-package` package and validate backend/frontend outputs.
+3. Optional manual E2E validates the critical browser flow; quality independently publishes non-blocking dependency and Sonar reports from the test artifacts, manually in standard mode and automatically in full mode.
+4. Release consumes the required build outputs and publishes checksummed packages/images; deploy requires that release job, while full mode automates build, release, and deploy.
+5. Release commits its version and image tags, creates the matching tag, and prepares the next minor version.
+6. Argo CD syncs that exact revision to K3s; CI waits for healthy reconciliation and checks both services.
 
 ## Data Ownership Rules
 
@@ -124,12 +122,13 @@ NNNN-short-title.md
 
 ## Accepted ADRs
 
-- [ADR 0001: Split Documentation Out Of Root README](./0001-documentation-structure.md)
-- [ADR 0002: Spring Boot And Angular Modular Monolith](./0002-spring-boot-angular-modular-monolith.md)
-- [ADR 0003: Java 25, Angular 22, And PostgreSQL Stack](./0003-java-angular-postgresql-stack.md)
-- [ADR 0004: GitOps Deployment Through Jenkins And ArgoCD](./0004-jenkins-argocd-gitops.md)
-- [ADR 0005: Security Baseline And Hardening Direction](./0005-security-baseline.md)
-- [ADR 0006: Code Quality And Verification Gates](./0006-code-quality-and-verification-gates.md)
+- [ADR 0001: Split Documentation Out Of Root README](./adr/0001-documentation-structure.md)
+- [ADR 0002: Spring Boot And Angular Modular Monolith](./adr/0002-spring-boot-angular-modular-monolith.md)
+- [ADR 0003: Java 25, Angular 22, And PostgreSQL Stack](./adr/0003-java-angular-postgresql-stack.md)
+- [ADR 0004: GitOps Deployment Through GitLab CI And ArgoCD](./adr/0004-gitlab-ci-argocd-gitops.md)
+- [ADR 0005: Security Baseline And Hardening Direction](./adr/0005-security-baseline.md)
+- [ADR 0006: Code Quality And Verification Gates](./adr/0006-code-quality-and-verification-gates.md)
+- [ADR 0007: Explicit Delivery Jobs And Non-Blocking Verification](./adr/0007-explicit-delivery-jobs.md)
 
 ## Proposed ADRs For Upcoming Work
 

@@ -1,0 +1,11 @@
+.git
+.idea
+.vscode
+.cache
+.angular
+coverage
+node_modules
+*.log
+dist/*
+!dist/indezy-web/
+!dist/indezy-web/**

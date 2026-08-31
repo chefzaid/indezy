@@ -14,6 +14,20 @@
       </mat-card-header>
 
       <mat-card-content>
+        @if (ssoEnabled) {
+          <button mat-raised-button
+            color="primary"
+            type="button"
+            class="sso-button full-width"
+            (click)="onSsoLogin()">
+            <span class="keycloak-icon" aria-hidden="true">S</span>
+            <span>{{ 'auth.continueWithKeycloak' | translate }}</span>
+          </button>
+          <div class="login-divider">
+            <span>{{ 'auth.orSignInLocally' | translate }}</span>
+          </div>
+        }
+
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'common.email' | translate }}</mat-label>

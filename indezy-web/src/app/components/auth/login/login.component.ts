@@ -12,6 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../services/auth/auth.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
     selector: 'app-login',
@@ -34,6 +35,7 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
   hidePassword = true;
+  readonly ssoEnabled = environment.production;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -82,6 +84,10 @@ export class LoginComponent implements OnInit {
         }
       });
     }
+  }
+
+  onSsoLogin(): void {
+    this.authService.startSsoLogin();
   }
 
   getErrorMessage(field: string): string {

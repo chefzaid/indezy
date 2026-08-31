@@ -88,12 +88,16 @@ management:
         include:
           - health
           - info
+          - prometheus
   endpoint:
     health:
       # Probes only need UP/DOWN; full component details require authentication to avoid leaking internals.
       show-details: when-authorized
       probes:
         enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 logging:
   level:

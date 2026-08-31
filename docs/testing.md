@@ -210,49 +210,38 @@ Seed only the state required for the scenario. Large shared fixtures make failur
 
 ### 6. Prefer accessible frontend selectors
 
-When the frontend adds end-to-end tests later, selectors should prefer roles, labels, and user-visible text over CSS structure. Component tests should follow the same spirit where practical.
+Playwright selectors should prefer roles, labels, and user-visible text over CSS structure. Component tests should follow the same spirit where practical.
 
 ## Coverage Expectations
 
-The Maven JaCoCo configuration currently checks a 60 percent instruction and branch coverage minimum. The product backlog tracks a higher direction: keep backend and frontend coverage above 85 percent.
+The Maven JaCoCo configuration records an 80 percent instruction and branch target. CI also computes combined backend/frontend line coverage against an 80 percent policy and publishes a failed JUnit policy result when it is missed; that report does not fail the build job or block release.
 
-Current measured coverage (June 2026): backend ~83 percent instruction / ~64 percent branch overall (JaCoCo, includes generated MapStruct mappers and Lombok code); frontend ~93 percent statements (Karma). The frontend meets the 85 percent target; the backend gate passes with the largest remaining gaps in generated mapper code and file-upload IO paths.
+Current measured coverage (June 2026): backend ~83 percent instruction / ~64 percent branch overall (JaCoCo, includes generated MapStruct mappers and Lombok code); frontend ~93 percent statements (Karma). These historical figures explain why the report can currently show a failed policy result without suppressing delivery.
 
-When adding risky behavior, use the higher target as the practical bar even if the current build gate is lower.
+When adding risky behavior, treat the 80 percent report as a prompt for targeted tests rather than a release switch.
 
-## E2E Direction
+## Playwright E2E
 
-Playwright end-to-end tests are listed in the backlog but are not established as a first-class test suite yet.
-
-The first E2E flows should cover:
-
-- registration
-- login
-- creating a project
-- moving a Kanban card
-- filtering lists
-- scheduling an interview step
-
-When adding Playwright, document:
-
-- how the app is started
-- how test data is created and cleaned
-- which browser projects run locally and in CI
-- screenshots or traces retained on failure
+Playwright is a first-class part of the optional manual E2E job. Run it locally with `cd indezy-web && npm run test:e2e`. The configuration starts the production-like Angular server automatically, uses deterministic route interception for the critical authentication flow, and retains HTML output and failure traces. Extend the suite with registration, project creation, Kanban movement, filtering, and interview scheduling as those workflows stabilize.
 
 ## CI Expectations
 
-Jenkins currently builds and pushes Docker images, then updates Kubernetes manifests. The pipeline does not yet run a full documented test gate before image publication.
+GitLab CI exposes ordered build, test, package, E2E, quality, release, deploy, and version jobs.
 
-The intended CI quality gate should include:
+The current CI verification and reporting includes:
 
 - backend unit and integration tests
 - frontend headless tests
 - frontend lint
 - backend package build
 - frontend production build
-- dependency vulnerability scanning
-- later: Playwright critical flows
+- Playwright browser verification in the optional manual E2E job
+- non-blocking SonarQube analysis on `main`
+- non-blocking dependency vulnerability audit reports
+- seven-day JUnit, coverage, browser, and compiled-output job artifacts
+- immutable JAR/SPA archives and checksums in the Generic Package Registry
+
+Required `01-build` and `03-package` own compilation and image validation; optional `02-test` owns unit-test and coverage reporting. Optional manual `01-e2e` runs Playwright. Standard mode leaves `02-quality` manual, while full mode runs it automatically to consume test artifacts for dependency reports and non-blocking Sonar submission. Release exists only on `main`, requires the successful build path, and publishes packages/images and Git state; deploy requires that release job and then waits for Argo CD plus both health checks. `PIPELINE_MODE=full` also automates release and deploy while E2E remains manual.
 
 ## Troubleshooting
 

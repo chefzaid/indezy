@@ -1,35 +1,24 @@
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: indezy-server-secret
-  namespace: application
-type: Opaque
-data:
-  # base64("indezy_password") — change before go-live
-  DB_PASSWORD: aW5kZXp5X3Bhc3N3b3Jk
-  # base64("indezy-jwt-secret-change-in-production") — change before go-live
-  JWT_SECRET: aW5kZXp5LWp3dC1zZWNyZXQtY2hhbmdlLWluLXByb2R1Y3Rpb24=
-
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: indezy-server-config
-  namespace: application
+  namespace: apps
   labels:
     app: indezy-server
 data:
   SPRING_PROFILES_ACTIVE: kubernetes
-  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres.infra.svc.cluster.local:5432/indezy"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres.swirlit.internal:5432/indezy"
   SPRING_DATASOURCE_USERNAME: indezy_user
+  INDEZY_SECURITY_KEYCLOAK_ISSUER: https://keycloak.swirlit.dev/auth/realms/swirlit
+  INDEZY_SECURITY_KEYCLOAK_JWK_SET_URI: http://keycloak.swirlit.internal:8080/auth/realms/swirlit/protocol/openid-connect/certs
+  INDEZY_SECURITY_KEYCLOAK_AUDIENCE: oauth2-proxy
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: indezy-server
-  namespace: application
+  namespace: apps
   labels:
     app: indezy-server
 spec:
@@ -41,7 +30,13 @@ spec:
     metadata:
       labels:
         app: indezy-server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /api/actuator/prometheus
+        prometheus.io/port: "8080"
     spec:
+      imagePullSecrets:
+        - name: indezy-registry-auth
       initContainers:
         - name: wait-for-db
           image: postgres:15-alpine
@@ -49,12 +44,12 @@ spec:
             - sh
             - -c
             - |
-              until pg_isready -h postgres.infra.svc.cluster.local -p 5432 -U indezy_user -d indezy; do
+              until pg_isready -h postgres.swirlit.internal -p 5432 -U indezy_user -d indezy; do
                 echo "Waiting for infrastructure postgres (indezy db)..."; sleep 3
               done
       containers:
         - name: indezy-server
-          image: nexus.swirlit.dev:5000/indezy/indezy-server:latest
+          image: registry.swirlit.dev/swirlit/indezy/indezy-server:initial
           ports:
             - containerPort: 8080
           env:
@@ -83,6 +78,21 @@ spec:
                 secretKeyRef:
                   name: indezy-server-secret
                   key: JWT_SECRET
+            - name: INDEZY_SECURITY_KEYCLOAK_ISSUER
+              valueFrom:
+                configMapKeyRef:
+                  name: indezy-server-config
+                  key: INDEZY_SECURITY_KEYCLOAK_ISSUER
+            - name: INDEZY_SECURITY_KEYCLOAK_JWK_SET_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: indezy-server-config
+                  key: INDEZY_SECURITY_KEYCLOAK_JWK_SET_URI
+            - name: INDEZY_SECURITY_KEYCLOAK_AUDIENCE
+              valueFrom:
+                configMapKeyRef:
+                  name: indezy-server-config
+                  key: INDEZY_SECURITY_KEYCLOAK_AUDIENCE
           livenessProbe:
             httpGet:
               path: /api/actuator/health
@@ -112,7 +122,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: indezy-server
-  namespace: application
+  namespace: apps
 spec:
   type: ClusterIP
   ports:

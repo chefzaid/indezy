@@ -39,6 +39,8 @@ if command -v powershell.exe >/dev/null 2>&1; then
     # WSL only forwards explicitly listed variables to Windows processes.
     export WSLENV="${WSLENV:+${WSLENV}:}BACKEND_PORT:FRONTEND_PORT:POSTGRES_PORT"
 
+    # The single-quoted program is PowerShell and must not expand in Bash.
+    # shellcheck disable=SC2016
     powershell.exe -NoProfile -NonInteractive -Command '
         $ErrorActionPreference = "Stop"
         $ports = @(
@@ -92,16 +94,15 @@ fi
 
 stop_port() {
     local port="$1"
-    local process_ids
-    process_ids="$(listener_pids "$port")"
+    local -a process_ids=()
+    mapfile -t process_ids < <(listener_pids "$port" | tr -s '[:space:]' '\n' | sed '/^$/d')
 
-    if [[ -z "$process_ids" ]]; then
+    if [[ ${#process_ids[@]} -eq 0 ]]; then
         return
     fi
 
-    echo "Stopping process(es) ${process_ids//$'\n'/ } on port $port..."
-    # Word splitting is intentional because listener_pids returns whitespace-separated ids.
-    kill $process_ids 2>/dev/null || true
+    echo "Stopping process(es) ${process_ids[*]} on port $port..."
+    kill "${process_ids[@]}" 2>/dev/null || true
 
     for _ in {1..50}; do
         if [[ -z "$(listener_pids "$port")" ]]; then
@@ -110,9 +111,9 @@ stop_port() {
         sleep 0.1
     done
 
-    process_ids="$(listener_pids "$port")"
-    if [[ -n "$process_ids" ]]; then
-        kill -9 $process_ids 2>/dev/null || true
+    mapfile -t process_ids < <(listener_pids "$port" | tr -s '[:space:]' '\n' | sed '/^$/d')
+    if [[ ${#process_ids[@]} -gt 0 ]]; then
+        kill -9 "${process_ids[@]}" 2>/dev/null || true
     fi
 
     if [[ -n "$(listener_pids "$port")" ]]; then

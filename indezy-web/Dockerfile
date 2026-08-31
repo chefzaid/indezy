@@ -5,7 +5,7 @@ ARG BUILD_ENV=production
 ARG NG_BUILD_CONFIG=production
 
 # Stage 1: Build stage
-FROM node:26-alpine AS builder
+FROM docker.io/library/node:26-alpine AS builder
 
 WORKDIR /app
 
@@ -23,7 +23,7 @@ ARG NG_BUILD_CONFIG
 RUN npm run build -- --configuration=${NG_BUILD_CONFIG}
 
 # Stage 2: Development runtime (with Node.js for development server)
-FROM node:26-alpine AS development
+FROM docker.io/library/node:26-alpine AS development
 
 # Install development tools
 RUN apk update && apk upgrade && \
@@ -56,7 +56,7 @@ ENTRYPOINT ["dumb-init", "--"]
 CMD ["npm", "start"]
 
 # Stage 3: Production runtime (with Nginx)
-FROM nginx:1.25-alpine AS production
+FROM docker.io/library/nginx:1.25-alpine AS production
 
 # Install security updates and create non-root user
 RUN apk update && apk upgrade && \
@@ -64,8 +64,10 @@ RUN apk update && apk upgrade && \
     addgroup -g 1001 -S nginxgroup && \
     adduser -u 1001 -S nginxuser -G nginxgroup
 
-# Copy built application from builder stage
-COPY --from=builder /app/dist/indezy-web /usr/share/nginx/html
+# Angular's application builder writes browser assets below the browser/
+# directory. Copy its contents so Nginx's document root contains the real
+# index.html instead of retaining the base image's welcome page.
+COPY --from=builder /app/dist/indezy-web/browser/ /usr/share/nginx/html/
 
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
@@ -77,10 +79,8 @@ RUN mkdir -p /var/cache/nginx/client_temp && \
     mkdir -p /var/cache/nginx/uwsgi_temp && \
     mkdir -p /var/cache/nginx/scgi_temp && \
     mkdir -p /var/log/nginx && \
-    mkdir -p /var/run && \
     chown -R nginxuser:nginxgroup /var/cache/nginx && \
     chown -R nginxuser:nginxgroup /var/log/nginx && \
-    chown -R nginxuser:nginxgroup /var/run && \
     chown -R nginxuser:nginxgroup /usr/share/nginx/html && \
     chown -R nginxuser:nginxgroup /etc/nginx
 

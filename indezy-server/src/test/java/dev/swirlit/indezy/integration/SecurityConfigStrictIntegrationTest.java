@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -41,5 +42,13 @@ class SecurityConfigStrictIntegrationTest {
         ResponseEntity<String> response = restTemplate.getForEntity(url("/actuator/health"), String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void prometheusEndpointRemainsPublic() {
+        ResponseEntity<String> response = restTemplate.getForEntity(url("/actuator/prometheus"), String.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() != null && response.getBody().contains("jvm_memory_used_bytes"));
     }
 }

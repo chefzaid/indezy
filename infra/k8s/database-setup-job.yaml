@@ -1,0 +1,68 @@
+# Argo CD sync hook: idempotently provisions the `indezy` database and
+# `indezy_user` in the shared PostgreSQL service before workload rollout.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: indezy-db-setup
+  namespace: apps
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: OnFailure
+      imagePullSecrets:
+        - name: indezy-registry-auth
+      containers:
+        - name: db-setup
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              export PGPASSWORD="${POSTGRES_ADMIN_PASSWORD}"
+              PSQL="psql -h postgres.swirlit.internal -U ${POSTGRES_ADMIN_USER} -d postgres"
+
+              echo "Creating indezy_user if needed and ensuring its password is current..."
+              $PSQL --set=app_password="$INDEZY_DB_PASSWORD" <<'SQL'
+              SELECT format('CREATE ROLE indezy_user WITH LOGIN PASSWORD %L', :'app_password')
+              WHERE NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'indezy_user')
+              \gexec
+              SELECT format('ALTER ROLE indezy_user WITH LOGIN PASSWORD %L', :'app_password')
+              \gexec
+              SQL
+
+              echo "Creating indezy database if not exists..."
+              $PSQL -tc "SELECT 1 FROM pg_database WHERE datname='indezy'" | grep -q 1 || \
+                $PSQL -c "CREATE DATABASE indezy OWNER indezy_user;"
+
+              echo "Granting connect and schema privileges, enabling extensions..."
+              $PSQL -c "GRANT CONNECT ON DATABASE indezy TO indezy_user;"
+              PGPASSWORD="${INDEZY_DB_PASSWORD}" psql \
+                -h postgres.swirlit.internal \
+                -U indezy_user -d indezy <<-SQL
+                  GRANT ALL ON SCHEMA public TO indezy_user;
+                  CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+              SQL
+
+              echo "Database setup complete."
+          env:
+            - name: POSTGRES_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: indezy-db-admin-credentials
+                  key: POSTGRES_ADMIN_USER
+            - name: POSTGRES_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: indezy-db-admin-credentials
+                  key: POSTGRES_ADMIN_PASSWORD
+            - name: INDEZY_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: indezy-server-secret
+                  key: DB_PASSWORD

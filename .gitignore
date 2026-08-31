@@ -54,7 +54,6 @@ indezy-web/.nyc_output/
 
 # Node.js (any location)
 node_modules/
-package-lock.json
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -79,6 +78,13 @@ out/
 # Test results
 test-results/
 coverage/
+
+# CI-generated reports and release staging
+quality-reports/
+package-output/
+coverage-policy-junit.xml
+coverage-policy.env
+release.env
 
 # File uploads (development)
 uploads/

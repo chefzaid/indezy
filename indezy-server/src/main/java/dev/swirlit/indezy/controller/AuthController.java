@@ -72,4 +72,20 @@ public class AuthController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @GetMapping("/sso")
+    @Operation(summary = "Keycloak SSO", description = "Exchange the ingress-validated Keycloak identity for an Indezy session")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "SSO authentication successful"),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid Keycloak identity")
+    })
+    public ResponseEntity<LoginResponse> sso(
+            @RequestHeader(value = "X-Auth-Request-Access-Token", required = false) String accessToken) {
+        try {
+            return ResponseEntity.ok(authService.loginWithKeycloak(accessToken));
+        } catch (RuntimeException exception) {
+            log.warn("Keycloak SSO exchange rejected: {}", exception.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
 }

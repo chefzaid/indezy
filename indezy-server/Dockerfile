@@ -4,13 +4,14 @@
 ARG BUILD_ENV=production
 
 # Stage 1: Build stage
-FROM eclipse-temurin:25-jdk-alpine AS builder
+FROM docker.io/library/eclipse-temurin:25-jdk-alpine AS builder
 
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml first for better layer caching
+# Copy Maven wrapper, build configuration, and pom.xml first for better layer caching
 COPY mvnw mvnw.cmd pom.xml ./
 COPY .mvn .mvn
+COPY checkstyle.xml spotbugs-exclude.xml ./
 
 # Make Maven wrapper executable
 RUN chmod +x mvnw
@@ -25,7 +26,7 @@ COPY src src
 RUN ./mvnw clean package -DskipTests -B
 
 # Stage 2: Development runtime (includes development tools)
-FROM eclipse-temurin:25-jdk-alpine AS development
+FROM docker.io/library/eclipse-temurin:25-jdk-alpine AS development
 
 # Install development tools
 RUN apk update && apk upgrade && \
@@ -65,7 +66,7 @@ CMD ["java", \
      "-jar", "app.jar"]
 
 # Stage 3: Production runtime (minimal)
-FROM eclipse-temurin:25-jre-alpine AS production
+FROM docker.io/library/eclipse-temurin:25-jre-alpine AS production
 
 # Install security updates and create non-root user
 RUN apk update && apk upgrade && \

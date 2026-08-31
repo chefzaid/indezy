@@ -30,23 +30,6 @@
         <jacoco.version>0.8.13</jacoco.version>
         <spotbugs.version>4.9.8.5</spotbugs.version>
         <checkstyle.version>3.5.0</checkstyle.version>
-        <sonar.version>4.0.0.4121</sonar.version>
-
-        <!-- SonarQube Properties -->
-        <sonar.projectKey>indezy-server</sonar.projectKey>
-        <sonar.projectName>Indezy Backend</sonar.projectName>
-        <sonar.host.url>http://localhost:9000</sonar.host.url>
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.exclusions>**/target/**,**/generated/**</sonar.exclusions>
-        <sonar.coverage.exclusions>
-            **/*Application.java,
-            **/*Config.java,
-            **/*Configuration.java,
-            **/dto/**,
-            **/model/**,
-            **/exception/**
-        </sonar.coverage.exclusions>
     </properties>
     
     <dependencies>
@@ -75,11 +58,19 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
 
         <!-- Actuator for health checks and metrics (K8s/Docker probes hit /api/actuator/health) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
         <!-- Database -->
@@ -299,12 +290,12 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.60</minimum>
+                                            <minimum>0.80</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.60</minimum>
+                                            <minimum>0.80</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
@@ -356,13 +347,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <!-- SonarQube Plugin -->
-            <plugin>
-                <groupId>org.sonarsource.scanner.maven</groupId>
-                <artifactId>sonar-maven-plugin</artifactId>
-                <version>${sonar.version}</version>
             </plugin>
         </plugins>
     </build>

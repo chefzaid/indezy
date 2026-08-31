@@ -23,10 +23,15 @@ Test escape hatch:
 
 ## Authentication
 
+Production authentication is centralized in the shared Keycloak `swirlit` realm. The NGINX Ingress sends unauthenticated browser traffic to the cluster OAuth2 Proxy. On startup, Angular calls `GET /api/auth/sso`; Spring validates the forwarded Keycloak access token's signature, issuer, expiry, and `oauth2-proxy` audience through the realm JWKS before linking its verified email to an existing account or creating an Indezy profile. Only then does the API issue Indezy's existing local bearer token.
+
+The Keycloak password never reaches Indezy. Local login and registration remain available for development, while the production ingress authenticates the UI and API before either is served.
+
 Implemented auth endpoints:
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
+- `GET /api/auth/sso`
 
 Successful auth returns a JWT. The frontend stores and attaches that token through `authInterceptor`.
 
@@ -129,7 +134,7 @@ Secrets currently used or anticipated:
 - `GOOGLE_MAPS_API_KEY`
 - OAuth client IDs and secrets for Google, GitHub, and Microsoft
 
-Kubernetes manifests currently include base64 placeholder values. Base64 is encoding, not encryption.
+Production Kubernetes manifests contain no secret values. External Secrets projects application values from `apps/indezy/*` and the database administrator contract from `infra/postgres`; base64 would be encoding, not encryption.
 
 Production expectations:
 
@@ -137,7 +142,7 @@ Production expectations:
 - store real secrets outside Git where possible
 - restrict Google Maps API key by API and server IP
 - rotate JWT secret intentionally because it invalidates active tokens
-- keep Jenkins, Nexus, and GitHub credentials scoped to the minimum necessary permissions
+- keep GitLab job-token permissions and the read-only registry deploy token scoped to the minimum necessary access
 
 ## OAuth Status
 
@@ -238,6 +243,12 @@ Before enabling broad uploads:
 - enforce ownership on download
 - add size, retention, and deletion rules
 
+## Software Supply Chain and Code Quality
+
+Required `01-build` and `03-package` are separate from optional `02-test`. Optional manual `01-e2e` and allowed-to-fail `02-quality` are independent verify jobs; standard mode leaves quality manual, full mode runs it automatically, and quality reporting submits without a Sonar gate wait. `01-release` depends only on the required build path, so findings never become deployment gates.
+
+The manual release-publication job publishes immutable, checksummed JAR and SPA archives to GitLab's registries; deployment starts only after publication passes. Daemonless Kaniko reuses 30-day registry-backed image layers without privileged runner access. Credentials remain in Vault, masked project CI variables, or short-lived GitLab job credentials.
+
 ## Security Backlog
 
 Priority items:
@@ -270,4 +281,4 @@ Before merging:
 - [Deployment](./deployment.md)
 - [Operations](./operations.md)
 - [Data Model](./data-model.md)
-- [ADR Index](./adr/README.md)
+- [Architecture Overview and ADR Index](./architecture.md)

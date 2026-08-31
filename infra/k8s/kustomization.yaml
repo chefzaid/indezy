@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: apps
+resources:
+  - external-secrets.yaml
+  - database-setup-job.yaml
+  - server.yaml
+  - web.yaml
+  - ingress.yaml
+  - network-policy.yaml
+  - observability.yaml
+images:
+  - name: registry.swirlit.dev/swirlit/indezy/indezy-server
+    newTag: 1.8.3
+  - name: registry.swirlit.dev/swirlit/indezy/indezy-web
+    newTag: 1.8.3
