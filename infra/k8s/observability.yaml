@@ -157,6 +157,7 @@ spec:
               echo "$response" | grep -q '"success":true'
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
           resources:
