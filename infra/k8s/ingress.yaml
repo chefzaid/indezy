@@ -11,6 +11,7 @@ metadata:
     gethomepage.dev/href: https://indezy.swirlit.dev
     gethomepage.dev/icon: mdi-domain
     gethomepage.dev/name: Indezy
+    gethomepage.dev/weight: "40"
     gethomepage.dev/pod-selector: app=indezy-web
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
