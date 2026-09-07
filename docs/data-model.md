@@ -359,4 +359,4 @@ Practical ownership rules for new development:
 - [Features](./features.md)
 - [Development](./development.md)
 - [Security](./security.md)
-- [ADR Index](./adr/README.md)
+- [Architecture Overview and ADR Index](./architecture.md)

@@ -1,0 +1,8 @@
+.git
+.idea
+.vscode
+.cache
+coverage
+*.log
+target/*
+!target/indezy-server.jar

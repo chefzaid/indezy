@@ -3,6 +3,8 @@
 - Status: Accepted
 - Date: 2026-06-12
 
+The CI topology, artifact retention, and image-builder portions of this decision are superseded by [ADR 0007](./0007-explicit-delivery-jobs.md). Its repository ownership and GitOps decisions remain active.
+
 ## Context
 
 Indezy targets the application-neutral `bm-cluster` platform, which provides a generic GitLab instance runner, Argo CD, GitLab Container Registry, K3s, NGINX Ingress, Vault, External Secrets, and shared PostgreSQL.
@@ -16,7 +18,7 @@ The repository contains:
 
 ## Decision
 
-Keep all Indezy-specific bootstrap and desired state in this repository. Use GitLab CI to verify code, publish immutable images with Kaniko, and update only Kustomize image tags in Git. Use Argo CD to sync the exact desired revision into the cluster.
+Keep all Indezy-specific bootstrap and desired state in this repository. Use GitLab CI to verify code, retain short-lived job artifacts, publish immutable Generic Packages and images, and update only Kustomize image tags in Git. Reuse persistent dependency and registry-backed image-layer caches. Use Argo CD to sync the exact desired revision into the cluster.
 
 ## Rationale
 

@@ -5,7 +5,7 @@ ARG BUILD_ENV=production
 ARG NG_BUILD_CONFIG=production
 
 # Stage 1: Build stage
-FROM node:26-alpine AS builder
+FROM docker.io/library/node:26-alpine AS builder
 
 WORKDIR /app
 
@@ -23,7 +23,7 @@ ARG NG_BUILD_CONFIG
 RUN npm run build -- --configuration=${NG_BUILD_CONFIG}
 
 # Stage 2: Development runtime (with Node.js for development server)
-FROM node:26-alpine AS development
+FROM docker.io/library/node:26-alpine AS development
 
 # Install development tools
 RUN apk update && apk upgrade && \
@@ -56,16 +56,17 @@ ENTRYPOINT ["dumb-init", "--"]
 CMD ["npm", "start"]
 
 # Stage 3: Production runtime (with Nginx)
-FROM nginx:1.25-alpine AS production
+FROM docker.io/library/nginx:1.30.4-alpine@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c AS production
 
 # Install security updates and create non-root user
 RUN apk update && apk upgrade && \
-    apk add --no-cache dumb-init && \
     addgroup -g 1001 -S nginxgroup && \
     adduser -u 1001 -S nginxuser -G nginxgroup
 
-# Copy built application from builder stage
-COPY --from=builder /app/dist/indezy-web /usr/share/nginx/html
+# Angular's application builder writes browser assets below the browser/
+# directory. Copy its contents so Nginx's document root contains the real
+# index.html instead of retaining the base image's welcome page.
+COPY --from=builder /app/dist/indezy-web/browser/ /usr/share/nginx/html/
 
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
@@ -77,10 +78,8 @@ RUN mkdir -p /var/cache/nginx/client_temp && \
     mkdir -p /var/cache/nginx/uwsgi_temp && \
     mkdir -p /var/cache/nginx/scgi_temp && \
     mkdir -p /var/log/nginx && \
-    mkdir -p /var/run && \
     chown -R nginxuser:nginxgroup /var/cache/nginx && \
     chown -R nginxuser:nginxgroup /var/log/nginx && \
-    chown -R nginxuser:nginxgroup /var/run && \
     chown -R nginxuser:nginxgroup /usr/share/nginx/html && \
     chown -R nginxuser:nginxgroup /etc/nginx
 
@@ -92,10 +91,10 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
-ENTRYPOINT ["dumb-init", "--"]
+ENTRYPOINT ["nginx"]
 
 # Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["-g", "daemon off;"]
 
 # Final stage selection based on build argument
 FROM ${BUILD_ENV} AS final

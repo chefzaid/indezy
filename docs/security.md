@@ -23,10 +23,15 @@ Test escape hatch:
 
 ## Authentication
 
+Production authentication is centralized in the shared Keycloak `swirlit` realm. The NGINX Ingress sends unauthenticated browser traffic to the cluster OAuth2 Proxy. On startup, Angular calls `GET /api/auth/sso`; Spring validates the forwarded Keycloak access token's signature, issuer, expiry, and `oauth2-proxy` audience through the realm JWKS before linking its verified email to an existing account or creating an Indezy profile. Only then does the API issue Indezy's existing local bearer token.
+
+The Keycloak password never reaches Indezy. Local login and registration remain available for development, while the production ingress authenticates the UI and API before either is served.
+
 Implemented auth endpoints:
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
+- `GET /api/auth/sso`
 
 Successful auth returns a JWT. The frontend stores and attaches that token through `authInterceptor`.
 
@@ -238,6 +243,12 @@ Before enabling broad uploads:
 - enforce ownership on download
 - add size, retention, and deletion rules
 
+## Software Supply Chain and Code Quality
+
+Required `01-build` and `03-package` are separate from optional `02-test`. Optional manual `01-e2e`, allowed-to-fail `02-quality`, and independent `03-security` are verify jobs; standard mode leaves quality/security manual and full mode runs them automatically. Trivy scans dependencies, IaC, and secrets, retains JSON/SARIF findings for seven days, and exits nonzero on high/critical findings without becoming a deployment gate. `01-release` depends only on the required build path.
+
+The manual release-publication job publishes immutable, checksummed JAR and SPA archives to GitLab's registries; deployment starts only after publication passes. Daemonless Kaniko reuses 30-day registry-backed image layers without privileged runner access. Credentials remain in Vault, masked project CI variables, or short-lived GitLab job credentials.
+
 ## Security Backlog
 
 Priority items:
@@ -248,7 +259,6 @@ Priority items:
 - wire Actuator safely and expose only appropriate endpoints
 - introduce account deletion and GDPR export
 - add audit log for sensitive account actions
-- add dependency vulnerability scanning in CI
 - review CORS and Swagger exposure for production
 
 ## Review Checklist For Security-Sensitive Changes
@@ -270,4 +280,28 @@ Before merging:
 - [Deployment](./deployment.md)
 - [Operations](./operations.md)
 - [Data Model](./data-model.md)
-- [ADR Index](./adr/README.md)
+- [Architecture Overview and ADR Index](./architecture.md)
+
+### Runtime dependency maintenance
+
+Spring Boot 4.1.1 supplies patched Jackson, Log4j and PostgreSQL JDBC
+dependencies. Tomcat remains overridden to 11.0.25 for CVE-2026-65182,
+CVE-2026-65905 and CVE-2026-68525 until Spring Boot manages a fixed version.
+The web runtime uses digest-pinned NGINX 1.30.4 on Alpine, and both CI runtime
+Dockerfiles apply Alpine security updates before dropping privileges. Rebuild
+and scan packaged images to verify both application and OS dependencies.
+NGINX runs directly as PID 1 and supervises its own workers; the web image and
+Kubernetes workload do not depend on an additional init executable. Validate
+the published image's startup and graceful termination as well as its scan.
+
+### Container configuration hardening
+
+The application workloads run with UID and GID 10001, above the host system-user
+range, with the existing read-only filesystem, dropped capabilities and runtime
+seccomp profile. Writable application data and temporary files use explicit
+volumes.
+
+Bare-metal database helper jobs consume the patched PostgreSQL 18 client image
+maintained by `bm-cluster`. The platform supplies `platform-registry-auth`, a
+Vault-backed credential restricted to pulling platform images. The application
+repository owns the helper job configuration and immutable image digest.

@@ -3,13 +3,13 @@ export const environment = {
   apiUrl: '/api',
   oauth: {
     google: {
-      clientId: process.env['GOOGLE_CLIENT_ID'] || ''
+      clientId: ''
     },
     github: {
-      clientId: process.env['GITHUB_CLIENT_ID'] || ''
+      clientId: ''
     },
     microsoft: {
-      clientId: process.env['MICROSOFT_CLIENT_ID'] || ''
+      clientId: ''
     }
   }
 };

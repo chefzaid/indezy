@@ -9,6 +9,7 @@ export interface LoginResponse {
   token: string;
   user: {
     id: number;
+    accountId?: number;
     email: string;
     firstName: string;
     lastName: string;
@@ -24,6 +25,7 @@ export interface RegisterRequest {
 
 export interface User {
   id: number;
+  accountId?: number;
   email: string;
   firstName: string;
   lastName: string;

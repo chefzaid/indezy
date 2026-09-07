@@ -103,6 +103,8 @@
     "loginTitle": "Connexion à Indezy",
     "loginSubtitle": "Gérez vos missions freelance en toute simplicité",
     "login": "Se connecter",
+    "continueWithKeycloak": "Continuer avec Keycloak",
+    "orSignInLocally": "ou se connecter localement",
     "loggingIn": "Connexion...",
     "loginSuccess": "Connexion réussie !",
     "loginError": "Erreur de connexion. Veuillez réessayer.",

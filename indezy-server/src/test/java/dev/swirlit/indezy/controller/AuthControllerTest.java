@@ -160,4 +160,25 @@ class AuthControllerTest {
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
+
+    @Test
+    void sso_ShouldReturnUnauthorized_WhenIngressIdentityIsMissing() {
+        when(authService.loginWithKeycloak(null)).thenThrow(new RuntimeException("missing token"));
+
+        ResponseEntity<LoginResponse> response = authController.sso(null);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    void sso_ShouldReturnSession_WhenIngressIdentityIsValid() {
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setToken("jwt-token");
+        when(authService.loginWithKeycloak("keycloak-token")).thenReturn(loginResponse);
+
+        ResponseEntity<LoginResponse> response = authController.sso("keycloak-token");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isSameAs(loginResponse);
+    }
 }

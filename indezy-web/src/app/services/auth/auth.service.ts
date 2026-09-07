@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, firstValueFrom, Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, LoginResponse, RegisterRequest, User } from '../../models/auth.models';
@@ -13,6 +13,8 @@ export class AuthService {
   private readonly API_URL = `${environment.apiUrl}/auth`;
   private readonly TOKEN_KEY = 'indezy_token';
   private readonly USER_KEY = 'indezy_user';
+  private readonly SSO_ATTEMPT_KEY = 'indezy.keycloak-sso-attempt';
+  private readonly SSO_START_URL = 'https://keycloak.swirlit.dev/oauth2/start';
 
   private readonly currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -46,7 +48,44 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSubject.next(null);
-    this.router.navigate(['/login']);
+    if (environment.production) {
+      sessionStorage.setItem(this.SSO_ATTEMPT_KEY, 'pending');
+      const returnUrl = `${window.location.origin}/`;
+      window.location.assign(
+        `https://keycloak.swirlit.dev/oauth2/sign_out?rd=${encodeURIComponent(returnUrl)}`
+      );
+    } else {
+      this.router.navigate(['/login']);
+    }
+  }
+
+  async initializeSso(enabled = environment.production): Promise<void> {
+    if (!enabled) {
+      return;
+    }
+
+    const sessionExchanged = await firstValueFrom(
+      this.http.get<LoginResponse>(`${this.API_URL}/sso`).pipe(
+        tap((response: LoginResponse) => {
+          this.setToken(response.token);
+          this.setUser(response.user);
+          this.currentUserSubject.next(response.user);
+          sessionStorage.removeItem(this.SSO_ATTEMPT_KEY);
+        }),
+        map(() => true),
+        catchError(() => of(false))
+      )
+    );
+
+    if (!sessionExchanged && sessionStorage.getItem(this.SSO_ATTEMPT_KEY) !== 'pending') {
+      this.startSsoLogin();
+    }
+  }
+
+  startSsoLogin(returnUrl = window.location.href): void {
+    sessionStorage.setItem(this.SSO_ATTEMPT_KEY, 'pending');
+    const loginUrl = `${this.SSO_START_URL}?rd=${encodeURIComponent(returnUrl)}`;
+    window.location.assign(loginUrl);
   }
 
   getToken(): string | null {

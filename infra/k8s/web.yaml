@@ -16,11 +16,23 @@ spec:
       labels:
         app: indezy-web
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
       imagePullSecrets:
         - name: indezy-registry-auth
       containers:
         - name: indezy-web
-          image: registry.swirlit.dev/root/indezy/indezy-web:initial
+          image: registry.swirlit.dev/swirlit/indezy/indezy-web:initial
+          # NGINX supervises its own workers and handles termination as PID 1.
+          command: ["nginx"]
+          args: ["-g", "daemon off;"]
           ports:
             - containerPort: 8080
           livenessProbe:
@@ -40,6 +52,16 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 3
+          volumeMounts:
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+            - name: tmp
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
           resources:
             requests:
               memory: "64Mi"
@@ -47,6 +69,11 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "200m"
+      volumes:
+        - name: nginx-cache
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
 
 ---
 apiVersion: v1

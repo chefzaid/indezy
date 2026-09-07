@@ -14,8 +14,16 @@ spec:
   template:
     spec:
       restartPolicy: OnFailure
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
       imagePullSecrets:
         - name: indezy-registry-auth
+        - name: platform-registry-auth
       containers:
         - name: db-setup
           image: postgres:16-alpine
@@ -66,3 +74,8 @@ spec:
                 secretKeyRef:
                   name: indezy-server-secret
                   key: DB_PASSWORD
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

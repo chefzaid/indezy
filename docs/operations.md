@@ -7,11 +7,13 @@ This runbook covers the Indezy application layer. Use the `bm-cluster` runbooks 
 | Surface | Address |
 |---|---|
 | application | `https://indezy.swirlit.dev` |
-| GitLab project and pipelines | `https://gitlab.swirlit.dev/root/indezy` |
+| GitLab project and pipelines | `https://gitlab.swirlit.dev/swirlit/indezy` |
+| SonarQube quality dashboard | `https://sonarqube.swirlit.dev/dashboard?id=swirlit%3Aindezy` |
 | Argo CD application | `https://argocd.swirlit.dev/applications/indezy` |
 | backend service | `indezy-server.apps.svc.cluster.local:8080` |
 | frontend service | `indezy-web.apps.svc.cluster.local:8080` |
 | shared PostgreSQL | `postgres.swirlit.internal:5432` |
+| Prometheus metrics | `indezy-server.apps.svc.cluster.local:8080/api/actuator/prometheus` |
 
 ## First Checks After A Rollout
 
@@ -37,6 +39,19 @@ kubectl logs deployment/indezy-web -n apps --tail=200
 kubectl get pods -n apps
 ```
 
+The Kubernetes profile writes Logstash-compatible JSON to stdout. Fluent Bit
+automatically enriches and indexes it in Elasticsearch; use Kibana's generic
+**Applications Namespace Logs** dashboard and filter `app` to `indezy-server`.
+Prometheus discovers the backend pod annotations automatically, and Grafana
+loads the repository-owned **Indezy Overview** dashboard from its labeled
+ConfigMap.
+
+The repository-owned **Indezy — Application Logs** Kibana dashboard is imported
+with the platform-managed least-privilege dashboard bootstrap credential. It is
+fixed to `indezy-server` and `indezy-web`, separates warnings/errors from the
+complete recent stream, defaults to the last 24 hours, and refreshes every 30
+seconds.
+
 The database setup is an Argo CD hook and is deleted after success. During a failing sync, locate and inspect it with:
 
 ```bash
@@ -45,6 +60,10 @@ kubectl logs job/indezy-db-setup -n apps
 ```
 
 ## Common Incidents
+
+### Keycloak SSO exchange fails
+
+An unauthenticated browser request should be sent through `https://keycloak.swirlit.dev/oauth2/start` to the `swirlit` realm. After authentication, `GET /api/auth/sso` must receive an ingress-provided access token and return an Indezy session. Check the OAuth2 Proxy and Ingress annotations first, then verify the public issuer, internal JWKS URI, and `oauth2-proxy` audience in `infra/k8s/server.yaml`. Never work around the failure by trusting identity headers without validating the signed token.
 
 ### Backend waits for PostgreSQL
 
@@ -78,7 +97,7 @@ Confirm the `/api` ingress route, ready backend endpoints, and the backend `/api
 
 ### Images published but deployment did not change
 
-Check the deploy job, the `deploy: ... [skip ci]` commit, and Argo CD's revision and conditions. CI intentionally fails when `main` advanced during a pipeline instead of overwriting newer desired state.
+Check the `01-release` job, the `deploy: ... [skip ci]` commit, and Argo CD's revision and conditions. CI intentionally fails when `main` advanced during a pipeline instead of overwriting newer desired state.
 
 ### Argo CD reverts a manual change
 

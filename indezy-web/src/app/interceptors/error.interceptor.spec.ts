@@ -118,14 +118,16 @@ describe('errorInterceptor', () => {
   });
 
   describe('404 Not Found errors', () => {
-    it('should navigate to error page on 404 error', () => {
+    it('should leave resource-level 404 handling to the requesting component', () => {
       const testUrl = '/api/nonexistent';
+      spyOn(console, 'error');
 
       httpClient.get(testUrl).subscribe({
         next: () => fail('Expected error'),
         error: (error: HttpErrorResponse) => {
           expect(error.status).toBe(404);
-          expect(router.navigate).toHaveBeenCalledWith(['/404']);
+          expect(router.navigate).not.toHaveBeenCalled();
+          expect(console.error).toHaveBeenCalledWith('Resource not found:', error);
         }
       });
 

@@ -395,12 +395,12 @@ fi
 cd ..
 echo "⏳ Waiting for indezy-server to start..."
 for _ in {1..60}; do
-    if bash infra/scripts/backend-is-healthy.sh; then
+    if bash infra/scripts/check-backend-health.sh; then
         break
     fi
     sleep 1
 done
-if ! bash infra/scripts/backend-is-healthy.sh; then
+if ! bash infra/scripts/check-backend-health.sh; then
     echo "❌ indezy-server did not become healthy. Recent logs:"
     tail -n 40 indezy-server.log 2>/dev/null || true
     tail -n 40 indezy-server-error.log 2>/dev/null || true
@@ -553,7 +553,7 @@ echo "Backend (port 8080):"
 if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
     if netstat.exe -an | findstr.exe :8080 >/dev/null 2>&1; then
         echo "  ✅ Running"
-        if bash infra/scripts/backend-is-healthy.sh >/dev/null 2>&1; then
+        if bash infra/scripts/check-backend-health.sh >/dev/null 2>&1; then
             echo "  ✅ Health check passed"
         else
             echo "  ⚠️  Health check failed"

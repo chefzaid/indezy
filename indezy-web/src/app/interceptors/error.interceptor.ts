@@ -18,8 +18,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         // Forbidden - redirect to unauthorized page
         router.navigate(['/404']);
       } else if (error.status === 404) {
-        // Not found - redirect to 404 page
-        router.navigate(['/404']);
+        // Resource-level misses belong to the requesting component. Redirecting
+        // globally would replace an otherwise healthy authenticated page.
+        console.error('Resource not found:', error);
       } else if (error.status === 0) {
         // Network error
         console.error('Network error occurred:', error);

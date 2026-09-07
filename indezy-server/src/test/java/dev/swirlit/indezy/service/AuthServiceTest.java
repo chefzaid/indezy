@@ -4,7 +4,10 @@ import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.RegisterRequest;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
+import dev.swirlit.indezy.model.enums.EmploymentStatus;
+import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import dev.swirlit.indezy.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +17,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import java.util.Optional;
 
@@ -29,15 +35,22 @@ class AuthServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private FreelanceRepository freelanceRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Mock
     private JwtUtil jwtUtil;
 
+    @Mock
+    private JwtDecoder keycloakJwtDecoder;
+
     @InjectMocks
     private AuthService authService;
 
     private User testUser;
+    private Freelance testFreelance;
     private LoginRequest loginRequest;
     private RegisterRequest registerRequest;
 
@@ -49,6 +62,12 @@ class AuthServiceTest {
         testUser.setFirstName("John");
         testUser.setLastName("Doe");
         testUser.setPasswordHash("hashedPassword");
+
+        testFreelance = new Freelance();
+        testFreelance.setId(41L);
+        testFreelance.setEmail("test@example.com");
+        lenient().when(freelanceRepository.findByEmail(any(String.class)))
+                .thenReturn(Optional.of(testFreelance));
 
         loginRequest = new LoginRequest();
         loginRequest.setEmail("test@example.com");
@@ -74,7 +93,8 @@ class AuthServiceTest {
         // Then
         assertThat(response).isNotNull();
         assertThat(response.getToken()).isEqualTo("jwt-token");
-        assertThat(response.getUser().getId()).isEqualTo(1L);
+        assertThat(response.getUser().getId()).isEqualTo(41L);
+        assertThat(response.getUser().getAccountId()).isEqualTo(1L);
         assertThat(response.getUser().getEmail()).isEqualTo("test@example.com");
         assertThat(response.getUser().getFirstName()).isEqualTo("John");
         assertThat(response.getUser().getLastName()).isEqualTo("Doe");
@@ -130,7 +150,8 @@ class AuthServiceTest {
         // Then
         assertThat(response).isNotNull();
         assertThat(response.getToken()).isEqualTo("jwt-token");
-        assertThat(response.getUser().getId()).isEqualTo(1L);
+        assertThat(response.getUser().getId()).isEqualTo(41L);
+        assertThat(response.getUser().getAccountId()).isEqualTo(1L);
         assertThat(response.getUser().getEmail()).isEqualTo("test@example.com");
         assertThat(response.getUser().getFirstName()).isEqualTo("John");
         assertThat(response.getUser().getLastName()).isEqualTo("Doe");
@@ -149,5 +170,99 @@ class AuthServiceTest {
                 .hasMessage("User with this email already exists");
 
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void loginWithKeycloak_ShouldLinkVerifiedIdentityAndReturnLocalSession() {
+        Jwt identity = Jwt.withTokenValue("keycloak-token")
+                .header("alg", "RS256")
+                .subject("keycloak-user-id")
+                .claim("email", "test@example.com")
+                .claim("email_verified", true)
+                .claim("preferred_username", "testuser")
+                .build();
+        when(keycloakJwtDecoder.decode("keycloak-token")).thenReturn(identity);
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(jwtUtil.generateToken("test@example.com", 1L)).thenReturn("jwt-token");
+
+        LoginResponse response = authService.loginWithKeycloak("keycloak-token");
+
+        assertThat(response.getToken()).isEqualTo("jwt-token");
+        assertThat(response.getUser().getEmail()).isEqualTo("test@example.com");
+        verify(keycloakJwtDecoder).decode("keycloak-token");
+    }
+
+    @Test
+    void loginWithKeycloak_ShouldProvisionAProfileForANewVerifiedIdentity() {
+        Jwt identity = Jwt.withTokenValue("keycloak-token")
+                .header("alg", "RS256")
+                .subject("keycloak-user-id")
+                .claim("email", "ZAID@swirlit.dev")
+                .claim("email_verified", true)
+                .claim("preferred_username", "zaid")
+                .build();
+        when(keycloakJwtDecoder.decode("keycloak-token")).thenReturn(identity);
+        when(userRepository.findByEmail("zaid@swirlit.dev")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(any(String.class))).thenReturn("unusable-random-hash");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User saved = invocation.getArgument(0);
+            saved.setId(7L);
+            return saved;
+        });
+        when(freelanceRepository.findByEmail("zaid@swirlit.dev")).thenReturn(Optional.empty());
+        when(freelanceRepository.save(any(Freelance.class))).thenAnswer(invocation -> {
+            Freelance saved = invocation.getArgument(0);
+            saved.setId(8L);
+            return saved;
+        });
+        when(jwtUtil.generateToken("zaid@swirlit.dev", 7L)).thenReturn("jwt-token");
+
+        LoginResponse response = authService.loginWithKeycloak("keycloak-token");
+
+        assertThat(response.getUser().getFirstName()).isEqualTo("zaid");
+        assertThat(response.getUser().getLastName()).isEqualTo("User");
+        assertThat(response.getUser().getEmail()).isEqualTo("zaid@swirlit.dev");
+        assertThat(response.getUser().getId()).isEqualTo(8L);
+        assertThat(response.getUser().getAccountId()).isEqualTo(7L);
+        verify(userRepository).save(argThat(user ->
+                "unusable-random-hash".equals(user.getPasswordHash())));
+        verify(freelanceRepository).save(argThat(freelance ->
+                freelance.getStatus() == EmploymentStatus.FREELANCE
+                        && "zaid@swirlit.dev".equals(freelance.getEmail())));
+    }
+
+    @Test
+    void loginWithKeycloak_ShouldRejectMissingOrIncompleteIdentity() {
+        assertThatThrownBy(() -> authService.loginWithKeycloak(" "))
+                .isInstanceOf(BadCredentialsException.class);
+
+        Jwt identity = Jwt.withTokenValue("keycloak-token")
+                .header("alg", "RS256")
+                .subject("keycloak-user-id")
+                .claim("email", "test@example.com")
+                .claim("email_verified", false)
+                .claim("preferred_username", "testuser")
+                .build();
+        when(keycloakJwtDecoder.decode("keycloak-token")).thenReturn(identity);
+
+        assertThatThrownBy(() -> authService.loginWithKeycloak("keycloak-token"))
+                .isInstanceOf(BadCredentialsException.class);
+    }
+
+    @Test
+    void loginWithKeycloak_ShouldRejectSoftDeletedAccount() {
+        Jwt identity = Jwt.withTokenValue("keycloak-token")
+                .header("alg", "RS256")
+                .subject("keycloak-user-id")
+                .claim("email", "test@example.com")
+                .claim("email_verified", true)
+                .claim("preferred_username", "testuser")
+                .build();
+        testUser.setDeletedAt(java.time.LocalDateTime.now());
+        when(keycloakJwtDecoder.decode("keycloak-token")).thenReturn(identity);
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
+
+        assertThatThrownBy(() -> authService.loginWithKeycloak("keycloak-token"))
+                .isInstanceOf(BadCredentialsException.class);
     }
 }

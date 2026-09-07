@@ -1,0 +1,33 @@
+FROM docker.io/library/nginx:1.30.4-alpine@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c AS production
+
+RUN apk upgrade --no-cache \
+    && addgroup -g 1001 -S nginxgroup \
+    && adduser -u 1001 -S nginxuser -G nginxgroup
+
+# Angular's application builder nests browser assets below browser/. Copy the
+# contents of that directory into Nginx's document root; copying its parent
+# leaves the base image's default index.html in place.
+COPY --chown=1001:1001 dist/indezy-web/browser/ /usr/share/nginx/html/
+COPY nginx.conf /etc/nginx/nginx.conf
+
+RUN mkdir -p /var/cache/nginx/client_temp \
+    /var/cache/nginx/proxy_temp \
+    /var/cache/nginx/fastcgi_temp \
+    /var/cache/nginx/uwsgi_temp \
+    /var/cache/nginx/scgi_temp \
+    /var/log/nginx \
+    && chown -R nginxuser:nginxgroup /var/cache/nginx \
+    /var/log/nginx \
+    /usr/share/nginx/html \
+    /etc/nginx
+
+USER nginxuser
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+
+ENTRYPOINT ["nginx"]
+
+CMD ["-g", "daemon off;"]
