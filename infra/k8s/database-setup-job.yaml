@@ -23,6 +23,7 @@ spec:
           type: RuntimeDefault
       imagePullSecrets:
         - name: indezy-registry-auth
+        - name: platform-registry-auth
       containers:
         - name: db-setup
           image: postgres:16-alpine

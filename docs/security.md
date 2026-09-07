@@ -293,3 +293,15 @@ and scan packaged images to verify both application and OS dependencies.
 NGINX runs directly as PID 1 and supervises its own workers; the web image and
 Kubernetes workload do not depend on an additional init executable. Validate
 the published image's startup and graceful termination as well as its scan.
+
+### Container configuration hardening
+
+The application workloads run with UID and GID 10001, above the host system-user
+range, with the existing read-only filesystem, dropped capabilities and runtime
+seccomp profile. Writable application data and temporary files use explicit
+volumes.
+
+Bare-metal database helper jobs consume the patched PostgreSQL 18 client image
+maintained by `bm-cluster`. The platform supplies `platform-registry-auth`, a
+Vault-backed credential restricted to pulling platform images. The application
+repository owns the helper job configuration and immutable image digest.

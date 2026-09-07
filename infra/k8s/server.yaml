@@ -38,14 +38,15 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1001
-        runAsGroup: 1001
-        fsGroup: 1001
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
         fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
           type: RuntimeDefault
       imagePullSecrets:
         - name: indezy-registry-auth
+        - name: platform-registry-auth
       initContainers:
         - name: wait-for-db
           image: postgres:15-alpine
@@ -64,6 +65,13 @@ spec:
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
       containers:
         - name: indezy-server
           image: registry.swirlit.dev/swirlit/indezy/indezy-server:initial
