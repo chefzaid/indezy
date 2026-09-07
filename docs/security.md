@@ -281,3 +281,12 @@ Before merging:
 - [Operations](./operations.md)
 - [Data Model](./data-model.md)
 - [Architecture Overview and ADR Index](./architecture.md)
+
+### Runtime dependency maintenance
+
+Spring Boot 4.1.1 supplies patched Jackson, Log4j and PostgreSQL JDBC
+dependencies. Tomcat remains overridden to 11.0.25 for CVE-2026-65182,
+CVE-2026-65905 and CVE-2026-68525 until Spring Boot manages a fixed version.
+The web runtime uses digest-pinned NGINX 1.30.4 on Alpine, and both CI runtime
+Dockerfiles apply Alpine security updates before dropping privileges. Rebuild
+and scan packaged images to verify both application and OS dependencies.

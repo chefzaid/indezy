@@ -56,7 +56,7 @@ ENTRYPOINT ["dumb-init", "--"]
 CMD ["npm", "start"]
 
 # Stage 3: Production runtime (with Nginx)
-FROM docker.io/library/nginx:1.25-alpine AS production
+FROM docker.io/library/nginx:1.30.4-alpine@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c AS production
 
 # Install security updates and create non-root user
 RUN apk update && apk upgrade && \
