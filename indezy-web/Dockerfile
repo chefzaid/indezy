@@ -60,7 +60,6 @@ FROM docker.io/library/nginx:1.30.4-alpine@sha256:dc5069ad14f19660b141b21236140b
 
 # Install security updates and create non-root user
 RUN apk update && apk upgrade && \
-    apk add --no-cache dumb-init && \
     addgroup -g 1001 -S nginxgroup && \
     adduser -u 1001 -S nginxuser -G nginxgroup
 
@@ -92,10 +91,10 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
-ENTRYPOINT ["dumb-init", "--"]
+ENTRYPOINT ["nginx"]
 
 # Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["-g", "daemon off;"]
 
 # Final stage selection based on build argument
 FROM ${BUILD_ENV} AS final

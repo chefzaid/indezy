@@ -290,3 +290,6 @@ CVE-2026-65905 and CVE-2026-68525 until Spring Boot manages a fixed version.
 The web runtime uses digest-pinned NGINX 1.30.4 on Alpine, and both CI runtime
 Dockerfiles apply Alpine security updates before dropping privileges. Rebuild
 and scan packaged images to verify both application and OS dependencies.
+NGINX runs directly as PID 1 and supervises its own workers; the web image and
+Kubernetes workload do not depend on an additional init executable. Validate
+the published image's startup and graceful termination as well as its scan.
