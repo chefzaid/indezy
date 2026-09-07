@@ -30,6 +30,9 @@ spec:
       containers:
         - name: indezy-web
           image: registry.swirlit.dev/swirlit/indezy/indezy-web:initial
+          # NGINX supervises its own workers and handles termination as PID 1.
+          command: ["nginx"]
+          args: ["-g", "daemon off;"]
           ports:
             - containerPort: 8080
           livenessProbe:
