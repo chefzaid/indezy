@@ -64,7 +64,7 @@ The app bootstrap generates strong runtime values when `apps/indezy/runtime` doe
 
 ## Delivery Pipeline, Images, and Artifacts
 
-The graph shows ordered build, test, package, E2E, quality, security, release, deploy, and version jobs. Tests are non-blocking and E2E is optional/manual. Standard mode leaves quality and Trivy security manual; `PIPELINE_MODE=full` runs both independent, non-blocking reports automatically and automates release and deploy while E2E remains manual. `03-security` is ordered after `02-quality` but has no dependency on it.
+The graph shows ordered build, test, package, E2E, quality, security, release, deploy, and version jobs. Tests are non-blocking and E2E is optional/manual. Default-branch quality runs automatically. Standard mode leaves Trivy security manual; `PIPELINE_MODE=full` runs both independent, non-blocking reports automatically and automates release and deploy while E2E remains manual. `03-security` is ordered after `02-quality` but has no dependency on it.
 
 The release job publishes:
 
@@ -100,7 +100,7 @@ Every GitHub push starts `.github/workflows/sync-gitlab.yml` directly. Every Git
 
 ## Delivery Flow
 
-Normal pipelines run `01-build`, `02-test`, and `03-package` automatically and expose E2E, quality, security, release, and version changes manually. Full mode automates non-blocking quality/security reporting, release, and deploy while leaving E2E manual. Release then:
+Normal pipelines run `01-build`, `02-test`, and `03-package` automatically and default-branch quality automatically, with E2E, security, release, and version changes available manually. Full mode automates non-blocking quality/security reporting, release, and deploy while leaving E2E manual. Release then:
 
 1. consumes the successful backend and frontend build artifacts;
 2. publishes immutable application archives, checksums, server images, and web images using 30-day registry-backed Kaniko caching;
@@ -153,3 +153,14 @@ kubectl rollout status deployment/indezy-web -n apps
 ```
 
 Rollback by reverting or changing the desired image-tag commit on `main`. Do not patch live Deployments because Argo CD self-healing restores Git's desired state.
+
+## Automatic Sonar coverage
+
+The platform discovers this repository through its Argo CD workloads in `apps`.
+`.sonar-auto.json` declares the CI contract. `SONAR_SCAN_ONLY=true` on the default
+branch runs only compilation, tests/coverage and `02-quality`; it excludes image
+packaging, browser/security jobs, release, deployment and version changes.
+The platform provisions the Sonar project and masked analysis token, and requests
+a scan when analysis is missing or more than 24 hours old. Normal default-branch
+pipelines also run quality automatically. Submission failures fail the quality
+job visibly; quality findings remain independent of deployment permission.

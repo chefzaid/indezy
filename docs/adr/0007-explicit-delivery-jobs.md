@@ -28,3 +28,12 @@ Indezy needs automatic code feedback, explicit control over browser and producti
 - Release is structurally independent of E2E, Sonar, and audit status; deploy is structurally dependent on release status.
 - GitLab Community Edition lacks some paid governance features; bootstrap configures the strongest available controls without pretending those features exist.
 - Release reuses successful build outputs and is independent of quality-report status.
+
+## Amendment: automatic namespace coverage (2026-09-07)
+
+Default-branch `02-quality` is automatic in standard and full pipelines. The
+platform discovers repositories from Argo-owned workloads in `apps` and provisions
+Sonar credentials. `.sonar-auto.json` declares the `SONAR_SCAN_ONLY=true` contract:
+only build, test and quality run in scheduled analysis pipelines. Package, E2E,
+security, release, deploy and version jobs are absent. Failed scanner submissions
+fail the non-blocking quality job visibly; quality gates do not authorize release.
