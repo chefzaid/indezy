@@ -17,7 +17,7 @@
       <div class="form-row">
         <mat-form-field appearance="outline" class="date-field">
           <mat-label>Date</mat-label>
-          <input
+          <input aria-label="Date"
             matInput
             [matDatepicker]="datePicker"
             formControlName="date"
@@ -34,7 +34,7 @@
 
         <mat-form-field appearance="outline" class="time-field">
           <mat-label>{{ 'steps.time' | translate }}</mat-label>
-          <input
+          <input aria-label="{{ 'steps.time' | translate }}"
             matInput
             type="time"
             formControlName="time"
@@ -50,7 +50,7 @@
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'steps.notesOptional' | translate }}</mat-label>
-        <textarea
+        <textarea aria-label="{{ 'steps.notesOptional' | translate }}"
           matInput
           formControlName="notes"
           rows="3"

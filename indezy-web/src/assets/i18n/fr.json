@@ -761,6 +761,7 @@
     "passwordChanged": "Mot de passe changé avec succès",
     "preferencesUpdated": "Préférences mises à jour avec succès",
     "notificationsUpdated": "Notifications mises à jour avec succès",
+    "changeAvatar": "Modifier la photo de profil",
     "avatarUpdated": "Photo de profil mise à jour",
     "dataExported": "Données exportées avec succès",
     "tabs": {

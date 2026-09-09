@@ -32,7 +32,7 @@ export class RangeSliderFilterComponent implements OnInit {
   rangeForm: FormGroup;
 
   private readonly destroyRef = inject(DestroyRef);
-  constructor(private fb: FormBuilder) {
+  constructor(private readonly fb: FormBuilder) {
     this.rangeForm = this.fb.group({
       minSlider: [0],
       maxSlider: [100],

@@ -8,6 +8,7 @@ import dev.swirlit.indezy.model.enums.ProjectStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,17 +41,17 @@ final class DashboardReminders {
                 || project.getUpdatedAt() == null) {
                 continue;
             }
-            long daysSinceActivity = ChronoUnit.DAYS.between(project.getUpdatedAt(), now);
-            if (daysSinceActivity < STALE_THRESHOLD_DAYS) {
-                continue;
+            long daysSinceActivity = ChronoUnit.DAYS.between(project.getUpdatedAt().atZone(ZoneId.systemDefault()),
+                now.atZone(ZoneId.systemDefault()));
+            if (daysSinceActivity >= STALE_THRESHOLD_DAYS) {
+                stale.add(DashboardStatsDto.StaleOpportunity.builder()
+                    .projectId(project.getId())
+                    .role(project.getRole())
+                    .clientName(project.getClient() != null ? project.getClient().getCompanyName() : null)
+                    .status(status.name())
+                    .daysSinceActivity(daysSinceActivity)
+                    .build());
             }
-            stale.add(DashboardStatsDto.StaleOpportunity.builder()
-                .projectId(project.getId())
-                .role(project.getRole())
-                .clientName(project.getClient() != null ? project.getClient().getCompanyName() : null)
-                .status(status.name())
-                .daysSinceActivity(daysSinceActivity)
-                .build());
         }
         stale.sort(Comparator.comparingLong(DashboardStatsDto.StaleOpportunity::getDaysSinceActivity).reversed());
         return stale;
@@ -71,16 +72,15 @@ final class DashboardReminders {
             }
             LocalDate endDate = project.getStartDate().plusMonths(project.getDurationInMonths());
             long daysUntilEnd = ChronoUnit.DAYS.between(today, endDate);
-            if (daysUntilEnd < 0 || daysUntilEnd > threshold) {
-                continue;
+            if (daysUntilEnd >= 0 && daysUntilEnd <= threshold) {
+                ending.add(DashboardStatsDto.MissionEndingSoon.builder()
+                    .projectId(project.getId())
+                    .role(project.getRole())
+                    .clientName(project.getClient() != null ? project.getClient().getCompanyName() : null)
+                    .endDate(endDate)
+                    .daysUntilEnd(daysUntilEnd)
+                    .build());
             }
-            ending.add(DashboardStatsDto.MissionEndingSoon.builder()
-                .projectId(project.getId())
-                .role(project.getRole())
-                .clientName(project.getClient() != null ? project.getClient().getCompanyName() : null)
-                .endDate(endDate)
-                .daysUntilEnd(daysUntilEnd)
-                .build());
         }
         ending.sort(Comparator.comparingLong(DashboardStatsDto.MissionEndingSoon::getDaysUntilEnd));
         return ending;
@@ -106,16 +106,15 @@ final class DashboardReminders {
                 renewalDate = renewalDate.plusMonths(project.getOrderRenewalInMonths());
             }
             long daysUntilRenewal = ChronoUnit.DAYS.between(today, renewalDate);
-            if (daysUntilRenewal > noticePeriodInDays) {
-                continue;
+            if (daysUntilRenewal <= noticePeriodInDays) {
+                renewals.add(DashboardStatsDto.UpcomingRenewal.builder()
+                    .projectId(project.getId())
+                    .role(project.getRole())
+                    .clientName(project.getClient() != null ? project.getClient().getCompanyName() : null)
+                    .renewalDate(renewalDate)
+                    .daysUntilRenewal(daysUntilRenewal)
+                    .build());
             }
-            renewals.add(DashboardStatsDto.UpcomingRenewal.builder()
-                .projectId(project.getId())
-                .role(project.getRole())
-                .clientName(project.getClient() != null ? project.getClient().getCompanyName() : null)
-                .renewalDate(renewalDate)
-                .daysUntilRenewal(daysUntilRenewal)
-                .build());
         }
         renewals.sort(Comparator.comparingLong(DashboardStatsDto.UpcomingRenewal::getDaysUntilRenewal));
         return renewals;
@@ -186,15 +185,14 @@ final class DashboardReminders {
                 continue;
             }
             long monthsSinceActivity = ChronoUnit.MONTHS.between(lastActivity, now);
-            if (monthsSinceActivity < DORMANT_THRESHOLD_MONTHS) {
-                continue;
+            if (monthsSinceActivity >= DORMANT_THRESHOLD_MONTHS) {
+                dormant.add(DashboardStatsDto.DormantContact.builder()
+                    .id(contact.getId())
+                    .name(contact.getFullName())
+                    .clientName(contact.getClient() != null ? contact.getClient().getCompanyName() : null)
+                    .monthsSinceActivity(monthsSinceActivity)
+                    .build());
             }
-            dormant.add(DashboardStatsDto.DormantContact.builder()
-                .id(contact.getId())
-                .name(contact.getFullName())
-                .clientName(contact.getClient() != null ? contact.getClient().getCompanyName() : null)
-                .monthsSinceActivity(monthsSinceActivity)
-                .build());
         }
         dormant.sort(Comparator.comparingLong(DashboardStatsDto.DormantContact::getMonthsSinceActivity).reversed());
         return dormant;

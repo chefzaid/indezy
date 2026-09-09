@@ -27,7 +27,7 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'common.name' | translate }} *</mat-label>
-                  <input matInput formControlName="name" [placeholder]="'sources.namePlaceholder' | translate">
+                  <input aria-label="{{ 'common.name' | translate }}" matInput formControlName="name" [placeholder]="'sources.namePlaceholder' | translate">
                   <mat-error>{{ getFieldError('name') }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
@@ -46,7 +46,7 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'sources.link' | translate }}</mat-label>
-                  <input matInput formControlName="link" placeholder="https://...">
+                  <input aria-label="{{ 'sources.link' | translate }}" matInput formControlName="link" placeholder="https://...">
                 </mat-form-field>
               </div>
               <div class="form-row">
@@ -61,12 +61,12 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'sources.popularity' | translate }} (1-5)</mat-label>
-                  <input matInput type="number" formControlName="popularityRating" min="1" max="5">
+                  <input aria-label="{{ 'sources.popularity' | translate }} (1-5)" matInput type="number" formControlName="popularityRating" min="1" max="5">
                   <mat-error>{{ getFieldError('popularityRating') }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'sources.usefulness' | translate }} (1-5)</mat-label>
-                  <input matInput type="number" formControlName="usefulnessRating" min="1" max="5">
+                  <input aria-label="{{ 'sources.usefulness' | translate }} (1-5)" matInput type="number" formControlName="usefulnessRating" min="1" max="5">
                   <mat-error>{{ getFieldError('usefulnessRating') }}</mat-error>
                 </mat-form-field>
               </div>
@@ -77,7 +77,7 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'common.notes' | translate }}</mat-label>
-                  <textarea matInput formControlName="notes" rows="4"
+                  <textarea aria-label="{{ 'common.notes' | translate }}" matInput formControlName="notes" rows="4"
                   [placeholder]="'sources.notesPlaceholder' | translate"></textarea>
                 </mat-form-field>
               </div>

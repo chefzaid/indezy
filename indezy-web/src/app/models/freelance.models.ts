@@ -1,5 +1,7 @@
 // Freelance related interfaces and types
 
+export type FreelanceStatus = 'AVAILABLE' | 'EMPLOYED' | 'UNAVAILABLE';
+
 export interface FreelanceDto {
   id?: number;
   firstName: string;
@@ -9,7 +11,7 @@ export interface FreelanceDto {
   birthDate?: string;
   address?: string;
   city?: string;
-  status: 'AVAILABLE' | 'EMPLOYED' | 'UNAVAILABLE';
+  status: FreelanceStatus;
   noticePeriodInDays?: number;
   availabilityDate?: string;
   reversionRate?: number;
@@ -28,7 +30,7 @@ export interface CreateFreelanceDto {
   birthDate?: string;
   address?: string;
   city?: string;
-  status: 'AVAILABLE' | 'EMPLOYED' | 'UNAVAILABLE';
+  status: FreelanceStatus;
   noticePeriodInDays?: number;
   availabilityDate?: string;
   reversionRate?: number;

@@ -58,10 +58,6 @@
   }
 }
 
-.tab-content {
-  padding: 24px 0;
-}
-
 .avatar-section {
   margin-bottom: 24px;
 
@@ -326,6 +322,7 @@
 
 // Custom scrollbar for tab content
 .tab-content {
+  padding: 24px 0;
   scrollbar-width: thin;
   scrollbar-color: var(--mat-primary-300) transparent;
 

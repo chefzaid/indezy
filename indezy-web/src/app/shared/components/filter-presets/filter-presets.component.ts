@@ -161,6 +161,6 @@ export class FilterPresetsComponent implements OnInit {
   }
 
   private generateId(): string {
-    return 'preset-' + Date.now() + '-' + Math.random().toString(36).substring(2, 11);
+    return 'preset-' + crypto.randomUUID();
   }
 }

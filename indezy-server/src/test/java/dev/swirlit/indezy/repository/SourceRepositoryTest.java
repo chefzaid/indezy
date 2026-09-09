@@ -253,10 +253,7 @@ class SourceRepositoryTest {
     }
 
     @Test
-    void update_ShouldModifyExistingSource() throws InterruptedException {
-        // Add a small delay to ensure updatedAt is different
-        Thread.sleep(1);
-
+    void update_ShouldModifyExistingSource() {
         testSource.setName("Updated LinkedIn");
         testSource.setPopularityRating(5);
 

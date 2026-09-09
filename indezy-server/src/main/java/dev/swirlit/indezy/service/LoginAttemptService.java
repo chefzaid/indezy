@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -23,6 +24,7 @@ public class LoginAttemptService {
     private final Clock clock;
     private final Map<String, Attempt> attemptsByKey = new ConcurrentHashMap<>();
 
+    @Autowired
     public LoginAttemptService() {
         this(Clock.systemUTC());
     }

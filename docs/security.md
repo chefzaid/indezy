@@ -33,6 +33,12 @@ Implemented auth endpoints:
 - `POST /api/auth/login`
 - `GET /api/auth/sso`
 
+The API accepts authentication through the explicit `Authorization: Bearer`
+header. CSRF middleware is disabled because API cookies and existing servlet
+sessions cannot authenticate writes. `SecurityConfigTest` verifies both their
+rejection and successful bearer-authenticated writes without a CSRF token or a
+session cookie. Revisit this choice if cookie-based API authentication is added.
+
 Successful auth returns a JWT. The frontend stores and attaches that token through `authInterceptor`.
 
 Brute-force protection: `LoginAttemptService` tracks failed logins per account (email, case-insensitive). After 5 failures within a 15-minute window the account is temporarily locked and `POST /api/auth/login` returns `429 Too Many Requests` until the window expires; a successful login clears the counter. State is in-memory per instance; IP-based and distributed (multi-instance) rate limiting remain future hardening.
@@ -99,7 +105,9 @@ Rules:
 
 ## CORS
 
-CORS is configured through `CorsConfig` and application properties.
+CORS is configured through `CorsConfig` and application properties. Controllers
+inherit this origin allowlist. Security integration tests verify that user
+updates accept the configured origin and reject an untrusted origin.
 
 Default local origins:
 
@@ -183,6 +191,13 @@ The `User` model includes:
 
 TOTP is listed in the backlog. Do not mark 2FA as implemented until enrollment, verification, recovery, disabling, and tests exist.
 
+The current `TotpService` keeps HMAC-SHA1 compatibility with its existing
+`otpauth` enrollment URIs. Its tests verify the SHA1 vectors from
+[RFC 6238 Appendix B](https://www.rfc-editor.org/rfc/rfc6238#appendix-B),
+reduced to the configured six digits. This protocol use of a keyed MAC is
+distinct from password hashing; changing its algorithm requires migrating
+enrolled authenticators.
+
 ## Data Privacy
 
 Indezy stores personal and commercially sensitive information:
@@ -228,9 +243,12 @@ Backend multipart limits are currently:
 spring:
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 5MB
+      max-request-size: 6MB
 ```
+
+The 5 MB file limit matches the avatar picker; the 6 MB request limit leaves
+room for multipart encoding. Both standard and devcontainer profiles enforce it.
 
 The project model stores document paths, but a full attachment storage/security model is not complete.
 

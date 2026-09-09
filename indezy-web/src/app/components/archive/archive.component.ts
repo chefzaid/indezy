@@ -63,9 +63,9 @@ export class ArchiveComponent implements OnInit {
 
   /** Keeps only closed (won/lost) opportunities, most recent first. */
   toArchived(projects: ProjectDto[]): ProjectDto[] {
-    const closed: ProjectStatus[] = [ProjectStatus.WON, ProjectStatus.LOST];
+    const closed = new Set([ProjectStatus.WON, ProjectStatus.LOST]);
     return projects
-      .filter(project => !!project.status && closed.includes(project.status))
+      .filter(project => !!project.status && closed.has(project.status))
       .sort((a, b) => this.startTime(b) - this.startTime(a));
   }
 

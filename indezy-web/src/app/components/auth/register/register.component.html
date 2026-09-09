@@ -18,7 +18,7 @@
           <div class="name-row">
             <mat-form-field appearance="outline" class="half-width">
               <mat-label>{{ 'common.firstName' | translate }}</mat-label>
-              <input matInput
+              <input aria-label="{{ 'common.firstName' | translate }}" matInput
                 type="text"
                 formControlName="firstName"
                 placeholder="Jean"
@@ -33,7 +33,7 @@
 
             <mat-form-field appearance="outline" class="half-width">
               <mat-label>{{ 'common.lastName' | translate }}</mat-label>
-              <input matInput
+              <input aria-label="{{ 'common.lastName' | translate }}" matInput
                 type="text"
                 formControlName="lastName"
                 placeholder="Dupont"
@@ -48,7 +48,7 @@
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'common.email' | translate }}</mat-label>
-            <input matInput
+            <input aria-label="{{ 'common.email' | translate }}" matInput
               type="email"
               formControlName="email"
               placeholder="jean.dupont@email.com"
@@ -63,7 +63,7 @@
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'common.password' | translate }}</mat-label>
-            <input matInput
+            <input aria-label="{{ 'common.password' | translate }}" matInput
               [type]="hidePassword ? 'password' : 'text'"
               formControlName="password"
               autocomplete="new-password">
@@ -84,7 +84,7 @@
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'common.confirmPassword' | translate }}</mat-label>
-            <input matInput
+            <input aria-label="{{ 'common.confirmPassword' | translate }}" matInput
               [type]="hideConfirmPassword ? 'password' : 'text'"
               formControlName="confirmPassword"
               autocomplete="new-password">

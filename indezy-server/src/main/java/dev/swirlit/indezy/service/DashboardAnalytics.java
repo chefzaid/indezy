@@ -88,26 +88,7 @@ final class DashboardAnalytics {
             List<Project> projects, Map<Long, LocalDateTime> signatureDates) {
         Map<String, long[]> totalsByGroup = new LinkedHashMap<>();
         for (Project project : projects) {
-            if (!ProjectStatus.WON.equals(project.getStatus()) || project.getCreatedAt() == null) {
-                continue;
-            }
-            LocalDateTime signature = signatureDates.get(project.getId());
-            if (signature == null) {
-                continue;
-            }
-            long days = ChronoUnit.DAYS.between(project.getCreatedAt().toLocalDate(), signature.toLocalDate());
-            if (days < 0) {
-                continue;
-            }
-            String group = project.getMiddleman() != null
-                ? project.getMiddleman().getCompanyName()
-                : (project.getClient() != null ? project.getClient().getCompanyName() : null);
-            if (group == null) {
-                continue;
-            }
-            long[] totals = totalsByGroup.computeIfAbsent(group, key -> new long[2]);
-            totals[0] += days;
-            totals[1]++;
+            addProcessDuration(project, signatureDates.get(project.getId()), totalsByGroup);
         }
         return totalsByGroup.entrySet().stream()
             .map(entry -> DashboardStatsDto.ProcessDuration.builder()
@@ -117,6 +98,30 @@ final class DashboardAnalytics {
                 .build())
             .sorted(Comparator.comparingDouble(DashboardStatsDto.ProcessDuration::getAverageDays).reversed())
             .toList();
+    }
+
+    private static void addProcessDuration(Project project, LocalDateTime signature, Map<String, long[]> totalsByGroup) {
+        if (!ProjectStatus.WON.equals(project.getStatus()) || project.getCreatedAt() == null || signature == null) {
+            return;
+        }
+        long days = ChronoUnit.DAYS.between(project.getCreatedAt().toLocalDate(), signature.toLocalDate());
+        if (days < 0) {
+            return;
+        }
+        String group = processGroup(project);
+        if (group == null) {
+            return;
+        }
+        long[] totals = totalsByGroup.computeIfAbsent(group, key -> new long[2]);
+        totals[0] += days;
+        totals[1]++;
+    }
+
+    private static String processGroup(Project project) {
+        if (project.getMiddleman() != null) {
+            return project.getMiddleman().getCompanyName();
+        }
+        return project.getClient() != null ? project.getClient().getCompanyName() : null;
     }
 
     /**

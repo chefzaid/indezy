@@ -227,10 +227,7 @@ class ClientRepositoryTest {
     }
 
     @Test
-    void update_ShouldModifyExistingClient() throws InterruptedException {
-        // Add a small delay to ensure updatedAt is different
-        Thread.sleep(1);
-
+    void update_ShouldModifyExistingClient() {
         testClient.setCompanyName("Updated Company");
         testClient.setDomain("Updated Domain");
 

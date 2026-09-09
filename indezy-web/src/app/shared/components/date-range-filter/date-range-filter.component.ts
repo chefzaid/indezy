@@ -33,7 +33,7 @@ export class DateRangeFilterComponent implements OnInit {
   dateForm: FormGroup;
 
   private readonly destroyRef = inject(DestroyRef);
-  constructor(private fb: FormBuilder) {
+  constructor(private readonly fb: FormBuilder) {
     this.dateForm = this.fb.group({
       from: [null],
       to: [null]

@@ -136,7 +136,7 @@
     .mat-mdc-form-field-error-wrapper {
       .mat-mdc-form-field-error {
         font-size: 0.75rem;
-        color: #f44336;
+        color: #c62828;
       }
     }
   }
@@ -160,12 +160,12 @@ textarea.mat-mdc-input-element {
 // Button styling
 .mat-mdc-raised-button {
   &.mat-primary {
-    background-color: var(--mat-theme-primary, #1976d2);
+    background-color: var(--mat-theme-primary, #1565c0);
     color: white;
     
     &:disabled {
-      background-color: rgba(0, 0, 0, 0.12);
-      color: rgba(0, 0, 0, 0.26);
+      background-color: #e0e0e0;
+      color: #595959;
     }
   }
 }

@@ -4,7 +4,7 @@
   <p class="import-hint">{{ 'contacts.import.hint' | translate }}</p>
   <mat-form-field appearance="outline" class="import-field">
     <mat-label>{{ 'contacts.import.label' | translate }}</mat-label>
-    <textarea matInput rows="10" [(ngModel)]="content"
+    <textarea aria-label="{{ 'contacts.import.label' | translate }}" matInput rows="10" [(ngModel)]="content"
               [placeholder]="'contacts.import.placeholder' | translate"></textarea>
   </mat-form-field>
 </mat-dialog-content>

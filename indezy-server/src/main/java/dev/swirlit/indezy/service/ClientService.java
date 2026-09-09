@@ -20,6 +20,8 @@ import java.util.List;
 @Transactional
 public class ClientService {
 
+    private static final String CLIENT_NOT_FOUND = "Client not found with id: ";
+
     private final ClientRepository clientRepository;
     private final FreelanceRepository freelanceRepository;
     private final ClientMapper clientMapper;
@@ -37,7 +39,7 @@ public class ClientService {
     public ClientDto findById(Long id) {
         log.debug("Finding client by id: {}", id);
         Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(CLIENT_NOT_FOUND + id));
         return clientMapper.toDto(client);
     }
 
@@ -62,7 +64,7 @@ public class ClientService {
         log.debug("Updating client with id: {}", id);
         
         Client existingClient = clientRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(CLIENT_NOT_FOUND + id));
         
         // Validate freelance exists if changed
         if (!existingClient.getFreelance().getId().equals(clientDto.getFreelanceId())) {
@@ -83,7 +85,7 @@ public class ClientService {
         log.debug("Deleting client with id: {}", id);
         
         Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(CLIENT_NOT_FOUND + id));
         
         clientRepository.delete(client);
         log.debug("Deleted client with id: {}", id);
@@ -129,7 +131,7 @@ public class ClientService {
     public ClientDto findByIdWithProjects(Long id) {
         log.debug("Finding client by id with projects: {}", id);
         Client client = clientRepository.findByIdWithProjects(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(CLIENT_NOT_FOUND + id));
         return clientMapper.toDto(client);
     }
 
@@ -137,7 +139,7 @@ public class ClientService {
     public ClientDto findByIdWithContacts(Long id) {
         log.debug("Finding client by id with contacts: {}", id);
         Client client = clientRepository.findByIdWithContacts(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(CLIENT_NOT_FOUND + id));
         return clientMapper.toDto(client);
     }
 

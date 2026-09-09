@@ -1,6 +1,6 @@
 <mat-form-field appearance="outline" class="search-filter">
   <mat-label>{{ config.label || 'Rechercher' }}</mat-label>
-  <input matInput
+  <input aria-label="{{ config.label || 'Rechercher' }}" matInput
     [formControl]="queryControl"
     [placeholder]="config.placeholder || 'Tapez votre recherche...'">
   @if (config.icon) {

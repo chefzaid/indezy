@@ -42,19 +42,19 @@
           <div class="filter-row">
             <mat-form-field appearance="outline" class="filter-field search-field">
               <mat-label>{{ 'common.search' | translate }}</mat-label>
-              <input matInput formControlName="searchQuery" [placeholder]="'projects.searchPlaceholder' | translate">
+              <input aria-label="{{ 'common.search' | translate }}" matInput formControlName="searchQuery" [placeholder]="'projects.searchPlaceholder' | translate">
               <mat-icon matPrefix>search</mat-icon>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'projects.minRate' | translate }}</mat-label>
-              <input matInput type="number" formControlName="minRate" placeholder="400">
+              <input aria-label="{{ 'projects.minRate' | translate }}" matInput type="number" formControlName="minRate" placeholder="400">
               <span matSuffix>€</span>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'projects.maxRate' | translate }}</mat-label>
-              <input matInput type="number" formControlName="maxRate" placeholder="800">
+              <input aria-label="{{ 'projects.maxRate' | translate }}" matInput type="number" formControlName="maxRate" placeholder="800">
               <span matSuffix>€</span>
             </mat-form-field>
 
@@ -152,28 +152,28 @@
               <div class="filter-row">
                 <mat-form-field appearance="outline" class="filter-field">
                   <mat-label>{{ 'projects.startAfter' | translate }}</mat-label>
-                  <input matInput [matDatepicker]="startFromPicker" formControlName="startDateFrom">
+                  <input aria-label="{{ 'projects.startAfter' | translate }}" matInput [matDatepicker]="startFromPicker" formControlName="startDateFrom">
                   <mat-datepicker-toggle matIconSuffix [for]="startFromPicker"></mat-datepicker-toggle>
                   <mat-datepicker #startFromPicker></mat-datepicker>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="filter-field">
                   <mat-label>{{ 'projects.startBefore' | translate }}</mat-label>
-                  <input matInput [matDatepicker]="startToPicker" formControlName="startDateTo">
+                  <input aria-label="{{ 'projects.startBefore' | translate }}" matInput [matDatepicker]="startToPicker" formControlName="startDateTo">
                   <mat-datepicker-toggle matIconSuffix [for]="startToPicker"></mat-datepicker-toggle>
                   <mat-datepicker #startToPicker></mat-datepicker>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="filter-field">
                   <mat-label>{{ 'projects.endAfter' | translate }}</mat-label>
-                  <input matInput [matDatepicker]="endFromPicker" formControlName="endDateFrom">
+                  <input aria-label="{{ 'projects.endAfter' | translate }}" matInput [matDatepicker]="endFromPicker" formControlName="endDateFrom">
                   <mat-datepicker-toggle matIconSuffix [for]="endFromPicker"></mat-datepicker-toggle>
                   <mat-datepicker #endFromPicker></mat-datepicker>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="filter-field">
                   <mat-label>{{ 'projects.endBefore' | translate }}</mat-label>
-                  <input matInput [matDatepicker]="endToPicker" formControlName="endDateTo">
+                  <input aria-label="{{ 'projects.endBefore' | translate }}" matInput [matDatepicker]="endToPicker" formControlName="endDateTo">
                   <mat-datepicker-toggle matIconSuffix [for]="endToPicker"></mat-datepicker-toggle>
                   <mat-datepicker #endToPicker></mat-datepicker>
                 </mat-form-field>
@@ -188,13 +188,13 @@
               <div class="filter-row">
                 <mat-form-field appearance="outline" class="filter-field">
                   <mat-label>{{ 'projects.client' | translate }}</mat-label>
-                  <input matInput formControlName="client" [placeholder]="'projects.clientPlaceholder' | translate">
+                  <input aria-label="{{ 'projects.client' | translate }}" matInput formControlName="client" [placeholder]="'projects.clientPlaceholder' | translate">
                   <mat-icon matPrefix>business</mat-icon>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="filter-field">
                   <mat-label>{{ 'projects.location' | translate }}</mat-label>
-                  <input matInput formControlName="location" [placeholder]="'projects.locationPlaceholder' | translate">
+                  <input aria-label="{{ 'projects.location' | translate }}" matInput formControlName="location" [placeholder]="'projects.locationPlaceholder' | translate">
                   <mat-icon matPrefix>location_on</mat-icon>
                 </mat-form-field>
               </div>
@@ -237,7 +237,7 @@
 
                 <mat-form-field appearance="outline" class="filter-field">
                   <mat-label>{{ 'projects.freeSearch' | translate }}</mat-label>
-                  <input matInput formControlName="techStack" [placeholder]="'projects.freeSearchPlaceholder' | translate">
+                  <input aria-label="{{ 'projects.freeSearch' | translate }}" matInput formControlName="techStack" [placeholder]="'projects.freeSearchPlaceholder' | translate">
                   <mat-icon matPrefix>code</mat-icon>
                 </mat-form-field>
               </div>
@@ -267,13 +267,13 @@
         <div class="reversion-controls">
           <mat-form-field appearance="outline" class="reversion-field">
             <mat-label>{{ 'projects.reversion.rate' | translate }}</mat-label>
-            <input matInput type="number" [value]="reversionRate" min="0" max="100" step="0.5"
+            <input aria-label="{{ 'projects.reversion.rate' | translate }}" matInput type="number" [value]="reversionRate" min="0" max="100" step="0.5"
               (change)="onReversionRateChange($any($event.target).value)">
             <span matSuffix>%</span>
           </mat-form-field>
           <mat-form-field appearance="outline" class="reversion-field">
             <mat-label>{{ 'projects.reversion.incomeTax' | translate }}</mat-label>
-            <input matInput type="number" [value]="incomeTaxRate" min="0" max="50" step="0.5"
+            <input aria-label="{{ 'projects.reversion.incomeTax' | translate }}" matInput type="number" [value]="incomeTaxRate" min="0" max="50" step="0.5"
               (change)="onIncomeTaxRateChange($any($event.target).value)">
             <span matSuffix>%</span>
           </mat-form-field>

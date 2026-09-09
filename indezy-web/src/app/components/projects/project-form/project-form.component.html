@@ -26,21 +26,21 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'projects.form.role' | translate }} *</mat-label>
-                  <input matInput formControlName="role" [placeholder]="'projects.form.rolePlaceholder' | translate">
+                  <input aria-label="{{ 'projects.form.role' | translate }}" matInput formControlName="role" [placeholder]="'projects.form.rolePlaceholder' | translate">
                   <mat-error>{{ getFieldError('role') }}</mat-error>
                 </mat-form-field>
               </div>
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'projects.form.description' | translate }}</mat-label>
-                  <textarea matInput formControlName="description" rows="3"
+                  <textarea aria-label="{{ 'projects.form.description' | translate }}" matInput formControlName="description" rows="3"
                   [placeholder]="'projects.form.descriptionPlaceholder' | translate"></textarea>
                 </mat-form-field>
               </div>
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'projects.form.techStack' | translate }}</mat-label>
-                  <input matInput formControlName="techStack"
+                  <input aria-label="{{ 'projects.form.techStack' | translate }}" matInput formControlName="techStack"
                     placeholder="Ex: React, Node.js, PostgreSQL">
                 </mat-form-field>
               </div>
@@ -57,7 +57,7 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.dailyRate' | translate }} *</mat-label>
-                  <input matInput type="number" formControlName="dailyRate" placeholder="600">
+                  <input aria-label="{{ 'projects.form.dailyRate' | translate }}" matInput type="number" formControlName="dailyRate" placeholder="600">
                   <span matSuffix>€</span>
                   <mat-error>{{ getFieldError('dailyRate') }}</mat-error>
                 </mat-form-field>
@@ -65,7 +65,7 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.clientDailyRate' | translate }}</mat-label>
-                  <input matInput type="number" formControlName="clientDailyRate" placeholder="750">
+                  <input aria-label="{{ 'projects.form.clientDailyRate' | translate }}" matInput type="number" formControlName="clientDailyRate" placeholder="750">
                   <span matSuffix>€</span>
                   <mat-hint>{{ 'projects.form.clientDailyRateHint' | translate }}</mat-hint>
                   <mat-error>{{ getFieldError('clientDailyRate') }}</mat-error>
@@ -74,14 +74,14 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.askedDailyRate' | translate }}</mat-label>
-                  <input matInput type="number" formControlName="askedDailyRate" placeholder="650">
+                  <input aria-label="{{ 'projects.form.askedDailyRate' | translate }}" matInput type="number" formControlName="askedDailyRate" placeholder="650">
                   <span matSuffix>€</span>
                   <mat-hint>{{ 'projects.form.askedDailyRateHint' | translate }}</mat-hint>
                   <mat-error>{{ getFieldError('askedDailyRate') }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.offeredDailyRate' | translate }}</mat-label>
-                  <input matInput type="number" formControlName="offeredDailyRate" placeholder="580">
+                  <input aria-label="{{ 'projects.form.offeredDailyRate' | translate }}" matInput type="number" formControlName="offeredDailyRate" placeholder="580">
                   <span matSuffix>€</span>
                   <mat-hint>{{ 'projects.form.offeredDailyRateHint' | translate }}</mat-hint>
                   <mat-error>{{ getFieldError('offeredDailyRate') }}</mat-error>
@@ -107,18 +107,18 @@
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="half-width">
                     <mat-label>{{ 'projects.form.remoteDaysPerMonth' | translate }}</mat-label>
-                    <input matInput type="number" formControlName="remoteDaysPerMonth" placeholder="15">
+                    <input aria-label="{{ 'projects.form.remoteDaysPerMonth' | translate }}" matInput type="number" formControlName="remoteDaysPerMonth" placeholder="15">
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="half-width">
                     <mat-label>{{ 'projects.form.onsiteDaysPerMonth' | translate }}</mat-label>
-                    <input matInput type="number" formControlName="onsiteDaysPerMonth" placeholder="5">
+                    <input aria-label="{{ 'projects.form.onsiteDaysPerMonth' | translate }}" matInput type="number" formControlName="onsiteDaysPerMonth" placeholder="5">
                   </mat-form-field>
                 </div>
               }
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'projects.form.advantages' | translate }}</mat-label>
-                  <textarea matInput formControlName="advantages" rows="2"
+                  <textarea aria-label="{{ 'projects.form.advantages' | translate }}" matInput formControlName="advantages" rows="2"
                   [placeholder]="'projects.form.advantagesPlaceholder' | translate"></textarea>
                 </mat-form-field>
               </div>
@@ -129,24 +129,24 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.startDate' | translate }}</mat-label>
-                  <input matInput [matDatepicker]="startDatePicker" formControlName="startDate">
+                  <input aria-label="{{ 'projects.form.startDate' | translate }}" matInput [matDatepicker]="startDatePicker" formControlName="startDate">
                   <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
                   <mat-datepicker #startDatePicker></mat-datepicker>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.durationMonths' | translate }}</mat-label>
-                  <input matInput type="number" formControlName="durationInMonths" placeholder="6">
+                  <input aria-label="{{ 'projects.form.durationMonths' | translate }}" matInput type="number" formControlName="durationInMonths" placeholder="6">
                   <mat-error>{{ getFieldError('durationInMonths') }}</mat-error>
                 </mat-form-field>
               </div>
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.renewalMonths' | translate }}</mat-label>
-                  <input matInput type="number" formControlName="orderRenewalInMonths" placeholder="3">
+                  <input aria-label="{{ 'projects.form.renewalMonths' | translate }}" matInput type="number" formControlName="orderRenewalInMonths" placeholder="3">
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.daysPerYear' | translate }}</mat-label>
-                  <input matInput type="number" formControlName="daysPerYear" placeholder="218">
+                  <input aria-label="{{ 'projects.form.daysPerYear' | translate }}" matInput type="number" formControlName="daysPerYear" placeholder="218">
                   <mat-error>{{ getFieldError('daysPerYear') }}</mat-error>
                 </mat-form-field>
                 <a class="max-days-link" (click)="setMaxWorkableDays()" [matTooltip]="'projects.form.maxDaysTooltip' | translate">
@@ -160,7 +160,7 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'projects.form.projectLink' | translate }}</mat-label>
-                  <input matInput formControlName="link" placeholder="https://...">
+                  <input aria-label="{{ 'projects.form.projectLink' | translate }}" matInput formControlName="link" placeholder="https://...">
                 </mat-form-field>
               </div>
               <div class="form-row">
@@ -183,7 +183,7 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'common.notes' | translate }}</mat-label>
-                  <textarea matInput formControlName="notes" rows="4"
+                  <textarea aria-label="{{ 'common.notes' | translate }}" matInput formControlName="notes" rows="4"
                   [placeholder]="'projects.form.notesPlaceholder' | translate"></textarea>
                 </mat-form-field>
               </div>

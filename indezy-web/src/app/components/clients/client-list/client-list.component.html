@@ -17,7 +17,7 @@
           <div class="filter-row">
             <mat-form-field appearance="outline" class="search-field">
               <mat-label>{{ 'common.search' | translate }}</mat-label>
-              <input matInput
+              <input aria-label="{{ 'common.search' | translate }}" matInput
                 formControlName="searchQuery"
                 [placeholder]="'clients.searchPlaceholder' | translate">
               <mat-icon matPrefix>search</mat-icon>
@@ -118,7 +118,7 @@
               <div class="filter-row">
                 <mat-form-field appearance="outline" class="location-field">
                   <mat-label>{{ 'projects.location' | translate }}</mat-label>
-                  <input matInput
+                  <input aria-label="{{ 'projects.location' | translate }}" matInput
                     formControlName="location"
                     [placeholder]="'clients.locationPlaceholder' | translate">
                   <mat-icon matPrefix>location_on</mat-icon>
@@ -144,7 +144,7 @@
               <div class="filter-row">
                 <mat-form-field appearance="outline" class="date-field">
                   <mat-label>{{ 'clients.createdAfter' | translate }}</mat-label>
-                  <input matInput
+                  <input aria-label="{{ 'clients.createdAfter' | translate }}" matInput
                     [matDatepicker]="createdFromPicker"
                     formControlName="createdDateFrom">
                   <mat-datepicker-toggle matIconSuffix [for]="createdFromPicker"></mat-datepicker-toggle>
@@ -153,7 +153,7 @@
 
                 <mat-form-field appearance="outline" class="date-field">
                   <mat-label>{{ 'clients.createdBefore' | translate }}</mat-label>
-                  <input matInput
+                  <input aria-label="{{ 'clients.createdBefore' | translate }}" matInput
                     [matDatepicker]="createdToPicker"
                     formControlName="createdDateTo">
                   <mat-datepicker-toggle matIconSuffix [for]="createdToPicker"></mat-datepicker-toggle>
@@ -164,7 +164,7 @@
               <div class="filter-row">
                 <mat-form-field appearance="outline" class="date-field">
                   <mat-label>{{ 'clients.lastContactAfter' | translate }}</mat-label>
-                  <input matInput
+                  <input aria-label="{{ 'clients.lastContactAfter' | translate }}" matInput
                     [matDatepicker]="lastContactFromPicker"
                     formControlName="lastContactFrom">
                   <mat-datepicker-toggle matIconSuffix [for]="lastContactFromPicker"></mat-datepicker-toggle>
@@ -173,7 +173,7 @@
 
                 <mat-form-field appearance="outline" class="date-field">
                   <mat-label>{{ 'clients.lastContactBefore' | translate }}</mat-label>
-                  <input matInput
+                  <input aria-label="{{ 'clients.lastContactBefore' | translate }}" matInput
                     [matDatepicker]="lastContactToPicker"
                     formControlName="lastContactTo">
                   <mat-datepicker-toggle matIconSuffix [for]="lastContactToPicker"></mat-datepicker-toggle>

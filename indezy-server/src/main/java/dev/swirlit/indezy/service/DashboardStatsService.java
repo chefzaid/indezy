@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -54,27 +55,10 @@ public class DashboardStatsService {
         Long lostProjects = projectRepository.countLostByFreelanceId(freelanceId);
         Long activeProjects = projectRepository.countActiveByFreelanceId(freelanceId);
 
-        // Projects by status
-        Map<String, Long> projectsByStatus = new LinkedHashMap<>();
-        for (ProjectStatus status : ProjectStatus.values()) {
-            projectsByStatus.put(status.name(), 0L);
-        }
-        for (Object[] row : projectRepository.countByFreelanceIdGroupByStatus(freelanceId)) {
-            ProjectStatus status = (ProjectStatus) row[0];
-            Long count = (Long) row[1];
-            projectsByStatus.put(status.name(), count);
-        }
-
-        // Projects by work mode
-        Map<String, Long> projectsByWorkMode = new LinkedHashMap<>();
-        for (WorkMode mode : WorkMode.values()) {
-            projectsByWorkMode.put(mode.name(), 0L);
-        }
-        for (Object[] row : projectRepository.countByFreelanceIdGroupByWorkMode(freelanceId)) {
-            WorkMode mode = (WorkMode) row[0];
-            Long count = (Long) row[1];
-            projectsByWorkMode.put(mode.name(), count);
-        }
+        Map<String, Long> projectsByStatus = countsByEnum(ProjectStatus.values(),
+            projectRepository.countByFreelanceIdGroupByStatus(freelanceId));
+        Map<String, Long> projectsByWorkMode = countsByEnum(WorkMode.values(),
+            projectRepository.countByFreelanceIdGroupByWorkMode(freelanceId));
 
         List<Project> projects = projectRepository.findByFreelanceId(freelanceId);
 
@@ -87,20 +71,7 @@ public class DashboardStatsService {
             .filter(p -> ProjectStatus.LOST.equals(p.getStatus()) && p.getLostReason() != null)
             .forEach(p -> lostReasonsBreakdown.merge(p.getLostReason().name(), 1L, Long::sum));
 
-        int[][] ranges = {{0, 300}, {300, 500}, {500, 700}, {700, 900}, {900, Integer.MAX_VALUE}};
-        String[] rangeLabels = {"0-300", "300-500", "500-700", "700-900", "900+"};
-        List<DashboardStatsDto.DailyRateRange> dailyRateRanges = new ArrayList<>();
-        for (int i = 0; i < ranges.length; i++) {
-            int min = ranges[i][0];
-            int max = ranges[i][1];
-            long count = projects.stream()
-                .filter(p -> p.getDailyRate() != null && p.getDailyRate() >= min && p.getDailyRate() < max)
-                .count();
-            dailyRateRanges.add(DashboardStatsDto.DailyRateRange.builder()
-                .label(rangeLabels[i])
-                .count(count)
-                .build());
-        }
+        List<DashboardStatsDto.DailyRateRange> dailyRateRanges = buildDailyRateRanges(projects);
 
         double totalRevenue = projects.stream()
             .filter(p -> p.getTotalRevenue() != null)
@@ -122,7 +93,7 @@ public class DashboardStatsService {
 
         List<Contact> contacts = contactRepository.findByFreelanceId(freelanceId);
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.systemDefault());
         List<InterviewStep> validatedSteps =
             interviewStepRepository.findByFreelanceIdAndStatus(freelanceId, StepStatus.VALIDATED);
         List<InterviewStep> heatmapSteps = interviewStepRepository.findByFreelanceIdAndDateBetween(
@@ -155,14 +126,43 @@ public class DashboardStatsService {
             .funnelByEsn(DashboardAnalytics.buildFunnelBreakdown(projects,
                 p -> p.getMiddleman() != null ? p.getMiddleman().getCompanyName() : null))
             .missionsEndingSoon(DashboardReminders.buildMissionsEndingSoon(projects, today))
-            .staleOpportunities(DashboardReminders.buildStaleOpportunities(projects, LocalDateTime.now()))
+            .staleOpportunities(DashboardReminders.buildStaleOpportunities(projects, LocalDateTime.now(ZoneId.systemDefault())))
             .upcomingRenewals(DashboardReminders.buildUpcomingRenewals(projects, today, noticePeriodInDays))
             .onThisDay(DashboardReminders.buildOnThisDay(projects, contacts, today))
-            .dormantContacts(DashboardReminders.buildDormantContacts(contacts, LocalDateTime.now()))
+            .dormantContacts(DashboardReminders.buildDormantContacts(contacts, LocalDateTime.now(ZoneId.systemDefault())))
             .skillTrends(DashboardAnalytics.buildSkillTrends(projects))
             .processDurations(DashboardAnalytics.buildProcessDurations(
                 projects, DashboardAnalytics.signatureDates(validatedSteps)))
             .activityHeatmap(DashboardAnalytics.buildActivityHeatmap(projects, heatmapSteps, today))
             .build();
+    }
+
+    private Map<String, Long> countsByEnum(Enum<?>[] values, List<Object[]> rows) {
+        Map<String, Long> counts = new LinkedHashMap<>();
+        for (Enum<?> value : values) {
+            counts.put(value.name(), 0L);
+        }
+        for (Object[] row : rows) {
+            counts.put(((Enum<?>) row[0]).name(), (Long) row[1]);
+        }
+        return counts;
+    }
+
+    private List<DashboardStatsDto.DailyRateRange> buildDailyRateRanges(List<Project> projects) {
+        int[][] ranges = {{0, 300}, {300, 500}, {500, 700}, {700, 900}, {900, Integer.MAX_VALUE}};
+        String[] rangeLabels = {"0-300", "300-500", "500-700", "700-900", "900+"};
+        List<DashboardStatsDto.DailyRateRange> dailyRateRanges = new ArrayList<>();
+        for (int i = 0; i < ranges.length; i++) {
+            int min = ranges[i][0];
+            int max = ranges[i][1];
+            long count = projects.stream()
+                .filter(p -> p.getDailyRate() != null && p.getDailyRate() >= min && p.getDailyRate() < max)
+                .count();
+            dailyRateRanges.add(DashboardStatsDto.DailyRateRange.builder()
+                .label(rangeLabels[i])
+                .count(count)
+                .build());
+        }
+        return dailyRateRanges;
     }
 }

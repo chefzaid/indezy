@@ -39,7 +39,7 @@
                 <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'profile.currentPassword' | translate }}</mat-label>
-                    <input matInput formControlName="currentPassword" type="password" required>
+                    <input aria-label="{{ 'profile.currentPassword' | translate }}" matInput formControlName="currentPassword" type="password" required>
                     @if (passwordForm.get('currentPassword')?.hasError('required')) {
                       <mat-error>
                         {{ 'profile.errors.currentPasswordRequired' | translate }}
@@ -48,7 +48,7 @@
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'profile.newPassword' | translate }}</mat-label>
-                    <input matInput formControlName="newPassword" type="password" required>
+                    <input aria-label="{{ 'profile.newPassword' | translate }}" matInput formControlName="newPassword" type="password" required>
                     @if (passwordForm.get('newPassword')?.hasError('required')) {
                       <mat-error>
                         {{ 'profile.errors.newPasswordRequired' | translate }}
@@ -62,7 +62,7 @@
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'profile.confirmPassword' | translate }}</mat-label>
-                    <input matInput formControlName="confirmPassword" type="password" required>
+                    <input aria-label="{{ 'profile.confirmPassword' | translate }}" matInput formControlName="confirmPassword" type="password" required>
                     @if (passwordForm.get('confirmPassword')?.hasError('required')) {
                       <mat-error>
                         {{ 'profile.errors.confirmRequired' | translate }}
@@ -117,7 +117,7 @@
                   <p class="two-factor-secret"><code>{{ twoFactorSetup.secret }}</code></p>
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'profile.twoFactor.code' | translate }}</mat-label>
-                    <input matInput [(ngModel)]="twoFactorCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+                    <input aria-label="{{ 'profile.twoFactor.code' | translate }}" matInput [(ngModel)]="twoFactorCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
                   </mat-form-field>
                   <div class="form-actions">
                     <button mat-button [disabled]="isProcessingTwoFactor" (click)="cancelTwoFactorSetup()">
@@ -134,7 +134,7 @@
                 @if (twoFactorEnabled) {
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'profile.twoFactor.code' | translate }}</mat-label>
-                    <input matInput [(ngModel)]="twoFactorCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+                    <input aria-label="{{ 'profile.twoFactor.code' | translate }}" matInput [(ngModel)]="twoFactorCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
                   </mat-form-field>
                   <button mat-stroked-button color="warn"
                           [disabled]="isProcessingTwoFactor || !twoFactorCode.trim()"

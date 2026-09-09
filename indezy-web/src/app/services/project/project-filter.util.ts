@@ -1,12 +1,14 @@
 import { ProjectDto } from '../../models';
 import { CommuteInfoDto } from '../../models/commute.models';
 
+export type RateFilterValue = number | string | null;
+
 export type DateFilterValue = string | Date | null;
 
 export interface ProjectFilterValues {
   searchQuery?: string;
-  minRate?: number | string | null;
-  maxRate?: number | string | null;
+  minRate?: RateFilterValue;
+  maxRate?: RateFilterValue;
   workMode?: string;
   techStack?: string;
   status?: string;

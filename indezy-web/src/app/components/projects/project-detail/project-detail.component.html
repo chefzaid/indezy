@@ -413,7 +413,7 @@
               </mat-form-field>
               <mat-form-field appearance="outline" class="journal-input">
                 <mat-label>{{ 'projects.notes.addLabel' | translate }}</mat-label>
-                <textarea matInput rows="3" [(ngModel)]="newNoteContent"
+                <textarea aria-label="{{ 'projects.notes.addLabel' | translate }}" matInput rows="3" [(ngModel)]="newNoteContent"
                           [placeholder]="'projects.notes.placeholder' | translate"></textarea>
                 <mat-hint>{{ 'projects.notes.markdownHint' | translate }}</mat-hint>
               </mat-form-field>

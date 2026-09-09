@@ -99,11 +99,10 @@ public class ContactImportService {
                 firstName = split[0];
                 lastName = split[1];
             }
-            if (firstName.isBlank()) {
-                continue;
+            if (!firstName.isBlank()) {
+                contacts.add(new ParsedContact(firstName, blankToNull(lastName),
+                    at(fields, emailCol), at(fields, phoneCol)));
             }
-            contacts.add(new ParsedContact(firstName, blankToNull(lastName),
-                at(fields, emailCol), at(fields, phoneCol)));
         }
         return contacts;
     }
@@ -125,9 +124,9 @@ public class ContactImportService {
                         blankToNull(email), blankToNull(phone)));
                 }
             } else if (upper.startsWith("N:")) {
-                String[] parts = line.substring(2).split(";");
-                lastName = parts.length > 0 ? parts[0].trim() : "";
-                firstName = parts.length > 1 ? parts[1].trim() : firstName;
+                String[] name = parseStructuredName(line.substring(2), firstName);
+                lastName = name[0];
+                firstName = name[1];
             } else if (upper.startsWith("FN:") && firstName.isBlank()) {
                 String[] split = splitFullName(line.substring(3).trim());
                 firstName = split[0];
@@ -146,30 +145,32 @@ public class ContactImportService {
         List<String> fields = new ArrayList<>();
         StringBuilder current = new StringBuilder();
         boolean inQuotes = false;
-        for (int i = 0; i < line.length(); i++) {
-            char c = line.charAt(i);
-            if (inQuotes) {
-                if (c == '"') {
-                    if (i + 1 < line.length() && line.charAt(i + 1) == '"') {
-                        current.append('"');
-                        i++;
-                    } else {
-                        inQuotes = false;
-                    }
+        int index = 0;
+        while (index < line.length()) {
+            char character = line.charAt(index);
+            if (character == '"') {
+                if (inQuotes && index + 1 < line.length() && line.charAt(index + 1) == '"') {
+                    current.append('"');
+                    index++;
                 } else {
-                    current.append(c);
+                    inQuotes = !inQuotes;
                 }
-            } else if (c == '"') {
-                inQuotes = true;
-            } else if (c == ',') {
+            } else if (character == ',' && !inQuotes) {
                 fields.add(current.toString().trim());
                 current.setLength(0);
             } else {
-                current.append(c);
+                current.append(character);
             }
+            index++;
         }
         fields.add(current.toString().trim());
         return fields;
+    }
+
+    private String[] parseStructuredName(String value, String fallbackFirstName) {
+        String[] parts = value.split(";");
+        return new String[]{parts.length > 0 ? parts[0].trim() : "",
+            parts.length > 1 ? parts[1].trim() : fallbackFirstName};
     }
 
     private int firstNonBlankIndex(String[] lines) {

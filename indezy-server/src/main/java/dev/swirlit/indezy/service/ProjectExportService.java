@@ -55,23 +55,27 @@ public class ProjectExportService {
             if (revenue != null) {
                 totalRevenue += revenue;
             }
-            csv.append(csvRow(
-                project.getRole(),
-                project.getStatus() != null ? project.getStatus().name() : "",
-                project.getClient() != null ? project.getClient().getCompanyName() : "",
-                project.getSource() != null ? project.getSource().getName() : "",
-                project.getWorkMode() != null ? project.getWorkMode().name() : "",
-                project.getStartDate() != null ? project.getStartDate().toString() : "",
-                asText(project.getDurationInMonths()),
-                asText(project.getDailyRate()),
-                asText(project.getDaysPerYear()),
-                asText(revenue)
-            )).append(LINE_SEPARATOR);
+            csv.append(projectRow(project, revenue)).append(LINE_SEPARATOR);
         }
 
         csv.append(csvRow("Total", "", "", "", "", "", "", "", "", String.valueOf(totalRevenue)))
             .append(LINE_SEPARATOR);
         return csv.toString();
+    }
+
+    private String projectRow(Project project, Integer revenue) {
+        return csvRow(
+            project.getRole(),
+            project.getStatus() != null ? project.getStatus().name() : "",
+            project.getClient() != null ? project.getClient().getCompanyName() : "",
+            project.getSource() != null ? project.getSource().getName() : "",
+            project.getWorkMode() != null ? project.getWorkMode().name() : "",
+            project.getStartDate() != null ? project.getStartDate().toString() : "",
+            asText(project.getDurationInMonths()),
+            asText(project.getDailyRate()),
+            asText(project.getDaysPerYear()),
+            asText(revenue)
+        );
     }
 
     private String asText(Integer value) {

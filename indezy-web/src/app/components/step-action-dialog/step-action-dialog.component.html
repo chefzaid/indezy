@@ -20,7 +20,7 @@
     <form [formGroup]="actionForm">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'steps.notesOptional' | translate }}</mat-label>
-        <textarea
+        <textarea aria-label="{{ 'steps.notesOptional' | translate }}"
           matInput
           formControlName="notes"
           rows="3"

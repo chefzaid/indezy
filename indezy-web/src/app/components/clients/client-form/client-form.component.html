@@ -33,28 +33,28 @@
                         <div class="form-row">
                           <mat-form-field appearance="outline" class="full-width">
                             <mat-label>{{ 'clients.form.companyName' | translate }} *</mat-label>
-                            <input matInput formControlName="companyName" placeholder="Ex: TechCorp Solutions">
+                            <input aria-label="{{ 'clients.form.companyName' | translate }}" matInput formControlName="companyName" placeholder="Ex: TechCorp Solutions">
                             <mat-error>{{ getFieldError('companyName') }}</mat-error>
                           </mat-form-field>
                         </div>
                         <div class="form-row">
                           <mat-form-field appearance="outline" class="full-width">
                             <mat-label>{{ 'clients.city' | translate }}</mat-label>
-                            <input matInput formControlName="city" placeholder="Ex: Paris">
+                            <input aria-label="{{ 'clients.city' | translate }}" matInput formControlName="city" placeholder="Ex: Paris">
                             <mat-error>{{ getFieldError('city') }}</mat-error>
                           </mat-form-field>
                         </div>
                         <div class="form-row">
                           <mat-form-field appearance="outline" class="full-width">
                             <mat-label>{{ 'clients.form.address' | translate }}</mat-label>
-                            <textarea matInput formControlName="address" rows="2"
+                            <textarea aria-label="{{ 'clients.form.address' | translate }}" matInput formControlName="address" rows="2"
                             [placeholder]="'clients.form.addressPlaceholder' | translate"></textarea>
                           </mat-form-field>
                         </div>
                         <div class="form-row">
                           <mat-form-field appearance="outline" class="half-width">
                             <mat-label>{{ 'clients.form.website' | translate }}</mat-label>
-                            <input matInput formControlName="domain" placeholder="https://www.entreprise.com">
+                            <input aria-label="{{ 'clients.form.website' | translate }}" matInput formControlName="domain" placeholder="https://www.entreprise.com">
                             <mat-icon matSuffix>link</mat-icon>
                           </mat-form-field>
                           <div class="half-width">
@@ -88,7 +88,7 @@
                           <div class="form-row">
                             <mat-form-field appearance="outline" class="full-width">
                               <mat-label>{{ 'clients.form.blacklistReason' | translate }}</mat-label>
-                              <textarea matInput formControlName="blacklistReason" rows="2"
+                              <textarea aria-label="{{ 'clients.form.blacklistReason' | translate }}" matInput formControlName="blacklistReason" rows="2"
                               [placeholder]="'clients.form.blacklistReasonPlaceholder' | translate"></textarea>
                             </mat-form-field>
                           </div>
@@ -96,7 +96,7 @@
                         <div class="form-row">
                           <mat-form-field appearance="outline" class="full-width">
                             <mat-label>{{ 'common.notes' | translate }}</mat-label>
-                            <textarea matInput formControlName="notes" rows="4"
+                            <textarea aria-label="{{ 'common.notes' | translate }}" matInput formControlName="notes" rows="4"
                             [placeholder]="'clients.form.notesPlaceholder' | translate"></textarea>
                           </mat-form-field>
                         </div>
@@ -243,28 +243,28 @@
                   <div class="form-row">
                     <mat-form-field appearance="outline" class="full-width">
                       <mat-label>{{ 'clients.form.companyName' | translate }} *</mat-label>
-                      <input matInput formControlName="companyName" placeholder="Ex: TechCorp Solutions">
+                      <input aria-label="{{ 'clients.form.companyName' | translate }}" matInput formControlName="companyName" placeholder="Ex: TechCorp Solutions">
                       <mat-error>{{ getFieldError('companyName') }}</mat-error>
                     </mat-form-field>
                   </div>
                   <div class="form-row">
                     <mat-form-field appearance="outline" class="full-width">
                       <mat-label>{{ 'clients.city' | translate }}</mat-label>
-                      <input matInput formControlName="city" placeholder="Ex: Paris">
+                      <input aria-label="{{ 'clients.city' | translate }}" matInput formControlName="city" placeholder="Ex: Paris">
                       <mat-error>{{ getFieldError('city') }}</mat-error>
                     </mat-form-field>
                   </div>
                   <div class="form-row">
                     <mat-form-field appearance="outline" class="full-width">
                       <mat-label>{{ 'clients.form.address' | translate }}</mat-label>
-                      <textarea matInput formControlName="address" rows="2"
+                      <textarea aria-label="{{ 'clients.form.address' | translate }}" matInput formControlName="address" rows="2"
                       [placeholder]="'clients.form.addressPlaceholder' | translate"></textarea>
                     </mat-form-field>
                   </div>
                   <div class="form-row">
                     <mat-form-field appearance="outline" class="half-width">
                       <mat-label>{{ 'clients.form.website' | translate }}</mat-label>
-                      <input matInput formControlName="domain" placeholder="https://www.entreprise.com">
+                      <input aria-label="{{ 'clients.form.website' | translate }}" matInput formControlName="domain" placeholder="https://www.entreprise.com">
                       <mat-icon matSuffix>link</mat-icon>
                     </mat-form-field>
                     <div class="half-width">
@@ -298,7 +298,7 @@
                     <div class="form-row">
                       <mat-form-field appearance="outline" class="full-width">
                         <mat-label>{{ 'clients.form.blacklistReason' | translate }}</mat-label>
-                        <textarea matInput formControlName="blacklistReason" rows="2"
+                        <textarea aria-label="{{ 'clients.form.blacklistReason' | translate }}" matInput formControlName="blacklistReason" rows="2"
                         [placeholder]="'clients.form.blacklistReasonPlaceholder' | translate"></textarea>
                       </mat-form-field>
                     </div>
@@ -306,7 +306,7 @@
                   <div class="form-row">
                     <mat-form-field appearance="outline" class="full-width">
                       <mat-label>{{ 'common.notes' | translate }}</mat-label>
-                      <textarea matInput formControlName="notes" rows="4"
+                      <textarea aria-label="{{ 'common.notes' | translate }}" matInput formControlName="notes" rows="4"
                       [placeholder]="'clients.form.notesPlaceholder' | translate"></textarea>
                     </mat-form-field>
                   </div>

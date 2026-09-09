@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +22,7 @@ public class GlobalExceptionHandler {
         log.error("Resource not found: {}", ex.getMessage());
         
         ErrorResponse errorResponse = ErrorResponse.builder()
-            .timestamp(LocalDateTime.now())
+            .timestamp(LocalDateTime.now(ZoneId.systemDefault()))
             .status(HttpStatus.NOT_FOUND.value())
             .error("Resource Not Found")
             .message(ex.getMessage())
@@ -35,7 +36,7 @@ public class GlobalExceptionHandler {
         log.error("Illegal argument: {}", ex.getMessage());
         
         ErrorResponse errorResponse = ErrorResponse.builder()
-            .timestamp(LocalDateTime.now())
+            .timestamp(LocalDateTime.now(ZoneId.systemDefault()))
             .status(HttpStatus.BAD_REQUEST.value())
             .error("Bad Request")
             .message(ex.getMessage())
@@ -49,14 +50,14 @@ public class GlobalExceptionHandler {
         log.error("Validation error: {}", ex.getMessage());
         
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
+        ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-            .timestamp(LocalDateTime.now())
+            .timestamp(LocalDateTime.now(ZoneId.systemDefault()))
             .status(HttpStatus.BAD_REQUEST.value())
             .error("Validation Failed")
             .message("Invalid input data")
@@ -71,7 +72,7 @@ public class GlobalExceptionHandler {
         log.error("Unexpected error: {}", ex.getMessage(), ex);
         
         ErrorResponse errorResponse = ErrorResponse.builder()
-            .timestamp(LocalDateTime.now())
+            .timestamp(LocalDateTime.now(ZoneId.systemDefault()))
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .error("Internal Server Error")
             .message("An unexpected error occurred")

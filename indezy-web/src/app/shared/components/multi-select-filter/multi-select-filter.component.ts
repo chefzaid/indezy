@@ -32,7 +32,7 @@ export class MultiSelectFilterComponent implements OnInit {
   selectedValues: string[] = [];
   availableOptions: MultiSelectOption[] = [];
 
-  constructor(private fb: FormBuilder) {
+  constructor(private readonly fb: FormBuilder) {
     this.selectForm = this.fb.group({
       selection: ['']
     });

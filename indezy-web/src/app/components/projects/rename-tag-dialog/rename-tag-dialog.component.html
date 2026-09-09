@@ -12,7 +12,7 @@
   </mat-form-field>
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>{{ 'projects.skills.renameTo' | translate }}</mat-label>
-    <input matInput [(ngModel)]="to">
+    <input aria-label="{{ 'projects.skills.renameTo' | translate }}" matInput [(ngModel)]="to">
   </mat-form-field>
 </mat-dialog-content>
 

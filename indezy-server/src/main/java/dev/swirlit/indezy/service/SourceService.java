@@ -21,6 +21,8 @@ import java.util.List;
 @Transactional
 public class SourceService {
 
+    private static final String SOURCE_NOT_FOUND = "Source not found with id: ";
+
     private final SourceRepository sourceRepository;
     private final FreelanceRepository freelanceRepository;
     private final SourceMapper sourceMapper;
@@ -38,7 +40,7 @@ public class SourceService {
     public SourceDto findById(Long id) {
         log.debug("Finding source by id: {}", id);
         Source source = sourceRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Source not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(SOURCE_NOT_FOUND + id));
         return sourceMapper.toDto(source);
     }
 
@@ -63,7 +65,7 @@ public class SourceService {
         log.debug("Updating source with id: {}", id);
         
         Source existingSource = sourceRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Source not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(SOURCE_NOT_FOUND + id));
         
         // Validate freelance exists if changed
         if (!existingSource.getFreelance().getId().equals(sourceDto.getFreelanceId())) {
@@ -84,7 +86,7 @@ public class SourceService {
         log.debug("Deleting source with id: {}", id);
         
         Source source = sourceRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Source not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(SOURCE_NOT_FOUND + id));
         
         sourceRepository.delete(source);
         log.debug("Deleted source with id: {}", id);
@@ -139,7 +141,7 @@ public class SourceService {
     public SourceDto findByIdWithProjects(Long id) {
         log.debug("Finding source by id with projects: {}", id);
         Source source = sourceRepository.findByIdWithProjects(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Source not found with id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException(SOURCE_NOT_FOUND + id));
         return sourceMapper.toDto(source);
     }
 

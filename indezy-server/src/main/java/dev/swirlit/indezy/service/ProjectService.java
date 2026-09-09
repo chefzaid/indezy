@@ -106,34 +106,36 @@ public class ProjectService {
 
         int updated = 0;
         for (Project project : projectRepository.findByFreelanceId(freelanceId)) {
-            String techStack = project.getTechStack();
-            if (techStack == null || techStack.isBlank()) {
-                continue;
-            }
-            List<String> renamed = new ArrayList<>();
-            boolean changed = false;
-            for (String rawTag : techStack.split(",")) {
-                String tag = rawTag.trim();
-                if (tag.isEmpty()) {
-                    continue;
-                }
-                String next = tag.equalsIgnoreCase(fromTag) ? toTag : tag;
-                if (!next.equals(tag)) {
-                    changed = true;
-                }
-                if (renamed.stream().noneMatch(existing -> existing.equalsIgnoreCase(next))) {
-                    renamed.add(next);
-                } else {
-                    changed = true;
-                }
-            }
-            if (changed) {
-                project.setTechStack(String.join(", ", renamed));
+            String renamed = renameTechStack(project.getTechStack(), fromTag, toTag);
+            if (renamed != null) {
+                project.setTechStack(renamed);
                 projectRepository.save(project);
                 updated++;
             }
         }
         return updated;
+    }
+
+    private String renameTechStack(String techStack, String fromTag, String toTag) {
+        if (techStack == null || techStack.isBlank()) {
+            return null;
+        }
+        List<String> renamed = new ArrayList<>();
+        boolean changed = false;
+        for (String rawTag : techStack.split(",")) {
+            String tag = rawTag.trim();
+            if (tag.isEmpty()) {
+                continue;
+            }
+            String next = tag.equalsIgnoreCase(fromTag) ? toTag : tag;
+            changed |= !next.equals(tag);
+            if (renamed.stream().noneMatch(existing -> existing.equalsIgnoreCase(next))) {
+                renamed.add(next);
+            } else {
+                changed = true;
+            }
+        }
+        return changed ? String.join(", ", renamed) : null;
     }
 
     @Transactional(readOnly = true)

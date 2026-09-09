@@ -93,3 +93,9 @@ files/
 # Backup files
 *.bak
 *.backup
+
+# Local Sonar analysis output
+.scannerwork/
+
+# Local analysis and browser reports
+playwright-report/

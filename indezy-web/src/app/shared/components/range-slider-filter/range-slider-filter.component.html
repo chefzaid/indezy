@@ -1,6 +1,6 @@
 <div class="range-slider-filter" [formGroup]="rangeForm">
   <div class="range-header">
-    <label class="range-label">{{ config.label || 'Plage de valeurs' }}</label>
+    <span class="range-label">{{ config.label || 'Plage de valeurs' }}</span>
     @if (hasCustomValues()) {
       <button mat-icon-button
         (click)="resetRange()"
@@ -16,7 +16,7 @@
       <div class="range-inputs">
         <mat-form-field appearance="outline" class="range-input">
           <mat-label>Min</mat-label>
-          <input matInput
+          <input aria-label="Min" matInput
             type="number"
             formControlName="minInput"
             [min]="config.min || 0"
@@ -27,7 +27,7 @@
         </mat-form-field>
         <mat-form-field appearance="outline" class="range-input">
           <mat-label>Max</mat-label>
-          <input matInput
+          <input aria-label="Max" matInput
             type="number"
             formControlName="maxInput"
             [min]="config.min || 0"
@@ -46,8 +46,8 @@
         [step]="config.step || 1"
         [discrete]="true"
         [showTickMarks]="false">
-        <input matSliderStartThumb formControlName="minSlider">
-        <input matSliderEndThumb formControlName="maxSlider">
+        <input aria-label="{{ config.label || 'Plage de valeurs' }} — Min" matSliderStartThumb formControlName="minSlider">
+        <input aria-label="{{ config.label || 'Plage de valeurs' }} — Max" matSliderEndThumb formControlName="maxSlider">
       </mat-slider>
     </div>
 

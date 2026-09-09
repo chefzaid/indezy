@@ -90,7 +90,7 @@ class JwtUtilTest {
     }
 
     @Test
-    void extractExpiration_ShouldReturnFutureDate() {
+    void extractExpiration_ShouldReturnFutureInstant() {
         // Given
         String username = "test@example.com";
         Long userId = 1L;
@@ -100,6 +100,6 @@ class JwtUtilTest {
         var expiration = jwtUtil.extractExpiration(token);
 
         // Then
-        assertThat(expiration).isAfter(new java.util.Date());
+        assertThat(expiration).isAfter(java.time.Instant.now());
     }
 }

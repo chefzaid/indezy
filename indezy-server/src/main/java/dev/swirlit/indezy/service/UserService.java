@@ -19,13 +19,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
+@Transactional(rollbackFor = IOException.class)
 public class UserService {
 
     private final UserRepository userRepository;
@@ -114,7 +115,7 @@ public class UserService {
 
         // Update password
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
-        user.setLastPasswordChange(LocalDateTime.now());
+        user.setLastPasswordChange(LocalDateTime.now(ZoneId.systemDefault()));
         userRepository.save(user);
 
         return true;
@@ -179,9 +180,6 @@ public class UserService {
         return userMapper.toSecuritySettingsDto(user);
     }
 
-    /**
-     * Enable two-factor authentication
-     */
     /**
      * Starts two-factor setup: generates and stores a fresh secret (leaving 2FA disabled until a
      * code is verified) and returns it with the provisioning URI for an authenticator app.
@@ -264,7 +262,7 @@ public class UserService {
         }
 
         // Soft delete: keep the record but mark it deleted so the account can no longer log in.
-        user.setDeletedAt(LocalDateTime.now());
+        user.setDeletedAt(LocalDateTime.now(ZoneId.systemDefault()));
         userRepository.save(user);
         return true;
     }

@@ -8,7 +8,7 @@
     <form [formGroup]="quickAddForm" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'projects.form.role' | translate }}</mat-label>
-        <input matInput formControlName="role" [placeholder]="'projects.form.rolePlaceholder' | translate">
+        <input aria-label="{{ 'projects.form.role' | translate }}" matInput formControlName="role" [placeholder]="'projects.form.rolePlaceholder' | translate">
         <mat-icon matSuffix>work</mat-icon>
         @if (quickAddForm.get('role')?.hasError('required')) {
           <mat-error>
@@ -35,7 +35,7 @@
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'projects.form.dailyRate' | translate }}</mat-label>
-        <input matInput type="number" formControlName="dailyRate" placeholder="600">
+        <input aria-label="{{ 'projects.form.dailyRate' | translate }}" matInput type="number" formControlName="dailyRate" placeholder="600">
         <span matSuffix>€/j</span>
         @if (quickAddForm.get('dailyRate')?.hasError('required')) {
           <mat-error>

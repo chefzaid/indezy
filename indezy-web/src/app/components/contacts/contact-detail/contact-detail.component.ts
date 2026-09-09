@@ -90,7 +90,7 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
   }
 
   onDelete(): void {
-    if (!this.contact || !this.contact.id) {
+    if (!this.contact?.id) {
       this.notificationService.error('errors.missingContactId');
       return;
     }

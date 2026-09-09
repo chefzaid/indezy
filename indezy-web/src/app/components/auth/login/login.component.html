@@ -31,7 +31,7 @@
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'common.email' | translate }}</mat-label>
-            <input matInput
+            <input aria-label="{{ 'common.email' | translate }}" matInput
               type="email"
               formControlName="email"
               placeholder="votre@email.com"
@@ -46,7 +46,7 @@
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'common.password' | translate }}</mat-label>
-            <input matInput
+            <input aria-label="{{ 'common.password' | translate }}" matInput
               [type]="hidePassword ? 'password' : 'text'"
               formControlName="password"
               autocomplete="current-password">

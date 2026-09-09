@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.ZoneId;
 import java.time.LocalDateTime;
 
 @Entity
@@ -41,6 +42,6 @@ public class UserSession extends BaseEntity {
 
     // Helper methods
     public boolean isActive() {
-        return lastActive != null && lastActive.isAfter(LocalDateTime.now().minusHours(24));
+        return lastActive != null && lastActive.isAfter(LocalDateTime.now(ZoneId.systemDefault()).minusHours(24));
     }
 }

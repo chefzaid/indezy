@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -33,8 +34,8 @@ public class JwtUtil {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public Instant extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration).toInstant();
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -51,7 +52,7 @@ public class JwtUtil {
     }
 
     private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        return extractExpiration(token).isBefore(Instant.now());
     }
 
     public String generateToken(String username, Long userId) {
@@ -61,11 +62,13 @@ public class JwtUtil {
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
+        Instant issuedAt = Instant.now();
+        // JJWT 0.12 accepts Date at its API boundary; all time arithmetic uses Instant.
         return Jwts.builder()
                 .claims(claims)
                 .subject(subject)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .issuedAt(Date.from(issuedAt))
+                .expiration(Date.from(issuedAt.plusMillis(expiration)))
                 .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
     }

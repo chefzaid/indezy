@@ -9,7 +9,7 @@
             [alt]="userProfile.firstName + ' ' + userProfile.lastName"
             class="user-avatar">
           <div class="avatar-overlay">
-            <input type="file"
+            <input aria-label="{{ 'profile.changeAvatar' | translate }}" type="file"
               #avatarInput
               (change)="avatarUpload.emit($event)"
               accept="image/*"
@@ -17,7 +17,8 @@
             <button type="button"
               mat-icon-button
               (click)="avatarInput.click()"
-              class="avatar-edit-btn">
+              class="avatar-edit-btn"
+              [attr.aria-label]="'profile.changeAvatar' | translate">
               <mat-icon>camera_alt</mat-icon>
             </button>
           </div>
@@ -38,7 +39,7 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'contacts.firstName' | translate }}</mat-label>
-            <input matInput formControlName="firstName" required>
+            <input aria-label="{{ 'contacts.firstName' | translate }}" matInput formControlName="firstName" required>
             @if (form.get('firstName')?.hasError('required')) {
               <mat-error>
                 {{ 'profile.errors.firstNameRequired' | translate }}
@@ -48,7 +49,7 @@
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'common.name' | translate }}</mat-label>
-            <input matInput formControlName="lastName" required>
+            <input aria-label="{{ 'common.name' | translate }}" matInput formControlName="lastName" required>
             @if (form.get('lastName')?.hasError('required')) {
               <mat-error>
                 {{ 'profile.errors.lastNameRequired' | translate }}
@@ -60,7 +61,7 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'common.email' | translate }}</mat-label>
-            <input matInput formControlName="email" type="email" required>
+            <input aria-label="{{ 'common.email' | translate }}" matInput formControlName="email" type="email" required>
             @if (form.get('email')?.hasError('required')) {
               <mat-error>
                 {{ 'profile.errors.emailRequired' | translate }}
@@ -75,32 +76,32 @@
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'contacts.phone' | translate }}</mat-label>
-            <input matInput formControlName="phone" type="tel">
+            <input aria-label="{{ 'contacts.phone' | translate }}" matInput formControlName="phone" type="tel">
           </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'profile.birthDate' | translate }}</mat-label>
-            <input matInput [matDatepicker]="birthDatePicker" formControlName="birthDate">
+            <input aria-label="{{ 'profile.birthDate' | translate }}" matInput [matDatepicker]="birthDatePicker" formControlName="birthDate">
             <mat-datepicker-toggle matIconSuffix [for]="birthDatePicker"></mat-datepicker-toggle>
             <mat-datepicker #birthDatePicker></mat-datepicker>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'clients.city' | translate }}</mat-label>
-            <input matInput formControlName="city">
+            <input aria-label="{{ 'clients.city' | translate }}" matInput formControlName="city">
           </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'common.address' | translate }}</mat-label>
-          <input matInput formControlName="address">
+          <input aria-label="{{ 'common.address' | translate }}" matInput formControlName="address">
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ 'profile.bio' | translate }}</mat-label>
-          <textarea matInput formControlName="bio" rows="3" maxlength="500"></textarea>
+          <textarea aria-label="{{ 'profile.bio' | translate }}" matInput formControlName="bio" rows="3" maxlength="500"></textarea>
           <mat-hint>{{ form.get('bio')?.value?.length || 0 }}/500</mat-hint>
         </mat-form-field>
       </mat-card-content>
@@ -115,30 +116,30 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'profile.company' | translate }}</mat-label>
-            <input matInput formControlName="company">
+            <input aria-label="{{ 'profile.company' | translate }}" matInput formControlName="company">
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'contacts.position' | translate }}</mat-label>
-            <input matInput formControlName="position">
+            <input aria-label="{{ 'contacts.position' | translate }}" matInput formControlName="position">
           </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'common.website' | translate }}</mat-label>
-            <input matInput formControlName="website" type="url">
+            <input aria-label="{{ 'common.website' | translate }}" matInput formControlName="website" type="url">
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>LinkedIn</mat-label>
-            <input matInput formControlName="linkedin" type="url">
+            <input aria-label="LinkedIn" matInput formControlName="linkedin" type="url">
           </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>GitHub</mat-label>
-          <input matInput formControlName="github" type="url">
+          <input aria-label="GitHub" matInput formControlName="github" type="url">
         </mat-form-field>
 
         <!-- Skills -->

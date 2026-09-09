@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 /**
  * Renders a small, safe subset of Markdown (headings, bold, italic, inline code,
@@ -8,11 +7,9 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
  */
 @Injectable({ providedIn: 'root' })
 export class MarkdownService {
-  constructor(private readonly sanitizer: DomSanitizer) {}
-
-  /** Renders Markdown to sanitized, bindable HTML. */
-  render(text: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(this.toHtml(text ?? ''));
+  /** Returns HTML for Angular to sanitize when bound through [innerHTML]. */
+  render(text: string): string {
+    return this.toHtml(text ?? '');
   }
 
   /** Converts the supported Markdown subset to an HTML string. */
@@ -26,10 +23,10 @@ export class MarkdownService {
         continue;
       }
 
-      const heading = /^(#{1,3})\s+(.*)$/.exec(line);
+      const heading = /^(#{1,3})(?=\s)/.exec(line);
       if (heading) {
         const level = heading[1].length;
-        blocks.push(`<h${level}>${this.inline(heading[2])}</h${level}>`);
+        blocks.push(`<h${level}>${this.inline(line.slice(level).trimStart())}</h${level}>`);
         continue;
       }
 
@@ -64,7 +61,7 @@ export class MarkdownService {
     html = html.replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/(^|[^*])\*([^*]+?)\*(?!\*)/g, '$1<em>$2</em>');
     html = html.replace(
-      /\[([^\]]+?)\]\((https?:\/\/[^\s)]+)\)/g,
+      /\[([^[\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
       '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
     );
     return html;
@@ -72,9 +69,9 @@ export class MarkdownService {
 
   private escape(text: string): string {
     return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;');
   }
 }

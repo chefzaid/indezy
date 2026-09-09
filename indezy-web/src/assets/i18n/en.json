@@ -761,6 +761,7 @@
     "passwordChanged": "Password changed successfully",
     "preferencesUpdated": "Preferences updated successfully",
     "notificationsUpdated": "Notifications updated successfully",
+    "changeAvatar": "Change profile picture",
     "avatarUpdated": "Profile picture updated",
     "dataExported": "Data exported successfully",
     "tabs": {

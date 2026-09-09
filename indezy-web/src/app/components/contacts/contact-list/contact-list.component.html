@@ -17,7 +17,7 @@
         <div class="search-filters">
           <mat-form-field appearance="outline" class="search-field">
             <mat-label>{{ 'contacts.searchContact' | translate }}</mat-label>
-            <input matInput [(ngModel)]="searchQuery"
+            <input aria-label="{{ 'contacts.searchContact' | translate }}" matInput [(ngModel)]="searchQuery"
               (input)="onSearchChange($any($event.target).value || '')"
               [placeholder]="'contacts.searchPlaceholder' | translate">
             <mat-icon matSuffix>search</mat-icon>

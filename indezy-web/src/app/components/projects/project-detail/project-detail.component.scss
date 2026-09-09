@@ -37,7 +37,7 @@
                 font-size: 1.5rem;
                 width: 1.5rem;
                 height: 1.5rem;
-                color: var(--mat-theme-primary, #1976d2);
+                color: var(--mat-theme-primary, #1565c0);
               }
             }
             
@@ -105,7 +105,7 @@
               font-size: 1.2rem;
               width: 1.2rem;
               height: 1.2rem;
-              color: var(--mat-theme-primary, #1976d2);
+              color: var(--mat-theme-primary, #1565c0);
             }
           }
         }
@@ -140,7 +140,7 @@
               text-align: right;
               
               .project-link {
-                color: var(--mat-theme-primary, #1976d2);
+                color: var(--mat-theme-primary, #1565c0);
                 text-decoration: none;
                 display: flex;
                 align-items: center;
@@ -192,7 +192,7 @@
                   display: block;
                   font-size: 1.5rem;
                   font-weight: 600;
-                  color: var(--mat-theme-primary, #1976d2);
+                  color: var(--mat-theme-primary, #1565c0);
                 }
                 
                 .stat-label {
@@ -256,7 +256,7 @@
           
           .notes-content {
             background-color: rgba(0, 0, 0, 0.02);
-            border-left: 4px solid var(--mat-theme-primary, #1976d2);
+            border-left: 4px solid var(--mat-theme-primary, #1565c0);
             padding: 16px;
             border-radius: 4px;
             line-height: 1.6;
@@ -280,26 +280,26 @@
   
   &.mat-accent {
     background-color: #fff3e0;
-    color: #f57c00;
+    color: #a34c00;
   }
   
   &.mat-warn {
     background-color: #ffebee;
-    color: #d32f2f;
+    color: #b71c1c;
   }
 }
 
 // Button styling
 .mat-mdc-raised-button {
   &.mat-primary {
-    background-color: var(--mat-theme-primary, #1976d2);
+    background-color: var(--mat-theme-primary, #1565c0);
     color: white;
   }
 }
 
 .mat-mdc-button {
   &.mat-warn {
-    color: #d32f2f;
+    color: #b71c1c;
     
     &:hover {
       background-color: rgba(211, 47, 47, 0.04);
@@ -377,7 +377,7 @@
 
     .journal-content {
       white-space: pre-wrap;
-      word-break: break-word;
+      overflow-wrap: anywhere;
       color: #333;
     }
   }
@@ -449,6 +449,6 @@
 
   .skill-match-value {
     font-weight: 600;
-    color: var(--mat-theme-primary, #1976d2);
+    color: var(--mat-theme-primary, #1565c0);
   }
 }

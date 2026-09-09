@@ -27,24 +27,24 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'contacts.firstName' | translate }} *</mat-label>
-                  <input matInput formControlName="firstName">
+                  <input aria-label="{{ 'contacts.firstName' | translate }}" matInput formControlName="firstName">
                   <mat-error>{{ getFieldError('firstName') }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'common.name' | translate }} *</mat-label>
-                  <input matInput formControlName="lastName">
+                  <input aria-label="{{ 'common.name' | translate }}" matInput formControlName="lastName">
                   <mat-error>{{ getFieldError('lastName') }}</mat-error>
                 </mat-form-field>
               </div>
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'common.email' | translate }} *</mat-label>
-                  <input matInput type="email" formControlName="email">
+                  <input aria-label="{{ 'common.email' | translate }}" matInput type="email" formControlName="email">
                   <mat-error>{{ getFieldError('email') }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'contacts.phone' | translate }} *</mat-label>
-                  <input matInput type="tel" formControlName="phone">
+                  <input aria-label="{{ 'contacts.phone' | translate }}" matInput type="tel" formControlName="phone">
                   <mat-error>{{ getFieldError('phone') }}</mat-error>
                 </mat-form-field>
               </div>
@@ -55,7 +55,7 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'contacts.position' | translate }} *</mat-label>
-                  <input matInput formControlName="position">
+                  <input aria-label="{{ 'contacts.position' | translate }}" matInput formControlName="position">
                   <mat-error>{{ getFieldError('position') }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
@@ -88,7 +88,7 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'common.notes' | translate }}</mat-label>
-                  <textarea matInput formControlName="notes" rows="4"
+                  <textarea aria-label="{{ 'common.notes' | translate }}" matInput formControlName="notes" rows="4"
                   [placeholder]="'contacts.notesPlaceholder' | translate"></textarea>
                 </mat-form-field>
               </div>
