@@ -1,11 +1,14 @@
 server:
   port: 8080
+  shutdown: graceful
   servlet:
     context-path: /api
 
 spring:
   application:
     name: indezy-server
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
   
   datasource:
     url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:indezy}
@@ -95,6 +98,11 @@ management:
       show-details: when-authorized
       probes:
         enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db
   metrics:
     tags:
       application: ${spring.application.name}

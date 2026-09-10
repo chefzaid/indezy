@@ -12,6 +12,7 @@ prepare_sources() {
 
 build_application() {
   kubectl kustomize infra/k8s >/dev/null
+  kubectl kustomize infra/overlays/ha >/dev/null
   kubectl apply --dry-run=client --validate=false \
     -f infra/argocd/application.yaml >/dev/null
 

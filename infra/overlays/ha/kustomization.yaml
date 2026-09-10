@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: apps
+resources:
+- ../../k8s
+- disruption-budgets.yaml
+- schema-migration.yaml
+patches:
+- path: workloads.yaml
+replacements:
+- source:
+    kind: Deployment
+    name: indezy-server
+    fieldPath: spec.template.spec.containers.[name=indezy-server].image
+  targets:
+  - select:
+      kind: Job
+      name: indezy-schema-migration
+    fieldPaths:
+    - spec.template.spec.containers.[name=schema-migration].image

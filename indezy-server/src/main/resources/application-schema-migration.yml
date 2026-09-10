@@ -1,0 +1,13 @@
+# Only the opt-in schema hook enables this profile. No Service selects its Pod.
+server:
+  address: 127.0.0.1
+  port: 0
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      # Failed DDL must fail the hook instead of allowing API rollout to proceed.
+      hibernate:
+        "[hbm2ddl.halt_on_error]": true

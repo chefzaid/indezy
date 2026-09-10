@@ -1,5 +1,8 @@
 # Deployment Guide
 
+This repository owns its [public DNS](dns.md), including the DNS cutover when
+the shared platform switches to HA Tunnel ingress.
+
 Indezy deploys to the application-neutral K3s platform managed by [`bm-cluster`](https://github.com/chefzaid/bm-cluster). The platform provides generic GitLab runner, Argo CD, Vault, External Secrets, registry, ingress, PostgreSQL, and observability services. This repository owns all Indezy-specific project, secret, delivery, and runtime configuration.
 
 ## Infrastructure Layout
@@ -167,3 +170,43 @@ job visibly; quality findings remain independent of deployment permission.
 
 The quality job uses the shared slim Node scanner image; browser images are only
 needed for explicitly requested E2E jobs.
+
+## Future multi-node HA profile
+
+`infra/overlays/ha` runs two API and two web replicas across at least two eligible
+hostnames, with a disruption budget for each Deployment and rolling updates
+that retain an available replica. Keep the normal `infra/k8s` path for the
+current single-host installation. PostgreSQL, Keycloak and ingress must also
+survive a host failure; this overlay does not replicate the shared database.
+
+To opt in, persist `spec.source.path: infra/overlays/ha` in this repository's
+`infra/argocd/application.yaml`, then reconcile that Application. Bootstrap and
+release helpers may reapply this file, so do not rely on a live-only override.
+Image updates stay in `infra/k8s/kustomization.yaml`; the overlay inherits them
+and copies the rendered API image to its schema Job.
+
+```sh
+kubectl kustomize infra/k8s >/dev/null
+kubectl kustomize infra/overlays/ha >/dev/null
+```
+
+The HA profile serializes schema updates before starting the API revision.
+After the existing database setup hook, `indezy-schema-migration` acquires a
+PostgreSQL advisory lock before Spring initializes Hibernate. Schema changes
+use that same database connection; startup or DDL failure fails the hook, and
+closing the connection releases the lock. The migration-only process binds
+HTTP to loopback, has no Service, closes its Spring context and exits. API
+replicas use `ddl-auto=validate` and wait in the next Argo sync wave.
+
+This reuses the existing Hibernate schema-update behavior, not a versioned
+migration system. Back up the database and test schema changes against a copy
+first; they must remain compatible with the old API revision during rollout.
+Breaking or destructive changes require an explicit migration plan. Publish an
+image containing the schema-only mode before selecting the HA profile.
+
+The API uses shared JWT credentials and needs no sticky sessions. Login failure
+counters remain per process, so additional replicas do not provide a distributed
+account lockout. Readiness includes database connectivity; liveness checks only
+application state, allowing database failover without restarting every API.
+Validate authentication across replicas, concurrent writes and optimistic
+locking, a database outage, and a node drain before accepting the profile.

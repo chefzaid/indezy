@@ -27,6 +27,11 @@ Production authentication is centralized in the shared Keycloak `swirlit` realm.
 
 The Keycloak password never reaches Indezy. Local login and registration remain available for development, while the production ingress authenticates the UI and API before either is served.
 
+This integration uses the platform's `oauth2-proxy` client. It requires no
+Indezy-specific Keycloak client or platform-side application registration.
+This repository owns the ingress authentication annotations, issuer/JWKS
+configuration, audience checks and local account lifecycle.
+
 Implemented auth endpoints:
 
 - `POST /api/auth/register`

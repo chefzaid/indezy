@@ -36,6 +36,7 @@ spec:
         prometheus.io/port: "8080"
     spec:
       automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
       securityContext:
         runAsNonRoot: true
         runAsUser: 10001
@@ -120,7 +121,7 @@ spec:
                   key: INDEZY_SECURITY_KEYCLOAK_AUDIENCE
           livenessProbe:
             httpGet:
-              path: /api/actuator/health
+              path: /api/actuator/health/liveness
               port: 8080
             initialDelaySeconds: 90
             periodSeconds: 30
@@ -128,7 +129,7 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /api/actuator/health
+              path: /api/actuator/health/readiness
               port: 8080
             initialDelaySeconds: 60
             periodSeconds: 10
