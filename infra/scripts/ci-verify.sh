@@ -11,6 +11,8 @@ prepare_sources() {
 }
 
 build_application() {
+  infra/scripts/check-onboarding-revision.sh build
+  python3 infra/scripts/test-onboarding.py
   kubectl kustomize infra/k8s >/dev/null
   kubectl kustomize infra/overlays/ha >/dev/null
   kubectl apply --dry-run=client --validate=false \

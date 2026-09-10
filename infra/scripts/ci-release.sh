@@ -8,6 +8,7 @@ phase="${1:-all}"
 
 publish_release() {
   : "${APP_VERSION:?APP_VERSION is required}"
+  infra/scripts/check-onboarding-revision.sh publish
   infra/scripts/ci-container-build.sh publish
 
   output_dir="$repository_root/package-output"
@@ -42,7 +43,7 @@ publish_release() {
   next_version="$major.$((minor + 1)).0"
   infra/scripts/set-project-version.sh "$next_version"
   git add VERSION indezy-server/pom.xml indezy-web/package.json indezy-web/package-lock.json
-  git commit -m "chore: prepare $next_version [skip ci]"
+  infra/scripts/commit-deployment.sh "chore: prepare $next_version [skip ci]"
   deploy_revision="$(git rev-parse HEAD)"
   git push origin "HEAD:$CI_DEFAULT_BRANCH" "refs/tags/$release_tag"
   printf 'APP_VERSION=%s\nDEPLOY_REVISION=%s\nRELEASE_REVISION=%s\nRELEASE_TAG=%s\nNEXT_VERSION=%s\n' \
@@ -78,6 +79,7 @@ deploy_release() {
   fi
   : "${DEPLOY_REVISION:?DEPLOY_REVISION is required}"
 
+  DEPLOY_REVISION="$DEPLOY_REVISION" infra/scripts/check-onboarding-revision.sh deploy
   kubectl apply -f infra/argocd/application.yaml
   kubectl annotate application indezy -n infra argocd.argoproj.io/refresh=hard --overwrite
   deadline=$(( $(date +%s) + 900 ))

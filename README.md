@@ -10,6 +10,10 @@ Indezy is a full-stack web application that helps freelancers manage job applica
 
 ## GitLab Delivery
 
+Use the platform's `add-repos.sh` entry point to install or reconfigure this
+repository through its [declarative onboarding contract](docs/deployment.md#add-or-reconfigure-this-repository).
+This repository owns its hostname, runtime secrets, database setup and delivery configuration.
+
 - [Run a pipeline](https://gitlab.swirlit.dev/swirlit/indezy/-/pipelines/new?ref=main)
 - [Pipelines and delivery jobs](https://gitlab.swirlit.dev/swirlit/indezy/-/pipelines)
 - [Versioned application packages](https://gitlab.swirlit.dev/swirlit/indezy/-/packages)

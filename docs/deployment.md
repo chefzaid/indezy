@@ -78,7 +78,49 @@ registry.swirlit.dev/swirlit/indezy/indezy-web:<semantic-version>
 
 Daemonless Kaniko builds each runtime Dockerfile's `production` stage and reuses 30-day registry-backed layers on unprivileged Kubernetes runners. Maven/npm/Sonar caches avoid repeated dependency downloads. GitLab retains test, coverage, browser, and compiled outputs for seven days, while releases publish versioned JAR and SPA archives plus `SHA256SUMS` immutably to the Generic Package Registry. The linked SonarQube project retains long-lived quality-gate, issue, and metric history.
 
-## One-Time GitLab Bootstrap
+## Add or reconfigure this repository
+
+Run `./add-repos.sh` from the platform checkout and select this repository.
+The platform reads [infra/onboarding.json](../infra/onboarding.json), prompts
+for the public subdomain (`@` selects the zone apex), and provisions the declared
+service requests without executing repository administrator scripts.
+
+This repository declares its exact public configuration files, registry access,
+runtime secrets, DNS hostname and readiness checks. Rendered settings and
+`infra/onboarding-values.json` are committed to the application repository.
+Rerunning onboarding changes the chosen host, ingress, backend CORS, identity
+endpoints, image paths and delivery settings together. Application resource
+names, database/role names and Vault paths remain stable.
+
+Missing `apps/indezy/runtime` fields are generated according to the declaration:
+the database password uses 24 random bytes and the JWT secret uses 48, encoded
+as hexadecimal. Existing values are preserved. The existing database sync hook
+and optional HA schema hook retain ownership of database provisioning and
+migrations; identity uses the shared OAuth2 Proxy client.
+
+After provisioning, the platform starts an API pipeline for the exact pushed
+configuration. `APP_ONBOARDING=true` permits automatic release for that API
+pipeline. `ONBOARDING_EXPECTED_SHA` must match before building or publishing;
+deployment also requires its generated release to descend from that commit and
+remain the default branch tip. The first Argo CD apply follows image publication.
+Ordinary release behavior and Sonar scan-only exclusions are unchanged.
+
+The final onboarding publication records `Onboarding-Pipeline` and
+`Onboarding-Source` commit trailers so a repeat run can identify the existing
+release. A failed deployment can retry that pipeline's deploy job. If publication
+fails after its Git push, repair the failed publication step before retrying:
+the guard refuses to publish another release from the old checkout.
+
+Run the focused offline checks with Python, PyYAML, Git and kubectl:
+
+```sh
+python3 infra/scripts/test-onboarding.py
+```
+
+They cover custom domains/project paths, root-to-subdomain changes, image-tag
+updates and stale pipeline refusal without calling live services.
+
+## Individual GitLab bootstrap
 
 Prerequisites:
 

@@ -99,3 +99,5 @@ files/
 
 # Local analysis and browser reports
 playwright-report/
+# Python helper bytecode
+__pycache__/

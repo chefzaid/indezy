@@ -1,0 +1,187 @@
+{
+  "version": 1,
+  "application": "infra/argocd/application.yaml",
+  "inputs": [
+    {
+      "name": "APP_SUBDOMAIN",
+      "label": "Public subdomain (@ for the zone apex)",
+      "type": "subdomain",
+      "default": "indezy"
+    }
+  ],
+  "files": [
+    ".gitlab-ci.yml",
+    ".github/workflows/sync-gitlab.yml",
+    "sonar-project.properties",
+    "infra/argocd/application.yaml",
+    "infra/k8s/kustomization.yaml",
+    "infra/k8s/ingress.yaml",
+    "infra/k8s/observability.yaml",
+    "infra/k8s/database-setup-job.yaml",
+    "infra/scripts/configure-gitlab.sh",
+    "infra/scripts/configure-code-quality.sh",
+    "infra/scripts/configure-repository-sync.sh",
+    "infra/scripts/ci-release.sh",
+    "infra/scripts/ci-set-major-version.sh",
+    "infra/k8s/server.yaml",
+    "infra/k8s/web.yaml",
+    "infra/overlays/ha/schema-migration.yaml",
+    "indezy-server/src/main/resources/application-kubernetes.yml"
+  ],
+  "replacements": [
+    {
+      "from": "registry.swirlit.dev/swirlit/bm-cluster/security",
+      "to": "{{REGISTRY_HOST}}/{{PLATFORM_SECURITY_PROJECT_PATH}}"
+    },
+    {
+      "from": "registry.swirlit.dev/swirlit/indezy",
+      "to": "{{REGISTRY_HOST}}/{{GITLAB_PROJECT_PATH}}"
+    },
+    {
+      "from": "https://gitlab.swirlit.dev/swirlit/indezy",
+      "to": "{{GITLAB_PUBLIC_URL}}/{{GITLAB_PROJECT_PATH}}"
+    },
+    {
+      "from": "http://gitlab.swirlit.internal/swirlit/indezy",
+      "to": "{{GITLAB_INTERNAL_URL}}/{{GITLAB_PROJECT_PATH}}"
+    },
+    {
+      "from": "https://gitlab.swirlit.dev",
+      "to": "{{GITLAB_PUBLIC_URL}}"
+    },
+    {
+      "from": "http://gitlab.swirlit.internal",
+      "to": "{{GITLAB_INTERNAL_URL}}"
+    },
+    {
+      "from": "gitlab-registry.swirlit.internal:5050",
+      "to": "{{REGISTRY_PUSH_HOST}}"
+    },
+    {
+      "from": "registry.swirlit.dev",
+      "to": "{{REGISTRY_HOST}}"
+    },
+    {
+      "from": "indezy.swirlit.dev",
+      "to": "{{APP_HOST}}"
+    },
+    {
+      "from": "keycloak.swirlit.dev",
+      "to": "keycloak.{{PUBLIC_DOMAIN}}"
+    },
+    {
+      "from": "sonarqube.swirlit.dev",
+      "to": "sonarqube.{{PUBLIC_DOMAIN}}"
+    },
+    {
+      "from": ".swirlit.internal",
+      "to": ".{{INTERNAL_DNS_ZONE}}"
+    },
+    {
+      "from": "swirlit-dev-tls",
+      "to": "{{TLS_SECRET_NAME}}"
+    },
+    {
+      "from": "swirlit:indezy",
+      "to": "{{SONAR_PROJECT_KEY}}"
+    },
+    {
+      "from": "swirlit/indezy",
+      "to": "{{GITLAB_PROJECT_PATH}}"
+    },
+    {
+      "from": "swirlit/$APP_NAME",
+      "to": "{{GITLAB_PROJECT_PATH}}"
+    },
+    {
+      "from": "swirlit/$REPOSITORY_NAME",
+      "to": "{{GITLAB_PROJECT_PATH}}"
+    },
+    {
+      "from": "swirlit:$APP_NAME",
+      "to": "{{SONAR_PROJECT_KEY}}"
+    },
+    {
+      "from": "GITLAB_PROJECT_ID: '4'",
+      "to": "GITLAB_PROJECT_ID: '{{GITLAB_PROJECT_ID}}'"
+    },
+    {
+      "from": "/realms/swirlit",
+      "to": "/realms/{{KEYCLOAK_REALM}}"
+    },
+    {
+      "from": "@swirlit.dev",
+      "to": "@{{PUBLIC_DOMAIN}}"
+    },
+    {
+      "from": "GITHUB_OWNER=\"${GITHUB_OWNER:-chefzaid}\"",
+      "to": "GITHUB_OWNER=\"${GITHUB_OWNER:-{{GITHUB_OWNER}}}\""
+    },
+    {
+      "from": "GITHUB_REPOSITORY=\"${GITHUB_REPOSITORY:-$REPOSITORY_NAME}\"",
+      "to": "GITHUB_REPOSITORY=\"${GITHUB_REPOSITORY:-{{GITHUB_REPOSITORY}}}\""
+    },
+    {
+      "from": "targetRevision: main",
+      "to": "targetRevision: {{DEFAULT_BRANCH}}"
+    },
+    {
+      "from": "protected_branches/main",
+      "to": "protected_branches/{{DEFAULT_BRANCH}}"
+    },
+    {
+      "from": "'name=main'",
+      "to": "'name={{DEFAULT_BRANCH}}'"
+    },
+    {
+      "from": "/badges/main/",
+      "to": "/badges/{{DEFAULT_BRANCH}}/"
+    },
+    {
+      "from": "/graphs/main/",
+      "to": "/graphs/{{DEFAULT_BRANCH}}/"
+    },
+    {
+      "from": "?ref=main",
+      "to": "?ref={{DEFAULT_BRANCH}}"
+    }
+  ],
+  "registry": {
+    "path": "apps/indezy/registry"
+  },
+  "vault": [
+    {
+      "path": "apps/indezy/runtime",
+      "fields": {
+        "database_password": {
+          "generate": 24,
+          "encoding": "hex"
+        },
+        "jwt_secret": {
+          "generate": 48,
+          "encoding": "hex"
+        }
+      }
+    }
+  ],
+  "dns": {
+    "hosts": [
+      "{{APP_HOST}}"
+    ]
+  },
+  "pipeline": {
+    "variables": {
+      "APP_ONBOARDING": "true"
+    },
+    "jobs": [
+      "01-release",
+      "02-deploy"
+    ]
+  },
+  "readiness": {
+    "deployments": [
+      "indezy-server",
+      "indezy-web"
+    ]
+  }
+}
