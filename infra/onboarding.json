@@ -30,10 +30,6 @@
   ],
   "replacements": [
     {
-      "from": "registry.swirlit.dev/swirlit/bm-cluster/security",
-      "to": "{{REGISTRY_HOST}}/{{PLATFORM_SECURITY_PROJECT_PATH}}"
-    },
-    {
       "from": "registry.swirlit.dev/swirlit/indezy",
       "to": "{{REGISTRY_HOST}}/{{GITLAB_PROJECT_PATH}}"
     },

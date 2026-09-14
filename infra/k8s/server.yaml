@@ -47,10 +47,9 @@ spec:
           type: RuntimeDefault
       imagePullSecrets:
         - name: indezy-registry-auth
-        - name: platform-registry-auth
       initContainers:
         - name: wait-for-db
-          image: postgres:15-alpine
+          image: postgres:18.6-bookworm
           command:
             - sh
             - -c
@@ -159,6 +158,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: indezy-server
+  annotations:
+    traefik.ingress.kubernetes.io/service.serverstransport: apps-indezy-backend@kubernetescrd
   namespace: apps
 spec:
   type: ClusterIP

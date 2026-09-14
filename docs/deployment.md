@@ -38,7 +38,13 @@ Shared platform resources remain in `bm-cluster`.
 
 ## Runtime And Ownership
 
-The public endpoint is `https://indezy.swirlit.dev`. NGINX Ingress routes `/api` to the Spring Boot service and `/` to the Angular/NGINX service. The same Ingress publishes Indezy in the cluster Homepage `Applications` group and protects both routes with the shared Keycloak OAuth2 Proxy. The non-secret issuer, internal JWKS URI, and required audience live in `infra/k8s/server.yaml`; identity-provider secrets remain platform-owned.
+The public endpoint is `https://indezy.swirlit.dev`. Traefik routes `/api` to the Spring Boot service and `/` to the Angular/NGINX service. The native Ingress publishes Indezy in the cluster Homepage `Applications` group. The frontend is public; the API uses the app-owned ForwardAuth Middleware with the shared Keycloak OAuth2 Proxy. It preserves login return URLs and refresh cookies, forwards the signed access token, and leaves application authorization responses intact. The non-secret issuer, internal JWKS URI, and required audience live in `infra/k8s/server.yaml`; identity-provider secrets remain platform-owned.
+
+`infra/k8s/ingress.yaml` also owns the 16 MiB request limit and a ServersTransport
+that allows 120 seconds for backend response headers. Connection timeouts and
+HTTP-to-HTTPS redirects are platform settings. NetworkPolicy permits Traefik
+pods. Database setup and readiness helpers use the public PostgreSQL 18.6 client
+image pinned by digest, without platform registry credentials.
 
 | Concern | Repository resource |
 |---|---|

@@ -80,6 +80,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: indezy-web
+  annotations:
+    traefik.ingress.kubernetes.io/service.serverstransport: apps-indezy-backend@kubernetescrd
   namespace: apps
 spec:
   type: ClusterIP

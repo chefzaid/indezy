@@ -23,13 +23,13 @@ Test escape hatch:
 
 ## Authentication
 
-Production authentication is centralized in the shared Keycloak `swirlit` realm. The NGINX Ingress sends unauthenticated browser traffic to the cluster OAuth2 Proxy. On startup, Angular calls `GET /api/auth/sso`; Spring validates the forwarded Keycloak access token's signature, issuer, expiry, and `oauth2-proxy` audience through the realm JWKS before linking its verified email to an existing account or creating an Indezy profile. Only then does the API issue Indezy's existing local bearer token.
+Production authentication is centralized in the shared Keycloak `swirlit` realm. The Traefik Ingress sends unauthenticated browser traffic to the cluster OAuth2 Proxy. On startup, Angular calls `GET /api/auth/sso`; Spring validates the forwarded Keycloak access token's signature, issuer, expiry, and `oauth2-proxy` audience through the realm JWKS before linking its verified email to an existing account or creating an Indezy profile. Only then does the API issue Indezy's existing local bearer token.
 
-The Keycloak password never reaches Indezy. Local login and registration remain available for development, while the production ingress authenticates the UI and API before either is served.
+The Keycloak password never reaches Indezy. Local login and registration remain available for development. In production the UI is public and its API calls pass through the authentication Middleware.
 
 This integration uses the platform's `oauth2-proxy` client. It requires no
 Indezy-specific Keycloak client or platform-side application registration.
-This repository owns the ingress authentication annotations, issuer/JWKS
+This repository owns the ingress authentication Middleware, issuer/JWKS
 configuration, audience checks and local account lifecycle.
 
 Implemented auth endpoints:
@@ -324,7 +324,7 @@ range, with the existing read-only filesystem, dropped capabilities and runtime
 seccomp profile. Writable application data and temporary files use explicit
 volumes.
 
-Bare-metal database helper jobs consume the patched PostgreSQL 18 client image
-maintained by `bm-cluster`. The platform supplies `platform-registry-auth`, a
-Vault-backed credential restricted to pulling platform images. The application
-repository owns the helper job configuration and immutable image digest.
+Bare-metal database helper jobs consume the official public PostgreSQL 18.6
+image pinned by digest. They execute client commands as UID 65534 with a read-only
+filesystem and need no platform registry credential. This repository owns their
+configuration and image pin; application images retain app-owned pull credentials.

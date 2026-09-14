@@ -86,7 +86,6 @@ class RenderingTests(unittest.TestCase):
             "REGISTRY_HOST": "registry.example.test", "REGISTRY_PUSH_HOST": "gitlab-registry.services.test:5050",
             "GITHUB_OWNER": "example-org", "GITHUB_REPOSITORY": APP + "-copy",
             "DEFAULT_BRANCH": "trunk", "KEYCLOAK_REALM": "people",
-            "PLATFORM_SECURITY_PROJECT_PATH": "platform/security",
             "SONAR_PROJECT_KEY": "teams:testing:" + APP + "-copy",
         }
 

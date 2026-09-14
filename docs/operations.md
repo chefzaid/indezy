@@ -63,7 +63,7 @@ kubectl logs job/indezy-db-setup -n apps
 
 ### Keycloak SSO exchange fails
 
-An unauthenticated browser request should be sent through `https://keycloak.swirlit.dev/oauth2/start` to the `swirlit` realm. After authentication, `GET /api/auth/sso` must receive an ingress-provided access token and return an Indezy session. Check the OAuth2 Proxy and Ingress annotations first, then verify the public issuer, internal JWKS URI, and `oauth2-proxy` audience in `infra/k8s/server.yaml`. Never work around the failure by trusting identity headers without validating the signed token.
+An unauthenticated browser API request should be redirected to Keycloak's `swirlit` realm, preserving its original URL for return after login. After authentication, `GET /api/auth/sso` must receive an ingress-provided access token and return an Indezy session. Check the OAuth2 Proxy and the app-owned ForwardAuth Middleware first, then verify the public issuer, internal JWKS URI, and `oauth2-proxy` audience in `infra/k8s/server.yaml`. Never work around the failure by trusting identity headers without validating the signed token.
 
 ### Backend waits for PostgreSQL
 

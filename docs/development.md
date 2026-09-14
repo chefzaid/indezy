@@ -23,7 +23,7 @@ PostgreSQL is the only local application database. Normal startup preserves its 
 The explicit `seed` profile is reserved for `mask db-reset`, which recreates the schema
 and loads `data-dev.sql`. H2 remains test-only.
 
-The frontend local environment points to `http://localhost:8080/api`. The production frontend uses the relative `/api` path so Nginx Ingress can route API traffic to the backend.
+The frontend local environment points to `http://localhost:8080/api`. The production frontend uses the relative `/api` path so Traefik Ingress can route API traffic to the backend.
 
 ## Recommended Baseline
 
