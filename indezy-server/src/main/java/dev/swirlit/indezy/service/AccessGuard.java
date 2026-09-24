@@ -7,6 +7,7 @@ import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
+import dev.swirlit.indezy.repository.SeasonRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,7 @@ import java.util.function.Function;
 
 /**
  * Resource ownership checks: every freelance workspace (projects, clients, contacts, sources,
- * interview steps) is visible only to the account it belongs to. The workspace of the caller is
+ * interview steps, seasons) is visible only to the account it belongs to. The workspace of the caller is
  * resolved from the authenticated account (JWT principal) through its email.
  *
  * <p>Resources of another workspace are reported as not found so their existence is not
@@ -41,6 +42,7 @@ public class AccessGuard {
     private final ContactRepository contactRepository;
     private final SourceRepository sourceRepository;
     private final InterviewStepRepository interviewStepRepository;
+    private final SeasonRepository seasonRepository;
     private final boolean permitAll;
 
     @SuppressWarnings("java:S107") // one repository per guarded aggregate
@@ -51,6 +53,7 @@ public class AccessGuard {
                        ContactRepository contactRepository,
                        SourceRepository sourceRepository,
                        InterviewStepRepository interviewStepRepository,
+                       SeasonRepository seasonRepository,
                        @Value("${indezy.security.permit-all:false}") boolean permitAll) {
         this.userRepository = userRepository;
         this.freelanceRepository = freelanceRepository;
@@ -59,6 +62,7 @@ public class AccessGuard {
         this.contactRepository = contactRepository;
         this.sourceRepository = sourceRepository;
         this.interviewStepRepository = interviewStepRepository;
+        this.seasonRepository = seasonRepository;
         this.permitAll = permitAll;
     }
 
@@ -160,6 +164,16 @@ public class AccessGuard {
 
     public void requireInterviewStep(Long stepId) {
         requireOwned(stepId, interviewStepRepository::findOwnerFreelanceIdById, "Interview step");
+    }
+
+    public void requireSeason(Long seasonId) {
+        requireOwned(seasonId, seasonRepository::findOwnerFreelanceIdById, "Season");
+    }
+
+    public void requireSeasonIfPresent(Long seasonId) {
+        if (seasonId != null) {
+            requireSeason(seasonId);
+        }
     }
 
     private void requireOwned(Long id, Function<Long, Optional<Long>> ownerLookup, String label) {

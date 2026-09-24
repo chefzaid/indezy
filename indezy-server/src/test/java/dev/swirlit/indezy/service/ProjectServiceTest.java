@@ -8,6 +8,7 @@ import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
+import dev.swirlit.indezy.model.Season;
 import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.LostReason;
@@ -57,6 +58,9 @@ class ProjectServiceTest {
 
     @Mock
     private ProjectMapper projectMapper;
+
+    @Mock
+    private SeasonService seasonService;
 
     @InjectMocks
     private ProjectService projectService;
@@ -402,7 +406,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    void create_WithoutStatus_ShouldDefaultToIdentified() {
+    void create_WithoutStatus_ShouldDefaultToContact() {
         // Given
         testProject.setStatus(null);
         when(projectMapper.toEntity(testProjectDto)).thenReturn(testProject);
@@ -415,7 +419,53 @@ class ProjectServiceTest {
         projectService.create(testProjectDto);
 
         // Then
-        assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.IDENTIFIED);
+        assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.CONTACT);
+    }
+
+    @Test
+    void create_WithoutSeason_ShouldJoinTheRunningSeason() {
+        Season running = new Season();
+        running.setId(4L);
+        when(projectMapper.toEntity(testProjectDto)).thenReturn(testProject);
+        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(testClient));
+        when(seasonService.findCurrentSeason(1L)).thenReturn(Optional.of(running));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        projectService.create(testProjectDto);
+
+        assertThat(testProject.getSeason()).isSameAs(running);
+    }
+
+    @Test
+    void create_WithExplicitSeason_ShouldUseIt() {
+        Season chosen = new Season();
+        chosen.setId(6L);
+        testProjectDto.setSeasonId(6L);
+        when(projectMapper.toEntity(testProjectDto)).thenReturn(testProject);
+        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
+        when(clientRepository.findById(1L)).thenReturn(Optional.of(testClient));
+        when(seasonService.getSeasonOfFreelance(6L, 1L)).thenReturn(chosen);
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        projectService.create(testProjectDto);
+
+        assertThat(testProject.getSeason()).isSameAs(chosen);
+        verify(seasonService, never()).findCurrentSeason(any());
+    }
+
+    @Test
+    void getKanbanBoard_WithSeason_ShouldOnlyLoadThatSeason() {
+        testProject.setStatus(ProjectStatus.OFFER);
+        when(projectRepository.findByFreelanceIdAndSeasonId(1L, 3L)).thenReturn(List.of(testProject));
+        when(interviewStepRepository.findByProjectId(any())).thenReturn(List.of());
+
+        KanbanBoardDto board = projectService.getKanbanBoard(1L, 3L);
+
+        assertThat(board.getColumns().get("OFFER")).hasSize(1);
+        verify(projectRepository, never()).findByFreelanceId(any());
     }
 
     @Test
@@ -540,7 +590,7 @@ class ProjectServiceTest {
     @Test
     void getKanbanBoard_ShouldGroupProjectsByStatusInColumnOrder() {
         // Given
-        testProject.setStatus(ProjectStatus.APPLIED);
+        testProject.setStatus(ProjectStatus.INTERVIEW);
 
         Project projectWithoutStatus = new Project();
         projectWithoutStatus.setId(2L);
@@ -561,11 +611,11 @@ class ProjectServiceTest {
 
         // Then
         assertThat(board.getColumnOrder()).containsExactly(
-                "IDENTIFIED", "APPLIED", "INTERVIEW", "OFFER", "WON", "LOST");
-        assertThat(board.getColumns().get("APPLIED")).hasSize(1);
-        assertThat(board.getColumns().get("IDENTIFIED")).hasSize(1); // null status defaults to IDENTIFIED
+                "CONTACT", "INTERVIEW", "OFFER", "WON", "LOST");
+        assertThat(board.getColumns().get("INTERVIEW")).hasSize(1);
+        assertThat(board.getColumns().get("CONTACT")).hasSize(1); // null status defaults to CONTACT
 
-        KanbanBoardDto.ProjectCardDto card = board.getColumns().get("APPLIED").get(0);
+        KanbanBoardDto.ProjectCardDto card = board.getColumns().get("INTERVIEW").get(0);
         assertThat(card.getProjectId()).isEqualTo(1L);
         assertThat(card.getClientName()).isEqualTo("Test Company");
         assertThat(card.getTotalSteps()).isEqualTo(2);
@@ -576,13 +626,13 @@ class ProjectServiceTest {
     @Test
     void getKanbanBoard_ShouldPinFavoritesToTopOfColumn() {
         // Given two projects in the same column, only the second is a favorite.
-        testProject.setStatus(ProjectStatus.APPLIED);
+        testProject.setStatus(ProjectStatus.CONTACT);
         testProject.setIsFavorite(false);
 
         Project favorite = new Project();
         favorite.setId(2L);
         favorite.setRole("Lead Developer");
-        favorite.setStatus(ProjectStatus.APPLIED);
+        favorite.setStatus(ProjectStatus.CONTACT);
         favorite.setFreelance(testFreelance);
         favorite.setIsFavorite(true);
 
@@ -593,7 +643,7 @@ class ProjectServiceTest {
         KanbanBoardDto board = projectService.getKanbanBoard(1L);
 
         // Then the favorite is listed first.
-        List<KanbanBoardDto.ProjectCardDto> applied = board.getColumns().get("APPLIED");
+        List<KanbanBoardDto.ProjectCardDto> applied = board.getColumns().get("CONTACT");
         assertThat(applied).hasSize(2);
         assertThat(applied.get(0).getProjectId()).isEqualTo(2L);
         assertThat(applied.get(0).getIsFavorite()).isTrue();
@@ -603,18 +653,18 @@ class ProjectServiceTest {
     @Test
     void getKanbanBoard_ShouldOrderByBoardPositionWithinColumn() {
         // Given three non-favorite cards with positions 2, 0 and none.
-        testProject.setStatus(ProjectStatus.APPLIED);
+        testProject.setStatus(ProjectStatus.CONTACT);
         testProject.setBoardPosition(2);
 
         Project first = new Project();
         first.setId(2L);
-        first.setStatus(ProjectStatus.APPLIED);
+        first.setStatus(ProjectStatus.CONTACT);
         first.setFreelance(testFreelance);
         first.setBoardPosition(0);
 
         Project noPosition = new Project();
         noPosition.setId(3L);
-        noPosition.setStatus(ProjectStatus.APPLIED);
+        noPosition.setStatus(ProjectStatus.CONTACT);
         noPosition.setFreelance(testFreelance);
 
         when(projectRepository.findByFreelanceId(1L))
@@ -625,7 +675,7 @@ class ProjectServiceTest {
         KanbanBoardDto board = projectService.getKanbanBoard(1L);
 
         // Then lower positions come first and the position-less card sorts last.
-        assertThat(board.getColumns().get("APPLIED"))
+        assertThat(board.getColumns().get("CONTACT"))
                 .extracting(KanbanBoardDto.ProjectCardDto::getProjectId)
                 .containsExactly(2L, 1L, 3L);
     }
@@ -662,19 +712,19 @@ class ProjectServiceTest {
     void getKanbanBoard_ShouldFlagProjectsWithSameClientAndRoleAsDuplicates() {
         // Given two opportunities for the same client with the same role (different case),
         // plus a third with a different role for the same client.
-        testProject.setStatus(ProjectStatus.IDENTIFIED);
+        testProject.setStatus(ProjectStatus.CONTACT);
 
         Project duplicate = new Project();
         duplicate.setId(2L);
         duplicate.setRole("full stack developer");
-        duplicate.setStatus(ProjectStatus.APPLIED);
+        duplicate.setStatus(ProjectStatus.CONTACT);
         duplicate.setFreelance(testFreelance);
         duplicate.setClient(testClient);
 
         Project distinct = new Project();
         distinct.setId(3L);
         distinct.setRole("DevOps Engineer");
-        distinct.setStatus(ProjectStatus.IDENTIFIED);
+        distinct.setStatus(ProjectStatus.CONTACT);
         distinct.setFreelance(testFreelance);
         distinct.setClient(testClient);
 
@@ -698,7 +748,7 @@ class ProjectServiceTest {
     @Test
     void getKanbanBoard_WithUniqueRoles_ShouldFlagNoDuplicates() {
         // Given a single project, nothing can be a duplicate.
-        testProject.setStatus(ProjectStatus.IDENTIFIED);
+        testProject.setStatus(ProjectStatus.CONTACT);
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
         when(interviewStepRepository.findByProjectId(any())).thenReturn(List.of());
 
@@ -706,7 +756,7 @@ class ProjectServiceTest {
         KanbanBoardDto board = projectService.getKanbanBoard(1L);
 
         // Then
-        KanbanBoardDto.ProjectCardDto card = board.getColumns().get("IDENTIFIED").get(0);
+        KanbanBoardDto.ProjectCardDto card = board.getColumns().get("CONTACT").get(0);
         assertThat(card.getIsPotentialDuplicate()).isFalse();
     }
 

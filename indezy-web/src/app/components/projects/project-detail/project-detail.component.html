@@ -21,8 +21,8 @@
                 [style.--status-color]="getStatusColor(project.status)"
                 [matMenuTriggerFor]="statusMenu" [disabled]="isUpdatingStatus"
                 [matTooltip]="'projects.detail.changeStatus' | translate">
-                <mat-icon>{{ statusIcons[project.status ?? 'IDENTIFIED'] }}</mat-icon>
-                {{ 'projects.statuses.' + (project.status ?? 'IDENTIFIED') | translate }}
+                <mat-icon>{{ statusIcons[project.status ?? 'CONTACT'] }}</mat-icon>
+                {{ 'projects.statuses.' + (project.status ?? 'CONTACT') | translate }}
                 <mat-icon>arrow_drop_down</mat-icon>
               </button>
               <mat-menu #statusMenu="matMenu">
@@ -51,6 +51,12 @@
             @if (project.sourceName) {
               <span class="subtitle-sep">•</span>
               <span>{{ project.sourceName }}</span>
+            }
+            @if (project.seasonName) {
+              <span class="subtitle-sep">•</span>
+              <span class="season-tag" [matTooltip]="'seasons.label' | translate">
+                <mat-icon inline>flag</mat-icon> {{ project.seasonName }}
+              </span>
             }
             <span class="subtitle-sep">•</span>
             <span>{{ project.dailyRate | number:'1.0-0' }} €{{ 'common.perDay' | translate }}</span>

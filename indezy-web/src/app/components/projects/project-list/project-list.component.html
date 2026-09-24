@@ -92,6 +92,19 @@
               </mat-select>
             </mat-form-field>
 
+            @if (seasons.length) {
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>{{ 'seasons.label' | translate }}</mat-label>
+                <mat-select formControlName="season">
+                  <mat-option value="">{{ 'seasons.all' | translate }}</mat-option>
+                  @for (season of seasons; track season.id) {
+                    <mat-option [value]="season.id">{{ season.name }}</mat-option>
+                  }
+                  <mat-option value="none">{{ 'seasons.none' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            }
+
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'projects.duration' | translate }}</mat-label>
               <mat-select formControlName="duration">
@@ -310,7 +323,7 @@
             </mat-card-subtitle>
             <div class="project-status">
               <span class="status-pill" [style.--status-color]="getStatusColor(project)">
-                {{ 'projects.statuses.' + (project.status ?? 'IDENTIFIED') | translate }}
+                {{ 'projects.statuses.' + (project.status ?? 'CONTACT') | translate }}
               </span>
             </div>
           </mat-card-header>

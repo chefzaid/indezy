@@ -12,6 +12,8 @@ export interface ProjectFilterValues {
   workMode?: string;
   techStack?: string;
   status?: string;
+  /** '' for every season, 'none' for opportunities outside any season, or a season id. */
+  season?: string | number;
   startDateFrom?: DateFilterValue;
   startDateTo?: DateFilterValue;
   endDateFrom?: DateFilterValue;
@@ -38,6 +40,7 @@ export function filterProjects(projects: ProjectDto[], filters: ProjectFilterVal
     matchesRate(project, filters) &&
     matchesWorkMode(project, filters) &&
     matchesStatus(project, filters) &&
+    matchesSeason(project, filters) &&
     matchesTechStack(project, filters) &&
     matchesSelectedTechStack(project, filters) &&
     matchesDateRange(project, filters) &&
@@ -131,6 +134,16 @@ function matchesWorkMode(project: ProjectDto, filters: ProjectFilterValues): boo
 
 function matchesStatus(project: ProjectDto, filters: ProjectFilterValues): boolean {
   return !filters.status || project.status === filters.status;
+}
+
+function matchesSeason(project: ProjectDto, filters: ProjectFilterValues): boolean {
+  if (filters.season === undefined || filters.season === null || filters.season === '') {
+    return true;
+  }
+  if (filters.season === 'none') {
+    return project.seasonId === undefined || project.seasonId === null;
+  }
+  return project.seasonId === Number(filters.season);
 }
 
 function matchesTechStack(project: ProjectDto, filters: ProjectFilterValues): boolean {

@@ -27,7 +27,7 @@ describe('KanbanBoardComponent', () => {
   const mockCard: KanbanProjectCardDto = {
     projectId: 42,
     role: 'Full Stack Developer',
-    status: ProjectStatus.APPLIED,
+    status: ProjectStatus.CONTACT,
     clientName: 'Acme',
     dailyRate: 600,
     totalSteps: 5,
@@ -38,11 +38,11 @@ describe('KanbanBoardComponent', () => {
 
   const mockBoard: KanbanBoardDto = {
     columns: {
-      [ProjectStatus.IDENTIFIED]: [],
-      [ProjectStatus.APPLIED]: [mockCard],
-      [ProjectStatus.INTERVIEW]: []
+      [ProjectStatus.CONTACT]: [mockCard],
+      [ProjectStatus.INTERVIEW]: [],
+      [ProjectStatus.OFFER]: []
     },
-    columnOrder: [ProjectStatus.IDENTIFIED, ProjectStatus.APPLIED, ProjectStatus.INTERVIEW]
+    columnOrder: [ProjectStatus.CONTACT, ProjectStatus.INTERVIEW, ProjectStatus.OFFER]
   };
 
   beforeEach(async () => {
@@ -77,9 +77,22 @@ describe('KanbanBoardComponent', () => {
 
       fixture.detectChanges();
 
-      expect(mockProjectService.getKanbanBoard).toHaveBeenCalledWith(1);
+      expect(mockProjectService.getKanbanBoard).toHaveBeenCalledWith(1, null);
       expect(component.kanbanBoard).toEqual(mockBoard);
       expect(component.isLoading).toBeFalse();
+    });
+
+    it('should load the bound season and reload when it changes', () => {
+      mockProjectService.getKanbanBoard.and.returnValue(of(mockBoard));
+      fixture.componentRef.setInput('seasonId', 3);
+      fixture.detectChanges();
+      expect(mockProjectService.getKanbanBoard).toHaveBeenCalledWith(1, 3);
+
+      fixture.componentRef.setInput('seasonId', 5);
+      fixture.detectChanges();
+
+      expect(mockProjectService.getKanbanBoard).toHaveBeenCalledWith(1, 5);
+      expect(mockProjectService.getKanbanBoard).toHaveBeenCalledTimes(2);
     });
 
     it('should not load the board when there is no user', () => {
@@ -111,20 +124,20 @@ describe('KanbanBoardComponent', () => {
     });
 
     it('should return cards for a column', () => {
-      expect(component.getCardsForColumn(ProjectStatus.APPLIED)).toEqual([mockCard]);
+      expect(component.getCardsForColumn(ProjectStatus.CONTACT)).toEqual([mockCard]);
       expect(component.getCardsForColumn(ProjectStatus.INTERVIEW)).toEqual([]);
     });
 
     it('should build column ids and connected drop lists', () => {
-      expect(component.getColumnId(ProjectStatus.APPLIED)).toBe(`kanban-col-${ProjectStatus.APPLIED}`);
+      expect(component.getColumnId(ProjectStatus.CONTACT)).toBe(`kanban-col-${ProjectStatus.CONTACT}`);
       expect(component.getConnectedDropLists()).toEqual(
         mockBoard.columnOrder.map(s => `kanban-col-${s}`)
       );
     });
 
     it('should count cards per column', () => {
-      expect(component.getColumnCount(ProjectStatus.APPLIED)).toBe(1);
-      expect(component.getColumnCount(ProjectStatus.IDENTIFIED)).toBe(0);
+      expect(component.getColumnCount(ProjectStatus.CONTACT)).toBe(1);
+      expect(component.getColumnCount(ProjectStatus.INTERVIEW)).toBe(0);
     });
 
     it('should detect a non-empty board', () => {
@@ -133,8 +146,8 @@ describe('KanbanBoardComponent', () => {
 
     it('should detect an empty board', () => {
       component.kanbanBoard = {
-        columns: { [ProjectStatus.APPLIED]: [] },
-        columnOrder: [ProjectStatus.APPLIED]
+        columns: { [ProjectStatus.CONTACT]: [] },
+        columnOrder: [ProjectStatus.CONTACT]
       };
       expect(component.isBoardEmpty()).toBeTrue();
     });
@@ -159,7 +172,7 @@ describe('KanbanBoardComponent', () => {
       mockProjectService.updateStatus.and.returnValue(of({} as ProjectDto));
 
       component.onCardDrop(dropEvent(
-        `kanban-col-${ProjectStatus.APPLIED}`,
+        `kanban-col-${ProjectStatus.CONTACT}`,
         `kanban-col-${ProjectStatus.INTERVIEW}`
       ));
 
@@ -171,7 +184,7 @@ describe('KanbanBoardComponent', () => {
       mockProjectService.updateStatus.and.returnValue(throwError(() => new Error('boom')));
 
       component.onCardDrop(dropEvent(
-        `kanban-col-${ProjectStatus.APPLIED}`,
+        `kanban-col-${ProjectStatus.CONTACT}`,
         `kanban-col-${ProjectStatus.INTERVIEW}`
       ));
 
@@ -185,7 +198,7 @@ describe('KanbanBoardComponent', () => {
       mockProjectService.updateStatus.and.returnValue(of({} as ProjectDto));
 
       component.onCardDrop(dropEvent(
-        `kanban-col-${ProjectStatus.APPLIED}`,
+        `kanban-col-${ProjectStatus.CONTACT}`,
         `kanban-col-${ProjectStatus.LOST}`
       ));
 
@@ -197,7 +210,7 @@ describe('KanbanBoardComponent', () => {
         .and.returnValue({ afterClosed: () => of(undefined) } as MatDialogRef<unknown>);
 
       component.onCardDrop(dropEvent(
-        `kanban-col-${ProjectStatus.APPLIED}`,
+        `kanban-col-${ProjectStatus.CONTACT}`,
         `kanban-col-${ProjectStatus.LOST}`
       ));
 
@@ -210,7 +223,7 @@ describe('KanbanBoardComponent', () => {
       mockProjectService.reorderKanbanColumn.and.returnValue(of(undefined));
       const cardA: KanbanProjectCardDto = { ...mockCard, projectId: 1 };
       const cardB: KanbanProjectCardDto = { ...mockCard, projectId: 2 };
-      const container = { data: [cardA, cardB], id: `kanban-col-${ProjectStatus.APPLIED}` };
+      const container = { data: [cardA, cardB], id: `kanban-col-${ProjectStatus.CONTACT}` };
 
       component.onCardDrop({
         previousContainer: container,
@@ -225,7 +238,7 @@ describe('KanbanBoardComponent', () => {
     });
 
     it('should not persist when a card is dropped back in place', () => {
-      const container = { data: [mockCard], id: `kanban-col-${ProjectStatus.APPLIED}` };
+      const container = { data: [mockCard], id: `kanban-col-${ProjectStatus.CONTACT}` };
 
       component.onCardDrop({
         previousContainer: container,
@@ -246,11 +259,11 @@ describe('KanbanBoardComponent', () => {
       // Use a fresh board so toggling does not mutate the shared fixtures.
       // Cards must carry the status of the column they sit in, since toggleFavorite
       // re-sorts the column identified by card.status.
-      target = { ...mockCard, status: ProjectStatus.APPLIED, isFavorite: false };
-      const other: KanbanProjectCardDto = { ...mockCard, projectId: 99, status: ProjectStatus.APPLIED, isFavorite: false };
+      target = { ...mockCard, status: ProjectStatus.CONTACT, isFavorite: false };
+      const other: KanbanProjectCardDto = { ...mockCard, projectId: 99, status: ProjectStatus.CONTACT, isFavorite: false };
       mockProjectService.getKanbanBoard.and.returnValue(of({
-        columns: { [ProjectStatus.APPLIED]: [other, target] },
-        columnOrder: [ProjectStatus.APPLIED]
+        columns: { [ProjectStatus.CONTACT]: [other, target] },
+        columnOrder: [ProjectStatus.CONTACT]
       }));
       fixture.detectChanges();
       event = jasmine.createSpyObj('Event', ['stopPropagation', 'preventDefault']);
@@ -266,7 +279,7 @@ describe('KanbanBoardComponent', () => {
       expect(mockProjectService.toggleFavorite).toHaveBeenCalledWith(42);
       expect(target.isFavorite).toBeTrue();
       // Favorite is pinned to the top of its column.
-      expect(component.getCardsForColumn(ProjectStatus.APPLIED)[0]).toBe(target);
+      expect(component.getCardsForColumn(ProjectStatus.CONTACT)[0]).toBe(target);
     });
 
     it('should notify on toggle failure', () => {
@@ -292,11 +305,11 @@ describe('KanbanBoardComponent', () => {
     it('should open the quick-add dialog with the column status and reload on create', () => {
       dialogOpenSpy.and.returnValue({ afterClosed: () => of(true) } as MatDialogRef<unknown>);
 
-      component.openQuickAdd(ProjectStatus.APPLIED);
+      component.openQuickAdd(ProjectStatus.CONTACT);
 
       const config = dialogOpenSpy.calls.mostRecent().args[1];
       expect(config?.data).toEqual(jasmine.objectContaining({
-        status: ProjectStatus.APPLIED,
+        status: ProjectStatus.CONTACT,
         freelanceId: 1
       }));
       // Board is reloaded: once on init, once after the dialog returns a created project.
@@ -306,7 +319,7 @@ describe('KanbanBoardComponent', () => {
     it('should not reload when the dialog is dismissed', () => {
       dialogOpenSpy.and.returnValue({ afterClosed: () => of(undefined) } as MatDialogRef<unknown>);
 
-      component.openQuickAdd(ProjectStatus.APPLIED);
+      component.openQuickAdd(ProjectStatus.CONTACT);
 
       expect(mockProjectService.getKanbanBoard).toHaveBeenCalledTimes(1);
     });

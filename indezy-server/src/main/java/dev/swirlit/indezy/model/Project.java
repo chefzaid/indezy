@@ -28,7 +28,7 @@ public class Project extends BaseEntity {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private ProjectStatus status = ProjectStatus.IDENTIFIED;
+    private ProjectStatus status = ProjectStatus.CONTACT;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
@@ -121,6 +121,11 @@ public class Project extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_id")
     private Source source;
+
+    /** Job-hunting season the opportunity belongs to; null for opportunities outside any season. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "season_id")
+    private Season season;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<InterviewStep> steps = new ArrayList<>();

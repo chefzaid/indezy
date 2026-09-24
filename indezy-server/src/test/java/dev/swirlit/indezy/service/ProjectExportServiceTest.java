@@ -52,7 +52,7 @@ class ProjectExportServiceTest {
     @Test
     void buildYearlySummaryCsv_WithoutYear_ShouldIncludeAllAndQuoteSpecialCharacters() {
         // Given a project whose role contains a comma, requiring CSV quoting.
-        Project project = project("Lead, Platform", ProjectStatus.APPLIED, "Acme", null,
+        Project project = project("Lead, Platform", ProjectStatus.CONTACT, "Acme", null,
             null, LocalDate.of(2025, 5, 1), null, 700, null);
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(project));
 
@@ -62,7 +62,7 @@ class ProjectExportServiceTest {
         // Then the comma-containing field is wrapped in quotes and empty fields stay blank.
         String[] lines = csv.split("\r\n");
         assertThat(lines).hasSize(3);
-        assertThat(lines[1]).isEqualTo("\"Lead, Platform\",APPLIED,Acme,,,2025-05-01,,700,,");
+        assertThat(lines[1]).isEqualTo("\"Lead, Platform\",CONTACT,Acme,,,2025-05-01,,700,,");
         assertThat(lines[2]).isEqualTo("Total,,,,,,,,,0");
     }
 

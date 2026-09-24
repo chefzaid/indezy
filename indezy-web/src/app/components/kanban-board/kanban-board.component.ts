@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, inject } from '@angular/core';
+import { Component, OnInit, OnChanges, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, Input, SimpleChanges, inject } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -52,7 +52,10 @@ import {
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./kanban-board.component.scss']
 })
-export class KanbanBoardComponent implements OnInit, OnDestroy {
+export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
+  /** Season whose pipeline is shown; null or undefined shows every opportunity. */
+  @Input() seasonId: number | null = null;
+
   kanbanBoard: KanbanBoardDto | null = null;
   isLoading = false;
   currentUserId: number | null = null;
@@ -85,6 +88,12 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['seasonId'] && !changes['seasonId'].firstChange) {
+      this.loadKanbanBoard();
+    }
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -94,7 +103,7 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
     if (!this.currentUserId) {return;}
 
     this.isLoading = true;
-    this.projectService.getKanbanBoard(this.currentUserId)
+    this.projectService.getKanbanBoard(this.currentUserId, this.seasonId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (board) => {
@@ -114,7 +123,8 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
     const dialogData: KanbanQuickAddDialogData = {
       status: status as ProjectStatus,
       statusLabel: this.getColumnLabel(status),
-      freelanceId: this.currentUserId
+      freelanceId: this.currentUserId,
+      seasonId: this.seasonId
     };
 
     this.dialog.open(KanbanQuickAddDialogComponent, { data: dialogData })

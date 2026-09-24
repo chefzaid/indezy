@@ -14,6 +14,18 @@ describe('project filters', () => {
     expect(filterProjects(projects, { status: 'WON' }).map(p => p.id)).toEqual([1, 3]);
   });
 
+  it('filters by season, including opportunities outside any season', () => {
+    const seasonal = [
+      project({ id: 4, seasonId: 1 }),
+      project({ id: 5, seasonId: 2 }),
+      project({ id: 6 })
+    ];
+    expect(filterProjects(seasonal, { season: 1 }).map(p => p.id)).toEqual([4]);
+    expect(filterProjects(seasonal, { season: '2' }).map(p => p.id)).toEqual([5]);
+    expect(filterProjects(seasonal, { season: 'none' }).map(p => p.id)).toEqual([6]);
+    expect(filterProjects(seasonal, { season: '' }).map(p => p.id)).toEqual([4, 5, 6]);
+  });
+
   it('filters by derived end date and drops projects without one', () => {
     const result = filterProjects(projects, { endDateFrom: '2026-08-01' });
     expect(result.map(p => p.id)).toEqual([2]);

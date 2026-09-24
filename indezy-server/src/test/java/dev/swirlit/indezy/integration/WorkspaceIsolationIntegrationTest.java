@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -96,6 +97,57 @@ class WorkspaceIsolationIntegrationTest {
 
         ResponseEntity<List> bobFreelances = call(bob, HttpMethod.GET, "/freelances", null, List.class);
         assertThat(bobFreelances.getBody()).hasSize(1);
+    }
+
+    @Test
+    void seasonsScopeThePipelineAndStayPrivate() {
+        ResponseEntity<Map> season = call(alice, HttpMethod.POST, "/seasons",
+            Map.of("name", "Autumn search", "startDate", LocalDate.now().minusDays(10).toString(),
+                "targetDailyRate", 650),
+            Map.class);
+        assertThat(season.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(season.getBody().get("active")).isEqualTo(true);
+        long seasonId = ((Number) season.getBody().get("id")).longValue();
+
+        // A new opportunity joins the running season.
+        ResponseEntity<Map> project = call(alice, HttpMethod.POST, "/projects",
+            Map.of("role", "Java Lead", "dailyRate", 650, "clientId", aliceClientId), Map.class);
+        assertThat(project.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(((Number) project.getBody().get("seasonId")).longValue()).isEqualTo(seasonId);
+        assertThat(project.getBody().get("status")).isEqualTo("CONTACT");
+
+        ResponseEntity<Map> board = call(alice, HttpMethod.GET,
+            "/projects/kanban/" + alice.freelanceId() + "?seasonId=" + seasonId, null, Map.class);
+        assertThat(board.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat((List<Object>) board.getBody().get("columnOrder"))
+            .containsExactly("CONTACT", "INTERVIEW", "OFFER", "WON", "LOST");
+        assertThat((List<?>) ((Map<?, ?>) board.getBody().get("columns")).get("CONTACT")).hasSize(1);
+
+        ResponseEntity<Map> stats = call(alice, HttpMethod.GET,
+            "/projects/stats/dashboard/" + alice.freelanceId() + "?seasonId=" + seasonId, null, Map.class);
+        assertThat(((Number) stats.getBody().get("totalProjects")).longValue()).isEqualTo(1L);
+
+        ResponseEntity<List> seasons = call(alice, HttpMethod.GET,
+            "/seasons/by-freelance/" + alice.freelanceId(), null, List.class);
+        assertThat(seasons.getBody()).hasSize(1);
+        assertThat(((Map<?, ?>) seasons.getBody().get(0)).get("projectCount")).isEqualTo(1);
+
+        // Bob can neither see Alice's season nor use it to scope his own board.
+        assertThat(call(bob, HttpMethod.GET, "/seasons/" + seasonId, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.GET,
+            "/projects/kanban/" + bob.freelanceId() + "?seasonId=" + seasonId, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.DELETE, "/seasons/" + seasonId, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+
+        // Deleting the season keeps its opportunities.
+        assertThat(call(alice, HttpMethod.DELETE, "/seasons/" + seasonId, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NO_CONTENT);
+        ResponseEntity<Map> kept = call(alice, HttpMethod.GET,
+            "/projects/" + project.getBody().get("id"), null, Map.class);
+        assertThat(kept.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(kept.getBody().get("seasonId")).isNull();
     }
 
     private Account register(String name) {

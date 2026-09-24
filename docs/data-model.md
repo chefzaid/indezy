@@ -12,6 +12,8 @@ erDiagram
     FREELANCE ||--o{ CLIENT : owns
     FREELANCE ||--o{ CONTACT : owns
     FREELANCE ||--o{ SOURCE : owns
+    FREELANCE ||--o{ SEASON : plans
+    SEASON ||--o{ PROJECT : groups
     CLIENT ||--o{ CONTACT : has
     CLIENT ||--o{ PROJECT : final_client
     CLIENT ||--o{ PROJECT : middleman
@@ -125,6 +127,7 @@ Relationships:
 - one freelance has many clients
 - one freelance has many contacts
 - one freelance has many sources
+- one freelance has many seasons
 
 Deletion behavior: child collections use cascade all. Be careful when deleting a freelance because it can remove the workspace owned by that profile.
 
@@ -163,16 +166,18 @@ Relationships:
 - required final client
 - optional middleman client
 - optional source
+- optional season (`season_id`)
 - many interview steps
 
-Status values:
+Status values (Kanban columns, in order):
 
-- `IDENTIFIED`
-- `APPLIED`
+- `CONTACT`
 - `INTERVIEW`
 - `OFFER`
 - `WON`
 - `LOST`
+
+`CONTACT` replaced the former `IDENTIFIED` and `APPLIED` values.
 
 Work mode values:
 
@@ -260,6 +265,32 @@ Source type values:
 - `CALL`
 - `SMS`
 
+## Season
+
+Table: `seasons`
+
+Purpose: a job-hunting season, a bounded prospection period with its own pipeline and dashboard.
+
+Important fields:
+
+- name
+- start date
+- end date (null while the season is running)
+- objective
+- target daily rate
+- freelance owner
+
+Relationships:
+
+- one season groups many projects (`projects.season_id`, nullable)
+
+Behavior:
+
+- a season is running on a day between its start and end dates (inclusive), or from its start when it has no end date
+- creating or updating a season attaches the owner's unassigned projects created within its dates
+- a new project without an explicit season joins the running season that started last
+- deleting a season clears `season_id` on its projects instead of deleting them
+
 ## InterviewStep
 
 Table: `interview_steps`
@@ -334,6 +365,8 @@ The current application relies on Hibernate `ddl-auto` behavior:
 
 This is convenient during early development, but production should move to versioned migrations before data becomes valuable.
 
+Hibernate `update` adds tables and columns (such as `seasons` and `projects.season_id`) but never rewrites the check constraints it generated for enum columns. `ProjectStatusMigration` runs at startup on PostgreSQL: when `projects_status_check` does not match the current `ProjectStatus` values it moves `IDENTIFIED` and `APPLIED` projects to `CONTACT` and rebuilds the constraint in one transaction. It does nothing once the constraint is current.
+
 Recommended direction:
 
 1. Introduce Flyway or Liquibase.
@@ -352,6 +385,7 @@ Practical ownership rules for new development:
 - A project may have one source.
 - A contact belongs to one client and one freelance.
 - A source belongs to one freelance.
+- A season belongs to one freelance; a project may belong to one season of the same freelance.
 - User account data should not be mixed into project ownership without clarifying the User/Freelance boundary.
 
 ## Related Guides

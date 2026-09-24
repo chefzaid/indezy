@@ -1,0 +1,53 @@
+<div class="season-picker">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="season-select">
+    <mat-label>{{ 'seasons.label' | translate }}</mat-label>
+    <mat-icon matPrefix>flag</mat-icon>
+    <mat-select [value]="selection" (selectionChange)="select($event.value)" [disabled]="!loaded"
+      panelClass="season-select-panel">
+      <mat-select-trigger>
+        {{ selectedSeason ? selectedSeason.name : ('seasons.all' | translate) }}
+      </mat-select-trigger>
+      <mat-option [value]="ALL">
+        <span class="option-name">{{ 'seasons.all' | translate }}</span>
+      </mat-option>
+      @for (season of seasons; track season.id) {
+        <mat-option [value]="season.id">
+          <span class="option-name">{{ season.name }}</span>
+          @if (season.active) {
+            <span class="season-badge running">{{ 'seasons.running' | translate }}</span>
+          }
+          <span class="option-dates">{{ formatRange(season) }}</span>
+        </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <button mat-stroked-button type="button" class="new-season-button" (click)="openNewSeason()"
+    [matTooltip]="'seasons.newTooltip' | translate">
+    <mat-icon>add</mat-icon>
+    <span class="button-label">{{ 'seasons.new' | translate }}</span>
+  </button>
+
+  @if (selectedSeason) {
+    <button mat-icon-button type="button" [matMenuTriggerFor]="seasonMenu"
+      [attr.aria-label]="'seasons.actions' | translate" [matTooltip]="'seasons.actions' | translate">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #seasonMenu="matMenu">
+      <button mat-menu-item (click)="editSelected()">
+        <mat-icon>edit</mat-icon>
+        <span>{{ 'seasons.edit' | translate }}</span>
+      </button>
+      @if (!selectedSeason.endDate) {
+        <button mat-menu-item (click)="closeSelected()">
+          <mat-icon>sports_score</mat-icon>
+          <span>{{ 'seasons.close' | translate }}</span>
+        </button>
+      }
+      <button mat-menu-item (click)="deleteSelected()">
+        <mat-icon>delete</mat-icon>
+        <span>{{ 'seasons.delete' | translate }}</span>
+      </button>
+    </mat-menu>
+  }
+</div>

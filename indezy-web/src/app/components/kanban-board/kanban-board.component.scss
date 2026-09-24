@@ -74,9 +74,9 @@
       font-size: 13px;
       font-weight: 600;
       color: var(--app-text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      line-height: 1.25;
+      // Long stage names ("Perdu / Abandonné") wrap instead of being cut off.
+      overflow-wrap: break-word;
     }
   }
 

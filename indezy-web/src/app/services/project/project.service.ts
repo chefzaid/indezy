@@ -99,8 +99,9 @@ export class ProjectService {
     return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/favorite`, null);
   }
 
-  getKanbanBoard(freelanceId: number): Observable<KanbanBoardDto> {
-    return this.http.get<KanbanBoardDto>(`${this.API_URL}/kanban/${freelanceId}`);
+  /** Kanban board of the workspace, limited to one season when a season id is given. */
+  getKanbanBoard(freelanceId: number, seasonId?: number | null): Observable<KanbanBoardDto> {
+    return this.http.get<KanbanBoardDto>(`${this.API_URL}/kanban/${freelanceId}`, { params: seasonParams(seasonId) });
   }
 
   /** Persists the manual order of cards within a column (project ids in their new order). */
@@ -127,7 +128,13 @@ export class ProjectService {
     return this.http.delete<void>(`${this.API_URL}/${projectId}/notes/${noteId}`);
   }
 
-  getDashboardStats(freelanceId: number): Observable<DashboardStatsDto> {
-    return this.http.get<DashboardStatsDto>(`${this.API_URL}/stats/dashboard/${freelanceId}`);
+  /** Dashboard statistics for all time, or for one season when a season id is given. */
+  getDashboardStats(freelanceId: number, seasonId?: number | null): Observable<DashboardStatsDto> {
+    return this.http.get<DashboardStatsDto>(`${this.API_URL}/stats/dashboard/${freelanceId}`,
+      { params: seasonParams(seasonId) });
   }
+}
+
+function seasonParams(seasonId?: number | null): HttpParams {
+  return seasonId === undefined || seasonId === null ? new HttpParams() : new HttpParams().set('seasonId', seasonId);
 }

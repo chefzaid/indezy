@@ -27,6 +27,8 @@ import { CommuteService } from '../../../services/commute/commute.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { SeasonService } from '../../../services/season/season.service';
+import { Season } from '../../../models/season.models';
 import {
   ProjectFilterValues,
   countActiveFilters,
@@ -128,7 +130,10 @@ export class ProjectListComponent implements OnInit {
     { value: 'commuteTime', labelKey: 'projects.commuteTime' }
   ];
 
+  seasons: Season[] = [];
+
   private readonly destroyRef = inject(DestroyRef);
+  private readonly seasonService = inject(SeasonService);
 
   constructor(
     private readonly projectService: ProjectService,
@@ -150,6 +155,7 @@ export class ProjectListComponent implements OnInit {
 
       // Advanced filters
       status: [''],
+      season: [''],
       startDateFrom: [''],
       startDateTo: [''],
       endDateFrom: [''],
@@ -167,6 +173,7 @@ export class ProjectListComponent implements OnInit {
   ngOnInit(): void {
     this.currentUser = this.authService.getUser();
     this.loadProjects();
+    this.loadSeasons();
     this.loadFreelanceProfile();
     this.setupFilters();
   }
@@ -189,6 +196,18 @@ export class ProjectListComponent implements OnInit {
         console.error('Error loading projects:', error);
       }
     });
+  }
+
+  private loadSeasons(): void {
+    if (!this.currentUser?.id) {
+      return;
+    }
+    this.seasonService.getByFreelanceId(this.currentUser.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: seasons => this.seasons = seasons,
+        error: () => this.seasons = []
+      });
   }
 
   setupFilters(): void {
@@ -303,7 +322,7 @@ export class ProjectListComponent implements OnInit {
   }
 
   getStatusColor(project: ProjectDto): string {
-    return this.statusColors[project.status ?? ProjectStatus.IDENTIFIED];
+    return this.statusColors[project.status ?? ProjectStatus.CONTACT];
   }
 
   /** Delivery phase of a signed mission (upcoming / in progress / completed), null for opportunities. */

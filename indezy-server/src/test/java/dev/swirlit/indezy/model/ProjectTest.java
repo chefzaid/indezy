@@ -222,12 +222,12 @@ class ProjectTest {
     }
 
     @Test
-    void getForecastRevenue_WithIdentifiedStatus_ShouldWeightByProbability() {
-        // Given total revenue 66,000 and the default IDENTIFIED status (10% probability)
-        project.setStatus(ProjectStatus.IDENTIFIED);
+    void getForecastRevenue_WithContactStatus_ShouldWeightByProbability() {
+        // Given total revenue 66,000 and the default CONTACT status (20% probability)
+        project.setStatus(ProjectStatus.CONTACT);
 
-        // When / Then: 66,000 * 0.10 = 6,600
-        assertThat(project.getForecastRevenue()).isEqualTo(6600.0);
+        // When / Then: 66,000 * 0.20 = 13,200
+        assertThat(project.getForecastRevenue()).isEqualTo(13200.0);
     }
 
     @Test

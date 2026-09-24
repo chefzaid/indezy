@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Orchestrates the aggregated dashboard statistics for a freelance: loads the data (projects,
@@ -47,20 +48,34 @@ public class DashboardStatsService {
 
     @Transactional(readOnly = true)
     public DashboardStatsDto getDashboardStats(Long freelanceId) {
-        log.debug("Getting dashboard stats for freelance: {}", freelanceId);
+        return getDashboardStats(freelanceId, null);
+    }
 
-        Long totalProjects = projectRepository.countByFreelanceId(freelanceId);
-        Double averageDailyRate = projectRepository.findAverageDailyRateByFreelanceId(freelanceId);
-        Long wonProjects = projectRepository.countWonByFreelanceId(freelanceId);
-        Long lostProjects = projectRepository.countLostByFreelanceId(freelanceId);
-        Long activeProjects = projectRepository.countActiveByFreelanceId(freelanceId);
+    /**
+     * Dashboard statistics of a workspace. With a season, every opportunity-based metric only
+     * considers that season's opportunities (and their interview steps); contact reminders stay
+     * workspace-wide.
+     */
+    @Transactional(readOnly = true)
+    public DashboardStatsDto getDashboardStats(Long freelanceId, Long seasonId) {
+        log.debug("Getting dashboard stats for freelance: {} (season: {})", freelanceId, seasonId);
 
-        Map<String, Long> projectsByStatus = countsByEnum(ProjectStatus.values(),
-            projectRepository.countByFreelanceIdGroupByStatus(freelanceId));
-        Map<String, Long> projectsByWorkMode = countsByEnum(WorkMode.values(),
-            projectRepository.countByFreelanceIdGroupByWorkMode(freelanceId));
+        List<Project> projects = seasonId != null
+            ? projectRepository.findByFreelanceIdAndSeasonId(freelanceId, seasonId)
+            : projectRepository.findByFreelanceId(freelanceId);
 
-        List<Project> projects = projectRepository.findByFreelanceId(freelanceId);
+        long totalProjects = projects.size();
+        double averageDailyRate = projects.stream()
+            .filter(p -> p.getDailyRate() != null)
+            .mapToInt(Project::getDailyRate)
+            .average()
+            .orElse(0);
+        long wonProjects = countWithStatus(projects, ProjectStatus.WON);
+        long lostProjects = countWithStatus(projects, ProjectStatus.LOST);
+        long activeProjects = totalProjects - wonProjects - lostProjects;
+
+        Map<String, Long> projectsByStatus = countsByEnum(ProjectStatus.values(), projects, Project::getStatus);
+        Map<String, Long> projectsByWorkMode = countsByEnum(WorkMode.values(), projects, Project::getWorkMode);
 
         // Lost-reason breakdown (only lost opportunities that carry a reason)
         Map<String, Long> lostReasonsBreakdown = new LinkedHashMap<>();
@@ -84,7 +99,6 @@ public class DashboardStatsService {
             .mapToDouble(Project::getForecastRevenue)
             .sum();
 
-        double resolvedAverageRate = averageDailyRate != null ? averageDailyRate : 0;
         long[] bench = DashboardAnalytics.buildBenchStats(projects);
 
         // Notice period drives how early upcoming contract renewals are surfaced
@@ -96,24 +110,24 @@ public class DashboardStatsService {
         List<Contact> contacts = contactRepository.findByFreelanceId(freelanceId);
 
         LocalDate today = LocalDate.now(ZoneId.systemDefault());
-        List<InterviewStep> validatedSteps =
-            interviewStepRepository.findByFreelanceIdAndStatus(freelanceId, StepStatus.VALIDATED);
-        List<InterviewStep> heatmapSteps = interviewStepRepository.findByFreelanceIdAndDateBetween(
+        List<InterviewStep> validatedSteps = inSeason(
+            interviewStepRepository.findByFreelanceIdAndStatus(freelanceId, StepStatus.VALIDATED), seasonId);
+        List<InterviewStep> heatmapSteps = inSeason(interviewStepRepository.findByFreelanceIdAndDateBetween(
             freelanceId,
             today.minusDays(DashboardAnalytics.HEATMAP_WINDOW_DAYS).atStartOfDay(),
-            today.plusDays(1).atStartOfDay());
+            today.plusDays(1).atStartOfDay()), seasonId);
 
         return DashboardStatsDto.builder()
-            .totalProjects(totalProjects != null ? totalProjects : 0)
-            .averageDailyRate(averageDailyRate != null ? averageDailyRate : 0)
+            .totalProjects(totalProjects)
+            .averageDailyRate(averageDailyRate)
             .totalEstimatedRevenue(totalRevenue)
             .forecastRevenue(forecastRevenue)
-            .activeProjects(activeProjects != null ? activeProjects : 0)
-            .wonProjects(wonProjects != null ? wonProjects : 0)
-            .lostProjects(lostProjects != null ? lostProjects : 0)
+            .activeProjects(activeProjects)
+            .wonProjects(wonProjects)
+            .lostProjects(lostProjects)
             .totalBenchDays(bench[0])
             .benchPeriods(bench[1])
-            .estimatedBenchCost(bench[0] * resolvedAverageRate)
+            .estimatedBenchCost(bench[0] * averageDailyRate)
             .projectsByStatus(projectsByStatus)
             .projectsByWorkMode(projectsByWorkMode)
             .lostReasonsBreakdown(lostReasonsBreakdown)
@@ -139,15 +153,35 @@ public class DashboardStatsService {
             .build();
     }
 
-    private Map<String, Long> countsByEnum(Enum<?>[] values, List<Object[]> rows) {
+    private static long countWithStatus(List<Project> projects, ProjectStatus status) {
+        return projects.stream().filter(p -> status.equals(p.getStatus())).count();
+    }
+
+    /** Counts per enum value (every value present, zero included), ignoring projects without one. */
+    private static <E extends Enum<E>> Map<String, Long> countsByEnum(
+            E[] values, List<Project> projects, Function<Project, E> classifier) {
         Map<String, Long> counts = new LinkedHashMap<>();
-        for (Enum<?> value : values) {
+        for (E value : values) {
             counts.put(value.name(), 0L);
         }
-        for (Object[] row : rows) {
-            counts.put(((Enum<?>) row[0]).name(), (Long) row[1]);
+        for (Project project : projects) {
+            E value = classifier.apply(project);
+            if (value != null) {
+                counts.merge(value.name(), 1L, Long::sum);
+            }
         }
         return counts;
+    }
+
+    /** Keeps the steps of the season's opportunities; all steps when no season is selected. */
+    private static List<InterviewStep> inSeason(List<InterviewStep> steps, Long seasonId) {
+        if (seasonId == null) {
+            return steps;
+        }
+        return steps.stream()
+            .filter(step -> step.getProject() != null && step.getProject().getSeason() != null
+                && seasonId.equals(step.getProject().getSeason().getId()))
+            .toList();
     }
 
     private List<DashboardStatsDto.DailyRateRange> buildDailyRateRanges(List<Project> projects) {

@@ -21,7 +21,7 @@ describe('ArchiveComponent', () => {
   const projects: ProjectDto[] = [
     project({ id: 1, status: ProjectStatus.WON, role: 'Angular Lead', startDate: '2025-01-01', techStack: 'Angular' }),
     project({ id: 2, status: ProjectStatus.LOST, role: 'Java Dev', startDate: '2025-06-01', clientName: 'Acme' }),
-    project({ id: 3, status: ProjectStatus.IDENTIFIED, role: 'Open Role', startDate: '2025-03-01' })
+    project({ id: 3, status: ProjectStatus.CONTACT, role: 'Open Role', startDate: '2025-03-01' })
   ];
 
   beforeEach(async () => {

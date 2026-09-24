@@ -60,6 +60,8 @@ public class ProjectDto {
     private String middlemanName;
     private Long sourceId;
     private String sourceName;
+    private Long seasonId;
+    private String seasonName;
 
     // Computed fields
     private Integer totalRevenue;

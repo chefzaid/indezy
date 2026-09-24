@@ -107,6 +107,17 @@
                     }
                   </mat-select>
                 </mat-form-field>
+                <mat-form-field appearance="outline" class="half-width">
+                  <mat-label>{{ 'seasons.label' | translate }}</mat-label>
+                  <mat-select formControlName="seasonId">
+                    <mat-option [value]="null">{{ 'seasons.none' | translate }}</mat-option>
+                    @for (season of seasons; track season.id) {
+                      <mat-option [value]="season.id">
+                        {{ season.name }}@if (season.active) { · {{ 'seasons.running' | translate }} }
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
               </div>
             </div>
             <!-- Rates -->

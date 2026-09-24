@@ -19,6 +19,8 @@ export interface KanbanQuickAddDialogData {
   status: ProjectStatus;
   statusLabel: string;
   freelanceId: number;
+  /** Season shown on the board; the new card joins it (otherwise the running season). */
+  seasonId?: number | null;
 }
 
 @Component({
@@ -77,7 +79,8 @@ export class KanbanQuickAddDialogComponent implements OnInit {
         dailyRate: formValue.dailyRate,
         clientId: formValue.clientId,
         status: this.data.status,
-        freelanceId: this.data.freelanceId
+        freelanceId: this.data.freelanceId,
+        ...(this.data.seasonId ? { seasonId: this.data.seasonId } : {})
       };
 
       this.projectService.create(projectData).subscribe({

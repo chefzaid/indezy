@@ -18,6 +18,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProjectService } from '../../../services/project/project.service';
 import { ClientService } from '../../../services/client/client.service';
 import { SourceService } from '../../../services/source/source.service';
+import { SeasonService } from '../../../services/season/season.service';
+import { Season } from '../../../models/season.models';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ProjectDto, ClientDto, SourceDto, User, ProjectStatus, LOST_REASONS, PROJECT_STATUS_COLORS } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -52,6 +54,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   /** Intermediaries (ESN, agencies) that can sit between the freelance and the final client. */
   intermediaries: ClientDto[] = [];
   sources: SourceDto[] = [];
+  seasons: Season[] = [];
   isLoading = false;
   isSubmitting = false;
   isEditMode = false;
@@ -85,6 +88,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     private readonly projectService: ProjectService,
     private readonly clientService: ClientService,
     private readonly sourceService: SourceService,
+    private readonly seasonService: SeasonService,
     private readonly authService: AuthService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
@@ -146,11 +150,12 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       personalRating: [''],
       notes: [''],
       isFavorite: [false],
-      status: [ProjectStatus.IDENTIFIED, Validators.required],
+      status: [ProjectStatus.CONTACT, Validators.required],
       lostReason: [null],
       clientId: [null, Validators.required],
       middlemanId: [null],
-      sourceId: [null]
+      sourceId: [null],
+      seasonId: [null]
     });
   }
 
@@ -160,15 +165,22 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
 
     forkJoin({
       clients: this.clientService.getByFreelanceId(freelanceId),
-      sources: this.sourceService.getByFreelanceId(freelanceId)
+      sources: this.sourceService.getByFreelanceId(freelanceId),
+      seasons: this.seasonService.getByFreelanceId(freelanceId)
     })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ({ clients, sources }) => {
+        next: ({ clients, sources, seasons }) => {
           const byName = (a: ClientDto, b: ClientDto): number => a.companyName.localeCompare(b.companyName);
           this.clients = clients.filter(client => client.isFinal !== false).sort(byName);
           this.intermediaries = clients.filter(client => client.isFinal === false).sort(byName);
           this.sources = [...sources].sort((a, b) => a.name.localeCompare(b.name));
+          this.seasons = seasons;
+          // A new opportunity joins the running season unless another one is picked.
+          const seasonControl = this.projectForm.get('seasonId');
+          if (!this.isEditMode && !seasonControl?.value) {
+            seasonControl?.setValue(seasons.find(season => season.active)?.id ?? null);
+          }
         },
         error: (error) => {
           console.error('Error loading clients and sources:', error);
@@ -207,11 +219,12 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
               personalRating: project.personalRating,
               notes: project.notes,
               isFavorite: project.isFavorite ?? false,
-              status: project.status ?? ProjectStatus.IDENTIFIED,
+              status: project.status ?? ProjectStatus.CONTACT,
               lostReason: project.lostReason ?? null,
               clientId: project.clientId ?? null,
               middlemanId: project.middlemanId ?? null,
-              sourceId: project.sourceId ?? null
+              sourceId: project.sourceId ?? null,
+              seasonId: project.seasonId ?? null
             });
           } else {
             this.notificationService.error('errors.projectNotFound');

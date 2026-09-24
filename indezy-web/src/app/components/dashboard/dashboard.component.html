@@ -26,12 +26,83 @@
         </mat-button-toggle-group>
       </div>
     </div>
+    @if (currentUser?.id) {
+      <div class="season-bar">
+        <app-season-picker [freelanceId]="currentUser!.id" (selectionChange)="onSeasonChange($event)"></app-season-picker>
+      </div>
+    }
   </div>
 
+  <!-- Season summary: dates, objective and how it compares with every season -->
+  @if (selectedSeason; as season) {
+    <mat-card class="season-banner">
+      <mat-card-content>
+        <div class="season-banner-main">
+          <div class="season-heading">
+            <mat-icon class="season-flag">flag</mat-icon>
+            <div>
+              <h2 class="season-name">
+                {{ season.name }}
+                <span class="season-state" [class.running]="season.active" [class.closed]="!!season.endDate && !season.active">
+                  {{ (season.active ? 'seasons.running' : (season.endDate ? 'seasons.closed' : 'seasons.upcoming')) | translate }}
+                </span>
+              </h2>
+              <p class="season-dates">
+                {{ season.startDate | date:'mediumDate' }} –
+                {{ season.endDate ? (season.endDate | date:'mediumDate') : ('seasons.ongoing' | translate) }}
+                · {{ 'seasons.dayCount' | translate: { count: seasonDays(season) } }}
+              </p>
+            </div>
+          </div>
+          @if (season.objective) {
+            <p class="season-objective">
+              <mat-icon>track_changes</mat-icon>
+              <span>{{ season.objective }}</span>
+            </p>
+          }
+        </div>
+        <div class="season-metrics">
+          <div class="season-metric">
+            <span class="metric-value">{{ stats.totalProjects }}</span>
+            <span class="metric-label">{{ 'seasons.opportunities' | translate }}</span>
+            @if (globalStats) {
+              <span class="metric-compare">{{ 'seasons.allTimeValue' | translate: { value: globalStats.totalProjects } }}</span>
+            }
+          </div>
+          <div class="season-metric">
+            <span class="metric-value">{{ seasonSuccessRate() !== null ? seasonSuccessRate() + ' %' : '—' }}</span>
+            <span class="metric-label">{{ 'seasons.successRate' | translate }}</span>
+            @if (globalStats) {
+              <span class="metric-compare">{{ 'seasons.allTimeValue' | translate: { value: globalSuccessRate() !== null ? globalSuccessRate() + ' %' : '—' } }}</span>
+            }
+          </div>
+          <div class="season-metric">
+            <span class="metric-value">{{ dashboardStats?.wonProjects ?? 0 }}</span>
+            <span class="metric-label">{{ 'seasons.accepted' | translate }}</span>
+            @if (globalStats) {
+              <span class="metric-compare">{{ 'seasons.allTimeValue' | translate: { value: globalStats.wonProjects } }}</span>
+            }
+          </div>
+          @if (season.targetDailyRate) {
+            <div class="season-metric">
+              <span class="metric-value">{{ stats.averageDailyRate | number:'1.0-0' }} / {{ season.targetDailyRate }} €</span>
+              <span class="metric-label">{{ 'seasons.rateVsTarget' | translate }}</span>
+              @if (targetProgress(season); as progress) {
+                <span class="metric-compare" [class.on-target]="progress >= 100">
+                  {{ 'seasons.ofTarget' | translate: { percent: progress } }}
+                </span>
+              }
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
   <!-- Kanban Board Mode -->
-  @if (viewMode === 'kanban') {
+  @if (viewMode === 'kanban' && seasonResolved) {
     <div class="kanban-mode">
-      <app-kanban-board></app-kanban-board>
+      <app-kanban-board [seasonId]="selectedSeason?.id ?? null"></app-kanban-board>
     </div>
   }
 

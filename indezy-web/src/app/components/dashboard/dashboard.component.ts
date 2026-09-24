@@ -13,6 +13,9 @@ import { User, ProjectDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, Con
 import { ActivityHeatmapComponent } from '../../shared/components/activity-heatmap/activity-heatmap.component';
 import { DashboardRemindersComponent } from './dashboard-reminders/dashboard-reminders.component';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
+import { SeasonPickerComponent } from '../seasons/season-picker/season-picker.component';
+import { Season } from '../../models/season.models';
+import { forkJoin, of, Subscription } from 'rxjs';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -31,6 +34,7 @@ type ViewMode = 'overview' | 'kanban';
         MatTooltipModule,
         TranslateModule,
         KanbanBoardComponent,
+        SeasonPickerComponent,
         ActivityHeatmapComponent,
         DashboardRemindersComponent
     ],
@@ -50,6 +54,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   lostReasons: { reason: string; count: number }[] = [];
 
   showKanbanBoard = false;
+  /** Season whose dashboard is shown; null shows every opportunity. */
+  selectedSeason: Season | null = null;
+  /** Set once the season picker has resolved the initial season, so data loads only once. */
+  seasonResolved = false;
+  /** All-time statistics, loaded to compare a season against the global view. */
+  globalStats: DashboardStatsDto | null = null;
+  private allProjects: ProjectDto[] = [];
+  private statsSubscription: Subscription | null = null;
   stats = {
     totalProjects: 0,
     averageDailyRate: 0,
@@ -77,40 +89,102 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentUser = this.authService.getUser();
     this.viewMode = DashboardComponent.readSavedViewMode();
+    if (!this.currentUser?.id) {
+      // Nothing to pick a season for; keep the page usable.
+      this.seasonResolved = true;
+    }
+  }
+
+  /** Switches the dashboard (and its board) to another season, or to every season. */
+  onSeasonChange(season: Season | null): void {
+    this.selectedSeason = season;
+    this.seasonResolved = true;
     this.loadDashboardData();
   }
 
   ngOnDestroy(): void {
+    this.statsSubscription?.unsubscribe();
     this.destroyCharts();
   }
 
   loadDashboardData(): void {
-    if (this.currentUser?.id) {
-      this.projectService.getByFreelanceId(this.currentUser.id).subscribe({
-        next: (projects) => {
-          // Newest opportunities first (ids grow with creation order).
-          this.recentProjects = [...projects].sort((a, b) => (b.id ?? 0) - (a.id ?? 0)).slice(0, 6);
-        },
-        error: (err) => console.error('Error loading recent projects:', err)
-      });
-
-      this.projectService.getDashboardStats(this.currentUser.id).subscribe({
-        next: (stats) => {
-          this.dashboardStats = stats;
-          this.lostReasons = this.buildLostReasons(stats);
-          this.stats = {
-            totalProjects: stats.totalProjects,
-            averageDailyRate: stats.averageDailyRate,
-            totalRevenue: stats.totalEstimatedRevenue,
-            forecastRevenue: stats.forecastRevenue,
-            activeProjects: stats.activeProjects
-          };
-          this.cdr.detectChanges();
-          this.buildCharts();
-        },
-        error: (err) => console.error('Error loading dashboard stats:', err)
-      });
+    if (!this.currentUser?.id) {
+      return;
     }
+    const freelanceId = this.currentUser.id;
+    const seasonId = this.selectedSeason?.id ?? null;
+
+    this.projectService.getByFreelanceId(freelanceId).subscribe({
+      next: (projects) => {
+        this.allProjects = projects;
+        this.updateRecentProjects();
+      },
+      error: (err) => console.error('Error loading recent projects:', err)
+    });
+
+    this.statsSubscription?.unsubscribe();
+    this.statsSubscription = forkJoin({
+      stats: this.projectService.getDashboardStats(freelanceId, seasonId),
+      global: seasonId === null ? of(null) : this.projectService.getDashboardStats(freelanceId)
+    }).subscribe({
+      next: ({ stats, global }) => {
+        this.dashboardStats = stats;
+        this.globalStats = global;
+        this.lostReasons = this.buildLostReasons(stats);
+        this.stats = {
+          totalProjects: stats.totalProjects,
+          averageDailyRate: stats.averageDailyRate,
+          totalRevenue: stats.totalEstimatedRevenue,
+          forecastRevenue: stats.forecastRevenue,
+          activeProjects: stats.activeProjects
+        };
+        this.cdr.detectChanges();
+        this.buildCharts();
+      },
+      error: (err) => console.error('Error loading dashboard stats:', err)
+    });
+  }
+
+  /** Newest opportunities of the selected season (ids grow with creation order). */
+  private updateRecentProjects(): void {
+    const seasonId = this.selectedSeason?.id;
+    this.recentProjects = this.allProjects
+      .filter(project => seasonId === undefined || project.seasonId === seasonId)
+      .sort((a, b) => (b.id ?? 0) - (a.id ?? 0))
+      .slice(0, 6);
+  }
+
+  /** Share of decided opportunities that were accepted, in percent (null before any decision). */
+  static successRate(stats: DashboardStatsDto | null): number | null {
+    if (!stats) {
+      return null;
+    }
+    const decided = stats.wonProjects + stats.lostProjects;
+    return decided > 0 ? Math.round((stats.wonProjects / decided) * 100) : null;
+  }
+
+  seasonSuccessRate(): number | null {
+    return DashboardComponent.successRate(this.dashboardStats);
+  }
+
+  globalSuccessRate(): number | null {
+    return DashboardComponent.successRate(this.globalStats);
+  }
+
+  /** Days elapsed since the season started (inclusive), capped at its end date. */
+  seasonDays(season: Season): number {
+    const start = new Date(season.startDate + 'T00:00:00');
+    const end = season.endDate ? new Date(season.endDate + 'T00:00:00') : new Date();
+    const last = end.getTime() < Date.now() ? end : new Date();
+    return Math.max(1, Math.floor((last.getTime() - start.getTime()) / 86_400_000) + 1);
+  }
+
+  /** Average daily rate of the season compared with its target, in percent of the target. */
+  targetProgress(season: Season): number | null {
+    if (!season.targetDailyRate || !this.stats.averageDailyRate) {
+      return null;
+    }
+    return Math.round((this.stats.averageDailyRate / season.targetDailyRate) * 100);
   }
 
   logout(): void {

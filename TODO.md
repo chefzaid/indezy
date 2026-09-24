@@ -6,12 +6,13 @@ Not all freelance jobs share the same recruitment process:
 
 Some have 3 steps, others 5, with different styles and ordering. For example, a technical test can happen before or after an interview.
 
-The current target model is generic columns: Contact => ESN => Client => Go => Chosen. Each Kanban item would keep a label for the intermediate step it is in and the scheduled next step while staying in the same column.
+The board uses generic columns: Contact => Tests & Entretiens => Offre => Accepté => Perdu / Abandonné. Each Kanban item keeps the intermediate step it is in (interview steps) and the scheduled next step while staying in the same column.
 
 - [x] Interview step tracking per project
 - [x] Step scheduling with date/time and notes
 - [x] Step statuses: `TO_PLAN`, `PLANNED`, `CANCELED`, `WAITING_FEEDBACK`, `VALIDATED`, `FAILED`
 - [x] Kanban mode for moving opportunities across high-level statuses
+- [x] Five generic Kanban columns: Contact, Tests & Entretiens, Offre, Accepté, Perdu / Abandonné (existing opportunities migrated automatically)
 - [x] Drag-and-drop status changes from the Kanban board
 - [ ] Customizable pipeline templates per client/ESN (save a recruitment process and reuse it)
 - [ ] Bulk actions on Kanban cards (archive, change status, assign source)
@@ -28,7 +29,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] Freelancer profile model with identity, availability, employment status, reversion rate, income tax rate, and CV path fields
 - [x] Freelance-owned workspace for projects, clients, contacts, and sources
 - [x] Project/opportunity management with role, status, description, tech stack, daily rate, work mode, dates, duration, notes, documents, link, rating, client, middleman, source, and freelance owner
-- [x] Opportunity statuses: `IDENTIFIED`, `APPLIED`, `INTERVIEW`, `OFFER`, `WON`, `LOST`
+- [x] Opportunity statuses: `CONTACT`, `INTERVIEW`, `OFFER`, `WON`, `LOST`
 - [x] Work modes: `ONSITE`, `REMOTE`, `HYBRID`
 - [x] Project helper behavior for total revenue and work-mode checks
 - [x] Source management for opportunity origins
@@ -46,7 +47,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [x] Project archive view with full-text search across past opportunities
 - [x] Contract milestones tracking (start date, renewal date, notice period alerts)
 - [x] Mission end-date reminders to restart prospection N weeks before the bench
-- [ ] Prospection campaigns: separate pipeline per job-search period (e.g. "2026 search"), each with its own stats, comparable against the global view
+- [x] Job-hunting seasons (prospection campaigns): separate pipeline and dashboard per job-search period (e.g. "Autumn search 2026"), each with its own stats, objective and target rate, comparable against the global view
 - [ ] Commute-aware opportunity scoring: enhance existing home-to-job commute sorting (driving/transit modes, Maps API fallback handling, caching, remote/hybrid rules)
 
 ## Clients, ESN & Contacts

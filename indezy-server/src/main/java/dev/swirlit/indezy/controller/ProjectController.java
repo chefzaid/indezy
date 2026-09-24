@@ -135,6 +135,7 @@ public class ProjectController {
         log.debug("POST /projects - Creating new project");
         projectDto.setFreelanceId(accessGuard.resolveFreelanceId(projectDto.getFreelanceId()));
         accessGuard.requireClient(projectDto.getClientId());
+        accessGuard.requireSeasonIfPresent(projectDto.getSeasonId());
         accessGuard.requireClientIfPresent(projectDto.getMiddlemanId());
         accessGuard.requireSourceIfPresent(projectDto.getSourceId());
         ProjectDto createdProject = projectService.create(projectDto);
@@ -155,6 +156,7 @@ public class ProjectController {
         log.debug("PUT /projects/{} - Updating project", id);
         accessGuard.requireProject(id);
         accessGuard.requireClientIfPresent(projectDto.getClientId());
+        accessGuard.requireSeasonIfPresent(projectDto.getSeasonId());
         accessGuard.requireClientIfPresent(projectDto.getMiddlemanId());
         accessGuard.requireSourceIfPresent(projectDto.getSourceId());
         ProjectDto updatedProject = projectService.update(id, projectDto);
@@ -212,12 +214,16 @@ public class ProjectController {
         return ResponseEntity.ok(updatedProject);
     }
 
-    @Operation(summary = "Get kanban board", description = "Get kanban board data grouped by project status")
+    @Operation(summary = "Get kanban board",
+        description = "Get kanban board data grouped by project status, optionally limited to one season")
     @GetMapping("/kanban/{freelanceId}")
-    public ResponseEntity<KanbanBoardDto> getKanbanBoard(@PathVariable Long freelanceId) {
-        log.debug("GET /projects/kanban/{} - Getting kanban board", freelanceId);
+    public ResponseEntity<KanbanBoardDto> getKanbanBoard(
+            @PathVariable Long freelanceId,
+            @RequestParam(required = false) Long seasonId) {
+        log.debug("GET /projects/kanban/{}?seasonId={} - Getting kanban board", freelanceId, seasonId);
         accessGuard.requireFreelance(freelanceId);
-        KanbanBoardDto kanbanBoard = projectService.getKanbanBoard(freelanceId);
+        accessGuard.requireSeasonIfPresent(seasonId);
+        KanbanBoardDto kanbanBoard = projectService.getKanbanBoard(freelanceId, seasonId);
         return ResponseEntity.ok(kanbanBoard);
     }
 
@@ -249,12 +255,16 @@ public class ProjectController {
             .body(csv);
     }
 
-    @Operation(summary = "Get dashboard stats", description = "Get aggregated dashboard statistics for charts")
+    @Operation(summary = "Get dashboard stats",
+        description = "Get aggregated dashboard statistics for charts, for all time or for one season")
     @GetMapping("/stats/dashboard/{freelanceId}")
-    public ResponseEntity<DashboardStatsDto> getDashboardStats(@PathVariable Long freelanceId) {
-        log.debug("GET /projects/stats/dashboard/{} - Getting dashboard stats", freelanceId);
+    public ResponseEntity<DashboardStatsDto> getDashboardStats(
+            @PathVariable Long freelanceId,
+            @RequestParam(required = false) Long seasonId) {
+        log.debug("GET /projects/stats/dashboard/{}?seasonId={} - Getting dashboard stats", freelanceId, seasonId);
         accessGuard.requireFreelance(freelanceId);
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(freelanceId);
+        accessGuard.requireSeasonIfPresent(seasonId);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(freelanceId, seasonId);
         return ResponseEntity.ok(stats);
     }
 }

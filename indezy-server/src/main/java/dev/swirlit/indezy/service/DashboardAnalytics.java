@@ -207,8 +207,7 @@ final class DashboardAnalytics {
      */
     static List<DashboardStatsDto.ConversionFunnelStage> buildConversionFunnel(List<Project> projects) {
         ProjectStatus[] stages = {
-            ProjectStatus.IDENTIFIED, ProjectStatus.APPLIED, ProjectStatus.INTERVIEW,
-            ProjectStatus.OFFER, ProjectStatus.WON
+            ProjectStatus.CONTACT, ProjectStatus.INTERVIEW, ProjectStatus.OFFER, ProjectStatus.WON
         };
         long[] reached = new long[stages.length];
         for (Project project : projects) {

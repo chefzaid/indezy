@@ -1,0 +1,68 @@
+<h2 mat-dialog-title class="season-dialog-title">
+  <mat-icon>{{ isEditMode ? 'edit_calendar' : 'flag' }}</mat-icon>
+  {{ (isEditMode ? 'seasons.editTitle' : 'seasons.newTitle') | translate }}
+</h2>
+
+<mat-dialog-content>
+  @if (!isEditMode) {
+    <p class="season-dialog-hint">{{ 'seasons.newHint' | translate }}</p>
+  }
+  <form [formGroup]="seasonForm" (ngSubmit)="onSubmit()" class="season-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'seasons.name' | translate }}</mat-label>
+      <input matInput formControlName="name" cdkFocusInitial [attr.aria-label]="'seasons.name' | translate">
+      @if (seasonForm.get('name')?.hasError('required')) {
+        <mat-error>{{ 'errors.fieldRequired' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="date-row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'seasons.startDate' | translate }}</mat-label>
+        <input matInput [matDatepicker]="startPicker" formControlName="startDate"
+          [attr.aria-label]="'seasons.startDate' | translate">
+        <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+        @if (seasonForm.get('startDate')?.hasError('required')) {
+          <mat-error>{{ 'errors.fieldRequired' | translate }}</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'seasons.endDate' | translate }}</mat-label>
+        <input matInput [matDatepicker]="endPicker" formControlName="endDate"
+          [attr.aria-label]="'seasons.endDate' | translate">
+        <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+        <mat-hint>{{ 'seasons.endDateHint' | translate }}</mat-hint>
+      </mat-form-field>
+    </div>
+    @if (seasonForm.hasError('endBeforeStart')) {
+      <p class="form-error" role="alert">{{ 'seasons.endBeforeStart' | translate }}</p>
+    }
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'seasons.targetDailyRate' | translate }}</mat-label>
+      <input matInput type="number" min="1" formControlName="targetDailyRate"
+        [attr.aria-label]="'seasons.targetDailyRate' | translate">
+      <span matTextSuffix>€</span>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'seasons.objective' | translate }}</mat-label>
+      <textarea matInput formControlName="objective" rows="3"
+        [placeholder]="'seasons.objectivePlaceholder' | translate"
+        [attr.aria-label]="'seasons.objective' | translate"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting">
+    {{ 'common.cancel' | translate }}
+  </button>
+  <button mat-flat-button color="primary" type="button" (click)="onSubmit()"
+    [disabled]="seasonForm.invalid || isSubmitting">
+    <mat-icon>{{ isEditMode ? 'save' : 'flag' }}</mat-icon>
+    {{ isSubmitting ? ('common.saving' | translate) : ((isEditMode ? 'common.save' : 'seasons.start') | translate) }}
+  </button>
+</mat-dialog-actions>

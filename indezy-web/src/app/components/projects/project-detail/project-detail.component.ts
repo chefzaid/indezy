@@ -437,7 +437,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   }
 
   getStatusColor(status?: ProjectStatus): string {
-    return this.statusColors[status ?? ProjectStatus.IDENTIFIED];
+    return this.statusColors[status ?? ProjectStatus.CONTACT];
   }
 
   formatDate(dateString?: string): string {

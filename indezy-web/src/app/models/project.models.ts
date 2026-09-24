@@ -1,8 +1,7 @@
 // Project related interfaces and types
 
 export enum ProjectStatus {
-  IDENTIFIED = 'IDENTIFIED',
-  APPLIED = 'APPLIED',
+  CONTACT = 'CONTACT',
   INTERVIEW = 'INTERVIEW',
   OFFER = 'OFFER',
   WON = 'WON',
@@ -11,8 +10,7 @@ export enum ProjectStatus {
 
 /** Pipeline stage colors, dark enough to carry white text in status pills. */
 export const PROJECT_STATUS_COLORS: { [key in ProjectStatus]: string } = {
-  [ProjectStatus.IDENTIFIED]: '#607d8b',
-  [ProjectStatus.APPLIED]: '#1e88e5',
+  [ProjectStatus.CONTACT]: '#1e88e5',
   [ProjectStatus.INTERVIEW]: '#ef6c00',
   [ProjectStatus.OFFER]: '#8e24aa',
   [ProjectStatus.WON]: '#2e7d32',
@@ -20,8 +18,7 @@ export const PROJECT_STATUS_COLORS: { [key in ProjectStatus]: string } = {
 };
 
 export const PROJECT_STATUS_ICONS: { [key in ProjectStatus]: string } = {
-  [ProjectStatus.IDENTIFIED]: 'search',
-  [ProjectStatus.APPLIED]: 'send',
+  [ProjectStatus.CONTACT]: 'contact_mail',
   [ProjectStatus.INTERVIEW]: 'groups',
   [ProjectStatus.OFFER]: 'handshake',
   [ProjectStatus.WON]: 'emoji_events',
@@ -108,6 +105,8 @@ export interface ProjectDto {
   middlemanName?: string;
   sourceId?: number;
   sourceName?: string;
+  seasonId?: number;
+  seasonName?: string;
   totalRevenue?: number;
   margin?: number;
   marginPercentage?: number;
@@ -267,6 +266,7 @@ export interface CreateProjectDto {
   clientId?: number;
   middlemanId?: number;
   sourceId?: number;
+  seasonId?: number;
 }
 
 export interface UpdateProjectDto {
@@ -294,4 +294,5 @@ export interface UpdateProjectDto {
   clientId?: number;
   middlemanId?: number;
   sourceId?: number;
+  seasonId?: number;
 }

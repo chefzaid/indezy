@@ -28,6 +28,9 @@ public final class ErrorMessages {
     public static final String SOURCE_NOT_FOUND = "Source not found with id: %d";
     public static final String SOURCE_NAME_EXISTS = "Source already exists with name: %s";
 
+    // Season related error messages
+    public static final String SEASON_NOT_FOUND = "Season not found with id: %d";
+
     // Contact related error messages
     public static final String CONTACT_NOT_FOUND = "Contact not found with id: %d";
     public static final String CONTACT_OWNER_REQUIRED = "A contact must be linked to a freelance and a client";

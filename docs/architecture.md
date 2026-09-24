@@ -71,7 +71,7 @@ Routes are organized around the main product areas:
 3. Frontend stores the token.
 4. `authGuard` protects authenticated routes.
 5. `authInterceptor` adds `Authorization: Bearer <token>` to API calls.
-6. Backend validates the token for non-public routes, then `AccessGuard` resolves the caller's freelance workspace and rejects any project, client, contact, source, or interview step that belongs to another workspace (404 for foreign records, 403 for a foreign workspace id).
+6. Backend validates the token for non-public routes, then `AccessGuard` resolves the caller's freelance workspace and rejects any project, client, contact, source, interview step, or season that belongs to another workspace (404 for foreign records, 403 for a foreign workspace id).
 
 ### Project creation
 

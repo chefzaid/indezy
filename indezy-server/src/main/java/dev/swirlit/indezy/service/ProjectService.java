@@ -47,10 +47,10 @@ public class ProjectService {
     private final SourceRepository sourceRepository;
     private final InterviewStepRepository interviewStepRepository;
     private final ProjectMapper projectMapper;
+    private final SeasonService seasonService;
 
     private static final List<ProjectStatus> KANBAN_COLUMN_ORDER = Arrays.asList(
-        ProjectStatus.IDENTIFIED,
-        ProjectStatus.APPLIED,
+        ProjectStatus.CONTACT,
         ProjectStatus.INTERVIEW,
         ProjectStatus.OFFER,
         ProjectStatus.WON,
@@ -202,7 +202,7 @@ public class ProjectService {
         
         // Default status if not provided
         if (project.getStatus() == null) {
-            project.setStatus(ProjectStatus.IDENTIFIED);
+            project.setStatus(ProjectStatus.CONTACT);
         }
         // The lost reason only applies to lost opportunities.
         if (!ProjectStatus.LOST.equals(project.getStatus())) {
@@ -233,6 +233,14 @@ public class ProjectService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.SOURCE_NOT_FOUND, projectDto.getSourceId())));
             project.setSource(source);
         }
+
+        // Explicit season, otherwise the season running today (if any).
+        Long freelanceId = project.getFreelance() != null ? project.getFreelance().getId() : null;
+        if (projectDto.getSeasonId() != null) {
+            project.setSeason(seasonService.getSeasonOfFreelance(projectDto.getSeasonId(), freelanceId));
+        } else if (freelanceId != null) {
+            seasonService.findCurrentSeason(freelanceId).ifPresent(project::setSeason);
+        }
         
         Project savedProject = projectRepository.save(project);
         
@@ -251,7 +259,7 @@ public class ProjectService {
 
         // A payload without a status (older clients, partial forms) must not wipe the pipeline stage.
         if (existingProject.getStatus() == null) {
-            existingProject.setStatus(previousStatus != null ? previousStatus : ProjectStatus.IDENTIFIED);
+            existingProject.setStatus(previousStatus != null ? previousStatus : ProjectStatus.CONTACT);
         }
         if (!ProjectStatus.LOST.equals(existingProject.getStatus())) {
             existingProject.setLostReason(null);
@@ -282,6 +290,15 @@ public class ProjectService {
             }
         } else {
             existingProject.setSource(null);
+        }
+
+        if (projectDto.getSeasonId() != null) {
+            if (existingProject.getSeason() == null || !projectDto.getSeasonId().equals(existingProject.getSeason().getId())) {
+                Long ownerId = existingProject.getFreelance() != null ? existingProject.getFreelance().getId() : null;
+                existingProject.setSeason(seasonService.getSeasonOfFreelance(projectDto.getSeasonId(), ownerId));
+            }
+        } else {
+            existingProject.setSeason(null);
         }
         
         Project updatedProject = projectRepository.save(existingProject);
@@ -325,9 +342,17 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public KanbanBoardDto getKanbanBoard(Long freelanceId) {
-        log.debug("Getting kanban board for freelance: {}", freelanceId);
+        return getKanbanBoard(freelanceId, null);
+    }
 
-        List<Project> projects = projectRepository.findByFreelanceId(freelanceId);
+    /** Kanban board of a workspace, limited to one season's opportunities when a season is given. */
+    @Transactional(readOnly = true)
+    public KanbanBoardDto getKanbanBoard(Long freelanceId, Long seasonId) {
+        log.debug("Getting kanban board for freelance: {} (season: {})", freelanceId, seasonId);
+
+        List<Project> projects = seasonId != null
+            ? projectRepository.findByFreelanceIdAndSeasonId(freelanceId, seasonId)
+            : projectRepository.findByFreelanceId(freelanceId);
 
         Map<String, List<KanbanBoardDto.ProjectCardDto>> columns = new LinkedHashMap<>();
         for (ProjectStatus status : KANBAN_COLUMN_ORDER) {
@@ -337,7 +362,7 @@ public class ProjectService {
         Set<Long> duplicateIds = findPotentialDuplicateIds(projects);
 
         for (Project project : projects) {
-            ProjectStatus status = project.getStatus() != null ? project.getStatus() : ProjectStatus.IDENTIFIED;
+            ProjectStatus status = project.getStatus() != null ? project.getStatus() : ProjectStatus.CONTACT;
             KanbanBoardDto.ProjectCardDto card = createProjectCard(project);
             card.setIsPotentialDuplicate(duplicateIds.contains(project.getId()));
             String statusKey = status.name();
@@ -399,7 +424,7 @@ public class ProjectService {
         KanbanBoardDto.ProjectCardDto card = new KanbanBoardDto.ProjectCardDto();
         card.setProjectId(project.getId());
         card.setRole(project.getRole());
-        card.setStatus(project.getStatus() != null ? project.getStatus().name() : ProjectStatus.IDENTIFIED.name());
+        card.setStatus(project.getStatus() != null ? project.getStatus().name() : ProjectStatus.CONTACT.name());
         card.setClientName(project.getClient() != null ? project.getClient().getCompanyName() : null);
         card.setDailyRate(project.getDailyRate());
         card.setWorkMode(project.getWorkMode() != null ? project.getWorkMode().toString() : null);

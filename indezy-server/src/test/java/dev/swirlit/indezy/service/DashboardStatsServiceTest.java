@@ -6,6 +6,7 @@ import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
+import dev.swirlit.indezy.model.Season;
 import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.LostReason;
@@ -30,6 +31,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -85,16 +87,12 @@ class DashboardStatsServiceTest {
     @Test
     void getDashboardStats_ShouldAggregateCountsRatesAndRanges() {
         // Given
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(2L);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L))
-                .thenReturn(List.<Object[]>of(new Object[]{ProjectStatus.WON, 1L}));
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L))
-                .thenReturn(List.<Object[]>of(new Object[]{WorkMode.HYBRID, 2L}));
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
+        testProject.setStatus(ProjectStatus.WON);
+        Project contact = new Project();
+        contact.setStatus(ProjectStatus.CONTACT);
+        contact.setWorkMode(WorkMode.HYBRID);
+        contact.setDailyRate(600);
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject, contact));
 
         // When
         DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
@@ -111,7 +109,7 @@ class DashboardStatsServiceTest {
         assertThat(stats.getDailyRateRanges())
                 .filteredOn(r -> r.getLabel().equals("500-700"))
                 .first()
-                .satisfies(r -> assertThat(r.getCount()).isEqualTo(1L));
+                .satisfies(r -> assertThat(r.getCount()).isEqualTo(2L));
     }
 
     @Test
@@ -120,13 +118,6 @@ class DashboardStatsServiceTest {
         Project lost = new Project();
         lost.setStatus(ProjectStatus.LOST);
         lost.setLostReason(LostReason.RATE_TOO_LOW);
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(2L);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject, lost));
 
         // When
@@ -158,13 +149,6 @@ class DashboardStatsServiceTest {
         maltWon.setSource(malt);
         maltWon.setStatus(ProjectStatus.WON);
 
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(3L);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(2L);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
         when(projectRepository.findByFreelanceId(1L))
                 .thenReturn(List.of(linkedinWon, linkedinLost, maltWon));
 
@@ -198,13 +182,6 @@ class DashboardStatsServiceTest {
         p2025.setStartDate(LocalDate.of(2025, 1, 1));
         p2025.setDailyRate(750);
 
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(3L);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(680.0);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(3L);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(p2024a, p2024b, p2025));
 
         // When
@@ -236,13 +213,6 @@ class DashboardStatsServiceTest {
         interview.setDaysPerYear(220);
         interview.setDurationInMonths(6);
 
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(2L);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(550.0);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(won, interview));
 
         // When
@@ -267,13 +237,6 @@ class DashboardStatsServiceTest {
         lost.setDaysPerYear(220);
         lost.setDurationInMonths(6);
 
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(2L);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(550.0);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(won, lost));
 
         // When
@@ -306,13 +269,7 @@ class DashboardStatsServiceTest {
         pending.setStartDate(LocalDate.of(2025, 1, 1));
         pending.setDurationInMonths(6);
 
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(4L);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(500.0);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(3L);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        List.of(first, second, overlapping, pending).forEach(p -> p.setDailyRate(500));
         when(projectRepository.findByFreelanceId(1L))
                 .thenReturn(List.of(first, second, overlapping, pending));
 
@@ -329,21 +286,14 @@ class DashboardStatsServiceTest {
     void getDashboardStats_ShouldBuildPipelineConversionFunnel() {
         // Given 6 live opportunities spread across stages and 1 lost (excluded).
         List<Project> projects = List.of(
-            projectWithStatus(ProjectStatus.IDENTIFIED),
-            projectWithStatus(ProjectStatus.IDENTIFIED),
-            projectWithStatus(ProjectStatus.APPLIED),
+            projectWithStatus(ProjectStatus.CONTACT),
+            projectWithStatus(ProjectStatus.CONTACT),
+            projectWithStatus(ProjectStatus.CONTACT),
             projectWithStatus(ProjectStatus.INTERVIEW),
             projectWithStatus(ProjectStatus.OFFER),
             projectWithStatus(ProjectStatus.WON),
             projectWithStatus(ProjectStatus.LOST)
         );
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(7L);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(5L);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
         when(projectRepository.findByFreelanceId(1L)).thenReturn(projects);
 
         // When
@@ -351,13 +301,52 @@ class DashboardStatsServiceTest {
 
         // Then each stage counts opportunities at or beyond it; lost ones are not counted.
         List<DashboardStatsDto.ConversionFunnelStage> funnel = stats.getConversionFunnel();
-        assertThat(funnel).hasSize(5);
+        assertThat(funnel).hasSize(4);
         assertThat(funnel).extracting(DashboardStatsDto.ConversionFunnelStage::getStage)
-            .containsExactly("IDENTIFIED", "APPLIED", "INTERVIEW", "OFFER", "WON");
+            .containsExactly("CONTACT", "INTERVIEW", "OFFER", "WON");
         assertThat(funnel).extracting(DashboardStatsDto.ConversionFunnelStage::getCount)
-            .containsExactly(6L, 4L, 3L, 2L, 1L);
+            .containsExactly(6L, 3L, 2L, 1L);
         assertThat(funnel).extracting(DashboardStatsDto.ConversionFunnelStage::getConversionRate)
-            .containsExactly(100.0, 66.7, 50.0, 33.3, 16.7);
+            .containsExactly(100.0, 50.0, 33.3, 16.7);
+    }
+
+    @Test
+    void getDashboardStats_WithSeason_ShouldOnlyCountThatSeasonsOpportunitiesAndSteps() {
+        Season autumn = new Season();
+        autumn.setId(9L);
+        Project won = projectWithStatus(ProjectStatus.WON);
+        won.setSeason(autumn);
+        won.setDailyRate(700);
+        Project contact = projectWithStatus(ProjectStatus.CONTACT);
+        contact.setSeason(autumn);
+        contact.setDailyRate(500);
+        Project otherSeason = projectWithStatus(ProjectStatus.LOST);
+
+        InterviewStep inSeason = new InterviewStep();
+        inSeason.setProject(won);
+        inSeason.setDate(LocalDateTime.now().minusDays(2));
+        InterviewStep outOfSeason = new InterviewStep();
+        outOfSeason.setProject(otherSeason);
+        outOfSeason.setDate(LocalDateTime.now().minusDays(3));
+
+        when(projectRepository.findByFreelanceIdAndSeasonId(1L, 9L)).thenReturn(List.of(won, contact));
+        when(interviewStepRepository.findByFreelanceIdAndDateBetween(eq(1L), any(), any()))
+            .thenReturn(List.of(inSeason, outOfSeason));
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, 9L);
+
+        assertThat(stats.getTotalProjects()).isEqualTo(2L);
+        assertThat(stats.getWonProjects()).isEqualTo(1L);
+        assertThat(stats.getLostProjects()).isZero();
+        assertThat(stats.getActiveProjects()).isEqualTo(1L);
+        assertThat(stats.getAverageDailyRate()).isEqualTo(600.0);
+        assertThat(stats.getProjectsByStatus()).containsEntry("WON", 1L).containsEntry("CONTACT", 1L);
+        // Only the season's step (plus the creation days of its opportunities) feeds the heatmap.
+        assertThat(stats.getActivityHeatmap())
+            .extracting(DashboardStatsDto.ActivityDay::getDate)
+            .contains(LocalDate.now().minusDays(2))
+            .doesNotContain(LocalDate.now().minusDays(3));
+        verify(projectRepository, never()).findByFreelanceId(any());
     }
 
     private Project projectWithStatus(ProjectStatus status) {
@@ -382,7 +371,7 @@ class DashboardStatsServiceTest {
         linkedinWon.setStatus(ProjectStatus.WON);
         Project linkedinApplied = new Project();        // direct, LinkedIn, applied
         linkedinApplied.setSource(linkedin);
-        linkedinApplied.setStatus(ProjectStatus.APPLIED);
+        linkedinApplied.setStatus(ProjectStatus.CONTACT);
         Project maltViaEsn = new Project();             // intermediated, Malt, interview
         maltViaEsn.setSource(malt);
         maltViaEsn.setMiddleman(esn);
@@ -391,13 +380,6 @@ class DashboardStatsServiceTest {
         esnWonNoSource.setMiddleman(esn);
         esnWonNoSource.setStatus(ProjectStatus.WON);
 
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(4L);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(2L);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(2L);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
         when(projectRepository.findByFreelanceId(1L))
             .thenReturn(List.of(linkedinWon, linkedinApplied, maltViaEsn, esnWonNoSource));
 
@@ -410,7 +392,7 @@ class DashboardStatsServiceTest {
             .containsExactly("LinkedIn", "Malt");
         assertThat(stats.getFunnelBySource().get(0).getStages())
             .extracting(DashboardStatsDto.ConversionFunnelStage::getCount)
-            .containsExactly(2L, 2L, 1L, 1L, 1L);
+            .containsExactly(2L, 1L, 1L, 1L);
 
         // And by client type: DIRECT (no ESN) vs INTERMEDIARY (through an ESN).
         assertThat(stats.getFunnelByClientType())
@@ -418,7 +400,7 @@ class DashboardStatsServiceTest {
             .containsExactly("DIRECT", "INTERMEDIARY");
         assertThat(stats.getFunnelByClientType().get(1).getStages())
             .extracting(DashboardStatsDto.ConversionFunnelStage::getCount)
-            .containsExactly(2L, 2L, 2L, 1L, 1L);
+            .containsExactly(2L, 2L, 1L, 1L);
 
         // And by ESN: only intermediated opportunities are grouped under the ESN name.
         assertThat(stats.getFunnelByEsn())
@@ -426,7 +408,7 @@ class DashboardStatsServiceTest {
             .containsExactly("AcmeESN");
         assertThat(stats.getFunnelByEsn().get(0).getStages())
             .extracting(DashboardStatsDto.ConversionFunnelStage::getCount)
-            .containsExactly(2L, 2L, 2L, 1L, 1L);
+            .containsExactly(2L, 2L, 1L, 1L);
     }
 
     @Test
@@ -441,13 +423,6 @@ class DashboardStatsServiceTest {
         pending.setStatus(ProjectStatus.INTERVIEW);                   // not signed, excluded
         Project noDates = wonMission(6L, null, null);                 // missing dates, excluded
 
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(6L);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(5L);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
         when(projectRepository.findByFreelanceId(1L))
             .thenReturn(List.of(endingA, endingB, farFuture, alreadyEnded, pending, noDates));
 
@@ -482,19 +457,12 @@ class DashboardStatsServiceTest {
     void getDashboardStats_ShouldListStaleActiveOpportunities() {
         // Given active opportunities with varying idle times plus closed/fresh ones to exclude.
         LocalDateTime now = LocalDateTime.now();
-        Project veryStale = activeOpportunity(1L, ProjectStatus.APPLIED, now.minusDays(30));
+        Project veryStale = activeOpportunity(1L, ProjectStatus.CONTACT, now.minusDays(30));
         Project mildlyStale = activeOpportunity(2L, ProjectStatus.INTERVIEW, now.minusDays(15));
-        Project fresh = activeOpportunity(3L, ProjectStatus.APPLIED, now.minusDays(3));   // too recent
+        Project fresh = activeOpportunity(3L, ProjectStatus.CONTACT, now.minusDays(3));   // too recent
         Project wonStale = activeOpportunity(4L, ProjectStatus.WON, now.minusDays(40));   // closed, excluded
         Project noActivity = activeOpportunity(5L, ProjectStatus.OFFER, null);            // no timestamp
 
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(5L);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(4L);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
         when(projectRepository.findByFreelanceId(1L))
             .thenReturn(List.of(veryStale, mildlyStale, fresh, wonStale, noActivity));
 
@@ -506,7 +474,7 @@ class DashboardStatsServiceTest {
         assertThat(stale).extracting(DashboardStatsDto.StaleOpportunity::getProjectId)
             .containsExactly(1L, 2L);
         assertThat(stale.get(0).getDaysSinceActivity()).isGreaterThanOrEqualTo(stale.get(1).getDaysSinceActivity());
-        assertThat(stale.get(0).getStatus()).isEqualTo("APPLIED");
+        assertThat(stale.get(0).getStatus()).isEqualTo("CONTACT");
         assertThat(stale.get(0).getClientName()).isEqualTo("Test Company");
     }
 
@@ -523,13 +491,6 @@ class DashboardStatsServiceTest {
     @Test
     void getDashboardStats_WithNoData_ShouldReturnZeroDefaults() {
         // Given
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(null);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(null);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(null);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(null);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(null);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of());
 
         // When
@@ -547,7 +508,7 @@ class DashboardStatsServiceTest {
         assertThat(stats.getLostProjects()).isZero();
         assertThat(stats.getActiveProjects()).isZero();
         assertThat(stats.getConversionFunnel())
-            .hasSize(5)
+            .hasSize(4)
             .allSatisfy(stage -> {
                 assertThat(stage.getCount()).isZero();
                 assertThat(stage.getConversionRate()).isZero();
@@ -555,13 +516,6 @@ class DashboardStatsServiceTest {
     }
 
     private void stubMinimalAggregates() {
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(600.0);
-        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
-        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(0L);
-        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
-        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
     }
 
     @Test

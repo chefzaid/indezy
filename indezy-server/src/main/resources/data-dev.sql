@@ -4,6 +4,7 @@
 TRUNCATE TABLE
     project_documents,
     project_notes,
+    seasons,
     interview_steps,
     contacts,
     projects,
@@ -166,7 +167,7 @@ WITH generated AS (
             'Spring Boot Expert', 'Frontend Architect', 'DevOps Consultant',
             'Technical Lead', 'API Integration Engineer', 'Solution Architect'
         ])[1 + ((n - 1) % 12)] AS role,
-        (ARRAY['IDENTIFIED', 'APPLIED', 'INTERVIEW', 'OFFER', 'WON', 'LOST'])[1 + ((n - 1) % 6)] AS status,
+        (ARRAY['CONTACT', 'INTERVIEW', 'OFFER', 'WON', 'LOST'])[1 + ((n - 1) % 5)] AS status,
         (ARRAY['REMOTE', 'HYBRID', 'ONSITE'])[1 + ((n - 1) % 3)] AS work_mode,
         500 + ((n * 37) % 351) AS daily_rate
     FROM generate_series(1, 96) AS series(n)
@@ -232,6 +233,22 @@ SELECT
     CURRENT_TIMESTAMP - ((n % 45) * INTERVAL '1 day'),
     0
 FROM generated;
+
+-- Two job-hunting seasons: a closed spring search and the running one. Opportunities join the
+-- season covering the day they were created; older ones stay outside any season.
+INSERT INTO seasons (
+    name, start_date, end_date, objective, target_daily_rate, freelance_id, created_at, updated_at, version
+) VALUES
+    ('Spring search', CURRENT_DATE - 180, CURRENT_DATE - 91,
+     'Land a hybrid Java mission in Paris before the summer.', 620, 1,
+     CURRENT_TIMESTAMP - INTERVAL '180 days', CURRENT_TIMESTAMP - INTERVAL '91 days', 0),
+    ('Autumn search', CURRENT_DATE - 90, NULL,
+     'Sign a remote-friendly lead role at 700 EUR/day or more.', 700, 1,
+     CURRENT_TIMESTAMP - INTERVAL '90 days', CURRENT_TIMESTAMP, 0);
+
+UPDATE projects
+SET season_id = CASE WHEN created_at >= CURRENT_DATE - 90 THEN 2 ELSE 1 END
+WHERE created_at >= CURRENT_DATE - 180;
 
 INSERT INTO project_documents (project_id, document_path)
 SELECT id, format('/documents/opportunity-%s-brief.pdf', id)

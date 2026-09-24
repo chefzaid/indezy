@@ -30,8 +30,8 @@ describe('KanbanQuickAddDialogComponent', () => {
   ];
 
   const mockData: KanbanQuickAddDialogData = {
-    status: ProjectStatus.APPLIED,
-    statusLabel: 'Applied',
+    status: ProjectStatus.CONTACT,
+    statusLabel: 'Contact',
     freelanceId: 7
   };
 
@@ -85,7 +85,7 @@ describe('KanbanQuickAddDialogComponent', () => {
       role: 'Backend Dev',
       dailyRate: 550,
       clientId: 1,
-      status: ProjectStatus.APPLIED,
+      status: ProjectStatus.CONTACT,
       freelanceId: 7
     });
     expect(mockNotificationService.success).toHaveBeenCalledWith('kanban.quickAddSuccess');

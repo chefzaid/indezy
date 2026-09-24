@@ -74,8 +74,9 @@ Current backend rules:
 Workspace isolation: `AccessGuard` resolves the caller's freelance workspace from the JWT
 account and every controller checks ownership before delegating. Records of another workspace
 answer `404` (so their ids cannot be probed), an explicit foreign workspace id answers `403`, and
-list-all endpoints return only the caller's records. `WorkspaceIsolationIntegrationTest` covers
-cross-owner reads, writes, references, and listings with two real accounts. The checks are skipped
+list-all endpoints return only the caller's records. Seasons follow the same rules, including the
+`seasonId` filter of the Kanban and dashboard endpoints. `WorkspaceIsolationIntegrationTest` covers
+cross-owner reads, writes, references, listings and seasons with two real accounts. The checks are skipped
 only when `indezy.security.permit-all` is enabled for anonymous test runs.
 
 Remaining hardening direction:

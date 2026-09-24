@@ -1,0 +1,58 @@
+.season-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.season-select {
+  width: 320px;
+  max-width: 100%;
+
+  mat-icon[matPrefix] {
+    margin: 0 4px 0 8px;
+    color: var(--app-text-muted);
+  }
+}
+
+.season-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 18px;
+  vertical-align: middle;
+
+  &.running {
+    background: #2e7d32;
+    color: #fff;
+  }
+}
+
+.option-name {
+  font-weight: 500;
+}
+
+.option-dates {
+  display: block;
+  font-size: 12px;
+  color: var(--app-text-muted);
+  line-height: 16px;
+}
+
+@media (max-width: 599.98px) {
+  .season-picker {
+    width: 100%;
+  }
+
+  .season-select {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  .new-season-button .button-label {
+    display: none;
+  }
+}

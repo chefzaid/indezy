@@ -188,3 +188,8 @@ body {
     padding: 16px;
   }
 }
+
+// Season options show their dates under the name.
+.season-select-panel .mat-mdc-option {
+  min-height: 56px;
+}

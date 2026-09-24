@@ -1,0 +1,44 @@
+.season-dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.season-dialog-hint {
+  margin: 0 0 12px;
+  color: var(--app-text-muted);
+}
+
+.season-form {
+  display: flex;
+  flex-direction: column;
+  min-width: min(460px, 80vw);
+  padding-top: 4px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.date-row {
+  display: flex;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.form-error {
+  margin: 0 0 12px;
+  color: var(--mat-sys-error, #d32f2f);
+  font-size: 13px;
+}
+
+@media (max-width: 599.98px) {
+  .date-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

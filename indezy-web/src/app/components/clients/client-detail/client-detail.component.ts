@@ -213,7 +213,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
   }
 
   getProjectStatusColor(project: ProjectDto): string {
-    return this.statusColors[project.status ?? ProjectStatus.IDENTIFIED];
+    return this.statusColors[project.status ?? ProjectStatus.CONTACT];
   }
 
   /** External link for the client's website, tolerating values typed without a scheme. */

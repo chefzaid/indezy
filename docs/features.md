@@ -64,18 +64,23 @@ Implemented project fields include:
 - notes
 - lost/rejection reason (captured when a card is moved to LOST, surfaced as a dashboard breakdown)
 - favorite flag (pins hot leads to the top of their Kanban column)
-- client, optional middleman, source, and freelance owner
+- client, optional middleman, source, optional job-hunting season, and freelance owner
 
-The project form edits the pipeline stage (with the loss reason for lost opportunities), the final client, the optional ESN/intermediary and the source. The project page shows the stage as a pill that can be changed in place, and the projects list filters by stage and paginates results.
+The project form edits the pipeline stage (with the loss reason for lost opportunities), the final client, the optional ESN/intermediary, the source and the season. The project page shows the stage as a pill that can be changed in place and names the opportunity's season, and the projects list filters by stage and season and paginates results.
 
-Current opportunity statuses:
+Opportunity statuses, one per Kanban column (French / English labels):
 
-- `IDENTIFIED`
-- `APPLIED`
-- `INTERVIEW`
-- `OFFER`
-- `WON`
-- `LOST`
+| Status | Column | Win probability |
+| --- | --- | --- |
+| `CONTACT` | Contact | 20 % |
+| `INTERVIEW` | Tests & Entretiens / Tests & Interviews | 50 % |
+| `OFFER` | Offre / Offer | 80 % |
+| `WON` | Accepté / Accepted | 100 % |
+| `LOST` | Perdu / Abandonné / Lost / Dropped | 0 % |
+
+`CONTACT` replaced the former `IDENTIFIED` and `APPLIED` stages. On startup the API moves any
+remaining opportunity in those stages to `CONTACT` and rebuilds the PostgreSQL status check
+constraint (see [Data Model](./data-model.md#migration-reality)).
 
 The project model also exposes helper behavior for total revenue and work-mode checks. Dashboard and list views build on this data.
 
@@ -151,7 +156,20 @@ Each project has a chronological journal of free-text notes (calls, emails, deci
 
 The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs. Cards can be pinned as favorites (`PATCH /projects/{id}/favorite`), which keeps hot leads at the top of their column. Within a column, cards can be dragged to set a manual priority, persisted through `PUT /projects/kanban/{freelanceId}/reorder` (favorites still pin above the manual order). Each card shows a card-aging indicator (days since last activity) and highlights opportunities with no activity for 14+ days so stale leads stand out. A quick-add button on each column opens a minimal dialog (role, client, daily rate) that creates an opportunity directly in that column's status, to be enriched later. Moving a card into the LOST column prompts for a loss reason, which feeds a "why opportunities were lost" breakdown on the dashboard. Cards that share the same client and role (case-insensitive) as another opportunity are flagged as possible duplicates for manual deduplication.
 
-The current Kanban implementation is status-driven. The roadmap in [TODO.md](../TODO.md) tracks a richer pipeline model where generic columns can coexist with custom intermediate recruitment steps.
+The board has five status-driven columns: Contact, Tests & Entretiens, Offre, Accepté and Perdu / Abandonné. Intermediate recruitment steps (technical test, client interview...) are tracked as interview steps inside the Tests & Entretiens column. The board follows the season selected on the dashboard (`GET /projects/kanban/{freelanceId}?seasonId=`), and cards quick-added to it join that season.
+
+## Job-Hunting Seasons
+
+A season is a bounded job-hunting period, like a sprint: "Autumn search 2026" from 1 August until the right mission is signed. Each season has its own pipeline and its own dashboard instead of one dashboard that is always on.
+
+- A season has a name, a start date, an optional end date (empty while it runs), an optional target daily rate and a free-text objective.
+- Starting a season (dashboard → season picker → New season) adopts the workspace's opportunities that are not in a season yet and were created within its dates. New opportunities join the season running on the day they are created, unless the form or the board picks another one.
+- The dashboard season picker switches the whole dashboard (KPIs, charts, funnels, analytics, recent projects) and the Kanban board to one season, or to all seasons. The choice is remembered in the browser.
+- A season dashboard opens with a summary banner: dates, days elapsed, objective, opportunities, success rate (accepted out of decided), accepted missions and average vs target daily rate, each compared with the all-season value.
+- A season can be edited, closed (it then ends the day before, so new opportunities no longer join it) or deleted; deleting keeps its opportunities, which simply no longer belong to a season.
+- Contact reminders (dormant contacts, anniversaries) stay workspace-wide.
+
+API: `GET /seasons/by-freelance/{freelanceId}`, `GET|PUT|DELETE /seasons/{id}`, `POST /seasons`, plus the optional `seasonId` query parameter on `GET /projects/kanban/{freelanceId}` and `GET /projects/stats/dashboard/{freelanceId}`. Seasons are private to their workspace like every other record.
 
 ## Dashboard And Analytics
 
@@ -173,6 +191,7 @@ The dashboard provides an overview of the opportunity workspace with:
 - stale-opportunity detection (active opportunities idle for 14+ days, surfaced to follow up or archive before they go cold)
 - recent projects
 - overview and Kanban display modes
+- a season picker that scopes all of the above to one job-hunting season (see [Job-Hunting Seasons](#job-hunting-seasons))
 
 The current analytics are intentionally operational: they help a freelancer understand pipeline volume, activity, rate distribution, which sources actually yield signed contracts, and how negotiated rates trend over time. More advanced analytics such as conversion funnels remain roadmap items.
 
