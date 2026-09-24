@@ -85,7 +85,8 @@
     "sources": "Sources",
     "archive": "Archives",
     "profile": "Profil",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "toggleMenu": "Afficher ou masquer le menu"
   },
   "timeline": {
     "title": "Planning",
@@ -152,37 +153,37 @@
     "charts": {
       "projectsByStatus": "Missions par statut",
       "projectsByWorkMode": "Missions par mode de travail",
-      "dailyRateDistribution": "R\u00e9partition des TJM",
+      "dailyRateDistribution": "Répartition des TJM",
       "projects": "Missions",
-      "won": "Gagn\u00e9es",
+      "won": "Gagnées",
       "lost": "Perdues",
       "active": "En cours",
-      "lostReasons": "Pourquoi les opportunit\u00e9s ont \u00e9t\u00e9 perdues",
-      "sourceRoi": "ROI par source (contrats sign\u00e9s)",
+      "lostReasons": "Pourquoi les opportunités ont été perdues",
+      "sourceRoi": "ROI par source (contrats signés)",
       "sourceRoiSource": "Source",
-      "sourceRoiWon": "Gagn\u00e9es/Total",
+      "sourceRoiWon": "Gagnées/Total",
       "sourceRoiRate": "Taux",
-      "skillTrends": "Comp\u00e9tences recherch\u00e9es",
-      "skillTrendsSkill": "Comp\u00e9tence",
-      "skillTrendsCount": "Opportunit\u00e9s",
+      "skillTrends": "Compétences recherchées",
+      "skillTrendsSkill": "Compétence",
+      "skillTrendsCount": "Opportunités",
       "skillTrendsRate": "TJM moyen",
-      "processDuration": "D\u00e9lai moyen jusqu'\u00e0 signature (par client/ESN)",
+      "processDuration": "Délai moyen jusqu'à signature (par client/ESN)",
       "processDurationGroup": "Client / ESN",
       "processDurationDays": "Jours moy.",
-      "processDurationSigned": "Sign\u00e9es",
-      "activityHeatmap": "Activit\u00e9 de prospection",
+      "processDurationSigned": "Signées",
+      "activityHeatmap": "Activité de prospection",
       "heatmapLess": "Moins",
       "heatmapMore": "Plus",
-      "rateEvolution": "\u00c9volution du TJM (demand\u00e9 vs obtenu)",
-      "rateEvolutionPeriod": "Ann\u00e9e",
-      "rateEvolutionAsked": "Demand\u00e9",
+      "rateEvolution": "Évolution du TJM (demandé vs obtenu)",
+      "rateEvolutionPeriod": "Année",
+      "rateEvolutionAsked": "Demandé",
       "rateEvolutionObtained": "Obtenu",
-      "benchTime": "Intercontrat (entre missions sign\u00e9es)",
+      "benchTime": "Intercontrat (entre missions signées)",
       "benchDays": "Jours d'intercontrat",
-      "benchPeriods": "P\u00e9riodes d'intercontrat",
-      "benchCost": "Co\u00fbt estim\u00e9",
-      "conversionFunnel": "Entonnoir de conversion (o\u00f9 les opportunit\u00e9s \u00e9chouent)",
-      "funnelStage": "\u00c9tape",
+      "benchPeriods": "Périodes d'intercontrat",
+      "benchCost": "Coût estimé",
+      "conversionFunnel": "Entonnoir de conversion (où les opportunités échouent)",
+      "funnelStage": "Étape",
       "funnelCount": "Atteint",
       "funnelRate": "Conversion",
       "funnelBySource": "Entonnoir de conversion par source",
@@ -202,7 +203,14 @@
       "quietForMonths": "sans activité depuis {{months}} mois",
       "staleOpportunities": "Opportunités dormantes (relancer ou archiver)",
       "idleForDays": "inactive depuis {{days}} jours"
-    }
+    },
+    "estimatedRevenueHint": "Valeur totale des missions gagnées et des opportunités en cours (hors perdues), sans pondération.",
+    "forecastRevenueHint": "Valeur des missions pondérée par la probabilité de gain de chaque étape du pipeline.",
+    "remindersTitle": "À suivre",
+    "analyticsTitle": "Analyses",
+    "outcomesTitle": "Bilan des opportunités",
+    "showAll": "Tout afficher ({{count}})",
+    "showLess": "Réduire"
   },
   "projects": {
     "title": "Mes Missions",
@@ -324,7 +332,16 @@
       "updateError": "Erreur lors de la modification de la mission",
       "loadError": "Erreur lors du chargement de la mission",
       "projectNotFound": "Mission non trouvée",
-      "loadClientsError": "Erreur lors du chargement des clients"
+      "loadClientsError": "Erreur lors du chargement des clients",
+      "pipelineSection": "Suivi et relations",
+      "ratesSection": "Tarifs",
+      "status": "Étape du pipeline",
+      "middleman": "ESN / intermédiaire",
+      "noMiddleman": "Aucun (client direct)",
+      "source": "Source",
+      "noSource": "Aucune",
+      "noClientsHint": "Aucun client final pour l'instant.",
+      "createClient": "Créer un client"
     },
     "lostReason": {
       "label": "Raison de la perte",
@@ -362,7 +379,10 @@
       "loadError": "Erreur lors du chargement de la mission",
       "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette mission ?",
       "deleteSuccess": "Mission supprimée avec succès",
-      "deleteError": "Erreur lors de la suppression de la mission"
+      "deleteError": "Erreur lors de la suppression de la mission",
+      "changeStatus": "Changer l'étape du pipeline",
+      "statusUpdated": "Mission déplacée vers « {{status}} »",
+      "via": "via {{name}}"
     },
     "workModes": {
       "REMOTE": "Télétravail",
@@ -435,7 +455,9 @@
       "netTooltip": "Taux journalier net après application du taux de réversion",
       "perMonth": "/mois",
       "perYear": "/an"
-    }
+    },
+    "resultsCount": "{{count}} mission(s)",
+    "pagination": "Pagination des missions"
   },
   "clients": {
     "title": "Gestion des Clients",
@@ -480,7 +502,7 @@
     "call": "Appeler",
     "name": "Nom",
     "city": "Ville",
-    "searchPlaceholder": "Nom de l'entreprise, domaine...",
+    "searchPlaceholder": "Nom, ville, adresse, notes...",
     "allStatuses": "Tous les statuts",
     "industry": "Secteur d'activité",
     "mainIndustry": "Secteur principal",
@@ -508,7 +530,14 @@
       "statusAndInfo": "Statut et informations",
       "history": "Historique",
       "clientCreated": "Client créé",
-      "lastModified": "Dernière modification"
+      "lastModified": "Dernière modification",
+      "summary": "{{projects}} mission(s) · {{contacts}} contact(s)",
+      "activity": "Activité",
+      "averageRate": "TJM moyen",
+      "projectsTab": "Missions",
+      "projectsTitle": "Missions liées à ce client",
+      "noProjects": "Aucune mission n'est encore liée à ce client.",
+      "forClient": "pour {{name}}"
     },
     "form": {
       "createTitle": "Nouveau client",
@@ -520,9 +549,9 @@
       "clientInfo": "Informations client",
       "generalInfo": "Informations générales",
       "companyName": "Nom de l'entreprise",
-      "companyNamePlaceholder": "Nom de l'entreprise",
+      "companyNamePlaceholder": "Ex. : TechCorp Solutions",
       "domainPlaceholder": "ex: Technologies, Banque...",
-      "cityPlaceholder": "Ville",
+      "cityPlaceholder": "Ex. : Paris",
       "address": "Adresse",
       "addressPlaceholder": "Adresse complète",
       "website": "Site web",
@@ -543,8 +572,16 @@
       "createError": "Erreur lors de la création du client",
       "updateError": "Erreur lors de la modification du client",
       "loadError": "Erreur lors du chargement du client",
-      "loadContactsError": "Erreur lors du chargement des contacts"
-    }
+      "loadContactsError": "Erreur lors du chargement des contacts",
+      "isFinalHint": "Désactivez pour une ESN, une agence ou un autre intermédiaire."
+    },
+    "allTypes": "Tous les types",
+    "finalClients": "Clients finaux",
+    "esnPlural": "ESN / intermédiaires",
+    "blacklistedPlural": "Sur liste noire",
+    "missionsShort": "Missions",
+    "resultsCount": "{{count}} client(s)",
+    "deleteInUse": "Ce client est encore lié à des missions ou des contacts. Supprimez-les ou réaffectez-les d'abord."
   },
   "contacts": {
     "title": "Gestion des Contacts",
@@ -618,7 +655,9 @@
       "updateError": "Erreur lors de la modification du contact",
       "loadError": "Erreur lors du chargement du contact",
       "loadClientsError": "Erreur lors du chargement des clients"
-    }
+    },
+    "loadingDetail": "Chargement du contact...",
+    "noClientsHint": "Aucun client pour l'instant."
   },
   "sources": {
     "title": "Gestion des Sources",
@@ -696,7 +735,8 @@
     "quickAddTitle": "Nouvelle opportunité – {{status}}",
     "quickAddSuccess": "Opportunité ajoutée",
     "quickAddError": "Erreur lors de l'ajout de l'opportunité",
-    "lostReasonTitle": "Pourquoi cette opportunité a-t-elle été perdue ?"
+    "lostReasonTitle": "Pourquoi cette opportunité a-t-elle été perdue ?",
+    "perDayShort": "/j"
   },
   "profile": {
     "title": "Mon Profil",
@@ -867,7 +907,10 @@
     "defaultWarningMessage": "Veuillez vérifier les informations saisies.",
     "defaultInfoMessage": "Aucune information supplémentaire disponible.",
     "defaultNotFoundMessage": "L'élément demandé n'a pas été trouvé.",
-    "defaultErrorMessage": "Une erreur inattendue est survenue. Veuillez réessayer."
+    "defaultErrorMessage": "Une erreur inattendue est survenue. Veuillez réessayer.",
+    "forbidden": "Accès refusé à cette ressource",
+    "serverError": "Le serveur a rencontré une erreur. Veuillez réessayer dans un instant.",
+    "networkError": "Impossible de joindre le serveur. Vérifiez votre connexion puis réessayez."
   },
   "steps": {
     "step": "Étape",
@@ -883,7 +926,39 @@
     "scheduleNotesPlaceholder": "Informations complémentaires pour l'entretien...",
     "scheduledSuccess": "Entretien planifié avec succès",
     "scheduling": "Planification...",
-    "schedule": "Planifier"
+    "schedule": "Planifier",
+    "sectionTitle": "Étapes de recrutement",
+    "summary": "{{done}}/{{total}} validée(s)",
+    "add": "Ajouter une étape",
+    "addTitle": "Nouvelle étape",
+    "editTitle": "Modifier l'étape",
+    "titleLabel": "Intitulé de l'étape",
+    "date": "Date",
+    "noDate": "Date à définir",
+    "empty": "Aucune étape pour l'instant. Ajoutez le prochain entretien ou test pour suivre le processus.",
+    "changeStatus": "Changer le statut de l'étape",
+    "deleteConfirm": "Supprimer l'étape « {{title}} » ?",
+    "addedSuccess": "Étape ajoutée",
+    "updatedSuccess": "Étape mise à jour",
+    "deletedSuccess": "Étape supprimée",
+    "loadError": "Erreur lors du chargement des étapes",
+    "statuses": {
+      "TO_PLAN": "À planifier",
+      "PLANNED": "Planifiée",
+      "CANCELED": "Annulée",
+      "WAITING_FEEDBACK": "En attente de retour",
+      "VALIDATED": "Validée",
+      "FAILED": "Échouée"
+    },
+    "suggestions": {
+      "firstContact": "Prise de contact",
+      "commercialInterview": "Entretien commercial",
+      "technicalTest": "Test technique",
+      "technicalInterview": "Entretien technique",
+      "managerInterview": "Entretien manager",
+      "clientInterview": "Entretien client",
+      "finalValidation": "Validation finale"
+    }
   },
   "filters": {
     "presetFilters": "Filtres prédéfinis",
@@ -919,6 +994,19 @@
   },
   "language": {
     "fr": "Français",
-    "en": "English"
+    "en": "English",
+    "switch": "Changer de langue"
+  },
+  "pagination": {
+    "itemsPerPage": "Éléments par page",
+    "nextPage": "Page suivante",
+    "previousPage": "Page précédente",
+    "firstPage": "Première page",
+    "lastPage": "Dernière page",
+    "range": "{{start}} – {{end}} sur {{length}}"
+  },
+  "theme": {
+    "useDark": "Passer au thème sombre",
+    "useLight": "Passer au thème clair"
   }
 }

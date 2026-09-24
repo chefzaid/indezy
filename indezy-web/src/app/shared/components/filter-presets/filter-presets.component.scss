@@ -11,7 +11,7 @@
     }
 
     .save-preset-button {
-      color: #1976d2;
+      color: var(--app-link);
     }
   }
 }
@@ -21,11 +21,11 @@
 
   .preset-header {
     padding: 12px 16px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--app-border);
 
     .preset-title {
       font-weight: 500;
-      color: #333;
+      color: var(--app-text);
     }
   }
 
@@ -42,7 +42,7 @@
       text-align: left;
 
       mat-icon {
-        color: #666;
+        color: var(--app-text-muted);
       }
 
       .preset-info {
@@ -53,12 +53,12 @@
 
         .preset-name {
           font-weight: 500;
-          color: #333;
+          color: var(--app-text);
         }
 
         .preset-description {
           font-size: 12px;
-          color: #666;
+          color: var(--app-text-muted);
         }
       }
 
@@ -81,7 +81,7 @@
   }
 
   .preset-footer {
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--app-border);
     padding-top: 8px;
 
     .clear-presets {

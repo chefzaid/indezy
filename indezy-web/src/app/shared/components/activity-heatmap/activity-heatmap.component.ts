@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ActivityDay } from '../../../models';
@@ -16,6 +16,7 @@ export interface HeatmapCell {
   selector: 'app-activity-heatmap',
   imports: [CommonModule, TranslateModule],
   templateUrl: './activity-heatmap.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./activity-heatmap.component.scss']
 })
 export class ActivityHeatmapComponent implements OnChanges {

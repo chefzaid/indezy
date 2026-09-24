@@ -201,10 +201,10 @@
                     <mat-form-field appearance="outline">
                       <mat-label>{{ 'profile.itemsPerPage' | translate }}</mat-label>
                       <mat-select formControlName="itemsPerPage">
-                        <mat-option value="10">10</mat-option>
-                        <mat-option value="25">25</mat-option>
-                        <mat-option value="50">50</mat-option>
-                        <mat-option value="100">100</mat-option>
+                        <mat-option [value]="10">10</mat-option>
+                        <mat-option [value]="25">25</mat-option>
+                        <mat-option [value]="50">50</mat-option>
+                        <mat-option [value]="100">100</mat-option>
                       </mat-select>
                     </mat-form-field>
                   </div>

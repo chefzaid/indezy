@@ -12,12 +12,11 @@
             <mat-icon>content_copy</mat-icon>
           </button>
         </div>
-        <p class="contact-subtitle">{{ contact.position }} • {{ contact.clientName }}</p>
+        @if (contact.clientName) {
+          <p class="contact-subtitle">{{ contact.clientName }}</p>
+        }
       </div>
     </div>
-    <mat-chip [color]="getStatusColor(contact.status || 'ACTIVE')" selected>
-      {{ getStatusLabel(contact.status || 'ACTIVE') }}
-    </mat-chip>
   </div>
 
   <div mat-dialog-content class="dialog-content">

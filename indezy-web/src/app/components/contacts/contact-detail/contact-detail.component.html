@@ -2,7 +2,7 @@
   @if (isLoading) {
     <div class="loading-container">
       <mat-spinner></mat-spinner>
-      <p>Chargement des détails du contact...</p>
+      <p>{{ 'contacts.loadingDetail' | translate }}</p>
     </div>
   }
 
@@ -10,34 +10,30 @@
     <div class="contact-content">
       <!-- Header Card -->
       <mat-card class="header-card">
-        <mat-card-header>
-          <mat-card-title>
-            <div class="title-row">
-              <div class="contact-name">
-                <mat-icon>person</mat-icon>
-                {{ getFullName() }}
-              </div>
-              <mat-chip [color]="getStatusColor(contact.status || 'ACTIVE')" selected>
-                {{ getStatusLabel(contact.status || 'ACTIVE') }}
-              </mat-chip>
+        <mat-card-content>
+          <h1 class="contact-name">
+            <mat-icon>person</mat-icon>
+            {{ getFullName() }}
+          </h1>
+          @if (contact.clientName) {
+            <div class="contact-subtitle">
+              <mat-icon>business</mat-icon>
+              <a [routerLink]="['/clients', contact.clientId]">{{ contact.clientName }}</a>
             </div>
-          </mat-card-title>
-          <mat-card-subtitle>
-            {{ contact.position }} • {{ contact.clientName }}
-          </mat-card-subtitle>
-        </mat-card-header>
+          }
+        </mat-card-content>
         <mat-card-actions>
           <button mat-button (click)="onBack()">
             <mat-icon>arrow_back</mat-icon>
-            Retour
+            {{ 'common.back' | translate }}
           </button>
           <button mat-raised-button color="primary" (click)="onEdit()">
             <mat-icon>edit</mat-icon>
-            Modifier
+            {{ 'common.edit' | translate }}
           </button>
           <button mat-button color="warn" (click)="onDelete()">
             <mat-icon>delete</mat-icon>
-            Supprimer
+            {{ 'common.delete' | translate }}
           </button>
         </mat-card-actions>
       </mat-card>
@@ -47,106 +43,57 @@
           <mat-card-header>
             <mat-card-title>
               <mat-icon>contact_mail</mat-icon>
-              Informations de contact
+              {{ 'contacts.contactInfo' | translate }}
             </mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <div class="info-item">
               <div class="info-label">
                 <mat-icon>email</mat-icon>
-                Email
+                {{ 'common.email' | translate }}
               </div>
               <div class="info-value">
-                <a [href]="'mailto:' + contact.email" class="contact-link" (click)="sendEmail()">
-                  {{ contact.email }}
-                </a>
+                @if (contact.email) {
+                  <a [href]="'mailto:' + contact.email" class="contact-link">{{ contact.email }}</a>
+                } @else {
+                  {{ 'common.notSpecified' | translate }}
+                }
               </div>
             </div>
             <mat-divider></mat-divider>
             <div class="info-item">
               <div class="info-label">
                 <mat-icon>phone</mat-icon>
-                Téléphone
+                {{ 'contacts.phone' | translate }}
               </div>
               <div class="info-value">
-                <a [href]="'tel:' + contact.phone" class="contact-link" (click)="callPhone()">
-                  {{ contact.phone }}
-                </a>
+                @if (contact.phone) {
+                  <a [href]="'tel:' + contact.phone" class="contact-link">{{ contact.phone }}</a>
+                } @else {
+                  {{ 'common.notSpecified' | translate }}
+                }
               </div>
             </div>
           </mat-card-content>
         </mat-card>
-        <!-- Professional Information -->
+        <!-- Company -->
         <mat-card class="info-card">
           <mat-card-header>
             <mat-card-title>
-              <mat-icon>work</mat-icon>
-              Informations professionnelles
+              <mat-icon>business</mat-icon>
+              {{ 'common.client' | translate }}
             </mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <div class="info-item">
               <div class="info-label">
-                <mat-icon>badge</mat-icon>
-                Poste
+                <mat-icon>apartment</mat-icon>
+                {{ 'clients.form.companyName' | translate }}
               </div>
               <div class="info-value">
-                {{ contact.position }}
+                <a [routerLink]="['/clients', contact.clientId]" class="contact-link">{{ contact.clientName }}</a>
               </div>
             </div>
-            <mat-divider></mat-divider>
-            <div class="info-item">
-              <div class="info-label">
-                <mat-icon>business</mat-icon>
-                Client
-              </div>
-              <div class="info-value">
-                {{ contact.clientName }}
-              </div>
-            </div>
-            <mat-divider></mat-divider>
-            <div class="info-item">
-              <div class="info-label">
-                <mat-icon>info</mat-icon>
-                Statut
-              </div>
-              <div class="info-value">
-                <mat-chip [color]="getStatusColor(contact.status || 'ACTIVE')" selected>
-                  {{ getStatusLabel(contact.status || 'ACTIVE') }}
-                </mat-chip>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-        <!-- Timeline Information -->
-        <mat-card class="info-card timeline-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>schedule</mat-icon>
-              Historique
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="timeline-item">
-              <div class="timeline-icon">
-                <mat-icon>add_circle</mat-icon>
-              </div>
-              <div class="timeline-content">
-                <div class="timeline-title">Contact créé</div>
-                <div class="timeline-date">{{ contact.createdAt ? formatDate(contact.createdAt) : 'Non disponible' }}</div>
-              </div>
-            </div>
-            @if (contact.updatedAt !== contact.createdAt) {
-              <div class="timeline-item">
-                <div class="timeline-icon">
-                  <mat-icon>edit</mat-icon>
-                </div>
-                <div class="timeline-content">
-                  <div class="timeline-title">Dernière modification</div>
-                  <div class="timeline-date">{{ contact.updatedAt ? formatDate(contact.updatedAt) : 'Non disponible' }}</div>
-                </div>
-              </div>
-            }
           </mat-card-content>
         </mat-card>
         <!-- Notes -->
@@ -155,7 +102,7 @@
             <mat-card-header>
               <mat-card-title>
                 <mat-icon>note</mat-icon>
-                Notes
+                {{ 'common.notes' | translate }}
               </mat-card-title>
             </mat-card-header>
             <mat-card-content>

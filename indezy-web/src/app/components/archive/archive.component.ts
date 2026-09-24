@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -25,6 +25,7 @@ import { LoadingComponent } from '../../shared/components/loading/loading.compon
     MatFormFieldModule, MatInputModule, MatChipsModule, TranslateModule, LoadingComponent
   ],
   templateUrl: './archive.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./archive.component.scss']
 })
 export class ArchiveComponent implements OnInit {

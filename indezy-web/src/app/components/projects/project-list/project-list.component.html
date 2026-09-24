@@ -20,21 +20,28 @@
   </div>
 
   <!-- Filters -->
-  <mat-card class="filters-card">
+  <mat-card class="filters-card" [class.collapsed]="!filtersExpanded">
     <mat-card-header>
       <mat-card-title>
-        {{ 'common.filters' | translate }}
-        @if (getFilterCount() > 0) {
-          <span class="filter-count">({{ getFilterCount() }})</span>
-        }
+        <button type="button" class="filters-toggle" (click)="toggleFilters()"
+          [attr.aria-expanded]="filtersExpanded">
+          <mat-icon>{{ filtersExpanded ? 'expand_less' : 'tune' }}</mat-icon>
+          {{ 'common.filters' | translate }}
+          @if (getFilterCount() > 0) {
+            <span class="filter-count">({{ getFilterCount() }})</span>
+          }
+        </button>
       </mat-card-title>
       <div class="filter-actions">
-        <button mat-stroked-button type="button" (click)="clearFilters()" class="clear-filters-btn">
-          <mat-icon>clear</mat-icon>
-          {{ 'common.clearFilters' | translate }}
-        </button>
+        @if (getFilterCount() > 0) {
+          <button mat-stroked-button type="button" (click)="clearFilters()" class="clear-filters-btn">
+            <mat-icon>clear</mat-icon>
+            {{ 'common.clearFilters' | translate }}
+          </button>
+        }
       </div>
     </mat-card-header>
+    @if (filtersExpanded) {
     <mat-card-content>
       <form [formGroup]="filterForm" class="filters-form">
         <!-- Basic Filters -->
@@ -49,13 +56,13 @@
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'projects.minRate' | translate }}</mat-label>
               <input aria-label="{{ 'projects.minRate' | translate }}" matInput type="number" formControlName="minRate" placeholder="400">
-              <span matSuffix>€</span>
+              <span matTextSuffix>€</span>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>{{ 'projects.maxRate' | translate }}</mat-label>
               <input aria-label="{{ 'projects.maxRate' | translate }}" matInput type="number" formControlName="maxRate" placeholder="800">
-              <span matSuffix>€</span>
+              <span matTextSuffix>€</span>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="filter-field">
@@ -76,8 +83,9 @@
               <mat-label>{{ 'projects.status' | translate }}</mat-label>
               <mat-select formControlName="status">
                 <mat-option value="">{{ 'common.all' | translate }}</mat-option>
-                @for (status of statusOptions; track status) {
+                @for (status of statusOptions; track status.value) {
                   <mat-option [value]="status.value">
+                    <span class="status-dot" [style.background-color]="statusColors[status.value]"></span>
                     {{ status.labelKey | translate }}
                   </mat-option>
                 }
@@ -184,7 +192,7 @@
 
             <!-- Location and Client Filters -->
             <div class="filter-group">
-              <h4>{{ 'projects.locationAndClient' | translate }}</h4>
+              <h4>{{ 'projects.client' | translate }}</h4>
               <div class="filter-row">
                 <mat-form-field appearance="outline" class="filter-field">
                   <mat-label>{{ 'projects.client' | translate }}</mat-label>
@@ -192,11 +200,6 @@
                   <mat-icon matPrefix>business</mat-icon>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="filter-field">
-                  <mat-label>{{ 'projects.location' | translate }}</mat-label>
-                  <input aria-label="{{ 'projects.location' | translate }}" matInput formControlName="location" [placeholder]="'projects.locationPlaceholder' | translate">
-                  <mat-icon matPrefix>location_on</mat-icon>
-                </mat-form-field>
               </div>
             </div>
 
@@ -246,6 +249,7 @@
         </mat-expansion-panel>
       </form>
     </mat-card-content>
+    }
   </mat-card>
 
   <!-- Loading -->
@@ -268,14 +272,14 @@
           <mat-form-field appearance="outline" class="reversion-field">
             <mat-label>{{ 'projects.reversion.rate' | translate }}</mat-label>
             <input aria-label="{{ 'projects.reversion.rate' | translate }}" matInput type="number" [value]="reversionRate" min="0" max="100" step="0.5"
-              (change)="onReversionRateChange($any($event.target).value)">
-            <span matSuffix>%</span>
+              (change)="onReversionRateChange($any($event.target).valueAsNumber)">
+            <span matTextSuffix>%</span>
           </mat-form-field>
           <mat-form-field appearance="outline" class="reversion-field">
             <mat-label>{{ 'projects.reversion.incomeTax' | translate }}</mat-label>
             <input aria-label="{{ 'projects.reversion.incomeTax' | translate }}" matInput type="number" [value]="incomeTaxRate" min="0" max="50" step="0.5"
-              (change)="onIncomeTaxRateChange($any($event.target).value)">
-            <span matSuffix>%</span>
+              (change)="onIncomeTaxRateChange($any($event.target).valueAsNumber)">
+            <span matTextSuffix>%</span>
           </mat-form-field>
           <button mat-stroked-button color="primary" (click)="saveReversionRate()"
             [matTooltip]="'projects.reversion.saveTooltip' | translate">
@@ -291,8 +295,11 @@
 
   <!-- Projects Grid -->
   @if (!isLoading && filteredProjects.length > 0) {
+    <div class="results-summary">
+      {{ 'projects.resultsCount' | translate:{ count: filteredProjects.length } }}
+    </div>
     <div class="projects-grid">
-      @for (project of filteredProjects; track project) {
+      @for (project of pagedProjects; track project.id) {
         <mat-card class="project-card">
           <mat-card-header>
             <mat-card-title class="project-title">
@@ -302,9 +309,9 @@
               {{ project.clientName }}
             </mat-card-subtitle>
             <div class="project-status">
-              <mat-chip [color]="getProjectStatusColor(project)" selected>
-                {{ getProjectStatusText(project) }}
-              </mat-chip>
+              <span class="status-pill" [style.--status-color]="getStatusColor(project)">
+                {{ 'projects.statuses.' + (project.status ?? 'IDENTIFIED') | translate }}
+              </span>
             </div>
           </mat-card-header>
           <mat-card-content>
@@ -312,9 +319,9 @@
               @if (project.dailyRate) {
                 <div class="detail-item">
                   <mat-icon>euro</mat-icon>
-                  <span>{{ project.dailyRate }}€{{ 'common.perDay' | translate }}</span>
+                  <span>{{ project.dailyRate | number:'1.0-0' }} €{{ 'common.perDay' | translate }}</span>
                   <span class="net-rate" [matTooltip]="'projects.reversion.netTooltip' | translate">
-                    ({{ 'projects.reversion.net' | translate }}: {{ getNetDailyRate(project) }}€)
+                    ({{ 'projects.reversion.net' | translate }} : {{ getNetDailyRate(project) | number:'1.0-0' }} €)
                   </span>
                 </div>
               }
@@ -322,8 +329,8 @@
                 <div class="detail-item revenue-item">
                   <mat-icon>account_balance_wallet</mat-icon>
                   <span class="net-revenue">
-                    {{ getNetMonthly(project) | number:'1.0-0' }}€{{ 'projects.reversion.perMonth' | translate }}
-                    · {{ getNetYearly(project) | number:'1.0-0' }}€{{ 'projects.reversion.perYear' | translate }}
+                    {{ getNetMonthly(project) | number:'1.0-0' }} €{{ 'projects.reversion.perMonth' | translate }}
+                    · {{ getNetYearly(project) | number:'1.0-0' }} €{{ 'projects.reversion.perYear' | translate }}
                   </span>
                 </div>
               }
@@ -342,7 +349,10 @@
               @if (project.startDate) {
                 <div class="detail-item">
                   <mat-icon>event</mat-icon>
-                  <span>{{ project.startDate | date:'dd/MM/yyyy' }}</span>
+                  <span>{{ project.startDate | date:'shortDate' }}</span>
+                  @if (getMissionPhaseKey(project); as phaseKey) {
+                    <span class="mission-phase">· {{ phaseKey | translate }}</span>
+                  }
                 </div>
               }
               @if (getCommuteInfo(project.id); as commute) {
@@ -389,6 +399,16 @@
         </mat-card>
       }
     </div>
+    @if (filteredProjects.length > pageSizeOptions[0]) {
+      <mat-paginator class="projects-paginator"
+        [length]="filteredProjects.length"
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="pageSizeOptions"
+        (page)="onPageChange($event)"
+        [attr.aria-label]="'projects.pagination' | translate">
+      </mat-paginator>
+    }
   }
 
   <!-- Empty State -->

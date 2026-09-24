@@ -33,6 +33,7 @@ export interface UpdateInterviewStepDto {
   date?: string;
   status?: StepStatus;
   notes?: string;
+  projectId?: number;
 }
 
 export interface ProjectCardDto {
@@ -79,12 +80,12 @@ export const STEP_STATUS_LABELS: { [key in StepStatus]: string } = {
   [StepStatus.FAILED]: 'Échoué'
 };
 
-// Status colors for UI
+// Status colors for UI (dark enough to carry white text in status pills)
 export const STEP_STATUS_COLORS: { [key in StepStatus]: string } = {
-  [StepStatus.TO_PLAN]: '#ffa726', // orange
-  [StepStatus.PLANNED]: '#42a5f5', // blue
-  [StepStatus.CANCELED]: '#bdbdbd', // grey
-  [StepStatus.WAITING_FEEDBACK]: '#ffee58', // yellow
-  [StepStatus.VALIDATED]: '#66bb6a', // green
-  [StepStatus.FAILED]: '#ef5350' // red
+  [StepStatus.TO_PLAN]: '#fb8c00', // orange
+  [StepStatus.PLANNED]: '#1e88e5', // blue
+  [StepStatus.CANCELED]: '#9e9e9e', // grey
+  [StepStatus.WAITING_FEEDBACK]: '#f9a825', // amber
+  [StepStatus.VALIDATED]: '#43a047', // green
+  [StepStatus.FAILED]: '#e53935' // red
 };

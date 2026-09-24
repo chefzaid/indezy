@@ -71,11 +71,16 @@ Current backend rules:
 - `/swagger-ui.html` is public
 - all other requests require a valid JWT (`anyRequest().authenticated()`); unauthenticated requests receive `401`
 
+Workspace isolation: `AccessGuard` resolves the caller's freelance workspace from the JWT
+account and every controller checks ownership before delegating. Records of another workspace
+answer `404` (so their ids cannot be probed), an explicit foreign workspace id answers `403`, and
+list-all endpoints return only the caller's records. `WorkspaceIsolationIntegrationTest` covers
+cross-owner reads, writes, references, and listings with two real accounts. The checks are skipped
+only when `indezy.security.permit-all` is enabled for anonymous test runs.
+
 Remaining hardening direction:
 
-1. Enforce ownership checks in services so one user cannot access another freelancer workspace.
-2. Add tests for anonymous, authenticated, and cross-owner access.
-3. Consider disabling Swagger in production or restricting it behind authentication/IP allowlists.
+1. Consider disabling Swagger in production or restricting it behind authentication/IP allowlists.
 
 ## Frontend Route Protection
 

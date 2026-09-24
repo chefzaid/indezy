@@ -35,7 +35,7 @@
 .register-title {
   font-size: 24px;
   font-weight: 600;
-  color: #333;
+  color: var(--app-text);
   margin: 0;
 }
 
@@ -80,7 +80,7 @@
 .login-link {
   margin: 0;
   text-align: center;
-  color: #666;
+  color: var(--app-text-muted);
 }
 
 .login-link-text {

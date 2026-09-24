@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.ContactDto;
 import dev.swirlit.indezy.dto.ContactImportRequest;
 import dev.swirlit.indezy.dto.ContactImportResultDto;
+import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.ContactService;
 import dev.swirlit.indezy.service.ContactImportService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +41,7 @@ public class ContactController {
 
     private final ContactService contactService;
     private final ContactImportService contactImportService;
+    private final AccessGuard accessGuard;
 
     @Operation(summary = "Import contacts for a client",
             description = "Parses a CSV or vCard payload and imports its contacts under the given client")
@@ -54,6 +56,7 @@ public class ContactController {
             @Parameter(description = "Target client ID", required = true) @PathVariable Long clientId,
             @Valid @RequestBody ContactImportRequest request) {
         log.debug("POST /contacts/import/by-client/{} - Importing contacts", clientId);
+        accessGuard.requireClient(clientId);
         ContactImportResultDto result = contactImportService.importForClient(clientId, request.getContent());
         return ResponseEntity.ok(result);
     }
@@ -66,7 +69,9 @@ public class ContactController {
     @GetMapping
     public ResponseEntity<List<ContactDto>> getAllContacts() {
         log.debug("GET /contacts - Getting all contacts");
-        List<ContactDto> contacts = contactService.findAll();
+        List<ContactDto> contacts = accessGuard.currentFreelanceId()
+            .map(contactService::findByFreelanceId)
+            .orElseGet(contactService::findAll);
         return ResponseEntity.ok(contacts);
     }
 
@@ -80,6 +85,7 @@ public class ContactController {
     public ResponseEntity<ContactDto> getContactById(
             @Parameter(description = "Contact ID", required = true) @PathVariable Long id) {
         log.debug("GET /contacts/{} - Getting contact by id", id);
+        accessGuard.requireContact(id);
         ContactDto contact = contactService.findById(id);
         return ResponseEntity.ok(contact);
     }
@@ -94,6 +100,8 @@ public class ContactController {
     public ResponseEntity<ContactDto> createContact(
             @Parameter(description = "Contact details", required = true) @Valid @RequestBody ContactDto contactDto) {
         log.debug("POST /contacts - Creating new contact");
+        contactDto.setFreelanceId(accessGuard.resolveFreelanceId(contactDto.getFreelanceId()));
+        accessGuard.requireClient(contactDto.getClientId());
         ContactDto createdContact = contactService.create(contactDto);
         return new ResponseEntity<>(createdContact, HttpStatus.CREATED);
     }
@@ -110,6 +118,9 @@ public class ContactController {
             @Parameter(description = "Contact ID", required = true) @PathVariable Long id,
             @Parameter(description = "Updated contact details", required = true) @Valid @RequestBody ContactDto contactDto) {
         log.debug("PUT /contacts/{} - Updating contact", id);
+        accessGuard.requireContact(id);
+        contactDto.setFreelanceId(accessGuard.resolveFreelanceId(contactDto.getFreelanceId()));
+        accessGuard.requireClientIfPresent(contactDto.getClientId());
         ContactDto updatedContact = contactService.update(id, contactDto);
         return ResponseEntity.ok(updatedContact);
     }
@@ -123,6 +134,7 @@ public class ContactController {
     public ResponseEntity<Void> deleteContact(
             @Parameter(description = "Contact ID", required = true) @PathVariable Long id) {
         log.debug("DELETE /contacts/{} - Deleting contact", id);
+        accessGuard.requireContact(id);
         contactService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -136,6 +148,7 @@ public class ContactController {
     public ResponseEntity<List<ContactDto>> getContactsByFreelanceId(
             @Parameter(description = "Freelance ID", required = true) @PathVariable Long freelanceId) {
         log.debug("GET /contacts/by-freelance/{} - Getting contacts by freelance id", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         List<ContactDto> contacts = contactService.findByFreelanceId(freelanceId);
         return ResponseEntity.ok(contacts);
     }
@@ -149,6 +162,7 @@ public class ContactController {
     public ResponseEntity<List<ContactDto>> getContactsByClientId(
             @Parameter(description = "Client ID", required = true) @PathVariable Long clientId) {
         log.debug("GET /contacts/by-client/{} - Getting contacts by client id", clientId);
+        accessGuard.requireClient(clientId);
         List<ContactDto> contacts = contactService.findByClientId(clientId);
         return ResponseEntity.ok(contacts);
     }
@@ -163,6 +177,7 @@ public class ContactController {
             @Parameter(description = "Freelance ID", required = true) @PathVariable Long freelanceId,
             @Parameter(description = "Name to search for", required = true) @RequestParam String name) {
         log.debug("GET /contacts/by-freelance/{}/search/name?name={} - Searching contacts by name", freelanceId, name);
+        accessGuard.requireFreelance(freelanceId);
         List<ContactDto> contacts = contactService.searchByName(freelanceId, name);
         return ResponseEntity.ok(contacts);
     }
@@ -177,6 +192,7 @@ public class ContactController {
             @Parameter(description = "Freelance ID", required = true) @PathVariable Long freelanceId,
             @Parameter(description = "Email to search for", required = true) @RequestParam String email) {
         log.debug("GET /contacts/by-freelance/{}/search/email?email={} - Searching contacts by email", freelanceId, email);
+        accessGuard.requireFreelance(freelanceId);
         List<ContactDto> contacts = contactService.searchByEmail(freelanceId, email);
         return ResponseEntity.ok(contacts);
     }

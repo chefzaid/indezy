@@ -1,16 +1,24 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ClientDto, ClientStatus, CreateClientDto, UpdateClientDto } from '../../models/client.models';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClientService {
   private readonly API_URL = `${environment.apiUrl}/clients`;
+  private readonly authService = inject(AuthService);
 
   constructor(private readonly http: HttpClient) {}
+
+  /** Clients of the signed-in freelance; screens must never list other accounts' clients. */
+  getForCurrentFreelance(): Observable<ClientDto[]> {
+    const freelanceId = this.authService.getUser()?.id;
+    return freelanceId ? this.getByFreelanceId(freelanceId) : of([]);
+  }
 
   getAll(): Observable<ClientDto[]> {
     return this.http.get<ClientDto[]>(this.API_URL);
@@ -41,6 +49,7 @@ export class ClientService {
   }
 
   // Legacy methods for backward compatibility
+  /** Every client known to the API regardless of owner; use getForCurrentFreelance() in screens. */
   getClients(): Observable<ClientDto[]> {
     return this.getAll();
   }

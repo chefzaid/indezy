@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, Input, Output, EventEmitter, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
@@ -20,6 +20,7 @@ import { SearchFilterConfig } from '../../../models/filter.models';
     MatButtonModule
 ],
   templateUrl: './advanced-search-filter.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./advanced-search-filter.component.scss']
 })
 export class AdvancedSearchFilterComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -34,6 +34,7 @@ export interface KanbanQuickAddDialogData {
     TranslateModule
 ],
   templateUrl: './kanban-quick-add-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./kanban-quick-add-dialog.component.scss']
 })
 export class KanbanQuickAddDialogComponent implements OnInit {
@@ -57,9 +58,11 @@ export class KanbanQuickAddDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.clientService.getClients().subscribe({
+    this.clientService.getForCurrentFreelance().subscribe({
       next: (clients) => {
-        this.clients = clients.filter(client => client.status === 'ACTIVE');
+        this.clients = clients
+          .filter(client => client.isFinal !== false)
+          .sort((a, b) => a.companyName.localeCompare(b.companyName));
       },
       error: () => this.notificationService.error('errors.loadingClients')
     });

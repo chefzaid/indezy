@@ -36,8 +36,15 @@ export class ContactService {
     return this.getById(id);
   }
 
+  /** Every contact known to the API regardless of owner; use getForCurrentFreelance() in screens. */
   getContacts(): Observable<ContactDto[]> {
     return this.getAll();
+  }
+
+  /** Contacts of the signed-in freelance; screens must never list other accounts' contacts. */
+  getForCurrentFreelance(): Observable<ContactDto[]> {
+    const freelanceId = this.authService.getUser()?.id;
+    return freelanceId ? this.getByFreelanceId(freelanceId) : of([]);
   }
 
   create(contact: ContactDto): Observable<ContactDto> {

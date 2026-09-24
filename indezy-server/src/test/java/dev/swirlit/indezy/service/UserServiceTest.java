@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -340,5 +341,38 @@ class UserServiceTest {
         when(userRepository.existsByEmail("john.doe@example.com")).thenReturn(true);
 
         assertThat(userService.existsByEmail("john.doe@example.com")).isTrue();
+    }
+
+    @Test
+    void uploadAvatar_ShouldStoreImageAsDataUrl() throws Exception {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        MockMultipartFile file = new MockMultipartFile("file", "me.png", "image/png", new byte[] {1, 2, 3});
+
+        String avatar = userService.uploadAvatar(1L, file);
+
+        assertThat(avatar).isEqualTo("data:image/png;base64,AQID");
+        assertThat(testUser.getAvatarImage()).isEqualTo(avatar);
+        verify(userRepository).save(testUser);
+    }
+
+    @Test
+    void uploadAvatar_ShouldRejectNonImageFiles() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        MockMultipartFile file = new MockMultipartFile("file", "notes.txt", "text/plain", new byte[] {1});
+
+        assertThatThrownBy(() -> userService.uploadAvatar(1L, file))
+            .isInstanceOf(IllegalArgumentException.class);
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void uploadAvatar_ShouldRejectOversizedImages() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        byte[] tooLarge = new byte[(int) UserService.MAX_AVATAR_BYTES + 1];
+        MockMultipartFile file = new MockMultipartFile("file", "big.jpg", "image/jpeg", tooLarge);
+
+        assertThatThrownBy(() -> userService.uploadAvatar(1L, file))
+            .isInstanceOf(IllegalArgumentException.class);
+        verify(userRepository, never()).save(any());
     }
 }

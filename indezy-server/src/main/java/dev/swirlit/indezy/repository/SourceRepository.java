@@ -37,4 +37,8 @@ public interface SourceRepository extends JpaRepository<Source, Long> {
 
     @Query("SELECT DISTINCT s.type FROM Source s WHERE s.freelance.id = :freelanceId ORDER BY s.type")
     List<SourceType> findDistinctTypesByFreelanceId(@Param("freelanceId") Long freelanceId);
+
+    /** Owner workspace of the source, used by access checks without loading the entity graph. */
+    @Query("SELECT s.freelance.id FROM Source s WHERE s.id = :id")
+    Optional<Long> findOwnerFreelanceIdById(@Param("id") Long id);
 }

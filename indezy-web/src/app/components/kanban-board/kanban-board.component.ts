@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, inject } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -11,7 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Subject, takeUntil } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProjectService } from '../../services/project/project.service';
 import { AuthService } from '../../services/auth/auth.service';
@@ -29,7 +29,6 @@ import {
   KanbanProjectCardDto,
   ProjectStatus,
   LostReason,
-  PROJECT_STATUS_LABELS,
   PROJECT_STATUS_COLORS,
   PROJECT_STATUS_ICONS
 } from '../../models/project.models';
@@ -50,6 +49,7 @@ import {
     TranslateModule
 ],
   templateUrl: './kanban-board.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./kanban-board.component.scss']
 })
 export class KanbanBoardComponent implements OnInit, OnDestroy {
@@ -61,8 +61,9 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
   static readonly STALE_THRESHOLD_DAYS = 14;
 
   private readonly destroy$ = new Subject<void>();
+  private readonly locale = inject(LOCALE_ID);
+  private readonly translate = inject(TranslateService);
 
-  readonly STATUS_LABELS = PROJECT_STATUS_LABELS;
   readonly STATUS_COLORS = PROJECT_STATUS_COLORS;
   readonly STATUS_ICONS = PROJECT_STATUS_ICONS;
 
@@ -176,7 +177,7 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
           card.status = newStatus;
           card.lostReason = newStatus === ProjectStatus.LOST ? lostReason : undefined;
           this.notificationService.successText(
-            `"${card.role}" → ${this.STATUS_LABELS[newStatus]}`,
+            `"${card.role}" → ${this.getColumnLabel(newStatus)}`,
             2000
           );
         },
@@ -224,7 +225,7 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
   }
 
   getColumnLabel(status: string): string {
-    return this.STATUS_LABELS[status as ProjectStatus] || status;
+    return this.translate.instant('projects.statuses.' + status);
   }
 
   getColumnColor(status: string): string {
@@ -245,8 +246,8 @@ export class KanbanBoardComponent implements OnInit, OnDestroy {
   }
 
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency', currency: 'EUR', minimumFractionDigits: 0
+    return new Intl.NumberFormat(this.locale, {
+      style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(amount);
   }
 

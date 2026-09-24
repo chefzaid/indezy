@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -34,6 +34,7 @@ import { NotificationService } from '../../../services/notification/notification
     TranslateModule
 ],
     templateUrl: './source-form.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./source-form.component.scss']
 })
 export class SourceFormComponent implements OnInit, OnDestroy {

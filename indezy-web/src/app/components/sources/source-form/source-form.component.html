@@ -26,12 +26,12 @@
               <h3>{{ 'common.generalInfo' | translate }}</h3>
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>{{ 'common.name' | translate }} *</mat-label>
+                  <mat-label>{{ 'common.name' | translate }}</mat-label>
                   <input aria-label="{{ 'common.name' | translate }}" matInput formControlName="name" [placeholder]="'sources.namePlaceholder' | translate">
                   <mat-error>{{ getFieldError('name') }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>{{ 'common.type' | translate }} *</mat-label>
+                  <mat-label>{{ 'common.type' | translate }}</mat-label>
                   <mat-select formControlName="type">
                     @for (t of sourceTypes; track t) {
                       <mat-option [value]="t.value">

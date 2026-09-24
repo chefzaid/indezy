@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -26,6 +26,7 @@ export interface KanbanLostReasonDialogData {
     TranslateModule
 ],
   templateUrl: './kanban-lost-reason-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./kanban-lost-reason-dialog.component.scss']
 })
 export class KanbanLostReasonDialogComponent {

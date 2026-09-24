@@ -66,6 +66,8 @@ Implemented project fields include:
 - favorite flag (pins hot leads to the top of their Kanban column)
 - client, optional middleman, source, and freelance owner
 
+The project form edits the pipeline stage (with the loss reason for lost opportunities), the final client, the optional ESN/intermediary and the source. The project page shows the stage as a pill that can be changed in place, and the projects list filters by stage and paginates results.
+
 Current opportunity statuses:
 
 - `IDENTIFIED`
@@ -79,7 +81,7 @@ The project model also exposes helper behavior for total revenue and work-mode c
 
 ## Clients, ESNs, And Contacts
 
-Clients are companies or intermediaries associated with freelance opportunities. The `isFinal` flag distinguishes final clients from intermediaries such as ESNs.
+Clients are companies or intermediaries associated with freelance opportunities. The `isFinal` flag distinguishes final clients from intermediaries such as ESNs. A client page lists its missions (as final client or intermediary) and its contacts; a client that is still linked to missions cannot be deleted (the API answers 409), so missions are never removed as a side effect.
 
 Client data includes:
 
@@ -139,7 +141,7 @@ Current step statuses:
 - `VALIDATED`
 - `FAILED`
 
-The UI includes scheduling and action dialogs. The backend exposes interview-step endpoints for creation, updates, transitions, and project-level retrieval.
+The project page lists the steps as a timeline: each step can be added or edited (title with suggestions, status, local date and time, notes), moved to another status from its status pill, or deleted, and the header summarizes how many steps are validated. The backend exposes interview-step endpoints for creation, updates, transitions, and project-level retrieval.
 
 ## Project Journal
 

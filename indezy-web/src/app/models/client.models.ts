@@ -17,6 +17,7 @@ export interface ClientDto {
   totalProjects?: number;
   totalContacts?: number;
   averageProjectRating?: number;
+  averageDailyRate?: number;
   // Legacy properties for compatibility
   name?: string;
   industry?: string;

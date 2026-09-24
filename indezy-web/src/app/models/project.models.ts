@@ -9,22 +9,14 @@ export enum ProjectStatus {
   LOST = 'LOST'
 }
 
-export const PROJECT_STATUS_LABELS: { [key in ProjectStatus]: string } = {
-  [ProjectStatus.IDENTIFIED]: 'Identifié',
-  [ProjectStatus.APPLIED]: 'Postulé',
-  [ProjectStatus.INTERVIEW]: 'Entretien',
-  [ProjectStatus.OFFER]: 'Offre',
-  [ProjectStatus.WON]: 'Gagné',
-  [ProjectStatus.LOST]: 'Perdu'
-};
-
+/** Pipeline stage colors, dark enough to carry white text in status pills. */
 export const PROJECT_STATUS_COLORS: { [key in ProjectStatus]: string } = {
-  [ProjectStatus.IDENTIFIED]: '#78909c',
-  [ProjectStatus.APPLIED]: '#42a5f5',
-  [ProjectStatus.INTERVIEW]: '#ffa726',
-  [ProjectStatus.OFFER]: '#ab47bc',
-  [ProjectStatus.WON]: '#66bb6a',
-  [ProjectStatus.LOST]: '#ef5350'
+  [ProjectStatus.IDENTIFIED]: '#607d8b',
+  [ProjectStatus.APPLIED]: '#1e88e5',
+  [ProjectStatus.INTERVIEW]: '#ef6c00',
+  [ProjectStatus.OFFER]: '#8e24aa',
+  [ProjectStatus.WON]: '#2e7d32',
+  [ProjectStatus.LOST]: '#d32f2f'
 };
 
 export const PROJECT_STATUS_ICONS: { [key in ProjectStatus]: string } = {

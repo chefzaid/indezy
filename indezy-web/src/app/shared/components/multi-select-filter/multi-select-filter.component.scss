@@ -16,11 +16,11 @@
 
       mat-chip-option {
         background-color: #e3f2fd;
-        color: #1565c0;
+        color: var(--app-link);
         border: 1px solid #bbdefb;
 
         mat-icon {
-          color: #1565c0;
+          color: var(--app-link);
         }
 
         &:hover {

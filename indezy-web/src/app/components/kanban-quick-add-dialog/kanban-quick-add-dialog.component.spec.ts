@@ -24,8 +24,9 @@ describe('KanbanQuickAddDialogComponent', () => {
   let mockNotificationService: jasmine.SpyObj<NotificationService>;
 
   const mockClients: ClientDto[] = [
-    { id: 1, companyName: 'Acme', isFinal: true, status: 'ACTIVE' } as ClientDto,
-    { id: 2, companyName: 'Inactive Co', isFinal: true, status: 'INACTIVE' } as ClientDto
+    { id: 1, companyName: 'Zenith', isFinal: true } as ClientDto,
+    { id: 2, companyName: 'Some ESN', isFinal: false } as ClientDto,
+    { id: 3, companyName: 'Acme', isFinal: true } as ClientDto
   ];
 
   const mockData: KanbanQuickAddDialogData = {
@@ -37,9 +38,9 @@ describe('KanbanQuickAddDialogComponent', () => {
   beforeEach(async () => {
     mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
     mockProjectService = jasmine.createSpyObj('ProjectService', ['create']);
-    mockClientService = jasmine.createSpyObj('ClientService', ['getClients']);
+    mockClientService = jasmine.createSpyObj('ClientService', ['getForCurrentFreelance']);
     mockNotificationService = jasmine.createSpyObj('NotificationService', ['success', 'error']);
-    mockClientService.getClients.and.returnValue(of(mockClients));
+    mockClientService.getForCurrentFreelance.and.returnValue(of(mockClients));
 
     await TestBed.configureTestingModule({
       imports: [
@@ -63,9 +64,10 @@ describe('KanbanQuickAddDialogComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create and load only active clients', () => {
+  it('should create and offer the freelance\'s final clients sorted by name', () => {
     expect(component).toBeTruthy();
-    expect(component.clients).toEqual([mockClients[0]]);
+    expect(mockClientService.getForCurrentFreelance).toHaveBeenCalled();
+    expect(component.clients.map(client => client.companyName)).toEqual(['Acme', 'Zenith']);
   });
 
   it('should not submit while the form is invalid', () => {

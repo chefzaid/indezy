@@ -1,75 +1,88 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { Subject, takeUntil } from 'rxjs';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-
+import { Subject, forkJoin, takeUntil } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 import { ClientService } from '../../../services/client/client.service';
 import { ContactService } from '../../../services/contact/contact.service';
-import { ClientDto, ContactDto } from '../../../models';
+import { ProjectService } from '../../../services/project/project.service';
+import { AuthService } from '../../../services/auth/auth.service';
+import { ClientDto, ContactDto, PROJECT_STATUS_COLORS, ProjectDto, ProjectStatus } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { ContactImportDialogComponent } from '../../contacts/contact-import-dialog/contact-import-dialog.component';
 
+/** Tab order of the client page; the "tab" query parameter selects one by name. */
+const TABS = ['details', 'projects', 'contacts'] as const;
 
 @Component({
     selector: 'app-client-detail',
     imports: [
+    CommonModule,
     RouterModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatChipsModule,
     MatDividerModule,
     MatProgressSpinnerModule,
     MatTableModule,
     MatTabsModule,
     MatMenuModule,
+    MatTooltipModule,
     MatDialogModule,
     TranslateModule
 ],
     templateUrl: './client-detail.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./client-detail.component.scss']
 })
 export class ClientDetailComponent implements OnInit, OnDestroy {
   client?: ClientDto;
   contacts: ContactDto[] = [];
+  /** Missions delivered for this client or intermediated by it. */
+  projects: ProjectDto[] = [];
   isLoading = false;
   isLoadingContacts = false;
   clientId?: number;
   selectedTabIndex = 0;
 
-  // Contact table columns
-  contactDisplayedColumns: string[] = ['name', 'email', 'phone', 'position', 'status', 'actions'];
+  readonly statusColors = PROJECT_STATUS_COLORS;
+  contactDisplayedColumns: string[] = ['name', 'email', 'phone', 'actions'];
+  projectDisplayedColumns: string[] = ['role', 'status', 'dailyRate', 'startDate'];
 
   private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly clientService: ClientService,
     private readonly contactService: ContactService,
+    private readonly projectService: ProjectService,
+    private readonly authService: AuthService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly notificationService: NotificationService,
     private readonly dialog: MatDialog,
-    private readonly translate: TranslateService,
     private readonly confirmDialog: ConfirmDialogService
   ) {}
 
   ngOnInit(): void {
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    const tabIndex = TABS.indexOf(tab as typeof TABS[number]);
+    this.selectedTabIndex = tabIndex >= 0 ? tabIndex : 0;
+
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       if (params['id']) {
         this.clientId = +params['id'];
-        this.loadClientAndContacts();
+        this.loadClient();
       }
     });
   }
@@ -79,48 +92,36 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadClientAndContacts(): void {
+  private loadClient(): void {
     if (!this.clientId) {
       return;
     }
+    const clientId = this.clientId;
+    const freelanceId = this.authService.getUser()?.id;
 
     this.isLoading = true;
-    this.isLoadingContacts = true;
-
-    this.clientService.getClient(this.clientId)
+    forkJoin({
+      client: this.clientService.getClient(clientId),
+      contacts: this.contactService.getContactsByClient(clientId),
+      projects: freelanceId ? this.projectService.getByFreelanceId(freelanceId) : this.projectService.getByClientId(clientId)
+    })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (client) => {
-          if (client) {
-            this.client = client;
-
-            // Now load contacts
-            this.contactService.getContactsByClient(this.clientId!)
-              .pipe(takeUntil(this.destroy$))
-              .subscribe({
-                next: (contacts) => {
-                  this.contacts = contacts;
-                  this.isLoading = false;
-                  this.isLoadingContacts = false;
-                },
-                error: (contactError) => {
-                  console.error('Error loading contacts:', contactError);
-                  this.isLoading = false;
-                  this.isLoadingContacts = false;
-                }
-              });
-          } else {
-            this.notificationService.error('errors.clientNotFound');
-            this.router.navigate(['/clients']);
-            this.isLoading = false;
-            this.isLoadingContacts = false;
-          }
+        next: ({ client, contacts, projects }) => {
+          this.client = client;
+          this.contacts = contacts;
+          this.projects = projects
+            .filter(project => project.clientId === clientId || project.middlemanId === clientId)
+            .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''));
+          this.isLoading = false;
         },
         error: (error) => {
           console.error('Error loading client:', error);
-          this.notificationService.error('errors.loadingData');
+          this.notificationService.error(error?.status === 404 ? 'errors.clientNotFound' : 'errors.loadingClient');
           this.isLoading = false;
-          this.isLoadingContacts = false;
+          if (error?.status === 404) {
+            this.router.navigate(['/clients']);
+          }
         }
       });
   }
@@ -146,6 +147,16 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  onTabChange(index: number): void {
+    this.selectedTabIndex = index;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: index > 0 ? TABS[index] : null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
   onEdit(): void {
     if (this.client) {
       this.router.navigate(['/clients', this.client.id, 'edit']);
@@ -156,11 +167,14 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     if (!this.client) {
       return;
     }
-    
     const client = this.client;
+    if (this.projects.length > 0) {
+      this.notificationService.error('clients.deleteInUse', 5000);
+      return;
+    }
     this.confirmDialog.confirm({
       messageKey: 'clients.confirmDelete',
-      messageParams: { name: client.name },
+      messageParams: { name: client.companyName },
       danger: true
     }).subscribe(confirmed => {
       if (!confirmed) {
@@ -175,7 +189,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.error('Error deleting client:', error);
-            this.notificationService.error('errors.deletingClient');
+            this.notificationService.error(error?.status === 409 ? 'clients.deleteInUse' : 'errors.deletingClient', 5000);
           }
         });
     });
@@ -185,51 +199,37 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/clients']);
   }
 
-  getStatusColor(isFinal?: boolean): string {
-    if (isFinal === true) {
-      return 'primary'; // Client Final
-    } else if (isFinal === false) {
-      return 'accent'; // ESN
-    }
-    return '';
+  onNewProject(): void {
+    this.router.navigate(['/projects/new']);
   }
 
-  getStatusLabel(isFinal?: boolean): string {
-    if (isFinal === true) {
-      return this.translate.instant('clients.finalClient');
-    } else if (isFinal === false) {
-      return this.translate.instant('clients.esn');
-    }
-    return 'N/A';
+  openProject(project: ProjectDto): void {
+    this.router.navigate(['/projects', project.id]);
   }
 
-  formatDate(date?: Date): string {
-    if (!date) {
-      return 'N/A';
-    }
-    const locale = (localStorage.getItem('indezy-lang') || 'fr') === 'fr' ? 'fr-FR' : 'en-US';
-    return new Date(date).toLocaleDateString(locale, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  /** Role this client plays in a mission: the final client or the intermediary. */
+  isIntermediaryFor(project: ProjectDto): boolean {
+    return project.middlemanId === this.clientId && project.clientId !== this.clientId;
   }
 
-  openWebsite(): void {
-    if (this.client?.website) {
-      window.open(this.client.website, '_blank');
-    }
+  getProjectStatusColor(project: ProjectDto): string {
+    return this.statusColors[project.status ?? ProjectStatus.IDENTIFIED];
   }
 
-
+  /** External link for the client's website, tolerating values typed without a scheme. */
+  websiteUrl(): string | null {
+    const value = this.client?.domain?.trim();
+    if (!value || !value.includes('.')) {
+      return null;
+    }
+    return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+  }
 
   // Contact management methods
   onAddContact(): void {
-    if (!this.clientId) {
-      return;
+    if (this.clientId) {
+      this.router.navigate(['/clients', this.clientId, 'contacts', 'create']);
     }
-
-    this.router.navigate(['/clients', this.clientId, 'contacts', 'create']);
   }
 
   onImportContacts(): void {
@@ -258,35 +258,13 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
   }
 
   onEditContact(contact: ContactDto): void {
-    if (!this.clientId) {
-      return;
+    if (this.clientId) {
+      this.router.navigate(['/clients', this.clientId, 'contacts', contact.id, 'edit']);
     }
-    this.router.navigate(['/clients', this.clientId, 'contacts', contact.id, 'edit']);
   }
 
-  async onViewContact(contact: ContactDto): Promise<void> {
-    try {
-      // Dynamic import to avoid circular dependency issues
-      const { ContactViewDialogComponent } = await import('../../contacts/contact-view-dialog/contact-view-dialog.component');
-
-      const dialogRef = this.dialog.open(ContactViewDialogComponent, {
-        width: '900px',
-        maxWidth: '95vw',
-        height: '700px',
-        maxHeight: '90vh',
-        data: contact
-      });
-
-      dialogRef.afterClosed().subscribe(result => {
-        if (result === 'edit') {
-          this.onEditContact(contact);
-        }
-      });
-    } catch (error) {
-      console.error('Error loading contact view dialog:', error);
-      // Fallback: navigate to contact detail page
-      this.router.navigate(['/contacts', contact.id]);
-    }
+  onViewContact(contact: ContactDto): void {
+    this.router.navigate(['/contacts', contact.id]);
   }
 
   onDeleteContact(contact: ContactDto): void {
@@ -298,7 +276,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     const contactId = contact.id;
     this.confirmDialog.confirm({
       messageKey: 'contacts.confirmDelete',
-      messageParams: { name: `${contact.firstName} ${contact.lastName}` },
+      messageParams: { name: this.getContactName(contact) },
       danger: true
     }).subscribe(confirmed => {
       if (!confirmed) {
@@ -309,7 +287,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.notificationService.success('contacts.deleteSuccess');
-            this.loadClientAndContacts(); // Reload client and contacts
+            this.loadContacts();
           },
           error: (error) => {
             console.error('Error deleting contact:', error);
@@ -319,37 +297,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  getContactStatusColor(status: string): string {
-    switch (status) {
-      case 'ACTIVE':
-        return 'primary';
-      case 'INACTIVE':
-        return 'warn';
-      default:
-        return '';
-    }
-  }
-
-  getContactStatusLabel(status: string): string {
-    switch (status) {
-      case 'ACTIVE':
-        return this.translate.instant('common.active');
-      case 'INACTIVE':
-        return this.translate.instant('common.inactive');
-      default:
-        return status;
-    }
-  }
-
-  sendContactEmail(contact: ContactDto): void {
-    if (contact.email) {
-      globalThis.location.href = `mailto:${contact.email}`;
-    }
-  }
-
-  callContactPhone(contact: ContactDto): void {
-    if (contact.phone) {
-      globalThis.location.href = `tel:${contact.phone}`;
-    }
+  getContactName(contact: ContactDto): string {
+    return [contact.firstName, contact.lastName].filter(Boolean).join(' ');
   }
 }

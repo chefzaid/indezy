@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -41,6 +41,7 @@ import {
     FilterPresetsComponent
 ],
   templateUrl: './comprehensive-filter-panel.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./comprehensive-filter-panel.component.scss']
 })
 export class ComprehensiveFilterPanelComponent implements OnInit {

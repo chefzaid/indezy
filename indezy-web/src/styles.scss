@@ -1,9 +1,11 @@
+@use '@angular/material' as mat;
+
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-/* Custom Material Theme Colors */
+/* Application color tokens; components use these instead of hard-coded light colors. */
 :root {
   --primary-color: #1976d2;
   --accent-color: #ff4081;
@@ -13,6 +15,52 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   --surface-color: #ffffff;
   --text-primary: rgba(0, 0, 0, 0.87);
   --text-secondary: rgba(0, 0, 0, 0.54);
+
+  --app-bg: #f5f5f5;
+  --app-surface: #ffffff;
+  --app-subtle: #f5f7fa;
+  --app-hover: rgba(0, 0, 0, 0.04);
+  --app-text: rgba(0, 0, 0, 0.87);
+  --app-text-muted: rgba(0, 0, 0, 0.6);
+  --app-text-faint: rgba(0, 0, 0, 0.38);
+  --app-border: rgba(0, 0, 0, 0.12);
+  --app-link: #1565c0;
+}
+
+/* Dark theme: Material component colors plus the application tokens. */
+$dark-theme: mat.m2-define-dark-theme((
+  color: (
+    primary: mat.m2-define-palette(mat.$m2-indigo-palette, 300, 200, 500),
+    accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400),
+    warn: mat.m2-define-palette(mat.$m2-red-palette, 300)
+  ),
+  density: 0
+));
+
+html.dark-theme {
+  color-scheme: dark;
+  @include mat.all-component-colors($dark-theme);
+
+  --text-primary: rgba(255, 255, 255, 0.87);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --background-color: #121212;
+  --surface-color: #1e1e1e;
+
+  --app-bg: #121212;
+  --app-surface: #1e1e1e;
+  --app-subtle: #262a30;
+  --app-hover: rgba(255, 255, 255, 0.06);
+  --app-text: rgba(255, 255, 255, 0.87);
+  --app-text-muted: rgba(255, 255, 255, 0.62);
+  --app-text-faint: rgba(255, 255, 255, 0.4);
+  --app-border: rgba(255, 255, 255, 0.14);
+  --app-link: #90caf9;
+  --heatmap-l0: #2d333b;
+}
+
+body {
+  background-color: var(--app-bg);
+  color: var(--app-text);
 }
 
 /* Global utility classes */
@@ -47,11 +95,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   height: 200px;
 }
 
-/* Card styles */
-.mat-mdc-card {
-  margin: 16px;
-}
-
 /* Form styles */
 .form-container {
   max-width: 600px;
@@ -64,12 +107,83 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   margin-bottom: 16px;
 }
 
+/* Pipeline status pill shared by lists, cards and detail headers. */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+  color: #fff;
+  background-color: var(--status-color, #78909c);
+
+  .mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* A status pill that opens a menu to change the status. */
+.status-pill.status-trigger {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:disabled {
+    cursor: progress;
+    opacity: 0.7;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #1565c0;
+    outline-offset: 2px;
+  }
+}
+
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+  background-color: var(--status-color, #78909c);
+}
+
+/* Snackbar variants used by NotificationService. */
+.mat-mdc-snack-bar-container {
+  &.success-snackbar {
+    --mat-snack-bar-container-color: #2e7d32;
+    --mat-snack-bar-supporting-text-color: #fff;
+    --mat-snack-bar-button-color: #e8f5e9;
+    --mdc-snackbar-container-color: #2e7d32;
+    --mdc-snackbar-supporting-text-color: #fff;
+  }
+
+  &.error-snackbar {
+    --mat-snack-bar-container-color: #c62828;
+    --mat-snack-bar-supporting-text-color: #fff;
+    --mat-snack-bar-button-color: #ffebee;
+    --mdc-snackbar-container-color: #c62828;
+    --mdc-snackbar-supporting-text-color: #fff;
+  }
+
+  &.info-snackbar {
+    --mat-snack-bar-container-color: #1565c0;
+    --mat-snack-bar-supporting-text-color: #fff;
+    --mat-snack-bar-button-color: #e3f2fd;
+    --mdc-snackbar-container-color: #1565c0;
+    --mdc-snackbar-supporting-text-color: #fff;
+  }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
-  .mat-mdc-card {
-    margin: 8px;
-  }
-  
   .form-container {
     padding: 16px;
   }

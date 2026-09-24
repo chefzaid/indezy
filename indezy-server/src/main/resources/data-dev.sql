@@ -27,7 +27,7 @@ INSERT INTO freelances (
 ) VALUES (
     'John', 'Doe', 'john.doe@example.com', '+33 6 12 34 56 78', '1990-04-17',
     '18 rue du Sentier', 'Paris', 'FREELANCE', 30, CURRENT_DATE + 21,
-    0.15, 0.24, '/cv/john-doe.pdf',
+    46.0, 6.0, '/cv/john-doe.pdf',
     '$2a$10$XgbOojgg.CTmnSP8gwpOT.aikY7bnfM4cgCrQhgJOh5UAY1lOpC9S',
     CURRENT_TIMESTAMP - INTERVAL '2 years', CURRENT_TIMESTAMP, 0
 );
@@ -41,13 +41,13 @@ INSERT INTO users (
     two_factor_enabled, created_at, updated_at, version
 ) VALUES (
     'John', 'Doe', 'john.doe@example.com', '+33 6 12 34 56 78', '1990-04-17',
-    '18 rue du Sentier', 'Paris', 'avatar.jpg',
+    '18 rue du Sentier', 'Paris', NULL,
     'Freelance Java and TypeScript engineer focused on business applications.',
     'Doe Consulting', 'Senior full-stack engineer', 'https://john-doe.example',
     'https://linkedin.com/in/john-doe', 'https://github.com/john-doe',
     'Europe/Paris', 'EUR',
     '$2a$10$XgbOojgg.CTmnSP8gwpOT.aikY7bnfM4cgCrQhgJOh5UAY1lOpC9S',
-    CURRENT_TIMESTAMP - INTERVAL '90 days', 'dark', 'fr', 'dd/MM/yyyy', '24h',
+    CURRENT_TIMESTAMP - INTERVAL '90 days', 'light', 'fr', 'DD/MM/YYYY', '24h',
     'dashboard', 25, true, true, false, true, true, true, true, false, false,
     CURRENT_TIMESTAMP - INTERVAL '2 years', CURRENT_TIMESTAMP, 0
 );
@@ -223,7 +223,9 @@ SELECT
     n % 13 = 0,
     ((n - 1) / 6),
     1,
-    1 + ((n - 1) % 18),
+    -- Shift the client with each 12-role cycle so role/client pairs stay unique; opportunity 94
+    -- deliberately repeats opportunity 10 (same client and role) to showcase duplicate detection.
+    CASE WHEN n = 94 THEN 10 ELSE 1 + ((((n - 1) % 12) - ((n - 1) / 12) + 18) % 18) END,
     CASE WHEN n % 3 <> 0 THEN 19 + ((n - 1) % 6) ELSE NULL END,
     1 + ((n - 1) % 10),
     CURRENT_TIMESTAMP - ((n % 180) * INTERVAL '1 day'),

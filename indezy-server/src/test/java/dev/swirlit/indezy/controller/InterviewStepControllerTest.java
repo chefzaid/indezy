@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.InterviewStepDto;
 import dev.swirlit.indezy.dto.StepTransitionDto;
 import dev.swirlit.indezy.model.enums.StepStatus;
+import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.InterviewStepService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,9 @@ class InterviewStepControllerTest {
 
     @Mock
     private InterviewStepService interviewStepService;
+
+    @Mock
+    private AccessGuard accessGuard;
 
     @InjectMocks
     private InterviewStepController interviewStepController;

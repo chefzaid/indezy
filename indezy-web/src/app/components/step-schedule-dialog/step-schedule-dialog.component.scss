@@ -15,7 +15,7 @@ h2[mat-dialog-title] {
 }
 
 .project-info {
-  background-color: #f5f5f5;
+  background-color: var(--app-subtle);
   padding: 16px;
   border-radius: 8px;
   margin-bottom: 20px;
@@ -24,12 +24,12 @@ h2[mat-dialog-title] {
     margin: 0 0 8px 0;
     font-size: 18px;
     font-weight: 600;
-    color: #333;
+    color: var(--app-text);
   }
   
   p {
     margin: 0 0 4px 0;
-    color: #666;
+    color: var(--app-text-muted);
     
     &.current-step {
       font-weight: 500;

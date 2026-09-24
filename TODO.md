@@ -146,7 +146,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 - [ ] Stable deep links to any project or Kanban card (?project=<id>) for sharing and reopening directly
 - [ ] Multi-select mode on project/client/contact lists (bulk delete, tag, status change, archive)
 - [x] Internationalization hardening (French/English translation coverage, language switch persistence, missing-key checks)
-- [ ] Dark mode
+- [x] Dark mode (light, dark, or system theme from the profile preference and a toolbar toggle)
 - [ ] Customizable dashboard widgets (drag, resize, show/hide)
 - [ ] Onboarding wizard for first-time setup (profile, rate, address, pipeline template)
 - [ ] Keyboard shortcuts for power users (new project, move card, search)
@@ -160,7 +160,7 @@ The current target model is generic columns: Contact => ESN => Client => Go => C
 
 ## Mobile
 
-- [ ] Responsive polish of all pages (Kanban usable on phone)
+- [x] Responsive polish of all pages (Kanban usable on phone)
 - [ ] Cross-platform mobile app (already in roadmap - implement)
 - [ ] Push notifications (interview reminder, follow-up due, new matching posting)
 

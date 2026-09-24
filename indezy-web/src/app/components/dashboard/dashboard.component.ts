@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, OnDestroy, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,8 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth/auth.service';
 import { ProjectService } from '../../services/project/project.service';
-import { FreelanceService } from '../../services/freelance/freelance.service';
-import { User, ProjectDto, FreelanceDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, SkillTrend, ProcessDuration, ActivityDay, PROJECT_STATUS_COLORS } from '../../models';
+import { User, ProjectDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, SkillTrend, ProcessDuration, ActivityDay, PROJECT_STATUS_COLORS } from '../../models';
 import { ActivityHeatmapComponent } from '../../shared/components/activity-heatmap/activity-heatmap.component';
 import { DashboardRemindersComponent } from './dashboard-reminders/dashboard-reminders.component';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
@@ -36,14 +35,19 @@ type ViewMode = 'overview' | 'kanban';
         DashboardRemindersComponent
     ],
     templateUrl: './dashboard.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  /** Remembers whether the user last looked at the overview or the pipeline board. */
+  static readonly VIEW_MODE_KEY = 'indezy-dashboard-view';
+  static readonly TOP_SKILLS = 8;
   currentUser: User | null = null;
-  freelanceProfile: FreelanceDto | null = null;
   recentProjects: ProjectDto[] = [];
   viewMode: ViewMode = 'overview';
   dashboardStats: DashboardStatsDto | null = null;
+  /** Lost reasons that actually occurred, sorted by frequency (computed once per stats load). */
+  lostReasons: { reason: string; count: number }[] = [];
 
   showKanbanBoard = false;
   stats = {
@@ -61,16 +65,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private statusChart: Chart | null = null;
   private workModeChart: Chart | null = null;
   private dailyRateChart: Chart | null = null;
+  private chartSurface = '#fff';
   constructor(
     private readonly authService: AuthService,
     private readonly projectService: ProjectService,
-    private readonly freelanceService: FreelanceService,
     private readonly cdr: ChangeDetectorRef,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getUser();
+    this.viewMode = DashboardComponent.readSavedViewMode();
     this.loadDashboardData();
   }
 
@@ -80,17 +86,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   loadDashboardData(): void {
     if (this.currentUser?.id) {
-      this.freelanceService.getByIdWithProjects(this.currentUser.id).subscribe({
-        next: (profile) => {
-          this.freelanceProfile = profile;
-          this.updateStats(profile);
-        },
-        error: (err) => console.error('Error loading profile:', err)
-      });
-
       this.projectService.getByFreelanceId(this.currentUser.id).subscribe({
         next: (projects) => {
-          this.recentProjects = projects.slice(0, 5);
+          // Newest opportunities first (ids grow with creation order).
+          this.recentProjects = [...projects].sort((a, b) => (b.id ?? 0) - (a.id ?? 0)).slice(0, 6);
         },
         error: (err) => console.error('Error loading recent projects:', err)
       });
@@ -98,6 +97,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.projectService.getDashboardStats(this.currentUser.id).subscribe({
         next: (stats) => {
           this.dashboardStats = stats;
+          this.lostReasons = this.buildLostReasons(stats);
           this.stats = {
             totalProjects: stats.totalProjects,
             averageDailyRate: stats.averageDailyRate,
@@ -113,26 +113,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  updateStats(profile: FreelanceDto): void {
-    this.stats = {
-      totalProjects: profile.totalProjects || 0,
-      averageDailyRate: profile.averageDailyRate || 0,
-      totalRevenue: this.calculateTotalRevenue(),
-      forecastRevenue: this.dashboardStats?.forecastRevenue ?? 0,
-      activeProjects: this.recentProjects.filter(p => p.startDate && new Date(p.startDate) <= new Date()).length
-    };
-  }
-
-  calculateTotalRevenue(): number {
-    return this.recentProjects.reduce((total, project) => {
-      if (project.dailyRate && project.durationInMonths && project.daysPerYear) {
-        const monthlyDays = project.daysPerYear / 12;
-        return total + (project.dailyRate * monthlyDays * project.durationInMonths);
-      }
-      return total;
-    }, 0);
-  }
-
   logout(): void {
     this.authService.logout();
   }
@@ -140,10 +120,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
   switchView(mode: string): void {
     if (mode === 'overview' || mode === 'kanban') {
       this.viewMode = mode;
+      try {
+        localStorage.setItem(DashboardComponent.VIEW_MODE_KEY, mode);
+      } catch {
+        // Storage can be unavailable (private mode); the choice then lasts for this visit only.
+      }
       this.cdr.detectChanges();
       if (mode === 'overview' && this.dashboardStats) {
         setTimeout(() => this.buildCharts());
       }
+    }
+  }
+
+  private static readSavedViewMode(): ViewMode {
+    try {
+      return localStorage.getItem(DashboardComponent.VIEW_MODE_KEY) === 'kanban' ? 'kanban' : 'overview';
+    } catch {
+      return 'overview';
     }
   }
 
@@ -155,11 +148,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.viewMode === 'kanban';
   }
 
-  /** Lost-reason breakdown entries that actually occurred, sorted by frequency. */
-  getLostReasonsBreakdown(): { reason: string; count: number }[] {
-    const breakdown = this.dashboardStats?.lostReasonsBreakdown;
-    if (!breakdown) { return []; }
-    return Object.entries(breakdown)
+  private buildLostReasons(stats: DashboardStatsDto): { reason: string; count: number }[] {
+    return Object.entries(stats.lostReasonsBreakdown ?? {})
       .filter(([, count]) => count > 0)
       .map(([reason, count]) => ({ reason, count }))
       .sort((a, b) => b.count - a.count);
@@ -197,6 +187,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getSkillTrends(): SkillTrend[] {
     return this.dashboardStats?.skillTrends ?? [];
+  }
+
+  /** The most requested skills (the backend already sorts them by demand). */
+  getTopSkillTrends(): SkillTrend[] {
+    return this.getSkillTrends().slice(0, DashboardComponent.TOP_SKILLS);
   }
 
   getProcessDurations(): ProcessDuration[] {
@@ -243,9 +238,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private buildCharts(): void {
     if (!this.dashboardStats) {return;}
     this.destroyCharts();
-    this.buildStatusChart();
-    this.buildWorkModeChart();
-    this.buildDailyRateChart();
+    // Chart.js animates and observes resizes through requestAnimationFrame and
+    // ResizeObserver; keep those callbacks from triggering application-wide
+    // change detection on every frame.
+    // Follow the light/dark theme: axis and legend text plus slice separators use app tokens.
+    const styles = getComputedStyle(document.documentElement);
+    Chart.defaults.color = styles.getPropertyValue('--app-text-muted').trim() || '#666';
+    Chart.defaults.borderColor = styles.getPropertyValue('--app-border').trim() || 'rgba(0, 0, 0, 0.1)';
+    this.chartSurface = styles.getPropertyValue('--app-surface').trim() || '#fff';
+    this.ngZone.runOutsideAngular(() => {
+      this.buildStatusChart();
+      this.buildWorkModeChart();
+      this.buildDailyRateChart();
+    });
   }
 
   private destroyCharts(): void {
@@ -273,7 +278,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           data: statusData,
           backgroundColor: statusColors,
           borderWidth: 2,
-          borderColor: '#fff'
+          borderColor: this.chartSurface
         }]
       },
       options: {
@@ -307,7 +312,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           data: modeData,
           backgroundColor: modeColors,
           borderWidth: 2,
-          borderColor: '#fff'
+          borderColor: this.chartSurface
         }]
       },
       options: {

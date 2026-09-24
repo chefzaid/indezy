@@ -1,6 +1,8 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.ClientDto;
+import dev.swirlit.indezy.exception.ResourceInUseException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.ClientMapper;
 import dev.swirlit.indezy.model.Client;
@@ -86,6 +88,12 @@ public class ClientService {
         
         Client client = clientRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(CLIENT_NOT_FOUND + id));
+
+        // The JPA mapping cascades removals to projects; refuse instead of silently deleting
+        // every mission delivered for (or intermediated by) this client. Contacts still go with it.
+        if (!client.getProjects().isEmpty() || !client.getMiddlemanProjects().isEmpty()) {
+            throw new ResourceInUseException(String.format(ErrorMessages.CLIENT_HAS_PROJECTS, id));
+        }
         
         clientRepository.delete(client);
         log.debug("Deleted client with id: {}", id);

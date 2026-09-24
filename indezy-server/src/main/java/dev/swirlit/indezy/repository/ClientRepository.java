@@ -31,4 +31,8 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     @Query("SELECT DISTINCT c.domain FROM Client c WHERE c.freelance.id = :freelanceId AND c.domain IS NOT NULL ORDER BY c.domain")
     List<String> findDistinctDomainsByFreelanceId(@Param("freelanceId") Long freelanceId);
+
+    /** Owner workspace of the client, used by access checks without loading the entity graph. */
+    @Query("SELECT c.freelance.id FROM Client c WHERE c.id = :id")
+    Optional<Long> findOwnerFreelanceIdById(@Param("id") Long id);
 }

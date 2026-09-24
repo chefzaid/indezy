@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, inject } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -12,11 +12,32 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatMenuModule } from '@angular/material/menu';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProjectService } from '../../../services/project/project.service';
-import { ProjectDto, ProjectNote } from '../../../models';
+import {
+  InterviewStepDto,
+  LostReason,
+  PROJECT_STATUS_COLORS,
+  PROJECT_STATUS_ICONS,
+  ProjectDto,
+  ProjectNote,
+  ProjectStatus,
+  STEP_STATUS_COLORS,
+  StepStatus
+} from '../../../models';
+import { InterviewStepService } from '../../../services/interview-step/interview-step.service';
+import { fromIsoDate } from '../../../shared/locale/app-locale';
+import {
+  InterviewStepDialogComponent,
+  InterviewStepDialogData
+} from '../interview-step-dialog/interview-step-dialog.component';
+import {
+  KanbanLostReasonDialogComponent,
+  KanbanLostReasonDialogData
+} from '../../kanban-lost-reason-dialog/kanban-lost-reason-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MarkdownService } from '../../../shared/services/markdown.service';
@@ -43,11 +64,13 @@ import { NOTE_TEMPLATES } from './note-templates';
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
+        MatMenuModule,
         MatDialogModule,
         MatTooltipModule,
         TranslateModule
     ],
     templateUrl: './project-detail.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./project-detail.component.scss']
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {
@@ -56,6 +79,16 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   projectId?: number;
 
   notes: ProjectNote[] = [];
+  steps: InterviewStepDto[] = [];
+  isUpdatingStatus = false;
+
+  readonly statusOptions = Object.values(ProjectStatus);
+  readonly statusColors = PROJECT_STATUS_COLORS;
+  readonly statusIcons = PROJECT_STATUS_ICONS;
+  readonly stepStatusOptions = Object.values(StepStatus);
+  readonly stepStatusColors = STEP_STATUS_COLORS;
+  private readonly locale = inject(LOCALE_ID);
+  private readonly interviewStepService = inject(InterviewStepService);
   newNoteContent = '';
   isSavingNote = false;
   readonly noteTemplates = NOTE_TEMPLATES;
@@ -155,6 +188,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           if (project) {
             this.project = project;
             this.loadNotes();
+            this.loadSteps();
           } else {
             this.notificationService.error('errors.projectNotFound');
             this.router.navigate(['/projects']);
@@ -177,6 +211,114 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         next: (notes) => this.notes = notes,
         error: () => this.notificationService.error('projects.notes.loadError')
       });
+  }
+
+  private loadSteps(): void {
+    if (!this.projectId) { return; }
+    this.interviewStepService.getByProjectIdOrderByDate(this.projectId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (steps) => this.steps = steps,
+        error: () => this.notificationService.error('steps.loadError')
+      });
+  }
+
+  /** Moves the opportunity to another pipeline stage, asking why when it is lost. */
+  changeStatus(status: ProjectStatus): void {
+    if (!this.project?.id || status === this.project.status || this.isUpdatingStatus) { return; }
+    if (status !== ProjectStatus.LOST) {
+      this.persistStatus(status);
+      return;
+    }
+    const dialogData: KanbanLostReasonDialogData = { role: this.project.role };
+    this.dialog.open(KanbanLostReasonDialogComponent, { data: dialogData })
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((reason?: LostReason) => {
+        if (reason) {
+          this.persistStatus(ProjectStatus.LOST, reason);
+        }
+      });
+  }
+
+  private persistStatus(status: ProjectStatus, lostReason?: LostReason): void {
+    const projectId = this.project!.id!;
+    this.isUpdatingStatus = true;
+    this.projectService.updateStatus(projectId, status, lostReason)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updated) => {
+          this.project = { ...this.project!, status: updated.status, lostReason: updated.lostReason };
+          this.isUpdatingStatus = false;
+          this.notificationService.success('projects.detail.statusUpdated', 2500, {
+            status: this.translate.instant('projects.statuses.' + updated.status)
+          });
+        },
+        error: () => {
+          this.isUpdatingStatus = false;
+          this.notificationService.error('errors.movingCard');
+        }
+      });
+  }
+
+  openStepDialog(step?: InterviewStepDto): void {
+    if (!this.projectId) { return; }
+    const data: InterviewStepDialogData = { projectId: this.projectId, step };
+    this.dialog.open(InterviewStepDialogComponent, { data, autoFocus: 'first-tabbable' })
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(saved => {
+        if (saved) {
+          this.refreshAfterStepChange();
+        }
+      });
+  }
+
+  setStepStatus(step: InterviewStepDto, status: StepStatus): void {
+    if (!step.id || step.status === status) { return; }
+    this.interviewStepService.updateStatus(step.id, status)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.notificationService.success('steps.statusUpdated', 2000);
+          this.refreshAfterStepChange();
+        },
+        error: () => this.notificationService.error('errors.updatingStep')
+      });
+  }
+
+  deleteStep(step: InterviewStepDto): void {
+    if (!step.id) { return; }
+    const stepId = step.id;
+    this.confirmDialog.confirm({
+      messageKey: 'steps.deleteConfirm',
+      messageParams: { title: step.title },
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) { return; }
+      this.interviewStepService.delete(stepId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.notificationService.success('steps.deletedSuccess', 2000);
+            this.refreshAfterStepChange();
+          },
+          error: () => this.notificationService.error('errors.updatingStep')
+        });
+    });
+  }
+
+  /** Step counters on the project come from the server; reload both after a change. */
+  private refreshAfterStepChange(): void {
+    this.loadSteps();
+    if (!this.projectId) { return; }
+    this.projectService.getById(this.projectId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(project => this.project = project);
+  }
+
+  isStepDone(step: InterviewStepDto): boolean {
+    return step.status === StepStatus.VALIDATED;
   }
 
   /**
@@ -294,10 +436,14 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     return stars;
   }
 
+  getStatusColor(status?: ProjectStatus): string {
+    return this.statusColors[status ?? ProjectStatus.IDENTIFIED];
+  }
+
   formatDate(dateString?: string): string {
-    if (!dateString) { return this.translate.instant('common.notSpecified'); }
-    const locale = (localStorage.getItem('indezy-lang') || 'fr') === 'fr' ? 'fr-FR' : 'en-US';
-    return new Date(dateString).toLocaleDateString(locale);
+    const date = fromIsoDate(dateString);
+    if (!date) { return this.translate.instant('common.notSpecified'); }
+    return formatDate(date, 'mediumDate', this.locale);
   }
 
   calculateTotalRevenue(): number {

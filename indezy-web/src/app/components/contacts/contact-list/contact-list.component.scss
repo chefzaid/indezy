@@ -17,13 +17,13 @@
           font-size: 1.5rem;
           width: 1.5rem;
           height: 1.5rem;
-          color: var(--mat-theme-primary, #1565c0);
+          color: var(--app-link);
         }
       }
       
       mat-card-subtitle {
         margin-top: 8px;
-        color: rgba(0, 0, 0, 0.6);
+        color: var(--app-text-muted);
       }
     }
   }
@@ -111,23 +111,32 @@
         
         .contact-name {
           strong {
-            color: rgba(0, 0, 0, 0.87);
+            color: var(--app-text);
           }
         }
         
         .email-link,
         .phone-link {
-          color: var(--mat-theme-primary, #1565c0);
+          color: var(--app-link);
           text-decoration: none;
           
           &:hover {
             text-decoration: underline;
           }
         }
+
+        .phone-link,
+        .contact-name {
+          white-space: nowrap;
+        }
+
+        .muted {
+          color: var(--app-text-faint);
+        }
         
         .client-info {
           font-weight: 500;
-          color: rgba(0, 0, 0, 0.7);
+          color: var(--app-text-muted);
         }
         
         .action-buttons {
@@ -144,8 +153,10 @@
         }
         
         .contact-row {
+          cursor: pointer;
+
           &:hover {
-            background-color: rgba(0, 0, 0, 0.02);
+            background-color: rgba(25, 118, 210, 0.04);
           }
         }
       }
@@ -161,18 +172,18 @@
           font-size: 4rem;
           width: 4rem;
           height: 4rem;
-          color: rgba(0, 0, 0, 0.3);
+          color: var(--app-text-faint);
           margin-bottom: 16px;
         }
         
         h3 {
           margin: 0 0 8px 0;
-          color: rgba(0, 0, 0, 0.6);
+          color: var(--app-text-muted);
         }
         
         p {
           margin: 0 0 24px 0;
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--app-text-muted);
           max-width: 400px;
         }
         
@@ -209,33 +220,15 @@
   }
 }
 
-// Table responsive behavior
-@media (max-width: 1200px) {
-  .contacts-table {
-    .mat-column-phone {
-      display: none;
-    }
-  }
-}
-
-@media (max-width: 900px) {
-  .contacts-table {
-    .mat-column-position {
-      display: none;
-    }
-  }
-}
-
+// Table responsive behavior: phones keep name, phone (tap to call) and client;
+// rows open the contact for everything else.
 @media (max-width: 600px) {
   .contact-list-container {
-    padding: 16px;
-    
-    .contacts-table {
-      .mat-column-client {
-        display: none;
-      }
-      
-      .mat-column-status {
+    padding: 0;
+
+    .table-card .table-container .contacts-table {
+      .mat-column-email,
+      .mat-column-actions {
         display: none;
       }
     }

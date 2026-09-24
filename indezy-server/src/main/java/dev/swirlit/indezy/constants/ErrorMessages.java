@@ -17,10 +17,12 @@ public final class ErrorMessages {
 
     // Client related error messages
     public static final String CLIENT_NOT_FOUND = "Client not found with id: %d";
+    public static final String CLIENT_HAS_PROJECTS = "Client %d is still linked to projects";
     public static final String CLIENT_NAME_EXISTS = "Client already exists with name: %s";
 
     // Project related error messages
     public static final String PROJECT_NOT_FOUND = "Project not found with id: %d";
+    public static final String PROJECT_CLIENT_REQUIRED = "A project must be linked to a client";
 
     // Source related error messages
     public static final String SOURCE_NOT_FOUND = "Source not found with id: %d";
@@ -28,6 +30,7 @@ public final class ErrorMessages {
 
     // Contact related error messages
     public static final String CONTACT_NOT_FOUND = "Contact not found with id: %d";
+    public static final String CONTACT_OWNER_REQUIRED = "A contact must be linked to a freelance and a client";
 
     // Interview Step related error messages
     public static final String INTERVIEW_STEP_NOT_FOUND = "Interview step not found with id: %d";

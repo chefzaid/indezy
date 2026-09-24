@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -14,7 +14,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ContactService } from '../../../services/contact/contact.service';
 import { ClientService } from '../../../services/client/client.service';
-import { ClientDto } from '../../../models';
+import { AuthService } from '../../../services/auth/auth.service';
+import { ClientDto, ContactDto } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 
 @Component({
@@ -32,6 +33,7 @@ import { NotificationService } from '../../../services/notification/notification
     TranslateModule
 ],
     templateUrl: './contact-form.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./contact-form.component.scss']
 })
 export class ContactFormComponent implements OnInit, OnDestroy {
@@ -41,6 +43,9 @@ export class ContactFormComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   isEditMode = false;
   contactId?: number;
+  /** Set when the form is opened from a client's page (/clients/:id/contacts/...). */
+  parentClientId?: number;
+  private loadedContact?: ContactDto;
 
   private readonly destroy$ = new Subject<void>();
 
@@ -48,6 +53,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
     private readonly fb: FormBuilder,
     private readonly contactService: ContactService,
     private readonly clientService: ClientService,
+    private readonly authService: AuthService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly notificationService: NotificationService,
@@ -59,29 +65,24 @@ export class ContactFormComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadClients();
 
-    // Handle route parameters
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      // Check if we have a contactId (edit mode)
+      // Under /clients/:id/contacts/... the id parameter is the owning client.
+      if (params['id']) {
+        this.parentClientId = +params['id'];
+        this.contactForm.patchValue({ clientId: this.parentClientId });
+      }
       if (params['contactId']) {
         this.contactId = +params['contactId'];
         this.isEditMode = true;
         this.loadContact();
       }
-
-      // Get clientId from route params (for both create and edit modes)
-      if (params['id']) {
-        const clientId = +params['id'];
-        this.contactForm.patchValue({ clientId });
-      }
     });
 
-    // Handle query parameters for pre-selecting client (fallback)
-    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(queryParams => {
-      if (queryParams['clientId'] && !this.isEditMode) {
-        const clientId = +queryParams['clientId'];
-        this.contactForm.patchValue({ clientId });
-      }
-    });
+    // Pre-select a client passed as ?clientId=... (e.g. from the contacts list filter).
+    const queryClientId = this.route.snapshot.queryParamMap.get('clientId');
+    if (queryClientId && !this.isEditMode && !this.parentClientId) {
+      this.contactForm.patchValue({ clientId: +queryClientId });
+    }
   }
 
   ngOnDestroy(): void {
@@ -92,22 +93,20 @@ export class ContactFormComponent implements OnInit, OnDestroy {
   private createForm(): FormGroup {
     return this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2)]],
-      lastName: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required]],
-      position: ['', [Validators.required]],
-      clientId: ['', [Validators.required]],
-      notes: [''],
-      status: ['ACTIVE', [Validators.required]]
+      lastName: ['', [Validators.required]],
+      email: ['', [Validators.email]],
+      phone: [''],
+      clientId: [null, [Validators.required]],
+      notes: ['']
     });
   }
 
   private loadClients(): void {
-    this.clientService.getClients()
+    this.clientService.getForCurrentFreelance()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (clients) => {
-          this.clients = clients.filter(client => client.status === 'ACTIVE');
+          this.clients = [...clients].sort((a, b) => a.companyName.localeCompare(b.companyName));
         },
         error: (error) => {
           console.error('Error loading clients:', error);
@@ -125,15 +124,14 @@ export class ContactFormComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (contact) => {
           if (contact) {
+            this.loadedContact = contact;
             this.contactForm.patchValue({
               firstName: contact.firstName,
               lastName: contact.lastName,
               email: contact.email,
               phone: contact.phone,
-              position: contact.position,
               clientId: contact.clientId,
-              notes: contact.notes,
-              status: contact.status
+              notes: contact.notes
             });
           } else {
             this.notificationService.error('errors.contactNotFound');
@@ -150,15 +148,18 @@ export class ContactFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.contactForm.valid) {
+    if (this.contactForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
       const formValue = this.contactForm.value;
-      
-      // Find client name for the contact
-      const selectedClient = this.clients.find(client => client.id === formValue.clientId);
-      const contactData = {
-        ...formValue,
-        clientName: selectedClient?.name ?? ''
+      const contactData: ContactDto = {
+        ...(this.loadedContact ?? {}),
+        firstName: formValue.firstName.trim(),
+        lastName: formValue.lastName?.trim() ?? '',
+        email: formValue.email?.trim() || undefined,
+        phone: formValue.phone?.trim() || undefined,
+        notes: formValue.notes?.trim() || undefined,
+        clientId: formValue.clientId,
+        freelanceId: this.loadedContact?.freelanceId ?? this.authService.getUser()?.id
       };
 
       const operation = this.isEditMode
@@ -166,18 +167,9 @@ export class ContactFormComponent implements OnInit, OnDestroy {
         : this.contactService.createContact(contactData);
 
       operation.pipe(takeUntil(this.destroy$)).subscribe({
-        next: () => {
+        next: (saved) => {
           this.notificationService.success(this.isEditMode ? 'contacts.updateSuccess' : 'contacts.createSuccess');
-
-          // Get clientId from form or route params
-          const clientId = formValue.clientId ?? this.route.snapshot.params['id'];
-          if (clientId) {
-            // Redirect back to client detail page
-            this.router.navigate(['/clients', clientId]);
-          } else {
-            // Default redirect to clients list
-            this.router.navigate(['/clients']);
-          }
+          this.navigateAway(saved?.id ?? this.contactId);
         },
         error: (error) => {
           console.error('Error saving contact:', error);
@@ -191,14 +183,17 @@ export class ContactFormComponent implements OnInit, OnDestroy {
   }
 
   onCancel(): void {
-    // Get clientId from form or route params
-    const clientId = this.contactForm.get('clientId')?.value ?? this.route.snapshot.params['id'];
-    if (clientId) {
-      // Redirect back to client detail page
-      this.router.navigate(['/clients', clientId]);
+    this.navigateAway(this.isEditMode ? this.contactId : undefined);
+  }
+
+  /** Returns to the client page when opened from it, otherwise to the contact (or the list). */
+  private navigateAway(contactId?: number): void {
+    if (this.parentClientId) {
+      this.router.navigate(['/clients', this.parentClientId], { queryParams: { tab: 'contacts' } });
+    } else if (contactId) {
+      this.router.navigate(['/contacts', contactId]);
     } else {
-      // Default redirect to clients list
-      this.router.navigate(['/clients']);
+      this.router.navigate(['/contacts']);
     }
   }
 

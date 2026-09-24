@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -9,7 +9,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { UserProfile } from '../../../models/user-management.models';
@@ -31,11 +30,11 @@ import { UserProfile } from '../../../models/user-management.models';
     MatSelectModule,
     MatChipsModule,
     MatDatepickerModule,
-    MatNativeDateModule,
     MatProgressSpinnerModule,
     TranslateModule
 ],
     templateUrl: './profile-personal-info.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['../profile.component.scss']
 })
 export class ProfilePersonalInfoComponent {
@@ -45,6 +44,16 @@ export class ProfilePersonalInfoComponent {
 
   @Output() save = new EventEmitter<void>();
   @Output() avatarUpload = new EventEmitter<Event>();
+
+  readonly defaultAvatar = 'assets/images/default-avatar.svg';
+
+  /** Falls back to the default avatar when the stored image cannot be loaded. */
+  onAvatarError(event: Event): void {
+    const image = event.target as HTMLImageElement;
+    if (!image.src.endsWith(this.defaultAvatar)) {
+      image.src = this.defaultAvatar;
+    }
+  }
 
   availableSkills = [
     'Angular', 'React', 'Vue.js', 'Node.js', 'Python', 'Java', 'C#', 'PHP',

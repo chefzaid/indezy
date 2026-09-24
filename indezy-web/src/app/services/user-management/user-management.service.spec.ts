@@ -149,6 +149,9 @@ describe('UserManagementService', () => {
       const req = httpMock.expectOne(`${API_URL}/avatar`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body instanceof FormData).toBeTruthy();
+      // The API reads the multipart part named "file" and answers with plain text.
+      expect((req.request.body as FormData).has('file')).toBeTrue();
+      expect(req.request.responseType).toBe('text');
       req.flush(avatarUrl);
     });
 

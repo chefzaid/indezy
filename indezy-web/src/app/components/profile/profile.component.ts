@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 
 import { AbstractControlOptions, ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -16,6 +16,8 @@ import { UserProfile, UserPreferences, UserNotificationSettings, PasswordChangeR
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-info.component';
+import { LANGUAGE_STORAGE_KEY, getSavedLanguage } from '../../shared/locale/app-locale';
+import { ThemeService } from '../../shared/theme/theme.service';
 
 @Component({
     selector: 'app-profile',
@@ -36,9 +38,15 @@ import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-i
     ProfilePersonalInfoComponent
 ],
     templateUrl: './profile.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
+  /** Avatars are stored inline, so photos are cropped to a small square before upload. */
+  static readonly AVATAR_SIZE = 256;
+
+  private readonly themeService = inject(ThemeService);
+
   userProfile: UserProfile | null = null;
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
@@ -249,7 +257,12 @@ export class ProfileComponent implements OnInit {
 
     // Load preferences
     this.userManagementService.getUserPreferences().subscribe((preferences: UserPreferences) => {
-      this.preferencesForm.patchValue(preferences);
+      this.preferencesForm.patchValue({
+        ...preferences,
+        // Stored patterns may use Java casing (dd/MM/yyyy); the selector lists DD/MM/YYYY.
+        dateFormat: preferences.dateFormat?.toUpperCase() ?? 'DD/MM/YYYY',
+        itemsPerPage: preferences.itemsPerPage !== undefined && preferences.itemsPerPage !== null ? Number(preferences.itemsPerPage) : 25
+      });
     });
 
     // Load notification settings
@@ -312,6 +325,13 @@ export class ProfileComponent implements OnInit {
         next: () => {
           this.isUpdating = false;
           this.notificationService.success('profile.preferencesUpdated');
+          this.themeService.apply(preferences.theme);
+          const language = preferences.language;
+          if ((language === 'fr' || language === 'en') && language !== getSavedLanguage()) {
+            // Apply the preferred language like the toolbar switch does (formats need a reload).
+            localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+            setTimeout(() => this.reloadPage(), 800);
+          }
         },
         error: (error: unknown) => {
           console.error('Error updating preferences:', error);
@@ -320,6 +340,11 @@ export class ProfileComponent implements OnInit {
         }
       });
     }
+  }
+
+  /** Separated so tests can stub the full page reload. */
+  reloadPage(): void {
+    window.location.reload();
   }
 
   onUpdateNotifications(): void {
@@ -343,36 +368,74 @@ export class ProfileComponent implements OnInit {
 
   onAvatarUpload(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files?.[0]) {
-      const file = input.files[0];
-
-      // Validate file type and size
-      if (!file.type.startsWith('image/')) {
-        this.notificationService.error('profile.errors.selectImage');
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        this.notificationService.error('profile.errors.imageTooLarge');
-        return;
-      }
-
-      this.isUpdating = true;
-      this.userManagementService.uploadAvatar(file).subscribe({
-        next: (avatarUrl: string) => {
-          if (this.userProfile) {
-            this.userProfile.avatar = avatarUrl;
-          }
-          this.isUpdating = false;
-          this.notificationService.success('profile.avatarUpdated');
-        },
-        error: (error: unknown) => {
-          console.error('Error uploading avatar:', error);
-          this.isUpdating = false;
-          this.notificationService.error('profile.errors.uploadingAvatar');
-        }
-      });
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) {
+      return;
     }
+    if (!file.type.startsWith('image/')) {
+      this.notificationService.error('profile.errors.selectImage');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.notificationService.error('profile.errors.imageTooLarge');
+      return;
+    }
+
+    this.isUpdating = true;
+    ProfileComponent.downscaleImage(file, ProfileComponent.AVATAR_SIZE)
+      .then(blob => {
+        this.userManagementService.uploadAvatar(blob).subscribe({
+          next: (avatarUrl: string) => {
+            if (this.userProfile) {
+              this.userProfile = { ...this.userProfile, avatar: avatarUrl };
+            }
+            this.isUpdating = false;
+            this.notificationService.success('profile.avatarUpdated');
+          },
+          error: (error: unknown) => {
+            console.error('Error uploading avatar:', error);
+            this.isUpdating = false;
+            this.notificationService.error('profile.errors.uploadingAvatar');
+          }
+        });
+      })
+      .catch(() => {
+        this.isUpdating = false;
+        this.notificationService.error('profile.errors.selectImage');
+      });
+  }
+
+  /** Center-crops an image to a square and scales it down to size x size pixels (JPEG). */
+  static downscaleImage(file: Blob, size: number): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const image = new Image();
+      image.onload = (): void => {
+        const side = Math.min(image.naturalWidth, image.naturalHeight);
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const context = canvas.getContext('2d');
+        if (!context || side === 0) {
+          URL.revokeObjectURL(url);
+          reject(new Error('Unreadable image'));
+          return;
+        }
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, size, size);
+        context.drawImage(image,
+          (image.naturalWidth - side) / 2, (image.naturalHeight - side) / 2, side, side,
+          0, 0, size, size);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Encoding failed')), 'image/jpeg', 0.85);
+      };
+      image.onerror = (): void => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Unreadable image'));
+      };
+      image.src = url;
+    });
   }
 
   onExportData(): void {

@@ -20,7 +20,7 @@
           <div class="column-header" [style.border-top-color]="getColumnColor(status)">
             <div class="column-title">
               <mat-icon [style.color]="getColumnColor(status)">{{ getColumnIcon(status) }}</mat-icon>
-              <h3>{{ getColumnLabel(status) }}</h3>
+              <h3>{{ 'projects.statuses.' + status | translate }}</h3>
             </div>
             <div class="column-actions">
               <button mat-icon-button class="quick-add-btn" (click)="openQuickAdd(status)"
@@ -39,7 +39,7 @@
             [cdkDropListData]="getCardsForColumn(status)"
             [cdkDropListConnectedTo]="getConnectedDropLists()"
             (cdkDropListDropped)="onCardDrop($event)">
-            @for (card of getCardsForColumn(status); track card) {
+            @for (card of getCardsForColumn(status); track card.projectId) {
               <div class="project-card" cdkDrag>
                 <mat-card class="card-content" [routerLink]="['/projects', card.projectId]" style="cursor: pointer;">
                   <mat-card-header>
@@ -62,14 +62,14 @@
                     <div class="card-meta">
                       @if (card.dailyRate) {
                         <span class="meta-item rate">
-                          <mat-icon>euro</mat-icon>
-                          {{ formatCurrency(card.dailyRate) }}/j
+                          <mat-icon>payments</mat-icon>
+                          {{ formatCurrency(card.dailyRate) }}{{ 'kanban.perDayShort' | translate }}
                         </span>
                       }
                       @if (card.workMode) {
                         <span class="meta-item mode">
                           <mat-icon>{{ card.workMode === 'REMOTE' ? 'home' : card.workMode === 'HYBRID' ? 'sync_alt' : 'apartment' }}</mat-icon>
-                          {{ card.workMode === 'REMOTE' ? ('projects.workModes.remote' | translate) : card.workMode === 'HYBRID' ? ('projects.workModes.hybrid' | translate) : ('projects.workModes.onsite' | translate) }}
+                          {{ 'projects.workModes.' + card.workMode | translate }}
                         </span>
                       }
                     </div>
@@ -87,9 +87,8 @@
                     }
                     @if (card.personalRating) {
                       <div class="card-rating">
-                        @for (s of getRatingStars(card.personalRating); track s) {
-                          <mat-icon
-                          class="star-icon">star</mat-icon>
+                        @for (s of getRatingStars(card.personalRating); track $index) {
+                          <mat-icon class="star-icon">star</mat-icon>
                         }
                       </div>
                     }

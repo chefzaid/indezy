@@ -254,6 +254,37 @@ class DashboardStatsServiceTest {
     }
 
     @Test
+    void getDashboardStats_ShouldLeaveLostOpportunitiesOutOfEstimatedRevenue() {
+        // Given a signed contract (120,000) and a lost opportunity that would have been worth 66,000.
+        Project won = new Project();
+        won.setStatus(ProjectStatus.WON);
+        won.setDailyRate(500);
+        won.setDaysPerYear(240);
+        won.setDurationInMonths(12);
+        Project lost = new Project();
+        lost.setStatus(ProjectStatus.LOST);
+        lost.setDailyRate(600);
+        lost.setDaysPerYear(220);
+        lost.setDurationInMonths(6);
+
+        when(projectRepository.countByFreelanceId(1L)).thenReturn(2L);
+        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(550.0);
+        when(projectRepository.countWonByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countLostByFreelanceId(1L)).thenReturn(1L);
+        when(projectRepository.countActiveByFreelanceId(1L)).thenReturn(0L);
+        when(projectRepository.countByFreelanceIdGroupByStatus(1L)).thenReturn(List.of());
+        when(projectRepository.countByFreelanceIdGroupByWorkMode(1L)).thenReturn(List.of());
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(won, lost));
+
+        // When
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+
+        // Then only the signed contract counts.
+        assertThat(stats.getTotalEstimatedRevenue()).isEqualTo(120000.0);
+        assertThat(stats.getForecastRevenue()).isEqualTo(120000.0);
+    }
+
+    @Test
     void getDashboardStats_ShouldComputeBenchTimeBetweenSignedMissions() {
         // Given two signed missions: Jan-Apr 2024 (3 months) then Jun 2024 (1 month).
         // Bench = 2024-04-01 -> 2024-06-01 = 61 days. A third, overlapping mission adds none.

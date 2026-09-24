@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -10,17 +10,19 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProjectService } from '../../../services/project/project.service';
 import { ClientService } from '../../../services/client/client.service';
+import { SourceService } from '../../../services/source/source.service';
 import { AuthService } from '../../../services/auth/auth.service';
-import { ProjectDto, ClientDto, User } from '../../../models';
+import { ProjectDto, ClientDto, SourceDto, User, ProjectStatus, LOST_REASONS, PROJECT_STATUS_COLORS } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { fromIsoDate, toIsoDate } from '../../../shared/locale/app-locale';
+import { blankToNull } from '../../../shared/utils/form-payload';
 
 @Component({
     selector: 'app-project-form',
@@ -35,22 +37,32 @@ import { NotificationService } from '../../../services/notification/notification
     MatSelectModule,
     MatSlideToggleModule,
     MatDatepickerModule,
-    MatNativeDateModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
     TranslateModule
 ],
     templateUrl: './project-form.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./project-form.component.scss']
 })
 export class ProjectFormComponent implements OnInit, OnDestroy {
   projectForm: FormGroup;
+  /** Final clients (companies the mission is delivered for). */
   clients: ClientDto[] = [];
+  /** Intermediaries (ESN, agencies) that can sit between the freelance and the final client. */
+  intermediaries: ClientDto[] = [];
+  sources: SourceDto[] = [];
   isLoading = false;
   isSubmitting = false;
   isEditMode = false;
   projectId?: number;
   currentUser: User | null = null;
+  /** The project as loaded, so fields this form does not edit (documents...) survive an update. */
+  private loadedProject?: ProjectDto;
+
+  readonly statusOptions = Object.values(ProjectStatus);
+  readonly statusColors = PROJECT_STATUS_COLORS;
+  readonly lostReasons = LOST_REASONS;
 
   workModeOptions = [
     { value: 'REMOTE', labelKey: 'projects.workModes.remote' },
@@ -72,6 +84,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     private readonly fb: FormBuilder,
     private readonly projectService: ProjectService,
     private readonly clientService: ClientService,
+    private readonly sourceService: SourceService,
     private readonly authService: AuthService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
@@ -83,8 +96,13 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.currentUser = this.authService.getUser();
-    this.loadClients();
-    
+    this.loadReferenceData();
+
+    const requestedStatus = this.route.snapshot.queryParamMap.get('status');
+    if (requestedStatus && this.statusOptions.includes(requestedStatus as ProjectStatus)) {
+      this.projectForm.patchValue({ status: requestedStatus });
+    }
+
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       if (params['id']) {
         this.projectId = +params['id'];
@@ -92,6 +110,14 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         this.loadProject();
       }
     });
+
+    this.projectForm.get('status')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
+        if (status !== ProjectStatus.LOST) {
+          this.projectForm.get('lostReason')?.setValue(null, { emitEvent: false });
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -120,19 +146,32 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       personalRating: [''],
       notes: [''],
       isFavorite: [false],
-      clientId: ['']
+      status: [ProjectStatus.IDENTIFIED, Validators.required],
+      lostReason: [null],
+      clientId: [null, Validators.required],
+      middlemanId: [null],
+      sourceId: [null]
     });
   }
 
-  private loadClients(): void {
-    this.clientService.getClients()
+  private loadReferenceData(): void {
+    const freelanceId = this.currentUser?.id;
+    if (!freelanceId) { return; }
+
+    forkJoin({
+      clients: this.clientService.getByFreelanceId(freelanceId),
+      sources: this.sourceService.getByFreelanceId(freelanceId)
+    })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (clients) => {
-          this.clients = clients.filter(client => client.status === 'ACTIVE');
+        next: ({ clients, sources }) => {
+          const byName = (a: ClientDto, b: ClientDto): number => a.companyName.localeCompare(b.companyName);
+          this.clients = clients.filter(client => client.isFinal !== false).sort(byName);
+          this.intermediaries = clients.filter(client => client.isFinal === false).sort(byName);
+          this.sources = [...sources].sort((a, b) => a.name.localeCompare(b.name));
         },
         error: (error) => {
-          console.error('Error loading clients:', error);
+          console.error('Error loading clients and sources:', error);
           this.notificationService.error('errors.loadingClients');
         }
       });
@@ -147,6 +186,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (project) => {
           if (project) {
+            this.loadedProject = project;
             this.projectForm.patchValue({
               role: project.role,
               description: project.description,
@@ -159,7 +199,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
               remoteDaysPerMonth: project.remoteDaysPerMonth,
               onsiteDaysPerMonth: project.onsiteDaysPerMonth,
               advantages: project.advantages,
-              startDate: project.startDate ? new Date(project.startDate) : null,
+              startDate: fromIsoDate(project.startDate),
               durationInMonths: project.durationInMonths,
               orderRenewalInMonths: project.orderRenewalInMonths,
               daysPerYear: project.daysPerYear,
@@ -167,7 +207,11 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
               personalRating: project.personalRating,
               notes: project.notes,
               isFavorite: project.isFavorite ?? false,
-              clientId: project.clientId
+              status: project.status ?? ProjectStatus.IDENTIFIED,
+              lostReason: project.lostReason ?? null,
+              clientId: project.clientId ?? null,
+              middlemanId: project.middlemanId ?? null,
+              sourceId: project.sourceId ?? null
             });
           } else {
             this.notificationService.error('errors.projectNotFound');
@@ -186,15 +230,16 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.projectForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-      const formValue = this.projectForm.value;
-      
-      // Find client name for the project
-      const selectedClient = this.clients.find(client => client.id === formValue.clientId);
+      const formValue = blankToNull(this.projectForm.value);
+
+      // PUT replaces the whole project: start from the loaded project so the fields this
+      // form does not edit (documents, board position...) are sent back unchanged.
       const projectData: ProjectDto = {
+        ...(this.loadedProject ?? {}),
         ...formValue,
-        clientName: selectedClient?.name ?? '',
-        freelanceId: this.currentUser?.id,
-        startDate: formValue.startDate ? formValue.startDate.toISOString().split('T')[0] : undefined
+        lostReason: formValue.status === ProjectStatus.LOST ? formValue.lostReason ?? undefined : undefined,
+        freelanceId: this.loadedProject?.freelanceId ?? this.currentUser?.id,
+        startDate: toIsoDate(formValue.startDate)
       };
 
       const operation = this.isEditMode
@@ -202,9 +247,10 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         : this.projectService.create(projectData);
 
       operation.pipe(takeUntil(this.destroy$)).subscribe({
-        next: () => {
+        next: (saved) => {
           this.notificationService.success(this.isEditMode ? 'projects.updateSuccess' : 'projects.createSuccess');
-          this.router.navigate(['/projects']);
+          const savedId = saved?.id ?? this.projectId;
+          this.router.navigate(savedId ? ['/projects', savedId] : ['/projects']);
         },
         error: (error) => {
           console.error('Error saving project:', error);
@@ -218,7 +264,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   }
 
   onCancel(): void {
-    this.router.navigate(['/projects']);
+    this.router.navigate(this.isEditMode && this.projectId ? ['/projects', this.projectId] : ['/projects']);
   }
 
   private markFormGroupTouched(): void {

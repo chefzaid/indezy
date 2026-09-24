@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -8,7 +8,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject, takeUntil } from 'rxjs';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -24,9 +24,11 @@ import { ContactDto } from '../../../models';
     MatIconModule,
     MatChipsModule,
     MatDividerModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    TranslateModule
 ],
     templateUrl: './contact-detail.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./contact-detail.component.scss']
 })
 export class ContactDetailComponent implements OnInit, OnDestroy {
@@ -97,7 +99,8 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
 
     const contactId = this.contact.id;
     this.confirmDialog.confirm({
-      messageKey: 'contacts.deleteConfirm',
+      messageKey: 'contacts.confirmDelete',
+      messageParams: { name: this.getFullName() },
       danger: true
     }).subscribe(confirmed => {
       if (!confirmed) {
@@ -122,50 +125,8 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/contacts']);
   }
 
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'ACTIVE':
-        return 'primary';
-      case 'INACTIVE':
-        return 'warn';
-      default:
-        return '';
-    }
-  }
-
-  getStatusLabel(status: string): string {
-    switch (status) {
-      case 'ACTIVE':
-        return 'Actif';
-      case 'INACTIVE':
-        return 'Inactif';
-      default:
-        return status;
-    }
-  }
-
-  formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
-
-  sendEmail(): void {
-    if (this.contact?.email) {
-      window.location.href = `mailto:${this.contact.email}`;
-    }
-  }
-
-  callPhone(): void {
-    if (this.contact?.phone) {
-      window.location.href = `tel:${this.contact.phone}`;
-    }
-  }
-
   getFullName(): string {
     if (!this.contact) { return ''; }
-    return `${this.contact.firstName} ${this.contact.lastName}`;
+    return [this.contact.firstName, this.contact.lastName].filter(Boolean).join(' ');
   }
 }

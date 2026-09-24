@@ -6,6 +6,7 @@ import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.DashboardStatsService;
 import dev.swirlit.indezy.service.ProjectExportService;
 import dev.swirlit.indezy.service.ProjectService;
@@ -40,6 +41,7 @@ public class ProjectController {
     private final ProjectService projectService;
     private final DashboardStatsService dashboardStatsService;
     private final ProjectExportService projectExportService;
+    private final AccessGuard accessGuard;
 
     @Operation(summary = "Get all projects", description = "Retrieve a list of all projects")
     @ApiResponses(value = {
@@ -49,7 +51,9 @@ public class ProjectController {
     @GetMapping
     public ResponseEntity<List<ProjectDto>> getAllProjects() {
         log.debug("GET /projects - Getting all projects");
-        List<ProjectDto> projects = projectService.findAll();
+        List<ProjectDto> projects = accessGuard.currentFreelanceId()
+            .map(projectService::findByFreelanceId)
+            .orElseGet(projectService::findAll);
         return ResponseEntity.ok(projects);
     }
 
@@ -63,6 +67,7 @@ public class ProjectController {
     public ResponseEntity<ProjectDto> getProjectById(
             @Parameter(description = "Project ID", required = true) @PathVariable Long id) {
         log.debug("GET /projects/{} - Getting project by id", id);
+        accessGuard.requireProject(id);
         ProjectDto project = projectService.findById(id);
         return ResponseEntity.ok(project);
     }
@@ -70,6 +75,7 @@ public class ProjectController {
     @GetMapping("/{id}/with-steps")
     public ResponseEntity<ProjectDto> getProjectByIdWithSteps(@PathVariable Long id) {
         log.debug("GET /projects/{}/with-steps - Getting project with steps", id);
+        accessGuard.requireProject(id);
         ProjectDto project = projectService.findByIdWithSteps(id);
         return ResponseEntity.ok(project);
     }
@@ -77,6 +83,7 @@ public class ProjectController {
     @GetMapping("/by-freelance/{freelanceId}")
     public ResponseEntity<List<ProjectDto>> getProjectsByFreelanceId(@PathVariable Long freelanceId) {
         log.debug("GET /projects/by-freelance/{} - Getting projects by freelance id", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         List<ProjectDto> projects = projectService.findByFreelanceId(freelanceId);
         return ResponseEntity.ok(projects);
     }
@@ -87,6 +94,7 @@ public class ProjectController {
     public ResponseEntity<Integer> renameTag(@PathVariable Long freelanceId,
                                              @RequestBody java.util.Map<String, String> body) {
         log.debug("PUT /projects/by-freelance/{}/tags/rename", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         int updated = projectService.renameTag(freelanceId, body.get("from"), body.get("to"));
         return ResponseEntity.ok(updated);
     }
@@ -94,6 +102,7 @@ public class ProjectController {
     @GetMapping("/by-client/{clientId}")
     public ResponseEntity<List<ProjectDto>> getProjectsByClientId(@PathVariable Long clientId) {
         log.debug("GET /projects/by-client/{} - Getting projects by client id", clientId);
+        accessGuard.requireClient(clientId);
         List<ProjectDto> projects = projectService.findByClientId(clientId);
         return ResponseEntity.ok(projects);
     }
@@ -108,6 +117,7 @@ public class ProjectController {
             @RequestParam(required = false) String techStack) {
         
         log.debug("GET /projects/by-freelance/{}/filtered - Getting filtered projects", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         List<ProjectDto> projects = projectService.findByFreelanceIdAndFilters(
             freelanceId, minRate, maxRate, workMode, startDateAfter, techStack);
         return ResponseEntity.ok(projects);
@@ -123,6 +133,10 @@ public class ProjectController {
     public ResponseEntity<ProjectDto> createProject(
             @Parameter(description = "Project details", required = true) @Valid @RequestBody ProjectDto projectDto) {
         log.debug("POST /projects - Creating new project");
+        projectDto.setFreelanceId(accessGuard.resolveFreelanceId(projectDto.getFreelanceId()));
+        accessGuard.requireClient(projectDto.getClientId());
+        accessGuard.requireClientIfPresent(projectDto.getMiddlemanId());
+        accessGuard.requireSourceIfPresent(projectDto.getSourceId());
         ProjectDto createdProject = projectService.create(projectDto);
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
@@ -139,6 +153,10 @@ public class ProjectController {
             @Parameter(description = "Project ID", required = true) @PathVariable Long id,
             @Parameter(description = "Updated project details", required = true) @Valid @RequestBody ProjectDto projectDto) {
         log.debug("PUT /projects/{} - Updating project", id);
+        accessGuard.requireProject(id);
+        accessGuard.requireClientIfPresent(projectDto.getClientId());
+        accessGuard.requireClientIfPresent(projectDto.getMiddlemanId());
+        accessGuard.requireSourceIfPresent(projectDto.getSourceId());
         ProjectDto updatedProject = projectService.update(id, projectDto);
         return ResponseEntity.ok(updatedProject);
     }
@@ -152,6 +170,7 @@ public class ProjectController {
     public ResponseEntity<Void> deleteProject(
             @Parameter(description = "Project ID", required = true) @PathVariable Long id) {
         log.debug("DELETE /projects/{} - Deleting project", id);
+        accessGuard.requireProject(id);
         projectService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -159,6 +178,7 @@ public class ProjectController {
     @GetMapping("/stats/average-rate/{freelanceId}")
     public ResponseEntity<Double> getAverageDailyRate(@PathVariable Long freelanceId) {
         log.debug("GET /projects/stats/average-rate/{} - Getting average daily rate", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         Double averageRate = projectService.getAverageDailyRateByFreelanceId(freelanceId);
         return ResponseEntity.ok(averageRate);
     }
@@ -166,6 +186,7 @@ public class ProjectController {
     @GetMapping("/stats/count/{freelanceId}")
     public ResponseEntity<Long> getProjectCount(@PathVariable Long freelanceId) {
         log.debug("GET /projects/stats/count/{} - Getting project count", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         Long count = projectService.countByFreelanceId(freelanceId);
         return ResponseEntity.ok(count);
     }
@@ -177,6 +198,7 @@ public class ProjectController {
             @RequestParam ProjectStatus status,
             @RequestParam(required = false) LostReason lostReason) {
         log.debug("PATCH /projects/{}/status - Updating project status to: {}", id, status);
+        accessGuard.requireProject(id);
         ProjectDto updatedProject = projectService.updateStatus(id, status, lostReason);
         return ResponseEntity.ok(updatedProject);
     }
@@ -185,6 +207,7 @@ public class ProjectController {
     @PatchMapping("/{id}/favorite")
     public ResponseEntity<ProjectDto> toggleFavorite(@PathVariable Long id) {
         log.debug("PATCH /projects/{}/favorite - Toggling favorite flag", id);
+        accessGuard.requireProject(id);
         ProjectDto updatedProject = projectService.toggleFavorite(id);
         return ResponseEntity.ok(updatedProject);
     }
@@ -193,6 +216,7 @@ public class ProjectController {
     @GetMapping("/kanban/{freelanceId}")
     public ResponseEntity<KanbanBoardDto> getKanbanBoard(@PathVariable Long freelanceId) {
         log.debug("GET /projects/kanban/{} - Getting kanban board", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         KanbanBoardDto kanbanBoard = projectService.getKanbanBoard(freelanceId);
         return ResponseEntity.ok(kanbanBoard);
     }
@@ -204,6 +228,7 @@ public class ProjectController {
             @PathVariable Long freelanceId,
             @RequestBody List<Long> orderedProjectIds) {
         log.debug("PUT /projects/kanban/{}/reorder - Reordering {} cards", freelanceId, orderedProjectIds.size());
+        accessGuard.requireFreelance(freelanceId);
         projectService.reorderKanbanColumn(freelanceId, orderedProjectIds);
         return ResponseEntity.noContent().build();
     }
@@ -215,6 +240,7 @@ public class ProjectController {
             @PathVariable Long freelanceId,
             @RequestParam(required = false) Integer year) {
         log.debug("GET /projects/export/csv/{}?year={} - Exporting yearly summary", freelanceId, year);
+        accessGuard.requireFreelance(freelanceId);
         String csv = projectExportService.buildYearlySummaryCsv(freelanceId, year);
         String filename = "indezy-summary-" + (year != null ? year : "all") + ".csv";
         return ResponseEntity.ok()
@@ -227,6 +253,7 @@ public class ProjectController {
     @GetMapping("/stats/dashboard/{freelanceId}")
     public ResponseEntity<DashboardStatsDto> getDashboardStats(@PathVariable Long freelanceId) {
         log.debug("GET /projects/stats/dashboard/{} - Getting dashboard stats", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         DashboardStatsDto stats = dashboardStatsService.getDashboardStats(freelanceId);
         return ResponseEntity.ok(stats);
     }

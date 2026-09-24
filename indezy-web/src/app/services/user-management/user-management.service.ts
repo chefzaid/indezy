@@ -58,10 +58,11 @@ export class UserManagementService {
     return this.http.put<UserProfile>(`${this.API_URL}/profile`, profile);
   }
 
-  uploadAvatar(file: File): Observable<string> {
+  /** Uploads an avatar image; resolves with the stored avatar (a data URL) as plain text. */
+  uploadAvatar(file: Blob, filename = 'avatar.jpg'): Observable<string> {
     const formData = new FormData();
-    formData.append('avatar', file);
-    return this.http.post<string>(`${this.API_URL}/avatar`, formData);
+    formData.append('file', file, filename);
+    return this.http.post(`${this.API_URL}/avatar`, formData, { responseType: 'text' });
   }
 
   // Password Management

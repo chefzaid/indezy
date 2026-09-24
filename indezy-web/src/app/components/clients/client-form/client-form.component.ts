@@ -1,5 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -9,21 +8,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-
 import { ClientService } from '../../../services/client/client.service';
-import { ContactService } from '../../../services/contact/contact.service';
-import { CreateClientDto, UpdateClientDto, ContactDto } from '../../../models';
+import { AuthService } from '../../../services/auth/auth.service';
+import { ClientDto, CreateClientDto } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
-import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
 @Component({
     selector: 'app-client-form',
@@ -37,16 +28,11 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatTabsModule,
-    MatTableModule,
-    MatMenuModule,
-    MatDialogModule,
-    MatChipsModule,
-    MatDividerModule,
     MatSlideToggleModule,
     TranslateModule
 ],
     templateUrl: './client-form.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./client-form.component.scss']
 })
 export class ClientFormComponent implements OnInit, OnDestroy {
@@ -55,36 +41,7 @@ export class ClientFormComponent implements OnInit, OnDestroy {
   isLoading = false;
   isSaving = false;
   clientId?: number;
-
-  // Contact management properties
-  contacts: ContactDto[] = [];
-  isLoadingContacts = false;
-  displayedContactColumns: string[] = ['name', 'email', 'phone', 'position', 'status', 'actions'];
-  
-  industries = [
-    'Technology',
-    'Finance',
-    'Healthcare',
-    'Education',
-    'E-commerce',
-    'Manufacturing',
-    'Consulting',
-    'Marketing',
-    'Real Estate',
-    'Retail',
-    'Transportation',
-    'Energy',
-    'Media',
-    'Government',
-    'Non-profit',
-    'Other'
-  ];
-  
-  statuses = [
-    { value: 'ACTIVE', labelKey: 'common.active' },
-    { value: 'INACTIVE', labelKey: 'common.inactive' },
-    { value: 'ESN', labelKey: 'clients.esn' }
-  ];
+  private loadedClient?: ClientDto;
 
   ratingOptions = [1, 2, 3, 4, 5];
 
@@ -93,13 +50,11 @@ export class ClientFormComponent implements OnInit, OnDestroy {
   constructor(
     private readonly fb: FormBuilder,
     private readonly clientService: ClientService,
-    private readonly contactService: ContactService,
+    private readonly authService: AuthService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly notificationService: NotificationService,
-    private readonly dialog: MatDialog,
-    private readonly translate: TranslateService,
-    private readonly confirmDialog: ConfirmDialogService
+    private readonly translate: TranslateService
   ) {
     this.clientForm = this.createForm();
   }
@@ -112,6 +67,19 @@ export class ClientFormComponent implements OnInit, OnDestroy {
         this.loadClient();
       }
     });
+
+    // Creating an intermediary straight from a link such as /clients/create?type=esn
+    if (this.route.snapshot.queryParamMap.get('type') === 'esn') {
+      this.clientForm.patchValue({ isFinal: false });
+    }
+
+    this.clientForm.get('isBlacklisted')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(blacklisted => {
+        if (!blacklisted) {
+          this.clientForm.get('blacklistReason')?.setValue('', { emitEvent: false });
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -122,11 +90,11 @@ export class ClientFormComponent implements OnInit, OnDestroy {
   private createForm(): FormGroup {
     return this.fb.group({
       companyName: ['', [Validators.required, Validators.minLength(2)]],
-      city: [''],
+      city: ['', [Validators.required]],
       address: [''],
       domain: [''],
       notes: [''],
-      isFinal: [false, [Validators.required]],
+      isFinal: [true, [Validators.required]],
       rating: [null],
       isBlacklisted: [false],
       blacklistReason: ['']
@@ -144,8 +112,18 @@ export class ClientFormComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (client) => {
           if (client) {
-            this.clientForm.patchValue(client);
-            this.loadContacts(); // Load contacts when editing
+            this.loadedClient = client;
+            this.clientForm.patchValue({
+              companyName: client.companyName,
+              city: client.city,
+              address: client.address,
+              domain: client.domain,
+              notes: client.notes,
+              isFinal: client.isFinal !== false,
+              rating: client.rating ?? null,
+              isBlacklisted: !!client.isBlacklisted,
+              blacklistReason: client.blacklistReason ?? ''
+            });
           } else {
             this.notificationService.error('errors.clientNotFound');
             this.router.navigate(['/clients']);
@@ -160,75 +138,52 @@ export class ClientFormComponent implements OnInit, OnDestroy {
       });
   }
 
-  private loadContacts(): void {
-    if (!this.clientId) {
+  onSubmit(): void {
+    if (this.clientForm.invalid || this.isSaving) {
+      this.markFormGroupTouched();
+      return;
+    }
+    const freelanceId = this.loadedClient?.freelanceId ?? this.authService.getUser()?.id;
+    if (!freelanceId) {
+      this.notificationService.error(this.isEditMode ? 'errors.updatingClient' : 'errors.creatingClient');
       return;
     }
 
-    this.isLoadingContacts = true;
-    this.contactService.getContactsByClient(this.clientId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (contacts) => {
-          this.contacts = contacts;
-          this.isLoadingContacts = false;
-        },
-        error: (error) => {
-          console.error('Error loading contacts:', error);
-          this.notificationService.error('errors.loadingContacts');
-          this.isLoadingContacts = false;
-        }
-      });
-  }
+    this.isSaving = true;
+    const formValue = this.clientForm.value;
+    const clientData: CreateClientDto = {
+      companyName: formValue.companyName.trim(),
+      city: formValue.city.trim(),
+      address: formValue.address?.trim() || undefined,
+      domain: formValue.domain?.trim() || undefined,
+      notes: formValue.notes?.trim() || undefined,
+      isFinal: !!formValue.isFinal,
+      rating: formValue.rating ?? undefined,
+      isBlacklisted: !!formValue.isBlacklisted,
+      blacklistReason: formValue.isBlacklisted ? formValue.blacklistReason?.trim() || undefined : undefined,
+      freelanceId
+    };
 
-  onSubmit(): void {
-    if (this.clientForm.valid) {
-      this.isSaving = true;
-      const formValue = this.clientForm.value;
-      
-      if (this.isEditMode && this.clientId) {
-        const updateData: UpdateClientDto = {
-          id: this.clientId,
-          ...formValue
-        };
-        
-        this.clientService.updateClient(updateData)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: () => {
-              this.notificationService.success('clients.updateSuccess');
-              this.router.navigate(['/clients']);
-            },
-            error: (error) => {
-              console.error('Error updating client:', error);
-              this.notificationService.error('errors.updatingClient');
-              this.isSaving = false;
-            }
-          });
-      } else {
-        const createData: CreateClientDto = formValue;
-        
-        this.clientService.createClient(createData)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: () => {
-              this.notificationService.success('clients.createSuccess');
-              this.router.navigate(['/clients']);
-            },
-            error: (error) => {
-              console.error('Error creating client:', error);
-              this.notificationService.error('errors.creatingClient');
-              this.isSaving = false;
-            }
-          });
+    const request = this.isEditMode && this.clientId
+      ? this.clientService.update(this.clientId, { ...clientData, id: this.clientId })
+      : this.clientService.create(clientData);
+
+    request.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (saved) => {
+        this.notificationService.success(this.isEditMode ? 'clients.updateSuccess' : 'clients.createSuccess');
+        const savedId = saved?.id ?? this.clientId;
+        this.router.navigate(savedId ? ['/clients', savedId] : ['/clients']);
+      },
+      error: (error) => {
+        console.error('Error saving client:', error);
+        this.notificationService.error(this.isEditMode ? 'errors.updatingClient' : 'errors.creatingClient');
+        this.isSaving = false;
       }
-    } else {
-      this.markFormGroupTouched();
-    }
+    });
   }
 
   onCancel(): void {
-    this.router.navigate(['/clients']);
+    this.router.navigate(this.isEditMode && this.clientId ? ['/clients', this.clientId] : ['/clients']);
   }
 
   private markFormGroupTouched(): void {
@@ -244,108 +199,10 @@ export class ClientFormComponent implements OnInit, OnDestroy {
       if (control.errors['required']) {
         return this.translate.instant('errors.fieldRequired');
       }
-      if (control.errors['email']) {
-        return this.translate.instant('errors.invalidEmail');
-      }
       if (control.errors['minlength']) {
         return this.translate.instant('errors.minLength', { length: control.errors['minlength'].requiredLength });
       }
     }
     return '';
-  }
-
-  // Contact management methods
-  async onViewContact(contact: ContactDto): Promise<void> {
-    const { ContactViewDialogComponent } = await import('../../contacts/contact-view-dialog/contact-view-dialog.component');
-
-    const dialogRef = this.dialog.open(ContactViewDialogComponent, {
-      width: '900px',
-      maxWidth: '95vw',
-      height: '700px',
-      maxHeight: '90vh',
-      data: contact
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'refresh') {
-        this.loadContacts();
-      }
-    });
-  }
-
-  onAddContact(): void {
-    if (this.clientId) {
-      this.router.navigate(['/clients', this.clientId, 'contacts', 'create']);
-    }
-  }
-
-  onEditContact(contact: ContactDto): void {
-    if (this.clientId) {
-      this.router.navigate(['/clients', this.clientId, 'contacts', contact.id, 'edit']);
-    }
-  }
-
-  onDeleteContact(contact: ContactDto): void {
-    if (!contact.id) {
-      this.notificationService.error('errors.missingContactId');
-      return;
-    }
-
-    const contactId = contact.id;
-    this.confirmDialog.confirm({
-      messageKey: 'contacts.confirmDelete',
-      messageParams: { name: `${contact.firstName} ${contact.lastName}` },
-      danger: true
-    }).subscribe(confirmed => {
-      if (!confirmed) {
-        return;
-      }
-      this.contactService.deleteContact(contactId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            this.notificationService.success('contacts.deleteSuccess');
-            this.loadContacts();
-          },
-          error: (error) => {
-            console.error('Error deleting contact:', error);
-            this.notificationService.error('errors.deletingContact');
-          }
-        });
-    });
-  }
-
-  getContactStatusColor(status: string): string {
-    switch (status) {
-      case 'ACTIVE':
-        return 'primary';
-      case 'INACTIVE':
-        return 'warn';
-      default:
-        return '';
-    }
-  }
-
-  getContactStatusLabel(status: string): string {
-    switch (status) {
-      case 'ACTIVE':
-        return this.translate.instant('common.active');
-      case 'INACTIVE':
-        return this.translate.instant('common.inactive');
-      default:
-        return status;
-    }
-  }
-
-  sendContactEmail(contact: ContactDto): void {
-    if (contact.email) {
-      globalThis.location.href = `mailto:${contact.email}`;
-    }
-  }
-
-  callContactPhone(contact: ContactDto): void {
-    if (contact.phone) {
-      globalThis.location.href = `tel:${contact.phone}`;
-    }
   }
 }

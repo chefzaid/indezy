@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.ProjectNoteDto;
+import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.ProjectNoteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,11 +23,13 @@ import java.util.List;
 public class ProjectNoteController {
 
     private final ProjectNoteService projectNoteService;
+    private final AccessGuard accessGuard;
 
     @Operation(summary = "List project notes", description = "Get a project's notes, newest first")
     @GetMapping
     public ResponseEntity<List<ProjectNoteDto>> getNotes(@PathVariable Long projectId) {
         log.debug("GET /projects/{}/notes - Listing notes", projectId);
+        accessGuard.requireProject(projectId);
         return ResponseEntity.ok(projectNoteService.getNotesForProject(projectId));
     }
 
@@ -36,6 +39,7 @@ public class ProjectNoteController {
             @PathVariable Long projectId,
             @Valid @RequestBody ProjectNoteDto request) {
         log.debug("POST /projects/{}/notes - Adding note", projectId);
+        accessGuard.requireProject(projectId);
         ProjectNoteDto created = projectNoteService.addNote(projectId, request.getContent());
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
@@ -44,6 +48,7 @@ public class ProjectNoteController {
     @DeleteMapping("/{noteId}")
     public ResponseEntity<Void> deleteNote(@PathVariable Long projectId, @PathVariable Long noteId) {
         log.debug("DELETE /projects/{}/notes/{} - Deleting note", projectId, noteId);
+        accessGuard.requireProject(projectId);
         projectNoteService.deleteNote(projectId, noteId);
         return ResponseEntity.noContent().build();
     }

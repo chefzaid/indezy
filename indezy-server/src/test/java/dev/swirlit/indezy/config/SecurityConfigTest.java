@@ -77,6 +77,16 @@ class SecurityConfigTest {
     }
 
     @Test
+    void configuredOriginCanPreflightKanbanStatusChanges() throws Exception {
+        // Status, favorite and interview-step transitions are PATCH endpoints.
+        mockMvc.perform(options("/projects/1/status")
+                .header("Origin", "http://localhost:4200")
+                .header("Access-Control-Request-Method", "PATCH"))
+            .andExpect(status().isOk())
+            .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:4200"));
+    }
+
+    @Test
     void untrustedOriginCannotPreflightUserUpdates() throws Exception {
         mockMvc.perform(options("/users/profile")
                 .header("Origin", "https://untrusted.example")

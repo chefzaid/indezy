@@ -8,7 +8,7 @@ import org.mapstruct.*;
 public interface ClientMapper {
 
     @Mapping(target = "freelanceId", source = "freelance.id")
-    @Mapping(target = "totalProjects", expression = "java(client.getProjects().size())")
+    @Mapping(target = "totalProjects", expression = "java(client.getProjects().size() + client.getMiddlemanProjects().size())")
     @Mapping(target = "averageDailyRate", expression = "java(client.getProjects().stream().filter(p -> p.getDailyRate() != null).mapToInt(p -> p.getDailyRate()).average().orElse(0.0))")
     @Mapping(target = "totalContacts", expression = "java(client.getContacts().size())")
     @Mapping(target = "projects", expression = "java(new java.util.ArrayList<>())")

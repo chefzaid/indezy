@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.FreelanceDto;
+import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.FreelanceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,6 +38,7 @@ import java.util.List;
 public class FreelanceController {
 
     private final FreelanceService freelanceService;
+    private final AccessGuard accessGuard;
 
     @Operation(summary = "Get all freelances", description = "Retrieve a list of all freelance profiles")
     @ApiResponses(value = {
@@ -46,7 +48,9 @@ public class FreelanceController {
     @GetMapping
     public ResponseEntity<List<FreelanceDto>> getAllFreelances() {
         log.debug("GET /freelances - Getting all freelances");
-        List<FreelanceDto> freelances = freelanceService.findAll();
+        List<FreelanceDto> freelances = accessGuard.currentFreelanceId()
+            .map(freelanceId -> List.of(freelanceService.findById(freelanceId)))
+            .orElseGet(freelanceService::findAll);
         return ResponseEntity.ok(freelances);
     }
 
@@ -60,6 +64,7 @@ public class FreelanceController {
     public ResponseEntity<FreelanceDto> getFreelanceById(
             @Parameter(description = "Freelance ID", required = true) @PathVariable Long id) {
         log.debug("GET /freelances/{} - Getting freelance by id", id);
+        accessGuard.requireFreelance(id);
         FreelanceDto freelance = freelanceService.findById(id);
         return ResponseEntity.ok(freelance);
     }
@@ -74,6 +79,7 @@ public class FreelanceController {
     public ResponseEntity<FreelanceDto> getFreelanceByIdWithProjects(
             @Parameter(description = "Freelance ID", required = true) @PathVariable Long id) {
         log.debug("GET /freelances/{}/with-projects - Getting freelance with projects", id);
+        accessGuard.requireFreelance(id);
         FreelanceDto freelance = freelanceService.findByIdWithProjects(id);
         return ResponseEntity.ok(freelance);
     }
@@ -88,6 +94,7 @@ public class FreelanceController {
     public ResponseEntity<FreelanceDto> getFreelanceByEmail(
             @Parameter(description = "Email address", required = true) @RequestParam String email) {
         log.debug("GET /freelances/by-email?email={} - Getting freelance by email", email);
+        accessGuard.requireOwnEmail(email);
         FreelanceDto freelance = freelanceService.findByEmail(email);
         return ResponseEntity.ok(freelance);
     }
@@ -101,6 +108,7 @@ public class FreelanceController {
     @PostMapping
     public ResponseEntity<FreelanceDto> createFreelance(@Valid @RequestBody FreelanceDto freelanceDto) {
         log.debug("POST /freelances - Creating new freelance");
+        accessGuard.denyWhenAuthenticated();
         FreelanceDto createdFreelance = freelanceService.create(freelanceDto);
         return new ResponseEntity<>(createdFreelance, HttpStatus.CREATED);
     }
@@ -117,6 +125,7 @@ public class FreelanceController {
             @Parameter(description = "Freelance ID", required = true) @PathVariable Long id,
             @Valid @RequestBody FreelanceDto freelanceDto) {
         log.debug("PUT /freelances/{} - Updating freelance", id);
+        accessGuard.requireFreelance(id);
         FreelanceDto updatedFreelance = freelanceService.update(id, freelanceDto);
         return ResponseEntity.ok(updatedFreelance);
     }
@@ -130,6 +139,7 @@ public class FreelanceController {
     public ResponseEntity<Void> deleteFreelance(
             @Parameter(description = "Freelance ID", required = true) @PathVariable Long id) {
         log.debug("DELETE /freelances/{} - Deleting freelance", id);
+        accessGuard.requireFreelance(id);
         freelanceService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -143,6 +153,7 @@ public class FreelanceController {
     public ResponseEntity<Boolean> checkEmailExists(
             @Parameter(description = "Email address to check", required = true) @RequestParam String email) {
         log.debug("GET /freelances/exists?email={} - Checking if email exists", email);
+        accessGuard.requireOwnEmail(email);
         boolean exists = freelanceService.existsByEmail(email);
         return ResponseEntity.ok(exists);
     }
@@ -151,6 +162,7 @@ public class FreelanceController {
     public ResponseEntity<Void> updatePassword(@PathVariable Long id, 
                                              @RequestBody String newPassword) {
         log.debug("PATCH /freelances/{}/password - Updating password", id);
+        accessGuard.requireFreelance(id);
         freelanceService.updatePassword(id, newPassword);
         return ResponseEntity.ok().build();
     }

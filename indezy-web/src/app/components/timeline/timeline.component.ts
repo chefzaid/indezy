@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -18,6 +18,7 @@ import { LoadingComponent } from '../../shared/components/loading/loading.compon
   selector: 'app-timeline',
   imports: [CommonModule, RouterModule, MatCardModule, MatIconModule, TranslateModule, LoadingComponent],
   templateUrl: './timeline.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./timeline.component.scss']
 })
 export class TimelineComponent implements OnInit {

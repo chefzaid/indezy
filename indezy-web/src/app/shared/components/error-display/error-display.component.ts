@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,6 +20,7 @@ export { ErrorDisplayConfig } from '../../../models/ui.models';
     TranslateModule
 ],
     templateUrl: './error-display.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./error-display.component.scss']
 })
 export class ErrorDisplayComponent {

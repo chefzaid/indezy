@@ -1,3 +1,4 @@
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -61,6 +62,7 @@ describe('StepScheduleDialogComponent', () => {
         TranslateModule.forRoot()
       ],
       providers: [
+        provideNativeDateAdapter(),
         FormBuilder,
         { provide: MatDialogRef, useValue: dialogRefSpy },
         { provide: MAT_DIALOG_DATA, useValue: mockDialogData },
@@ -96,6 +98,7 @@ describe('StepScheduleDialogComponent', () => {
           TranslateModule.forRoot()
         ],
         providers: [
+          provideNativeDateAdapter(),
           FormBuilder,
           { provide: MatDialogRef, useValue: mockDialogRef },
           { provide: MAT_DIALOG_DATA, useValue: dialogDataWithoutDate },

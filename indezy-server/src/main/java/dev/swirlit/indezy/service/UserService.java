@@ -16,12 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.Base64;
+import java.util.Locale;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +36,6 @@ public class UserService {
 
     private static final String TWO_FACTOR_ISSUER = "Indezy";
 
-    private static final String UPLOAD_DIR = "uploads/avatars/";
 
     /**
      * Get user profile by ID
@@ -63,35 +61,33 @@ public class UserService {
         return userMapper.toDto(savedUser);
     }
 
+    /** Largest accepted avatar image; the web app downscales photos to 256px before uploading. */
+    static final long MAX_AVATAR_BYTES = 512L * 1024;
+    private static final Set<String> AVATAR_TYPES = Set.of("image/png", "image/jpeg", "image/webp", "image/gif");
+
     /**
-     * Upload user avatar
+     * Stores the user's avatar as a data URL in the database and returns it. Keeping the image
+     * in the database works on read-only, ephemeral container filesystems and needs no file route.
      */
     public String uploadAvatar(Long userId, MultipartFile file) throws IOException {
         log.debug("Uploading avatar for user ID: {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
 
-        // Create upload directory if it doesn't exist
-        Path uploadPath = Paths.get(UPLOAD_DIR);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Avatar file is empty");
+        }
+        String contentType = file.getContentType() != null ? file.getContentType().toLowerCase(Locale.ROOT) : "";
+        if (!AVATAR_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException("Avatar must be a PNG, JPEG, WebP or GIF image");
+        }
+        if (file.getSize() > MAX_AVATAR_BYTES) {
+            throw new IllegalArgumentException("Avatar image is larger than 512 KB");
         }
 
-        // Generate unique filename
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename != null ? 
-            originalFilename.substring(originalFilename.lastIndexOf('.')) : ".jpg";
-        String filename = userId + "_" + UUID.randomUUID() + extension;
-        Path filePath = uploadPath.resolve(filename);
-
-        // Save file
-        Files.copy(file.getInputStream(), filePath);
-
-        // Update user avatar path
-        String avatarUrl = "/api/files/avatars/" + filename;
-        user.setAvatar(avatarUrl);
+        String avatarUrl = "data:" + contentType + ";base64," + Base64.getEncoder().encodeToString(file.getBytes());
+        user.setAvatarImage(avatarUrl);
         userRepository.save(user);
-
         return avatarUrl;
     }
 

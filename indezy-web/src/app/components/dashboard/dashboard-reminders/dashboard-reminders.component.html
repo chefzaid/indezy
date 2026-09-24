@@ -1,85 +1,113 @@
-@if (getMissionsEndingSoon().length > 0) {
-  <div class="ending-soon">
-    <h4 class="ending-soon-title">
-      <mat-icon>event_busy</mat-icon>
-      {{ 'dashboard.charts.missionsEndingSoon' | translate }}
-    </h4>
-    @for (mission of getMissionsEndingSoon(); track mission.projectId) {
-      <div class="ending-soon-row" [routerLink]="['/projects', mission.projectId]">
-        <span class="ending-soon-role">{{ mission.role }}</span>
-        <span class="ending-soon-client">{{ mission.clientName }}</span>
-        <span class="ending-soon-days">
-          {{ 'dashboard.charts.endsInDays' | translate:{ days: mission.daysUntilEnd } }}
-        </span>
-      </div>
+@if (hasReminders()) {
+  <h2 class="section-title">
+    <mat-icon>notifications_active</mat-icon>
+    {{ 'dashboard.remindersTitle' | translate }}
+  </h2>
+  <div class="reminders-grid">
+    @if (getMissionsEndingSoon().length > 0) {
+      <section class="reminder-card accent-orange">
+        <h3 class="reminder-title">
+          <mat-icon>event_busy</mat-icon>
+          {{ 'dashboard.charts.missionsEndingSoon' | translate }}
+          <span class="count">{{ getMissionsEndingSoon().length }}</span>
+        </h3>
+        @for (mission of visible(getMissionsEndingSoon(), 'ending'); track mission.projectId) {
+          <a class="reminder-row" [routerLink]="['/projects', mission.projectId]">
+            <span class="primary">{{ mission.role }}</span>
+            <span class="secondary">{{ mission.clientName }}</span>
+            <span class="meta">{{ 'dashboard.charts.endsInDays' | translate:{ days: mission.daysUntilEnd } }}</span>
+          </a>
+        }
+        @if (getMissionsEndingSoon().length > collapsedSize) {
+          <button type="button" class="toggle-btn" (click)="toggle('ending')">
+            {{ isExpanded('ending') ? ('dashboard.showLess' | translate) : ('dashboard.showAll' | translate:{ count: getMissionsEndingSoon().length }) }}
+          </button>
+        }
+      </section>
     }
-  </div>
-}
-@if (getUpcomingRenewals().length > 0) {
-  <div class="ending-soon">
-    <h4 class="ending-soon-title">
-      <mat-icon>autorenew</mat-icon>
-      {{ 'dashboard.charts.upcomingRenewals' | translate }}
-    </h4>
-    @for (renewal of getUpcomingRenewals(); track renewal.projectId) {
-      <div class="ending-soon-row" [routerLink]="['/projects', renewal.projectId]">
-        <span class="ending-soon-role">{{ renewal.role }}</span>
-        <span class="ending-soon-client">{{ renewal.clientName }}</span>
-        <span class="ending-soon-days">
-          {{ 'dashboard.charts.renewsInDays' | translate:{ days: renewal.daysUntilRenewal } }}
-        </span>
-      </div>
+    @if (getUpcomingRenewals().length > 0) {
+      <section class="reminder-card accent-blue">
+        <h3 class="reminder-title">
+          <mat-icon>autorenew</mat-icon>
+          {{ 'dashboard.charts.upcomingRenewals' | translate }}
+          <span class="count">{{ getUpcomingRenewals().length }}</span>
+        </h3>
+        @for (renewal of visible(getUpcomingRenewals(), 'renewals'); track renewal.projectId) {
+          <a class="reminder-row" [routerLink]="['/projects', renewal.projectId]">
+            <span class="primary">{{ renewal.role }}</span>
+            <span class="secondary">{{ renewal.clientName }}</span>
+            <span class="meta">{{ 'dashboard.charts.renewsInDays' | translate:{ days: renewal.daysUntilRenewal } }}</span>
+          </a>
+        }
+        @if (getUpcomingRenewals().length > collapsedSize) {
+          <button type="button" class="toggle-btn" (click)="toggle('renewals')">
+            {{ isExpanded('renewals') ? ('dashboard.showLess' | translate) : ('dashboard.showAll' | translate:{ count: getUpcomingRenewals().length }) }}
+          </button>
+        }
+      </section>
     }
-  </div>
-}
-@if (getOnThisDay().length > 0) {
-  <div class="ending-soon">
-    <h4 class="ending-soon-title">
-      <mat-icon>cake</mat-icon>
-      {{ 'dashboard.charts.onThisDay' | translate }}
-    </h4>
-    @for (item of getOnThisDay(); track item.type + '-' + item.id) {
-      <div class="ending-soon-row" [routerLink]="getOnThisDayLink(item)">
-        <span class="ending-soon-role">{{ item.label }}</span>
-        <span class="ending-soon-client">{{ item.subLabel }}</span>
-        <span class="ending-soon-days">
-          {{ 'dashboard.charts.yearsAgo' | translate:{ years: item.yearsAgo } }}
-        </span>
-      </div>
+    @if (getStaleOpportunities().length > 0) {
+      <section class="reminder-card accent-brown">
+        <h3 class="reminder-title">
+          <mat-icon>hourglass_bottom</mat-icon>
+          {{ 'dashboard.charts.staleOpportunities' | translate }}
+          <span class="count">{{ getStaleOpportunities().length }}</span>
+        </h3>
+        @for (opp of visible(getStaleOpportunities(), 'stale'); track opp.projectId) {
+          <a class="reminder-row" [routerLink]="['/projects', opp.projectId]">
+            <span class="primary">{{ opp.role }}</span>
+            <span class="secondary">{{ 'projects.statuses.' + opp.status | translate }}</span>
+            <span class="meta">{{ 'dashboard.charts.idleForDays' | translate:{ days: opp.daysSinceActivity } }}</span>
+          </a>
+        }
+        @if (getStaleOpportunities().length > collapsedSize) {
+          <button type="button" class="toggle-btn" (click)="toggle('stale')">
+            {{ isExpanded('stale') ? ('dashboard.showLess' | translate) : ('dashboard.showAll' | translate:{ count: getStaleOpportunities().length }) }}
+          </button>
+        }
+      </section>
     }
-  </div>
-}
-@if (getDormantContacts().length > 0) {
-  <div class="ending-soon">
-    <h4 class="ending-soon-title">
-      <mat-icon>person_off</mat-icon>
-      {{ 'dashboard.charts.dormantContacts' | translate }}
-    </h4>
-    @for (contact of getDormantContacts(); track contact.id) {
-      <div class="ending-soon-row" [routerLink]="['/contacts', contact.id]">
-        <span class="ending-soon-role">{{ contact.name }}</span>
-        <span class="ending-soon-client">{{ contact.clientName }}</span>
-        <span class="ending-soon-days">
-          {{ 'dashboard.charts.quietForMonths' | translate:{ months: contact.monthsSinceActivity } }}
-        </span>
-      </div>
+    @if (getDormantContacts().length > 0) {
+      <section class="reminder-card accent-grey">
+        <h3 class="reminder-title">
+          <mat-icon>person_off</mat-icon>
+          {{ 'dashboard.charts.dormantContacts' | translate }}
+          <span class="count">{{ getDormantContacts().length }}</span>
+        </h3>
+        @for (contact of visible(getDormantContacts(), 'dormant'); track contact.id) {
+          <a class="reminder-row" [routerLink]="['/contacts', contact.id]">
+            <span class="primary">{{ contact.name }}</span>
+            <span class="secondary">{{ contact.clientName }}</span>
+            <span class="meta">{{ 'dashboard.charts.quietForMonths' | translate:{ months: contact.monthsSinceActivity } }}</span>
+          </a>
+        }
+        @if (getDormantContacts().length > collapsedSize) {
+          <button type="button" class="toggle-btn" (click)="toggle('dormant')">
+            {{ isExpanded('dormant') ? ('dashboard.showLess' | translate) : ('dashboard.showAll' | translate:{ count: getDormantContacts().length }) }}
+          </button>
+        }
+      </section>
     }
-  </div>
-}
-@if (getStaleOpportunities().length > 0) {
-  <div class="stale-opps">
-    <h4 class="stale-opps-title">
-      <mat-icon>hourglass_bottom</mat-icon>
-      {{ 'dashboard.charts.staleOpportunities' | translate }}
-    </h4>
-    @for (opp of getStaleOpportunities(); track opp.projectId) {
-      <div class="stale-opps-row" [routerLink]="['/projects', opp.projectId]">
-        <span class="stale-opps-role">{{ opp.role }}</span>
-        <span class="stale-opps-status">{{ 'projects.statuses.' + opp.status | translate }}</span>
-        <span class="stale-opps-days">
-          {{ 'dashboard.charts.idleForDays' | translate:{ days: opp.daysSinceActivity } }}
-        </span>
-      </div>
+    @if (getOnThisDay().length > 0) {
+      <section class="reminder-card accent-pink">
+        <h3 class="reminder-title">
+          <mat-icon>cake</mat-icon>
+          {{ 'dashboard.charts.onThisDay' | translate }}
+          <span class="count">{{ getOnThisDay().length }}</span>
+        </h3>
+        @for (item of visible(getOnThisDay(), 'onThisDay'); track item.type + '-' + item.id) {
+          <a class="reminder-row" [routerLink]="getOnThisDayLink(item)">
+            <span class="primary">{{ item.label }}</span>
+            <span class="secondary">{{ item.subLabel }}</span>
+            <span class="meta">{{ 'dashboard.charts.yearsAgo' | translate:{ years: item.yearsAgo } }}</span>
+          </a>
+        }
+        @if (getOnThisDay().length > collapsedSize) {
+          <button type="button" class="toggle-btn" (click)="toggle('onThisDay')">
+            {{ isExpanded('onThisDay') ? ('dashboard.showLess' | translate) : ('dashboard.showAll' | translate:{ count: getOnThisDay().length }) }}
+          </button>
+        }
+      </section>
     }
   </div>
 }

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,6 +20,7 @@ import { MultiSelectOption, MultiSelectFilterConfig } from '../../../models/filt
     MatButtonModule
 ],
   templateUrl: './multi-select-filter.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./multi-select-filter.component.scss']
 })
 export class MultiSelectFilterComponent implements OnInit {

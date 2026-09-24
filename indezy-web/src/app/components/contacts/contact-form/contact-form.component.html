@@ -26,24 +26,24 @@
               <h3>{{ 'contacts.personalInfo' | translate }}</h3>
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>{{ 'contacts.firstName' | translate }} *</mat-label>
+                  <mat-label>{{ 'contacts.firstName' | translate }}</mat-label>
                   <input aria-label="{{ 'contacts.firstName' | translate }}" matInput formControlName="firstName">
                   <mat-error>{{ getFieldError('firstName') }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>{{ 'common.name' | translate }} *</mat-label>
+                  <mat-label>{{ 'common.name' | translate }}</mat-label>
                   <input aria-label="{{ 'common.name' | translate }}" matInput formControlName="lastName">
                   <mat-error>{{ getFieldError('lastName') }}</mat-error>
                 </mat-form-field>
               </div>
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>{{ 'common.email' | translate }} *</mat-label>
+                  <mat-label>{{ 'common.email' | translate }}</mat-label>
                   <input aria-label="{{ 'common.email' | translate }}" matInput type="email" formControlName="email">
                   <mat-error>{{ getFieldError('email') }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>{{ 'contacts.phone' | translate }} *</mat-label>
+                  <mat-label>{{ 'contacts.phone' | translate }}</mat-label>
                   <input aria-label="{{ 'contacts.phone' | translate }}" matInput type="tel" formControlName="phone">
                   <mat-error>{{ getFieldError('phone') }}</mat-error>
                 </mat-form-field>
@@ -53,32 +53,25 @@
             <div class="form-section">
               <h3>{{ 'contacts.professionalInfo' | translate }}</h3>
               <div class="form-row">
-                <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>{{ 'contacts.position' | translate }} *</mat-label>
-                  <input aria-label="{{ 'contacts.position' | translate }}" matInput formControlName="position">
-                  <mat-error>{{ getFieldError('position') }}</mat-error>
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>{{ 'common.client' | translate }} *</mat-label>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'common.client' | translate }}</mat-label>
                   <mat-select formControlName="clientId">
-                    <mat-option value="">{{ 'contacts.selectClient' | translate }}</mat-option>
-                    @for (client of clients; track client) {
+                    @for (client of clients; track client.id) {
                       <mat-option [value]="client.id">
-                        {{ client.name }}
+                        {{ client.companyName }}
+                        @if (client.isFinal === false) {
+                          <span class="client-kind">· ESN</span>
+                        }
                       </mat-option>
                     }
                   </mat-select>
+                  @if (clients.length === 0) {
+                    <mat-hint>
+                      {{ 'contacts.noClientsHint' | translate }}
+                      <a routerLink="/clients/create">{{ 'projects.form.createClient' | translate }}</a>
+                    </mat-hint>
+                  }
                   <mat-error>{{ getFieldError('clientId') }}</mat-error>
-                </mat-form-field>
-              </div>
-              <div class="form-row">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'common.status' | translate }} *</mat-label>
-                  <mat-select formControlName="status">
-                    <mat-option value="ACTIVE">{{ 'common.active' | translate }}</mat-option>
-                    <mat-option value="INACTIVE">{{ 'common.inactive' | translate }}</mat-option>
-                  </mat-select>
-                  <mat-error>{{ getFieldError('status') }}</mat-error>
                 </mat-form-field>
               </div>
             </div>

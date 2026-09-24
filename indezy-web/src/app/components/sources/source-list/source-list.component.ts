@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule, Router } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
@@ -34,6 +34,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
     ComprehensiveFilterPanelComponent
 ],
   templateUrl: './source-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./source-list.component.scss']
 })
 export class SourceListComponent implements OnInit, OnDestroy {
@@ -203,7 +204,7 @@ export class SourceListComponent implements OnInit, OnDestroy {
   }
 
   getTypeLabel(type: SourceType): string {
-    return this.sourceService.getSourceTypeLabel(type);
+    return this.translate.instant('sources.types.' + type);
   }
 
   getTypeIcon(type: SourceType): string {

@@ -47,6 +47,10 @@ public class User extends BaseEntity {
     @Column(name = "avatar")
     private String avatar;
 
+    /** Uploaded avatar stored as a small data URL, so it survives read-only and ephemeral pod filesystems. */
+    @Column(name = "avatar_image", columnDefinition = "TEXT")
+    private String avatarImage;
+
     @Column(name = "bio", columnDefinition = "TEXT")
     private String bio;
 

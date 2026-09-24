@@ -66,6 +66,10 @@ public class ContactService {
     public ContactDto create(ContactDto contactDto) {
         log.debug("Creating new contact: {} {}", contactDto.getFirstName(), contactDto.getLastName());
         
+        if (contactDto.getFreelanceId() == null || contactDto.getClientId() == null) {
+            throw new IllegalArgumentException(ErrorMessages.CONTACT_OWNER_REQUIRED);
+        }
+
         // Validate freelance exists
         Freelance freelance = freelanceRepository.findById(contactDto.getFreelanceId())
             .orElseThrow(() -> new ResourceNotFoundException("Freelance not found with id: " + contactDto.getFreelanceId()));
@@ -91,15 +95,17 @@ public class ContactService {
         Contact existingContact = contactRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.CONTACT_NOT_FOUND, id)));
 
-        // Validate freelance exists if changed
-        if (!existingContact.getFreelance().getId().equals(contactDto.getFreelanceId())) {
+        // Validate freelance exists if changed (an omitted owner keeps the current one)
+        if (contactDto.getFreelanceId() != null
+                && !existingContact.getFreelance().getId().equals(contactDto.getFreelanceId())) {
             Freelance freelance = freelanceRepository.findById(contactDto.getFreelanceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Freelance not found with id: " + contactDto.getFreelanceId()));
             existingContact.setFreelance(freelance);
         }
 
-        // Validate client exists if changed
-        if (!existingContact.getClient().getId().equals(contactDto.getClientId())) {
+        // Validate client exists if changed (an omitted client keeps the current one)
+        if (contactDto.getClientId() != null
+                && !existingContact.getClient().getId().equals(contactDto.getClientId())) {
             Client client = clientRepository.findById(contactDto.getClientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + contactDto.getClientId()));
             existingContact.setClient(client);

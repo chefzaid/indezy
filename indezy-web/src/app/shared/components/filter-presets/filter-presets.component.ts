@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
@@ -22,6 +22,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     TranslateModule
 ],
   templateUrl: './filter-presets.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./filter-presets.component.scss']
 })
 export class FilterPresetsComponent implements OnInit {

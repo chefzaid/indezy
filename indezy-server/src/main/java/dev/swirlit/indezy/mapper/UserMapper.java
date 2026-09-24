@@ -10,6 +10,7 @@ import org.mapstruct.*;
 public interface UserMapper {
 
     @Mapping(target = "fullName", expression = "java(user.getFirstName() + \" \" + user.getLastName())")
+    @Mapping(target = "avatar", expression = "java(user.getAvatarImage() != null ? user.getAvatarImage() : user.getAvatar())")
     @Mapping(target = "notifications", source = "user")
     @Mapping(target = "preferences", source = "user")
     UserDto toDto(User user);
@@ -23,6 +24,7 @@ public interface UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
+    @Mapping(target = "avatarImage", ignore = true)
     User toEntity(UserDto dto);
 
     @Mapping(target = "id", ignore = true)
@@ -35,6 +37,8 @@ public interface UserMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "email", ignore = true) // Don't allow email updates through profile update
+    @Mapping(target = "avatar", ignore = true) // Avatars only change through the upload endpoint
+    @Mapping(target = "avatarImage", ignore = true)
     void updateEntity(UserDto dto, @MappingTarget User user);
 
     // Notification settings mapping

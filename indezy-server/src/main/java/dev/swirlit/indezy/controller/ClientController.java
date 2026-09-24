@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.ClientDto;
+import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.ClientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -36,6 +37,7 @@ import java.util.List;
 public class ClientController {
 
     private final ClientService clientService;
+    private final AccessGuard accessGuard;
 
     @Operation(summary = "Get all clients", description = "Retrieve a list of all clients")
     @ApiResponses(value = {
@@ -45,7 +47,9 @@ public class ClientController {
     @GetMapping
     public ResponseEntity<List<ClientDto>> getAllClients() {
         log.debug("GET /clients - Getting all clients");
-        List<ClientDto> clients = clientService.findAll();
+        List<ClientDto> clients = accessGuard.currentFreelanceId()
+            .map(clientService::findByFreelanceId)
+            .orElseGet(clientService::findAll);
         return ResponseEntity.ok(clients);
     }
 
@@ -59,6 +63,7 @@ public class ClientController {
     public ResponseEntity<ClientDto> getClientById(
             @Parameter(description = "Client ID", required = true) @PathVariable Long id) {
         log.debug("GET /clients/{} - Getting client by id", id);
+        accessGuard.requireClient(id);
         ClientDto client = clientService.findById(id);
         return ResponseEntity.ok(client);
     }
@@ -73,6 +78,7 @@ public class ClientController {
     public ResponseEntity<ClientDto> createClient(
             @Parameter(description = "Client details", required = true) @Valid @RequestBody ClientDto clientDto) {
         log.debug("POST /clients - Creating new client");
+        clientDto.setFreelanceId(accessGuard.resolveFreelanceId(clientDto.getFreelanceId()));
         ClientDto createdClient = clientService.create(clientDto);
         return new ResponseEntity<>(createdClient, HttpStatus.CREATED);
     }
@@ -89,6 +95,8 @@ public class ClientController {
             @Parameter(description = "Client ID", required = true) @PathVariable Long id,
             @Parameter(description = "Updated client details", required = true) @Valid @RequestBody ClientDto clientDto) {
         log.debug("PUT /clients/{} - Updating client", id);
+        accessGuard.requireClient(id);
+        clientDto.setFreelanceId(accessGuard.resolveFreelanceId(clientDto.getFreelanceId()));
         ClientDto updatedClient = clientService.update(id, clientDto);
         return ResponseEntity.ok(updatedClient);
     }
@@ -102,6 +110,7 @@ public class ClientController {
     public ResponseEntity<Void> deleteClient(
             @Parameter(description = "Client ID", required = true) @PathVariable Long id) {
         log.debug("DELETE /clients/{} - Deleting client", id);
+        accessGuard.requireClient(id);
         clientService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -115,6 +124,7 @@ public class ClientController {
     public ResponseEntity<List<ClientDto>> getClientsByFreelanceId(
             @Parameter(description = "Freelance ID", required = true) @PathVariable Long freelanceId) {
         log.debug("GET /clients/by-freelance/{} - Getting clients by freelance id", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         List<ClientDto> clients = clientService.findByFreelanceId(freelanceId);
         return ResponseEntity.ok(clients);
     }
@@ -129,6 +139,7 @@ public class ClientController {
     public ResponseEntity<ClientDto> getClientWithProjects(
             @Parameter(description = "Client ID", required = true) @PathVariable Long id) {
         log.debug("GET /clients/{}/with-projects - Getting client with projects", id);
+        accessGuard.requireClient(id);
         ClientDto client = clientService.findByIdWithProjects(id);
         return ResponseEntity.ok(client);
     }
@@ -143,6 +154,7 @@ public class ClientController {
     public ResponseEntity<ClientDto> getClientWithContacts(
             @Parameter(description = "Client ID", required = true) @PathVariable Long id) {
         log.debug("GET /clients/{}/with-contacts - Getting client with contacts", id);
+        accessGuard.requireClient(id);
         ClientDto client = clientService.findByIdWithContacts(id);
         return ResponseEntity.ok(client);
     }
@@ -153,6 +165,7 @@ public class ClientController {
             @PathVariable Long freelanceId,
             @PathVariable Boolean isFinal) {
         log.debug("GET /clients/by-freelance/{}/final/{} - Getting clients by final status", freelanceId, isFinal);
+        accessGuard.requireFreelance(freelanceId);
         List<ClientDto> clients = clientService.findByFreelanceIdAndIsFinal(freelanceId, isFinal);
         return ResponseEntity.ok(clients);
     }
@@ -163,6 +176,7 @@ public class ClientController {
             @PathVariable Long freelanceId,
             @RequestParam String companyName) {
         log.debug("GET /clients/by-freelance/{}/search?companyName={} - Searching clients", freelanceId, companyName);
+        accessGuard.requireFreelance(freelanceId);
         List<ClientDto> clients = clientService.findByFreelanceIdAndCompanyNameContaining(freelanceId, companyName);
         return ResponseEntity.ok(clients);
     }
@@ -173,6 +187,7 @@ public class ClientController {
             @PathVariable Long freelanceId,
             @PathVariable String city) {
         log.debug("GET /clients/by-freelance/{}/city/{} - Getting clients by city", freelanceId, city);
+        accessGuard.requireFreelance(freelanceId);
         List<ClientDto> clients = clientService.findByFreelanceIdAndCity(freelanceId, city);
         return ResponseEntity.ok(clients);
     }
@@ -181,6 +196,7 @@ public class ClientController {
     @GetMapping("/by-freelance/{freelanceId}/cities")
     public ResponseEntity<List<String>> getDistinctCities(@PathVariable Long freelanceId) {
         log.debug("GET /clients/by-freelance/{}/cities - Getting distinct cities", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         List<String> cities = clientService.findDistinctCitiesByFreelanceId(freelanceId);
         return ResponseEntity.ok(cities);
     }
@@ -189,6 +205,7 @@ public class ClientController {
     @GetMapping("/by-freelance/{freelanceId}/domains")
     public ResponseEntity<List<String>> getDistinctDomains(@PathVariable Long freelanceId) {
         log.debug("GET /clients/by-freelance/{}/domains - Getting distinct domains", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         List<String> domains = clientService.findDistinctDomainsByFreelanceId(freelanceId);
         return ResponseEntity.ok(domains);
     }

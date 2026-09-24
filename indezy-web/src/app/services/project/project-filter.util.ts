@@ -18,7 +18,6 @@ export interface ProjectFilterValues {
   endDateTo?: DateFilterValue;
   duration?: string;
   client?: string;
-  location?: string;
   selectedTechStack?: string[];
   sortBy?: string;
   sortOrder?: string;
@@ -38,6 +37,7 @@ export function filterProjects(projects: ProjectDto[], filters: ProjectFilterVal
     matchesSearchQuery(project, filters) &&
     matchesRate(project, filters) &&
     matchesWorkMode(project, filters) &&
+    matchesStatus(project, filters) &&
     matchesTechStack(project, filters) &&
     matchesSelectedTechStack(project, filters) &&
     matchesDateRange(project, filters) &&
@@ -97,8 +97,7 @@ export function countActiveFilters(filters: ProjectFilterValues): number {
     filters.endDateFrom,
     filters.endDateTo,
     filters.duration,
-    filters.client?.trim(),
-    filters.location?.trim()
+    filters.client?.trim()
   ];
   return active.filter(Boolean).length;
 }
@@ -130,6 +129,10 @@ function matchesWorkMode(project: ProjectDto, filters: ProjectFilterValues): boo
   return !filters.workMode || project.workMode === filters.workMode;
 }
 
+function matchesStatus(project: ProjectDto, filters: ProjectFilterValues): boolean {
+  return !filters.status || project.status === filters.status;
+}
+
 function matchesTechStack(project: ProjectDto, filters: ProjectFilterValues): boolean {
   if (filters.techStack && project.techStack &&
       !project.techStack.toLowerCase().includes(filters.techStack.toLowerCase())) {
@@ -155,7 +158,29 @@ function matchesDateRange(project: ProjectDto, filters: ProjectFilterValues): bo
       new Date(project.startDate) > new Date(filters.startDateTo)) {
     return false;
   }
+  if (filters.endDateFrom || filters.endDateTo) {
+    const endDate = getProjectEndDate(project);
+    if (!endDate) {
+      return false;
+    }
+    if (filters.endDateFrom && endDate < new Date(filters.endDateFrom)) {
+      return false;
+    }
+    if (filters.endDateTo && endDate > new Date(filters.endDateTo)) {
+      return false;
+    }
+  }
   return true;
+}
+
+/** Mission end date derived from its start date and duration, or null when either is unknown. */
+export function getProjectEndDate(project: ProjectDto): Date | null {
+  if (!project.startDate || !project.durationInMonths) {
+    return null;
+  }
+  const endDate = new Date(project.startDate);
+  endDate.setMonth(endDate.getMonth() + project.durationInMonths);
+  return endDate;
 }
 
 function matchesDuration(project: ProjectDto, filters: ProjectFilterValues): boolean {

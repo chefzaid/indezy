@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.InterviewStepDto;
 import dev.swirlit.indezy.dto.StepTransitionDto;
 import dev.swirlit.indezy.model.enums.StepStatus;
+import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.InterviewStepService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,6 +32,7 @@ import java.util.List;
 public class InterviewStepController {
 
     private final InterviewStepService interviewStepService;
+    private final AccessGuard accessGuard;
 
     @Operation(summary = "Get all interview steps", description = "Retrieve a list of all interview steps")
     @ApiResponses(value = {
@@ -40,7 +42,9 @@ public class InterviewStepController {
     @GetMapping
     public ResponseEntity<List<InterviewStepDto>> getAllInterviewSteps() {
         log.debug("GET /interview-steps - Getting all interview steps");
-        List<InterviewStepDto> interviewSteps = interviewStepService.findAll();
+        List<InterviewStepDto> interviewSteps = accessGuard.currentFreelanceId()
+            .map(freelanceId -> interviewStepService.findByFreelanceIdAndStatus(freelanceId, null))
+            .orElseGet(interviewStepService::findAll);
         return ResponseEntity.ok(interviewSteps);
     }
 
@@ -54,6 +58,7 @@ public class InterviewStepController {
     public ResponseEntity<InterviewStepDto> getInterviewStepById(
             @Parameter(description = "Interview step ID", required = true) @PathVariable Long id) {
         log.debug("GET /interview-steps/{} - Getting interview step by id", id);
+        accessGuard.requireInterviewStep(id);
         InterviewStepDto interviewStep = interviewStepService.findById(id);
         return ResponseEntity.ok(interviewStep);
     }
@@ -67,6 +72,7 @@ public class InterviewStepController {
     public ResponseEntity<List<InterviewStepDto>> getInterviewStepsByProjectId(
             @Parameter(description = "Project ID", required = true) @PathVariable Long projectId) {
         log.debug("GET /interview-steps/by-project/{} - Getting interview steps by project id", projectId);
+        accessGuard.requireProject(projectId);
         List<InterviewStepDto> interviewSteps = interviewStepService.findByProjectId(projectId);
         return ResponseEntity.ok(interviewSteps);
     }
@@ -80,6 +86,7 @@ public class InterviewStepController {
     public ResponseEntity<List<InterviewStepDto>> getInterviewStepsByProjectIdOrderByDate(
             @Parameter(description = "Project ID", required = true) @PathVariable Long projectId) {
         log.debug("GET /interview-steps/by-project/{}/ordered - Getting interview steps by project id ordered by date", projectId);
+        accessGuard.requireProject(projectId);
         List<InterviewStepDto> interviewSteps = interviewStepService.findByProjectIdOrderByDate(projectId);
         return ResponseEntity.ok(interviewSteps);
     }
@@ -94,6 +101,7 @@ public class InterviewStepController {
             @Parameter(description = "Freelance ID", required = true) @PathVariable Long freelanceId,
             @Parameter(description = "Step status") @RequestParam(required = false) StepStatus status) {
         log.debug("GET /interview-steps/by-freelance/{} - Getting interview steps by freelance id and status: {}", freelanceId, status);
+        accessGuard.requireFreelance(freelanceId);
         List<InterviewStepDto> interviewSteps = interviewStepService.findByFreelanceIdAndStatus(freelanceId, status);
         return ResponseEntity.ok(interviewSteps);
     }
@@ -108,6 +116,7 @@ public class InterviewStepController {
     public ResponseEntity<InterviewStepDto> createInterviewStep(
             @Parameter(description = "Interview step details", required = true) @Valid @RequestBody InterviewStepDto interviewStepDto) {
         log.debug("POST /interview-steps - Creating new interview step");
+        accessGuard.requireProject(interviewStepDto.getProjectId());
         InterviewStepDto createdInterviewStep = interviewStepService.create(interviewStepDto);
         return new ResponseEntity<>(createdInterviewStep, HttpStatus.CREATED);
     }
@@ -124,6 +133,7 @@ public class InterviewStepController {
             @Parameter(description = "Interview step ID", required = true) @PathVariable Long id,
             @Parameter(description = "Updated interview step details", required = true) @Valid @RequestBody InterviewStepDto interviewStepDto) {
         log.debug("PUT /interview-steps/{} - Updating interview step", id);
+        accessGuard.requireInterviewStep(id);
         InterviewStepDto updatedInterviewStep = interviewStepService.update(id, interviewStepDto);
         return ResponseEntity.ok(updatedInterviewStep);
     }
@@ -137,6 +147,7 @@ public class InterviewStepController {
     public ResponseEntity<Void> deleteInterviewStep(
             @Parameter(description = "Interview step ID", required = true) @PathVariable Long id) {
         log.debug("DELETE /interview-steps/{} - Deleting interview step", id);
+        accessGuard.requireInterviewStep(id);
         interviewStepService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -152,6 +163,7 @@ public class InterviewStepController {
             @Parameter(description = "Interview step ID", required = true) @PathVariable Long id,
             @Parameter(description = "New status", required = true) @RequestParam StepStatus status) {
         log.debug("PATCH /interview-steps/{}/status - Updating interview step status to: {}", id, status);
+        accessGuard.requireInterviewStep(id);
         InterviewStepDto updatedInterviewStep = interviewStepService.updateStatus(id, status);
         return ResponseEntity.ok(updatedInterviewStep);
     }
@@ -168,6 +180,7 @@ public class InterviewStepController {
             @Parameter(description = "Scheduled date and time", required = true) 
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
         log.debug("PATCH /interview-steps/{}/schedule - Scheduling interview step for: {}", id, date);
+        accessGuard.requireInterviewStep(id);
         InterviewStepDto updatedInterviewStep = interviewStepService.scheduleStep(id, date);
         return ResponseEntity.ok(updatedInterviewStep);
     }
@@ -177,6 +190,7 @@ public class InterviewStepController {
     public ResponseEntity<InterviewStepDto> markAsWaitingFeedback(
             @Parameter(description = "Interview step ID", required = true) @PathVariable Long id) {
         log.debug("PATCH /interview-steps/{}/waiting-feedback - Marking step as waiting feedback", id);
+        accessGuard.requireInterviewStep(id);
         InterviewStepDto updatedInterviewStep = interviewStepService.markAsWaitingFeedback(id);
         return ResponseEntity.ok(updatedInterviewStep);
     }
@@ -186,6 +200,7 @@ public class InterviewStepController {
     public ResponseEntity<InterviewStepDto> markAsValidated(
             @Parameter(description = "Interview step ID", required = true) @PathVariable Long id) {
         log.debug("PATCH /interview-steps/{}/validate - Marking step as validated", id);
+        accessGuard.requireInterviewStep(id);
         InterviewStepDto updatedInterviewStep = interviewStepService.markAsValidated(id);
         return ResponseEntity.ok(updatedInterviewStep);
     }
@@ -195,6 +210,7 @@ public class InterviewStepController {
     public ResponseEntity<InterviewStepDto> markAsFailed(
             @Parameter(description = "Interview step ID", required = true) @PathVariable Long id) {
         log.debug("PATCH /interview-steps/{}/fail - Marking step as failed", id);
+        accessGuard.requireInterviewStep(id);
         InterviewStepDto updatedInterviewStep = interviewStepService.markAsFailed(id);
         return ResponseEntity.ok(updatedInterviewStep);
     }
@@ -204,6 +220,7 @@ public class InterviewStepController {
     public ResponseEntity<InterviewStepDto> markAsCanceled(
             @Parameter(description = "Interview step ID", required = true) @PathVariable Long id) {
         log.debug("PATCH /interview-steps/{}/cancel - Marking step as canceled", id);
+        accessGuard.requireInterviewStep(id);
         InterviewStepDto updatedInterviewStep = interviewStepService.markAsCanceled(id);
         return ResponseEntity.ok(updatedInterviewStep);
     }
@@ -219,6 +236,7 @@ public class InterviewStepController {
             @Parameter(description = "Step transition details", required = true) @Valid @RequestBody StepTransitionDto transitionDto) {
         log.debug("POST /interview-steps/transition - Transitioning project from {} to {}",
             transitionDto.getFromStepTitle(), transitionDto.getToStepTitle());
+        accessGuard.requireProject(transitionDto.getProjectId());
         InterviewStepDto updatedStep = interviewStepService.transitionProjectToNextStep(transitionDto);
         return ResponseEntity.ok(updatedStep);
     }

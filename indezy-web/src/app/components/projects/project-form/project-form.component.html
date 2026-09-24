@@ -25,7 +25,7 @@
               <h3>{{ 'projects.form.generalInfo' | translate }}</h3>
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>{{ 'projects.form.role' | translate }} *</mat-label>
+                  <mat-label>{{ 'projects.form.role' | translate }}</mat-label>
                   <input aria-label="{{ 'projects.form.role' | translate }}" matInput formControlName="role" [placeholder]="'projects.form.rolePlaceholder' | translate">
                   <mat-error>{{ getFieldError('role') }}</mat-error>
                 </mat-form-field>
@@ -44,29 +44,85 @@
                     placeholder="Ex: React, Node.js, PostgreSQL">
                 </mat-form-field>
               </div>
+            </div>
+            <!-- Pipeline & relationships -->
+            <div class="form-section">
+              <h3>{{ 'projects.form.pipelineSection' | translate }}</h3>
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>{{ 'projects.form.client' | translate }}</mat-label>
-                  <mat-select formControlName="clientId">
-                    @for (client of clients; track client) {
-                      <mat-option [value]="client.id">
-                        {{ client.name }}
+                  <mat-label>{{ 'projects.form.status' | translate }}</mat-label>
+                  <mat-select formControlName="status">
+                    @for (status of statusOptions; track status) {
+                      <mat-option [value]="status">
+                        <span class="status-dot" [style.background-color]="statusColors[status]"></span>
+                        {{ 'projects.statuses.' + status | translate }}
                       </mat-option>
                     }
                   </mat-select>
                 </mat-form-field>
+                @if (projectForm.get('status')?.value === 'LOST') {
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>{{ 'projects.lostReason.label' | translate }}</mat-label>
+                    <mat-select formControlName="lostReason">
+                      @for (reason of lostReasons; track reason) {
+                        <mat-option [value]="reason">{{ 'projects.lostReason.' + reason | translate }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                }
+              </div>
+              <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
-                  <mat-label>{{ 'projects.form.dailyRate' | translate }} *</mat-label>
-                  <input aria-label="{{ 'projects.form.dailyRate' | translate }}" matInput type="number" formControlName="dailyRate" placeholder="600">
-                  <span matSuffix>€</span>
-                  <mat-error>{{ getFieldError('dailyRate') }}</mat-error>
+                  <mat-label>{{ 'projects.form.client' | translate }}</mat-label>
+                  <mat-select formControlName="clientId">
+                    @for (client of clients; track client.id) {
+                      <mat-option [value]="client.id">{{ client.companyName }}</mat-option>
+                    }
+                  </mat-select>
+                  @if (clients.length === 0) {
+                    <mat-hint>
+                      {{ 'projects.form.noClientsHint' | translate }}
+                      <a routerLink="/clients/create">{{ 'projects.form.createClient' | translate }}</a>
+                    </mat-hint>
+                  }
+                  <mat-error>{{ getFieldError('clientId') }}</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="half-width">
+                  <mat-label>{{ 'projects.form.middleman' | translate }}</mat-label>
+                  <mat-select formControlName="middlemanId">
+                    <mat-option [value]="null">{{ 'projects.form.noMiddleman' | translate }}</mat-option>
+                    @for (esn of intermediaries; track esn.id) {
+                      <mat-option [value]="esn.id">{{ esn.companyName }}</mat-option>
+                    }
+                  </mat-select>
                 </mat-form-field>
               </div>
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
+                  <mat-label>{{ 'projects.form.source' | translate }}</mat-label>
+                  <mat-select formControlName="sourceId">
+                    <mat-option [value]="null">{{ 'projects.form.noSource' | translate }}</mat-option>
+                    @for (source of sources; track source.id) {
+                      <mat-option [value]="source.id">{{ source.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <!-- Rates -->
+            <div class="form-section">
+              <h3>{{ 'projects.form.ratesSection' | translate }}</h3>
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="half-width">
+                  <mat-label>{{ 'projects.form.dailyRate' | translate }}</mat-label>
+                  <input aria-label="{{ 'projects.form.dailyRate' | translate }}" matInput type="number" formControlName="dailyRate" placeholder="600">
+                  <span matTextSuffix>€</span>
+                  <mat-error>{{ getFieldError('dailyRate') }}</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.clientDailyRate' | translate }}</mat-label>
                   <input aria-label="{{ 'projects.form.clientDailyRate' | translate }}" matInput type="number" formControlName="clientDailyRate" placeholder="750">
-                  <span matSuffix>€</span>
+                  <span matTextSuffix>€</span>
                   <mat-hint>{{ 'projects.form.clientDailyRateHint' | translate }}</mat-hint>
                   <mat-error>{{ getFieldError('clientDailyRate') }}</mat-error>
                 </mat-form-field>
@@ -75,14 +131,14 @@
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.askedDailyRate' | translate }}</mat-label>
                   <input aria-label="{{ 'projects.form.askedDailyRate' | translate }}" matInput type="number" formControlName="askedDailyRate" placeholder="650">
-                  <span matSuffix>€</span>
+                  <span matTextSuffix>€</span>
                   <mat-hint>{{ 'projects.form.askedDailyRateHint' | translate }}</mat-hint>
                   <mat-error>{{ getFieldError('askedDailyRate') }}</mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.offeredDailyRate' | translate }}</mat-label>
                   <input aria-label="{{ 'projects.form.offeredDailyRate' | translate }}" matInput type="number" formControlName="offeredDailyRate" placeholder="580">
-                  <span matSuffix>€</span>
+                  <span matTextSuffix>€</span>
                   <mat-hint>{{ 'projects.form.offeredDailyRateHint' | translate }}</mat-hint>
                   <mat-error>{{ getFieldError('offeredDailyRate') }}</mat-error>
                 </mat-form-field>

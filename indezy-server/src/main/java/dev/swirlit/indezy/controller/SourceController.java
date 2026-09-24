@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.SourceDto;
 import dev.swirlit.indezy.model.enums.SourceType;
+import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.SourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,6 +31,7 @@ import java.util.Map;
 public class SourceController {
 
     private final SourceService sourceService;
+    private final AccessGuard accessGuard;
 
     @Operation(summary = "Get all sources", description = "Retrieve a list of all sources")
     @ApiResponses(value = {
@@ -39,7 +41,9 @@ public class SourceController {
     @GetMapping
     public ResponseEntity<List<SourceDto>> getAllSources() {
         log.debug("GET /sources - Getting all sources");
-        List<SourceDto> sources = sourceService.findAll();
+        List<SourceDto> sources = accessGuard.currentFreelanceId()
+            .map(sourceService::findByFreelanceId)
+            .orElseGet(sourceService::findAll);
         return ResponseEntity.ok(sources);
     }
 
@@ -53,6 +57,7 @@ public class SourceController {
     public ResponseEntity<SourceDto> getSourceById(
             @Parameter(description = "Source ID", required = true) @PathVariable Long id) {
         log.debug("GET /sources/{} - Getting source by id", id);
+        accessGuard.requireSource(id);
         SourceDto source = sourceService.findById(id);
         return ResponseEntity.ok(source);
     }
@@ -67,6 +72,7 @@ public class SourceController {
     public ResponseEntity<SourceDto> createSource(
             @Parameter(description = "Source details", required = true) @Valid @RequestBody SourceDto sourceDto) {
         log.debug("POST /sources - Creating new source");
+        sourceDto.setFreelanceId(accessGuard.resolveFreelanceId(sourceDto.getFreelanceId()));
         SourceDto createdSource = sourceService.create(sourceDto);
         return new ResponseEntity<>(createdSource, HttpStatus.CREATED);
     }
@@ -83,6 +89,8 @@ public class SourceController {
             @Parameter(description = "Source ID", required = true) @PathVariable Long id,
             @Parameter(description = "Updated source details", required = true) @Valid @RequestBody SourceDto sourceDto) {
         log.debug("PUT /sources/{} - Updating source", id);
+        accessGuard.requireSource(id);
+        sourceDto.setFreelanceId(accessGuard.resolveFreelanceId(sourceDto.getFreelanceId()));
         SourceDto updatedSource = sourceService.update(id, sourceDto);
         return ResponseEntity.ok(updatedSource);
     }
@@ -96,6 +104,7 @@ public class SourceController {
     public ResponseEntity<Void> deleteSource(
             @Parameter(description = "Source ID", required = true) @PathVariable Long id) {
         log.debug("DELETE /sources/{} - Deleting source", id);
+        accessGuard.requireSource(id);
         sourceService.delete(id);
         return ResponseEntity.noContent().build();
     }
@@ -109,6 +118,7 @@ public class SourceController {
     public ResponseEntity<List<SourceDto>> getSourcesByFreelanceId(
             @Parameter(description = "Freelance ID", required = true) @PathVariable Long freelanceId) {
         log.debug("GET /sources/by-freelance/{} - Getting sources by freelance id", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         List<SourceDto> sources = sourceService.findByFreelanceId(freelanceId);
         return ResponseEntity.ok(sources);
     }
@@ -119,6 +129,7 @@ public class SourceController {
             @PathVariable Long freelanceId,
             @PathVariable SourceType type) {
         log.debug("GET /sources/by-freelance/{}/type/{} - Getting sources by type", freelanceId, type);
+        accessGuard.requireFreelance(freelanceId);
         List<SourceDto> sources = sourceService.findByFreelanceIdAndType(freelanceId, type);
         return ResponseEntity.ok(sources);
     }
@@ -129,6 +140,7 @@ public class SourceController {
             @PathVariable Long freelanceId,
             @PathVariable Boolean isListing) {
         log.debug("GET /sources/by-freelance/{}/listing/{} - Getting sources by listing status", freelanceId, isListing);
+        accessGuard.requireFreelance(freelanceId);
         List<SourceDto> sources = sourceService.findByFreelanceIdAndIsListing(freelanceId, isListing);
         return ResponseEntity.ok(sources);
     }
@@ -139,6 +151,7 @@ public class SourceController {
             @PathVariable Long freelanceId,
             @PathVariable Integer minRating) {
         log.debug("GET /sources/by-freelance/{}/popularity/{} - Getting sources by popularity rating", freelanceId, minRating);
+        accessGuard.requireFreelance(freelanceId);
         List<SourceDto> sources = sourceService.findByFreelanceIdAndPopularityRatingGreaterThanEqual(freelanceId, minRating);
         return ResponseEntity.ok(sources);
     }
@@ -149,6 +162,7 @@ public class SourceController {
             @PathVariable Long freelanceId,
             @PathVariable Integer minRating) {
         log.debug("GET /sources/by-freelance/{}/usefulness/{} - Getting sources by usefulness rating", freelanceId, minRating);
+        accessGuard.requireFreelance(freelanceId);
         List<SourceDto> sources = sourceService.findByFreelanceIdAndUsefulnessRatingGreaterThanEqual(freelanceId, minRating);
         return ResponseEntity.ok(sources);
     }
@@ -163,6 +177,7 @@ public class SourceController {
     public ResponseEntity<SourceDto> getSourceWithProjects(
             @Parameter(description = "Source ID", required = true) @PathVariable Long id) {
         log.debug("GET /sources/{}/with-projects - Getting source with projects", id);
+        accessGuard.requireSource(id);
         SourceDto source = sourceService.findByIdWithProjects(id);
         return ResponseEntity.ok(source);
     }
@@ -171,6 +186,7 @@ public class SourceController {
     @GetMapping("/by-freelance/{freelanceId}/average-ratings")
     public ResponseEntity<Map<String, Double>> getAverageRatings(@PathVariable Long freelanceId) {
         log.debug("GET /sources/by-freelance/{}/average-ratings - Getting average ratings", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         
         Double avgPopularity = sourceService.getAveragePopularityRating(freelanceId);
         Double avgUsefulness = sourceService.getAverageUsefulnessRating(freelanceId);
@@ -186,6 +202,7 @@ public class SourceController {
     @GetMapping("/by-freelance/{freelanceId}/types")
     public ResponseEntity<List<SourceType>> getDistinctTypes(@PathVariable Long freelanceId) {
         log.debug("GET /sources/by-freelance/{}/types - Getting distinct types", freelanceId);
+        accessGuard.requireFreelance(freelanceId);
         List<SourceType> types = sourceService.findDistinctTypesByFreelanceId(freelanceId);
         return ResponseEntity.ok(types);
     }

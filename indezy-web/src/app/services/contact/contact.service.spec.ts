@@ -17,13 +17,11 @@ describe('ContactService', () => {
     lastName: 'Dubois',
     email: 'marie.dubois@techcorp.fr',
     phone: '+33 1 23 45 67 89',
-    position: 'Directrice RH',
     clientId: 1,
     clientName: 'TechCorp Solutions',
     freelanceId: 1,
     fullName: 'Marie Dubois',
     notes: 'Contact principal pour les recrutements développeurs',
-    status: 'ACTIVE',
     createdAt: new Date('2024-01-15'),
     updatedAt: new Date('2024-01-15')
   };
@@ -140,7 +138,6 @@ describe('ContactService', () => {
       lastName: 'Contact',
       email: 'new@example.com',
       phone: '+33 1 00 00 00 00',
-      position: 'Developer',
       clientId: 1,
       freelanceId: 1
     };
@@ -161,7 +158,6 @@ describe('ContactService', () => {
       lastName: 'Contact',
       email: 'new@example.com',
       phone: '+33 1 00 00 00 00',
-      position: 'Developer',
       clientId: 1,
       freelanceId: 1
     };

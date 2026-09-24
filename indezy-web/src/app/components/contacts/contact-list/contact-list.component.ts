@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -41,6 +41,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
     TranslateModule
 ],
     templateUrl: './contact-list.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./contact-list.component.scss']
 })
 export class ContactListComponent implements OnInit, OnDestroy {
@@ -49,10 +50,9 @@ export class ContactListComponent implements OnInit, OnDestroy {
   clients: ClientDto[] = [];
   isLoading = false;
   searchQuery = '';
-  selectedStatus = '';
-  selectedClient = '';
+  selectedClient: number | '' = '';
 
-  displayedColumns: string[] = ['name', 'email', 'phone', 'position', 'client', 'status', 'actions'];
+  displayedColumns: string[] = ['name', 'email', 'phone', 'client', 'actions'];
 
   private readonly destroy$ = new Subject<void>();
   private readonly searchSubject = new Subject<string>();
@@ -67,12 +67,10 @@ export class ContactListComponent implements OnInit, OnDestroy {
     private readonly confirmDialog: ConfirmDialogService
   ) {
     this.searchSubject.pipe(
-      debounceTime(300),
+      debounceTime(200),
       distinctUntilChanged(),
       takeUntil(this.destroy$)
-    ).subscribe(query => {
-      this.performSearch(query);
-    });
+    ).subscribe(() => this.applyFilters());
   }
 
   ngOnInit(): void {
@@ -87,13 +85,13 @@ export class ContactListComponent implements OnInit, OnDestroy {
 
   private loadContacts(): void {
     this.isLoading = true;
-    this.contactService.getContacts()
+    this.contactService.getForCurrentFreelance()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (contacts) => {
-          this.contacts = contacts;
-          this.filteredContacts = [...contacts];
+          this.contacts = [...contacts].sort((a, b) => this.getFullName(a).localeCompare(this.getFullName(b)));
           this.isLoading = false;
+          this.applyFilters();
         },
         error: (error) => {
           console.error('Error loading contacts:', error);
@@ -104,11 +102,11 @@ export class ContactListComponent implements OnInit, OnDestroy {
   }
 
   private loadClients(): void {
-    this.clientService.getClients()
+    this.clientService.getForCurrentFreelance()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (clients) => {
-          this.clients = clients;
+          this.clients = [...clients].sort((a, b) => a.companyName.localeCompare(b.companyName));
         },
         error: (error) => {
           console.error('Error loading clients:', error);
@@ -121,76 +119,37 @@ export class ContactListComponent implements OnInit, OnDestroy {
     this.searchSubject.next(query);
   }
 
-  private performSearch(query: string): void {
-    if (!query.trim()) {
-      this.applyFilters();
-      return;
-    }
-
-    this.contactService.searchContacts(query)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (contacts) => {
-          this.filteredContacts = contacts;
-          this.applyStatusAndClientFilters();
-        },
-        error: (error) => {
-          console.error('Error searching contacts:', error);
-        }
-      });
-  }
-
-  onStatusFilterChange(): void {
-    this.applyFilters();
-  }
-
   onClientFilterChange(): void {
     this.applyFilters();
   }
 
   private applyFilters(): void {
-    let filtered = [...this.contacts];
-
-    // Apply search filter
-    if (this.searchQuery.trim()) {
-      const query = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(contact =>
-        contact.firstName.toLowerCase().includes(query) ||
-        contact.lastName.toLowerCase().includes(query) ||
-        contact.email.toLowerCase().includes(query) ||
-        contact.position.toLowerCase().includes(query) ||
-        contact.clientName?.toLowerCase().includes(query)
-      );
-    }
-
-    this.filteredContacts = filtered;
-    this.applyStatusAndClientFilters();
+    const query = this.searchQuery.trim().toLowerCase();
+    this.filteredContacts = this.contacts.filter(contact => {
+      if (this.selectedClient !== '' && contact.clientId !== this.selectedClient) {
+        return false;
+      }
+      if (!query) {
+        return true;
+      }
+      return [contact.firstName, contact.lastName, contact.email, contact.phone, contact.clientName]
+        .some(value => value?.toLowerCase().includes(query));
+    });
   }
 
-  private applyStatusAndClientFilters(): void {
-    let filtered = [...this.filteredContacts];
-
-    if (this.selectedStatus) {
-      filtered = filtered.filter(contact => contact.status === this.selectedStatus);
-    }
-
-    if (this.selectedClient) {
-      const clientId = Number.parseInt(this.selectedClient);
-      filtered = filtered.filter(contact => contact.clientId === clientId);
-    }
-
-    this.filteredContacts = filtered;
+  hasActiveFilters(): boolean {
+    return !!this.searchQuery.trim() || this.selectedClient !== '';
   }
 
   clearFilters(): void {
     this.searchQuery = '';
-    this.selectedStatus = '';
     this.selectedClient = '';
-    this.filteredContacts = [...this.contacts];
+    this.applyFilters();
   }
 
   onCreate(): void {
-    this.router.navigate(['/contacts/create']);
+    const clientId = this.selectedClient;
+    this.router.navigate(['/contacts/create'], clientId !== '' ? { queryParams: { clientId } } : {});
   }
 
   onView(contact: ContactDto): void {
@@ -210,7 +169,7 @@ export class ContactListComponent implements OnInit, OnDestroy {
     const contactId = contact.id;
     this.confirmDialog.confirm({
       messageKey: 'contacts.confirmDelete',
-      messageParams: { name: `${contact.firstName} ${contact.lastName}` },
+      messageParams: { name: this.getFullName(contact) },
       danger: true
     }).subscribe(confirmed => {
       if (!confirmed) {
@@ -231,29 +190,7 @@ export class ContactListComponent implements OnInit, OnDestroy {
     });
   }
 
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'ACTIVE':
-        return 'primary';
-      case 'INACTIVE':
-        return 'warn';
-      default:
-        return '';
-    }
-  }
-
-  getStatusLabel(status: string): string {
-    switch (status) {
-      case 'ACTIVE':
-        return this.translate.instant('common.active');
-      case 'INACTIVE':
-        return this.translate.instant('common.inactive');
-      default:
-        return status;
-    }
-  }
-
   getFullName(contact: ContactDto): string {
-    return `${contact.firstName} ${contact.lastName}`;
+    return [contact.firstName, contact.lastName].filter(Boolean).join(' ');
   }
 }

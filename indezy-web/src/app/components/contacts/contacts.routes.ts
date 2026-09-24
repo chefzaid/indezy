@@ -14,7 +14,9 @@ export const contactRoutes: Routes = [
     loadComponent: () => import('./contact-detail/contact-detail.component').then(m => m.ContactDetailComponent)
   },
   {
-    path: ':id/edit',
+    // Named contactId (not id) so the form never mistakes it for the client id used by
+    // the nested /clients/:id/contacts/... routes.
+    path: ':contactId/edit',
     loadComponent: () => import('./contact-form/contact-form.component').then(m => m.ContactFormComponent)
   }
 ];

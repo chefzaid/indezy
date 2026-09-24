@@ -10,22 +10,56 @@
     <div class="project-content">
       <!-- Header Card -->
       <mat-card class="header-card">
-        <mat-card-header>
-          <mat-card-title>
-            <div class="title-row">
-              <div class="project-name">
-                <mat-icon>work</mat-icon>
-                {{ project.role }}
-              </div>
-              <mat-chip [color]="getWorkModeColor(project.workMode)" selected>
-                {{ getWorkModeLabel(project.workMode) }}
-              </mat-chip>
+        <mat-card-content>
+          <div class="header-top">
+            <h1 class="project-name">
+              <mat-icon>work</mat-icon>
+              <span>{{ project.role }}</span>
+            </h1>
+            <div class="title-badges">
+              <button type="button" class="status-pill status-trigger"
+                [style.--status-color]="getStatusColor(project.status)"
+                [matMenuTriggerFor]="statusMenu" [disabled]="isUpdatingStatus"
+                [matTooltip]="'projects.detail.changeStatus' | translate">
+                <mat-icon>{{ statusIcons[project.status ?? 'IDENTIFIED'] }}</mat-icon>
+                {{ 'projects.statuses.' + (project.status ?? 'IDENTIFIED') | translate }}
+                <mat-icon>arrow_drop_down</mat-icon>
+              </button>
+              <mat-menu #statusMenu="matMenu">
+                @for (status of statusOptions; track status) {
+                  <button mat-menu-item (click)="changeStatus(status)" [disabled]="status === project.status">
+                    <span class="status-dot" [style.background-color]="statusColors[status]"></span>
+                    {{ 'projects.statuses.' + status | translate }}
+                  </button>
+                }
+              </mat-menu>
+              @if (project.workMode) {
+                <span class="work-mode-badge">{{ getWorkModeLabel(project.workMode) }}</span>
+              }
             </div>
-          </mat-card-title>
-          <mat-card-subtitle>
-            {{ 'projects.form.client' | translate }}: {{ project.clientName }} • {{ project.dailyRate }}€{{ 'common.perDay' | translate }}
-          </mat-card-subtitle>
-        </mat-card-header>
+          </div>
+          <div class="header-subtitle">
+            @if (project.clientId) {
+              <a [routerLink]="['/clients', project.clientId]" class="client-link">{{ project.clientName }}</a>
+            } @else {
+              <span>{{ project.clientName }}</span>
+            }
+            @if (project.middlemanName) {
+              <span class="subtitle-sep">•</span>
+              <span>{{ 'projects.detail.via' | translate:{ name: project.middlemanName } }}</span>
+            }
+            @if (project.sourceName) {
+              <span class="subtitle-sep">•</span>
+              <span>{{ project.sourceName }}</span>
+            }
+            <span class="subtitle-sep">•</span>
+            <span>{{ project.dailyRate | number:'1.0-0' }} €{{ 'common.perDay' | translate }}</span>
+            @if (project.status === 'LOST' && project.lostReason) {
+              <span class="subtitle-sep">•</span>
+              <span class="lost-reason">{{ 'projects.lostReason.' + project.lostReason | translate }}</span>
+            }
+          </div>
+        </mat-card-content>
         <mat-card-actions>
           <button mat-button (click)="onBack()">
             <mat-icon>arrow_back</mat-icon>
@@ -279,40 +313,6 @@
             </mat-card-content>
           </mat-card>
         }
-        <!-- Progress Information -->
-        @if (project.totalSteps) {
-          <mat-card class="info-card">
-            <mat-card-header>
-              <mat-card-title>
-                <mat-icon>trending_up</mat-icon>
-                {{ 'projects.detail.progress' | translate }}
-              </mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="progress-info">
-                <div class="progress-stats">
-                  <div class="stat-item">
-                    <span class="stat-value">{{ project.completedSteps || 0 }}</span>
-                    <span class="stat-label">{{ 'projects.detail.completed' | translate }}</span>
-                  </div>
-                  <div class="stat-item">
-                    <span class="stat-value">{{ (project.totalSteps || 0) - (project.completedSteps || 0) - (project.failedSteps || 0) }}</span>
-                    <span class="stat-label">{{ 'projects.detail.inProgress' | translate }}</span>
-                  </div>
-                  @if (project.failedSteps) {
-                    <div class="stat-item">
-                      <span class="stat-value">{{ project.failedSteps }}</span>
-                      <span class="stat-label">{{ 'projects.detail.failed' | translate }}</span>
-                    </div>
-                  }
-                </div>
-                <div class="progress-percentage">
-                  {{ getProgressPercentage() }}% {{ 'projects.detail.completedPercent' | translate }}
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        }
         <!-- Personal Rating -->
         @if (project.personalRating) {
           <mat-card class="info-card">
@@ -324,7 +324,7 @@
             </mat-card-header>
             <mat-card-content>
               <div class="rating-display">
-                @for (star of getRatingStars(project.personalRating); track star) {
+                @for (star of getRatingStars(project.personalRating); track $index) {
                   <mat-icon
                     [class.filled]="star === 'star'">
                     {{ star }}
@@ -375,6 +375,81 @@
             </mat-card-content>
           </mat-card>
         }
+        <!-- Interview steps -->
+        <mat-card class="info-card steps-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>checklist</mat-icon>
+              {{ 'steps.sectionTitle' | translate }}
+              @if (project.totalSteps) {
+                <span class="steps-summary">
+                  {{ 'steps.summary' | translate:{ done: project.completedSteps || 0, total: project.totalSteps } }}
+                </span>
+              }
+            </mat-card-title>
+            <button mat-stroked-button color="primary" class="add-step-btn" (click)="openStepDialog()">
+              <mat-icon>add</mat-icon>
+              {{ 'steps.add' | translate }}
+            </button>
+          </mat-card-header>
+          <mat-card-content>
+            @if (steps.length > 0) {
+              <ol class="steps-timeline">
+                @for (step of steps; track step.id) {
+                  <li class="step-item" [class.done]="isStepDone(step)" [style.--status-color]="stepStatusColors[step.status]">
+                    <span class="step-marker" aria-hidden="true"></span>
+                    <div class="step-body">
+                      <div class="step-heading">
+                        <span class="step-title">{{ step.title }}</span>
+                        <button type="button" class="status-pill status-trigger"
+                          [style.--status-color]="stepStatusColors[step.status]"
+                          [matMenuTriggerFor]="stepStatusMenu"
+                          [matTooltip]="'steps.changeStatus' | translate">
+                          {{ 'steps.statuses.' + step.status | translate }}
+                          <mat-icon>arrow_drop_down</mat-icon>
+                        </button>
+                        <mat-menu #stepStatusMenu="matMenu">
+                          @for (status of stepStatusOptions; track status) {
+                            <button mat-menu-item (click)="setStepStatus(step, status)" [disabled]="status === step.status">
+                              <span class="status-dot" [style.background-color]="stepStatusColors[status]"></span>
+                              {{ 'steps.statuses.' + status | translate }}
+                            </button>
+                          }
+                        </mat-menu>
+                        <span class="step-actions">
+                          <button mat-icon-button (click)="openStepDialog(step)"
+                            [matTooltip]="'common.edit' | translate" [attr.aria-label]="'common.edit' | translate">
+                            <mat-icon>edit</mat-icon>
+                          </button>
+                          <button mat-icon-button (click)="deleteStep(step)"
+                            [matTooltip]="'common.delete' | translate" [attr.aria-label]="'common.delete' | translate">
+                            <mat-icon>delete_outline</mat-icon>
+                          </button>
+                        </span>
+                      </div>
+                      <div class="step-date">
+                        <mat-icon>event</mat-icon>
+                        @if (step.date) {
+                          {{ step.date | date:'EEEE d MMMM y, HH:mm' }}
+                        } @else {
+                          {{ 'steps.noDate' | translate }}
+                        }
+                      </div>
+                      @if (step.notes) {
+                        <p class="step-notes">{{ step.notes }}</p>
+                      }
+                    </div>
+                  </li>
+                }
+              </ol>
+            } @else {
+              <div class="steps-empty">
+                <mat-icon>event_note</mat-icon>
+                <p>{{ 'steps.empty' | translate }}</p>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
         <!-- Notes -->
         @if (project.notes) {
           <mat-card class="info-card notes-card">
@@ -435,7 +510,7 @@
                 @for (note of notes; track note.id) {
                   <div class="journal-entry">
                     <div class="journal-entry-header">
-                      <span class="journal-date">{{ note.createdAt | date:'medium' }}</span>
+                      <span class="journal-date">{{ note.createdAt | date:'d MMM y, HH:mm' }}</span>
                       <button mat-icon-button color="warn" class="journal-delete"
                               [attr.aria-label]="'common.delete' | translate" (click)="deleteNote(note.id)">
                         <mat-icon>delete</mat-icon>

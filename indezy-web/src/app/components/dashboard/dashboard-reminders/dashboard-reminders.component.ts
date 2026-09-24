@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,10 +13,38 @@ import { DashboardStatsDto, MissionEndingSoon, StaleOpportunity, UpcomingRenewal
   selector: 'app-dashboard-reminders',
   imports: [CommonModule, RouterModule, MatIconModule, TranslateModule],
   templateUrl: './dashboard-reminders.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./dashboard-reminders.component.scss']
 })
 export class DashboardRemindersComponent {
   @Input() stats: DashboardStatsDto | null = null;
+
+  /** Reminder lists show this many rows until the user expands them. */
+  static readonly COLLAPSED_SIZE = 5;
+  readonly collapsedSize = DashboardRemindersComponent.COLLAPSED_SIZE;
+  private readonly expanded = new Set<string>();
+
+  /** The rows of a reminder list to render, capped unless the list was expanded. */
+  visible<T>(list: T[], key: string): T[] {
+    return this.expanded.has(key) ? list : list.slice(0, DashboardRemindersComponent.COLLAPSED_SIZE);
+  }
+
+  isExpanded(key: string): boolean {
+    return this.expanded.has(key);
+  }
+
+  toggle(key: string): void {
+    if (this.expanded.has(key)) {
+      this.expanded.delete(key);
+    } else {
+      this.expanded.add(key);
+    }
+  }
+
+  hasReminders(): boolean {
+    return this.getMissionsEndingSoon().length + this.getUpcomingRenewals().length +
+      this.getOnThisDay().length + this.getDormantContacts().length + this.getStaleOpportunities().length > 0;
+  }
 
   getMissionsEndingSoon(): MissionEndingSoon[] {
     return this.stats?.missionsEndingSoon ?? [];

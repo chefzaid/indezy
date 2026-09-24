@@ -85,7 +85,8 @@
     "sources": "Sources",
     "archive": "Archive",
     "profile": "Profile",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "toggleMenu": "Toggle navigation menu"
   },
   "timeline": {
     "title": "Timeline",
@@ -202,7 +203,14 @@
       "quietForMonths": "quiet for {{months}} months",
       "staleOpportunities": "Stale opportunities (follow up or archive)",
       "idleForDays": "idle for {{days}} days"
-    }
+    },
+    "estimatedRevenueHint": "Total value of won missions and open opportunities (lost ones excluded), unweighted.",
+    "forecastRevenueHint": "Mission value weighted by the win probability of each pipeline stage.",
+    "remindersTitle": "Follow-ups",
+    "analyticsTitle": "Analytics",
+    "outcomesTitle": "Opportunity outcomes",
+    "showAll": "Show all ({{count}})",
+    "showLess": "Show less"
   },
   "projects": {
     "title": "My Projects",
@@ -324,7 +332,16 @@
       "updateError": "Error updating project",
       "loadError": "Error loading project",
       "projectNotFound": "Project not found",
-      "loadClientsError": "Error loading clients"
+      "loadClientsError": "Error loading clients",
+      "pipelineSection": "Tracking and relationships",
+      "ratesSection": "Rates",
+      "status": "Pipeline stage",
+      "middleman": "ESN / intermediary",
+      "noMiddleman": "None (direct client)",
+      "source": "Source",
+      "noSource": "None",
+      "noClientsHint": "No final client yet.",
+      "createClient": "Create a client"
     },
     "lostReason": {
       "label": "Reason for loss",
@@ -362,7 +379,10 @@
       "loadError": "Error loading project",
       "deleteConfirm": "Are you sure you want to delete this project?",
       "deleteSuccess": "Project deleted successfully",
-      "deleteError": "Error deleting project"
+      "deleteError": "Error deleting project",
+      "changeStatus": "Change pipeline stage",
+      "statusUpdated": "Opportunity moved to \"{{status}}\"",
+      "via": "via {{name}}"
     },
     "workModes": {
       "REMOTE": "Remote",
@@ -435,7 +455,9 @@
       "netTooltip": "Net daily rate after applying reversion rate",
       "perMonth": "/month",
       "perYear": "/year"
-    }
+    },
+    "resultsCount": "{{count}} project(s)",
+    "pagination": "Projects pagination"
   },
   "clients": {
     "title": "Client Management",
@@ -480,7 +502,7 @@
     "call": "Call",
     "name": "Name",
     "city": "City",
-    "searchPlaceholder": "Company name, industry...",
+    "searchPlaceholder": "Name, city, address, notes...",
     "allStatuses": "All statuses",
     "industry": "Industry",
     "mainIndustry": "Main industry",
@@ -508,7 +530,14 @@
       "statusAndInfo": "Status and information",
       "history": "History",
       "clientCreated": "Client created",
-      "lastModified": "Last modified"
+      "lastModified": "Last modified",
+      "summary": "{{projects}} project(s) · {{contacts}} contact(s)",
+      "activity": "Activity",
+      "averageRate": "Average daily rate",
+      "projectsTab": "Projects",
+      "projectsTitle": "Projects linked to this client",
+      "noProjects": "No project is linked to this client yet.",
+      "forClient": "for {{name}}"
     },
     "form": {
       "createTitle": "New client",
@@ -520,9 +549,9 @@
       "clientInfo": "Client information",
       "generalInfo": "General information",
       "companyName": "Company name",
-      "companyNamePlaceholder": "Company name",
+      "companyNamePlaceholder": "E.g. TechCorp Solutions",
       "domainPlaceholder": "e.g.: Technology, Banking...",
-      "cityPlaceholder": "City",
+      "cityPlaceholder": "E.g. Paris",
       "address": "Address",
       "addressPlaceholder": "Full address",
       "website": "Website",
@@ -543,8 +572,16 @@
       "createError": "Error creating client",
       "updateError": "Error updating client",
       "loadError": "Error loading client",
-      "loadContactsError": "Error loading contacts"
-    }
+      "loadContactsError": "Error loading contacts",
+      "isFinalHint": "Turn off for an ESN, agency or other intermediary."
+    },
+    "allTypes": "All types",
+    "finalClients": "Final clients",
+    "esnPlural": "ESN / intermediaries",
+    "blacklistedPlural": "Blacklisted",
+    "missionsShort": "Projects",
+    "resultsCount": "{{count}} client(s)",
+    "deleteInUse": "This client is still linked to projects or contacts. Delete or reassign them first."
   },
   "contacts": {
     "title": "Contact Management",
@@ -618,7 +655,9 @@
       "updateError": "Error updating contact",
       "loadError": "Error loading contact",
       "loadClientsError": "Error loading clients"
-    }
+    },
+    "loadingDetail": "Loading contact...",
+    "noClientsHint": "No client yet."
   },
   "sources": {
     "title": "Source Management",
@@ -696,7 +735,8 @@
     "quickAddTitle": "New opportunity – {{status}}",
     "quickAddSuccess": "Opportunity added",
     "quickAddError": "Error adding opportunity",
-    "lostReasonTitle": "Why was this opportunity lost?"
+    "lostReasonTitle": "Why was this opportunity lost?",
+    "perDayShort": "/d"
   },
   "profile": {
     "title": "My Profile",
@@ -867,7 +907,10 @@
     "defaultWarningMessage": "Please check the information entered.",
     "defaultInfoMessage": "No additional information available.",
     "defaultNotFoundMessage": "The requested item was not found.",
-    "defaultErrorMessage": "An unexpected error occurred. Please try again."
+    "defaultErrorMessage": "An unexpected error occurred. Please try again.",
+    "forbidden": "Access to this resource was denied",
+    "serverError": "The server ran into an error. Please try again in a moment.",
+    "networkError": "The server could not be reached. Check your connection and try again."
   },
   "steps": {
     "step": "Step",
@@ -883,7 +926,39 @@
     "scheduleNotesPlaceholder": "Additional information for the interview...",
     "scheduledSuccess": "Interview scheduled successfully",
     "scheduling": "Scheduling...",
-    "schedule": "Schedule"
+    "schedule": "Schedule",
+    "sectionTitle": "Recruitment steps",
+    "summary": "{{done}}/{{total}} validated",
+    "add": "Add a step",
+    "addTitle": "New step",
+    "editTitle": "Edit step",
+    "titleLabel": "Step title",
+    "date": "Date",
+    "noDate": "Date to be defined",
+    "empty": "No steps yet. Add the next interview or test to track the process.",
+    "changeStatus": "Change step status",
+    "deleteConfirm": "Delete the step \"{{title}}\"?",
+    "addedSuccess": "Step added",
+    "updatedSuccess": "Step updated",
+    "deletedSuccess": "Step deleted",
+    "loadError": "Error while loading steps",
+    "statuses": {
+      "TO_PLAN": "To plan",
+      "PLANNED": "Planned",
+      "CANCELED": "Canceled",
+      "WAITING_FEEDBACK": "Waiting for feedback",
+      "VALIDATED": "Validated",
+      "FAILED": "Failed"
+    },
+    "suggestions": {
+      "firstContact": "First contact",
+      "commercialInterview": "Commercial interview",
+      "technicalTest": "Technical test",
+      "technicalInterview": "Technical interview",
+      "managerInterview": "Manager interview",
+      "clientInterview": "Client interview",
+      "finalValidation": "Final validation"
+    }
   },
   "filters": {
     "presetFilters": "Preset filters",
@@ -919,6 +994,19 @@
   },
   "language": {
     "fr": "Français",
-    "en": "English"
+    "en": "English",
+    "switch": "Change language"
+  },
+  "pagination": {
+    "itemsPerPage": "Items per page",
+    "nextPage": "Next page",
+    "previousPage": "Previous page",
+    "firstPage": "First page",
+    "lastPage": "Last page",
+    "range": "{{start}} – {{end}} of {{length}}"
+  },
+  "theme": {
+    "useDark": "Switch to dark theme",
+    "useLight": "Switch to light theme"
   }
 }

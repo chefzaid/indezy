@@ -41,14 +41,14 @@
   gap: 16px;
   padding: 16px;
   cursor: pointer;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid var(--app-border);
 
   &:last-child {
     border-bottom: none;
   }
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: var(--app-hover);
   }
 }
 

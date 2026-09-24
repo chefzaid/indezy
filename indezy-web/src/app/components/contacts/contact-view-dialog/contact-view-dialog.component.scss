@@ -24,7 +24,7 @@
       font-size: 32px;
       width: 32px;
       height: 32px;
-      color: #666;
+      color: var(--app-text-muted);
     }
 
     .contact-details {
@@ -37,7 +37,7 @@
           margin: 0;
           font-size: 24px;
           font-weight: 500;
-          color: #333;
+          color: var(--app-text);
         }
 
         .copy-button-header {
@@ -58,7 +58,7 @@
 
       .contact-subtitle {
         margin: 4px 0 0 0;
-        color: #666;
+        color: var(--app-text-muted);
         font-size: 14px;
       }
     }
@@ -94,7 +94,7 @@
         font-size: 20px;
         width: 20px;
         height: 20px;
-        color: #666;
+        color: var(--app-text-muted);
       }
     }
   }
@@ -115,7 +115,7 @@
     align-items: center;
     gap: 8px;
     font-weight: 500;
-    color: #666;
+    color: var(--app-text-muted);
     min-width: 120px;
 
     mat-icon {
@@ -131,10 +131,10 @@
     align-items: center;
     justify-content: flex-end;
     gap: 8px;
-    color: #333;
+    color: var(--app-text);
 
     .contact-link {
-      color: #1976d2;
+      color: var(--app-link);
       text-decoration: none;
 
       &:hover {
@@ -162,7 +162,7 @@
 .notes-text {
   margin: 0;
   line-height: 1.5;
-  color: #333;
+  color: var(--app-text);
   white-space: pre-wrap;
 }
 
@@ -172,7 +172,7 @@
   gap: 8px;
   padding: 16px 0 0 0;
   margin-top: 16px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--app-border);
 
   button {
     display: flex;

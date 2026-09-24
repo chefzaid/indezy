@@ -27,7 +27,7 @@
   font-size: 28px;
   font-weight: 600;
   margin: 0;
-  color: #333;
+  color: var(--app-text);
   
   mat-icon {
     font-size: 32px;
@@ -91,7 +91,7 @@
   .advanced-filters {
     margin-top: 16px;
     box-shadow: none;
-    border: 1px solid rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--app-border);
 
     .advanced-filter-content {
       padding: 16px 0;
@@ -182,7 +182,7 @@
   }
   
   p {
-    color: #666;
+    color: var(--app-text-muted);
     font-size: 16px;
   }
 }
@@ -207,7 +207,7 @@
 .project-title {
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--app-text);
   margin-bottom: 4px;
 }
 
@@ -218,6 +218,24 @@
 
 .project-status {
   margin-left: auto;
+  align-self: flex-start;
+  padding-left: 8px;
+}
+
+.results-summary {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--app-text-muted);
+}
+
+.projects-paginator {
+  margin-top: 16px;
+  border-radius: 12px;
+}
+
+.mission-phase {
+  color: #2e7d32;
+  font-weight: 500;
 }
 
 .project-details {
@@ -232,7 +250,7 @@
   align-items: center;
   gap: 6px;
   font-size: 14px;
-  color: #666;
+  color: var(--app-text-muted);
   
   mat-icon {
     font-size: 16px;
@@ -247,10 +265,10 @@
   gap: 8px;
   margin-bottom: 12px;
   padding: 8px 12px;
-  background-color: #f5f5f5;
+  background-color: var(--app-subtle);
   border-radius: 8px;
   font-size: 14px;
-  color: #555;
+  color: var(--app-text-muted);
   
   mat-icon {
     font-size: 16px;
@@ -262,7 +280,7 @@
 
 .project-description {
   font-size: 14px;
-  color: #666;
+  color: var(--app-text-muted);
   line-height: 1.5;
   margin: 0;
   overflow: hidden;
@@ -305,7 +323,7 @@
     font-size: 64px;
     width: 64px;
     height: 64px;
-    color: #ccc;
+    color: var(--app-text-faint);
     margin-bottom: 16px;
   }
   
@@ -313,11 +331,11 @@
     font-size: 20px;
     font-weight: 500;
     margin: 0 0 8px 0;
-    color: #333;
+    color: var(--app-text);
   }
   
   p {
-    color: #666;
+    color: var(--app-text-muted);
     margin: 0 0 24px 0;
   }
   
@@ -400,7 +418,7 @@
     .reversion-title {
       font-size: 16px;
       font-weight: 600;
-      color: #333;
+      color: var(--app-text);
     }
   }
 
@@ -412,13 +430,13 @@
   }
 
   .reversion-field {
-    width: 160px;
+    width: 240px;
   }
 
   .reversion-info {
     margin-top: 4px;
     font-size: 12px;
-    color: #888;
+    color: var(--app-text-muted);
     font-style: italic;
   }
 }
@@ -443,7 +461,7 @@
 .commute-controls {
   margin-top: 12px;
   padding: 12px 16px;
-  background-color: #f0f4ff;
+  background-color: var(--app-subtle);
   border-radius: 8px;
   border: 1px solid rgba(102, 126, 234, 0.2);
 
@@ -455,7 +473,7 @@
     .travel-mode-label {
       font-size: 14px;
       font-weight: 500;
-      color: #555;
+      color: var(--app-text-muted);
     }
 
     mat-button-toggle-group {
@@ -478,14 +496,57 @@
   }
 
   .commute-distance {
-    color: #888;
+    color: var(--app-text-muted);
     font-weight: 400;
     font-size: 12px;
   }
 
   .commute-unavailable {
-    color: #aaa;
+    color: var(--app-text-faint);
     font-style: italic;
     font-weight: 400;
+  }
+}
+
+.filters-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+
+  mat-icon {
+    color: var(--app-link);
+  }
+}
+
+.filters-card.collapsed {
+  mat-card-header {
+    padding-bottom: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .project-list-container {
+    padding: 0;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-actions {
+    button {
+      flex: 1 1 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 }

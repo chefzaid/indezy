@@ -194,11 +194,19 @@ public class ProjectService {
     public ProjectDto create(ProjectDto projectDto) {
         log.debug("Creating new project: {}", projectDto.getRole());
         
+        if (projectDto.getClientId() == null) {
+            throw new IllegalArgumentException(ErrorMessages.PROJECT_CLIENT_REQUIRED);
+        }
+
         Project project = projectMapper.toEntity(projectDto);
         
         // Default status if not provided
         if (project.getStatus() == null) {
             project.setStatus(ProjectStatus.IDENTIFIED);
+        }
+        // The lost reason only applies to lost opportunities.
+        if (!ProjectStatus.LOST.equals(project.getStatus())) {
+            project.setLostReason(null);
         }
         
         // Set required relationships
@@ -238,7 +246,16 @@ public class ProjectService {
         Project existingProject = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
 
+        ProjectStatus previousStatus = existingProject.getStatus();
         projectMapper.updateEntity(projectDto, existingProject);
+
+        // A payload without a status (older clients, partial forms) must not wipe the pipeline stage.
+        if (existingProject.getStatus() == null) {
+            existingProject.setStatus(previousStatus != null ? previousStatus : ProjectStatus.IDENTIFIED);
+        }
+        if (!ProjectStatus.LOST.equals(existingProject.getStatus())) {
+            existingProject.setLostReason(null);
+        }
         
         // Update relationships if provided
         if (projectDto.getClientId() != null && !projectDto.getClientId().equals(existingProject.getClient().getId())) {

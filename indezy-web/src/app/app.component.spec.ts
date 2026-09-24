@@ -10,6 +10,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 describe('AppComponent', () => {
   let mockAuthService: jasmine.SpyObj<AuthService>;
@@ -33,7 +35,9 @@ describe('AppComponent', () => {
         TranslateModule.forRoot()
       ],
       providers: [
-        { provide: AuthService, useValue: mockAuthService }
+        { provide: AuthService, useValue: mockAuthService },
+        provideHttpClient(),
+        provideHttpClientTesting()
       ]
     }).compileComponents();
   });

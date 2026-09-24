@@ -4,21 +4,25 @@ import { HttpClient, provideHttpClient, withInterceptors, HttpErrorResponse } fr
 import { Router } from '@angular/router';
 import { errorInterceptor } from './error.interceptor';
 import { AuthService } from '../services/auth/auth.service';
+import { NotificationService } from '../services/notification/notification.service';
 
 describe('errorInterceptor', () => {
   let httpClient: HttpClient;
   let httpMock: HttpTestingController;
   let authService: jasmine.SpyObj<AuthService>;
   let router: jasmine.SpyObj<Router>;
+  let notificationService: jasmine.SpyObj<NotificationService>;
 
   beforeEach(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['logout']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const notificationServiceSpy = jasmine.createSpyObj('NotificationService', ['error']);
 
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: NotificationService, useValue: notificationServiceSpy },
         provideHttpClient(withInterceptors([errorInterceptor])),
         provideHttpClientTesting()
       ]
@@ -28,6 +32,7 @@ describe('errorInterceptor', () => {
     httpMock = TestBed.inject(HttpTestingController);
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    notificationService = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
   });
 
   afterEach(() => {
@@ -87,14 +92,15 @@ describe('errorInterceptor', () => {
   });
 
   describe('403 Forbidden errors', () => {
-    it('should navigate to error page on 403 error', () => {
+    it('keeps the user on the page and reports the denied access', () => {
       const testUrl = '/api/admin';
 
       httpClient.get(testUrl).subscribe({
         next: () => fail('Expected error'),
         error: (error: HttpErrorResponse) => {
           expect(error.status).toBe(403);
-          expect(router.navigate).toHaveBeenCalledWith(['/404']);
+          expect(router.navigate).not.toHaveBeenCalled();
+          expect(notificationService.error).toHaveBeenCalledWith('errors.forbidden', 5000);
         }
       });
 
@@ -137,14 +143,15 @@ describe('errorInterceptor', () => {
   });
 
   describe('500 Server errors', () => {
-    it('should navigate to error page on 500 error', () => {
+    it('reports 500 errors without leaving the current page', () => {
       const testUrl = '/api/server-error';
 
       httpClient.get(testUrl).subscribe({
         next: () => fail('Expected error'),
         error: (error: HttpErrorResponse) => {
           expect(error.status).toBe(500);
-          expect(router.navigate).toHaveBeenCalledWith(['/error']);
+          expect(router.navigate).not.toHaveBeenCalled();
+          expect(notificationService.error).toHaveBeenCalledWith('errors.serverError', 5000);
         }
       });
 
@@ -159,7 +166,8 @@ describe('errorInterceptor', () => {
         next: () => fail('Expected error'),
         error: (error: HttpErrorResponse) => {
           expect(error.status).toBe(502);
-          expect(router.navigate).toHaveBeenCalledWith(['/error']);
+          expect(router.navigate).not.toHaveBeenCalled();
+          expect(notificationService.error).toHaveBeenCalledWith('errors.serverError', 5000);
         }
       });
 
@@ -174,7 +182,8 @@ describe('errorInterceptor', () => {
         next: () => fail('Expected error'),
         error: (error: HttpErrorResponse) => {
           expect(error.status).toBe(503);
-          expect(router.navigate).toHaveBeenCalledWith(['/error']);
+          expect(router.navigate).not.toHaveBeenCalled();
+          expect(notificationService.error).toHaveBeenCalledWith('errors.serverError', 5000);
         }
       });
 
@@ -279,6 +288,8 @@ describe('errorInterceptor', () => {
         error: (error: HttpErrorResponse) => {
           expect(error.status).toBe(0);
           expect(error.error instanceof ProgressEvent).toBeTruthy();
+          expect(router.navigate).not.toHaveBeenCalled();
+          expect(notificationService.error).toHaveBeenCalledWith('errors.networkError', 5000);
         }
       });
 

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,6 +28,7 @@ import { NotificationService } from '../../../services/notification/notification
         TranslateModule
     ],
     templateUrl: './contact-view-dialog.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./contact-view-dialog.component.scss']
 })
 export class ContactViewDialogComponent {
@@ -60,28 +61,6 @@ export class ContactViewDialogComponent {
 
   getFullName(): string {
     return `${this.contact.firstName} ${this.contact.lastName || ''}`.trim();
-  }
-
-  getStatusColor(status: string): 'primary' | 'accent' | 'warn' {
-    switch (status) {
-      case 'ACTIVE':
-        return 'primary';
-      case 'INACTIVE':
-        return 'warn';
-      default:
-        return 'accent';
-    }
-  }
-
-  getStatusLabel(status: string): string {
-    switch (status) {
-      case 'ACTIVE':
-        return this.translate.instant('common.active');
-      case 'INACTIVE':
-        return this.translate.instant('common.inactive');
-      default:
-        return this.translate.instant('common.unknown');
-    }
   }
 
   async copyToClipboard(text: string, typeKey: string): Promise<void> {

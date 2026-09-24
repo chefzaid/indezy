@@ -56,4 +56,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Query("SELECT COUNT(p) FROM Project p WHERE p.freelance.id = :freelanceId AND p.status NOT IN ('LOST', 'WON')")
     Long countActiveByFreelanceId(@Param("freelanceId") Long freelanceId);
+
+    /** Owner workspace of the project, used by access checks without loading the entity graph. */
+    @Query("SELECT p.freelance.id FROM Project p WHERE p.id = :id")
+    Optional<Long> findOwnerFreelanceIdById(@Param("id") Long id);
 }

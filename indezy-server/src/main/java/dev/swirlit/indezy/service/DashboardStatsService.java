@@ -73,7 +73,9 @@ public class DashboardStatsService {
 
         List<DashboardStatsDto.DailyRateRange> dailyRateRanges = buildDailyRateRanges(projects);
 
+        // Unweighted value of the live pipeline and signed missions; lost opportunities earn nothing.
         double totalRevenue = projects.stream()
+            .filter(p -> !ProjectStatus.LOST.equals(p.getStatus()))
             .filter(p -> p.getTotalRevenue() != null)
             .mapToDouble(Project::getTotalRevenue)
             .sum();

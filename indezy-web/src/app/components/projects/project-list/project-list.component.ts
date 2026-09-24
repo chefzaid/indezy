@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -13,13 +13,13 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProjectService } from '../../../services/project/project.service';
 import { FreelanceService } from '../../../services/freelance/freelance.service';
@@ -34,7 +34,7 @@ import {
   getProjectStatus,
   sortProjects
 } from '../../../services/project/project-filter.util';
-import { ProjectDto, User, FreelanceDto } from '../../../models';
+import { ProjectDto, User, FreelanceDto, ProjectStatus, PROJECT_STATUS_COLORS } from '../../../models';
 import { TravelMode, ProjectCommuteDto, CommuteInfoDto } from '../../../models/commute.models';
 
 @Component({
@@ -53,25 +53,33 @@ import { TravelMode, ProjectCommuteDto, CommuteInfoDto } from '../../../models/c
         MatProgressSpinnerModule,
         MatSnackBarModule,
         MatDatepickerModule,
-        MatNativeDateModule,
         MatSliderModule,
         MatCheckboxModule,
         MatExpansionModule,
         MatDividerModule,
         MatButtonToggleModule,
         MatTooltipModule,
+        MatPaginatorModule,
         TranslateModule
     ],
     templateUrl: './project-list.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./project-list.component.scss']
 })
 export class ProjectListComponent implements OnInit {
   projects: ProjectDto[] = [];
   filteredProjects: ProjectDto[] = [];
+  /** The slice of filteredProjects shown on the current page. */
+  pagedProjects: ProjectDto[] = [];
+  pageIndex = 0;
+  pageSize = 12;
+  readonly pageSizeOptions = [12, 24, 48];
   isLoading = false;
   filterForm: FormGroup;
   currentUser: User | null = null;
   showAdvancedFilters = false;
+  /** Filters start collapsed on phones so the missions are visible without scrolling. */
+  filtersExpanded = typeof window === 'undefined' || !window.matchMedia('(max-width: 768px)').matches;
 
   // Commute sorting
   isCommuteSortActive = false;
@@ -85,6 +93,8 @@ export class ProjectListComponent implements OnInit {
   incomeTaxRate = 5;
   useCustomRate = false;
   readonly DEFAULT_DAYS_PER_YEAR = 218;
+  /** Social charges applied on top of the income tax when deriving the reversion rate. */
+  static readonly SOCIAL_CHARGES_RATE = 40;
 
   workModeOptions = [
     { value: 'REMOTE', labelKey: 'projects.workModes.REMOTE' },
@@ -92,12 +102,11 @@ export class ProjectListComponent implements OnInit {
     { value: 'HYBRID', labelKey: 'projects.workModes.HYBRID' }
   ];
 
-  statusOptions = [
-    { value: 'ACTIVE', labelKey: 'projects.statuses.ACTIVE' },
-    { value: 'COMPLETED', labelKey: 'projects.statuses.COMPLETED' },
-    { value: 'PAUSED', labelKey: 'projects.statuses.PAUSED' },
-    { value: 'CANCELLED', labelKey: 'projects.statuses.CANCELLED' }
-  ];
+  statusOptions = Object.values(ProjectStatus).map(status => ({
+    value: status,
+    labelKey: 'projects.statuses.' + status
+  }));
+  readonly statusColors = PROJECT_STATUS_COLORS;
 
   durationOptions = [
     { value: '1-3', labelKey: 'projects.durations.1-3' },
@@ -147,7 +156,6 @@ export class ProjectListComponent implements OnInit {
       endDateTo: [''],
       duration: [''],
       client: [''],
-      location: [''],
       selectedTechStack: [[]],
 
       // Sorting
@@ -172,8 +180,8 @@ export class ProjectListComponent implements OnInit {
     this.projectService.getByFreelanceId(this.currentUser.id).subscribe({
       next: (projects) => {
         this.projects = projects;
-        this.filteredProjects = projects;
         this.isLoading = false;
+        this.applyFilters();
       },
       error: (error) => {
         this.isLoading = false;
@@ -196,14 +204,33 @@ export class ProjectListComponent implements OnInit {
       filtered = sortProjects(filtered, filters.sortBy, filters.sortOrder ?? 'desc', this.commuteData);
     }
     this.filteredProjects = filtered;
+    this.pageIndex = 0;
+    this.updatePage();
   }
 
   clearFilters(): void {
     this.filterForm.reset({
       sortBy: 'startDate',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
+      selectedTechStack: []
     });
-    this.filteredProjects = this.projects;
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.updatePage();
+  }
+
+  private updatePage(): void {
+    const lastPage = Math.max(0, Math.ceil(this.filteredProjects.length / this.pageSize) - 1);
+    this.pageIndex = Math.min(this.pageIndex, lastPage);
+    const start = this.pageIndex * this.pageSize;
+    this.pagedProjects = this.filteredProjects.slice(start, start + this.pageSize);
+  }
+
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
   }
 
   toggleAdvancedFilters(): void {
@@ -239,7 +266,10 @@ export class ProjectListComponent implements OnInit {
       this.projectService.delete(projectId).subscribe({
         next: () => {
           this.projects = this.projects.filter(p => p.id !== projectId);
+          const pageIndex = this.pageIndex;
           this.applyFilters();
+          this.pageIndex = pageIndex;
+          this.updatePage();
           this.notificationService.success('projects.deleteSuccess');
         },
         error: (error) => {
@@ -272,27 +302,24 @@ export class ProjectListComponent implements OnInit {
     return this.translate.instant('projects.workModes.' + workMode);
   }
 
-  getProjectStatusColor(project: ProjectDto): string {
-    switch (getProjectStatus(project)) {
-      case 'upcoming':
-        return 'accent';
-      case 'completed':
-        return 'warn';
-      default:
-        return 'primary';
-    }
+  getStatusColor(project: ProjectDto): string {
+    return this.statusColors[project.status ?? ProjectStatus.IDENTIFIED];
   }
 
-  getProjectStatusText(project: ProjectDto): string {
+  /** Delivery phase of a signed mission (upcoming / in progress / completed), null for opportunities. */
+  getMissionPhaseKey(project: ProjectDto): string | null {
+    if (project.status !== ProjectStatus.WON) {
+      return null;
+    }
     switch (getProjectStatus(project)) {
       case 'upcoming':
-        return this.translate.instant('projects.upcoming');
+        return 'projects.upcoming';
       case 'inProgress':
-        return this.translate.instant('projects.inProgress');
+        return 'projects.inProgress';
       case 'completed':
-        return this.translate.instant('projects.completed');
+        return 'projects.completed';
       default:
-        return this.translate.instant('projects.unknownStatus');
+        return null;
     }
   }
 
@@ -355,11 +382,11 @@ export class ProjectListComponent implements OnInit {
     this.freelanceService.getById(this.currentUser.id).subscribe({
       next: (profile) => {
         this.freelanceProfile = profile;
-        if (profile.reversionRate !== undefined) {
+        if (profile.reversionRate !== undefined && profile.reversionRate !== null) {
           this.reversionRate = profile.reversionRate;
           this.useCustomRate = true;
         }
-        if (profile.incomeTaxRate !== undefined) {
+        if (profile.incomeTaxRate !== undefined && profile.incomeTaxRate !== null) {
           this.incomeTaxRate = profile.incomeTaxRate;
         }
       },
@@ -367,14 +394,31 @@ export class ProjectListComponent implements OnInit {
     });
   }
 
-  onReversionRateChange(value: number): void {
-    this.reversionRate = value;
+  onReversionRateChange(value: string | number): void {
+    const rate = ProjectListComponent.toPercent(value, 100);
+    if (rate === null) {
+      return;
+    }
+    this.reversionRate = rate;
     this.useCustomRate = true;
   }
 
-  onIncomeTaxRateChange(value: number): void {
-    this.incomeTaxRate = value;
-    this.reversionRate = 40 + value;
+  onIncomeTaxRateChange(value: string | number): void {
+    const tax = ProjectListComponent.toPercent(value, 50);
+    if (tax === null) {
+      return;
+    }
+    this.incomeTaxRate = tax;
+    this.reversionRate = Math.min(100, ProjectListComponent.SOCIAL_CHARGES_RATE + tax);
+  }
+
+  /** Parses a percentage typed in a number input, rejecting values outside [0, max]. */
+  private static toPercent(value: string | number, max: number): number | null {
+    const parsed = typeof value === 'number' ? value : Number.parseFloat(String(value).replace(',', '.'));
+    if (!Number.isFinite(parsed) || parsed < 0 || parsed > max) {
+      return null;
+    }
+    return parsed;
   }
 
   saveReversionRate(): void {
@@ -383,7 +427,10 @@ export class ProjectListComponent implements OnInit {
     }
     const updated = { ...this.freelanceProfile, reversionRate: this.reversionRate, incomeTaxRate: this.incomeTaxRate };
     this.freelanceService.update(this.currentUser.id, updated).subscribe({
-      next: () => this.notificationService.success('projects.reversion.saved', 2000),
+      next: (saved) => {
+        this.freelanceProfile = saved;
+        this.notificationService.success('projects.reversion.saved', 2000);
+      },
       error: () => this.notificationService.error('projects.reversion.saveError')
     });
   }

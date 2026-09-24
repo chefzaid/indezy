@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, Input, Output, EventEmitter, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
@@ -22,6 +22,7 @@ import { RangeSliderConfig, RangeValue } from '../../../models/filter.models';
     MatButtonModule
 ],
   templateUrl: './range-slider-filter.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./range-slider-filter.component.scss']
 })
 export class RangeSliderFilterComponent implements OnInit {

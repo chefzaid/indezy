@@ -53,7 +53,7 @@
     }
 
     .mat-mdc-tab-header {
-      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+      border-bottom: 1px solid var(--app-border);
     }
   }
 }
@@ -184,7 +184,7 @@
   gap: 16px;
   margin-top: 32px;
   padding-top: 24px;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  border-top: 1px solid var(--app-border);
 
   button {
     min-width: 120px;
@@ -357,7 +357,7 @@
     font-size: 1.1rem;
     letter-spacing: 2px;
     padding: 4px 8px;
-    background-color: rgba(0, 0, 0, 0.06);
+    background-color: var(--app-hover);
     border-radius: 4px;
     word-break: break-all;
   }

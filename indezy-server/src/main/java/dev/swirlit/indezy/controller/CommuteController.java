@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.CommuteInfoDto;
 import dev.swirlit.indezy.dto.ProjectCommuteDto;
 import dev.swirlit.indezy.model.enums.TravelMode;
+import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.CommuteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +23,7 @@ import java.util.List;
 public class CommuteController {
 
     private final CommuteService commuteService;
+    private final AccessGuard accessGuard;
 
     @Operation(summary = "Get projects sorted by commute time",
             description = "Returns all projects for a freelancer sorted by commute time from their home address to the client location")
@@ -30,6 +32,7 @@ public class CommuteController {
             @PathVariable Long freelanceId,
             @RequestParam(defaultValue = "DRIVING") TravelMode travelMode) {
         log.debug("GET /commute/projects/{} - mode={}", freelanceId, travelMode);
+        accessGuard.requireFreelance(freelanceId);
         List<ProjectCommuteDto> results = commuteService.getProjectsSortedByCommute(freelanceId, travelMode);
         return ResponseEntity.ok(results);
     }
@@ -42,6 +45,8 @@ public class CommuteController {
             @PathVariable Long projectId,
             @RequestParam(defaultValue = "DRIVING") TravelMode travelMode) {
         log.debug("GET /commute/projects/{}/{} - mode={}", freelanceId, projectId, travelMode);
+        accessGuard.requireFreelance(freelanceId);
+        accessGuard.requireProject(projectId);
         CommuteInfoDto result = commuteService.getCommuteForProject(freelanceId, projectId, travelMode);
         return ResponseEntity.ok(result);
     }

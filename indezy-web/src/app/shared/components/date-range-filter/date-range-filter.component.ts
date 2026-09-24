@@ -1,11 +1,10 @@
-import { Component, DestroyRef, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, Input, Output, EventEmitter, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { DateRangeFilterConfig, DateRange } from '../../../models/filter.models';
@@ -18,11 +17,11 @@ import { DateRangeFilterConfig, DateRange } from '../../../models/filter.models'
     MatFormFieldModule,
     MatInputModule,
     MatDatepickerModule,
-    MatNativeDateModule,
     MatIconModule,
     MatButtonModule
 ],
   templateUrl: './date-range-filter.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./date-range-filter.component.scss']
 })
 export class DateRangeFilterComponent implements OnInit {

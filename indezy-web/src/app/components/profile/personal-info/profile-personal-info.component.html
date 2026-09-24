@@ -5,8 +5,9 @@
     <mat-card class="avatar-section">
       <div class="avatar-container">
         <div class="avatar-wrapper">
-          <img [src]="userProfile.avatar || 'assets/images/default-avatar.png'"
+          <img [src]="userProfile.avatar || defaultAvatar"
             [alt]="userProfile.firstName + ' ' + userProfile.lastName"
+            (error)="onAvatarError($event)"
             class="user-avatar">
           <div class="avatar-overlay">
             <input aria-label="{{ 'profile.changeAvatar' | translate }}" type="file"
