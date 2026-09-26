@@ -142,8 +142,10 @@ export class ContactFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading contact:', error);
-          this.notificationService.error('errors.loadingContact');
+          this.notificationService.error(error?.status === 404 ? 'errors.contactNotFound' : 'errors.loadingContact');
           this.isLoading = false;
+          // Nothing to show or edit: go back to the list instead of an empty page.
+          this.router.navigate(['/contacts']);
         }
       });
   }

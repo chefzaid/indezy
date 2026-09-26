@@ -133,8 +133,10 @@ export class ClientFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading client:', error);
-          this.notificationService.error('errors.loadingClient');
+          this.notificationService.error(error?.status === 404 ? 'errors.clientNotFound' : 'errors.loadingClient');
           this.isLoading = false;
+          // Nothing to show or edit: go back to the list instead of an empty page.
+          this.router.navigate(['/clients']);
         }
       });
   }

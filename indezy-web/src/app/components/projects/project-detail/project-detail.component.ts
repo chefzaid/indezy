@@ -197,8 +197,10 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading project:', error);
-          this.notificationService.error('errors.loadingProject');
+          this.notificationService.error(error?.status === 404 ? 'errors.projectNotFound' : 'errors.loadingProject');
           this.isLoading = false;
+          // Nothing to show or edit: go back to the list instead of an empty page.
+          this.router.navigate(['/projects']);
         }
       });
   }
