@@ -11,9 +11,9 @@ resources:
   - observability.yaml
 images:
   - name: registry.swirlit.dev/swirlit/indezy/indezy-server
-    newTag: 1.4.1
+    newTag: 1.5.1
   - name: registry.swirlit.dev/swirlit/indezy/indezy-web
-    newTag: 1.4.1
+    newTag: 1.5.1
   - name: postgres
     newName: docker.io/library/postgres
     newTag: 18.6-bookworm
