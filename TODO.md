@@ -22,6 +22,8 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [x] Pinned/favorite opportunities (keep hot leads at the top, dedicated view)
 - [x] Lost/rejected reason tracking (rate too low, position filled, no response...) with stats
 - [x] Automatic stale-opportunity detection and suggested follow-up or archival
+- [ ] Configurable inactivity period: the user sets in their preferences after how many days without contact an opportunity counts as stale (today fixed at 14 days, duplicated in the backend reminders and the Kanban board)
+- [ ] Automatic archiving of opportunities with no contact for that period (instead of only flagging them), with an unarchive action from the archive view and the project page that puts the opportunity back in its pipeline column
 - [x] Duplicate opportunity detection (same client + same role posted on several job boards), flagged for manual deduplication
 
 ## Opportunities & Projects
@@ -43,6 +45,8 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [x] Note templates (call debrief, interview debrief, negotiation summary) selectable when adding a note
 - [ ] Voice memo after a call: record, transcribe, attach the transcript as a project note
 - [x] Skill tags on projects + match score against the freelancer's skill profile (with global tag rename across all projects)
+- [ ] Richer skill profile: free-text skills (not only a fixed list), each with an optional level and years of experience, editable from the profile page
+- [ ] Skill normalization: group equivalent spellings and aliases (e.g. "Spring Boot" / "SpringBoot" / "spring-boot", "JS" / "JavaScript") under one canonical skill, suggest merges when a similar skill is added, and apply the grouping to the profile, project tags, match score and skill trends
 - [x] Daily rate negotiation history (asked / offered / agreed) per project
 - [x] Project archive view with full-text search across past opportunities
 - [x] Contract milestones tracking (start date, renewal date, notice period alerts)
@@ -69,6 +73,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [x] Configurable income tax and max workable days with French public holidays
 - [x] Revenue forecast based on signed contracts and pipeline probability
 - [ ] TJM benchmark by skill/seniority/region (anonymized aggregated data from users)
+- [ ] Target daily rate (TJM) as a profile setting, used as the default for new seasons and shown against obtained rates on the dashboard
 - [ ] Expense tracking (deductible expenses feeding the reversion calculator)
 - [ ] Expand existing reversion rate calculator customization (deductible expenses, social contributions, status-specific assumptions, custom tax settings)
 - [ ] URSSAF/social contribution estimation per status (micro-entreprise, EI, EURL, SASU, portage)
@@ -124,6 +129,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 
 - [x] Dashboard overview with total projects, average daily rate, estimated revenue, active projects, and recent projects
 - [x] Dashboard charts for projects by status, projects by work mode, and daily rate distribution
+- [ ] Finer daily rate chart: plot the actual TJM values the freelancer negotiated (e.g. 550, 600, 650 €) instead of wide ranges (0-300, 300-500, ...), as one freelancer's rates vary within a narrow band
 - [x] Overview/Kanban display modes on the dashboard
 - [ ] Dashboard period tagging with `YYYY-MM` labels, sprint-style but flexible so reporting periods can exist only when needed instead of forcing every month
 - [x] Conversion funnel by source, client type and ESN (where do opportunities die?)
@@ -198,6 +204,8 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [x] Rate limiting and brute-force protection on auth endpoints
 - [ ] API tokens for third-party integrations (read-only scopes)
 - [ ] Notification preferences per channel (email, push, in-app) and per event type
+- [ ] Social login (Google, Microsoft, GitHub) through Keycloak identity providers in the `swirlit` realm, so the buttons appear on the Keycloak login page and accounts reach Indezy through the existing SSO exchange, with no login code in the app
+- [ ] Custom Keycloak login theme matching Indezy (logo, colors, typography, light/dark, French and English texts) instead of the default Keycloak look
 
 ## Technical Improvements
 
