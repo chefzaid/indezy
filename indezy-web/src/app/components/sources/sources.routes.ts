@@ -6,7 +6,7 @@ export const sourceRoutes: Routes = [
     loadComponent: () => import('./source-list/source-list.component').then(m => m.SourceListComponent)
   },
   {
-    path: 'create',
+    path: 'new',
     loadComponent: () => import('./source-form/source-form.component').then(m => m.SourceFormComponent)
   },
   {

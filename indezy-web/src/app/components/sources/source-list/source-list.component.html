@@ -28,10 +28,38 @@
   @if (!isLoading && sources.length > 0) {
     <mat-card class="filter-card">
       <mat-card-content>
-        <app-comprehensive-filter-panel
-          [config]="filterConfig"
-          (filtersChange)="onFiltersChange($event)">
-        </app-comprehensive-filter-panel>
+        <div class="filters-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
+            <mat-label>{{ 'common.search' | translate }}</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()"
+              [placeholder]="'sources.namePlaceholder' | translate">
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ 'common.type' | translate }}</mat-label>
+            <mat-select [(ngModel)]="typeFilter" (ngModelChange)="applyFilters()">
+              <mat-option value="">{{ 'common.all' | translate }}</mat-option>
+              @for (type of sourceTypes; track type) {
+                <mat-option [value]="type">{{ getTypeLabel(type) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ 'sources.usefulness' | translate }}</mat-label>
+            <mat-select [(ngModel)]="minRating" (ngModelChange)="applyFilters()">
+              <mat-option [value]="0">{{ 'common.all' | translate }}</mat-option>
+              @for (rating of [3, 4, 5]; track rating) {
+                <mat-option [value]="rating">{{ getRatingDisplay(rating) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          @if (searchQuery || typeFilter || minRating) {
+            <button mat-button type="button" (click)="clearFilters()">
+              <mat-icon>filter_alt_off</mat-icon>
+              {{ 'common.clearFilters' | translate }}
+            </button>
+          }
+        </div>
       </mat-card-content>
     </mat-card>
   }

@@ -5,37 +5,27 @@ import dev.swirlit.indezy.dto.KanbanBoardDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
-import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.DashboardStatsService;
 import dev.swirlit.indezy.service.ProjectExportService;
 import dev.swirlit.indezy.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/projects")
 @RequiredArgsConstructor
-@Slf4j
-@CrossOrigin(origins = {"http://localhost:4200", "http://127.0.0.1:4200"})
-@Tag(name = "Projects", description = "Project management operations")
+@Tag(name = "Projects", description = "Opportunities, the Kanban pipeline and the dashboard")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -43,228 +33,128 @@ public class ProjectController {
     private final ProjectExportService projectExportService;
     private final AccessGuard accessGuard;
 
-    @Operation(summary = "Get all projects", description = "Retrieve a list of all projects")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved projects",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class)))
-    })
+    @Operation(summary = "List the caller's projects")
     @GetMapping
-    public ResponseEntity<List<ProjectDto>> getAllProjects() {
-        log.debug("GET /projects - Getting all projects");
-        List<ProjectDto> projects = accessGuard.currentFreelanceId()
+    public List<ProjectDto> getAllProjects() {
+        return accessGuard.currentFreelanceId()
             .map(projectService::findByFreelanceId)
             .orElseGet(projectService::findAll);
-        return ResponseEntity.ok(projects);
     }
 
-    @Operation(summary = "Get project by ID", description = "Retrieve a specific project by its ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved project",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class))),
-        @ApiResponse(responseCode = "404", description = "Project not found")
-    })
-    @GetMapping("/{id}")
-    public ResponseEntity<ProjectDto> getProjectById(
-            @Parameter(description = "Project ID", required = true) @PathVariable Long id) {
-        log.debug("GET /projects/{} - Getting project by id", id);
-        accessGuard.requireProject(id);
-        ProjectDto project = projectService.findById(id);
-        return ResponseEntity.ok(project);
-    }
-
-    @GetMapping("/{id}/with-steps")
-    public ResponseEntity<ProjectDto> getProjectByIdWithSteps(@PathVariable Long id) {
-        log.debug("GET /projects/{}/with-steps - Getting project with steps", id);
-        accessGuard.requireProject(id);
-        ProjectDto project = projectService.findByIdWithSteps(id);
-        return ResponseEntity.ok(project);
-    }
-
+    @Operation(summary = "List the projects of a workspace")
     @GetMapping("/by-freelance/{freelanceId}")
-    public ResponseEntity<List<ProjectDto>> getProjectsByFreelanceId(@PathVariable Long freelanceId) {
-        log.debug("GET /projects/by-freelance/{} - Getting projects by freelance id", freelanceId);
+    public List<ProjectDto> getProjectsByFreelanceId(@PathVariable Long freelanceId) {
         accessGuard.requireFreelance(freelanceId);
-        List<ProjectDto> projects = projectService.findByFreelanceId(freelanceId);
-        return ResponseEntity.ok(projects);
+        return projectService.findByFreelanceId(freelanceId);
     }
 
-    @PutMapping("/by-freelance/{freelanceId}/tags/rename")
-    @Operation(summary = "Rename a skill tag across all projects",
-            description = "Renames a tech-stack tag on every project of the freelance")
-    public ResponseEntity<Integer> renameTag(@PathVariable Long freelanceId,
-                                             @RequestBody java.util.Map<String, String> body) {
-        log.debug("PUT /projects/by-freelance/{}/tags/rename", freelanceId);
-        accessGuard.requireFreelance(freelanceId);
-        int updated = projectService.renameTag(freelanceId, body.get("from"), body.get("to"));
-        return ResponseEntity.ok(updated);
-    }
-
+    @Operation(summary = "List the projects of a client")
     @GetMapping("/by-client/{clientId}")
-    public ResponseEntity<List<ProjectDto>> getProjectsByClientId(@PathVariable Long clientId) {
-        log.debug("GET /projects/by-client/{} - Getting projects by client id", clientId);
+    public List<ProjectDto> getProjectsByClientId(@PathVariable Long clientId) {
         accessGuard.requireClient(clientId);
-        List<ProjectDto> projects = projectService.findByClientId(clientId);
-        return ResponseEntity.ok(projects);
+        return projectService.findByClientId(clientId);
     }
 
-    @GetMapping("/by-freelance/{freelanceId}/filtered")
-    public ResponseEntity<List<ProjectDto>> getProjectsByFreelanceIdWithFilters(
-            @PathVariable Long freelanceId,
-            @RequestParam(required = false) Integer minRate,
-            @RequestParam(required = false) Integer maxRate,
-            @RequestParam(required = false) WorkMode workMode,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDateAfter,
-            @RequestParam(required = false) String techStack) {
-        
-        log.debug("GET /projects/by-freelance/{}/filtered - Getting filtered projects", freelanceId);
-        accessGuard.requireFreelance(freelanceId);
-        List<ProjectDto> projects = projectService.findByFreelanceIdAndFilters(
-            freelanceId, minRate, maxRate, workMode, startDateAfter, techStack);
-        return ResponseEntity.ok(projects);
+    @Operation(summary = "Get a project")
+    @GetMapping("/{id}")
+    public ProjectDto getProjectById(@PathVariable Long id) {
+        accessGuard.requireProject(id);
+        return projectService.findById(id);
     }
 
-    @Operation(summary = "Create new project", description = "Create a new project with the provided details")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Project created successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid project data")
-    })
+    @Operation(summary = "Create a project",
+        description = "Without a season, the project joins the season running today (if any)")
     @PostMapping
-    public ResponseEntity<ProjectDto> createProject(
-            @Parameter(description = "Project details", required = true) @Valid @RequestBody ProjectDto projectDto) {
-        log.debug("POST /projects - Creating new project");
+    public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody ProjectDto projectDto) {
         projectDto.setFreelanceId(accessGuard.resolveFreelanceId(projectDto.getFreelanceId()));
         accessGuard.requireClient(projectDto.getClientId());
-        accessGuard.requireSeasonIfPresent(projectDto.getSeasonId());
-        accessGuard.requireClientIfPresent(projectDto.getMiddlemanId());
-        accessGuard.requireSourceIfPresent(projectDto.getSourceId());
-        ProjectDto createdProject = projectService.create(projectDto);
-        return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
+        requireReferences(projectDto);
+        return new ResponseEntity<>(projectService.create(projectDto), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Update project", description = "Update an existing project with new details")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Project updated successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProjectDto.class))),
-        @ApiResponse(responseCode = "404", description = "Project not found"),
-        @ApiResponse(responseCode = "400", description = "Invalid project data")
-    })
+    @Operation(summary = "Replace a project")
     @PutMapping("/{id}")
-    public ResponseEntity<ProjectDto> updateProject(
-            @Parameter(description = "Project ID", required = true) @PathVariable Long id,
-            @Parameter(description = "Updated project details", required = true) @Valid @RequestBody ProjectDto projectDto) {
-        log.debug("PUT /projects/{} - Updating project", id);
+    public ProjectDto updateProject(@PathVariable Long id, @Valid @RequestBody ProjectDto projectDto) {
         accessGuard.requireProject(id);
         accessGuard.requireClientIfPresent(projectDto.getClientId());
-        accessGuard.requireSeasonIfPresent(projectDto.getSeasonId());
-        accessGuard.requireClientIfPresent(projectDto.getMiddlemanId());
-        accessGuard.requireSourceIfPresent(projectDto.getSourceId());
-        ProjectDto updatedProject = projectService.update(id, projectDto);
-        return ResponseEntity.ok(updatedProject);
+        requireReferences(projectDto);
+        return projectService.update(id, projectDto);
     }
 
-    @Operation(summary = "Delete project", description = "Delete a project by its ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Project deleted successfully"),
-        @ApiResponse(responseCode = "404", description = "Project not found")
-    })
+    @Operation(summary = "Delete a project", description = "Its interview steps and journal notes go with it")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProject(
-            @Parameter(description = "Project ID", required = true) @PathVariable Long id) {
-        log.debug("DELETE /projects/{} - Deleting project", id);
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         accessGuard.requireProject(id);
         projectService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/stats/average-rate/{freelanceId}")
-    public ResponseEntity<Double> getAverageDailyRate(@PathVariable Long freelanceId) {
-        log.debug("GET /projects/stats/average-rate/{} - Getting average daily rate", freelanceId);
-        accessGuard.requireFreelance(freelanceId);
-        Double averageRate = projectService.getAverageDailyRateByFreelanceId(freelanceId);
-        return ResponseEntity.ok(averageRate);
-    }
-
-    @GetMapping("/stats/count/{freelanceId}")
-    public ResponseEntity<Long> getProjectCount(@PathVariable Long freelanceId) {
-        log.debug("GET /projects/stats/count/{} - Getting project count", freelanceId);
-        accessGuard.requireFreelance(freelanceId);
-        Long count = projectService.countByFreelanceId(freelanceId);
-        return ResponseEntity.ok(count);
-    }
-
-    @Operation(summary = "Update project status", description = "Update the status of a project (for Kanban board)")
+    @Operation(summary = "Move a project to another pipeline stage")
     @PatchMapping("/{id}/status")
-    public ResponseEntity<ProjectDto> updateProjectStatus(
-            @PathVariable Long id,
-            @RequestParam ProjectStatus status,
-            @RequestParam(required = false) LostReason lostReason) {
-        log.debug("PATCH /projects/{}/status - Updating project status to: {}", id, status);
+    public ProjectDto updateProjectStatus(@PathVariable Long id,
+                                          @RequestParam ProjectStatus status,
+                                          @RequestParam(required = false) LostReason lostReason) {
         accessGuard.requireProject(id);
-        ProjectDto updatedProject = projectService.updateStatus(id, status, lostReason);
-        return ResponseEntity.ok(updatedProject);
+        return projectService.updateStatus(id, status, lostReason);
     }
 
-    @Operation(summary = "Toggle favorite", description = "Pin or unpin a project as a favorite (kept at the top of its Kanban column)")
+    @Operation(summary = "Pin or unpin a project at the top of its Kanban column")
     @PatchMapping("/{id}/favorite")
-    public ResponseEntity<ProjectDto> toggleFavorite(@PathVariable Long id) {
-        log.debug("PATCH /projects/{}/favorite - Toggling favorite flag", id);
+    public ProjectDto toggleFavorite(@PathVariable Long id) {
         accessGuard.requireProject(id);
-        ProjectDto updatedProject = projectService.toggleFavorite(id);
-        return ResponseEntity.ok(updatedProject);
+        return projectService.toggleFavorite(id);
     }
 
-    @Operation(summary = "Get kanban board",
-        description = "Get kanban board data grouped by project status, optionally limited to one season")
+    @Operation(summary = "Rename a skill tag on every project of a workspace")
+    @PutMapping("/by-freelance/{freelanceId}/tags/rename")
+    public int renameTag(@PathVariable Long freelanceId, @RequestBody Map<String, String> body) {
+        accessGuard.requireFreelance(freelanceId);
+        return projectService.renameTag(freelanceId, body.get("from"), body.get("to"));
+    }
+
+    @Operation(summary = "Kanban board", description = "Projects grouped by status, optionally for one season")
     @GetMapping("/kanban/{freelanceId}")
-    public ResponseEntity<KanbanBoardDto> getKanbanBoard(
-            @PathVariable Long freelanceId,
-            @RequestParam(required = false) Long seasonId) {
-        log.debug("GET /projects/kanban/{}?seasonId={} - Getting kanban board", freelanceId, seasonId);
+    public KanbanBoardDto getKanbanBoard(@PathVariable Long freelanceId,
+                                         @RequestParam(required = false) Long seasonId) {
         accessGuard.requireFreelance(freelanceId);
         accessGuard.requireSeasonIfPresent(seasonId);
-        KanbanBoardDto kanbanBoard = projectService.getKanbanBoard(freelanceId, seasonId);
-        return ResponseEntity.ok(kanbanBoard);
+        return projectService.getKanbanBoard(freelanceId, seasonId);
     }
 
-    @Operation(summary = "Reorder kanban column",
-        description = "Persist the manual order of cards within a column for the given freelance")
+    @Operation(summary = "Persist the manual order of a Kanban column")
     @PutMapping("/kanban/{freelanceId}/reorder")
-    public ResponseEntity<Void> reorderKanbanColumn(
-            @PathVariable Long freelanceId,
-            @RequestBody List<Long> orderedProjectIds) {
-        log.debug("PUT /projects/kanban/{}/reorder - Reordering {} cards", freelanceId, orderedProjectIds.size());
+    public ResponseEntity<Void> reorderKanbanColumn(@PathVariable Long freelanceId,
+                                                    @RequestBody List<Long> orderedProjectIds) {
         accessGuard.requireFreelance(freelanceId);
         projectService.reorderKanbanColumn(freelanceId, orderedProjectIds);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Export yearly summary",
-        description = "Download a CSV summary of the freelance's projects, optionally limited to a year")
-    @GetMapping("/export/csv/{freelanceId}")
-    public ResponseEntity<String> exportYearlySummary(
-            @PathVariable Long freelanceId,
-            @RequestParam(required = false) Integer year) {
-        log.debug("GET /projects/export/csv/{}?year={} - Exporting yearly summary", freelanceId, year);
+    @Operation(summary = "Dashboard statistics", description = "For all time, or for one season")
+    @GetMapping("/stats/dashboard/{freelanceId}")
+    public DashboardStatsDto getDashboardStats(@PathVariable Long freelanceId,
+                                               @RequestParam(required = false) Long seasonId) {
         accessGuard.requireFreelance(freelanceId);
-        String csv = projectExportService.buildYearlySummaryCsv(freelanceId, year);
+        accessGuard.requireSeasonIfPresent(seasonId);
+        return dashboardStatsService.getDashboardStats(freelanceId, seasonId);
+    }
+
+    @Operation(summary = "Accountant CSV summary", description = "All projects, or those of one year")
+    @GetMapping("/export/csv/{freelanceId}")
+    public ResponseEntity<String> exportYearlySummary(@PathVariable Long freelanceId,
+                                                      @RequestParam(required = false) Integer year) {
+        accessGuard.requireFreelance(freelanceId);
         String filename = "indezy-summary-" + (year != null ? year : "all") + ".csv";
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
             .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-            .body(csv);
+            .body(projectExportService.buildYearlySummaryCsv(freelanceId, year));
     }
 
-    @Operation(summary = "Get dashboard stats",
-        description = "Get aggregated dashboard statistics for charts, for all time or for one season")
-    @GetMapping("/stats/dashboard/{freelanceId}")
-    public ResponseEntity<DashboardStatsDto> getDashboardStats(
-            @PathVariable Long freelanceId,
-            @RequestParam(required = false) Long seasonId) {
-        log.debug("GET /projects/stats/dashboard/{}?seasonId={} - Getting dashboard stats", freelanceId, seasonId);
-        accessGuard.requireFreelance(freelanceId);
-        accessGuard.requireSeasonIfPresent(seasonId);
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(freelanceId, seasonId);
-        return ResponseEntity.ok(stats);
+    /** Optional references of a project must belong to the caller's workspace. */
+    private void requireReferences(ProjectDto projectDto) {
+        accessGuard.requireClientIfPresent(projectDto.getMiddlemanId());
+        accessGuard.requireSourceIfPresent(projectDto.getSourceId());
+        accessGuard.requireSeasonIfPresent(projectDto.getSeasonId());
     }
 }

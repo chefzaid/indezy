@@ -218,16 +218,11 @@ class UserManagementIntegrationTest {
 
     @Test
     void testGetSecuritySettings() {
-        String url = getBaseUrl() + "/security";
-        
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(getBaseUrl() + "/security", String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        
-        // Verify response contains expected security fields
         assertTrue(response.getBody().contains("twoFactorEnabled"));
         assertTrue(response.getBody().contains("lastPasswordChange"));
-        assertTrue(response.getBody().contains("loginSessions"));
     }
 
     @Test
@@ -278,35 +273,6 @@ class UserManagementIntegrationTest {
     }
 
     @Test
-    void testTerminateSession() {
-        String sessionId = "session1";
-        String url = getBaseUrl() + "/security/sessions/" + sessionId;
-        
-        ResponseEntity<Boolean> response = restTemplate.exchange(url, HttpMethod.DELETE, null, Boolean.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody());
-    }
-
-    @Test
-    void testDeleteAccount() {
-        String url = getBaseUrl() + "/account/delete";
-
-        String deleteRequest = """
-            {
-                "password": "password123"
-            }
-            """;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> entity = new HttpEntity<>(deleteRequest, headers);
-
-        ResponseEntity<Boolean> response = restTemplate.exchange(url, HttpMethod.POST, entity, Boolean.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody());
-    }
-
-    @Test
     void testExportUserData() {
         String url = getBaseUrl() + "/export";
         
@@ -317,15 +283,6 @@ class UserManagementIntegrationTest {
         
         // Verify content type is appropriate for file download
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, response.getHeaders().getContentType());
-    }
-
-    @Test
-    void testErrorHandling() {
-        // Test non-existent session termination
-        String url = getBaseUrl() + "/security/sessions/non-existent-session";
-
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, null, String.class);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test

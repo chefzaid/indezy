@@ -4,196 +4,88 @@ import dev.swirlit.indezy.dto.ContactDto;
 import dev.swirlit.indezy.dto.ContactImportRequest;
 import dev.swirlit.indezy.dto.ContactImportResultDto;
 import dev.swirlit.indezy.service.AccessGuard;
-import dev.swirlit.indezy.service.ContactService;
 import dev.swirlit.indezy.service.ContactImportService;
+import dev.swirlit.indezy.service.ContactService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/contacts")
 @RequiredArgsConstructor
-@Slf4j
-@CrossOrigin(origins = {"http://localhost:4200", "http://127.0.0.1:4200"})
-@Tag(name = "Contacts", description = "Contact management operations")
+@Tag(name = "Contacts", description = "People at clients and ESNs")
 public class ContactController {
 
     private final ContactService contactService;
     private final ContactImportService contactImportService;
     private final AccessGuard accessGuard;
 
-    @Operation(summary = "Import contacts for a client",
-            description = "Parses a CSV or vCard payload and imports its contacts under the given client")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Import completed",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ContactImportResultDto.class))),
-        @ApiResponse(responseCode = "404", description = "Client not found"),
-        @ApiResponse(responseCode = "400", description = "Invalid import payload")
-    })
-    @PostMapping("/import/by-client/{clientId}")
-    public ResponseEntity<ContactImportResultDto> importContacts(
-            @Parameter(description = "Target client ID", required = true) @PathVariable Long clientId,
-            @Valid @RequestBody ContactImportRequest request) {
-        log.debug("POST /contacts/import/by-client/{} - Importing contacts", clientId);
-        accessGuard.requireClient(clientId);
-        ContactImportResultDto result = contactImportService.importForClient(clientId, request.getContent());
-        return ResponseEntity.ok(result);
-    }
-
-    @Operation(summary = "Get all contacts", description = "Retrieve a list of all contacts")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved contacts",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ContactDto.class)))
-    })
+    @Operation(summary = "List the caller's contacts")
     @GetMapping
-    public ResponseEntity<List<ContactDto>> getAllContacts() {
-        log.debug("GET /contacts - Getting all contacts");
-        List<ContactDto> contacts = accessGuard.currentFreelanceId()
+    public List<ContactDto> getAllContacts() {
+        return accessGuard.currentFreelanceId()
             .map(contactService::findByFreelanceId)
             .orElseGet(contactService::findAll);
-        return ResponseEntity.ok(contacts);
     }
 
-    @Operation(summary = "Get contact by ID", description = "Retrieve a specific contact by its ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved contact",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ContactDto.class))),
-        @ApiResponse(responseCode = "404", description = "Contact not found")
-    })
+    @Operation(summary = "List the contacts of a workspace")
+    @GetMapping("/by-freelance/{freelanceId}")
+    public List<ContactDto> getContactsByFreelanceId(@PathVariable Long freelanceId) {
+        accessGuard.requireFreelance(freelanceId);
+        return contactService.findByFreelanceId(freelanceId);
+    }
+
+    @Operation(summary = "List the contacts of a client")
+    @GetMapping("/by-client/{clientId}")
+    public List<ContactDto> getContactsByClientId(@PathVariable Long clientId) {
+        accessGuard.requireClient(clientId);
+        return contactService.findByClientId(clientId);
+    }
+
+    @Operation(summary = "Get a contact")
     @GetMapping("/{id}")
-    public ResponseEntity<ContactDto> getContactById(
-            @Parameter(description = "Contact ID", required = true) @PathVariable Long id) {
-        log.debug("GET /contacts/{} - Getting contact by id", id);
+    public ContactDto getContactById(@PathVariable Long id) {
         accessGuard.requireContact(id);
-        ContactDto contact = contactService.findById(id);
-        return ResponseEntity.ok(contact);
+        return contactService.findById(id);
     }
 
-    @Operation(summary = "Create new contact", description = "Create a new contact with the provided details")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Contact created successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ContactDto.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid contact data")
-    })
+    @Operation(summary = "Create a contact")
     @PostMapping
-    public ResponseEntity<ContactDto> createContact(
-            @Parameter(description = "Contact details", required = true) @Valid @RequestBody ContactDto contactDto) {
-        log.debug("POST /contacts - Creating new contact");
+    public ResponseEntity<ContactDto> createContact(@Valid @RequestBody ContactDto contactDto) {
         contactDto.setFreelanceId(accessGuard.resolveFreelanceId(contactDto.getFreelanceId()));
         accessGuard.requireClient(contactDto.getClientId());
-        ContactDto createdContact = contactService.create(contactDto);
-        return new ResponseEntity<>(createdContact, HttpStatus.CREATED);
+        return new ResponseEntity<>(contactService.create(contactDto), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Update contact", description = "Update an existing contact with the provided details")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Contact updated successfully",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ContactDto.class))),
-        @ApiResponse(responseCode = "404", description = "Contact not found"),
-        @ApiResponse(responseCode = "400", description = "Invalid contact data")
-    })
+    @Operation(summary = "Update a contact")
     @PutMapping("/{id}")
-    public ResponseEntity<ContactDto> updateContact(
-            @Parameter(description = "Contact ID", required = true) @PathVariable Long id,
-            @Parameter(description = "Updated contact details", required = true) @Valid @RequestBody ContactDto contactDto) {
-        log.debug("PUT /contacts/{} - Updating contact", id);
+    public ContactDto updateContact(@PathVariable Long id, @Valid @RequestBody ContactDto contactDto) {
         accessGuard.requireContact(id);
         contactDto.setFreelanceId(accessGuard.resolveFreelanceId(contactDto.getFreelanceId()));
         accessGuard.requireClientIfPresent(contactDto.getClientId());
-        ContactDto updatedContact = contactService.update(id, contactDto);
-        return ResponseEntity.ok(updatedContact);
+        return contactService.update(id, contactDto);
     }
 
-    @Operation(summary = "Delete contact", description = "Delete a contact by its ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Contact deleted successfully"),
-        @ApiResponse(responseCode = "404", description = "Contact not found")
-    })
+    @Operation(summary = "Delete a contact")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteContact(
-            @Parameter(description = "Contact ID", required = true) @PathVariable Long id) {
-        log.debug("DELETE /contacts/{} - Deleting contact", id);
+    public ResponseEntity<Void> deleteContact(@PathVariable Long id) {
         accessGuard.requireContact(id);
         contactService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Get contacts by freelance ID", description = "Retrieve all contacts for a specific freelance")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved contacts",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ContactDto.class)))
-    })
-    @GetMapping("/by-freelance/{freelanceId}")
-    public ResponseEntity<List<ContactDto>> getContactsByFreelanceId(
-            @Parameter(description = "Freelance ID", required = true) @PathVariable Long freelanceId) {
-        log.debug("GET /contacts/by-freelance/{} - Getting contacts by freelance id", freelanceId);
-        accessGuard.requireFreelance(freelanceId);
-        List<ContactDto> contacts = contactService.findByFreelanceId(freelanceId);
-        return ResponseEntity.ok(contacts);
-    }
-
-    @Operation(summary = "Get contacts by client ID", description = "Retrieve all contacts for a specific client")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved contacts",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ContactDto.class)))
-    })
-    @GetMapping("/by-client/{clientId}")
-    public ResponseEntity<List<ContactDto>> getContactsByClientId(
-            @Parameter(description = "Client ID", required = true) @PathVariable Long clientId) {
-        log.debug("GET /contacts/by-client/{} - Getting contacts by client id", clientId);
+    @Operation(summary = "Import contacts for a client",
+        description = "Parses a CSV or vCard payload and imports its contacts under the given client")
+    @PostMapping("/import/by-client/{clientId}")
+    public ContactImportResultDto importContacts(@PathVariable Long clientId,
+                                                 @Valid @RequestBody ContactImportRequest request) {
         accessGuard.requireClient(clientId);
-        List<ContactDto> contacts = contactService.findByClientId(clientId);
-        return ResponseEntity.ok(contacts);
-    }
-
-    @Operation(summary = "Search contacts by name", description = "Search contacts by name for a specific freelance")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved contacts",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ContactDto.class)))
-    })
-    @GetMapping("/by-freelance/{freelanceId}/search/name")
-    public ResponseEntity<List<ContactDto>> searchContactsByName(
-            @Parameter(description = "Freelance ID", required = true) @PathVariable Long freelanceId,
-            @Parameter(description = "Name to search for", required = true) @RequestParam String name) {
-        log.debug("GET /contacts/by-freelance/{}/search/name?name={} - Searching contacts by name", freelanceId, name);
-        accessGuard.requireFreelance(freelanceId);
-        List<ContactDto> contacts = contactService.searchByName(freelanceId, name);
-        return ResponseEntity.ok(contacts);
-    }
-
-    @Operation(summary = "Search contacts by email", description = "Search contacts by email for a specific freelance")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved contacts",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ContactDto.class)))
-    })
-    @GetMapping("/by-freelance/{freelanceId}/search/email")
-    public ResponseEntity<List<ContactDto>> searchContactsByEmail(
-            @Parameter(description = "Freelance ID", required = true) @PathVariable Long freelanceId,
-            @Parameter(description = "Email to search for", required = true) @RequestParam String email) {
-        log.debug("GET /contacts/by-freelance/{}/search/email?email={} - Searching contacts by email", freelanceId, email);
-        accessGuard.requireFreelance(freelanceId);
-        List<ContactDto> contacts = contactService.searchByEmail(freelanceId, email);
-        return ResponseEntity.ok(contacts);
+        return contactImportService.importForClient(clientId, request.getContent());
     }
 }

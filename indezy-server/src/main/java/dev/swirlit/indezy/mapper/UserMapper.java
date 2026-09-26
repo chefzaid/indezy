@@ -2,8 +2,6 @@ package dev.swirlit.indezy.mapper;
 
 import dev.swirlit.indezy.dto.*;
 import dev.swirlit.indezy.model.User;
-import dev.swirlit.indezy.model.UserSecurityQuestion;
-import dev.swirlit.indezy.model.UserSession;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
@@ -18,8 +16,6 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "passwordHash", ignore = true)
     @Mapping(target = "lastPasswordChange", ignore = true)
-    @Mapping(target = "sessions", ignore = true)
-    @Mapping(target = "securityQuestions", ignore = true)
     @Mapping(target = "twoFactorSecret", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
@@ -30,8 +26,6 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "passwordHash", ignore = true)
     @Mapping(target = "lastPasswordChange", ignore = true)
-    @Mapping(target = "sessions", ignore = true)
-    @Mapping(target = "securityQuestions", ignore = true)
     @Mapping(target = "twoFactorSecret", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
@@ -71,16 +65,5 @@ public interface UserMapper {
     // Security settings mapping
     @Mapping(target = "twoFactorEnabled", source = "twoFactorEnabled")
     @Mapping(target = "lastPasswordChange", source = "lastPasswordChange")
-    @Mapping(target = "loginSessions", source = "sessions")
-    @Mapping(target = "securityQuestions", source = "securityQuestions")
     UserSecuritySettingsDto toSecuritySettingsDto(User user);
-
-    // Session mapping
-    @Mapping(target = "id", source = "sessionId")
-    @Mapping(target = "current", source = "isCurrent")
-    UserSessionDto toSessionDto(UserSession session);
-
-    // Security question mapping
-    @Mapping(target = "answer", ignore = true) // Never expose the answer
-    UserSecurityQuestionDto toSecurityQuestionDto(UserSecurityQuestion question);
 }

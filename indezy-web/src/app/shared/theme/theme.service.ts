@@ -48,10 +48,6 @@ export class ThemeService implements OnDestroy {
     this.render();
   }
 
-  getPreference(): ThemePreference {
-    return this.preference;
-  }
-
   isDark(): boolean {
     return this.darkSubject.value;
   }

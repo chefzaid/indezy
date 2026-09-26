@@ -419,15 +419,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  getWorkModeColor(workMode?: string): string {
-    switch (workMode) {
-      case 'REMOTE': return 'primary';
-      case 'ONSITE': return 'accent';
-      case 'HYBRID': return 'warn';
-      default: return '';
-    }
-  }
-
   getRatingStars(rating?: number): string[] {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -450,11 +441,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     if (!this.project?.dailyRate || !this.project?.durationInMonths) { return 0; }
     const daysPerMonth = (this.project.daysPerYear ?? 220) / 12;
     return this.project.dailyRate * daysPerMonth * this.project.durationInMonths;
-  }
-
-  getProgressPercentage(): number {
-    if (!this.project?.totalSteps) { return 0; }
-    return Math.round((this.project.completedSteps ?? 0) / this.project.totalSteps * 100);
   }
 
   openLink(): void {

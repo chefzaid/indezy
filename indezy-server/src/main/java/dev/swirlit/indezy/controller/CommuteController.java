@@ -18,7 +18,6 @@ import java.util.List;
 @RequestMapping("/commute")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:4200", "http://127.0.0.1:4200"})
 @Tag(name = "Commute", description = "Commute time estimation and project sorting by distance")
 public class CommuteController {
 
@@ -37,17 +36,4 @@ public class CommuteController {
         return ResponseEntity.ok(results);
     }
 
-    @Operation(summary = "Get commute info for a single project",
-            description = "Returns commute time details from the freelancer's home to a specific project's client location")
-    @GetMapping("/projects/{freelanceId}/{projectId}")
-    public ResponseEntity<CommuteInfoDto> getCommuteForProject(
-            @PathVariable Long freelanceId,
-            @PathVariable Long projectId,
-            @RequestParam(defaultValue = "DRIVING") TravelMode travelMode) {
-        log.debug("GET /commute/projects/{}/{} - mode={}", freelanceId, projectId, travelMode);
-        accessGuard.requireFreelance(freelanceId);
-        accessGuard.requireProject(projectId);
-        CommuteInfoDto result = commuteService.getCommuteForProject(freelanceId, projectId, travelMode);
-        return ResponseEntity.ok(result);
-    }
 }

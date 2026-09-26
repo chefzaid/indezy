@@ -3,11 +3,10 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.RegisterRequest;
+import dev.swirlit.indezy.exception.TwoFactorRequiredException;
 import dev.swirlit.indezy.service.AuthService;
 import dev.swirlit.indezy.service.LoginAttemptService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:4200", "http://127.0.0.1:4200"})
 @Tag(name = "Authentication", description = "Authentication and user registration operations")
 public class AuthController {
 
@@ -29,12 +27,6 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "User login", description = "Authenticate user and return JWT token")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login successful"),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials"),
-            @ApiResponse(responseCode = "429", description = "Too many failed attempts"),
-            @ApiResponse(responseCode = "400", description = "Invalid request data")
-    })
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         log.debug("POST /auth/login - Login attempt for email: {}", request.getEmail());
         if (loginAttemptService.isBlocked(request.getEmail())) {
@@ -45,20 +37,20 @@ public class AuthController {
             LoginResponse response = authService.login(request);
             loginAttemptService.loginSucceeded(request.getEmail());
             return ResponseEntity.ok(response);
+        } catch (TwoFactorRequiredException e) {
+            // Not a failed attempt: the password was right, the client must now ask for the code.
+            LoginResponse challenge = new LoginResponse();
+            challenge.setTwoFactorRequired(true);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(challenge);
         } catch (Exception e) {
             loginAttemptService.loginFailed(request.getEmail());
             log.error("Login failed for email: {}", request.getEmail(), e);
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
     @PostMapping("/register")
     @Operation(summary = "User registration", description = "Register new user and return JWT token")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Registration successful"),
-            @ApiResponse(responseCode = "409", description = "User already exists"),
-            @ApiResponse(responseCode = "400", description = "Invalid request data")
-    })
     public ResponseEntity<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
         log.debug("POST /auth/register - Registration attempt for email: {}", request.getEmail());
         try {
@@ -75,10 +67,6 @@ public class AuthController {
 
     @GetMapping("/sso")
     @Operation(summary = "Keycloak SSO", description = "Exchange the ingress-validated Keycloak identity for an Indezy session")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "SSO authentication successful"),
-            @ApiResponse(responseCode = "401", description = "Missing or invalid Keycloak identity")
-    })
     public ResponseEntity<LoginResponse> sso(
             @RequestHeader(value = "X-Auth-Request-Access-Token", required = false) String accessToken) {
         try {

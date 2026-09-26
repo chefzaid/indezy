@@ -101,8 +101,8 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
     forkJoin({
-      client: this.clientService.getClient(clientId),
-      contacts: this.contactService.getContactsByClient(clientId),
+      client: this.clientService.getById(clientId),
+      contacts: this.contactService.getByClientId(clientId),
       projects: freelanceId ? this.projectService.getByFreelanceId(freelanceId) : this.projectService.getByClientId(clientId)
     })
       .pipe(takeUntil(this.destroy$))
@@ -132,7 +132,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     }
 
     this.isLoadingContacts = true;
-    this.contactService.getContactsByClient(this.clientId)
+    this.contactService.getByClientId(this.clientId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (contacts) => {
@@ -180,7 +180,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
       if (!confirmed) {
         return;
       }
-      this.clientService.deleteClient(client.id)
+      this.clientService.delete(client.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -228,7 +228,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
   // Contact management methods
   onAddContact(): void {
     if (this.clientId) {
-      this.router.navigate(['/clients', this.clientId, 'contacts', 'create']);
+      this.router.navigate(['/clients', this.clientId, 'contacts', 'new']);
     }
   }
 
@@ -282,7 +282,7 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
       if (!confirmed) {
         return;
       }
-      this.contactService.deleteContact(contactId)
+      this.contactService.delete(contactId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {

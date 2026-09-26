@@ -19,24 +19,3 @@ export interface SourceDto {
   updatedAt?: Date;
 }
 
-export interface CreateSourceDto {
-  name: string;
-  type: SourceType;
-  link?: string;
-  isListing?: boolean;
-  popularityRating?: number;
-  usefulnessRating?: number;
-  notes?: string;
-  freelanceId: number;
-}
-
-export interface UpdateSourceDto {
-  id: number;
-  name?: string;
-  type?: SourceType;
-  link?: string;
-  isListing?: boolean;
-  popularityRating?: number;
-  usefulnessRating?: number;
-  notes?: string;
-}

@@ -65,6 +65,16 @@
             }
           </mat-form-field>
 
+          @if (needsTotpCode) {
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'auth.totpCode' | translate }}</mat-label>
+              <input matInput formControlName="totpCode" inputmode="numeric" autocomplete="one-time-code"
+                maxlength="8" cdkFocusInitial [attr.aria-label]="'auth.totpCode' | translate">
+              <mat-icon matSuffix>pin</mat-icon>
+              <mat-hint>{{ 'auth.totpHint' | translate }}</mat-hint>
+            </mat-form-field>
+          }
+
           <button mat-raised-button
             color="primary"
             type="submit"

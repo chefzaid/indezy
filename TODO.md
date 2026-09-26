@@ -138,7 +138,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 
 ## User Experience
 
-- [x] Reusable filter components for advanced search, comprehensive filters, date ranges, multi-select filters, range sliders, and filter presets
+- [x] Consistent inline filters on every list (search, type/status/season, sort), collapsible on small screens
 - [x] French and English translations with `@ngx-translate`
 - [x] Language switching and saved language preference loading
 - [ ] Global search (projects, clients, contacts, notes) with keyboard shortcut and match highlighting in results

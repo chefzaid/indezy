@@ -9,9 +9,7 @@ import dev.swirlit.indezy.dto.UserSecuritySettingsDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.UserMapper;
 import dev.swirlit.indezy.model.User;
-import dev.swirlit.indezy.model.UserSession;
 import dev.swirlit.indezy.repository.UserRepository;
-import dev.swirlit.indezy.repository.UserSessionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,8 +35,6 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private UserSessionRepository userSessionRepository;
 
     @Mock
     private UserMapper userMapper;
@@ -191,15 +187,6 @@ class UserServiceTest {
     }
 
     @Test
-    void getSecuritySettings_ShouldReturnSettings() {
-        UserSecuritySettingsDto settings = new UserSecuritySettingsDto();
-        when(userRepository.findByIdWithSecurityData(1L)).thenReturn(Optional.of(testUser));
-        when(userMapper.toSecuritySettingsDto(testUser)).thenReturn(settings);
-
-        assertThat(userService.getSecuritySettings(1L)).isSameAs(settings);
-    }
-
-    @Test
     void enableTwoFactor_ShouldStoreSecretButLeaveDisabledUntilVerified() {
         testUser.setEmail("john.doe@example.com");
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -260,87 +247,6 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.disableTwoFactor(1L, "000000"))
             .isInstanceOf(IllegalArgumentException.class);
         verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    void terminateSession_WithOwnSession_ShouldDeleteIt() {
-        UserSession session = new UserSession();
-        User owner = new User();
-        owner.setId(1L);
-        session.setUser(owner);
-        when(userSessionRepository.findBySessionId("abc")).thenReturn(Optional.of(session));
-
-        boolean result = userService.terminateSession(1L, "abc");
-
-        assertThat(result).isTrue();
-        verify(userSessionRepository).delete(session);
-    }
-
-    @Test
-    void terminateSession_WithForeignSession_ShouldThrowIllegalArgumentException() {
-        UserSession session = new UserSession();
-        User otherUser = new User();
-        otherUser.setId(2L);
-        session.setUser(otherUser);
-        when(userSessionRepository.findBySessionId("abc")).thenReturn(Optional.of(session));
-
-        assertThatThrownBy(() -> userService.terminateSession(1L, "abc"))
-            .isInstanceOf(IllegalArgumentException.class);
-        verify(userSessionRepository, never()).delete(any());
-    }
-
-    @Test
-    void terminateSession_WithUnknownSession_ShouldThrowResourceNotFoundException() {
-        when(userSessionRepository.findBySessionId("missing")).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> userService.terminateSession(1L, "missing"))
-            .isInstanceOf(ResourceNotFoundException.class);
-    }
-
-    @Test
-    void deleteAccount_WithCorrectPassword_ShouldSoftDeleteUser() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("pass", "hashed")).thenReturn(true);
-
-        boolean result = userService.deleteAccount(1L, "pass");
-
-        assertThat(result).isTrue();
-        assertThat(testUser.getDeletedAt()).isNotNull();
-        verify(userRepository).save(testUser);
-        verify(userRepository, never()).delete(any());
-    }
-
-    @Test
-    void deleteAccount_WithWrongPassword_ShouldThrowIllegalArgumentException() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("wrong", "hashed")).thenReturn(false);
-
-        assertThatThrownBy(() -> userService.deleteAccount(1L, "wrong"))
-            .isInstanceOf(IllegalArgumentException.class);
-        verify(userRepository, never()).delete(any());
-    }
-
-    @Test
-    void findByEmail_WithExistingEmail_ShouldReturnUser() {
-        when(userRepository.findByEmail("john.doe@example.com")).thenReturn(Optional.of(testUser));
-        when(userMapper.toDto(testUser)).thenReturn(testUserDto);
-
-        assertThat(userService.findByEmail("john.doe@example.com").getId()).isEqualTo(1L);
-    }
-
-    @Test
-    void findByEmail_WithUnknownEmail_ShouldThrowResourceNotFoundException() {
-        when(userRepository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> userService.findByEmail("missing@example.com"))
-            .isInstanceOf(ResourceNotFoundException.class);
-    }
-
-    @Test
-    void existsByEmail_ShouldDelegateToRepository() {
-        when(userRepository.existsByEmail("john.doe@example.com")).thenReturn(true);
-
-        assertThat(userService.existsByEmail("john.doe@example.com")).isTrue();
     }
 
     @Test

@@ -1,7 +1,6 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.InterviewStepDto;
-import dev.swirlit.indezy.dto.StepTransitionDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.InterviewStepMapper;
 import dev.swirlit.indezy.model.Client;
@@ -146,23 +145,6 @@ class InterviewStepServiceTest {
     }
 
     @Test
-    void findByProjectId_ShouldReturnStepsForProject() {
-        // Given
-        List<InterviewStep> steps = Arrays.asList(testInterviewStep);
-        when(interviewStepRepository.findByProjectId(1L)).thenReturn(steps);
-        when(interviewStepMapper.toDto(testInterviewStep)).thenReturn(testInterviewStepDto);
-
-        // When
-        List<InterviewStepDto> result = interviewStepService.findByProjectId(1L);
-
-        // Then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0)).isEqualTo(testInterviewStepDto);
-        verify(interviewStepRepository).findByProjectId(1L);
-        verify(interviewStepMapper).toDto(testInterviewStep);
-    }
-
-    @Test
     void create_WithValidData_ShouldCreateInterviewStep() {
         // Given
         when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
@@ -259,139 +241,4 @@ class InterviewStepServiceTest {
         verify(interviewStepMapper).toDto(testInterviewStep);
     }
 
-    @Test
-    void scheduleStep_ShouldSetDateAndStatusToPlanned() {
-        // Given
-        LocalDateTime scheduledDate = LocalDateTime.of(2024, 2, 15, 10, 0);
-        when(interviewStepRepository.findById(1L)).thenReturn(Optional.of(testInterviewStep));
-        when(interviewStepRepository.save(testInterviewStep)).thenReturn(testInterviewStep);
-        when(interviewStepMapper.toDto(testInterviewStep)).thenReturn(testInterviewStepDto);
-
-        // When
-        interviewStepService.scheduleStep(1L, scheduledDate);
-
-        // Then
-        assertThat(testInterviewStep.getDate()).isEqualTo(scheduledDate);
-        assertThat(testInterviewStep.getStatus()).isEqualTo(StepStatus.PLANNED);
-        verify(interviewStepRepository).findById(1L);
-        verify(interviewStepRepository).save(testInterviewStep);
-        verify(interviewStepMapper).toDto(testInterviewStep);
-    }
-
-    @Test
-    void markAsValidated_ShouldSetStatusToValidated() {
-        // Given
-        when(interviewStepRepository.findById(1L)).thenReturn(Optional.of(testInterviewStep));
-        when(interviewStepRepository.save(testInterviewStep)).thenReturn(testInterviewStep);
-        when(interviewStepMapper.toDto(testInterviewStep)).thenReturn(testInterviewStepDto);
-
-        // When
-        interviewStepService.markAsValidated(1L);
-
-        // Then
-        assertThat(testInterviewStep.getStatus()).isEqualTo(StepStatus.VALIDATED);
-        verify(interviewStepRepository).findById(1L);
-        verify(interviewStepRepository).save(testInterviewStep);
-        verify(interviewStepMapper).toDto(testInterviewStep);
-    }
-
-    @Test
-    void markAsFailed_ShouldSetStatusToFailed() {
-        // Given
-        when(interviewStepRepository.findById(1L)).thenReturn(Optional.of(testInterviewStep));
-        when(interviewStepRepository.save(testInterviewStep)).thenReturn(testInterviewStep);
-        when(interviewStepMapper.toDto(testInterviewStep)).thenReturn(testInterviewStepDto);
-
-        // When
-        interviewStepService.markAsFailed(1L);
-
-        // Then
-        assertThat(testInterviewStep.getStatus()).isEqualTo(StepStatus.FAILED);
-        verify(interviewStepRepository).findById(1L);
-        verify(interviewStepRepository).save(testInterviewStep);
-        verify(interviewStepMapper).toDto(testInterviewStep);
-    }
-
-    @Test
-    void transitionProjectToNextStep_ShouldValidatePreviousStepAndCreateNewStep() {
-        // Given
-        StepTransitionDto transitionDto = new StepTransitionDto();
-        transitionDto.setProjectId(1L);
-        transitionDto.setFromStepTitle("Technical Interview");
-        transitionDto.setToStepTitle("Manager Interview");
-        transitionDto.setNotes("Moving to next step");
-
-        List<InterviewStep> currentSteps = Arrays.asList(testInterviewStep);
-
-        when(interviewStepRepository.findByProjectId(1L)).thenReturn(currentSteps);
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
-        when(interviewStepRepository.save(any(InterviewStep.class))).thenReturn(testInterviewStep);
-        when(interviewStepMapper.toDto(any(InterviewStep.class))).thenReturn(testInterviewStepDto);
-
-        // When
-        interviewStepService.transitionProjectToNextStep(transitionDto);
-
-        // Then
-        assertThat(testInterviewStep.getStatus()).isEqualTo(StepStatus.VALIDATED);
-        verify(interviewStepRepository).findByProjectId(1L);
-        verify(projectRepository).findById(1L);
-        verify(interviewStepRepository, times(2)).save(any(InterviewStep.class));
-        verify(interviewStepMapper).toDto(any(InterviewStep.class));
-    }
-
-    @Test
-    void transitionProjectToNextStep_WithNonExistentFromStep_ShouldThrowResourceNotFoundException() {
-        // Given
-        StepTransitionDto transitionDto = new StepTransitionDto();
-        transitionDto.setProjectId(1L);
-        transitionDto.setFromStepTitle("Non-existent Step");
-        transitionDto.setToStepTitle("Manager Interview");
-
-        List<InterviewStep> currentSteps = Arrays.asList(testInterviewStep);
-
-        when(interviewStepRepository.findByProjectId(1L)).thenReturn(currentSteps);
-
-        // When & Then
-        assertThatThrownBy(() -> interviewStepService.transitionProjectToNextStep(transitionDto))
-            .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Step 'Non-existent Step' not found for project 1");
-
-        verify(interviewStepRepository).findByProjectId(1L);
-        verify(projectRepository, never()).findById(any());
-        verify(interviewStepRepository, never()).save(any());
-    }
-
-    @Test
-    void markAsCanceled_ShouldSetStatusToCanceled() {
-        // Given
-        when(interviewStepRepository.findById(1L)).thenReturn(Optional.of(testInterviewStep));
-        when(interviewStepRepository.save(testInterviewStep)).thenReturn(testInterviewStep);
-        when(interviewStepMapper.toDto(testInterviewStep)).thenReturn(testInterviewStepDto);
-
-        // When
-        interviewStepService.markAsCanceled(1L);
-
-        // Then
-        assertThat(testInterviewStep.getStatus()).isEqualTo(StepStatus.CANCELED);
-        verify(interviewStepRepository).findById(1L);
-        verify(interviewStepRepository).save(testInterviewStep);
-        verify(interviewStepMapper).toDto(testInterviewStep);
-    }
-
-    @Test
-    void markAsWaitingFeedback_ShouldSetStatusToWaitingFeedback() {
-        // Given
-        when(interviewStepRepository.findById(1L)).thenReturn(Optional.of(testInterviewStep));
-        when(interviewStepRepository.save(testInterviewStep)).thenReturn(testInterviewStep);
-        when(interviewStepMapper.toDto(testInterviewStep)).thenReturn(testInterviewStepDto);
-
-        // When
-        interviewStepService.markAsWaitingFeedback(1L);
-
-        // Then
-        assertThat(testInterviewStep.getStatus()).isEqualTo(StepStatus.WAITING_FEEDBACK);
-        verify(interviewStepRepository).findById(1L);
-        verify(interviewStepRepository).save(testInterviewStep);
-        verify(interviewStepMapper).toDto(testInterviewStep);
-    }
 }

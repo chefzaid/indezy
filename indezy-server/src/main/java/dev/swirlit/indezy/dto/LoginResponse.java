@@ -6,6 +6,8 @@ import lombok.Data;
 public class LoginResponse {
     private String token;
     private UserInfo user;
+    /** Set (with a 401) when the password was right but the two-factor code is still needed. */
+    private Boolean twoFactorRequired;
 
     @Data
     public static class UserInfo {

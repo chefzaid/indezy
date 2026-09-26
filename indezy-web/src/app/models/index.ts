@@ -14,6 +14,3 @@ export * from './interview-step.models';
 export * from './commute.models';
 export * from './season.models';
 
-// UI and filter models
-export * from './filter.models';
-export * from './ui.models';

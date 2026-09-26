@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ClientDto, ClientStatus, CreateClientDto, UpdateClientDto } from '../../models/client.models';
+import { ClientDto, CreateClientDto, UpdateClientDto } from '../../models/client.models';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable({
@@ -20,16 +20,8 @@ export class ClientService {
     return freelanceId ? this.getByFreelanceId(freelanceId) : of([]);
   }
 
-  getAll(): Observable<ClientDto[]> {
-    return this.http.get<ClientDto[]>(this.API_URL);
-  }
-
   getById(id: number): Observable<ClientDto> {
     return this.http.get<ClientDto>(`${this.API_URL}/${id}`);
-  }
-
-  getByIdWithProjects(id: number): Observable<ClientDto> {
-    return this.http.get<ClientDto>(`${this.API_URL}/${id}/with-projects`);
   }
 
   getByFreelanceId(freelanceId: number): Observable<ClientDto[]> {
@@ -46,53 +38,5 @@ export class ClientService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/${id}`);
-  }
-
-  // Legacy methods for backward compatibility
-  /** Every client known to the API regardless of owner; use getForCurrentFreelance() in screens. */
-  getClients(): Observable<ClientDto[]> {
-    return this.getAll();
-  }
-
-  getClient(id: number): Observable<ClientDto> {
-    return this.getById(id);
-  }
-
-  createClient(clientData: CreateClientDto): Observable<ClientDto> {
-    return this.create(clientData);
-  }
-
-  updateClient(clientData: UpdateClientDto): Observable<ClientDto> {
-    return this.update(clientData.id, clientData);
-  }
-
-  deleteClient(id: number): Observable<void> {
-    return this.delete(id);
-  }
-
-  searchClients(freelanceId: number, query: string): Observable<ClientDto[]> {
-    const params = new HttpParams()
-      .set('freelanceId', freelanceId.toString())
-      .set('query', query);
-    return this.http.get<ClientDto[]>(`${this.API_URL}/search`, { params });
-  }
-
-  getClientsByStatus(freelanceId: number, status: ClientStatus): Observable<ClientDto[]> {
-    const params = new HttpParams()
-      .set('freelanceId', freelanceId.toString())
-      .set('status', status);
-    return this.http.get<ClientDto[]>(`${this.API_URL}/by-status`, { params });
-  }
-
-  getClientStats(freelanceId: number): Observable<{total: number, active: number, inactive: number, prospects: number}> {
-    return this.http.get<{total: number, active: number, inactive: number, prospects: number}>(`${this.API_URL}/stats/${freelanceId}`);
-  }
-
-  getAverageProjectRating(freelanceId: number): Observable<number> {
-    return this.http.get<number>(`${this.API_URL}/stats/average-rating/${freelanceId}`);
-  }
-
-  getClientCount(freelanceId: number): Observable<number> {
-    return this.http.get<number>(`${this.API_URL}/stats/count/${freelanceId}`);
   }
 }

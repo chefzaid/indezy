@@ -1,7 +1,6 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.InterviewStepDto;
-import dev.swirlit.indezy.dto.StepTransitionDto;
 import dev.swirlit.indezy.model.enums.StepStatus;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.InterviewStepService;
@@ -11,15 +10,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class InterviewStepControllerTest {
@@ -33,240 +35,76 @@ class InterviewStepControllerTest {
     @InjectMocks
     private InterviewStepController interviewStepController;
 
-    private InterviewStepDto testInterviewStepDto;
-    private StepTransitionDto testStepTransitionDto;
+    private InterviewStepDto step;
 
     @BeforeEach
     void setUp() {
-        // Setup test DTO
-        testInterviewStepDto = new InterviewStepDto();
-        testInterviewStepDto.setId(1L);
-        testInterviewStepDto.setTitle("Technical Interview");
-        testInterviewStepDto.setDate(LocalDateTime.of(2024, 1, 10, 14, 30));
-        testInterviewStepDto.setStatus(StepStatus.PLANNED);
-        testInterviewStepDto.setNotes("Technical interview with the team");
-        testInterviewStepDto.setProjectId(1L);
-        testInterviewStepDto.setProjectRole("Full Stack Developer");
-
-        // Setup transition DTO
-        testStepTransitionDto = new StepTransitionDto();
-        testStepTransitionDto.setProjectId(1L);
-        testStepTransitionDto.setFromStepTitle("Technical Interview");
-        testStepTransitionDto.setToStepTitle("Manager Interview");
-        testStepTransitionDto.setNotes("Moving to next step");
+        step = new InterviewStepDto();
+        step.setId(1L);
+        step.setTitle("Technical Interview");
+        step.setDate(LocalDateTime.of(2024, 1, 10, 14, 30));
+        step.setStatus(StepStatus.PLANNED);
+        step.setProjectId(1L);
     }
 
     @Test
-    void getAllInterviewSteps_ShouldReturnListOfSteps() {
-        // Given
-        List<InterviewStepDto> steps = Arrays.asList(testInterviewStepDto);
-        when(interviewStepService.findAll()).thenReturn(steps);
+    void getAllInterviewSteps_ShouldListTheCallersSteps() {
+        when(accessGuard.currentFreelanceId()).thenReturn(Optional.of(7L));
+        when(interviewStepService.findByFreelanceIdAndStatus(7L, null)).thenReturn(List.of(step));
 
-        // When
-        ResponseEntity<List<InterviewStepDto>> response = interviewStepController.getAllInterviewSteps();
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(steps);
-        verify(interviewStepService).findAll();
+        assertThat(interviewStepController.getAllInterviewSteps()).containsExactly(step);
     }
 
     @Test
-    void getInterviewStepById_WithExistingId_ShouldReturnStep() {
-        // Given
-        when(interviewStepService.findById(1L)).thenReturn(testInterviewStepDto);
+    void getAllInterviewSteps_WithoutAccount_ShouldListEverySteps() {
+        when(accessGuard.currentFreelanceId()).thenReturn(Optional.empty());
+        when(interviewStepService.findAll()).thenReturn(List.of(step));
 
-        // When
-        ResponseEntity<InterviewStepDto> response = interviewStepController.getInterviewStepById(1L);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(testInterviewStepDto);
-        verify(interviewStepService).findById(1L);
+        assertThat(interviewStepController.getAllInterviewSteps()).containsExactly(step);
     }
 
     @Test
-    void getInterviewStepsByProjectId_ShouldReturnStepsForProject() {
-        // Given
-        List<InterviewStepDto> steps = Arrays.asList(testInterviewStepDto);
-        when(interviewStepService.findByProjectId(1L)).thenReturn(steps);
+    void readEndpoints_ShouldCheckOwnershipAndDelegate() {
+        when(interviewStepService.findById(1L)).thenReturn(step);
+        when(interviewStepService.findByProjectIdOrderByDate(1L)).thenReturn(List.of(step));
+        when(interviewStepService.findByFreelanceIdAndStatus(1L, StepStatus.PLANNED)).thenReturn(List.of(step));
 
-        // When
-        ResponseEntity<List<InterviewStepDto>> response = interviewStepController.getInterviewStepsByProjectId(1L);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(steps);
-        verify(interviewStepService).findByProjectId(1L);
+        assertThat(interviewStepController.getInterviewStepById(1L)).isEqualTo(step);
+        assertThat(interviewStepController.getInterviewStepsByProjectIdOrderByDate(1L)).containsExactly(step);
+        assertThat(interviewStepController.getInterviewStepsByFreelanceIdAndStatus(1L, StepStatus.PLANNED))
+            .containsExactly(step);
+        verify(accessGuard).requireInterviewStep(1L);
+        verify(accessGuard).requireProject(1L);
+        verify(accessGuard).requireFreelance(1L);
     }
 
     @Test
-    void getInterviewStepsByProjectIdOrderByDate_ShouldReturnOrderedSteps() {
-        // Given
-        List<InterviewStepDto> steps = Arrays.asList(testInterviewStepDto);
-        when(interviewStepService.findByProjectIdOrderByDate(1L)).thenReturn(steps);
+    void createInterviewStep_ShouldCheckTheProjectAndReturnCreated() {
+        when(interviewStepService.create(any(InterviewStepDto.class))).thenReturn(step);
 
-        // When
-        ResponseEntity<List<InterviewStepDto>> response = interviewStepController.getInterviewStepsByProjectIdOrderByDate(1L);
+        ResponseEntity<InterviewStepDto> response = interviewStepController.createInterviewStep(step);
 
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(steps);
-        verify(interviewStepService).findByProjectIdOrderByDate(1L);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody()).isEqualTo(step);
+        verify(accessGuard).requireProject(1L);
     }
 
     @Test
-    void getInterviewStepsByFreelanceIdAndStatus_WithStatus_ShouldReturnFilteredSteps() {
-        // Given
-        List<InterviewStepDto> steps = Arrays.asList(testInterviewStepDto);
-        when(interviewStepService.findByFreelanceIdAndStatus(1L, StepStatus.PLANNED)).thenReturn(steps);
+    void updateAndStatusChange_ShouldCheckTheStepAndDelegate() {
+        when(interviewStepService.update(eq(1L), any(InterviewStepDto.class))).thenReturn(step);
+        when(interviewStepService.updateStatus(1L, StepStatus.VALIDATED)).thenReturn(step);
 
-        // When
-        ResponseEntity<List<InterviewStepDto>> response = interviewStepController.getInterviewStepsByFreelanceIdAndStatus(1L, StepStatus.PLANNED);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(steps);
-        verify(interviewStepService).findByFreelanceIdAndStatus(1L, StepStatus.PLANNED);
-    }
-
-    @Test
-    void createInterviewStep_WithValidData_ShouldCreateStep() {
-        // Given
-        when(interviewStepService.create(any(InterviewStepDto.class))).thenReturn(testInterviewStepDto);
-
-        // When
-        ResponseEntity<InterviewStepDto> response = interviewStepController.createInterviewStep(testInterviewStepDto);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(201);
-        assertThat(response.getBody()).isEqualTo(testInterviewStepDto);
-        verify(interviewStepService).create(any(InterviewStepDto.class));
-    }
-
-    @Test
-    void updateInterviewStep_WithValidData_ShouldUpdateStep() {
-        // Given
-        when(interviewStepService.update(eq(1L), any(InterviewStepDto.class))).thenReturn(testInterviewStepDto);
-
-        // When
-        ResponseEntity<InterviewStepDto> response = interviewStepController.updateInterviewStep(1L, testInterviewStepDto);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(testInterviewStepDto);
-        verify(interviewStepService).update(eq(1L), any(InterviewStepDto.class));
-    }
-
-    @Test
-    void deleteInterviewStep_WithExistingId_ShouldDeleteStep() {
-        // Given
-        doNothing().when(interviewStepService).delete(1L);
-
-        // When
-        ResponseEntity<Void> response = interviewStepController.deleteInterviewStep(1L);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(204);
-        verify(interviewStepService).delete(1L);
-    }
-
-    @Test
-    void updateInterviewStepStatus_ShouldUpdateStatus() {
-        // Given
-        when(interviewStepService.updateStatus(1L, StepStatus.VALIDATED)).thenReturn(testInterviewStepDto);
-
-        // When
-        ResponseEntity<InterviewStepDto> response = interviewStepController.updateInterviewStepStatus(1L, StepStatus.VALIDATED);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(testInterviewStepDto);
+        assertThat(interviewStepController.updateInterviewStep(1L, step)).isEqualTo(step);
+        assertThat(interviewStepController.updateInterviewStepStatus(1L, StepStatus.VALIDATED)).isEqualTo(step);
         verify(interviewStepService).updateStatus(1L, StepStatus.VALIDATED);
     }
 
     @Test
-    void scheduleInterviewStep_ShouldScheduleStep() {
-        // Given
-        LocalDateTime scheduledDate = LocalDateTime.of(2024, 2, 15, 10, 0);
-        when(interviewStepService.scheduleStep(1L, scheduledDate)).thenReturn(testInterviewStepDto);
+    void deleteInterviewStep_ShouldReturnNoContent() {
+        ResponseEntity<Void> response = interviewStepController.deleteInterviewStep(1L);
 
-        // When
-        ResponseEntity<InterviewStepDto> response = interviewStepController.scheduleInterviewStep(1L, scheduledDate);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(testInterviewStepDto);
-        verify(interviewStepService).scheduleStep(1L, scheduledDate);
-    }
-
-    @Test
-    void markAsWaitingFeedback_ShouldUpdateStatus() {
-        // Given
-        when(interviewStepService.markAsWaitingFeedback(1L)).thenReturn(testInterviewStepDto);
-
-        // When
-        ResponseEntity<InterviewStepDto> response = interviewStepController.markAsWaitingFeedback(1L);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(testInterviewStepDto);
-        verify(interviewStepService).markAsWaitingFeedback(1L);
-    }
-
-    @Test
-    void markAsValidated_ShouldUpdateStatus() {
-        // Given
-        when(interviewStepService.markAsValidated(1L)).thenReturn(testInterviewStepDto);
-
-        // When
-        ResponseEntity<InterviewStepDto> response = interviewStepController.markAsValidated(1L);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(testInterviewStepDto);
-        verify(interviewStepService).markAsValidated(1L);
-    }
-
-    @Test
-    void markAsFailed_ShouldUpdateStatus() {
-        // Given
-        when(interviewStepService.markAsFailed(1L)).thenReturn(testInterviewStepDto);
-
-        // When
-        ResponseEntity<InterviewStepDto> response = interviewStepController.markAsFailed(1L);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(testInterviewStepDto);
-        verify(interviewStepService).markAsFailed(1L);
-    }
-
-    @Test
-    void markAsCanceled_ShouldUpdateStatus() {
-        // Given
-        when(interviewStepService.markAsCanceled(1L)).thenReturn(testInterviewStepDto);
-
-        // When
-        ResponseEntity<InterviewStepDto> response = interviewStepController.markAsCanceled(1L);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(testInterviewStepDto);
-        verify(interviewStepService).markAsCanceled(1L);
-    }
-
-    @Test
-    void transitionProjectToNextStep_ShouldTransitionProject() {
-        // Given
-        when(interviewStepService.transitionProjectToNextStep(any(StepTransitionDto.class))).thenReturn(testInterviewStepDto);
-
-        // When
-        ResponseEntity<InterviewStepDto> response = interviewStepController.transitionProjectToNextStep(testStepTransitionDto);
-
-        // Then
-        assertThat(response.getStatusCode().value()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(testInterviewStepDto);
-        verify(interviewStepService).transitionProjectToNextStep(any(StepTransitionDto.class));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        verify(accessGuard).requireInterviewStep(1L);
+        verify(interviewStepService).delete(1L);
     }
 }

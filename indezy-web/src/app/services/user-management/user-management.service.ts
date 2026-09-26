@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   UserProfile,
@@ -12,28 +12,11 @@ import {
 export interface SecuritySettings {
   twoFactorEnabled: boolean;
   lastPasswordChange: Date;
-  loginSessions: LoginSession[];
-  securityQuestions: SecurityQuestion[];
 }
 
 export interface TwoFactorSetup {
   secret: string;
   otpauthUri: string;
-}
-
-export interface LoginSession {
-  id: string;
-  device: string;
-  browser: string;
-  location: string;
-  lastActive: Date;
-  current: boolean;
-}
-
-export interface SecurityQuestion {
-  id: number;
-  question: string;
-  answer?: string;
 }
 
 @Injectable({
@@ -42,12 +25,7 @@ export interface SecurityQuestion {
 export class UserManagementService {
   private readonly API_URL = `${environment.apiUrl}/users`;
 
-  private readonly userProfileSubject = new BehaviorSubject<UserProfile | null>(null);
-  public userProfile$ = this.userProfileSubject.asObservable();
-
-  constructor(private readonly http: HttpClient) {
-    this.loadUserProfile();
-  }
+  constructor(private readonly http: HttpClient) {}
 
   // Profile Management
   getUserProfile(): Observable<UserProfile> {
@@ -105,22 +83,7 @@ export class UserManagementService {
     return this.http.post<boolean>(`${this.API_URL}/security/2fa/disable`, { code });
   }
 
-  terminateSession(sessionId: string): Observable<boolean> {
-    return this.http.delete<boolean>(`${this.API_URL}/security/sessions/${sessionId}`);
-  }
-
-  // Account Management
-  deleteAccount(password: string): Observable<boolean> {
-    return this.http.delete<boolean>(`${this.API_URL}/account`, { body: { password } });
-  }
-
   exportUserData(): Observable<Blob> {
     return this.http.get(`${this.API_URL}/export`, { responseType: 'blob' });
-  }
-
-  private loadUserProfile(): void {
-    this.getUserProfile().subscribe(profile => {
-      this.userProfileSubject.next(profile);
-    });
   }
 }

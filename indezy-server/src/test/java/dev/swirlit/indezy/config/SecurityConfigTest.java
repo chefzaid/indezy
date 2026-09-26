@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,7 +21,7 @@ import java.util.List;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -48,7 +49,9 @@ class SecurityConfigTest {
         var session = new MockHttpSession();
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
 
-        mockMvc.perform(delete("/users/security/sessions/session-1")
+        mockMvc.perform(post("/users/security/2fa/disable")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"code\":\"123456\"}")
                 .session(session)
                 .cookie(new Cookie("access_token", jwtUtil.generateToken("user@example.com", 1L))))
             .andExpect(status().isUnauthorized());
@@ -57,14 +60,16 @@ class SecurityConfigTest {
 
     @Test
     void bearerTokenAuthorizesWriteWithoutCsrfTokenOrSessionCookie() throws Exception {
-        when(userService.terminateSession(1L, "session-1")).thenReturn(true);
+        when(userService.disableTwoFactor(1L, "123456")).thenReturn(true);
 
-        mockMvc.perform(delete("/users/security/sessions/session-1")
+        mockMvc.perform(post("/users/security/2fa/disable")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"code\":\"123456\"}")
                 .header("Authorization", "Bearer " + jwtUtil.generateToken("user@example.com", 1L)))
             .andExpect(status().isOk())
             .andExpect(content().string("true"))
             .andExpect(header().doesNotExist("Set-Cookie"));
-        verify(userService).terminateSession(1L, "session-1");
+        verify(userService).disableTwoFactor(1L, "123456");
     }
 
     @Test

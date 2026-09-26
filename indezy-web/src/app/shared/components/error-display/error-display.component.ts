@@ -4,11 +4,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { RouterModule } from '@angular/router';
-import { ErrorDisplayConfig } from '../../../models/ui.models';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-// Export the interface for use in other components
-export { ErrorDisplayConfig } from '../../../models/ui.models';
+export interface ErrorDisplayConfig {
+  title?: string;
+  message?: string;
+  icon?: string;
+  showRetry?: boolean;
+  showHome?: boolean;
+  showLogo?: boolean;
+  type?: 'error' | 'warning' | 'info' | 'not-found';
+}
 
 @Component({
     selector: 'app-error-display',

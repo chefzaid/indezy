@@ -61,52 +61,6 @@ class ModelHelpersTest {
     }
 
     @Nested
-    class UserSessionTest {
-
-        @Test
-        void isActive_WithRecentActivity_ShouldReturnTrue() {
-            UserSession session = new UserSession();
-            session.setLastActive(LocalDateTime.now().minusHours(1));
-
-            assertThat(session.isActive()).isTrue();
-        }
-
-        @Test
-        void isActive_WithOldActivity_ShouldReturnFalse() {
-            UserSession session = new UserSession();
-            session.setLastActive(LocalDateTime.now().minusDays(2));
-
-            assertThat(session.isActive()).isFalse();
-        }
-
-        @Test
-        void isActive_WithoutActivity_ShouldReturnFalse() {
-            UserSession session = new UserSession();
-            session.setLastActive(null);
-
-            assertThat(session.isActive()).isFalse();
-        }
-
-        @Test
-        void settersAndGetters_ShouldRoundTrip() {
-            UserSession session = new UserSession();
-            session.setSessionId("abc");
-            session.setDevice("Desktop");
-            session.setBrowser("Firefox");
-            session.setLocation("Paris");
-            session.setIpAddress("127.0.0.1");
-            session.setIsCurrent(true);
-
-            assertThat(session.getSessionId()).isEqualTo("abc");
-            assertThat(session.getDevice()).isEqualTo("Desktop");
-            assertThat(session.getBrowser()).isEqualTo("Firefox");
-            assertThat(session.getLocation()).isEqualTo("Paris");
-            assertThat(session.getIpAddress()).isEqualTo("127.0.0.1");
-            assertThat(session.getIsCurrent()).isTrue();
-        }
-    }
-
-    @Nested
     class ClientCollectionsTest {
 
         @Test

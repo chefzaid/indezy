@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
+import dev.swirlit.indezy.exception.TwoFactorRequiredException;
 import dev.swirlit.indezy.dto.RegisterRequest;
 import dev.swirlit.indezy.service.AuthService;
 import dev.swirlit.indezy.service.LoginAttemptService;
@@ -78,6 +79,20 @@ class AuthControllerTest {
         // Then the failure is recorded for brute-force tracking.
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         verify(loginAttemptService).loginFailed("test@example.com");
+    }
+
+    @Test
+    void login_WhenTwoFactorCodeIsMissing_ShouldChallengeWithoutCountingAFailure() {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail("test@example.com");
+        loginRequest.setPassword("password123");
+        when(authService.login(any(LoginRequest.class))).thenThrow(new TwoFactorRequiredException());
+
+        ResponseEntity<LoginResponse> response = authController.login(loginRequest);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getBody().getTwoFactorRequired()).isTrue();
+        verify(loginAttemptService, never()).loginFailed(any());
     }
 
     @Test

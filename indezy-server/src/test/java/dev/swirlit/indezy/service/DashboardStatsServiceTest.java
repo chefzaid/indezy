@@ -95,7 +95,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject, contact));
 
         // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Then
         assertThat(stats.getTotalProjects()).isEqualTo(2L);
@@ -121,7 +121,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject, lost));
 
         // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Then only the lost project contributes to the breakdown
         assertThat(stats.getLostReasonsBreakdown())
@@ -153,7 +153,7 @@ class DashboardStatsServiceTest {
                 .thenReturn(List.of(linkedinWon, linkedinLost, maltWon));
 
         // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Then both have one signed contract, but Malt's higher conversion rate ranks it first.
         List<DashboardStatsDto.SourceRoi> roi = stats.getSourceRoi();
@@ -185,7 +185,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(p2024a, p2024b, p2025));
 
         // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Then years are ordered ascending with averaged rates; 2025 has no asked rate.
         List<DashboardStatsDto.DailyRateEvolution> evolution = stats.getDailyRateEvolution();
@@ -216,7 +216,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(won, interview));
 
         // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Then: 120,000 * 1.0 + 66,000 * 0.5 = 153,000, while total revenue stays unweighted.
         assertThat(stats.getForecastRevenue()).isEqualTo(153000.0);
@@ -240,7 +240,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(won, lost));
 
         // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Then only the signed contract counts.
         assertThat(stats.getTotalEstimatedRevenue()).isEqualTo(120000.0);
@@ -274,7 +274,7 @@ class DashboardStatsServiceTest {
                 .thenReturn(List.of(first, second, overlapping, pending));
 
         // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Then a single 61-day bench period, costed at the average daily rate.
         assertThat(stats.getTotalBenchDays()).isEqualTo(61L);
@@ -297,7 +297,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(projects);
 
         // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Then each stage counts opportunities at or beyond it; lost ones are not counted.
         List<DashboardStatsDto.ConversionFunnelStage> funnel = stats.getConversionFunnel();
@@ -384,7 +384,7 @@ class DashboardStatsServiceTest {
             .thenReturn(List.of(linkedinWon, linkedinApplied, maltViaEsn, esnWonNoSource));
 
         // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Then by source: groups ordered by name; the source-less project is skipped.
         assertThat(stats.getFunnelBySource())
@@ -427,7 +427,7 @@ class DashboardStatsServiceTest {
             .thenReturn(List.of(endingA, endingB, farFuture, alreadyEnded, pending, noDates));
 
         // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Then only the two soon-ending signed missions appear, soonest first, with their details.
         List<DashboardStatsDto.MissionEndingSoon> ending = stats.getMissionsEndingSoon();
@@ -467,7 +467,7 @@ class DashboardStatsServiceTest {
             .thenReturn(List.of(veryStale, mildlyStale, fresh, wonStale, noActivity));
 
         // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Then only stale active opportunities appear, most stale first, with their details.
         List<DashboardStatsDto.StaleOpportunity> stale = stats.getStaleOpportunities();
@@ -494,7 +494,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of());
 
         // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Then
         assertThat(stats.getTotalProjects()).isZero();
@@ -532,7 +532,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
         when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
 
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         assertThat(stats.getUpcomingRenewals()).hasSize(1);
         assertThat(stats.getUpcomingRenewals().getFirst().getProjectId()).isEqualTo(1L);
@@ -554,7 +554,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
         when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
 
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         assertThat(stats.getUpcomingRenewals()).isEmpty();
     }
@@ -571,7 +571,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
         when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
 
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         assertThat(stats.getUpcomingRenewals()).isEmpty();
     }
@@ -597,7 +597,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject, recent));
         when(contactRepository.findByFreelanceId(1L)).thenReturn(List.of(contact));
 
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Two anniversaries (project 1y, contact 2y); the two-month-old project is excluded.
         assertThat(stats.getOnThisDay()).hasSize(2);
@@ -618,7 +618,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
         when(contactRepository.findByFreelanceId(1L)).thenReturn(List.of());
 
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         assertThat(stats.getOnThisDay()).isEmpty();
     }
@@ -642,7 +642,7 @@ class DashboardStatsServiceTest {
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of());
         when(contactRepository.findByFreelanceId(1L)).thenReturn(List.of(dormant, active));
 
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         assertThat(stats.getDormantContacts()).hasSize(1);
         assertThat(stats.getDormantContacts().getFirst().getId()).isEqualTo(3L);
@@ -669,7 +669,7 @@ class DashboardStatsServiceTest {
         stubMinimalAggregates();
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(p1, p2, p3));
 
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         DashboardStatsDto.SkillTrend java = stats.getSkillTrends().stream()
             .filter(t -> t.getSkill().equalsIgnoreCase("java")).findFirst().orElseThrow();
@@ -709,7 +709,7 @@ class DashboardStatsServiceTest {
         when(interviewStepRepository.findByFreelanceIdAndStatus(1L, StepStatus.VALIDATED))
             .thenReturn(List.of(validated));
 
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         // Signed 15 days after first contact, grouped under the ESN.
         assertThat(stats.getProcessDurations()).hasSize(1);
@@ -732,7 +732,7 @@ class DashboardStatsServiceTest {
         when(interviewStepRepository.findByFreelanceIdAndDateBetween(any(), any(), any()))
             .thenReturn(List.of(step));
 
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L);
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         LocalDate today = LocalDate.now();
         DashboardStatsDto.ActivityDay todaysActivity = stats.getActivityHeatmap().stream()

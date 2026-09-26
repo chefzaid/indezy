@@ -6,7 +6,7 @@ export const clientRoutes: Routes = [
     loadComponent: () => import('./client-list/client-list.component').then(m => m.ClientListComponent)
   },
   {
-    path: 'create',
+    path: 'new',
     loadComponent: () => import('./client-form/client-form.component').then(m => m.ClientFormComponent)
   },
   {
@@ -18,7 +18,7 @@ export const clientRoutes: Routes = [
     loadComponent: () => import('./client-form/client-form.component').then(m => m.ClientFormComponent)
   },
   {
-    path: ':id/contacts/create',
+    path: ':id/contacts/new',
     loadComponent: () => import('../contacts/contact-form/contact-form.component').then(m => m.ContactFormComponent)
   },
   {

@@ -22,35 +22,3 @@ export interface FreelanceDto {
   averageDailyRate?: number;
 }
 
-export interface CreateFreelanceDto {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  birthDate?: string;
-  address?: string;
-  city?: string;
-  status: FreelanceStatus;
-  noticePeriodInDays?: number;
-  availabilityDate?: string;
-  reversionRate?: number;
-  incomeTaxRate?: number;
-  cvFilePath?: string;
-}
-
-export interface UpdateFreelanceDto {
-  id: number;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  birthDate?: string;
-  address?: string;
-  city?: string;
-  status?: 'AVAILABLE' | 'EMPLOYED' | 'UNAVAILABLE';
-  noticePeriodInDays?: number;
-  availabilityDate?: string;
-  reversionRate?: number;
-  incomeTaxRate?: number;
-  cvFilePath?: string;
-}

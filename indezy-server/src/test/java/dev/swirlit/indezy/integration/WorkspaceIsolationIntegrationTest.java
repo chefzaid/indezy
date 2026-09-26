@@ -150,6 +150,31 @@ class WorkspaceIsolationIntegrationTest {
         assertThat(kept.getBody().get("seasonId")).isNull();
     }
 
+    @Test
+    void deletingASourceKeepsItsOpportunitiesAndProjectsWithNotesCanBeDeleted() {
+        ResponseEntity<Map> source = call(alice, HttpMethod.POST, "/sources",
+            Map.of("name", "LinkedIn", "type", "SOCIAL_MEDIA", "freelanceId", alice.freelanceId()), Map.class);
+        long sourceId = ((Number) source.getBody().get("id")).longValue();
+        ResponseEntity<Map> project = call(alice, HttpMethod.POST, "/projects",
+            Map.of("role", "Java Lead", "dailyRate", 650, "clientId", aliceClientId, "sourceId", sourceId), Map.class);
+        Object projectId = project.getBody().get("id");
+        assertThat(call(alice, HttpMethod.POST, "/projects/" + projectId + "/notes",
+            Map.of("content", "Called the recruiter"), String.class).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        // The source is optional: its opportunities survive, without a source.
+        assertThat(call(alice, HttpMethod.DELETE, "/sources/" + sourceId, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NO_CONTENT);
+        ResponseEntity<Map> kept = call(alice, HttpMethod.GET, "/projects/" + projectId, null, Map.class);
+        assertThat(kept.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(kept.getBody().get("sourceId")).isNull();
+
+        // Journal notes go with their project.
+        assertThat(call(alice, HttpMethod.DELETE, "/projects/" + projectId, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(call(alice, HttpMethod.GET, "/projects/" + projectId, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
     private Account register(String name) {
         String email = name + "." + UUID.randomUUID() + "@example.com";
         ResponseEntity<Map> response = restTemplate.postForEntity(url("/auth/register"),

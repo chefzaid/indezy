@@ -17,6 +17,7 @@ import { ClientService } from '../../../services/client/client.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ClientDto, ContactDto } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { fieldError } from '../../../shared/utils/form-errors';
 
 @Component({
     selector: 'app-contact-form',
@@ -119,7 +120,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
     if (!this.contactId) { return; }
     
     this.isLoading = true;
-    this.contactService.getContact(this.contactId)
+    this.contactService.getById(this.contactId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (contact) => {
@@ -163,8 +164,8 @@ export class ContactFormComponent implements OnInit, OnDestroy {
       };
 
       const operation = this.isEditMode
-        ? this.contactService.updateContact(this.contactId!, contactData)
-        : this.contactService.createContact(contactData);
+        ? this.contactService.update(this.contactId!, contactData)
+        : this.contactService.create(contactData);
 
       operation.pipe(takeUntil(this.destroy$)).subscribe({
         next: (saved) => {
@@ -178,7 +179,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      this.markFormGroupTouched();
+      this.contactForm.markAllAsTouched();
     }
   }
 
@@ -197,27 +198,8 @@ export class ContactFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  private markFormGroupTouched(): void {
-    Object.keys(this.contactForm.controls).forEach(key => {
-      const control = this.contactForm.get(key);
-      control?.markAsTouched();
-    });
-  }
-
   getFieldError(fieldName: string): string {
-    const control = this.contactForm.get(fieldName);
-    if (control?.errors && control.touched) {
-      if (control.errors['required']) {
-        return this.translate.instant('errors.fieldRequired');
-      }
-      if (control.errors['email']) {
-        return this.translate.instant('errors.invalidEmail');
-      }
-      if (control.errors['minlength']) {
-        return this.translate.instant('errors.minLength', { length: control.errors['minlength'].requiredLength });
-      }
-    }
-    return '';
+    return fieldError(this.contactForm.get(fieldName), this.translate);
   }
 
   get pageTitle(): string {

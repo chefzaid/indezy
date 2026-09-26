@@ -9,7 +9,7 @@
           </h1>
           <p class="page-subtitle">{{ 'clients.subtitle' | translate }}</p>
         </div>
-        <button mat-raised-button color="primary" routerLink="/clients/create">
+        <button mat-raised-button color="primary" routerLink="/clients/new">
           <mat-icon>add</mat-icon>
           {{ 'clients.newClient' | translate }}
         </button>
@@ -94,7 +94,7 @@
             </button>
           } @else {
             <p>{{ 'clients.startFirstClient' | translate }}</p>
-            <button mat-raised-button color="primary" routerLink="/clients/create">
+            <button mat-raised-button color="primary" routerLink="/clients/new">
               <mat-icon>add</mat-icon>
               {{ 'clients.addClient' | translate }}
             </button>

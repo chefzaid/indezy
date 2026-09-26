@@ -269,30 +269,3 @@ export interface CreateProjectDto {
   seasonId?: number;
 }
 
-export interface UpdateProjectDto {
-  id: number;
-  role?: string;
-  status?: ProjectStatus;
-  description?: string;
-  techStack?: string;
-  dailyRate?: number;
-  clientDailyRate?: number;
-  askedDailyRate?: number;
-  offeredDailyRate?: number;
-  workMode?: WorkMode;
-  remoteDaysPerMonth?: number;
-  onsiteDaysPerMonth?: number;
-  advantages?: string;
-  startDate?: string;
-  durationInMonths?: number;
-  orderRenewalInMonths?: number;
-  daysPerYear?: number;
-  documents?: string[];
-  link?: string;
-  personalRating?: number;
-  notes?: string;
-  clientId?: number;
-  middlemanId?: number;
-  sourceId?: number;
-  seasonId?: number;
-}

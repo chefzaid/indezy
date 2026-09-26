@@ -15,6 +15,7 @@ import { ClientService } from '../../../services/client/client.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ClientDto, CreateClientDto } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { fieldError } from '../../../shared/utils/form-errors';
 
 @Component({
     selector: 'app-client-form',
@@ -68,7 +69,7 @@ export class ClientFormComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Creating an intermediary straight from a link such as /clients/create?type=esn
+    // Creating an intermediary straight from a link such as /clients/new?type=esn
     if (this.route.snapshot.queryParamMap.get('type') === 'esn') {
       this.clientForm.patchValue({ isFinal: false });
     }
@@ -107,7 +108,7 @@ export class ClientFormComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    this.clientService.getClient(this.clientId)
+    this.clientService.getById(this.clientId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (client) => {
@@ -140,7 +141,7 @@ export class ClientFormComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.clientForm.invalid || this.isSaving) {
-      this.markFormGroupTouched();
+      this.clientForm.markAllAsTouched();
       return;
     }
     const freelanceId = this.loadedClient?.freelanceId ?? this.authService.getUser()?.id;
@@ -186,23 +187,7 @@ export class ClientFormComponent implements OnInit, OnDestroy {
     this.router.navigate(this.isEditMode && this.clientId ? ['/clients', this.clientId] : ['/clients']);
   }
 
-  private markFormGroupTouched(): void {
-    Object.keys(this.clientForm.controls).forEach(key => {
-      const control = this.clientForm.get(key);
-      control?.markAsTouched();
-    });
-  }
-
   getFieldError(fieldName: string): string {
-    const control = this.clientForm.get(fieldName);
-    if (control?.errors && control.touched) {
-      if (control.errors['required']) {
-        return this.translate.instant('errors.fieldRequired');
-      }
-      if (control.errors['minlength']) {
-        return this.translate.instant('errors.minLength', { length: control.errors['minlength'].requiredLength });
-      }
-    }
-    return '';
+    return fieldError(this.clientForm.get(fieldName), this.translate);
   }
 }

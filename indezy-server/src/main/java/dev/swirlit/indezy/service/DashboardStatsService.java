@@ -46,11 +46,6 @@ public class DashboardStatsService {
     /** Notice period applied when the freelance has not configured one. */
     private static final int DEFAULT_NOTICE_PERIOD_DAYS = 30;
 
-    @Transactional(readOnly = true)
-    public DashboardStatsDto getDashboardStats(Long freelanceId) {
-        return getDashboardStats(freelanceId, null);
-    }
-
     /**
      * Dashboard statistics of a workspace. With a season, every opportunity-based metric only
      * considers that season's opportunities (and their interview steps); contact reminders stay

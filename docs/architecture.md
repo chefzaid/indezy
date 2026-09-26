@@ -99,7 +99,8 @@ Current practical rules:
 - `Project` must have one final client and may have a middleman client.
 - `Contact` belongs to a client and a freelance.
 - `InterviewStep` belongs to a project.
-- `User` owns account profile, settings, sessions, and security questions.
+- `User` owns account profile, preferences, and two-factor settings.
+- `Season` belongs to a freelance and groups projects.
 
 Future account work should clarify whether `User` and `Freelance` remain separate concepts or become a one-to-one account/workspace model.
 

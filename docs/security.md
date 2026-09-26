@@ -14,7 +14,7 @@ Current implemented pieces:
 - CORS configuration from application properties
 - public Swagger/OpenAPI endpoints
 - configurable JWT secret and expiration
-- model fields for sessions, notification settings, security questions, and two-factor settings
+- optional TOTP two-factor authentication, enforced at local password login
 - JWT bearer-token authentication enforced server-side: `JwtAuthenticationFilter` validates the `Authorization: Bearer` header and `SecurityConfig` requires authentication for all non-public endpoints (`anyRequest().authenticated()`)
 
 Test escape hatch:
@@ -151,7 +151,6 @@ Secrets currently used or anticipated:
 - `DB_PASSWORD`
 - `POSTGRES_ADMIN_PASSWORD`
 - `GOOGLE_MAPS_API_KEY`
-- OAuth client IDs and secrets for Google, GitHub, and Microsoft
 
 Production Kubernetes manifests contain no secret values. External Secrets projects application values from `apps/indezy/*` and the database administrator contract from `infra/postgres`; base64 would be encoding, not encryption.
 
@@ -163,44 +162,16 @@ Production expectations:
 - rotate JWT secret intentionally because it invalidates active tokens
 - keep GitLab job-token permissions and the read-only registry deploy token scoped to the minimum necessary access
 
-## OAuth Status
-
-Backend configuration includes OAuth client registration placeholders for:
-
-- Google
-- GitHub
-- Microsoft
-
-Frontend environment files include matching OAuth client ID placeholders.
-
-Treat OAuth as not product-complete until these are true:
-
-- provider apps are configured
-- callback URLs are documented
-- auth flow is tested end to end
-- account linking behavior is defined
-- secrets are stored safely
-- frontend and backend agree on token/session handling
-
-## Session And Account Activity
-
-The data model includes `UserSession`, with device, browser, location, IP address, last active time, and current-session flag.
-
-Treat active session management as not complete until:
-
-- sessions are created on login
-- sessions are updated on activity
-- users can view and revoke sessions
-- JWT expiration and server-side session revocation semantics are designed
-
 ## Two-Factor Authentication
 
-The `User` model includes:
+Local accounts can enable TOTP two-factor authentication from the profile page: the API returns
+a secret and its `otpauth` URI, `POST /api/users/security/2fa/verify` activates it once a code
+from the authenticator app is valid, and `POST /api/users/security/2fa/disable` removes it.
 
-- `twoFactorEnabled`
-- `twoFactorSecret`
-
-TOTP is listed in the backlog. Do not mark 2FA as implemented until enrollment, verification, recovery, disabling, and tests exist.
+When it is enabled, `POST /api/auth/login` needs the password and a `totpCode`. A correct
+password without a code answers `401` with `twoFactorRequired: true` (not counted as a failed
+attempt) so the login page asks for the code; a wrong code is a failed login. Keycloak SSO
+sign-ins rely on the realm's own authentication policy instead. There is no recovery code yet.
 
 The current `TotpService` keeps HMAC-SHA1 compatibility with its existing
 `otpauth` enrollment URIs. Its tests verify the SHA1 vectors from
@@ -220,18 +191,17 @@ Indezy stores personal and commercially sensitive information:
 - client and contact notes
 - rates and revenue estimates
 - possible CV file path
-- security-question answer hashes
 
 Account deletion and data portability:
 
-- `POST /api/users/account/delete` performs a **soft delete**: it requires the account password as confirmation and sets `User.deletedAt` rather than removing the row. Soft-deleted accounts can no longer log in (`AuthService.login` rejects them with the generic invalid-credentials error).
+- accounts are not deleted from the application: identities live in Keycloak, and an account whose `User.deletedAt` is set can no longer sign in (`AuthService` rejects it with the generic invalid-credentials error)
 - `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact and source they own, downloaded as an attachment.
 
 Privacy expectations:
 
 - avoid logging request bodies that may contain personal data
 - avoid exposing cross-user records
-- document retention and deletion behavior (e.g. purging soft-deleted accounts after a grace period)
+- document retention and deletion behavior (e.g. purging an account's workspace on request)
 - consider encrypting high-risk fields if threat model requires it
 
 ## External APIs

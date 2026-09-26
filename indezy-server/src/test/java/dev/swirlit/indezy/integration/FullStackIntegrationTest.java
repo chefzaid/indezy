@@ -127,18 +127,13 @@ class FullStackIntegrationTest {
 
     @Test
     void testInterviewStepEndpoints() {
-        String baseUrl = "http://localhost:" + port + "/api/projects/1/with-steps";
+        String baseUrl = "http://localhost:" + port + "/api/interview-steps/by-project/1/ordered";
 
-        // Test GET project with interview steps (interview steps are managed through projects)
         ResponseEntity<String> response = restTemplate.getForEntity(baseUrl, String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().contains("Phone Screening"));
         assertTrue(response.getBody().contains("VALIDATED"));
-
-        // Test that the project contains interview step data
-        assertTrue(response.getBody().contains("\"id\":1"));
-        assertTrue(response.getBody().contains("steps"));
     }
 
     @Test
@@ -148,41 +143,5 @@ class FullStackIntegrationTest {
         // Test GET non-existent freelance
         ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/999", String.class);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-
-    @Test
-    void testCorsConfiguration() {
-        String baseUrl = "http://localhost:" + port + "/api/freelances";
-        
-        // Test that CORS headers are present
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl, String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        // CORS headers should be configured in the indezy-server
-        assertNotNull(response.getHeaders());
-    }
-
-    @Test
-    void testDatabaseIntegration() {
-        // Test that sample data is loaded correctly
-        String freelanceUrl = "http://localhost:" + port + "/api/freelances";
-        String clientUrl = "http://localhost:" + port + "/api/clients";
-        String contactUrl = "http://localhost:" + port + "/api/contacts";
-        
-        ResponseEntity<String> freelanceResponse = restTemplate.getForEntity(freelanceUrl, String.class);
-        ResponseEntity<String> clientResponse = restTemplate.getForEntity(clientUrl, String.class);
-        ResponseEntity<String> contactResponse = restTemplate.getForEntity(contactUrl, String.class);
-        
-        assertEquals(HttpStatus.OK, freelanceResponse.getStatusCode());
-        assertEquals(HttpStatus.OK, clientResponse.getStatusCode());
-        assertEquals(HttpStatus.OK, contactResponse.getStatusCode());
-        
-        // Verify relationships exist
-        assertNotNull(freelanceResponse.getBody());
-        assertNotNull(clientResponse.getBody());
-        assertNotNull(contactResponse.getBody());
-        
-        assertTrue(freelanceResponse.getBody().contains("John"));
-        assertTrue(clientResponse.getBody().contains("Test Company"));
-        assertTrue(contactResponse.getBody().contains("Jane"));
     }
 }

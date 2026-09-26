@@ -116,23 +116,6 @@ public class AccessGuard {
         });
     }
 
-    /** Allows looking up a workspace by email only for the caller's own address. */
-    public void requireOwnEmail(String email) {
-        currentFreelanceId().ifPresent(current -> {
-            String own = freelanceRepository.findById(current).map(Freelance::getEmail).orElse(null);
-            if (own == null || email == null || !own.equalsIgnoreCase(email.trim())) {
-                throw new AccessDeniedException("Access denied to resource");
-            }
-        });
-    }
-
-    /** Workspaces are created with the account; rejects creating extra ones outside test mode. */
-    public void denyWhenAuthenticated() {
-        if (currentFreelanceId().isPresent()) {
-            throw new AccessDeniedException("Access denied to resource");
-        }
-    }
-
     public void requireProject(Long projectId) {
         requireOwned(projectId, projectRepository::findOwnerFreelanceIdById, "Project");
     }

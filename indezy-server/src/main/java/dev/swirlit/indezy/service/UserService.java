@@ -5,9 +5,7 @@ import dev.swirlit.indezy.dto.*;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.UserMapper;
 import dev.swirlit.indezy.model.User;
-import dev.swirlit.indezy.model.UserSession;
 import dev.swirlit.indezy.repository.UserRepository;
-import dev.swirlit.indezy.repository.UserSessionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,7 +27,6 @@ import java.util.Set;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserSessionRepository userSessionRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final TotpService totpService;
@@ -171,7 +168,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserSecuritySettingsDto getSecuritySettings(Long userId) {
         log.debug("Getting security settings for user ID: {}", userId);
-        User user = userRepository.findByIdWithSecurityData(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
         return userMapper.toSecuritySettingsDto(user);
     }
@@ -227,58 +224,4 @@ public class UserService {
         return true;
     }
 
-    /**
-     * Terminate user session
-     */
-    public boolean terminateSession(Long userId, String sessionId) {
-        log.debug("Terminating session {} for user ID: {}", sessionId, userId);
-        
-        UserSession session = userSessionRepository.findBySessionId(sessionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Session not found: " + sessionId));
-
-        if (!session.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("Session does not belong to user");
-        }
-
-        userSessionRepository.delete(session);
-        return true;
-    }
-
-    /**
-     * Delete user account
-     */
-    public boolean deleteAccount(Long userId, String password) {
-        log.debug("Deleting account for user ID: {}", userId);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
-
-        // Verify password (confirmation that the account owner requested the deletion)
-        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
-            throw new IllegalArgumentException("Password is incorrect");
-        }
-
-        // Soft delete: keep the record but mark it deleted so the account can no longer log in.
-        user.setDeletedAt(LocalDateTime.now(ZoneId.systemDefault()));
-        userRepository.save(user);
-        return true;
-    }
-
-    /**
-     * Find user by email
-     */
-    @Transactional(readOnly = true)
-    public UserDto findByEmail(String email) {
-        log.debug("Finding user by email: {}", email);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_EMAIL_NOT_FOUND, email)));
-        return userMapper.toDto(user);
-    }
-
-    /**
-     * Check if user exists by email
-     */
-    @Transactional(readOnly = true)
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
-    }
 }

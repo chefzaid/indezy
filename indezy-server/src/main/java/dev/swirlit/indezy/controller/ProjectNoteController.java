@@ -18,7 +18,6 @@ import java.util.List;
 @RequestMapping("/projects/{projectId}/notes")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:4200", "http://127.0.0.1:4200"})
 @Tag(name = "Project Notes", description = "Chronological journal of notes per project")
 public class ProjectNoteController {
 

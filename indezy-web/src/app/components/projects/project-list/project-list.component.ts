@@ -79,7 +79,6 @@ export class ProjectListComponent implements OnInit {
   isLoading = false;
   filterForm: FormGroup;
   currentUser: User | null = null;
-  showAdvancedFilters = false;
   /** Filters start collapsed on phones so the missions are visible without scrolling. */
   filtersExpanded = typeof window === 'undefined' || !window.matchMedia('(max-width: 768px)').matches;
 
@@ -250,10 +249,6 @@ export class ProjectListComponent implements OnInit {
 
   toggleFilters(): void {
     this.filtersExpanded = !this.filtersExpanded;
-  }
-
-  toggleAdvancedFilters(): void {
-    this.showAdvancedFilters = !this.showAdvancedFilters;
   }
 
   addTechStack(tech: string): void {

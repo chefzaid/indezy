@@ -20,6 +20,7 @@ import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
+import dev.swirlit.indezy.repository.ProjectNoteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,6 +62,9 @@ class ProjectServiceTest {
 
     @Mock
     private SeasonService seasonService;
+
+    @Mock
+    private ProjectNoteRepository projectNoteRepository;
 
     @InjectMocks
     private ProjectService projectService;
@@ -172,22 +176,6 @@ class ProjectServiceTest {
     }
 
     @Test
-    void findByIdWithSteps_WhenProjectExists_ShouldReturnProjectWithSteps() {
-        // Given
-        when(projectRepository.findByIdWithSteps(1L)).thenReturn(Optional.of(testProject));
-        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
-
-        // When
-        ProjectDto result = projectService.findByIdWithSteps(1L);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(1L);
-        verify(projectRepository).findByIdWithSteps(1L);
-        verify(projectMapper).toDto(testProject);
-    }
-
-    @Test
     void findByFreelanceId_ShouldReturnProjectsForFreelance() {
         // Given
         List<Project> projects = Arrays.asList(testProject);
@@ -202,26 +190,6 @@ class ProjectServiceTest {
         assertThat(result.get(0).getFreelanceId()).isEqualTo(1L);
         verify(projectRepository).findByFreelanceId(1L);
         verify(projectMapper).toDto(testProject);
-    }
-
-    @Test
-    void findByFreelanceIdAndFilters_WithMinRate_ShouldFilterCorrectly() {
-        // Given
-        Project lowRateProject = new Project();
-        lowRateProject.setDailyRate(400);
-        lowRateProject.setFreelance(testFreelance);
-        
-        List<Project> allProjects = Arrays.asList(testProject, lowRateProject);
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(allProjects);
-        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
-
-        // When
-        List<ProjectDto> result = projectService.findByFreelanceIdAndFilters(1L, 500, null, null, null, null);
-
-        // Then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getDailyRate()).isEqualTo(600);
-        verify(projectRepository).findByFreelanceId(1L);
     }
 
     @Test
@@ -280,7 +248,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    void delete_WhenProjectExists_ShouldDeleteProject() {
+    void delete_WhenProjectExists_ShouldDeleteNotesThenProject() {
         // Given
         when(projectRepository.existsById(1L)).thenReturn(true);
 
@@ -288,7 +256,7 @@ class ProjectServiceTest {
         projectService.delete(1L);
 
         // Then
-        verify(projectRepository).existsById(1L);
+        verify(projectNoteRepository).deleteByProjectId(1L);
         verify(projectRepository).deleteById(1L);
     }
 
@@ -307,32 +275,6 @@ class ProjectServiceTest {
     }
 
     @Test
-    void getAverageDailyRateByFreelanceId_ShouldReturnAverageRate() {
-        // Given
-        when(projectRepository.findAverageDailyRateByFreelanceId(1L)).thenReturn(575.0);
-
-        // When
-        Double result = projectService.getAverageDailyRateByFreelanceId(1L);
-
-        // Then
-        assertThat(result).isEqualTo(575.0);
-        verify(projectRepository).findAverageDailyRateByFreelanceId(1L);
-    }
-
-    @Test
-    void countByFreelanceId_ShouldReturnProjectCount() {
-        // Given
-        when(projectRepository.countByFreelanceId(1L)).thenReturn(3L);
-
-        // When
-        Long result = projectService.countByFreelanceId(1L);
-
-        // Then
-        assertThat(result).isEqualTo(3L);
-        verify(projectRepository).countByFreelanceId(1L);
-    }
-
-    @Test
     void findByClientId_ShouldReturnProjectsForClient() {
         // Given
         when(projectRepository.findByClientId(1L)).thenReturn(Arrays.asList(testProject));
@@ -344,38 +286,6 @@ class ProjectServiceTest {
         // Then
         assertThat(result).hasSize(1);
         verify(projectRepository).findByClientId(1L);
-    }
-
-    @Test
-    void findByIdWithSteps_WhenProjectNotExists_ShouldThrowResourceNotFoundException() {
-        // Given
-        when(projectRepository.findByIdWithSteps(999L)).thenReturn(Optional.empty());
-
-        // When & Then
-        assertThatThrownBy(() -> projectService.findByIdWithSteps(999L))
-                .isInstanceOf(ResourceNotFoundException.class);
-    }
-
-    @Test
-    void findByFreelanceIdAndFilters_WithAllFilters_ShouldApplyEachFilter() {
-        // Given
-        Project nonMatching = new Project();
-        nonMatching.setDailyRate(800);
-        nonMatching.setWorkMode(WorkMode.REMOTE);
-        nonMatching.setStartDate(LocalDate.of(2023, 1, 1));
-        nonMatching.setTechStack("Python");
-        nonMatching.setFreelance(testFreelance);
-
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(Arrays.asList(testProject, nonMatching));
-        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
-
-        // When
-        List<ProjectDto> result = projectService.findByFreelanceIdAndFilters(
-                1L, 500, 700, WorkMode.HYBRID, LocalDate.of(2024, 1, 1), "java");
-
-        // Then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWorkMode()).isEqualTo(WorkMode.HYBRID);
     }
 
     @Test
@@ -607,7 +517,7 @@ class ProjectServiceTest {
         when(interviewStepRepository.findByProjectId(2L)).thenReturn(List.of());
 
         // When
-        KanbanBoardDto board = projectService.getKanbanBoard(1L);
+        KanbanBoardDto board = projectService.getKanbanBoard(1L, null);
 
         // Then
         assertThat(board.getColumnOrder()).containsExactly(
@@ -640,7 +550,7 @@ class ProjectServiceTest {
         when(interviewStepRepository.findByProjectId(any())).thenReturn(List.of());
 
         // When
-        KanbanBoardDto board = projectService.getKanbanBoard(1L);
+        KanbanBoardDto board = projectService.getKanbanBoard(1L, null);
 
         // Then the favorite is listed first.
         List<KanbanBoardDto.ProjectCardDto> applied = board.getColumns().get("CONTACT");
@@ -672,7 +582,7 @@ class ProjectServiceTest {
         when(interviewStepRepository.findByProjectId(any())).thenReturn(List.of());
 
         // When
-        KanbanBoardDto board = projectService.getKanbanBoard(1L);
+        KanbanBoardDto board = projectService.getKanbanBoard(1L, null);
 
         // Then lower positions come first and the position-less card sorts last.
         assertThat(board.getColumns().get("CONTACT"))
@@ -732,7 +642,7 @@ class ProjectServiceTest {
         when(interviewStepRepository.findByProjectId(any())).thenReturn(List.of());
 
         // When
-        KanbanBoardDto board = projectService.getKanbanBoard(1L);
+        KanbanBoardDto board = projectService.getKanbanBoard(1L, null);
 
         // Then the matching pair is flagged, the unique role is not.
         Map<Long, Boolean> flagsById = board.getColumns().values().stream()
@@ -753,7 +663,7 @@ class ProjectServiceTest {
         when(interviewStepRepository.findByProjectId(any())).thenReturn(List.of());
 
         // When
-        KanbanBoardDto board = projectService.getKanbanBoard(1L);
+        KanbanBoardDto board = projectService.getKanbanBoard(1L, null);
 
         // Then
         KanbanBoardDto.ProjectCardDto card = board.getColumns().get("CONTACT").get(0);

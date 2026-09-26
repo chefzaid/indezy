@@ -50,7 +50,7 @@ public class Source extends BaseEntity {
     @JoinColumn(name = "freelance_id", nullable = false)
     private Freelance freelance;
 
-    @OneToMany(mappedBy = "source", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "source", fetch = FetchType.LAZY)
     private List<Project> projects = new ArrayList<>();
 
     // Custom getters and setters for collections to prevent EI_EXPOSE_REP

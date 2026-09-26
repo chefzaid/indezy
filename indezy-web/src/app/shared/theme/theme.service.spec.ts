@@ -24,7 +24,7 @@ describe('ThemeService', () => {
   it('falls back to light for unknown values', () => {
     service.apply('dark');
     service.apply('sepia');
-    expect(service.getPreference()).toBe('light');
+    expect(localStorage.getItem('indezy-theme')).toBe('light');
     expect(document.documentElement.classList).not.toContain('dark-theme');
   });
 

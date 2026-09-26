@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.RegisterRequest;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.exception.TwoFactorRequiredException;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
@@ -45,6 +46,9 @@ class AuthServiceTest {
 
     @Mock
     private JwtDecoder keycloakJwtDecoder;
+
+    @Mock
+    private TotpService totpService;
 
     @InjectMocks
     private AuthService authService;
@@ -98,6 +102,28 @@ class AuthServiceTest {
         assertThat(response.getUser().getEmail()).isEqualTo("test@example.com");
         assertThat(response.getUser().getFirstName()).isEqualTo("John");
         assertThat(response.getUser().getLastName()).isEqualTo("Doe");
+    }
+
+    @Test
+    void login_WithTwoFactorEnabled_ShouldAskForTheCodeThenCheckIt() {
+        testUser.setTwoFactorEnabled(true);
+        testUser.setTwoFactorSecret("SECRET");
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
+
+        // Right password, no code: the client must ask for it.
+        assertThatThrownBy(() -> authService.login(loginRequest)).isInstanceOf(TwoFactorRequiredException.class);
+
+        // Wrong code: rejected like a wrong password.
+        loginRequest.setTotpCode("000000");
+        when(totpService.validateCode("SECRET", "000000")).thenReturn(false);
+        assertThatThrownBy(() -> authService.login(loginRequest)).isInstanceOf(ResourceNotFoundException.class);
+
+        // Valid code: signed in.
+        loginRequest.setTotpCode(" 123456 ");
+        when(totpService.validateCode("SECRET", "123456")).thenReturn(true);
+        when(jwtUtil.generateToken("test@example.com", 1L)).thenReturn("jwt-token");
+        assertThat(authService.login(loginRequest).getToken()).isEqualTo("jwt-token");
     }
 
     @Test

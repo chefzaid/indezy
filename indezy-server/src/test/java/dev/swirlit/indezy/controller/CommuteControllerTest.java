@@ -105,25 +105,4 @@ class CommuteControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    void getCommuteForProject_ShouldReturnCommuteInfo() throws Exception {
-        when(commuteService.getCommuteForProject(1L, 1L, TravelMode.DRIVING))
-                .thenReturn(testCommuteInfoDto);
-
-        mockMvc.perform(get("/commute/projects/1/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.projectId", is(1)))
-                .andExpect(jsonPath("$.durationText", is("30 min")));
-
-        verify(commuteService).getCommuteForProject(1L, 1L, TravelMode.DRIVING);
-    }
-
-    @Test
-    void getCommuteForProject_WithUnknownProject_ShouldReturnNotFound() throws Exception {
-        when(commuteService.getCommuteForProject(1L, 99L, TravelMode.DRIVING))
-                .thenThrow(new ResourceNotFoundException("Project not found: 99"));
-
-        mockMvc.perform(get("/commute/projects/1/99"))
-                .andExpect(status().isNotFound());
-    }
 }

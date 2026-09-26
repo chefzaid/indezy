@@ -17,6 +17,7 @@ import { SourceService } from '../../../services/source/source.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { SourceType } from '../../../models/source.models';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { fieldError } from '../../../shared/utils/form-errors';
 
 @Component({
     selector: 'app-source-form',
@@ -151,7 +152,7 @@ export class SourceFormComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      this.markFormGroupTouched();
+      this.sourceForm.markAllAsTouched();
     }
   }
 
@@ -159,21 +160,8 @@ export class SourceFormComponent implements OnInit, OnDestroy {
     this.router.navigate(['/sources']);
   }
 
-  private markFormGroupTouched(): void {
-    Object.keys(this.sourceForm.controls).forEach(key => {
-      this.sourceForm.get(key)?.markAsTouched();
-    });
-  }
-
   getFieldError(fieldName: string): string {
-    const control = this.sourceForm.get(fieldName);
-    if (control?.errors && control.touched) {
-      if (control.errors['required']) { return this.translate.instant('errors.fieldRequired'); }
-      if (control.errors['minlength']) { return this.translate.instant('errors.minLength', { length: control.errors['minlength'].requiredLength }); }
-      if (control.errors['min']) { return this.translate.instant('errors.minValue', { value: 1 }); }
-      if (control.errors['max']) { return this.translate.instant('errors.maxValue', { value: 5 }); }
-    }
-    return '';
+    return fieldError(this.sourceForm.get(fieldName), this.translate);
   }
 
   get pageTitle(): string {

@@ -13,10 +13,7 @@ import { ALL_SEASONS, SeasonSelection, SeasonService } from '../../../services/s
 import { NotificationService } from '../../../services/notification/notification.service';
 import { Season } from '../../../models/season.models';
 import { SeasonDialogComponent, SeasonDialogData } from '../season-dialog/season-dialog.component';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData
-} from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { toIsoDate } from '../../../shared/locale/app-locale';
 
 /**
@@ -54,7 +51,8 @@ export class SeasonPickerComponent implements OnInit {
   constructor(
     private readonly seasonService: SeasonService,
     private readonly notificationService: NotificationService,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly confirmDialog: ConfirmDialogService
   ) {}
 
   ngOnInit(): void {
@@ -109,14 +107,13 @@ export class SeasonPickerComponent implements OnInit {
     if (!season?.id) {
       return;
     }
-    const data: ConfirmDialogData = {
+    this.confirmDialog.confirm({
       titleKey: 'seasons.deleteTitle',
       messageKey: 'seasons.deleteConfirm',
       messageParams: { name: season.name },
       confirmKey: 'common.delete',
       danger: true
-    };
-    this.dialog.open(ConfirmDialogComponent, { data }).afterClosed().subscribe(confirmed => {
+    }).subscribe(confirmed => {
       if (!confirmed) {
         return;
       }

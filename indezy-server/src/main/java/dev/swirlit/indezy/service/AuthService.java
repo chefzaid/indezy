@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.RegisterRequest;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.exception.TwoFactorRequiredException;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
@@ -33,6 +34,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final JwtDecoder keycloakJwtDecoder;
+    private final TotpService totpService;
 
     public LoginResponse login(LoginRequest request) {
         log.debug("Attempting login for email: {}", request.getEmail());
@@ -48,12 +50,26 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new ResourceNotFoundException("Invalid email or password");
         }
+        requireTwoFactorCode(user, request.getTotpCode());
 
         Freelance freelance = ensureFreelanceProfile(user);
         String token = jwtUtil.generateToken(user.getEmail(), user.getId());
         
         log.debug("Login successful for user: {}", user.getEmail());
         return toLoginResponse(user, freelance.getId(), token);
+    }
+
+    /** Accounts with two-factor authentication enabled must also present a valid TOTP code. */
+    private void requireTwoFactorCode(User user, String code) {
+        if (!Boolean.TRUE.equals(user.getTwoFactorEnabled()) || user.getTwoFactorSecret() == null) {
+            return;
+        }
+        if (code == null || code.isBlank()) {
+            throw new TwoFactorRequiredException();
+        }
+        if (!totpService.validateCode(user.getTwoFactorSecret(), code.trim())) {
+            throw new ResourceNotFoundException("Invalid email or password");
+        }
     }
 
     public LoginResponse register(RegisterRequest request) {

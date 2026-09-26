@@ -53,7 +53,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   /** Lost reasons that actually occurred, sorted by frequency (computed once per stats load). */
   lostReasons: { reason: string; count: number }[] = [];
 
-  showKanbanBoard = false;
   /** Season whose dashboard is shown; null shows every opportunity. */
   selectedSeason: Season | null = null;
   /** Set once the season picker has resolved the initial season, so data loads only once. */
@@ -218,10 +217,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.viewMode === 'overview';
   }
 
-  isKanbanMode(): boolean {
-    return this.viewMode === 'kanban';
-  }
-
   private buildLostReasons(stats: DashboardStatsDto): { reason: string; count: number }[] {
     return Object.entries(stats.lostReasonsBreakdown ?? {})
       .filter(([, count]) => count > 0)
@@ -284,18 +279,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   /** Overall conversion rate of a funnel group (its last stage relative to the first). */
   funnelConversion(group: FunnelBreakdown): number {
     return group.stages.at(-1)?.conversionRate ?? 0;
-  }
-
-  setKanbanMode(): void {
-    this.viewMode = 'kanban';
-    this.showKanbanBoard = true;
-    this.cdr.detectChanges();
-  }
-
-  setOverviewMode(): void {
-    this.viewMode = 'overview';
-    this.showKanbanBoard = false;
-    this.cdr.detectChanges();
   }
 
   getGreeting(): string {

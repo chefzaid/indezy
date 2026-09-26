@@ -8,8 +8,6 @@ DELETE FROM contacts WHERE 1=1;
 DELETE FROM sources WHERE 1=1;
 DELETE FROM clients WHERE 1=1;
 DELETE FROM freelances WHERE 1=1;
-DELETE FROM user_sessions WHERE 1=1;
-DELETE FROM user_security_questions WHERE 1=1;
 DELETE FROM user_skills WHERE 1=1;
 DELETE FROM user_languages WHERE 1=1;
 DELETE FROM users WHERE 1=1;
@@ -29,14 +27,6 @@ INSERT INTO user_skills (user_id, skill) VALUES
 INSERT INTO user_languages (user_id, language) VALUES
 (1, 'English'),
 (1, 'French');
-
--- Insert test user session
-INSERT INTO user_sessions (session_id, device, browser, location, ip_address, last_active, is_current, user_id, created_at, updated_at, version) VALUES
-('session1', 'Chrome on Windows', 'Chrome', 'New York, NY', '192.168.1.1', CURRENT_TIMESTAMP, true, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
-
--- Insert test security question
-INSERT INTO user_security_questions (question, answer_hash, user_id, created_at, updated_at, version) VALUES
-('What is your mother''s maiden name?', '$2a$10$encrypted_answer_hash', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 
 -- Insert test freelances (using actual column names from Freelance entity)
 INSERT INTO freelances (id, first_name, last_name, email, phone, birth_date, address, city, status, notice_period_in_days, availability_date, reversion_rate, cv_file_path, password_hash, created_at, updated_at, version) VALUES

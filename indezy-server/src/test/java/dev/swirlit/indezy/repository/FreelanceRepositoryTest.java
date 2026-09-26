@@ -61,22 +61,6 @@ class FreelanceRepositoryTest {
     }
 
     @Test
-    void findByIdWithProjects_WithExistingId_ShouldReturnFreelanceWithProjects() {
-        Optional<Freelance> freelance = freelanceRepository.findByIdWithProjects(testFreelance.getId());
-
-        assertThat(freelance).isPresent();
-        assertThat(freelance.get().getFirstName()).isEqualTo("John");
-        assertThat(freelance.get().getProjects()).isNotNull();
-    }
-
-    @Test
-    void findByIdWithProjects_WithNonExistentId_ShouldReturnEmpty() {
-        Optional<Freelance> freelance = freelanceRepository.findByIdWithProjects(999L);
-
-        assertThat(freelance).isEmpty();
-    }
-
-    @Test
     void save_WithValidFreelance_ShouldPersistFreelance() {
         Freelance newFreelance = new Freelance();
         newFreelance.setFirstName("Jane");
@@ -151,43 +135,4 @@ class FreelanceRepositoryTest {
         assertThat(count).isEqualTo(1L);
     }
 
-    @Test
-    void findByEmploymentStatus_WithExistingStatus_ShouldReturnFreelances() {
-        // Create another freelance with different status
-        Freelance cdiFreelance = new Freelance();
-        cdiFreelance.setFirstName("Jane");
-        cdiFreelance.setLastName("Smith");
-        cdiFreelance.setEmail("jane.smith@example.com");
-        cdiFreelance.setPhone("987-654-3210");
-        cdiFreelance.setStatus(EmploymentStatus.CDI);
-        entityManager.persistAndFlush(cdiFreelance);
-
-        // Test that we can find the freelances by their IDs
-        Optional<Freelance> freelanceWithProjects = freelanceRepository.findByIdWithProjects(testFreelance.getId());
-        Optional<Freelance> cdiWithProjects = freelanceRepository.findByIdWithProjects(cdiFreelance.getId());
-
-        assertThat(freelanceWithProjects).isPresent();
-        assertThat(freelanceWithProjects.get().getStatus()).isEqualTo(EmploymentStatus.FREELANCE);
-
-        assertThat(cdiWithProjects).isPresent();
-        assertThat(cdiWithProjects.get().getStatus()).isEqualTo(EmploymentStatus.CDI);
-    }
-
-    @Test
-    void findByIdWithClients_WithExistingId_ShouldReturnFreelanceWithClients() {
-        Optional<Freelance> freelanceWithClients = freelanceRepository.findByIdWithClients(testFreelance.getId());
-
-        assertThat(freelanceWithClients).isPresent();
-        assertThat(freelanceWithClients.get().getFirstName()).isEqualTo("John");
-        assertThat(freelanceWithClients.get().getClients()).isNotNull();
-    }
-
-    @Test
-    void findByIdWithSources_WithExistingId_ShouldReturnFreelanceWithSources() {
-        Optional<Freelance> freelanceWithSources = freelanceRepository.findByIdWithSources(testFreelance.getId());
-
-        assertThat(freelanceWithSources).isPresent();
-        assertThat(freelanceWithSources.get().getFirstName()).isEqualTo("John");
-        assertThat(freelanceWithSources.get().getSources()).isNotNull();
-    }
 }

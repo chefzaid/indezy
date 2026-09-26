@@ -108,3 +108,14 @@
     margin: 0 0 16px;
   }
 }
+
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+
+  .search-field {
+    flex: 1 1 260px;
+  }
+}

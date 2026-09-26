@@ -10,8 +10,6 @@ TRUNCATE TABLE
     projects,
     sources,
     clients,
-    user_sessions,
-    user_security_questions,
     user_skills,
     user_languages,
     users,
@@ -66,22 +64,6 @@ INSERT INTO user_skills (user_id, skill) VALUES
 INSERT INTO user_languages (user_id, language) VALUES
     (1, 'French'),
     (1, 'English');
-
-INSERT INTO user_sessions (
-    session_id, device, browser, location, ip_address, last_active, is_current,
-    user_id, created_at, updated_at, version
-) VALUES (
-    'sample-session', 'MacBook Pro', 'Chrome', 'Paris, France', '127.0.0.1',
-    CURRENT_TIMESTAMP, true, 1, CURRENT_TIMESTAMP - INTERVAL '2 hours', CURRENT_TIMESTAMP, 0
-);
-
-INSERT INTO user_security_questions (
-    question, answer_hash, user_id, created_at, updated_at, version
-) VALUES (
-    'What was the name of your first project?',
-    '$2a$10$T5QYJvK7.oMHSH7P1JXh3.9iNQTSzMuB2lGiEw1yWg6V3C5P5K1nS',
-    1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0
-);
 
 INSERT INTO sources (
     name, type, link, is_listing, popularity_rating, usefulness_rating, notes,

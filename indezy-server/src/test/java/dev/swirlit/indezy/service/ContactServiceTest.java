@@ -234,25 +234,4 @@ class ContactServiceTest {
         verify(contactRepository, never()).deleteById(any());
     }
 
-    @Test
-    void searchByName_ShouldReturnMatchingContacts() {
-        when(contactRepository.findByFreelanceIdAndNameContaining(1L, "Jane")).thenReturn(List.of(testContact));
-        when(contactMapper.toDto(testContact)).thenReturn(testContactDto);
-
-        List<ContactDto> result = contactService.searchByName(1L, "Jane");
-
-        assertThat(result).hasSize(1);
-        verify(contactRepository).findByFreelanceIdAndNameContaining(1L, "Jane");
-    }
-
-    @Test
-    void searchByEmail_ShouldReturnMatchingContacts() {
-        when(contactRepository.findByFreelanceIdAndEmailContaining(1L, "jane")).thenReturn(List.of(testContact));
-        when(contactMapper.toDto(testContact)).thenReturn(testContactDto);
-
-        List<ContactDto> result = contactService.searchByEmail(1L, "jane");
-
-        assertThat(result).hasSize(1);
-        verify(contactRepository).findByFreelanceIdAndEmailContaining(1L, "jane");
-    }
 }

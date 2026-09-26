@@ -41,8 +41,6 @@ class ProjectControllerTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
-
-
     @MockitoBean
     private ProjectService projectService;
 
@@ -127,36 +125,6 @@ class ProjectControllerTest {
 
     @Test
     @WithMockUser
-    void getProjectByIdWithSteps_ShouldReturnProjectWithSteps() throws Exception {
-        // Given
-        when(projectService.findByIdWithSteps(1L)).thenReturn(testProjectDto);
-
-        // When & Then
-        mockMvc.perform(get("/projects/1/with-steps"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.role", is("Full Stack Developer")))
-                .andExpect(jsonPath("$.dailyRate", is(600)));
-
-        verify(projectService).findByIdWithSteps(1L);
-    }
-
-    @Test
-    @WithMockUser
-    void getProjectByIdWithSteps_WhenProjectNotExists_ShouldReturn404() throws Exception {
-        // Given
-        when(projectService.findByIdWithSteps(1L)).thenThrow(new ResourceNotFoundException("Project not found with id: 1"));
-
-        // When & Then
-        mockMvc.perform(get("/projects/1/with-steps"))
-                .andExpect(status().isNotFound());
-
-        verify(projectService).findByIdWithSteps(1L);
-    }
-
-    @Test
-    @WithMockUser
     void getProjectsByFreelanceId_ShouldReturnProjectsForFreelance() throws Exception {
         // Given
         List<ProjectDto> projects = Arrays.asList(testProjectDto);
@@ -170,28 +138,6 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$[0].freelanceId", is(1)));
 
         verify(projectService).findByFreelanceId(1L);
-    }
-
-    @Test
-    @WithMockUser
-    void getProjectsByFreelanceIdWithFilters_ShouldApplyFilters() throws Exception {
-        // Given
-        List<ProjectDto> projects = Arrays.asList(testProjectDto);
-        when(projectService.findByFreelanceIdAndFilters(eq(1L), eq(500), eq(700), eq(WorkMode.HYBRID), any(LocalDate.class), eq("Java")))
-                .thenReturn(projects);
-
-        // When & Then
-        mockMvc.perform(get("/projects/by-freelance/1/filtered")
-                        .param("minRate", "500")
-                        .param("maxRate", "700")
-                        .param("workMode", "HYBRID")
-                        .param("startDateAfter", "2024-01-01")
-                        .param("techStack", "Java"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)));
-
-        verify(projectService).findByFreelanceIdAndFilters(eq(1L), eq(500), eq(700), eq(WorkMode.HYBRID), any(LocalDate.class), eq("Java"));
     }
 
     @Test
@@ -296,33 +242,4 @@ class ProjectControllerTest {
         verify(projectService).delete(1L);
     }
 
-    @Test
-    @WithMockUser
-    void getAverageDailyRate_ShouldReturnAverageRate() throws Exception {
-        // Given
-        when(projectService.getAverageDailyRateByFreelanceId(1L)).thenReturn(575.0);
-
-        // When & Then
-        mockMvc.perform(get("/projects/stats/average-rate/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", is(575.0)));
-
-        verify(projectService).getAverageDailyRateByFreelanceId(1L);
-    }
-
-    @Test
-    @WithMockUser
-    void getProjectCount_ShouldReturnProjectCount() throws Exception {
-        // Given
-        when(projectService.countByFreelanceId(1L)).thenReturn(3L);
-
-        // When & Then
-        mockMvc.perform(get("/projects/stats/count/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", is(3)));
-
-        verify(projectService).countByFreelanceId(1L);
-    }
 }

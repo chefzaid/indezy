@@ -36,22 +36,6 @@ export interface UpdateInterviewStepDto {
   projectId?: number;
 }
 
-export interface ProjectCardDto {
-  projectId: number;
-  role: string;
-  clientName?: string;
-  dailyRate: number;
-  workMode?: string;
-  techStack?: string;
-  currentStepTitle: string;
-  currentStepStatus: string;
-  currentStepDate?: string;
-  notes?: string;
-  totalSteps: number;
-  completedSteps: number;
-  failedSteps: number;
-}
-
 export interface StepTransitionDto {
   projectId: number;
   fromStepTitle: string;
@@ -60,26 +44,7 @@ export interface StepTransitionDto {
 }
 
 // Constants for interview steps
-export const INTERVIEW_STEPS_ORDER: string[] = [
-  'Prise de Contact',
-  'Entretien Commercial',
-  'Positionnement',
-  'Test Technique',
-  'Entretien Technique',
-  'Entretien Manager',
-  'Validation'
-];
-
 // Status display labels
-export const STEP_STATUS_LABELS: { [key in StepStatus]: string } = {
-  [StepStatus.TO_PLAN]: 'À planifier',
-  [StepStatus.PLANNED]: 'Planifié',
-  [StepStatus.CANCELED]: 'Annulé',
-  [StepStatus.WAITING_FEEDBACK]: 'En attente de retour',
-  [StepStatus.VALIDATED]: 'Validé',
-  [StepStatus.FAILED]: 'Échoué'
-};
-
 // Status colors for UI (dark enough to carry white text in status pills)
 export const STEP_STATUS_COLORS: { [key in StepStatus]: string } = {
   [StepStatus.TO_PLAN]: '#fb8c00', // orange

@@ -129,21 +129,4 @@ public class ContactService {
         log.info("Deleted contact with id: {}", id);
     }
 
-    @Transactional(readOnly = true)
-    public List<ContactDto> searchByName(Long freelanceId, String name) {
-        log.debug("Searching contacts by name: {} for freelance: {}", name, freelanceId);
-        return contactRepository.findByFreelanceIdAndNameContaining(freelanceId, name)
-            .stream()
-            .map(contactMapper::toDto)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<ContactDto> searchByEmail(Long freelanceId, String email) {
-        log.debug("Searching contacts by email: {} for freelance: {}", email, freelanceId);
-        return contactRepository.findByFreelanceIdAndEmailContaining(freelanceId, email)
-            .stream()
-            .map(contactMapper::toDto)
-            .toList();
-    }
 }

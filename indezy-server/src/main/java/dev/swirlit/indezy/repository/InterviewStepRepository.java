@@ -14,8 +14,6 @@ public interface InterviewStepRepository extends JpaRepository<InterviewStep, Lo
 
     List<InterviewStep> findByProjectId(Long projectId);
 
-    List<InterviewStep> findByProjectIdAndStatus(Long projectId, StepStatus status);
-
     @Query("SELECT s FROM InterviewStep s WHERE s.project.id = :projectId ORDER BY s.date ASC")
     List<InterviewStep> findByProjectIdOrderByDate(@Param("projectId") Long projectId);
 
@@ -24,9 +22,6 @@ public interface InterviewStepRepository extends JpaRepository<InterviewStep, Lo
 
     @Query("SELECT s FROM InterviewStep s WHERE s.project.freelance.id = :freelanceId AND (:status IS NULL OR s.status = :status)")
     List<InterviewStep> findByFreelanceIdAndStatus(@Param("freelanceId") Long freelanceId, @Param("status") StepStatus status);
-
-    @Query("SELECT COUNT(s) FROM InterviewStep s WHERE s.project.id = :projectId AND s.status = :status")
-    Long countByProjectIdAndStatus(@Param("projectId") Long projectId, @Param("status") StepStatus status);
 
     /** Owner workspace of the interviewstep, used by access checks without loading the entity graph. */
     @Query("SELECT s.project.freelance.id FROM InterviewStep s WHERE s.id = :id")

@@ -12,4 +12,7 @@ public class LoginRequest {
 
     @NotBlank(message = "Password is required")
     private String password;
+
+    /** Six-digit authenticator code; required once two-factor authentication is enabled. */
+    private String totpCode;
 }

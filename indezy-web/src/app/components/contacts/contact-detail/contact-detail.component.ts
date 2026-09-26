@@ -65,7 +65,7 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
     if (!this.contactId) { return; }
     
     this.isLoading = true;
-    this.contactService.getContact(this.contactId)
+    this.contactService.getById(this.contactId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (contact) => {
@@ -106,7 +106,7 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
       if (!confirmed) {
         return;
       }
-      this.contactService.deleteContact(contactId)
+      this.contactService.delete(contactId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {

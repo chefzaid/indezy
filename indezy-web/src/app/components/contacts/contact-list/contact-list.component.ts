@@ -149,7 +149,7 @@ export class ContactListComponent implements OnInit, OnDestroy {
 
   onCreate(): void {
     const clientId = this.selectedClient;
-    this.router.navigate(['/contacts/create'], clientId !== '' ? { queryParams: { clientId } } : {});
+    this.router.navigate(['/contacts/new'], clientId !== '' ? { queryParams: { clientId } } : {});
   }
 
   onView(contact: ContactDto): void {
@@ -175,7 +175,7 @@ export class ContactListComponent implements OnInit, OnDestroy {
       if (!confirmed) {
         return;
       }
-      this.contactService.deleteContact(contactId)
+      this.contactService.delete(contactId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {

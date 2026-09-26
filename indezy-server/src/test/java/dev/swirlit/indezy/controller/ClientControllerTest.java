@@ -192,33 +192,4 @@ class ClientControllerTest {
         verify(clientService).findByFreelanceId(1L);
     }
 
-    @Test
-    @WithMockUser
-    void getClientWithProjects_ShouldReturnClientWithProjects() throws Exception {
-        // Given
-        when(clientService.findByIdWithProjects(1L)).thenReturn(testClientDto);
-
-        // When & Then
-        mockMvc.perform(get("/clients/1/with-projects"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.companyName", is("Test Company")));
-
-        verify(clientService).findByIdWithProjects(1L);
-    }
-
-    @Test
-    @WithMockUser
-    void getClientWithContacts_ShouldReturnClientWithContacts() throws Exception {
-        // Given
-        when(clientService.findByIdWithContacts(1L)).thenReturn(testClientDto);
-
-        // When & Then
-        mockMvc.perform(get("/clients/1/with-contacts"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.companyName", is("Test Company")));
-
-        verify(clientService).findByIdWithContacts(1L);
-    }
 }

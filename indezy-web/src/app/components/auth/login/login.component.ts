@@ -36,6 +36,8 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
   hidePassword = true;
+  /** Set when the API accepted the password but asks for the authenticator code. */
+  needsTotpCode = false;
   readonly ssoEnabled = environment.production;
 
   constructor(
@@ -47,7 +49,8 @@ export class LoginComponent implements OnInit {
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      totpCode: ['']
     });
   }
 
@@ -61,7 +64,10 @@ export class LoginComponent implements OnInit {
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.isLoading = true;
-      const credentials = this.loginForm.value;
+      const { totpCode, ...credentials } = this.loginForm.value;
+      if (this.needsTotpCode) {
+        credentials.totpCode = totpCode;
+      }
 
       this.authService.login(credentials).subscribe({
         next: () => {
@@ -73,6 +79,13 @@ export class LoginComponent implements OnInit {
           this.isLoading = false;
           let errorMessage = this.translateService.instant('auth.loginError');
           
+          if (error.status === 401 && error.error?.twoFactorRequired) {
+            this.needsTotpCode = true;
+            this.loginForm.get('totpCode')?.setValidators([Validators.required, Validators.pattern(/^\s*\d{6}\s*$/)]);
+            this.loginForm.get('totpCode')?.updateValueAndValidity();
+            this.notificationService.info('auth.totpRequired');
+            return;
+          }
           if (error.status === 401) {
             errorMessage = this.translateService.instant('auth.invalidCredentials');
           } else if (error.status === 429) {

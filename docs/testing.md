@@ -108,26 +108,11 @@ npm test
 
 Representative backend tests:
 
-- `AuthControllerTest`
-- `ClientControllerTest`
-- `FreelanceControllerTest`
-- `InterviewStepControllerTest`
-- `ProjectControllerTest`
-- `SourceControllerTest`
-- `AuthServiceTest`
-- `ClientServiceTest`
-- `FreelanceServiceTest`
-- `InterviewStepServiceTest`
-- `ProjectServiceTest`
-- `SourceServiceTest`
-- `ClientRepositoryTest`
-- `FreelanceRepositoryTest`
-- `ProjectRepositoryTest`
-- `SourceRepositoryTest`
-- `FullStackIntegrationTest`
-- `ProjectIntegrationTest`
-- `UserManagementIntegrationTest`
-- `JwtUtilTest`
+- controllers: `AuthControllerTest`, `ClientControllerTest`, `ProjectControllerTest`, `InterviewStepControllerTest`, ...
+- services: `ProjectServiceTest`, `DashboardStatsServiceTest`, `SeasonServiceTest`, `AuthServiceTest` (including two-factor login), `CommuteServiceTest`, ...
+- repositories: `ClientRepositoryTest`, `ProjectRepositoryTest`, `SourceRepositoryTest`, `FreelanceRepositoryTest`
+- integration: `WorkspaceIsolationIntegrationTest` (two real accounts: isolation, seasons, deletion rules), `FullStackIntegrationTest`, `ProjectIntegrationTest`, `UserManagementIntegrationTest`
+- configuration and schema: `SecurityConfigTest`, `ProjectStatusMigrationTest`, `SchemaMigrationTest`, `JwtUtilTest`
 
 Backend test data lives under `indezy-server/src/test/resources/`:
 
@@ -141,21 +126,11 @@ Backend test data lives under `indezy-server/src/test/resources/`:
 
 Representative frontend specs:
 
-- `auth.service.spec.ts`
-- `client.service.spec.ts`
-- `contact.service.spec.ts`
-- `freelance.service.spec.ts`
-- `interview-step.service.spec.ts`
-- `project.service.spec.ts`
-- `source.service.spec.ts`
-- `user-management.service.spec.ts`
-- `user-management.integration.spec.ts`
-- `auth.guard.spec.ts`
-- `auth.interceptor.spec.ts`
-- `error.interceptor.spec.ts`
-- `kanban-board.component.spec.ts`
-- `step-action-dialog.component.spec.ts`
-- `step-schedule-dialog.component.spec.ts`
+- `api-services.spec.ts`: one table-driven case per HTTP call (verb, URL, parameters, body) of the client, contact, freelance, interview-step, project, source and user-management services
+- `auth.service.spec.ts`, `auth.guard.spec.ts`, `auth.interceptor.spec.ts`, `error.interceptor.spec.ts`
+- `season.service.spec.ts` and `project-filter.util.spec.ts`
+- `kanban-board.component.spec.ts`, `interview-step-dialog.component.spec.ts`, `dashboard-reminders.component.spec.ts`
+- shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy
 

@@ -105,35 +105,6 @@ public class CommuteService {
         return results;
     }
 
-    @Transactional(readOnly = true)
-    public CommuteInfoDto getCommuteForProject(Long freelanceId, Long projectId, TravelMode travelMode) {
-        log.debug("Getting commute info for project {} of freelance {} with mode {}", projectId, freelanceId, travelMode);
-
-        Freelance freelance = freelanceRepository.findById(freelanceId)
-            .orElseThrow(() -> new ResourceNotFoundException("Freelance not found: " + freelanceId));
-
-        Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + projectId));
-
-        String origin = buildAddress(freelance.getAddress(), freelance.getCity());
-        String destination = buildClientAddress(project.getClient());
-
-        if (origin.isBlank() || destination.isBlank()) {
-            return CommuteInfoDto.builder()
-                .projectId(projectId)
-                .projectRole(project.getRole())
-                .clientName(project.getClient() != null ? project.getClient().getCompanyName() : null)
-                .origin(origin)
-                .destination(destination)
-                .travelMode(travelMode)
-                .build();
-        }
-
-        return fetchCommuteInfo(projectId, project.getRole(),
-            project.getClient() != null ? project.getClient().getCompanyName() : null,
-            origin, destination, travelMode);
-    }
-
     private CommuteInfoDto fetchCommuteInfo(Long projectId, String projectRole, String clientName,
                                             String origin, String destination, TravelMode travelMode) {
         if (googleMapsApiKey == null || googleMapsApiKey.isBlank()) {

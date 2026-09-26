@@ -9,9 +9,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -146,12 +144,6 @@ public class User extends BaseEntity {
     @Column(name = "two_factor_secret")
     private String twoFactorSecret;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<UserSession> sessions = new HashSet<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<UserSecurityQuestion> securityQuestions = new HashSet<>();
-
     // Helper methods
     public String getFullName() {
         return firstName + " " + lastName;
@@ -172,21 +164,5 @@ public class User extends BaseEntity {
 
     public void setLanguages(List<String> languages) {
         this.languages = languages != null ? new ArrayList<>(languages) : new ArrayList<>();
-    }
-
-    public List<UserSession> getSessions() {
-        return sessions != null ? new ArrayList<>(sessions) : new ArrayList<>();
-    }
-
-    public void setSessions(List<UserSession> sessions) {
-        this.sessions = sessions != null ? new HashSet<>(sessions) : new HashSet<>();
-    }
-
-    public List<UserSecurityQuestion> getSecurityQuestions() {
-        return securityQuestions != null ? new ArrayList<>(securityQuestions) : new ArrayList<>();
-    }
-
-    public void setSecurityQuestions(List<UserSecurityQuestion> securityQuestions) {
-        this.securityQuestions = securityQuestions != null ? new HashSet<>(securityQuestions) : new HashSet<>();
     }
 }

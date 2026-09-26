@@ -16,6 +16,7 @@ import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
+import dev.swirlit.indezy.repository.ProjectNoteRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,7 @@ public class ProjectService {
     private final ClientRepository clientRepository;
     private final SourceRepository sourceRepository;
     private final InterviewStepRepository interviewStepRepository;
+    private final ProjectNoteRepository projectNoteRepository;
     private final ProjectMapper projectMapper;
     private final SeasonService seasonService;
 
@@ -70,14 +72,6 @@ public class ProjectService {
     public ProjectDto findById(Long id) {
         log.debug("Finding project by id: {}", id);
         Project project = projectRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
-        return projectMapper.toDto(project);
-    }
-
-    @Transactional(readOnly = true)
-    public ProjectDto findByIdWithSteps(Long id) {
-        log.debug("Finding project with steps by id: {}", id);
-        Project project = projectRepository.findByIdWithSteps(id)
             .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
         return projectMapper.toDto(project);
     }
@@ -143,50 +137,6 @@ public class ProjectService {
         log.debug("Finding projects by client id: {}", clientId);
         return projectRepository.findByClientId(clientId)
             .stream()
-            .map(projectMapper::toDto)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<ProjectDto> findByFreelanceIdAndFilters(Long freelanceId, Integer minRate, Integer maxRate, 
-                                                       WorkMode workMode, LocalDate startDateAfter, String techStack) {
-        log.debug("Finding projects by freelance id with filters: {}", freelanceId);
-        
-        List<Project> projects = projectRepository.findByFreelanceId(freelanceId);
-        
-        // Apply filters
-        if (minRate != null) {
-            projects = projects.stream()
-                .filter(p -> p.getDailyRate() != null && p.getDailyRate() >= minRate)
-                .toList();
-        }
-        
-        if (maxRate != null) {
-            projects = projects.stream()
-                .filter(p -> p.getDailyRate() != null && p.getDailyRate() <= maxRate)
-                .toList();
-        }
-        
-        if (workMode != null) {
-            projects = projects.stream()
-                .filter(p -> workMode.equals(p.getWorkMode()))
-                .toList();
-        }
-        
-        if (startDateAfter != null) {
-            projects = projects.stream()
-                .filter(p -> p.getStartDate() != null && p.getStartDate().isAfter(startDateAfter))
-                .toList();
-        }
-        
-        if (techStack != null && !techStack.trim().isEmpty()) {
-            projects = projects.stream()
-                .filter(p -> p.getTechStack() != null &&
-                           p.getTechStack().toLowerCase(Locale.ROOT).contains(techStack.toLowerCase(Locale.ROOT)))
-                .toList();
-        }
-        
-        return projects.stream()
             .map(projectMapper::toDto)
             .toList();
     }
@@ -314,18 +264,10 @@ public class ProjectService {
             throw new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id));
         }
 
+        // Interview steps cascade with the project; journal notes are not mapped on it.
+        projectNoteRepository.deleteByProjectId(id);
         projectRepository.deleteById(id);
         log.info("Deleted project with id: {}", id);
-    }
-
-    @Transactional(readOnly = true)
-    public Double getAverageDailyRateByFreelanceId(Long freelanceId) {
-        return projectRepository.findAverageDailyRateByFreelanceId(freelanceId);
-    }
-
-    @Transactional(readOnly = true)
-    public Long countByFreelanceId(Long freelanceId) {
-        return projectRepository.countByFreelanceId(freelanceId);
     }
 
     public ProjectDto updateStatus(Long id, ProjectStatus status, LostReason lostReason) {
@@ -338,11 +280,6 @@ public class ProjectService {
         Project updatedProject = projectRepository.save(project);
         log.info("Updated project status with id: {} to status: {}", id, status);
         return projectMapper.toDto(updatedProject);
-    }
-
-    @Transactional(readOnly = true)
-    public KanbanBoardDto getKanbanBoard(Long freelanceId) {
-        return getKanbanBoard(freelanceId, null);
     }
 
     /** Kanban board of a workspace, limited to one season's opportunities when a season is given. */

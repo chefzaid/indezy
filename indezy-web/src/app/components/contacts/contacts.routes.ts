@@ -6,7 +6,7 @@ export const contactRoutes: Routes = [
     loadComponent: () => import('./contact-list/contact-list.component').then(m => m.ContactListComponent)
   },
   {
-    path: 'create',
+    path: 'new',
     loadComponent: () => import('./contact-form/contact-form.component').then(m => m.ContactFormComponent)
   },
   {

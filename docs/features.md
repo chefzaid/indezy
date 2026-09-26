@@ -23,9 +23,11 @@ Implemented account flows:
 - JWT creation on successful authentication
 - frontend route protection through `authGuard`
 - bearer token attachment through the Angular auth interceptor
-- profile surface for account, preferences, notifications, and security-related fields
+- Keycloak single sign-on in production (`/api/auth/sso`, see [Security](./security.md))
+- optional TOTP two-factor authentication for local accounts, asked at login once enabled
+- profile page for account details, avatar, preferences (language, theme, date format), notifications, password, two-factor authentication and a JSON export of every piece of account data
 
-The backend already stores richer user profile fields such as skills, languages, timezone, currency, theme, language preference, notification flags, session records, and security-question records. Not every stored account field is equally mature in the UI yet, so feature work should verify the full user journey before presenting a field as product-complete.
+The backend stores a few account fields the UI does not use yet (timezone, currency, default view, items per page, notification flags without delivery). Verify the full user journey before presenting such a field as product-complete.
 
 ## Freelancer Profile
 
@@ -124,7 +126,7 @@ Implemented source fields include:
 - notes
 - linked projects
 
-Source data feeds filtering, reporting, and future source ROI work.
+Source data feeds filtering and the dashboard's source ROI ranking. Deleting a source keeps its opportunities, which simply lose their origin.
 
 ## Interview Steps
 
@@ -193,20 +195,17 @@ The dashboard provides an overview of the opportunity workspace with:
 - overview and Kanban display modes
 - a season picker that scopes all of the above to one job-hunting season (see [Job-Hunting Seasons](#job-hunting-seasons))
 
-The current analytics are intentionally operational: they help a freelancer understand pipeline volume, activity, rate distribution, which sources actually yield signed contracts, and how negotiated rates trend over time. More advanced analytics such as conversion funnels remain roadmap items.
+The analytics are intentionally operational: they help a freelancer understand pipeline volume, activity, rate distribution, which sources actually yield signed contracts, where opportunities drop off in the funnel, and how negotiated rates trend over time.
 
 ## Filtering And Search Surfaces
 
-The frontend includes reusable filter components for common list workflows:
+Every list uses the same kind of inline filters, applied in the browser as you type:
 
-- advanced search/filter panel
-- comprehensive filter panel
-- date range filter
-- multi-select filter
-- range slider filter
-- filter presets
-
-These components support the product direction of making projects, clients, contacts, and sources easy to scan and narrow down.
+- projects: search, work mode, rate range, status, season, dates, duration, client and tech stack, with sorting, pagination and filters collapsed on small screens
+- clients: search, type (final client or ESN), city and sort
+- contacts: search and client
+- sources: search, type and minimum usefulness rating
+- archive: full-text search across past opportunities
 
 ## Commute-Time Sorting
 
@@ -249,10 +248,10 @@ The app component loads the saved language preference and exposes French and Eng
 
 These capabilities are intentionally not treated as implemented yet, even if some model fields or dependencies hint at them:
 
-- production-grade OAuth login
+- social login (Google, GitHub, Microsoft)
 - password reset and email verification
-- two-factor authentication
-- full account session management
+- two-factor recovery codes
+- self-service account deletion (identities live in Keycloak)
 - job-board connectors
 - Gmail, Outlook, or LinkedIn sync
 - Chrome extension capture

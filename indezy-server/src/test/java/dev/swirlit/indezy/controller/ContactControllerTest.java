@@ -182,25 +182,4 @@ class ContactControllerTest {
         verify(contactService).findByClientId(1L);
     }
 
-    @Test
-    void searchContactsByName_ShouldReturnMatchingContacts() throws Exception {
-        when(contactService.searchByName(1L, "Jane")).thenReturn(List.of(testContactDto));
-
-        mockMvc.perform(get("/contacts/by-freelance/1/search/name").param("name", "Jane"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)));
-
-        verify(contactService).searchByName(1L, "Jane");
-    }
-
-    @Test
-    void searchContactsByEmail_ShouldReturnMatchingContacts() throws Exception {
-        when(contactService.searchByEmail(1L, "jane")).thenReturn(List.of(testContactDto));
-
-        mockMvc.perform(get("/contacts/by-freelance/1/search/email").param("email", "jane"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)));
-
-        verify(contactService).searchByEmail(1L, "jane");
-    }
 }

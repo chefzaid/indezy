@@ -25,6 +25,7 @@ import { ProjectDto, ClientDto, SourceDto, User, ProjectStatus, LOST_REASONS, PR
 import { NotificationService } from '../../../services/notification/notification.service';
 import { fromIsoDate, toIsoDate } from '../../../shared/locale/app-locale';
 import { blankToNull } from '../../../shared/utils/form-payload';
+import { fieldError } from '../../../shared/utils/form-errors';
 
 @Component({
     selector: 'app-project-form',
@@ -272,7 +273,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      this.markFormGroupTouched();
+      this.projectForm.markAllAsTouched();
     }
   }
 
@@ -280,30 +281,8 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     this.router.navigate(this.isEditMode && this.projectId ? ['/projects', this.projectId] : ['/projects']);
   }
 
-  private markFormGroupTouched(): void {
-    Object.keys(this.projectForm.controls).forEach(key => {
-      const control = this.projectForm.get(key);
-      control?.markAsTouched();
-    });
-  }
-
   getFieldError(fieldName: string): string {
-    const control = this.projectForm.get(fieldName);
-    if (control?.errors && control.touched) {
-      if (control.errors['required']) {
-        return this.translate.instant('errors.fieldRequired');
-      }
-      if (control.errors['minlength']) {
-        return this.translate.instant('errors.minLength', { length: control.errors['minlength'].requiredLength });
-      }
-      if (control.errors['min']) {
-        return this.translate.instant('errors.minValue', { value: control.errors['min'].min });
-      }
-      if (control.errors['max']) {
-        return this.translate.instant('errors.maxValue', { value: control.errors['max'].max });
-      }
-    }
-    return '';
+    return fieldError(this.projectForm.get(fieldName), this.translate);
   }
 
   get pageTitle(): string {

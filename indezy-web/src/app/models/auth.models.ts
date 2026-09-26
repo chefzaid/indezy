@@ -3,6 +3,8 @@
 export interface LoginRequest {
   email: string;
   password: string;
+  /** Authenticator code, sent once the API asked for it. */
+  totpCode?: string;
 }
 
 export interface LoginResponse {

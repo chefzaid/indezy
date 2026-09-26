@@ -2,7 +2,6 @@ package dev.swirlit.indezy.integration;
 
 import tools.jackson.databind.ObjectMapper;
 import dev.swirlit.indezy.dto.FreelanceDto;
-import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureWebMvc;
@@ -19,15 +18,11 @@ import org.springframework.web.context.WebApplicationContext;
 
 import jakarta.annotation.PostConstruct;
 
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Integration tests for Freelance functionality
- * Tests the complete flow from controller to database
- */
+/** Freelance profile endpoints against the database; workspaces come from test-data.sql. */
 @SpringBootTest
 @AutoConfigureWebMvc
 @ActiveProfiles("test")
@@ -51,62 +46,20 @@ class FreelanceIntegrationTest {
     }
 
     @Test
-    void createFreelance_WithValidData_ShouldCreateAndReturnFreelance() throws Exception {
-        FreelanceDto freelanceDto = new FreelanceDto();
-        freelanceDto.setFirstName("Alice");
-        freelanceDto.setLastName("Johnson");
-        freelanceDto.setEmail("alice.johnson@example.com");
-        freelanceDto.setPhone("123-456-7890");
-        freelanceDto.setStatus(EmploymentStatus.FREELANCE);
-
-        mockMvc.perform(post("/freelances")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(freelanceDto)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.firstName", is("Alice")))
-                .andExpect(jsonPath("$.lastName", is("Johnson")))
-                .andExpect(jsonPath("$.email", is("alice.johnson@example.com")))
-                .andExpect(jsonPath("$.phone", is("123-456-7890")))
-                .andExpect(jsonPath("$.status", is("FREELANCE")))
-                .andExpect(jsonPath("$.id", notNullValue()));
-    }
-
-    @Test
-    void createFreelance_WithInvalidData_ShouldReturnValidationError() throws Exception {
-        FreelanceDto freelanceDto = new FreelanceDto();
-        // Missing required fields
-
-        mockMvc.perform(post("/freelances")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(freelanceDto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.error", is("Validation Failed")))
-                .andExpect(jsonPath("$.validationErrors").exists());
+    void getAllFreelances_ShouldReturnTheSeededProfiles() throws Exception {
+        mockMvc.perform(get("/freelances"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(2))))
+                .andExpect(jsonPath("$[*].email", hasItem("john.doe@example.com")));
     }
 
     @Test
     void getFreelance_WithExistingId_ShouldReturnFreelance() throws Exception {
-        // First create a freelance
-        FreelanceDto freelanceDto = createValidFreelanceDto();
-        
-        String response = mockMvc.perform(post("/freelances")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(freelanceDto)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        FreelanceDto createdFreelance = objectMapper.readValue(response, FreelanceDto.class);
-
-        // Then retrieve it
-        mockMvc.perform(get("/freelances/{id}", createdFreelance.getId()))
+        mockMvc.perform(get("/freelances/{id}", 1L))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(createdFreelance.getId().intValue())))
-                .andExpect(jsonPath("$.firstName", is("Alice")))
-                .andExpect(jsonPath("$.lastName", is("Johnson")))
-                .andExpect(jsonPath("$.email", is("alice.johnson@example.com")));
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.firstName", is("John")))
+                .andExpect(jsonPath("$.email", is("john.doe@example.com")));
     }
 
     @Test
@@ -119,116 +72,25 @@ class FreelanceIntegrationTest {
 
     @Test
     void updateFreelance_WithValidData_ShouldUpdateAndReturnFreelance() throws Exception {
-        // First create a freelance
-        FreelanceDto freelanceDto = createValidFreelanceDto();
-        
-        String response = mockMvc.perform(post("/freelances")
+        String current = mockMvc.perform(get("/freelances/{id}", 2L))
+                .andReturn().getResponse().getContentAsString();
+        FreelanceDto freelance = objectMapper.readValue(current, FreelanceDto.class);
+        freelance.setFirstName("Janet");
+
+        mockMvc.perform(put("/freelances/{id}", 2L)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(freelanceDto)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        FreelanceDto createdFreelance = objectMapper.readValue(response, FreelanceDto.class);
-
-        // Update the freelance
-        createdFreelance.setFirstName("Jane");
-
-        mockMvc.perform(put("/freelances/{id}", createdFreelance.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(createdFreelance)))
+                .content(objectMapper.writeValueAsString(freelance)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName", is("Jane")));
+                .andExpect(jsonPath("$.firstName", is("Janet")));
     }
 
     @Test
-    void deleteFreelance_WithExistingId_ShouldDeleteFreelance() throws Exception {
-        // First create a freelance
-        FreelanceDto freelanceDto = createValidFreelanceDto();
-        
-        String response = mockMvc.perform(post("/freelances")
+    void updateFreelance_WithInvalidData_ShouldReturnValidationError() throws Exception {
+        mockMvc.perform(put("/freelances/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(freelanceDto)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        FreelanceDto createdFreelance = objectMapper.readValue(response, FreelanceDto.class);
-
-        // Delete the freelance
-        mockMvc.perform(delete("/freelances/{id}", createdFreelance.getId()))
-                .andExpect(status().isNoContent());
-
-        // Verify it's deleted
-        mockMvc.perform(get("/freelances/{id}", createdFreelance.getId()))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void getAllFreelances_ShouldReturnFreelancesList() throws Exception {
-        // Create a freelance first
-        FreelanceDto freelanceDto = createValidFreelanceDto();
-
-        String response = mockMvc.perform(post("/freelances")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(freelanceDto)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        FreelanceDto createdFreelance = objectMapper.readValue(response, FreelanceDto.class);
-
-        // Get all freelances
-        String allFreelancesResponse = mockMvc.perform(get("/freelances"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(greaterThan(0))))
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        // Verify that our created freelance is in the list
-        assertTrue(allFreelancesResponse.contains("\"id\":" + createdFreelance.getId()));
-        assertTrue(allFreelancesResponse.contains("\"email\":\"alice.johnson@example.com\""));
-    }
-
-    @Test
-    void getFreelanceByEmail_WithExistingEmail_ShouldReturnFreelance() throws Exception {
-        // First create a freelance
-        FreelanceDto freelanceDto = createValidFreelanceDto();
-        
-        mockMvc.perform(post("/freelances")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(freelanceDto)))
-                .andExpect(status().isCreated());
-
-        // Then retrieve by email
-        mockMvc.perform(get("/freelances/by-email")
-                .param("email", "alice.johnson@example.com"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName", is("Alice")))
-                .andExpect(jsonPath("$.lastName", is("Johnson")))
-                .andExpect(jsonPath("$.email", is("alice.johnson@example.com")));
-    }
-
-    @Test
-    void getFreelanceByEmail_WithNonExistentEmail_ShouldReturnNotFound() throws Exception {
-        mockMvc.perform(get("/freelances/by-email")
-                .param("email", "nonexistent@example.com"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status", is(404)))
-                .andExpect(jsonPath("$.error", is("Resource Not Found")));
-    }
-
-    private FreelanceDto createValidFreelanceDto() {
-        FreelanceDto freelanceDto = new FreelanceDto();
-        freelanceDto.setFirstName("Alice");
-        freelanceDto.setLastName("Johnson");
-        freelanceDto.setEmail("alice.johnson@example.com");
-        freelanceDto.setPhone("123-456-7890");
-        freelanceDto.setStatus(EmploymentStatus.FREELANCE);
-        return freelanceDto;
+                .content(objectMapper.writeValueAsString(new FreelanceDto())))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("Validation Failed")))
+                .andExpect(jsonPath("$.validationErrors").exists());
     }
 }

@@ -235,35 +235,4 @@ class ClientServiceTest {
         verify(clientMapper).toDto(testClient);
     }
 
-    @Test
-    void findByIdWithProjects_ShouldReturnClientWithProjects() {
-        // Given
-        when(clientRepository.findByIdWithProjects(1L)).thenReturn(Optional.of(testClient));
-        when(clientMapper.toDto(testClient)).thenReturn(testClientDto);
-
-        // When
-        ClientDto result = clientService.findByIdWithProjects(1L);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getCompanyName()).isEqualTo("Test Company");
-        verify(clientRepository).findByIdWithProjects(1L);
-        verify(clientMapper).toDto(testClient);
-    }
-
-    @Test
-    void findByIdWithContacts_ShouldReturnClientWithContacts() {
-        // Given
-        when(clientRepository.findByIdWithContacts(1L)).thenReturn(Optional.of(testClient));
-        when(clientMapper.toDto(testClient)).thenReturn(testClientDto);
-
-        // When
-        ClientDto result = clientService.findByIdWithContacts(1L);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getCompanyName()).isEqualTo("Test Company");
-        verify(clientRepository).findByIdWithContacts(1L);
-        verify(clientMapper).toDto(testClient);
-    }
 }

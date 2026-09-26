@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -158,67 +159,11 @@ class CommuteServiceTest {
     }
 
     @Test
-    void getCommuteForProject_WithUnknownFreelance_ShouldThrowResourceNotFoundException() {
-        when(freelanceRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> commuteService.getCommuteForProject(99L, 1L, TravelMode.DRIVING))
-            .isInstanceOf(ResourceNotFoundException.class);
-    }
-
-    @Test
-    void getCommuteForProject_WithUnknownProject_ShouldThrowResourceNotFoundException() {
-        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
-        when(projectRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> commuteService.getCommuteForProject(1L, 99L, TravelMode.DRIVING))
-            .isInstanceOf(ResourceNotFoundException.class);
-    }
-
-    @Test
-    void getCommuteForProject_WhenAddressesMissing_ShouldReturnEmptyCommuteInfo() {
-        testFreelance.setAddress(null);
-        testFreelance.setCity(null);
-        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
-
-        CommuteInfoDto result = commuteService.getCommuteForProject(1L, 1L, TravelMode.DRIVING);
-
-        assertThat(result.getProjectId()).isEqualTo(1L);
-        assertThat(result.getProjectRole()).isEqualTo("Full Stack Developer");
-        assertThat(result.getClientName()).isEqualTo("Test Company");
-        assertThat(result.getDurationInSeconds()).isNull();
-    }
-
-    @Test
-    void getCommuteForProject_WhenClientMissing_ShouldReturnEmptyCommuteInfo() {
-        testProject.setClient(null);
-        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
-
-        CommuteInfoDto result = commuteService.getCommuteForProject(1L, 1L, TravelMode.DRIVING);
-
-        assertThat(result.getClientName()).isNull();
-        assertThat(result.getDestination()).isEmpty();
-        assertThat(result.getDurationInSeconds()).isNull();
-    }
-
-    @Test
-    void getCommuteForProject_WithoutApiKey_ShouldReturnCommuteWithoutDuration() {
-        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
-
-        CommuteInfoDto result = commuteService.getCommuteForProject(1L, 1L, TravelMode.DRIVING);
-
-        assertThat(result.getProjectId()).isEqualTo(1L);
-        assertThat(result.getTravelMode()).isEqualTo(TravelMode.DRIVING);
-        assertThat(result.getDurationInSeconds()).isNull();
-    }
-
-    @Test
-    void getCommuteForProject_WithApiKeyAndOkResponse_ShouldReturnDurationAndDistance() {
+    void getProjectsSortedByCommute_WithApiKey_ShouldParseDurationAndDistance() {
         ReflectionTestUtils.setField(commuteService, "googleMapsApiKey", "test-key");
         when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
         when(restTemplate.getForObject(anyString(), eq(JsonNode.class))).thenReturn(json("""
             {
               "status": "OK",
@@ -230,54 +175,34 @@ class CommuteServiceTest {
             }
             """));
 
-        CommuteInfoDto result = commuteService.getCommuteForProject(1L, 1L, TravelMode.DRIVING);
+        CommuteInfoDto commute = commuteService.getProjectsSortedByCommute(1L, TravelMode.DRIVING).get(0).getCommute();
 
-        assertThat(result.getDurationInSeconds()).isEqualTo(1800);
-        assertThat(result.getDurationText()).isEqualTo("30 min");
-        assertThat(result.getDistanceInMeters()).isEqualTo(15000);
-        assertThat(result.getDistanceText()).isEqualTo("15 km");
+        assertThat(commute.getDurationInSeconds()).isEqualTo(1800);
+        assertThat(commute.getDurationText()).isEqualTo("30 min");
+        assertThat(commute.getDistanceInMeters()).isEqualTo(15000);
+        assertThat(commute.getDistanceText()).isEqualTo("15 km");
     }
 
     @Test
-    void getCommuteForProject_WithFailedElementStatus_ShouldReturnCommuteWithoutDuration() {
+    void getProjectsSortedByCommute_WhenApiFailsOrThrows_ShouldKeepCommuteWithoutDuration() {
         ReflectionTestUtils.setField(commuteService, "googleMapsApiKey", "test-key");
         when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
-        when(restTemplate.getForObject(anyString(), eq(JsonNode.class))).thenReturn(json("""
-            {"status": "OK", "rows": [{"elements": [{"status": "NOT_FOUND"}]}]}
-            """));
-
-        CommuteInfoDto result = commuteService.getCommuteForProject(1L, 1L, TravelMode.TRANSIT);
-
-        assertThat(result.getDurationInSeconds()).isNull();
-        assertThat(result.getTravelMode()).isEqualTo(TravelMode.TRANSIT);
-    }
-
-    @Test
-    void getCommuteForProject_WithFailedApiStatus_ShouldReturnCommuteWithoutDuration() {
-        ReflectionTestUtils.setField(commuteService, "googleMapsApiKey", "test-key");
-        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
-        when(restTemplate.getForObject(anyString(), eq(JsonNode.class))).thenReturn(json("""
-            {"status": "REQUEST_DENIED"}
-            """));
-
-        CommuteInfoDto result = commuteService.getCommuteForProject(1L, 1L, TravelMode.DRIVING);
-
-        assertThat(result.getDurationInSeconds()).isNull();
-    }
-
-    @Test
-    void getCommuteForProject_WhenApiCallThrows_ShouldReturnCommuteWithoutDuration() {
-        ReflectionTestUtils.setField(commuteService, "googleMapsApiKey", "test-key");
-        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
-        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
         when(restTemplate.getForObject(anyString(), eq(JsonNode.class)))
-            .thenThrow(new RuntimeException("network error"));
+            .thenReturn(json("""
+                {"status": "OK", "rows": [{"elements": [{"status": "NOT_FOUND"}]}]}
+                """))
+            .thenReturn(json("""
+                {"status": "REQUEST_DENIED"}
+                """))
+            .thenThrow(new RestClientException("network down"));
 
-        CommuteInfoDto result = commuteService.getCommuteForProject(1L, 1L, TravelMode.DRIVING);
-
-        assertThat(result.getDurationInSeconds()).isNull();
+        for (int call = 0; call < 3; call++) {
+            CommuteInfoDto commute = commuteService.getProjectsSortedByCommute(1L, TravelMode.TRANSIT).get(0).getCommute();
+            assertThat(commute.getDurationInSeconds()).isNull();
+            assertThat(commute.getTravelMode()).isEqualTo(TravelMode.TRANSIT);
+        }
     }
 
     private static JsonNode json(String content) {

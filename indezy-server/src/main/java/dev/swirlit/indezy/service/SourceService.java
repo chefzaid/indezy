@@ -5,8 +5,8 @@ import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.SourceMapper;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.Source;
-import dev.swirlit.indezy.model.enums.SourceType;
 import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +24,7 @@ public class SourceService {
     private static final String SOURCE_NOT_FOUND = "Source not found with id: ";
 
     private final SourceRepository sourceRepository;
+    private final ProjectRepository projectRepository;
     private final FreelanceRepository freelanceRepository;
     private final SourceMapper sourceMapper;
 
@@ -87,7 +88,9 @@ public class SourceService {
         
         Source source = sourceRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(SOURCE_NOT_FOUND + id));
-        
+
+        // The source is optional on a project: keep the opportunities, just without their origin.
+        projectRepository.clearSource(id);
         sourceRepository.delete(source);
         log.debug("Deleted source with id: {}", id);
     }
@@ -101,65 +104,4 @@ public class SourceService {
             .toList();
     }
 
-    @Transactional(readOnly = true)
-    public List<SourceDto> findByFreelanceIdAndType(Long freelanceId, SourceType type) {
-        log.debug("Finding sources by freelance id: {} and type: {}", freelanceId, type);
-        return sourceRepository.findByFreelanceIdAndType(freelanceId, type)
-            .stream()
-            .map(sourceMapper::toDto)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<SourceDto> findByFreelanceIdAndIsListing(Long freelanceId, Boolean isListing) {
-        log.debug("Finding sources by freelance id: {} and isListing: {}", freelanceId, isListing);
-        return sourceRepository.findByFreelanceIdAndIsListing(freelanceId, isListing)
-            .stream()
-            .map(sourceMapper::toDto)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<SourceDto> findByFreelanceIdAndPopularityRatingGreaterThanEqual(Long freelanceId, Integer minRating) {
-        log.debug("Finding sources by freelance id: {} and popularity rating >= {}", freelanceId, minRating);
-        return sourceRepository.findByFreelanceIdAndPopularityRatingGreaterThanEqual(freelanceId, minRating)
-            .stream()
-            .map(sourceMapper::toDto)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<SourceDto> findByFreelanceIdAndUsefulnessRatingGreaterThanEqual(Long freelanceId, Integer minRating) {
-        log.debug("Finding sources by freelance id: {} and usefulness rating >= {}", freelanceId, minRating);
-        return sourceRepository.findByFreelanceIdAndUsefulnessRatingGreaterThanEqual(freelanceId, minRating)
-            .stream()
-            .map(sourceMapper::toDto)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public SourceDto findByIdWithProjects(Long id) {
-        log.debug("Finding source by id with projects: {}", id);
-        Source source = sourceRepository.findByIdWithProjects(id)
-            .orElseThrow(() -> new ResourceNotFoundException(SOURCE_NOT_FOUND + id));
-        return sourceMapper.toDto(source);
-    }
-
-    @Transactional(readOnly = true)
-    public Double getAveragePopularityRating(Long freelanceId) {
-        log.debug("Getting average popularity rating for freelance id: {}", freelanceId);
-        return sourceRepository.findAveragePopularityRatingByFreelanceId(freelanceId);
-    }
-
-    @Transactional(readOnly = true)
-    public Double getAverageUsefulnessRating(Long freelanceId) {
-        log.debug("Getting average usefulness rating for freelance id: {}", freelanceId);
-        return sourceRepository.findAverageUsefulnessRatingByFreelanceId(freelanceId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<SourceType> findDistinctTypesByFreelanceId(Long freelanceId) {
-        log.debug("Finding distinct source types by freelance id: {}", freelanceId);
-        return sourceRepository.findDistinctTypesByFreelanceId(freelanceId);
-    }
 }

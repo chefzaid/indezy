@@ -175,7 +175,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
       if (!confirmed) {
         return;
       }
-      this.clientService.deleteClient(client.id)
+      this.clientService.delete(client.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {

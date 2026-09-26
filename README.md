@@ -1,6 +1,6 @@
 # Indezy
 
-Indezy is a full-stack web application that helps freelancers manage job applications, track project opportunities, and maintain organized dashboards. It is built for the French tech market and is designed to streamline freelance workflows with stats and visualization, AI analysis and insights, cloud sync, job-offer scraping, and more.
+Indezy helps freelancers in the French tech market run their mission search: opportunities on a five-stage Kanban board (Contact, Tests & Entretiens, Offre, Accepté, Perdu / Abandonné), job-hunting seasons with their own dashboards, clients and ESNs with their contacts, interview steps, rates and margins, reminders and analytics. It is available in French and English. AI assistance, job-board connectors and invoicing are on the [roadmap](./TODO.md).
 
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-brightgreen.svg)](https://spring.io/projects/spring-boot)

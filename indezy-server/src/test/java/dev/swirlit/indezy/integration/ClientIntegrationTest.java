@@ -173,25 +173,4 @@ class ClientIntegrationTest {
                 .andExpect(jsonPath("$[0].freelanceId", is(1)));
     }
 
-    @Test
-    @WithMockUser
-    void getClientWithProjects_ShouldReturnClientWithProjects() throws Exception {
-        // When & Then
-        mockMvc.perform(get("/clients/1/with-projects"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.projects").exists());
-    }
-
-    @Test
-    @WithMockUser
-    void getClientWithContacts_ShouldReturnClientWithContacts() throws Exception {
-        // When & Then
-        mockMvc.perform(get("/clients/1/with-contacts"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.contacts").exists());
-    }
 }

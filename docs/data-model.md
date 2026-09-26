@@ -6,8 +6,6 @@ This reference summarizes the current JPA domain model and its ownership rules. 
 
 ```mermaid
 erDiagram
-    USER ||--o{ USER_SESSION : owns
-    USER ||--o{ USER_SECURITY_QUESTION : owns
     FREELANCE ||--o{ PROJECT : tracks
     FREELANCE ||--o{ CLIENT : owns
     FREELANCE ||--o{ CONTACT : owns
@@ -19,6 +17,7 @@ erDiagram
     CLIENT ||--o{ PROJECT : middleman
     SOURCE ||--o{ PROJECT : originates
     PROJECT ||--o{ INTERVIEW_STEP : has
+    PROJECT ||--o{ PROJECT_NOTE : journal
 ```
 
 `User` and `Freelance` are both present today. `User` backs authentication and profile/security preferences. `Freelance` backs the opportunity-management workspace. Future account work should clarify and, if needed, consolidate the boundary between these two concepts.
@@ -60,47 +59,9 @@ Important fields:
 - last password change
 - theme, language, date format, time format, default view
 - notification preferences
-- two-factor fields
-
-Relationships:
-
-- one user has many `UserSession` records
-- one user has many `UserSecurityQuestion` records
-
-Current caveat: the model stores fields for sessions, security questions, notification settings, and two-factor configuration, but the full production-grade flows are still roadmap/security backlog items.
-
-## UserSession
-
-Table: `user_sessions`
-
-Purpose: session metadata for account activity and future active-session management.
-
-Important fields:
-
-- unique session id
-- device
-- browser
-- location
-- IP address
-- last active timestamp
-- current-session flag
-- owning user
-
-The helper `isActive()` treats a session as active when `lastActive` is within the past 24 hours.
-
-## UserSecurityQuestion
-
-Table: `user_security_questions`
-
-Purpose: stores security-question prompts and hashed answers for a user.
-
-Important fields:
-
-- question
-- answer hash
-- owning user
-
-Security note: security questions are often weaker than modern recovery flows. Treat this model as legacy-compatible or optional until the account recovery design is revisited.
+- two-factor fields (`twoFactorEnabled`, `twoFactorSecret`), enforced at local password login
+- `deletedAt` (a soft-deleted account can no longer sign in)
+- `avatarImage` (the uploaded avatar as a data URL)
 
 ## Freelance
 
@@ -387,6 +348,13 @@ Practical ownership rules for new development:
 - A source belongs to one freelance.
 - A season belongs to one freelance; a project may belong to one season of the same freelance.
 - User account data should not be mixed into project ownership without clarifying the User/Freelance boundary.
+
+Deletion rules:
+
+- deleting a project also deletes its interview steps and journal notes
+- a client still referenced by projects (as final client or intermediary) cannot be deleted (409)
+- deleting a source or a season keeps its projects, which lose that reference
+- deleting a client deletes its contacts
 
 ## Related Guides
 

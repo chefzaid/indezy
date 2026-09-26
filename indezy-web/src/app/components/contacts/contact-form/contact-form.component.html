@@ -68,7 +68,7 @@
                   @if (clients.length === 0) {
                     <mat-hint>
                       {{ 'contacts.noClientsHint' | translate }}
-                      <a routerLink="/clients/create">{{ 'projects.form.createClient' | translate }}</a>
+                      <a routerLink="/clients/new">{{ 'projects.form.createClient' | translate }}</a>
                     </mat-hint>
                   }
                   <mat-error>{{ getFieldError('clientId') }}</mat-error>

@@ -14,15 +14,6 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
 
     List<Contact> findByClientId(Long clientId);
 
-    @Query("SELECT c FROM Contact c WHERE c.freelance.id = :freelanceId AND (c.firstName LIKE %:name% OR c.lastName LIKE %:name%)")
-    List<Contact> findByFreelanceIdAndNameContaining(@Param("freelanceId") Long freelanceId, @Param("name") String name);
-
-    @Query("SELECT c FROM Contact c WHERE c.freelance.id = :freelanceId AND c.email LIKE %:email%")
-    List<Contact> findByFreelanceIdAndEmailContaining(@Param("freelanceId") Long freelanceId, @Param("email") String email);
-
-    @Query("SELECT c FROM Contact c WHERE c.client.id = :clientId")
-    List<Contact> findByClientIdOrderByFirstName(@Param("clientId") Long clientId);
-
     boolean existsByEmailAndFreelanceId(String email, Long freelanceId);
 
     /** Owner workspace of the contact, used by access checks without loading the entity graph. */

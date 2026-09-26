@@ -9,6 +9,7 @@ import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.SourceType;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
+import dev.swirlit.indezy.repository.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,9 @@ class SourceServiceTest {
 
     @Mock
     private SourceMapper sourceMapper;
+
+    @Mock
+    private ProjectRepository projectRepository;
 
     @InjectMocks
     private SourceService sourceService;
@@ -190,7 +194,7 @@ class SourceServiceTest {
     }
 
     @Test
-    void delete_WithExistingId_ShouldDeleteSource() {
+    void delete_WithExistingId_ShouldDetachProjectsAndDeleteSource() {
         // Given
         when(sourceRepository.findById(1L)).thenReturn(Optional.of(testSource));
         doNothing().when(sourceRepository).delete(testSource);
@@ -199,7 +203,7 @@ class SourceServiceTest {
         sourceService.delete(1L);
 
         // Then
-        verify(sourceRepository).findById(1L);
+        verify(projectRepository).clearSource(1L);
         verify(sourceRepository).delete(testSource);
     }
 
@@ -234,62 +238,4 @@ class SourceServiceTest {
         verify(sourceMapper).toDto(testSource);
     }
 
-    @Test
-    void findByFreelanceIdAndType_ShouldReturnFilteredSources() {
-        // Given
-        List<Source> sources = Arrays.asList(testSource);
-        when(sourceRepository.findByFreelanceIdAndType(1L, SourceType.JOB_BOARD)).thenReturn(sources);
-        when(sourceMapper.toDto(testSource)).thenReturn(testSourceDto);
-
-        // When
-        List<SourceDto> result = sourceService.findByFreelanceIdAndType(1L, SourceType.JOB_BOARD);
-
-        // Then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getType()).isEqualTo(SourceType.JOB_BOARD);
-        verify(sourceRepository).findByFreelanceIdAndType(1L, SourceType.JOB_BOARD);
-        verify(sourceMapper).toDto(testSource);
-    }
-
-    @Test
-    void findByIdWithProjects_ShouldReturnSourceWithProjects() {
-        // Given
-        when(sourceRepository.findByIdWithProjects(1L)).thenReturn(Optional.of(testSource));
-        when(sourceMapper.toDto(testSource)).thenReturn(testSourceDto);
-
-        // When
-        SourceDto result = sourceService.findByIdWithProjects(1L);
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo("LinkedIn");
-        verify(sourceRepository).findByIdWithProjects(1L);
-        verify(sourceMapper).toDto(testSource);
-    }
-
-    @Test
-    void getAveragePopularityRating_ShouldReturnAverageRating() {
-        // Given
-        when(sourceRepository.findAveragePopularityRatingByFreelanceId(1L)).thenReturn(4.2);
-
-        // When
-        Double result = sourceService.getAveragePopularityRating(1L);
-
-        // Then
-        assertThat(result).isEqualTo(4.2);
-        verify(sourceRepository).findAveragePopularityRatingByFreelanceId(1L);
-    }
-
-    @Test
-    void getAverageUsefulnessRating_ShouldReturnAverageRating() {
-        // Given
-        when(sourceRepository.findAverageUsefulnessRatingByFreelanceId(1L)).thenReturn(4.5);
-
-        // When
-        Double result = sourceService.getAverageUsefulnessRating(1L);
-
-        // Then
-        assertThat(result).isEqualTo(4.5);
-        verify(sourceRepository).findAverageUsefulnessRatingByFreelanceId(1L);
-    }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,14 +9,15 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { SourceService } from '../../../services/source/source.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { SourceDto, SourceType } from '../../../models/source.models';
-import { ComprehensiveFilterPanelComponent } from '../../../shared/components';
-import { ComprehensiveFilterConfig } from '../../../models/filter.models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
@@ -23,6 +25,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
   selector: 'app-source-list',
   imports: [
     RouterModule,
+    FormsModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -30,9 +33,11 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
     MatChipsModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    TranslateModule,
-    ComprehensiveFilterPanelComponent
-],
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    TranslateModule
+  ],
   templateUrl: './source-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./source-list.component.scss']
@@ -43,8 +48,11 @@ export class SourceListComponent implements OnInit, OnDestroy {
   isLoading = false;
   displayedColumns: string[] = ['name', 'type', 'link', 'popularityRating', 'usefulnessRating', 'actions'];
 
-  filterConfig: ComprehensiveFilterConfig = { sections: [] };
-  private activeFilters: Record<string, unknown> = {};
+  readonly sourceTypes = this.sourceService.getSourceTypes();
+  searchQuery = '';
+  typeFilter: SourceType | '' = '';
+  /** Minimum usefulness rating (0 keeps every source). */
+  minRating = 0;
 
   private readonly destroy$ = new Subject<void>();
 
@@ -58,73 +66,23 @@ export class SourceListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.buildFilterConfig();
     this.loadSources();
   }
 
-  private buildFilterConfig(): void {
-    const t = (key: string): string => this.translate.instant(key);
-    this.filterConfig = {
-      title: t('common.filters'),
-      collapsible: true,
-      initiallyExpanded: false,
-      sections: [
-        {
-          id: 'search',
-          type: 'search',
-          title: t('common.search'),
-          icon: 'search',
-          config: { placeholder: t('sources.namePlaceholder') }
-        },
-        {
-          id: 'type',
-          type: 'multiSelect',
-          title: t('common.type'),
-          icon: 'category',
-          config: { placeholder: t('common.type') },
-          options: this.sourceService.getSourceTypes().map(type => ({
-            value: type,
-            label: this.getTypeLabel(type)
-          }))
-        },
-        {
-          id: 'popularity',
-          type: 'rangeSlider',
-          title: t('sources.popularity'),
-          icon: 'star',
-          config: { min: 0, max: 5, step: 1, unit: '★', showInputs: false }
-        },
-        {
-          id: 'usefulness',
-          type: 'rangeSlider',
-          title: t('sources.usefulness'),
-          icon: 'recommend',
-          config: { min: 0, max: 5, step: 1, unit: '★', showInputs: false }
-        }
-      ]
-    };
-  }
-
-  onFiltersChange(filters: Record<string, unknown>): void {
-    this.activeFilters = filters;
-    this.applyFilters();
-  }
-
-  private applyFilters(): void {
-    const f = this.activeFilters;
-    const search = ((f['search'] as string) ?? '').trim().toLowerCase();
-    const types = (f['type'] as string[]) ?? [];
-    const popMin = f['popularity_min'] as number | undefined;
-    const popMax = f['popularity_max'] as number | undefined;
-    const useMin = f['usefulness_min'] as number | undefined;
-    const useMax = f['usefulness_max'] as number | undefined;
-
+  applyFilters(): void {
+    const search = this.searchQuery.trim().toLowerCase();
     this.filteredSources = this.sources.filter(source =>
       this.matchesSearch(source, search) &&
-      this.matchesType(source, types) &&
-      this.inRange(source.popularityRating, popMin, popMax) &&
-      this.inRange(source.usefulnessRating, useMin, useMax)
+      (!this.typeFilter || source.type === this.typeFilter) &&
+      (source.usefulnessRating ?? 0) >= this.minRating
     );
+  }
+
+  clearFilters(): void {
+    this.searchQuery = '';
+    this.typeFilter = '';
+    this.minRating = 0;
+    this.applyFilters();
   }
 
   private matchesSearch(source: SourceDto, search: string): boolean {
@@ -133,27 +91,15 @@ export class SourceListComponent implements OnInit, OnDestroy {
     return haystack.includes(search);
   }
 
-  private matchesType(source: SourceDto, types: string[]): boolean {
-    return types.length === 0 || types.includes(source.type);
-  }
-
-  private inRange(value: number | undefined, min?: number, max?: number): boolean {
-    if (min === undefined && max === undefined) {return true;}
-    const rating = value ?? 0;
-    if (min !== undefined && rating < min) {return false;}
-    if (max !== undefined && rating > max) {return false;}
-    return true;
-  }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   private loadSources(): void {
-    this.isLoading = true;
     const user = this.authService.getUser();
     if (!user?.id) {return;}
+    this.isLoading = true;
 
     this.sourceService.getByFreelanceId(user.id)
       .pipe(takeUntil(this.destroy$))
@@ -171,7 +117,7 @@ export class SourceListComponent implements OnInit, OnDestroy {
   }
 
   onCreate(): void {
-    this.router.navigate(['/sources/create']);
+    this.router.navigate(['/sources/new']);
   }
 
   onEdit(source: SourceDto): void {

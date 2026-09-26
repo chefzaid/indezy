@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Injector, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 
@@ -50,9 +50,7 @@ export class AppComponent implements OnInit {
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly breakpointObserver = inject(BreakpointObserver);
-  // Resolved on demand: the service loads the profile when created, which must not happen
-  // on public pages such as login and registration.
-  private readonly injector = inject(Injector);
+  private readonly userManagementService = inject(UserManagementService);
   readonly themeService = inject(ThemeService);
   /** Account id whose saved theme preference has been applied. */
   private themeSyncedFor: number | null = null;
@@ -107,7 +105,7 @@ export class AppComponent implements OnInit {
       return;
     }
     this.themeSyncedFor = accountId;
-    this.injector.get(UserManagementService).getUserPreferences().subscribe({
+    this.userManagementService.getUserPreferences().subscribe({
       next: preferences => this.themeService.apply(preferences.theme),
       error: () => { /* keep the theme stored in this browser */ }
     });
@@ -117,9 +115,8 @@ export class AppComponent implements OnInit {
   toggleTheme(): void {
     const next = this.themeService.isDark() ? 'light' : 'dark';
     this.themeService.apply(next);
-    const users = this.injector.get(UserManagementService);
-    users.getUserPreferences().subscribe({
-      next: preferences => users.updateUserPreferences({ ...preferences, theme: next }).subscribe({
+    this.userManagementService.getUserPreferences().subscribe({
+      next: preferences => this.userManagementService.updateUserPreferences({ ...preferences, theme: next }).subscribe({
         error: () => { /* the theme still applies in this browser */ }
       }),
       error: () => { /* the theme still applies in this browser */ }
