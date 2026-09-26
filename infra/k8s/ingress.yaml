@@ -5,7 +5,7 @@ metadata:
   namespace: apps
   annotations:
     argocd.argoproj.io/sync-wave: "0"
-    gethomepage.dev/description: Business workflow and management application
+    gethomepage.dev/description: Freelance job hunting management platform
     gethomepage.dev/enabled: "true"
     gethomepage.dev/group: Applications
     gethomepage.dev/href: https://indezy.swirlit.dev
