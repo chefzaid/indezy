@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, ChangeDetectionStrategy, HostListener, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 
@@ -15,6 +15,7 @@ import { AuthService } from './services/auth/auth.service';
 import { LANGUAGE_STORAGE_KEY, getSavedLanguage } from './shared/locale/app-locale';
 import { ThemeService } from './shared/theme/theme.service';
 import { UserManagementService } from './services/user-management/user-management.service';
+import { KeyboardShortcutsService } from './shared/shortcuts/keyboard-shortcuts.service';
 
 interface MenuItem {
   labelKey: string;
@@ -41,6 +42,11 @@ interface MenuItem {
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+  readonly shortcuts = inject(KeyboardShortcutsService);
+
+  @HostListener('document:keydown', ['$event'])
+  onShortcut(event: KeyboardEvent): void { this.shortcuts.handle(event); }
+
   title = 'Indezy';
   currentUser: { id: number; email: string; firstName: string; lastName: string; role?: string } | null = null;
   currentLang = 'fr';

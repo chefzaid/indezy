@@ -839,5 +839,13 @@
       "summer": "été",
       "autumn": "automne"
     }
+  },
+  "shortcuts": {
+    "title": "Raccourcis clavier",
+    "newProject": "Créer un projet",
+    "search": "Ouvrir et activer la recherche de projets",
+    "move": "Choisir le statut du projet ouvert ou de la carte Kanban sélectionnée",
+    "help": "Afficher les raccourcis clavier",
+    "typingHint": "Les raccourcis sont suspendus pendant la saisie, le choix d’une option ou l’utilisation d’une fenêtre de dialogue. Accédez à une carte Kanban avec Tab avant d’utiliser M, puis choisissez un statut dans le menu pour confirmer le déplacement."
   }
 }

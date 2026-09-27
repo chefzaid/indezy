@@ -16,7 +16,7 @@
               <span>{{ project.role }}</span>
             </h1>
             <div class="title-badges">
-              <button type="button" class="status-pill status-trigger"
+              <button type="button" class="status-pill status-trigger" data-project-status #statusTrigger="matMenuTrigger"
                 [style.--status-color]="getStatusColor(project.status)"
                 [matMenuTriggerFor]="statusMenu" [disabled]="isUpdatingStatus"
                 [matTooltip]="'projects.detail.changeStatus' | translate">

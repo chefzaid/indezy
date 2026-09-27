@@ -1,6 +1,6 @@
 import { ProjectResourcesComponent } from './project-resources.component';
 import { ProjectLinkComponent } from '../../../shared/components/project-link/project-link.component';
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, Injector, ViewChild, afterNextRender, inject } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
@@ -14,7 +14,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -78,6 +78,8 @@ import { NOTE_TEMPLATES } from './note-templates';
     styleUrls: ['./project-detail.component.scss']
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {
+  @ViewChild('statusTrigger') private statusTrigger?: MatMenuTrigger;
+  private readonly injector = inject(Injector);
   project?: ProjectDto;
   isLoading = false;
   projectId?: number;
@@ -193,6 +195,9 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             this.project = project;
             this.loadNotes();
             this.loadSteps();
+            if (this.route.snapshot.queryParamMap.get('focus') === 'status') {
+              afterNextRender(() => this.statusTrigger?.openMenu(), { injector: this.injector });
+            }
           } else {
             this.notificationService.error('errors.projectNotFound');
             this.router.navigate(['/projects']);

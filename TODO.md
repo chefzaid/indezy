@@ -156,7 +156,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [x] Dark mode (light, dark, or system theme from the profile preference and a toolbar toggle)
 - [ ] Customizable dashboard widgets (drag, resize, show/hide)
 - [ ] Onboarding wizard for first-time setup (profile, rate, address, pipeline template)
-- [ ] Keyboard shortcuts for power users (new project, move card, search)
+- [x] Keyboard shortcuts for power users (new project, move card, search)
 - [ ] Offline-tolerant PWA mode for consulting data on the go
 - [ ] Accessibility pass (aria-labels, screen reader support, keyboard-only navigation)
 

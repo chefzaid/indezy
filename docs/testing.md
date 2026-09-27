@@ -193,8 +193,8 @@ The Maven JaCoCo configuration records an 80 percent instruction and branch targ
 
 Measured on 27 September 2026 with the repository's configured reporters: backend
 89.01 percent lines / 87.16 percent instructions / 70.46 percent branches (JaCoCo);
-frontend 89.86 percent lines / 88.47 percent statements / 86.27 percent branches (Karma).
-The suites contain 428 backend tests and 259 frontend tests. Line coverage exceeds
+frontend 90.06 percent lines / 88.76 percent statements / 86.83 percent branches (Karma).
+The suites contain 428 backend tests and 267 frontend tests. Line coverage exceeds
 the coding workflow's 85 percent target in both layers; backend branch coverage
 still misses Maven's separate 80 percent verification rule. These reports use the
 existing instrumentation configuration; the Karma figures cover modules loaded by
@@ -216,6 +216,9 @@ save chart and preference screenshots; backend aggregation, preference validatio
 season defaults and workspace isolation have separate Java tests.
 Shared-link scenarios also check copying from project pages and Kanban cards,
 reopening after reload or password login, malformed links, and unavailable projects.
+Keyboard scenarios cover project creation, search focus with collapsed phone filters,
+translated help, moving a focused Kanban card and cancelling its loss-reason dialog,
+while preserving input and dialog keyboard behavior.
 Extend the suite with registration, project creation, Kanban movement, filtering,
 and interview scheduling as those workflows stabilize.
 

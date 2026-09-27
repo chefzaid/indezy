@@ -229,6 +229,18 @@ Every list uses the same kind of inline filters, applied in the browser as you t
 - sources: search, type and minimum usefulness rating
 - archive: full-text search across past opportunities
 
+## Keyboard Shortcuts
+
+Signed-in users can open shortcut help from the account menu or with `Alt+Shift+H`.
+`Alt+Shift+N` opens a new project; `Alt+Shift+F` opens project search and focuses its
+field, expanding the filters on phones. `Alt+Shift+M` opens the stage menu for the
+current project, or opens the focused Kanban card with that menu ready. Choose a
+stage to move it; moving to Lost still requires the existing loss-reason dialog.
+
+Shortcuts do not run inside editable fields, menus, selection panels or dialogs,
+or during composition and repeated key presses. They are available in both
+French and English, and leave ordinary browser shortcuts unchanged.
+
 ## Commute-Time Sorting
 
 Commute support exists through a dedicated commute service and API surface.

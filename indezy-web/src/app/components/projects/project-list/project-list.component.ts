@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, OnInit, ViewChild, afterNextRender, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -38,6 +38,7 @@ import {
 } from '../../../services/project/project-filter.util';
 import { ProjectDto, User, FreelanceDto, ProjectStatus, PROJECT_STATUS_COLORS } from '../../../models';
 import { TravelMode, ProjectCommuteDto, CommuteInfoDto } from '../../../models/commute.models';
+import { KeyboardShortcutsService } from '../../../shared/shortcuts/keyboard-shortcuts.service';
 
 @Component({
     selector: 'app-project-list',
@@ -69,6 +70,9 @@ import { TravelMode, ProjectCommuteDto, CommuteInfoDto } from '../../../models/c
     styleUrls: ['./project-list.component.scss']
 })
 export class ProjectListComponent implements OnInit {
+  @ViewChild('projectSearch') private projectSearch?: ElementRef<HTMLInputElement>;
+  private readonly injector = inject(Injector);
+  private readonly shortcuts = inject(KeyboardShortcutsService);
   projects: ProjectDto[] = [];
   filteredProjects: ProjectDto[] = [];
   /** The slice of filteredProjects shown on the current page. */
@@ -170,6 +174,11 @@ export class ProjectListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.shortcuts.focusProjectSearch$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.filtersExpanded = true;
+      this.shortcuts.acknowledgeSearchFocus();
+      afterNextRender(() => this.projectSearch?.nativeElement.focus(), { injector: this.injector });
+    });
     this.currentUser = this.authService.getUser();
     this.loadProjects();
     this.loadSeasons();

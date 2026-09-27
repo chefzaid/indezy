@@ -839,5 +839,13 @@
       "summer": "Summer",
       "autumn": "Autumn"
     }
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "newProject": "Create a project",
+    "search": "Open and focus project search",
+    "move": "Choose the stage of the open project or focused Kanban card",
+    "help": "Show keyboard shortcuts",
+    "typingHint": "Shortcuts are paused while typing, choosing an option, or using a dialog. Tab to a Kanban card before using M; choose a stage from its menu to confirm the move."
   }
 }

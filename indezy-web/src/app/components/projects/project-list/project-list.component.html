@@ -49,7 +49,7 @@
           <div class="filter-row">
             <mat-form-field appearance="outline" class="filter-field search-field">
               <mat-label>{{ 'common.search' | translate }}</mat-label>
-              <input aria-label="{{ 'common.search' | translate }}" matInput formControlName="searchQuery" [placeholder]="'projects.searchPlaceholder' | translate">
+              <input #projectSearch aria-label="{{ 'common.search' | translate }}" matInput formControlName="searchQuery" [placeholder]="'projects.searchPlaceholder' | translate">
               <mat-icon matPrefix>search</mat-icon>
             </mat-form-field>
 

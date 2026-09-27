@@ -34,6 +34,10 @@
         <mat-icon iconPositionEnd>arrow_drop_down</mat-icon>
       </button>
       <mat-menu #userMenu="matMenu">
+        <button mat-menu-item (click)="shortcuts.openHelp()">
+          <mat-icon>keyboard</mat-icon>
+          <span>{{ 'shortcuts.title' | translate }}</span>
+        </button>
         <button mat-menu-item routerLink="/profile">
           <mat-icon>person</mat-icon>
           <span>{{ 'nav.profile' | translate }}</span>
