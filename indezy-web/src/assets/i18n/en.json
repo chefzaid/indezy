@@ -404,7 +404,12 @@
       "perYear": "/year"
     },
     "resultsCount": "{{count}} project(s)",
-    "pagination": "Projects pagination"
+    "pagination": "Projects pagination",
+    "share": {
+      "copy": "Copy project link",
+      "copied": "Project link copied. Access requires your account.",
+      "failed": "Could not copy the link. Open the project and copy its address."
+    }
   },
   "clients": {
     "title": "Client Management",

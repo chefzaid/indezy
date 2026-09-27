@@ -70,6 +70,12 @@ Implemented project fields include:
 
 The project form edits the pipeline stage (with the loss reason for lost opportunities), the final client, the optional ESN/intermediary, the source and the season. The project page shows the stage as a pill that can be changed in place and names the opportunity's season, and the projects list filters by stage and season and paginates results.
 
+Project pages and Kanban cards offer **Copy project link**. The copied
+`/projects?project=<id>` URL opens that project's detail page; `/dashboard?project=<id>`
+also works. Password login preserves the destination. These links require access to
+the owning account: they do not make a project public. Invalid identifiers open the
+not-found page, and unavailable projects return to the list with an error.
+
 Opportunity statuses, one per Kanban column (French / English labels):
 
 | Status | Column | Win probability |

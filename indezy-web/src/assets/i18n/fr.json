@@ -404,7 +404,12 @@
       "perYear": "/an"
     },
     "resultsCount": "{{count}} mission(s)",
-    "pagination": "Pagination des missions"
+    "pagination": "Pagination des missions",
+    "share": {
+      "copy": "Copier le lien du projet",
+      "copied": "Lien du projet copié. L’accès nécessite votre compte.",
+      "failed": "Impossible de copier le lien. Ouvrez le projet et copiez son adresse."
+    }
   },
   "clients": {
     "title": "Gestion des Clients",

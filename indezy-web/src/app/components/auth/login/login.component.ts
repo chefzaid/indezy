@@ -1,7 +1,8 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { loginDestination } from '../../../shared/utils/login-destination';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -33,6 +34,7 @@ import { environment } from '../../../../environments/environment';
     styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
   loginForm: FormGroup;
   isLoading = false;
   hidePassword = true;
@@ -57,7 +59,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     // Redirect if already authenticated
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
+      this.openDestination();
     }
   }
 
@@ -73,7 +75,7 @@ export class LoginComponent implements OnInit {
         next: () => {
           this.isLoading = false;
           this.notificationService.success('auth.loginSuccess');
-          this.router.navigate(['/dashboard']);
+          this.openDestination();
         },
         error: (error) => {
           this.isLoading = false;
@@ -98,6 +100,10 @@ export class LoginComponent implements OnInit {
         }
       });
     }
+  }
+
+  private openDestination(): void {
+    this.router.navigateByUrl(loginDestination(this.route.snapshot.queryParamMap.get('returnUrl')));
   }
 
   onSsoLogin(): void {

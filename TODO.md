@@ -150,7 +150,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [ ] Global search (projects, clients, contacts, notes) with keyboard shortcut and match highlighting in results
 - [x] Consistent error handling and user feedback (toasts instead of pop-ups, explicit loading and empty states)
 - [ ] Composable filters (text + tags + status + date + archive) with state encoded in the URL for bookmarkable views
-- [ ] Stable deep links to any project or Kanban card (?project=<id>) for sharing and reopening directly
+- [x] Stable deep links to any project or Kanban card (?project=<id>) for sharing and reopening directly
 - [ ] Multi-select mode on project/client/contact lists (bulk delete, tag, status change, archive)
 - [x] Internationalization hardening (French/English translation coverage, language switch persistence, missing-key checks)
 - [x] Dark mode (light, dark, or system theme from the profile preference and a toolbar toggle)

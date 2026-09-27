@@ -5,7 +5,6 @@
       <p>{{ 'projects.detail.loading' | translate }}</p>
     </div>
   }
-
   @if (!isLoading && project) {
     <div class="project-content">
       <!-- Header Card -->
@@ -67,6 +66,7 @@
           </div>
         </mat-card-content>
         <mat-card-actions>
+          <app-project-link [projectId]="project.id!"></app-project-link>
           <button mat-button (click)="onBack()">
             <mat-icon>arrow_back</mat-icon>
             {{ 'common.back' | translate }}
@@ -341,45 +341,8 @@
             </mat-card-content>
           </mat-card>
         }
-        <!-- Documents and Links -->
         @if (project.documents?.length || project.link) {
-          <mat-card class="info-card">
-            <mat-card-header>
-              <mat-card-title>
-                <mat-icon>folder</mat-icon>
-                {{ 'projects.detail.documentsAndLinks' | translate }}
-              </mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              @if (project.documents?.length) {
-                <div class="documents-list">
-                  @for (document of project.documents; track document) {
-                    <div class="document-item">
-                      <mat-icon>description</mat-icon>
-                      <span>{{ document }}</span>
-                    </div>
-                  }
-                </div>
-              }
-              @if (project.documents?.length && project.link) {
-                <mat-divider></mat-divider>
-              }
-              @if (project.link) {
-                <div class="info-item">
-                  <div class="info-label">
-                    <mat-icon>link</mat-icon>
-                    {{ 'projects.detail.projectLink' | translate }}
-                  </div>
-                  <div class="info-value">
-                    <a [href]="project.link" target="_blank" class="project-link" (click)="openLink()">
-                      {{ project.link }}
-                      <mat-icon>open_in_new</mat-icon>
-                    </a>
-                  </div>
-                </div>
-              }
-            </mat-card-content>
-          </mat-card>
+          <app-project-resources [documents]="project.documents ?? []" [link]="project.link"></app-project-resources>
         }
         <!-- Interview steps -->
         <mat-card class="info-card steps-card">
@@ -472,7 +435,6 @@
             </mat-card-content>
           </mat-card>
         }
-
         <!-- Journal timeline -->
         <mat-card class="info-card journal-card">
           <mat-card-header>

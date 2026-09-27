@@ -1,3 +1,4 @@
+import { ProjectLinkComponent } from '../../shared/components/project-link/project-link.component';
 import { Component, OnInit, OnChanges, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, Input, SimpleChanges, inject } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
@@ -36,6 +37,7 @@ import {
 @Component({
   selector: 'app-kanban-board',
   imports: [
+        ProjectLinkComponent,
     RouterModule,
     MatCardModule,
     MatIconModule,

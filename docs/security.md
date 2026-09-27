@@ -103,6 +103,10 @@ Public routes:
 
 Frontend route guards improve user experience but are not a security boundary. The backend must enforce access control.
 
+Shared project links resolve to the same protected detail route and ownership-checked
+API as ordinary project navigation. Password login preserves only local application
+return paths; external and recursive login destinations fall back to the dashboard.
+
 ## Password Storage
 
 The backend exposes a `PasswordEncoder` bean using BCrypt.

@@ -1,3 +1,5 @@
+import { ProjectResourcesComponent } from './project-resources.component';
+import { ProjectLinkComponent } from '../../../shared/components/project-link/project-link.component';
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, inject } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -52,6 +54,8 @@ import { NOTE_TEMPLATES } from './note-templates';
 @Component({
     selector: 'app-project-detail',
     imports: [
+        ProjectLinkComponent,
+        ProjectResourcesComponent,
         CommonModule,
         FormsModule,
         RouterModule,
@@ -445,9 +449,4 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     return this.project.dailyRate * daysPerMonth * this.project.durationInMonths;
   }
 
-  openLink(): void {
-    if (this.project?.link) {
-      window.open(this.project.link, '_blank');
-    }
-  }
 }

@@ -114,6 +114,9 @@
                       </div>
                     }
                   </mat-card-content>
+                  <mat-card-actions>
+                    <app-project-link [projectId]="card.projectId"></app-project-link>
+                  </mat-card-actions>
                 </mat-card>
                 <div class="drag-placeholder" *cdkDragPlaceholder></div>
               </div>
