@@ -44,6 +44,7 @@ export interface UserPreferences {
   defaultView: 'dashboard' | 'projects' | 'clients';
   itemsPerPage: number;
   autoSave: boolean;
+  inactivityDays: number;
 }
 
 export interface PasswordChangeRequest {
@@ -51,4 +52,3 @@ export interface PasswordChangeRequest {
   newPassword: string;
   confirmPassword: string;
 }
-

@@ -58,6 +58,11 @@ Important fields:
 - password hash
 - last password change
 - theme, language, date format, time format, default view
+- `inactivityDays` (`users.inactivity_days`): whole days before an idle opportunity is
+  highlighted or suggested for follow-up, from 1 to 365; new and legacy null values
+  default to 14 days. Hibernate adds the nullable column without rewriting existing
+  rows. The account's preference is resolved for its freelance workspace through
+  their email link and returned as `inactivityDays` on the Kanban response.
 - notification preferences
 - two-factor fields (`twoFactorEnabled`, `twoFactorSecret`), enforced at local password login
 - `deletedAt` (a soft-deleted account can no longer sign in)

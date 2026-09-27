@@ -60,9 +60,6 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
   isLoading = false;
   currentUserId: number | null = null;
 
-  /** A card with no activity beyond this many days is flagged as stale. */
-  static readonly STALE_THRESHOLD_DAYS = 14;
-
   private readonly destroy$ = new Subject<void>();
   private readonly locale = inject(LOCALE_ID);
   private readonly translate = inject(TranslateService);
@@ -278,7 +275,8 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
   /** True when the card has had no activity past the stale threshold. */
   isStale(card: KanbanProjectCardDto): boolean {
     const days = this.getDaysSinceActivity(card);
-    return days !== null && days >= KanbanBoardComponent.STALE_THRESHOLD_DAYS;
+    const threshold = this.kanbanBoard?.inactivityDays;
+    return days !== null && threshold !== undefined && days >= threshold;
   }
 
   toggleFavorite(card: KanbanProjectCardDto, event: Event): void {

@@ -22,7 +22,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [x] Pinned/favorite opportunities (keep hot leads at the top, dedicated view)
 - [x] Lost/rejected reason tracking (rate too low, position filled, no response...) with stats
 - [x] Automatic stale-opportunity detection and suggested follow-up or archival
-- [ ] Configurable inactivity period: the user sets in their preferences after how many days without contact an opportunity counts as stale (today fixed at 14 days, duplicated in the backend reminders and the Kanban board)
+- [x] Configurable inactivity period: the user sets in their preferences after how many days without activity an opportunity counts as stale (14 days by default, shared by backend reminders and the Kanban board)
 - [ ] Automatic archiving of opportunities with no contact for that period (instead of only flagging them), with an unarchive action from the archive view and the project page that puts the opportunity back in its pipeline column
 - [x] Duplicate opportunity detection (same client + same role posted on several job boards), flagged for manual deduplication
 

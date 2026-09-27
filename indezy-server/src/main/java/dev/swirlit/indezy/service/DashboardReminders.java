@@ -20,7 +20,6 @@ import java.util.List;
  */
 final class DashboardReminders {
 
-    private static final int STALE_THRESHOLD_DAYS = 14;
     private static final int ENDING_SOON_WEEKS = 6;
     private static final int ANNIVERSARY_WINDOW_DAYS = 3;
     private static final int DORMANT_THRESHOLD_MONTHS = 6;
@@ -30,20 +29,21 @@ final class DashboardReminders {
 
     /**
      * Lists active (in-pipeline, i.e. neither WON nor LOST) opportunities whose last update is at
-     * least {@link #STALE_THRESHOLD_DAYS} days old, so they can be followed up on or archived before
+     * least the account's configured inactivity period old, so they can be followed up on or archived before
      * going cold. Most stale first.
      */
-    static List<DashboardStatsDto.StaleOpportunity> buildStaleOpportunities(List<Project> projects, LocalDateTime now) {
+    static List<DashboardStatsDto.StaleOpportunity> buildStaleOpportunities(
+            List<Project> projects, LocalDateTime now, int inactivityDays) {
         List<DashboardStatsDto.StaleOpportunity> stale = new ArrayList<>();
         for (Project project : projects) {
             ProjectStatus status = project.getStatus();
-            if (status == null || status == ProjectStatus.WON || status == ProjectStatus.LOST
-                || project.getUpdatedAt() == null) {
+            if (status == null || status == ProjectStatus.WON || status == ProjectStatus.LOST ||
+                project.getUpdatedAt() == null) {
                 continue;
             }
             long daysSinceActivity = ChronoUnit.DAYS.between(project.getUpdatedAt().atZone(ZoneId.systemDefault()),
                 now.atZone(ZoneId.systemDefault()));
-            if (daysSinceActivity >= STALE_THRESHOLD_DAYS) {
+            if (daysSinceActivity >= inactivityDays) {
                 stale.add(DashboardStatsDto.StaleOpportunity.builder()
                     .projectId(project.getId())
                     .role(project.getRole())
@@ -66,8 +66,8 @@ final class DashboardReminders {
         long threshold = ENDING_SOON_WEEKS * 7L;
         List<DashboardStatsDto.MissionEndingSoon> ending = new ArrayList<>();
         for (Project project : projects) {
-            if (!ProjectStatus.WON.equals(project.getStatus())
-                || project.getStartDate() == null || project.getDurationInMonths() == null) {
+            if (!ProjectStatus.WON.equals(project.getStatus()) ||
+                project.getStartDate() == null || project.getDurationInMonths() == null) {
                 continue;
             }
             LocalDate endDate = project.getStartDate().plusMonths(project.getDurationInMonths());
@@ -95,10 +95,10 @@ final class DashboardReminders {
             List<Project> projects, LocalDate today, int noticePeriodInDays) {
         List<DashboardStatsDto.UpcomingRenewal> renewals = new ArrayList<>();
         for (Project project : projects) {
-            if (!ProjectStatus.WON.equals(project.getStatus())
-                || project.getStartDate() == null
-                || project.getOrderRenewalInMonths() == null
-                || project.getOrderRenewalInMonths() <= 0) {
+            if (!ProjectStatus.WON.equals(project.getStatus()) ||
+                project.getStartDate() == null ||
+                project.getOrderRenewalInMonths() == null ||
+                project.getOrderRenewalInMonths() <= 0) {
                 continue;
             }
             LocalDate renewalDate = project.getStartDate().plusMonths(project.getOrderRenewalInMonths());
@@ -179,8 +179,8 @@ final class DashboardReminders {
     static List<DashboardStatsDto.DormantContact> buildDormantContacts(List<Contact> contacts, LocalDateTime now) {
         List<DashboardStatsDto.DormantContact> dormant = new ArrayList<>();
         for (Contact contact : contacts) {
-            LocalDateTime lastActivity = contact.getUpdatedAt() != null
-                ? contact.getUpdatedAt() : contact.getCreatedAt();
+            LocalDateTime lastActivity = contact.getUpdatedAt() != null ?
+                contact.getUpdatedAt() : contact.getCreatedAt();
             if (lastActivity == null) {
                 continue;
             }

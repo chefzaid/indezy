@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.DashboardStatsDto;
+import dev.swirlit.indezy.constants.UserPreferenceDefaults;
 import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.InterviewStep;
@@ -103,6 +104,8 @@ public class DashboardStatsService {
             .orElse(DEFAULT_NOTICE_PERIOD_DAYS);
 
         List<Contact> contacts = contactRepository.findByFreelanceId(freelanceId);
+        int inactivityDays = freelanceRepository.findInactivityDays(freelanceId)
+            .orElse(UserPreferenceDefaults.INACTIVITY_DAYS);
 
         LocalDate today = LocalDate.now(ZoneId.systemDefault());
         List<InterviewStep> validatedSteps = inSeason(
@@ -137,7 +140,8 @@ public class DashboardStatsService {
             .funnelByEsn(DashboardAnalytics.buildFunnelBreakdown(projects,
                 p -> p.getMiddleman() != null ? p.getMiddleman().getCompanyName() : null))
             .missionsEndingSoon(DashboardReminders.buildMissionsEndingSoon(projects, today))
-            .staleOpportunities(DashboardReminders.buildStaleOpportunities(projects, LocalDateTime.now(ZoneId.systemDefault())))
+            .staleOpportunities(DashboardReminders.buildStaleOpportunities(
+                projects, LocalDateTime.now(ZoneId.systemDefault()), inactivityDays))
             .upcomingRenewals(DashboardReminders.buildUpcomingRenewals(projects, today, noticePeriodInDays))
             .onThisDay(DashboardReminders.buildOnThisDay(projects, contacts, today))
             .dormantContacts(DashboardReminders.buildDormantContacts(contacts, LocalDateTime.now(ZoneId.systemDefault())))

@@ -156,7 +156,14 @@ Each project has a chronological journal of free-text notes (calls, emails, deci
 
 ## Kanban And Pipeline View
 
-The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs. Cards can be pinned as favorites (`PATCH /projects/{id}/favorite`), which keeps hot leads at the top of their column. Within a column, cards can be dragged to set a manual priority, persisted through `PUT /projects/kanban/{freelanceId}/reorder` (favorites still pin above the manual order). Each card shows a card-aging indicator (days since last activity) and highlights opportunities with no activity for 14+ days so stale leads stand out. A quick-add button on each column opens a minimal dialog (role, client, daily rate) that creates an opportunity directly in that column's status, to be enriched later. Moving a card into the LOST column prompts for a loss reason, which feeds a "why opportunities were lost" breakdown on the dashboard. Cards that share the same client and role (case-insensitive) as another opportunity are flagged as possible duplicates for manual deduplication.
+The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs. Cards can be pinned as favorites (`PATCH /projects/{id}/favorite`), which keeps hot leads at the top of their column. Within a column, cards can be dragged to set a manual priority, persisted through `PUT /projects/kanban/{freelanceId}/reorder` (favorites still pin above the manual order). Each card shows a card-aging indicator (days since last activity) and highlights opportunities after the account's configured inactivity period (14 days by default). A quick-add button on each column opens a minimal dialog (role, client, daily rate) that creates an opportunity directly in that column's status, to be enriched later. Moving a card into the LOST column prompts for a loss reason, which feeds a "why opportunities were lost" breakdown on the dashboard. Cards that share the same client and role (case-insensitive) as another opportunity are flagged as possible duplicates for manual deduplication.
+
+Profile → Preferences lets the user set the inactivity period to 1–365 whole days.
+The same saved value controls dashboard follow-up reminders and Kanban highlighting;
+it counts elapsed days since the opportunity's last update, including the threshold day.
+Saving other preferences leaves this setting unchanged when it is omitted. Existing
+accounts without a saved value keep the 14-day default. This setting flags opportunities;
+automatic archiving remains on the roadmap.
 
 The board has five status-driven columns: Contact, Tests & Entretiens, Offre, Accepté and Perdu / Abandonné. Intermediate recruitment steps (technical test, client interview...) are tracked as interview steps inside the Tests & Entretiens column. The board follows the season selected on the dashboard (`GET /projects/kanban/{freelanceId}?seasonId=`), and cards quick-added to it join that season.
 
@@ -192,7 +199,7 @@ The dashboard provides an overview of the opportunity workspace with:
 - bench time tracking (idle days and number of gaps between signed missions, with an estimated cost)
 - pipeline conversion funnel (how many opportunities reach each stage, to reveal where they drop off), overall and broken down by source, client type (direct vs through an ESN) and ESN
 - mission end-date reminders (signed missions ending within six weeks, so prospection can restart before the bench)
-- stale-opportunity detection (active opportunities idle for 14+ days, surfaced to follow up or archive before they go cold)
+- stale-opportunity detection (active opportunities idle for the configured inactivity period, surfaced to follow up or archive before they go cold)
 - recent projects
 - overview and Kanban display modes
 - a season picker that scopes all of the above to one job-hunting season (see [Job-Hunting Seasons](#job-hunting-seasons))

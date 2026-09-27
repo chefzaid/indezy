@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.model;
 
+import dev.swirlit.indezy.constants.UserPreferenceDefaults;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -114,6 +115,14 @@ public class User extends BaseEntity {
 
     @Column(name = "auto_save")
     private Boolean autoSave = true;
+
+    @Column(name = "inactivity_days")
+    private Integer inactivityDays = UserPreferenceDefaults.INACTIVITY_DAYS;
+
+    /** Existing accounts can have a null column after Hibernate adds this preference. */
+    public Integer getInactivityDays() {
+        return inactivityDays != null ? inactivityDays : UserPreferenceDefaults.INACTIVITY_DAYS;
+    }
 
     // Notification Settings
     @Column(name = "email_notifications")

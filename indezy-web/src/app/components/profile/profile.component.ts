@@ -184,7 +184,8 @@ export class ProfileComponent implements OnInit {
       timezone: ['Europe/Paris'],
       defaultView: ['dashboard'],
       itemsPerPage: [25],
-      autoSave: [true]
+      autoSave: [true],
+      inactivityDays: [null, [Validators.required, Validators.min(1), Validators.max(365), Validators.pattern('^[0-9]+$')]]
     });
 
     this.notificationForm = this.fb.group({

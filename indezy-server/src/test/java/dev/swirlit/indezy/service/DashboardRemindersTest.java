@@ -17,6 +17,30 @@ import static org.mockito.Mockito.*;
 class DashboardRemindersTest extends DashboardStatsTestSupport {
 
     @Test
+    void staleOpportunities_ShouldUseTheConfiguredPeriodAtTheExactBoundary() {
+        LocalDateTime now = LocalDateTime.of(2026, 9, 27, 12, 0);
+        Project old = activeOpportunity(1L, ProjectStatus.CONTACT, now.minusDays(20));
+        Project boundary = activeOpportunity(2L, ProjectStatus.INTERVIEW, now.minusDays(7));
+        Project recent = activeOpportunity(3L, ProjectStatus.OFFER, now.minusDays(7).plusSeconds(1));
+        Project won = activeOpportunity(4L, ProjectStatus.WON, now.minusDays(20));
+        Project lost = activeOpportunity(5L, ProjectStatus.LOST, now.minusDays(20));
+
+        assertThat(DashboardReminders.buildStaleOpportunities(List.of(recent, boundary, old, won, lost), now, 7))
+            .extracting(DashboardStatsDto.StaleOpportunity::getProjectId)
+            .containsExactly(1L, 2L);
+    }
+
+    @Test
+    void getDashboardStats_ShouldUseTheWorkspacePreferenceForStaleOpportunities() {
+        when(freelanceRepository.findInactivityDays(1L)).thenReturn(Optional.of(7));
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(
+            activeOpportunity(1L, ProjectStatus.CONTACT, LocalDateTime.now().minusDays(10))));
+
+        assertThat(dashboardStatsService.getDashboardStats(1L, null).getStaleOpportunities())
+            .extracting(DashboardStatsDto.StaleOpportunity::getProjectId).containsExactly(1L);
+    }
+
+    @Test
     void getDashboardStats_ShouldListSignedMissionsEndingSoon() {
         // Given signed missions ending in ~1 month (within the 6-week window) and others outside it.
         LocalDate today = LocalDate.now();

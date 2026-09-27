@@ -208,6 +208,14 @@
                       </mat-select>
                     </mat-form-field>
                   </div>
+                  <div class="form-row">
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ 'profile.inactivityDays' | translate }}</mat-label>
+                      <input matInput type="number" min="1" max="365" step="1" formControlName="inactivityDays">
+                      <mat-hint>{{ 'profile.inactivityDaysHint' | translate }}</mat-hint>
+                      <mat-error>{{ 'profile.inactivityDaysError' | translate }}</mat-error>
+                    </mat-form-field>
+                  </div>
                   <div class="toggle-section">
                     <mat-slide-toggle formControlName="autoSave">
                       {{ 'profile.autoSave' | translate }}

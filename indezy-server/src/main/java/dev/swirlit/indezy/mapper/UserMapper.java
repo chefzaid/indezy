@@ -60,6 +60,7 @@ public interface UserMapper {
     UserPreferencesDto toPreferencesDto(User user);
 
     @Mapping(target = "languagePreference", source = "language")
+    @Mapping(target = "inactivityDays", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updatePreferences(UserPreferencesDto dto, @MappingTarget User user);
 
     // Security settings mapping

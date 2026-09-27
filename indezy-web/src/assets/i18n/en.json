@@ -567,6 +567,9 @@
     "perDayShort": "/d"
   },
   "profile": {
+    "inactivityDays": "Inactivity period (days)",
+    "inactivityDaysHint": "Highlight idle opportunities and suggest follow-ups after this many days.",
+    "inactivityDaysError": "Enter a whole number from 1 to 365.",
     "title": "My Profile",
     "subtitle": "Manage your personal information and preferences",
     "loading": "Loading profile...",

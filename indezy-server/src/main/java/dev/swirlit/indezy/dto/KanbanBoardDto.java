@@ -9,6 +9,7 @@ import java.util.Map;
 public class KanbanBoardDto {
     private Map<String, List<ProjectCardDto>> columns;
     private List<String> columnOrder;
+    private int inactivityDays;
     
     @Data
     public static class ProjectCardDto {

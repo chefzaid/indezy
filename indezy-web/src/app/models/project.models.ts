@@ -26,6 +26,7 @@ export const PROJECT_STATUS_ICONS: { [key in ProjectStatus]: string } = {
 };
 
 export interface KanbanBoardDto {
+  inactivityDays: number;
   columns: { [status: string]: KanbanProjectCardDto[] };
   columnOrder: string[];
 }
@@ -268,4 +269,3 @@ export interface CreateProjectDto {
   sourceId?: number;
   seasonId?: number;
 }
-

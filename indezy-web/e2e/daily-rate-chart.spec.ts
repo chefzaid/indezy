@@ -1,19 +1,11 @@
 import { expect, test } from '@playwright/test';
+import { mockWorkspaceSession } from './helpers/workspace';
 
 for (const language of ['en', 'fr']) {
   test(`shows exact daily rates and updates them when choosing a season (${language})`, async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', error => errors.push(error.message));
-    await page.addInitScript(lang => {
-      const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 }));
-      localStorage.setItem('indezy_token', `header.${payload}.browser-test`);
-      localStorage.setItem('indezy_user', JSON.stringify({
-        id: 1, email: 'chart@example.test', firstName: 'Chart', lastName: 'Test'
-      }));
-      localStorage.setItem('indezy-lang', lang);
-      localStorage.setItem('indezy-season', 'all');
-      localStorage.setItem('indezy-dashboard-view', 'overview');
-    }, language);
+    await mockWorkspaceSession(page, language);
 
     await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light' } }));
     await page.route('**/api/projects/by-freelance/1', route => route.fulfill({ json: [] }));

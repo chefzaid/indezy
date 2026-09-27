@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.constants.ErrorMessages;
+import dev.swirlit.indezy.constants.UserPreferenceDefaults;
 import dev.swirlit.indezy.dto.KanbanBoardDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -12,7 +13,6 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
-import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -287,9 +286,9 @@ public class ProjectService {
     public KanbanBoardDto getKanbanBoard(Long freelanceId, Long seasonId) {
         log.debug("Getting kanban board for freelance: {} (season: {})", freelanceId, seasonId);
 
-        List<Project> projects = seasonId != null
-            ? projectRepository.findByFreelanceIdAndSeasonId(freelanceId, seasonId)
-            : projectRepository.findByFreelanceId(freelanceId);
+        List<Project> projects = seasonId != null ?
+            projectRepository.findByFreelanceIdAndSeasonId(freelanceId, seasonId) :
+            projectRepository.findByFreelanceId(freelanceId);
 
         Map<String, List<KanbanBoardDto.ProjectCardDto>> columns = new LinkedHashMap<>();
         for (ProjectStatus status : KANBAN_COLUMN_ORDER) {
@@ -317,6 +316,8 @@ public class ProjectService {
         columns.values().forEach(cards -> cards.sort(byFavorite.thenComparing(byPosition)));
 
         KanbanBoardDto kanbanBoard = new KanbanBoardDto();
+        kanbanBoard.setInactivityDays(freelanceRepository.findInactivityDays(freelanceId)
+            .orElse(UserPreferenceDefaults.INACTIVITY_DAYS));
         kanbanBoard.setColumns(columns);
         kanbanBoard.setColumnOrder(KANBAN_COLUMN_ORDER.stream().map(Enum::name).toList());
         return kanbanBoard;
@@ -347,8 +348,8 @@ public class ProjectService {
         List<Project> toSave = new ArrayList<>();
         for (int position = 0; position < orderedProjectIds.size(); position++) {
             Project project = projectsById.get(orderedProjectIds.get(position));
-            if (project != null && project.getFreelance() != null
-                && project.getFreelance().getId().equals(freelanceId)) {
+            if (project != null && project.getFreelance() != null &&
+                project.getFreelance().getId().equals(freelanceId)) {
                 project.setBoardPosition(position);
                 toSave.add(project);
             }

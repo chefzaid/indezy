@@ -42,6 +42,7 @@ describe('KanbanBoardComponent', () => {
       [ProjectStatus.INTERVIEW]: [],
       [ProjectStatus.OFFER]: []
     },
+    inactivityDays: 14,
     columnOrder: [ProjectStatus.CONTACT, ProjectStatus.INTERVIEW, ProjectStatus.OFFER]
   };
 
@@ -147,6 +148,7 @@ describe('KanbanBoardComponent', () => {
     it('should detect an empty board', () => {
       component.kanbanBoard = {
         columns: { [ProjectStatus.CONTACT]: [] },
+        inactivityDays: 14,
         columnOrder: [ProjectStatus.CONTACT]
       };
       expect(component.isBoardEmpty()).toBeTrue();
@@ -263,6 +265,7 @@ describe('KanbanBoardComponent', () => {
       const other: KanbanProjectCardDto = { ...mockCard, projectId: 99, status: ProjectStatus.CONTACT, isFavorite: false };
       mockProjectService.getKanbanBoard.and.returnValue(of({
         columns: { [ProjectStatus.CONTACT]: [other, target] },
+        inactivityDays: 14,
         columnOrder: [ProjectStatus.CONTACT]
       }));
       fixture.detectChanges();
@@ -355,12 +358,27 @@ describe('KanbanBoardComponent', () => {
     });
 
     it('should flag cards as stale past the threshold', () => {
+      component.kanbanBoard = mockBoard;
       expect(component.isStale(cardUpdatedDaysAgo(1))).toBeFalse();
       expect(component.isStale(cardUpdatedDaysAgo(20))).toBeTrue();
     });
 
     it('should not flag cards without a timestamp as stale', () => {
       expect(component.isStale({ ...mockCard, updatedAt: undefined })).toBeFalse();
+    });
+
+    it('uses the threshold returned for the workspace, including its boundary', () => {
+      component.kanbanBoard = { ...mockBoard, inactivityDays: 7 };
+      expect(component.isStale(cardUpdatedDaysAgo(6))).toBeFalse();
+      expect(component.isStale(cardUpdatedDaysAgo(7))).toBeTrue();
+      component.kanbanBoard = { ...mockBoard, inactivityDays: 30 };
+      expect(component.isStale(cardUpdatedDaysAgo(20))).toBeFalse();
+      expect(component.isStale(cardUpdatedDaysAgo(30))).toBeTrue();
+    });
+
+    it('waits for the board preference before flagging a card', () => {
+      component.kanbanBoard = null;
+      expect(component.isStale(cardUpdatedDaysAgo(20))).toBeFalse();
     });
   });
 

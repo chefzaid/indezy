@@ -567,6 +567,9 @@
     "perDayShort": "/j"
   },
   "profile": {
+    "inactivityDays": "Délai d’inactivité (jours)",
+    "inactivityDaysHint": "Signaler les opportunités inactives et suggérer une relance après ce délai.",
+    "inactivityDaysError": "Saisissez un nombre entier de 1 à 365.",
     "title": "Mon Profil",
     "subtitle": "Gérez vos informations personnelles et préférences",
     "loading": "Chargement du profil...",

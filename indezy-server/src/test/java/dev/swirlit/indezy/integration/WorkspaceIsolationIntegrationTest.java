@@ -13,9 +13,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,9 +41,60 @@ class WorkspaceIsolationIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     private Account alice;
     private Account bob;
     private Long aliceClientId;
+
+    @Test
+    void inactivityPreference_ShouldPersistAndApplyToOnlyItsOwnWorkspace() {
+        assertThat(call(alice, HttpMethod.GET, "/users/preferences", null, Map.class).getBody())
+            .containsEntry("inactivityDays", 14);
+        assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("inactivityDays", 30), Map.class).getBody())
+            .containsEntry("inactivityDays", 30);
+        assertThat(call(alice, HttpMethod.GET, "/users/preferences", null, Map.class).getBody())
+            .containsEntry("inactivityDays", 30);
+        assertThat(call(bob, HttpMethod.GET, "/users/preferences", null, Map.class).getBody())
+            .containsEntry("inactivityDays", 14);
+        assertThat(call(alice, HttpMethod.GET, "/projects/kanban/" + alice.freelanceId(), null, Map.class).getBody())
+            .containsEntry("inactivityDays", 30);
+        assertThat(call(bob, HttpMethod.GET, "/projects/kanban/" + bob.freelanceId(), null, Map.class).getBody())
+            .containsEntry("inactivityDays", 14);
+
+        ResponseEntity<Map> project = call(alice, HttpMethod.POST, "/projects",
+            Map.of("role", "Developer", "dailyRate", 600, "clientId", aliceClientId, "freelanceId", alice.freelanceId()),
+            Map.class);
+        assertThat(project.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        Long projectId = ((Number) project.getBody().get("id")).longValue();
+        jdbcTemplate.update("UPDATE projects SET updated_at = ? WHERE id = ?", LocalDateTime.now().minusDays(10), projectId);
+        String statsPath = "/projects/stats/dashboard/" + alice.freelanceId();
+        assertThat((List<?>) call(alice, HttpMethod.GET, statsPath, null, Map.class).getBody().get("staleOpportunities"))
+            .isEmpty();
+
+        call(alice, HttpMethod.PUT, "/users/preferences", Map.of("inactivityDays", 7), Map.class);
+        assertThat((List<?>) call(alice, HttpMethod.GET, statsPath, null, Map.class).getBody().get("staleOpportunities"))
+            .hasSize(1);
+        assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("theme", "dark"), Map.class).getBody())
+            .containsEntry("inactivityDays", 7);
+        assertThat(call(alice, HttpMethod.GET, "/projects/kanban/" + alice.freelanceId(), null, Map.class).getBody())
+            .containsEntry("inactivityDays", 7);
+    }
+
+    @Test
+    void inactivityPreference_ShouldRejectInvalidValuesAndDefaultLegacyAccounts() {
+        for (Number days : List.of(-1, 0, 366, 7.5)) {
+            assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("inactivityDays", days), String.class)
+                .getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
+        jdbcTemplate.update("UPDATE users SET inactivity_days = NULL WHERE email = (SELECT email FROM freelances WHERE id = ?)",
+            alice.freelanceId());
+        assertThat(call(alice, HttpMethod.GET, "/users/preferences", null, Map.class).getBody())
+            .containsEntry("inactivityDays", 14);
+        assertThat(call(alice, HttpMethod.GET, "/projects/kanban/" + alice.freelanceId(), null, Map.class).getBody())
+            .containsEntry("inactivityDays", 14);
+    }
 
     private record Account(String token, Long freelanceId) {
     }
