@@ -16,7 +16,7 @@ stages:
 
 default:
   tags:
-    - bm-cluster
+    - swirl-cloud
   interruptible: true
 
 variables:

@@ -7,7 +7,7 @@ The CI topology, artifact retention, and image-builder portions of this decision
 
 ## Context
 
-Indezy targets the application-neutral `bm-cluster` platform, which provides a generic GitLab instance runner, Argo CD, GitLab Container Registry, K3s, Traefik Ingress, Vault, External Secrets, and shared PostgreSQL.
+Indezy targets the application-neutral `swirl-cloud` platform, which provides a generic GitLab instance runner, Argo CD, GitLab Container Registry, K3s, Traefik Ingress, Vault, External Secrets, and shared PostgreSQL.
 
 The repository contains:
 

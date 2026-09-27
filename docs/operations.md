@@ -1,6 +1,6 @@
 # Operations Runbook
 
-This runbook covers the Indezy application layer. Use the `bm-cluster` runbooks when GitLab, Argo CD, ingress, Vault, External Secrets, PostgreSQL, or another shared service is unhealthy.
+This runbook covers the Indezy application layer. Use the `swirl-cloud` runbooks when GitLab, Argo CD, ingress, Vault, External Secrets, PostgreSQL, or another shared service is unhealthy.
 
 ## Runtime Surfaces
 

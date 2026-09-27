@@ -23,7 +23,7 @@ After the platform's HA activation succeeds, switch each owned hostname to a
 published checkpoint belongs to this zone before changing DNS:
 
 ```sh
-kubectl get configmap bm-cluster-public-ingress -n infra -o json | \
+kubectl get configmap swirl-cloud-public-ingress -n infra -o json | \
   jq -er '.data | select(.mode == "tunnel" and .domain == "swirlit.dev" and
     .publishedTunnelID != null and .publishedTunnelID != "" and
     .publishedTunnelID == .tunnelID) | .publishedTunnelID + ".cfargotunnel.com"'

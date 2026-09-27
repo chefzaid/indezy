@@ -3,7 +3,7 @@
 This repository owns its [public DNS](dns.md), including the DNS cutover when
 the shared platform switches to HA Tunnel ingress.
 
-Indezy deploys to the application-neutral K3s platform managed by [`bm-cluster`](https://github.com/chefzaid/bm-cluster). The platform provides generic GitLab runner, Argo CD, Vault, External Secrets, registry, ingress, PostgreSQL, and observability services. This repository owns all Indezy-specific project, secret, delivery, and runtime configuration.
+Indezy deploys to the application-neutral K3s platform managed by [`swirl-cloud`](https://github.com/chefzaid/swirl-cloud). The platform provides generic GitLab runner, Argo CD, Vault, External Secrets, registry, ingress, PostgreSQL, and observability services. This repository owns all Indezy-specific project, secret, delivery, and runtime configuration.
 
 ## Infrastructure Layout
 
@@ -34,7 +34,7 @@ Local entry points:
 - PostgreSQL initialization: `infra/database/init/`
 - backend health helper: `infra/scripts/check-backend-health.sh`
 
-Shared platform resources remain in `bm-cluster`.
+Shared platform resources remain in `swirl-cloud`.
 
 ## Runtime And Ownership
 
@@ -130,7 +130,7 @@ updates and stale pipeline refusal without calling live services.
 
 Prerequisites:
 
-- the generic instance runner is online with tag `bm-cluster`
+- the generic instance runner is online with tag `swirl-cloud`
 - GitLab, Argo CD, Vault, External Secrets, and the registry are healthy
 - `.gitlab-ci.yml` exists in the repository's current commit
 - `kubectl`, `curl`, `git`, `jq`, `openssl`, `python3`, `libsodium`, and `sudo` are installed on the control-plane host
@@ -145,7 +145,7 @@ GITHUB_ADMIN_TOKEN=<github-token> \
   ./infra/scripts/configure-gitlab.sh
 ```
 
-The app-owned script creates or updates the project, enables the instance runner and CI job-token pushes, configures bidirectional GitHub/GitLab push synchronization, creates a read-only registry deploy token, writes app-specific Vault values, and applies the Argo CD `Application`. It also reconciles project metadata, labels, merge safeguards, `main` protection, cleanup, badges, the GitLab/Sonar binding, and a masked project-scoped `SONAR_TOKEN`. It does not add Indezy configuration to `bm-cluster` or commit credentials.
+The app-owned script creates or updates the project, enables the instance runner and CI job-token pushes, configures bidirectional GitHub/GitLab push synchronization, creates a read-only registry deploy token, writes app-specific Vault values, and applies the Argo CD `Application`. It also reconciles project metadata, labels, merge safeguards, `main` protection, cleanup, badges, the GitLab/Sonar binding, and a masked project-scoped `SONAR_TOKEN`. It does not add Indezy configuration to `swirl-cloud` or commit credentials.
 
 Every GitHub push starts `.github/workflows/sync-gitlab.yml` directly. Every GitLab branch or tag push invokes the same workflow through the managed repository-dispatch webhook, including commits marked `[skip ci]`. The reconciler fast-forwards whichever side is behind, merges divergent branches without force pushing, and refuses conflicting tag rewrites. Its monthly schedule self-rotates the managed GitLab token into the encrypted GitHub secret before expiry.
 
