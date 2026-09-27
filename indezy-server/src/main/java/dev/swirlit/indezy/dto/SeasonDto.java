@@ -1,9 +1,11 @@
 package dev.swirlit.indezy.dto;
 
+import dev.swirlit.indezy.util.WholeNumberDeserializer;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,6 +24,7 @@ public class SeasonDto {
     private String objective;
 
     @Min(value = 1, message = "Target daily rate must be positive")
+    @JsonDeserialize(using = WholeNumberDeserializer.class)
     private Integer targetDailyRate;
 
     private Long freelanceId;

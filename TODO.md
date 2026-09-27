@@ -73,7 +73,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [x] Configurable income tax and max workable days with French public holidays
 - [x] Revenue forecast based on signed contracts and pipeline probability
 - [ ] TJM benchmark by skill/seniority/region (anonymized aggregated data from users)
-- [ ] Target daily rate (TJM) as a profile setting, used as the default for new seasons and shown against obtained rates on the dashboard
+- [x] Target daily rate (TJM) as a profile setting, used as the default for new seasons and shown against obtained rates on the dashboard
 - [ ] Expense tracking (deductible expenses feeding the reversion calculator)
 - [ ] Expand existing reversion rate calculator customization (deductible expenses, social contributions, status-specific assumptions, custom tax settings)
 - [ ] URSSAF/social contribution estimation per status (micro-entreprise, EI, EURL, SASU, portage)

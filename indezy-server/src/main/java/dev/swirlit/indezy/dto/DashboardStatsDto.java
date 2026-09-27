@@ -16,6 +16,9 @@ import java.util.Map;
 public class DashboardStatsDto {
     private long totalProjects;
     private double averageDailyRate;
+    private Integer targetDailyRate;
+    /** Average recorded daily rate of accepted missions; null before any accepted rate is known. */
+    private Double averageObtainedDailyRate;
     private double totalEstimatedRevenue;
     private double forecastRevenue;
     private long activeProjects;

@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.TreeMap;
 import java.util.function.Function;
 
@@ -67,6 +68,10 @@ public class DashboardStatsService {
             .average()
             .orElse(0);
         long wonProjects = countWithStatus(projects, ProjectStatus.WON);
+        OptionalDouble obtainedRate = projects.stream()
+            .filter(p -> ProjectStatus.WON.equals(p.getStatus()) && p.getDailyRate() != null)
+            .mapToInt(Project::getDailyRate)
+            .average();
         long lostProjects = countWithStatus(projects, ProjectStatus.LOST);
         long activeProjects = totalProjects - wonProjects - lostProjects;
 
@@ -118,6 +123,8 @@ public class DashboardStatsService {
         return DashboardStatsDto.builder()
             .totalProjects(totalProjects)
             .averageDailyRate(averageDailyRate)
+            .targetDailyRate(freelanceRepository.findTargetDailyRate(freelanceId).orElse(null))
+            .averageObtainedDailyRate(obtainedRate.isPresent() ? obtainedRate.getAsDouble() : null)
             .totalEstimatedRevenue(totalRevenue)
             .forecastRevenue(forecastRevenue)
             .activeProjects(activeProjects)

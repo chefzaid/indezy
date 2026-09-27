@@ -115,6 +115,8 @@
     "totpHint": "Code shown by your authenticator app"
   },
   "dashboard": {
+    "rateTargetComparison": "Target and obtained daily rates",
+    "averageObtainedDailyRate": "Average rate of accepted missions",
     "greetingMorning": "Good morning",
     "greetingAfternoon": "Good afternoon",
     "greetingEvening": "Good evening",
@@ -567,6 +569,9 @@
     "perDayShort": "/d"
   },
   "profile": {
+    "targetDailyRate": "Target daily rate",
+    "targetDailyRateHint": "Optional. Used as the default for new seasons and compared with accepted mission rates.",
+    "targetDailyRateError": "Enter a positive whole-euro amount, or leave blank.",
     "inactivityDays": "Inactivity period (days)",
     "inactivityDaysHint": "Highlight idle opportunities and suggest follow-ups after this many days.",
     "inactivityDaysError": "Enter a whole number from 1 to 365.",
@@ -780,6 +785,7 @@
     "useLight": "Switch to light theme"
   },
   "seasons": {
+    "targetDailyRateDefaultHint": "Leave blank to use your profile target, if one is set.",
     "label": "Season",
     "all": "All seasons",
     "none": "No season",

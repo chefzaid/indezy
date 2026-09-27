@@ -22,6 +22,24 @@ import static org.mockito.Mockito.*;
 class DashboardStatsServiceTest extends DashboardStatsTestSupport {
 
     @Test
+    void getDashboardStats_ShouldCompareTheProfileTargetWithOnlyAcceptedRates() {
+        Project won = projectWithStatus(ProjectStatus.WON);
+        won.setDailyRate(600);
+        Project anotherWon = projectWithStatus(ProjectStatus.WON);
+        anotherWon.setDailyRate(650);
+        Project unknownRate = projectWithStatus(ProjectStatus.WON);
+        testProject.setStatus(ProjectStatus.OFFER);
+        testProject.setDailyRate(900);
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(won, anotherWon, unknownRate, testProject));
+        when(freelanceRepository.findTargetDailyRate(1L)).thenReturn(Optional.of(700));
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
+
+        assertThat(stats.getTargetDailyRate()).isEqualTo(700);
+        assertThat(stats.getAverageObtainedDailyRate()).isEqualTo(625);
+    }
+
+    @Test
     void getDashboardStats_ShouldCountExactRatesInNumericOrder() {
         List<Project> projects = java.util.stream.Stream.of(650, 600, 1000, 550, 600, 0, null, -1)
             .map(rate -> {
@@ -201,6 +219,7 @@ class DashboardStatsServiceTest extends DashboardStatsTestSupport {
             .extracting(DashboardStatsDto.DailyRateRange::getLabel, DashboardStatsDto.DailyRateRange::getCount)
             .containsExactly(tuple("500", 1L), tuple("700", 1L));
         // Only the season's step (plus the creation days of its opportunities) feeds the heatmap.
+        assertThat(stats.getAverageObtainedDailyRate()).isEqualTo(700);
         assertThat(stats.getActivityHeatmap())
             .extracting(DashboardStatsDto.ActivityDay::getDate)
             .contains(LocalDate.now().minusDays(2))
@@ -220,6 +239,8 @@ class DashboardStatsServiceTest extends DashboardStatsTestSupport {
         assertThat(stats.getTotalProjects()).isZero();
         assertThat(stats.getDailyRateRanges()).isEmpty();
         assertThat(stats.getAverageDailyRate()).isZero();
+        assertThat(stats.getTargetDailyRate()).isNull();
+        assertThat(stats.getAverageObtainedDailyRate()).isNull();
         assertThat(stats.getTotalEstimatedRevenue()).isZero();
         assertThat(stats.getForecastRevenue()).isZero();
         assertThat(stats.getTotalBenchDays()).isZero();

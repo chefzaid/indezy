@@ -38,6 +38,7 @@ import { toIsoDate } from '../../../shared/locale/app-locale';
 })
 export class SeasonPickerComponent implements OnInit {
   @Input({ required: true }) freelanceId!: number;
+  @Input() defaultTargetDailyRate: number | null = null;
   /** The selected season, or null for every season. Emitted once seasons are loaded, then on change. */
   @Output() readonly selectionChange = new EventEmitter<Season | null>();
 
@@ -70,7 +71,7 @@ export class SeasonPickerComponent implements OnInit {
   }
 
   openNewSeason(): void {
-    this.openDialog({ freelanceId: this.freelanceId });
+    this.openDialog({ freelanceId: this.freelanceId, defaultTargetDailyRate: this.defaultTargetDailyRate });
   }
 
   editSelected(): void {

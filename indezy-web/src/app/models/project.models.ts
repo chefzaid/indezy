@@ -117,6 +117,8 @@ export interface ProjectDto {
 }
 
 export interface DashboardStatsDto {
+  targetDailyRate?: number | null;
+  averageObtainedDailyRate?: number | null;
   totalProjects: number;
   averageDailyRate: number;
   totalEstimatedRevenue: number;

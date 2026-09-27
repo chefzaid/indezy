@@ -17,4 +17,7 @@ public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
     @Query("SELECT u.inactivityDays FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     Optional<Integer> findInactivityDays(@Param("freelanceId") Long freelanceId);
 
+    @Query("SELECT u.targetDailyRate FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
+    Optional<Integer> findTargetDailyRate(@Param("freelanceId") Long freelanceId);
+
 }

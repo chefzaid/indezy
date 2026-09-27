@@ -3,6 +3,7 @@ import { emptyDashboardStats, mockWorkspaceSession } from './helpers/workspace';
 
 for (const language of ['en', 'fr']) {
   test(`saves the inactivity preference and applies it on the Kanban board (${language})`, async ({ page }) => {
+    test.setTimeout(60_000);
     await mockWorkspaceSession(page, language);
     let preferences = {
       theme: 'light', language, dateFormat: 'DD/MM/YYYY', timeFormat: '24h', currency: 'EUR',

@@ -15,6 +15,7 @@ import { fromIsoDate, toIsoDate } from '../../../shared/locale/app-locale';
 
 export interface SeasonDialogData {
   freelanceId: number;
+  defaultTargetDailyRate?: number | null;
   /** The season to edit; omitted when starting a new one. */
   season?: Season;
 }
@@ -78,7 +79,8 @@ export class SeasonDialogComponent {
       name: [season?.name ?? this.suggestName(today), [Validators.required, Validators.maxLength(255)]],
       startDate: [season ? fromIsoDate(season.startDate) : today, Validators.required],
       endDate: [season?.endDate ? fromIsoDate(season.endDate) : null],
-      targetDailyRate: [season?.targetDailyRate ?? null, [Validators.min(1)]],
+      targetDailyRate: [season ? season.targetDailyRate ?? null : data.defaultTargetDailyRate ?? null,
+        [Validators.min(1), Validators.max(2147483647), Validators.pattern('^[0-9]+$')]],
       objective: [season?.objective ?? '']
     }, { validators: endAfterStartValidator });
   }

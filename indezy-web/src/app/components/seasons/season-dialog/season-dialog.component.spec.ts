@@ -42,10 +42,34 @@ describe('SeasonDialogComponent submissions', () => {
     translate.instant.and.returnValue('Autumn search 2026');
   });
 
-  function create(season?: Season): SeasonDialogComponent {
-    return new SeasonDialogComponent(new FormBuilder(), dialog, { freelanceId: 1, season },
+  function create(season?: Season, defaultTargetDailyRate?: number): SeasonDialogComponent {
+    return new SeasonDialogComponent(new FormBuilder(), dialog, { freelanceId: 1, season, defaultTargetDailyRate },
       service, notification, translate);
   }
+
+  it('prefills new seasons from the profile and permits a different target', () => {
+    service.create.and.returnValue(of(saved));
+    const component = create(undefined, 650);
+    expect(component.seasonForm.value.targetDailyRate).toBe(650);
+    component.seasonForm.patchValue({ targetDailyRate: 700 });
+    component.onSubmit();
+    expect(service.create.calls.mostRecent().args[0].targetDailyRate).toBe(700);
+  });
+
+  it('preserves the target of an existing season, including no target', () => {
+    expect(create(saved, 650).seasonForm.value.targetDailyRate).toBeNull();
+    expect(create({ ...saved, targetDailyRate: 600 }, 650).seasonForm.value.targetDailyRate).toBe(600);
+  });
+
+  it('rejects invalid target rates while keeping the field optional', () => {
+    const control = create().seasonForm.get('targetDailyRate')!;
+    for (const value of [0, -1, 650.5, 2147483648]) {
+      control.setValue(value);
+      expect(control.invalid).toBeTrue();
+    }
+    control.setValue(null);
+    expect(control.valid).toBeTrue();
+  });
 
   it('creates a season with trimmed fields, local dates and optional values', () => {
     service.create.and.returnValue(of(saved));

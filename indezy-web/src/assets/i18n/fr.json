@@ -115,6 +115,8 @@
     "totpHint": "Code affiché par votre application d'authentification"
   },
   "dashboard": {
+    "rateTargetComparison": "TJM cible et obtenu",
+    "averageObtainedDailyRate": "TJM moyen des missions acceptées",
     "greetingMorning": "Bonjour",
     "greetingAfternoon": "Bon après-midi",
     "greetingEvening": "Bonsoir",
@@ -567,6 +569,9 @@
     "perDayShort": "/j"
   },
   "profile": {
+    "targetDailyRate": "TJM cible",
+    "targetDailyRateHint": "Facultatif. Sert de valeur par défaut aux nouvelles saisons et se compare aux TJM des missions acceptées.",
+    "targetDailyRateError": "Saisissez un montant entier positif en euros, ou laissez vide.",
     "inactivityDays": "Délai d’inactivité (jours)",
     "inactivityDaysHint": "Signaler les opportunités inactives et suggérer une relance après ce délai.",
     "inactivityDaysError": "Saisissez un nombre entier de 1 à 365.",
@@ -780,6 +785,7 @@
     "useLight": "Passer au thème clair"
   },
   "seasons": {
+    "targetDailyRateDefaultHint": "Laissez vide pour utiliser le TJM cible du profil, s’il est renseigné.",
     "label": "Saison",
     "all": "Toutes les saisons",
     "none": "Aucune saison",

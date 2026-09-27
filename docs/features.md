@@ -171,7 +171,7 @@ The board has five status-driven columns: Contact, Tests & Entretiens, Offre, Ac
 
 A season is a bounded job-hunting period, like a sprint: "Autumn search 2026" from 1 August until the right mission is signed. Each season has its own pipeline and its own dashboard instead of one dashboard that is always on.
 
-- A season has a name, a start date, an optional end date (empty while it runs), an optional target daily rate and a free-text objective.
+- A season has a name, a start date, an optional end date (empty while it runs), an optional target daily rate and a free-text objective. New seasons default to the profile's target daily rate; the form allows an override. Leaving a new season's target blank uses the profile default when one is set. Editing an existing season preserves its own target, which can be cleared independently.
 - Starting a season (dashboard → season picker → New season) adopts the workspace's opportunities that are not in a season yet and were created within its dates. New opportunities join the season running on the day they are created, unless the form or the board picks another one.
 - The dashboard season picker switches the whole dashboard (KPIs, charts, funnels, analytics, recent projects) and the Kanban board to one season, or to all seasons. The choice is remembered in the browser.
 - A season dashboard opens with a summary banner: dates, days elapsed, objective, opportunities, success rate (accepted out of decided), accepted missions and average vs target daily rate, each compared with the all-season value.
@@ -194,6 +194,9 @@ The dashboard provides an overview of the opportunity workspace with:
 - daily rate distribution by exact negotiated euro amount (for example 550, 600 and 650),
   sorted numerically with one count per opportunity; missing rates are omitted. The chart
   follows the selected season and provides localized labels and a screen-reader summary.
+- profile target daily rate compared with the average recorded rate of accepted missions
+  in the selected season or global view; unknown accepted rates are omitted from the average,
+  and a dash is shown when no accepted rate is known
 - source ROI ranking (signed contracts vs total opportunities and conversion rate per source)
 - daily rate evolution by year (average asked vs obtained daily rate)
 - bench time tracking (idle days and number of gaps between signed missions, with an estimated cost)
@@ -205,6 +208,10 @@ The dashboard provides an overview of the opportunity workspace with:
 - a season picker that scopes all of the above to one job-hunting season (see [Job-Hunting Seasons](#job-hunting-seasons))
 
 The analytics are intentionally operational: they help a freelancer understand pipeline volume, activity, rate distribution, which sources actually yield signed contracts, where opportunities drop off in the funnel, and how negotiated rates trend over time.
+
+Profile → Personal information includes an optional target daily rate in whole euros.
+It must be positive when set and can be cleared. Changing it affects the dashboard comparison
+and defaults for future seasons; it never rewrites targets already saved on existing seasons.
 
 ## Filtering And Search Surfaces
 

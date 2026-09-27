@@ -40,11 +40,15 @@
       <p class="form-error" role="alert">{{ 'seasons.endBeforeStart' | translate }}</p>
     }
 
-    <mat-form-field appearance="outline" class="full-width">
+    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
       <mat-label>{{ 'seasons.targetDailyRate' | translate }}</mat-label>
-      <input matInput type="number" min="1" formControlName="targetDailyRate"
+      <input matInput type="number" min="1" max="2147483647" step="1" formControlName="targetDailyRate"
         [attr.aria-label]="'seasons.targetDailyRate' | translate">
       <span matTextSuffix>€</span>
+      @if (!isEditMode) {
+        <mat-hint>{{ 'seasons.targetDailyRateDefaultHint' | translate }}</mat-hint>
+      }
+      <mat-error>{{ 'profile.targetDailyRateError' | translate }}</mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">

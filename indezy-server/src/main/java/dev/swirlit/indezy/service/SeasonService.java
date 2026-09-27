@@ -58,6 +58,9 @@ public class SeasonService {
 
         Season season = seasonMapper.toEntity(dto);
         season.setFreelance(freelance);
+        if (season.getTargetDailyRate() == null) {
+            season.setTargetDailyRate(freelanceRepository.findTargetDailyRate(freelance.getId()).orElse(null));
+        }
         Season saved = seasonRepository.save(season);
         int adopted = adoptUnassignedProjects(saved);
         log.info("Created season {} for freelance {} and attached {} existing opportunities",

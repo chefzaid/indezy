@@ -55,6 +55,12 @@ Important fields:
 - website, LinkedIn, GitHub
 - skills and languages as element collections
 - timezone and currency
+- `targetDailyRate` (`users.target_daily_rate`): an optional positive whole-euro daily
+  rate, editable through the profile. Existing accounts keep null when Hibernate adds
+  the column. A new season without an explicit rate copies this value; existing seasons
+  keep their own target. Dashboard responses expose the profile `targetDailyRate` and
+  `averageObtainedDailyRate` (the average of known rates on accepted missions in the
+  selected scope, or null when none are known).
 - password hash
 - last password change
 - theme, language, date format, time format, default view

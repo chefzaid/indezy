@@ -49,6 +49,58 @@ class WorkspaceIsolationIntegrationTest {
     private Long aliceClientId;
 
     @Test
+    void targetRate_ShouldDefaultNewSeasonsWithoutChangingExistingOnesOrOtherAccounts() {
+        Map profile = call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+        profile.put("targetDailyRate", 650);
+        assertThat(call(alice, HttpMethod.PUT, "/users/profile", profile, Map.class).getBody())
+            .containsEntry("targetDailyRate", 650);
+        assertThat(call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody())
+            .containsEntry("targetDailyRate", 650);
+        call(alice, HttpMethod.PUT, "/users/preferences", Map.of("theme", "dark"), Map.class);
+        assertThat(call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody())
+            .containsEntry("targetDailyRate", 650);
+        assertThat(call(bob, HttpMethod.GET, "/users/profile", null, Map.class).getBody().get("targetDailyRate"))
+            .isNull();
+        assertThat(call(alice, HttpMethod.GET, "/projects/stats/dashboard/" + alice.freelanceId(), null, Map.class).getBody())
+            .containsEntry("targetDailyRate", 650).containsEntry("averageObtainedDailyRate", null);
+        assertThat(call(bob, HttpMethod.GET, "/projects/stats/dashboard/" + bob.freelanceId(), null, Map.class).getBody()
+            .get("targetDailyRate")).isNull();
+
+        Map season = call(alice, HttpMethod.POST, "/seasons",
+            Map.of("name", "Default target", "startDate", LocalDate.now().toString(), "freelanceId", alice.freelanceId()),
+            Map.class).getBody();
+        assertThat(season).containsEntry("targetDailyRate", 650);
+        Map override = call(alice, HttpMethod.POST, "/seasons",
+            Map.of("name", "Custom target", "startDate", LocalDate.now().toString(), "freelanceId", alice.freelanceId(),
+                "targetDailyRate", 700), Map.class).getBody();
+        assertThat(override).containsEntry("targetDailyRate", 700);
+
+        profile.put("targetDailyRate", null);
+        assertThat(call(alice, HttpMethod.PUT, "/users/profile", profile, Map.class).getBody().get("targetDailyRate"))
+            .isNull();
+        assertThat(call(alice, HttpMethod.GET, "/seasons/" + season.get("id"), null, Map.class).getBody())
+            .containsEntry("targetDailyRate", 650);
+        Map noTarget = call(alice, HttpMethod.POST, "/seasons",
+            Map.of("name", "No target", "startDate", LocalDate.now().toString(), "freelanceId", alice.freelanceId()),
+            Map.class).getBody();
+        assertThat(noTarget.get("targetDailyRate")).isNull();
+    }
+
+    @Test
+    void targetRate_ShouldRejectNonPositiveFractionalAndOversizedValues() {
+        Map profile = call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+        for (Number rate : List.of(0, -1, 650.5, 2147483648L)) {
+            profile.put("targetDailyRate", rate);
+            assertThat(call(alice, HttpMethod.PUT, "/users/profile", profile, String.class).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(call(alice, HttpMethod.POST, "/seasons",
+                Map.of("name", "Invalid target", "startDate", LocalDate.now().toString(),
+                    "freelanceId", alice.freelanceId(), "targetDailyRate", rate), String.class).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Test
     void inactivityPreference_ShouldPersistAndApplyToOnlyItsOwnWorkspace() {
         assertThat(call(alice, HttpMethod.GET, "/users/preferences", null, Map.class).getBody())
             .containsEntry("inactivityDays", 14);

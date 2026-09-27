@@ -23,6 +23,7 @@
   </mat-form-field>
 
   <button mat-stroked-button type="button" class="new-season-button" (click)="openNewSeason()"
+    [attr.aria-label]="'seasons.new' | translate"
     [matTooltip]="'seasons.newTooltip' | translate">
     <mat-icon>add</mat-icon>
     <span class="button-label">{{ 'seasons.new' | translate }}</span>

@@ -20,6 +20,7 @@ export interface UserProfile {
   languages?: string[];
   timezone?: string;
   currency?: string;
+  targetDailyRate?: number | null;
   notifications?: UserNotificationSettings;
   preferences?: UserPreferences;
 }

@@ -1,8 +1,11 @@
 package dev.swirlit.indezy.dto;
 
+import dev.swirlit.indezy.util.WholeNumberDeserializer;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -36,6 +39,10 @@ public class UserDto {
     private List<String> languages;
     private String timezone;
     private String currency;
+
+    @Min(1)
+    @JsonDeserialize(using = WholeNumberDeserializer.class)
+    private Integer targetDailyRate;
 
     // Computed fields
     private String fullName;

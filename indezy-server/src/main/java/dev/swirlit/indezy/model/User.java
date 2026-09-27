@@ -84,6 +84,9 @@ public class User extends BaseEntity {
     @Column(name = "currency")
     private String currency;
 
+    @Column(name = "target_daily_rate")
+    private Integer targetDailyRate;
+
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 

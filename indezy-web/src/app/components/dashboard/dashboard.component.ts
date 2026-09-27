@@ -13,6 +13,7 @@ import { User, ProjectDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, Con
 import { ActivityHeatmapComponent } from '../../shared/components/activity-heatmap/activity-heatmap.component';
 import { DashboardRemindersComponent } from './dashboard-reminders/dashboard-reminders.component';
 import { DailyRateChartComponent } from './daily-rate-chart/daily-rate-chart.component';
+import { RateTargetComponent } from './rate-target/rate-target.component';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { SeasonPickerComponent } from '../seasons/season-picker/season-picker.component';
 import { Season } from '../../models/season.models';
@@ -38,7 +39,8 @@ type ViewMode = 'overview' | 'kanban';
         SeasonPickerComponent,
         ActivityHeatmapComponent,
         DashboardRemindersComponent,
-        DailyRateChartComponent
+        DailyRateChartComponent,
+        RateTargetComponent
     ],
     templateUrl: './dashboard.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
