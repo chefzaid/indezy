@@ -216,7 +216,7 @@
               </mat-card-header>
               <mat-card-content>
                 <div class="chart-container">
-                  <canvas #dailyRateChart></canvas>
+                  <app-daily-rate-chart [rates]="dashboardStats.dailyRateRanges"></app-daily-rate-chart>
                 </div>
               </mat-card-content>
             </mat-card>

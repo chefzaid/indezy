@@ -184,7 +184,9 @@ The dashboard provides an overview of the opportunity workspace with:
 - active projects
 - projects by status
 - projects by work mode
-- daily rate distribution
+- daily rate distribution by exact negotiated euro amount (for example 550, 600 and 650),
+  sorted numerically with one count per opportunity; missing rates are omitted. The chart
+  follows the selected season and provides localized labels and a screen-reader summary.
 - source ROI ranking (signed contracts vs total opportunities and conversion rate per source)
 - daily rate evolution by year (average asked vs obtained daily rate)
 - bench time tracking (idle days and number of gaps between signed missions, with an estimated cost)

@@ -1,28 +1,13 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.DashboardStatsDto;
-import dev.swirlit.indezy.model.Client;
-import dev.swirlit.indezy.model.Contact;
-import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Season;
-import dev.swirlit.indezy.model.Source;
-import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
-import dev.swirlit.indezy.model.enums.StepStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
-import dev.swirlit.indezy.repository.ContactRepository;
-import dev.swirlit.indezy.repository.FreelanceRepository;
-import dev.swirlit.indezy.repository.InterviewStepRepository;
-import dev.swirlit.indezy.repository.ProjectRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,54 +19,30 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-class DashboardStatsServiceTest {
+class DashboardStatsServiceTest extends DashboardStatsTestSupport {
 
-    @Mock
-    private ProjectRepository projectRepository;
+    @Test
+    void getDashboardStats_ShouldCountExactRatesInNumericOrder() {
+        List<Project> projects = java.util.stream.Stream.of(650, 600, 1000, 550, 600, 0, null, -1)
+            .map(rate -> {
+                Project project = new Project();
+                project.setDailyRate(rate);
+                return project;
+            }).toList();
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(projects);
 
-    @Mock
-    private FreelanceRepository freelanceRepository;
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
-    @Mock
-    private ContactRepository contactRepository;
+        assertThat(stats.getDailyRateRanges())
+            .extracting(DashboardStatsDto.DailyRateRange::getLabel, DashboardStatsDto.DailyRateRange::getCount)
+            .containsExactly(tuple("0", 1L), tuple("550", 1L), tuple("600", 2L), tuple("650", 1L), tuple("1000", 1L));
+    }
 
-    @Mock
-    private InterviewStepRepository interviewStepRepository;
+    @Test
+    void getDashboardStats_ShouldOmitUnknownRates() {
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(new Project()));
 
-    @InjectMocks
-    private DashboardStatsService dashboardStatsService;
-
-    private Project testProject;
-    private Freelance testFreelance;
-    private Client testClient;
-
-    @BeforeEach
-    void setUp() {
-        testFreelance = new Freelance();
-        testFreelance.setId(1L);
-        testFreelance.setFirstName("John");
-        testFreelance.setLastName("Doe");
-        testFreelance.setEmail("john.doe@example.com");
-        testFreelance.setStatus(EmploymentStatus.FREELANCE);
-
-        testClient = new Client();
-        testClient.setId(1L);
-        testClient.setCompanyName("Test Company");
-        testClient.setCity("Paris");
-        testClient.setIsFinal(true);
-        testClient.setFreelance(testFreelance);
-
-        testProject = new Project();
-        testProject.setId(1L);
-        testProject.setRole("Full Stack Developer");
-        testProject.setDailyRate(600);
-        testProject.setWorkMode(WorkMode.HYBRID);
-        testProject.setStartDate(LocalDate.of(2024, 1, 15));
-        testProject.setDurationInMonths(6);
-        testProject.setDaysPerYear(220);
-        testProject.setFreelance(testFreelance);
-        testProject.setClient(testClient);
+        assertThat(dashboardStatsService.getDashboardStats(1L, null).getDailyRateRanges()).isEmpty();
     }
 
     @Test
@@ -105,10 +66,10 @@ class DashboardStatsServiceTest {
         assertThat(stats.getActiveProjects()).isEqualTo(1L);
         assertThat(stats.getProjectsByStatus().get("WON")).isEqualTo(1L);
         assertThat(stats.getProjectsByWorkMode().get("HYBRID")).isEqualTo(2L);
-        // testProject has dailyRate 600 -> falls in the 500-700 bucket
+        // Both opportunities negotiated the same exact daily rate.
         assertThat(stats.getDailyRateRanges())
-                .filteredOn(r -> r.getLabel().equals("500-700"))
-                .first()
+                .singleElement()
+                .satisfies(r -> assertThat(r.getLabel()).isEqualTo("600"))
                 .satisfies(r -> assertThat(r.getCount()).isEqualTo(2L));
     }
 
@@ -127,76 +88,6 @@ class DashboardStatsServiceTest {
         assertThat(stats.getLostReasonsBreakdown())
                 .containsEntry("RATE_TOO_LOW", 1L)
                 .containsEntry("NO_RESPONSE", 0L);
-    }
-
-    @Test
-    void getDashboardStats_ShouldRankSourcesBySignedContracts() {
-        // Given LinkedIn with 1 won out of 2, and Malt with 1 won out of 1.
-        Source linkedin = new Source();
-        linkedin.setId(10L);
-        linkedin.setName("LinkedIn");
-        Source malt = new Source();
-        malt.setId(11L);
-        malt.setName("Malt");
-
-        Project linkedinWon = new Project();
-        linkedinWon.setSource(linkedin);
-        linkedinWon.setStatus(ProjectStatus.WON);
-        Project linkedinLost = new Project();
-        linkedinLost.setSource(linkedin);
-        linkedinLost.setStatus(ProjectStatus.LOST);
-        Project maltWon = new Project();
-        maltWon.setSource(malt);
-        maltWon.setStatus(ProjectStatus.WON);
-
-        when(projectRepository.findByFreelanceId(1L))
-                .thenReturn(List.of(linkedinWon, linkedinLost, maltWon));
-
-        // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        // Then both have one signed contract, but Malt's higher conversion rate ranks it first.
-        List<DashboardStatsDto.SourceRoi> roi = stats.getSourceRoi();
-        assertThat(roi).hasSize(2);
-        assertThat(roi.get(0).getSourceName()).isEqualTo("Malt");
-        assertThat(roi.get(0).getWonProjects()).isEqualTo(1L);
-        assertThat(roi.get(0).getTotalProjects()).isEqualTo(1L);
-        assertThat(roi.get(0).getConversionRate()).isEqualTo(100.0);
-        assertThat(roi.get(1).getSourceName()).isEqualTo("LinkedIn");
-        assertThat(roi.get(1).getTotalProjects()).isEqualTo(2L);
-        assertThat(roi.get(1).getConversionRate()).isEqualTo(50.0);
-    }
-
-    @Test
-    void getDashboardStats_ShouldBuildDailyRateEvolutionByYear() {
-        // Given two 2024 projects (asked 600/700, obtained 620/680) and one 2025 project.
-        Project p2024a = new Project();
-        p2024a.setStartDate(LocalDate.of(2024, 3, 1));
-        p2024a.setAskedDailyRate(600);
-        p2024a.setDailyRate(620);
-        Project p2024b = new Project();
-        p2024b.setStartDate(LocalDate.of(2024, 9, 1));
-        p2024b.setAskedDailyRate(700);
-        p2024b.setDailyRate(680);
-        Project p2025 = new Project();
-        p2025.setStartDate(LocalDate.of(2025, 1, 1));
-        p2025.setDailyRate(750);
-
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(p2024a, p2024b, p2025));
-
-        // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        // Then years are ordered ascending with averaged rates; 2025 has no asked rate.
-        List<DashboardStatsDto.DailyRateEvolution> evolution = stats.getDailyRateEvolution();
-        assertThat(evolution).hasSize(2);
-        assertThat(evolution.get(0).getPeriod()).isEqualTo("2024");
-        assertThat(evolution.get(0).getAverageAskedRate()).isEqualTo(650.0);
-        assertThat(evolution.get(0).getAverageObtainedRate()).isEqualTo(650.0);
-        assertThat(evolution.get(0).getProjectCount()).isEqualTo(2L);
-        assertThat(evolution.get(1).getPeriod()).isEqualTo("2025");
-        assertThat(evolution.get(1).getAverageAskedRate()).isZero();
-        assertThat(evolution.get(1).getAverageObtainedRate()).isEqualTo(750.0);
     }
 
     @Test
@@ -245,41 +136,6 @@ class DashboardStatsServiceTest {
         // Then only the signed contract counts.
         assertThat(stats.getTotalEstimatedRevenue()).isEqualTo(120000.0);
         assertThat(stats.getForecastRevenue()).isEqualTo(120000.0);
-    }
-
-    @Test
-    void getDashboardStats_ShouldComputeBenchTimeBetweenSignedMissions() {
-        // Given two signed missions: Jan-Apr 2024 (3 months) then Jun 2024 (1 month).
-        // Bench = 2024-04-01 -> 2024-06-01 = 61 days. A third, overlapping mission adds none.
-        Project first = new Project();
-        first.setStatus(ProjectStatus.WON);
-        first.setStartDate(LocalDate.of(2024, 1, 1));
-        first.setDurationInMonths(3);
-        Project second = new Project();
-        second.setStatus(ProjectStatus.WON);
-        second.setStartDate(LocalDate.of(2024, 6, 1));
-        second.setDurationInMonths(1);
-        Project overlapping = new Project();
-        overlapping.setStatus(ProjectStatus.WON);
-        overlapping.setStartDate(LocalDate.of(2024, 6, 15));
-        overlapping.setDurationInMonths(2);
-        // A non-signed project is ignored even though it has dates.
-        Project pending = new Project();
-        pending.setStatus(ProjectStatus.INTERVIEW);
-        pending.setStartDate(LocalDate.of(2025, 1, 1));
-        pending.setDurationInMonths(6);
-
-        List.of(first, second, overlapping, pending).forEach(p -> p.setDailyRate(500));
-        when(projectRepository.findByFreelanceId(1L))
-                .thenReturn(List.of(first, second, overlapping, pending));
-
-        // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        // Then a single 61-day bench period, costed at the average daily rate.
-        assertThat(stats.getTotalBenchDays()).isEqualTo(61L);
-        assertThat(stats.getBenchPeriods()).isEqualTo(1L);
-        assertThat(stats.getEstimatedBenchCost()).isEqualTo(61 * 500.0);
     }
 
     @Test
@@ -341,151 +197,15 @@ class DashboardStatsServiceTest {
         assertThat(stats.getActiveProjects()).isEqualTo(1L);
         assertThat(stats.getAverageDailyRate()).isEqualTo(600.0);
         assertThat(stats.getProjectsByStatus()).containsEntry("WON", 1L).containsEntry("CONTACT", 1L);
+        assertThat(stats.getDailyRateRanges())
+            .extracting(DashboardStatsDto.DailyRateRange::getLabel, DashboardStatsDto.DailyRateRange::getCount)
+            .containsExactly(tuple("500", 1L), tuple("700", 1L));
         // Only the season's step (plus the creation days of its opportunities) feeds the heatmap.
         assertThat(stats.getActivityHeatmap())
             .extracting(DashboardStatsDto.ActivityDay::getDate)
             .contains(LocalDate.now().minusDays(2))
             .doesNotContain(LocalDate.now().minusDays(3));
         verify(projectRepository, never()).findByFreelanceId(any());
-    }
-
-    private Project projectWithStatus(ProjectStatus status) {
-        Project project = new Project();
-        project.setStatus(status);
-        return project;
-    }
-
-    @Test
-    void getDashboardStats_ShouldBreakDownFunnelBySourceClientTypeAndEsn() {
-        // Given sources, an ESN, and four opportunities mixing direct and intermediated deals.
-        Source linkedin = new Source();
-        linkedin.setName("LinkedIn");
-        Source malt = new Source();
-        malt.setName("Malt");
-        Client esn = new Client();
-        esn.setCompanyName("AcmeESN");
-        esn.setIsFinal(false);
-
-        Project linkedinWon = new Project();          // direct, LinkedIn, won
-        linkedinWon.setSource(linkedin);
-        linkedinWon.setStatus(ProjectStatus.WON);
-        Project linkedinApplied = new Project();        // direct, LinkedIn, applied
-        linkedinApplied.setSource(linkedin);
-        linkedinApplied.setStatus(ProjectStatus.CONTACT);
-        Project maltViaEsn = new Project();             // intermediated, Malt, interview
-        maltViaEsn.setSource(malt);
-        maltViaEsn.setMiddleman(esn);
-        maltViaEsn.setStatus(ProjectStatus.INTERVIEW);
-        Project esnWonNoSource = new Project();          // intermediated, no source, won
-        esnWonNoSource.setMiddleman(esn);
-        esnWonNoSource.setStatus(ProjectStatus.WON);
-
-        when(projectRepository.findByFreelanceId(1L))
-            .thenReturn(List.of(linkedinWon, linkedinApplied, maltViaEsn, esnWonNoSource));
-
-        // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        // Then by source: groups ordered by name; the source-less project is skipped.
-        assertThat(stats.getFunnelBySource())
-            .extracting(DashboardStatsDto.FunnelBreakdown::getGroup)
-            .containsExactly("LinkedIn", "Malt");
-        assertThat(stats.getFunnelBySource().get(0).getStages())
-            .extracting(DashboardStatsDto.ConversionFunnelStage::getCount)
-            .containsExactly(2L, 1L, 1L, 1L);
-
-        // And by client type: DIRECT (no ESN) vs INTERMEDIARY (through an ESN).
-        assertThat(stats.getFunnelByClientType())
-            .extracting(DashboardStatsDto.FunnelBreakdown::getGroup)
-            .containsExactly("DIRECT", "INTERMEDIARY");
-        assertThat(stats.getFunnelByClientType().get(1).getStages())
-            .extracting(DashboardStatsDto.ConversionFunnelStage::getCount)
-            .containsExactly(2L, 2L, 1L, 1L);
-
-        // And by ESN: only intermediated opportunities are grouped under the ESN name.
-        assertThat(stats.getFunnelByEsn())
-            .extracting(DashboardStatsDto.FunnelBreakdown::getGroup)
-            .containsExactly("AcmeESN");
-        assertThat(stats.getFunnelByEsn().get(0).getStages())
-            .extracting(DashboardStatsDto.ConversionFunnelStage::getCount)
-            .containsExactly(2L, 2L, 1L, 1L);
-    }
-
-    @Test
-    void getDashboardStats_ShouldListSignedMissionsEndingSoon() {
-        // Given signed missions ending in ~1 month (within the 6-week window) and others outside it.
-        LocalDate today = LocalDate.now();
-        Project endingA = wonMission(1L, today.minusMonths(1), 2);   // ends ~+1 month
-        Project endingB = wonMission(2L, today, 1);                  // ends ~+1 month
-        Project farFuture = wonMission(3L, today, 6);                // ends ~+6 months, excluded
-        Project alreadyEnded = wonMission(4L, today.minusMonths(6), 2); // ended in the past, excluded
-        Project pending = wonMission(5L, today, 1);
-        pending.setStatus(ProjectStatus.INTERVIEW);                   // not signed, excluded
-        Project noDates = wonMission(6L, null, null);                 // missing dates, excluded
-
-        when(projectRepository.findByFreelanceId(1L))
-            .thenReturn(List.of(endingA, endingB, farFuture, alreadyEnded, pending, noDates));
-
-        // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        // Then only the two soon-ending signed missions appear, soonest first, with their details.
-        List<DashboardStatsDto.MissionEndingSoon> ending = stats.getMissionsEndingSoon();
-        assertThat(ending).hasSize(2)
-            .extracting(DashboardStatsDto.MissionEndingSoon::getProjectId)
-            .containsExactlyInAnyOrder(1L, 2L);
-        assertThat(ending).extracting(DashboardStatsDto.MissionEndingSoon::getDaysUntilEnd).isSorted();
-        assertThat(ending).allSatisfy(m -> {
-            assertThat(m.getDaysUntilEnd()).isBetween(0L, 42L);
-            assertThat(m.getEndDate()).isNotNull();
-            assertThat(m.getClientName()).isEqualTo("Test Company");
-        });
-    }
-
-    private Project wonMission(Long id, LocalDate startDate, Integer durationInMonths) {
-        Project project = new Project();
-        project.setId(id);
-        project.setStatus(ProjectStatus.WON);
-        project.setRole("Mission " + id);
-        project.setStartDate(startDate);
-        project.setDurationInMonths(durationInMonths);
-        project.setClient(testClient);
-        return project;
-    }
-
-    @Test
-    void getDashboardStats_ShouldListStaleActiveOpportunities() {
-        // Given active opportunities with varying idle times plus closed/fresh ones to exclude.
-        LocalDateTime now = LocalDateTime.now();
-        Project veryStale = activeOpportunity(1L, ProjectStatus.CONTACT, now.minusDays(30));
-        Project mildlyStale = activeOpportunity(2L, ProjectStatus.INTERVIEW, now.minusDays(15));
-        Project fresh = activeOpportunity(3L, ProjectStatus.CONTACT, now.minusDays(3));   // too recent
-        Project wonStale = activeOpportunity(4L, ProjectStatus.WON, now.minusDays(40));   // closed, excluded
-        Project noActivity = activeOpportunity(5L, ProjectStatus.OFFER, null);            // no timestamp
-
-        when(projectRepository.findByFreelanceId(1L))
-            .thenReturn(List.of(veryStale, mildlyStale, fresh, wonStale, noActivity));
-
-        // When
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        // Then only stale active opportunities appear, most stale first, with their details.
-        List<DashboardStatsDto.StaleOpportunity> stale = stats.getStaleOpportunities();
-        assertThat(stale).extracting(DashboardStatsDto.StaleOpportunity::getProjectId)
-            .containsExactly(1L, 2L);
-        assertThat(stale.get(0).getDaysSinceActivity()).isGreaterThanOrEqualTo(stale.get(1).getDaysSinceActivity());
-        assertThat(stale.get(0).getStatus()).isEqualTo("CONTACT");
-        assertThat(stale.get(0).getClientName()).isEqualTo("Test Company");
-    }
-
-    private Project activeOpportunity(Long id, ProjectStatus status, LocalDateTime updatedAt) {
-        Project project = new Project();
-        project.setId(id);
-        project.setStatus(status);
-        project.setRole("Opportunity " + id);
-        project.setClient(testClient);
-        project.setUpdatedAt(updatedAt);
-        return project;
     }
 
     @Test
@@ -498,6 +218,7 @@ class DashboardStatsServiceTest {
 
         // Then
         assertThat(stats.getTotalProjects()).isZero();
+        assertThat(stats.getDailyRateRanges()).isEmpty();
         assertThat(stats.getAverageDailyRate()).isZero();
         assertThat(stats.getTotalEstimatedRevenue()).isZero();
         assertThat(stats.getForecastRevenue()).isZero();
@@ -515,50 +236,6 @@ class DashboardStatsServiceTest {
             });
     }
 
-    private void stubMinimalAggregates() {
-    }
-
-    @Test
-    void getDashboardStats_ShouldSurfaceRenewalsWithinNoticePeriod() {
-        LocalDate today = LocalDate.now();
-        testProject.setStatus(ProjectStatus.WON);
-        // Monthly renewals starting three months ago: the next one is always under a month out,
-        // comfortably inside a 60-day notice window regardless of which day "today" is.
-        testProject.setStartDate(today.minusMonths(3));
-        testProject.setOrderRenewalInMonths(1);
-        testFreelance.setNoticePeriodInDays(60);
-
-        stubMinimalAggregates();
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
-        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
-
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        assertThat(stats.getUpcomingRenewals()).hasSize(1);
-        assertThat(stats.getUpcomingRenewals().getFirst().getProjectId()).isEqualTo(1L);
-        assertThat(stats.getUpcomingRenewals().getFirst().getClientName()).isEqualTo("Test Company");
-        assertThat(stats.getUpcomingRenewals().getFirst().getDaysUntilRenewal()).isBetween(0L, 60L);
-        assertThat(stats.getUpcomingRenewals().getFirst().getRenewalDate()).isAfterOrEqualTo(today);
-    }
-
-    @Test
-    void getDashboardStats_ShouldNotSurfaceRenewalsBeyondNoticePeriod() {
-        LocalDate today = LocalDate.now();
-        testProject.setStatus(ProjectStatus.WON);
-        // First renewal is three months out, well beyond a 30-day notice window.
-        testProject.setStartDate(today);
-        testProject.setOrderRenewalInMonths(3);
-        testFreelance.setNoticePeriodInDays(30);
-
-        stubMinimalAggregates();
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
-        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
-
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        assertThat(stats.getUpcomingRenewals()).isEmpty();
-    }
-
     @Test
     void getDashboardStats_ShouldIgnoreRenewalsForNonWonProjects() {
         LocalDate today = LocalDate.now();
@@ -567,177 +244,11 @@ class DashboardStatsServiceTest {
         testProject.setOrderRenewalInMonths(3);
         testFreelance.setNoticePeriodInDays(30);
 
-        stubMinimalAggregates();
         when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
         when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
 
         DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
         assertThat(stats.getUpcomingRenewals()).isEmpty();
-    }
-
-    @Test
-    void getDashboardStats_ShouldSurfaceOnThisDayItemsFromPreviousYears() {
-        LocalDateTime now = LocalDateTime.now();
-        testProject.setCreatedAt(now.minusYears(1));
-
-        Contact contact = new Contact();
-        contact.setId(5L);
-        contact.setFirstName("Marie");
-        contact.setLastName("Dubois");
-        contact.setClient(testClient);
-        contact.setCreatedAt(now.minusYears(2));
-
-        Project recent = new Project();
-        recent.setId(9L);
-        recent.setRole("Recent Role");
-        recent.setCreatedAt(now.minusMonths(2));
-
-        stubMinimalAggregates();
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject, recent));
-        when(contactRepository.findByFreelanceId(1L)).thenReturn(List.of(contact));
-
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        // Two anniversaries (project 1y, contact 2y); the two-month-old project is excluded.
-        assertThat(stats.getOnThisDay()).hasSize(2);
-        assertThat(stats.getOnThisDay().getFirst().getType()).isEqualTo("PROJECT");
-        assertThat(stats.getOnThisDay().getFirst().getId()).isEqualTo(1L);
-        assertThat(stats.getOnThisDay().getFirst().getYearsAgo()).isEqualTo(1);
-        assertThat(stats.getOnThisDay().get(1).getType()).isEqualTo("CONTACT");
-        assertThat(stats.getOnThisDay().get(1).getLabel()).isEqualTo("Marie Dubois");
-        assertThat(stats.getOnThisDay().get(1).getSubLabel()).isEqualTo("Test Company");
-        assertThat(stats.getOnThisDay().get(1).getYearsAgo()).isEqualTo(2);
-    }
-
-    @Test
-    void getDashboardStats_ShouldNotSurfaceOnThisDayItemsOutsideTheWindow() {
-        testProject.setCreatedAt(LocalDateTime.now().minusYears(1).minusDays(10));
-
-        stubMinimalAggregates();
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
-        when(contactRepository.findByFreelanceId(1L)).thenReturn(List.of());
-
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        assertThat(stats.getOnThisDay()).isEmpty();
-    }
-
-    @Test
-    void getDashboardStats_ShouldSurfaceContactsDormantForSixMonthsOrMore() {
-        Contact dormant = new Contact();
-        dormant.setId(3L);
-        dormant.setFirstName("Old");
-        dormant.setLastName("Contact");
-        dormant.setClient(testClient);
-        dormant.setUpdatedAt(LocalDateTime.now().minusMonths(8));
-
-        Contact active = new Contact();
-        active.setId(4L);
-        active.setFirstName("Fresh");
-        active.setLastName("Contact");
-        active.setUpdatedAt(LocalDateTime.now().minusMonths(1));
-
-        stubMinimalAggregates();
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of());
-        when(contactRepository.findByFreelanceId(1L)).thenReturn(List.of(dormant, active));
-
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        assertThat(stats.getDormantContacts()).hasSize(1);
-        assertThat(stats.getDormantContacts().getFirst().getId()).isEqualTo(3L);
-        assertThat(stats.getDormantContacts().getFirst().getName()).isEqualTo("Old Contact");
-        assertThat(stats.getDormantContacts().getFirst().getClientName()).isEqualTo("Test Company");
-        assertThat(stats.getDormantContacts().getFirst().getMonthsSinceActivity()).isGreaterThanOrEqualTo(6L);
-    }
-
-    @Test
-    void getDashboardStats_ShouldRankSkillTrendsByFrequencyWithAverageRate() {
-        Project p1 = new Project();
-        p1.setId(1L);
-        p1.setTechStack("Java, Spring Boot, PostgreSQL");
-        p1.setDailyRate(600);
-        Project p2 = new Project();
-        p2.setId(2L);
-        p2.setTechStack("java, Angular");
-        p2.setDailyRate(800);
-        Project p3 = new Project();
-        p3.setId(3L);
-        p3.setTechStack("Angular, TypeScript");
-        p3.setDailyRate(500);
-
-        stubMinimalAggregates();
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(p1, p2, p3));
-
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        DashboardStatsDto.SkillTrend java = stats.getSkillTrends().stream()
-            .filter(t -> t.getSkill().equalsIgnoreCase("java")).findFirst().orElseThrow();
-        assertThat(java.getSkill()).isEqualTo("Java");
-        assertThat(java.getCount()).isEqualTo(2);
-        assertThat(java.getAverageDailyRate()).isEqualTo(700.0);
-
-        DashboardStatsDto.SkillTrend angular = stats.getSkillTrends().stream()
-            .filter(t -> t.getSkill().equalsIgnoreCase("angular")).findFirst().orElseThrow();
-        assertThat(angular.getCount()).isEqualTo(2);
-        assertThat(angular.getAverageDailyRate()).isEqualTo(650.0);
-
-        // The two-occurrence skills rank above the single-occurrence ones.
-        assertThat(stats.getSkillTrends().getFirst().getCount()).isEqualTo(2);
-    }
-
-    @Test
-    void getDashboardStats_ShouldAverageProcessDurationByCounterparty() {
-        dev.swirlit.indezy.model.Client middleman = new dev.swirlit.indezy.model.Client();
-        middleman.setId(9L);
-        middleman.setCompanyName("ESN One");
-
-        Project won = new Project();
-        won.setId(50L);
-        won.setStatus(ProjectStatus.WON);
-        won.setClient(testClient);
-        won.setMiddleman(middleman);
-        won.setCreatedAt(LocalDateTime.now().minusDays(20));
-
-        InterviewStep validated = new InterviewStep();
-        validated.setStatus(StepStatus.VALIDATED);
-        validated.setDate(LocalDateTime.now().minusDays(5));
-        validated.setProject(won);
-
-        stubMinimalAggregates();
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(won));
-        when(interviewStepRepository.findByFreelanceIdAndStatus(1L, StepStatus.VALIDATED))
-            .thenReturn(List.of(validated));
-
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        // Signed 15 days after first contact, grouped under the ESN.
-        assertThat(stats.getProcessDurations()).hasSize(1);
-        assertThat(stats.getProcessDurations().getFirst().getGroup()).isEqualTo("ESN One");
-        assertThat(stats.getProcessDurations().getFirst().getCount()).isEqualTo(1);
-        assertThat(stats.getProcessDurations().getFirst().getAverageDays()).isEqualTo(15.0);
-    }
-
-    @Test
-    void getDashboardStats_ShouldCountDailyProspectionActivity() {
-        LocalDateTime now = LocalDateTime.now();
-        testProject.setCreatedAt(now);
-
-        InterviewStep step = new InterviewStep();
-        step.setStatus(StepStatus.PLANNED);
-        step.setDate(now);
-
-        stubMinimalAggregates();
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
-        when(interviewStepRepository.findByFreelanceIdAndDateBetween(any(), any(), any()))
-            .thenReturn(List.of(step));
-
-        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
-
-        LocalDate today = LocalDate.now();
-        DashboardStatsDto.ActivityDay todaysActivity = stats.getActivityHeatmap().stream()
-            .filter(day -> day.getDate().equals(today)).findFirst().orElseThrow();
-        // One opportunity created + one interview step dated today.
-        assertThat(todaysActivity.getCount()).isEqualTo(2);
     }
 }

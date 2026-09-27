@@ -21,10 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneId;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 
 /**
@@ -55,9 +55,9 @@ public class DashboardStatsService {
     public DashboardStatsDto getDashboardStats(Long freelanceId, Long seasonId) {
         log.debug("Getting dashboard stats for freelance: {} (season: {})", freelanceId, seasonId);
 
-        List<Project> projects = seasonId != null
-            ? projectRepository.findByFreelanceIdAndSeasonId(freelanceId, seasonId)
-            : projectRepository.findByFreelanceId(freelanceId);
+        List<Project> projects = seasonId != null ?
+            projectRepository.findByFreelanceIdAndSeasonId(freelanceId, seasonId) :
+            projectRepository.findByFreelanceId(freelanceId);
 
         long totalProjects = projects.size();
         double averageDailyRate = projects.stream()
@@ -174,26 +174,24 @@ public class DashboardStatsService {
             return steps;
         }
         return steps.stream()
-            .filter(step -> step.getProject() != null && step.getProject().getSeason() != null
-                && seasonId.equals(step.getProject().getSeason().getId()))
+            .filter(step -> step.getProject() != null && step.getProject().getSeason() != null &&
+                seasonId.equals(step.getProject().getSeason().getId()))
             .toList();
     }
 
     private List<DashboardStatsDto.DailyRateRange> buildDailyRateRanges(List<Project> projects) {
-        int[][] ranges = {{0, 300}, {300, 500}, {500, 700}, {700, 900}, {900, Integer.MAX_VALUE}};
-        String[] rangeLabels = {"0-300", "300-500", "500-700", "700-900", "900+"};
-        List<DashboardStatsDto.DailyRateRange> dailyRateRanges = new ArrayList<>();
-        for (int i = 0; i < ranges.length; i++) {
-            int min = ranges[i][0];
-            int max = ranges[i][1];
-            long count = projects.stream()
-                .filter(p -> p.getDailyRate() != null && p.getDailyRate() >= min && p.getDailyRate() < max)
-                .count();
-            dailyRateRanges.add(DashboardStatsDto.DailyRateRange.builder()
-                .label(rangeLabels[i])
-                .count(count)
-                .build());
+        Map<Integer, Long> counts = new TreeMap<>();
+        for (Project project : projects) {
+            Integer rate = project.getDailyRate();
+            if (rate != null && rate >= 0) {
+                counts.merge(rate, 1L, Long::sum);
+            }
         }
-        return dailyRateRanges;
+        return counts.entrySet().stream()
+            .map(entry -> DashboardStatsDto.DailyRateRange.builder()
+                .label(entry.getKey().toString())
+                .count(entry.getValue())
+                .build())
+            .toList();
     }
 }

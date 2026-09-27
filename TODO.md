@@ -129,7 +129,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 
 - [x] Dashboard overview with total projects, average daily rate, estimated revenue, active projects, and recent projects
 - [x] Dashboard charts for projects by status, projects by work mode, and daily rate distribution
-- [ ] Finer daily rate chart: plot the actual TJM values the freelancer negotiated (e.g. 550, 600, 650 €) instead of wide ranges (0-300, 300-500, ...), as one freelancer's rates vary within a narrow band
+- [x] Finer daily rate chart: plot the actual TJM values the freelancer negotiated (e.g. 550, 600, 650 €) instead of wide ranges (0-300, 300-500, ...), as one freelancer's rates vary within a narrow band
 - [x] Overview/Kanban display modes on the dashboard
 - [ ] Dashboard period tagging with `YYYY-MM` labels, sprint-style but flexible so reporting periods can exist only when needed instead of forcing every month
 - [x] Conversion funnel by source, client type and ESN (where do opportunities die?)

@@ -43,6 +43,7 @@ public class DashboardStatsDto {
     private List<ProcessDuration> processDurations;
     private List<ActivityDay> activityHeatmap;
 
+    /** One exact daily rate, in ascending numeric order; the label is its euro amount. */
     @Data
     @Builder
     @NoArgsConstructor

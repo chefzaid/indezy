@@ -191,13 +191,27 @@ Playwright selectors should prefer roles, labels, and user-visible text over CSS
 
 The Maven JaCoCo configuration records an 80 percent instruction and branch target. CI also computes combined backend/frontend line coverage against an 80 percent policy and publishes a failed JUnit policy result when it is missed; that report does not fail the build job or block release.
 
-Current measured coverage (June 2026): backend ~83 percent instruction / ~64 percent branch overall (JaCoCo, includes generated MapStruct mappers and Lombok code); frontend ~93 percent statements (Karma). These historical figures explain why the report can currently show a failed policy result without suppressing delivery.
+Measured on 27 September 2026 with the repository's configured reporters: backend
+88.65 percent lines / 86.79 percent instructions / 69.86 percent branches (JaCoCo);
+frontend 89.57 percent lines / 88.14 percent statements / 85.64 percent branches (Karma).
+The suites contain 421 backend tests and 246 frontend tests. Line coverage exceeds
+the coding workflow's 85 percent target in both layers; backend branch coverage
+still misses Maven's separate 80 percent verification rule. These reports use the
+existing instrumentation configuration; the Karma figures cover modules loaded by
+the unit suite, not every lazy-loaded page.
 
 When adding risky behavior, treat the 80 percent report as a prompt for targeted tests rather than a release switch.
 
 ## Playwright E2E
 
-Playwright is a first-class part of the optional manual E2E job. Run it locally with `cd indezy-web && npm run test:e2e`. The configuration starts the production-like Angular server automatically, uses deterministic route interception for the critical authentication flow, and retains HTML output and failure traces. Extend the suite with registration, project creation, Kanban movement, filtering, and interview scheduling as those workflows stabilize.
+Playwright is a first-class part of the optional manual E2E job. Run it locally with
+`cd indezy-web && npm run test:e2e`. The configuration starts the Angular development
+server automatically and retains HTML output and failure traces. The suite checks
+the public authentication forms and exact-rate dashboard chart in French and English,
+including switching seasons. Chart tests intercept API responses and save chart
+screenshots; backend aggregation and workspace isolation have separate Java tests.
+Extend the suite with registration, project creation, Kanban movement, filtering,
+and interview scheduling as those workflows stabilize.
 
 ## CI Expectations
 

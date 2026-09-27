@@ -12,6 +12,7 @@ import { ProjectService } from '../../services/project/project.service';
 import { User, ProjectDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, SkillTrend, ProcessDuration, ActivityDay, PROJECT_STATUS_COLORS } from '../../models';
 import { ActivityHeatmapComponent } from '../../shared/components/activity-heatmap/activity-heatmap.component';
 import { DashboardRemindersComponent } from './dashboard-reminders/dashboard-reminders.component';
+import { DailyRateChartComponent } from './daily-rate-chart/daily-rate-chart.component';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { SeasonPickerComponent } from '../seasons/season-picker/season-picker.component';
 import { Season } from '../../models/season.models';
@@ -36,7 +37,8 @@ type ViewMode = 'overview' | 'kanban';
         KanbanBoardComponent,
         SeasonPickerComponent,
         ActivityHeatmapComponent,
-        DashboardRemindersComponent
+        DashboardRemindersComponent,
+        DailyRateChartComponent
     ],
     templateUrl: './dashboard.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -71,11 +73,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   @ViewChild('statusChart') statusChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('workModeChart') workModeChartRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('dailyRateChart') dailyRateChartRef!: ElementRef<HTMLCanvasElement>;
 
   private statusChart: Chart | null = null;
   private workModeChart: Chart | null = null;
-  private dailyRateChart: Chart | null = null;
   private chartSurface = '#fff';
   constructor(
     private readonly authService: AuthService,
@@ -306,17 +306,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.ngZone.runOutsideAngular(() => {
       this.buildStatusChart();
       this.buildWorkModeChart();
-      this.buildDailyRateChart();
     });
   }
 
   private destroyCharts(): void {
     this.statusChart?.destroy();
     this.workModeChart?.destroy();
-    this.dailyRateChart?.destroy();
     this.statusChart = null;
     this.workModeChart = null;
-    this.dailyRateChart = null;
   }
 
   private buildStatusChart(): void {
@@ -387,41 +384,4 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.workModeChart = new Chart(this.workModeChartRef.nativeElement, config);
   }
 
-  private buildDailyRateChart(): void {
-    if (!this.dailyRateChartRef?.nativeElement || !this.dashboardStats) {return;}
-
-    const ranges = this.dashboardStats.dailyRateRanges;
-    const labels = ranges.map(r => r.label + '€');
-    const data = ranges.map(r => r.count);
-
-    const config: ChartConfiguration<'bar'> = {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: this.translate.instant('dashboard.charts.projects'),
-          data,
-          backgroundColor: 'rgba(102, 126, 234, 0.7)',
-          borderColor: '#667eea',
-          borderWidth: 1,
-          borderRadius: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { stepSize: 1 }
-          }
-        },
-        plugins: {
-          legend: { display: false }
-        }
-      }
-    };
-
-    this.dailyRateChart = new Chart(this.dailyRateChartRef.nativeElement, config);
-  }
 }
