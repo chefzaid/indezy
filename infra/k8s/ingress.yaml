@@ -7,7 +7,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "0"
     gethomepage.dev/description: Freelance job hunting management platform
     gethomepage.dev/enabled: "true"
-    gethomepage.dev/group: Applications
+    gethomepage.dev/group: Applications - PROD
     gethomepage.dev/href: https://indezy.swirlit.dev
     gethomepage.dev/icon: mdi-domain
     gethomepage.dev/name: Indezy
