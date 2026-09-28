@@ -121,7 +121,7 @@ class RenderingTests(unittest.TestCase):
             self.assertEqual(client["clientId"], APP + "-web")
             self.assertEqual(client["attributes"]["pkce.code.challenge.method"], "S256")
             for environment in ("prod", "uat"):
-                frontend = self.root / f"devapp-web/src/environments/environment.{environment}.ts"
+                frontend = self.root / f"swirlapp-web/src/environments/environment.{environment}.ts"
                 self.assertIn("https://keycloak." + context["PUBLIC_DOMAIN"] + "/auth", frontend.read_text())
                 self.assertIn("keycloakRealm: '" + context["KEYCLOAK_REALM"] + "'", frontend.read_text())
         else:

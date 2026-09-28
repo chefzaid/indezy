@@ -7,7 +7,7 @@ Indezy deploys to the application-neutral K3s platform managed by [`swirl-cloud`
 
 ## Infrastructure Layout
 
-Indezy follows the shared application-repository convention used by DevApp and Thoughty:
+Indezy follows the shared application-repository convention used by Swirl Demo App and Thoughty:
 
 | Directory | Responsibility |
 |---|---|
