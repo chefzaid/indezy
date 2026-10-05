@@ -227,3 +227,51 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [ ] CI: tests on every PR, scheduled e2e runs, dependency vulnerability scanning, zero-downtime deployments
 - [ ] Keep OpenAPI docs complete with request/response examples
 - [ ] Ensure that all API endpoints are effectively used in the UI (either the app or the admin console). Implement the frontend that would use them if necessary, or remove the endpoints.
+
+## Product Direction (added 2026-10-04)
+
+Indezy tracks a French tech freelancer's mission search. Generic CRMs, job boards and invoicing tools each cover one piece; nothing covers the whole French freelance-IT cycle. The niche to own is **the operating system of French IT freelancers**: find the mission, win it at the right rate, then run it — monthly activity reports (CRA), the compliance documents ESNs require, invoices that meet the 2026–2027 e-invoicing rules, social contributions and taxes — with market data no single freelancer has. A Teams tier serves the organizations around freelancers: collectives, portage companies and boutique ESNs managing a pool of consultants.
+
+Differentiators, each covered below:
+
+1. French-specific end to end: ESN processes, TJM, CRA, vigilance certificates, Factur-X, URSSAF.
+2. Market intelligence from anonymized aggregates: rates, ESN process speed, payment delays.
+3. Freelancer-owned data, exportable at any time, hosted in the EU.
+4. A Teams tier with shared pipelines and consultant availability.
+
+### Mission Operations (after signature)
+
+- [ ] Monthly activity report (CRA) per mission: calendar of full and half days, on-site or remote, public holidays and absences; validation by the client or ESN through a signed link; PDF in the ESN's template; validated days feed the invoice.
+- [ ] Compliance document vault: URSSAF vigilance certificate (renewed every six months), company registration extract, professional liability insurance, bank details and ID, with expiry reminders and a one-link pack to send to an ESN.
+- [ ] Purchase orders and amendments per mission (number, amount or day ceiling, period), consumption tracked against CRA days, with an alert before the ceiling.
+- [ ] Electronic signature of contracts, amendments and CRAs through an EU qualified trust provider.
+
+### Invoicing and Compliance
+
+- [ ] Factur-X invoices (PDF/A-3 with embedded structured data) from validated CRA days and mission rates, with French mandatory mentions, VAT or VAT-exemption wording and gapless numbering (extends the invoice items above).
+- [ ] French B2B e-invoicing: every company must receive electronic invoices from 2026-09-01, and SMEs and micro-enterprises must issue them from 2027-09-01. Connect through a registered partner platform (PDP), send and receive invoices, follow their lifecycle statuses and handle e-reporting where the status requires it.
+- [ ] Payment reconciliation through a regulated bank-account information provider or manual matching, with statutory late-payment interest and the fixed recovery indemnity computed on overdue invoices.
+- [ ] Accounting exports and connectors for common French accounting tools.
+- [ ] Declaration calendar per legal status (URSSAF declarations, VAT returns, CFE, income-tax instalments) with amounts estimated from invoices (builds on the URSSAF estimation item above).
+
+### Market Intelligence
+
+- [ ] **ADR — aggregated data:** opt-in contribution, publication only of aggregates over a minimum number of freelancers, no client or contact identities, GDPR legal basis and withdrawal. Feeds the TJM benchmark and community reviews above.
+- [ ] ESN scorecard: response time, process length, offer rate, payment delay and margin range per ESN from contributed data.
+- [ ] Quarterly public market report of rates by skill, region and seniority.
+
+### Teams Tier (collectives, portage companies, boutique ESNs)
+
+- [ ] **ADR — organizations:** organization accounts with members and roles (owner, manager, consultant) and explicit data boundaries: what a consultant shares with the organization (availability, CV, selected pipeline items) and what stays private.
+- [ ] Consultant availability board and shared opportunity pool: dispatch an opportunity to available members, see who is positioned where, and prevent two members being submitted to the same client.
+- [ ] Organization dashboards: occupancy, bench, margins, renewals due, CRA and invoice status across consultants.
+- [ ] Organization single sign-on through identity-provider brokering, with member provisioning and removal.
+- [ ] White-label option for portage companies: logo, colors and custom domain.
+
+### Commercial and Enterprise Foundation
+
+- [ ] Plans and entitlements enforced server-side: free (pipeline), Pro (CRA, invoicing, e-invoicing, AI, integrations), Teams per seat (completes the subscription item above).
+- [ ] GDPR for third-party data: recruiter and client contacts are personal data. Record the legal basis, provide a privacy notice usable in outgoing emails, anonymize contacts dormant beyond a retention period, and handle access and erasure requests from contacts.
+- [ ] Public API and webhooks (opportunity, CRA and invoice events) with scoped tokens and a published OpenAPI description (extends the API tokens item above).
+- [ ] EU hosting statement, processor list (AI, e-invoicing, banking, e-signature) and a data processing agreement for Teams customers.
+- [ ] Help center and support with response targets per plan; a status page for paid users.
