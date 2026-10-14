@@ -6,8 +6,11 @@ import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.service.ContactService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureWebMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
@@ -19,12 +22,14 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -113,6 +118,25 @@ class ContactControllerTest {
                 .andExpect(jsonPath("$.firstName", is("Jane")));
 
         verify(contactService).create(any(ContactDto.class));
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void createContact_WithInvalidEmail_ShouldLogTheFieldWithoutTheRejectedValue(CapturedOutput output) throws Exception {
+        testContactDto.setEmail("jane.private(at)mail.example");
+
+        mockMvc.perform(post("/contacts")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(testContactDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.validationErrors.email", is("Email should be valid")));
+
+        // The test profile logs Spring MVC at DEBUG, so only the handler's own lines are checked.
+        List<String> handlerLines = output.getAll().lines().filter(line -> line.contains("GlobalExceptionHandler")).toList();
+        assertThat(handlerLines).anyMatch(line -> line.contains("WARN") && line.contains("Validation failed for contactDto: email (Email)"));
+        assertThat(handlerLines).noneMatch(line -> line.contains("jane.private"));
+        verify(contactService, never()).create(any(ContactDto.class));
     }
 
     @Test

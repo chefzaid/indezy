@@ -208,6 +208,19 @@ Privacy expectations:
 - document retention and deletion behavior (e.g. purging an account's workspace on request)
 - consider encrypting high-risk fields if threat model requires it
 
+## Logging
+
+Logs must not carry what a user typed. `GlobalExceptionHandler` applies these rules:
+
+- client errors (4xx: not found, illegal argument, validation, constraint violation, malformed request, data conflict) are logged at `WARN`, never at `ERROR`, and without a stack trace
+- the log line names only the field or parameter and the constraint (`Validation failed for contactDto: email (Email)`), or the database constraint name and SQL state (`Data integrity violation: constraint <name>, SQL state 23505`)
+- for these client errors, the binding, validation, JSON parser and database messages are never logged, because they quote the rejected values (emails, phone numbers, passwords) and the conflicting key values; an `IllegalArgumentException` is logged by the class, method and line that threw it, since its message can quote input such as an email that already exists
+- the method-not-supported, upload-too-large and access-denied handlers log the framework or application message at `WARN`, which names the HTTP method, the upload size limit or the access rule and holds no field values
+- application exceptions (`ResourceNotFoundException`, `ResourceInUseException`) are logged with their message, so they must be built from ids and fixed text only, never from request values
+- unexpected server errors (5xx) stay at `ERROR` with their message and stack trace, as they are needed to diagnose faults
+
+The restriction applies to the server log only: error responses still return each invalid field with its message, and the message of an `IllegalArgumentException`, to the client that sent the request. `GlobalExceptionHandlerTest` captures the log output to check the level of each line and that no rejected value appears.
+
 ## External APIs
 
 Google Maps Distance Matrix API is used for commute-time sorting.
@@ -272,7 +285,7 @@ Before merging:
 - Does every query scope by owner where needed?
 - Are new secrets kept out of Git?
 - Are errors useful without leaking internals?
-- Are logs free of passwords, tokens, addresses, and full request bodies?
+- Are logs free of passwords, tokens, addresses, full request bodies, and rejected values (see [Logging](#logging))?
 - Are tests covering anonymous access, authenticated access, and cross-owner access?
 - Are new public endpoints intentionally public?
 - Does the change affect GDPR export or account deletion expectations?

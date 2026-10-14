@@ -113,6 +113,7 @@ Representative backend tests:
 - repositories: `ClientRepositoryTest`, `ProjectRepositoryTest`, `SourceRepositoryTest`, `FreelanceRepositoryTest`
 - integration: `WorkspaceIsolationIntegrationTest` (two real accounts: isolation, seasons, deletion rules), `FullStackIntegrationTest`, `ProjectIntegrationTest`, `UserManagementIntegrationTest`
 - configuration and schema: `SecurityConfigTest`, `ProjectStatusMigrationTest`, `SchemaMigrationTest`, `JwtUtilTest`
+- error handling: `GlobalExceptionHandlerTest` (response status, log level and absence of rejected values, read with `OutputCaptureExtension`)
 
 Backend test data lives under `indezy-server/src/test/resources/`:
 

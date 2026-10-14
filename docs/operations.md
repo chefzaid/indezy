@@ -46,6 +46,11 @@ Prometheus discovers the backend pod annotations automatically, and Grafana
 loads the repository-owned **Indezy Overview** dashboard from its labeled
 ConfigMap.
 
+The API's exception handler logs rejected requests (4xx) at `WARN`, naming
+only the fields, parameters or database constraint involved, and unexpected
+server faults at `ERROR` with their stack trace. Rejected values are not logged
+(see [Security › Logging](./security.md#logging)).
+
 The repository-owned **Indezy — Application Logs** Kibana dashboard is imported
 with the platform-managed least-privilege dashboard bootstrap credential. It is
 fixed to `indezy-server` and `indezy-web`, separates warnings/errors from the
