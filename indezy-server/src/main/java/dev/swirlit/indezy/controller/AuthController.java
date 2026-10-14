@@ -3,6 +3,9 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.RegisterRequest;
+import dev.swirlit.indezy.exception.AccountAlreadyExistsException;
+import dev.swirlit.indezy.exception.ExceptionLogDetails;
+import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.exception.TwoFactorRequiredException;
 import dev.swirlit.indezy.service.AuthService;
 import dev.swirlit.indezy.service.LoginAttemptService;
@@ -11,10 +14,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Login, registration and Keycloak SSO. The email and any other request value are personal data and are never logged:
+ * rejected requests (wrong credentials, a locked account, an existing account) are client errors logged at WARN without
+ * a stack trace, and only unexpected faults are logged at ERROR with their stack trace.
+ */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -28,9 +39,9 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "User login", description = "Authenticate user and return JWT token")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        log.debug("POST /auth/login - Login attempt for email: {}", request.getEmail());
+        log.debug("POST /auth/login - Login attempt");
         if (loginAttemptService.isBlocked(request.getEmail())) {
-            log.warn("Login blocked after too many failed attempts for email: {}", request.getEmail());
+            log.warn("Login blocked after too many failed attempts");
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }
         try {
@@ -42,9 +53,14 @@ public class AuthController {
             LoginResponse challenge = new LoginResponse();
             challenge.setTwoFactorRequired(true);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(challenge);
-        } catch (Exception e) {
+        } catch (ResourceNotFoundException e) {
+            // AuthService reports an unknown email, a wrong password and a wrong two-factor code alike.
             loginAttemptService.loginFailed(request.getEmail());
-            log.error("Login failed for email: {}", request.getEmail(), e);
+            log.warn("Login rejected: invalid credentials");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (RuntimeException e) {
+            loginAttemptService.loginFailed(request.getEmail());
+            logFailure("Login", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
@@ -52,15 +68,19 @@ public class AuthController {
     @PostMapping("/register")
     @Operation(summary = "User registration", description = "Register new user and return JWT token")
     public ResponseEntity<LoginResponse> register(@Valid @RequestBody RegisterRequest request) {
-        log.debug("POST /auth/register - Registration attempt for email: {}", request.getEmail());
+        log.debug("POST /auth/register - Registration attempt");
         try {
             LoginResponse response = authService.register(request);
             return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            log.error("Registration failed for email: {}", request.getEmail(), e);
+        } catch (AccountAlreadyExistsException e) {
+            log.warn("Registration rejected: an account already exists for this email");
             return ResponseEntity.status(409).build();
-        } catch (Exception e) {
-            log.error("Registration failed for email: {}", request.getEmail(), e);
+        } catch (IllegalArgumentException e) {
+            // Other invalid input, such as a password too long to hash: the message may quote it, so only its origin.
+            log.warn("Registration rejected at {}", ExceptionLogDetails.originOf(e));
+            return ResponseEntity.status(409).build();
+        } catch (RuntimeException e) {
+            logFailure("Registration", e);
             return ResponseEntity.badRequest().build();
         }
     }
@@ -71,9 +91,26 @@ public class AuthController {
             @RequestHeader(value = "X-Auth-Request-Access-Token", required = false) String accessToken) {
         try {
             return ResponseEntity.ok(authService.loginWithKeycloak(accessToken));
-        } catch (RuntimeException exception) {
+        } catch (AuthenticationException | BadJwtException exception) {
+            // Fixed text or a token validation error (expired, wrong issuer or audience), never a claim value.
             log.warn("Keycloak SSO exchange rejected: {}", exception.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (RuntimeException exception) {
+            logFailure("Keycloak SSO exchange", exception);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    /**
+     * A database constraint error (two requests creating the same account at once, a name too long for its column) is
+     * logged at WARN with its constraint and SQL state but without its message, which quotes the stored values, the
+     * email included. Any other fault is unexpected and keeps its stack trace at ERROR.
+     */
+    private static void logFailure(String operation, RuntimeException exception) {
+        if (exception instanceof DataIntegrityViolationException violation) {
+            log.warn("{} rejected by a database constraint: {}", operation, ExceptionLogDetails.describe(violation));
+        } else {
+            log.error("{} failed with an unexpected error", operation, exception);
         }
     }
 }

@@ -3,6 +3,7 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.RegisterRequest;
+import dev.swirlit.indezy.exception.AccountAlreadyExistsException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.exception.TwoFactorRequiredException;
 import dev.swirlit.indezy.model.Freelance;
@@ -37,7 +38,7 @@ public class AuthService {
     private final TotpService totpService;
 
     public LoginResponse login(LoginRequest request) {
-        log.debug("Attempting login for email: {}", request.getEmail());
+        log.debug("Attempting login");
         
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid email or password"));
@@ -55,7 +56,7 @@ public class AuthService {
         Freelance freelance = ensureFreelanceProfile(user);
         String token = jwtUtil.generateToken(user.getEmail(), user.getId());
         
-        log.debug("Login successful for user: {}", user.getEmail());
+        log.debug("Login successful for user ID: {}", user.getId());
         return toLoginResponse(user, freelance.getId(), token);
     }
 
@@ -73,10 +74,10 @@ public class AuthService {
     }
 
     public LoginResponse register(RegisterRequest request) {
-        log.debug("Attempting registration for email: {}", request.getEmail());
+        log.debug("Attempting registration");
         
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("User with this email already exists");
+            throw new AccountAlreadyExistsException("User with this email already exists");
         }
 
         User user = new User();
@@ -90,7 +91,7 @@ public class AuthService {
         Freelance freelance = ensureFreelanceProfile(user);
         String token = jwtUtil.generateToken(user.getEmail(), user.getId());
         
-        log.debug("Registration successful for user: {}", user.getEmail());
+        log.debug("Registration successful for user ID: {}", user.getId());
         return toLoginResponse(user, freelance.getId(), token);
     }
 

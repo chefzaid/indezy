@@ -3,6 +3,7 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.RegisterRequest;
+import dev.swirlit.indezy.exception.AccountAlreadyExistsException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.exception.TwoFactorRequiredException;
 import dev.swirlit.indezy.model.Freelance;
@@ -192,7 +193,7 @@ class AuthServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> authService.register(registerRequest))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(AccountAlreadyExistsException.class)
                 .hasMessage("User with this email already exists");
 
         verify(userRepository, never()).save(any(User.class));

@@ -46,7 +46,7 @@ session cookie. Revisit this choice if cookie-based API authentication is added.
 
 Successful auth returns a JWT. The frontend stores and attaches that token through `authInterceptor`.
 
-Brute-force protection: `LoginAttemptService` tracks failed logins per account (email, case-insensitive). After 5 failures within a 15-minute window the account is temporarily locked and `POST /api/auth/login` returns `429 Too Many Requests` until the window expires; a successful login clears the counter. State is in-memory per instance; IP-based and distributed (multi-instance) rate limiting remain future hardening.
+Brute-force protection: `LoginAttemptService` tracks failed logins per account (email, case-insensitive). After 5 failures within a 15-minute window the account is temporarily locked and `POST /api/auth/login` returns `429 Too Many Requests` until the window expires; a successful login clears the counter. Failed logins and lockouts are logged at `WARN` without the email (see [Logging](#logging)). State is in-memory per instance; IP-based and distributed (multi-instance) rate limiting remain future hardening.
 
 Backend JWT settings:
 
@@ -220,6 +220,17 @@ Logs must not carry what a user typed. `GlobalExceptionHandler` applies these ru
 - unexpected server errors (5xx) stay at `ERROR` with their message and stack trace, as they are needed to diagnose faults
 
 The restriction applies to the server log only: error responses still return each invalid field with its message, and the message of an `IllegalArgumentException`, to the client that sent the request. `GlobalExceptionHandlerTest` captures the log output to check the level of each line and that no rejected value appears.
+
+The authentication flow (`AuthController`, `AuthService`) never logs the email, at any level, and keeps its responses:
+
+- a wrong email, password or two-factor code (`Login rejected: invalid credentials`), a locked account (`Login blocked after too many failed attempts`) and an existing account at registration (`Registration rejected: an account already exists for this email`) are client errors logged at `WARN` without a stack trace
+- a rejected Keycloak SSO exchange (missing, invalid, expired or unverified identity) is logged at `WARN` with its reason, which is fixed text or a token validation error, never a claim value
+- any other `IllegalArgumentException` at registration (such as a password over the 72 bytes BCrypt can hash) is logged at `WARN` naming only where it was thrown (`Registration rejected at <class.method:line>`), since its message can quote the input
+- a database constraint error during login, registration or SSO (two requests creating the same account at once, a value too long for its column) is logged at `WARN` with the constraint name and SQL state (`Registration rejected by a database constraint: constraint <name>, SQL state 23505`), described by the same `ExceptionLogDetails` helper as `GlobalExceptionHandler`, without the database message, which quotes the email
+- any other failure is a server fault logged at `ERROR` with its stack trace
+- no account reference is logged, not even a hash, since hashing candidate addresses would reverse it; debug lines name an account by its user ID, and only once it is authenticated or created
+
+`AuthControllerTest` checks the level of each case and that the email is absent; `AuthLoggingIntegrationTest` replays registration, a duplicate registration and wrong passwords up to the lockout over HTTP and checks that the whole log never contains the email.
 
 ## External APIs
 

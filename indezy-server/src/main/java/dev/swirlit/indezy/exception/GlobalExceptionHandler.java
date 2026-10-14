@@ -19,13 +19,11 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -37,8 +35,6 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
-
-    private static final String UNKNOWN = "unknown";
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
@@ -56,7 +52,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         // The message can quote user input (e.g. "Email already exists: ..."), so only where it was thrown is logged.
-        log.warn("Illegal argument rejected at {}", originOf(ex));
+        log.warn("Illegal argument rejected at {}", ExceptionLogDetails.originOf(ex));
         return buildResponse(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage());
     }
 
@@ -107,11 +103,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        String constraint = ex.getCause() instanceof org.hibernate.exception.ConstraintViolationException violation ?
-            violation.getConstraintName() : null;
-        String sqlState = ex.getMostSpecificCause() instanceof SQLException sqlException ? sqlException.getSQLState() : null;
-        log.warn("Data integrity violation: constraint {}, SQL state {}",
-            Objects.requireNonNullElse(constraint, UNKNOWN), Objects.requireNonNullElse(sqlState, UNKNOWN));
+        log.warn("Data integrity violation: {}", ExceptionLogDetails.describe(ex));
         return buildResponse(HttpStatus.CONFLICT, "Conflict",
             "The operation conflicts with existing data (missing or still-referenced record)");
     }
@@ -147,21 +139,13 @@ public class GlobalExceptionHandler {
     /** Property paths with their constraint names, sorted so the log line is stable. */
     private static String describeViolations(ConstraintViolationException ex) {
         if (ex.getConstraintViolations() == null) {
-            return UNKNOWN;
+            return ExceptionLogDetails.UNKNOWN;
         }
         return ex.getConstraintViolations().stream()
             .map(violation -> violation.getPropertyPath() + " (" +
                 violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName() + ")")
             .sorted()
             .collect(Collectors.joining(", "));
-    }
-
-    private static String originOf(Throwable ex) {
-        StackTraceElement[] trace = ex.getStackTrace();
-        if (trace.length == 0) {
-            return UNKNOWN;
-        }
-        return trace[0].getClassName() + "." + trace[0].getMethodName() + ":" + trace[0].getLineNumber();
     }
 
     /** Names the offending parameter or part instead of quoting the rejected value or body. */

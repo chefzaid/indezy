@@ -49,7 +49,10 @@ ConfigMap.
 The API's exception handler logs rejected requests (4xx) at `WARN`, naming
 only the fields, parameters or database constraint involved, and unexpected
 server faults at `ERROR` with their stack trace. Rejected values are not logged
-(see [Security › Logging](./security.md#logging)).
+(see [Security › Logging](./security.md#logging)). Failed logins, lockouts and
+duplicate registrations are logged at `WARN` without the email: to spot a
+brute-force attempt, count the `Login rejected: invalid credentials` and
+`Login blocked after too many failed attempts` lines over time.
 
 The repository-owned **Indezy — Application Logs** Kibana dashboard is imported
 with the platform-managed least-privilege dashboard bootstrap credential. It is
