@@ -1,12 +1,16 @@
 package dev.swirlit.indezy.integration;
 
+import dev.swirlit.indezy.dto.TwoFactorCodeRequest;
 import dev.swirlit.indezy.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
@@ -18,15 +22,16 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Integration test for user management endpoints.
  * Tests the complete integration between indezy-web user management service and indezy-server APIs.
- * 
- * Note: These tests are currently disabled as the indezy-server user management endpoints
- * are not yet implemented. Enable them once the UserController is created.
+ *
+ * The test profile logs Spring MVC and the test client at DEBUG, where both print each request body through its
+ * {@code toString}, so the two-factor tests also read the log of their request: the code never appears in it.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
 @ActiveProfiles("test")
 @Sql(scripts = "/test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@ExtendWith(OutputCaptureExtension.class)
 class UserManagementIntegrationTest {
 
     @LocalServerPort
@@ -50,6 +55,31 @@ class UserManagementIntegrationTest {
             url, HttpMethod.POST, new HttpEntity<>("{}", headers), String.class);
         return new com.fasterxml.jackson.databind.ObjectMapper()
             .readTree(response.getBody()).get("secret").asText();
+    }
+
+    /** Posts a two-factor code, as a {@link TwoFactorCodeRequest} or as raw JSON, to {@code /security/2fa/<action>}. */
+    private ResponseEntity<String> postTwoFactorCode(String action, Object body) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return restTemplate.exchange(getBaseUrl() + "/security/2fa/" + action, HttpMethod.POST,
+            new HttpEntity<>(body, headers), String.class);
+    }
+
+    private static TwoFactorCodeRequest codeRequest(String code) {
+        TwoFactorCodeRequest request = new TwoFactorCodeRequest();
+        request.setCode(code);
+        return request;
+    }
+
+    /**
+     * Spring MVC (Read) and the test client (Writing) print the request without its code. Only the lines logged since
+     * {@code logStart} are read, so the six digits cannot match an unrelated number elsewhere in the log.
+     */
+    private static void assertCodeNotLogged(CapturedOutput output, int logStart, String code) {
+        String requestLog = output.getAll().substring(logStart);
+        assertTrue(requestLog.contains("to [TwoFactorCodeRequest()]"), requestLog);
+        assertTrue(requestLog.contains("Writing [TwoFactorCodeRequest()]"), requestLog);
+        assertFalse(requestLog.contains(code), requestLog);
     }
 
     /**
@@ -243,33 +273,48 @@ class UserManagementIntegrationTest {
     }
 
     @Test
-    void testVerifyTwoFactor() throws Exception {
-        String secret = startTwoFactorSetupAndGetSecret();
-        String url = getBaseUrl() + "/security/2fa/verify";
+    void testVerifyTwoFactor(CapturedOutput output) throws Exception {
+        String code = totpService.generateCurrentCode(startTwoFactorSetupAndGetSecret());
+        int logStart = output.getAll().length();
 
-        String request = "{\"code\":\"" + totpService.generateCurrentCode(secret) + "\"}";
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        ResponseEntity<Boolean> response = restTemplate.exchange(
-            url, HttpMethod.POST, new HttpEntity<>(request, headers), Boolean.class);
+        ResponseEntity<String> response = postTwoFactorCode("verify", codeRequest(code));
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody());
+        assertEquals("true", response.getBody());
+        assertCodeNotLogged(output, logStart, code);
     }
 
     @Test
-    void testDisableTwoFactor() throws Exception {
-        String secret = startTwoFactorSetupAndGetSecret();
-        String url = getBaseUrl() + "/security/2fa/disable";
+    void testDisableTwoFactor(CapturedOutput output) throws Exception {
+        String code = totpService.generateCurrentCode(startTwoFactorSetupAndGetSecret());
+        int logStart = output.getAll().length();
 
-        String disableRequest = "{\"code\":\"" + totpService.generateCurrentCode(secret) + "\"}";
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> entity = new HttpEntity<>(disableRequest, headers);
-
-        ResponseEntity<Boolean> response = restTemplate.exchange(url, HttpMethod.POST, entity, Boolean.class);
+        ResponseEntity<String> response = postTwoFactorCode("disable", codeRequest(code));
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody());
+        assertEquals("true", response.getBody());
+        assertCodeNotLogged(output, logStart, code);
+    }
+
+    @Test
+    void testTwoFactorCodeIsRequired() throws Exception {
+        startTwoFactorSetupAndGetSecret();
+
+        ResponseEntity<String> verify = postTwoFactorCode("verify", "{}");
+        assertEquals(HttpStatus.BAD_REQUEST, verify.getStatusCode());
+        assertTrue(verify.getBody().contains("\"code\":\"Verification code is required\""), verify.getBody());
+
+        ResponseEntity<String> disable = postTwoFactorCode("disable", "{\"code\":\" \"}");
+        assertEquals(HttpStatus.BAD_REQUEST, disable.getStatusCode());
+        assertTrue(disable.getBody().contains("\"code\":\"Verification code is required\""), disable.getBody());
+    }
+
+    @Test
+    void testVerifyTwoFactorAnswersMalformedCodeAsWrong() throws Exception {
+        // The profile page shows its invalid-code message for false, and accepts up to six characters of any kind.
+        startTwoFactorSetupAndGetSecret();
+
+        ResponseEntity<String> response = postTwoFactorCode("verify", "{\"code\":\"12345\"}");
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("false", response.getBody());
     }
 
     @Test

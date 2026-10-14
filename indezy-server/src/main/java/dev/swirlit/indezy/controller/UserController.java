@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Map;
 
 /** The signed-in account: profile, preferences, notifications, security and data export. */
 @RestController
@@ -96,16 +95,17 @@ public class UserController {
         return userService.enableTwoFactor(SecurityUtils.getCurrentUserId());
     }
 
-    @Operation(summary = "Verify a TOTP code and activate two-factor authentication")
+    @Operation(summary = "Verify a TOTP code and activate two-factor authentication",
+        description = "false when the code is wrong; 400 when it is missing")
     @PostMapping("/security/2fa/verify")
-    public boolean verifyTwoFactor(@RequestBody Map<String, String> request) {
-        return userService.verifyTwoFactor(SecurityUtils.getCurrentUserId(), request.get("code"));
+    public boolean verifyTwoFactor(@Valid @RequestBody TwoFactorCodeRequest request) {
+        return userService.verifyTwoFactor(SecurityUtils.getCurrentUserId(), request.getCode());
     }
 
-    @Operation(summary = "Disable two-factor authentication", description = "400 when the code is wrong")
+    @Operation(summary = "Disable two-factor authentication", description = "400 when the code is missing or wrong")
     @PostMapping("/security/2fa/disable")
-    public boolean disableTwoFactor(@RequestBody Map<String, String> request) {
-        return userService.disableTwoFactor(SecurityUtils.getCurrentUserId(), request.get("code"));
+    public boolean disableTwoFactor(@Valid @RequestBody TwoFactorCodeRequest request) {
+        return userService.disableTwoFactor(SecurityUtils.getCurrentUserId(), request.getCode());
     }
 
     @Operation(summary = "Export every piece of data of the account as JSON")

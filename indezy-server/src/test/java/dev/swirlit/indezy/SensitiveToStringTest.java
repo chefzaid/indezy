@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.PasswordChangeRequestDto;
 import dev.swirlit.indezy.dto.RegisterRequest;
+import dev.swirlit.indezy.dto.TwoFactorCodeRequest;
 import dev.swirlit.indezy.dto.TwoFactorSetupDto;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
@@ -30,14 +31,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SensitiveToStringTest {
 
     private static final List<String> SCANNED_PACKAGES = List.of("dev.swirlit.indezy.dto", "dev.swirlit.indezy.model");
+    /** A bare {@code code} is the two-factor code of a request; a qualified one, such as a postal code, is not a secret. */
     private static final Pattern SECRET_FIELD =
-        Pattern.compile("(?i).*(password|secret|token|totp|otpauth|backupcode|recoverycode|apikey).*");
+        Pattern.compile("(?i)code|.*(password|secret|token|totp|otpauth|backupcode|recoverycode|apikey).*");
     private static final Set<String> IDENTITY_FIELDS = Set.of("email", "firstName", "lastName");
 
     @Test
     void scan_ShouldFindEveryClassHoldingASecretOrNestedInOne() {
         assertThat(sensitiveClasses()).contains(LoginRequest.class, RegisterRequest.class, PasswordChangeRequestDto.class,
-            TwoFactorSetupDto.class, LoginResponse.class, LoginResponse.UserInfo.class, User.class, Freelance.class);
+            TwoFactorSetupDto.class, TwoFactorCodeRequest.class, LoginResponse.class, LoginResponse.UserInfo.class, User.class,
+            Freelance.class);
     }
 
     @Test

@@ -111,12 +111,12 @@ Representative backend tests:
 - controllers: `AuthControllerTest`, `ClientControllerTest`, `ProjectControllerTest`, `InterviewStepControllerTest`, ...
 - services: `ProjectServiceTest`, `DashboardStatsServiceTest`, `SeasonServiceTest`, `AuthServiceTest` (including two-factor login), `CommuteServiceTest`, ...
 - repositories: `ClientRepositoryTest`, `ProjectRepositoryTest`, `SourceRepositoryTest`, `FreelanceRepositoryTest`
-- integration: `WorkspaceIsolationIntegrationTest` (two real accounts: isolation, seasons, deletion rules), `FullStackIntegrationTest`, `ProjectIntegrationTest`, `UserManagementIntegrationTest`
+- integration: `WorkspaceIsolationIntegrationTest` (two real accounts: isolation, seasons, deletion rules), `FullStackIntegrationTest`, `ProjectIntegrationTest`, `UserManagementIntegrationTest` (including two-factor verify and disable, a missing code answered `400`, and the log of each request, at `DEBUG`, free of the code)
 - configuration and schema: `SecurityConfigTest`, `ProjectStatusMigrationTest`, `SchemaMigrationTest`, `JwtUtilTest`
 - error handling: `GlobalExceptionHandlerTest` (response status, log level and absence of rejected values, read with `OutputCaptureExtension`)
 - auth logging: `AuthControllerTest` (log level of each rejection and fault, without the email) and `AuthLoggingIntegrationTest` (registration, duplicate registration and wrong passwords up to the lockout over HTTP, with Spring MVC and the test client logging the bodies at `DEBUG`, and the whole log free of the email, the name and the passwords)
 - password length: `PasswordMaxBytesTest` (the 72-byte BCrypt limit counted in UTF-8 bytes on registration and password change, with accented and emoji passwords at and over the limit, the 6-character registration minimum, and the 8-character minimum of the new password, with only `@NotBlank` for a missing one and no minimum for the current one) and `PasswordLengthIntegrationTest` (a validation error over HTTP instead of the former `409`, no account created, and a 72-byte password that registers, signs in and can be set as the new password; a new password under 8 characters or a confirmation that differs answers `400` and the current password still signs in)
-- secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code, backup code or API key, nor, in such a class or one nested in it, the email or a name)
+- secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code (a bare `code` field included), backup code or API key, nor, in such a class or one nested in it, the email or a name)
 
 Backend test data lives under `indezy-server/src/test/resources/`:
 

@@ -180,6 +180,9 @@ Production expectations:
 Local accounts can enable TOTP two-factor authentication from the profile page: the API returns
 a secret and its `otpauth` URI, `POST /api/users/security/2fa/verify` activates it once a code
 from the authenticator app is valid, and `POST /api/users/security/2fa/disable` removes it.
+Both read `{"code": "..."}` into `TwoFactorCodeRequest`: a missing or blank code is a `400`
+validation error, and any other wrong code, malformed or not, answers `false` on verify and
+`400` on disable.
 
 When it is enabled, `POST /api/auth/login` needs the password and a `totpCode`. A correct
 password without a code answers `401` with `twoFactorRequired: true` (not counted as a failed
@@ -243,12 +246,13 @@ The authentication flow (`AuthController`, `AuthService`) never logs the email, 
 
 Spring MVC logs each request and response body at `DEBUG` through its `toString`, which Lombok's `@Data` generates with every field. Production keeps `org.springframework.web` at `WARN`, but the `test` profile raises it to `DEBUG`, as an operator may when diagnosing a deployment, so no DTO or entity prints a secret:
 
-- `LoginRequest`, `RegisterRequest`, `PasswordChangeRequestDto`, `TwoFactorSetupDto` and `LoginResponse` mark their passwords, two-factor code, TOTP secret, provisioning URI (which embeds the secret and the email) and JWT with `@ToString.Exclude`
+- `LoginRequest`, `RegisterRequest`, `PasswordChangeRequestDto`, `TwoFactorSetupDto`, `TwoFactorCodeRequest` and `LoginResponse` mark their passwords, two-factor codes, TOTP secret, provisioning URI (which embeds the secret and the email) and JWT with `@ToString.Exclude`
+- a body holding a secret is read into such a DTO, never into a `Map`, whose `toString` prints every entry (`to [{code=123456}]`)
 - the auth requests and the login response also leave out the email and the name, so a login is logged as `LoginRequest()` and its response as `LoginResponse(user=LoginResponse.UserInfo(id=1, accountId=1), twoFactorRequired=null)`
 - the `User` and `Freelance` entities, which hold the password hash and the two-factor secret, generate no `toString`
 - JSON serialization is unchanged: the excluded fields are still read from requests and returned in responses
 
-`SensitiveToStringTest` scans the `dto` and `model` packages and fails when a class holding a field named like a password (or its hash), a secret, a token, a two-factor code, a backup code or an API key prints it, or when such a class, or a class nested in one, prints the email or a name.
+`SensitiveToStringTest` scans the `dto` and `model` packages and fails when a class holding a field named like a password (or its hash), a secret, a token, a two-factor code (a bare `code` included), a backup code or an API key prints it, or when such a class, or a class nested in one, prints the email or a name. `UserManagementIntegrationTest` verifies and disables two-factor authentication over HTTP with these bodies logged at `DEBUG`, and checks that the log of each request shows `TwoFactorCodeRequest()` without the code.
 
 ## External APIs
 
