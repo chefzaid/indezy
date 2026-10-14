@@ -13,6 +13,7 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureWebMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +24,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,6 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -137,6 +140,41 @@ class ContactControllerTest {
         assertThat(handlerLines).anyMatch(line -> line.contains("WARN") && line.contains("Validation failed for contactDto: email (Email)"));
         assertThat(handlerLines).noneMatch(line -> line.contains("jane.private"));
         verify(contactService, never()).create(any(ContactDto.class));
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void createContact_WithTextPlainBody_ShouldAnswerUnsupportedMediaTypeAndLogAtWarn(CapturedOutput output) throws Exception {
+        mockMvc.perform(post("/contacts")
+                        .with(csrf())
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content("Jane Smith"))
+                .andExpect(status().isUnsupportedMediaType())
+                .andExpect(header().string(HttpHeaders.ACCEPT, containsString(MediaType.APPLICATION_JSON_VALUE)))
+                .andExpect(jsonPath("$.status", is(415)))
+                .andExpect(jsonPath("$.error", is("Unsupported Media Type")))
+                .andExpect(jsonPath("$.message", is("Content-Type 'text/plain' is not supported.")));
+
+        List<String> handlerLines = output.getAll().lines().filter(line -> line.contains("GlobalExceptionHandler")).toList();
+        assertThat(handlerLines).anyMatch(line -> line.contains("WARN") && line.endsWith("Rejected request: HttpMediaTypeNotSupportedException (415)"));
+        assertThat(handlerLines).noneMatch(line -> line.contains("ERROR") || line.contains("text/plain"));
+        verify(contactService, never()).create(any(ContactDto.class));
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void getAllContacts_AcceptingOnlyCsv_ShouldAnswerNotAcceptableWithoutABody(CapturedOutput output) throws Exception {
+        when(contactService.findAll()).thenReturn(List.of(testContactDto));
+
+        mockMvc.perform(get("/contacts").accept("text/csv"))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(header().string(HttpHeaders.ACCEPT, containsString(MediaType.APPLICATION_JSON_VALUE)))
+                .andExpect(content().string(""));
+
+        assertThat(output.getAll().lines()).anyMatch(line -> line.contains("WARN") &&
+            line.endsWith("Rejected request: HttpMediaTypeNotAcceptableException (406)"));
+        // A JSON error body could not be written either, which made Spring log a failed handler and answer itself.
+        assertThat(output.getAll()).doesNotContain("Failure in @ExceptionHandler").doesNotContain("Unexpected error");
     }
 
     @Test

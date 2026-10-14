@@ -2,39 +2,55 @@ package dev.swirlit.indezy.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.validation.method.ParameterValidationResult;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.lang.reflect.Method;
 import java.time.ZoneId;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * Maps exceptions to error responses. Client errors (4xx) are logged at WARN. Validation, binding, parser, database and
  * {@link IllegalArgumentException} messages can quote what the user sent (emails, phone numbers, passwords), so they are
- * never logged: the log names only the fields, constraints, parameters or SQL state involved. Unexpected server errors
- * stay at ERROR with their stack trace.
+ * never logged: the log names only the fields, constraints, parameters or SQL state involved. The other Spring MVC
+ * request errors keep their own status and headers. Unexpected server errors stay at ERROR with their stack trace.
  */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    private static final String UNEXPECTED_ERROR = "An unexpected error occurred";
+
+    /** A rejected method parameter, field of a parameter, or combination of parameters, with its constraint. */
+    private record Violation(String name, MessageSourceResolvable error) {
+    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
@@ -65,16 +81,32 @@ public class GlobalExceptionHandler {
 
         Map<String, String> errors = new HashMap<>();
         bindingErrors.forEach(error -> errors.put(fieldOf(error), error.getDefaultMessage()));
+        return validationFailed(errors);
+    }
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-            .timestamp(LocalDateTime.now(ZoneId.systemDefault()))
-            .status(HttpStatus.BAD_REQUEST.value())
-            .error("Validation Failed")
-            .message("Invalid input data")
-            .validationErrors(errors)
-            .build();
+    /** Constraints declared on controller method parameters, such as {@code @RequestParam @Min(1) int page}. */
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponse> handleMethodValidation(HandlerMethodValidationException ex) {
+        if (ex.isForReturnValue()) {
+            // The controller returned an invalid value: a server fault, which keeps its 500 status.
+            return handleGenericException(ex);
+        }
+        Method method = ex.getMethod();
+        List<Violation> violations = new ArrayList<>();
+        for (ParameterValidationResult result : ex.getParameterValidationResults()) {
+            String parameter = result.getMethodParameter().getParameterName();
+            result.getResolvableErrors().forEach(error ->
+                violations.add(new Violation(error instanceof FieldError fieldError ? fieldError.getField() : parameter, error)));
+        }
+        // A constraint on several parameters together is reported under the method name.
+        ex.getCrossParameterValidationResults().forEach(error -> violations.add(new Violation(method.getName(), error)));
+        log.warn("Validation failed for {}.{}: {}", method.getDeclaringClass().getSimpleName(), method.getName(), violations.stream()
+            .map(violation -> violation.name() + " (" + codeOf(violation.error()) + ")")
+            .collect(Collectors.joining(", ")));
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        Map<String, String> errors = new HashMap<>();
+        violations.forEach(violation -> errors.put(violation.name(), violation.error().getDefaultMessage()));
+        return validationFailed(errors);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -123,17 +155,56 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
         log.warn("Method not supported: {}", ex.getMessage());
-        return buildResponse(HttpStatus.METHOD_NOT_ALLOWED, "Method Not Allowed", ex.getMessage());
+        // The Allow header lists the supported methods.
+        return buildResponse(HttpStatus.METHOD_NOT_ALLOWED, ex.getHeaders(), "Method Not Allowed", ex.getMessage());
     }
 
+    /** The client accepts none of the types the endpoint produces, JSON included, so a JSON error body could not be written either. */
+    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+    public ResponseEntity<ErrorResponse> handleNotAcceptable(HttpMediaTypeNotAcceptableException ex) {
+        logRejectedRequest(ex, ex.getStatusCode());
+        return new ResponseEntity<>(ex.getHeaders(), ex.getStatusCode());
+    }
+
+    /**
+     * Any other exception is a server fault, except the Spring MVC request errors without a dedicated handler
+     * (unsupported media type, missing header, ...), which keep their status and headers, such as {@code Accept}.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        if (ex instanceof org.springframework.web.ErrorResponse requestError) {
+            return handleRequestError(ex, requestError);
+        }
         log.error("Unexpected error: {}", ex.getMessage(), ex);
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "An unexpected error occurred");
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", UNEXPECTED_ERROR);
+    }
+
+    /** A client error answers Spring's description of the problem; a server error is logged like any unexpected one. */
+    private static ResponseEntity<ErrorResponse> handleRequestError(Exception ex, org.springframework.web.ErrorResponse requestError) {
+        HttpStatusCode status = requestError.getStatusCode();
+        ProblemDetail problem = requestError.getBody();
+        String error = Objects.requireNonNullElse(problem.getTitle(), "Error");
+        if (status.is4xxClientError()) {
+            logRejectedRequest(ex, status);
+            return buildResponse(status, requestError.getHeaders(), error, Objects.requireNonNullElse(problem.getDetail(), error));
+        }
+        log.error("Unexpected error: {}", ex.getMessage(), ex);
+        return buildResponse(status, requestError.getHeaders(), error, UNEXPECTED_ERROR);
+    }
+
+    /** Only the type and status: the message can quote request values, such as the rejected {@code Content-Type}. */
+    private static void logRejectedRequest(Exception ex, HttpStatusCode status) {
+        log.warn("Rejected request: {} ({})", ex.getClass().getSimpleName(), status.value());
     }
 
     private static String fieldOf(ObjectError error) {
         return error instanceof FieldError fieldError ? fieldError.getField() : error.getObjectName();
+    }
+
+    /** The constraint name, the most generic of the message codes (such as {@code Min}), never the rejected value. */
+    private static String codeOf(MessageSourceResolvable error) {
+        String[] codes = error.getCodes();
+        return codes == null || codes.length == 0 ? ExceptionLogDetails.UNKNOWN : codes[codes.length - 1];
     }
 
     /** Property paths with their constraint names, sorted so the log line is stable. */
@@ -162,13 +233,28 @@ public class GlobalExceptionHandler {
         return "request body is not readable";
     }
 
+    private static ResponseEntity<ErrorResponse> validationFailed(Map<String, String> errors) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+            .timestamp(LocalDateTime.now(ZoneId.systemDefault()))
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error("Validation Failed")
+            .message("Invalid input data")
+            .validationErrors(errors)
+            .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     private static ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String error, String message) {
+        return buildResponse(status, HttpHeaders.EMPTY, error, message);
+    }
+
+    private static ResponseEntity<ErrorResponse> buildResponse(HttpStatusCode status, HttpHeaders headers, String error, String message) {
         ErrorResponse errorResponse = ErrorResponse.builder()
             .timestamp(LocalDateTime.now(ZoneId.systemDefault()))
             .status(status.value())
             .error(error)
             .message(message)
             .build();
-        return new ResponseEntity<>(errorResponse, status);
+        return new ResponseEntity<>(errorResponse, headers, status);
     }
 }

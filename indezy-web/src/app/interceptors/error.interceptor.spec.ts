@@ -224,6 +224,27 @@ describe('errorInterceptor', () => {
       const req = httpMock.expectOne(testUrl);
       req.flush('Validation Error', { status: 422, statusText: 'Unprocessable Entity' });
     });
+
+    it('should not report rejected methods or media types (405, 406, 415) as server errors', () => {
+      const rejections = [
+        { status: 405, statusText: 'Method Not Allowed' },
+        { status: 406, statusText: 'Not Acceptable' },
+        { status: 415, statusText: 'Unsupported Media Type' }
+      ];
+
+      for (const rejection of rejections) {
+        const testUrl = `/api/rejected-${rejection.status}`;
+        httpClient.get(testUrl).subscribe({
+          next: () => fail('Expected error'),
+          error: (error: HttpErrorResponse) => expect(error.status).toBe(rejection.status)
+        });
+        httpMock.expectOne(testUrl).flush('Rejected', rejection);
+      }
+
+      expect(notificationService.error).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(authService.logout).not.toHaveBeenCalled();
+    });
   });
 
   describe('successful requests', () => {

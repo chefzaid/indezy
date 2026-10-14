@@ -46,12 +46,14 @@ Prometheus discovers the backend pod annotations automatically, and Grafana
 loads the repository-owned **Indezy Overview** dashboard from its labeled
 ConfigMap.
 
-The API's exception handler logs rejected requests (4xx) at `WARN`, naming
-only the fields, parameters or database constraint involved, and unexpected
-server faults at `ERROR` with their stack trace. Rejected values are not logged
-(see [Security › Logging](./security.md#logging)). Failed logins, lockouts and
-duplicate registrations are logged at `WARN` without the email: to spot a
-brute-force attempt, count the `Login rejected: invalid credentials` and
+The API's exception handler logs rejected requests (4xx) at `WARN`, naming only
+the fields, parameters or database constraint involved (or, for another request
+error such as an unsupported `Content-Type`, only the exception type and
+status: `Rejected request: HttpMediaTypeNotSupportedException (415)`), and
+unexpected server faults at `ERROR` with their stack trace. Rejected values are
+not logged (see [Security › Logging](./security.md#logging)). Failed logins,
+lockouts and duplicate registrations are logged at `WARN` without the email: to
+spot a brute-force attempt, count the `Login rejected: invalid credentials` and
 `Login blocked after too many failed attempts` lines over time.
 
 The repository-owned **Indezy — Application Logs** Kibana dashboard is imported
