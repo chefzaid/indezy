@@ -13,7 +13,7 @@ public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
 
     boolean existsByEmail(String email);
 
-    /** Account and workspace ownership use the same email link as AccessGuard. */
+    /** Account and workspace ownership use the same email link as CurrentWorkspaceResolver. */
     @Query("SELECT u.inactivityDays FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     Optional<Integer> findInactivityDays(@Param("freelanceId") Long freelanceId);
 

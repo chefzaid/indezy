@@ -278,8 +278,8 @@ final class DashboardAnalytics {
      */
     static long[] buildBenchStats(List<Project> projects) {
         List<Project> missions = projects.stream()
-            .filter(p -> ProjectStatus.WON.equals(p.getStatus())
-                && p.getStartDate() != null && p.getDurationInMonths() != null)
+            .filter(p -> ProjectStatus.WON.equals(p.getStatus()) &&
+                p.getStartDate() != null && p.getDurationInMonths() != null)
             .sorted(Comparator.comparing(Project::getStartDate))
             .toList();
 

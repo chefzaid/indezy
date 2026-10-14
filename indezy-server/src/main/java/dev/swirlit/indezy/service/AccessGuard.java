@@ -1,22 +1,15 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
-import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.ContactRepository;
-import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SeasonRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
-import dev.swirlit.indezy.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -24,75 +17,30 @@ import java.util.function.Function;
 /**
  * Resource ownership checks: every freelance workspace (projects, clients, contacts, sources,
  * interview steps, seasons) is visible only to the account it belongs to. The workspace of the caller is
- * resolved from the authenticated account (JWT principal) through its email.
+ * resolved by {@link CurrentWorkspaceResolver} from the authenticated account (JWT principal) through its email.
  *
  * <p>Resources of another workspace are reported as not found so their existence is not
  * revealed; an explicit foreign workspace id is rejected with 403. Checks are skipped only when
  * {@code indezy.security.permit-all} is enabled for tests that call endpoints anonymously.
  */
 @Component
+@RequiredArgsConstructor
 public class AccessGuard {
 
-    private static final String CURRENT_FREELANCE_ATTRIBUTE = AccessGuard.class.getName() + ".freelanceId";
-
-    private final UserRepository userRepository;
-    private final FreelanceRepository freelanceRepository;
+    private final CurrentWorkspaceResolver currentWorkspaceResolver;
     private final ProjectRepository projectRepository;
     private final ClientRepository clientRepository;
     private final ContactRepository contactRepository;
     private final SourceRepository sourceRepository;
     private final InterviewStepRepository interviewStepRepository;
     private final SeasonRepository seasonRepository;
-    private final boolean permitAll;
-
-    @SuppressWarnings("java:S107") // one repository per guarded aggregate
-    public AccessGuard(UserRepository userRepository,
-                       FreelanceRepository freelanceRepository,
-                       ProjectRepository projectRepository,
-                       ClientRepository clientRepository,
-                       ContactRepository contactRepository,
-                       SourceRepository sourceRepository,
-                       InterviewStepRepository interviewStepRepository,
-                       SeasonRepository seasonRepository,
-                       @Value("${indezy.security.permit-all:false}") boolean permitAll) {
-        this.userRepository = userRepository;
-        this.freelanceRepository = freelanceRepository;
-        this.projectRepository = projectRepository;
-        this.clientRepository = clientRepository;
-        this.contactRepository = contactRepository;
-        this.sourceRepository = sourceRepository;
-        this.interviewStepRepository = interviewStepRepository;
-        this.seasonRepository = seasonRepository;
-        this.permitAll = permitAll;
-    }
 
     /**
      * The caller's freelance workspace id, or empty when checks are disabled (permit-all test
      * mode without an authenticated account).
      */
     public Optional<Long> currentFreelanceId() {
-        RequestAttributes request = RequestContextHolder.getRequestAttributes();
-        if (request != null
-                && request.getAttribute(CURRENT_FREELANCE_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST) instanceof Long cached) {
-            return Optional.of(cached);
-        }
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof Long userId)) {
-            if (permitAll) {
-                return Optional.empty();
-            }
-            throw new AccessDeniedException("Authentication required");
-        }
-
-        Long freelanceId = userRepository.findById(userId)
-            .flatMap(user -> freelanceRepository.findByEmail(user.getEmail()))
-            .map(Freelance::getId)
-            .orElseThrow(() -> new AccessDeniedException("No workspace for the authenticated account"));
-        if (request != null) {
-            request.setAttribute(CURRENT_FREELANCE_ATTRIBUTE, freelanceId, RequestAttributes.SCOPE_REQUEST);
-        }
-        return Optional.of(freelanceId);
+        return currentWorkspaceResolver.currentFreelanceId();
     }
 
     /** The workspace a create request should use: the caller's own, whatever the payload says. */

@@ -84,6 +84,30 @@ class ContactImportServiceTest {
     }
 
     @Test
+    void parseResetsFieldsBetweenVcardEntries() {
+        String vcards = """
+            BEGIN:VCARD
+            FN:John Doe
+            EMAIL:john@doe.com
+            TEL:+33 6 12 34
+            END:VCARD
+            BEGIN:VCARD
+            FN:Jane
+            END:VCARD
+            """;
+
+        List<ContactImportService.ParsedContact> parsed = contactImportService.parse(vcards);
+
+        assertThat(parsed).hasSize(2);
+        assertThat(parsed.get(1)).extracting(
+            ContactImportService.ParsedContact::firstName,
+            ContactImportService.ParsedContact::lastName,
+            ContactImportService.ParsedContact::email,
+            ContactImportService.ParsedContact::phone)
+            .containsExactly("Jane", null, null, null);
+    }
+
+    @Test
     void importForClientSkipsDuplicateEmailsAndCreatesTheRest() {
         String csv = """
             First Name,Last Name,Email

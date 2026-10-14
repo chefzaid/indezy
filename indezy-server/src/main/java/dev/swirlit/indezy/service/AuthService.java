@@ -104,8 +104,8 @@ public class AuthService {
         String email = identity.getClaimAsString("email");
         String username = identity.getClaimAsString("preferred_username");
         Boolean emailVerified = identity.getClaimAsBoolean("email_verified");
-        if (email == null || email.isBlank() || username == null || username.isBlank()
-                || !Boolean.TRUE.equals(emailVerified)) {
+        if (email == null || email.isBlank() || username == null || username.isBlank() ||
+                !Boolean.TRUE.equals(emailVerified)) {
             throw new BadCredentialsException("Keycloak identity is incomplete or unverified");
         }
 

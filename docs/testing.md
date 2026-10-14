@@ -86,6 +86,16 @@ Run one test method:
 ./mvnw -Dtest=ProjectServiceTest#shouldCreateProject test
 ```
 
+Checkstyle (`checkstyle.xml`, every rule at `warning` severity) runs in Maven's `validate` phase and
+fails the build on any warning (`violationSeverity` is `warning` in `pom.xml`), so `test`,
+`package`, `verify` and `spring-boot:run` all stop on a warning such as an unused import, an operator
+wrapped at the start of a line, an inner assignment or a method with more than 7 parameters. List the
+findings without compiling:
+
+```bash
+./mvnw checkstyle:check
+```
+
 ## Direct Frontend Commands
 
 From `indezy-web/`:
@@ -109,7 +119,7 @@ npm test
 Representative backend tests:
 
 - controllers: `AuthControllerTest`, `ClientControllerTest`, `ProjectControllerTest`, `InterviewStepControllerTest`, ...
-- services: `ProjectServiceTest`, `DashboardStatsServiceTest`, `SeasonServiceTest`, `AuthServiceTest` (including two-factor login), `CommuteServiceTest`, ...
+- services: `ProjectServiceTest`, `DashboardStatsServiceTest`, `SeasonServiceTest`, `AuthServiceTest` (including two-factor login), `CommuteServiceTest`, `CurrentWorkspaceResolverTest` (the caller's workspace resolved once per request, the permit-all and missing-workspace cases), ...
 - repositories: `ClientRepositoryTest`, `ProjectRepositoryTest`, `SourceRepositoryTest`, `FreelanceRepositoryTest`
 - integration: `WorkspaceIsolationIntegrationTest` (two real accounts: isolation, seasons, deletion rules), `FullStackIntegrationTest`, `ProjectIntegrationTest`, `UserManagementIntegrationTest` (including two-factor verify and disable, a missing code answered `400`, and the log of each request, at `DEBUG`, free of the code)
 - configuration and schema: `SecurityConfigTest`, `ProjectStatusMigrationTest`, `SchemaMigrationTest`, `JwtUtilTest`
@@ -198,9 +208,9 @@ Playwright selectors should prefer roles, labels, and user-visible text over CSS
 The Maven JaCoCo configuration records an 80 percent instruction and branch target. CI also computes combined backend/frontend line coverage against an 80 percent policy and publishes a failed JUnit policy result when it is missed; that report does not fail the build job or block release.
 
 Measured on 14 October 2026 with the repository's configured reporters: backend
-89.49 percent lines / 87.65 percent instructions / 71.08 percent branches (JaCoCo);
+89.59 percent lines / 87.82 percent instructions / 71.74 percent branches (JaCoCo);
 frontend 90.96 percent lines / 89.74 percent statements / 87.65 percent branches (Karma).
-The suites contain 459 backend tests and 284 frontend tests. Line coverage exceeds
+The suites contain 471 backend tests and 284 frontend tests. Line coverage exceeds
 the coding workflow's 85 percent target in both layers; backend branch coverage
 still misses Maven's separate 80 percent verification rule. These reports use the
 existing instrumentation configuration; the Karma figures cover modules loaded by
@@ -245,6 +255,7 @@ GitLab CI exposes ordered build, test, package, E2E, quality, security, release,
 The current CI verification and reporting includes:
 
 - backend unit and integration tests
+- backend Checkstyle, failing the build on any warning (also in `01-build`, whose `package` runs it)
 - frontend headless tests
 - frontend lint
 - backend package build

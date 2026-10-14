@@ -254,8 +254,8 @@ class AuthServiceTest {
         verify(userRepository).save(argThat(user ->
                 "unusable-random-hash".equals(user.getPasswordHash())));
         verify(freelanceRepository).save(argThat(freelance ->
-                freelance.getStatus() == EmploymentStatus.FREELANCE
-                        && "zaid@swirlit.dev".equals(freelance.getEmail())));
+                freelance.getStatus() == EmploymentStatus.FREELANCE &&
+                        "zaid@swirlit.dev".equals(freelance.getEmail())));
     }
 
     @Test

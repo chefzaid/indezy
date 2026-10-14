@@ -50,8 +50,8 @@ public class ProjectStatusMigration implements ApplicationRunner {
             int migrated = jdbcTemplate.update(
                 "UPDATE projects SET status = ? WHERE status IN (?, ?)",
                 ProjectStatus.CONTACT.name(), RETIRED_STATUSES.get(0), RETIRED_STATUSES.get(1));
-            jdbcTemplate.execute("ALTER TABLE projects ADD CONSTRAINT " + CONSTRAINT
-                + " CHECK (status IN (" + allowedValues() + "))");
+            jdbcTemplate.execute("ALTER TABLE projects ADD CONSTRAINT " + CONSTRAINT +
+                " CHECK (status IN (" + allowedValues() + "))");
             log.info("Project status constraint rebuilt; {} opportunities moved to {}", migrated, ProjectStatus.CONTACT);
         });
     }
@@ -84,8 +84,8 @@ public class ProjectStatusMigration implements ApplicationRunner {
 
     private String currentConstraintDefinition() {
         List<String> definitions = jdbcTemplate.queryForList(
-            "SELECT pg_get_constraintdef(oid) FROM pg_constraint "
-                + "WHERE conrelid = 'projects'::regclass AND conname = ?",
+            "SELECT pg_get_constraintdef(oid) FROM pg_constraint " +
+                "WHERE conrelid = 'projects'::regclass AND conname = ?",
             String.class, CONSTRAINT);
         return definitions.isEmpty() ? null : definitions.get(0);
     }

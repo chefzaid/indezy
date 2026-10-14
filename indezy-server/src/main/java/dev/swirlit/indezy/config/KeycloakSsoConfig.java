@@ -23,9 +23,9 @@ public class KeycloakSsoConfig {
             @Value("${indezy.security.keycloak.audience:oauth2-proxy}") String audience) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
         OAuth2TokenValidator<Jwt> issuerValidator = JwtValidators.createDefaultWithIssuer(issuer);
-        OAuth2TokenValidator<Jwt> audienceValidator = token -> token.getAudience().contains(audience)
-                ? OAuth2TokenValidatorResult.success()
-                : OAuth2TokenValidatorResult.failure(
+        OAuth2TokenValidator<Jwt> audienceValidator = token -> token.getAudience().contains(audience) ?
+                OAuth2TokenValidatorResult.success() :
+                OAuth2TokenValidatorResult.failure(
                         new OAuth2Error("invalid_token", "Required audience is missing", null));
         decoder.setJwtValidator(token -> {
             OAuth2TokenValidatorResult issuerResult = issuerValidator.validate(token);

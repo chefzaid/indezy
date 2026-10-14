@@ -279,6 +279,9 @@ cd indezy-server
 
 On Windows, use `mvnw.cmd` instead of `./mvnw`.
 
+Each of these Maven commands except `dependency:go-offline` first runs Checkstyle, which fails on
+any warning; `./mvnw checkstyle:check` lists them (see [Testing Guide](./testing.md#direct-backend-commands)).
+
 Frontend commands:
 
 ```bash

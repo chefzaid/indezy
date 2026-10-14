@@ -39,8 +39,8 @@ public class ProjectExportService {
     public String buildYearlySummaryCsv(Long freelanceId, Integer year) {
         log.debug("Building CSV summary for freelance {} and year {}", freelanceId, year);
         List<Project> projects = projectRepository.findByFreelanceId(freelanceId).stream()
-            .filter(project -> year == null
-                || (project.getStartDate() != null && project.getStartDate().getYear() == year))
+            .filter(project -> year == null ||
+                (project.getStartDate() != null && project.getStartDate().getYear() == year))
             .sorted(Comparator
                 .comparing(Project::getStartDate, Comparator.nullsLast(Comparator.naturalOrder()))
                 .thenComparing(project -> project.getRole() == null ? "" : project.getRole()))

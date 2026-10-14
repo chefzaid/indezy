@@ -1,6 +1,5 @@
 package dev.swirlit.indezy.controller;
 
-import dev.swirlit.indezy.dto.CommuteInfoDto;
 import dev.swirlit.indezy.dto.ProjectCommuteDto;
 import dev.swirlit.indezy.model.enums.TravelMode;
 import dev.swirlit.indezy.service.AccessGuard;

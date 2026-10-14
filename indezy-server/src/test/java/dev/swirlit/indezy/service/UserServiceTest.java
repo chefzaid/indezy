@@ -5,7 +5,6 @@ import dev.swirlit.indezy.dto.TwoFactorSetupDto;
 import dev.swirlit.indezy.dto.UserDto;
 import dev.swirlit.indezy.dto.UserNotificationSettingsDto;
 import dev.swirlit.indezy.dto.UserPreferencesDto;
-import dev.swirlit.indezy.dto.UserSecuritySettingsDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.UserMapper;
 import dev.swirlit.indezy.model.User;

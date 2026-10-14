@@ -43,8 +43,8 @@ public class ContactImportService {
         int imported = 0;
         int skipped = 0;
         for (ParsedContact parsedContact : parsed) {
-            if (parsedContact.email() != null && !parsedContact.email().isBlank()
-                    && contactRepository.existsByEmailAndFreelanceId(parsedContact.email(), freelanceId)) {
+            if (parsedContact.email() != null && !parsedContact.email().isBlank() &&
+                    contactRepository.existsByEmailAndFreelanceId(parsedContact.email(), freelanceId)) {
                 skipped++;
                 continue;
             }
@@ -117,7 +117,10 @@ public class ContactImportService {
             String line = rawLine.trim();
             String upper = line.toUpperCase(Locale.ROOT);
             if (upper.equals("BEGIN:VCARD")) {
-                firstName = lastName = email = phone = "";
+                firstName = "";
+                lastName = "";
+                email = "";
+                phone = "";
             } else if (upper.equals("END:VCARD")) {
                 if (!firstName.isBlank()) {
                     contacts.add(new ParsedContact(firstName, blankToNull(lastName),

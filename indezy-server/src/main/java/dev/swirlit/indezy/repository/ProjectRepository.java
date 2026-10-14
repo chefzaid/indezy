@@ -21,8 +21,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     long countBySeasonId(Long seasonId);
 
     /** Opportunities of a workspace not yet attached to a season, created within the given window. */
-    @Query("SELECT p FROM Project p WHERE p.freelance.id = :freelanceId AND p.season IS NULL "
-        + "AND p.createdAt >= :from AND p.createdAt < :to")
+    @Query("SELECT p FROM Project p WHERE p.freelance.id = :freelanceId AND p.season IS NULL " +
+        "AND p.createdAt >= :from AND p.createdAt < :to")
     List<Project> findUnassignedCreatedBetween(@Param("freelanceId") Long freelanceId,
                                                @Param("from") LocalDateTime from,
                                                @Param("to") LocalDateTime to);

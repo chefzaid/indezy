@@ -306,6 +306,8 @@
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>false</failsOnError>
+                    <!-- checkstyle.xml reports every rule as a warning: fail the build on them -->
+                    <violationSeverity>warning</violationSeverity>
                     <linkXRef>false</linkXRef>
                 </configuration>
                 <executions>

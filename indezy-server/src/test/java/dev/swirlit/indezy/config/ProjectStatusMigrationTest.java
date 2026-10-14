@@ -8,9 +8,9 @@ class ProjectStatusMigrationTest {
 
     @Test
     void constraintWithRetiredStatusesIsOutdated() {
-        String legacy = "CHECK (((status)::text = ANY ((ARRAY['IDENTIFIED'::character varying, "
-            + "'APPLIED'::character varying, 'INTERVIEW'::character varying, 'OFFER'::character varying, "
-            + "'WON'::character varying, 'LOST'::character varying])::text[])))";
+        String legacy = "CHECK (((status)::text = ANY ((ARRAY['IDENTIFIED'::character varying, " +
+            "'APPLIED'::character varying, 'INTERVIEW'::character varying, 'OFFER'::character varying, " +
+            "'WON'::character varying, 'LOST'::character varying])::text[])))";
 
         assertThat(ProjectStatusMigration.isUpToDate(legacy)).isFalse();
     }
@@ -23,8 +23,8 @@ class ProjectStatusMigrationTest {
 
     @Test
     void rebuiltConstraintIsUpToDate() {
-        String rebuilt = "CHECK (((status)::text = ANY ((ARRAY["
-            + ProjectStatusMigration.allowedValues() + "])::text[])))";
+        String rebuilt = "CHECK (((status)::text = ANY ((ARRAY[" +
+            ProjectStatusMigration.allowedValues() + "])::text[])))";
 
         assertThat(ProjectStatusMigration.isUpToDate(rebuilt)).isTrue();
         assertThat(ProjectStatusMigration.allowedValues())
