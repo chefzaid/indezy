@@ -18,6 +18,7 @@ import { NotificationService } from '../../services/notification/notification.se
 import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-info.component';
 import { LANGUAGE_STORAGE_KEY, getSavedLanguage } from '../../shared/locale/app-locale';
 import { ThemeService } from '../../shared/theme/theme.service';
+import { passwordMaxBytes } from '../../shared/utils/password-max-bytes';
 
 @Component({
     selector: 'app-profile',
@@ -172,7 +173,7 @@ export class ProfileComponent implements OnInit {
 
     this.passwordForm = this.fb.group({
       currentPassword: ['', [Validators.required]],
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      newPassword: ['', [Validators.required, Validators.minLength(8), passwordMaxBytes]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator } as AbstractControlOptions);
 

@@ -111,6 +111,13 @@ return paths; external and recursive login destinations fall back to the dashboa
 
 The backend exposes a `PasswordEncoder` bean using BCrypt.
 
+Password policy for local accounts:
+
+- registration requires at least 6 characters (`RegisterRequest`, mirrored by the register form); the profile form asks for at least 8 for a new password
+- a password is at most 72 bytes in UTF-8, the most BCrypt hashes: Spring Security's BCrypt throws `IllegalArgumentException("password cannot be more than 72 bytes")` for a longer one instead of hashing it. An accented letter takes 2 bytes and an emoji 4, so 37 accented letters are already too long. The `@PasswordMaxBytes` constraint (`validation` package) checks the UTF-8 byte length of `RegisterRequest.password` and `PasswordChangeRequestDto.newPassword`, so registration and the password change answer `400` with a validation error on that field before BCrypt is reached
+- the register and profile forms apply the same limit with the `passwordMaxBytes` validator (`shared/utils/password-max-bytes.ts`) and explain it in the field error (`Maximum 72 bytes (é = 2, emoji = 4)`)
+- the login and current passwords are not limited: BCrypt only checks them, which never throws
+
 Rules:
 
 - never store plain text passwords
@@ -225,7 +232,7 @@ The authentication flow (`AuthController`, `AuthService`) never logs the email, 
 
 - a wrong email, password or two-factor code (`Login rejected: invalid credentials`), a locked account (`Login blocked after too many failed attempts`) and an existing account at registration (`Registration rejected: an account already exists for this email`) are client errors logged at `WARN` without a stack trace
 - a rejected Keycloak SSO exchange (missing, invalid, expired or unverified identity) is logged at `WARN` with its reason, which is fixed text or a token validation error, never a claim value
-- any other `IllegalArgumentException` at registration (such as a password over the 72 bytes BCrypt can hash) is logged at `WARN` naming only where it was thrown (`Registration rejected at <class.method:line>`), since its message can quote the input
+- any other `IllegalArgumentException` at registration answers `400`, not the `409` of an existing account, and is logged at `WARN` naming only where it was thrown (`Registration rejected at <class.method:line>`), since its message can quote the input; validation rejects the known case, a password over the 72 bytes BCrypt can hash, before it is reached (see [Password Storage](#password-storage))
 - a database constraint error during login, registration or SSO (two requests creating the same account at once, a value too long for its column) is logged at `WARN` with the constraint name and SQL state (`Registration rejected by a database constraint: constraint <name>, SQL state 23505`), described by the same `ExceptionLogDetails` helper as `GlobalExceptionHandler`, without the database message, which quotes the email
 - any other failure is a server fault logged at `ERROR` with its stack trace
 - no account reference is logged, not even a hash, since hashing candidate addresses would reverse it; debug lines name an account by its user ID, and only once it is authenticated or created

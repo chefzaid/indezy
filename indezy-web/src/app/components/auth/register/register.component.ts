@@ -12,6 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../services/auth/auth.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { passwordMaxBytes } from '../../../shared/utils/password-max-bytes';
 
 @Component({
     selector: 'app-register',
@@ -48,7 +49,7 @@ export class RegisterComponent implements OnInit {
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(6), passwordMaxBytes]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator } as AbstractControlOptions);
   }
@@ -120,6 +121,9 @@ export class RegisterComponent implements OnInit {
     if (control?.hasError('minlength')) {
       const minLength = control.errors?.['minlength'].requiredLength;
       return this.translateService.instant('common.minChars', { count: minLength });
+    }
+    if (control?.hasError('maxBytes')) {
+      return this.translateService.instant('common.passwordMaxBytes', { max: control.errors?.['maxBytes'].max });
     }
     if (control?.hasError('passwordMismatch')) {
       return this.translateService.instant('common.passwordMismatch');

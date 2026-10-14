@@ -45,6 +45,7 @@
     "invalidEmail": "Email invalide",
     "minChars": "Minimum {{count}} caractères requis",
     "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "passwordMaxBytes": "Maximum {{max}} octets (é = 2, emoji = 4)",
     "create": "Créer",
     "retry": "Réessayer",
     "backToHome": "Retour à l'accueil",

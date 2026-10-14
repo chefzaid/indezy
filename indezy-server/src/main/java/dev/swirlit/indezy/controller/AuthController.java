@@ -76,9 +76,10 @@ public class AuthController {
             log.warn("Registration rejected: an account already exists for this email");
             return ResponseEntity.status(409).build();
         } catch (IllegalArgumentException e) {
-            // Other invalid input, such as a password too long to hash: the message may quote it, so only its origin.
+            // Invalid input that validation missed (it rejects a password over BCrypt's 72 bytes) is not an existing
+            // account, so 400; its message may quote the input, so only its origin is logged.
             log.warn("Registration rejected at {}", ExceptionLogDetails.originOf(e));
-            return ResponseEntity.status(409).build();
+            return ResponseEntity.badRequest().build();
         } catch (RuntimeException e) {
             logFailure("Registration", e);
             return ResponseEntity.badRequest().build();

@@ -17,6 +17,9 @@ DELETE FROM users WHERE 1=1;
 INSERT INTO users (id, first_name, last_name, email, phone, birth_date, address, city, avatar, bio, company, position, website, linkedin, github, timezone, currency, password_hash, last_password_change, theme, language_preference, date_format, time_format, default_view, items_per_page, auto_save, email_notifications, push_notifications, project_updates, client_messages, system_alerts, weekly_reports, marketing_emails, two_factor_enabled, created_at, updated_at, version) VALUES
 (1, 'John', 'Doe', 'john.doe@example.com', '+1234567890', '1990-01-01', '123 Main St', 'New York', 'avatar.jpg', 'Software developer', 'Tech Corp', 'Senior Developer', 'https://johndoe.com', 'https://linkedin.com/in/johndoe', 'https://github.com/johndoe', 'America/New_York', 'USD', '$2a$10$XgbOojgg.CTmnSP8gwpOT.aikY7bnfM4cgCrQhgJOh5UAY1lOpC9S', '2024-01-01 00:00:00', 'dark', 'en', 'MM/dd/yyyy', '12h', 'dashboard', 10, true, true, false, true, true, true, false, false, false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 
+-- Reset the auto-increment sequence for users, so an account registered through the API later never takes id 1
+ALTER TABLE users ALTER COLUMN id RESTART WITH 2;
+
 -- Insert test user skills
 INSERT INTO user_skills (user_id, skill) VALUES
 (1, 'JavaScript'),

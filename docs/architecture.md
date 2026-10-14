@@ -34,6 +34,7 @@ The backend is a Spring Boot modular monolith organized by technical layer:
 - `repository`: persistence queries
 - `model`: JPA entities and enums
 - `dto`: API contracts
+- `validation`: custom Bean Validation constraints for the DTOs (such as `@PasswordMaxBytes`)
 - `mapper`: MapStruct conversions
 - `config`: CORS, security, OpenAPI, data initialization
 - `exception`: error responses and exception mapping

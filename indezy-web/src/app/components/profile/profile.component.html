@@ -59,6 +59,11 @@
                         {{ 'profile.errors.passwordMinLength' | translate }}
                       </mat-error>
                     }
+                    @if (passwordForm.get('newPassword')?.errors?.['maxBytes']; as maxBytes) {
+                      <mat-error>
+                        {{ 'common.passwordMaxBytes' | translate: { max: maxBytes.max } }}
+                      </mat-error>
+                    }
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'profile.confirmPassword' | translate }}</mat-label>

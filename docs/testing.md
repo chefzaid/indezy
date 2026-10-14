@@ -115,6 +115,7 @@ Representative backend tests:
 - configuration and schema: `SecurityConfigTest`, `ProjectStatusMigrationTest`, `SchemaMigrationTest`, `JwtUtilTest`
 - error handling: `GlobalExceptionHandlerTest` (response status, log level and absence of rejected values, read with `OutputCaptureExtension`)
 - auth logging: `AuthControllerTest` (log level of each rejection and fault, without the email) and `AuthLoggingIntegrationTest` (registration, duplicate registration and wrong passwords up to the lockout over HTTP, with Spring MVC and the test client logging the bodies at `DEBUG`, and the whole log free of the email, the name and the passwords)
+- password length: `PasswordMaxBytesTest` (the 72-byte BCrypt limit counted in UTF-8 bytes on registration and password change, with accented and emoji passwords at and over the limit) and `PasswordLengthIntegrationTest` (a validation error over HTTP instead of the former `409`, no account created, and a 72-byte password that registers, signs in and can be set as the new password)
 - secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code, backup code or API key, nor, in such a class or one nested in it, the email or a name)
 
 Backend test data lives under `indezy-server/src/test/resources/`:
@@ -133,7 +134,8 @@ Representative frontend specs:
 - `auth.service.spec.ts`, `auth.guard.spec.ts`, `auth.interceptor.spec.ts`, `error.interceptor.spec.ts`
 - `season.service.spec.ts` and `project-filter.util.spec.ts`
 - `kanban-board.component.spec.ts`, `interview-step-dialog.component.spec.ts`, `dashboard-reminders.component.spec.ts`
-- shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `theme.service.spec.ts`
+- `register.component.spec.ts`: field errors (including the 72-byte password limit), submission and the conflict-only "account already exists" message
+- shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy
 
@@ -194,10 +196,10 @@ Playwright selectors should prefer roles, labels, and user-visible text over CSS
 
 The Maven JaCoCo configuration records an 80 percent instruction and branch target. CI also computes combined backend/frontend line coverage against an 80 percent policy and publishes a failed JUnit policy result when it is missed; that report does not fail the build job or block release.
 
-Measured on 27 September 2026 with the repository's configured reporters: backend
-89.01 percent lines / 87.16 percent instructions / 70.46 percent branches (JaCoCo);
-frontend 90.06 percent lines / 88.76 percent statements / 86.83 percent branches (Karma).
-The suites contain 428 backend tests and 267 frontend tests. Line coverage exceeds
+Measured on 14 October 2026 with the repository's configured reporters: backend
+89.49 percent lines / 87.65 percent instructions / 71.08 percent branches (JaCoCo);
+frontend 90.51 percent lines / 89.25 percent statements / 87.22 percent branches (Karma).
+The suites contain 459 backend tests and 274 frontend tests. Line coverage exceeds
 the coding workflow's 85 percent target in both layers; backend branch coverage
 still misses Maven's separate 80 percent verification rule. These reports use the
 existing instrumentation configuration; the Karma figures cover modules loaded by
@@ -217,6 +219,10 @@ saving and clearing the target, defaults for new seasons, and comparison with ac
 rates, including the French phone layout. Browser tests intercept API responses and
 save chart and preference screenshots; backend aggregation, preference validation,
 season defaults and workspace isolation have separate Java tests.
+Password scenarios check, in French and English, that the register and password-change
+forms refuse a password over 72 bytes (37 accented letters) with the translated limit,
+accept one of exactly 72 bytes, and that a rejected registration other than a conflict
+is not reported as an existing account.
 Shared-link scenarios also check copying from project pages and Kanban cards,
 reopening after reload or password login, malformed links, and unavailable projects.
 Keyboard scenarios cover project creation, search focus with collapsed phone filters,

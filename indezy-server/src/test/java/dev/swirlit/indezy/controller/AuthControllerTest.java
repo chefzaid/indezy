@@ -192,14 +192,15 @@ class AuthControllerTest {
     }
 
     @Test
-    void register_WhenThePasswordCannotBeHashed_ShouldReturnConflictAndLogOnlyWhereItWasRejected(CapturedOutput output) {
-        // BCrypt rejects passwords over 72 bytes with an IllegalArgumentException that is not a duplicate account.
+    void register_WhenThePasswordCannotBeHashed_ShouldReturnBadRequestAndLogOnlyWhereItWasRejected(CapturedOutput output) {
+        // An IllegalArgumentException that is not a duplicate account, such as BCrypt's refusal of a password over 72
+        // bytes should validation ever let one through, is invalid input, not a conflict.
         when(authService.register(any(RegisterRequest.class)))
                 .thenThrow(new IllegalArgumentException("password cannot be more than 72 bytes"));
 
         ResponseEntity<LoginResponse> response = authController.register(registerRequest());
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         // Mockito fills in the stack trace when the mocked call throws, so the origin is the service method.
         assertLoggedAtWarnOnly(output, "Registration rejected at " + AuthService.class.getName() + ".register:");
         assertThat(output).doesNotContain(EMAIL).doesNotContain("72 bytes").doesNotContain("already exists");

@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.dto;
 
+import dev.swirlit.indezy.validation.PasswordMaxBytes;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.ToString;
@@ -13,6 +14,7 @@ public class PasswordChangeRequestDto {
 
     @ToString.Exclude
     @NotBlank(message = "New password is required")
+    @PasswordMaxBytes
     private String newPassword;
 
     @ToString.Exclude
