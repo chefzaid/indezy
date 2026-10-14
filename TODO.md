@@ -1,5 +1,16 @@
 # TODO
 
+## Bugs to fix
+
+Bugs, failing checks, security findings and code smells found while working on another task. Each entry names the file or area, what is wrong, and how to reproduce it.
+
+- [ ] `indezy-web` test coverage counts only the files some spec imports, so untested files are invisible instead of reported at 0%. `project-list`, `project-detail`, `project-form`, `profile`, `dashboard`, `client-*`, `contact-*`, `source-*`, `login` and `register` components (about 40 of the 86 source files) are missing from `coverage/cobertura-coverage.xml`, so the reported 88.8% statements overstates real coverage. Reproduce: `npm run test:ci -- --code-coverage`, then `grep -c project-list.component.ts coverage/cobertura-coverage.xml` prints 0.
+- [ ] `GlobalExceptionHandler` (`indezy-server/.../exception/GlobalExceptionHandler.java`) logs client errors at `ERROR` and copies rejected values into the logs: `handleValidationExceptions` logs the full `MethodArgumentNotValidException` message (every rejected field value, such as emails and phone numbers), and `handleDataIntegrityViolation` logs the database message, which quotes the conflicting key values. Reproduce: post an invalid client to `/api/clients` and read the `Validation error: ... rejected value [...]` line in the server log.
+
+## Needs Input
+
+Parts of tasks that cannot advance without the owner's decision or information. Only the part needing input is set aside here; the rest of the task keeps moving. Answer under the item, and the next agent run applies the answer and removes the entry.
+
 ## Pipeline & Kanban
 
 Not all freelance jobs share the same recruitment process:
