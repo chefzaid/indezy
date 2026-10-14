@@ -96,6 +96,19 @@ findings without compiling:
 ./mvnw checkstyle:check
 ```
 
+SpotBugs (`effort` `Max`, `threshold` `Low`) runs in Maven's `verify` phase, after the tests and
+JaCoCo's coverage check, and fails the build on any finding it reports (`failOnError` is `true` in
+`pom.xml`), such as two `Long` values compared with `==` (`RC_REF_COMPARISON`).
+`spotbugs-exclude.xml` leaves out only the MapStruct-generated `*MapperImpl` classes, whose findings
+come from the generator rather than from our code. While backend branch coverage misses JaCoCo's 80
+percent rule (see [Coverage Expectations](#coverage-expectations)), `./mvnw verify` stops at that
+check before SpotBugs, so run it with `-Djacoco.haltOnFailure=false` as CI does, or list the SpotBugs
+findings without running the tests:
+
+```bash
+./mvnw compile spotbugs:check
+```
+
 ## Direct Frontend Commands
 
 From `indezy-web/`:
@@ -256,6 +269,7 @@ The current CI verification and reporting includes:
 
 - backend unit and integration tests
 - backend Checkstyle, failing the build on any warning (also in `01-build`, whose `package` runs it)
+- backend SpotBugs, failing `02-test` on any finding (`01-build` packages with `-DskipTests` and does not reach `verify`)
 - frontend headless tests
 - frontend lint
 - backend package build
@@ -267,7 +281,7 @@ The current CI verification and reporting includes:
 - seven-day JUnit, coverage, browser, and compiled-output job artifacts
 - immutable JAR/SPA archives and checksums in the Generic Package Registry
 
-Required `01-build` and `03-package` own compilation and image validation; optional `02-test` owns unit-test and coverage reporting. Optional manual `01-e2e` runs Playwright. Default-branch `02-quality` runs automatically; standard mode leaves independent `03-security` manual, while full mode runs both automatically as non-blocking reports. Security has no dependency on quality and retains Trivy JSON/SARIF output. Release exists only on `main`, requires the successful build path, and publishes packages/images and Git state; deploy requires that release job and then waits for Argo CD plus both health checks. `PIPELINE_MODE=full` also automates release and deploy while E2E remains manual.
+Required `01-build` and `03-package` own compilation and image validation; optional `02-test` owns unit-test, SpotBugs and coverage reporting. Its `./mvnw clean verify -Djacoco.haltOnFailure=false` reaches SpotBugs despite the JaCoCo branch rule, and a finding fails the job like a failing backend test: the frontend lint, tests and coverage policy of that job do not run, and release is not blocked. Optional manual `01-e2e` runs Playwright. Default-branch `02-quality` runs automatically; standard mode leaves independent `03-security` manual, while full mode runs both automatically as non-blocking reports. Security has no dependency on quality and retains Trivy JSON/SARIF output. Release exists only on `main`, requires the successful build path, and publishes packages/images and Git state; deploy requires that release job and then waits for Argo CD plus both health checks. `PIPELINE_MODE=full` also automates release and deploy while E2E remains manual.
 
 ## Troubleshooting
 

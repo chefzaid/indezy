@@ -281,6 +281,9 @@ On Windows, use `mvnw.cmd` instead of `./mvnw`.
 
 Each of these Maven commands except `dependency:go-offline` first runs Checkstyle, which fails on
 any warning; `./mvnw checkstyle:check` lists them (see [Testing Guide](./testing.md#direct-backend-commands)).
+SpotBugs runs in `./mvnw verify`, after the tests, and fails on any finding (add
+`-Djacoco.haltOnFailure=false`, as CI does, while JaCoCo's branch rule still fails before it);
+`./mvnw compile spotbugs:check` lists them without running the tests.
 
 Frontend commands:
 

@@ -9,14 +9,4 @@
     <Match>
         <Class name="~.*\.mapper\..*MapperImpl"/>
     </Match>
-
-    <!--
-        Spring Security's HttpSecurity.build() declares `throws Exception`, so the
-        SecurityFilterChain bean must propagate it. The generic throws clause is
-        mandated by the framework API and cannot be narrowed.
-    -->
-    <Match>
-        <Class name="dev.swirlit.indezy.config.SecurityConfig"/>
-        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
-    </Match>
 </FindBugsFilter>
