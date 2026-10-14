@@ -34,7 +34,7 @@
             <input aria-label="{{ 'common.email' | translate }}" matInput
               type="email"
               formControlName="email"
-              placeholder="votre@email.com"
+              [placeholder]="'auth.emailPlaceholder' | translate"
               autocomplete="email">
             <mat-icon matSuffix>email</mat-icon>
             @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {

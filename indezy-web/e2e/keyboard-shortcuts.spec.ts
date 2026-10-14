@@ -46,6 +46,8 @@ for (const language of ['en', 'fr']) {
     await page.keyboard.press('Alt+Shift+KeyN');
     await expect(page).toHaveURL(/\/projects\/new$/);
     await expect(page.getByRole('textbox', { name: language === 'en' ? 'Role / Position' : 'Rôle / Poste', exact: true })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: language === 'en' ? 'Tech stack' : 'Stack technique', exact: true }))
+      .toHaveAttribute('placeholder', language === 'en' ? 'e.g.: React, Node.js, PostgreSQL' : 'Ex: React, Node.js, PostgreSQL');
     await page.keyboard.press('Alt+Shift+KeyH');
     const help = page.getByRole('dialog', { name: language === 'en' ? 'Keyboard shortcuts' : 'Raccourcis clavier' });
     await expect(help).toBeVisible();

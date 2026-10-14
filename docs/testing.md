@@ -134,6 +134,7 @@ Representative frontend specs:
 - `auth.service.spec.ts`, `auth.guard.spec.ts`, `auth.interceptor.spec.ts`, `error.interceptor.spec.ts`
 - `season.service.spec.ts` and `project-filter.util.spec.ts`
 - `kanban-board.component.spec.ts`, `interview-step-dialog.component.spec.ts`, `dashboard-reminders.component.spec.ts`
+- `login.component.spec.ts`: the redirect of a signed-in visitor, sign-in back to the requested page, the authenticator-code step, the message for each failure cause, field errors, the Keycloak hand-off, and the French and English email placeholder
 - `register.component.spec.ts`: field errors (including the 72-byte password limit), submission, the conflict-only "account already exists" message, and the French and English accessible names of the password visibility buttons
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
@@ -198,8 +199,8 @@ The Maven JaCoCo configuration records an 80 percent instruction and branch targ
 
 Measured on 14 October 2026 with the repository's configured reporters: backend
 89.49 percent lines / 87.65 percent instructions / 71.08 percent branches (JaCoCo);
-frontend 90.51 percent lines / 89.25 percent statements / 87.22 percent branches (Karma).
-The suites contain 459 backend tests and 275 frontend tests. Line coverage exceeds
+frontend 90.96 percent lines / 89.74 percent statements / 87.65 percent branches (Karma).
+The suites contain 459 backend tests and 284 frontend tests. Line coverage exceeds
 the coding workflow's 85 percent target in both layers; backend branch coverage
 still misses Maven's separate 80 percent verification rule. These reports use the
 existing instrumentation configuration; the Karma figures cover modules loaded by
@@ -226,10 +227,12 @@ is not reported as an existing account. The password-change form also refuses a 
 password under 8 characters with the translated minimum, and a server rejection of the
 change shows the translated error and keeps the typed values. They also find the
 register page's password visibility buttons by their translated accessible name and
-check that `aria-pressed` follows the toggle.
+check that `aria-pressed` follows the toggle, and read the login page's email placeholder
+in each language.
 Shared-link scenarios also check copying from project pages and Kanban cards,
 reopening after reload or password login, malformed links, and unavailable projects.
-Keyboard scenarios cover project creation, search focus with collapsed phone filters,
+Keyboard scenarios cover project creation (including the translated tech stack
+placeholder), search focus with collapsed phone filters,
 translated help, moving a focused Kanban card and cancelling its loss-reason dialog,
 while preserving input and dialog keyboard behavior.
 Extend the suite with registration, project creation, Kanban movement, filtering,

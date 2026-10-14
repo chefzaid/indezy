@@ -7,6 +7,7 @@ const TOO_LONG_PASSWORD = 'é'.repeat(37);
 const text = {
   en: {
     tooLong: 'Maximum 72 bytes (é = 2, emoji = 4)', firstName: 'First name', lastName: 'Last name', email: 'Email',
+    emailPlaceholder: 'your@email.com',
     password: 'Password', confirmPassword: 'Confirm password', register: 'Create my account',
     hidePassword: 'Hide password', hideConfirmPassword: 'Hide password confirmation',
     registerError: 'Error creating account. Please try again.', emailExists: 'An account already exists with this email.',
@@ -16,6 +17,7 @@ const text = {
   },
   fr: {
     tooLong: 'Maximum 72 octets (é = 2, emoji = 4)', firstName: 'Prénom', lastName: 'Nom', email: 'Email',
+    emailPlaceholder: 'votre@email.com',
     password: 'Mot de passe', confirmPassword: 'Confirmer le mot de passe', register: 'Créer mon compte',
     hidePassword: 'Masquer le mot de passe', hideConfirmPassword: 'Masquer la confirmation du mot de passe',
     registerError: 'Erreur lors de la création du compte. Veuillez réessayer.', emailExists: 'Un compte existe déjà avec cet email.',
@@ -71,6 +73,12 @@ for (const language of ['en', 'fr'] as const) {
       await expect(page.getByText(t.emailExists)).toBeHidden();
       expect(registeredPasswords).toEqual([LONGEST_PASSWORD]);
     });
+
+  test(`shows the login email placeholder in the page language (${language})`, async ({ page }) => {
+    await page.addInitScript(lang => localStorage.setItem('indezy-lang', lang), language);
+    await page.goto('/login');
+    await expect(page.getByLabel(t.email, { exact: true })).toHaveAttribute('placeholder', t.emailPlaceholder);
+  });
 
   test(`names the register password visibility buttons in the page language (${language})`, async ({ page }) => {
     await page.addInitScript(lang => localStorage.setItem('indezy-lang', lang), language);
