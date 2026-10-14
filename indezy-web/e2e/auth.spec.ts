@@ -8,6 +8,7 @@ const text = {
   en: {
     tooLong: 'Maximum 72 bytes (é = 2, emoji = 4)', firstName: 'First name', lastName: 'Last name', email: 'Email',
     password: 'Password', confirmPassword: 'Confirm password', register: 'Create my account',
+    hidePassword: 'Hide password', hideConfirmPassword: 'Hide password confirmation',
     registerError: 'Error creating account. Please try again.', emailExists: 'An account already exists with this email.',
     security: 'Security', currentPassword: 'Current password', newPassword: 'New password',
     changePassword: 'Change password', passwordChanged: 'Password changed successfully'
@@ -15,6 +16,7 @@ const text = {
   fr: {
     tooLong: 'Maximum 72 octets (é = 2, emoji = 4)', firstName: 'Prénom', lastName: 'Nom', email: 'Email',
     password: 'Mot de passe', confirmPassword: 'Confirmer le mot de passe', register: 'Créer mon compte',
+    hidePassword: 'Masquer le mot de passe', hideConfirmPassword: 'Masquer la confirmation du mot de passe',
     registerError: 'Erreur lors de la création du compte. Veuillez réessayer.', emailExists: 'Un compte existe déjà avec cet email.',
     security: 'Sécurité', currentPassword: 'Mot de passe actuel', newPassword: 'Nouveau mot de passe',
     changePassword: 'Changer le mot de passe', passwordChanged: 'Mot de passe changé avec succès'
@@ -67,6 +69,18 @@ for (const language of ['en', 'fr'] as const) {
       await expect(page.getByText(t.emailExists)).toBeHidden();
       expect(registeredPasswords).toEqual([LONGEST_PASSWORD]);
     });
+
+  test(`names the register password visibility buttons in the page language (${language})`, async ({ page }) => {
+    await page.addInitScript(lang => localStorage.setItem('indezy-lang', lang), language);
+    await page.goto('/register');
+    const hidePassword = page.getByRole('button', { name: t.hidePassword, exact: true });
+    await expect(hidePassword).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('button', { name: t.hideConfirmPassword, exact: true })).toHaveAttribute('aria-pressed', 'true');
+
+    await hidePassword.click();
+    await expect(hidePassword).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.getByLabel(t.password, { exact: true })).toHaveAttribute('type', 'text');
+  });
 
   test(`limits the new password of a password change to 72 bytes (${language})`, async ({ page }) => {
     await mockWorkspaceSession(page, language);

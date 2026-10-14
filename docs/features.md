@@ -277,7 +277,7 @@ The Angular app uses `@ngx-translate` with translation files in:
 - `indezy-web/src/assets/i18n/fr.json`
 - `indezy-web/src/assets/i18n/en.json`
 
-The app component loads the saved language preference and exposes French and English language switching. New UI work should add translation keys in both files and avoid hard-coded user-facing strings.
+The app component loads the saved language preference and exposes French and English language switching. New UI work should add translation keys in both files and avoid hard-coded user-facing strings, attribute text included (`aria-label`, `title`, `matTooltip`, `placeholder`), since screen readers announce it.
 
 ## Current Product Boundaries
 

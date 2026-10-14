@@ -71,7 +71,7 @@
               matSuffix
               type="button"
               (click)="hidePassword = !hidePassword"
-              [attr.aria-label]="'Hide password'"
+              [attr.aria-label]="'auth.hidePassword' | translate"
               [attr.aria-pressed]="hidePassword">
               <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
             </button>
@@ -92,7 +92,7 @@
               matSuffix
               type="button"
               (click)="hideConfirmPassword = !hideConfirmPassword"
-              [attr.aria-label]="'Hide confirm password'"
+              [attr.aria-label]="'auth.hideConfirmPassword' | translate"
               [attr.aria-pressed]="hideConfirmPassword">
               <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
             </button>

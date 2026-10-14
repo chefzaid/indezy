@@ -134,7 +134,7 @@ Representative frontend specs:
 - `auth.service.spec.ts`, `auth.guard.spec.ts`, `auth.interceptor.spec.ts`, `error.interceptor.spec.ts`
 - `season.service.spec.ts` and `project-filter.util.spec.ts`
 - `kanban-board.component.spec.ts`, `interview-step-dialog.component.spec.ts`, `dashboard-reminders.component.spec.ts`
-- `register.component.spec.ts`: field errors (including the 72-byte password limit), submission and the conflict-only "account already exists" message
+- `register.component.spec.ts`: field errors (including the 72-byte password limit), submission, the conflict-only "account already exists" message, and the French and English accessible names of the password visibility buttons
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy
@@ -199,7 +199,7 @@ The Maven JaCoCo configuration records an 80 percent instruction and branch targ
 Measured on 14 October 2026 with the repository's configured reporters: backend
 89.49 percent lines / 87.65 percent instructions / 71.08 percent branches (JaCoCo);
 frontend 90.51 percent lines / 89.25 percent statements / 87.22 percent branches (Karma).
-The suites contain 459 backend tests and 274 frontend tests. Line coverage exceeds
+The suites contain 459 backend tests and 275 frontend tests. Line coverage exceeds
 the coding workflow's 85 percent target in both layers; backend branch coverage
 still misses Maven's separate 80 percent verification rule. These reports use the
 existing instrumentation configuration; the Karma figures cover modules loaded by
@@ -222,7 +222,9 @@ season defaults and workspace isolation have separate Java tests.
 Password scenarios check, in French and English, that the register and password-change
 forms refuse a password over 72 bytes (37 accented letters) with the translated limit,
 accept one of exactly 72 bytes, and that a rejected registration other than a conflict
-is not reported as an existing account.
+is not reported as an existing account. They also find the register page's password
+visibility buttons by their translated accessible name and check that `aria-pressed`
+follows the toggle.
 Shared-link scenarios also check copying from project pages and Kanban cards,
 reopening after reload or password login, malformed links, and unavailable projects.
 Keyboard scenarios cover project creation, search focus with collapsed phone filters,

@@ -111,6 +111,7 @@
     "lastNameRequired": "Last name is required",
     "confirmPasswordRequired": "Password confirmation is required",
     "hidePassword": "Hide password",
+    "hideConfirmPassword": "Hide password confirmation",
     "totpRequired": "Enter the code from your authenticator app",
     "totpCode": "6-digit code",
     "totpHint": "Code shown by your authenticator app"

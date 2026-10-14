@@ -111,6 +111,7 @@
     "lastNameRequired": "Nom requis",
     "confirmPasswordRequired": "Confirmation du mot de passe requis",
     "hidePassword": "Masquer le mot de passe",
+    "hideConfirmPassword": "Masquer la confirmation du mot de passe",
     "totpRequired": "Saisissez le code de votre application d'authentification",
     "totpCode": "Code à 6 chiffres",
     "totpHint": "Code affiché par votre application d'authentification"

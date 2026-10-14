@@ -1,8 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
-import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { Router, RouterModule } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
+import en from '../../../../assets/i18n/en.json';
+import fr from '../../../../assets/i18n/fr.json';
 import { LoginResponse } from '../../../models/auth.models';
 import { AuthService } from '../../../services/auth/auth.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -84,5 +87,37 @@ describe('RegisterComponent', () => {
     expect(failWith(400)).toBe('auth.registerError');
     expect(failWith(0)).toBe('auth.serverUnavailable');
     expect(component.isLoading).toBeFalse();
+  });
+});
+
+describe('RegisterComponent template', () => {
+  it('names the password visibility buttons in the current language and reports their state', async () => {
+    await TestBed.configureTestingModule({
+      imports: [RegisterComponent, RouterModule.forRoot([]), TranslateModule.forRoot()],
+      providers: [
+        { provide: AuthService, useValue: jasmine.createSpyObj('AuthService', ['register', 'isAuthenticated']) },
+        { provide: NotificationService, useValue: jasmine.createSpyObj('NotificationService', ['success', 'errorText']) }
+      ]
+    }).compileComponents();
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('fr', fr);
+    translate.setTranslation('en', en);
+    translate.use('fr');
+    const fixture = TestBed.createComponent(RegisterComponent);
+    fixture.detectChanges();
+    const toggles = (): HTMLButtonElement[] => Array.from(fixture.nativeElement.querySelectorAll('button[aria-pressed]'));
+    const labels = (): (string | null)[] => toggles().map(button => button.getAttribute('aria-label'));
+
+    expect(labels()).toEqual(['Masquer le mot de passe', 'Masquer la confirmation du mot de passe']);
+
+    translate.use('en');
+    fixture.detectChanges();
+    expect(labels()).toEqual(['Hide password', 'Hide password confirmation']);
+
+    // The name stays the same while aria-pressed reports whether the password is hidden, as on the login page.
+    toggles()[0].click();
+    fixture.detectChanges();
+    expect(toggles().map(button => button.getAttribute('aria-pressed'))).toEqual(['false', 'true']);
+    expect(fixture.nativeElement.querySelector('input[formControlName="password"]').type).toBe('text');
   });
 });
