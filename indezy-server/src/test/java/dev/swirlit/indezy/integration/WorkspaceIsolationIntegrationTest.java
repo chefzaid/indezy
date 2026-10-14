@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.integration;
 
+import dev.swirlit.indezy.dto.RegisterRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -280,11 +281,14 @@ class WorkspaceIsolationIntegrationTest {
             .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
+    /** Posts the DTO rather than a map, whose {@code toString} the test client would log at DEBUG with the password. */
     private Account register(String name) {
-        String email = name + "." + UUID.randomUUID() + "@example.com";
-        ResponseEntity<Map> response = restTemplate.postForEntity(url("/auth/register"),
-            Map.of("firstName", name, "lastName", "Test", "email", email, "password", "Password123!"),
-            Map.class);
+        RegisterRequest request = new RegisterRequest();
+        request.setFirstName(name);
+        request.setLastName("Test");
+        request.setEmail(name + "." + UUID.randomUUID() + "@example.com");
+        request.setPassword("Password123!");
+        ResponseEntity<Map> response = restTemplate.postForEntity(url("/auth/register"), request, Map.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Map<?, ?> user = (Map<?, ?>) response.getBody().get("user");
         return new Account((String) response.getBody().get("token"), ((Number) user.get("id")).longValue());

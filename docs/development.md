@@ -330,7 +330,7 @@ The backend follows a conventional layered structure:
 When adding a feature:
 
 1. Start from the domain model and relationships.
-2. Add or update DTOs rather than exposing entities directly.
+2. Add or update DTOs rather than exposing entities directly. Mark a password, token, two-factor secret or code, or API key field with `@ToString.Exclude` (and, in an auth request or response, the email and names too), since Spring MVC logs bodies through `toString` at `DEBUG`; `SensitiveToStringTest` fails otherwise.
 3. Add MapStruct mappings for request and response conversion.
 4. Keep controller methods thin.
 5. Put transaction-sensitive behavior in services.

@@ -230,7 +230,16 @@ The authentication flow (`AuthController`, `AuthService`) never logs the email, 
 - any other failure is a server fault logged at `ERROR` with its stack trace
 - no account reference is logged, not even a hash, since hashing candidate addresses would reverse it; debug lines name an account by its user ID, and only once it is authenticated or created
 
-`AuthControllerTest` checks the level of each case and that the email is absent; `AuthLoggingIntegrationTest` replays registration, a duplicate registration and wrong passwords up to the lockout over HTTP and checks that the whole log never contains the email.
+`AuthControllerTest` checks the level of each case and that the email is absent; `AuthLoggingIntegrationTest` replays registration, a duplicate registration and wrong passwords up to the lockout over HTTP, with Spring MVC and the test client logging the request and response bodies at `DEBUG`, and checks that the whole log never contains the email, the name or a password.
+
+Spring MVC logs each request and response body at `DEBUG` through its `toString`, which Lombok's `@Data` generates with every field. Production keeps `org.springframework.web` at `WARN`, but the `test` profile raises it to `DEBUG`, as an operator may when diagnosing a deployment, so no DTO or entity prints a secret:
+
+- `LoginRequest`, `RegisterRequest`, `PasswordChangeRequestDto`, `TwoFactorSetupDto` and `LoginResponse` mark their passwords, two-factor code, TOTP secret, provisioning URI (which embeds the secret and the email) and JWT with `@ToString.Exclude`
+- the auth requests and the login response also leave out the email and the name, so a login is logged as `LoginRequest()` and its response as `LoginResponse(user=LoginResponse.UserInfo(id=1, accountId=1), twoFactorRequired=null)`
+- the `User` and `Freelance` entities, which hold the password hash and the two-factor secret, generate no `toString`
+- JSON serialization is unchanged: the excluded fields are still read from requests and returned in responses
+
+`SensitiveToStringTest` scans the `dto` and `model` packages and fails when a class holding a field named like a password (or its hash), a secret, a token, a two-factor code, a backup code or an API key prints it, or when such a class, or a class nested in one, prints the email or a name.
 
 ## External APIs
 

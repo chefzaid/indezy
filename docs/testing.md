@@ -114,7 +114,8 @@ Representative backend tests:
 - integration: `WorkspaceIsolationIntegrationTest` (two real accounts: isolation, seasons, deletion rules), `FullStackIntegrationTest`, `ProjectIntegrationTest`, `UserManagementIntegrationTest`
 - configuration and schema: `SecurityConfigTest`, `ProjectStatusMigrationTest`, `SchemaMigrationTest`, `JwtUtilTest`
 - error handling: `GlobalExceptionHandlerTest` (response status, log level and absence of rejected values, read with `OutputCaptureExtension`)
-- auth logging: `AuthControllerTest` (log level of each rejection and fault, without the email) and `AuthLoggingIntegrationTest` (registration, duplicate registration and wrong passwords up to the lockout over HTTP, with the whole log free of the email)
+- auth logging: `AuthControllerTest` (log level of each rejection and fault, without the email) and `AuthLoggingIntegrationTest` (registration, duplicate registration and wrong passwords up to the lockout over HTTP, with Spring MVC and the test client logging the bodies at `DEBUG`, and the whole log free of the email, the name and the passwords)
+- secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code, backup code or API key, nor, in such a class or one nested in it, the email or a name)
 
 Backend test data lives under `indezy-server/src/test/resources/`:
 
