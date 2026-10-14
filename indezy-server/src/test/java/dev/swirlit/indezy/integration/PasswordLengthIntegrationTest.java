@@ -27,7 +27,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * BCrypt cannot hash more than 72 bytes, so registration and the password change answer a validation error for a longer
  * password, counted in UTF-8 bytes, before it reaches BCrypt: a new email used to get a 409 as if it already had an
- * account. The DTOs are posted rather than maps, whose {@code toString} the test client would log with the password.
+ * account. The password change also enforces the 8-character minimum of the profile form, which a request sent outside
+ * the form used to bypass, and its matching confirmation. The DTOs are posted rather than maps, whose {@code toString}
+ * the test client would log with the password.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
@@ -36,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PasswordLengthIntegrationTest {
 
     private static final String MESSAGE = "Password must be at most 72 bytes in UTF-8 (an accented letter takes 2, an emoji 4)";
+    private static final String MIN_LENGTH_MESSAGE = "New password must be at least 8 characters long";
     private static final String PASSWORD = "Password123!";
     /** 36 accented letters: 72 bytes, the longest password BCrypt hashes. */
     private static final String LONGEST_PASSWORD = "é".repeat(36);
@@ -61,8 +64,8 @@ class PasswordLengthIntegrationTest {
         assertThat(post("/auth/register", register(email, LONGEST_PASSWORD), null).getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(post("/auth/login", login(email, LONGEST_PASSWORD), null).getStatusCode()).isEqualTo(HttpStatus.OK);
         // Rejected by validation, logged at WARN with the field and constraint, before BCrypt could refuse it.
-        assertThat(output.getAll().lines()).anyMatch(line -> line.contains(" WARN ")
-            && line.endsWith("Validation failed for registerRequest: password (PasswordMaxBytes)"));
+        assertThat(output.getAll().lines()).anyMatch(line -> line.contains(" WARN ") &&
+            line.endsWith("Validation failed for registerRequest: password (PasswordMaxBytes)"));
         assertThat(output.getAll()).doesNotContain("Registration rejected").doesNotContain("password cannot be more than 72 bytes");
     }
 
@@ -79,9 +82,43 @@ class PasswordLengthIntegrationTest {
 
         assertThat(post("/users/change-password", passwordChange(LONGEST_PASSWORD), token, Boolean.class).getBody()).isTrue();
         assertThat(post("/auth/login", login(email, LONGEST_PASSWORD), null).getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(output.getAll().lines()).anyMatch(line -> line.contains(" WARN ")
-            && line.endsWith("Validation failed for passwordChangeRequestDto: newPassword (PasswordMaxBytes)"));
+        assertThat(output.getAll().lines()).anyMatch(line -> line.contains(" WARN ") &&
+            line.endsWith("Validation failed for passwordChangeRequestDto: newPassword (PasswordMaxBytes)"));
         assertThat(output.getAll()).doesNotContain("password cannot be more than 72 bytes");
+    }
+
+    @Test
+    void changePassword_ToAPasswordUnder8Characters_ShouldAnswerAValidationErrorAndKeepTheCurrentOne(CapturedOutput output) {
+        String email = newEmail();
+        String token = (String) post("/auth/register", register(email, PASSWORD), null).getBody().get("token");
+
+        for (String tooShort : new String[] {"a", "Abcdef1"}) {
+            ResponseEntity<Map> rejected = post("/users/change-password", passwordChange(tooShort), token);
+            assertThat(rejected.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(rejected.getBody().get("validationErrors")).isEqualTo(Map.of("newPassword", MIN_LENGTH_MESSAGE));
+        }
+        assertThat(post("/auth/login", login(email, "a"), null).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(post("/auth/login", login(email, PASSWORD), null).getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        // 8 characters, the minimum the profile form asks for, is enough.
+        assertThat(post("/users/change-password", passwordChange("Abcdef12"), token, Boolean.class).getBody()).isTrue();
+        assertThat(post("/auth/login", login(email, "Abcdef12"), null).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(output.getAll().lines()).anyMatch(line -> line.contains(" WARN ") &&
+            line.endsWith("Validation failed for passwordChangeRequestDto: newPassword (Size)"));
+    }
+
+    @Test
+    void changePassword_WithAConfirmationThatDiffers_ShouldAnswerBadRequestAndKeepTheCurrentOne() {
+        String email = newEmail();
+        String token = (String) post("/auth/register", register(email, PASSWORD), null).getBody().get("token");
+        PasswordChangeRequestDto mismatched = passwordChange("NewPassword456!");
+        mismatched.setConfirmPassword("NewPassword457!");
+
+        ResponseEntity<Map> rejected = post("/users/change-password", mismatched, token);
+        assertThat(rejected.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(rejected.getBody().get("message")).isEqualTo("New password and confirmation do not match");
+        assertThat(post("/auth/login", login(email, "NewPassword456!"), null).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(post("/auth/login", login(email, PASSWORD), null).getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     private ResponseEntity<Map> post(String path, Object body, String token) {

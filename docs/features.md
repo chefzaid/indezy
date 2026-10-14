@@ -19,7 +19,7 @@ The core workflow is:
 Implemented account flows:
 
 - user registration through `/api/auth/register`
-- password rules checked by the forms and the API: at least 6 characters at registration (8 for a new password in the profile form) and at most 72 bytes, the BCrypt limit, where an accented letter counts as 2 and an emoji as 4 (see [Security](./security.md#password-storage))
+- password rules checked by the forms and the API: at least 6 characters at registration and 8 for a new password on the profile page, a confirmation that matches the new password, and at most 72 bytes, the BCrypt limit, where an accented letter counts as 2 and an emoji as 4 (see [Security](./security.md#password-storage))
 - user login through `/api/auth/login`
 - JWT creation on successful authentication
 - frontend route protection through `authGuard`

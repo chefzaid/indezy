@@ -52,7 +52,8 @@ public class UserController {
         }
     }
 
-    @Operation(summary = "Change the password", description = "400 when the current password is wrong")
+    @Operation(summary = "Change the password",
+        description = "400 when the new password is under 8 characters or over 72 bytes, the confirmation differs, or the current password is wrong")
     @PostMapping("/change-password")
     public boolean changePassword(@Valid @RequestBody PasswordChangeRequestDto request) {
         return userService.changePassword(SecurityUtils.getCurrentUserId(), request);

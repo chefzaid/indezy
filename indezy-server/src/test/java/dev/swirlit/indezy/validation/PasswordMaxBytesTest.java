@@ -74,9 +74,34 @@ class PasswordMaxBytesTest {
     }
 
     @Test
-    void minimumLengthRules_ShouldBeUnchanged() {
+    void registrationMinimumLength_ShouldBeUnchanged() {
         assertThat(messages(validator.validate(register("abcde")))).containsExactly("password: Password must be at least 6 characters long");
         assertThat(validator.validate(register("abcdef"))).isEmpty();
+    }
+
+    @Test
+    void passwordChangeMinimumLength_ShouldBe8Characters() {
+        // The server enforces the 8-character minimum the profile form asks for, so a request that bypasses the form gets it too.
+        String minLengthMessage = "newPassword: New password must be at least 8 characters long";
+        for (String password : List.of("a", "abcdefg", "ééééééé")) {
+            assertThat(messages(validator.validate(passwordChange(password)))).containsExactly(minLengthMessage);
+        }
+        for (String password : List.of("abcdefgh", "Password123!", "éééééééé")) {
+            assertThat(validator.validate(passwordChange(password))).isEmpty();
+        }
+        assertThat(messages(validator.validate(passwordChange(""))))
+            .containsExactly("confirmPassword: Password confirmation is required", "newPassword: New password is required", minLengthMessage);
+    }
+
+    @Test
+    void currentPassword_ShouldOnlyBeRequired() {
+        // The current password is checked against the stored hash, so an older, shorter one can still be replaced.
+        PasswordChangeRequestDto request = passwordChange("Password123!");
+        request.setCurrentPassword("abcdef");
+        assertThat(validator.validate(request)).isEmpty();
+
+        request.setCurrentPassword(" ");
+        assertThat(messages(validator.validate(request))).containsExactly("currentPassword: Current password is required");
     }
 
     private static RegisterRequest register(String password) {

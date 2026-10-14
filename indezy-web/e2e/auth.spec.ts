@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { Page, expect, test } from '@playwright/test';
 import { mockWorkspaceSession } from './helpers/workspace';
 
 /** BCrypt hashes at most 72 bytes: 36 accented letters fit, 37 (74 bytes) do not, although far under 72 characters. */
@@ -11,7 +11,8 @@ const text = {
     hidePassword: 'Hide password', hideConfirmPassword: 'Hide password confirmation',
     registerError: 'Error creating account. Please try again.', emailExists: 'An account already exists with this email.',
     security: 'Security', currentPassword: 'Current password', newPassword: 'New password',
-    changePassword: 'Change password', passwordChanged: 'Password changed successfully'
+    changePassword: 'Change password', passwordChanged: 'Password changed successfully',
+    tooShort: 'Password must be at least 8 characters', changeError: 'Error changing password'
   },
   fr: {
     tooLong: 'Maximum 72 octets (é = 2, emoji = 4)', firstName: 'Prénom', lastName: 'Nom', email: 'Email',
@@ -19,7 +20,8 @@ const text = {
     hidePassword: 'Masquer le mot de passe', hideConfirmPassword: 'Masquer la confirmation du mot de passe',
     registerError: 'Erreur lors de la création du compte. Veuillez réessayer.', emailExists: 'Un compte existe déjà avec cet email.',
     security: 'Sécurité', currentPassword: 'Mot de passe actuel', newPassword: 'Nouveau mot de passe',
-    changePassword: 'Changer le mot de passe', passwordChanged: 'Mot de passe changé avec succès'
+    changePassword: 'Changer le mot de passe', passwordChanged: 'Mot de passe changé avec succès',
+    tooShort: 'Le mot de passe doit contenir au moins 8 caractères', changeError: 'Erreur lors du changement de mot de passe'
   }
 };
 
@@ -83,13 +85,7 @@ for (const language of ['en', 'fr'] as const) {
   });
 
   test(`limits the new password of a password change to 72 bytes (${language})`, async ({ page }) => {
-    await mockWorkspaceSession(page, language);
-    await page.route('**/api/users/profile', route => route.fulfill({ json: {
-      id: 1, firstName: 'Workspace', lastName: 'Test', email: 'workspace@example.test'
-    } }));
-    await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light', language, inactivityDays: 14 } }));
-    await page.route('**/api/users/security', route => route.fulfill({ json: { twoFactorEnabled: false } }));
-    await page.route('**/api/users/notifications', route => route.fulfill({ json: {} }));
+    await mockProfilePage(page, language);
     const newPasswords: string[] = [];
     await page.route('**/api/users/change-password', async route => {
       newPasswords.push(route.request().postDataJSON().newPassword);
@@ -114,4 +110,48 @@ for (const language of ['en', 'fr'] as const) {
     await expect(page.getByText(t.passwordChanged)).toBeVisible();
     expect(newPasswords).toEqual([LONGEST_PASSWORD]);
   });
+
+  test(`requires 8 characters for the new password of a password change and reports a server rejection (${language})`,
+    async ({ page }) => {
+      await mockProfilePage(page, language);
+      const newPasswords: string[] = [];
+      await page.route('**/api/users/change-password', async route => {
+        newPasswords.push(route.request().postDataJSON().newPassword);
+        await route.fulfill({ status: 400, json: {
+          status: 400, error: 'Validation Failed', validationErrors: { newPassword: 'New password must be at least 8 characters long' }
+        } });
+      });
+
+      await page.goto('/profile');
+      await page.getByRole('tab', { name: t.security }).click();
+      const newPassword = page.getByLabel(t.newPassword, { exact: true });
+      const confirmPassword = page.getByLabel(t.confirmPassword, { exact: true });
+      const submit = page.getByRole('button', { name: t.changePassword });
+      await page.getByLabel(t.currentPassword, { exact: true }).fill('Password123!');
+      await newPassword.fill('Abcdef1');
+      await confirmPassword.fill('Abcdef1');
+      await expect(page.getByText(t.tooShort)).toBeVisible();
+      await expect(submit).toBeDisabled();
+
+      // The server enforces the same minimum; were it ever to reject what the form allows, the page says the change failed.
+      await newPassword.fill('Abcdef12');
+      await confirmPassword.fill('Abcdef12');
+      await expect(page.getByText(t.tooShort)).toBeHidden();
+      await submit.click();
+      await expect(page.getByText(t.changeError)).toBeVisible();
+      await expect(page.getByText(t.passwordChanged)).toBeHidden();
+      await expect(newPassword).toHaveValue('Abcdef12');
+      expect(newPasswords).toEqual(['Abcdef12']);
+    });
+}
+
+/** The profile page of a signed-in session, with the API calls it makes on load intercepted. */
+async function mockProfilePage(page: Page, language: string): Promise<void> {
+  await mockWorkspaceSession(page, language);
+  await page.route('**/api/users/profile', route => route.fulfill({ json: {
+    id: 1, firstName: 'Workspace', lastName: 'Test', email: 'workspace@example.test'
+  } }));
+  await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light', language, inactivityDays: 14 } }));
+  await page.route('**/api/users/security', route => route.fulfill({ json: { twoFactorEnabled: false } }));
+  await page.route('**/api/users/notifications', route => route.fulfill({ json: {} }));
 }
