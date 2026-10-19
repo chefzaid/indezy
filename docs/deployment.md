@@ -40,6 +40,10 @@ Shared platform resources remain in `swirl-cloud`.
 
 The public endpoint is `https://indezy.swirlit.dev`. Traefik routes `/api` to the Spring Boot service and `/` to the Angular/NGINX service. The native Ingress publishes Indezy in the cluster Homepage `Applications` group. The frontend is public; the API uses the app-owned ForwardAuth Middleware with the shared Keycloak OAuth2 Proxy. It preserves login return URLs and refresh cookies, forwards the signed access token, and leaves application authorization responses intact. The non-secret issuer, internal JWKS URI, and required audience live in `infra/k8s/server.yaml`; identity-provider secrets remain platform-owned.
 
+`/api/public` has its own Ingress, `indezy-public-api-ingress`, without the SSO Middleware: activity report
+validation links are opened by clients and ESNs who have no account, and the link token authorizes each request (see
+[Security](./security.md#activity-report-validation-links)). Traefik prefers this longer path over `/api`.
+
 `infra/k8s/ingress.yaml` also owns the 16 MiB request limit and a ServersTransport
 that allows 120 seconds for backend response headers. Connection timeouts and
 HTTP-to-HTTPS redirects are platform settings. NetworkPolicy permits Traefik

@@ -13,6 +13,12 @@ export const routes: Routes = [
     loadComponent: () => import('./components/auth/register/register.component').then(m => m.RegisterComponent)
   },
   {
+    // Opened by clients and ESNs from an activity report's validation link, without an account.
+    path: 'activity-report',
+    loadComponent: () => import('./components/activity-report-validation/activity-report-validation.component')
+      .then(m => m.ActivityReportValidationComponent)
+  },
+  {
     path: 'dashboard',
     loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [authGuard, projectLinkGuard],

@@ -98,6 +98,50 @@
             </div>
           </section>
 
+          <section class="form-section" data-activity-report-template>
+            <h3>{{ 'clients.form.activityReport.section' | translate }}</h3>
+            <p class="section-hint">{{ 'clients.form.activityReport.hint' | translate }}</p>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="grow-2">
+                <mat-label>{{ 'clients.form.activityReport.title' | translate }}</mat-label>
+                <input matInput formControlName="activityReportTitle" maxlength="120"
+                  [placeholder]="'clients.form.activityReport.titlePlaceholder' | translate">
+                <mat-error>{{ getFieldError('activityReportTitle') }}</mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="grow-1">
+                <mat-label>{{ 'clients.form.activityReport.language' | translate }}</mat-label>
+                <mat-select formControlName="activityReportLanguage">
+                  @for (language of reportLanguages; track language) {
+                    <mat-option [value]="language">{{ 'clients.form.activityReport.languages.' + language | translate }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="grow-1">
+                <mat-label>{{ 'clients.form.activityReport.layout' | translate }}</mat-label>
+                <mat-select formControlName="activityReportLayout">
+                  @for (layout of reportLayouts; track layout) {
+                    <mat-option [value]="layout">{{ 'clients.form.activityReport.layouts.' + layout | translate }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <div class="grow-1 toggle-cell">
+                <mat-slide-toggle formControlName="activityReportShowsLocation">
+                  {{ 'clients.form.activityReport.showsLocation' | translate }}
+                </mat-slide-toggle>
+              </div>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="grow-1">
+                <mat-label>{{ 'clients.form.activityReport.footer' | translate }}</mat-label>
+                <textarea matInput formControlName="activityReportFooter" rows="2" maxlength="500"
+                  [placeholder]="'clients.form.activityReport.footerPlaceholder' | translate"></textarea>
+                <mat-error>{{ getFieldError('activityReportFooter') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </section>
+
           <div class="form-actions">
             <button type="button" mat-button (click)="onCancel()" [disabled]="isSaving">
               {{ 'common.cancel' | translate }}

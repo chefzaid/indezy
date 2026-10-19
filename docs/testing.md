@@ -139,6 +139,7 @@ Representative backend tests:
 - error handling: `GlobalExceptionHandlerTest` (response status, headers, log level and absence of rejected values, read with `OutputCaptureExtension`, including the Spring MVC request errors that keep their 4xx status), `GlobalExceptionHandlerMvcTest` (a probe controller on which Spring MVC raises a missing header, a parameter constraint, a missing parameter and an unsupported method, each reaching its handler) and `ContactControllerTest` (`POST /contacts` with a `text/plain` body answers `415`, and a client accepting only CSV `406`, both logged at `WARN`)
 - auth logging: `AuthControllerTest` (log level of each rejection and fault, without the email) and `AuthLoggingIntegrationTest` (registration, duplicate registration and wrong passwords up to the lockout over HTTP, with Spring MVC and the test client logging the bodies at `DEBUG`, and the whole log free of the email, the name and the passwords)
 - password length: `PasswordMaxBytesTest` (the 72-byte BCrypt limit counted in UTF-8 bytes on registration and password change, with accented and emoji passwords at and over the limit, the 6-character registration minimum, and the 8-character minimum of the new password, with only `@NotBlank` for a missing one and no minimum for the current one) and `PasswordLengthIntegrationTest` (a validation error over HTTP instead of the former `409`, no account created, and a 72-byte password that registers, signs in and can be set as the new password; a new password under 8 characters or a confirmation that differs answers `400` and the current password still signs in)
+- activity reports: `FrenchPublicHolidaysTest` (Easter dates, the eleven holidays, business days per month), `ActivityReportServiceTest` (blank month calendar, saving days with totals and amount, accepted missions only, days outside the month or twice, locked statuses, submit and renew issuing a hashed token, reopening), `ActivityReportValidationServiceTest` (the public view without ids or money, expired or malformed tokens, approval and rejection rules, PDF file names and the ESN template), `ActivityReportPdfRendererTest` (daily table in French and calendar grid in English read back with PDFBox text extraction, the location split, the electronic approval stamp in Paris time, unprintable characters and a second page), `ActivityReportControllerTest` (statuses, validation errors, `409` for a locked report, the PDF attachment headers, the `X-Report-Token` header) and `ActivityReportIntegrationTest` (two real accounts and an anonymous validator over HTTP: record, submit, approve, reject and resubmit, reopen revoking the link, workspace isolation, project deletion, the data export, and a log free of the token with Spring MVC at `DEBUG`)
 - secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code (a bare `code` field included), backup code or API key, nor, in such a class or one nested in it, the email or a name)
 
 Backend test data lives under `indezy-server/src/test/resources/`:
@@ -159,6 +160,7 @@ Representative frontend specs:
 - `kanban-board.component.spec.ts`, `interview-step-dialog.component.spec.ts`, `dashboard-reminders.component.spec.ts`
 - `login.component.spec.ts`: the redirect of a signed-in visitor, sign-in back to the requested page, the authenticator-code step, the message for each failure cause, field errors, the Keycloak hand-off, and the French and English email placeholder
 - `register.component.spec.ts`: field errors (including the 72-byte password limit), submission, the conflict-only "account already exists" message, and the French and English accessible names of the password visibility buttons
+- activity reports: `activity-calendar.util.spec.ts` (month weeks starting on Monday, weekends, mission dates, brushes, filling business days, totals), `activity-calendar.component.spec.ts` (shading, French day descriptions, editable buttons), `activity-report-card.component.spec.ts` (opening month within the mission, editing, saving, submitting with the link to copy or email, renewing, approved and rejected months, reopening, month navigation, PDF), `activity-report-validation.component.spec.ts` (token after `#`, invalid links, name and reason rules, answers, conflicts, PDF, language switch) and `client-form.component.spec.ts` (the client's activity report template)
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy
@@ -220,10 +222,10 @@ Playwright selectors should prefer roles, labels, and user-visible text over CSS
 
 The Maven JaCoCo configuration records an 80 percent instruction and branch target. CI also computes combined backend/frontend line coverage against an 80 percent policy and publishes a failed JUnit policy result when it is missed; that report does not fail the build job or block release.
 
-Measured on 14 October 2026 with the repository's configured reporters: backend
-89.59 percent lines / 87.82 percent instructions / 71.74 percent branches (JaCoCo);
-frontend 90.96 percent lines / 89.74 percent statements / 87.65 percent branches (Karma).
-The suites contain 471 backend tests and 284 frontend tests. Line coverage exceeds
+Measured on 19 October 2026 with the repository's configured reporters: backend
+91.51 percent lines / 90.77 percent instructions / 74.95 percent branches (JaCoCo);
+frontend 92.87 percent lines / 91.99 percent statements / 89.02 percent branches (Karma).
+The suites contain 567 backend tests and 346 frontend tests. Line coverage exceeds
 the coding workflow's 85 percent target in both layers; backend branch coverage
 still misses Maven's separate 80 percent verification rule. These reports use the
 existing instrumentation configuration; the Karma figures cover modules loaded by
@@ -258,6 +260,11 @@ Keyboard scenarios cover project creation (including the translated tech stack
 placeholder), search focus with collapsed phone filters,
 translated help, moving a focused Kanban card and cancelling its loss-reason dialog,
 while preserving input and dialog keyboard behavior.
+Activity report scenarios (`e2e/activity-reports.spec.ts`), in English and in French on a phone, fill a mission's
+business days, record a half day remote, check the totals, send the month for approval and copy the link, then open it
+in a separate browser without a session: the token reaches the API in the `X-Report-Token` header and never in a URL,
+a rejection needs a reason, and the approval is shown. They also check the invalid-link page and its language switch,
+and save an ESN's activity report template from the client form. They save the calendar and approval screenshots.
 Extend the suite with registration, project creation, Kanban movement, filtering,
 and interview scheduling as those workflows stabilize.
 

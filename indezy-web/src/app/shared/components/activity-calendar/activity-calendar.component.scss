@@ -1,0 +1,137 @@
+:host {
+  display: block;
+  --onsite: #1565c0;
+  --remote: #00796b;
+  --absence: #e65100;
+}
+
+:host-context(html.dark-theme) {
+  --onsite: #90caf9;
+  --remote: #80cbc4;
+  --absence: #ffb74d;
+}
+
+.calendar {
+  display: grid;
+  gap: 4px;
+}
+
+.weekdays,
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.weekday {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  color: var(--app-text-muted);
+}
+
+.day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 4px 2px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  overflow: hidden;
+}
+
+button.day {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--app-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: 1px;
+  }
+}
+
+.day.empty {
+  border: none;
+  background: transparent;
+}
+
+.day.off {
+  background: var(--app-subtle);
+}
+
+.day.outside {
+  opacity: 0.55;
+}
+
+.day[data-type='ONSITE'] {
+  border-color: var(--onsite);
+  background: color-mix(in srgb, var(--onsite) 14%, var(--app-surface));
+}
+
+.day[data-type='REMOTE'] {
+  border-color: var(--remote);
+  background: color-mix(in srgb, var(--remote) 14%, var(--app-surface));
+}
+
+.day[data-type='ABSENCE'] {
+  border-color: var(--absence);
+  background: color-mix(in srgb, var(--absence) 14%, var(--app-surface));
+}
+
+.day.half {
+  border-style: dashed;
+}
+
+.day-number {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.day-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.day[data-type='ONSITE'] .day-state { color: var(--onsite); }
+.day[data-type='REMOTE'] .day-state { color: var(--remote); }
+.day[data-type='ABSENCE'] .day-state { color: var(--absence); }
+
+.half-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.day-holiday {
+  font-size: 0.65rem;
+  color: var(--app-text-muted);
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .day {
+    min-height: 44px;
+  }
+
+  .day-state mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+  }
+}

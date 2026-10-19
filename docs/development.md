@@ -244,6 +244,7 @@ Top-level routes:
 - `/clients`
 - `/contacts`
 - `/sources`
+- `/activity-report` (public: activity report validation through a link)
 - `/404`
 - `/error`
 

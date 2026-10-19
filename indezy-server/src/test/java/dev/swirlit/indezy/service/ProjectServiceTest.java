@@ -24,6 +24,8 @@ import dev.swirlit.indezy.repository.ProjectNoteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import dev.swirlit.indezy.repository.ActivityReportRepository;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -65,6 +67,9 @@ class ProjectServiceTest {
 
     @Mock
     private ProjectNoteRepository projectNoteRepository;
+
+    @Mock
+    private ActivityReportRepository activityReportRepository;
 
     @InjectMocks
     private ProjectService projectService;
@@ -248,7 +253,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    void delete_WhenProjectExists_ShouldDeleteNotesThenProject() {
+    void delete_WhenProjectExists_ShouldDeleteNotesAndActivityReportsThenProject() {
         // Given
         when(projectRepository.existsById(1L)).thenReturn(true);
 
@@ -256,8 +261,10 @@ class ProjectServiceTest {
         projectService.delete(1L);
 
         // Then
-        verify(projectNoteRepository).deleteByProjectId(1L);
-        verify(projectRepository).deleteById(1L);
+        InOrder order = inOrder(projectNoteRepository, activityReportRepository, projectRepository);
+        order.verify(projectNoteRepository).deleteByProjectId(1L);
+        order.verify(activityReportRepository).deleteByProjectId(1L);
+        order.verify(projectRepository).deleteById(1L);
     }
 
     @Test

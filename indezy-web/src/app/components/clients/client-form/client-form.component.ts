@@ -13,7 +13,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ClientService } from '../../../services/client/client.service';
 import { AuthService } from '../../../services/auth/auth.service';
-import { ClientDto, CreateClientDto } from '../../../models';
+import { ActivityReportLayout, ClientDto, CreateClientDto, DocumentLanguage } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { fieldError } from '../../../shared/utils/form-errors';
 
@@ -45,6 +45,8 @@ export class ClientFormComponent implements OnInit, OnDestroy {
   private loadedClient?: ClientDto;
 
   ratingOptions = [1, 2, 3, 4, 5];
+  readonly reportLayouts: ActivityReportLayout[] = ['DAILY_TABLE', 'CALENDAR_GRID'];
+  readonly reportLanguages: DocumentLanguage[] = ['FR', 'EN'];
 
   private readonly destroy$ = new Subject<void>();
 
@@ -98,7 +100,12 @@ export class ClientFormComponent implements OnInit, OnDestroy {
       isFinal: [true, [Validators.required]],
       rating: [null],
       isBlacklisted: [false],
-      blacklistReason: ['']
+      blacklistReason: [''],
+      activityReportTitle: ['', [Validators.maxLength(120)]],
+      activityReportLayout: ['DAILY_TABLE'],
+      activityReportLanguage: ['FR'],
+      activityReportShowsLocation: [true],
+      activityReportFooter: ['', [Validators.maxLength(500)]]
     });
   }
 
@@ -123,7 +130,12 @@ export class ClientFormComponent implements OnInit, OnDestroy {
               isFinal: client.isFinal !== false,
               rating: client.rating ?? null,
               isBlacklisted: !!client.isBlacklisted,
-              blacklistReason: client.blacklistReason ?? ''
+              blacklistReason: client.blacklistReason ?? '',
+              activityReportTitle: client.activityReportTitle ?? '',
+              activityReportLayout: client.activityReportLayout ?? 'DAILY_TABLE',
+              activityReportLanguage: client.activityReportLanguage ?? 'FR',
+              activityReportShowsLocation: client.activityReportShowsLocation !== false,
+              activityReportFooter: client.activityReportFooter ?? ''
             });
           } else {
             this.notificationService.error('errors.clientNotFound');
@@ -164,6 +176,11 @@ export class ClientFormComponent implements OnInit, OnDestroy {
       rating: formValue.rating ?? undefined,
       isBlacklisted: !!formValue.isBlacklisted,
       blacklistReason: formValue.isBlacklisted ? formValue.blacklistReason?.trim() || undefined : undefined,
+      activityReportTitle: formValue.activityReportTitle?.trim() || undefined,
+      activityReportLayout: formValue.activityReportLayout,
+      activityReportLanguage: formValue.activityReportLanguage,
+      activityReportShowsLocation: !!formValue.activityReportShowsLocation,
+      activityReportFooter: formValue.activityReportFooter?.trim() || undefined,
       freelanceId
     };
 

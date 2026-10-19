@@ -1,7 +1,11 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.dto.ActivityDayDto;
+import dev.swirlit.indezy.dto.ActivityReportDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.dto.UserDto;
+import dev.swirlit.indezy.model.enums.ActivityDayType;
+import dev.swirlit.indezy.model.enums.ActivityReportStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -9,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +33,8 @@ class UserDataExportServiceTest {
     private ContactService contactService;
     @Mock
     private SourceService sourceService;
+    @Mock
+    private ActivityReportService activityReportService;
 
     @InjectMocks
     private UserDataExportService userDataExportService;
@@ -44,6 +52,13 @@ class UserDataExportServiceTest {
         when(clientService.findByFreelanceId(1L)).thenReturn(List.of());
         when(contactService.findByFreelanceId(1L)).thenReturn(List.of());
         when(sourceService.findByFreelanceId(1L)).thenReturn(List.of());
+        ActivityReportDto report = new ActivityReportDto();
+        report.setYear(2026);
+        report.setMonth(10);
+        report.setStatus(ActivityReportStatus.VALIDATED);
+        report.setDays(List.of(new ActivityDayDto(LocalDate.of(2026, 10, 1), ActivityDayType.ONSITE, false)));
+        report.setDecidedAt(Instant.parse("2026-11-02T09:30:00Z"));
+        when(activityReportService.findByFreelanceId(1L)).thenReturn(List.of(report));
 
         String json = new String(userDataExportService.exportUserData(1L), StandardCharsets.UTF_8);
 
@@ -56,6 +71,10 @@ class UserDataExportServiceTest {
             .contains("Backend Dev")
             .contains("\"clients\"")
             .contains("\"contacts\"")
-            .contains("\"sources\"");
+            .contains("\"sources\"")
+            .contains("\"activityReports\"")
+            .contains("VALIDATED")
+            .contains("\"2026-10-01\"")
+            .contains("\"2026-11-02T09:30:00Z\"");
     }
 }

@@ -16,6 +16,9 @@ export function fieldError(control: AbstractControl | null, translate: Translate
   if (errors['minlength']) {
     return translate.instant('errors.minLength', { length: errors['minlength'].requiredLength });
   }
+  if (errors['maxlength']) {
+    return translate.instant('errors.maxLength', { length: errors['maxlength'].requiredLength });
+  }
   if (errors['min']) {
     return translate.instant('errors.minValue', { value: errors['min'].min });
   }

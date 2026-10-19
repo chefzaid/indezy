@@ -1,11 +1,13 @@
 package dev.swirlit.indezy;
 
+import dev.swirlit.indezy.dto.ActivityReportLinkDto;
 import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.PasswordChangeRequestDto;
 import dev.swirlit.indezy.dto.RegisterRequest;
 import dev.swirlit.indezy.dto.TwoFactorCodeRequest;
 import dev.swirlit.indezy.dto.TwoFactorSetupDto;
+import dev.swirlit.indezy.model.ActivityReport;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
 import org.junit.jupiter.api.Test;
@@ -40,7 +42,7 @@ class SensitiveToStringTest {
     void scan_ShouldFindEveryClassHoldingASecretOrNestedInOne() {
         assertThat(sensitiveClasses()).contains(LoginRequest.class, RegisterRequest.class, PasswordChangeRequestDto.class,
             TwoFactorSetupDto.class, TwoFactorCodeRequest.class, LoginResponse.class, LoginResponse.UserInfo.class, User.class,
-            Freelance.class);
+            Freelance.class, ActivityReportLinkDto.class, ActivityReport.class);
     }
 
     @Test

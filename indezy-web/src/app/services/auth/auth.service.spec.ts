@@ -189,6 +189,23 @@ describe('AuthService', () => {
       httpMock.expectNone('http://localhost:8080/api/auth/sso');
     });
 
+    it('leaves public pages such as activity report validation to visitors without an account', async () => {
+      const startSsoLogin = spyOn(service, 'startSsoLogin');
+      await service.initializeSso(true, '/activity-report');
+      await service.initializeSso(true, '/activity-report/');
+      httpMock.expectNone('http://localhost:8080/api/auth/sso');
+      expect(startSsoLogin).not.toHaveBeenCalled();
+    });
+
+    it('still signs visitors in on pages that only start like a public one', async () => {
+      const startSsoLogin = spyOn(service, 'startSsoLogin');
+      const initialization = service.initializeSso(true, '/activity-reports-admin');
+      httpMock.expectOne('http://localhost:8080/api/auth/sso').flush({}, { status: 401, statusText: 'Unauthorized' });
+
+      await initialization;
+      expect(startSsoLogin).toHaveBeenCalled();
+    });
+
     it('refreshes the Keycloak identity even when an app session already exists', async () => {
       spyOn(service, 'isAuthenticated').and.returnValue(true);
       const initialization = service.initializeSso(true);

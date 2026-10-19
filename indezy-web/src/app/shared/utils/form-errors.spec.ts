@@ -23,6 +23,8 @@ describe('fieldError', () => {
     expect(fieldError(touched(new FormControl('x', Validators.email)), translate)).toBe('errors.invalidEmail');
     expect(fieldError(touched(new FormControl('ab', Validators.minLength(3))), translate))
       .toBe('errors.minLength {"length":3}');
+    expect(fieldError(touched(new FormControl('abcd', Validators.maxLength(3))), translate))
+      .toBe('errors.maxLength {"length":3}');
     expect(fieldError(touched(new FormControl(0, Validators.min(1))), translate)).toBe('errors.minValue {"value":1}');
     expect(fieldError(touched(new FormControl(9, Validators.max(5))), translate)).toBe('errors.maxValue {"value":5}');
   });

@@ -6,6 +6,9 @@ import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, LoginResponse, RegisterRequest, User } from '../../models/auth.models';
 
+/** Pages opened by people without an Indezy account, such as an ESN validating an activity report. */
+export const PUBLIC_PAGE_PATHS = ['/activity-report'];
+
 @Injectable({
   providedIn: 'root'
 })
@@ -59,8 +62,9 @@ export class AuthService {
     }
   }
 
-  async initializeSso(enabled = environment.production): Promise<void> {
-    if (!enabled) {
+  /** Exchanges the Keycloak session for an Indezy one, except on public pages, which must not send visitors to sign in. */
+  async initializeSso(enabled = environment.production, path = window.location.pathname): Promise<void> {
+    if (!enabled || PUBLIC_PAGE_PATHS.some(publicPath => path === publicPath || path.startsWith(`${publicPath}/`))) {
       return;
     }
 

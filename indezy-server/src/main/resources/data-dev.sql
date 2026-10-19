@@ -2,6 +2,8 @@
 -- Run it through `mask db-reset`; normal application startup never executes this file.
 
 TRUNCATE TABLE
+    activity_report_days,
+    activity_reports,
     project_documents,
     project_notes,
     seasons,
@@ -280,5 +282,55 @@ SELECT
     0
 FROM projects AS project
 CROSS JOIN generate_series(1, 2) AS steps(step_number);
+
+-- Accepted missions get last month's activity report, approved by their client or ESN, and the
+-- current month in progress up to yesterday. Days follow the work mode (hybrid: remote on Mondays
+-- and Fridays); the fixed-date public holidays are skipped, the Easter-based ones are not.
+INSERT INTO activity_reports (
+    project_id, report_year, report_month, status, comment, submitted_at, validator_name, decided_at,
+    decision_comment, created_at, updated_at, version
+)
+SELECT
+    project.id,
+    EXTRACT(YEAR FROM period.month_start)::int,
+    EXTRACT(MONTH FROM period.month_start)::int,
+    CASE WHEN period.months_ago = 1 THEN 'VALIDATED' ELSE 'DRAFT' END,
+    CASE WHEN period.months_ago = 1 THEN 'Planning respected; on-site days agreed with the team lead.' END,
+    CASE WHEN period.months_ago = 1 THEN date_trunc('month', CURRENT_TIMESTAMP) + INTERVAL '1 day' END,
+    CASE WHEN period.months_ago = 1 THEN 'Claire Martin' END,
+    CASE WHEN period.months_ago = 1 THEN date_trunc('month', CURRENT_TIMESTAMP) + INTERVAL '2 days' END,
+    CASE WHEN period.months_ago = 1 THEN 'Conforme au planning.' END,
+    period.month_start,
+    CURRENT_TIMESTAMP,
+    0
+FROM projects AS project
+CROSS JOIN (VALUES (1), (0)) AS offsets(months_ago)
+CROSS JOIN LATERAL (
+    SELECT offsets.months_ago, (date_trunc('month', CURRENT_DATE) - offsets.months_ago * INTERVAL '1 month')::date AS month_start
+) AS period
+WHERE project.status = 'WON';
+
+INSERT INTO activity_report_days (report_id, day_date, day_type, half_day)
+SELECT
+    report.id,
+    day::date,
+    CASE
+        WHEN project.work_mode = 'REMOTE' THEN 'REMOTE'
+        WHEN project.work_mode = 'HYBRID' AND EXTRACT(ISODOW FROM day) IN (1, 5) THEN 'REMOTE'
+        ELSE 'ONSITE'
+    END,
+    false
+FROM activity_reports AS report
+JOIN projects AS project ON project.id = report.project_id
+CROSS JOIN LATERAL generate_series(
+    make_date(report.report_year, report.report_month, 1),
+    CASE WHEN report.status = 'DRAFT'
+        THEN CURRENT_DATE - 1
+        ELSE (make_date(report.report_year, report.report_month, 1) + INTERVAL '1 month' - INTERVAL '1 day')::date
+    END,
+    INTERVAL '1 day'
+) AS days(day)
+WHERE EXTRACT(ISODOW FROM day) < 6
+  AND to_char(day, 'MM-DD') NOT IN ('01-01', '05-01', '05-08', '07-14', '08-15', '11-01', '11-11', '12-25');
 
 ANALYZE;

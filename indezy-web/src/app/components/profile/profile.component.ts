@@ -19,6 +19,7 @@ import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-i
 import { LANGUAGE_STORAGE_KEY, getSavedLanguage } from '../../shared/locale/app-locale';
 import { ThemeService } from '../../shared/theme/theme.service';
 import { passwordMaxBytes } from '../../shared/utils/password-max-bytes';
+import { saveBlob } from '../../shared/utils/download-file';
 
 @Component({
     selector: 'app-profile',
@@ -445,13 +446,7 @@ export class ProfileComponent implements OnInit {
   onExportData(): void {
     this.userManagementService.exportUserData().subscribe({
       next: (blob: Blob) => {
-        const url = globalThis.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'indezy-user-data.json';
-        link.click();
-        globalThis.URL.revokeObjectURL(url);
-
+        saveBlob(blob, 'indezy-user-data.json');
         this.notificationService.success('profile.dataExported');
       },
       error: (error: unknown) => {

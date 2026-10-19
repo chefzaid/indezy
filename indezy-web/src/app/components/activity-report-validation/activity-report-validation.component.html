@@ -1,0 +1,139 @@
+<main class="validation-page">
+  <header class="page-header">
+    <img src="assets/images/indezy-logo.svg" alt="Indezy" height="36">
+    <div class="languages" role="group" [attr.aria-label]="'activityReports.validation.language' | translate">
+      <button mat-button type="button" [class.active]="language === 'fr'" [attr.aria-pressed]="language === 'fr'"
+        lang="fr" (click)="switchLanguage('fr')">{{ 'language.fr' | translate }}</button>
+      <button mat-button type="button" [class.active]="language === 'en'" [attr.aria-pressed]="language === 'en'"
+        lang="en" (click)="switchLanguage('en')">{{ 'language.en' | translate }}</button>
+    </div>
+  </header>
+
+  <mat-card class="validation-card">
+    <mat-card-content>
+      @if (isLoading) {
+        <div class="state">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>{{ 'activityReports.validation.loading' | translate }}</p>
+        </div>
+      } @else if (invalidLink || !view) {
+        <div class="state">
+          <mat-icon class="state-icon">link_off</mat-icon>
+          <h1>{{ 'activityReports.validation.invalidTitle' | translate }}</h1>
+          <p>{{ 'activityReports.validation.invalidMessage' | translate }}</p>
+        </div>
+      } @else {
+        <h1>{{ 'activityReports.validation.pageTitle' | translate }}</h1>
+        <p class="intro">{{ 'activityReports.validation.intro' | translate:{ consultant: view.consultantName, month: monthLabel } }}</p>
+
+        <dl class="parties">
+          <div><dt>{{ 'activityReports.validation.consultant' | translate }}</dt><dd>{{ view.consultantName }}</dd></div>
+          <div><dt>{{ 'activityReports.validation.mission' | translate }}</dt><dd>{{ view.missionRole }}</dd></div>
+          <div><dt>{{ 'activityReports.validation.client' | translate }}</dt><dd>{{ view.clientName }}</dd></div>
+          @if (view.middlemanName) {
+            <div><dt>{{ 'activityReports.validation.intermediary' | translate }}</dt><dd>{{ view.middlemanName }}</dd></div>
+          }
+          <div><dt>{{ 'activityReports.validation.period' | translate }}</dt><dd>{{ monthLabel }}</dd></div>
+        </dl>
+
+        <app-activity-calendar [year]="view.report.year" [month]="view.report.month" [days]="view.report.days"
+          [holidays]="view.report.publicHolidays"></app-activity-calendar>
+
+        <dl class="totals">
+          <div class="total main">
+            <dt>{{ 'activityReports.totals.worked' | translate }}</dt>
+            <dd data-total="worked">{{ view.report.workedDays | number:'1.0-1' }}</dd>
+          </div>
+          @if (view.showsLocation) {
+            <div class="total">
+              <dt>{{ 'activityReports.totals.onsite' | translate }}</dt>
+              <dd>{{ view.report.onsiteDays | number:'1.0-1' }}</dd>
+            </div>
+            <div class="total">
+              <dt>{{ 'activityReports.totals.remote' | translate }}</dt>
+              <dd>{{ view.report.remoteDays | number:'1.0-1' }}</dd>
+            </div>
+          }
+          <div class="total">
+            <dt>{{ 'activityReports.totals.absence' | translate }}</dt>
+            <dd>{{ view.report.absenceDays | number:'1.0-1' }}</dd>
+          </div>
+          <div class="total">
+            <dt>{{ 'activityReports.totals.businessDays' | translate }}</dt>
+            <dd>{{ view.report.businessDays }}</dd>
+          </div>
+        </dl>
+
+        @if (view.report.comment) {
+          <section class="consultant-comment">
+            <h2>{{ 'activityReports.validation.consultantComment' | translate }}</h2>
+            <p>{{ view.report.comment }}</p>
+          </section>
+        }
+
+        <button mat-stroked-button type="button" class="pdf-button" (click)="downloadPdf()">
+          <mat-icon>picture_as_pdf</mat-icon>
+          {{ 'activityReports.downloadPdf' | translate }}
+        </button>
+
+        @switch (view.report.status) {
+          @case ('SUBMITTED') {
+            <form class="decision" [formGroup]="form" (ngSubmit)="approve()">
+              <h2>{{ 'activityReports.validation.yourAnswer' | translate }}</h2>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'activityReports.validation.yourName' | translate }}</mat-label>
+                <input matInput formControlName="validatorName" maxlength="120" autocomplete="name">
+                @if (form.controls.validatorName.invalid) {
+                  <mat-error>{{ 'activityReports.validation.yourNameRequired' | translate }}</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'activityReports.validation.yourComment' | translate }}</mat-label>
+                <textarea matInput formControlName="comment" rows="3" maxlength="1000"></textarea>
+                @if (form.controls.comment.hasError('reasonRequired')) {
+                  <mat-error>{{ 'activityReports.validation.reasonRequired' | translate }}</mat-error>
+                }
+              </mat-form-field>
+              <p class="notice">{{ 'activityReports.validation.signatureNotice' | translate }}</p>
+              <div class="decision-actions">
+                <button mat-stroked-button color="warn" type="button" (click)="reject()" [disabled]="isSending">
+                  <mat-icon>close</mat-icon>
+                  {{ 'activityReports.validation.reject' | translate }}
+                </button>
+                <button mat-raised-button color="primary" type="submit" [disabled]="isSending">
+                  <mat-icon>check</mat-icon>
+                  {{ 'activityReports.validation.approve' | translate }}
+                </button>
+              </div>
+            </form>
+          }
+          @case ('VALIDATED') {
+            <div class="outcome validated" role="status">
+              <mat-icon>verified</mat-icon>
+              <div>
+                <h2>{{ 'activityReports.validation.approvedTitle' | translate }}</h2>
+                <p>{{ 'activityReports.validation.approvedMessage' | translate:{ name: view.report.validatorName, date: decidedAt } }}</p>
+              </div>
+            </div>
+          }
+          @case ('REJECTED') {
+            <div class="outcome rejected" role="status">
+              <mat-icon>report</mat-icon>
+              <div>
+                <h2>{{ 'activityReports.validation.rejectedTitle' | translate }}</h2>
+                <p>{{ 'activityReports.validation.rejectedMessage' | translate:{ name: view.report.validatorName, date: decidedAt } }}</p>
+                @if (view.report.decisionComment) {
+                  <p>{{ 'activityReports.rejectionReason' | translate:{ reason: view.report.decisionComment } }}</p>
+                }
+              </div>
+            </div>
+          }
+          @default {
+            <p class="notice">{{ 'activityReports.validation.notWaiting' | translate }}</p>
+          }
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+  <p class="powered-by">{{ 'activityReports.validation.poweredBy' | translate }}</p>
+</main>

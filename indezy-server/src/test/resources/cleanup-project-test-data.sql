@@ -3,6 +3,10 @@
 
 -- Delete in reverse order of dependencies to avoid foreign key constraint violations
 DELETE FROM interview_steps WHERE project_id IN (SELECT id FROM projects WHERE freelance_id = 100);
+DELETE FROM activity_report_days WHERE report_id IN (
+    SELECT report.id FROM activity_reports AS report JOIN projects AS project ON project.id = report.project_id
+    WHERE project.freelance_id = 100);
+DELETE FROM activity_reports WHERE project_id IN (SELECT id FROM projects WHERE freelance_id = 100);
 DELETE FROM projects WHERE freelance_id = 100;
 DELETE FROM contacts WHERE freelance_id = 100;
 DELETE FROM sources WHERE freelance_id = 100;

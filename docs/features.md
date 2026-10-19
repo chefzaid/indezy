@@ -105,6 +105,7 @@ Client data includes:
 - final-client flag
 - notes
 - quality rating (1-5) and blacklist flag with reason (track clients to avoid: payment delays, ghosting, bad process)
+- activity report template: title, layout, PDF language, on-site / remote split and footer note (see [Monthly Activity Reports](#monthly-activity-reports-cra))
 - freelance owner
 - linked projects, middleman projects, and contacts
 
@@ -160,6 +161,45 @@ The project page lists the steps as a timeline: each step can be added or edited
 ## Project Journal
 
 Each project has a chronological journal of free-text notes (calls, emails, decisions) exposed under `/api/projects/{projectId}/notes` (list newest-first, add, delete). The project detail page shows the timeline with timestamps and lets the user add or remove entries. Notes are stored and rendered as plain text for now; Markdown support with live preview is a planned enhancement.
+
+## Monthly Activity Reports (CRA)
+
+An accepted mission's page (stage Accepté / Accepted) has an **Activity reports** card: the monthly activity report
+(compte rendu d'activité, CRA) that ESNs and clients ask for before invoicing.
+
+- The card opens on the current month, kept within the mission dates when they are known, with arrows to move between
+  months and a chip per saved month showing its status (Brouillon / Draft, En attente de validation / Awaiting approval,
+  Validé / Approved, Refusé / Rejected). Unsaved changes are confirmed before leaving a month.
+- The calendar shows the month Monday first. Weekends and the French public holidays (named in the day descriptions)
+  are shaded, and days outside the mission are dimmed. Choose what to record (full or half day on site, full or half
+  day remote, full or half day absence, clear), then tap the days; tapping a day again with the same choice clears it.
+  **Fill business days** records every empty business day of the mission as a full day, on site or remote according to
+  the mission's work mode. Each day is a labelled button for screen readers (date, what was recorded, holiday, weekend).
+- Totals update as you type: days worked, on site, remote, absences, the month's business days, and the amount
+  excluding VAT (days worked times the mission's daily rate). A comment for the validator goes with the month.
+- **Send for approval** saves the month, locks it and shows the validation link once, valid for 30 days, to copy or to
+  send by email (a prefilled message with the month, the mission, the days worked and the link). Later, **Generate a
+  new link** replaces a lost link; the old one stops working.
+- The client or ESN opens the link without an Indezy account. The page shows the consultant, the client and ESN, the
+  mission, the month's calendar and totals (the on-site / remote split only when the template shows it), the
+  consultant's comment and a PDF download, in French or English (a switch at the top). The validator signs with their
+  name and approves, or rejects with a required reason. A report is answered once; a second answer is refused.
+- The mission page then shows who approved or rejected the month and when, with the comment or reason. A rejected month
+  stays editable and keeps the reason until it is sent again. **Reopen to edit** returns a submitted or approved month
+  to draft, after a confirmation, and the link stops working.
+- **Download PDF** prints the month with the template of the mission's ESN, or of its final client when there is none,
+  set on the client form under **Activity report template**: document title, layout (one day per line in portrait, or a
+  month grid in landscape), PDF language (French or English), on-site / remote split, and a footer note such as where
+  to send the signed report. The PDF lists the consultant, client, ESN, mission and period, the days, the totals, the
+  comment and two signature boxes; an answered month prints "Validé électroniquement par … le … (heure de Paris)"
+  ("Approved electronically by … on … (Paris time)") or the rejection with its reason.
+- Activity reports are part of the account data export and are deleted with their mission.
+
+API: `GET /projects/{projectId}/activity-reports`, `GET|PUT /projects/{projectId}/activity-reports/{year}/{month}`,
+`POST .../{year}/{month}/submit`, `POST .../link`, `POST .../reopen` and `GET .../pdf`, private to the workspace like
+every project resource. The validation link reaches `GET /public/activity-reports`, `GET /public/activity-reports/pdf`
+and `POST /public/activity-reports/decision` with its token in the `X-Report-Token` header (see
+[Security](./security.md#activity-report-validation-links)). Validated days are what the planned invoices will bill.
 
 ## Kanban And Pipeline View
 
@@ -292,7 +332,8 @@ These capabilities are intentionally not treated as implemented yet, even if som
 - Chrome extension capture
 - cross-platform mobile app
 - AI parsing, ranking, or recommendation workflows
-- invoice generation
+- invoice generation (activity reports provide the validated days it will bill)
+- qualified electronic signature: an activity report is approved with the validator's typed name and a timestamp, a simple electronic signature
 - calendar sync
 
 Keep this distinction sharp. It prevents the docs from promising features that exist only as model placeholders or backlog intent.

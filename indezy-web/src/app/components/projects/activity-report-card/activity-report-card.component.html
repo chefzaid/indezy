@@ -1,0 +1,197 @@
+<mat-card class="activity-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>event_available</mat-icon>
+      {{ 'activityReports.title' | translate }}
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="month-bar">
+      <button mat-icon-button type="button" (click)="changeMonth(-1)" [disabled]="isBusy"
+        [attr.aria-label]="'activityReports.previousMonth' | translate"
+        [matTooltip]="'activityReports.previousMonth' | translate">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <h3 class="month-label" aria-live="polite">{{ monthLabel }}</h3>
+      <button mat-icon-button type="button" (click)="changeMonth(1)" [disabled]="isBusy"
+        [attr.aria-label]="'activityReports.nextMonth' | translate"
+        [matTooltip]="'activityReports.nextMonth' | translate">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      @if (report && !isLoading) {
+        <span class="status-pill" data-report-status [style.--status-color]="statusColors[report.status]">
+          {{ 'activityReports.statuses.' + report.status | translate }}
+        </span>
+      }
+    </div>
+
+    @if (savedReports.length) {
+      <nav class="saved-months" [attr.aria-label]="'activityReports.savedReports' | translate">
+        @for (saved of savedReports; track saved.id) {
+          <button mat-stroked-button type="button" class="saved-month"
+            [class.current]="saved.year === year && saved.month === month"
+            [attr.aria-current]="saved.year === year && saved.month === month ? 'true' : null"
+            (click)="openMonth(saved.year, saved.month)">
+            <span class="status-dot" [style.background-color]="statusColors[saved.status]" aria-hidden="true"></span>
+            {{ formatMonth(saved.year, saved.month) }}
+            <span class="cdk-visually-hidden">{{ 'activityReports.statuses.' + saved.status | translate }}</span>
+          </button>
+        }
+      </nav>
+    }
+
+    @if (isLoading) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    } @else if (report) {
+      @if (report.status === 'REJECTED' && report.validatorName) {
+        <div class="banner rejected" role="status">
+          <mat-icon>report</mat-icon>
+          <div>
+            <strong>{{ 'activityReports.rejectedBy' | translate:{ name: report.validatorName, date: formatDay(report.decidedAt) } }}</strong>
+            @if (report.decisionComment) {
+              <p>{{ 'activityReports.rejectionReason' | translate:{ reason: report.decisionComment } }}</p>
+            }
+            <p>{{ 'activityReports.rejectedHint' | translate }}</p>
+          </div>
+        </div>
+      }
+      @if (report.status === 'VALIDATED') {
+        <div class="banner validated" role="status">
+          <mat-icon>verified</mat-icon>
+          <div>
+            <strong>{{ 'activityReports.validatedBy' | translate:{ name: report.validatorName, date: formatDay(report.decidedAt) } }}</strong>
+            @if (report.decisionComment) {
+              <p>{{ 'activityReports.validatorComment' | translate:{ comment: report.decisionComment } }}</p>
+            }
+          </div>
+        </div>
+      }
+
+      @if (editable) {
+        <div class="brushes">
+          <span class="brush-label" id="activity-brush-label">{{ 'activityReports.brushLabel' | translate }}</span>
+          <mat-chip-listbox [value]="brush" (change)="brush = $event.value ?? brush" [hideSingleSelectionIndicator]="true"
+            aria-labelledby="activity-brush-label">
+            @for (option of brushes; track option) {
+              <mat-chip-option [value]="option" [attr.data-brush]="option">
+                <mat-icon matChipAvatar>{{ brushIcons[option] }}</mat-icon>
+                {{ 'activityReports.brushes.' + option | translate }}
+              </mat-chip-option>
+            }
+          </mat-chip-listbox>
+        </div>
+      }
+
+      <app-activity-calendar [year]="year" [month]="month" [days]="days" [holidays]="report.publicHolidays"
+        [missionStart]="report.missionStart" [missionEnd]="report.missionEnd" [editable]="editable && !isBusy"
+        (dayToggled)="onDayToggled($event)"></app-activity-calendar>
+
+      <dl class="totals" aria-live="polite">
+        <div class="total main">
+          <dt>{{ 'activityReports.totals.worked' | translate }}</dt>
+          <dd data-total="worked">{{ liveTotals.worked | number:'1.0-1' }}</dd>
+        </div>
+        <div class="total">
+          <dt>{{ 'activityReports.totals.onsite' | translate }}</dt>
+          <dd>{{ liveTotals.onsite | number:'1.0-1' }}</dd>
+        </div>
+        <div class="total">
+          <dt>{{ 'activityReports.totals.remote' | translate }}</dt>
+          <dd>{{ liveTotals.remote | number:'1.0-1' }}</dd>
+        </div>
+        <div class="total">
+          <dt>{{ 'activityReports.totals.absence' | translate }}</dt>
+          <dd>{{ liveTotals.absence | number:'1.0-1' }}</dd>
+        </div>
+        <div class="total">
+          <dt>{{ 'activityReports.totals.businessDays' | translate }}</dt>
+          <dd>{{ report.businessDays }}</dd>
+        </div>
+        @if (liveAmount !== undefined) {
+          <div class="total">
+            <dt>{{ 'activityReports.totals.amount' | translate }}</dt>
+            <dd data-total="amount">{{ liveAmount | number:'1.0-0' }} €</dd>
+          </div>
+        }
+      </dl>
+
+      @if (editable) {
+        <mat-form-field appearance="outline" class="comment-field">
+          <mat-label>{{ 'activityReports.comment' | translate }}</mat-label>
+          <textarea matInput rows="2" maxlength="1000" [(ngModel)]="comment" (ngModelChange)="dirty = true"
+            [placeholder]="'activityReports.commentPlaceholder' | translate"></textarea>
+        </mat-form-field>
+        <div class="actions">
+          <button mat-button type="button" (click)="fill()" [disabled]="isBusy">
+            <mat-icon>auto_fix_high</mat-icon>
+            {{ 'activityReports.fill' | translate }}
+          </button>
+          <button mat-button type="button" (click)="clearAll()" [disabled]="isBusy || !days.length">
+            <mat-icon>clear_all</mat-icon>
+            {{ 'activityReports.clearAll' | translate }}
+          </button>
+          <span class="spacer"></span>
+          <button mat-stroked-button color="primary" type="button" (click)="save()" [disabled]="isBusy || (!dirty && !!report.id)">
+            <mat-icon>save</mat-icon>
+            {{ 'activityReports.save' | translate }}
+          </button>
+          <button mat-raised-button color="primary" type="button" (click)="submit()" [disabled]="isBusy || !days.length">
+            <mat-icon>send</mat-icon>
+            {{ 'activityReports.submit' | translate }}
+          </button>
+        </div>
+      } @else {
+        @if (report.comment) {
+          <p class="comment"><strong>{{ 'activityReports.commentLabel' | translate }}</strong> {{ report.comment }}</p>
+        }
+      }
+
+      @if (report.status === 'SUBMITTED') {
+        <section class="link-panel" [attr.aria-label]="'activityReports.link.title' | translate">
+          <h4><mat-icon>link</mat-icon>{{ 'activityReports.link.title' | translate }}</h4>
+          @if (link) {
+            <mat-form-field appearance="outline" class="link-field" subscriptSizing="dynamic">
+              <mat-label>{{ 'activityReports.link.title' | translate }}</mat-label>
+              <input matInput readonly [value]="link" data-validation-link (focus)="$any($event.target).select()">
+              <mat-hint>{{ 'activityReports.link.hint' | translate:{ date: formatDay(linkExpiresAt) } }}</mat-hint>
+            </mat-form-field>
+            <div class="actions">
+              <button mat-stroked-button color="primary" type="button" (click)="copyLink()">
+                <mat-icon>content_copy</mat-icon>
+                {{ 'activityReports.link.copy' | translate }}
+              </button>
+              <a mat-stroked-button [href]="mailtoHref">
+                <mat-icon>mail</mat-icon>
+                {{ 'activityReports.link.email' | translate }}
+              </a>
+            </div>
+          } @else {
+            <p class="hint">{{ 'activityReports.link.renewHint' | translate:{ date: formatDay(report.linkExpiresAt) } }}</p>
+            <button mat-stroked-button type="button" (click)="renewLink()" [disabled]="isBusy">
+              <mat-icon>autorenew</mat-icon>
+              {{ 'activityReports.link.renew' | translate }}
+            </button>
+          }
+        </section>
+      }
+
+      <div class="actions footer-actions">
+        @if (report.id) {
+          <button mat-button type="button" (click)="downloadPdf()" [disabled]="isBusy">
+            <mat-icon>picture_as_pdf</mat-icon>
+            {{ 'activityReports.downloadPdf' | translate }}
+          </button>
+        }
+        @if (!editable) {
+          <button mat-button type="button" (click)="reopen()" [disabled]="isBusy">
+            <mat-icon>lock_open</mat-icon>
+            {{ 'activityReports.reopen' | translate }}
+          </button>
+        }
+      </div>
+      @if (templateOwner) {
+        <p class="template-hint">{{ 'activityReports.templateHint' | translate:{ client: templateOwner } }}</p>
+      }
+    }
+  </mat-card-content>
+</mat-card>

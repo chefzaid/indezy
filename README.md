@@ -1,6 +1,6 @@
 # Indezy
 
-Indezy helps freelancers in the French tech market run their mission search: opportunities on a five-stage Kanban board (Contact, Tests & Entretiens, Offre, Accepté, Perdu / Abandonné), job-hunting seasons with their own dashboards, clients and ESNs with their contacts, interview steps, rates and margins, reminders and analytics. It is available in French and English. AI assistance, job-board connectors and invoicing are on the [roadmap](./TODO.md).
+Indezy helps freelancers in the French tech market run their mission search: opportunities on a five-stage Kanban board (Contact, Tests & Entretiens, Offre, Accepté, Perdu / Abandonné), job-hunting seasons with their own dashboards, clients and ESNs with their contacts, interview steps, rates and margins, reminders and analytics, and once a mission is signed, its monthly activity reports (CRA), approved by the client or ESN through a link and printed as PDF in their template. It is available in French and English. AI assistance, job-board connectors and invoicing are on the [roadmap](./TODO.md).
 
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-brightgreen.svg)](https://spring.io/projects/spring-boot)

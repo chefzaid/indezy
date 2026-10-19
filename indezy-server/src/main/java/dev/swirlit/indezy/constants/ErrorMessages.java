@@ -23,6 +23,15 @@ public final class ErrorMessages {
 
     public static final String PROJECT_NOTE_NOT_FOUND = "Project note not found with id: %d";
 
+    public static final String ACTIVITY_REPORT_NOT_FOUND = "No activity report for project %d in %s";
+    public static final String ACTIVITY_REPORT_MISSION_REQUIRED = "Activity reports can only be created for an accepted mission";
+    public static final String ACTIVITY_REPORT_LOCKED = "The activity report is submitted or validated; reopen it to change it";
+    public static final String ACTIVITY_REPORT_NOT_SUBMITTED = "The activity report is not waiting for validation";
+    public static final String ACTIVITY_REPORT_DAY_OUTSIDE_MONTH = "Every day must belong to the report's month";
+    public static final String ACTIVITY_REPORT_DUPLICATE_DAY = "A day can be recorded only once";
+    public static final String ACTIVITY_REPORT_REJECTION_REASON_REQUIRED = "A rejection needs a reason";
+    public static final String ACTIVITY_REPORT_LINK_INVALID = "This validation link is invalid or has expired";
+
     public static final String INVALID_DATE_RANGE = "Start date cannot be after end date";
 
     public static final String USER_NOT_FOUND = "User not found with id: %d";

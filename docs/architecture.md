@@ -36,8 +36,10 @@ The backend is a Spring Boot modular monolith organized by technical layer:
 - `dto`: API contracts
 - `validation`: custom Bean Validation constraints for the DTOs (such as `@PasswordMaxBytes`)
 - `mapper`: MapStruct conversions
+- `pdf`: PDF documents (activity reports) drawn with Apache PDFBox, see [ADR 0008](./adr/0008-pdf-documents-with-pdfbox.md)
 - `config`: CORS, security, OpenAPI, data initialization
 - `exception`: error responses and exception mapping
+- `util`: JWT, security context and the French public holiday calendar
 
 This structure keeps early development simple while preserving clear places for domain behavior and tests.
 
@@ -62,6 +64,7 @@ Routes are organized around the main product areas:
 - clients
 - contacts
 - sources
+- activity report validation (`/activity-report`, public: opened by clients and ESNs without an account)
 
 ## Key Runtime Lifecycles
 
@@ -83,6 +86,14 @@ Routes are organized around the main product areas:
 5. Backend maps DTO to entity, resolves related freelance/client/source records, persists project, and returns DTO.
 6. Dashboard/list/Kanban views consume the updated project data.
 
+### Activity report validation
+
+1. The freelance records a month of an accepted mission on its project page and saves it (`PUT /api/projects/{id}/activity-reports/{year}/{month}`).
+2. Submitting it locks the month and returns a random token once; the server stores only its SHA-256 hash, valid 30 days.
+3. The freelance sends the link `https://<host>/activity-report#<token>`; the token after `#` never reaches a server log.
+4. The validator's browser opens the public page, which skips the Keycloak sign-in and sends the token in the `X-Report-Token` header to `/api/public/activity-reports`, an ingress route without the SSO Middleware.
+5. The validator approves, or rejects with a reason, signing with their name; the freelance sees the outcome on the mission and downloads the PDF printed with the ESN's (or final client's) template.
+
 ### Deployment
 
 1. GitLab CI checks out the repository.
@@ -102,6 +113,7 @@ Current practical rules:
 - `InterviewStep` belongs to a project.
 - `User` owns account profile, preferences, and two-factor settings.
 - `Season` belongs to a freelance and groups projects.
+- `ActivityReport` belongs to a project (one per month) and is deleted with it.
 
 Future account work should clarify whether `User` and `Freelance` remain separate concepts or become a one-to-one account/workspace model.
 
@@ -131,6 +143,7 @@ NNNN-short-title.md
 - [ADR 0005: Security Baseline And Hardening Direction](./adr/0005-security-baseline.md)
 - [ADR 0006: Code Quality And Verification Gates](./adr/0006-code-quality-and-verification-gates.md)
 - [ADR 0007: Explicit Delivery Jobs And Non-Blocking Verification](./adr/0007-explicit-delivery-jobs.md)
+- [ADR 0008: Generate PDF Documents With Apache PDFBox](./adr/0008-pdf-documents-with-pdfbox.md)
 
 ## Proposed ADRs For Upcoming Work
 

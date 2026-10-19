@@ -3,6 +3,8 @@
 
 -- Clear existing data (ignore errors if tables don't exist)
 DELETE FROM interview_steps WHERE 1=1;
+DELETE FROM activity_report_days WHERE 1=1;
+DELETE FROM activity_reports WHERE 1=1;
 DELETE FROM projects WHERE 1=1;
 DELETE FROM contacts WHERE 1=1;
 DELETE FROM sources WHERE 1=1;

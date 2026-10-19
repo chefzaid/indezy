@@ -1,5 +1,7 @@
 package dev.swirlit.indezy.model;
 
+import dev.swirlit.indezy.model.enums.ActivityReportLayout;
+import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -47,6 +49,28 @@ public class Client extends BaseEntity {
     /** Explanation shown when the client is blacklisted. */
     @Column(name = "blacklist_reason", columnDefinition = "TEXT")
     private String blacklistReason;
+
+    /*
+     * Template of the activity report PDFs of missions through this client (the ESN when the mission has one,
+     * otherwise the final client). Null fields use the defaults: standard title, daily table, location column, French.
+     */
+    @Column(name = "activity_report_title", length = 120)
+    private String activityReportTitle;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "activity_report_layout")
+    private ActivityReportLayout activityReportLayout;
+
+    @Column(name = "activity_report_shows_location")
+    private Boolean activityReportShowsLocation;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "activity_report_language")
+    private DocumentLanguage activityReportLanguage;
+
+    /** Free text printed at the bottom of the PDF, such as where to send the signed report. */
+    @Column(name = "activity_report_footer", length = 500)
+    private String activityReportFooter;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "freelance_id", nullable = false)

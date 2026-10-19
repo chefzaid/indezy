@@ -13,6 +13,7 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.repository.ActivityReportRepository;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
@@ -47,6 +48,7 @@ public class ProjectService {
     private final SourceRepository sourceRepository;
     private final InterviewStepRepository interviewStepRepository;
     private final ProjectNoteRepository projectNoteRepository;
+    private final ActivityReportRepository activityReportRepository;
     private final ProjectMapper projectMapper;
     private final SeasonService seasonService;
 
@@ -263,8 +265,9 @@ public class ProjectService {
             throw new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id));
         }
 
-        // Interview steps cascade with the project; journal notes are not mapped on it.
+        // Interview steps cascade with the project; journal notes and activity reports are not mapped on it.
         projectNoteRepository.deleteByProjectId(id);
+        activityReportRepository.deleteByProjectId(id);
         projectRepository.deleteById(id);
         log.info("Deleted project with id: {}", id);
     }

@@ -1,0 +1,44 @@
+<div class="calendar">
+  <div class="weekdays" aria-hidden="true">
+    @for (name of weekdayNames; track $index) {
+      <span class="weekday">{{ name }}</span>
+    }
+  </div>
+  @for (week of weeks; track $index) {
+    <div class="week">
+      @for (cell of week; track $index) {
+        @if (cell) {
+          @if (editable) {
+            <button type="button" class="day" [class.off]="cell.off" [class.outside]="cell.outsideMission"
+              [attr.data-type]="cell.type" [class.half]="cell.halfDay" [attr.data-date]="cell.date"
+              [attr.aria-label]="cell.description" [attr.title]="cell.description" (click)="toggle(cell)">
+              <ng-container *ngTemplateOutlet="content; context: { $implicit: cell }"></ng-container>
+            </button>
+          } @else {
+            <div class="day" [class.off]="cell.off" [class.outside]="cell.outsideMission" [attr.data-type]="cell.type"
+              [class.half]="cell.halfDay" [attr.data-date]="cell.date" [attr.title]="cell.description">
+              <span class="cdk-visually-hidden">{{ cell.description }}</span>
+              <ng-container *ngTemplateOutlet="content; context: { $implicit: cell }"></ng-container>
+            </div>
+          }
+        } @else {
+          <span class="day empty" aria-hidden="true"></span>
+        }
+      }
+    </div>
+  }
+</div>
+
+<ng-template #content let-cell>
+  <span class="day-number" aria-hidden="true">{{ cell.dayNumber }}</span>
+  @if (cell.icon) {
+    <span class="day-state" aria-hidden="true">
+      <mat-icon>{{ cell.icon }}</mat-icon>
+      @if (cell.halfDay) {
+        <span class="half-badge">½</span>
+      }
+    </span>
+  } @else if (cell.holidayKey) {
+    <span class="day-holiday" aria-hidden="true">{{ 'activityReports.calendar.holidayShort' | translate }}</span>
+  }
+</ng-template>

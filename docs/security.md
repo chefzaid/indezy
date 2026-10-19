@@ -63,7 +63,7 @@ The default value must not be used for any internet-exposed deployment.
 Current backend rules:
 
 - `/auth/**` is public
-- `/public/**` is public
+- `/public/**` is public: today only the activity report validation endpoints, authorized by their link token (see [Activity Report Validation Links](#activity-report-validation-links))
 - `/health` is public
 - `/actuator/health` is public (other actuator endpoints require authentication)
 - `/v3/api-docs/**` is public
@@ -99,6 +99,7 @@ Public routes:
 
 - `/login`
 - `/register`
+- `/activity-report` (activity report validation by a client or ESN)
 - `/404`
 - `/error`
 
@@ -107,6 +108,32 @@ Frontend route guards improve user experience but are not a security boundary. T
 Shared project links resolve to the same protected detail route and ownership-checked
 API as ordinary project navigation. Password login preserves only local application
 return paths; external and recursive login destinations fall back to the dashboard.
+
+## Activity Report Validation Links
+
+A client or ESN approves a monthly activity report without an Indezy account, through a link the freelance sends. The
+link is a capability, so it is built to be unguessable, short-lived, revocable and absent from logs:
+
+- submitting a report generates 32 random bytes (`SecureRandom`), Base64url encoded (43 characters); the API returns the
+  token once, in `ActivityReportLinkDto`, and stores only its SHA-256 hash (`activity_reports.validation_token_hash`), so a
+  database read does not give working links. A lost link is replaced (`POST .../link`), which revokes the previous one
+- a link works for 30 days (`ActivityReportService.LINK_VALIDITY`); reopening the report (`POST .../reopen`) or
+  resubmitting it revokes it at once. An unknown, revoked, expired, empty or oversized (over 128 characters) token
+  answers the same `404` (`This validation link is invalid or has expired`)
+- the token travels after the `#` of the link (`https://<host>/activity-report#<token>`), which browsers never send to
+  a server, so neither NGINX nor Traefik access logs nor `Referer` headers hold it; the page sends it in the
+  `X-Report-Token` header, never in the URL, and the Angular service tests check that no request URL contains it
+- the public endpoints (`/api/public/activity-reports`, `.../pdf`, `.../decision`) need no JWT. In production the
+  `indezy-public-api-ingress` Ingress routes `/api/public` without the `indezy-sso` ForwardAuth Middleware (the longer
+  path wins over `/api`), and the Angular app skips its Keycloak session exchange on `/activity-report`
+  (`PUBLIC_PAGE_PATHS` in `auth.service.ts`), which would otherwise send the visitor to sign in
+- the public view leaves out ids, the daily rate and the amount; it shows the consultant's name, the client and ESN, the
+  mission, the month and the comment, which the freelance chose to send
+- a report is answered once (`409` afterwards); the validator signs with a typed name (at most 120 characters) and a
+  rejection needs a reason. This is a simple electronic signature with its timestamp, not a qualified one
+- the token never reaches the logs: the DTO excludes it from `toString`, the controllers log the path only, and
+  `ActivityReportIntegrationTest` replays the whole flow with Spring MVC at `DEBUG` and checks that the captured log
+  never contains it. The validator's name and comment are excluded from the DTOs' `toString` as personal data
 
 ## Password Storage
 
@@ -212,7 +239,7 @@ Indezy stores personal and commercially sensitive information:
 Account deletion and data portability:
 
 - accounts are not deleted from the application: identities live in Keycloak, and an account whose `User.deletedAt` is set can no longer sign in (`AuthService` rejects it with the generic invalid-credentials error)
-- `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact and source they own, downloaded as an attachment.
+- `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact, source and activity report they own, downloaded as an attachment, with dates in ISO-8601.
 
 Privacy expectations:
 
@@ -230,7 +257,7 @@ Logs must not carry what a user typed. `GlobalExceptionHandler` applies these ru
 - for these client errors, the binding, validation, JSON parser and database messages are never logged, because they quote the rejected values (emails, phone numbers, passwords) and the conflicting key values; an `IllegalArgumentException` is logged by the class, method and line that threw it, since its message can quote input such as an email that already exists
 - the method-not-supported, upload-too-large and access-denied handlers log the framework or application message at `WARN`, which names the HTTP method, the upload size limit or the access rule and holds no field values
 - the other Spring MVC request errors, which have no dedicated handler (an unsupported `Content-Type`, an unacceptable `Accept`, a missing header, and any later one implementing Spring's `ErrorResponse`), keep their own status (`415`, `406`, `400`, ...) and headers (such as `Accept`, listing the supported types) instead of becoming a `500`, and are logged at `WARN` by exception type and status only (`Rejected request: HttpMediaTypeNotSupportedException (415)`), since their message can quote request values such as the rejected `Content-Type`; a `406` answers without a body, since the client accepts no JSON, and a `405` lists the supported methods in `Allow`. One that Spring reports as a server error (5xx), such as a controller returning a value that breaks its own constraint, is logged like an unexpected error
-- application exceptions (`ResourceNotFoundException`, `ResourceInUseException`) are logged with their message, so they must be built from ids and fixed text only, never from request values
+- application exceptions (`ResourceNotFoundException`, `ResourceInUseException`, `InvalidStateException`, the `409` of a request that does not fit a resource's state) are logged with their message, so they must be built from ids and fixed text only, never from request values
 - unexpected server errors (5xx) stay at `ERROR` with their message and stack trace, as they are needed to diagnose faults, and answer only `An unexpected error occurred`
 
 The restriction applies to the server log only: error responses still return each invalid field with its message (a constraint message, which does not quote the rejected value), the message of an `IllegalArgumentException`, and Spring's description of a request error (`Content-Type 'text/plain' is not supported.`), to the client that sent the request. `GlobalExceptionHandlerTest` captures the log output to check the level of each line and that no rejected value appears, and `GlobalExceptionHandlerMvcTest` lets Spring MVC raise these errors on a probe controller to check that each reaches its handler.

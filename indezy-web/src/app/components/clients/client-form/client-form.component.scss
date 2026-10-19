@@ -51,6 +51,12 @@
   }
 }
 
+.section-hint {
+  margin: -8px 0 16px;
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
+}
+
 .form-row {
   display: flex;
   flex-wrap: wrap;

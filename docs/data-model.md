@@ -18,6 +18,8 @@ erDiagram
     SOURCE ||--o{ PROJECT : originates
     PROJECT ||--o{ INTERVIEW_STEP : has
     PROJECT ||--o{ PROJECT_NOTE : journal
+    PROJECT ||--o{ ACTIVITY_REPORT : monthly
+    ACTIVITY_REPORT ||--o{ ACTIVITY_REPORT_DAY : records
 ```
 
 `User` and `Freelance` are both present today. `User` backs authentication and profile/security preferences. `Freelance` backs the opportunity-management workspace. Future account work should clarify and, if needed, consolidate the boundary between these two concepts.
@@ -178,6 +180,12 @@ Important fields:
 - domain
 - `isFinal` flag
 - notes
+- activity report template, used for the PDFs of missions through this client (the ESN when the mission has one, otherwise the final client); every field is optional and Hibernate adds the nullable columns to existing rows:
+  - `activityReportTitle` (`activity_report_title`, at most 120 characters; default "Compte rendu d'activité" / "Activity report")
+  - `activityReportLayout` (`DAILY_TABLE`, one row per day in portrait, the default, or `CALENDAR_GRID`, a one-line month grid in landscape)
+  - `activityReportShowsLocation` (on-site / remote split; null means shown)
+  - `activityReportLanguage` (`FR`, the default, or `EN`)
+  - `activityReportFooter` (at most 500 characters)
 - `rating` (1-5 quality score, optional)
 - `isBlacklisted` flag with `blacklistReason` (clients to avoid: payment delays, ghosting, bad process)
 - freelance owner
@@ -262,6 +270,29 @@ Behavior:
 - creating or updating a season attaches the owner's unassigned projects created within its dates
 - a new project without an explicit season joins the running season that started last
 - deleting a season clears `season_id` on its projects instead of deleting them
+
+## ActivityReport
+
+Tables: `activity_reports`, `activity_report_days`
+
+Purpose: the monthly activity report (CRA) of a mission, validated by its client or ESN.
+
+Important fields:
+
+- project, `reportYear` and `reportMonth`, unique together (`uk_activity_reports_project_month`)
+- `status`: `DRAFT`, `SUBMITTED`, `VALIDATED` or `REJECTED`
+- `comment`: the freelance's note to the validator
+- days (`activity_report_days`, an element collection ordered by date): `day_date`, `day_type` (`ONSITE`, `REMOTE` or `ABSENCE`) and `half_day`; a day without an entry was not worked
+- `submittedAt`, `validationTokenHash` (SHA-256 of the validation link token, hex, unique), `validationExpiresAt`
+- `validatorName`, `decidedAt` and `decisionComment` (the validator's comment, or the rejection reason)
+
+Behavior:
+
+- reports exist only for accepted (`WON`) missions; once created they stay reachable if the mission changes stage
+- every day belongs to the report's month and appears once; half days count for 0.5 in the totals (worked, on site, remote, absences), and the amount is the worked days times the mission's daily rate, excluding VAT
+- the month's French public holidays and business days are computed (`FrenchPublicHolidays`), not stored
+- days and comment change only in `DRAFT` or `REJECTED`; submitting issues a new link and clears an earlier decision; reopening returns to `DRAFT` and clears the link and the decision
+- timestamps are `Instant` values, so the API returns them with their UTC offset
 
 ## InterviewStep
 
@@ -358,11 +389,12 @@ Practical ownership rules for new development:
 - A contact belongs to one client and one freelance.
 - A source belongs to one freelance.
 - A season belongs to one freelance; a project may belong to one season of the same freelance.
+- An activity report belongs to one project, one per month.
 - User account data should not be mixed into project ownership without clarifying the User/Freelance boundary.
 
 Deletion rules:
 
-- deleting a project also deletes its interview steps and journal notes
+- deleting a project also deletes its interview steps, journal notes and activity reports (with their days)
 - a client still referenced by projects (as final client or intermediary) cannot be deleted (409)
 - deleting a source or a season keeps its projects, which lose that reference
 - deleting a client deletes its contacts

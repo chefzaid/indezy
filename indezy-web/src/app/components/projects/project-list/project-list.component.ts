@@ -39,6 +39,7 @@ import {
 import { ProjectDto, User, FreelanceDto, ProjectStatus, PROJECT_STATUS_COLORS } from '../../../models';
 import { TravelMode, ProjectCommuteDto, CommuteInfoDto } from '../../../models/commute.models';
 import { KeyboardShortcutsService } from '../../../shared/shortcuts/keyboard-shortcuts.service';
+import { saveBlob } from '../../../shared/utils/download-file';
 
 @Component({
     selector: 'app-project-list',
@@ -309,14 +310,7 @@ export class ProjectListComponent implements OnInit {
 
     const year = new Date().getFullYear();
     this.projectService.downloadYearlySummary(this.currentUser.id, year).subscribe({
-      next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `indezy-summary-${year}.csv`;
-        link.click();
-        URL.revokeObjectURL(url);
-      },
+      next: (blob) => saveBlob(blob, `indezy-summary-${year}.csv`),
       error: () => this.notificationService.error('projects.exportError')
     });
   }

@@ -275,7 +275,7 @@ Differentiators, each covered below:
 
 ### Mission Operations (after signature)
 
-- [ ] Monthly activity report (CRA) per mission: calendar of full and half days, on-site or remote, public holidays and absences; validation by the client or ESN through a signed link; PDF in the ESN's template; validated days feed the invoice.
+- [x] Monthly activity report (CRA) per mission: calendar of full and half days, on-site or remote, public holidays and absences; validation by the client or ESN through a signed link; PDF in the ESN's template; validated days feed the invoice (the Factur-X item below builds invoices from them).
 - [ ] Compliance document vault: URSSAF vigilance certificate (renewed every six months), company registration extract, professional liability insurance, bank details and ID, with expiry reminders and a one-link pack to send to an ESN.
 - [ ] Purchase orders and amendments per mission (number, amount or day ceiling, period), consumption tracked against CRA days, with an alert before the ceiling.
 - [ ] Electronic signature of contracts, amendments and CRAs through an EU qualified trust provider.

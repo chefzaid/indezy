@@ -1,4 +1,5 @@
 import { ProjectResourcesComponent } from './project-resources.component';
+import { ActivityReportCardComponent } from '../activity-report-card/activity-report-card.component';
 import { ProjectLinkComponent } from '../../../shared/components/project-link/project-link.component';
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, Injector, ViewChild, afterNextRender, inject } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
@@ -56,6 +57,7 @@ import { NOTE_TEMPLATES } from './note-templates';
     imports: [
         ProjectLinkComponent,
         ProjectResourcesComponent,
+        ActivityReportCardComponent,
         CommonModule,
         FormsModule,
         RouterModule,

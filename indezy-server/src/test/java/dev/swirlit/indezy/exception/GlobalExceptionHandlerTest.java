@@ -180,6 +180,16 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void invalidState_ShouldAnswer409WithItsFixedMessageAndLogAtWarn(CapturedOutput output) {
+        ResponseEntity<ErrorResponse> response = handler.handleInvalidState(
+            new InvalidStateException("The activity report is not waiting for validation"));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(response.getBody().getMessage()).isEqualTo("The activity report is not waiting for validation");
+        assertThat(logLine(output, "Invalid state")).contains("WARN", "not waiting for validation").doesNotContain("ERROR");
+    }
+
+    @Test
     void parameterTypeMismatch_ShouldLogTheParameterNameWithoutTheValue(CapturedOutput output) throws Exception {
         MethodArgumentTypeMismatchException ex = new MethodArgumentTypeMismatchException(REJECTED_EMAIL, Long.class, "id",
             createContactBody(), new NumberFormatException("For input string: \"" + REJECTED_EMAIL + "\""));

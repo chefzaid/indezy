@@ -1,8 +1,19 @@
 // Client related interfaces and types
 
+import { ActivityReportLayout, DocumentLanguage } from './activity-report.models';
+
+/** How the client wants activity reports printed; unset fields use the defaults. */
+export interface ActivityReportTemplateFields {
+  activityReportTitle?: string;
+  activityReportLayout?: ActivityReportLayout;
+  activityReportShowsLocation?: boolean;
+  activityReportLanguage?: DocumentLanguage;
+  activityReportFooter?: string;
+}
+
 export type ClientStatus = 'ACTIVE' | 'INACTIVE' | 'ESN';
 
-export interface ClientDto {
+export interface ClientDto extends ActivityReportTemplateFields {
   id: number;
   companyName: string;
   address?: string;
@@ -27,7 +38,7 @@ export interface ClientDto {
   updatedAt?: Date;
 }
 
-export interface CreateClientDto {
+export interface CreateClientDto extends ActivityReportTemplateFields {
   companyName: string;
   address?: string;
   city: string;

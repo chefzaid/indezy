@@ -13,4 +13,5 @@ export * from './user-management.models';
 export * from './interview-step.models';
 export * from './commute.models';
 export * from './season.models';
+export * from './activity-report.models';
 

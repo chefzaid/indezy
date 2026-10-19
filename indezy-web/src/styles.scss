@@ -1,4 +1,9 @@
+@use '@angular/cdk' as cdk;
 @use '@angular/material' as mat;
+
+/* The prebuilt Material theme leaves out the CDK accessibility styles: .cdk-visually-hidden keeps
+   screen-reader-only text (such as calendar day descriptions and live announcements) off screen. */
+@include cdk.a11y-visually-hidden();
 
 /* You can add global styles to this file, and also import other style files */
 

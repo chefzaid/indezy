@@ -12,6 +12,7 @@ import { InterviewStepService } from './interview-step/interview-step.service';
 import { ProjectService } from './project/project.service';
 import { SourceService } from './source/source.service';
 import { UserManagementService } from './user-management/user-management.service';
+import { ActivityReportService } from './activity-report/activity-report.service';
 import { ProjectStatus, StepStatus } from '../models';
 
 /** One HTTP wrapper call: what the service is asked, and the request it must send. */
@@ -24,6 +25,7 @@ interface ApiCase {
   body?: unknown;
   /** Response to flush when the endpoint does not return JSON. */
   response?: unknown;
+  headers?: Record<string, string>;
 }
 
 describe('API services', () => {
@@ -52,6 +54,10 @@ describe('API services', () => {
   const project = (): ProjectService => TestBed.inject(ProjectService);
   const source = (): SourceService => TestBed.inject(SourceService);
   const users = (): UserManagementService => TestBed.inject(UserManagementService);
+  const reports = (): ActivityReportService => TestBed.inject(ActivityReportService);
+  const reportsOf2 = `${api}/projects/2/activity-reports`;
+  const linkToken = { 'X-Report-Token': 'link-token' };
+  const decision = { approved: false, validatorName: 'Jean Dupont', comment: 'Le 11 est férié' };
 
   const cases: ApiCase[] = [
     { name: 'clients of the signed-in freelance', call: () => client().getForCurrentFreelance(), method: 'GET', url: `${api}/clients/by-freelance/7` },
@@ -98,6 +104,17 @@ describe('API services', () => {
     { name: 'add note', call: () => project().addProjectNote(2, 'Called'), method: 'POST', url: `${api}/projects/2/notes`, body: { content: 'Called' } },
     { name: 'delete note', call: () => project().deleteProjectNote(2, 8), method: 'DELETE', url: `${api}/projects/2/notes/8` },
 
+    { name: 'activity reports of a mission', call: () => reports().getReports(2), method: 'GET', url: reportsOf2 },
+    { name: 'activity report of a month', call: () => reports().getReport(2, 2026, 11), method: 'GET', url: `${reportsOf2}/2026/11` },
+    { name: 'save activity report', call: () => reports().save(2, 2026, 11, { days: [] }), method: 'PUT', url: `${reportsOf2}/2026/11`, body: { days: [] } },
+    { name: 'submit activity report', call: () => reports().submit(2, 2026, 11), method: 'POST', url: `${reportsOf2}/2026/11/submit` },
+    { name: 'renew validation link', call: () => reports().renewLink(2, 2026, 11), method: 'POST', url: `${reportsOf2}/2026/11/link` },
+    { name: 'reopen activity report', call: () => reports().reopen(2, 2026, 11), method: 'POST', url: `${reportsOf2}/2026/11/reopen` },
+    { name: 'activity report PDF', call: () => reports().downloadPdf(2, 2026, 11), method: 'GET', url: `${reportsOf2}/2026/11/pdf`, response: new Blob(['%PDF']) },
+    { name: 'public activity report', call: () => reports().getPublicReport('link-token'), method: 'GET', url: `${api}/public/activity-reports`, headers: linkToken },
+    { name: 'public activity report PDF', call: () => reports().downloadPublicPdf('link-token'), method: 'GET', url: `${api}/public/activity-reports/pdf`, headers: linkToken, response: new Blob(['%PDF']) },
+    { name: 'activity report decision', call: () => reports().decide('link-token', decision), method: 'POST', url: `${api}/public/activity-reports/decision`, headers: linkToken, body: decision },
+
     { name: 'source by id', call: () => source().getById(6), method: 'GET', url: `${api}/sources/6` },
     { name: 'sources of a freelance', call: () => source().getByFreelanceId(7), method: 'GET', url: `${api}/sources/by-freelance/7` },
     { name: 'create source', call: () => source().create({ name: 'Malt' } as never), method: 'POST', url: `${api}/sources`, body: { name: 'Malt' } },
@@ -133,6 +150,10 @@ describe('API services', () => {
       if (apiCase.body !== undefined) {
         expect(req.request.body).toEqual(apiCase.body);
       }
+      for (const [name, value] of Object.entries(apiCase.headers ?? {})) {
+        expect(req.request.headers.get(name)).toBe(value);
+      }
+      expect(req.request.urlWithParams).not.toContain('link-token');
       req.flush(apiCase.response ?? (apiCase.method === 'DELETE' ? null : {}));
       await response;
     });

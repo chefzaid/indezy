@@ -1,9 +1,12 @@
 package dev.swirlit.indezy.dto;
 
+import dev.swirlit.indezy.model.enums.ActivityReportLayout;
+import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -36,6 +39,19 @@ public class ClientDto {
     private Boolean isBlacklisted;
 
     private String blacklistReason;
+
+    // Activity report PDF template; null fields use the defaults
+    @Size(max = 120, message = "Activity report title must be at most 120 characters")
+    private String activityReportTitle;
+
+    private ActivityReportLayout activityReportLayout;
+
+    private Boolean activityReportShowsLocation;
+
+    private DocumentLanguage activityReportLanguage;
+
+    @Size(max = 500, message = "Activity report footer must be at most 500 characters")
+    private String activityReportFooter;
 
     // Related entities
     @NotNull(message = "Freelance ID is required")
