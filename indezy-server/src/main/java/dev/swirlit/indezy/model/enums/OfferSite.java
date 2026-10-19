@@ -13,7 +13,12 @@ public enum OfferSite {
     CHERRY_PICK("Cherry Pick", "https://www.cherry-pick.io", Duration.ofHours(3)),
     // Its API only returns the 10 newest missions, so it is read more often to miss none.
     LEHIBOU("LeHibou", "https://www.lehibou.com", Duration.ofMinutes(30)),
-    YEETS("Yeets", "https://www.yeets.fr", Duration.ofHours(6));
+    YEETS("Yeets", "https://www.yeets.fr", Duration.ofHours(6)),
+    WORKDISPO("WorkDispo", "https://www.workdispo.com", Duration.ofHours(2)),
+    NEXT_MONDAYS("Next Mondays", "https://nextmondays.com", Duration.ofHours(12)),
+    MINDQUEST("Mindquest", "https://mindquest.io", Duration.ofHours(3)),
+    FREELANCE_FACTORY("Freelance Factory", "https://freelance-factory.fr", Duration.ofHours(6)),
+    LITTLE_BIG_CONNECTION("LittleBig Connection", "https://www.littlebigconnection.com", Duration.ofHours(6));
 
     private final String displayName;
     private final String homeUrl;

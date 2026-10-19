@@ -2,7 +2,17 @@
 
 import { WorkMode } from './project.models';
 
-export type OfferSite = 'FREE_WORK' | 'COLLECTIVE' | 'CHERRY_PICK' | 'LEHIBOU' | 'YEETS';
+export type OfferSite =
+  | 'FREE_WORK'
+  | 'COLLECTIVE'
+  | 'CHERRY_PICK'
+  | 'LEHIBOU'
+  | 'YEETS'
+  | 'WORKDISPO'
+  | 'NEXT_MONDAYS'
+  | 'MINDQUEST'
+  | 'FREELANCE_FACTORY'
+  | 'LITTLE_BIG_CONNECTION';
 export type Seniority = 'JUNIOR' | 'CONFIRMED' | 'SENIOR' | 'EXPERT';
 export type OfferDatePrecision = 'EXACT' | 'DAY' | 'FIRST_SEEN';
 export type OfferView = 'FEED' | 'SAVED' | 'HIDDEN';

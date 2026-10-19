@@ -141,7 +141,8 @@ Source data feeds filtering and the dashboard's source ROI ranking. Deleting a s
 **Offers** in the navigation lists the freelance missions published on the job boards Indezy reads, newest first,
 in one feed. The backend reads each board on its own schedule (see [Architecture](./architecture.md#offer-collection)
 and [ADR 0009](./adr/0009-collecting-job-offers.md)); the feed shows what the boards published, never permanent (CDI)
-or fixed-term (CDD) jobs: an offer is kept only when its site marks it as a freelance mission.
+or fixed-term (CDD) jobs: an offer is kept only when its site marks it as a freelance mission and its title does not
+name a CDI or CDD job (some sites list "Tech Lead – CDI" among their freelance offers; "CDI/Freelance" is kept).
 
 Sites read today:
 
@@ -152,6 +153,16 @@ Sites read today:
 | Cherry Pick | its freelance missions (`mission_type` short), not its salaried jobs | every 3 hours |
 | LeHibou | its 10 newest missions; pro bono missions are left out | every 30 minutes |
 | Yeets | missions still open (to start or to confirm) | every 6 hours |
+| WorkDispo | the jobs of its sitemap, kept when their schema.org posting is a contractor one and their contract reads Freelance | every 2 hours |
+| Next Mondays | the jobs of its jobs sitemap with their daily rate and duration | every 12 hours |
+| Mindquest | the missions of its missions sitemap whose posting is a contractor one, with their start, rate and tags | every 3 hours |
+| Freelance Factory | the missions of its WordPress API, with the place, daily rate, duration and description of their page | every 6 hours |
+| LittleBig Connection | the open missions of its nine categories, with their daily budget; the site gives no date, so they are dated when first seen | every 6 hours |
+
+Sites that describe each offer on its own page (WorkDispo, Next Mondays, Mindquest, Freelance Factory) are read a
+few pages at a time: each run reads up to 100 offers Indezy does not hold yet, most recently changed first, so their
+backlog fills in over the first runs. An offer set aside (a CDI or CDD job, an offer older than 90 days, a page
+gone) is remembered for 30 days and not read again.
 
 The other boards are planned in [TODO.md](../TODO.md#freelance-offer-feed-added-2026-10-19), with the ones left out
 and why (LinkedIn forbids crawling; HiTechPros, Opteamis, Comet and others keep missions behind a sign-in).
@@ -377,7 +388,7 @@ These capabilities are intentionally not treated as implemented yet, even if som
 - password reset and email verification
 - two-factor recovery codes
 - self-service account deletion (identities live in Keycloak)
-- job boards other than the five the offer feed reads (the next ones are planned in TODO.md)
+- job boards other than the ten the offer feed reads (the next ones are planned in TODO.md)
 - Gmail, Outlook, or LinkedIn sync
 - Chrome extension capture
 - cross-platform mobile app

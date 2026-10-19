@@ -24,7 +24,9 @@ class OfferNormalizerTest {
     private static final Instant NOW = Instant.parse("2026-10-19T10:00:00Z");
 
     private final GeoLocator geoLocator = mock(GeoLocator.class);
-    private final OfferNormalizer normalizer = new OfferNormalizer(geoLocator);
+    private final OfferNormalizer normalizer = new OfferNormalizer(geoLocator, new OfferProperties(true,
+        java.time.Duration.ofMinutes(5), java.time.Duration.ofSeconds(2), 10, java.time.Duration.ofHours(1), 90, "IndezyBot/test",
+        false, "http://127.0.0.1"));
 
     @Test
     void completesAFreelanceOffer() {
@@ -69,6 +71,17 @@ class OfferNormalizerTest {
         assertThat(normalizer.normalize(OfferSite.FREE_WORK, base().url("/relative").build(), NOW)).isEmpty();
         assertThat(normalizer.normalize(OfferSite.FREE_WORK, base().url("https://exa mple.com").build(), NOW)).isEmpty();
         assertThat(normalizer.normalize(OfferSite.FREE_WORK, base().externalId(null).build(), NOW)).isEmpty();
+        // Marked freelance by its site, yet its title names a permanent job.
+        assertThat(normalizer.normalize(OfferSite.WORKDISPO, base().title("Tech Lead IA – CDI (H/F)").build(), NOW)).isEmpty();
+    }
+
+    @Test
+    void dropsOffersTheFeedWouldRemoveAtOnce() {
+        assertThat(normalizer.normalize(OfferSite.NEXT_MONDAYS, base().publishedAt(NOW.minus(java.time.Duration.ofDays(91))).build(), NOW))
+            .isEmpty();
+        assertThat(normalizer.normalize(OfferSite.FREE_WORK, base().expiresAt(NOW).build(), NOW)).isEmpty();
+        assertThat(normalizer.normalize(OfferSite.FREE_WORK, base().publishedAt(NOW.minus(java.time.Duration.ofDays(89)))
+            .expiresAt(NOW.plusSeconds(60)).build(), NOW)).isPresent();
     }
 
     @Test

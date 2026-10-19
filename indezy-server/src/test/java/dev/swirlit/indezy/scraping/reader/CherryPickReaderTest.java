@@ -4,9 +4,11 @@ import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.Seniority;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.scraping.FakeFetcher;
+import dev.swirlit.indezy.scraping.Json;
 import dev.swirlit.indezy.scraping.ScrapedOffer;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -69,5 +71,38 @@ class CherryPickReaderTest {
         reader.read(fetcher, offers -> true);
 
         assertThat(fetcher.postedBodies()).hasSize(1);
+    }
+
+    @Test
+    void stopsWhenTheAnswerHasNoMissionsOrTheBatchHasEnough() throws Exception {
+        FakeFetcher withoutList = new FakeFetcher().page(CherryPickReader.SEARCH_URL, "{\"message\":\"maintenance\"}");
+        FakeFetcher endless = new FakeFetcher().page(CherryPickReader.SEARCH_URL,
+            "{\"data\":[{\"id\":1,\"status\":\"published\"}],\"meta\":{}}");
+
+        reader.read(withoutList, offers -> true);
+        reader.read(endless, offers -> false);
+
+        assertThat(withoutList.postedBodies()).hasSize(1);
+        assertThat(endless.postedBodies()).hasSize(1);
+    }
+
+    @Test
+    void readsEveryRemotePolicyAndLeavesOutRemovedMissions() throws Exception {
+        assertThat(remote("full_remote")).isEqualTo(WorkMode.REMOTE);
+        assertThat(remote("no_remote")).isEqualTo(WorkMode.ONSITE);
+        assertThat(remote("on_site")).isEqualTo(WorkMode.ONSITE);
+        assertThat(remote("occasional_remote")).isEqualTo(WorkMode.HYBRID);
+        assertThat(remote("travel")).isNull();
+        assertThat(remote(null)).isNull();
+        assertThat(CherryPickReader.offer(Json.parse("{\"status\":\"draft\"}"))).isNull();
+        assertThat(CherryPickReader.offer(Json.parse("{\"status\":\"published\",\"deleted_at\":\"2026-10-01T00:00:00\"}"))).isNull();
+        ScrapedOffer bare = CherryPickReader.offer(Json.parse("{\"id\":3,\"status\":\"published\",\"created_at\":\"hier\"}"));
+        assertThat(bare.getUrl()).isNull();
+        assertThat(bare.getPublishedAt()).isNull();
+    }
+
+    private static WorkMode remote(String displacement) throws IOException {
+        String mission = displacement == null ? "{\"status\":\"published\"}" : "{\"status\":\"published\",\"displacement\":\"" + displacement + "\"}";
+        return CherryPickReader.offer(Json.parse(mission)).getWorkMode();
     }
 }

@@ -2,6 +2,7 @@
 -- Run it through `mask db-reset`; normal application startup never executes this file.
 
 TRUNCATE TABLE
+    offer_skips,
     job_offer_states,
     job_offer_skills,
     job_offers,

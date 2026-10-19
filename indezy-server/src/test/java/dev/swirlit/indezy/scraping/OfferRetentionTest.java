@@ -2,6 +2,7 @@ package dev.swirlit.indezy.scraping;
 
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
+import dev.swirlit.indezy.repository.OfferSkipRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
@@ -28,7 +29,8 @@ class OfferRetentionTest {
 
     private final JobOfferRepository offers = mock(JobOfferRepository.class);
     private final JobOfferStateRepository states = mock(JobOfferStateRepository.class);
-    private final OfferRetention retention = new OfferRetention(offers, states, new OfferProperties(true, Duration.ofMinutes(5),
+    private final OfferSkipRepository skips = mock(OfferSkipRepository.class);
+    private final OfferRetention retention = new OfferRetention(offers, states, skips, new OfferProperties(true, Duration.ofMinutes(5),
         Duration.ofSeconds(2), 10, Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1"),
         Clock.fixed(NOW, ZoneOffset.UTC));
 
@@ -53,5 +55,6 @@ class OfferRetentionTest {
 
         assertThat(retention.purge()).isZero();
         verify(offers, never()).deleteByIdIn(anyCollection());
+        verify(skips).deleteSkippedBefore(NOW.minus(OfferRetention.SKIP_MEMORY));
     }
 }

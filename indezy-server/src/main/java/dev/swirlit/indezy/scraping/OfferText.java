@@ -48,6 +48,8 @@ public final class OfferText {
             "(?<value>\\d{1,2})\\s*" + DURATION_UNIT + "\\b" +
             "|(?<value2>\\d{1,2})\\s*(?:mois|months?)\\s*(?:renouvelables?|renewable|minimum|fermes?|extensible)");
     private static final Pattern TITLE_DURATION = Pattern.compile("\\b(?<value>\\d{1,2})\\s*(?<unit>mois|months?)\\b");
+    private static final Pattern SALARIED = Pattern.compile("\\b(cdi|cdd)\\b");
+    private static final Pattern FREELANCE = Pattern.compile("\\b(freelances?|independants?|portage)\\b");
     private static final Pattern ONSITE_DAYS = Pattern.compile("(\\d)\\s*(?:j|jours?|days?)\\b[^.]{0,20}?(?:sur site|on site|onsite|presentiel)");
 
     private OfferText() {
@@ -119,7 +121,7 @@ public final class OfferText {
             return remoteDaysPerWeek(Math.max(0, 5 - Integer.parseInt(onsiteDays.group(1))));
         }
         if (folded.matches(".*\\b(full remote|full time remote|100 teletravail|teletravail complet|teletravail total" +
-            "|totalement a distance|fully remote|remote only|100 remote)\\b.*") || "remote".equals(folded) ||
+            "|totalement a distance|fully remote|remote only|100 remote|a distance|distanciel|full distanciel)\\b.*") || "remote".equals(folded) ||
             "teletravail".equals(folded) || "full".equals(folded)) {
             return new Remote(WorkMode.REMOTE, 5);
         }
@@ -161,6 +163,15 @@ public final class OfferText {
         }
         // "12 mois renouvelables" names no unit group: it is in months.
         return durationMonths(Double.valueOf(matcher.group("value2")), "mois");
+    }
+
+    /**
+     * Whether a title names a permanent or fixed-term job and no freelance mission ("Tech Lead – CDI (H/F)"), which some
+     * sites list among their freelance offers; "CDI/Freelance" names both and is kept.
+     */
+    public static boolean namesSalariedJob(String title) {
+        String folded = TextFolding.words(title);
+        return folded != null && SALARIED.matcher(folded).find() && !FREELANCE.matcher(folded).find();
     }
 
     /** "Junior", "Confirmé", "Intermédiaire", "Senior", "Expert" and their English forms. */

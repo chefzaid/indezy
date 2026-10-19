@@ -18,10 +18,14 @@ The server runs as one replica with 1 GiB of memory on a shared node.
   runs the readers one site at a time from `OfferScheduler` (every 5 minutes it reads the sites that are due; each
   site has its own refresh interval in `OfferSite`).
 - Read a site's own structured data before its HTML: its public JSON API (Free-Work, Cherry Pick, LeHibou, Yeets), the
-  page's framework data (Collective.work's `__NEXT_DATA__`), then, in later increments, sitemaps with schema.org
-  `JobPosting` markup and finally HTML, parsed with jsoup (MIT license, `org.jsoup:jsoup`).
-- Keep freelance missions only, by each site's own marker (a contract type, a mission type or a filter parameter);
-  permanent and fixed-term jobs never enter the feed.
+  page's framework data (Collective.work's `__NEXT_DATA__`, LittleBig Connection's React Server Components payload),
+  then sitemaps with schema.org `JobPosting` markup (WorkDispo, Next Mondays, Mindquest) and finally HTML, parsed
+  with jsoup (MIT license, `org.jsoup:jsoup`).
+- For a site whose list does not describe its offers, read only the pages of offers not stored yet, a few per run
+  under the page budget, and remember the offers set aside for 30 days (`offer_skips`) so they are not read again.
+- Keep freelance missions only, by each site's own marker (a contract type, a mission type or a filter parameter),
+  and leave out offers whose title names a CDI or CDD job and no freelance mission, which some sites mark as
+  freelance; permanent and fixed-term jobs never enter the feed.
 - Go through `SiteHttpClient` for every request: fixed site domains only (redirects included), `robots.txt` honoured
   for the `IndezyBot` token, at least 2 seconds between two requests to a host, an honest user agent, a 30-second
   timeout and an 8 MB response cap.

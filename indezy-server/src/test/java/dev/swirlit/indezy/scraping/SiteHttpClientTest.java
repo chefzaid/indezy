@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +37,20 @@ class SiteHttpClientTest {
     private final Map<String, String> seenHeaders = new ConcurrentHashMap<>();
     private volatile String robots = "User-agent: *\nDisallow: /private\n";
     private volatile int robotsStatus = 200;
+    private volatile String robotsRedirect;
     private SiteHttpClient client;
 
     @BeforeEach
     void startServer() throws IOException {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-        server.createContext("/robots.txt", exchange -> respond(exchange, robotsStatus, robots, "text/plain"));
+        server.createContext("/robots.txt", exchange -> {
+            if (robotsRedirect != null) {
+                redirect(exchange, robotsRedirect);
+            } else {
+                respond(exchange, robotsStatus, robots, "text/plain");
+            }
+        });
+        server.createContext("/robots-v2.txt", exchange -> respond(exchange, 200, "User-agent: *\nDisallow: /page\n", "text/plain"));
         server.createContext("/page", exchange -> {
             seenHeaders.put("user-agent", String.valueOf(exchange.getRequestHeaders().getFirst("User-Agent")));
             exchange.getResponseHeaders().add("Content-Type", "text/html; charset=ISO-8859-1");
@@ -64,6 +73,12 @@ class SiteHttpClientTest {
         });
         server.createContext("/redirect", exchange -> redirect(exchange, "/page"));
         server.createContext("/away", exchange -> redirect(exchange, "http://example.com/jobs"));
+        server.createContext("/loop", exchange -> redirect(exchange, "/loop"));
+        server.createContext("/moved/", exchange -> {
+            exchange.getResponseHeaders().add("Location", "/page");
+            exchange.sendResponseHeaders(Integer.parseInt(exchange.getRequestURI().getPath().substring("/moved/".length())), -1);
+            exchange.close();
+        });
         server.createContext("/missing", exchange -> respond(exchange, 404, "gone", "text/plain"));
         server.createContext("/big", exchange -> {
             exchange.sendResponseHeaders(200, 0);
@@ -166,6 +181,90 @@ class SiteHttpClientTest {
         assertThatThrownBy(() -> fetcher.get(base + "/missing")).isInstanceOf(SiteResponseException.class)
             .extracting(e -> ((SiteResponseException) e).getStatus()).isEqualTo(404);
         assertThatThrownBy(() -> fetcher.get(base + "/big")).isInstanceOf(IOException.class).hasMessageContaining("passes");
+    }
+
+    @Test
+    void followsEveryRedirectStatusButNoLoop() throws Exception {
+        PageFetcher fetcher = client.fetcherFor(DOMAIN);
+
+        for (int status : new int[] {301, 303, 307, 308}) {
+            assertThat(fetcher.get(base + "/moved/" + status)).isEqualTo("Café");
+        }
+        assertThatThrownBy(() -> fetcher.get(base + "/moved/304")).isInstanceOf(SiteResponseException.class)
+            .extracting(e -> ((SiteResponseException) e).getStatus()).isEqualTo(304);
+        assertThatThrownBy(() -> fetcher.get(base + "/loop")).isInstanceOf(SiteResponseException.class)
+            .hasMessageContaining("Unexpected redirect");
+    }
+
+    @Test
+    void readsQueriesAndHostsUnderTheDomainAndReportsPostErrors() throws Exception {
+        PageFetcher fetcher = client.fetcherFor(DOMAIN);
+
+        assertThat(fetcher.get(base + "/page?sort=date")).isEqualTo("Café");
+        // Any host under the domain, as www.free-work.com under free-work.com.
+        assertThat(client.fetcherFor("0.0.1").get(base + "/page")).isEqualTo("Café");
+        assertThatThrownBy(() -> fetcher.get(base)).isInstanceOf(SiteResponseException.class);
+        assertThatThrownBy(() -> fetcher.get("/page")).isInstanceOf(SiteResponseException.class).hasMessageContaining("Refused to leave");
+        assertThatThrownBy(() -> fetcher.postJson(base + "/missing", "{}")).hasMessageStartingWith("POST /missing answered 404");
+    }
+
+    @Test
+    void followsARobotsRedirectAndReadsNothingWhenItLoopsOrLeadsNowhere() throws Exception {
+        robotsRedirect = "/robots-v2.txt";
+        PageFetcher moved = clientAt(new MovingClock()).fetcherFor(DOMAIN);
+        assertThat(moved.get(base + "/gzip")).isEqualTo("{\"ok\":true}");
+        assertThatThrownBy(() -> moved.get(base + "/page")).hasMessageContaining("robots.txt disallows");
+
+        robotsRedirect = "/robots.txt";
+        assertThatThrownBy(() -> clientAt(new MovingClock()).fetcherFor(DOMAIN).get(base + "/gzip")).hasMessageContaining("robots.txt disallows");
+
+        robotsRedirect = null;
+        robotsStatus = 302;
+        assertThatThrownBy(() -> clientAt(new MovingClock()).fetcherFor(DOMAIN).get(base + "/gzip")).hasMessageContaining("robots.txt disallows");
+    }
+
+    @Test
+    void readsRobotsTxtAgainOnceItsCopyIsOld() throws Exception {
+        MovingClock clock = new MovingClock();
+        PageFetcher fetcher = clientAt(clock).fetcherFor(DOMAIN);
+        fetcher.get(base + "/page");
+        robots = "User-agent: *\nDisallow: /page\n";
+
+        clock.advance(Duration.ofHours(1));
+        assertThat(fetcher.get(base + "/page")).isEqualTo("Café");
+        clock.advance(Duration.ofHours(12));
+        assertThatThrownBy(() -> fetcher.get(base + "/page")).hasMessageContaining("robots.txt disallows");
+        // An hour apart, the requests had no delay to wait.
+        assertThat(waits).containsExactly(Duration.ofSeconds(2));
+    }
+
+    private SiteHttpClient clientAt(Clock clock) {
+        return new SiteHttpClient(new OfferProperties(true, Duration.ofMinutes(5), Duration.ofSeconds(2), 10, Duration.ofHours(1), 90,
+            "IndezyBot/test", false, "http://127.0.0.1"), HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build(), clock, waits::add);
+    }
+
+    /** A clock the test moves forward. */
+    private static final class MovingClock extends Clock {
+        private Instant now = Instant.parse("2026-10-19T10:00:00Z");
+
+        void advance(Duration duration) {
+            now = now.plus(duration);
+        }
+
+        @Override
+        public ZoneId getZone() {
+            return ZoneOffset.UTC;
+        }
+
+        @Override
+        public Clock withZone(ZoneId zone) {
+            return this;
+        }
+
+        @Override
+        public Instant instant() {
+            return now;
+        }
     }
 
     private static void redirect(HttpExchange exchange, String location) throws IOException {

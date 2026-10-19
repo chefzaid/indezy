@@ -71,6 +71,28 @@ class OfferCollectorTest {
     }
 
     @Test
+    void setsAsideTheOffersLeftOutAndAnswersWhichAreKnown() {
+        when(normalizer.normalize(eq(OfferSite.MINDQUEST), any(), any()))
+            .thenAnswer(invocation -> ((ScrapedOffer) invocation.getArgument(1)).getExternalId().endsWith("a") ?
+                Optional.of(new JobOffer()) : Optional.empty());
+        when(store.known(OfferSite.MINDQUEST, List.of("x"))).thenReturn(java.util.Set.of("x"));
+        java.util.List<java.util.Set<String>> answers = new ArrayList<>();
+        PagedReader reader = new PagedReader(OfferSite.MINDQUEST, false, 1) {
+            @Override
+            public void read(PageFetcher fetcher, OfferBatch batch) throws IOException, InterruptedException {
+                answers.add(batch.known(List.of("x")));
+                super.read(fetcher, batch);
+            }
+        };
+
+        collector(reader).collect(OfferSite.MINDQUEST);
+
+        assertThat(answers).containsExactly(java.util.Set.of("x"));
+        verify(store).skip(OfferSite.MINDQUEST, List.of("0b"), NOW);
+        verify(runs).succeeded(OfferSite.MINDQUEST, NOW, 1, 0);
+    }
+
+    @Test
     void recordsAFailedRunWithoutThrowing() {
         OfferReader broken = new PagedReader(OfferSite.YEETS, true, 1) {
             @Override

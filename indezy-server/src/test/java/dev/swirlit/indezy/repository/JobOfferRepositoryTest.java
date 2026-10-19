@@ -6,6 +6,7 @@ import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
 import dev.swirlit.indezy.model.OfferSiteStatus;
+import dev.swirlit.indezy.model.OfferSkip;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
@@ -43,6 +44,9 @@ class JobOfferRepositoryTest {
     @Autowired
     private OfferSiteStatusRepository statuses;
 
+    @Autowired
+    private OfferSkipRepository skips;
+
     private Freelance freelance;
     private JobOffer recent;
     private JobOffer old;
@@ -66,6 +70,17 @@ class JobOfferRepositoryTest {
     void findsOffersOfASiteByTheirIds() {
         assertThat(offers.findBySiteAndExternalIdIn(OfferSite.FREE_WORK, List.of("1", "3", "9")))
             .extracting(JobOffer::getExternalId).containsExactly("1");
+    }
+
+    @Test
+    void namesTheKnownIdsOfASiteAndTheSkippedOnes() {
+        assertThat(offers.findKnownIds(OfferSite.FREE_WORK, List.of("1", "2", "3", "9"))).containsExactlyInAnyOrder("1", "2");
+        skips.saveAndFlush(new OfferSkip(OfferSite.WORKDISPO, "cdi-1", NOW.minus(Duration.ofDays(40))));
+        skips.saveAndFlush(new OfferSkip(OfferSite.WORKDISPO, "cdi-2", NOW));
+
+        assertThat(skips.findSkippedIds(OfferSite.WORKDISPO, List.of("cdi-1", "cdi-2", "cdi-3"))).containsExactlyInAnyOrder("cdi-1", "cdi-2");
+        assertThat(skips.deleteSkippedBefore(NOW.minus(Duration.ofDays(30)))).isEqualTo(1);
+        assertThat(skips.findSkippedIds(OfferSite.WORKDISPO, List.of("cdi-1", "cdi-2"))).containsExactly("cdi-2");
     }
 
     @Test

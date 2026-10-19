@@ -94,6 +94,19 @@ class GeoLocatorTest {
     }
 
     @Test
+    void looksUpAPostalCodeAloneAndKeepsCommunesWithoutCoordinatesUnknown() {
+        answer = "[{\"nom\":\"Lyon\",\"centre\":{\"coordinates\":[null,45.76]}}]";
+
+        assertThat(locator(true).locate(null, "69002")).isEmpty();
+        assertThat(queries).singleElement().asString().contains("codePostal=69002").doesNotContain("&nom=");
+
+        answer = "[]";
+        assertThat(locator(true).locate("Nulle-Part", "99999")).isEmpty();
+        // The postal code, then the name alone, which is not known either.
+        assertThat(queries).hasSize(3);
+    }
+
+    @Test
     void answersFromTheCache() {
         GeoPlace cached = new GeoPlace();
         cached.setQueryKey("|paris");
@@ -106,6 +119,10 @@ class GeoLocatorTest {
         when(places.findById("|paris")).thenReturn(Optional.of(cached));
 
         assertThat(locator(true).locate("Paris", "not a code")).get().extracting(GeoLocator.Place::departmentCode).isEqualTo("75");
+        GeoPlace withoutCoordinates = new GeoPlace();
+        withoutCoordinates.setFound(true);
+        when(places.findById("|lyon")).thenReturn(Optional.of(withoutCoordinates));
+        assertThat(locator(true).locate("Lyon", null)).isEmpty();
         assertThat(queries).isEmpty();
     }
 

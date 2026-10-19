@@ -17,6 +17,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -52,12 +53,12 @@ public class GeoLocator {
 
     /** The commune named {@code city} (in {@code postalCode} when known); empty when unknown or not looked up. */
     public Optional<Place> locate(String city, String postalCode) {
-        String name = TextFolding.words(city);
+        String name = Objects.requireNonNullElse(TextFolding.words(city), "");
         String code = postalCode != null && postalCode.trim().matches("\\d{5}") ? postalCode.trim() : null;
-        if ((name == null || name.isEmpty()) && code == null) {
+        if (name.isEmpty() && code == null) {
             return Optional.empty();
         }
-        String key = (code == null ? "" : code) + "|" + (name == null ? "" : name);
+        String key = (code == null ? "" : code) + "|" + name;
         Optional<GeoPlace> cached = places.findById(key);
         if (cached.isPresent()) {
             return toPlace(cached.get());
@@ -68,7 +69,7 @@ public class GeoLocator {
         try {
             GeoPlace place = lookUp(key, city, code);
             // "Paris 75000": a generic postal code matches no commune, the name alone does.
-            if (!place.isFound() && code != null && name != null && !name.isEmpty()) {
+            if (!place.isFound() && code != null && !name.isEmpty()) {
                 GeoPlace byName = lookUp(key, city, null);
                 place = byName.isFound() ? byName : place;
             }

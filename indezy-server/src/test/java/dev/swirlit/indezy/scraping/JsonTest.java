@@ -17,7 +17,7 @@ class JsonTest {
         JsonNode node = Json.parse("""
             {"text": "  Paris ", "blank": " ", "number": 550, "numeric": "600.5", "comma": "12,5", "bad": "n/a",
              "object": {"a": 1}, "nothing": null, "at": "2026-10-19T18:48:39+02:00", "day": "2026-10-14T00:00:00",
-             "short": "2026", "list": ["a", null, "b"]}
+             "short": "2026", "wrong": "2026-13-45", "list": ["a", null, "b"]}
             """);
 
         assertThat(Json.text(node.path("text"))).isEqualTo("Paris");
@@ -36,6 +36,10 @@ class JsonTest {
         assertThat(Json.date(node.path("day"))).isEqualTo(LocalDate.of(2026, 10, 14));
         assertThat(Json.date(node.path("short"))).isNull();
         assertThat(Json.date(node.path("bad"))).isNull();
+        assertThat(Json.date(node.path("wrong"))).isNull();
+        assertThat(Json.text(null)).isNull();
+        assertThat(Json.decimal(null)).isNull();
+        assertThat(Json.each(null, Json::text)).isEmpty();
         assertThat(Json.each(node.path("list"), Json::text)).containsExactly("a", "b");
         assertThat(Json.each(node.path("text"), Json::text)).isEmpty();
     }
@@ -43,5 +47,12 @@ class JsonTest {
     @Test
     void reportsUnreadableJson() {
         assertThatThrownBy(() -> Json.parse("{not json")).isInstanceOf(IOException.class).hasMessageStartingWith("Unreadable JSON");
+        assertThatThrownBy(() -> Json.parseFirst("")).isInstanceOf(IOException.class);
+        assertThatThrownBy(() -> Json.parseFirst("]")).isInstanceOf(IOException.class).hasMessageStartingWith("Unreadable JSON");
+    }
+
+    @Test
+    void readsTheFirstValueAndIgnoresWhatFollows() throws IOException {
+        assertThat(Json.parseFirst("[{\"a\":1}],\"next\":{}}").path(0).path("a").asInt()).isEqualTo(1);
     }
 }

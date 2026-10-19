@@ -3,7 +3,9 @@ package dev.swirlit.indezy.scraping;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.model.OfferSkip;
 import dev.swirlit.indezy.repository.JobOfferRepository;
+import dev.swirlit.indezy.repository.OfferSkipRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -21,7 +23,8 @@ import static org.mockito.Mockito.when;
 class OfferStoreTest {
 
     private final JobOfferRepository offers = mock(JobOfferRepository.class);
-    private final OfferStore store = new OfferStore(offers);
+    private final OfferSkipRepository skips = mock(OfferSkipRepository.class);
+    private final OfferStore store = new OfferStore(offers, skips);
 
     @Test
     @SuppressWarnings("unchecked")
@@ -58,6 +61,30 @@ class OfferStoreTest {
     void savesNothingForAnEmptyPage() {
         assertThat(store.save(OfferSite.YEETS, List.of())).isZero();
         verifyNoInteractions(offers);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void remembersOffersLeftOutOnceAndOnlyWhenTheyFit() {
+        when(skips.findSkippedIds(eq(OfferSite.WORKDISPO), any())).thenReturn(List.of("cdi-1"));
+        Instant now = Instant.parse("2026-10-19T10:00:00Z");
+
+        store.skip(OfferSite.WORKDISPO, java.util.Arrays.asList("cdi-1", "cdi-2", null, "x".repeat(200), "cdi-2"), now);
+        store.skip(OfferSite.WORKDISPO, List.of(), now);
+
+        ArgumentCaptor<List<OfferSkip>> saved = ArgumentCaptor.forClass(List.class);
+        verify(skips).saveAll(saved.capture());
+        assertThat(saved.getValue()).extracting(OfferSkip::getExternalId).containsExactly("cdi-2");
+        assertThat(saved.getValue().get(0).getSkippedAt()).isEqualTo(now);
+    }
+
+    @Test
+    void knowsStoredAndSkippedOffers() {
+        when(offers.findKnownIds(OfferSite.MINDQUEST, List.of("1", "2", "3"))).thenReturn(List.of("1"));
+        when(skips.findSkippedIds(OfferSite.MINDQUEST, List.of("1", "2", "3"))).thenReturn(List.of("2"));
+
+        assertThat(store.known(OfferSite.MINDQUEST, List.of("1", "2", "3"))).containsExactlyInAnyOrder("1", "2");
+        assertThat(store.known(OfferSite.MINDQUEST, List.of())).isEmpty();
     }
 
     private static JobOffer offer(String externalId, String title, OfferDatePrecision precision, Instant publishedAt) {

@@ -19,6 +19,9 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
 
     List<JobOffer> findBySiteAndExternalIdIn(OfferSite site, Collection<String> externalIds);
 
+    @Query("select o.externalId from JobOffer o where o.site = :site and o.externalId in :externalIds")
+    List<String> findKnownIds(@Param("site") OfferSite site, @Param("externalIds") Collection<String> externalIds);
+
     /** The skills of the given offers in their order, as {@code [offerId, skill]} rows. */
     @Query("select o.id, s from JobOffer o join o.skills s where o.id in :ids order by o.id, index(s)")
     List<Object[]> findSkillsOf(@Param("ids") Collection<Long> ids);

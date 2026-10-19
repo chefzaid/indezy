@@ -8,10 +8,13 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
 /**
  * Runs the readers: claims each due site, reads it page after page through its {@link PageFetcher},
@@ -66,29 +69,54 @@ public class OfferCollector {
     /** Reads one site now; a failure is recorded on the site, never thrown. */
     public RunResult collect(OfferSite site) {
         OfferReader reader = readers.get(site);
-        int[] tally = new int[3];
+        SiteBatch batch = new SiteBatch(site, reader);
         try {
-            reader.read(http.fetcherFor(reader.domain()), page -> {
-                List<JobOffer> offers = page.stream()
-                    .map(offer -> normalizer.normalize(site, offer, clock.instant()))
-                    .flatMap(Optional::stream)
-                    .toList();
-                int created = store.save(site, offers);
-                tally[0]++;
-                tally[1] += offers.size();
-                tally[2] += created;
-                boolean onlyKnown = !offers.isEmpty() && created == 0;
-                return !page.isEmpty() && tally[0] < properties.maxPages() && !(reader.newestFirst() && onlyKnown);
-            });
-            runs.succeeded(site, clock.instant(), tally[1], tally[2]);
-            log.info("Collected {}: {} pages, {} freelance offers, {} new", site, tally[0], tally[1], tally[2]);
+            reader.read(http.fetcherFor(reader.domain()), batch);
+            runs.succeeded(site, clock.instant(), batch.found, batch.created);
+            log.info("Collected {}: {} pages, {} freelance offers, {} new", site, batch.pages, batch.found, batch.created);
         } catch (IOException | RuntimeException e) {
-            log.warn("Collecting {} failed after {} pages: {}", site, tally[0], e.getMessage());
+            log.warn("Collecting {} failed after {} pages: {}", site, batch.pages, e.getMessage());
             runs.failed(site, clock.instant(), e.getClass().getSimpleName() + ": " + e.getMessage());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             runs.failed(site, clock.instant(), "Interrupted");
         }
-        return new RunResult(tally[0], tally[1], tally[2]);
+        return new RunResult(batch.pages, batch.found, batch.created);
+    }
+
+    /** One run of a site: normalizes and stores each page, sets aside the offers left out, counts. */
+    private final class SiteBatch implements OfferBatch {
+        private final OfferSite site;
+        private final OfferReader reader;
+        private int pages;
+        private int found;
+        private int created;
+
+        private SiteBatch(OfferSite site, OfferReader reader) {
+            this.site = site;
+            this.reader = reader;
+        }
+
+        @Override
+        public boolean add(List<ScrapedOffer> page) {
+            Instant now = clock.instant();
+            List<JobOffer> offers = new ArrayList<>();
+            List<String> dropped = new ArrayList<>();
+            for (ScrapedOffer scraped : page) {
+                normalizer.normalize(site, scraped, now).ifPresentOrElse(offers::add, () -> dropped.add(scraped.getExternalId()));
+            }
+            int saved = store.save(site, offers);
+            store.skip(site, dropped, now);
+            pages++;
+            found += offers.size();
+            created += saved;
+            boolean onlyKnown = !offers.isEmpty() && saved == 0;
+            return !page.isEmpty() && pages < properties.maxPages() && !(reader.newestFirst() && onlyKnown);
+        }
+
+        @Override
+        public Set<String> known(Collection<String> externalIds) {
+            return store.known(site, externalIds);
+        }
     }
 }

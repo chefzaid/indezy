@@ -307,7 +307,8 @@ Purpose: a freelance mission published on a job board, collected by the backend 
 
 Important fields:
 
-- `site` (`OfferSite`: `FREE_WORK`, `COLLECTIVE`, `CHERRY_PICK`, `LEHIBOU`, `YEETS`) and `externalId`, the offer's
+- `site` (`OfferSite`: `FREE_WORK`, `COLLECTIVE`, `CHERRY_PICK`, `LEHIBOU`, `YEETS`, `WORKDISPO`, `NEXT_MONDAYS`,
+  `MINDQUEST`, `FREELANCE_FACTORY`, `LITTLE_BIG_CONNECTION`) and `externalId`, the offer's
   identifier on its site, unique together (`uk_job_offers_site_external_id`); `url`, the offer on its site
 - `title`, `company` (the publisher: ESN, agency or client), `description` (plain text, at most 20,000 characters)
 - `rateMin`, `rateMax`: daily rate in euros, either can be missing ("TJM max 600 €" has only a maximum)
@@ -330,10 +331,14 @@ Purpose: what one workspace did with an offer. Unique per freelance and offer (`
 Fields: `saved`, `hidden`, `seenAt`, and `importedProject`, the opportunity created from the offer (cleared when
 that project is deleted, so the offer can be imported again).
 
-## OfferSiteStatus And GeoPlace
+## OfferSiteStatus, OfferSkip And GeoPlace
 
 `offer_site_statuses`: one row per job board, keyed by the site: `nextRunAt`, `runningSince` (the claim of a running
 collection), `lastRunAt`, `lastSuccessAt`, `lastError`, `lastFound`, `lastNew` and `consecutiveFailures`.
+
+`offer_skips`: the offers a run set aside (not freelance, too old, expired or gone), so later runs do not read their
+page again: `site`, `externalId` (unique together, `uk_offer_skips_site_external_id`) and `skippedAt`. Skips are
+forgotten after 30 days, in case an offer changes.
 
 `geo_places`: the geocoding cache, keyed by the folded "postal code|city" a place was looked up with: `found`, `city`,
 `departmentCode`, `regionCode`, `latitude` and `longitude`. Unknown places are cached too.

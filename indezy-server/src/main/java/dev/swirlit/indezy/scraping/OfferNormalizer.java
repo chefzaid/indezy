@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,9 +23,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Checks and completes what a reader found: drops offers closed to freelancers or without a title or a
- * web link, caps every text, reads rates and remote policies written as text, and places the offer
- * (department, region, coordinates). The result is a detached {@link JobOffer} the store saves.
+ * Checks and completes what a reader found: drops offers closed to freelancers, without a title or a
+ * web link, expired or older than the retention window, caps every text, reads rates and remote
+ * policies written as text, and places the offer (department, region, coordinates). The result is a
+ * detached {@link JobOffer} the store saves.
  */
 @Component
 @RequiredArgsConstructor
@@ -51,13 +53,15 @@ public class OfferNormalizer {
         "plateau de saclay", "Saclay");
 
     private final GeoLocator geoLocator;
+    private final OfferProperties properties;
 
     /** The offer ready to store, or empty when it must not enter the feed. */
     public Optional<JobOffer> normalize(OfferSite site, ScrapedOffer scraped, Instant now) {
         String title = cap(scraped.getTitle(), 300);
         String url = webLink(scraped.getUrl());
         String externalId = cap(scraped.getExternalId(), 191);
-        if (!scraped.isFreelance() || title == null || url == null || externalId == null) {
+        if (!scraped.isFreelance() || OfferText.namesSalariedJob(title) || title == null || url == null || externalId == null ||
+            isStale(scraped, now)) {
             return Optional.empty();
         }
         JobOffer offer = new JobOffer();
@@ -161,6 +165,14 @@ public class OfferNormalizer {
         offer.setCountryCode(country != null && country.length() == 2 ? country : french ? "FR" : null);
         offer.setLatitude(latitude != null && longitude != null ? latitude : null);
         offer.setLongitude(latitude != null && longitude != null ? longitude : null);
+    }
+
+    /** Published before the retention window, or already expired: the feed would remove it at once. */
+    private boolean isStale(ScrapedOffer scraped, Instant now) {
+        Instant published = scraped.getPublishedAt();
+        Instant expires = scraped.getExpiresAt();
+        return published != null && published.isBefore(now.minus(Duration.ofDays(properties.retentionDays()))) ||
+            expires != null && !expires.isAfter(now);
     }
 
     /** The site's duration, else one written in the title, else in the description's beginning. */

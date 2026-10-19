@@ -21,6 +21,11 @@ public final class HtmlText {
     private HtmlText() {
     }
 
+    /** Text with its HTML entities decoded ("S&#xE9;curit&#xE9;" is "Sécurité"); {@code null} stays {@code null}. */
+    public static String unescape(String text) {
+        return text == null ? null : Parser.unescapeEntities(text, false);
+    }
+
     /** Plain text of an HTML fragment, or {@code null} when it holds no text. */
     public static String toText(String html) {
         if (html == null || html.isBlank()) {

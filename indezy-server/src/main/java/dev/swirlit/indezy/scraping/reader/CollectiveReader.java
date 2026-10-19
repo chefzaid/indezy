@@ -2,6 +2,7 @@ package dev.swirlit.indezy.scraping.reader;
 
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.scraping.Countries;
 import dev.swirlit.indezy.scraping.HtmlText;
 import dev.swirlit.indezy.scraping.Json;
 import dev.swirlit.indezy.scraping.OfferBatch;

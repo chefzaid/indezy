@@ -84,6 +84,16 @@ class OfferTextTest {
     }
 
     @Test
+    void recognisesTitlesOfSalariedJobs() {
+        assertThat(OfferText.namesSalariedJob("Tech Lead IA Senior LLM – CDI (H/F)")).isTrue();
+        assertThat(OfferText.namesSalariedJob("Comptable en CDD 6 mois")).isTrue();
+        assertThat(OfferText.namesSalariedJob("ServiceNow Expert - IT - CDI/Freelance")).isFalse();
+        assertThat(OfferText.namesSalariedJob("Développeur Java, portage ou CDI")).isFalse();
+        assertThat(OfferText.namesSalariedJob("Architecte CDISCOUNT")).isFalse();
+        assertThat(OfferText.namesSalariedJob(null)).isFalse();
+    }
+
+    @Test
     void readsSenioritiesFromYearsOfExperience() {
         assertThat(OfferText.seniority(null)).isNull();
         assertThat(OfferText.seniorityOfYears(null)).isNull();

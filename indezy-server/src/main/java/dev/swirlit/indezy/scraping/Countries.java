@@ -1,11 +1,11 @@
-package dev.swirlit.indezy.scraping.reader;
+package dev.swirlit.indezy.scraping;
 
 import dev.swirlit.indezy.util.TextFolding;
 
 import java.util.Map;
 
 /** ISO codes of the countries job boards name in French or English. */
-final class Countries {
+public final class Countries {
 
     private static final Map<String, String> CODES = Map.ofEntries(
         Map.entry("france", "FR"),
@@ -37,7 +37,7 @@ final class Countries {
     }
 
     /** The code of a country name, or {@code null} when unknown. */
-    static String code(String name) {
+    public static String code(String name) {
         return name == null ? null : CODES.get(TextFolding.words(name));
     }
 }

@@ -1,7 +1,10 @@
 package dev.swirlit.indezy.scraping;
 
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
@@ -17,6 +20,7 @@ import java.util.function.Function;
 public final class Json {
 
     private static final JsonMapper MAPPER = JsonMapper.builder().build();
+    private static final ObjectReader FIRST_VALUE = MAPPER.readerFor(JsonNode.class).without(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
 
     private Json() {
     }
@@ -24,6 +28,19 @@ public final class Json {
     public static JsonNode parse(String json) throws IOException {
         try {
             return MAPPER.readTree(json);
+        } catch (JacksonException e) {
+            throw new IOException("Unreadable JSON: " + e.getOriginalMessage(), e);
+        }
+    }
+
+    /** The first JSON value of {@code text}, ignoring what follows it (a JSON array inside a script, say). */
+    public static JsonNode parseFirst(String text) throws IOException {
+        try (JsonParser parser = MAPPER.createParser(text)) {
+            JsonNode value = FIRST_VALUE.readValue(parser);
+            if (value == null) {
+                throw new IOException("No JSON value");
+            }
+            return value;
         } catch (JacksonException e) {
             throw new IOException("Unreadable JSON: " + e.getOriginalMessage(), e);
         }

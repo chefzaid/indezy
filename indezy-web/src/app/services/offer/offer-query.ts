@@ -16,7 +16,18 @@ import {
 export const OFFER_PAGE_SIZES = [20, 50, 100];
 const VIEWS: OfferView[] = ['FEED', 'SAVED', 'HIDDEN'];
 const SORTS: OfferSort[] = ['NEWEST', 'RATE', 'DISTANCE'];
-const SITES: OfferSite[] = ['FREE_WORK', 'COLLECTIVE', 'CHERRY_PICK', 'LEHIBOU', 'YEETS'];
+const SITES: OfferSite[] = [
+  'FREE_WORK',
+  'COLLECTIVE',
+  'CHERRY_PICK',
+  'LEHIBOU',
+  'YEETS',
+  'WORKDISPO',
+  'NEXT_MONDAYS',
+  'MINDQUEST',
+  'FREELANCE_FACTORY',
+  'LITTLE_BIG_CONNECTION',
+];
 const LIST_KEYS = ['regions', 'departments', 'workModes', 'sites', 'seniorities', 'skills'] as const;
 const NUMBER_KEYS = ['rateMin', 'rateMax', 'radiusKm', 'minRemoteDays', 'durationMin', 'durationMax', 'publishedWithinDays'] as const;
 
