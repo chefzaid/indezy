@@ -12,7 +12,14 @@ export type OfferSite =
   | 'NEXT_MONDAYS'
   | 'MINDQUEST'
   | 'FREELANCE_FACTORY'
-  | 'LITTLE_BIG_CONNECTION';
+  | 'LITTLE_BIG_CONNECTION'
+  | 'SILKHOM'
+  | 'LEGRATIN'
+  | 'FREELANCE_INFORMATIQUE'
+  | 'ESPACE_FREELANCE'
+  | 'BEYOND_SKILLS_IT'
+  | 'KOINO'
+  | 'SIXIEME_HOMME';
 export type Seniority = 'JUNIOR' | 'CONFIRMED' | 'SENIOR' | 'EXPERT';
 export type OfferDatePrecision = 'EXACT' | 'DAY' | 'FIRST_SEEN';
 export type OfferView = 'FEED' | 'SAVED' | 'HIDDEN';

@@ -5,18 +5,17 @@ import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.scraping.FrenchDates;
 import dev.swirlit.indezy.scraping.JobPostings;
 import dev.swirlit.indezy.scraping.OfferText;
+import dev.swirlit.indezy.scraping.PageFacts;
 import dev.swirlit.indezy.scraping.PageFetcher;
 import dev.swirlit.indezy.scraping.ScrapedOffer;
 import dev.swirlit.indezy.scraping.Sitemaps;
 import dev.swirlit.indezy.util.TextFolding;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -95,14 +94,6 @@ public class WorkDispoReader extends DetailPagesReader {
 
     /** The facts panel ("Télétravail" to "2 jours min."), keyed by the folded label. */
     static Map<String, String> facts(Document page) {
-        Map<String, String> facts = new HashMap<>();
-        for (Element tile : page.select("dl.wdof-tuiles .wdof-tuile")) {
-            Element label = tile.selectFirst("dt");
-            Element value = tile.selectFirst("dd");
-            if (label != null && value != null && !value.text().isBlank()) {
-                facts.put(TextFolding.words(label.text()), value.text().strip());
-            }
-        }
-        return facts;
+        return PageFacts.of(page.select("dl.wdof-tuiles .wdof-tuile"), "dt", "dd");
     }
 }

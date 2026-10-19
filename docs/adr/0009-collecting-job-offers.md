@@ -19,8 +19,11 @@ The server runs as one replica with 1 GiB of memory on a shared node.
   site has its own refresh interval in `OfferSite`).
 - Read a site's own structured data before its HTML: its public JSON API (Free-Work, Cherry Pick, LeHibou, Yeets), the
   page's framework data (Collective.work's `__NEXT_DATA__`, LittleBig Connection's React Server Components payload),
-  then sitemaps with schema.org `JobPosting` markup (WorkDispo, Next Mondays, Mindquest) and finally HTML, parsed
-  with jsoup (MIT license, `org.jsoup:jsoup`).
+  then sitemaps with schema.org `JobPosting` markup (WorkDispo, Next Mondays, Mindquest) and finally HTML (Silkhom,
+  LeGratin, Freelance-Informatique, Espace Freelance, Beyond Skills IT, Koïno, Sixième Homme), parsed with jsoup
+  (MIT license, `org.jsoup:jsoup`).
+- Leave out sites whose listings look generated rather than published by people (Free-Work's Digistrat, Propulse
+  IT and Omicrone; Le Studio Tech's 30-minute series), whatever their markers say.
 - For a site whose list does not describe its offers, read only the pages of offers not stored yet, a few per run
   under the page budget, and remember the offers set aside for 30 days (`offer_skips`) so they are not read again.
 - Keep freelance missions only, by each site's own marker (a contract type, a mission type or a filter parameter),

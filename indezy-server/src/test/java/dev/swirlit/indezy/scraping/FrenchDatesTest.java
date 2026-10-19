@@ -1,8 +1,10 @@
 package dev.swirlit.indezy.scraping;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,5 +35,12 @@ class FrenchDatesTest {
     })
     void readsTheDatesJobBoardsWrite(String text, LocalDate expected) {
         assertThat(FrenchDates.parse(text, REFERENCE)).isEqualTo(expected);
+    }
+
+    @Test
+    void startsTheDayInFrance() {
+        assertThat(FrenchDates.startOfDay(LocalDate.of(2026, 10, 19))).isEqualTo(Instant.parse("2026-10-18T22:00:00Z"));
+        assertThat(FrenchDates.startOfDay(LocalDate.of(2026, 1, 5))).isEqualTo(Instant.parse("2026-01-04T23:00:00Z"));
+        assertThat(FrenchDates.startOfDay(null)).isNull();
     }
 }

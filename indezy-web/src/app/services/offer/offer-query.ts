@@ -27,6 +27,13 @@ const SITES: OfferSite[] = [
   'MINDQUEST',
   'FREELANCE_FACTORY',
   'LITTLE_BIG_CONNECTION',
+  'SILKHOM',
+  'LEGRATIN',
+  'FREELANCE_INFORMATIQUE',
+  'ESPACE_FREELANCE',
+  'BEYOND_SKILLS_IT',
+  'KOINO',
+  'SIXIEME_HOMME',
 ];
 const LIST_KEYS = ['regions', 'departments', 'workModes', 'sites', 'seniorities', 'skills'] as const;
 const NUMBER_KEYS = ['rateMin', 'rateMax', 'radiusKm', 'minRemoteDays', 'durationMin', 'durationMax', 'publishedWithinDays'] as const;

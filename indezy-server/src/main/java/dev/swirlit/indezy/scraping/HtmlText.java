@@ -7,6 +7,8 @@ import org.jsoup.parser.Parser;
 import org.jsoup.safety.Safelist;
 
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** Turns the HTML of a job board into plain text, keeping paragraphs and list items on their own lines. */
 public final class HtmlText {
@@ -24,6 +26,12 @@ public final class HtmlText {
     /** Text with its HTML entities decoded ("S&#xE9;curit&#xE9;" is "Sécurité"); {@code null} stays {@code null}. */
     public static String unescape(String text) {
         return text == null ? null : Parser.unescapeEntities(text, false);
+    }
+
+    /** The texts given that are not blank, one after the other; {@code null} when there is none. */
+    public static String join(String separator, String... texts) {
+        String joined = Stream.of(texts).filter(text -> text != null && !text.isBlank()).collect(Collectors.joining(separator));
+        return joined.isEmpty() ? null : joined;
     }
 
     /** Plain text of an HTML fragment, or {@code null} when it holds no text. */

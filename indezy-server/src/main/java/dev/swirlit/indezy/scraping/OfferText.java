@@ -48,6 +48,9 @@ public final class OfferText {
             "(?<value>\\d{1,2})\\s*" + DURATION_UNIT + "\\b" +
             "|(?<value2>\\d{1,2})\\s*(?:mois|months?)\\s*(?:renouvelables?|renewable|minimum|fermes?|extensible)");
     private static final Pattern TITLE_DURATION = Pattern.compile("\\b(?<value>\\d{1,2})\\s*(?<unit>mois|months?)\\b");
+    /** "6 mois", "6+ mois", "1 an", "465 jours ouvrés", "6 à 12 mois" (its lower bound). */
+    private static final Pattern AMOUNT_OF_TIME = Pattern.compile(
+        "\\b(\\d{1,3})\\+?\\s*(?:a\\s*\\d{1,3}\\s*)?(mois|months?|ans?|annees?|years?|semaines?|weeks?|jours?|days?)\\b");
     private static final Pattern SALARIED = Pattern.compile("\\b(cdi|cdd)\\b");
     private static final Pattern FREELANCE = Pattern.compile("\\b(freelances?|independants?|portage)\\b");
     private static final Pattern ONSITE_DAYS = Pattern.compile("(\\d)\\s*(?:j|jours?|days?)\\b[^.]{0,20}?(?:sur site|on site|onsite|presentiel)");
@@ -172,6 +175,13 @@ public final class OfferText {
     public static boolean namesSalariedJob(String title) {
         String folded = TextFolding.words(title);
         return folded != null && SALARIED.matcher(folded).find() && !FREELANCE.matcher(folded).find();
+    }
+
+    /** A duration field as sites fill it ("6 mois", "1 an", "6+ mois", "465 jours ouvrés"), in months. */
+    public static Integer duration(String text) {
+        String folded = TextFolding.words(text);
+        Matcher matcher = AMOUNT_OF_TIME.matcher(folded == null ? "" : folded);
+        return matcher.find() ? durationMonths(Double.valueOf(matcher.group(1)), matcher.group(2)) : null;
     }
 
     /** "Junior", "Confirmé", "Intermédiaire", "Senior", "Expert" and their English forms. */

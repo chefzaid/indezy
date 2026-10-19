@@ -18,7 +18,14 @@ public enum OfferSite {
     NEXT_MONDAYS("Next Mondays", "https://nextmondays.com", Duration.ofHours(12)),
     MINDQUEST("Mindquest", "https://mindquest.io", Duration.ofHours(3)),
     FREELANCE_FACTORY("Freelance Factory", "https://freelance-factory.fr", Duration.ofHours(6)),
-    LITTLE_BIG_CONNECTION("LittleBig Connection", "https://www.littlebigconnection.com", Duration.ofHours(6));
+    LITTLE_BIG_CONNECTION("LittleBig Connection", "https://www.littlebigconnection.com", Duration.ofHours(6)),
+    SILKHOM("Silkhom", "https://www.silkhom.com", Duration.ofHours(6)),
+    LEGRATIN("LeGratin", "https://www.legratin.io", Duration.ofHours(3)),
+    FREELANCE_INFORMATIQUE("Freelance-Informatique", "https://www.freelance-informatique.fr", Duration.ofHours(2)),
+    ESPACE_FREELANCE("Espace Freelance", "https://www.espace-freelance.fr", Duration.ofHours(12)),
+    BEYOND_SKILLS_IT("Beyond Skills IT", "https://www.beyondskillsit.com", Duration.ofHours(12)),
+    KOINO("Koïno", "https://www.koino.fr", Duration.ofHours(12)),
+    SIXIEME_HOMME("Sixième Homme", "https://sixiemehomme.io", Duration.ofHours(12));
 
     private final String displayName;
     private final String homeUrl;

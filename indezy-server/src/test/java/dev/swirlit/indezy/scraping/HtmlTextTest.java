@@ -7,6 +7,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class HtmlTextTest {
 
     @Test
+    void joinsTheTextsThatAreNotBlank() {
+        assertThat(HtmlText.join(" / ", "Paris", null, " ", "Lyon")).isEqualTo("Paris / Lyon");
+        assertThat(HtmlText.join(" / ", null, "")).isNull();
+    }
+
+    @Test
     void keepsParagraphsLineBreaksAndListItems() {
         String html = "<h2>Contexte</h2><p>Une   mission&nbsp;longue<br>à Paris</p>" +
             "<ul><li>Java</li><li>Kafka &amp; Spark</li></ul><div>Fin</div>";

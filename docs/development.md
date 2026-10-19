@@ -216,7 +216,7 @@ Seed profile:
 
 Offer feed (`indezy.offers.*`, see [Features](./features.md#freelance-offer-feed)):
 
-- `collection-enabled` (`INDEZY_OFFERS_COLLECTION_ENABLED`, `true` by default): a local `mask run` reads the ten job
+- `collection-enabled` (`INDEZY_OFFERS_COLLECTION_ENABLED`, `true` by default): a local `mask run` reads the seventeen job
   boards in the background a minute after startup, politely (2 seconds between requests); set it to `false` to work
   offline or on the sample offers of `data-dev.sql`
 - `geocoding-enabled` (`INDEZY_OFFERS_GEOCODING_ENABLED`, `true`): look up offer cities on `geo.api.gouv.fr`

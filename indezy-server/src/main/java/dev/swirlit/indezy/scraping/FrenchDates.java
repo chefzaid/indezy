@@ -3,7 +3,9 @@ package dev.swirlit.indezy.scraping;
 import dev.swirlit.indezy.util.TextFolding;
 
 import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -34,7 +36,15 @@ public final class FrenchDates {
     private static final Pattern ISO = Pattern.compile("\\b(\\d{4})-(\\d{2})-(\\d{2})(?!\\d)");
     private static final Pattern WORDS = Pattern.compile("\\b(?:(\\d{1,2})(?:er)?\\s+)?([a-z]{3,9})\\.?(?:\\s+(\\d{4}))?\\b");
 
+    /** France's time zone, where the boards' days begin. */
+    public static final ZoneId PARIS = ZoneId.of("Europe/Paris");
+
     private FrenchDates() {
+    }
+
+    /** The instant a day begins in France; {@code null} stays {@code null}. */
+    public static Instant startOfDay(LocalDate day) {
+        return day == null ? null : day.atStartOfDay(PARIS).toInstant();
     }
 
     /** The first date in {@code text}, or {@code null}; a missing day is the 1st, a missing year the closest one. */

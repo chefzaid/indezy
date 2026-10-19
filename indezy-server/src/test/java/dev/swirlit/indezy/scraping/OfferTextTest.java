@@ -84,6 +84,17 @@ class OfferTextTest {
     }
 
     @Test
+    void readsDurationFields() {
+        assertThat(OfferText.duration("6 mois")).isEqualTo(6);
+        assertThat(OfferText.duration("6+ mois")).isEqualTo(6);
+        assertThat(OfferText.duration("Mission 6 à 12 mois · renouvelable")).isEqualTo(6);
+        assertThat(OfferText.duration("1 an")).isEqualTo(12);
+        assertThat(OfferText.duration("465 jours ouvrés")).isEqualTo(22);
+        assertThat(OfferText.duration("À définir")).isNull();
+        assertThat(OfferText.duration(null)).isNull();
+    }
+
+    @Test
     void recognisesTitlesOfSalariedJobs() {
         assertThat(OfferText.namesSalariedJob("Tech Lead IA Senior LLM – CDI (H/F)")).isTrue();
         assertThat(OfferText.namesSalariedJob("Comptable en CDD 6 mois")).isTrue();
