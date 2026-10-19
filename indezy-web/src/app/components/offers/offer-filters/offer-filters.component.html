@@ -1,0 +1,176 @@
+<form class="offer-filters" (submit)="$event.preventDefault()" [attr.aria-label]="'offers.filters.title' | translate">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+    <mat-label>{{ 'offers.filters.keywords' | translate }}</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput name="q" [(ngModel)]="draft.q" (ngModelChange)="typed()" maxlength="200"
+      [placeholder]="'offers.filters.keywordsPlaceholder' | translate">
+  </mat-form-field>
+
+  <fieldset class="group">
+    <legend>{{ 'offers.filters.rate' | translate }}</legend>
+    <div class="pair">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'offers.filters.rateMin' | translate }}</mat-label>
+        <input matInput type="number" name="rateMin" min="0" step="50" inputmode="numeric" [(ngModel)]="draft.rateMin" (ngModelChange)="typed()">
+        <span matTextSuffix>€</span>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'offers.filters.rateMax' | translate }}</mat-label>
+        <input matInput type="number" name="rateMax" min="0" step="50" inputmode="numeric" [(ngModel)]="draft.rateMax" (ngModelChange)="typed()">
+        <span matTextSuffix>€</span>
+      </mat-form-field>
+    </div>
+    <mat-checkbox name="rateKnown" [(ngModel)]="draft.rateKnown" (ngModelChange)="changed()">
+      {{ 'offers.filters.rateKnown' | translate }}
+    </mat-checkbox>
+  </fieldset>
+
+  <fieldset class="group">
+    <legend>{{ 'offers.filters.location' | translate }}</legend>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+      <mat-label>{{ 'offers.filters.regions' | translate }}</mat-label>
+      <mat-select name="regions" multiple [(ngModel)]="draft.regions" (ngModelChange)="changed()">
+        @for (region of regions; track region.regionCode) {
+          <mat-option [value]="region.regionCode">{{ region.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+      <mat-label>{{ 'offers.filters.departments' | translate }}</mat-label>
+      <mat-select name="departments" multiple [(ngModel)]="draft.departments" (ngModelChange)="changed()">
+        <mat-select-trigger>{{ departmentsSummary }}</mat-select-trigger>
+        @for (region of regions; track region.regionCode) {
+          <mat-optgroup [label]="region.name">
+            @for (department of region.departments; track department.departmentCode) {
+              <mat-option [value]="department.departmentCode">{{ department.departmentCode }} · {{ department.name }}</mat-option>
+            }
+          </mat-optgroup>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+      <mat-label>{{ 'offers.filters.radius' | translate }}</mat-label>
+      <mat-select name="radiusKm" [(ngModel)]="draft.radiusKm" (ngModelChange)="changed()" [disabled]="!distanceAvailable">
+        <mat-option [value]="undefined">{{ 'offers.filters.anyDistance' | translate }}</mat-option>
+        @for (radius of radiusOptions; track radius) {
+          <mat-option [value]="radius">{{ 'offers.filters.withinKm' | translate: { km: radius } }}</mat-option>
+        }
+      </mat-select>
+      @if (!distanceAvailable) {
+        <mat-hint>{{ 'offers.filters.radiusNeedsCity' | translate }}</mat-hint>
+      }
+    </mat-form-field>
+  </fieldset>
+
+  <fieldset class="group">
+    <legend>{{ 'offers.filters.remote' | translate }}</legend>
+    <mat-chip-listbox multiple [attr.aria-label]="'offers.filters.remote' | translate">
+      @for (mode of workModes; track mode) {
+        <mat-chip-option [selected]="draft.workModes.includes(mode)" (selectionChange)="$event.isUserInput && toggleWorkMode(mode)"
+          [attr.data-work-mode]="mode">
+          {{ 'offers.filters.workMode.' + mode | translate }}
+        </mat-chip-option>
+      }
+    </mat-chip-listbox>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+      <mat-label>{{ 'offers.filters.minRemoteDays' | translate }}</mat-label>
+      <mat-select name="minRemoteDays" [(ngModel)]="draft.minRemoteDays" (ngModelChange)="changed()">
+        <mat-option [value]="undefined">{{ 'common.all' | translate }}</mat-option>
+        @for (days of remoteDayOptions; track days) {
+          <mat-option [value]="days">{{ 'offers.filters.daysPerWeek' | translate: { days: days } }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </fieldset>
+
+  <fieldset class="group">
+    <legend>{{ 'offers.filters.mission' | translate }}</legend>
+    <div class="pair">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'offers.filters.durationMin' | translate }}</mat-label>
+        <mat-select name="durationMin" [(ngModel)]="draft.durationMin" (ngModelChange)="changed()">
+          <mat-option [value]="undefined">{{ 'common.all' | translate }}</mat-option>
+          @for (months of durationOptions; track months) {
+            <mat-option [value]="months">{{ 'offers.card.months' | translate: { count: months } }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'offers.filters.durationMax' | translate }}</mat-label>
+        <mat-select name="durationMax" [(ngModel)]="draft.durationMax" (ngModelChange)="changed()">
+          <mat-option [value]="undefined">{{ 'common.all' | translate }}</mat-option>
+          @for (months of durationOptions; track months) {
+            <mat-option [value]="months">{{ 'offers.card.months' | translate: { count: months } }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+      <mat-label>{{ 'offers.filters.startBefore' | translate }}</mat-label>
+      <input matInput name="startBefore" [matDatepicker]="startPicker" [ngModel]="startBefore" (dateChange)="dateChanged($event.value)">
+      <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+      <mat-datepicker #startPicker></mat-datepicker>
+      <mat-hint>{{ 'offers.filters.startBeforeHint' | translate }}</mat-hint>
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+      <mat-label>{{ 'offers.filters.seniority' | translate }}</mat-label>
+      <mat-select name="seniorities" multiple [(ngModel)]="draft.seniorities" (ngModelChange)="changed()">
+        @for (seniority of seniorities; track seniority) {
+          <mat-option [value]="seniority">{{ 'offers.seniority.' + seniority | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+      <mat-label>{{ 'offers.filters.skills' | translate }}</mat-label>
+      <mat-chip-grid #skillGrid [attr.aria-label]="'offers.filters.skills' | translate">
+        @for (skill of draft.skills; track skill) {
+          <mat-chip-row (removed)="removeSkill(skill)">
+            {{ skill }}
+            <button matChipRemove type="button" [attr.aria-label]="'offers.filters.removeSkill' | translate: { skill: skill }">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        }
+        <input name="skillInput" [(ngModel)]="skillInput" (ngModelChange)="skillTyped($event)" [matChipInputFor]="skillGrid"
+          [matChipInputSeparatorKeyCodes]="separatorKeys" (matChipInputTokenEnd)="addSkill($event)" [matAutocomplete]="skillAuto"
+          [placeholder]="'offers.filters.skillsPlaceholder' | translate" maxlength="60">
+      </mat-chip-grid>
+      <mat-autocomplete #skillAuto="matAutocomplete" (optionSelected)="pickSkill($event)">
+        @for (suggestion of skillSuggestions; track suggestion.value) {
+          <mat-option [value]="suggestion.value">{{ suggestion.value }} <span class="count">({{ suggestion.offers }})</span></mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+  </fieldset>
+
+  <fieldset class="group">
+    <legend>{{ 'offers.filters.publication' | translate }}</legend>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+      <mat-label>{{ 'offers.filters.publishedWithin' | translate }}</mat-label>
+      <mat-select name="publishedWithinDays" [(ngModel)]="draft.publishedWithinDays" (ngModelChange)="changed()">
+        <mat-option [value]="undefined">{{ 'offers.filters.anyTime' | translate }}</mat-option>
+        @for (days of publishedOptions; track days) {
+          <mat-option [value]="days">{{ 'offers.filters.lastDays.' + days | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+      <mat-label>{{ 'offers.filters.sites' | translate }}</mat-label>
+      <mat-select name="sites" multiple [(ngModel)]="draft.sites" (ngModelChange)="changed()">
+        @for (site of sites; track site.site) {
+          <mat-option [value]="site.site">{{ site.name }} <span class="count">({{ site.openOffers }})</span></mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-slide-toggle name="unseenOnly" [(ngModel)]="draft.unseenOnly" (ngModelChange)="changed()">
+      {{ 'offers.filters.unseenOnly' | translate }}
+    </mat-slide-toggle>
+  </fieldset>
+
+  @if (activeCount) {
+    <button mat-stroked-button type="button" class="clear-button" (click)="clear()">
+      <mat-icon>filter_alt_off</mat-icon>
+      {{ 'offers.filters.clear' | translate: { count: activeCount } }}
+    </button>
+  }
+</form>

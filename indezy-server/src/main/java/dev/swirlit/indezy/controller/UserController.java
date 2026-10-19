@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.*;
+import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.UserDataExportService;
 import dev.swirlit.indezy.service.UserService;
 import dev.swirlit.indezy.util.SecurityUtils;
@@ -27,6 +28,7 @@ public class UserController {
 
     private final UserService userService;
     private final UserDataExportService userDataExportService;
+    private final AccessGuard accessGuard;
 
     @Operation(summary = "Get the profile")
     @GetMapping("/profile")
@@ -111,11 +113,13 @@ public class UserController {
     @Operation(summary = "Export every piece of data of the account as JSON")
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportUserData() {
+        // The account's workspace is found by its email, like every other resource: user and workspace ids differ.
+        Long userId = SecurityUtils.getCurrentUserId();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDispositionFormData("attachment", "user-data.json");
         return ResponseEntity.ok()
             .headers(headers)
-            .body(userDataExportService.exportUserData(SecurityUtils.getCurrentUserId()));
+            .body(userDataExportService.exportUserData(userId, accessGuard.currentFreelanceId().orElse(userId)));
     }
 }

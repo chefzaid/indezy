@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * Assembles a full GDPR (droit à la portabilité) export of a user's account: their profile plus
- * every project, client, contact, source and activity report they own, serialised as pretty-printed JSON. Reuses
+ * every project, client, contact, source, activity report and job offer they acted on, serialised as pretty-printed JSON. Reuses
  * the existing DTO-returning services so the export stays in sync with the rest of the API.
  */
 @Service
@@ -28,22 +28,25 @@ public class UserDataExportService {
     private final ContactService contactService;
     private final SourceService sourceService;
     private final ActivityReportService activityReportService;
+    private final OfferStateService offerStateService;
 
     // Self-contained mapper (the app does not expose an ObjectMapper bean); modules add date support, written as ISO-8601.
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules()
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
+    /** The profile of account {@code userId} and the records of its workspace {@code freelanceId}. */
     @Transactional(readOnly = true)
-    public byte[] exportUserData(Long userId) {
+    public byte[] exportUserData(Long userId, Long freelanceId) {
         log.debug("Exporting account data for user ID: {}", userId);
 
         Map<String, Object> export = new LinkedHashMap<>();
         export.put("profile", userService.getUserProfile(userId));
-        export.put("projects", projectService.findByFreelanceId(userId));
-        export.put("clients", clientService.findByFreelanceId(userId));
-        export.put("contacts", contactService.findByFreelanceId(userId));
-        export.put("sources", sourceService.findByFreelanceId(userId));
-        export.put("activityReports", activityReportService.findByFreelanceId(userId));
+        export.put("projects", projectService.findByFreelanceId(freelanceId));
+        export.put("clients", clientService.findByFreelanceId(freelanceId));
+        export.put("contacts", contactService.findByFreelanceId(freelanceId));
+        export.put("sources", sourceService.findByFreelanceId(freelanceId));
+        export.put("activityReports", activityReportService.findByFreelanceId(freelanceId));
+        export.put("jobOffers", offerStateService.export(freelanceId));
 
         try {
             return objectMapper.writerWithDefaultPrettyPrinter()

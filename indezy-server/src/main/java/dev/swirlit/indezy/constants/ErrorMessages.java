@@ -32,6 +32,11 @@ public final class ErrorMessages {
     public static final String ACTIVITY_REPORT_REJECTION_REASON_REQUIRED = "A rejection needs a reason";
     public static final String ACTIVITY_REPORT_LINK_INVALID = "This validation link is invalid or has expired";
 
+    public static final String OFFER_NOT_FOUND = "Job offer not found with id: %d";
+    public static final String OFFER_ALREADY_IMPORTED = "This offer is already in the pipeline as project %d";
+    public static final String OFFER_DISTANCE_NEEDS_CITY = "Add your city to your profile to filter offers by distance";
+    public static final String WORKSPACE_REQUIRED = "This action needs a workspace";
+
     public static final String INVALID_DATE_RANGE = "Start date cannot be after end date";
 
     public static final String USER_NOT_FOUND = "User not found with id: %d";

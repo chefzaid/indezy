@@ -10,7 +10,7 @@ The core workflow is:
 
 1. Create or register the freelancer profile.
 2. Add clients, intermediaries, contacts, and sources.
-3. Capture project opportunities with rate, work mode, location, duration, and source.
+3. Capture project opportunities with rate, work mode, location, duration, and source, or add them from the freelance offer feed.
 4. Track each opportunity through the pipeline and interview steps.
 5. Use dashboard and filtering views to decide what needs attention.
 
@@ -135,6 +135,56 @@ Implemented source fields include:
 - linked projects
 
 Source data feeds filtering and the dashboard's source ROI ranking. Deleting a source keeps its opportunities, which simply lose their origin.
+
+## Freelance Offer Feed
+
+**Offers** in the navigation lists the freelance missions published on the job boards Indezy reads, newest first,
+in one feed. The backend reads each board on its own schedule (see [Architecture](./architecture.md#offer-collection)
+and [ADR 0009](./adr/0009-collecting-job-offers.md)); the feed shows what the boards published, never permanent (CDI)
+or fixed-term (CDD) jobs: an offer is kept only when its site marks it as a freelance mission.
+
+Sites read today:
+
+| Site | What Indezy reads | Refreshed |
+| --- | --- | --- |
+| Free-Work | contractor offers of its public API; offers from Digistrat, Propulse IT and Omicrone are left out (fake listings) | every hour |
+| Collective.work | the job pages' data, offers whose contract types include freelance | every hour |
+| Cherry Pick | its freelance missions (`mission_type` short), not its salaried jobs | every 3 hours |
+| LeHibou | its 10 newest missions; pro bono missions are left out | every 30 minutes |
+| Yeets | missions still open (to start or to confirm) | every 6 hours |
+
+The other boards are planned in [TODO.md](../TODO.md#freelance-offer-feed-added-2026-10-19), with the ones left out
+and why (LinkedIn forbids crawling; HiTechPros, Opteamis, Comet and others keep missions behind a sign-in).
+
+Each offer shows its site, title, publisher, daily rate ("550 € – 650 €", "≤ 600 €" or "TJM non précisé"), place with
+its department and the distance from the profile's city, work mode (on site, hybrid with remote days a week, full
+remote), duration, start date or "as soon as possible", seniority, skills, an excerpt and how long ago it was
+published (the hint says when a site gives no date and the offer is dated when Indezy first saw it). Unseen offers are
+marked **New**.
+
+- **Filters**, kept in the address so a search can be bookmarked or shared: keywords (every word must appear in the
+  title, publisher, skills, place or description, accents ignored), daily rate minimum and maximum with "hide offers
+  without a daily rate", regions, departments, distance from the profile's city (10 to 200 km), work modes, minimum
+  remote days a week, duration, start by a date (missions starting as soon as possible stay listed), seniority,
+  skills (suggested from the open offers), published within 24 hours, 3 days, a week or a month, sites, and unseen
+  offers only. An offer that does not state its duration, start or seniority stays listed when filtering on them;
+  one without a place, work mode or remote days is left out of filters on those.
+- **Sort** by newest, highest daily rate (offers without a rate last) or closest (when the profile has a city).
+- **Views**: all offers (the hidden ones and expired ones are left out), saved offers (expired ones stay, marked
+  **Expired**) and hidden offers.
+- **Actions** on each offer: open it on its site (it is marked seen), show its full description, save it, hide it
+  (or show it again), and **Add to pipeline**: a new opportunity at the Contact stage with the offer's title, rate
+  (the highest rate stated, else the profile's target daily rate), work mode and remote days a month, start date,
+  duration, description, skills as tech stack and link. Its client is the offer's publisher (created as an ESN or
+  intermediary when the workspace has no client of that name; the site itself when the offer names none), and its
+  source is the job board: the workspace's source named after the site, created as a job board on first import. An
+  offer is added once; the card then links to its opportunity, until that opportunity is deleted.
+- What a workspace does with offers (saved, hidden, seen, imported) is private to it and part of the account data
+  export. Offers older than 90 days or past their expiry are removed every night, unless a workspace saved or
+  imported them.
+
+API: `GET /offers` (filters, `view`, `sort`, `page`, `size`), `GET /offers/{id}`, `PUT /offers/{id}/state`,
+`POST /offers/{id}/import`, `GET /offers/sites`, `GET /offers/skills?q=` and `GET /offers/regions`.
 
 ## Interview Steps
 
@@ -327,7 +377,7 @@ These capabilities are intentionally not treated as implemented yet, even if som
 - password reset and email verification
 - two-factor recovery codes
 - self-service account deletion (identities live in Keycloak)
-- job-board connectors
+- job boards other than the five the offer feed reads (the next ones are planned in TODO.md)
 - Gmail, Outlook, or LinkedIn sync
 - Chrome extension capture
 - cross-platform mobile app

@@ -2,6 +2,11 @@
 -- Run it through `mask db-reset`; normal application startup never executes this file.
 
 TRUNCATE TABLE
+    job_offer_states,
+    job_offer_skills,
+    job_offers,
+    offer_site_statuses,
+    geo_places,
     activity_report_days,
     activity_reports,
     project_documents,
@@ -332,5 +337,102 @@ CROSS JOIN LATERAL generate_series(
 ) AS days(day)
 WHERE EXTRACT(ISODOW FROM day) < 6
   AND to_char(day, 'MM-DD') NOT IN ('01-01', '05-01', '05-08', '07-14', '08-15', '11-01', '11-11', '12-25');
+
+-- Freelance offer feed: fictional missions in the shape the job board readers store, so the feed can be tried
+-- without reading the boards (set INDEZY_OFFERS_COLLECTION_ENABLED=false to keep only these). Links open each
+-- site's mission list.
+INSERT INTO job_offers (
+    site, external_id, url, title, company, description, rate_min, rate_max, city, postal_code, department_code,
+    region_code, country_code, latitude, longitude, work_mode, remote_days_per_week, duration_months, start_date,
+    start_asap, seniority, published_at, date_precision, first_seen_at, last_seen_at, expires_at, search_text,
+    created_at, updated_at, version
+) VALUES
+('FREE_WORK', 'sample-1', 'https://www.free-work.com/fr/tech-it/jobs', 'Développeur Java Spring Boot (H/F)', 'Exemple Conseil',
+ E'Contexte\nRefonte du SI de paiement d''une banque de détail.\n\n• Java 21 et Spring Boot\n• Kafka et PostgreSQL', 550, 650,
+ 'Paris', '75008', '75', '11', 'FR', 48.8722, 2.3125, 'HYBRID', 2, 12, CURRENT_DATE + 14, false, 'SENIOR',
+ CURRENT_TIMESTAMP - INTERVAL '2 hours', 'EXACT', CURRENT_TIMESTAMP - INTERVAL '2 hours', CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP + INTERVAL '60 days', 'developpeur java spring boot h f exemple conseil paris paris java spring boot kafka contexte refonte du si de paiement d une banque de detail',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+('FREE_WORK', 'sample-2', 'https://www.free-work.com/fr/tech-it/jobs', 'Architecte cloud AWS', 'Nuage Partenaires',
+ E'Migration de 40 applications vers AWS, landing zone et FinOps.', 700, 800,
+ 'Lyon', '69002', '69', '84', 'FR', 45.7485, 4.8270, 'ONSITE', 0, 6, NULL, true, 'EXPERT',
+ CURRENT_TIMESTAMP - INTERVAL '5 hours', 'EXACT', CURRENT_TIMESTAMP - INTERVAL '5 hours', CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP + INTERVAL '45 days', 'architecte cloud aws nuage partenaires lyon rhone aws terraform migration de 40 applications vers aws landing zone et finops',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+('COLLECTIVE', 'sample-3', 'https://www.collective.work/jobs/fr', 'Data engineer Spark / Databricks', 'Données & Cie',
+ E'Industrialisation des pipelines de données d''un assureur.', NULL, 600,
+ 'Courbevoie', '92400', '92', '11', 'FR', 48.8976, 2.2574, 'REMOTE', 5, 9, CURRENT_DATE + 30, false, 'CONFIRMED',
+ CURRENT_TIMESTAMP - INTERVAL '1 day', 'EXACT', CURRENT_TIMESTAMP - INTERVAL '1 day', CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP + INTERVAL '30 days', 'data engineer spark databricks donnees cie courbevoie hauts de seine spark databricks python industrialisation des pipelines de donnees d un assureur',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+('COLLECTIVE', 'sample-4', 'https://www.collective.work/jobs/fr', 'Product Owner paiement mobile', 'Agence Produit',
+ E'Roadmap d''une application de paiement grand public.', 600, 700,
+ 'Nantes', '44000', '44', '52', 'FR', 47.2184, -1.5536, 'HYBRID', 3, 6, CURRENT_DATE + 21, false, 'SENIOR',
+ CURRENT_TIMESTAMP - INTERVAL '2 days', 'EXACT', CURRENT_TIMESTAMP - INTERVAL '2 days', CURRENT_TIMESTAMP,
+ NULL, 'product owner paiement mobile agence produit nantes loire atlantique scrum jira roadmap d une application de paiement grand public',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+('CHERRY_PICK', 'sample-5', 'https://app.cherry-pick.io/ext/missions', 'Développeur .NET C#', 'Cherry Pick',
+ E'Back-office e-commerce, .NET 8 et Entity Framework Core.', 500, 550,
+ 'Paris', '75000', '75', '11', 'FR', 48.8589, 2.3470, 'HYBRID', 3, 12, CURRENT_DATE + 7, false, 'SENIOR',
+ CURRENT_TIMESTAMP - INTERVAL '3 days', 'EXACT', CURRENT_TIMESTAMP - INTERVAL '3 days', CURRENT_TIMESTAMP,
+ NULL, 'developpeur .net c# cherry pick paris paris c# .net core back office e commerce .net 8 et entity framework core',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+('LEHIBOU', 'sample-6', 'https://www.lehibou.com/recherche/annonces', 'Architecte fonctionnel télécom', NULL,
+ E'Cadrage de projets transverses, catalogue commercial B2C.', 650, 650,
+ 'Meudon', '92190', '92', '11', 'FR', 48.8000, 2.2400, 'HYBRID', 2, 6, CURRENT_DATE + 45, false, NULL,
+ CURRENT_TIMESTAMP - INTERVAL '6 hours', 'EXACT', CURRENT_TIMESTAMP - INTERVAL '6 hours', CURRENT_TIMESTAMP,
+ NULL, 'architecte fonctionnel telecom meudon hauts de seine uml cadrage de projets transverses catalogue commercial b2c',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+('LEHIBOU', 'sample-7', 'https://www.lehibou.com/recherche/annonces', 'Consultant SAP FICO S/4HANA', NULL,
+ E'Déploiement S/4HANA dans un groupe industriel.', NULL, NULL,
+ 'Toulouse', '31000', '31', '76', 'FR', 43.6045, 1.4440, 'ONSITE', 0, 18, NULL, true, 'EXPERT',
+ CURRENT_TIMESTAMP - INTERVAL '8 days', 'EXACT', CURRENT_TIMESTAMP - INTERVAL '8 days', CURRENT_TIMESTAMP,
+ NULL, 'consultant sap fico s 4hana toulouse haute garonne sap fico deploiement s 4hana dans un groupe industriel',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+('YEETS', 'sample-8', 'https://www.yeets.fr', 'Tech Lead Java Kafka', NULL,
+ NULL, 720, 720,
+ 'Lille', NULL, '59', '32', 'FR', 50.6292, 3.0573, 'HYBRID', NULL, 12, CURRENT_DATE + 10, false, 'SENIOR',
+ CURRENT_TIMESTAMP - INTERVAL '4 days', 'EXACT', CURRENT_TIMESTAMP - INTERVAL '4 days', CURRENT_TIMESTAMP,
+ NULL, 'tech lead java kafka lille nord java kafka',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+('YEETS', 'sample-9', 'https://www.yeets.fr', 'Administrateur Splunk N2', NULL,
+ NULL, 480, 480,
+ 'Paris', NULL, '75', '11', 'FR', 48.8589, 2.3470, 'REMOTE', 5, 6, NULL, true, 'CONFIRMED',
+ CURRENT_TIMESTAMP - INTERVAL '12 days', 'EXACT', CURRENT_TIMESTAMP - INTERVAL '12 days', CURRENT_TIMESTAMP,
+ NULL, 'administrateur splunk n2 paris paris splunk linux',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+('FREE_WORK', 'sample-10', 'https://www.free-work.com/fr/tech-it/jobs', 'Développeur Angular confirmé', 'Exemple Conseil',
+ E'Refonte de l''espace client d''un énergéticien.', 450, 520,
+ 'Bordeaux', '33000', '33', '75', 'FR', 44.8378, -0.5792, 'HYBRID', 2, 6, CURRENT_DATE + 30, false, 'CONFIRMED',
+ CURRENT_TIMESTAMP - INTERVAL '20 days', 'EXACT', CURRENT_TIMESTAMP - INTERVAL '20 days', CURRENT_TIMESTAMP,
+ CURRENT_TIMESTAMP + INTERVAL '40 days', 'developpeur angular confirme exemple conseil bordeaux gironde angular typescript refonte de l espace client d un energeticien',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
+
+INSERT INTO job_offer_skills (offer_id, position, skill)
+SELECT offer.id, skill.position, skill.name
+FROM job_offers AS offer
+JOIN (VALUES
+    ('sample-1', 0, 'Java'), ('sample-1', 1, 'Spring Boot'), ('sample-1', 2, 'Kafka'),
+    ('sample-2', 0, 'AWS'), ('sample-2', 1, 'Terraform'),
+    ('sample-3', 0, 'Spark'), ('sample-3', 1, 'Databricks'), ('sample-3', 2, 'Python'),
+    ('sample-4', 0, 'Scrum'), ('sample-4', 1, 'Jira'),
+    ('sample-5', 0, 'C#'), ('sample-5', 1, '.NET Core'),
+    ('sample-6', 0, 'UML'),
+    ('sample-7', 0, 'SAP FICO'),
+    ('sample-8', 0, 'Java'), ('sample-8', 1, 'Kafka'),
+    ('sample-9', 0, 'Splunk'), ('sample-9', 1, 'Linux'),
+    ('sample-10', 0, 'Angular'), ('sample-10', 1, 'TypeScript')
+) AS skill(external_id, position, name) ON skill.external_id = offer.external_id;
+
+-- John Doe saved one mission and hid another.
+INSERT INTO job_offer_states (freelance_id, offer_id, saved, hidden, seen_at, created_at, updated_at, version)
+SELECT 1, offer.id, offer.external_id = 'sample-1', offer.external_id = 'sample-7', CURRENT_TIMESTAMP - INTERVAL '1 hour',
+    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0
+FROM job_offers AS offer
+WHERE offer.external_id IN ('sample-1', 'sample-7');
+
+-- The profile's city, already located, so distances work without the geocoding API.
+INSERT INTO geo_places (query_key, found, city, department_code, region_code, latitude, longitude, resolved_at)
+VALUES ('|paris', true, 'Paris', '75', '11', 48.8589, 2.3470, CURRENT_TIMESTAMP);
 
 ANALYZE;

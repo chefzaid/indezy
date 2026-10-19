@@ -1,0 +1,258 @@
+package dev.swirlit.indezy.repository;
+
+import dev.swirlit.indezy.dto.OfferSearchRequest;
+import dev.swirlit.indezy.model.Freelance;
+import dev.swirlit.indezy.model.JobOffer;
+import dev.swirlit.indezy.model.JobOfferState;
+import dev.swirlit.indezy.model.enums.EmploymentStatus;
+import dev.swirlit.indezy.model.enums.OfferDatePrecision;
+import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.model.enums.Seniority;
+import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.repository.JobOfferSpecifications.Origin;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.function.Consumer;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/** The feed's filters, views and sorts on a real database. */
+@DataJpaTest
+@ActiveProfiles("test")
+class JobOfferSpecificationsTest {
+
+    private static final Instant NOW = Instant.parse("2026-10-19T10:00:00Z");
+    private static final Origin PARIS = new Origin(48.8589, 2.347);
+
+    @Autowired
+    private TestEntityManager entityManager;
+
+    @Autowired
+    private JobOfferRepository repository;
+
+    private Freelance alice;
+
+    @BeforeEach
+    void setUp() {
+        alice = freelance("alice@example.com");
+        persist("java", offer -> {
+            offer.setTitle("Développeur Java Spring");
+            offer.setSearchText("developpeur java spring exemple conseil paris");
+            offer.setRateMin(550);
+            offer.setRateMax(650);
+            offer.setDepartmentCode("75");
+            offer.setRegionCode("11");
+            offer.setLatitude(48.8566);
+            offer.setLongitude(2.3522);
+            offer.setWorkMode(WorkMode.HYBRID);
+            offer.setRemoteDaysPerWeek(3);
+            offer.setDurationMonths(6);
+            offer.setStartDate(LocalDate.of(2026, 11, 2));
+            offer.setSeniority(Seniority.SENIOR);
+            offer.setSkills(List.of("Java", "Spring"));
+            offer.setPublishedAt(NOW.minus(Duration.ofHours(1)));
+        });
+        persist("courbevoie", offer -> {
+            offer.setTitle("Data engineer");
+            offer.setSearchText("data engineer spark courbevoie");
+            offer.setRateMax(700);
+            offer.setDepartmentCode("92");
+            offer.setRegionCode("11");
+            offer.setLatitude(48.8976);
+            offer.setLongitude(2.2574);
+            offer.setWorkMode(WorkMode.REMOTE);
+            offer.setRemoteDaysPerWeek(5);
+            offer.setStartAsap(true);
+            offer.setSkills(List.of("Spark"));
+            offer.setSite(OfferSite.COLLECTIVE);
+            offer.setPublishedAt(NOW.minus(Duration.ofHours(5)));
+        });
+        persist("lyon", offer -> {
+            offer.setTitle("Architecte cloud");
+            offer.setSearchText("architecte cloud aws lyon");
+            offer.setRateMin(450);
+            offer.setRateMax(450);
+            offer.setDepartmentCode("69");
+            offer.setRegionCode("84");
+            offer.setLatitude(45.764);
+            offer.setLongitude(4.8357);
+            offer.setWorkMode(WorkMode.ONSITE);
+            offer.setRemoteDaysPerWeek(0);
+            offer.setDurationMonths(24);
+            offer.setStartDate(LocalDate.of(2027, 3, 1));
+            offer.setSeniority(Seniority.JUNIOR);
+            offer.setSkills(List.of("AWS", "Java"));
+            offer.setPublishedAt(NOW.minus(Duration.ofDays(4)));
+        });
+        persist("unknown", offer -> {
+            offer.setTitle("Consultant SAP");
+            offer.setSearchText("consultant sap");
+            offer.setWorkMode(WorkMode.HYBRID);
+            offer.setPublishedAt(NOW.minus(Duration.ofDays(10)));
+        });
+        persist("expired", offer -> {
+            offer.setTitle("Mission terminée");
+            offer.setSearchText("mission terminee");
+            offer.setExpiresAt(NOW.minus(Duration.ofDays(1)));
+            offer.setPublishedAt(NOW.minus(Duration.ofDays(20)));
+        });
+    }
+
+    @Test
+    void listsOpenOffersNewestFirst() {
+        assertThat(search(request(), null)).containsExactly("java", "courbevoie", "lyon", "unknown");
+    }
+
+    @Test
+    void searchesEveryWordWithoutAccents() {
+        assertThat(search(request(r -> r.setQ("DÉVELOPPEUR  java")), null)).containsExactly("java");
+        assertThat(search(request(r -> r.setQ("spark 100%")), null)).isEmpty();
+        assertThat(search(request(r -> r.setQ("a")), null)).hasSize(4);
+    }
+
+    @Test
+    void filtersOnTheDailyRate() {
+        assertThat(search(request(r -> r.setRateMin(600)), null)).containsExactly("java", "courbevoie", "unknown");
+        assertThat(search(request(r -> {
+            r.setRateMin(600);
+            r.setRateKnown(true);
+        }), null)).containsExactly("java", "courbevoie");
+        assertThat(search(request(r -> r.setRateMax(500)), null)).containsExactly("lyon", "unknown");
+    }
+
+    @Test
+    void filtersOnRegionsDepartmentsAndDistance() {
+        assertThat(search(request(r -> r.setRegions(List.of("84"))), null)).containsExactly("lyon");
+        assertThat(search(request(r -> {
+            r.setRegions(List.of("84"));
+            r.setDepartments(List.of("92"));
+        }), null)).containsExactly("courbevoie", "lyon");
+        assertThat(search(request(r -> r.setRadiusKm(20)), PARIS)).containsExactly("java", "courbevoie");
+    }
+
+    @Test
+    void filtersOnWorkModeAndRemoteDays() {
+        assertThat(search(request(r -> r.setWorkModes(List.of(WorkMode.REMOTE, WorkMode.ONSITE))), null))
+            .containsExactly("courbevoie", "lyon");
+        assertThat(search(request(r -> r.setMinRemoteDays(2)), null)).containsExactly("java", "courbevoie");
+    }
+
+    @Test
+    void keepsOffersThatStateNoDurationStartOrSeniority() {
+        assertThat(search(request(r -> r.setDurationMin(12)), null)).containsExactly("courbevoie", "lyon", "unknown");
+        assertThat(search(request(r -> r.setDurationMax(12)), null)).containsExactly("java", "courbevoie", "unknown");
+        assertThat(search(request(r -> r.setStartBefore(LocalDate.of(2026, 12, 1))), null))
+            .containsExactly("java", "courbevoie", "unknown");
+        assertThat(search(request(r -> r.setSeniorities(List.of(Seniority.SENIOR))), null))
+            .containsExactly("java", "courbevoie", "unknown");
+    }
+
+    @Test
+    void filtersOnPublicationSitesAndSkills() {
+        assertThat(search(request(r -> r.setPublishedWithinDays(1)), null)).containsExactly("java", "courbevoie");
+        assertThat(search(request(r -> r.setSites(List.of(OfferSite.COLLECTIVE))), null)).containsExactly("courbevoie");
+        assertThat(search(request(r -> r.setSkills(List.of("java"))), null)).containsExactly("java", "lyon");
+        assertThat(search(request(r -> r.setSkills(List.of("JAVA", "aws", " "))), null)).containsExactly("lyon");
+    }
+
+    @Test
+    void showsTheWorkspacesSavedAndHiddenOffers() {
+        state("java", true, false, null);
+        state("lyon", false, true, NOW);
+        state("courbevoie", false, false, NOW);
+        Freelance bob = freelance("bob@example.com");
+
+        assertThat(search(request(), alice.getId())).containsExactly("java", "courbevoie", "unknown");
+        assertThat(search(request(), bob.getId())).containsExactly("java", "courbevoie", "lyon", "unknown");
+        assertThat(search(request(r -> r.setView(OfferSearchRequest.View.SAVED)), alice.getId())).containsExactly("java");
+        assertThat(search(request(r -> r.setView(OfferSearchRequest.View.HIDDEN)), alice.getId())).containsExactly("lyon");
+        assertThat(search(request(r -> r.setUnseenOnly(true)), alice.getId())).containsExactly("java", "unknown");
+        assertThat(search(request(r -> r.setView(OfferSearchRequest.View.SAVED)), null)).isEmpty();
+    }
+
+    @Test
+    void sortsByRateWithUnknownRatesLastAndByDistance() {
+        assertThat(search(request(r -> r.setSort(OfferSearchRequest.Sort.RATE)), null))
+            .containsExactly("courbevoie", "java", "lyon", "unknown");
+        assertThat(search(request(r -> r.setSort(OfferSearchRequest.Sort.DISTANCE)), PARIS))
+            .containsExactly("java", "courbevoie", "lyon", "unknown");
+        assertThat(search(request(r -> r.setSort(OfferSearchRequest.Sort.DISTANCE)), null))
+            .containsExactly("java", "courbevoie", "lyon", "unknown");
+    }
+
+    @Test
+    void pagesAndCountsTheResults() {
+        Page<JobOffer> page = repository.findAll(JobOfferSpecifications.matching(request(), null, null, NOW), PageRequest.of(1, 3));
+
+        assertThat(page.getTotalElements()).isEqualTo(4);
+        assertThat(page.getTotalPages()).isEqualTo(2);
+        assertThat(page.getContent()).extracting(JobOffer::getExternalId).containsExactly("unknown");
+    }
+
+    @Test
+    void splitsSearchWords() {
+        assertThat(JobOfferSpecifications.keywords(null)).isEmpty();
+        assertThat(JobOfferSpecifications.keywords("  ")).isEmpty();
+        assertThat(JobOfferSpecifications.keywords("Java, java; C++ a b c d e f g h i j")).containsExactly("java", "c++");
+    }
+
+    private List<String> search(OfferSearchRequest request, Object context) {
+        Long freelanceId = context instanceof Long id ? id : null;
+        Origin origin = context instanceof Origin place ? place : null;
+        return repository.findAll(JobOfferSpecifications.matching(request, freelanceId, origin, NOW), PageRequest.of(0, 20))
+            .getContent().stream().map(JobOffer::getExternalId).toList();
+    }
+
+    private static OfferSearchRequest request() {
+        return new OfferSearchRequest();
+    }
+
+    private static OfferSearchRequest request(Consumer<OfferSearchRequest> filters) {
+        OfferSearchRequest request = new OfferSearchRequest();
+        filters.accept(request);
+        return request;
+    }
+
+    private void persist(String externalId, Consumer<JobOffer> details) {
+        JobOffer offer = new JobOffer();
+        offer.setSite(OfferSite.FREE_WORK);
+        offer.setExternalId(externalId);
+        offer.setUrl("https://www.example.com/" + externalId);
+        offer.setDatePrecision(OfferDatePrecision.EXACT);
+        offer.setFirstSeenAt(NOW);
+        offer.setLastSeenAt(NOW);
+        details.accept(offer);
+        entityManager.persist(offer);
+    }
+
+    private void state(String externalId, boolean saved, boolean hidden, Instant seenAt) {
+        JobOffer offer = repository.findAll().stream().filter(o -> o.getExternalId().equals(externalId)).findFirst().orElseThrow();
+        JobOfferState state = new JobOfferState();
+        state.setFreelance(alice);
+        state.setOffer(offer);
+        state.setSaved(saved);
+        state.setHidden(hidden);
+        state.setSeenAt(seenAt);
+        entityManager.persist(state);
+    }
+
+    private Freelance freelance(String email) {
+        Freelance freelance = new Freelance();
+        freelance.setFirstName("Test");
+        freelance.setLastName("User");
+        freelance.setEmail(email);
+        freelance.setStatus(EmploymentStatus.FREELANCE);
+        return entityManager.persistAndFlush(freelance);
+    }
+}

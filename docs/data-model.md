@@ -20,6 +20,10 @@ erDiagram
     PROJECT ||--o{ PROJECT_NOTE : journal
     PROJECT ||--o{ ACTIVITY_REPORT : monthly
     ACTIVITY_REPORT ||--o{ ACTIVITY_REPORT_DAY : records
+    JOB_OFFER ||--o{ JOB_OFFER_SKILL : lists
+    JOB_OFFER ||--o{ JOB_OFFER_STATE : acted_on
+    FREELANCE ||--o{ JOB_OFFER_STATE : keeps
+    PROJECT ||--o| JOB_OFFER_STATE : imported_as
 ```
 
 `User` and `Freelance` are both present today. `User` backs authentication and profile/security preferences. `Freelance` backs the opportunity-management workspace. Future account work should clarify and, if needed, consolidate the boundary between these two concepts.
@@ -294,6 +298,46 @@ Behavior:
 - days and comment change only in `DRAFT` or `REJECTED`; submitting issues a new link and clears an earlier decision; reopening returns to `DRAFT` and clears the link and the decision
 - timestamps are `Instant` values, so the API returns them with their UTC offset
 
+## JobOffer
+
+Tables: `job_offers`, `job_offer_skills`
+
+Purpose: a freelance mission published on a job board, collected by the backend (see
+[Features](./features.md#freelance-offer-feed)). Offers are shared by every workspace.
+
+Important fields:
+
+- `site` (`OfferSite`: `FREE_WORK`, `COLLECTIVE`, `CHERRY_PICK`, `LEHIBOU`, `YEETS`) and `externalId`, the offer's
+  identifier on its site, unique together (`uk_job_offers_site_external_id`); `url`, the offer on its site
+- `title`, `company` (the publisher: ESN, agency or client), `description` (plain text, at most 20,000 characters)
+- `rateMin`, `rateMax`: daily rate in euros, either can be missing ("TJM max 600 €" has only a maximum)
+- `city`, `postalCode`, `departmentCode` and `regionCode` (INSEE codes), `countryCode`, `latitude`, `longitude`
+- `workMode` (`ONSITE`, `HYBRID`, `REMOTE`) and `remoteDaysPerWeek` (0 to 5)
+- `durationMonths`, `startDate`, `startAsap`, `seniority` (`JUNIOR`, `CONFIRMED`, `SENIOR`, `EXPERT`)
+- skills (`job_offer_skills`, an element collection kept in the site's order)
+- `publishedAt` with `datePrecision` (`EXACT`, `DAY`, or `FIRST_SEEN` when the site gives no date and the offer is
+  dated when first collected), `firstSeenAt`, `lastSeenAt`, `expiresAt`
+- `searchText`: folded title, company, place, skills and description beginning, for keyword search
+
+Indexes: `published_at` (the feed's order) and `department_code`.
+
+## JobOfferState
+
+Table: `job_offer_states`
+
+Purpose: what one workspace did with an offer. Unique per freelance and offer (`uk_job_offer_states_freelance_offer`).
+
+Fields: `saved`, `hidden`, `seenAt`, and `importedProject`, the opportunity created from the offer (cleared when
+that project is deleted, so the offer can be imported again).
+
+## OfferSiteStatus And GeoPlace
+
+`offer_site_statuses`: one row per job board, keyed by the site: `nextRunAt`, `runningSince` (the claim of a running
+collection), `lastRunAt`, `lastSuccessAt`, `lastError`, `lastFound`, `lastNew` and `consecutiveFailures`.
+
+`geo_places`: the geocoding cache, keyed by the folded "postal code|city" a place was looked up with: `found`, `city`,
+`departmentCode`, `regionCode`, `latitude` and `longitude`. Unknown places are cached too.
+
 ## InterviewStep
 
 Table: `interview_steps`
@@ -330,6 +374,7 @@ Current element collections:
 - `user_skills`
 - `user_languages`
 - `project_documents`
+- `job_offer_skills`
 
 Use element collections for simple owned scalar lists. Use real entities when values need identity, auditing, search, ownership, permissions, or relationships.
 
@@ -390,6 +435,7 @@ Practical ownership rules for new development:
 - A source belongs to one freelance.
 - A season belongs to one freelance; a project may belong to one season of the same freelance.
 - An activity report belongs to one project, one per month.
+- A job offer belongs to no workspace; a job offer state belongs to one freelance and one offer.
 - User account data should not be mixed into project ownership without clarifying the User/Freelance boundary.
 
 Deletion rules:
@@ -398,6 +444,8 @@ Deletion rules:
 - a client still referenced by projects (as final client or intermediary) cannot be deleted (409)
 - deleting a source or a season keeps its projects, which lose that reference
 - deleting a client deletes its contacts
+- deleting a project clears the import of the offer it came from
+- offers published more than 90 days ago or expired are deleted every night with their states, unless a state saved or imported them
 
 ## Related Guides
 

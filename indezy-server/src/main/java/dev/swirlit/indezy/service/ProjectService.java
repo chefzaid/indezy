@@ -17,6 +17,7 @@ import dev.swirlit.indezy.repository.ActivityReportRepository;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
+import dev.swirlit.indezy.repository.JobOfferStateRepository;
 import dev.swirlit.indezy.repository.ProjectNoteRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
@@ -49,6 +50,7 @@ public class ProjectService {
     private final InterviewStepRepository interviewStepRepository;
     private final ProjectNoteRepository projectNoteRepository;
     private final ActivityReportRepository activityReportRepository;
+    private final JobOfferStateRepository jobOfferStateRepository;
     private final ProjectMapper projectMapper;
     private final SeasonService seasonService;
 
@@ -268,6 +270,8 @@ public class ProjectService {
         // Interview steps cascade with the project; journal notes and activity reports are not mapped on it.
         projectNoteRepository.deleteByProjectId(id);
         activityReportRepository.deleteByProjectId(id);
+        // An offer imported as this project can be imported again.
+        jobOfferStateRepository.clearImportedProject(id);
         projectRepository.deleteById(id);
         log.info("Deleted project with id: {}", id);
     }

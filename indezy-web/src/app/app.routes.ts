@@ -25,6 +25,11 @@ export const routes: Routes = [
     runGuardsAndResolvers: 'paramsOrQueryParamsChange'
   },
   {
+    path: 'offers',
+    loadComponent: () => import('./components/offers/offer-feed/offer-feed.component').then(m => m.OfferFeedComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'profile',
     loadComponent: () => import('./components/profile/profile.component').then(m => m.ProfileComponent),
     canActivate: [authGuard]

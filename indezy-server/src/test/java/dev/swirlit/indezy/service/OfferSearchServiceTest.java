@@ -1,0 +1,200 @@
+package dev.swirlit.indezy.service;
+
+import dev.swirlit.indezy.dto.OfferDto;
+import dev.swirlit.indezy.dto.OfferFacetDto;
+import dev.swirlit.indezy.dto.OfferPageDto;
+import dev.swirlit.indezy.dto.OfferRegionDto;
+import dev.swirlit.indezy.dto.OfferSearchRequest;
+import dev.swirlit.indezy.dto.OfferSiteDto;
+import dev.swirlit.indezy.dto.OfferStateDto;
+import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.Freelance;
+import dev.swirlit.indezy.model.JobOffer;
+import dev.swirlit.indezy.model.OfferSiteStatus;
+import dev.swirlit.indezy.model.enums.OfferDatePrecision;
+import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.repository.JobOfferRepository;
+import dev.swirlit.indezy.repository.JobOfferStateRepository;
+import dev.swirlit.indezy.repository.OfferSiteStatusRepository;
+import dev.swirlit.indezy.scraping.GeoLocator;
+import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+class OfferSearchServiceTest {
+
+    private static final Instant NOW = Instant.parse("2026-10-19T10:00:00Z");
+
+    private final JobOfferRepository offers = mock(JobOfferRepository.class);
+    private final JobOfferStateRepository states = mock(JobOfferStateRepository.class);
+    private final OfferSiteStatusRepository statuses = mock(OfferSiteStatusRepository.class);
+    private final FreelanceRepository freelances = mock(FreelanceRepository.class);
+    private final GeoLocator geoLocator = mock(GeoLocator.class);
+    private final OfferSearchService service = new OfferSearchService(offers, states, statuses, freelances, geoLocator,
+        Clock.fixed(NOW, ZoneOffset.UTC));
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void answersAPageWithSkillsStatesAndDistances() {
+        JobOffer offer = offer(7L);
+        when(offers.findAll(any(Specification.class), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(offer), PageRequest.of(0, 20), 1));
+        when(offers.findSkillsOf(List.of(7L))).thenReturn(List.<Object[]>of(new Object[] {7L, "Java"}, new Object[] {7L, "Kafka"}));
+        when(states.findStates(3L, List.of(7L))).thenReturn(List.of(new OfferStateDto(7L, true, false, true, 12L)));
+        when(freelances.findProfileCity(3L)).thenReturn(Optional.of("Paris"));
+        when(geoLocator.locate("Paris", null)).thenReturn(Optional.of(new GeoLocator.Place("Paris", "75", "11", 48.8589, 2.347)));
+
+        OfferPageDto page = service.search(3L, new OfferSearchRequest());
+
+        assertThat(page.totalElements()).isEqualTo(1);
+        assertThat(page.distanceAvailable()).isTrue();
+        OfferDto dto = page.content().get(0);
+        assertThat(dto.siteName()).isEqualTo("Free-Work");
+        assertThat(dto.skills()).containsExactly("Java", "Kafka");
+        assertThat(dto.saved()).isTrue();
+        assertThat(dto.seen()).isTrue();
+        assertThat(dto.importedProjectId()).isEqualTo(12L);
+        assertThat(dto.distanceKm()).isEqualTo(8);
+        assertThat(dto.departmentName()).isEqualTo("Hauts-de-Seine");
+        assertThat(dto.regionName()).isEqualTo("Île-de-France");
+        assertThat(dto.description()).isNull();
+        assertThat(dto.excerpt()).isEqualTo("Mission longue à La Défense.");
+        assertThat(dto.expired()).isFalse();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void searchesWithoutAWorkspaceOrAKnownCity() {
+        when(offers.findAll(any(Specification.class), any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
+
+        OfferPageDto page = service.search(null, new OfferSearchRequest());
+
+        assertThat(page.content()).isEmpty();
+        assertThat(page.distanceAvailable()).isFalse();
+        verify(states, never()).findStates(any(), anyList());
+        verify(offers, never()).findSkillsOf(anyList());
+    }
+
+    @Test
+    void needsTheProfilesCityToFilterByDistance() {
+        when(freelances.findProfileCity(3L)).thenReturn(Optional.of(" "));
+        Freelance freelance = new Freelance();
+        freelance.setCity(null);
+        when(freelances.findById(3L)).thenReturn(Optional.of(freelance));
+        OfferSearchRequest request = new OfferSearchRequest();
+        request.setRadiusKm(30);
+
+        assertThatThrownBy(() -> service.search(3L, request)).isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("city");
+    }
+
+    @Test
+    void measuresFromTheWorkspacesCityWhenTheProfileHasNone() {
+        Freelance freelance = new Freelance();
+        freelance.setCity("Lyon");
+        when(freelances.findProfileCity(3L)).thenReturn(Optional.empty());
+        when(freelances.findById(3L)).thenReturn(Optional.of(freelance));
+        when(geoLocator.locate("Lyon", null)).thenReturn(Optional.of(new GeoLocator.Place("Lyon", "69", "84", 45.76, 4.83)));
+
+        assertThat(service.origin(3L)).isPresent();
+    }
+
+    @Test
+    void getsOneOfferWithItsDescription() {
+        JobOffer offer = offer(7L);
+        offer.setExpiresAt(NOW);
+        when(offers.findById(7L)).thenReturn(Optional.of(offer));
+        when(offers.findSkillsOf(List.of(7L))).thenReturn(List.of());
+
+        OfferDto dto = service.get(null, 7L);
+
+        assertThat(dto.description()).isEqualTo("Mission longue\nà La Défense.");
+        assertThat(dto.skills()).isEmpty();
+        assertThat(dto.expired()).isTrue();
+        assertThat(dto.distanceKm()).isNull();
+        assertThatThrownBy(() -> service.get(null, 8L)).isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void listsEverySiteWithItsHealth() {
+        OfferSiteStatus failing = new OfferSiteStatus(OfferSite.YEETS, NOW);
+        failing.setConsecutiveFailures(2);
+        failing.setLastSuccessAt(NOW.minusSeconds(3600));
+        when(statuses.findAll()).thenReturn(List.of(failing));
+        when(offers.countOpenBySite(NOW)).thenReturn(List.<Object[]>of(new Object[] {OfferSite.YEETS, 12L}));
+
+        List<OfferSiteDto> sites = service.sites();
+
+        assertThat(sites).hasSize(OfferSite.values().length);
+        OfferSiteDto yeets = sites.stream().filter(site -> site.site() == OfferSite.YEETS).findFirst().orElseThrow();
+        assertThat(yeets).isEqualTo(new OfferSiteDto(OfferSite.YEETS, "Yeets", "https://www.yeets.fr", 12, NOW.minusSeconds(3600), true));
+        assertThat(sites.get(0).openOffers()).isZero();
+        assertThat(sites.get(0).failing()).isFalse();
+    }
+
+    @Test
+    void suggestsSkillsByPrefix() {
+        when(offers.findTopSkills(eq(NOW), eq("ja%"), any())).thenReturn(List.<Object[]>of(new Object[] {"Java", 42L}));
+
+        assertThat(service.skills(" Ja%_ ")).containsExactly(new OfferFacetDto("Java", 42));
+        assertThat(service.skills(null)).isEmpty();
+    }
+
+    @Test
+    void listsRegionsWithTheirDepartments() {
+        List<OfferRegionDto> regions = service.regions();
+
+        assertThat(regions).hasSize(18);
+        OfferRegionDto idf = regions.stream().filter(region -> region.regionCode().equals("11")).findFirst().orElseThrow();
+        assertThat(idf.departments()).extracting(OfferRegionDto.Department::departmentCode).contains("75", "92");
+    }
+
+    @Test
+    void cutsExcerptsAtAWord() {
+        String description = "Une mission " + "longue ".repeat(60);
+
+        String excerpt = OfferSearchService.excerpt(description);
+
+        assertThat(excerpt).endsWith("longue…").hasSizeLessThanOrEqualTo(OfferSearchService.EXCERPT_LENGTH + 1);
+        assertThat(OfferSearchService.excerpt("x".repeat(400))).hasSize(OfferSearchService.EXCERPT_LENGTH + 1);
+        assertThat(OfferSearchService.excerpt(" ")).isNull();
+        assertThat(OfferSearchService.excerpt(null)).isNull();
+        assertThat(OfferSearchService.distanceKm(48.8589, 2.347, 45.764, 4.8357)).isBetween(390.0, 395.0);
+    }
+
+    private static JobOffer offer(Long id) {
+        JobOffer offer = new JobOffer();
+        offer.setId(id);
+        offer.setSite(OfferSite.FREE_WORK);
+        offer.setExternalId("ext-" + id);
+        offer.setUrl("https://www.free-work.com/" + id);
+        offer.setTitle("Développeur Java");
+        offer.setDescription("Mission longue\nà La Défense.");
+        offer.setDepartmentCode("92");
+        offer.setRegionCode("11");
+        offer.setLatitude(48.8976);
+        offer.setLongitude(2.2574);
+        offer.setPublishedAt(NOW.minusSeconds(60));
+        offer.setDatePrecision(OfferDatePrecision.EXACT);
+        return offer;
+    }
+}

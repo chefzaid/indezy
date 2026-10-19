@@ -1,6 +1,8 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.ActivityDayDto;
+import dev.swirlit.indezy.dto.OfferStateExportDto;
+import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.dto.ActivityReportDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.dto.UserDto;
@@ -36,11 +38,14 @@ class UserDataExportServiceTest {
     @Mock
     private ActivityReportService activityReportService;
 
+    @Mock
+    private OfferStateService offerStateService;
+
     @InjectMocks
     private UserDataExportService userDataExportService;
 
     @Test
-    void exportUserData_ShouldSerializeProfileAndOwnedEntities() {
+    void exportUserData_ShouldSerializeTheProfileAndTheRecordsOfItsWorkspace() {
         UserDto profile = new UserDto();
         profile.setFirstName("John");
         profile.setEmail("john.doe@example.com");
@@ -48,19 +53,21 @@ class UserDataExportServiceTest {
 
         ProjectDto project = new ProjectDto();
         project.setRole("Backend Dev");
-        when(projectService.findByFreelanceId(1L)).thenReturn(List.of(project));
-        when(clientService.findByFreelanceId(1L)).thenReturn(List.of());
-        when(contactService.findByFreelanceId(1L)).thenReturn(List.of());
-        when(sourceService.findByFreelanceId(1L)).thenReturn(List.of());
+        when(projectService.findByFreelanceId(5L)).thenReturn(List.of(project));
+        when(clientService.findByFreelanceId(5L)).thenReturn(List.of());
+        when(contactService.findByFreelanceId(5L)).thenReturn(List.of());
+        when(sourceService.findByFreelanceId(5L)).thenReturn(List.of());
         ActivityReportDto report = new ActivityReportDto();
         report.setYear(2026);
         report.setMonth(10);
         report.setStatus(ActivityReportStatus.VALIDATED);
         report.setDays(List.of(new ActivityDayDto(LocalDate.of(2026, 10, 1), ActivityDayType.ONSITE, false)));
         report.setDecidedAt(Instant.parse("2026-11-02T09:30:00Z"));
-        when(activityReportService.findByFreelanceId(1L)).thenReturn(List.of(report));
+        when(activityReportService.findByFreelanceId(5L)).thenReturn(List.of(report));
+        when(offerStateService.export(5L)).thenReturn(List.of(new OfferStateExportDto(OfferSite.FREE_WORK, "Développeur Java",
+            "Exemple Conseil", "https://www.free-work.com/7", true, false, Instant.parse("2026-10-19T08:00:00Z"), null)));
 
-        String json = new String(userDataExportService.exportUserData(1L), StandardCharsets.UTF_8);
+        String json = new String(userDataExportService.exportUserData(1L, 5L), StandardCharsets.UTF_8);
 
         // Every section is present, and the profile and projects carry their data.
         assertThat(json)
@@ -75,6 +82,9 @@ class UserDataExportServiceTest {
             .contains("\"activityReports\"")
             .contains("VALIDATED")
             .contains("\"2026-10-01\"")
-            .contains("\"2026-11-02T09:30:00Z\"");
+            .contains("\"2026-11-02T09:30:00Z\"")
+            .contains("\"jobOffers\"")
+            .contains("FREE_WORK")
+            .contains("\"2026-10-19T08:00:00Z\"");
     }
 }

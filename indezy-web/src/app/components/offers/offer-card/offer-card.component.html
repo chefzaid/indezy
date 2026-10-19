@@ -1,0 +1,115 @@
+<mat-card class="offer-card" appearance="outlined" [class.unseen]="!offer.seen" [class.expired]="offer.expired"
+  [attr.data-offer]="offer.id">
+  <div class="offer-head">
+    <span class="site-badge" [attr.data-site]="offer.site">{{ offer.siteName }}</span>
+    @if (!offer.seen) {
+      <span class="badge new-badge">{{ 'offers.card.new' | translate }}</span>
+    }
+    @if (offer.expired) {
+      <span class="badge expired-badge">{{ 'offers.card.expired' | translate }}</span>
+    }
+    <span class="published" [matTooltip]="publishedHint | translate: { date: (offer.publishedAt | date: 'medium') }">
+      {{ published }}
+    </span>
+  </div>
+
+  <h3 class="offer-title">
+    <a [href]="offer.url" target="_blank" rel="noopener noreferrer" (click)="opened.emit(offer)">{{ offer.title }}</a>
+  </h3>
+  @if (offer.company) {
+    <p class="company">{{ offer.company }}</p>
+  }
+
+  <ul class="facts">
+    <li data-fact="rate" [class.muted]="!rate">
+      <mat-icon aria-hidden="true">euro</mat-icon>
+      @if (rate) {
+        <span>{{ rate }}<span class="unit">{{ 'common.perDay' | translate }}</span></span>
+      } @else {
+        {{ 'offers.card.noRate' | translate }}
+      }
+    </li>
+    @if (place) {
+      <li data-fact="place">
+        <mat-icon aria-hidden="true">place</mat-icon>{{ place }}
+        @if (offer.distanceKm !== undefined && offer.distanceKm !== null) {
+          <span class="distance">· {{ 'offers.card.distance' | translate: { km: offer.distanceKm } }}</span>
+        }
+      </li>
+    }
+    @if (offer.workMode) {
+      <li data-fact="remote">
+        <mat-icon aria-hidden="true">home_work</mat-icon>{{ remoteKey | translate: { days: offer.remoteDaysPerWeek } }}
+      </li>
+    }
+    @if (offer.durationMonths) {
+      <li data-fact="duration">
+        <mat-icon aria-hidden="true">date_range</mat-icon>{{ durationKey | translate: { count: offer.durationMonths } }}
+      </li>
+    }
+    @if (offer.startAsap) {
+      <li data-fact="start"><mat-icon aria-hidden="true">rocket_launch</mat-icon>{{ 'offers.card.asap' | translate }}</li>
+    } @else if (offer.startDate) {
+      <li data-fact="start">
+        <mat-icon aria-hidden="true">event</mat-icon>{{ 'offers.card.startsOn' | translate: { date: (offer.startDate | date: 'mediumDate') } }}
+      </li>
+    }
+    @if (offer.seniority) {
+      <li data-fact="seniority">
+        <mat-icon aria-hidden="true">workspace_premium</mat-icon>{{ 'offers.seniority.' + offer.seniority | translate }}
+      </li>
+    }
+  </ul>
+
+  @if (offer.skills.length) {
+    <ul class="skills" [attr.aria-label]="'offers.card.skills' | translate">
+      @for (skill of visibleSkills; track skill) {
+        <li class="skill">{{ skill }}</li>
+      }
+      @if (hiddenSkills) {
+        <li class="skill more">+{{ hiddenSkills }}</li>
+      }
+    </ul>
+  }
+
+  @if (expanded && offer.description) {
+    <p class="description" data-description>{{ offer.description }}</p>
+  } @else if (offer.excerpt) {
+    <p class="excerpt">{{ offer.excerpt }}</p>
+  }
+
+  <div class="offer-actions">
+    @if (offer.excerpt) {
+      <button mat-button type="button" class="details-button" (click)="toggleDetails.emit(offer)" [attr.aria-expanded]="expanded"
+        [disabled]="loadingDetails">
+        @if (loadingDetails) {
+          <mat-spinner diameter="16" aria-hidden="true"></mat-spinner>
+        } @else {
+          <mat-icon>{{ expanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+        }
+        {{ (expanded ? 'offers.card.lessDetails' : 'offers.card.moreDetails') | translate }}
+      </button>
+    }
+    <span class="spacer"></span>
+    <button mat-icon-button type="button" class="save-button" (click)="toggleSaved.emit(offer)" [attr.aria-pressed]="offer.saved"
+      [attr.aria-label]="(offer.saved ? 'offers.card.unsave' : 'offers.card.save') | translate"
+      [matTooltip]="(offer.saved ? 'offers.card.unsave' : 'offers.card.save') | translate">
+      <mat-icon>{{ offer.saved ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+    </button>
+    <button mat-icon-button type="button" class="hide-button" (click)="toggleHidden.emit(offer)"
+      [attr.aria-label]="(offer.hidden ? 'offers.card.unhide' : 'offers.card.hide') | translate"
+      [matTooltip]="(offer.hidden ? 'offers.card.unhide' : 'offers.card.hide') | translate">
+      <mat-icon>{{ offer.hidden ? 'visibility' : 'visibility_off' }}</mat-icon>
+    </button>
+    @if (offer.importedProjectId) {
+      <a mat-stroked-button class="pipeline-link" [routerLink]="['/projects', offer.importedProjectId]">
+        <mat-icon>check_circle</mat-icon>{{ 'offers.card.inPipeline' | translate }}
+      </a>
+    } @else {
+      <button mat-flat-button color="primary" type="button" class="import-button" (click)="importOffer.emit(offer)"
+        [disabled]="importing">
+        <mat-icon>add_task</mat-icon>{{ 'offers.card.import' | translate }}
+      </button>
+    }
+  </div>
+</mat-card>

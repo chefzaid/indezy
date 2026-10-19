@@ -60,6 +60,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "offers": "Offers",
     "timeline": "Timeline",
     "projects": "Projects",
     "clients": "Clients",
@@ -988,6 +989,123 @@
       "alreadyDecided": "This activity report has already been answered.",
       "decisionError": "Could not record your answer. Please try again.",
       "poweredBy": "Activity report managed with Indezy"
+    }
+  },
+  "offers": {
+    "title": "Freelance missions",
+    "subtitle": "{{offers}} open offers from {{sites}} sites",
+    "updated": "updated {{when}}",
+    "loading": "Loading offers…",
+    "retry": "Try again",
+    "results": "{{count}} offers",
+    "oneResult": "1 offer",
+    "pagination": "Offer pages",
+    "views": {
+      "label": "Offers shown",
+      "FEED": "All",
+      "SAVED": "Saved",
+      "HIDDEN": "Hidden"
+    },
+    "sort": {
+      "NEWEST": "Newest",
+      "RATE": "Highest daily rate",
+      "DISTANCE": "Closest"
+    },
+    "empty": {
+      "FEED": "No offer matches these filters for now.",
+      "SAVED": "You have not saved any offer. Use an offer's bookmark to find it here.",
+      "HIDDEN": "No hidden offers."
+    },
+    "errors": {
+      "search": "The offers could not be loaded.",
+      "details": "The offer's details could not be loaded.",
+      "import": "The offer could not be added to the pipeline.",
+      "alreadyImported": "This offer is already in your pipeline.",
+      "state": "The change could not be saved."
+    },
+    "notifications": {
+      "imported": "“{{role}}” added to the pipeline (Contact stage)"
+    },
+    "seniority": {
+      "JUNIOR": "Junior",
+      "CONFIRMED": "Mid-level",
+      "SENIOR": "Senior",
+      "EXPERT": "Expert"
+    },
+    "card": {
+      "new": "New",
+      "expired": "Expired",
+      "date": {
+        "EXACT": "Published on {{date}}",
+        "DAY": "Published on {{date}} (day only)",
+        "FIRST_SEEN": "The site does not date its offers: spotted by Indezy on {{date}}"
+      },
+      "noRate": "Daily rate not stated",
+      "distance": "{{km}} km",
+      "remote": {
+        "ONSITE": "On site",
+        "HYBRID": "Hybrid",
+        "REMOTE": "Full remote",
+        "hybridDays": "Hybrid · {{days}} remote days a week"
+      },
+      "months": "{{count}} months",
+      "oneMonth": "1 month",
+      "asap": "As soon as possible",
+      "startsOn": "Starts on {{date}}",
+      "skills": "Skills",
+      "moreDetails": "Show details",
+      "lessDetails": "Hide details",
+      "save": "Save the offer",
+      "unsave": "Remove from saved offers",
+      "hide": "Hide the offer",
+      "unhide": "Show the offer again",
+      "inPipeline": "In the pipeline",
+      "import": "Add to pipeline"
+    },
+    "filters": {
+      "title": "Filters",
+      "keywords": "Keywords",
+      "keywordsPlaceholder": "Java, Product Owner, banking…",
+      "rate": "Daily rate (excl. VAT)",
+      "rateMin": "Minimum",
+      "rateMax": "Maximum",
+      "rateKnown": "Hide offers without a daily rate",
+      "location": "Location",
+      "regions": "Regions",
+      "departments": "Departments",
+      "radius": "Distance from my city",
+      "anyDistance": "Any distance",
+      "withinKm": "Within {{km}} km",
+      "radiusNeedsCity": "Add your city to your profile",
+      "remote": "Remote work",
+      "workMode": {
+        "ONSITE": "On site",
+        "HYBRID": "Hybrid",
+        "REMOTE": "Full remote"
+      },
+      "minRemoteDays": "Minimum remote days",
+      "daysPerWeek": "{{days}}+ days a week",
+      "mission": "Mission",
+      "durationMin": "Minimum duration",
+      "durationMax": "Maximum duration",
+      "startBefore": "Starting by",
+      "startBeforeHint": "“As soon as possible” missions stay listed",
+      "seniority": "Seniority",
+      "skills": "Skills",
+      "skillsPlaceholder": "Add a skill",
+      "removeSkill": "Remove {{skill}}",
+      "publication": "Publication",
+      "publishedWithin": "Published within",
+      "anyTime": "Any time",
+      "lastDays": {
+        "1": "Last 24 hours",
+        "3": "Last 3 days",
+        "7": "Last week",
+        "30": "Last month"
+      },
+      "sites": "Sites",
+      "unseenOnly": "Only offers I have not seen",
+      "clear": "Clear filters ({{count}})"
     }
   }
 }

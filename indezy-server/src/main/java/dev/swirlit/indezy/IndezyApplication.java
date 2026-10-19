@@ -1,5 +1,6 @@
 package dev.swirlit.indezy;
 
+import dev.swirlit.indezy.scraping.OfferProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -11,7 +12,7 @@ import java.sql.SQLException;
 
 @SpringBootApplication
 @EnableJpaAuditing
-@EnableConfigurationProperties
+@EnableConfigurationProperties(OfferProperties.class)
 public class IndezyApplication {
 
     public static void main(String[] args) throws SQLException {

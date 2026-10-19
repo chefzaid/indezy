@@ -1,0 +1,132 @@
+package dev.swirlit.indezy.scraping;
+
+import dev.swirlit.indezy.model.enums.Seniority;
+import dev.swirlit.indezy.model.enums.WorkMode;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class OfferTextTest {
+
+    @ParameterizedTest(name = "{0}")
+    @CsvSource(delimiter = '|', nullValues = "-", value = {
+        "TJM HT max 600 € (hors éventuels frais de mission) | -   | 600",
+        "470                                                | 470 | 470",
+        "450-550€/j                                         | 450 | 550",
+        "entre 500 et 650 euros par jour                    | 500 | 650",
+        "À partir de 550 €                                  | 550 | -",
+        "Jusqu'à 700 €/jour                                 | -   | 700",
+        "1 200 € HT                                         | 1200 | 1200",
+        "600.00                                             | 600 | 600",
+        "Démarrage 01/11/2026, TJM 550 €                    | 550 | 550",
+        "Mission de 12 mois, 600 € par jour                 | 600 | 600",
+        "Selon profil                                       | -   | -",
+        "55k€ annuels                                       | -   | -",
+        "58000 - 68000                                      | -   | -",
+        "Réf 2026-10-14 démarrage 12h30                     | -   | -"
+    })
+    void readsDailyRates(String text, Integer min, Integer max) {
+        OfferText.Rate rate = OfferText.dailyRate(text);
+
+        assertThat(rate.min()).isEqualTo(min);
+        assertThat(rate.max()).isEqualTo(max);
+    }
+
+    @Test
+    void readsNoRateFromNothing() {
+        assertThat(OfferText.dailyRate(null)).isEqualTo(OfferText.Rate.NONE);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @CsvSource(delimiter = '|', nullValues = "-", value = {
+        "Télétravail complet                      | REMOTE | 5",
+        "Full remote                              | REMOTE | 5",
+        "100% télétravail                         | REMOTE | 5",
+        "Télétravail                              | REMOTE | 5",
+        "Hybride                                  | HYBRID | -",
+        "partial                                  | HYBRID | -",
+        "Paris / 2 jours de télétravail / semaine | HYBRID | 2",
+        "Télétravail : 1j par semaine             | HYBRID | 1",
+        "Hybride (3 jours sur site)               | HYBRID | 2",
+        "5 jours sur site                         | ONSITE | 0",
+        "Sur site                                 | ONSITE | 0",
+        "Sans télétravail                         | ONSITE | 0",
+        "Selon le client                          | -      | -"
+    })
+    void readsRemotePolicies(String text, WorkMode mode, Integer days) {
+        OfferText.Remote remote = OfferText.remote(text);
+
+        assertThat(remote.mode()).isEqualTo(mode);
+        assertThat(remote.daysPerWeek()).isEqualTo(days);
+    }
+
+    @Test
+    void readsNoRemotePolicyFromNothing() {
+        assertThat(OfferText.remote(null)).isEqualTo(OfferText.Remote.UNKNOWN);
+        assertThat(OfferText.remote("  ")).isEqualTo(OfferText.Remote.UNKNOWN);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @CsvSource(delimiter = '|', nullValues = "-", value = {
+        "Junior        | JUNIOR",
+        "Débutant      | JUNIOR",
+        "Confirmé      | CONFIRMED",
+        "Intermédiaire | CONFIRMED",
+        "intermediate  | CONFIRMED",
+        "Senior        | SENIOR",
+        "Expert        | EXPERT",
+        "N/A           | -"
+    })
+    void readsSeniorities(String text, Seniority seniority) {
+        assertThat(OfferText.seniority(text)).isEqualTo(seniority);
+    }
+
+    @Test
+    void readsSenioritiesFromYearsOfExperience() {
+        assertThat(OfferText.seniority(null)).isNull();
+        assertThat(OfferText.seniorityOfYears(null)).isNull();
+        assertThat(OfferText.seniorityOfYears(-1)).isNull();
+        assertThat(OfferText.seniorityOfYears(2)).isEqualTo(Seniority.JUNIOR);
+        assertThat(OfferText.seniorityOfYears(5)).isEqualTo(Seniority.CONFIRMED);
+        assertThat(OfferText.seniorityOfYears(10)).isEqualTo(Seniority.SENIOR);
+        assertThat(OfferText.seniorityOfYears(15)).isEqualTo(Seniority.EXPERT);
+    }
+
+    @Test
+    void convertsDurationsToMonths() {
+        assertThat(OfferText.durationMonths(6.0, "month")).isEqualTo(6);
+        assertThat(OfferText.durationMonths(3.0, "mois")).isEqualTo(3);
+        assertThat(OfferText.durationMonths(1.0, "year")).isEqualTo(12);
+        assertThat(OfferText.durationMonths(2.0, "ans")).isEqualTo(24);
+        assertThat(OfferText.durationMonths(13.0, "week")).isEqualTo(3);
+        assertThat(OfferText.durationMonths(42.0, "jours")).isEqualTo(2);
+        assertThat(OfferText.durationMonths(5.0, "day")).isEqualTo(1);
+        assertThat(OfferText.durationMonths(6.0, "fortnight")).isNull();
+        assertThat(OfferText.durationMonths(null, "month")).isNull();
+        assertThat(OfferText.durationMonths(0.0, "month")).isNull();
+        assertThat(OfferText.durationMonths(6.0, null)).isNull();
+    }
+
+    @Test
+    void readsMissionLengthsWrittenInText() {
+        assertThat(OfferText.durationInText("Resp compta senior - freelance - 7 mois", true)).isEqualTo(7);
+        assertThat(OfferText.durationInText("Expert Java 10 ans", true)).isNull();
+        assertThat(OfferText.durationInText("Contexte. Durée : 6 mois renouvelables, mission longue", false)).isEqualTo(6);
+        assertThat(OfferText.durationInText("Démarrage ASAP, 12 mois renouvelables", false)).isEqualTo(12);
+        assertThat(OfferText.durationInText("Pour une durée initiale de 3 mois", false)).isEqualTo(3);
+        assertThat(OfferText.durationInText("Mission de 2 ans chez un assureur", false)).isEqualTo(24);
+        assertThat(OfferText.durationInText("Duration: 18 months", false)).isEqualTo(18);
+        assertThat(OfferText.durationInText("5 ans d'expérience et 3 mois de préavis", false)).isNull();
+        assertThat(OfferText.durationInText(null, false)).isNull();
+        assertThat(OfferText.durationInText(" ", true)).isNull();
+    }
+
+    @Test
+    void placesRemoteDaysOnTheWorkModeScale() {
+        assertThat(OfferText.remoteDaysPerWeek(-2)).isEqualTo(new OfferText.Remote(WorkMode.ONSITE, 0));
+        assertThat(OfferText.remoteDaysPerWeek(3)).isEqualTo(new OfferText.Remote(WorkMode.HYBRID, 3));
+        assertThat(OfferText.remoteDaysPerWeek(7)).isEqualTo(new OfferText.Remote(WorkMode.REMOTE, 5));
+    }
+}

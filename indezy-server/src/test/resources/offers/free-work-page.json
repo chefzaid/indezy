@@ -1,0 +1,62 @@
+[
+  {
+    "id": 900001,
+    "title": "Développeur Java Spring (H/F)",
+    "slug": "developpeur-java-spring-h-f",
+    "description": "<p><strong>Contexte</strong></p><ul><li>Refonte d'un SI bancaire</li><li>Java 21 &amp; Spring Boot</li></ul>",
+    "candidateProfile": "<p>5 ans d'expérience minimum</p>",
+    "experienceLevel": "senior",
+    "minDailySalary": 550,
+    "maxDailySalary": 650,
+    "durationValue": 6,
+    "durationPeriod": "month",
+    "remoteMode": "partial",
+    "contracts": ["contractor", "permanent"],
+    "startsAt": "2026-11-02T00:00:00+01:00",
+    "publishedAt": "2026-10-19T10:47:42+02:00",
+    "expiredAt": "2026-12-18T23:59:59+01:00",
+    "location": {"locality": "Paris", "postalCode": "75008", "adminLevel1": "Île-de-France", "adminLevel2": "Paris",
+      "countryCode": "FR", "latitude": "48.8534951", "longitude": "2.3483915"},
+    "company": {"name": "Exemple Conseil"},
+    "job": {"slug": "developpeur-java"},
+    "skills": [{"name": "Java"}, {"name": "Spring Boot"}, {"name": "Kafka"}]
+  },
+  {
+    "id": 900002,
+    "title": "Consultant SAP (H/F)",
+    "slug": "consultant-sap-h-f",
+    "contracts": ["contractor"],
+    "remoteMode": "full",
+    "publishedAt": "2026-10-19T09:00:00+02:00",
+    "location": {"locality": null, "postalCode": null, "countryCode": "FR"},
+    "company": {"name": "DIGISTRAT Group"},
+    "job": {"slug": "consultant-sap"},
+    "skills": []
+  },
+  {
+    "id": 900003,
+    "title": "Chef de projet en CDI",
+    "slug": "chef-de-projet-en-cdi",
+    "contracts": ["permanent"],
+    "publishedAt": "2026-10-19T08:00:00+02:00",
+    "location": {},
+    "company": {"name": "Société Fictive"},
+    "job": {"slug": "chef-de-projet"},
+    "skills": []
+  },
+  {
+    "id": 900004,
+    "title": "Architecte cloud",
+    "slug": "architecte-cloud",
+    "contracts": ["contractor"],
+    "remoteMode": "none",
+    "durationValue": 1,
+    "durationPeriod": "year",
+    "experienceLevel": "expert",
+    "publishedAt": "2026-10-18T17:00:00+02:00",
+    "location": {"locality": "Lyon", "postalCode": "69002", "countryCode": "FR"},
+    "company": {"name": "Nuage SAS"},
+    "job": null,
+    "skills": [{"name": "AWS"}]
+  }
+]

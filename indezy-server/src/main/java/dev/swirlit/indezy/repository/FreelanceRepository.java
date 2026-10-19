@@ -20,4 +20,8 @@ public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
     @Query("SELECT u.targetDailyRate FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     Optional<Integer> findTargetDailyRate(@Param("freelanceId") Long freelanceId);
 
+    /** The city of the workspace owner's profile, where offer distances are measured from. */
+    @Query("SELECT u.city FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
+    Optional<String> findProfileCity(@Param("freelanceId") Long freelanceId);
+
 }

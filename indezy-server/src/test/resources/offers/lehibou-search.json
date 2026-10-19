@@ -1,0 +1,9 @@
+{"total":2,"missions":[
+ {"id":"8ee73915-acbb-457c-9323-4b9bcaa24814","title":"Architecte fonctionnel ","description":"<p>Projets transverses</p>",
+  "city":{"title":"Meudon","postalcode":"92190","department":{"title":"Hauts-de-Seine"},"region":{"title":"Île-de-France"},
+  "geolocation":{"lon":2.24,"lat":48.8}},"country":{"code":"fr"},"remoteWork":"2d","duration":6,"durationUnit":"month",
+  "start":"2027-01-13T00:00:00.000Z","skills":[{"title":"UML"}],"tjm":650,"createdAt":"2026-10-19T15:23:54.000Z",
+  "isProBono":false},
+ {"id":"00000000-0000-0000-0000-000000000002","title":"Mentorat bénévole","tjm":null,"createdAt":"2026-10-19T12:00:00.000Z",
+  "isProBono":true}
+]}

@@ -60,6 +60,7 @@
   },
   "nav": {
     "dashboard": "Tableau de bord",
+    "offers": "Offres",
     "timeline": "Planning",
     "projects": "Missions",
     "clients": "Clients",
@@ -988,6 +989,123 @@
       "alreadyDecided": "Ce compte rendu a déjà reçu une réponse.",
       "decisionError": "Impossible d'enregistrer votre réponse. Réessayez.",
       "poweredBy": "Compte rendu d'activité géré avec Indezy"
+    }
+  },
+  "offers": {
+    "title": "Missions freelance",
+    "subtitle": "{{offers}} offres ouvertes sur {{sites}} sites",
+    "updated": "mis à jour {{when}}",
+    "loading": "Chargement des offres…",
+    "retry": "Réessayer",
+    "results": "{{count}} offres",
+    "oneResult": "1 offre",
+    "pagination": "Pages d'offres",
+    "views": {
+      "label": "Offres affichées",
+      "FEED": "Toutes",
+      "SAVED": "Sauvegardées",
+      "HIDDEN": "Masquées"
+    },
+    "sort": {
+      "NEWEST": "Plus récentes",
+      "RATE": "TJM le plus haut",
+      "DISTANCE": "Plus proches"
+    },
+    "empty": {
+      "FEED": "Aucune offre ne correspond à ces filtres pour le moment.",
+      "SAVED": "Vous n'avez sauvegardé aucune offre. Utilisez le marque-page d'une offre pour la retrouver ici.",
+      "HIDDEN": "Aucune offre masquée."
+    },
+    "errors": {
+      "search": "Les offres n'ont pas pu être chargées.",
+      "details": "Le détail de l'offre n'a pas pu être chargé.",
+      "import": "L'offre n'a pas pu être ajoutée au pipeline.",
+      "alreadyImported": "Cette offre est déjà dans votre pipeline.",
+      "state": "La modification n'a pas pu être enregistrée."
+    },
+    "notifications": {
+      "imported": "« {{role}} » ajoutée au pipeline (étape Contact)"
+    },
+    "seniority": {
+      "JUNIOR": "Junior",
+      "CONFIRMED": "Confirmé",
+      "SENIOR": "Senior",
+      "EXPERT": "Expert"
+    },
+    "card": {
+      "new": "Nouvelle",
+      "expired": "Expirée",
+      "date": {
+        "EXACT": "Publiée le {{date}}",
+        "DAY": "Publiée le {{date}} (jour seulement)",
+        "FIRST_SEEN": "Le site ne date pas ses offres : repérée par Indezy le {{date}}"
+      },
+      "noRate": "TJM non précisé",
+      "distance": "{{km}} km",
+      "remote": {
+        "ONSITE": "Sur site",
+        "HYBRID": "Hybride",
+        "REMOTE": "Full remote",
+        "hybridDays": "Hybride · {{days}} j/sem. de télétravail"
+      },
+      "months": "{{count}} mois",
+      "oneMonth": "1 mois",
+      "asap": "Dès que possible",
+      "startsOn": "Début le {{date}}",
+      "skills": "Compétences",
+      "moreDetails": "Voir le détail",
+      "lessDetails": "Masquer le détail",
+      "save": "Sauvegarder l'offre",
+      "unsave": "Retirer des offres sauvegardées",
+      "hide": "Masquer l'offre",
+      "unhide": "Réafficher l'offre",
+      "inPipeline": "Dans le pipeline",
+      "import": "Ajouter au pipeline"
+    },
+    "filters": {
+      "title": "Filtres",
+      "keywords": "Mots-clés",
+      "keywordsPlaceholder": "Java, Product Owner, banque…",
+      "rate": "TJM (HT, par jour)",
+      "rateMin": "Minimum",
+      "rateMax": "Maximum",
+      "rateKnown": "Masquer les offres sans TJM",
+      "location": "Lieu",
+      "regions": "Régions",
+      "departments": "Départements",
+      "radius": "Distance de ma ville",
+      "anyDistance": "Toutes distances",
+      "withinKm": "Moins de {{km}} km",
+      "radiusNeedsCity": "Renseignez votre ville dans le profil",
+      "remote": "Télétravail",
+      "workMode": {
+        "ONSITE": "Sur site",
+        "HYBRID": "Hybride",
+        "REMOTE": "Full remote"
+      },
+      "minRemoteDays": "Télétravail minimum",
+      "daysPerWeek": "{{days}} j/sem. ou plus",
+      "mission": "Mission",
+      "durationMin": "Durée minimale",
+      "durationMax": "Durée maximale",
+      "startBefore": "Démarrage au plus tard le",
+      "startBeforeHint": "Les missions « dès que possible » restent affichées",
+      "seniority": "Séniorité",
+      "skills": "Compétences",
+      "skillsPlaceholder": "Ajouter une compétence",
+      "removeSkill": "Retirer {{skill}}",
+      "publication": "Publication",
+      "publishedWithin": "Publiée depuis",
+      "anyTime": "Peu importe",
+      "lastDays": {
+        "1": "Moins de 24 h",
+        "3": "Moins de 3 jours",
+        "7": "Moins d'une semaine",
+        "30": "Moins d'un mois"
+      },
+      "sites": "Sites",
+      "unseenOnly": "Seulement les offres non vues",
+      "clear": "Effacer les filtres ({{count}})"
     }
   }
 }

@@ -1,4 +1,5 @@
 import { routes } from './app.routes';
+import { authGuard } from './guards/auth.guard';
 
 describe('application routes', () => {
   it('lands an authenticated root session on the dashboard', () => {
@@ -13,5 +14,13 @@ describe('application routes', () => {
 
     expect(validation?.loadComponent).toBeDefined();
     expect(validation?.canActivate).toBeUndefined();
+  });
+
+  it('keeps the offer feed for signed-in accounts and loads it lazily', async () => {
+    const offers = routes.find((route) => route.path === 'offers');
+
+    expect(offers?.canActivate).toEqual([authGuard]);
+    const component = await offers?.loadComponent?.();
+    expect(component).toBeDefined();
   });
 });

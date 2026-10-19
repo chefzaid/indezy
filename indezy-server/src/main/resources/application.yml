@@ -39,6 +39,13 @@ google:
   maps:
     api-key: ${GOOGLE_MAPS_API_KEY:}
 
+indezy:
+  offers:
+    # Reads the job boards in the background (see docs/features.md#freelance-offer-feed).
+    collection-enabled: ${INDEZY_OFFERS_COLLECTION_ENABLED:true}
+    # Locates offer cities through geo.api.gouv.fr (French government, no key).
+    geocoding-enabled: ${INDEZY_OFFERS_GEOCODING_ENABLED:true}
+
 cors:
   allowed-origins: 
     - http://localhost:4200

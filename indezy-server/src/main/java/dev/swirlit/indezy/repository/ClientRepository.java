@@ -12,6 +12,8 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     List<Client> findByFreelanceId(Long freelanceId);
 
+    Optional<Client> findFirstByFreelanceIdAndCompanyNameIgnoreCase(Long freelanceId, String companyName);
+
     /** Owner workspace of the client, used by access checks without loading the entity graph. */
     @Query("SELECT c.freelance.id FROM Client c WHERE c.id = :id")
     Optional<Long> findOwnerFreelanceIdById(@Param("id") Long id);

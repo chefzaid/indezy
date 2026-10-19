@@ -239,7 +239,7 @@ Indezy stores personal and commercially sensitive information:
 Account deletion and data portability:
 
 - accounts are not deleted from the application: identities live in Keycloak, and an account whose `User.deletedAt` is set can no longer sign in (`AuthService` rejects it with the generic invalid-credentials error)
-- `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact, source and activity report they own, downloaded as an attachment, with dates in ISO-8601.
+- `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact, source and activity report they own, downloaded as an attachment, with dates in ISO-8601. It also lists the job offers the workspace saved, hid, opened or imported (`jobOffers`). The profile comes from the signed-in account and every other section from its workspace, found through the account's email like every other resource (`AccessGuard`), never from the account id: account and workspace ids are numbered separately.
 
 Privacy expectations:
 
@@ -285,7 +285,8 @@ Spring MVC logs each request and response body at `DEBUG` through its `toString`
 
 ## External APIs
 
-Google Maps Distance Matrix API is used for commute-time sorting.
+Google Maps Distance Matrix API is used for commute-time sorting. The offer collection calls the job boards and the
+French government geocoding API, without keys (see [Job Offer Collection](#job-offer-collection)).
 
 Rules:
 
@@ -294,6 +295,28 @@ Rules:
 - handle missing key gracefully
 - do not log full addresses unnecessarily
 - document API cost and quota behavior before broad use
+
+## Job Offer Collection
+
+The backend reads public job boards for the offer feed ([ADR 0009](./adr/0009-collecting-job-offers.md)). Its rules:
+
+- Requests go to fixed, built-in addresses only: each reader names its site's domain, and `SiteHttpClient` refuses any
+  URL, redirect included, outside that domain or with a scheme other than `http` or `https`. No user input becomes a
+  fetched URL, so the collection cannot be turned against internal addresses (SSRF).
+- `robots.txt` is honoured for the `IndezyBot` product token (RFC 9309: a missing file allows everything, an
+  unreachable one stops the site's run); requests wait 2 seconds per host, time out after 30 seconds, identify Indezy
+  with a contact URL and stop reading past 8 MB.
+- Sites that forbid crawling (LinkedIn's `robots.txt` disallows every crawler) or keep missions behind a sign-in or a
+  payment are not read.
+- Collected content is untrusted: descriptions are converted to plain text with jsoup (scripts, attributes and markup
+  dropped), links are kept only when absolute `http`/`https`, and the frontend renders them as text and opens offer
+  links with `rel="noopener noreferrer"`. The readers skip the application contacts sites publish in their own
+  fields (recruiter emails and phone numbers); a description keeps only what its text says.
+- XML (sitemaps) is parsed with jsoup's XML parser, which never resolves external entities.
+- What a workspace does with offers (`job_offer_states`) is read and written only for the caller's workspace;
+  `freelanceId` is accepted only when security checks are off in tests, and a foreign one is refused with `403`.
+- Places are looked up on the French government geocoding API (`geo.api.gouv.fr`) with the city and postal code of an
+  offer or of the profile only, never a person's address.
 
 ## File Uploads And Attachments
 

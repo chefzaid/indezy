@@ -1,0 +1,95 @@
+<div class="offers-page">
+  <header class="offers-header">
+    <h1>
+      <mat-icon aria-hidden="true">travel_explore</mat-icon>
+      {{ 'offers.title' | translate }}
+    </h1>
+    <p class="subtitle" data-summary>
+      {{ 'offers.subtitle' | translate: { offers: openOffers, sites: sites.length } }}
+      @if (lastUpdate) {
+        <span class="updated">· {{ 'offers.updated' | translate: { when: lastUpdate } }}</span>
+      }
+    </p>
+  </header>
+
+  <div class="toolbar">
+    <mat-button-toggle-group [value]="query.view" (change)="setView($event.value)" [attr.aria-label]="'offers.views.label' | translate"
+      hideSingleSelectionIndicator>
+      @for (view of views; track view) {
+        <mat-button-toggle [value]="view" [attr.data-view]="view">{{ 'offers.views.' + view | translate }}</mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+    <span class="result-count" aria-live="polite" data-result-count>
+      @if (page) {
+        {{ (page.totalElements === 1 ? 'offers.oneResult' : 'offers.results') | translate: { count: page.totalElements } }}
+      }
+    </span>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="sort-field">
+      <mat-label>{{ 'common.sortBy' | translate }}</mat-label>
+      <mat-select [value]="query.sort" (selectionChange)="setSort($event.value)">
+        @for (sort of sorts; track sort) {
+          <mat-option [value]="sort" [disabled]="sort === 'DISTANCE' && !page?.distanceAvailable">
+            {{ 'offers.sort.' + sort | translate }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <button mat-stroked-button type="button" class="filters-toggle" (click)="filtersOpen = !filtersOpen"
+      [attr.aria-expanded]="filtersOpen" aria-controls="offer-filters-panel">
+      <mat-icon>tune</mat-icon>
+      {{ 'offers.filters.title' | translate }}
+      @if (activeFilters) {
+        <span class="filter-count">{{ activeFilters }}</span>
+      }
+    </button>
+  </div>
+
+  <div class="feed-layout">
+    <aside id="offer-filters-panel" class="filters-panel" [class.open]="filtersOpen">
+      <app-offer-filters [filters]="filters" [regions]="regions" [sites]="sites"
+        [distanceAvailable]="page?.distanceAvailable ?? false" (filtersChange)="onFiltersChange($event)">
+      </app-offer-filters>
+    </aside>
+
+    <section class="results" [attr.aria-busy]="loading">
+      @if (loading) {
+        <div class="state">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>{{ 'offers.loading' | translate }}</p>
+        </div>
+      } @else if (failed) {
+        <mat-card class="state" appearance="outlined" role="alert">
+          <mat-icon>cloud_off</mat-icon>
+          <p>{{ 'offers.errors.search' | translate }}</p>
+          <button mat-flat-button color="primary" type="button" (click)="retry()">{{ 'offers.retry' | translate }}</button>
+        </mat-card>
+      } @else if (page && page.content.length === 0) {
+        <mat-card class="state" appearance="outlined" data-empty>
+          <mat-icon>{{ query.view === 'FEED' ? 'search_off' : query.view === 'SAVED' ? 'bookmark_border' : 'visibility' }}</mat-icon>
+          <p>{{ 'offers.empty.' + query.view | translate }}</p>
+          @if (activeFilters) {
+            <button mat-stroked-button type="button" (click)="clearFilters()">
+              <mat-icon>filter_alt_off</mat-icon>{{ 'common.clearFilters' | translate }}
+            </button>
+          }
+        </mat-card>
+      } @else if (page) {
+        <ol class="offer-list">
+          @for (offer of page.content; track offer.id) {
+            <li>
+              <app-offer-card [offer]="offer" [expanded]="expanded.has(offer.id)" [loadingDetails]="loadingDetails.has(offer.id)"
+                [importing]="importing.has(offer.id)" (toggleDetails)="toggleDetails($event)" (toggleSaved)="toggleSaved($event)"
+                (toggleHidden)="toggleHidden($event)" (opened)="opened($event)" (importOffer)="importOffer($event)">
+              </app-offer-card>
+            </li>
+          }
+        </ol>
+        @if (page.totalElements > pageSizes[0]) {
+          <mat-paginator [length]="page.totalElements" [pageIndex]="query.page" [pageSize]="query.size" [pageSizeOptions]="pageSizes"
+            (page)="onPage($event)" [attr.aria-label]="'offers.pagination' | translate">
+          </mat-paginator>
+        }
+      }
+    </section>
+  </div>
+</div>

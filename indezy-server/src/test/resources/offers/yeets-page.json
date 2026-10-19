@@ -1,0 +1,11 @@
+{"response":{"cursor":0,"remaining":0,"count":3,"results":[
+ {"_id":"1791969039778x693775314101469200","missionTitre":"Consultant Microsoft 365 Copilot","missionTJM":765,
+  "missionLieu":{"address":"Paris, France","lat":48.8575475,"lng":2.3513765},"TechnoText":["copilot","microsoft 365"],
+  "missionDateDémarrage":"2026-10-25T23:00:00.000Z","missionSenioritéOs":"Confirmé","statutMissionOS":"à démarrer",
+  "OsRemote":"Hybride","missionDuréeExacte":12,"Created Date":"2026-10-14T09:10:40.767Z"},
+ {"_id":"1790843395137x539989663305695200","missionTitre":"Développeur PHP full stack","missionTJM":495,
+  "missionLieu":{"address":"Lyon, France","lat":45.764043,"lng":4.835659},"TechnoText":["PHP"],
+  "statutMissionOS":"à valider","OsRemote":"Sur site","missionDuréeExacte":6,"Created Date":"2026-10-01T08:29:56.676Z"},
+ {"_id":"1700000000000x000000000000000001","missionTitre":"Mission pourvue","statutMissionOS":"pourvue",
+  "Created Date":"2026-09-01T08:00:00.000Z"}
+]}}

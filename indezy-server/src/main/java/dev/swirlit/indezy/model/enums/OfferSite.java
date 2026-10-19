@@ -1,0 +1,39 @@
+package dev.swirlit.indezy.model.enums;
+
+import java.time.Duration;
+
+/**
+ * The job boards whose freelance offers Indezy collects (see docs/features.md#freelance-offer-feed).
+ * Each site has one reader in {@code dev.swirlit.indezy.scraping.reader}; the refresh interval is how
+ * long the scheduler waits after a run before reading the site again.
+ */
+public enum OfferSite {
+    FREE_WORK("Free-Work", "https://www.free-work.com", Duration.ofHours(1)),
+    COLLECTIVE("Collective", "https://www.collective.work", Duration.ofHours(1)),
+    CHERRY_PICK("Cherry Pick", "https://www.cherry-pick.io", Duration.ofHours(3)),
+    // Its API only returns the 10 newest missions, so it is read more often to miss none.
+    LEHIBOU("LeHibou", "https://www.lehibou.com", Duration.ofMinutes(30)),
+    YEETS("Yeets", "https://www.yeets.fr", Duration.ofHours(6));
+
+    private final String displayName;
+    private final String homeUrl;
+    private final Duration refreshInterval;
+
+    OfferSite(String displayName, String homeUrl, Duration refreshInterval) {
+        this.displayName = displayName;
+        this.homeUrl = homeUrl;
+        this.refreshInterval = refreshInterval;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public String getHomeUrl() {
+        return homeUrl;
+    }
+
+    public Duration getRefreshInterval() {
+        return refreshInterval;
+    }
+}

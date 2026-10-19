@@ -212,6 +212,17 @@ Seed profile:
 - is invoked only through `mask db-reset`
 - recreates the PostgreSQL schema with `ddl-auto: create`
 - loads `data-dev.sql` after Hibernate creates the tables
+- never starts the offer collection
+
+Offer feed (`indezy.offers.*`, see [Features](./features.md#freelance-offer-feed)):
+
+- `collection-enabled` (`INDEZY_OFFERS_COLLECTION_ENABLED`, `true` by default): a local `mask run` reads the five job
+  boards in the background a minute after startup, politely (2 seconds between requests); set it to `false` to work
+  offline or on the sample offers of `data-dev.sql`
+- `geocoding-enabled` (`INDEZY_OFFERS_GEOCODING_ENABLED`, `true`): look up offer cities on `geo.api.gouv.fr`
+- `tick` (5 minutes), `request-delay` (2 seconds), `max-pages` (10 pages a run), `retention-days` (90),
+  `stale-run-after` (1 hour) and `user-agent`; tests turn the collection and geocoding off in
+  `application-test.properties`
 
 ## Frontend Configuration
 

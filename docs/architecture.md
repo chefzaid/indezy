@@ -37,9 +37,10 @@ The backend is a Spring Boot modular monolith organized by technical layer:
 - `validation`: custom Bean Validation constraints for the DTOs (such as `@PasswordMaxBytes`)
 - `mapper`: MapStruct conversions
 - `pdf`: PDF documents (activity reports) drawn with Apache PDFBox, see [ADR 0008](./adr/0008-pdf-documents-with-pdfbox.md)
+- `scraping`: the freelance offer collection (readers of the job boards in `scraping.reader`, the polite HTTP client, normalization, scheduler and retention), see [ADR 0009](./adr/0009-collecting-job-offers.md)
 - `config`: CORS, security, OpenAPI, data initialization
 - `exception`: error responses and exception mapping
-- `util`: JWT, security context and the French public holiday calendar
+- `util`: JWT, security context, the French public holiday calendar, French departments and regions, and text folding for search
 
 This structure keeps early development simple while preserving clear places for domain behavior and tests.
 
@@ -64,6 +65,7 @@ Routes are organized around the main product areas:
 - clients
 - contacts
 - sources
+- offers (the freelance offer feed)
 - activity report validation (`/activity-report`, public: opened by clients and ESNs without an account)
 
 ## Key Runtime Lifecycles
@@ -94,6 +96,15 @@ Routes are organized around the main product areas:
 4. The validator's browser opens the public page, which skips the Keycloak sign-in and sends the token in the `X-Report-Token` header to `/api/public/activity-reports`, an ingress route without the SSO Middleware.
 5. The validator approves, or rejects with a reason, signing with their name; the freelance sees the outcome on the mission and downloads the PDF printed with the ESN's (or final client's) template.
 
+### Offer collection
+
+1. `OfferScheduler` wakes every `indezy.offers.tick` (5 minutes) when `indezy.offers.collection-enabled` is on.
+2. For each site, `OfferSiteRuns.claim` marks it running with a conditional update when it is due; a site another run holds, or not due yet, is skipped.
+3. The site's `OfferReader` reads its pages through `SiteHttpClient`, which keeps to the site's domain, honours its `robots.txt` and waits 2 seconds between requests.
+4. Each page goes through `OfferNormalizer` (freelance only, capped texts, rate and remote parsing, department, region and coordinates, geocoding cached in `geo_places`) and `OfferStore`, which adds new offers and refreshes known ones in one transaction.
+5. A newest-first site stops at the first page of known offers; every site stops at the page budget (`indezy.offers.max-pages`, 10). The run's outcome sets the next run (the site's interval, doubled per consecutive failure up to a day).
+6. Every night at 04:15 (Paris time), `OfferRetention` removes offers older than 90 days or expired, with their workspace states, unless a workspace saved or imported them.
+
 ### Deployment
 
 1. GitLab CI checks out the repository.
@@ -114,6 +125,7 @@ Current practical rules:
 - `User` owns account profile, preferences, and two-factor settings.
 - `Season` belongs to a freelance and groups projects.
 - `ActivityReport` belongs to a project (one per month) and is deleted with it.
+- `JobOffer` is shared by every workspace; `JobOfferState` holds what one workspace did with an offer (saved, hidden, seen, imported project) and is never visible to another.
 
 Future account work should clarify whether `User` and `Freelance` remain separate concepts or become a one-to-one account/workspace model.
 
@@ -144,6 +156,7 @@ NNNN-short-title.md
 - [ADR 0006: Code Quality And Verification Gates](./adr/0006-code-quality-and-verification-gates.md)
 - [ADR 0007: Explicit Delivery Jobs And Non-Blocking Verification](./adr/0007-explicit-delivery-jobs.md)
 - [ADR 0008: Generate PDF Documents With Apache PDFBox](./adr/0008-pdf-documents-with-pdfbox.md)
+- [ADR 0009: Collect Freelance Offers From Job Boards In The Backend](./adr/0009-collecting-job-offers.md)
 
 ## Proposed ADRs For Upcoming Work
 

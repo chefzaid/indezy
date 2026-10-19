@@ -12,6 +12,8 @@ public interface SourceRepository extends JpaRepository<Source, Long> {
 
     List<Source> findByFreelanceId(Long freelanceId);
 
+    Optional<Source> findFirstByFreelanceIdAndNameIgnoreCase(Long freelanceId, String name);
+
     /** Owner workspace of the source, used by access checks without loading the entity graph. */
     @Query("SELECT s.freelance.id FROM Source s WHERE s.id = :id")
     Optional<Long> findOwnerFreelanceIdById(@Param("id") Long id);
