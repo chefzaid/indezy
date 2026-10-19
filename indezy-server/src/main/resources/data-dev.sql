@@ -407,7 +407,17 @@ INSERT INTO job_offers (
  'Bordeaux', '33000', '33', '75', 'FR', 44.8378, -0.5792, 'HYBRID', 2, 6, CURRENT_DATE + 30, false, 'CONFIRMED',
  CURRENT_TIMESTAMP - INTERVAL '20 days', 'EXACT', CURRENT_TIMESTAMP - INTERVAL '20 days', CURRENT_TIMESTAMP,
  CURRENT_TIMESTAMP + INTERVAL '40 days', 'developpeur angular confirme exemple conseil bordeaux gironde angular typescript refonte de l espace client d un energeticien',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+('COLLECTIVE', 'sample-11', 'https://www.collective.work/job/sample-11', 'Développeur Java Spring Boot', 'Exemple Conseil',
+ E'Refonte du SI de paiement d''une banque de détail : Java 21, Spring Boot, Kafka et PostgreSQL.', NULL, 650,
+ 'Paris', NULL, '75', '11', 'FR', 48.8566, 2.3522, 'HYBRID', 2, 12, CURRENT_DATE + 14, false, 'SENIOR',
+ CURRENT_TIMESTAMP - INTERVAL '1 hour', 'EXACT', CURRENT_TIMESTAMP - INTERVAL '1 hour', CURRENT_TIMESTAMP,
+ NULL, 'developpeur java spring boot exemple conseil paris refonte du si de paiement d une banque de detail java 21 spring boot kafka et postgresql',
  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
+
+-- The first mission is also on Collective: one card, with an "Also on" link.
+UPDATE job_offers SET copy_group = (SELECT MIN(id) FROM job_offers WHERE external_id IN ('sample-1', 'sample-11'))
+WHERE external_id IN ('sample-1', 'sample-11');
 
 INSERT INTO job_offer_skills (offer_id, position, skill)
 SELECT offer.id, skill.position, skill.name
@@ -422,7 +432,8 @@ JOIN (VALUES
     ('sample-7', 0, 'SAP FICO'),
     ('sample-8', 0, 'Java'), ('sample-8', 1, 'Kafka'),
     ('sample-9', 0, 'Splunk'), ('sample-9', 1, 'Linux'),
-    ('sample-10', 0, 'Angular'), ('sample-10', 1, 'TypeScript')
+    ('sample-10', 0, 'Angular'), ('sample-10', 1, 'TypeScript'),
+    ('sample-11', 0, 'Java'), ('sample-11', 1, 'Spring Boot')
 ) AS skill(external_id, position, name) ON skill.external_id = offer.external_id;
 
 -- John Doe saved one mission and hid another.

@@ -24,6 +24,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +46,31 @@ class OfferStateServiceTest {
         offer.setTitle("Architecte");
         offer.setUrl("https://www.lehibou.com/annonce/7");
         when(states.save(any(JobOfferState.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(states.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+    }
+
+    @Test
+    void appliesTheChangeToTheOffersCopies() {
+        Freelance freelance = new Freelance();
+        freelance.setId(3L);
+        offer.setCopyGroup(7L);
+        JobOffer copy = new JobOffer();
+        copy.setId(8L);
+        copy.setCopyGroup(7L);
+        JobOfferState copyState = new JobOfferState();
+        copyState.setOffer(copy);
+        copyState.setSeenAt(NOW.minusSeconds(60));
+        when(states.findByFreelanceIdAndOfferId(3L, 7L)).thenReturn(Optional.empty());
+        when(states.findByFreelanceIdAndOfferId(3L, 8L)).thenReturn(Optional.of(copyState));
+        when(offers.findById(7L)).thenReturn(Optional.of(offer));
+        when(freelances.findById(3L)).thenReturn(Optional.of(freelance));
+        when(offers.findCopyGroupOf(offer)).thenReturn(List.of(offer, copy));
+
+        OfferStateDto state = service.update(3L, 7L, new OfferStateUpdateRequest(null, true, null));
+
+        assertThat(copyState.isHidden()).isTrue();
+        // The copy was seen: the mission was.
+        assertThat(state).isEqualTo(new OfferStateDto(7L, false, true, true, null));
     }
 
     @Test

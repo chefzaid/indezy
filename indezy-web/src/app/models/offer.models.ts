@@ -28,6 +28,14 @@ export type OfferSort = 'NEWEST' | 'RATE' | 'DISTANCE';
 export const SENIORITIES: Seniority[] = ['JUNIOR', 'CONFIRMED', 'SENIOR', 'EXPERT'];
 export const OFFER_WORK_MODES: WorkMode[] = ['ONSITE', 'HYBRID', 'REMOTE'];
 
+/** The same mission published on another site. */
+export interface OfferCopy {
+  id: number;
+  site: OfferSite;
+  siteName: string;
+  url: string;
+}
+
 export interface Offer {
   id: number;
   site: OfferSite;
@@ -62,6 +70,8 @@ export interface Offer {
   hidden: boolean;
   seen: boolean;
   importedProjectId?: number;
+  /** The same mission on other sites, one copy per site. */
+  alsoOn?: OfferCopy[];
 }
 
 export interface OfferPage {

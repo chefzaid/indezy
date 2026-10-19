@@ -84,6 +84,8 @@ public class OfferNormalizer {
         offer.setSkills(skills(scraped.getSkills()));
         applyDates(offer, scraped, now);
         offer.setSearchText(searchText(offer));
+        offer.setPublisherKey(OfferFingerprint.publisherKey(site, offer.getTitle(), offer.getCompany()));
+        offer.setOpeningKey(OfferFingerprint.openingKey(offer.getTitle(), offer.getDescription()));
         return Optional.of(offer);
     }
 

@@ -47,9 +47,12 @@ public record OfferDto(
     boolean saved,
     boolean hidden,
     boolean seen,
-    Long importedProjectId) {
+    Long importedProjectId,
+    /** The same mission on other sites, one copy per site. */
+    List<OfferCopyDto> alsoOn) {
 
     public OfferDto {
         skills = skills == null ? List.of() : List.copyOf(skills);
+        alsoOn = alsoOn == null ? List.of() : List.copyOf(alsoOn);
     }
 }

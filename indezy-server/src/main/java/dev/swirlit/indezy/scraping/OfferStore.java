@@ -6,6 +6,7 @@ import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.OfferSkipRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,6 +32,8 @@ public class OfferStore {
 
     /** The column's length; longer identifiers are not remembered. */
     private static final int MAX_EXTERNAL_ID_LENGTH = 191;
+    /** Offers given their copy keys at once. */
+    static final int KEY_BATCH = 500;
 
     private final JobOfferRepository offers;
     private final OfferSkipRepository skips;
@@ -54,7 +58,59 @@ public class OfferStore {
             }
         }
         offers.saveAll(created);
+        byExternalId.values().forEach(offer -> linkCopies(site, known.getOrDefault(offer.getExternalId(), offer)));
         return created.size();
+    }
+
+    /**
+     * Gives up to {@value #KEY_BATCH} offers stored without copy keys their keys, from what is stored of them, and
+     * groups them with their copies; how many were given keys.
+     */
+    @Transactional
+    public int keyStoredOffers() {
+        List<JobOffer> unkeyed = offers.findByPublisherKeyIsNullOrderById(PageRequest.of(0, KEY_BATCH));
+        unkeyed.forEach(offer -> {
+            offer.setPublisherKey(OfferFingerprint.publisherKey(offer.getSite(), offer.getTitle(), offer.getCompany()));
+            offer.setOpeningKey(OfferFingerprint.openingKey(offer.getTitle(), offer.getDescription()));
+        });
+        unkeyed.forEach(offer -> linkCopies(offer.getSite(), offer));
+        return (int) unkeyed.stream().filter(offer -> offer.getPublisherKey() != null).count();
+    }
+
+    /**
+     * Puts an offer in one group with its copies on other sites, merging the groups they were in; the group is named
+     * after its smallest offer id, so it does not change as copies join.
+     */
+    private void linkCopies(OfferSite site, JobOffer offer) {
+        if (offer.getPublisherKey() == null) {
+            return;
+        }
+        List<JobOffer> members = new ArrayList<>(offers.findCopyCandidates(site, offer.getPublisherKey(), offer.getOpeningKey())
+            .stream().filter(candidate -> isCopy(offer, candidate)).toList());
+        if (members.isEmpty()) {
+            return;
+        }
+        members.add(offer);
+        Set<Long> groups = members.stream().map(JobOffer::getCopyGroup).filter(Objects::nonNull).collect(Collectors.toSet());
+        if (!groups.isEmpty()) {
+            members.addAll(offers.findByCopyGroupIn(groups));
+        }
+        long group = members.stream()
+            .mapToLong(member -> member.getCopyGroup() == null ? member.getId() : Math.min(member.getCopyGroup(), member.getId()))
+            .min().orElseThrow();
+        members.forEach(member -> member.setCopyGroup(group));
+    }
+
+    /**
+     * Two offers of different sites publish one mission when their text opens the same, or when their publisher is
+     * the same and they are not placed in two different departments (see {@link OfferFingerprint}).
+     */
+    static boolean isCopy(JobOffer offer, JobOffer other) {
+        boolean sameOpening = offer.getOpeningKey() != null && offer.getOpeningKey().equals(other.getOpeningKey());
+        boolean samePublisher = offer.getPublisherKey().equals(other.getPublisherKey()) &&
+            (offer.getDepartmentCode() == null || other.getDepartmentCode() == null ||
+                offer.getDepartmentCode().equals(other.getDepartmentCode()));
+        return sameOpening || samePublisher;
     }
 
     /** Remembers offers the feed left out, so readers of one page per offer do not fetch them again. */

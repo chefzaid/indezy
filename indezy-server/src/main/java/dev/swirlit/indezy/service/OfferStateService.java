@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.List;
 
 /** What a workspace does with offers: save, hide, mark as seen. */
@@ -40,20 +41,35 @@ public class OfferStateService {
         this.clock = clock;
     }
 
+    /** Saves, hides or marks an offer seen, and its copies on other sites with it: they are one mission. */
     public OfferStateDto update(Long freelanceId, Long offerId, OfferStateUpdateRequest request) {
-        JobOfferState state = stateOf(freelanceId, offerId);
-        if (request.saved() != null) {
-            state.setSaved(request.saved());
+        List<JobOfferState> group = groupStates(freelanceId, offerId);
+        for (JobOfferState state : group) {
+            if (request.saved() != null) {
+                state.setSaved(request.saved());
+            }
+            if (request.hidden() != null) {
+                state.setHidden(request.hidden());
+            }
+            if (Boolean.TRUE.equals(request.seen()) && state.getSeenAt() == null) {
+                state.setSeenAt(clock.instant());
+            } else if (Boolean.FALSE.equals(request.seen())) {
+                state.setSeenAt(null);
+            }
         }
-        if (request.hidden() != null) {
-            state.setHidden(request.hidden());
+        return OfferStateDto.merged(offerId, states.saveAll(group).stream().map(OfferStateService::toDto).toList());
+    }
+
+    /** The workspace's state of the offer, then of each of its copies, created (not yet saved) where it never acted. */
+    public List<JobOfferState> groupStates(Long freelanceId, Long offerId) {
+        JobOfferState first = stateOf(freelanceId, offerId);
+        List<JobOfferState> group = new ArrayList<>(List.of(first));
+        for (JobOffer copy : offers.findCopyGroupOf(first.getOffer())) {
+            if (!copy.getId().equals(offerId)) {
+                group.add(stateOf(freelanceId, copy.getId()));
+            }
         }
-        if (Boolean.TRUE.equals(request.seen()) && state.getSeenAt() == null) {
-            state.setSeenAt(clock.instant());
-        } else if (Boolean.FALSE.equals(request.seen())) {
-            state.setSeenAt(null);
-        }
-        return toDto(states.save(state));
+        return group;
     }
 
     /** Every offer the workspace acted on, for the account data export. */

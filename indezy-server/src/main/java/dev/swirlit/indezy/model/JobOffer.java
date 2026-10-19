@@ -34,7 +34,10 @@ import java.util.List;
     uniqueConstraints = @UniqueConstraint(name = "uk_job_offers_site_external_id", columnNames = {"site", "external_id"}),
     indexes = {
         @Index(name = "idx_job_offers_published_at", columnList = "published_at"),
-        @Index(name = "idx_job_offers_department", columnList = "department_code")
+        @Index(name = "idx_job_offers_department", columnList = "department_code"),
+        @Index(name = "idx_job_offers_publisher_key", columnList = "publisher_key"),
+        @Index(name = "idx_job_offers_opening_key", columnList = "opening_key"),
+        @Index(name = "idx_job_offers_copy_group", columnList = "copy_group")
     })
 @Getter
 @Setter
@@ -136,6 +139,18 @@ public class JobOffer extends BaseEntity {
     @Column(name = "search_text", columnDefinition = "TEXT")
     private String searchText;
 
+    /** Title and publisher, hashed: one of the two keys that tell copies on other sites (see OfferFingerprint). */
+    @Column(name = "publisher_key", length = 64)
+    private String publisherKey;
+
+    /** Title and opening of the text, hashed: the other key; {@code null} when the text is too short. */
+    @Column(name = "opening_key", length = 64)
+    private String openingKey;
+
+    /** The offers of other sites that publish the same mission share this group; {@code null} for an offer alone. */
+    @Column(name = "copy_group")
+    private Long copyGroup;
+
     /**
      * Takes what a new reading of the offer says. When Indezy first saw it is kept, and so is the
      * publication date when the site gives none (a first-seen date never moves).
@@ -170,6 +185,8 @@ public class JobOffer extends BaseEntity {
         }
         expiresAt = collected.expiresAt;
         searchText = collected.searchText;
+        publisherKey = collected.publisherKey;
+        openingKey = collected.openingKey;
         lastSeenAt = collected.lastSeenAt;
         if (collected.datePrecision != OfferDatePrecision.FIRST_SEEN) {
             publishedAt = collected.publishedAt;

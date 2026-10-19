@@ -84,6 +84,23 @@ class JobOfferRepositoryTest {
     }
 
     @Test
+    void findsCopiesOnOtherSitesAndTheirGroups() {
+        recent.setPublisherKey("publisher");
+        old.setOpeningKey("opening");
+        expired.setPublisherKey("publisher");
+        expired.setCopyGroup(recent.getId());
+        recent.setCopyGroup(recent.getId());
+        entityManager.flush();
+
+        assertThat(offers.findCopyCandidates(OfferSite.COLLECTIVE, "publisher", "opening")).extracting(JobOffer::getExternalId)
+            .containsExactlyInAnyOrder("1", "2", "3");
+        assertThat(offers.findCopyCandidates(OfferSite.FREE_WORK, "publisher", null)).extracting(JobOffer::getExternalId)
+            .containsExactly("3");
+        assertThat(offers.findCopyGroupOf(recent)).extracting(JobOffer::getExternalId).containsExactlyInAnyOrder("1", "3");
+        assertThat(offers.findCopyGroupOf(old)).containsExactly(old);
+    }
+
+    @Test
     void readsSkillsInTheirOrder() {
         List<Object[]> rows = offers.findSkillsOf(List.of(recent.getId(), expired.getId()));
 

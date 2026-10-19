@@ -7,6 +7,7 @@ import dev.swirlit.indezy.scraping.OfferBatch;
 import dev.swirlit.indezy.scraping.OfferReader;
 import dev.swirlit.indezy.scraping.PageFetcher;
 import dev.swirlit.indezy.scraping.ScrapedOffer;
+import dev.swirlit.indezy.scraping.SiteResponseException;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 
@@ -45,7 +46,17 @@ public class LittleBigConnectionReader implements OfferReader {
     @Override
     public void read(PageFetcher fetcher, OfferBatch batch) throws IOException, InterruptedException {
         for (String category : CATEGORIES) {
-            if (!batch.add(Json.each(missions(fetcher.get(CATEGORY_URL + category)), LittleBigConnectionReader::offer))) {
+            String page;
+            try {
+                page = fetcher.get(CATEGORY_URL + category);
+            } catch (SiteResponseException e) {
+                // A category without open missions answers 404 (four of nine on 2026-10-19).
+                if (e.getStatus() == 404) {
+                    continue;
+                }
+                throw e;
+            }
+            if (!batch.add(Json.each(missions(page), LittleBigConnectionReader::offer))) {
                 return;
             }
         }

@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.util.TextFolding;
+import jakarta.persistence.criteria.CommonAbstractCriteria;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
@@ -41,35 +42,59 @@ public final class JobOfferSpecifications {
     private JobOfferSpecifications() {
     }
 
+    /**
+     * The offers a search finds, one per mission: of the copies of a mission on several sites, only the earliest one
+     * the search finds is listed (see {@link #earlierCopy}).
+     */
     public static Specification<JobOffer> matching(OfferSearchRequest request, Long freelanceId, Origin origin, Instant now) {
         return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            predicates.addAll(view(request, freelanceId, root, query, cb, now));
-            keywords(request.getQ()).forEach(term ->
-                predicates.add(cb.like(root.get("searchText"), "%" + escapeLike(term) + "%", '\\')));
-            rate(request, root, cb, predicates);
-            place(request, origin, root, cb, predicates);
-            work(request, root, cb, predicates);
-            if (request.getPublishedWithinDays() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("publishedAt"),
-                    now.minus(Duration.ofDays(request.getPublishedWithinDays()))));
-            }
-            if (!request.getSites().isEmpty()) {
-                predicates.add(root.get("site").in(request.getSites()));
-            }
-            if (!request.getSeniorities().isEmpty()) {
-                predicates.add(cb.or(cb.isNull(root.get("seniority")), root.get("seniority").in(request.getSeniorities())));
-            }
-            for (String skill : request.getSkills()) {
-                if (skill != null && !skill.isBlank()) {
-                    predicates.add(hasSkill(skill, root, query, cb));
-                }
-            }
+            List<Predicate> predicates = filters(request, freelanceId, origin, now, root, query, cb);
+            predicates.add(cb.not(earlierCopy(request, freelanceId, origin, now, root, query, cb)));
             if (!isCountQuery(query)) {
                 query.orderBy(order(request.getSort(), origin, root, cb));
             }
             return cb.and(predicates.toArray(Predicate[]::new));
         };
+    }
+
+    /** A copy of the offer, published before it (or at once with a smaller id), that the same search finds. */
+    private static Predicate earlierCopy(OfferSearchRequest request, Long freelanceId, Origin origin, Instant now,
+                                         Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
+        Subquery<Long> copy = query.subquery(Long.class);
+        Root<JobOffer> other = copy.from(JobOffer.class);
+        List<Predicate> conditions = filters(request, freelanceId, origin, now, other, copy, cb);
+        conditions.add(cb.equal(other.get("copyGroup"), root.get("copyGroup")));
+        conditions.add(cb.or(cb.lessThan(other.get("publishedAt"), root.get("publishedAt")),
+            cb.and(cb.equal(other.get("publishedAt"), root.get("publishedAt")), cb.lessThan(other.get("id"), root.get("id")))));
+        copy.select(other.get("id")).where(conditions.toArray(Predicate[]::new));
+        return cb.exists(copy);
+    }
+
+    private static List<Predicate> filters(OfferSearchRequest request, Long freelanceId, Origin origin, Instant now,
+                                           Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.addAll(view(request, freelanceId, root, query, cb, now));
+        keywords(request.getQ()).forEach(term ->
+            predicates.add(cb.like(root.get("searchText"), "%" + escapeLike(term) + "%", '\\')));
+        rate(request, root, cb, predicates);
+        place(request, origin, root, cb, predicates);
+        work(request, root, cb, predicates);
+        if (request.getPublishedWithinDays() != null) {
+            predicates.add(cb.greaterThanOrEqualTo(root.get("publishedAt"),
+                now.minus(Duration.ofDays(request.getPublishedWithinDays()))));
+        }
+        if (!request.getSites().isEmpty()) {
+            predicates.add(root.get("site").in(request.getSites()));
+        }
+        if (!request.getSeniorities().isEmpty()) {
+            predicates.add(cb.or(cb.isNull(root.get("seniority")), root.get("seniority").in(request.getSeniorities())));
+        }
+        for (String skill : request.getSkills()) {
+            if (skill != null && !skill.isBlank()) {
+                predicates.add(hasSkill(skill, root, query, cb));
+            }
+        }
+        return predicates;
     }
 
     /** The folded words of a search, at least two characters each, at most {@value #MAX_TERMS}. */
@@ -82,7 +107,7 @@ public final class JobOfferSpecifications {
     }
 
     private static List<Predicate> view(OfferSearchRequest request, Long freelanceId, Root<JobOffer> root,
-                                        CriteriaQuery<?> query, CriteriaBuilder cb, Instant now) {
+                                        CommonAbstractCriteria query, CriteriaBuilder cb, Instant now) {
         List<Predicate> predicates = new ArrayList<>();
         if (request.getView() == OfferSearchRequest.View.FEED) {
             predicates.add(cb.or(cb.isNull(root.get("expiresAt")), cb.greaterThan(root.get("expiresAt"), now)));
@@ -158,7 +183,7 @@ public final class JobOfferSpecifications {
         }
     }
 
-    private static Predicate hasSkill(String skill, Root<JobOffer> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+    private static Predicate hasSkill(String skill, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
         Subquery<Long> match = query.subquery(Long.class);
         Root<JobOffer> offer = match.from(JobOffer.class);
         Join<JobOffer, String> skills = offer.join("skills");
@@ -167,11 +192,13 @@ public final class JobOfferSpecifications {
         return cb.exists(match);
     }
 
-    private static Predicate state(Long freelanceId, Root<JobOffer> root, CriteriaQuery<?> query, CriteriaBuilder cb,
+    /** Whether the workspace did something with the offer or with one of its copies: copies share their state. */
+    private static Predicate state(Long freelanceId, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb,
                                    Function<Root<JobOfferState>, Predicate> condition) {
         Subquery<Long> match = query.subquery(Long.class);
         Root<JobOfferState> state = match.from(JobOfferState.class);
-        match.select(state.get("id")).where(cb.equal(state.get("offer"), root),
+        Path<JobOffer> offer = state.get("offer");
+        match.select(state.get("id")).where(cb.or(cb.equal(offer, root), cb.equal(offer.get("copyGroup"), root.get("copyGroup"))),
             cb.equal(state.get("freelance").get("id"), freelanceId), condition.apply(state));
         return cb.exists(match);
     }

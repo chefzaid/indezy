@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Turns a job offer into an opportunity of the workspace's pipeline (status Contact). The publisher
@@ -49,10 +50,14 @@ public class OfferImportService {
     private final ProjectService projectService;
 
     public ProjectDto importOffer(Long freelanceId, Long offerId) {
-        JobOfferState state = offerStates.stateOf(freelanceId, offerId);
-        if (state.getImportedProject() != null) {
-            throw new InvalidStateException(String.format(ErrorMessages.OFFER_ALREADY_IMPORTED, state.getImportedProject().getId()));
+        List<JobOfferState> group = offerStates.groupStates(freelanceId, offerId);
+        // Its copies on other sites are the same mission: importing one of them imports it.
+        for (JobOfferState imported : group) {
+            if (imported.getImportedProject() != null) {
+                throw new InvalidStateException(String.format(ErrorMessages.OFFER_ALREADY_IMPORTED, imported.getImportedProject().getId()));
+            }
         }
+        JobOfferState state = group.get(0);
         JobOffer offer = state.getOffer();
         Freelance freelance = state.getFreelance();
         ProjectDto project = new ProjectDto();

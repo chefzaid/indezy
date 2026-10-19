@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.dto.OfferCopyDto;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
@@ -89,7 +90,9 @@ class OfferControllerTest {
             .andExpect(jsonPath("$.distanceAvailable").value(true))
             .andExpect(jsonPath("$.content[0].siteName").value("Free-Work"))
             .andExpect(jsonPath("$.content[0].publishedAt").value("2026-10-19T08:47:42Z"))
-            .andExpect(jsonPath("$.content[0].description").doesNotExist());
+            .andExpect(jsonPath("$.content[0].description").doesNotExist())
+            .andExpect(jsonPath("$.content[0].alsoOn[0].siteName").value("Collective"))
+            .andExpect(jsonPath("$.content[0].alsoOn[0].url").value("https://www.collective.work/job/8"));
 
         ArgumentCaptor<OfferSearchRequest> request = ArgumentCaptor.forClass(OfferSearchRequest.class);
         verify(searchService).search(eq(3L), request.capture());
@@ -191,6 +194,7 @@ class OfferControllerTest {
         return new OfferDto(7L, OfferSite.FREE_WORK, "Free-Work", "https://www.free-work.com/7", "Développeur Java",
             "Exemple Conseil", "Refonte d'un SI", null, 550, 650, "Paris", "75008", "75", "Paris", "Île-de-France", "FR", 3,
             WorkMode.HYBRID, 2, 6, LocalDate.of(2026, 11, 2), null, Seniority.SENIOR, List.of("Java", "Kafka"),
-            Instant.parse("2026-10-19T08:47:42Z"), OfferDatePrecision.EXACT, null, false, false, false, false, null);
+            Instant.parse("2026-10-19T08:47:42Z"), OfferDatePrecision.EXACT, null, false, false, false, false, null,
+            List.of(new OfferCopyDto(8L, OfferSite.COLLECTIVE, "Collective", "https://www.collective.work/job/8")));
     }
 }

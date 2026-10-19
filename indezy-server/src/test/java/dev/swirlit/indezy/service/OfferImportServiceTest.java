@@ -70,7 +70,7 @@ class OfferImportServiceTest {
         state = new JobOfferState();
         state.setFreelance(freelance);
         state.setOffer(offer);
-        when(offerStates.stateOf(3L, 7L)).thenReturn(state);
+        when(offerStates.groupStates(3L, 7L)).thenReturn(List.of(state));
         when(clients.save(any(Client.class))).thenAnswer(invocation -> withId(invocation.getArgument(0), 20L));
         when(sources.save(any(Source.class))).thenAnswer(invocation -> withId(invocation.getArgument(0), 30L));
         ProjectDto created = new ProjectDto();
@@ -178,6 +178,18 @@ class OfferImportServiceTest {
         state.setImportedProject(project);
 
         assertThatThrownBy(() -> service.importOffer(3L, 7L)).isInstanceOf(InvalidStateException.class).hasMessageContaining("40");
+        verify(projectService, never()).create(any());
+    }
+
+    @Test
+    void refusesAnOfferWhoseCopyIsAlreadyInThePipeline() {
+        Project project = new Project();
+        project.setId(41L);
+        JobOfferState copy = new JobOfferState();
+        copy.setImportedProject(project);
+        when(offerStates.groupStates(3L, 7L)).thenReturn(List.of(state, copy));
+
+        assertThatThrownBy(() -> service.importOffer(3L, 7L)).isInstanceOf(InvalidStateException.class).hasMessageContaining("41");
         verify(projectService, never()).create(any());
     }
 

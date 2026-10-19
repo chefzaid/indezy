@@ -198,6 +198,11 @@ marked **New**.
   intermediary when the workspace has no client of that name; the site itself when the offer names none), and its
   source is the job board: the workspace's source named after the site, created as a job board on first import. An
   offer is added once; the card then links to its opportunity, until that opportunity is deleted.
+- **One card per mission**: boards republish each other's missions (WorkDispo republishes Cherry Pick, Collective.work
+  and Free-Work republish Mon Consultant Indépendant, ESNs post on several boards), so offers of different sites whose
+  titles read the same and whose publisher or opening text is the same are one mission. The feed shows its earliest
+  copy that matches the filters, with **Also on** links to the others (one per site, still open). Saving, hiding,
+  marking seen or adding one copy to the pipeline does it for the mission: the other copies never come back as new.
 - What a workspace does with offers (saved, hidden, seen, imported) is private to it and part of the account data
   export. Offers older than 90 days or past their expiry are removed every night, unless a workspace saved or
   imported them.

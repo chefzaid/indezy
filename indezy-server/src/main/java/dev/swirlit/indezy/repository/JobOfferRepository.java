@@ -22,6 +22,21 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
     @Query("select o.externalId from JobOffer o where o.site = :site and o.externalId in :externalIds")
     List<String> findKnownIds(@Param("site") OfferSite site, @Param("externalIds") Collection<String> externalIds);
 
+    /** Offers of other sites sharing one of these keys: the candidates to be copies of an offer of {@code site}. */
+    @Query("select o from JobOffer o where o.site <> :site and (o.publisherKey = :publisherKey or o.openingKey = :openingKey)")
+    List<JobOffer> findCopyCandidates(@Param("site") OfferSite site, @Param("publisherKey") String publisherKey,
+                                      @Param("openingKey") String openingKey);
+
+    List<JobOffer> findByCopyGroupIn(Collection<Long> copyGroups);
+
+    /** Offers stored before copies were told apart, which have no copy keys yet. */
+    List<JobOffer> findByPublisherKeyIsNullOrderById(Pageable pageable);
+
+    /** The offer with its copies on other sites. */
+    default List<JobOffer> findCopyGroupOf(JobOffer offer) {
+        return offer.getCopyGroup() == null ? List.of(offer) : findByCopyGroupIn(List.of(offer.getCopyGroup()));
+    }
+
     /** The skills of the given offers in their order, as {@code [offerId, skill]} rows. */
     @Query("select o.id, s from JobOffer o join o.skills s where o.id in :ids order by o.id, index(s)")
     List<Object[]> findSkillsOf(@Param("ids") Collection<Long> ids);

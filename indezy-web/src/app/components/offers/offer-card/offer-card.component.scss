@@ -80,6 +80,25 @@
   color: var(--app-text-muted);
 }
 
+.also-on {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--app-text-muted);
+
+  a.site-badge {
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      text-decoration: underline;
+    }
+  }
+}
+
 .facts,
 .skills {
   display: flex;

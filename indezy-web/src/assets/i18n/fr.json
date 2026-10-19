@@ -1059,6 +1059,7 @@
       "unsave": "Retirer des offres sauvegardées",
       "hide": "Masquer l'offre",
       "unhide": "Réafficher l'offre",
+      "alsoOn": "Aussi sur",
       "inPipeline": "Dans le pipeline",
       "import": "Ajouter au pipeline"
     },

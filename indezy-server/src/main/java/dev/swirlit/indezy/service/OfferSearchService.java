@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.constants.ErrorMessages;
+import dev.swirlit.indezy.dto.OfferCopyDto;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
@@ -30,13 +31,18 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Reads the offer feed. Deliberately without a transaction of its own: locating the profile's city may
@@ -83,9 +89,11 @@ public class OfferSearchService {
             PageRequest.of(request.getPage(), request.getSize()));
         List<Long> ids = page.getContent().stream().map(JobOffer::getId).toList();
         Map<Long, List<String>> skills = skillsOf(ids);
-        Map<Long, OfferStateDto> stateByOffer = statesOf(freelanceId, ids);
+        Map<Long, List<JobOffer>> copies = copiesOf(page.getContent());
+        Map<Long, OfferStateDto> stateByOffer = statesOf(freelanceId, page.getContent(), copies);
         List<OfferDto> content = page.getContent().stream()
-            .map(offer -> toDto(offer, skills.get(offer.getId()), stateByOffer.get(offer.getId()), origin, now, false))
+            .map(offer -> toDto(offer, skills.get(offer.getId()), stateByOffer.get(offer.getId()),
+                alsoOn(offer, copies.getOrDefault(offer.getId(), List.of()), now), origin, now, false))
             .toList();
         return new OfferPageDto(content, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
             origin != null);
@@ -96,7 +104,10 @@ public class OfferSearchService {
         JobOffer offer = offers.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.OFFER_NOT_FOUND, id)));
         Origin origin = freelanceId == null ? null : origin(freelanceId).orElse(null);
-        return toDto(offer, skillsOf(List.of(id)).get(id), statesOf(freelanceId, List.of(id)).get(id), origin, clock.instant(), true);
+        Map<Long, List<JobOffer>> copies = copiesOf(List.of(offer));
+        Instant now = clock.instant();
+        return toDto(offer, skillsOf(List.of(id)).get(id), statesOf(freelanceId, List.of(offer), copies).get(id),
+            alsoOn(offer, copies.getOrDefault(id, List.of()), now), origin, now, true);
     }
 
     /** Every job board of the feed, with its open offers and collection health. */
@@ -154,14 +165,62 @@ public class OfferSearchService {
         return skills;
     }
 
-    private Map<Long, OfferStateDto> statesOf(Long freelanceId, List<Long> ids) {
-        if (freelanceId == null || ids.isEmpty()) {
+    /** The other offers of each offer's copy group, keyed by the offer. */
+    private Map<Long, List<JobOffer>> copiesOf(List<JobOffer> found) {
+        Set<Long> groups = found.stream().map(JobOffer::getCopyGroup).filter(Objects::nonNull).collect(Collectors.toSet());
+        if (groups.isEmpty()) {
             return Map.of();
         }
-        return states.findStates(freelanceId, ids).stream().collect(Collectors.toMap(OfferStateDto::offerId, Function.identity()));
+        Map<Long, List<JobOffer>> members = offers.findByCopyGroupIn(groups).stream().collect(Collectors.groupingBy(JobOffer::getCopyGroup));
+        Map<Long, List<JobOffer>> copies = new HashMap<>();
+        for (JobOffer offer : found) {
+            if (offer.getCopyGroup() != null) {
+                copies.put(offer.getId(), members.getOrDefault(offer.getCopyGroup(), List.of()).stream()
+                    .filter(member -> !member.getId().equals(offer.getId()))
+                    .toList());
+            }
+        }
+        return copies;
     }
 
-    static OfferDto toDto(JobOffer offer, List<String> skills, OfferStateDto state, Origin origin, Instant now, boolean full) {
+    /** Where else the mission is open: one copy per other site, the earliest, by site name. */
+    static List<OfferCopyDto> alsoOn(JobOffer offer, List<JobOffer> copies, Instant now) {
+        Map<OfferSite, JobOffer> bySite = new EnumMap<>(OfferSite.class);
+        copies.stream()
+            .filter(copy -> copy.getSite() != offer.getSite() && (copy.getExpiresAt() == null || copy.getExpiresAt().isAfter(now)))
+            .sorted(Comparator.comparing(JobOffer::getPublishedAt))
+            .forEach(copy -> bySite.putIfAbsent(copy.getSite(), copy));
+        return bySite.values().stream()
+            .sorted(Comparator.comparing(copy -> copy.getSite().getDisplayName()))
+            .map(copy -> new OfferCopyDto(copy.getId(), copy.getSite(), copy.getSite().getDisplayName(), copy.getUrl()))
+            .toList();
+    }
+
+    /** The workspace's state of each offer, merged with its copies' (see {@link OfferStateDto#merged}). */
+    private Map<Long, OfferStateDto> statesOf(Long freelanceId, List<JobOffer> found, Map<Long, List<JobOffer>> copies) {
+        if (freelanceId == null || found.isEmpty()) {
+            return Map.of();
+        }
+        List<Long> ids = new ArrayList<>(found.stream().map(JobOffer::getId).toList());
+        copies.values().forEach(group -> group.forEach(copy -> ids.add(copy.getId())));
+        Map<Long, OfferStateDto> byOffer = states.findStates(freelanceId, ids).stream()
+            .collect(Collectors.toMap(OfferStateDto::offerId, Function.identity()));
+        Map<Long, OfferStateDto> merged = new HashMap<>();
+        for (JobOffer offer : found) {
+            List<OfferStateDto> group = new ArrayList<>();
+            Stream.concat(Stream.of(offer), copies.getOrDefault(offer.getId(), List.of()).stream())
+                .map(member -> byOffer.get(member.getId()))
+                .filter(Objects::nonNull)
+                .forEach(group::add);
+            if (!group.isEmpty()) {
+                merged.put(offer.getId(), OfferStateDto.merged(offer.getId(), group));
+            }
+        }
+        return merged;
+    }
+
+    static OfferDto toDto(JobOffer offer, List<String> skills, OfferStateDto state, List<OfferCopyDto> alsoOn, Origin origin,
+                          Instant now, boolean full) {
         Integer distance = origin == null || offer.getLatitude() == null || offer.getLongitude() == null ? null :
             (int) Math.round(distanceKm(origin.latitude(), origin.longitude(), offer.getLatitude(), offer.getLongitude()));
         return new OfferDto(
@@ -174,7 +233,7 @@ public class OfferSearchService {
             offer.getStartDate(), offer.getStartAsap(), offer.getSeniority(), skills, offer.getPublishedAt(),
             offer.getDatePrecision(), offer.getExpiresAt(), offer.getExpiresAt() != null && !offer.getExpiresAt().isAfter(now),
             state != null && state.saved(), state != null && state.hidden(), state != null && state.seen(),
-            state == null ? null : state.importedProjectId());
+            state == null ? null : state.importedProjectId(), alsoOn);
     }
 
     /** The description's beginning on one line, cut at a word and ended with an ellipsis. */

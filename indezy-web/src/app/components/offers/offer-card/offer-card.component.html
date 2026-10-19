@@ -19,6 +19,15 @@
   @if (offer.company) {
     <p class="company">{{ offer.company }}</p>
   }
+  @if (offer.alsoOn?.length) {
+    <p class="also-on" data-also-on>
+      <span>{{ 'offers.card.alsoOn' | translate }}</span>
+      @for (copy of offer.alsoOn; track copy.id) {
+        <a class="site-badge" [href]="copy.url" target="_blank" rel="noopener noreferrer" [attr.data-site]="copy.site"
+          (click)="opened.emit(offer)">{{ copy.siteName }}</a>
+      }
+    </p>
+  }
 
   <ul class="facts">
     <li data-fact="rate" [class.muted]="!rate">

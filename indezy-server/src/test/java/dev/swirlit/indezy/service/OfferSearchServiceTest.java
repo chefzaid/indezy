@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.dto.OfferCopyDto;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
@@ -29,9 +30,11 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -79,6 +82,30 @@ class OfferSearchServiceTest {
         assertThat(dto.description()).isNull();
         assertThat(dto.excerpt()).isEqualTo("Mission longue à La Défense.");
         assertThat(dto.expired()).isFalse();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void listsTheOpenCopiesOnOtherSitesAndSharesTheirState() {
+        JobOffer offer = offer(7L);
+        offer.setCopyGroup(7L);
+        JobOffer collective = copy(8L, OfferSite.COLLECTIVE, NOW.minusSeconds(600), null);
+        JobOffer laterOnCollective = copy(9L, OfferSite.COLLECTIVE, NOW, null);
+        JobOffer expired = copy(10L, OfferSite.YEETS, NOW.minusSeconds(60), NOW.minusSeconds(1));
+        JobOffer sameSite = copy(11L, OfferSite.FREE_WORK, NOW.minusSeconds(60), null);
+        JobOffer workDispo = copy(12L, OfferSite.WORKDISPO, NOW.minusSeconds(60), null);
+        when(offers.findAll(any(Specification.class), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(offer), PageRequest.of(0, 20), 1));
+        when(offers.findByCopyGroupIn(Set.of(7L))).thenReturn(List.of(offer, workDispo, laterOnCollective, collective, expired, sameSite));
+        when(states.findStates(eq(3L), anyList())).thenReturn(List.of(new OfferStateDto(9L, true, false, false, null)));
+
+        OfferDto dto = service.search(3L, new OfferSearchRequest()).content().get(0);
+
+        assertThat(dto.alsoOn()).extracting(OfferCopyDto::id, OfferCopyDto::siteName)
+            .containsExactly(tuple(8L, "Collective"), tuple(12L, "WorkDispo"));
+        assertThat(dto.alsoOn().get(0).url()).isEqualTo("https://www.example.com/8");
+        assertThat(dto.saved()).isTrue();
+        assertThat(dto.seen()).isFalse();
     }
 
     @Test
@@ -179,6 +206,16 @@ class OfferSearchServiceTest {
         assertThat(OfferSearchService.excerpt(" ")).isNull();
         assertThat(OfferSearchService.excerpt(null)).isNull();
         assertThat(OfferSearchService.distanceKm(48.8589, 2.347, 45.764, 4.8357)).isBetween(390.0, 395.0);
+    }
+
+    private static JobOffer copy(Long id, OfferSite site, Instant publishedAt, Instant expiresAt) {
+        JobOffer copy = offer(id);
+        copy.setSite(site);
+        copy.setUrl("https://www.example.com/" + id);
+        copy.setPublishedAt(publishedAt);
+        copy.setExpiresAt(expiresAt);
+        copy.setCopyGroup(7L);
+        return copy;
     }
 
     private static JobOffer offer(Long id) {

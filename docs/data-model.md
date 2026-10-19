@@ -320,8 +320,14 @@ Important fields:
 - `publishedAt` with `datePrecision` (`EXACT`, `DAY`, or `FIRST_SEEN` when the site gives no date and the offer is
   dated when first collected), `firstSeenAt`, `lastSeenAt`, `expiresAt`
 - `searchText`: folded title, company, place, skills and description beginning, for keyword search
+- `publisherKey` and `openingKey`: SHA-256 of the folded title with the publisher (the company, or the site when it
+  publishes its own missions), and with the first 60 characters of the text (`null` when shorter); `copyGroup`:
+  shared by the copies of one mission on several sites, named after the smallest offer id of the group (`null` for
+  an offer published once). Offers of different sites are copies when their opening keys match, or their publisher
+  keys match and they are not placed in two different departments. Offers stored before these columns existed are
+  given their keys, and grouped, by the scheduler.
 
-Indexes: `published_at` (the feed's order) and `department_code`.
+Indexes: `published_at` (the feed's order), `department_code`, `publisher_key`, `opening_key` and `copy_group`.
 
 ## JobOfferState
 
@@ -330,7 +336,8 @@ Table: `job_offer_states`
 Purpose: what one workspace did with an offer. Unique per freelance and offer (`uk_job_offer_states_freelance_offer`).
 
 Fields: `saved`, `hidden`, `seenAt`, and `importedProject`, the opportunity created from the offer (cleared when
-that project is deleted, so the offer can be imported again).
+that project is deleted, so the offer can be imported again). The copies of a mission share their states: an
+action is written on each copy, and the feed reads the states of every copy of an offer.
 
 ## OfferSiteStatus, OfferSkip And GeoPlace
 

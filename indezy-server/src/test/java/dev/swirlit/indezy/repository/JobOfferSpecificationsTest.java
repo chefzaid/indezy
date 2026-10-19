@@ -182,6 +182,33 @@ class JobOfferSpecificationsTest {
     }
 
     @Test
+    void listsEachMissionOnceAtItsEarliestCopyTheSearchFinds() {
+        groupJavaWithAnEarlierCopy();
+
+        assertThat(search(request(), null)).containsExactly("java-copy", "courbevoie", "lyon", "unknown");
+        // The earlier copy names no rate high enough: the later one stands for the mission.
+        assertThat(search(request(r -> {
+            r.setRateMin(600);
+            r.setRateKnown(true);
+        }), null)).containsExactly("java", "courbevoie");
+        assertThat(search(request(r -> r.setSites(List.of(OfferSite.FREE_WORK))), null)).containsExactly("java", "lyon", "unknown");
+        Page<JobOffer> page = repository.findAll(JobOfferSpecifications.matching(request(), null, null, NOW), PageRequest.of(0, 2));
+        assertThat(page.getTotalElements()).isEqualTo(4);
+    }
+
+    @Test
+    void sharesWhatTheWorkspaceDidAcrossCopies() {
+        groupJavaWithAnEarlierCopy();
+        state("java", true, false, NOW);
+
+        assertThat(search(request(r -> r.setView(OfferSearchRequest.View.SAVED)), alice.getId())).containsExactly("java-copy");
+        assertThat(search(request(r -> r.setUnseenOnly(true)), alice.getId())).containsExactly("courbevoie", "lyon", "unknown");
+        state("java-copy", false, true, null);
+        assertThat(search(request(), alice.getId())).containsExactly("courbevoie", "lyon", "unknown");
+        assertThat(search(request(r -> r.setView(OfferSearchRequest.View.HIDDEN)), alice.getId())).containsExactly("java-copy");
+    }
+
+    @Test
     void sortsByRateWithUnknownRatesLastAndByDistance() {
         assertThat(search(request(r -> r.setSort(OfferSearchRequest.Sort.RATE)), null))
             .containsExactly("courbevoie", "java", "lyon", "unknown");
@@ -234,6 +261,21 @@ class JobOfferSpecificationsTest {
         offer.setLastSeenAt(NOW);
         details.accept(offer);
         entityManager.persist(offer);
+    }
+
+    /** The Java offer, also on Collective an hour earlier with a lower rate. */
+    private void groupJavaWithAnEarlierCopy() {
+        persist("java-copy", offer -> {
+            offer.setSite(OfferSite.COLLECTIVE);
+            offer.setTitle("Développeur Java Spring");
+            offer.setSearchText("developpeur java spring exemple conseil paris");
+            offer.setRateMax(500);
+            offer.setDepartmentCode("75");
+            offer.setPublishedAt(NOW.minus(Duration.ofHours(2)));
+            offer.setCopyGroup(900L);
+        });
+        repository.findAll().stream().filter(o -> o.getExternalId().equals("java")).forEach(o -> o.setCopyGroup(900L));
+        entityManager.flush();
     }
 
     private void state(String externalId, boolean saved, boolean hidden, Instant seenAt) {

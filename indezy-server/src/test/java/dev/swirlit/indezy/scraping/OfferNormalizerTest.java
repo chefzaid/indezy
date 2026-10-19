@@ -61,6 +61,10 @@ class OfferNormalizerTest {
         assertThat(offer.getDatePrecision()).isEqualTo(OfferDatePrecision.EXACT);
         assertThat(offer.getFirstSeenAt()).isEqualTo(NOW);
         assertThat(offer.getSearchText()).isEqualTo("developpeur java agence exemple courbevoie hauts de seine java spring ligne 1 ligne 2");
+        assertThat(offer.getPublisherKey()).isEqualTo(OfferFingerprint.publisherKey(OfferSite.FREE_WORK, offer.getTitle(), offer.getCompany()));
+        // "Ligne 1 / Ligne 2" is too short to tell copies by their text.
+        assertThat(offer.getOpeningKey()).isNull();
+        assertThat(offer.getCopyGroup()).isNull();
     }
 
     @Test

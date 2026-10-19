@@ -106,6 +106,30 @@ describe('OfferCardComponent', () => {
     expect(element(fixture, '[data-fact="rate"]').innerText).toContain('TJM non précisé');
   });
 
+  it('links the same mission on other sites', () => {
+    const fixture = create(offer({
+      alsoOn: [
+        { id: 8, site: 'COLLECTIVE', siteName: 'Collective', url: 'https://www.collective.work/job/8' },
+        { id: 9, site: 'WORKDISPO', siteName: 'WorkDispo', url: 'https://www.workdispo.com/job/9' }
+      ]
+    }));
+    const opened: Offer[] = [];
+    fixture.componentInstance.opened.subscribe(value => opened.push(value));
+
+    const links = Array.from(fixture.nativeElement.querySelectorAll('[data-also-on] a')) as HTMLAnchorElement[];
+    expect(spaced(element(fixture, '[data-also-on]').innerText)).toContain('Aussi sur');
+    expect(links.map(link => link.textContent?.trim())).toEqual(['Collective', 'WorkDispo']);
+    expect(links[0].href).toBe('https://www.collective.work/job/8');
+    expect(links[0].rel).toBe('noopener noreferrer');
+    links[0].addEventListener('click', event => event.preventDefault());
+    links[0].click();
+    expect(opened.map(value => value.id)).toEqual([fixture.componentInstance.offer.id]);
+  });
+
+  it('shows no other site for a mission published once', () => {
+    expect(create().nativeElement.querySelector('[data-also-on]')).toBeNull();
+  });
+
   it('emits what the user does with the offer', () => {
     const fixture = create();
     const card = fixture.componentInstance;

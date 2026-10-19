@@ -18,10 +18,20 @@ public class OfferScheduler {
 
     private final OfferCollector collector;
     private final OfferRetention retention;
+    private final OfferStore store;
 
     @Scheduled(initialDelayString = "PT1M", fixedDelayString = "${indezy.offers.tick:PT5M}")
     public void collectDueSites() {
         collector.collectDueSites();
+    }
+
+    /** Groups the copies among offers stored before copies were told apart; finds nothing to do once they are. */
+    @Scheduled(initialDelayString = "PT30S", fixedDelayString = "PT6H")
+    public void keyStoredOffers() {
+        int keyed;
+        do {
+            keyed = store.keyStoredOffers();
+        } while (keyed == OfferStore.KEY_BATCH);
     }
 
     @Scheduled(cron = "0 15 4 * * *", zone = "Europe/Paris")

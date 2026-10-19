@@ -14,6 +14,9 @@ function offer(id: number, overrides: Record<string, unknown> = {}): MockOffer {
   };
 }
 
+/** The first offer is also published on Collective. */
+const copy = { id: 11, site: 'COLLECTIVE', siteName: 'Collective', url: 'https://www.collective.work/job/11' };
+
 const sites = [
   { site: 'FREE_WORK', name: 'Free-Work', homeUrl: 'https://www.free-work.com', openOffers: 812, lastSuccessAt: new Date().toISOString(), failing: false },
   { site: 'COLLECTIVE', name: 'Collective', homeUrl: 'https://www.collective.work', openOffers: 430, failing: false }
@@ -48,7 +51,7 @@ async function mockFeed(page: Page, language: string): Promise<{ searches: URL[]
     const url = new URL(route.request().url());
     searches.push(url);
     const filtered = url.searchParams.has('workModes') && !url.searchParams.getAll('workModes').includes('HYBRID');
-    const content = filtered ? [] : [offer(1), offer(2, { title: 'Data engineer Spark', site: 'COLLECTIVE', siteName: 'Collective',
+    const content = filtered ? [] : [offer(1, { alsoOn: [copy] }), offer(2, { title: 'Data engineer Spark', site: 'COLLECTIVE', siteName: 'Collective',
       rateMin: undefined, rateMax: 700, workMode: 'REMOTE', remoteDaysPerWeek: 5, seen: true })];
     return route.fulfill({ json: { content, page: 0, size: 20, totalElements: content.length, totalPages: 1, distanceAvailable: false } });
   });
@@ -76,6 +79,8 @@ test('browses, filters, saves, hides and imports freelance offers (en)', async (
   await expect(first).toContainText('New');
   await expect(first.locator('[data-fact="place"]')).toContainText('Courbevoie (92)');
   await expect(first.locator('[data-fact="remote"]')).toContainText('Hybrid · 2 remote days a week');
+  await expect(first.locator('[data-also-on]')).toContainText('Also on');
+  await expect(first.locator('[data-also-on]').getByRole('link', { name: 'Collective' })).toHaveAttribute('href', copy.url);
 
   const keywordSearch = page.waitForRequest(request => isSearch(request) && request.url().includes('q=kafka'));
   await page.getByLabel('Keywords').fill('kafka');

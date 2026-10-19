@@ -6,6 +6,7 @@ import dev.swirlit.indezy.scraping.FakeFetcher;
 import dev.swirlit.indezy.scraping.Json;
 import dev.swirlit.indezy.scraping.OfferText;
 import dev.swirlit.indezy.scraping.ScrapedOffer;
+import dev.swirlit.indezy.scraping.SiteResponseException;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 
@@ -125,6 +126,29 @@ class StructuredSitesReaderTest {
         assertThat(reader.newestFirst()).isFalse();
         assertThat(reader.site()).isEqualTo(OfferSite.LITTLE_BIG_CONNECTION);
         assertThat(reader.domain()).isEqualTo("littlebigconnection.com");
+    }
+
+    @Test
+    void skipsLittleBigConnectionCategoriesWithoutMissions() throws Exception {
+        FakeFetcher fetcher = new FakeFetcher();
+        for (String category : LittleBigConnectionReader.CATEGORIES) {
+            if (!"cybersecurity".equals(category)) {
+                fetcher.page(LittleBigConnectionReader.CATEGORY_URL + category, "<script>self.__next_f.push([1,\"{\\\"rfps\\\":[]}\"])</script>");
+            }
+        }
+        WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of());
+
+        new LittleBigConnectionReader().read(fetcher, batch);
+
+        // Every category is asked for; the missing one answers 404 and is passed over.
+        assertThat(fetcher.requests()).hasSize(LittleBigConnectionReader.CATEGORIES.size());
+        FakeFetcher failing = new FakeFetcher() {
+            @Override
+            public String get(String url) throws IOException {
+                throw new SiteResponseException(503, "GET answered 503");
+            }
+        };
+        assertThatThrownBy(() -> new LittleBigConnectionReader().read(failing, batch)).isInstanceOf(SiteResponseException.class);
     }
 
     @Test
