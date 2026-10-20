@@ -53,11 +53,11 @@ class SavedOfferSearchServiceTest {
 
         SavedOfferSearchDto saved = service.create(3L, new SavedOfferSearchRequest("  Remote  ", filters));
 
-        assertThat(saved.name()).isEqualTo("Remote");
-        assertThat(saved.lastOpenedAt()).isEqualTo(NOW);
-        assertThat(saved.filters().getWorkModes()).containsExactly(WorkMode.REMOTE);
-        assertThat(saved.filters().getStartBefore()).isEqualTo(LocalDate.of(2026, 12, 1));
-        assertThat(saved.filters().getSort()).isEqualTo(OfferSearchRequest.Sort.RATE);
+        assertThat(saved.getName()).isEqualTo("Remote");
+        assertThat(saved.getLastOpenedAt()).isEqualTo(NOW);
+        assertThat(saved.getFilters().getWorkModes()).containsExactly(WorkMode.REMOTE);
+        assertThat(saved.getFilters().getStartBefore()).isEqualTo(LocalDate.of(2026, 12, 1));
+        assertThat(saved.getFilters().getSort()).isEqualTo(OfferSearchRequest.Sort.RATE);
     }
 
     @Test
@@ -82,8 +82,8 @@ class SavedOfferSearchServiceTest {
         when(searches.findByIdAndFreelanceId(9L, 3L)).thenReturn(Optional.of(search));
         when(searches.findByFreelanceIdOrderByNameAsc(3L)).thenReturn(List.of(search));
 
-        assertThat(service.open(3L, 9L).lastOpenedAt()).isEqualTo(NOW);
-        assertThat(service.export(3L)).singleElement().satisfies(exported -> assertThat(exported.filters().getQ()).isEqualTo("java"));
+        assertThat(service.open(3L, 9L).getLastOpenedAt()).isEqualTo(NOW);
+        assertThat(service.export(3L)).singleElement().satisfies(exported -> assertThat(exported.getFilters().getQ()).isEqualTo("java"));
         service.delete(3L, 9L);
         verify(searches).delete(search);
         assertThatThrownBy(() -> service.open(4L, 9L)).isInstanceOf(ResourceNotFoundException.class);

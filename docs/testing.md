@@ -225,10 +225,10 @@ Playwright selectors should prefer roles, labels, and user-visible text over CSS
 
 The Maven JaCoCo configuration records an 80 percent instruction and branch target. CI also computes combined backend/frontend line coverage against an 80 percent policy and publishes a failed JUnit policy result when it is missed; that report does not fail the build job or block release.
 
-Measured on 19 October 2026 with the repository's configured reporters: backend
-94.35 percent lines / 94.17 percent instructions / 83.70 percent branches (JaCoCo);
+Measured on 20 October 2026 with the repository's configured reporters: backend
+94.41 percent lines / 94.25 percent instructions / 83.74 percent branches (JaCoCo);
 frontend 94.83 percent lines / 94.05 percent statements / 91.50 percent branches (Karma).
-The suites contain 809 backend tests, 398 frontend tests and 28 Playwright scenarios. Line coverage exceeds
+The suites contain 814 backend tests, 398 frontend tests and 28 Playwright scenarios. Line coverage exceeds
 the coding workflow's 85 percent target in both layers, and backend branch coverage
 meets Maven's separate 80 percent verification rule. These reports use the
 existing instrumentation configuration; the Karma figures cover modules loaded by

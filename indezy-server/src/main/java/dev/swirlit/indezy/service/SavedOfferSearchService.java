@@ -69,14 +69,14 @@ public class SavedOfferSearchService {
 
     /** Saves the feed's current filters (not its view or page) under a new name. */
     public SavedOfferSearchDto create(Long freelanceId, SavedOfferSearchRequest request) {
-        String name = request.name().strip();
+        String name = request.getName().strip();
         if (searches.countByFreelanceId(freelanceId) >= MAX_SEARCHES) {
             throw new InvalidStateException(String.format(ErrorMessages.SAVED_SEARCHES_LIMIT, MAX_SEARCHES));
         }
         if (searches.existsByFreelanceIdAndNameIgnoreCase(freelanceId, name)) {
             throw new InvalidStateException(String.format(ErrorMessages.SAVED_SEARCH_NAME_TAKEN, name));
         }
-        OfferSearchRequest filters = request.filters();
+        OfferSearchRequest filters = request.getFilters();
         filters.setView(OfferSearchRequest.View.FEED);
         filters.setPage(0);
         SavedOfferSearch search = new SavedOfferSearch();
