@@ -34,6 +34,7 @@ describe('OfferSitesComponent', () => {
           lastError: 'SiteResponseException: 503', lastFound: null, newestOfferAt: minutes(-60 * 24 * 45), excluded: true }),
         site(),
         site({ site: 'LEHIBOU', name: 'LeHibou', status: 'RUNNING', nextRunAt: minutes(-1) }),
+        site({ site: 'SILKHOM', name: 'Silkhom', lastFound: 0, lastNew: 0 }),
         site({ site: 'KOINO', name: 'Koïno', status: 'WAITING', lastRunAt: null, lastSuccessAt: null, nextRunAt: null, lastFound: null,
           newestOfferAt: null, refreshAvailableAt: minutes(10) })
       ],
@@ -79,7 +80,9 @@ describe('OfferSitesComponent', () => {
   it('describes how each board is read, and the boards left out', () => {
     const fixture = create();
 
-    expect(text(fixture, '[data-sites-summary]')).toBe('4 sites lus pour le fil · 1 en échec');
+    expect(text(fixture, '[data-sites-summary]')).toBe('5 sites lus pour le fil · 1 en échec');
+    expect(text(fixture, '[data-site="SILKHOM"] [data-found-nothing]')).toBe("Sa dernière lecture n'a trouvé aucune offre : ses pages ont peut-être changé.");
+    expect(fixture.nativeElement.querySelector('[data-site="FREE_WORK"] [data-found-nothing]')).toBeNull();
     expect(text(fixture, '[data-site="YEETS"] [data-status]')).toBe('En échec');
     expect(text(fixture, '[data-site="YEETS"]')).toContain("3 lectures échouées d'affilée");
     expect(text(fixture, '[data-site="YEETS"] [data-fact="last-success"]')).toBe('Jamais');
@@ -137,10 +140,10 @@ describe('OfferSitesComponent', () => {
 
     const component = fixture.componentInstance;
     service.refreshSite.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
-    component.refresh(component.health!.sites[3]);
+    component.refresh(component.health!.sites[4]);
     expect(notifications.error).toHaveBeenCalledWith('offers.sites.refreshOff');
     service.refreshSite.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
-    component.refresh(component.health!.sites[3]);
+    component.refresh(component.health!.sites[4]);
     expect(notifications.error).toHaveBeenCalledWith('offers.sites.errors.refresh', 5000, { site: 'Koïno' });
     expect(component.refreshing.size).toBe(0);
   });

@@ -22,8 +22,9 @@ class OfferSiteRunsTest {
     private static final Instant NOW = Instant.parse("2026-10-19T10:00:00Z");
 
     private final OfferSiteStatusRepository statuses = mock(OfferSiteStatusRepository.class);
+    private final OfferMetrics metrics = mock(OfferMetrics.class);
     private final OfferSiteRuns runs = new OfferSiteRuns(statuses, new OfferProperties(true, Duration.ofMinutes(5),
-        Duration.ofSeconds(2), 10, Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1"));
+        Duration.ofSeconds(2), 10, Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1"), metrics);
 
     @Test
     void createsAStatusOnFirstClaimAndWinsWhenTheUpdateDoes() {
@@ -74,6 +75,8 @@ class OfferSiteRunsTest {
 
         runs.succeeded(OfferSite.FREE_WORK, NOW, 120, 7);
 
+        verify(metrics).runEnded(OfferSite.FREE_WORK, true, 120, 7, Duration.ZERO);
+
         assertThat(status.getRunningSince()).isNull();
         assertThat(status.getLastSuccessAt()).isEqualTo(NOW);
         assertThat(status.getLastError()).isNull();
@@ -90,6 +93,8 @@ class OfferSiteRunsTest {
         when(statuses.findById(OfferSite.LEHIBOU)).thenReturn(Optional.of(status));
 
         runs.failed(OfferSite.LEHIBOU, NOW, "x".repeat(800));
+
+        verify(metrics).runEnded(OfferSite.LEHIBOU, false, 0, 0, null);
 
         assertThat(status.getConsecutiveFailures()).isEqualTo(1);
         assertThat(status.getLastError()).hasSize(500);

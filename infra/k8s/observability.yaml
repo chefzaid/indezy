@@ -96,6 +96,49 @@ data:
           "targets": [{"refId": "A", "expr": "process_cpu_usage{namespace=\"apps\",app=\"indezy-server\"} * 100", "legendFormat": "{{pod}}"}],
           "fieldConfig": {"defaults": {"unit": "percent", "min": 0, "max": 100}, "overrides": []},
           "options": {"legend": {"displayMode": "table", "placement": "bottom"}}
+        },
+        {
+          "id": 9,
+          "type": "bargauge",
+          "title": "Offer Sites: Failed Runs in a Row",
+          "gridPos": {"x": 0, "y": 20, "w": 12, "h": 8},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"refId": "A", "expr": "max by (site) (indezy_offers_site_consecutive_failures{namespace=\"apps\",app=\"indezy-server\"})", "legendFormat": "{{site}}", "instant": true}],
+          "fieldConfig": {"defaults": {"unit": "short", "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "orange", "value": 1}, {"color": "red", "value": 3}]}}, "overrides": []},
+          "options": {"orientation": "horizontal", "displayMode": "basic", "reduceOptions": {"calcs": ["lastNotNull"], "values": false}}
+        },
+        {
+          "id": 10,
+          "type": "bargauge",
+          "title": "Offer Sites: Offers Found by the Last Run",
+          "gridPos": {"x": 12, "y": 20, "w": 12, "h": 8},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"refId": "A", "expr": "max by (site) (indezy_offers_site_last_found{namespace=\"apps\",app=\"indezy-server\"})", "legendFormat": "{{site}}", "instant": true}],
+          "fieldConfig": {"defaults": {"unit": "short", "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "green", "value": 1}]}}, "overrides": []},
+          "options": {"orientation": "horizontal", "displayMode": "basic", "reduceOptions": {"calcs": ["lastNotNull"], "values": false}}
+        },
+        {
+          "id": 11,
+          "type": "timeseries",
+          "title": "Offer Collection: New Offers per Hour",
+          "gridPos": {"x": 0, "y": 28, "w": 12, "h": 8},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"refId": "A", "expr": "sum by (site) (increase(indezy_offers_new_total{namespace=\"apps\",app=\"indezy-server\"}[1h]))", "legendFormat": "{{site}}"}],
+          "fieldConfig": {"defaults": {"unit": "short", "min": 0}, "overrides": []},
+          "options": {"legend": {"displayMode": "table", "placement": "right"}}
+        },
+        {
+          "id": 12,
+          "type": "timeseries",
+          "title": "Offer Collection: Runs and Geocoding Timeouts per Hour",
+          "gridPos": {"x": 12, "y": 28, "w": 12, "h": 8},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [
+            {"refId": "A", "expr": "sum by (outcome) (increase(indezy_offers_runs_total{namespace=\"apps\",app=\"indezy-server\"}[1h]))", "legendFormat": "runs {{outcome}}"},
+            {"refId": "B", "expr": "sum(increase(indezy_offers_geocoding_timeouts_total{namespace=\"apps\",app=\"indezy-server\"}[1h]))", "legendFormat": "geocoding timeouts"}
+          ],
+          "fieldConfig": {"defaults": {"unit": "short", "min": 0}, "overrides": []},
+          "options": {"legend": {"displayMode": "table", "placement": "bottom"}}
         }
       ]
     }

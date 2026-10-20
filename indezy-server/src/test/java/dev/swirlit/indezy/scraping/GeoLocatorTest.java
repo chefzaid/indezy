@@ -40,6 +40,7 @@ class GeoLocatorTest {
     private volatile String answer = "[{\"nom\":\"Courbevoie\",\"centre\":{\"type\":\"Point\",\"coordinates\":[2.2574,48.8976]}," +
         "\"codeDepartement\":\"92\",\"codeRegion\":\"11\"}]";
     private final GeoPlaceRepository places = mock(GeoPlaceRepository.class);
+    private final OfferMetrics metrics = mock(OfferMetrics.class);
 
     @BeforeEach
     void startServer() throws IOException {
@@ -152,11 +153,12 @@ class GeoLocatorTest {
         status = 503;
         assertThat(locator(true).locate("Lyon", "69002")).isEmpty();
         verify(places, never()).save(any());
+        verify(metrics).geocodingTimedOut();
     }
 
     private GeoLocator locator(boolean enabled) {
         OfferProperties properties = new OfferProperties(true, Duration.ofMinutes(5), Duration.ofSeconds(2), 10,
             Duration.ofHours(1), 90, "IndezyBot/test", enabled, "http://127.0.0.1:" + server.getAddress().getPort());
-        return new GeoLocator(places, properties, HttpClient.newHttpClient(), Clock.fixed(NOW, ZoneOffset.UTC));
+        return new GeoLocator(places, properties, HttpClient.newHttpClient(), Clock.fixed(NOW, ZoneOffset.UTC), metrics);
     }
 }

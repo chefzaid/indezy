@@ -276,7 +276,8 @@ searches. Until the profile names skills, the feed invites to complete it and th
 Indezy reads, failing ones first, each with its status (working, failing with its failed readings in a row, reading
 now, or not read yet), its last successful reading, its next one, the offers it brought over 24 hours and 7 days
 (first seen then), its open offers, its newest offer (flagged when nothing new came for a month: the board may be
-dying), what its last reading found and its last error. Below come the sites to visit yourself and the boards left out
+dying), what its last reading found (flagged when a successful reading found no offer: its pages may have changed)
+and its last error. Below come the sites to visit yourself and the boards left out
 and why.
 
 - **Sites to visit yourself** (also linked from the feed's summary): the sites Indezy does not read but where missions

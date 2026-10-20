@@ -38,17 +38,19 @@ public class GeoLocator {
     private final OfferProperties properties;
     private final HttpClient http;
     private final Clock clock;
+    private final OfferMetrics metrics;
 
     @Autowired
-    public GeoLocator(GeoPlaceRepository places, OfferProperties properties) {
-        this(places, properties, HttpClient.newBuilder().connectTimeout(TIMEOUT).build(), Clock.systemUTC());
+    public GeoLocator(GeoPlaceRepository places, OfferProperties properties, OfferMetrics metrics) {
+        this(places, properties, HttpClient.newBuilder().connectTimeout(TIMEOUT).build(), Clock.systemUTC(), metrics);
     }
 
-    GeoLocator(GeoPlaceRepository places, OfferProperties properties, HttpClient http, Clock clock) {
+    GeoLocator(GeoPlaceRepository places, OfferProperties properties, HttpClient http, Clock clock, OfferMetrics metrics) {
         this.places = places;
         this.properties = properties;
         this.http = http;
         this.clock = clock;
+        this.metrics = metrics;
     }
 
     /** The commune named {@code city} (in {@code postalCode} when known); empty when unknown or not looked up. */
@@ -77,6 +79,7 @@ public class GeoLocator {
             return toPlace(place);
         } catch (IOException e) {
             log.warn("Geocoding unavailable: {}", e.getMessage());
+            metrics.geocodingTimedOut();
             return Optional.empty();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

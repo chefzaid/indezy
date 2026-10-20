@@ -46,6 +46,20 @@ Prometheus discovers the backend pod annotations automatically, and Grafana
 loads the repository-owned **Indezy Overview** dashboard from its labeled
 ConfigMap.
 
+The offer collection exports, per job board (`site` label): `indezy_offers_runs_total`
+(`outcome` = `success` or `failure`), `indezy_offers_found_total`, `indezy_offers_new_total`
+and `indezy_offers_run_duration_seconds`, counted by the replica that ran the site, and,
+read from the shared site statuses at most once a minute, `indezy_offers_site_consecutive_failures`,
+`indezy_offers_site_last_found` and `indezy_offers_site_last_success_age_seconds`;
+`indezy_offers_geocoding_timeouts_total` counts the place lookups that failed. The
+**Indezy Overview** dashboard shows the failed runs in a row and what the last run found per
+site, the new offers per hour and the runs and geocoding timeouts per hour. The platform's
+Prometheus rules (`swirl-cloud`, group `applications.indezy`, owner `application`) alert when a
+site fails three runs in a row (`IndezyOfferSiteFailing`), when every successful reading of a
+site over 24 hours found nothing (`IndezyOfferSiteFindsNothing`, a sign its pages changed) and
+when more than 20 lookups to `geo.api.gouv.fr` fail in an hour (`IndezyGeocodingTimeouts`);
+their runbooks are in `swirl-cloud`'s `docs/guides/alert-runbooks.md`.
+
 The API's exception handler logs rejected requests (4xx) at `WARN`, naming only
 the fields, parameters or database constraint involved (or, for another request
 error such as an unsupported `Content-Type`, only the exception type and

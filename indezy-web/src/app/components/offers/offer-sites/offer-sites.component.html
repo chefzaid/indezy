@@ -48,6 +48,8 @@
           </header>
           @if (site.status === 'FAILING') {
             <p class="failures">{{ 'offers.sites.failures' | translate: { count: site.consecutiveFailures } }}</p>
+          } @else if (site.status === 'OK' && site.lastFound === 0) {
+            <p class="failures" data-found-nothing>{{ 'offers.sites.foundNothing' | translate }}</p>
           }
           <dl class="facts">
             <div>

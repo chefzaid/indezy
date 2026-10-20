@@ -1247,7 +1247,8 @@
         "clear": "Forget this visit",
         "clearAria": "Forget the visit of {{site}}",
         "error": "The visit could not be saved."
-      }
+      },
+      "foundNothing": "Its last reading found no offer: its pages may have changed."
     },
     "filters": {
       "title": "Filters",

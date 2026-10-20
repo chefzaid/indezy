@@ -23,6 +23,7 @@ public class OfferSiteRuns {
 
     private final OfferSiteStatusRepository statuses;
     private final OfferProperties properties;
+    private final OfferMetrics metrics;
 
     /** Whether this caller may read {@code site} now: it is due and no other run holds it. */
     @Transactional
@@ -57,6 +58,7 @@ public class OfferSiteRuns {
     @Transactional
     public void succeeded(OfferSite site, Instant now, int found, int created) {
         OfferSiteStatus status = statuses.findById(site).orElseGet(() -> new OfferSiteStatus(site, now));
+        metrics.runEnded(site, true, found, created, durationOf(status, now));
         status.setRunningSince(null);
         status.setLastRunAt(now);
         status.setLastSuccessAt(now);
@@ -71,6 +73,7 @@ public class OfferSiteRuns {
     @Transactional
     public void failed(OfferSite site, Instant now, String error) {
         OfferSiteStatus status = statuses.findById(site).orElseGet(() -> new OfferSiteStatus(site, now));
+        metrics.runEnded(site, false, 0, 0, durationOf(status, now));
         int failures = status.getConsecutiveFailures() + 1;
         Duration wait = site.getRefreshInterval().multipliedBy(1L << Math.min(failures, 10));
         status.setRunningSince(null);
@@ -79,5 +82,10 @@ public class OfferSiteRuns {
         status.setConsecutiveFailures(failures);
         status.setNextRunAt(now.plus(wait.compareTo(MAX_BACKOFF) > 0 ? MAX_BACKOFF : wait));
         statuses.save(status);
+    }
+
+    /** How long the run that ends now took, from when it claimed the site. */
+    private static Duration durationOf(OfferSiteStatus status, Instant now) {
+        return status.getRunningSince() == null ? null : Duration.between(status.getRunningSince(), now);
     }
 }

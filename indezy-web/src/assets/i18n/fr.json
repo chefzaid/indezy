@@ -1247,7 +1247,8 @@
         "clear": "Oublier cette visite",
         "clearAria": "Oublier la visite de {{site}}",
         "error": "La visite n'a pas pu être enregistrée."
-      }
+      },
+      "foundNothing": "Sa dernière lecture n'a trouvé aucune offre : ses pages ont peut-être changé."
     },
     "filters": {
       "title": "Filtres",
