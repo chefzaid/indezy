@@ -46,6 +46,14 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
     List<Object[]> countOpenBySite(@Param("now") Instant now);
 
     /**
+     * What each site brought, as {@code [site, offers first seen since day, since week, newest publication]} rows; a
+     * site without offers has none.
+     */
+    @Query("select o.site, sum(case when o.firstSeenAt >= :day then 1 else 0 end), " +
+        "sum(case when o.firstSeenAt >= :week then 1 else 0 end), max(o.publishedAt) from JobOffer o group by o.site")
+    List<Object[]> collectionBySite(@Param("day") Instant day, @Param("week") Instant week);
+
+    /**
      * Open offers' most frequent skills starting with a prefix (folded to lower case), as
      * {@code [skill, count]} rows; spellings that differ only by case count as one skill.
      */

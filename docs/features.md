@@ -172,7 +172,8 @@ recently changed first, so their backlog fills in over the first runs. An offer 
 gone) is remembered for 30 days and not read again.
 
 The other boards are planned in [TODO.md](../TODO.md#freelance-offer-feed-added-2026-10-19), with the ones left out
-and why (LinkedIn forbids crawling; HiTechPros, Opteamis, Comet and others keep missions behind a sign-in).
+and why (LinkedIn forbids crawling; HiTechPros, Opteamis, Comet and others keep missions behind a sign-in); the
+**Job boards** page lists them too (see [Site Health](#site-health)).
 
 Each offer shows its site, title, publisher, daily rate ("550 € – 650 €", "≤ 600 €" or "TJM non précisé"), place with
 its department and the distance from the profile's city, work mode (on site, hybrid with remote days a week, full
@@ -227,7 +228,8 @@ marked **New**.
 
 API: `GET /offers` (filters, `matchesProfile`, `view`, `sort` = `NEWEST`, `RATE`, `DISTANCE` or `MATCH`, `page`,
 `size`), `GET /offers/market` (the same filters and view), `GET /offers/{id}`, `PUT /offers/{id}/state`, `POST /offers/{id}/import`, `GET /offers/sites`,
-`GET /offers/skills?q=`, `GET /offers/regions`, and the saved searches: `GET /offers/searches`, `POST /offers/searches`,
+`GET /offers/skills?q=`, `GET /offers/regions`, the site health (`GET /offers/sites/health`,
+`PUT /offers/sites/{site}/exclusion`, `POST /offers/sites/{site}/refresh`) and the saved searches: `GET /offers/searches`, `POST /offers/searches`,
 `POST /offers/searches/{id}/open`, `DELETE /offers/searches/{id}` and `GET /offers/searches/alerts`. Each offer carries
 its `match` (score, skills, rate and place fit) and each page says whether distances (`distanceAvailable`) and matches
 (`matchAvailable`) can be computed.
@@ -249,6 +251,22 @@ lists the skills found and how the rate and place compare, and puts the profile'
 highlighted. **Matches my profile** keeps the offers scoring 60 or more, and **Best match** sorts by score, newest first
 among equal scores; both are computed by the database with the same rules as the cards and also apply to saved
 searches. Until the profile names skills, the feed invites to complete it and the filter and sort are unavailable.
+
+### Site Health
+
+**Job boards**, linked from the feed's summary (which says how many boards fail, when some do), lists every board
+Indezy reads, failing ones first, each with its status (working, failing with its failed readings in a row, reading
+now, or not read yet), its last successful reading, its next one, the offers it brought over 24 hours and 7 days
+(first seen then), its open offers, its newest offer (flagged when nothing new came for a month: the board may be
+dying), what its last reading found and its last error. Below come the boards left out and why.
+
+- **Show in my feed**: switched off, the board's offers leave the workspace's feed, its saved searches' new offers and
+  market snapshot, and its copies leave the **Also on** links (another site's copy of a mission then stands for it);
+  saved and hidden offers stay in their views. The feed's site filter and its counts leave the board out too. Each
+  workspace chooses for itself, and the choice is part of the account data export.
+- **Read now** reads the board at once, in the background, at most once every 15 minutes, whoever asks: 15 minutes
+  after its last reading or request, and never while a reading runs (the server answers `429` with `Retry-After`
+  otherwise, and the page says when it is possible again). It is off where collection is off (tests, one-off runs).
 
 ## Interview Steps
 

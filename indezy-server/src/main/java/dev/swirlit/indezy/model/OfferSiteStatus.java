@@ -55,6 +55,10 @@ public class OfferSiteStatus {
     @Column(name = "consecutive_failures", nullable = false)
     private int consecutiveFailures;
 
+    /** When someone last asked for the site to be read now (see {@code OfferSiteRuns.requestRefresh}). */
+    @Column(name = "refresh_requested_at")
+    private Instant refreshRequestedAt;
+
     public OfferSiteStatus(OfferSite site, Instant nextRunAt) {
         this.site = site;
         this.nextRunAt = nextRunAt;

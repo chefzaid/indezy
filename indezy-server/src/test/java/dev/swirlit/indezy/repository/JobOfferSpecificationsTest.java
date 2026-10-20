@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
+import dev.swirlit.indezy.model.OfferSiteExclusion;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
@@ -209,6 +210,21 @@ class JobOfferSpecificationsTest {
         state("java-copy", false, true, null);
         assertThat(search(request(), alice.getId())).containsExactly("courbevoie", "lyon", "unknown");
         assertThat(search(request(r -> r.setView(OfferSearchRequest.View.HIDDEN)), alice.getId())).containsExactly("java-copy");
+    }
+
+    @Test
+    void leavesTheSitesAWorkspaceExcludesOutOfItsFeedOnly() {
+        groupJavaWithAnEarlierCopy();
+        state("courbevoie", true, false, null);
+        OfferSiteExclusion exclusion = new OfferSiteExclusion();
+        exclusion.setFreelance(alice);
+        exclusion.setSite(OfferSite.COLLECTIVE);
+        entityManager.persistAndFlush(exclusion);
+
+        // The Collective copy no longer stands for the mission: the Free-Work one does.
+        assertThat(search(request(), alice.getId())).containsExactly("java", "lyon", "unknown");
+        assertThat(search(request(r -> r.setView(OfferSearchRequest.View.SAVED)), alice.getId())).containsExactly("courbevoie");
+        assertThat(search(request(), null)).containsExactly("java-copy", "courbevoie", "lyon", "unknown");
     }
 
     @Test

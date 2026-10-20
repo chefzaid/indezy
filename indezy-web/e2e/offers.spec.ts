@@ -46,11 +46,35 @@ const market = {
   }))
 };
 
+/** The job boards: Yeets fails, Free-Work and Collective work; Collective was read on request a few minutes ago. */
+function siteHealth(): Record<string, unknown> {
+  const minutes = (count: number): string => new Date(Date.now() + (count + Math.sign(count) / 4) * 60_000).toISOString();
+  const entry = (site: string, name: string, overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+    site, name, homeUrl: `https://www.${name.toLowerCase()}.com`, status: 'OK', lastRunAt: minutes(-30), lastSuccessAt: minutes(-30),
+    nextRunAt: minutes(30), consecutiveFailures: 0, lastFound: 120, lastNew: 4, collectedDay: 40, collectedWeek: 210, openOffers: 812,
+    newestOfferAt: minutes(-90), excluded: false, ...overrides
+  });
+  return {
+    sites: [
+      entry('YEETS', 'Yeets', { status: 'FAILING', consecutiveFailures: 3, lastSuccessAt: minutes(-3000), lastFound: null,
+        lastError: 'SiteResponseException: 503 from https://www.yeets.fr' }),
+      entry('COLLECTIVE', 'Collective', { collectedDay: 12, openOffers: 430 }),
+      entry('FREE_WORK', 'Free-Work')
+    ],
+    leftOut: [{ site: 'LINKEDIN', name: 'LinkedIn', homeUrl: 'https://www.linkedin.com' },
+      { site: 'HITECHPROS', name: 'HiTechPros', homeUrl: 'https://www.hitechpros.com' }],
+    refreshEnabled: true
+  };
+}
+
 /** Answers the feed's API like the server would, and records the searches and state changes. */
 async function mockFeed(page: Page, language: string, matchAvailable = true):
-  Promise<{ searches: URL[]; states: unknown[]; imports: number[]; saves: Record<string, unknown>[]; markets: URL[] }> {
+  Promise<{ searches: URL[]; states: unknown[]; imports: number[]; saves: Record<string, unknown>[]; markets: URL[];
+    exclusions: unknown[]; refreshes: string[] }> {
   const searches: URL[] = [];
   const markets: URL[] = [];
+  const exclusions: unknown[] = [];
+  const refreshes: string[] = [];
   const states: unknown[] = [];
   const imports: number[] = [];
   const saves: Record<string, unknown>[] = [];
@@ -59,6 +83,19 @@ async function mockFeed(page: Page, language: string, matchAvailable = true):
   await page.route('**/api/offers/sites', route => route.fulfill({ json: sites }));
   await page.route('**/api/offers/regions', route => route.fulfill({ json: regions }));
   await page.route('**/api/offers/skills**', route => route.fulfill({ json: [{ value: 'Kafka', offers: 120 }] }));
+  await page.route('**/api/offers/sites/health', route => route.fulfill({ json: siteHealth() }));
+  await page.route('**/api/offers/sites/*/exclusion', route => {
+    const site = new URL(route.request().url()).pathname.split('/').at(-2);
+    exclusions.push({ site, ...route.request().postDataJSON() });
+    return route.fulfill({ json: { site, ...route.request().postDataJSON() } });
+  });
+  await page.route('**/api/offers/sites/*/refresh', route => {
+    const site = new URL(route.request().url()).pathname.split('/').at(-2) as string;
+    refreshes.push(site);
+    return site === 'COLLECTIVE'
+      ? route.fulfill({ status: 429, headers: { 'Retry-After': '540', 'Access-Control-Expose-Headers': 'Retry-After' }, json: { message: 'Collective is read on request at most once every 15 minutes' } })
+      : route.fulfill({ status: 202, json: { site, refreshAvailableAt: new Date(Date.now() + 15.25 * 60_000).toISOString() } });
+  });
   await page.route('**/api/offers/market**', route => {
     markets.push(new URL(route.request().url()));
     return route.fulfill({ json: market });
@@ -94,7 +131,7 @@ async function mockFeed(page: Page, language: string, matchAvailable = true):
     return route.fulfill({ json: { content, page: 0, size: 20, totalElements: content.length, totalPages: 1, distanceAvailable: false,
       matchAvailable } });
   });
-  return { searches, states, imports, saves, markets };
+  return { searches, states, imports, saves, markets, exclusions, refreshes };
 }
 
 /** Lets the router's cross-fade between two addresses finish before a screenshot. */
@@ -232,4 +269,56 @@ test('opens the filters on a phone and narrows the feed to full remote (fr)', as
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await settle(page);
   await page.screenshot({ path: test.info().outputPath('offers-fr-mobile.png'), fullPage: true });
+});
+
+test('checks the job boards, keeps one out of the feed and reads another on request (en)', async ({ page }) => {
+  const api = await mockFeed(page, 'en');
+
+  await page.goto('/offers');
+  await page.locator('[data-sites-link]').click();
+  await expect(page).toHaveURL(/\/offers\/sites$/);
+  await expect(page.getByRole('heading', { name: 'Job boards', level: 1 })).toBeVisible();
+  await expect(page.locator('[data-sites-summary]')).toHaveText('3 job boards read for the feed · 1 failing');
+  const yeets = page.locator('[data-site="YEETS"]');
+  await expect(yeets.locator('[data-status]')).toHaveText('Failing');
+  await expect(yeets).toContainText('3 failed readings in a row');
+  await yeets.getByText('Last error').click();
+  await expect(yeets.locator('code')).toHaveText('SiteResponseException: 503 from https://www.yeets.fr');
+  const freeWork = page.locator('[data-site="FREE_WORK"]');
+  await expect(freeWork.locator('[data-fact="last-success"]')).toHaveText('30 minutes ago');
+  await expect(freeWork.locator('[data-fact="collected"]')).toHaveText('40 in 24 h · 210 in 7 days');
+  await expect(freeWork.locator('[data-fact="last-run"]')).toHaveText('120 offers, 4 new');
+  await expect(page.locator('[data-left-out="LINKEDIN"]')).toContainText('its robots.txt and user agreement forbid crawling');
+
+  await freeWork.getByRole('switch', { name: 'Show in my feed' }).click();
+  await expect(page.getByText('Free-Work is left out of your feed')).toBeVisible();
+  expect(api.exclusions).toEqual([{ site: 'FREE_WORK', excluded: true }]);
+  await expect(freeWork).toContainText('Its offers are left out of your feed, saved searches and market snapshot.');
+
+  await freeWork.getByRole('button', { name: 'Read Free-Work now' }).click();
+  await expect(page.getByText('Reading Free-Work: update the page in a minute to see what it brought.')).toBeVisible();
+  await expect(freeWork.getByRole('button', { name: 'Read Free-Work now' })).toBeDisabled();
+  await expect(freeWork.locator('[data-refresh-hint]')).toHaveText('Can be read again in 15 minutes.');
+  await page.locator('[data-site="COLLECTIVE"]').getByRole('button', { name: 'Read Collective now' }).click();
+  await expect(page.getByText('Collective can be read again in 9 minutes.')).toBeVisible();
+  await expect(page.locator('[data-site="COLLECTIVE"] [data-refresh-hint]')).toHaveText('Can be read again in 9 minutes.');
+  expect(api.refreshes).toEqual(['FREE_WORK', 'COLLECTIVE']);
+  await settle(page);
+  await page.screenshot({ path: test.info().outputPath('offer-sites-en.png'), fullPage: true });
+});
+
+test('reads the job boards on a phone (fr)', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await mockFeed(page, 'fr');
+
+  await page.goto('/offers/sites');
+  await expect(page.getByRole('heading', { name: "Sites d'offres", level: 1 })).toBeVisible();
+  await expect(page.locator('[data-site="YEETS"] [data-status]')).toHaveText('En échec');
+  await expect(page.locator('[data-site="FREE_WORK"] [data-fact="collected"]')).toHaveText('40 en 24 h · 210 en 7 jours');
+  await expect(page.getByRole('heading', { name: 'Sites écartés' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await settle(page);
+  await page.screenshot({ path: test.info().outputPath('offer-sites-fr-mobile.png'), fullPage: true });
+  await page.getByRole('link', { name: 'Retour aux missions' }).click();
+  await expect(page).toHaveURL(/\/offers$/);
 });

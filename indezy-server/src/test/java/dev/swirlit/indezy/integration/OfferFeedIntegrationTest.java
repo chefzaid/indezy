@@ -10,6 +10,7 @@ import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.GeoPlaceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
+import dev.swirlit.indezy.repository.OfferSiteExclusionRepository;
 import dev.swirlit.indezy.repository.SavedOfferSearchRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -70,6 +71,9 @@ class OfferFeedIntegrationTest {
     @Autowired
     private SavedOfferSearchRepository savedSearches;
 
+    @Autowired
+    private OfferSiteExclusionRepository exclusions;
+
     private Account alice;
     private Account bob;
     private JobOffer paris;
@@ -87,6 +91,7 @@ class OfferFeedIntegrationTest {
     @AfterEach
     void tearDown() {
         savedSearches.deleteAll();
+        exclusions.deleteAll();
         states.deleteAll();
         offers.deleteAll();
     }
@@ -248,6 +253,39 @@ class OfferFeedIntegrationTest {
         assertThat(bobs.getBody().get("skills")).isEqualTo(List.of(Map.of("value", "Java", "offers", 2)));
         assertThat(bobs.getBody().get("intermediaries")).isEqualTo(List.of(Map.of("value", "Exemple Conseil", "offers", 1)));
         assertThat(call(bob, HttpMethod.GET, "/offers/market?radiusKm=30", null).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void keepsTheSitesEachWorkspaceExcludesOutOfItsFeed() {
+        ResponseEntity<Map> excluded = call(alice, HttpMethod.PUT, "/offers/sites/FREE_WORK/exclusion", Map.of("excluded", true));
+
+        assertThat(excluded.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(titles(call(alice, HttpMethod.GET, "/offers", null))).isEmpty();
+        assertThat(call(alice, HttpMethod.GET, "/offers/market", null).getBody()).containsEntry("offers", 0);
+        assertThat(titles(call(bob, HttpMethod.GET, "/offers", null))).containsExactly("Développeur Java Spring", "Architecte cloud");
+        assertThat(freeWork(call(alice, HttpMethod.GET, "/offers/sites/health", null))).containsEntry("excluded", true)
+            .containsEntry("openOffers", 2).containsEntry("collectedDay", 2);
+        assertThat(freeWork(call(bob, HttpMethod.GET, "/offers/sites/health", null))).containsEntry("excluded", false);
+        assertThat(call(alice, HttpMethod.GET, "/offers/sites/health", null).getBody()).containsEntry("refreshEnabled", false);
+        // Collection is off in tests: nothing is read on request.
+        assertThat(call(alice, HttpMethod.POST, "/offers/sites/FREE_WORK/refresh", null).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+
+        call(alice, HttpMethod.PUT, "/offers/sites/FREE_WORK/exclusion", Map.of("excluded", false));
+        assertThat(titles(call(alice, HttpMethod.GET, "/offers", null))).containsExactly("Développeur Java Spring", "Architecte cloud");
+        // The development frontend runs on another origin: it reads when a board can be read again from Retry-After.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alice.token());
+        headers.setOrigin("http://localhost:4200");
+        ResponseEntity<String> crossOrigin = restTemplate.exchange(url("/offers/sites/health"), HttpMethod.GET, new HttpEntity<>(headers),
+            String.class);
+        assertThat(crossOrigin.getHeaders().getAccessControlExposeHeaders()).contains("Retry-After");
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> freeWork(ResponseEntity<Map> health) {
+        assertThat(health.getStatusCode()).isEqualTo(HttpStatus.OK);
+        return ((List<?>) health.getBody().get("sites")).stream().map(site -> (Map<String, Object>) site)
+            .filter(site -> "FREE_WORK".equals(site.get("site"))).findFirst().orElseThrow();
     }
 
     private static JobOffer offer(String externalId, String title, String company, Instant publishedAt, double latitude, double longitude) {

@@ -18,6 +18,7 @@ import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
+import dev.swirlit.indezy.repository.OfferSiteExclusionRepository;
 import dev.swirlit.indezy.repository.OfferSiteStatusRepository;
 import dev.swirlit.indezy.scraping.GeoLocator;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,8 @@ class OfferSearchServiceTest {
     private final OfferSiteStatusRepository statuses = mock(OfferSiteStatusRepository.class);
     private final FreelanceRepository freelances = mock(FreelanceRepository.class);
     private final GeoLocator geoLocator = mock(GeoLocator.class);
-    private final OfferSearchService service = new OfferSearchService(offers, states, statuses, freelances, geoLocator,
+    private final OfferSiteExclusionRepository exclusions = mock(OfferSiteExclusionRepository.class);
+    private final OfferSearchService service = new OfferSearchService(offers, states, statuses, freelances, geoLocator, exclusions,
         Clock.fixed(NOW, ZoneOffset.UTC));
 
     @Test
@@ -120,8 +122,12 @@ class OfferSearchServiceTest {
         JobOffer workDispo = copy(12L, OfferSite.WORKDISPO, NOW.minusSeconds(60), null);
         when(offers.findAll(any(Specification.class), any(Pageable.class)))
             .thenReturn(new PageImpl<>(List.of(offer), PageRequest.of(0, 20), 1));
-        when(offers.findByCopyGroupIn(Set.of(7L))).thenReturn(List.of(offer, workDispo, laterOnCollective, collective, expired, sameSite));
         when(states.findStates(eq(3L), anyList())).thenReturn(List.of(new OfferStateDto(9L, true, false, false, null)));
+        // The workspace keeps Next Mondays out: its copy is not linked.
+        JobOffer nextMondays = copy(13L, OfferSite.NEXT_MONDAYS, NOW.minusSeconds(60), null);
+        when(offers.findByCopyGroupIn(Set.of(7L)))
+            .thenReturn(List.of(offer, workDispo, laterOnCollective, collective, expired, sameSite, nextMondays));
+        when(exclusions.findSitesByFreelanceId(3L)).thenReturn(List.of(OfferSite.NEXT_MONDAYS));
 
         OfferDto dto = service.search(3L, new OfferSearchRequest()).content().get(0);
 
@@ -193,13 +199,17 @@ class OfferSearchServiceTest {
         when(statuses.findAll()).thenReturn(List.of(failing));
         when(offers.countOpenBySite(NOW)).thenReturn(List.<Object[]>of(new Object[] {OfferSite.YEETS, 12L}));
 
-        List<OfferSiteDto> sites = service.sites();
+        when(exclusions.findSitesByFreelanceId(3L)).thenReturn(List.of(OfferSite.YEETS));
+
+        List<OfferSiteDto> sites = service.sites(3L);
 
         assertThat(sites).hasSize(OfferSite.values().length);
         OfferSiteDto yeets = sites.stream().filter(site -> site.site() == OfferSite.YEETS).findFirst().orElseThrow();
-        assertThat(yeets).isEqualTo(new OfferSiteDto(OfferSite.YEETS, "Yeets", "https://www.yeets.fr", 12, NOW.minusSeconds(3600), true));
+        assertThat(yeets).isEqualTo(new OfferSiteDto(OfferSite.YEETS, "Yeets", "https://www.yeets.fr", 12, NOW.minusSeconds(3600), true, true));
         assertThat(sites.get(0).openOffers()).isZero();
         assertThat(sites.get(0).failing()).isFalse();
+        assertThat(sites.get(0).excluded()).isFalse();
+        assertThat(service.sites(null)).noneMatch(OfferSiteDto::excluded);
     }
 
     @Test

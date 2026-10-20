@@ -266,6 +266,25 @@ describe('OfferFeedComponent', () => {
     expect(fixture.nativeElement.querySelector('app-offer-saved-searches')).not.toBeNull();
   });
 
+  it('links to the job boards and warns when one fails', () => {
+    const fixture = create();
+    const link = fixture.nativeElement.querySelector('[data-sites-link]') as HTMLAnchorElement;
+
+    expect(link.getAttribute('href')).toBe('/offers/sites');
+    expect(text(fixture)).toContain('1 site en échec');
+  });
+
+  it('leaves the sites the workspace excludes out of its counts and filters', () => {
+    const fixture = create({}, page([offer(1)]), () => service.sites.and.returnValue(of([
+      { site: 'FREE_WORK', name: 'Free-Work', homeUrl: 'https://www.free-work.com', openOffers: 120, failing: false },
+      { site: 'YEETS', name: 'Yeets', homeUrl: 'https://www.yeets.fr', openOffers: 30, failing: true, excluded: true }
+    ])));
+
+    expect(text(fixture)).toContain('120 offres ouvertes sur 1 sites');
+    expect(text(fixture)).toContain("Sites d'offres");
+    expect(fixture.componentInstance.keptSites.map(site => site.site)).toEqual(['FREE_WORK']);
+  });
+
   it('opens the market snapshot, remembers it and filters on the skills it names', () => {
     localStorage.removeItem('indezy.offers.marketOpen');
     const fixture = create({ skills: 'Java' });

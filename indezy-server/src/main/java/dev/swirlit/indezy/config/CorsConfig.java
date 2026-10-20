@@ -73,8 +73,9 @@ public class CorsConfig {
         // Set credentials
         configuration.setAllowCredentials(isAllowCredentials());
 
-        // Expose headers that the client can access
+        // Expose headers that the client can access; Retry-After tells when a job board can be read on request again.
         configuration.addExposedHeader("Authorization");
+        configuration.addExposedHeader("Retry-After");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

@@ -3,6 +3,7 @@ package dev.swirlit.indezy.repository;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
+import dev.swirlit.indezy.model.OfferSiteExclusion;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.util.TextFolding;
 import jakarta.persistence.criteria.CommonAbstractCriteria;
@@ -118,6 +119,7 @@ public final class JobOfferSpecifications {
             predicates.add(cb.or(cb.isNull(root.get("expiresAt")), cb.greaterThan(root.get("expiresAt"), now)));
             if (freelanceId != null) {
                 predicates.add(cb.not(state(freelanceId, root, query, cb, state -> cb.isTrue(state.get("hidden")))));
+                predicates.add(cb.not(excludedSite(freelanceId, root, query, cb)));
             }
         } else if (freelanceId == null) {
             predicates.add(cb.disjunction());
@@ -206,6 +208,15 @@ public final class JobOfferSpecifications {
         match.select(state.get("id")).where(cb.or(cb.equal(offer, root), cb.equal(offer.get("copyGroup"), root.get("copyGroup"))),
             cb.equal(state.get("freelance").get("id"), freelanceId), condition.apply(state));
         return cb.exists(match);
+    }
+
+    /** The offer's site is one the workspace keeps out of its feed. */
+    private static Predicate excludedSite(Long freelanceId, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
+        Subquery<Long> exclusion = query.subquery(Long.class);
+        Root<OfferSiteExclusion> excluded = exclusion.from(OfferSiteExclusion.class);
+        exclusion.select(excluded.get("id")).where(cb.equal(excluded.get("freelance").get("id"), freelanceId),
+            cb.equal(excluded.get("site"), root.get("site")));
+        return cb.exists(exclusion);
     }
 
     /**

@@ -47,6 +47,24 @@ class OfferSiteRunsTest {
     }
 
     @Test
+    void acceptsARefreshWhenTheUpdateDoesAndTellsWhenTheNextOneIsPossible() {
+        when(statuses.existsById(OfferSite.YEETS)).thenReturn(false);
+        when(statuses.requestRefresh(OfferSite.YEETS, NOW, NOW.minus(Duration.ofMinutes(15)), NOW.minus(Duration.ofHours(1)))).thenReturn(1);
+
+        assertThat(runs.requestRefresh(OfferSite.YEETS, NOW)).isTrue();
+        verify(statuses).saveAndFlush(any());
+
+        OfferSiteStatus status = new OfferSiteStatus(OfferSite.YEETS, NOW);
+        assertThat(OfferSiteRuns.refreshAvailableAt(status)).isNull();
+        status.setRefreshRequestedAt(NOW);
+        assertThat(OfferSiteRuns.refreshAvailableAt(status)).isEqualTo(NOW.plus(Duration.ofMinutes(15)));
+        status.setLastRunAt(NOW.minusSeconds(60));
+        assertThat(OfferSiteRuns.refreshAvailableAt(status)).isEqualTo(NOW.plus(Duration.ofMinutes(15)));
+        status.setLastRunAt(NOW.plusSeconds(60));
+        assertThat(OfferSiteRuns.refreshAvailableAt(status)).isEqualTo(NOW.plus(Duration.ofMinutes(16)));
+    }
+
+    @Test
     void schedulesTheNextRunAfterASuccess() {
         OfferSiteStatus status = new OfferSiteStatus(OfferSite.FREE_WORK, NOW);
         status.setRunningSince(NOW);

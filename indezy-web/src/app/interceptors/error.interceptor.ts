@@ -6,8 +6,9 @@ import { AuthService } from '../services/auth/auth.service';
 import { NotificationService } from '../services/notification/notification.service';
 
 /**
- * Set on requests made in the background (a badge counting every few minutes): their failures are not reported to
- * the user, who did not ask for them. An expired session still signs out.
+ * Set on requests made in the background (a badge counting every few minutes), whose failures the user did not ask to
+ * hear about, and on requests whose caller tells the failure itself: they are not reported here. An expired session
+ * still signs out.
  */
 export const SILENT_HTTP_ERRORS = new HttpContextToken<boolean>(() => false);
 

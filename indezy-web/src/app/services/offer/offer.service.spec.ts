@@ -30,6 +30,24 @@ describe('OfferService', () => {
     request.flush({ content: [], page: 2, size: 20, totalElements: 0, totalPages: 0, distanceAvailable: false });
   });
 
+  it('reads the health of the job boards, excludes one and reads one on request without the generic error message', () => {
+    service.siteHealth().subscribe();
+    http.expectOne(`${api}/sites/health`).flush({ sites: [], leftOut: [], refreshEnabled: true });
+
+    service.setSiteExcluded('YEETS', true).subscribe();
+    const exclusion = http.expectOne(`${api}/sites/YEETS/exclusion`);
+    expect(exclusion.request.method).toBe('PUT');
+    expect(exclusion.request.body).toEqual({ excluded: true });
+    expect(exclusion.request.context.get(SILENT_HTTP_ERRORS)).toBeTrue();
+    exclusion.flush({ site: 'YEETS', excluded: true });
+
+    service.refreshSite('YEETS').subscribe();
+    const refresh = http.expectOne(`${api}/sites/YEETS/refresh`);
+    expect(refresh.request.method).toBe('POST');
+    expect(refresh.request.context.get(SILENT_HTTP_ERRORS)).toBeTrue();
+    refresh.flush({ site: 'YEETS', refreshAvailableAt: '2026-10-19T10:15:00Z' });
+  });
+
   it('describes the market of the offers a query finds', () => {
     service.market({ ...defaultOfferQuery(), q: 'java', workModes: ['REMOTE'] }).subscribe();
 

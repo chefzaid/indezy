@@ -20,6 +20,7 @@ import dev.swirlit.indezy.repository.JobOfferSpecifications;
 import dev.swirlit.indezy.repository.JobOfferSpecifications.Origin;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
 import dev.swirlit.indezy.repository.OfferMatch;
+import dev.swirlit.indezy.repository.OfferSiteExclusionRepository;
 import dev.swirlit.indezy.repository.OfferSiteStatusRepository;
 import dev.swirlit.indezy.scraping.GeoLocator;
 import dev.swirlit.indezy.util.FrenchGeography;
@@ -61,21 +62,23 @@ public class OfferSearchService {
     private final OfferSiteStatusRepository statuses;
     private final FreelanceRepository freelances;
     private final GeoLocator geoLocator;
+    private final OfferSiteExclusionRepository exclusions;
     private final Clock clock;
 
     @Autowired
     public OfferSearchService(JobOfferRepository offers, JobOfferStateRepository states, OfferSiteStatusRepository statuses,
-                              FreelanceRepository freelances, GeoLocator geoLocator) {
-        this(offers, states, statuses, freelances, geoLocator, Clock.systemUTC());
+                              FreelanceRepository freelances, GeoLocator geoLocator, OfferSiteExclusionRepository exclusions) {
+        this(offers, states, statuses, freelances, geoLocator, exclusions, Clock.systemUTC());
     }
 
     OfferSearchService(JobOfferRepository offers, JobOfferStateRepository states, OfferSiteStatusRepository statuses,
-                       FreelanceRepository freelances, GeoLocator geoLocator, Clock clock) {
+                       FreelanceRepository freelances, GeoLocator geoLocator, OfferSiteExclusionRepository exclusions, Clock clock) {
         this.offers = offers;
         this.states = states;
         this.statuses = statuses;
         this.freelances = freelances;
         this.geoLocator = geoLocator;
+        this.exclusions = exclusions;
         this.clock = clock;
     }
 
@@ -89,9 +92,10 @@ public class OfferSearchService {
         Map<Long, List<String>> skills = skillsOf(ids);
         Map<Long, List<JobOffer>> copies = copiesOf(page.getContent());
         Map<Long, OfferStateDto> stateByOffer = statesOf(freelanceId, page.getContent(), copies);
+        Set<OfferSite> excluded = excludedSites(freelanceId);
         List<OfferDto> content = page.getContent().stream()
             .map(offer -> toDto(offer, skills.get(offer.getId()), stateByOffer.get(offer.getId()),
-                alsoOn(offer, copies.getOrDefault(offer.getId(), List.of()), now), profile, now, false))
+                alsoOn(offer, copies.getOrDefault(offer.getId(), List.of()), excluded, now), profile, now, false))
             .toList();
         return new OfferPageDto(content, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
             profile.origin() != null, profile.canMatch());
@@ -105,11 +109,12 @@ public class OfferSearchService {
         Map<Long, List<JobOffer>> copies = copiesOf(List.of(offer));
         Instant now = clock.instant();
         return toDto(offer, skillsOf(List.of(id)).get(id), statesOf(freelanceId, List.of(offer), copies).get(id),
-            alsoOn(offer, copies.getOrDefault(id, List.of()), now), profile, now, true);
+            alsoOn(offer, copies.getOrDefault(id, List.of()), excludedSites(freelanceId), now), profile, now, true);
     }
 
-    /** Every job board of the feed, with its open offers and collection health. */
-    public List<OfferSiteDto> sites() {
+    /** Every job board of the feed, with its open offers, collection health and whether the workspace (if any) keeps it. */
+    public List<OfferSiteDto> sites(Long freelanceId) {
+        Set<OfferSite> excluded = excludedSites(freelanceId);
         Map<OfferSite, OfferSiteStatus> byStatus = statuses.findAll().stream()
             .collect(Collectors.toMap(OfferSiteStatus::getSite, Function.identity()));
         Map<OfferSite, Long> open = new HashMap<>();
@@ -120,7 +125,8 @@ public class OfferSearchService {
             .map(site -> {
                 OfferSiteStatus status = byStatus.get(site);
                 return new OfferSiteDto(site, site.getDisplayName(), site.getHomeUrl(), open.getOrDefault(site, 0L),
-                    status == null ? null : status.getLastSuccessAt(), status != null && status.getConsecutiveFailures() > 0);
+                    status == null ? null : status.getLastSuccessAt(), status != null && status.getConsecutiveFailures() > 0,
+                    excluded.contains(site));
             })
             .toList();
     }
@@ -168,6 +174,10 @@ public class OfferSearchService {
             .map(place -> new Origin(place.latitude(), place.longitude()));
     }
 
+    private Set<OfferSite> excludedSites(Long freelanceId) {
+        return freelanceId == null ? Set.of() : Set.copyOf(exclusions.findSitesByFreelanceId(freelanceId));
+    }
+
     private Map<Long, List<String>> skillsOf(List<Long> ids) {
         Map<Long, List<String>> skills = new HashMap<>();
         if (!ids.isEmpty()) {
@@ -196,11 +206,12 @@ public class OfferSearchService {
         return copies;
     }
 
-    /** Where else the mission is open: one copy per other site, the earliest, by site name. */
-    static List<OfferCopyDto> alsoOn(JobOffer offer, List<JobOffer> copies, Instant now) {
+    /** Where else the mission is open: one copy per other site the workspace keeps, the earliest, by site name. */
+    static List<OfferCopyDto> alsoOn(JobOffer offer, List<JobOffer> copies, Set<OfferSite> excluded, Instant now) {
         Map<OfferSite, JobOffer> bySite = new EnumMap<>(OfferSite.class);
         copies.stream()
-            .filter(copy -> copy.getSite() != offer.getSite() && (copy.getExpiresAt() == null || copy.getExpiresAt().isAfter(now)))
+            .filter(copy -> copy.getSite() != offer.getSite() && !excluded.contains(copy.getSite()))
+            .filter(copy -> copy.getExpiresAt() == null || copy.getExpiresAt().isAfter(now))
             .sorted(Comparator.comparing(JobOffer::getPublishedAt))
             .forEach(copy -> bySite.putIfAbsent(copy.getSite(), copy));
         return bySite.values().stream()

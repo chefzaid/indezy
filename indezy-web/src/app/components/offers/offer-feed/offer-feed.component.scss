@@ -19,6 +19,20 @@
     margin: 0;
     color: var(--app-text-muted);
   }
+
+  .sites-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--app-link);
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+      color: #d97706;
+    }
+  }
 }
 
 .toolbar {

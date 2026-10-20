@@ -11,6 +11,8 @@ import {
   OfferPage,
   OfferQuery,
   OfferRegion,
+  OfferSite,
+  OfferSiteHealth,
   OfferSiteInfo,
   OfferState,
   OfferStateUpdate,
@@ -55,6 +57,22 @@ export class OfferService {
 
   skills(prefix: string): Observable<OfferFacet[]> {
     return this.http.get<OfferFacet[]>(`${this.API_URL}/skills`, { params: new HttpParams().set('q', prefix) });
+  }
+
+  siteHealth(): Observable<OfferSiteHealth> {
+    return this.http.get<OfferSiteHealth>(`${this.API_URL}/sites/health`);
+  }
+
+  /** Keeps a site out of the workspace's feed, saved searches and market snapshot, or brings it back; errors are the caller's to tell. */
+  setSiteExcluded(site: OfferSite, excluded: boolean): Observable<{ site: OfferSite; excluded: boolean }> {
+    return this.http.put<{ site: OfferSite; excluded: boolean }>(`${this.API_URL}/sites/${site}/exclusion`, { excluded },
+      { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
+  /** Reads a site now; refused (429, with Retry-After) less than 15 minutes after its last reading. Errors are the caller's to tell. */
+  refreshSite(site: OfferSite): Observable<{ site: OfferSite; refreshAvailableAt: string }> {
+    return this.http.post<{ site: OfferSite; refreshAvailableAt: string }>(`${this.API_URL}/sites/${site}/refresh`, null,
+      { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
   }
 
   regions(): Observable<OfferRegion[]> {

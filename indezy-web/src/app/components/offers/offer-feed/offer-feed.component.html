@@ -5,10 +5,19 @@
       {{ 'offers.title' | translate }}
     </h1>
     <p class="subtitle" data-summary>
-      {{ 'offers.subtitle' | translate: { offers: openOffers, sites: sites.length } }}
+      {{ 'offers.subtitle' | translate: { offers: openOffers, sites: keptSites.length } }}
       @if (lastUpdate) {
         <span class="updated">· {{ 'offers.updated' | translate: { when: lastUpdate } }}</span>
       }
+      ·
+      <a routerLink="/offers/sites" class="sites-link" data-sites-link>
+        @if (failingSites) {
+          <mat-icon aria-hidden="true">warning</mat-icon>
+          {{ (failingSites === 1 ? 'offers.oneSiteFailing' : 'offers.sitesFailing') | translate: { count: failingSites } }}
+        } @else {
+          {{ 'offers.sitesLink' | translate }}
+        }
+      </a>
     </p>
   </header>
 
@@ -53,7 +62,7 @@
 
   <div class="feed-layout">
     <aside id="offer-filters-panel" class="filters-panel" [class.open]="filtersOpen">
-      <app-offer-filters [filters]="filters" [regions]="regions" [sites]="sites"
+      <app-offer-filters [filters]="filters" [regions]="regions" [sites]="keptSites"
         [distanceAvailable]="page?.distanceAvailable ?? false" [matchAvailable]="page?.matchAvailable ?? false"
         (filtersChange)="onFiltersChange($event)">
       </app-offer-filters>

@@ -21,4 +21,15 @@ public interface OfferSiteStatusRepository extends JpaRepository<OfferSiteStatus
     @Query("update OfferSiteStatus s set s.runningSince = :now where s.site = :site and s.nextRunAt <= :now " +
         "and (s.runningSince is null or s.runningSince < :staleBefore)")
     int claim(@Param("site") OfferSite site, @Param("now") Instant now, @Param("staleBefore") Instant staleBefore);
+
+    /**
+     * Makes a site due now on request; 1 when accepted, 0 when it ran or was asked for after {@code since}, or a run
+     * younger than {@code staleBefore} holds it.
+     */
+    @Modifying
+    @Query("update OfferSiteStatus s set s.nextRunAt = :now, s.refreshRequestedAt = :now where s.site = :site " +
+        "and (s.lastRunAt is null or s.lastRunAt <= :since) and (s.refreshRequestedAt is null or s.refreshRequestedAt <= :since) " +
+        "and (s.runningSince is null or s.runningSince < :staleBefore)")
+    int requestRefresh(@Param("site") OfferSite site, @Param("now") Instant now, @Param("since") Instant since,
+                       @Param("staleBefore") Instant staleBefore);
 }

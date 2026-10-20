@@ -1,0 +1,129 @@
+<div class="sites-page">
+  <a mat-button routerLink="/offers" class="back-link">
+    <mat-icon>arrow_back</mat-icon>
+    {{ 'offers.sites.back' | translate }}
+  </a>
+  <header class="sites-header">
+    <div>
+      <h1>
+        <mat-icon aria-hidden="true">monitor_heart</mat-icon>
+        {{ 'offers.sites.title' | translate }}
+      </h1>
+      @if (health) {
+        <p class="subtitle" data-sites-summary>
+          {{ 'offers.sites.subtitle' | translate: { count: health.sites.length } }}
+          @if (failingCount) {
+            <span class="failing-count">· {{ 'offers.sites.failingCount' | translate: { count: failingCount } }}</span>
+          }
+        </p>
+      }
+    </div>
+    <button mat-stroked-button type="button" (click)="load()" [disabled]="loading">
+      <mat-icon>sync</mat-icon>
+      {{ 'offers.sites.reload' | translate }}
+    </button>
+  </header>
+
+  @if (loading && !health) {
+    <div class="state"><mat-spinner diameter="40"></mat-spinner></div>
+  } @else if (failed) {
+    <div class="state" role="alert">
+      <mat-icon>cloud_off</mat-icon>
+      <p>{{ 'offers.sites.errors.load' | translate }}</p>
+      <button mat-flat-button color="primary" type="button" (click)="load()">{{ 'offers.retry' | translate }}</button>
+    </div>
+  } @else if (health) {
+    <p class="limit-note">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      {{ (health.refreshEnabled ? 'offers.sites.refreshLimit' : 'offers.sites.refreshOff') | translate }}
+    </p>
+    <ul class="site-list">
+      @for (site of health.sites; track site.site) {
+        <li class="site-card" [class.excluded]="site.excluded" [attr.data-site]="site.site">
+          <header class="site-head">
+            <h2><a [href]="site.homeUrl" target="_blank" rel="noopener noreferrer">{{ site.name }}</a></h2>
+            <span class="status" [class]="site.status" data-status>
+              {{ 'offers.sites.status.' + site.status | translate }}
+            </span>
+          </header>
+          @if (site.status === 'FAILING') {
+            <p class="failures">{{ 'offers.sites.failures' | translate: { count: site.consecutiveFailures } }}</p>
+          }
+          <dl class="facts">
+            <div>
+              <dt>{{ 'offers.sites.lastSuccess' | translate }}</dt>
+              <dd data-fact="last-success">{{ when(site.lastSuccessAt) ?? ('offers.sites.never' | translate) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'offers.sites.nextRun' | translate }}</dt>
+              <dd data-fact="next-run">{{ isDue(site) ? ('offers.sites.due' | translate) : when(site.nextRunAt) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'offers.sites.collected' | translate }}</dt>
+              <dd data-fact="collected">
+                {{ 'offers.sites.collectedValue' | translate: { day: formatNumber(site.collectedDay), week: formatNumber(site.collectedWeek) } }}
+              </dd>
+            </div>
+            <div>
+              <dt>{{ 'offers.sites.openOffers' | translate }}</dt>
+              <dd data-fact="open">{{ formatNumber(site.openOffers) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'offers.sites.newestOffer' | translate }}</dt>
+              <dd data-fact="newest" [class.quiet]="isQuiet(site)">
+                {{ when(site.newestOfferAt) ?? ('offers.sites.none' | translate) }}
+                @if (isQuiet(site)) {
+                  <span class="quiet-note">· {{ 'offers.sites.quiet' | translate }}</span>
+                }
+              </dd>
+            </div>
+            @if (site.lastFound != null) {
+              <div>
+                <dt>{{ 'offers.sites.lastRun' | translate }}</dt>
+                <dd data-fact="last-run">{{ 'offers.sites.lastRunValue' | translate: { found: formatNumber(site.lastFound), created: formatNumber(site.lastNew ?? 0) } }}</dd>
+              </div>
+            }
+          </dl>
+          @if (site.lastError) {
+            <details class="last-error">
+              <summary>{{ 'offers.sites.lastError' | translate }}</summary>
+              <code>{{ site.lastError }}</code>
+            </details>
+          }
+          <div class="site-actions">
+            <mat-slide-toggle [checked]="!site.excluded" (change)="setIncluded(site, $event.checked)" [disabled]="saving.has(site.site)"
+              data-include>
+              {{ 'offers.sites.include' | translate }}
+            </mat-slide-toggle>
+            <button mat-stroked-button type="button" (click)="refresh(site)" [disabled]="!canRefresh(site)"
+              [attr.aria-label]="'offers.sites.refreshAria' | translate: { site: site.name }" data-refresh>
+              <mat-icon>refresh</mat-icon>
+              {{ 'offers.sites.refresh' | translate }}
+            </button>
+          </div>
+          @if (site.excluded) {
+            <p class="hint">{{ 'offers.sites.excludedHint' | translate }}</p>
+          }
+          @if (health.refreshEnabled && site.status === 'RUNNING') {
+            <p class="hint" data-refresh-hint>{{ 'offers.sites.refreshRunning' | translate }}</p>
+          } @else if (health.refreshEnabled && refreshAt(site)) {
+            <p class="hint" data-refresh-hint>{{ 'offers.sites.refreshAt' | translate: { when: when(refreshAt(site)) } }}</p>
+          }
+        </li>
+      }
+    </ul>
+
+    <section class="left-out" aria-labelledby="left-out-title">
+      <h2 id="left-out-title">{{ 'offers.sites.leftOutTitle' | translate }}</h2>
+      <p class="subtitle">{{ 'offers.sites.leftOutIntro' | translate }}</p>
+      <ul>
+        @for (site of health.leftOut; track site.site) {
+          <li [attr.data-left-out]="site.site">
+            <a [href]="site.homeUrl" target="_blank" rel="noopener noreferrer">{{ site.name }}</a>&ngsp;
+            <span>{{ 'offers.sites.leftOut.' + site.site | translate }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</div>

@@ -60,6 +60,8 @@ export class OfferFeedComponent implements OnInit {
   page: OfferPage | null = null;
   regions: OfferRegion[] = [];
   sites: OfferSiteInfo[] = [];
+  /** The sites the workspace keeps in its feed. */
+  keptSites: OfferSiteInfo[] = [];
   loading = true;
   failed = false;
   /** Filters panel open on small screens. */
@@ -86,6 +88,7 @@ export class OfferFeedComponent implements OnInit {
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ regions, sites }) => {
       this.regions = regions;
       this.sites = sites;
+      this.keptSites = sites.filter(site => !site.excluded);
       this.changes.markForCheck();
     });
     combineLatest([this.route.queryParamMap, this.reload$]).pipe(
@@ -122,7 +125,11 @@ export class OfferFeedComponent implements OnInit {
   }
 
   get openOffers(): number {
-    return this.sites.reduce((total, site) => total + site.openOffers, 0);
+    return this.keptSites.reduce((total, site) => total + site.openOffers, 0);
+  }
+
+  get failingSites(): number {
+    return this.keptSites.filter(site => site.failing).length;
   }
 
   /** When the most recently refreshed site was last read, in words. */

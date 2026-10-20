@@ -88,8 +88,8 @@ public class OfferController {
 
     @Operation(summary = "List the job boards of the feed and how their collection goes")
     @GetMapping("/sites")
-    public List<OfferSiteDto> sites() {
-        return searchService.sites();
+    public List<OfferSiteDto> sites(@RequestParam(required = false) Long freelanceId) {
+        return searchService.sites(accessGuard.resolveFreelanceId(freelanceId));
     }
 
     @Operation(summary = "Suggest skills of open offers starting with the given text")

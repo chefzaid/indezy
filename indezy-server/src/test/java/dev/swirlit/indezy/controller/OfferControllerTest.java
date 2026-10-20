@@ -215,7 +215,8 @@ class OfferControllerTest {
 
     @Test
     void listsSitesSkillsAndRegions() throws Exception {
-        when(searchService.sites()).thenReturn(List.of(new OfferSiteDto(OfferSite.YEETS, "Yeets", "https://www.yeets.fr", 12, null, false)));
+        when(searchService.sites(null)).thenReturn(List.of(new OfferSiteDto(OfferSite.YEETS, "Yeets", "https://www.yeets.fr", 12, null, false,
+            false)));
         when(searchService.skills("ja")).thenReturn(List.of(new OfferFacetDto("Java", 42)));
         when(searchService.regions()).thenReturn(List.of(new OfferRegionDto("94", "Corse",
             List.of(new OfferRegionDto.Department("2A", "Corse-du-Sud")))));

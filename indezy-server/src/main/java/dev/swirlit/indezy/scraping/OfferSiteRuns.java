@@ -18,6 +18,8 @@ public class OfferSiteRuns {
     /** A failing site waits its interval doubled per failure, up to this long. */
     static final Duration MAX_BACKOFF = Duration.ofHours(24);
     private static final int MAX_ERROR_LENGTH = 500;
+    /** A site is read on request at most this often. */
+    public static final Duration REFRESH_EVERY = Duration.ofMinutes(15);
 
     private final OfferSiteStatusRepository statuses;
     private final OfferProperties properties;
@@ -29,6 +31,27 @@ public class OfferSiteRuns {
             statuses.saveAndFlush(new OfferSiteStatus(site, now));
         }
         return statuses.claim(site, now, now.minus(properties.staleRunAfter())) == 1;
+    }
+
+    /**
+     * Makes {@code site} due now, unless it ran or was asked for in the last {@link #REFRESH_EVERY} or a run holds it: a
+     * request does not read the site sooner than that, whoever makes it. Returns whether it was accepted.
+     */
+    @Transactional
+    public boolean requestRefresh(OfferSite site, Instant now) {
+        if (!statuses.existsById(site)) {
+            statuses.saveAndFlush(new OfferSiteStatus(site, now));
+        }
+        return statuses.requestRefresh(site, now, now.minus(REFRESH_EVERY), now.minus(properties.staleRunAfter())) == 1;
+    }
+
+    /** When {@code status}'s site may be asked for again: {@link #REFRESH_EVERY} after its last run or request. */
+    public static Instant refreshAvailableAt(OfferSiteStatus status) {
+        Instant last = status.getLastRunAt();
+        if (status.getRefreshRequestedAt() != null && (last == null || status.getRefreshRequestedAt().isAfter(last))) {
+            last = status.getRefreshRequestedAt();
+        }
+        return last == null ? null : last.plus(REFRESH_EVERY);
     }
 
     @Transactional

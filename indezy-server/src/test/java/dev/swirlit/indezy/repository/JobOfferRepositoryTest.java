@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
+import dev.swirlit.indezy.model.OfferSiteExclusion;
 import dev.swirlit.indezy.model.OfferSiteStatus;
 import dev.swirlit.indezy.model.OfferSkip;
 import dev.swirlit.indezy.model.Project;
@@ -24,6 +25,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 /** The offer queries the feed, the collection and the retention rely on. */
 @DataJpaTest
@@ -46,6 +48,9 @@ class JobOfferRepositoryTest {
 
     @Autowired
     private OfferSkipRepository skips;
+
+    @Autowired
+    private OfferSiteExclusionRepository exclusions;
 
     private Freelance freelance;
     private JobOffer recent;
@@ -166,6 +171,57 @@ class JobOfferRepositoryTest {
         assertThat(statuses.claim(OfferSite.LEHIBOU, NOW, stale)).isZero();
         assertThat(statuses.claim(OfferSite.LEHIBOU, NOW.plus(Duration.ofHours(2)), NOW.plusSeconds(1))).isEqualTo(1);
         assertThat(statuses.claim(OfferSite.YEETS, NOW, stale)).isZero();
+    }
+
+    @Test
+    void countsWhatEachSiteBroughtOverADayAndAWeek() {
+        List<Object[]> rows = offers.collectionBySite(NOW.minus(Duration.ofDays(1)), NOW.minus(Duration.ofDays(7)));
+
+        assertThat(rows).extracting(row -> row[0], row -> ((Number) row[1]).longValue(), row -> ((Number) row[2]).longValue(), row -> row[3])
+            .containsExactlyInAnyOrder(
+                tuple(OfferSite.FREE_WORK, 1L, 1L, NOW.minus(Duration.ofDays(1))),
+                tuple(OfferSite.YEETS, 0L, 1L, NOW.minus(Duration.ofDays(5))));
+    }
+
+    @Test
+    void readsASiteOnRequestOnceEveryQuarterOfAnHour() {
+        OfferSiteStatus status = new OfferSiteStatus(OfferSite.LEHIBOU, NOW.plus(Duration.ofHours(1)));
+        status.setLastRunAt(NOW.minus(Duration.ofMinutes(20)));
+        statuses.saveAndFlush(status);
+        Instant stale = NOW.minus(Duration.ofHours(1));
+
+        assertThat(statuses.requestRefresh(OfferSite.LEHIBOU, NOW, NOW.minus(Duration.ofMinutes(15)), stale)).isEqualTo(1);
+        entityManager.clear();
+        OfferSiteStatus requested = statuses.findById(OfferSite.LEHIBOU).orElseThrow();
+        assertThat(requested.getNextRunAt()).isEqualTo(NOW);
+        assertThat(requested.getRefreshRequestedAt()).isEqualTo(NOW);
+        // Asked for again too soon, or while a run holds it.
+        Instant later = NOW.plus(Duration.ofMinutes(10));
+        assertThat(statuses.requestRefresh(OfferSite.LEHIBOU, later, later.minus(Duration.ofMinutes(15)), stale)).isZero();
+        assertThat(statuses.claim(OfferSite.LEHIBOU, later, stale)).isEqualTo(1);
+        Instant next = NOW.plus(Duration.ofMinutes(20));
+        assertThat(statuses.requestRefresh(OfferSite.LEHIBOU, next, next.minus(Duration.ofMinutes(15)), stale)).isZero();
+        assertThat(statuses.requestRefresh(OfferSite.LEHIBOU, next, next.minus(Duration.ofMinutes(15)), later.plusSeconds(1))).isEqualTo(1);
+        assertThat(statuses.requestRefresh(OfferSite.YEETS, NOW, NOW, stale)).isZero();
+    }
+
+    @Test
+    void keepsEachWorkspacesExcludedSites() {
+        exclusion(OfferSite.YEETS);
+        exclusion(OfferSite.COLLECTIVE);
+
+        assertThat(exclusions.findSitesByFreelanceId(freelance.getId())).containsExactly(OfferSite.COLLECTIVE, OfferSite.YEETS);
+        assertThat(exclusions.existsByFreelanceIdAndSite(freelance.getId(), OfferSite.YEETS)).isTrue();
+        assertThat(exclusions.deleteByFreelanceIdAndSite(freelance.getId(), OfferSite.YEETS)).isEqualTo(1);
+        assertThat(exclusions.existsByFreelanceIdAndSite(freelance.getId(), OfferSite.YEETS)).isFalse();
+        assertThat(exclusions.findSitesByFreelanceId(freelance.getId() + 1)).isEmpty();
+    }
+
+    private void exclusion(OfferSite site) {
+        OfferSiteExclusion exclusion = new OfferSiteExclusion();
+        exclusion.setFreelance(freelance);
+        exclusion.setSite(site);
+        entityManager.persistAndFlush(exclusion);
     }
 
     private JobOffer offer(OfferSite site, String externalId, Instant publishedAt, Instant expiresAt, List<String> skills) {

@@ -167,6 +167,38 @@ export interface OfferSiteInfo {
   openOffers: number;
   lastSuccessAt?: string;
   failing: boolean;
+  /** The workspace keeps the site out of its feed. */
+  excluded?: boolean;
+}
+
+export type OfferSiteStatus = 'OK' | 'FAILING' | 'RUNNING' | 'WAITING';
+
+/** How one job board's collection goes: see the server's OfferSiteHealthDto. */
+export interface OfferSiteHealthEntry {
+  site: OfferSite;
+  name: string;
+  homeUrl: string;
+  status: OfferSiteStatus;
+  lastRunAt?: string | null;
+  lastSuccessAt?: string | null;
+  nextRunAt?: string | null;
+  lastError?: string | null;
+  consecutiveFailures: number;
+  lastFound?: number | null;
+  lastNew?: number | null;
+  collectedDay: number;
+  collectedWeek: number;
+  openOffers: number;
+  newestOfferAt?: string | null;
+  excluded: boolean;
+  /** When it can be read on request again; absent when it can now. */
+  refreshAvailableAt?: string | null;
+}
+
+export interface OfferSiteHealth {
+  sites: OfferSiteHealthEntry[];
+  leftOut: { site: string; name: string; homeUrl: string }[];
+  refreshEnabled: boolean;
 }
 
 export interface OfferFacet {

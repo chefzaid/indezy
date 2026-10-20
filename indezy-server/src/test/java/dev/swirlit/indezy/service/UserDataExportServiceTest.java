@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -45,6 +46,9 @@ class UserDataExportServiceTest {
 
     @Mock
     private SavedOfferSearchService savedOfferSearchService;
+
+    @Mock
+    private OfferSiteHealthService offerSiteHealthService;
 
     @InjectMocks
     private UserDataExportService userDataExportService;
@@ -76,6 +80,7 @@ class UserDataExportServiceTest {
         filters.setQ("kafka");
         when(savedOfferSearchService.export(5L)).thenReturn(List.of(new SavedOfferSearchDto(3L, "Kafka à Paris", filters,
             Instant.parse("2026-10-18T07:00:00Z"), 0)));
+        when(offerSiteHealthService.excludedSites(5L)).thenReturn(Set.of(OfferSite.YEETS));
 
         String json = new String(userDataExportService.exportUserData(1L, 5L), StandardCharsets.UTF_8);
 
@@ -98,6 +103,7 @@ class UserDataExportServiceTest {
             .contains("\"2026-10-19T08:00:00Z\"")
             .contains("\"offerSearches\"")
             .contains("Kafka à Paris")
-            .contains("\"q\" : \"kafka\"");
+            .contains("\"q\" : \"kafka\"")
+            .contains("\"excludedOfferSites\" : [ \"YEETS\" ]");
     }
 }
