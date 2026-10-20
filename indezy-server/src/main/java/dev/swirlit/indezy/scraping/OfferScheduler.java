@@ -19,6 +19,7 @@ public class OfferScheduler {
     private final OfferCollector collector;
     private final OfferRetention retention;
     private final OfferStore store;
+    private final OfferRelocation relocation;
 
     @Scheduled(initialDelayString = "PT1M", fixedDelayString = "${indezy.offers.tick:PT5M}")
     public void collectDueSites() {
@@ -27,7 +28,8 @@ public class OfferScheduler {
 
     /**
      * Groups the copies among offers stored before copies were told apart, keys the publishers of offers stored before
-     * publishers had a key and cleans descriptions stored with markup escaped twice; finds nothing to do once they are.
+     * publishers had a key, cleans descriptions stored with markup escaped twice and locates the offers whose place was not
+     * located when they were read; finds nothing to do once they are.
      */
     @Scheduled(initialDelayString = "PT30S", fixedDelayString = "PT6H")
     public void keyStoredOffers() {
@@ -42,6 +44,10 @@ public class OfferScheduler {
         last = 0L;
         do {
             last = store.cleanStoredDescriptions(last);
+        } while (last != null);
+        last = 0L;
+        do {
+            last = relocation.locateStoredOffers(last);
         } while (last != null);
     }
 

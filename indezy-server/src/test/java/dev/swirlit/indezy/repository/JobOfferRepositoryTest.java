@@ -248,6 +248,20 @@ class JobOfferRepositoryTest {
     }
 
     @Test
+    void findsTheOffersThatNameAPlaceButHaveNoCoordinates() {
+        recent.setCity("Rennes");
+        old.setCity("Bruxelles");
+        old.setCountryCode("BE");
+        expired.setPostalCode("75013");
+        expired.setLatitude(48.83);
+        expired.setLongitude(2.36);
+        entityManager.flush();
+
+        assertThat(offers.findUnlocatedAfter(0L, PageRequest.of(0, 10))).extracting(JobOffer::getExternalId).containsExactly("1");
+        assertThat(offers.findUnlocatedAfter(recent.getId(), PageRequest.of(0, 10))).isEmpty();
+    }
+
+    @Test
     void keepsEachWorkspacesBlockedPublishers() {
         OfferPublisherBlock block = new OfferPublisherBlock();
         block.setFreelance(freelance);

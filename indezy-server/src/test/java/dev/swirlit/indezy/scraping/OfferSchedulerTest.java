@@ -12,7 +12,8 @@ class OfferSchedulerTest {
     private final OfferCollector collector = mock(OfferCollector.class);
     private final OfferRetention retention = mock(OfferRetention.class);
     private final OfferStore store = mock(OfferStore.class);
-    private final OfferScheduler scheduler = new OfferScheduler(collector, retention, store);
+    private final OfferRelocation relocation = mock(OfferRelocation.class);
+    private final OfferScheduler scheduler = new OfferScheduler(collector, retention, store, relocation);
 
     @Test
     void keysStoredOffersBatchAfterBatchUntilOneIsNotFull() {
@@ -20,12 +21,15 @@ class OfferSchedulerTest {
         when(store.keyStoredCompanies(0L)).thenReturn(812L);
         when(store.keyStoredCompanies(812L)).thenReturn(null);
         when(store.cleanStoredDescriptions(0L)).thenReturn(null);
+        when(relocation.locateStoredOffers(0L)).thenReturn(50L);
+        when(relocation.locateStoredOffers(50L)).thenReturn(null);
 
         scheduler.keyStoredOffers();
 
         verify(store, times(3)).keyStoredOffers();
         verify(store).keyStoredCompanies(812L);
         verify(store).cleanStoredDescriptions(0L);
+        verify(relocation).locateStoredOffers(50L);
     }
 
     @Test

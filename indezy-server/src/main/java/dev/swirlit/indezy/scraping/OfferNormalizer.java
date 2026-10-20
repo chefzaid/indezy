@@ -114,6 +114,34 @@ public class OfferNormalizer {
         offer.setRemoteDaysPerWeek(days);
     }
 
+    /**
+     * Locates again a stored offer that names a place but has no coordinates (its lookup failed when it was read, or its
+     * place name could not be read then); whether it has coordinates now. What it knows of its place is only completed.
+     */
+    public boolean relocate(JobOffer offer) {
+        if (offer.getLatitude() != null || offer.getCity() == null && offer.getPostalCode() == null) {
+            return false;
+        }
+        JobOffer located = new JobOffer();
+        applyPlace(located, ScrapedOffer.builder()
+            .city(offer.getCity())
+            .postalCode(offer.getPostalCode())
+            .countryCode(offer.getCountryCode())
+            .departmentName(FrenchGeography.department(offer.getDepartmentCode()).map(Department::name).orElse(null))
+            .regionName(FrenchGeography.region(offer.getRegionCode()).map(FrenchGeography.Region::name).orElse(null))
+            .build());
+        if (located.getLatitude() == null) {
+            return false;
+        }
+        offer.setLatitude(located.getLatitude());
+        offer.setLongitude(located.getLongitude());
+        offer.setDepartmentCode(offer.getDepartmentCode() != null ? offer.getDepartmentCode() : located.getDepartmentCode());
+        offer.setRegionCode(offer.getRegionCode() != null ? offer.getRegionCode() : located.getRegionCode());
+        offer.setCountryCode(located.getCountryCode());
+        offer.setSearchText(searchText(offer));
+        return true;
+    }
+
     private void applyPlace(JobOffer offer, ScrapedOffer scraped) {
         String postalCode = cap(scraped.getPostalCode(), 10);
         String city = cap(scraped.getCity(), 120);

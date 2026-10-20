@@ -161,6 +161,32 @@ class OfferNormalizerTest {
     }
 
     @Test
+    void locatesAStoredOfferWhoseLookupFailedAndKeepsWhatItKnew() {
+        JobOffer stored = new JobOffer();
+        stored.setTitle("Développeur Java");
+        stored.setCity("Rennes");
+        stored.setDepartmentCode("35");
+        when(geoLocator.locate("Rennes", null)).thenReturn(Optional.empty(), Optional.of(new GeoLocator.Place("Rennes", "35", "53", 48.11, -1.68)));
+
+        // The service times out again: nothing changes.
+        assertThat(normalizer.relocate(stored)).isFalse();
+        assertThat(stored.getDepartmentCode()).isEqualTo("35");
+        assertThat(normalizer.relocate(stored)).isTrue();
+        assertThat(stored.getLatitude()).isEqualTo(48.11);
+        assertThat(stored.getRegionCode()).isEqualTo("53");
+        assertThat(stored.getCountryCode()).isEqualTo("FR");
+        assertThat(stored.getSearchText()).contains("rennes", "ille et vilaine");
+        // Already located, or abroad: not looked up.
+        assertThat(normalizer.relocate(stored)).isFalse();
+        JobOffer foreign = new JobOffer();
+        foreign.setCity("Bruxelles");
+        foreign.setCountryCode("BE");
+        assertThat(normalizer.relocate(foreign)).isFalse();
+        assertThat(normalizer.relocate(new JobOffer())).isFalse();
+        verify(geoLocator, never()).locate("Bruxelles", null);
+    }
+
+    @Test
     void readsTheDurationFromTheTitleOrTheDescription() {
         JobOffer fromTitle = normalizer.normalize(OfferSite.COLLECTIVE, base().title("PMO - freelance - 7 mois").build(), NOW).orElseThrow();
         JobOffer fromText = normalizer.normalize(OfferSite.COLLECTIVE,
