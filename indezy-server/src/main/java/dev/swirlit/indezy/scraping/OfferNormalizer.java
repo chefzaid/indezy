@@ -39,18 +39,6 @@ public class OfferNormalizer {
     /** Where a mission's length is looked for when the site gives none. */
     private static final int DURATION_SEARCH_LENGTH = 2_000;
     private static final String PARIS = "75";
-    /** Business districts job boards name instead of their commune, folded. */
-    static final Map<String, String> DISTRICTS = Map.of(
-        "la defense", "Puteaux",
-        "paris la defense", "Puteaux",
-        "sophia antipolis", "Valbonne",
-        "la part dieu", "Lyon",
-        "la plaine saint denis", "Saint-Denis",
-        "saint quentin en yvelines", "Montigny-le-Bretonneux",
-        "porte d ivry", "Paris",
-        "marne la vallee", "Champs-sur-Marne",
-        "euromediterranee", "Marseille",
-        "plateau de saclay", "Saclay");
 
     private final GeoLocator geoLocator;
     private final OfferProperties properties;
@@ -131,9 +119,10 @@ public class OfferNormalizer {
         String city = cap(scraped.getCity(), 120);
         String country = scraped.getCountryCode() == null ? null : scraped.getCountryCode().strip().toUpperCase(Locale.ROOT);
         // Some sites put a department or a region where the city goes ("Hauts-de-Seine", "Île-de-France"); Paris is
-        // both a department and a commune, so it is still located.
-        Optional<Department> cityDepartment = FrenchGeography.departmentNamed(city);
-        Optional<FrenchGeography.Region> cityRegion = FrenchGeography.regionNamed(city);
+        // both a department and a commune, so it is still located. Words around the commune are left aside first.
+        String named = PlaceNames.commune(city);
+        Optional<Department> cityDepartment = FrenchGeography.departmentNamed(named);
+        Optional<FrenchGeography.Region> cityRegion = FrenchGeography.regionNamed(named);
         boolean cityIsArea = cityRegion.isPresent() || cityDepartment.filter(d -> !PARIS.equals(d.code())).isPresent();
         Optional<Department> department = FrenchGeography.departmentOfPostalCode(postalCode)
             .or(() -> FrenchGeography.departmentNamed(scraped.getDepartmentName()))
@@ -146,9 +135,9 @@ public class OfferNormalizer {
         Double latitude = coordinate(scraped.getLatitude(), 90);
         Double longitude = coordinate(scraped.getLongitude(), 180);
         String departmentCode = department.map(Department::code).orElse(null);
-        boolean locatable = city != null && !cityIsArea || postalCode != null;
+        boolean locatable = named != null && !cityIsArea || postalCode != null;
         if ((french || country == null) && (latitude == null || departmentCode == null) && locatable) {
-            String commune = city == null || cityIsArea ? null : DISTRICTS.getOrDefault(TextFolding.words(city), city);
+            String commune = named == null || cityIsArea ? null : named;
             Optional<GeoLocator.Place> place = geoLocator.locate(commune, postalCode);
             if (place.isPresent()) {
                 french = true;

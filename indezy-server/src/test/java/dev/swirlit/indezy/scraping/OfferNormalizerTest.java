@@ -143,6 +143,24 @@ class OfferNormalizerTest {
     }
 
     @Test
+    void locatesTheCommuneAPlaceNamesAmongOtherWords() {
+        when(geoLocator.locate(any(), any())).thenReturn(Optional.empty());
+        when(geoLocator.locate("Paris", null)).thenReturn(Optional.of(new GeoLocator.Place("Paris", "75", "11", 48.8589, 2.347)));
+        when(geoLocator.locate("Toulouse", null)).thenReturn(Optional.of(new GeoLocator.Place("Toulouse", "31", "76", 43.6, 1.44)));
+
+        JobOffer arrondissement = normalizer.normalize(OfferSite.FREELANCE_INFORMATIQUE, base().city("Paris 13ème").build(), NOW).orElseThrow();
+        JobOffer remote = normalizer.normalize(OfferSite.COLLECTIVE, base().city("100% Télétravail (Toulouse)").build(), NOW).orElseThrow();
+        JobOffer region = normalizer.normalize(OfferSite.LEGRATIN, base().city("Île-de-France et remote").build(), NOW).orElseThrow();
+
+        assertThat(arrondissement.getLatitude()).isEqualTo(48.8589);
+        assertThat(arrondissement.getCity()).isEqualTo("Paris 13ème");
+        assertThat(remote.getDepartmentCode()).isEqualTo("31");
+        assertThat(region.getRegionCode()).isEqualTo("11");
+        assertThat(region.getLatitude()).isNull();
+        verify(geoLocator, never()).locate("Île-de-France", null);
+    }
+
+    @Test
     void readsTheDurationFromTheTitleOrTheDescription() {
         JobOffer fromTitle = normalizer.normalize(OfferSite.COLLECTIVE, base().title("PMO - freelance - 7 mois").build(), NOW).orElseThrow();
         JobOffer fromText = normalizer.normalize(OfferSite.COLLECTIVE,
