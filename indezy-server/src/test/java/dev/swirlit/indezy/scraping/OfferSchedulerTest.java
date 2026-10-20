@@ -17,10 +17,13 @@ class OfferSchedulerTest {
     @Test
     void keysStoredOffersBatchAfterBatchUntilOneIsNotFull() {
         when(store.keyStoredOffers()).thenReturn(OfferStore.KEY_BATCH, OfferStore.KEY_BATCH, 12);
+        when(store.keyStoredCompanies(0L)).thenReturn(812L);
+        when(store.keyStoredCompanies(812L)).thenReturn(null);
 
         scheduler.keyStoredOffers();
 
         verify(store, times(3)).keyStoredOffers();
+        verify(store).keyStoredCompanies(812L);
     }
 
     @Test

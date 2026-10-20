@@ -10,6 +10,7 @@ import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.GeoPlaceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
+import dev.swirlit.indezy.repository.OfferPublisherBlockRepository;
 import dev.swirlit.indezy.repository.OfferSiteExclusionRepository;
 import dev.swirlit.indezy.repository.SavedOfferSearchRepository;
 import dev.swirlit.indezy.repository.UserRepository;
@@ -74,6 +75,9 @@ class OfferFeedIntegrationTest {
     @Autowired
     private OfferSiteExclusionRepository exclusions;
 
+    @Autowired
+    private OfferPublisherBlockRepository blocks;
+
     private Account alice;
     private Account bob;
     private JobOffer paris;
@@ -92,6 +96,7 @@ class OfferFeedIntegrationTest {
     void tearDown() {
         savedSearches.deleteAll();
         exclusions.deleteAll();
+        blocks.deleteAll();
         states.deleteAll();
         offers.deleteAll();
     }
@@ -279,6 +284,22 @@ class OfferFeedIntegrationTest {
         ResponseEntity<String> crossOrigin = restTemplate.exchange(url("/offers/sites/health"), HttpMethod.GET, new HttpEntity<>(headers),
             String.class);
         assertThat(crossOrigin.getHeaders().getAccessControlExposeHeaders()).contains("Retry-After");
+    }
+
+    @Test
+    void hidesThePublishersEachWorkspaceBlocks() {
+        ResponseEntity<Map> blocked = call(alice, HttpMethod.POST, "/offers/blocked-publishers", Map.of("name", "EXEMPLE conseil"));
+
+        assertThat(blocked.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(titles(call(alice, HttpMethod.GET, "/offers", null))).containsExactly("Architecte cloud");
+        assertThat(titles(call(bob, HttpMethod.GET, "/offers", null))).containsExactly("Développeur Java Spring", "Architecte cloud");
+        assertThat(call(alice, HttpMethod.GET, "/offers/blocked-publishers", null, List.class).getBody())
+            .isEqualTo(List.of(Map.of("id", blocked.getBody().get("id"), "name", "EXEMPLE conseil")));
+        assertThat(call(bob, HttpMethod.DELETE, "/offers/blocked-publishers/" + blocked.getBody().get("id"), null).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+
+        call(alice, HttpMethod.DELETE, "/offers/blocked-publishers/" + blocked.getBody().get("id"), null);
+        assertThat(titles(call(alice, HttpMethod.GET, "/offers", null))).containsExactly("Développeur Java Spring", "Architecte cloud");
     }
 
     @SuppressWarnings("unchecked")

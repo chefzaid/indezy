@@ -126,7 +126,8 @@ async function mockFeed(page: Page, language: string, matchAvailable = true):
     const filtered = url.searchParams.has('workModes') && !url.searchParams.getAll('workModes').includes('HYBRID');
     const match = (score: number, skills: string[], place: string) => matchAvailable ? { score, skills, rate: 'MEETS', place } : undefined;
     const content = filtered ? [] : [offer(1, { alsoOn: [copy], match: match(80, ['Java', 'Kafka'], 'NEAR') }), offer(2, {
-      title: 'Data engineer Spark', site: 'COLLECTIVE', siteName: 'Collective', rateMin: undefined, rateMax: 700, workMode: 'REMOTE',
+      title: 'Data engineer Spark', company: 'Données & Cie', site: 'COLLECTIVE', siteName: 'Collective', rateMin: undefined, rateMax: 700,
+      workMode: 'REMOTE',
       remoteDaysPerWeek: 5, seen: true, skills: ['Spark'], match: match(40, [], 'REMOTE') })];
     return route.fulfill({ json: { content, page: 0, size: 20, totalElements: content.length, totalPages: 1, distanceAvailable: false,
       matchAvailable } });
@@ -321,4 +322,52 @@ test('reads the job boards on a phone (fr)', async ({ page }) => {
   await page.screenshot({ path: test.info().outputPath('offer-sites-fr-mobile.png'), fullPage: true });
   await page.getByRole('link', { name: 'Retour aux missions' }).click();
   await expect(page).toHaveURL(/\/offers$/);
+});
+
+test('hides a publisher from an offer and shows it again from the profile (en)', async ({ page }) => {
+  await mockFeed(page, 'en');
+  const blocks: { id: number; name: string }[] = [];
+  const calls: string[] = [];
+  await page.route('**/api/offers/blocked-publishers', route => {
+    if (route.request().method() !== 'POST') {
+      return route.fulfill({ json: blocks });
+    }
+    const block = { id: 8 + blocks.length, name: route.request().postDataJSON().name };
+    blocks.push(block);
+    calls.push(`block ${block.name}`);
+    return route.fulfill({ json: block });
+  });
+  await page.route('**/api/offers/blocked-publishers/*', route => {
+    const id = Number(new URL(route.request().url()).pathname.split('/').at(-1));
+    calls.push(`unblock ${id}`);
+    blocks.splice(blocks.findIndex(block => block.id === id), 1);
+    return route.fulfill({ status: 204 });
+  });
+  await page.route('**/api/users/profile', route => route.fulfill({ json: {
+    id: 1, firstName: 'Workspace', lastName: 'Test', email: 'workspace@example.test', targetDailyRate: 600
+  } }));
+  await page.route('**/api/users/security', route => route.fulfill({ json: { twoFactorEnabled: false } }));
+  await page.route('**/api/users/notifications', route => route.fulfill({ json: {} }));
+
+  await page.goto('/offers');
+  const cards = page.locator('app-offer-card');
+  await expect(cards).toHaveCount(2);
+  await cards.first().getByRole('button', { name: 'More actions' }).click();
+  await page.getByRole('menuitem', { name: 'Hide every offer from Exemple Conseil' }).click();
+  await expect(page.getByText('Offers from Exemple Conseil are hidden from your feed. Bring them back from your profile.')).toBeVisible();
+  await expect(cards).toHaveCount(1);
+  await expect(cards.first()).toContainText('Data engineer Spark');
+
+  await page.goto('/profile');
+  await page.getByRole('tab', { name: 'Offer feed' }).click();
+  await expect(page.locator('[data-block="Exemple Conseil"]')).toBeVisible();
+  await page.getByLabel('Intermediary or client').fill('Acme');
+  await page.getByRole('button', { name: 'Hide its offers' }).click();
+  await expect(page.locator('[data-block="Acme"]')).toBeVisible();
+  await page.getByRole('button', { name: 'Show offers from Exemple Conseil again' }).click();
+  await expect(page.locator('[data-block="Exemple Conseil"]')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Choose the job boards of your feed' })).toHaveAttribute('href', '/offers/sites');
+  expect(calls).toEqual(['block Exemple Conseil', 'block Acme', 'unblock 8']);
+  await settle(page);
+  await page.screenshot({ path: test.info().outputPath('blocked-publishers-en.png'), fullPage: true });
 });

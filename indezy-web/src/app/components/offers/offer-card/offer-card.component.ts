@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -19,8 +20,8 @@ const FAIR_MATCH = 35;
 /** One mission of the offer feed and what the workspace can do with it. */
 @Component({
   selector: 'app-offer-card',
-  imports: [DatePipe, RouterModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule,
-    TranslateModule],
+  imports: [DatePipe, RouterModule, MatButtonModule, MatCardModule, MatIconModule, MatMenuModule, MatProgressSpinnerModule,
+    MatTooltipModule, TranslateModule],
   templateUrl: './offer-card.component.html',
   styleUrls: ['./offer-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -37,6 +38,8 @@ export class OfferCardComponent {
   @Output() readonly toggleHidden = new EventEmitter<Offer>();
   @Output() readonly opened = new EventEmitter<Offer>();
   @Output() readonly importOffer = new EventEmitter<Offer>();
+  /** Every offer of this offer's publisher is to leave the feed. */
+  @Output() readonly blockPublisher = new EventEmitter<Offer>();
 
   private readonly locale = inject(LOCALE_ID);
   private readonly translate = inject(TranslateService);

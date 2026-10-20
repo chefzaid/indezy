@@ -32,6 +32,9 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
     /** Offers stored before copies were told apart, which have no copy keys yet. */
     List<JobOffer> findByPublisherKeyIsNullOrderById(Pageable pageable);
 
+    /** Offers stored before publishers had a key, from {@code afterId} on (a name without words never gets one). */
+    List<JobOffer> findByCompanyIsNotNullAndCompanyKeyIsNullAndIdGreaterThanOrderById(Long afterId, Pageable pageable);
+
     /** The offer with its copies on other sites. */
     default List<JobOffer> findCopyGroupOf(JobOffer offer) {
         return offer.getCopyGroup() == null ? List.of(offer) : findByCopyGroupIn(List.of(offer.getCopyGroup()));

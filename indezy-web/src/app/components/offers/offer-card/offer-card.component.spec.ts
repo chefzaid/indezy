@@ -181,6 +181,24 @@ describe('OfferCardComponent', () => {
     expect(element(fixture, '.save-button').getAttribute('aria-pressed')).toBe('false');
   });
 
+  it('hides every offer of the publisher from its menu, when the offer names one', () => {
+    const fixture = create();
+    const blocked: Offer[] = [];
+    fixture.componentInstance.blockPublisher.subscribe(value => blocked.push(value));
+
+    expect(element(fixture, '.more-button').getAttribute('aria-label')).toBe("Plus d'actions");
+    element(fixture, '.more-button').click();
+    fixture.detectChanges();
+    const item = document.querySelector('[data-block-publisher]') as HTMLButtonElement;
+    expect(item.innerText).toContain('Masquer toutes les offres de Exemple Conseil');
+    item.click();
+
+    expect(blocked.map(value => value.id)).toEqual([7]);
+    fixture.componentRef.setInput('offer', offer({ company: undefined }));
+    fixture.detectChanges();
+    expect(element(fixture, '.more-button')).toBeNull();
+  });
+
   it('shows the full description when expanded and links an imported offer to its project', () => {
     const fixture = create(offer({ description: 'Ligne 1\nLigne 2', importedProjectId: 40, saved: true, hidden: true }),
       { expanded: true });

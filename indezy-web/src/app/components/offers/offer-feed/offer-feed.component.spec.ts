@@ -37,7 +37,7 @@ describe('OfferFeedComponent', () => {
                   before: () => void = () => undefined): ComponentFixture<OfferFeedComponent> {
     registerLocaleData(localeFr);
     service = jasmine.createSpyObj('OfferService', ['search', 'get', 'updateState', 'importOffer', 'sites', 'regions', 'skills',
-      'savedSearches', 'alerts', 'market']);
+      'savedSearches', 'alerts', 'market', 'blockPublisher']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     service.search.and.returnValue(of(result));
     service.sites.and.returnValue(of([
@@ -264,6 +264,34 @@ describe('OfferFeedComponent', () => {
 
     expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { q: 'java', rateMin: '600' } }));
     expect(fixture.nativeElement.querySelector('app-offer-saved-searches')).not.toBeNull();
+  });
+
+  it('hides every offer of a publisher the user blocks, whatever the spelling', () => {
+    const fixture = create({}, page([offer(1, { company: 'Exemple Conseil' }), offer(2, { company: 'EXEMPLE-conseil' }),
+      offer(3, { company: 'Acme' })], { totalElements: 30 }));
+    const component = fixture.componentInstance;
+    service.blockPublisher.and.returnValue(of({ id: 8, name: 'Exemple Conseil' }));
+
+    component.blockPublisher(component.page!.content[0]);
+
+    expect(service.blockPublisher).toHaveBeenCalledWith('Exemple Conseil');
+    expect(component.page!.content.map(item => item.id)).toEqual([3]);
+    expect(component.page!.totalElements).toBe(28);
+    expect(notifications.success).toHaveBeenCalledWith('offers.notifications.publisherBlocked', 6000, { publisher: 'Exemple Conseil' });
+    service.blockPublisher.and.returnValue(throwError(() => new Error('down')));
+    component.blockPublisher(component.page!.content[0]);
+    expect(notifications.error).toHaveBeenCalledWith('offers.errors.block');
+    component.blockPublisher(offer(4));
+    expect(service.blockPublisher).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps the saved offers of a blocked publisher in the saved view', () => {
+    const fixture = create({ view: 'SAVED' }, page([offer(1, { company: 'Acme', saved: true })]));
+    service.blockPublisher.and.returnValue(of({ id: 8, name: 'Acme' }));
+
+    fixture.componentInstance.blockPublisher(fixture.componentInstance.page!.content[0]);
+
+    expect(fixture.componentInstance.page!.content.length).toBe(1);
   });
 
   it('links to the job boards and warns when one fails', () => {

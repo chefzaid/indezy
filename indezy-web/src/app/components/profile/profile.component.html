@@ -341,6 +341,14 @@
             </form>
           </div>
         </mat-tab>
+        <!-- Offer Feed Tab -->
+        <mat-tab [label]="'profile.tabs.offers' | translate">
+          <ng-template matTabContent>
+            <div class="tab-content">
+              <app-blocked-publishers />
+            </div>
+          </ng-template>
+        </mat-tab>
         <!-- Account Tab -->
         <mat-tab [label]="'profile.tabs.account' | translate">
           <div class="tab-content">

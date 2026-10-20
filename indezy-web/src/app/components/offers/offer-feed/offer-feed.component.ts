@@ -21,7 +21,8 @@ import {
   OfferSiteInfo,
   OfferSort,
   OfferStateUpdate,
-  OfferView
+  OfferView,
+  publisherKey
 } from '../../../models/offer.models';
 import { OfferService } from '../../../services/offer/offer.service';
 import {
@@ -240,6 +241,26 @@ export class OfferFeedComponent implements OnInit {
           this.notifications.error('offers.errors.import');
         }
       }
+    });
+  }
+
+  /** Hides the publisher's offers everywhere in the feed; the saved and hidden views keep theirs. */
+  blockPublisher(offer: Offer): void {
+    const name = offer.company;
+    if (!name) {
+      return;
+    }
+    this.offerService.blockPublisher(name).subscribe({
+      next: () => {
+        if (this.page && this.query.view === 'FEED') {
+          const key = publisherKey(name);
+          const kept = this.page.content.filter(item => publisherKey(item.company) !== key);
+          this.page = { ...this.page, content: kept, totalElements: this.page.totalElements - (this.page.content.length - kept.length) };
+        }
+        this.notifications.success('offers.notifications.publisherBlocked', 6000, { publisher: name });
+        this.changes.markForCheck();
+      },
+      error: () => this.notifications.error('offers.errors.block')
     });
   }
 

@@ -4,6 +4,7 @@ import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.Seniority;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.util.TextFolding;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -15,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
@@ -37,7 +39,8 @@ import java.util.List;
         @Index(name = "idx_job_offers_department", columnList = "department_code"),
         @Index(name = "idx_job_offers_publisher_key", columnList = "publisher_key"),
         @Index(name = "idx_job_offers_opening_key", columnList = "opening_key"),
-        @Index(name = "idx_job_offers_copy_group", columnList = "copy_group")
+        @Index(name = "idx_job_offers_copy_group", columnList = "copy_group"),
+        @Index(name = "idx_job_offers_company_key", columnList = "company_key")
     })
 @Getter
 @Setter
@@ -60,6 +63,11 @@ public class JobOffer extends BaseEntity {
     /** Who published the offer: the intermediary (ESN, agency) or the client. */
     @Column(name = "company", length = 200)
     private String company;
+
+    /** The publisher's words folded ({@link #companyKeyOf}), set with it: what a workspace's blocklist matches. */
+    @Setter(AccessLevel.NONE)
+    @Column(name = "company_key", length = 200)
+    private String companyKey;
 
     /** Plain text: the site's HTML is never stored. */
     @Column(name = "description", columnDefinition = "TEXT")
@@ -158,7 +166,7 @@ public class JobOffer extends BaseEntity {
     public void updateFrom(JobOffer collected) {
         url = collected.url;
         title = collected.title;
-        company = collected.company;
+        setCompany(collected.company);
         description = collected.description;
         rateMin = collected.rateMin;
         rateMax = collected.rateMax;
@@ -192,6 +200,17 @@ public class JobOffer extends BaseEntity {
             publishedAt = collected.publishedAt;
             datePrecision = collected.datePrecision;
         }
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+        this.companyKey = companyKeyOf(company);
+    }
+
+    /** How publishers are told apart: case, accents and punctuation aside; {@code null} for a name without words. */
+    public static String companyKeyOf(String company) {
+        String folded = TextFolding.words(company);
+        return folded == null || folded.isEmpty() ? null : folded;
     }
 
     public List<String> getSkills() {

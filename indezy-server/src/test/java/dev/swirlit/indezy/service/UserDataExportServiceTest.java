@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.ActivityDayDto;
 import dev.swirlit.indezy.dto.ActivityReportDto;
+import dev.swirlit.indezy.dto.OfferPublisherBlockDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.OfferStateExportDto;
 import dev.swirlit.indezy.dto.ProjectDto;
@@ -50,6 +51,9 @@ class UserDataExportServiceTest {
     @Mock
     private OfferSiteHealthService offerSiteHealthService;
 
+    @Mock
+    private OfferPublisherBlockService offerPublisherBlockService;
+
     @InjectMocks
     private UserDataExportService userDataExportService;
 
@@ -81,6 +85,7 @@ class UserDataExportServiceTest {
         when(savedOfferSearchService.export(5L)).thenReturn(List.of(new SavedOfferSearchDto(3L, "Kafka à Paris", filters,
             Instant.parse("2026-10-18T07:00:00Z"), 0)));
         when(offerSiteHealthService.excludedSites(5L)).thenReturn(Set.of(OfferSite.YEETS));
+        when(offerPublisherBlockService.list(5L)).thenReturn(List.of(new OfferPublisherBlockDto(8L, "Exemple Conseil")));
 
         String json = new String(userDataExportService.exportUserData(1L, 5L), StandardCharsets.UTF_8);
 
@@ -104,6 +109,8 @@ class UserDataExportServiceTest {
             .contains("\"offerSearches\"")
             .contains("Kafka à Paris")
             .contains("\"q\" : \"kafka\"")
-            .contains("\"excludedOfferSites\" : [ \"YEETS\" ]");
+            .contains("\"excludedOfferSites\" : [ \"YEETS\" ]")
+            .contains("\"blockedOfferPublishers\"")
+            .contains("\"name\" : \"Exemple Conseil\"");
     }
 }

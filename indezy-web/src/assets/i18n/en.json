@@ -662,6 +662,7 @@
       "security": "Security",
       "preferences": "Preferences",
       "notifications": "Notifications",
+      "offers": "Offer feed",
       "account": "Account"
     },
     "themes": {
@@ -707,6 +708,17 @@
       "passwordMinLength": "Password must be at least 8 characters",
       "confirmRequired": "Password confirmation is required",
       "passwordMismatch": "Passwords do not match"
+    },
+    "blockedPublishers": {
+      "title": "Hidden publishers",
+      "intro": "Their offers stay out of your feed, saved searches and market snapshot, whatever the spelling. Hide one from the menu of any of its offers, or by its name here.",
+      "name": "Intermediary or client",
+      "add": "Hide its offers",
+      "remove": "Show offers from {{publisher}} again",
+      "empty": "No publisher hidden.",
+      "loadError": "The hidden publishers could not be loaded.",
+      "unblocked": "Offers from {{publisher}} are back in your feed",
+      "sites": "Choose the job boards of your feed"
     }
   },
   "errors": {
@@ -1026,10 +1038,12 @@
       "details": "The offer's details could not be loaded.",
       "import": "The offer could not be added to the pipeline.",
       "alreadyImported": "This offer is already in your pipeline.",
-      "state": "The change could not be saved."
+      "state": "The change could not be saved.",
+      "block": "The publisher could not be hidden."
     },
     "notifications": {
-      "imported": "“{{role}}” added to the pipeline (Contact stage)"
+      "imported": "“{{role}}” added to the pipeline (Contact stage)",
+      "publisherBlocked": "Offers from {{publisher}} are hidden from your feed. Bring them back from your profile."
     },
     "seniority": {
       "JUNIOR": "Junior",
@@ -1066,7 +1080,9 @@
       "unhide": "Show the offer again",
       "alsoOn": "Also on",
       "inPipeline": "In the pipeline",
-      "import": "Add to pipeline"
+      "import": "Add to pipeline",
+      "moreActions": "More actions",
+      "blockPublisher": "Hide every offer from {{publisher}}"
     },
     "match": {
       "score": "{{score}}%",

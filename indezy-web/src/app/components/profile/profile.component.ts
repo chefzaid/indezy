@@ -16,6 +16,7 @@ import { UserProfile, UserPreferences, UserNotificationSettings, PasswordChangeR
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-info.component';
+import { BlockedPublishersComponent } from './blocked-publishers/blocked-publishers.component';
 import { LANGUAGE_STORAGE_KEY, getSavedLanguage } from '../../shared/locale/app-locale';
 import { ThemeService } from '../../shared/theme/theme.service';
 import { passwordMaxBytes } from '../../shared/utils/password-max-bytes';
@@ -37,7 +38,8 @@ import { saveBlob } from '../../shared/utils/download-file';
     MatProgressSpinnerModule,
     MatDividerModule,
     TranslateModule,
-    ProfilePersonalInfoComponent
+    ProfilePersonalInfoComponent,
+    BlockedPublishersComponent
 ],
     templateUrl: './profile.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,

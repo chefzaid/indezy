@@ -48,6 +48,22 @@ describe('OfferService', () => {
     refresh.flush({ site: 'YEETS', refreshAvailableAt: '2026-10-19T10:15:00Z' });
   });
 
+  it('lists, blocks and unblocks the publishers the workspace hides', () => {
+    service.blockedPublishers().subscribe();
+    http.expectOne(`${api}/blocked-publishers`).flush([]);
+
+    service.blockPublisher('Acme').subscribe();
+    const block = http.expectOne(`${api}/blocked-publishers`);
+    expect(block.request.method).toBe('POST');
+    expect(block.request.body).toEqual({ name: 'Acme' });
+    block.flush({ id: 9, name: 'Acme' });
+
+    service.unblockPublisher(9).subscribe();
+    const unblock = http.expectOne(`${api}/blocked-publishers/9`);
+    expect(unblock.request.method).toBe('DELETE');
+    unblock.flush(null);
+  });
+
   it('describes the market of the offers a query finds', () => {
     service.market({ ...defaultOfferQuery(), q: 'java', workModes: ['REMOTE'] }).subscribe();
 

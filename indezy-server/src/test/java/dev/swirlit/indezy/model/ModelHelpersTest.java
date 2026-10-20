@@ -11,6 +11,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ModelHelpersTest {
 
     @Nested
+    class JobOfferTest {
+
+        @Test
+        void keysThePublisherWithItsName() {
+            JobOffer offer = new JobOffer();
+            offer.setCompany("  Exemple-Conseil ");
+
+            assertThat(offer.getCompanyKey()).isEqualTo("exemple conseil");
+            JobOffer collected = new JobOffer();
+            collected.setCompany("Données & Cie");
+            offer.updateFrom(collected);
+            assertThat(offer.getCompanyKey()).isEqualTo("donnees cie");
+            assertThat(JobOffer.companyKeyOf("Ésn  Éclair")).isEqualTo("esn eclair");
+            assertThat(JobOffer.companyKeyOf(" — ")).isNull();
+            assertThat(JobOffer.companyKeyOf(null)).isNull();
+        }
+    }
+
+    @Nested
     class ContactTest {
 
         @Test

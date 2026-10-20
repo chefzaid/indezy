@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
+import dev.swirlit.indezy.model.OfferPublisherBlock;
 import dev.swirlit.indezy.model.OfferSiteExclusion;
 import dev.swirlit.indezy.model.OfferSiteStatus;
 import dev.swirlit.indezy.model.OfferSkip;
@@ -51,6 +52,9 @@ class JobOfferRepositoryTest {
 
     @Autowired
     private OfferSiteExclusionRepository exclusions;
+
+    @Autowired
+    private OfferPublisherBlockRepository blocks;
 
     private Freelance freelance;
     private JobOffer recent;
@@ -215,6 +219,35 @@ class JobOfferRepositoryTest {
         assertThat(exclusions.deleteByFreelanceIdAndSite(freelance.getId(), OfferSite.YEETS)).isEqualTo(1);
         assertThat(exclusions.existsByFreelanceIdAndSite(freelance.getId(), OfferSite.YEETS)).isFalse();
         assertThat(exclusions.findSitesByFreelanceId(freelance.getId() + 1)).isEmpty();
+    }
+
+    @Test
+    void findsTheOffersStoredBeforePublishersHadAKey() {
+        recent.setCompany("Celad");
+        old.setCompany("Exemple Conseil");
+        entityManager.flush();
+        entityManager.getEntityManager().createNativeQuery("update job_offers set company_key = null").executeUpdate();
+        entityManager.clear();
+
+        assertThat(offers.findByCompanyIsNotNullAndCompanyKeyIsNullAndIdGreaterThanOrderById(0L, PageRequest.of(0, 10)))
+            .extracting(JobOffer::getExternalId).containsExactly("1", "2");
+        assertThat(offers.findByCompanyIsNotNullAndCompanyKeyIsNullAndIdGreaterThanOrderById(recent.getId(), PageRequest.of(0, 10)))
+            .extracting(JobOffer::getExternalId).containsExactly("2");
+    }
+
+    @Test
+    void keepsEachWorkspacesBlockedPublishers() {
+        OfferPublisherBlock block = new OfferPublisherBlock();
+        block.setFreelance(freelance);
+        block.setName("Exemple Conseil");
+        block.setPublisherKey("exemple conseil");
+        entityManager.persistAndFlush(block);
+
+        assertThat(blocks.findByFreelanceIdAndPublisherKey(freelance.getId(), "exemple conseil")).isPresent();
+        assertThat(blocks.findByIdAndFreelanceId(block.getId(), freelance.getId() + 1)).isEmpty();
+        assertThat(blocks.findByFreelanceIdOrderByNameAsc(freelance.getId())).extracting(OfferPublisherBlock::getName)
+            .containsExactly("Exemple Conseil");
+        assertThat(blocks.countByFreelanceId(freelance.getId())).isEqualTo(1);
     }
 
     private void exclusion(OfferSite site) {

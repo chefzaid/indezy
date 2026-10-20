@@ -1,0 +1,65 @@
+:host {
+  display: block;
+}
+
+.intro,
+.muted {
+  color: var(--app-text-muted);
+}
+
+.add-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  mat-form-field {
+    flex: 1 1 260px;
+  }
+}
+
+.blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 4px 0 12px;
+    border-radius: 8px;
+    background: var(--app-subtle);
+
+    &.muted {
+      background: none;
+      padding-left: 0;
+    }
+  }
+
+  .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.sites-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: var(--app-text-muted);
+  }
+}

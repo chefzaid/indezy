@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
+import dev.swirlit.indezy.model.OfferPublisherBlock;
 import dev.swirlit.indezy.model.OfferSiteExclusion;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
@@ -225,6 +226,23 @@ class JobOfferSpecificationsTest {
         assertThat(search(request(), alice.getId())).containsExactly("java", "lyon", "unknown");
         assertThat(search(request(r -> r.setView(OfferSearchRequest.View.SAVED)), alice.getId())).containsExactly("courbevoie");
         assertThat(search(request(), null)).containsExactly("java-copy", "courbevoie", "lyon", "unknown");
+    }
+
+    @Test
+    void leavesTheOffersOfPublishersAWorkspaceBlockedOutOfItsFeedOnly() {
+        Map<String, String> publishers = Map.of("java", "Exemple Conseil", "lyon", "EXEMPLE-conseil", "courbevoie", "Données & Cie");
+        repository.findAll().forEach(offer -> offer.setCompany(publishers.get(offer.getExternalId())));
+        state("lyon", true, false, null);
+        OfferPublisherBlock block = new OfferPublisherBlock();
+        block.setFreelance(alice);
+        block.setName("Exemple Conseil");
+        block.setPublisherKey("exemple conseil");
+        entityManager.persistAndFlush(block);
+
+        // Both spellings of the publisher are left out.
+        assertThat(search(request(), alice.getId())).containsExactly("courbevoie", "unknown");
+        assertThat(search(request(r -> r.setView(OfferSearchRequest.View.SAVED)), alice.getId())).containsExactly("lyon");
+        assertThat(search(request(), null)).containsExactly("java", "courbevoie", "lyon", "unknown");
     }
 
     @Test

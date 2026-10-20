@@ -1,0 +1,43 @@
+<mat-card class="form-section">
+  <mat-card-header>
+    <mat-card-title>{{ 'profile.blockedPublishers.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="intro">{{ 'profile.blockedPublishers.intro' | translate }}</p>
+    <form class="add-form" (ngSubmit)="add()">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'profile.blockedPublishers.name' | translate }}</mat-label>
+        <input matInput name="publisher" [(ngModel)]="name" maxlength="200" autocomplete="off">
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="submit" [disabled]="!canAdd">
+        <mat-icon>block</mat-icon>
+        {{ 'profile.blockedPublishers.add' | translate }}
+      </button>
+    </form>
+
+    @if (loading) {
+      <mat-spinner diameter="28"></mat-spinner>
+    } @else if (failed) {
+      <p class="muted" role="alert">{{ 'profile.blockedPublishers.loadError' | translate }}</p>
+    } @else {
+      <ul class="blocks" [attr.aria-label]="'profile.blockedPublishers.title' | translate">
+        @for (block of blocks; track block.id) {
+          <li [attr.data-block]="block.name">
+            <span class="name">{{ block.name }}</span>
+            <button mat-icon-button type="button" (click)="remove(block)"
+              [attr.aria-label]="'profile.blockedPublishers.remove' | translate: { publisher: block.name }">
+              <mat-icon>close</mat-icon>
+            </button>
+          </li>
+        } @empty {
+          <li class="muted" data-blocks-empty>{{ 'profile.blockedPublishers.empty' | translate }}</li>
+        }
+      </ul>
+    }
+
+    <p class="sites-hint">
+      <mat-icon aria-hidden="true">monitor_heart</mat-icon>
+      <a routerLink="/offers/sites">{{ 'profile.blockedPublishers.sites' | translate }}</a>
+    </p>
+  </mat-card-content>
+</mat-card>

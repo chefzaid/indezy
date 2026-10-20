@@ -106,7 +106,8 @@
             <li>
               <app-offer-card [offer]="offer" [expanded]="expanded.has(offer.id)" [loadingDetails]="loadingDetails.has(offer.id)"
                 [importing]="importing.has(offer.id)" (toggleDetails)="toggleDetails($event)" (toggleSaved)="toggleSaved($event)"
-                (toggleHidden)="toggleHidden($event)" (opened)="opened($event)" (importOffer)="importOffer($event)">
+                (toggleHidden)="toggleHidden($event)" (opened)="opened($event)" (importOffer)="importOffer($event)"
+                (blockPublisher)="blockPublisher($event)">
               </app-offer-card>
             </li>
           }

@@ -78,6 +78,17 @@ public class OfferStore {
     }
 
     /**
+     * Gives up to {@value #KEY_BATCH} offers stored before publishers had a key, after {@code afterId}, their publisher's
+     * key; returns the last offer looked at, or {@code null} when none was left.
+     */
+    @Transactional
+    public Long keyStoredCompanies(Long afterId) {
+        List<JobOffer> unkeyed = offers.findByCompanyIsNotNullAndCompanyKeyIsNullAndIdGreaterThanOrderById(afterId, PageRequest.of(0, KEY_BATCH));
+        unkeyed.forEach(offer -> offer.setCompany(offer.getCompany()));
+        return unkeyed.isEmpty() ? null : unkeyed.getLast().getId();
+    }
+
+    /**
      * Puts an offer in one group with its copies on other sites, merging the groups they were in; the group is named
      * after its smallest offer id, so it does not change as copies join.
      */

@@ -116,6 +116,18 @@
       [matTooltip]="(offer.hidden ? 'offers.card.unhide' : 'offers.card.hide') | translate">
       <mat-icon>{{ offer.hidden ? 'visibility' : 'visibility_off' }}</mat-icon>
     </button>
+    @if (offer.company) {
+      <button mat-icon-button type="button" class="more-button" [matMenuTriggerFor]="moreActions"
+        [attr.aria-label]="'offers.card.moreActions' | translate" [matTooltip]="'offers.card.moreActions' | translate">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #moreActions="matMenu" xPosition="before">
+        <button mat-menu-item type="button" (click)="blockPublisher.emit(offer)" data-block-publisher>
+          <mat-icon>block</mat-icon>
+          <span>{{ 'offers.card.blockPublisher' | translate: { publisher: offer.company } }}</span>
+        </button>
+      </mat-menu>
+    }
     @if (offer.importedProjectId) {
       <a mat-stroked-button class="pipeline-link" [routerLink]="['/projects', offer.importedProjectId]">
         <mat-icon>check_circle</mat-icon>{{ 'offers.card.inPipeline' | translate }}

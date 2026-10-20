@@ -9,6 +9,7 @@ import {
   OfferFacet,
   OfferMarket,
   OfferPage,
+  OfferPublisherBlock,
   OfferQuery,
   OfferRegion,
   OfferSite,
@@ -73,6 +74,19 @@ export class OfferService {
   refreshSite(site: OfferSite): Observable<{ site: OfferSite; refreshAvailableAt: string }> {
     return this.http.post<{ site: OfferSite; refreshAvailableAt: string }>(`${this.API_URL}/sites/${site}/refresh`, null,
       { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
+  blockedPublishers(): Observable<OfferPublisherBlock[]> {
+    return this.http.get<OfferPublisherBlock[]>(`${this.API_URL}/blocked-publishers`);
+  }
+
+  /** Keeps a publisher's offers out of the feed; blocking one already blocked answers that block. */
+  blockPublisher(name: string): Observable<OfferPublisherBlock> {
+    return this.http.post<OfferPublisherBlock>(`${this.API_URL}/blocked-publishers`, { name });
+  }
+
+  unblockPublisher(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/blocked-publishers/${id}`);
   }
 
   regions(): Observable<OfferRegion[]> {

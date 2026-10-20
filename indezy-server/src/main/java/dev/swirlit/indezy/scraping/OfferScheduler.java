@@ -25,13 +25,20 @@ public class OfferScheduler {
         collector.collectDueSites();
     }
 
-    /** Groups the copies among offers stored before copies were told apart; finds nothing to do once they are. */
+    /**
+     * Groups the copies among offers stored before copies were told apart, and keys the publishers of offers stored
+     * before publishers had a key; finds nothing to do once they are.
+     */
     @Scheduled(initialDelayString = "PT30S", fixedDelayString = "PT6H")
     public void keyStoredOffers() {
         int keyed;
         do {
             keyed = store.keyStoredOffers();
         } while (keyed == OfferStore.KEY_BATCH);
+        Long last = 0L;
+        do {
+            last = store.keyStoredCompanies(last);
+        } while (last != null);
     }
 
     @Scheduled(cron = "0 15 4 * * *", zone = "Europe/Paris")

@@ -198,7 +198,7 @@ Increments, implemented in order:
 - [x] Profile match: a match score from the profile's skills, target daily rate and city, shown on each card, as a sort option and as a "matches my profile" filter.
 - [x] Market snapshot for the current filters: offer count, median and quartile daily rates, a daily-rate histogram, the remote split, top skills, top intermediaries and offers published per day.
 - [x] Site health: a page listing each site with its status, last successful run, offers collected over 24 hours and 7 days, active offers and last error, plus the left-out sites and why; a per-workspace switch to exclude a site, and a manual refresh limited to one every 15 minutes.
-- [ ] Workspace blocklist: hide offers from chosen companies or intermediaries everywhere in the feed, managed from the offer card and the profile.
+- [x] Workspace blocklist: hide offers from chosen companies or intermediaries everywhere in the feed, managed from the offer card and the profile.
 
 ## AI & Automation
 

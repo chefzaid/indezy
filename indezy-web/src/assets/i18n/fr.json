@@ -662,6 +662,7 @@
       "security": "Sécurité",
       "preferences": "Préférences",
       "notifications": "Notifications",
+      "offers": "Fil d'offres",
       "account": "Compte"
     },
     "themes": {
@@ -707,6 +708,17 @@
       "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères",
       "confirmRequired": "La confirmation du mot de passe est requise",
       "passwordMismatch": "Les mots de passe ne correspondent pas"
+    },
+    "blockedPublishers": {
+      "title": "Éditeurs masqués",
+      "intro": "Leurs offres restent hors de votre fil, de vos recherches enregistrées et de l'aperçu du marché, quelle que soit l'orthographe. Masquez-en un depuis le menu de l'une de ses offres, ou par son nom ici.",
+      "name": "Intermédiaire ou client",
+      "add": "Masquer ses offres",
+      "remove": "Afficher à nouveau les offres de {{publisher}}",
+      "empty": "Aucun éditeur masqué.",
+      "loadError": "Les éditeurs masqués n'ont pas pu être chargés.",
+      "unblocked": "Les offres de {{publisher}} reviennent dans votre fil",
+      "sites": "Choisir les sites d'offres de votre fil"
     }
   },
   "errors": {
@@ -1026,10 +1038,12 @@
       "details": "Le détail de l'offre n'a pas pu être chargé.",
       "import": "L'offre n'a pas pu être ajoutée au pipeline.",
       "alreadyImported": "Cette offre est déjà dans votre pipeline.",
-      "state": "La modification n'a pas pu être enregistrée."
+      "state": "La modification n'a pas pu être enregistrée.",
+      "block": "L'éditeur n'a pas pu être masqué."
     },
     "notifications": {
-      "imported": "« {{role}} » ajoutée au pipeline (étape Contact)"
+      "imported": "« {{role}} » ajoutée au pipeline (étape Contact)",
+      "publisherBlocked": "Les offres de {{publisher}} sont masquées de votre fil. Rétablissez-les depuis votre profil."
     },
     "seniority": {
       "JUNIOR": "Junior",
@@ -1066,7 +1080,9 @@
       "unhide": "Réafficher l'offre",
       "alsoOn": "Aussi sur",
       "inPipeline": "Dans le pipeline",
-      "import": "Ajouter au pipeline"
+      "import": "Ajouter au pipeline",
+      "moreActions": "Plus d'actions",
+      "blockPublisher": "Masquer toutes les offres de {{publisher}}"
     },
     "match": {
       "score": "{{score}} %",

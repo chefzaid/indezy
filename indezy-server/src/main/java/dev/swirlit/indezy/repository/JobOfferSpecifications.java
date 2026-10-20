@@ -3,6 +3,7 @@ package dev.swirlit.indezy.repository;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
+import dev.swirlit.indezy.model.OfferPublisherBlock;
 import dev.swirlit.indezy.model.OfferSiteExclusion;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.util.TextFolding;
@@ -120,6 +121,7 @@ public final class JobOfferSpecifications {
             if (freelanceId != null) {
                 predicates.add(cb.not(state(freelanceId, root, query, cb, state -> cb.isTrue(state.get("hidden")))));
                 predicates.add(cb.not(excludedSite(freelanceId, root, query, cb)));
+                predicates.add(cb.not(blockedPublisher(freelanceId, root, query, cb)));
             }
         } else if (freelanceId == null) {
             predicates.add(cb.disjunction());
@@ -217,6 +219,15 @@ public final class JobOfferSpecifications {
         exclusion.select(excluded.get("id")).where(cb.equal(excluded.get("freelance").get("id"), freelanceId),
             cb.equal(excluded.get("site"), root.get("site")));
         return cb.exists(exclusion);
+    }
+
+    /** The offer's publisher is one the workspace blocked. */
+    private static Predicate blockedPublisher(Long freelanceId, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
+        Subquery<Long> block = query.subquery(Long.class);
+        Root<OfferPublisherBlock> blocked = block.from(OfferPublisherBlock.class);
+        block.select(blocked.get("id")).where(cb.equal(blocked.get("freelance").get("id"), freelanceId),
+            cb.equal(blocked.get("publisherKey"), root.get("companyKey")));
+        return cb.exists(block);
     }
 
     /**

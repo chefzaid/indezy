@@ -233,6 +233,17 @@ export interface OfferRegion {
   departments: { departmentCode: string; name: string }[];
 }
 
+/** A publisher the workspace keeps out of its feed. */
+export interface OfferPublisherBlock {
+  id: number;
+  name: string;
+}
+
+/** How publishers are told apart, as the server does: case, accents and punctuation aside. */
+export function publisherKey(name: string | undefined | null): string {
+  return (name ?? '').normalize('NFD').replace(/\p{M}+/gu, '').toLowerCase().replace(/[^\p{L}\p{N}+#.]+/gu, ' ').trim();
+}
+
 export function emptyOfferFilters(): OfferFilters {
   return { regions: [], departments: [], workModes: [], sites: [], seniorities: [], skills: [] };
 }

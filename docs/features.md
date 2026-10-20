@@ -198,7 +198,8 @@ marked **New**.
   duration, description, skills as tech stack and link. Its client is the offer's publisher (created as an ESN or
   intermediary when the workspace has no client of that name; the site itself when the offer names none), and its
   source is the job board: the workspace's source named after the site, created as a job board on first import. An
-  offer is added once; the card then links to its opportunity, until that opportunity is deleted.
+  offer is added once; the card then links to its opportunity, until that opportunity is deleted. The card's
+  **More actions** menu also hides every offer from its publisher (see the blocklist below).
 - **One card per mission**: boards republish each other's missions (WorkDispo republishes Cherry Pick, Collective.work
   and Free-Work republish Mon Consultant Indépendant, ESNs post on several boards), so offers of different sites whose
   titles read the same and whose publisher or opening text is the same are one mission. The feed shows its earliest
@@ -214,6 +215,12 @@ marked **New**.
   **Offers** item of the menu carries a badge with the offers new for any saved search, counted again every five
   minutes and after each change; a failed count is not reported.
 
+- **Blocklist**: **Hide every offer from …** in an offer's menu, or a name typed in the profile's **Offer feed** tab,
+  keeps a publisher's offers (an intermediary's or a client's) out of the workspace's feed, saved searches' new offers
+  and market snapshot, whatever the spelling (case, accents and punctuation aside: "EXEMPLE-conseil" is "Exemple
+  Conseil"); a copy of the mission from another publisher then stands for it, and saved or hidden offers stay in
+  their views. The tab lists the hidden publishers, each with a button to show its offers again, up to 200 per
+  workspace, and links to **Job boards**. The list is private to the workspace and part of the account data export.
 - **Market snapshot**: **Market** opens, above the offers, a picture of the offers the current filters and view find
   (each mission once), drawn again when they change but not for another page or sort, and left open or closed in that
   browser. It gives the offer count, the median daily rate, the middle half of the rates (first to third quartile)
@@ -229,7 +236,9 @@ marked **New**.
 API: `GET /offers` (filters, `matchesProfile`, `view`, `sort` = `NEWEST`, `RATE`, `DISTANCE` or `MATCH`, `page`,
 `size`), `GET /offers/market` (the same filters and view), `GET /offers/{id}`, `PUT /offers/{id}/state`, `POST /offers/{id}/import`, `GET /offers/sites`,
 `GET /offers/skills?q=`, `GET /offers/regions`, the site health (`GET /offers/sites/health`,
-`PUT /offers/sites/{site}/exclusion`, `POST /offers/sites/{site}/refresh`) and the saved searches: `GET /offers/searches`, `POST /offers/searches`,
+`PUT /offers/sites/{site}/exclusion`, `POST /offers/sites/{site}/refresh`), the blocklist (`GET /offers/blocked-publishers`,
+`POST /offers/blocked-publishers` with a `name`, which answers the existing block for a name read the same, and
+`DELETE /offers/blocked-publishers/{id}`) and the saved searches: `GET /offers/searches`, `POST /offers/searches`,
 `POST /offers/searches/{id}/open`, `DELETE /offers/searches/{id}` and `GET /offers/searches/alerts`. Each offer carries
 its `match` (score, skills, rate and place fit) and each page says whether distances (`distanceAvailable`) and matches
 (`matchAvailable`) can be computed.

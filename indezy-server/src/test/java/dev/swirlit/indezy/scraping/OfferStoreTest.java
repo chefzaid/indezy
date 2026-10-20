@@ -8,6 +8,7 @@ import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.OfferSkipRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.util.List;
@@ -104,6 +105,24 @@ class OfferStoreTest {
         assertThat(stored.getPublisherKey()).isEqualTo(OfferFingerprint.publisherKey(OfferSite.FREE_WORK, "Architecte cloud", "Celad"));
         assertThat(untitled.getPublisherKey()).isNull();
         verify(offers).findCopyCandidates(OfferSite.FREE_WORK, stored.getPublisherKey(), null);
+    }
+
+    @Test
+    void keysThePublishersOfOffersStoredBeforeTheyHadAKeyBatchAfterBatch() {
+        JobOffer stored = offer("2", "Architecte cloud", OfferDatePrecision.EXACT, null);
+        stored.setId(4L);
+        stored.setCompany("Celad");
+        ReflectionTestUtils.setField(stored, "companyKey", null);
+        JobOffer wordless = offer("3", "Architecte", OfferDatePrecision.EXACT, null);
+        wordless.setId(9L);
+        wordless.setCompany("—");
+        when(offers.findByCompanyIsNotNullAndCompanyKeyIsNullAndIdGreaterThanOrderById(eq(0L), any())).thenReturn(List.of(stored, wordless));
+
+        assertThat(store.keyStoredCompanies(0L)).isEqualTo(9L);
+        assertThat(stored.getCompanyKey()).isEqualTo("celad");
+        assertThat(wordless.getCompanyKey()).isNull();
+        // The next batch starts after the last offer looked at, so names without words are not read again.
+        assertThat(store.keyStoredCompanies(9L)).isNull();
     }
 
     @Test
