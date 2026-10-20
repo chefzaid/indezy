@@ -1,0 +1,40 @@
+<div class="offer-link" data-offer-link>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="link-field">
+    <mat-label>{{ 'projects.offerLink.label' | translate }}</mat-label>
+    <mat-icon matPrefix aria-hidden="true">link</mat-icon>
+    <!-- Enter looks the link up instead of submitting the project form around the field. -->
+    <input matInput #linkInput type="url" inputmode="url" autocomplete="off" maxlength="2000" [formControl]="link"
+      [placeholder]="'projects.offerLink.placeholder' | translate" (keydown.enter)="$event.preventDefault(); fill()" data-link-input>
+    <mat-hint>{{ 'projects.offerLink.hint' | translate }}</mat-hint>
+    @if (link.hasError('required')) {
+      <mat-error>{{ 'projects.offerLink.required' | translate }}</mat-error>
+    }
+  </mat-form-field>
+  <button mat-stroked-button color="primary" type="button" class="fill-button" (click)="fill()" [disabled]="busy" data-fill-from-link>
+    @if (busy) {
+      <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
+    } @else {
+      <mat-icon>auto_fix_high</mat-icon>
+    }
+    {{ 'projects.offerLink.fill' | translate }}
+  </button>
+</div>
+<div class="link-status" role="status" aria-live="polite" data-link-status>
+  @if (readingSite) {
+    <p class="reading">{{ 'projects.offerLink.reading' | translate: { site: readingSite } }}</p>
+  }
+  @if (message; as shown) {
+    <p [class]="shown.tone">
+      <mat-icon aria-hidden="true">{{ shown.tone === 'success' ? 'check_circle' : 'info' }}</mat-icon>
+      <span>
+        {{ shown.key | translate: { site: shown.site, sites: shown.sites, title: shown.title, time: (shown.at | date: 'shortTime') } }}
+        @if (shown.projectId) {
+          <a [routerLink]="['/projects', shown.projectId]" data-open-project>{{ 'projects.offerLink.openProject' | translate }}</a>
+        }
+      </span>
+    </p>
+    @if (shown.expired) {
+      <p class="problem"><mat-icon aria-hidden="true">event_busy</mat-icon><span>{{ 'projects.offerLink.expired' | translate }}</span></p>
+    }
+  }
+</div>

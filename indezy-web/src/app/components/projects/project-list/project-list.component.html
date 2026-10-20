@@ -11,6 +11,10 @@
           <mat-icon>download</mat-icon>
           {{ 'projects.exportSummary' | translate }}
         </button>
+        <a mat-stroked-button routerLink="/projects/new" [queryParams]="{ from: 'link' }" data-from-offer-link>
+          <mat-icon>link</mat-icon>
+          {{ 'projects.offerLink.fromLink' | translate }}
+        </a>
         <button mat-raised-button color="primary" routerLink="/projects/new">
           <mat-icon>add</mat-icon>
           {{ 'projects.newProject' | translate }}

@@ -22,6 +22,7 @@ import java.util.Map;
 public class NextMondaysReader extends DetailPagesReader {
 
     static final String SITEMAP = "https://nextmondays.com/sitemap-jobs.xml";
+    private static final String JOBS = "/jobs/";
 
     @Override
     public OfferSite site() {
@@ -35,9 +36,16 @@ public class NextMondaysReader extends DetailPagesReader {
 
     @Override
     List<Entry> entries(PageFetcher fetcher) throws IOException, InterruptedException {
-        return Sitemaps.read(fetcher, SITEMAP, url -> url.contains("/jobs/")).stream()
-            .map(page -> new Entry(page.url(), page.url().substring(page.url().lastIndexOf('/') + 1), page.lastModified()))
+        return Sitemaps.read(fetcher, SITEMAP, url -> externalId(url) != null).stream()
+            .map(page -> new Entry(page.url(), externalId(page.url()), page.lastModified()))
             .toList();
+    }
+
+    /** A job's page ends with its identifier: {@code /jobs/<title>/<id>}. */
+    @Override
+    String externalId(String url) {
+        String id = url.substring(url.lastIndexOf('/') + 1);
+        return url.contains(JOBS) && !id.isBlank() ? id : null;
     }
 
     @Override

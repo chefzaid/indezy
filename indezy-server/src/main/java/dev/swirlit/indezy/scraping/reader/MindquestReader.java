@@ -48,12 +48,18 @@ public class MindquestReader extends DetailPagesReader {
         List<Entry> entries = new ArrayList<>();
         // The sitemap also lists the search pages; only mission pages carry an identifier.
         for (Sitemaps.Entry page : Sitemaps.read(fetcher, SITEMAP, url -> true)) {
-            Matcher mission = MISSION.matcher(page.url());
-            if (mission.find()) {
-                entries.add(new Entry(page.url(), mission.group(1), page.lastModified()));
+            String id = externalId(page.url());
+            if (id != null) {
+                entries.add(new Entry(page.url(), id, page.lastModified()));
             }
         }
         return entries;
+    }
+
+    @Override
+    String externalId(String url) {
+        Matcher mission = MISSION.matcher(url);
+        return mission.find() ? mission.group(1) : null;
     }
 
     @Override

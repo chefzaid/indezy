@@ -46,9 +46,14 @@ public class WorkDispoReader extends DetailPagesReader {
 
     @Override
     List<Entry> entries(PageFetcher fetcher) throws IOException, InterruptedException {
-        return Sitemaps.read(fetcher, SITEMAP, url -> url.contains(JOB_PATH)).stream()
-            .map(page -> new Entry(page.url(), page.url().substring(page.url().indexOf(JOB_PATH) + JOB_PATH.length()), page.lastModified()))
+        return Sitemaps.read(fetcher, SITEMAP, url -> externalId(url) != null).stream()
+            .map(page -> new Entry(page.url(), externalId(page.url()), page.lastModified()))
             .toList();
+    }
+
+    @Override
+    String externalId(String url) {
+        return after(url, JOB_PATH);
     }
 
     @Override

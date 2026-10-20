@@ -9,6 +9,7 @@ import {
   OfferApplicationRequest,
   OfferBulkImport,
   OfferFacet,
+  OfferLink,
   OfferMarket,
   OfferPage,
   OfferPublisherBlock,
@@ -66,8 +67,14 @@ export class OfferService {
     return this.http.post<OfferBulkImport>(`${this.API_URL}/import`, { offerIds });
   }
 
-  importOffer(id: number): Observable<ProjectDto> {
-    return this.http.post<ProjectDto>(`${this.API_URL}/${id}/import`, null);
+  /** Adds an offer to the pipeline as it says or, given `project` (corrected in the project form), as that says. */
+  importOffer(id: number, project?: ProjectDto): Observable<ProjectDto> {
+    return this.http.post<ProjectDto>(`${this.API_URL}/${id}/import`, project ?? null);
+  }
+
+  /** The offer of a pasted link with the opportunity it would make. Errors are the caller's to tell. */
+  resolveLink(url: string): Observable<OfferLink> {
+    return this.http.post<OfferLink>(`${this.API_URL}/link`, { url }, { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
   }
 
   /** Records an application: the mission joins the pipeline (if it has not) with its steps. */

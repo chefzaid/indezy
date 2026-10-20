@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.scraping;
 
 import dev.swirlit.indezy.model.JobOffer;
+import dev.swirlit.indezy.model.enums.OfferLinkStatus;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import org.junit.jupiter.api.Test;
 
@@ -150,8 +151,78 @@ class OfferCollectorTest {
         verify(runs, never()).claim(any(), any());
     }
 
+    @Test
+    void readsOneOfferFromItsLinkAndStoresItAsARunWould() {
+        JobOffer stored = new JobOffer();
+        when(normalizer.normalize(eq(OfferSite.MINDQUEST), any(), eq(NOW))).thenReturn(Optional.of(stored), Optional.empty());
+        OneOfferReader reader = new OneOfferReader(ScrapedOffer.builder().externalId("1").title("Architecte").freelance(true).build());
+        OfferCollector collector = collector(reader);
+
+        assertThat(collector.offerId(OfferSite.MINDQUEST, "https://example.com/1")).contains("1");
+        assertThat(collector.offerId(OfferSite.YEETS, "https://example.com/1")).isEmpty();
+        assertThat(collector.readOne(OfferSite.MINDQUEST, "https://example.com/1")).isEqualTo(OfferLinkStatus.FOUND);
+        verify(store).save(OfferSite.MINDQUEST, List.of(stored));
+        // The same offer, now past its expiry date.
+        assertThat(collector.readOne(OfferSite.MINDQUEST, "https://example.com/1")).isEqualTo(OfferLinkStatus.EXPIRED);
+        verify(store).skip(OfferSite.MINDQUEST, List.of("1"), NOW);
+    }
+
+    @Test
+    void tellsWhyAnOfferReadFromItsLinkStaysOut() {
+        when(normalizer.normalize(eq(OfferSite.MINDQUEST), any(), any())).thenReturn(Optional.empty());
+
+        assertThat(collector(new OneOfferReader(ScrapedOffer.builder().externalId("1").freelance(false).build()))
+            .readOne(OfferSite.MINDQUEST, "https://example.com/1")).isEqualTo(OfferLinkStatus.GONE);
+        assertThat(collector(new OneOfferReader(ScrapedOffer.builder().externalId("1").title("Architecte").freelance(false).build()))
+            .readOne(OfferSite.MINDQUEST, "https://example.com/1")).isEqualTo(OfferLinkStatus.NOT_FREELANCE);
+        assertThat(collector(new OneOfferReader(ScrapedOffer.builder().externalId("1").title("Architecte (CDI)").freelance(true).build()))
+            .readOne(OfferSite.MINDQUEST, "https://example.com/1")).isEqualTo(OfferLinkStatus.NOT_FREELANCE);
+        assertThat(collector(new OneOfferReader(null)).readOne(OfferSite.MINDQUEST, "https://example.com/1")).isEqualTo(OfferLinkStatus.GONE);
+    }
+
+    @Test
+    void tellsASiteThatCouldNotBeReadForOneOffer() {
+        OneOfferReader failing = new OneOfferReader(null) {
+            @Override
+            public Optional<ScrapedOffer> readOne(PageFetcher fetcher, String url) throws IOException {
+                throw new SiteResponseException(0, "robots.txt disallows /1");
+            }
+        };
+        OneOfferReader interrupted = new OneOfferReader(null) {
+            @Override
+            public Optional<ScrapedOffer> readOne(PageFetcher fetcher, String url) throws InterruptedException {
+                throw new InterruptedException();
+            }
+        };
+
+        assertThat(collector(failing).readOne(OfferSite.MINDQUEST, "https://example.com/1")).isEqualTo(OfferLinkStatus.SITE_UNAVAILABLE);
+        assertThat(collector(interrupted).readOne(OfferSite.MINDQUEST, "https://example.com/1")).isEqualTo(OfferLinkStatus.SITE_UNAVAILABLE);
+        assertThat(Thread.interrupted()).isTrue();
+        verify(store, never()).save(any(), anyList());
+    }
+
     private OfferCollector collector(OfferReader reader) {
         return new OfferCollector(List.of(reader), http, normalizer, store, runs, properties, Clock.fixed(NOW, ZoneOffset.UTC));
+    }
+
+    /** A site whose offers are read one by one: {@code offer} for any link, none when it is {@code null}. */
+    private static class OneOfferReader extends PagedReader {
+        private final ScrapedOffer offer;
+
+        OneOfferReader(ScrapedOffer offer) {
+            super(OfferSite.MINDQUEST, false, 0);
+            this.offer = offer;
+        }
+
+        @Override
+        public Optional<String> offerId(String url) {
+            return Optional.of(url.substring(url.lastIndexOf('/') + 1));
+        }
+
+        @Override
+        public Optional<ScrapedOffer> readOne(PageFetcher fetcher, String url) throws IOException, InterruptedException {
+            return Optional.ofNullable(offer);
+        }
     }
 
     /** Hands {@code pages} pages of two offers each, as long as the batch asks for more. */

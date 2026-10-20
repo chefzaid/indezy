@@ -104,6 +104,20 @@ describe('OfferService', () => {
     imported.flush({ id: 40 });
   });
 
+  it('finds the offer of a link quietly and imports it as corrected in the form', () => {
+    service.resolveLink('https://www.free-work.com/fr/mission/1').subscribe();
+    const link = http.expectOne(`${api}/link`);
+    expect(link.request.method).toBe('POST');
+    expect(link.request.body).toEqual({ url: 'https://www.free-work.com/fr/mission/1' });
+    expect(link.request.context.get(SILENT_HTTP_ERRORS)).toBeTrue();
+    link.flush({ status: 'GONE', siteName: 'Free-Work' });
+
+    service.importOffer(7, { role: 'Tech lead Java', dailyRate: 700, clientId: 3 }).subscribe();
+    const imported = http.expectOne(`${api}/7/import`);
+    expect(imported.request.body).toEqual({ role: 'Tech lead Java', dailyRate: 700, clientId: 3 });
+    imported.flush({ id: 41 });
+  });
+
   it('acts on several offers at once', () => {
     service.updateStates([7, 8], { hidden: true }).subscribe();
     const states = http.expectOne(`${api}/states`);

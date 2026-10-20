@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.scraping;
 
 import dev.swirlit.indezy.model.JobOffer;
+import dev.swirlit.indezy.model.enums.OfferLinkStatus;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -82,6 +84,46 @@ public class OfferCollector {
             runs.failed(site, clock.instant(), "Interrupted");
         }
         return new RunResult(batch.pages, batch.found, batch.created);
+    }
+
+    /** The site's identifier of the offer at {@code url}, when its reader can read that offer alone. */
+    public Optional<String> offerId(OfferSite site, String url) {
+        OfferReader reader = readers.get(site);
+        return reader == null ? Optional.empty() : reader.offerId(url);
+    }
+
+    /**
+     * Reads the one offer at {@code url} (see {@link #offerId}) and stores it as a run would, through the same
+     * polite client: {@link OfferLinkStatus#FOUND} when it is in the feed now, otherwise why not; a failure is told,
+     * never thrown.
+     */
+    public OfferLinkStatus readOne(OfferSite site, String url) {
+        OfferReader reader = readers.get(site);
+        try {
+            Optional<ScrapedOffer> read = reader.readOne(http.fetcherFor(reader.domain()), url);
+            if (read.isEmpty()) {
+                return OfferLinkStatus.GONE;
+            }
+            ScrapedOffer scraped = read.get();
+            Instant now = clock.instant();
+            Optional<JobOffer> offer = normalizer.normalize(site, scraped, now);
+            if (offer.isPresent()) {
+                store.save(site, List.of(offer.get()));
+                return OfferLinkStatus.FOUND;
+            }
+            store.skip(site, List.of(scraped.getExternalId()), now);
+            if (scraped.getTitle() == null) {
+                return OfferLinkStatus.GONE;
+            }
+            boolean salaried = !scraped.isFreelance() || OfferText.namesSalariedJob(scraped.getTitle());
+            return salaried ? OfferLinkStatus.NOT_FREELANCE : OfferLinkStatus.EXPIRED;
+        } catch (IOException | RuntimeException e) {
+            log.warn("Reading one offer of {} failed: {}", site, e.getMessage());
+            return OfferLinkStatus.SITE_UNAVAILABLE;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return OfferLinkStatus.SITE_UNAVAILABLE;
+        }
     }
 
     /** One run of a site: normalizes and stores each page, sets aside the offers left out, counts. */

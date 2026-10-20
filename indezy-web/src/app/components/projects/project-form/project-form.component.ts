@@ -15,17 +15,23 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { HttpErrorResponse } from '@angular/common/http';
 import { ProjectService } from '../../../services/project/project.service';
+import { OfferService } from '../../../services/offer/offer.service';
 import { ClientService } from '../../../services/client/client.service';
 import { SourceService } from '../../../services/source/source.service';
 import { SeasonService } from '../../../services/season/season.service';
 import { Season } from '../../../models/season.models';
 import { AuthService } from '../../../services/auth/auth.service';
-import { ProjectDto, ClientDto, SourceDto, User, ProjectStatus, LOST_REASONS, PROJECT_STATUS_COLORS } from '../../../models';
+import { ProjectDto, ClientDto, SourceDto, User, ProjectStatus, LOST_REASONS, PROJECT_STATUS_COLORS, OfferLink } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { fromIsoDate, toIsoDate } from '../../../shared/locale/app-locale';
 import { blankToNull } from '../../../shared/utils/form-payload';
 import { fieldError } from '../../../shared/utils/form-errors';
+import { OfferLinkFieldComponent } from './offer-link-field/offer-link-field.component';
+
+/** The value of a client or source the offer names and the workspace does not have yet: created when the form is saved. */
+export const NEW_RECORD = -1;
 
 @Component({
     selector: 'app-project-form',
@@ -42,7 +48,8 @@ import { fieldError } from '../../../shared/utils/form-errors';
     MatDatepickerModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    TranslateModule
+    TranslateModule,
+    OfferLinkFieldComponent
 ],
     templateUrl: './project-form.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -63,6 +70,14 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   /** The project as loaded, so fields this form does not edit (documents...) survive an update. */
   private loadedProject?: ProjectDto;
+  /** The offer the form was filled in from: saving adds it to the pipeline. */
+  offerLink?: OfferLink;
+  /** The offer's publisher and site, when the workspace has no client or source of that name yet. */
+  newClientName?: string;
+  newSourceName?: string;
+  /** The page was opened to start from an offer's link. */
+  startFromLink = false;
+  readonly NEW_RECORD = NEW_RECORD;
 
   readonly statusOptions = Object.values(ProjectStatus);
   readonly statusColors = PROJECT_STATUS_COLORS;
@@ -94,7 +109,8 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly notificationService: NotificationService,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly offerService: OfferService
   ) {
     this.projectForm = this.createForm();
   }
@@ -103,6 +119,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     this.currentUser = this.authService.getUser();
     this.loadReferenceData();
 
+    this.startFromLink = this.route.snapshot.queryParamMap.get('from') === 'link';
     const requestedStatus = this.route.snapshot.queryParamMap.get('status');
     if (requestedStatus && this.statusOptions.includes(requestedStatus as ProjectStatus)) {
       this.projectForm.patchValue({ status: requestedStatus });
@@ -258,9 +275,15 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         startDate: toIsoDate(formValue.startDate)
       };
 
+      const fromOffer = this.isEditMode ? undefined : this.offerLink?.offer;
+      if (fromOffer) {
+        // Unset, the server takes the offer's publisher and site, created when missing.
+        projectData.clientId = projectData.clientId === NEW_RECORD ? undefined : projectData.clientId;
+        projectData.sourceId = projectData.sourceId === NEW_RECORD ? undefined : projectData.sourceId;
+      }
       const operation = this.isEditMode
         ? this.projectService.update(this.projectId!, projectData)
-        : this.projectService.create(projectData);
+        : fromOffer ? this.offerService.importOffer(fromOffer.id, projectData) : this.projectService.create(projectData);
 
       operation.pipe(takeUntil(this.destroy$)).subscribe({
         next: (saved) => {
@@ -268,15 +291,55 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
           const savedId = saved?.id ?? this.projectId;
           this.router.navigate(savedId ? ['/projects', savedId] : ['/projects']);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           console.error('Error saving project:', error);
-          this.notificationService.error(this.isEditMode ? 'errors.updatingProject' : 'errors.creatingProject');
+          const inPipeline = fromOffer && error?.status === 409;
+          this.notificationService.error(inPipeline ? 'projects.offerLink.alreadyInPipeline'
+            : this.isEditMode ? 'errors.updatingProject' : 'errors.creatingProject');
           this.isSubmitting = false;
         }
       });
     } else {
       this.projectForm.markAllAsTouched();
     }
+  }
+
+  /** Fills the form in from an offer found by its link; the stage chosen stays. */
+  fillFromOffer(link: OfferLink): void {
+    const draft = link.draft;
+    if (!draft || !link.offer) {
+      return;
+    }
+    const project = draft.project;
+    this.offerLink = link;
+    this.newClientName = project.clientId ? undefined : draft.clientName;
+    this.newSourceName = project.sourceId ? undefined : draft.sourceName;
+    this.projectForm.patchValue({
+      role: project.role,
+      description: project.description ?? '',
+      techStack: project.techStack ?? '',
+      dailyRate: project.dailyRate,
+      workMode: project.workMode ?? '',
+      remoteDaysPerMonth: project.remoteDaysPerMonth ?? '',
+      startDate: fromIsoDate(project.startDate),
+      durationInMonths: project.durationInMonths ?? '',
+      link: project.link ?? '',
+      clientId: project.clientId ?? NEW_RECORD,
+      sourceId: project.sourceId ?? NEW_RECORD
+    });
+    this.projectForm.markAsDirty();
+  }
+
+  /** Keeps what the offer filled in, as a new opportunity of its own. */
+  unlinkOffer(): void {
+    const { clientId, sourceId } = this.projectForm.value;
+    this.projectForm.patchValue({
+      clientId: clientId === NEW_RECORD ? null : clientId,
+      sourceId: sourceId === NEW_RECORD ? null : sourceId
+    });
+    this.offerLink = undefined;
+    this.newClientName = undefined;
+    this.newSourceName = undefined;
   }
 
   onCancel(): void {

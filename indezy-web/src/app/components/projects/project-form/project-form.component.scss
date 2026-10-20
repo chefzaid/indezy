@@ -37,6 +37,27 @@
         }
       }
       
+      .from-offer {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 24px;
+        padding: 8px 8px 8px 16px;
+        border-radius: 8px;
+        background: var(--app-hover);
+        color: var(--app-text);
+
+        mat-icon {
+          flex-shrink: 0;
+          color: var(--app-link);
+        }
+
+        span {
+          flex: 1;
+          min-width: 0;
+        }
+      }
+
       .form-grid {
         display: flex;
         flex-direction: column;

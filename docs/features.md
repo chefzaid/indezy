@@ -264,7 +264,9 @@ marked **New**.
   accents or punctuation counting as one) and the offers published each of the last 30 days, Paris time.
 
 API: `GET /offers` (filters, `matchesProfile`, `view` = `FEED`, `SAVED`, `APPLIED` or `HIDDEN`, `sort` = `NEWEST`, `RATE`, `DISTANCE` or `MATCH`, `page`,
-`size`), `GET /offers/market` (the same filters and view), `GET /offers/{id}`, `PUT /offers/{id}/state`, `POST /offers/{id}/import`,
+`size`), `GET /offers/market` (the same filters and view), `GET /offers/{id}`, `PUT /offers/{id}/state`, `POST /offers/{id}/import`
+(as the offer says, or as its body, an opportunity corrected in the project form, says; see [From An Offer Link](#from-an-offer-link)),
+`POST /offers/link` (`url`),
 `PUT /offers/states` (`offerIds`, 100 at most, with `saved`, `hidden` or `seen`), `POST /offers/import` (`offerIds`, 50
 at most; answers the offers `imported`, `alreadyInPipeline` with their opportunity, and `missing`),
 `POST /offers/{id}/application` (`appliedOn`, `via` = `SITE_FORM`, `EMAIL` or `PHONE`, `followUpInDays`, `language` =
@@ -277,6 +279,33 @@ at most; answers the offers `imported`, `alreadyInPipeline` with their opportuni
 `POST /offers/searches/{id}/open`, `DELETE /offers/searches/{id}` and `GET /offers/searches/alerts`. Each offer carries
 its `match` (score, skills, rate and place fit) and each page says whether distances (`distanceAvailable`) and matches
 (`matchAvailable`) can be computed.
+
+### From An Offer Link
+
+**From an offer link**, next to the Kanban board's title and the projects list's **New project**, opens the new
+opportunity form with the cursor in its **Offer link** field, which the form always offers on a new opportunity.
+Pasting the link of an offer from one of the sites the feed reads (any copy of the mission, with or without `https://`,
+tracking parameters, fragments and trailing slashes aside) and **Fill in** (or `Enter`) looks the offer up:
+
+- **Found in the feed**: the form is filled in with what **Add to pipeline** would make of it (role, description, tech
+  stack, daily rate, work mode and remote days a month, start date, duration and link), its client is the offer's
+  publisher and its source the site. A publisher or a site the workspace does not have yet is offered as
+  "Exemple Conseil (new ESN, created on save)" and created only when the form is saved. Every field can be corrected,
+  the stage picked in the form (Contact by default) stays, and nothing is created before
+  **Create**, which adds the offer to the pipeline: the feed's card then shows **In the pipeline**, and the workspace's
+  note on the mission joins the opportunity's notes. A banner names the offer, with **Unlink** to keep what was filled
+  in as an opportunity of its own; an expired offer is pointed out.
+- **Already in the pipeline** (by this offer or one of its copies): the field says so and links to its opportunity.
+- **Not collected yet**: Mindquest, WorkDispo, Koïno, Next Mondays and Sixième Homme describe each offer on its own
+  page, so that page is read at once, through the collection's polite client, and the offer joins the feed. Each
+  workspace reads at most 20 offers an hour this way (`429` with `Retry-After` beyond). The other sites are read on
+  request, as the **Job boards** page does (at most once every 15 minutes per site), which finds the offers published
+  since their last run; the field says it is reading the site and looks again every 5 seconds for 2 minutes. When the
+  site was read moments ago, the field says when it can be read again.
+- **Refused**, with the reason: a link to a site the feed does not read (the field names the ones it does), a page
+  without an offer or gone, a job that is not freelance (CDI or CDD), an offer expired or older than 90 days, a site
+  that cannot be reached, or an address that is not a web page. Collection off on the server finds collected offers
+  only.
 
 ### Profile Match
 

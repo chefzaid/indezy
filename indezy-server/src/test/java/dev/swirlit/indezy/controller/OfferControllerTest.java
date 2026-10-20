@@ -5,7 +5,9 @@ import dev.swirlit.indezy.dto.OfferBulkImportDto;
 import dev.swirlit.indezy.dto.OfferBulkImportRequest;
 import dev.swirlit.indezy.dto.OfferBulkStateRequest;
 import dev.swirlit.indezy.dto.OfferCopyDto;
+import dev.swirlit.indezy.dto.OfferDraftDto;
 import dev.swirlit.indezy.dto.OfferDto;
+import dev.swirlit.indezy.dto.OfferLinkDto;
 import dev.swirlit.indezy.dto.OfferMatchDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferMarketDto;
@@ -22,12 +24,14 @@ import dev.swirlit.indezy.model.OfferApplication;
 import dev.swirlit.indezy.model.enums.ApplicationChannel;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
+import dev.swirlit.indezy.model.enums.OfferLinkStatus;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.Seniority;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.service.OfferApplicationService;
 import dev.swirlit.indezy.service.OfferBulkService;
 import dev.swirlit.indezy.service.OfferImportService;
+import dev.swirlit.indezy.service.OfferLinkService;
 import dev.swirlit.indezy.service.OfferMarketService;
 import dev.swirlit.indezy.service.OfferSearchService;
 import dev.swirlit.indezy.service.OfferStateService;
@@ -91,6 +95,9 @@ class OfferControllerTest {
 
     @MockitoBean
     private OfferBulkService bulkService;
+
+    @MockitoBean
+    private OfferLinkService linkService;
 
     @BeforeEach
     void setUp() {
@@ -218,7 +225,7 @@ class OfferControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value("This action needs a workspace"));
         mockMvc.perform(post("/offers/7/import")).andExpect(status().isBadRequest());
-        verify(importService, never()).importOffer(any(), any());
+        verify(importService, never()).importOffer(any(), any(), any());
     }
 
     @Test
@@ -226,13 +233,55 @@ class OfferControllerTest {
         ProjectDto project = new ProjectDto();
         project.setId(40L);
         project.setRole("Développeur Java");
-        when(importService.importOffer(3L, 7L)).thenReturn(project);
-        when(importService.importOffer(3L, 9L)).thenThrow(new InvalidStateException("This offer is already in the pipeline as project 40"));
+        when(importService.importOffer(3L, 7L, null)).thenReturn(project);
+        when(importService.importOffer(3L, 9L, null)).thenThrow(new InvalidStateException("This offer is already in the pipeline as project 40"));
 
         mockMvc.perform(post("/offers/7/import").param("freelanceId", "3"))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").value(40));
         mockMvc.perform(post("/offers/9/import").param("freelanceId", "3")).andExpect(status().isConflict());
+    }
+
+    @Test
+    void findsTheOfferOfALinkWithTheOpportunityItWouldMake() throws Exception {
+        ProjectDto project = new ProjectDto();
+        project.setRole("Développeur Java");
+        when(linkService.resolve(3L, "https://www.free-work.com/fr/mission/dev-java")).thenReturn(new OfferLinkDto(OfferLinkStatus.FOUND,
+            "Free-Work", null, null, new OfferDraftDto(project, "Exemple Conseil", "Free-Work"), null, null));
+
+        mockMvc.perform(post("/offers/link").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"url\":\"https://www.free-work.com/fr/mission/dev-java\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value("FOUND"))
+            .andExpect(jsonPath("$.draft.clientName").value("Exemple Conseil"))
+            .andExpect(jsonPath("$.draft.project.role").value("Développeur Java"))
+            .andExpect(jsonPath("$.projectId").doesNotExist());
+        mockMvc.perform(post("/offers/link").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON).content("{\"url\":\" \"}"))
+            .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/offers/link").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"url\":\"" + "a".repeat(2001) + "\"}"))
+            .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/offers/link").contentType(MediaType.APPLICATION_JSON).content("{\"url\":\"https://x.fr\"}"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void importsAnOfferAsCorrectedInTheProjectForm() throws Exception {
+        ProjectDto created = new ProjectDto();
+        created.setId(41L);
+        when(importService.importOffer(eq(3L), eq(7L), any(ProjectDto.class))).thenReturn(created);
+
+        mockMvc.perform(post("/offers/7/import").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"role\":\"Tech lead Java\",\"dailyRate\":700,\"status\":\"INTERVIEW\"}"))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").value(41));
+        org.mockito.ArgumentCaptor<ProjectDto> sent = org.mockito.ArgumentCaptor.forClass(ProjectDto.class);
+        verify(importService).importOffer(eq(3L), eq(7L), sent.capture());
+        assertThat(sent.getValue().getRole()).isEqualTo("Tech lead Java");
+        // The form's checks apply: a role and a daily rate.
+        mockMvc.perform(post("/offers/7/import").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"role\":\"\",\"dailyRate\":700}"))
+            .andExpect(status().isBadRequest());
     }
 
     @Test

@@ -1,6 +1,9 @@
 <div class="kanban-board-container">
   <div class="board-header">
     <h2>{{ 'kanban.title' | translate }}</h2>
+    <a mat-stroked-button class="from-link" routerLink="/projects/new" [queryParams]="{ from: 'link' }" data-from-offer-link>
+      <mat-icon>link</mat-icon>{{ 'projects.offerLink.fromLink' | translate }}
+    </a>
     <button mat-icon-button (click)="loadKanbanBoard()" [disabled]="isLoading" [matTooltip]="'common.refresh' | translate">
       <mat-icon>refresh</mat-icon>
     </button>

@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.dto.OfferDraftDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.model.Client;
@@ -184,6 +185,70 @@ class OfferImportServiceTest {
         service.importOffer(3L, 7L);
         verify(projectService, org.mockito.Mockito.times(2)).create(project.capture());
         assertThat(project.getValue().getDailyRate()).isZero();
+    }
+
+    @Test
+    void draftsTheOpportunityWithoutCreatingAnything() {
+        when(clients.findFirstByFreelanceIdAndCompanyNameIgnoreCase(3L, "Exemple Conseil")).thenReturn(Optional.empty());
+        when(sources.findFirstByFreelanceIdAndNameIgnoreCase(3L, "Free-Work")).thenReturn(Optional.of(withId(new Source(), 31L)));
+
+        OfferDraftDto draft = service.draft(3L, 7L);
+
+        assertThat(draft.getClientName()).isEqualTo("Exemple Conseil");
+        assertThat(draft.getSourceName()).isEqualTo("Free-Work");
+        assertThat(draft.getProject().getClientId()).isNull();
+        assertThat(draft.getProject().getSourceId()).isEqualTo(31L);
+        assertThat(draft.getProject().getRole()).isEqualTo("Développeur Java");
+        assertThat(draft.getProject().getDailyRate()).isEqualTo(650);
+        assertThat(draft.getProject().getStatus()).isEqualTo(ProjectStatus.CONTACT);
+        verify(clients, never()).save(any());
+        verify(sources, never()).save(any());
+        verify(projectService, never()).create(any());
+
+        when(clients.findFirstByFreelanceIdAndCompanyNameIgnoreCase(3L, "Exemple Conseil")).thenReturn(Optional.of(withId(new Client(), 21L)));
+        assertThat(service.draft(3L, 7L).getProject().getClientId()).isEqualTo(21L);
+    }
+
+    @Test
+    void addsTheOpportunityAsCorrectedInTheForm() {
+        when(clients.findFirstByFreelanceIdAndCompanyNameIgnoreCase(3L, "Exemple Conseil")).thenReturn(Optional.empty());
+        when(sources.findFirstByFreelanceIdAndNameIgnoreCase(3L, "Free-Work")).thenReturn(Optional.empty());
+        ProjectDto edits = new ProjectDto();
+        edits.setId(99L);
+        edits.setRole("Tech lead Java");
+        edits.setDailyRate(700);
+        edits.setStatus(ProjectStatus.INTERVIEW);
+        edits.setMiddlemanId(22L);
+        edits.setFreelanceId(5L);
+
+        service.importOffer(3L, 7L, edits);
+
+        ArgumentCaptor<ProjectDto> project = ArgumentCaptor.forClass(ProjectDto.class);
+        verify(projectService).create(project.capture());
+        ProjectDto sent = project.getValue();
+        assertThat(sent.getId()).isNull();
+        assertThat(sent.getFreelanceId()).isEqualTo(3L);
+        assertThat(sent.getRole()).isEqualTo("Tech lead Java");
+        assertThat(sent.getDailyRate()).isEqualTo(700);
+        assertThat(sent.getStatus()).isEqualTo(ProjectStatus.INTERVIEW);
+        assertThat(sent.getMiddlemanId()).isEqualTo(22L);
+        // Unset in the form: the publisher, the site and the offer's link.
+        assertThat(sent.getClientId()).isEqualTo(20L);
+        assertThat(sent.getSourceId()).isEqualTo(30L);
+        assertThat(sent.getLink()).isEqualTo(offer.getUrl());
+        assertThat(state.getImportedProject().getId()).isEqualTo(40L);
+
+        ProjectDto chosen = new ProjectDto();
+        chosen.setRole("Développeur Java");
+        chosen.setDailyRate(600);
+        chosen.setClientId(23L);
+        chosen.setSourceId(32L);
+        chosen.setLink("https://example.com/mission");
+        state.setImportedProject(null);
+        service.importOffer(3L, 7L, chosen);
+        verify(projectService, org.mockito.Mockito.times(2)).create(project.capture());
+        assertThat(project.getValue()).extracting(ProjectDto::getClientId, ProjectDto::getSourceId, ProjectDto::getStatus, ProjectDto::getLink)
+            .containsExactly(23L, 32L, ProjectStatus.CONTACT, "https://example.com/mission");
     }
 
     @Test

@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.constants.ErrorMessages;
+import dev.swirlit.indezy.dto.OfferDraftDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.model.Client;
@@ -52,16 +53,67 @@ public class OfferImportService {
     private final ProjectNoteService projectNotes;
 
     public ProjectDto importOffer(Long freelanceId, Long offerId) {
+        return importOffer(freelanceId, offerId, null);
+    }
+
+    /**
+     * Adds the mission to the pipeline as {@link #draft} fills it in or, when given, as {@code edits} (that draft
+     * corrected in the project form) says: an unset client is the publisher and an unset source the site, each
+     * created when the workspace has none of that name, and an unset stage is Contact.
+     */
+    public ProjectDto importOffer(Long freelanceId, Long offerId, ProjectDto edits) {
         List<JobOfferState> group = offerStates.groupStates(freelanceId, offerId);
         // Its copies on other sites are the same mission: importing one of them imports it.
-        for (JobOfferState imported : group) {
-            if (imported.getImportedProject() != null) {
-                throw new InvalidStateException(String.format(ErrorMessages.OFFER_ALREADY_IMPORTED, imported.getImportedProject().getId()));
-            }
-        }
+        OfferStateService.pipelineProject(group).ifPresent(projectId -> {
+            throw new InvalidStateException(String.format(ErrorMessages.OFFER_ALREADY_IMPORTED, projectId));
+        });
         JobOfferState state = group.get(0);
         JobOffer offer = state.getOffer();
         Freelance freelance = state.getFreelance();
+        ProjectDto project = edits != null ? edits : prefill(offer, freelanceId);
+        project.setId(null);
+        project.setFreelanceId(freelanceId);
+        if (project.getStatus() == null) {
+            project.setStatus(ProjectStatus.CONTACT);
+        }
+        if (project.getLink() == null) {
+            project.setLink(offer.getUrl());
+        }
+        if (project.getClientId() == null) {
+            project.setClientId(publisher(freelance, offer).getId());
+        }
+        if (project.getSourceId() == null) {
+            project.setSourceId(source(freelance, offer.getSite()).getId());
+        }
+        ProjectDto created = projectService.create(project);
+        state.setImportedProject(projects.getReferenceById(created.getId()));
+        if (state.getSeenAt() == null) {
+            state.setSeenAt(Instant.now());
+        }
+        states.save(state);
+        // The workspace's note on the mission (on any of its copies) becomes the opportunity's first note.
+        group.stream().map(JobOfferState::getNote).filter(Objects::nonNull).findFirst()
+            .ifPresent(note -> projectNotes.addNote(created.getId(), note));
+        log.info("Imported offer {} as project {}", offerId, created.getId());
+        return created;
+    }
+
+    /**
+     * The opportunity adding the offer would make, nothing created: its client and source are set when the workspace
+     * already has the publisher and the site, and named in any case.
+     */
+    @Transactional(readOnly = true)
+    public OfferDraftDto draft(Long freelanceId, Long offerId) {
+        JobOffer offer = offerStates.groupStates(freelanceId, offerId).get(0).getOffer();
+        ProjectDto project = prefill(offer, freelanceId);
+        String clientName = publisherName(offer);
+        String sourceName = offer.getSite().getDisplayName();
+        clients.findFirstByFreelanceIdAndCompanyNameIgnoreCase(freelanceId, clientName).ifPresent(client -> project.setClientId(client.getId()));
+        sources.findFirstByFreelanceIdAndNameIgnoreCase(freelanceId, sourceName).ifPresent(source -> project.setSourceId(source.getId()));
+        return new OfferDraftDto(project, clientName, sourceName);
+    }
+
+    private ProjectDto prefill(JobOffer offer, Long freelanceId) {
         ProjectDto project = new ProjectDto();
         project.setRole(cut(offer.getTitle()));
         project.setStatus(ProjectStatus.CONTACT);
@@ -74,19 +126,7 @@ public class OfferImportService {
         project.setDurationInMonths(offer.getDurationMonths());
         project.setLink(offer.getUrl());
         project.setFreelanceId(freelanceId);
-        project.setClientId(publisher(freelance, offer).getId());
-        project.setSourceId(source(freelance, offer.getSite()).getId());
-        ProjectDto created = projectService.create(project);
-        state.setImportedProject(projects.getReferenceById(created.getId()));
-        if (state.getSeenAt() == null) {
-            state.setSeenAt(Instant.now());
-        }
-        states.save(state);
-        // The workspace's note on the mission (on any of its copies) becomes the opportunity's first note.
-        group.stream().map(JobOfferState::getNote).filter(Objects::nonNull).findFirst()
-            .ifPresent(note -> projectNotes.addNote(created.getId(), note));
-        log.info("Imported offer {} as project {}", offerId, created.getId());
-        return created;
+        return project;
     }
 
     /** The highest rate the offer states, otherwise the profile's target, otherwise 0 to fill in. */
@@ -110,7 +150,7 @@ public class OfferImportService {
 
     /** The client named like the publisher (the site itself when the offer names none), created when missing. */
     private Client publisher(Freelance freelance, JobOffer offer) {
-        String name = offer.getCompany() != null ? cut(offer.getCompany()) : offer.getSite().getDisplayName();
+        String name = publisherName(offer);
         return clients.findFirstByFreelanceIdAndCompanyNameIgnoreCase(freelance.getId(), name).orElseGet(() -> {
             Client client = new Client();
             client.setCompanyName(name);
@@ -119,6 +159,10 @@ public class OfferImportService {
             client.setFreelance(freelance);
             return clients.save(client);
         });
+    }
+
+    private static String publisherName(JobOffer offer) {
+        return offer.getCompany() != null ? cut(offer.getCompany()) : offer.getSite().getDisplayName();
     }
 
     private Source source(Freelance freelance, OfferSite site) {

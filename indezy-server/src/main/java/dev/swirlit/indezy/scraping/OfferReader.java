@@ -3,6 +3,7 @@ package dev.swirlit.indezy.scraping;
 import dev.swirlit.indezy.model.enums.OfferSite;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /** Reads the freelance offers of one job board, page after page. */
 public interface OfferReader {
@@ -21,4 +22,17 @@ public interface OfferReader {
     }
 
     void read(PageFetcher fetcher, OfferBatch batch) throws IOException, InterruptedException;
+
+    /** The site's identifier of the offer at {@code url}, when this reader can read that offer from its page alone. */
+    default Optional<String> offerId(String url) {
+        return Optional.empty();
+    }
+
+    /**
+     * Reads the one offer at {@code url}, handed on as closed (and without a title) when its page is gone; empty when
+     * {@link #offerId} knows no offer there.
+     */
+    default Optional<ScrapedOffer> readOne(PageFetcher fetcher, String url) throws IOException, InterruptedException {
+        return Optional.empty();
+    }
 }

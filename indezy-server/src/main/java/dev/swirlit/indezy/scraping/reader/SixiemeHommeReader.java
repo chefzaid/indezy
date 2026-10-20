@@ -43,9 +43,17 @@ public class SixiemeHommeReader extends DetailPagesReader {
         List<Entry> entries = new ArrayList<>();
         for (Element link : Jsoup.parse(fetcher.get(HOME_URL), HOME_URL).select("a[href*=" + MISSION + "]")) {
             String url = link.absUrl("href");
-            entries.add(new Entry(url, url.substring(url.lastIndexOf('/') + 1), null));
+            String id = externalId(url);
+            if (id != null) {
+                entries.add(new Entry(url, id, null));
+            }
         }
         return entries;
+    }
+
+    @Override
+    String externalId(String url) {
+        return after(url, MISSION);
     }
 
     @Override

@@ -39,10 +39,14 @@ public class KoinoReader extends DetailPagesReader {
 
     @Override
     List<Entry> entries(PageFetcher fetcher) throws IOException, InterruptedException {
-        return Sitemaps.read(fetcher, SITEMAP, url -> url.contains(MISSIONS)).stream()
-            .map(page -> new Entry(page.url(), page.url().substring(page.url().indexOf(MISSIONS) + MISSIONS.length()),
-                page.lastModified()))
+        return Sitemaps.read(fetcher, SITEMAP, url -> externalId(url) != null).stream()
+            .map(page -> new Entry(page.url(), externalId(page.url()), page.lastModified()))
             .toList();
+    }
+
+    @Override
+    String externalId(String url) {
+        return after(url, MISSIONS);
     }
 
     @Override

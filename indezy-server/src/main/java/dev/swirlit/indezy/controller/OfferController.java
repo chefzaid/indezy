@@ -6,6 +6,8 @@ import dev.swirlit.indezy.dto.OfferBulkImportRequest;
 import dev.swirlit.indezy.dto.OfferBulkStateRequest;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
+import dev.swirlit.indezy.dto.OfferLinkDto;
+import dev.swirlit.indezy.dto.OfferLinkRequest;
 import dev.swirlit.indezy.dto.OfferMarketDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
 import dev.swirlit.indezy.dto.OfferRegionDto;
@@ -18,6 +20,7 @@ import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.OfferApplicationService;
 import dev.swirlit.indezy.service.OfferBulkService;
 import dev.swirlit.indezy.service.OfferImportService;
+import dev.swirlit.indezy.service.OfferLinkService;
 import dev.swirlit.indezy.service.OfferMarketService;
 import dev.swirlit.indezy.service.OfferSearchService;
 import dev.swirlit.indezy.service.OfferStateService;
@@ -59,6 +62,7 @@ public class OfferController {
     private final OfferImportService importService;
     private final OfferApplicationService applicationService;
     private final OfferBulkService bulkService;
+    private final OfferLinkService linkService;
     private final OfferMarketService marketService;
     private final AccessGuard accessGuard;
 
@@ -103,10 +107,27 @@ public class OfferController {
         return bulkService.importAll(accessGuard.requireWorkspace(freelanceId), request);
     }
 
-    @Operation(summary = "Add an offer to the pipeline as a new opportunity")
+    @Operation(summary = "Find the offer of a link, with the opportunity it would make",
+        description = "An offer not collected yet is read from its page, or its site is read (status READING)")
+    @PostMapping("/link")
+    public OfferLinkDto resolveLink(@Valid @RequestBody OfferLinkRequest request, @RequestParam(required = false) Long freelanceId) {
+        return linkService.resolve(accessGuard.requireWorkspace(freelanceId), request.url());
+    }
+
+    @Operation(summary = "Add an offer to the pipeline as a new opportunity",
+        description = "As the offer says, or as the body (the opportunity corrected in the project form) says: " +
+            "no client is the publisher and no source the site, created when missing")
     @PostMapping("/{id}/import")
-    public ResponseEntity<ProjectDto> importOffer(@PathVariable Long id, @RequestParam(required = false) Long freelanceId) {
-        return new ResponseEntity<>(importService.importOffer(accessGuard.requireWorkspace(freelanceId), id), HttpStatus.CREATED);
+    public ResponseEntity<ProjectDto> importOffer(@PathVariable Long id, @Valid @RequestBody(required = false) ProjectDto project,
+                                                  @RequestParam(required = false) Long freelanceId) {
+        Long workspace = accessGuard.requireWorkspace(freelanceId);
+        if (project != null) {
+            accessGuard.requireClientIfPresent(project.getClientId());
+            accessGuard.requireClientIfPresent(project.getMiddlemanId());
+            accessGuard.requireSourceIfPresent(project.getSourceId());
+            accessGuard.requireSeasonIfPresent(project.getSeasonId());
+        }
+        return new ResponseEntity<>(importService.importOffer(workspace, id, project), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Record that the workspace applied to an offer, adding it to the pipeline with its steps")

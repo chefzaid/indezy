@@ -1,7 +1,7 @@
 // Freelance offer feed: missions collected from the job boards (see docs/features.md#freelance-offer-feed)
 
 import { DocumentLanguage } from './activity-report.models';
-import { WorkMode } from './project.models';
+import { ProjectDto, WorkMode } from './project.models';
 
 export type OfferSite =
   | 'FREE_WORK'
@@ -184,6 +184,40 @@ export interface OfferBulkImport {
   alreadyInPipeline: { offerId: number; projectId: number }[];
   /** Offers no longer collected. */
   missing: number[];
+}
+
+/** What the link of an offer gave: see docs/features.md#from-an-offer-link. */
+export type OfferLinkStatus =
+  | 'FOUND'
+  | 'IN_PIPELINE'
+  | 'READING'
+  | 'NOT_COLLECTED'
+  | 'UNSUPPORTED_SITE'
+  | 'NOT_FREELANCE'
+  | 'EXPIRED'
+  | 'GONE'
+  | 'SITE_UNAVAILABLE';
+
+/** The opportunity an offer would make, not created yet: its client and source are unset when the workspace has none of that name. */
+export interface OfferDraft {
+  project: ProjectDto;
+  clientName: string;
+  sourceName: string;
+}
+
+export interface OfferLink {
+  status: OfferLinkStatus;
+  siteName?: string;
+  /** With FOUND and IN_PIPELINE. */
+  offer?: Offer;
+  /** The opportunity of the mission, with IN_PIPELINE. */
+  projectId?: number;
+  /** With FOUND. */
+  draft?: OfferDraft;
+  /** When to look again (READING), or when the site can be read on request again (NOT_COLLECTED). */
+  retryAt?: string;
+  /** The sites the feed reads, with UNSUPPORTED_SITE. */
+  sites?: string[];
 }
 
 export interface OfferStateUpdate {

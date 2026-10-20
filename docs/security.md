@@ -301,8 +301,11 @@ Rules:
 The backend reads public job boards for the offer feed ([ADR 0009](./adr/0009-collecting-job-offers.md)). Its rules:
 
 - Requests go to fixed, built-in addresses only: each reader names its site's domain, and `SiteHttpClient` refuses any
-  URL, redirect included, outside that domain or with a scheme other than `http` or `https`. No user input becomes a
-  fetched URL, so the collection cannot be turned against internal addresses (SSRF).
+  URL, redirect included, outside that domain or with a scheme other than `http` or `https`. The only fetched address
+  that comes from a user is a pasted offer link ([From An Offer Link](./features.md#from-an-offer-link)): it is
+  fetched only when its host is one of those built-in domains, rewritten to `https` without credentials, port,
+  fragment or tracking parameters, goes through the same client, and counts against the workspace's 20 such reads an
+  hour, so the collection cannot be turned against internal addresses (SSRF) or another site.
 - `robots.txt` is honoured for the `IndezyBot` product token (RFC 9309: a missing file allows everything, an
   unreachable one stops the site's run); requests wait 2 seconds per host, time out after 30 seconds, identify Indezy
   with a contact URL and stop reading past 8 MB.

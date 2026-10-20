@@ -17,6 +17,17 @@
         </div>
       }
 
+      @if (!isLoading && !isEditMode) {
+        <app-offer-link-field [autofocus]="startFromLink" (found)="fillFromOffer($event)"></app-offer-link-field>
+      }
+      @if (offerLink?.offer; as offer) {
+        <div class="from-offer" data-from-offer>
+          <mat-icon aria-hidden="true">travel_explore</mat-icon>
+          <span>{{ 'projects.offerLink.linked' | translate: { site: offer.siteName, title: offer.title } }}</span>
+          <button mat-button type="button" (click)="unlinkOffer()" data-unlink-offer>{{ 'projects.offerLink.unlink' | translate }}</button>
+        </div>
+      }
+
       @if (!isLoading) {
         <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
           <div class="form-grid">
@@ -83,15 +94,18 @@
                       </mat-optgroup>
                     }
                     <!-- An ESN is the client when the final client is unknown, as for missions added from the offer feed. -->
-                    @if (intermediaries.length) {
+                    @if (intermediaries.length || newClientName) {
                       <mat-optgroup [label]="'clients.esnPlural' | translate">
+                        @if (newClientName) {
+                          <mat-option [value]="NEW_RECORD" data-new-client>{{ 'projects.offerLink.newEsn' | translate: { name: newClientName } }}</mat-option>
+                        }
                         @for (esn of intermediaries; track esn.id) {
                           <mat-option [value]="esn.id">{{ esn.companyName }}</mat-option>
                         }
                       </mat-optgroup>
                     }
                   </mat-select>
-                  @if (clients.length === 0) {
+                  @if (clients.length === 0 && !newClientName) {
                     <mat-hint>
                       {{ 'projects.form.noClientsHint' | translate }}
                       <a routerLink="/clients/new">{{ 'projects.form.createClient' | translate }}</a>
@@ -114,6 +128,9 @@
                   <mat-label>{{ 'projects.form.source' | translate }}</mat-label>
                   <mat-select formControlName="sourceId">
                     <mat-option [value]="null">{{ 'projects.form.noSource' | translate }}</mat-option>
+                    @if (newSourceName) {
+                      <mat-option [value]="NEW_RECORD">{{ 'projects.offerLink.newSource' | translate: { name: newSourceName } }}</mat-option>
+                    }
                     @for (source of sources; track source.id) {
                       <mat-option [value]="source.id">{{ source.name }}</mat-option>
                     }

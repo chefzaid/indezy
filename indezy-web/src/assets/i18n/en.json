@@ -422,6 +422,37 @@
       "copy": "Copy project link",
       "copied": "Project link copied. Access requires your account.",
       "failed": "Could not copy the link. Open the project and copy its address."
+    },
+    "offerLink": {
+      "fromLink": "From an offer link",
+      "label": "Offer link",
+      "placeholder": "https://www.free-work.com/fr/tech-it/…",
+      "hint": "Paste the link of an offer from one of the feed's sites to fill this form in.",
+      "required": "Paste the link of an offer first.",
+      "fill": "Fill in",
+      "reading": "Reading {{site}} to find this offer…",
+      "filled": "Filled in from the offer: check each field, then save.",
+      "expired": "This offer has expired: check that the mission is still open.",
+      "linked": "From the {{site}} offer “{{title}}”: saving adds it to your pipeline once.",
+      "unlink": "Unlink",
+      "newEsn": "{{name}} (new ESN, created on save)",
+      "newSource": "{{name}} (new job board, created on save)",
+      "openProject": "Open the opportunity",
+      "stillReading": "{{site}} is still being read. Try again in a minute, or fill the form in by hand.",
+      "invalid": "Paste the full address of the offer's page.",
+      "tooMany": "Too many offers were read from their link this hour. Try again later, or fill the form in by hand.",
+      "error": "The link could not be checked. Try again.",
+      "alreadyInPipeline": "This mission is already in your pipeline.",
+      "status": {
+        "IN_PIPELINE": "This mission is already in your pipeline.",
+        "UNSUPPORTED_SITE": "Indezy reads the offers of these sites only: {{sites}}. Fill the form in by hand for this one.",
+        "NOT_COLLECTED": "This {{site}} offer is not in the feed yet. Try again later, or fill the form in by hand.",
+        "NOT_COLLECTED_UNTIL": "This {{site}} offer is not in the feed yet. {{site}} can be read again at {{time}}; until then, fill the form in by hand.",
+        "NOT_FREELANCE": "This is not a freelance mission (a permanent or fixed-term job), so Indezy leaves it out.",
+        "EXPIRED": "This offer has expired or was published more than 90 days ago.",
+        "GONE": "This page no longer holds an offer: it may have been taken down.",
+        "SITE_UNAVAILABLE": "{{site}} could not be read just now. Try again later, or fill the form in by hand."
+      }
     }
   },
   "clients": {

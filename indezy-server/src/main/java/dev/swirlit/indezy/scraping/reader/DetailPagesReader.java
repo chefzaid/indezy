@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -40,6 +41,22 @@ abstract class DetailPagesReader implements OfferReader {
 
     /** The offer of an entry's page, or {@code null} when the page holds none. */
     abstract ScrapedOffer offer(Entry entry, Document page);
+
+    /** The identifier of the offer whose page is {@code url}, or {@code null} when it is no offer page of the site. */
+    String externalId(String url) {
+        return null;
+    }
+
+    @Override
+    public final Optional<String> offerId(String url) {
+        return Optional.ofNullable(externalId(url));
+    }
+
+    @Override
+    public final Optional<ScrapedOffer> readOne(PageFetcher fetcher, String url) throws IOException, InterruptedException {
+        String externalId = externalId(url);
+        return externalId == null ? Optional.empty() : Optional.of(fetch(fetcher, new Entry(url, externalId, null)));
+    }
 
     /** Every page read is an offer Indezy does not hold, so only the page budget ends a run. */
     @Override
@@ -75,6 +92,18 @@ abstract class DetailPagesReader implements OfferReader {
         }
         // A page gone or without an offer is handed on as closed, so it is set aside and not fetched again.
         return ScrapedOffer.builder().externalId(entry.externalId()).url(entry.url()).freelance(false).build();
+    }
+
+    /** What follows {@code marker} in {@code url} up to its end or its next slash, or {@code null} when there is nothing. */
+    static String after(String url, String marker) {
+        int start = url.indexOf(marker);
+        if (start < 0) {
+            return null;
+        }
+        String rest = url.substring(start + marker.length());
+        int slash = rest.indexOf('/');
+        String id = slash < 0 ? rest : rest.substring(0, slash);
+        return id.isBlank() ? null : id;
     }
 
     private static List<Entry> unknown(List<Entry> entries, OfferBatch batch) {

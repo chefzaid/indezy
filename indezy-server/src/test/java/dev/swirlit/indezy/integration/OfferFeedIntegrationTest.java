@@ -37,6 +37,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -197,6 +198,49 @@ class OfferFeedIntegrationTest {
 
         ResponseEntity<byte[]> export = call(alice, HttpMethod.GET, "/users/export", null, byte[].class);
         assertThat(new String(export.getBody(), StandardCharsets.UTF_8)).contains("\"jobOffers\"").contains("Développeur Java Spring");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void anOfferLinkDraftsTheOpportunityAddedOnceAsCorrectedForItsWorkspaceOnly() {
+        Map<String, String> link = Map.of("url", "www.free-work.com/fr/tech-it/job-mission/java/fw-1/?utm_source=alerte#postuler");
+        ResponseEntity<Map> found = call(alice, HttpMethod.POST, "/offers/link", link);
+
+        assertThat(found.getBody()).containsEntry("status", "FOUND").containsEntry("siteName", "Free-Work").doesNotContainKey("projectId");
+        assertThat((Map<String, Object>) found.getBody().get("offer")).containsEntry("id", paris.getId().intValue());
+        Map<String, Object> draft = (Map<String, Object>) found.getBody().get("draft");
+        assertThat(draft).containsEntry("clientName", "Exemple Conseil").containsEntry("sourceName", "Free-Work");
+        Map<String, Object> project = new HashMap<>((Map<String, Object>) draft.get("project"));
+        assertThat(project).containsEntry("role", "Développeur Java Spring").containsEntry("dailyRate", 650);
+        // Nothing is created before the form is saved: the publisher is no client yet, the seeded Free-Work source is named.
+        assertThat(project.get("clientId")).isNull();
+        assertThat(project.get("sourceId")).isNotNull();
+        assertThat(call(alice, HttpMethod.GET, "/clients", null, List.class).getBody()).isEmpty();
+
+        project.put("role", "Tech lead Java");
+        project.put("status", "INTERVIEW");
+        ResponseEntity<Map> created = call(alice, HttpMethod.POST, "/offers/" + paris.getId() + "/import", project);
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(created.getBody()).containsEntry("role", "Tech lead Java").containsEntry("status", "INTERVIEW")
+            .containsEntry("clientName", "Exemple Conseil").containsEntry("sourceName", "Free-Work");
+        long projectId = ((Number) created.getBody().get("id")).longValue();
+        long clientId = ((Number) created.getBody().get("clientId")).longValue();
+
+        assertThat(call(alice, HttpMethod.POST, "/offers/link", link).getBody())
+            .containsEntry("status", "IN_PIPELINE").containsEntry("projectId", (int) projectId).doesNotContainKey("draft");
+        assertThat(call(bob, HttpMethod.POST, "/offers/link", link).getBody()).containsEntry("status", "FOUND");
+        // Bob cannot name Alice's client.
+        project.put("clientId", clientId);
+        assertThat(call(bob, HttpMethod.POST, "/offers/" + paris.getId() + "/import", project).getStatusCode().is4xxClientError()).isTrue();
+
+        ResponseEntity<Map> elsewhere = call(alice, HttpMethod.POST, "/offers/link", Map.of("url", "https://www.example.com/offre/1"));
+        assertThat(elsewhere.getBody()).containsEntry("status", "UNSUPPORTED_SITE");
+        assertThat((List<String>) elsewhere.getBody().get("sites")).contains("Free-Work", "LeHibou");
+        // Collection is off in tests, so an offer not collected yet is not read.
+        assertThat(call(alice, HttpMethod.POST, "/offers/link", Map.of("url", "https://www.free-work.com/fr/mission/inconnue")).getBody())
+            .containsEntry("status", "NOT_COLLECTED");
+        assertThat(call(alice, HttpMethod.POST, "/offers/link", Map.of("url", "ftp://www.free-work.com/x")).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test

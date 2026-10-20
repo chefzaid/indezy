@@ -19,6 +19,9 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
 
     List<JobOffer> findBySiteAndExternalIdIn(OfferSite site, Collection<String> externalIds);
 
+    /** The newest offers of {@code site} whose address holds {@code fragment}, case aside: the candidates for a pasted link. */
+    List<JobOffer> findTop20BySiteAndUrlContainingIgnoreCaseOrderByIdDesc(OfferSite site, String fragment);
+
     @Query("select o.externalId from JobOffer o where o.site = :site and o.externalId in :externalIds")
     List<String> findKnownIds(@Param("site") OfferSite site, @Param("externalIds") Collection<String> externalIds);
 
