@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.OfferCopyDto;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferMatchDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
+import dev.swirlit.indezy.dto.OfferMarketDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
 import dev.swirlit.indezy.dto.OfferRegionDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
@@ -18,6 +19,7 @@ import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.Seniority;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.service.OfferImportService;
+import dev.swirlit.indezy.service.OfferMarketService;
 import dev.swirlit.indezy.service.OfferSearchService;
 import dev.swirlit.indezy.service.OfferStateService;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,6 +72,9 @@ class OfferControllerTest {
 
     @MockitoBean
     private OfferImportService importService;
+
+    @MockitoBean
+    private OfferMarketService marketService;
 
     @BeforeEach
     void setUp() {
@@ -134,6 +139,32 @@ class OfferControllerTest {
         mockMvc.perform(get("/offers").param("radiusKm", "30"))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value("Add your city to your profile"));
+    }
+
+    @Test
+    void describesTheMarketOfTheFilteredOffers() throws Exception {
+        when(marketService.snapshot(eq(3L), any())).thenReturn(new OfferMarketDto(12,
+            new OfferMarketDto.Rates(10, 520, 600, 680, 600, 55), List.of(new OfferMarketDto.RateBin(null, 500, 2)),
+            new OfferMarketDto.Remote(4, 6, 1, 1, 2.5), List.of(new OfferFacetDto("Java", 8)), List.of(new OfferFacetDto("Exemple Conseil", 3)),
+            List.of(new OfferMarketDto.DayCount(LocalDate.of(2026, 10, 19), 5))));
+
+        mockMvc.perform(get("/offers/market").param("freelanceId", "3").param("q", "java").param("workModes", "REMOTE"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.offers").value(12))
+            .andExpect(jsonPath("$.rates.median").value(600))
+            .andExpect(jsonPath("$.rates.meetTarget").value(55))
+            .andExpect(jsonPath("$.rateBins[0].from").doesNotExist())
+            .andExpect(jsonPath("$.rateBins[0].to").value(500))
+            .andExpect(jsonPath("$.remote.hybridRemoteDays").value(2.5))
+            .andExpect(jsonPath("$.skills[0].value").value("Java"))
+            .andExpect(jsonPath("$.intermediaries[0].offers").value(3))
+            .andExpect(jsonPath("$.perDay[0].day").value("2026-10-19"));
+
+        ArgumentCaptor<OfferSearchRequest> request = ArgumentCaptor.forClass(OfferSearchRequest.class);
+        verify(marketService).snapshot(eq(3L), request.capture());
+        assertThat(request.getValue().getQ()).isEqualTo("java");
+        assertThat(request.getValue().getWorkModes()).containsExactly(WorkMode.REMOTE);
+        mockMvc.perform(get("/offers/market").param("rateMin", "-1")).andExpect(status().isBadRequest());
     }
 
     @Test

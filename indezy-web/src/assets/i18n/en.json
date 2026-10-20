@@ -1087,6 +1087,37 @@
       "hint": "Add your skills to your profile, with your target daily rate and city, to see how well each mission fits you.",
       "completeProfile": "Complete my profile"
     },
+    "market": {
+      "toggle": "Market",
+      "title": "Market snapshot",
+      "subtitle": "For the offers your filters find",
+      "error": "The market snapshot could not be loaded.",
+      "empty": "No offer to describe with these filters.",
+      "offers": "Offers",
+      "offersUnit": "offers",
+      "median": "Median daily rate",
+      "quartiles": "Middle half of the rates",
+      "stated": "Rate stated",
+      "share": "{{share}}%",
+      "meetTarget": "{{share}}% of the offers stating a rate pay your {{target}} target or more.",
+      "noTarget": "Set a target daily rate in your profile to see how many offers pay it.",
+      "rates": "Daily rates",
+      "targetBand": "Band of your target daily rate",
+      "noRates": "No offer states a daily rate.",
+      "remote": "Remote work",
+      "remoteParts": {
+        "remote": "Full remote",
+        "hybrid": "Hybrid",
+        "onsite": "On site",
+        "unstated": "Not stated"
+      },
+      "hybridDays": "Hybrid offers: {{days}} remote days a week on average",
+      "skills": "Most named skills",
+      "filterSkill": "Filter on {{skill}} ({{count}} offers)",
+      "intermediaries": "Most active intermediaries",
+      "none": "Not stated",
+      "perDay": "Offers published per day, last 30 days"
+    },
     "filters": {
       "title": "Filters",
       "keywords": "Keywords",

@@ -82,10 +82,7 @@ public class OfferSearchService {
     /** One page of offers matching the request, for {@code freelanceId}'s workspace (or none). */
     public OfferPageDto search(Long freelanceId, OfferSearchRequest request) {
         Instant now = clock.instant();
-        OfferMatch.Profile profile = freelanceId == null ? OfferMatch.Profile.NONE : profile(freelanceId);
-        if (request.getRadiusKm() != null && profile.origin() == null) {
-            throw new IllegalArgumentException(ErrorMessages.OFFER_DISTANCE_NEEDS_CITY);
-        }
+        OfferMatch.Profile profile = profileFor(freelanceId, request);
         Page<JobOffer> page = offers.findAll(JobOfferSpecifications.matching(request, freelanceId, profile, now),
             PageRequest.of(request.getPage(), request.getSize()));
         List<Long> ids = page.getContent().stream().map(JobOffer::getId).toList();
@@ -145,6 +142,15 @@ public class OfferSearchService {
                 .map(department -> new OfferRegionDto.Department(department.code(), department.name()))
                 .toList()))
             .toList();
+    }
+
+    /** The profile a search runs with (none without a workspace); a distance filter needs its city. */
+    public OfferMatch.Profile profileFor(Long freelanceId, OfferSearchRequest request) {
+        OfferMatch.Profile profile = freelanceId == null ? OfferMatch.Profile.NONE : profile(freelanceId);
+        if (request.getRadiusKm() != null && profile.origin() == null) {
+            throw new IllegalArgumentException(ErrorMessages.OFFER_DISTANCE_NEEDS_CITY);
+        }
+        return profile;
     }
 
     /** What the workspace's offers are measured against: the profile's skills, target daily rate and city. */

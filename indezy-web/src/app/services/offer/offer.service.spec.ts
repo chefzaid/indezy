@@ -30,6 +30,17 @@ describe('OfferService', () => {
     request.flush({ content: [], page: 2, size: 20, totalElements: 0, totalPages: 0, distanceAvailable: false });
   });
 
+  it('describes the market of the offers a query finds', () => {
+    service.market({ ...defaultOfferQuery(), q: 'java', workModes: ['REMOTE'] }).subscribe();
+
+    const request = http.expectOne(req => req.url === `${api}/market`);
+    expect(request.request.method).toBe('GET');
+    expect(request.request.params.get('q')).toBe('java');
+    expect(request.request.params.getAll('workModes')).toEqual(['REMOTE']);
+    request.flush({ offers: 0, rates: { stated: 0 }, rateBins: [], remote: { remote: 0, hybrid: 0, onsite: 0, unstated: 0 },
+      skills: [], intermediaries: [], perDay: [] });
+  });
+
   it('reads one offer, changes its state and imports it', () => {
     service.get(7).subscribe();
     http.expectOne(`${api}/7`).flush({});

@@ -174,6 +174,27 @@ export interface OfferFacet {
   offers: number;
 }
 
+/** The market the current filters describe: see the server's OfferMarketDto. */
+export interface OfferMarket {
+  offers: number;
+  rates: {
+    stated: number;
+    firstQuartile?: number | null;
+    median?: number | null;
+    thirdQuartile?: number | null;
+    target?: number | null;
+    /** Percent of the offers stating a rate whose best rate reaches the target. */
+    meetTarget?: number | null;
+  };
+  /** Daily rates from `from` included to `to` excluded; the first and last bands may be open. */
+  rateBins: { from?: number | null; to?: number | null; offers: number }[];
+  remote: { remote: number; hybrid: number; onsite: number; unstated: number; hybridRemoteDays?: number | null };
+  skills: OfferFacet[];
+  intermediaries: OfferFacet[];
+  /** Offers published each of the last days, oldest first. */
+  perDay: { day: string; offers: number }[];
+}
+
 export interface OfferRegion {
   regionCode: string;
   name: string;

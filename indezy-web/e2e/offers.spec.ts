@@ -33,10 +33,24 @@ const regions = [
   { regionCode: '84', name: 'Auvergne-Rhône-Alpes', departments: [{ departmentCode: '69', name: 'Rhône' }] }
 ];
 
+/** The market of the feed: a target rate of 650 € reached by 40 percent of the offers stating a rate. */
+const market = {
+  offers: 42,
+  rates: { stated: 30, firstQuartile: 520, median: 600, thirdQuartile: 680, target: 650, meetTarget: 40 },
+  rateBins: [{ to: 500, offers: 2 }, { from: 500, to: 600, offers: 10 }, { from: 600, to: 700, offers: 15 }, { from: 700, offers: 3 }],
+  remote: { remote: 10, hybrid: 21, onsite: 7, unstated: 4, hybridRemoteDays: 2.5 },
+  skills: [{ value: 'Java', offers: 20 }, { value: 'Kafka', offers: 5 }],
+  intermediaries: [{ value: 'Exemple Conseil', offers: 6 }, { value: 'Acme', offers: 3 }],
+  perDay: Array.from({ length: 30 }, (_, index) => ({
+    day: new Date(Date.now() - (29 - index) * 86_400_000).toISOString().slice(0, 10), offers: index % 7
+  }))
+};
+
 /** Answers the feed's API like the server would, and records the searches and state changes. */
 async function mockFeed(page: Page, language: string, matchAvailable = true):
-  Promise<{ searches: URL[]; states: unknown[]; imports: number[]; saves: Record<string, unknown>[] }> {
+  Promise<{ searches: URL[]; states: unknown[]; imports: number[]; saves: Record<string, unknown>[]; markets: URL[] }> {
   const searches: URL[] = [];
+  const markets: URL[] = [];
   const states: unknown[] = [];
   const imports: number[] = [];
   const saves: Record<string, unknown>[] = [];
@@ -45,6 +59,10 @@ async function mockFeed(page: Page, language: string, matchAvailable = true):
   await page.route('**/api/offers/sites', route => route.fulfill({ json: sites }));
   await page.route('**/api/offers/regions', route => route.fulfill({ json: regions }));
   await page.route('**/api/offers/skills**', route => route.fulfill({ json: [{ value: 'Kafka', offers: 120 }] }));
+  await page.route('**/api/offers/market**', route => {
+    markets.push(new URL(route.request().url()));
+    return route.fulfill({ json: market });
+  });
   await page.route('**/api/offers/*/state', route => {
     states.push(route.request().postDataJSON());
     return route.fulfill({ json: { offerId: 1, saved: true, hidden: false, seen: true } });
@@ -76,7 +94,7 @@ async function mockFeed(page: Page, language: string, matchAvailable = true):
     return route.fulfill({ json: { content, page: 0, size: 20, totalElements: content.length, totalPages: 1, distanceAvailable: false,
       matchAvailable } });
   });
-  return { searches, states, imports, saves };
+  return { searches, states, imports, saves, markets };
 }
 
 /** Lets the router's cross-fade between two addresses finish before a screenshot. */
@@ -106,6 +124,22 @@ test('browses, filters, saves, hides and imports freelance offers (en)', async (
   await expect(first.locator('[data-match]')).toHaveAttribute('aria-label', /Your skills: Java, Kafka · Pays your target daily rate · Near you/);
   await expect(first.locator('.skill.matched')).toHaveText(['Java', 'Kafka']);
   await expect(page.locator('[data-match-hint]')).toHaveCount(0);
+
+  await expect(page.locator('app-offer-market')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Market' }).click();
+  const snapshot = page.locator('app-offer-market');
+  await expect(snapshot.getByRole('heading', { name: 'Market snapshot' })).toBeVisible();
+  await expect(snapshot.locator('[data-kpi="median"]')).toContainText('€600');
+  await expect(snapshot.locator('[data-kpi="quartiles"]')).toContainText('€520 – €680');
+  await expect(snapshot.locator('[data-market-target]')).toContainText('40% of the offers stating a rate pay your €650 target or more.');
+  await expect(snapshot.locator('[data-market-rates] canvas')).toHaveAttribute('aria-label', /^Daily rates; < €500: 2 offers; €500 – €600: 10 offers/);
+  await expect(snapshot.locator('[data-remote="hybrid"]')).toContainText('Hybrid 50% (21)');
+  await expect(snapshot.locator('[data-market-intermediaries]')).toContainText('Exemple Conseil');
+  const skillSearch = page.waitForRequest(request => isSearch(request) && request.url().includes('skills=Kafka'));
+  await snapshot.getByRole('button', { name: 'Filter on Kafka (5 offers)' }).click();
+  await skillSearch;
+  await expect.poll(() => api.markets.at(-1)?.searchParams.getAll('skills')).toEqual(['Kafka']);
+  await expect(snapshot.getByRole('button', { name: 'Filter on Kafka (5 offers)' })).toBeDisabled();
 
   const matchSearch = page.waitForRequest(request => isSearch(request) && request.url().includes('sort=MATCH'));
   await page.getByRole('combobox', { name: 'Sort by' }).click();
@@ -189,6 +223,13 @@ test('opens the filters on a phone and narrows the feed to full remote (fr)', as
   await page.locator('[data-empty]').getByRole('button', { name: 'Effacer filtres' }).click();
   await expect(page).toHaveURL(/\/offers$/);
   await expect(page.locator('app-offer-card')).toHaveCount(2);
+
+  await page.getByRole('button', { name: 'Marché' }).click();
+  const snapshot = page.locator('app-offer-market');
+  await expect(snapshot.getByRole('heading', { name: 'Aperçu du marché' })).toBeVisible();
+  await expect(snapshot.locator('[data-kpi="median"]')).toContainText(/600\s€/);
+  await expect(snapshot.locator('[data-market-remote]')).toContainText('Offres hybrides : 2,5 jours de télétravail par semaine en moyenne');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await settle(page);
   await page.screenshot({ path: test.info().outputPath('offers-fr-mobile.png'), fullPage: true });
 });

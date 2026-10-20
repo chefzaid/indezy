@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
+import dev.swirlit.indezy.dto.OfferMarketDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
 import dev.swirlit.indezy.dto.OfferRegionDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
@@ -11,6 +12,7 @@ import dev.swirlit.indezy.dto.OfferStateUpdateRequest;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.OfferImportService;
+import dev.swirlit.indezy.service.OfferMarketService;
 import dev.swirlit.indezy.service.OfferSearchService;
 import dev.swirlit.indezy.service.OfferStateService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,6 +50,7 @@ public class OfferController {
     private final OfferSearchService searchService;
     private final OfferStateService stateService;
     private final OfferImportService importService;
+    private final OfferMarketService marketService;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "Search the offers, newest first by default")
@@ -55,6 +58,13 @@ public class OfferController {
     public OfferPageDto search(@Valid @ModelAttribute OfferSearchRequest request,
                                @RequestParam(required = false) Long freelanceId) {
         return searchService.search(accessGuard.resolveFreelanceId(freelanceId), request);
+    }
+
+    @Operation(summary = "Describe the market of the offers a search finds: rates, remote split, skills, intermediaries, offers per day")
+    @GetMapping("/market")
+    public OfferMarketDto market(@Valid @ModelAttribute OfferSearchRequest request,
+                                 @RequestParam(required = false) Long freelanceId) {
+        return marketService.snapshot(accessGuard.resolveFreelanceId(freelanceId), request);
     }
 
     @Operation(summary = "Get an offer with its full description")

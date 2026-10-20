@@ -7,6 +7,7 @@ import {
   Offer,
   OfferAlerts,
   OfferFacet,
+  OfferMarket,
   OfferPage,
   OfferQuery,
   OfferRegion,
@@ -29,6 +30,11 @@ export class OfferService {
 
   search(query: OfferQuery): Observable<OfferPage> {
     return this.http.get<OfferPage>(this.API_URL, { params: offerQueryToHttpParams(query) });
+  }
+
+  /** The market of the offers the query finds: its sort and page do not matter. */
+  market(query: OfferQuery): Observable<OfferMarket> {
+    return this.http.get<OfferMarket>(`${this.API_URL}/market`, { params: offerQueryToHttpParams(query) });
   }
 
   get(id: number): Observable<Offer> {

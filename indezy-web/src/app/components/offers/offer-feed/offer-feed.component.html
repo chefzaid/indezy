@@ -24,6 +24,11 @@
         {{ (page.totalElements === 1 ? 'offers.oneResult' : 'offers.results') | translate: { count: page.totalElements } }}
       }
     </span>
+    <button mat-stroked-button type="button" class="market-toggle" (click)="toggleMarket()" [attr.aria-expanded]="marketOpen"
+      aria-controls="offer-market-panel" data-market-toggle>
+      <mat-icon>insights</mat-icon>
+      {{ 'offers.market.toggle' | translate }}
+    </button>
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="sort-field">
       <mat-label>{{ 'common.sortBy' | translate }}</mat-label>
       <mat-select [value]="query.sort" (selectionChange)="setSort($event.value)">
@@ -55,6 +60,9 @@
     </aside>
 
     <section class="results" [attr.aria-busy]="loading">
+      @if (marketOpen) {
+        <app-offer-market id="offer-market-panel" class="market-panel" [query]="query" (skillChosen)="filterOnSkill($event)" />
+      }
       @if (page && !page.matchAvailable && !loading) {
         <p class="match-hint" data-match-hint>
           <mat-icon aria-hidden="true">auto_awesome</mat-icon>

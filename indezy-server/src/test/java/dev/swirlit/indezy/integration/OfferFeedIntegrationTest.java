@@ -229,6 +229,27 @@ class OfferFeedIntegrationTest {
         assertThat(((Map<?, ?>) ((List<?>) unscored.getBody().get("content")).get(0)).containsKey("match")).isFalse();
     }
 
+    @Test
+    void describesTheMarketOfEachWorkspacesFeed() {
+        users.findByEmail(alice.email()).ifPresent(user -> {
+            user.setTargetDailyRate(650);
+            users.save(user);
+        });
+        call(alice, HttpMethod.PUT, "/offers/" + lyon.getId() + "/state", Map.of("hidden", true));
+
+        ResponseEntity<Map> market = call(alice, HttpMethod.GET, "/offers/market", null);
+
+        assertThat(market.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(market.getBody()).containsEntry("offers", 1);
+        Map<?, ?> rates = (Map<?, ?>) market.getBody().get("rates");
+        assertThat(List.of(rates.get("median"), rates.get("target"), rates.get("meetTarget"))).containsExactly(600, 650, 100);
+        ResponseEntity<Map> bobs = call(bob, HttpMethod.GET, "/offers/market", null);
+        assertThat(bobs.getBody()).containsEntry("offers", 2);
+        assertThat(bobs.getBody().get("skills")).isEqualTo(List.of(Map.of("value", "Java", "offers", 2)));
+        assertThat(bobs.getBody().get("intermediaries")).isEqualTo(List.of(Map.of("value", "Exemple Conseil", "offers", 1)));
+        assertThat(call(bob, HttpMethod.GET, "/offers/market?radiusKm=30", null).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
     private static JobOffer offer(String externalId, String title, String company, Instant publishedAt, double latitude, double longitude) {
         JobOffer offer = new JobOffer();
         offer.setSite(OfferSite.FREE_WORK);

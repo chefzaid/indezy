@@ -37,7 +37,7 @@ describe('OfferFeedComponent', () => {
                   before: () => void = () => undefined): ComponentFixture<OfferFeedComponent> {
     registerLocaleData(localeFr);
     service = jasmine.createSpyObj('OfferService', ['search', 'get', 'updateState', 'importOffer', 'sites', 'regions', 'skills',
-      'savedSearches', 'alerts']);
+      'savedSearches', 'alerts', 'market']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     service.search.and.returnValue(of(result));
     service.sites.and.returnValue(of([
@@ -48,6 +48,8 @@ describe('OfferFeedComponent', () => {
     service.regions.and.returnValue(of([]));
     service.savedSearches.and.returnValue(of([]));
     service.alerts.and.returnValue(of({ newOffers: 0 }));
+    service.market.and.returnValue(of({ offers: 2, rates: { stated: 0 }, rateBins: [], remote: { remote: 0, hybrid: 0, onsite: 0, unstated: 2 },
+      skills: [{ value: 'Kafka', offers: 1 }], intermediaries: [], perDay: [] }));
     service.updateState.and.returnValue(of({ offerId: 1, saved: true, hidden: false, seen: true }));
     params = new BehaviorSubject(convertToParamMap(query));
     TestBed.configureTestingModule({
@@ -262,5 +264,36 @@ describe('OfferFeedComponent', () => {
 
     expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { q: 'java', rateMin: '600' } }));
     expect(fixture.nativeElement.querySelector('app-offer-saved-searches')).not.toBeNull();
+  });
+
+  it('opens the market snapshot, remembers it and filters on the skills it names', () => {
+    localStorage.removeItem('indezy.offers.marketOpen');
+    const fixture = create({ skills: 'Java' });
+    const toggle = fixture.nativeElement.querySelector('[data-market-toggle]') as HTMLButtonElement;
+
+    expect(fixture.nativeElement.querySelector('app-offer-market')).toBeNull();
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(localStorage.getItem('indezy.offers.marketOpen')).toBe('true');
+    expect(service.market).toHaveBeenCalledWith(jasmine.objectContaining({ skills: ['Java'] }));
+    (fixture.nativeElement.querySelector('[data-market-skills] button') as HTMLButtonElement).click();
+    expect(lastQueryParams()['skills']).toEqual(['Java', 'Kafka']);
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-offer-market')).toBeNull();
+    expect(localStorage.getItem('indezy.offers.marketOpen')).toBe('false');
+    localStorage.removeItem('indezy.offers.marketOpen');
+  });
+
+  it('shows the market snapshot at once when it was left open', () => {
+    localStorage.setItem('indezy.offers.marketOpen', 'true');
+    const fixture = create();
+    localStorage.removeItem('indezy.offers.marketOpen');
+
+    expect(fixture.componentInstance.marketOpen).toBeTrue();
+    expect(text(fixture)).toContain('Aperçu du marché');
   });
 });

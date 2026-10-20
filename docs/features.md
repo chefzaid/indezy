@@ -213,8 +213,20 @@ marked **New**.
   **Offers** item of the menu carries a badge with the offers new for any saved search, counted again every five
   minutes and after each change; a failed count is not reported.
 
+- **Market snapshot**: **Market** opens, above the offers, a picture of the offers the current filters and view find
+  (each mission once), drawn again when they change but not for another page or sort, and left open or closed in that
+  browser. It gives the offer count, the median daily rate, the middle half of the rates (first to third quartile)
+  and the share of offers stating a rate, with an offer's rate taken as the middle of the range it states. With a
+  target daily rate in the profile it says what share of the offers stating a rate reach it with their highest rate,
+  as the profile match reads them, and highlights its band on a histogram of the rates (bands of 50 €, twice as wide
+  as often as needed to keep 16 at most, over the rates between the 5th and 95th percentiles, rarer ones gathered in
+  an open band below and one above). It also shows the split between full remote, hybrid (with their remote days a
+  week on average), on site and not stated, the ten skills the offers name most (case aside; a click adds one to the
+  filters), the ten publishers naming the most offers (intermediaries or clients, spellings that differ only by case,
+  accents or punctuation counting as one) and the offers published each of the last 30 days, Paris time.
+
 API: `GET /offers` (filters, `matchesProfile`, `view`, `sort` = `NEWEST`, `RATE`, `DISTANCE` or `MATCH`, `page`,
-`size`), `GET /offers/{id}`, `PUT /offers/{id}/state`, `POST /offers/{id}/import`, `GET /offers/sites`,
+`size`), `GET /offers/market` (the same filters and view), `GET /offers/{id}`, `PUT /offers/{id}/state`, `POST /offers/{id}/import`, `GET /offers/sites`,
 `GET /offers/skills?q=`, `GET /offers/regions`, and the saved searches: `GET /offers/searches`, `POST /offers/searches`,
 `POST /offers/searches/{id}/open`, `DELETE /offers/searches/{id}` and `GET /offers/searches/alerts`. Each offer carries
 its `match` (score, skills, rate and place fit) and each page says whether distances (`distanceAvailable`) and matches

@@ -1087,6 +1087,37 @@
       "hint": "Ajoutez vos compétences à votre profil, avec votre TJM cible et votre ville, pour voir à quel point chaque mission vous correspond.",
       "completeProfile": "Compléter mon profil"
     },
+    "market": {
+      "toggle": "Marché",
+      "title": "Aperçu du marché",
+      "subtitle": "Pour les offres que trouvent vos filtres",
+      "error": "L'aperçu du marché n'a pas pu être chargé.",
+      "empty": "Aucune offre à décrire avec ces filtres.",
+      "offers": "Offres",
+      "offersUnit": "offres",
+      "median": "TJM médian",
+      "quartiles": "Moitié centrale des TJM",
+      "stated": "TJM indiqué",
+      "share": "{{share}} %",
+      "meetTarget": "{{share}} % des offres indiquant un TJM atteignent ou dépassent votre cible de {{target}}.",
+      "noTarget": "Indiquez un TJM cible dans votre profil pour voir combien d'offres l'atteignent.",
+      "rates": "TJM proposés",
+      "targetBand": "Tranche de votre TJM cible",
+      "noRates": "Aucune offre n'indique de TJM.",
+      "remote": "Télétravail",
+      "remoteParts": {
+        "remote": "Full remote",
+        "hybrid": "Hybride",
+        "onsite": "Sur site",
+        "unstated": "Non indiqué"
+      },
+      "hybridDays": "Offres hybrides : {{days}} jours de télétravail par semaine en moyenne",
+      "skills": "Compétences les plus citées",
+      "filterSkill": "Filtrer sur {{skill}} ({{count}} offres)",
+      "intermediaries": "Intermédiaires les plus actifs",
+      "none": "Non renseigné",
+      "perDay": "Offres publiées par jour, 30 derniers jours"
+    },
     "filters": {
       "title": "Filtres",
       "keywords": "Mots-clés",

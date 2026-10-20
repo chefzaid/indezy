@@ -124,7 +124,7 @@ public final class OfferMatch {
     }
 
     static RateFit rateFit(JobOffer offer, int target) {
-        Integer rate = offer.getRateMax() != null ? offer.getRateMax() : offer.getRateMin();
+        Integer rate = bestRate(offer.getRateMin(), offer.getRateMax());
         if (rate == null) {
             return RateFit.UNKNOWN;
         }
@@ -132,6 +132,11 @@ public final class OfferMatch {
             return RateFit.MEETS;
         }
         return rate * 10 >= target * 9 ? RateFit.CLOSE : RateFit.BELOW;
+    }
+
+    /** The best daily rate an offer pays: the top of its range, or the one rate it states. */
+    public static Integer bestRate(Integer rateMin, Integer rateMax) {
+        return rateMax != null ? rateMax : rateMin;
     }
 
     static PlaceFit placeFit(JobOffer offer, Origin origin) {

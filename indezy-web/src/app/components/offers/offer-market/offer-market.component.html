@@ -1,0 +1,135 @@
+<section class="market" aria-labelledby="offer-market-title" [attr.aria-busy]="loading">
+  <header class="market-header">
+    <h2 id="offer-market-title">
+      <mat-icon aria-hidden="true">insights</mat-icon>
+      {{ 'offers.market.title' | translate }}
+    </h2>
+    <p class="muted">{{ 'offers.market.subtitle' | translate }}</p>
+    @if (loading && view) {
+      <mat-spinner diameter="20" [attr.aria-label]="'offers.loading' | translate"></mat-spinner>
+    }
+  </header>
+
+  @if (loading && !view) {
+    <div class="market-state">
+      <mat-spinner diameter="32"></mat-spinner>
+    </div>
+  } @else if (failed) {
+    <div class="market-state" role="alert">
+      <p>{{ 'offers.market.error' | translate }}</p>
+      <button mat-stroked-button type="button" (click)="retry()">{{ 'offers.retry' | translate }}</button>
+    </div>
+  } @else if (view && view.market.offers === 0) {
+    <p class="market-state muted" data-market-empty>{{ 'offers.market.empty' | translate }}</p>
+  } @else if (view) {
+    <dl class="kpis">
+      <div class="kpi" data-kpi="offers">
+        <dt>{{ 'offers.market.offers' | translate }}</dt>
+        <dd>{{ formatNumber(view.market.offers) }}</dd>
+      </div>
+      <div class="kpi" data-kpi="median">
+        <dt>{{ 'offers.market.median' | translate }}</dt>
+        <dd>{{ formatEuros(view.market.rates.median) }}</dd>
+      </div>
+      <div class="kpi" data-kpi="quartiles">
+        <dt>{{ 'offers.market.quartiles' | translate }}</dt>
+        <dd>{{ formatEuroRange(view.market.rates.firstQuartile, view.market.rates.thirdQuartile) }}</dd>
+      </div>
+      <div class="kpi" data-kpi="stated">
+        <dt>{{ 'offers.market.stated' | translate }}</dt>
+        <dd>{{ 'offers.market.share' | translate: { share: view.statedShare } }}</dd>
+      </div>
+    </dl>
+
+    @if (view.market.rates.target != null) {
+      @if (view.market.rates.meetTarget != null) {
+        <p class="target" data-market-target>
+          <mat-icon aria-hidden="true">flag</mat-icon>
+          {{ 'offers.market.meetTarget' | translate: { share: view.market.rates.meetTarget, target: formatEuros(view.market.rates.target) } }}
+        </p>
+      }
+    } @else {
+      <p class="target muted" data-market-target>
+        <mat-icon aria-hidden="true">flag</mat-icon>
+        <span>{{ 'offers.market.noTarget' | translate }}</span>
+        <a mat-button routerLink="/profile">{{ 'offers.match.completeProfile' | translate }}</a>
+      </p>
+    }
+
+    <div class="panels">
+      <figure class="panel wide" data-market-rates>
+        <figcaption>{{ 'offers.market.rates' | translate }}</figcaption>
+        @if (view.bins.values.length) {
+          <app-offer-bar-chart [labels]="view.bins.labels" [values]="view.bins.values" [highlight]="view.bins.target"
+            [description]="view.bins.description" [seriesLabel]="'offers.market.offers' | translate" />
+          @if (view.bins.target != null) {
+            <p class="legend-note"><span class="swatch target-swatch" aria-hidden="true"></span>{{ 'offers.market.targetBand' | translate }}</p>
+          }
+        } @else {
+          <p class="muted">{{ 'offers.market.noRates' | translate }}</p>
+        }
+      </figure>
+
+      <figure class="panel" data-market-remote>
+        <figcaption>{{ 'offers.market.remote' | translate }}</figcaption>
+        <div class="split-bar" aria-hidden="true">
+          @for (part of view.remote; track part.part) {
+            <span [class]="part.part" [style.flex-grow]="part.offers"></span>
+          }
+        </div>
+        <ul class="legend">
+          @for (part of view.remote; track part.part) {
+            <li [attr.data-remote]="part.part">
+              <span class="swatch" [class]="part.part" aria-hidden="true"></span>
+              <span class="name">{{ 'offers.market.remoteParts.' + part.part | translate }}</span>&ngsp;
+              <strong>{{ 'offers.market.share' | translate: { share: part.share } }}</strong>&ngsp;
+              <span class="muted">({{ formatNumber(part.offers) }})</span>
+            </li>
+          }
+        </ul>
+        @if (view.market.remote.hybridRemoteDays != null) {
+          <p class="muted">{{ 'offers.market.hybridDays' | translate: { days: formatNumber(view.market.remote.hybridRemoteDays) } }}</p>
+        }
+      </figure>
+
+      <section class="panel" data-market-skills>
+        <h3>{{ 'offers.market.skills' | translate }}</h3>
+        <ol class="ranking">
+          @for (skill of view.market.skills; track skill.value) {
+            <li>
+              <button type="button" class="ranking-row" (click)="skillChosen.emit(skill.value)" [disabled]="isFiltered(skill.value)"
+                [attr.aria-label]="'offers.market.filterSkill' | translate: { skill: skill.value, count: skill.offers }">
+                <span class="name">{{ skill.value }}</span>&ngsp;
+                <span class="count">{{ formatNumber(skill.offers) }}</span>
+                <span class="bar" [style.width.%]="barWidth(skill, view.market.skills)" aria-hidden="true"></span>
+              </button>
+            </li>
+          } @empty {
+            <li class="muted">{{ 'offers.market.none' | translate }}</li>
+          }
+        </ol>
+      </section>
+
+      <section class="panel" data-market-intermediaries>
+        <h3>{{ 'offers.market.intermediaries' | translate }}</h3>
+        <ol class="ranking">
+          @for (publisher of view.market.intermediaries; track publisher.value) {
+            <li class="ranking-row">
+              <span class="name">{{ publisher.value }}</span>&ngsp;
+              <span class="count">{{ formatNumber(publisher.offers) }}</span>
+              <span class="bar" [style.width.%]="barWidth(publisher, view.market.intermediaries)" aria-hidden="true"></span>
+            </li>
+          } @empty {
+            <li class="muted">{{ 'offers.market.none' | translate }}</li>
+          }
+        </ol>
+      </section>
+
+      <figure class="panel wide" data-market-days>
+        <figcaption>{{ 'offers.market.perDay' | translate }}</figcaption>
+        <app-offer-bar-chart [labels]="view.days.labels" [values]="view.days.values" [description]="view.days.description"
+          [seriesLabel]="'offers.market.offers' | translate" />
+      </figure>
+    </div>
+  }
+</section>

@@ -35,13 +35,18 @@ import { NotificationService } from '../../../services/notification/notification
 import { relativeTime } from '../../../shared/utils/relative-time';
 import { OfferCardComponent } from '../offer-card/offer-card.component';
 import { OfferFiltersComponent } from '../offer-filters/offer-filters.component';
+import { OfferMarketComponent } from '../offer-market/offer-market.component';
 import { OfferSavedSearchesComponent } from '../offer-saved-searches/offer-saved-searches.component';
+
+/** Whether the market snapshot was left open, in this browser. */
+const MARKET_OPEN_KEY = 'indezy.offers.marketOpen';
 
 /** The freelance missions of every job board in one feed, newest first, with filters kept in the address. */
 @Component({
   selector: 'app-offer-feed',
   imports: [MatButtonModule, MatButtonToggleModule, MatCardModule, MatFormFieldModule, MatIconModule, MatPaginatorModule,
-    MatProgressSpinnerModule, MatSelectModule, RouterLink, TranslateModule, OfferCardComponent, OfferFiltersComponent, OfferSavedSearchesComponent],
+    MatProgressSpinnerModule, MatSelectModule, RouterLink, TranslateModule, OfferCardComponent, OfferFiltersComponent, OfferMarketComponent,
+    OfferSavedSearchesComponent],
   templateUrl: './offer-feed.component.html',
   styleUrls: ['./offer-feed.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -59,6 +64,7 @@ export class OfferFeedComponent implements OnInit {
   failed = false;
   /** Filters panel open on small screens. */
   filtersOpen = false;
+  marketOpen = readMarketOpen();
   readonly expanded = new Set<number>();
   readonly loadingDetails = new Set<number>();
   readonly importing = new Set<number>();
@@ -151,6 +157,20 @@ export class OfferFeedComponent implements OnInit {
 
   retry(): void {
     this.reload$.next();
+  }
+
+  toggleMarket(): void {
+    this.marketOpen = !this.marketOpen;
+    try {
+      localStorage.setItem(MARKET_OPEN_KEY, String(this.marketOpen));
+    } catch {
+      // Storage blocked: the panel just opens closed next time.
+    }
+  }
+
+  /** Narrows the feed to a skill the market snapshot names. */
+  filterOnSkill(skill: string): void {
+    this.navigate({ ...this.query, skills: [...this.query.skills, skill], page: 0 });
   }
 
   toggleSaved(offer: Offer): void {
@@ -250,5 +270,13 @@ export class OfferFeedComponent implements OnInit {
 
   private navigate(query: OfferQuery): void {
     this.router.navigate([], { relativeTo: this.route, queryParams: offerQueryToParams(query) });
+  }
+}
+
+function readMarketOpen(): boolean {
+  try {
+    return localStorage.getItem(MARKET_OPEN_KEY) === 'true';
+  } catch {
+    return false;
   }
 }
