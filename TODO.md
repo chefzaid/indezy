@@ -167,16 +167,33 @@ Sites checked on 2026-10-19, and how each one is read:
 | koino.fr | Webflow sitemap (`/missions/…`), then each page | sitemap `lastmod` | keeps missions whose application is open |
 | sixiemehomme.io | the missions shown on the home page, then their public pages | first seen | only the showcased missions are public; daily rate, location, remote, start, duration |
 
-Sites left out:
+Sites to check by hand for missions (a sign-in, a membership or a referral is needed, or the site is closed to crawlers), so Indezy does not read them:
 
-- linkedin.com: `robots.txt` disallows every crawler (`Disallow: /`), its user agreement forbids scraping, and it answers this server with a CAPTCHA.
 - hitechpros.com: missions are visible only to paying members (`freelance.hitechpros.com`); the public site shows counters only, and its HTTPS certificate chain is incomplete.
 - opteamis.com: freelance missions live inside `app.opteamis.com` after sign-up; the public site lists only Opteamis's own CDI vacancies.
-- comet.co and amazing.dev: matching services with no public mission list.
 - lookingfortechs.fr (now sharebound.fr): every mission page requires a LinkedIn sign-in.
+- ouidesk.com: joining is by referral (cooptation), and applying needs an account. Its 152 mission pages are public in its sitemap, though, so it is also planned below.
+- fr.capgemini.talentnet.community (Capgemini's freelance network): 29 open freelance missions (type "Mission", the newest published on 2026-10-20) are shown without signing in, but the API they come from (`talentnet-api-v6.v6-prod-euc1.talentnet.community`) disallows every crawler except Googlebot and Bingbot in its `robots.txt`, and the site disallows `/jobs/search`.
+- hellowork.com: it lists freelance offers (379 developer offers with the Freelance contract on 2026-10-20, some with a daily rate), but its `robots.txt` disallows its search pages and every query string, and its sitemap answers 403 to anything but a browser.
+
+Matching services: they call you when a mission matches your profile, with no public list of missions:
+
+- malt.fr (see the Malt connector above), freelance.com, wheelofwork.com (its "missions" pages describe its trades, not missions), comet.co and amazing.dev.
+- cremedelacreme.io: its public mission pages (`/pages-mission/…`) stopped in December 2024 (missions starting in January 2024), so only its matching remains.
+- freelancerepublik.com and easypartner.fr match profiles too, and also publish missions publicly, so they are planned below.
+
+Sites left out for other reasons:
+
+- linkedin.com: `robots.txt` disallows every crawler (`Disallow: /`), its user agreement forbids scraping, and it answers this server with a CAPTCHA.
 - mon-consultant-independant.com: its list is drawn in the browser from Airtable with no public endpoint; its missions already reach the feed through Free-Work and Collective.work, which republish them.
 - nexoris.com: corporate site; its missions are LeGratin's (same group).
-- anywr.frl: the domain does not resolve.
+- welcometothejungle.com: 100,000+ jobs of every contract in its sitemaps (10,000 per file, mostly salaried; the addresses that name a self-employed status are mostly estate and insurance agents), told apart only on each job page, and `robots.txt` disallows its filtered lists (`/*?`); its job search now opens a matching page.
+- urbanlinker.com: all 311 open jobs are CDI on 2026-10-20 (its API types each job).
+- bluecoders.com: its 16 open offers are CDI or unspecified on 2026-10-20; its page data flags freelance jobs (`jobType.freelance`), so it can be read if some appear.
+- unlck.fr: CDI jobs only.
+- konekt.fr: a recruitment firm with no public job list.
+- hiresweet.com: recruiting software (ATS, CRM and sourcing), not a job board.
+- Dead, skipped: anywr.frl (the domain does not resolve), malova.fr (a hosting provider's default page; its certificate expired in July 2023) and talent.io (the domain no longer answers, `www` points to a removed Heroku app and `app.talent.io` does not resolve).
 - None of the readable sites is dead: each published offers within the last three months (Next Mondays' newest is 2026-09-02, every other site published in October 2026). Espace Freelance is close to it: on 2026-10-19 its newest mission was from 2026-10-14 and the eight before it from September and October 2025.
 
 Rules for every increment:
@@ -199,6 +216,14 @@ Increments, implemented in order:
 - [x] Market snapshot for the current filters: offer count, median and quartile daily rates, a daily-rate histogram, the remote split, top skills, top intermediaries and offers published per day.
 - [x] Site health: a page listing each site with its status, last successful run, offers collected over 24 hours and 7 days, active offers and last error, plus the left-out sites and why; a per-workspace switch to exclude a site, and a manual refresh limited to one every 15 minutes.
 - [x] Workspace blocklist: hide offers from chosen companies or intermediaries everywhere in the feed, managed from the offer card and the profile.
+- [ ] More sites, checked on 2026-10-20, each keeping its freelance missions only (the **Job boards** page's left-out list gains the new left-out sites above):
+  - castor-network.com (Alten's freelance network): the public list `/fr/mission-freelance/?page=` (five missions a page, about eleven pages, all freelance), each card with "Publiée le dd/mm/yyyy" (newest 2026-10-12), title, role and description; details on `/fr/mission-freelance/<id>/<slug>`. Engineering (industry, aerospace, nuclear) as well as IT. Its `/robots.txt` answers a web page, so no rules apply.
+  - kicklox.com: `app.kicklox.com/sitemap-missions.xml` (2,737 missions, updated daily) and the public Algolia `Mission` index its pages load; its freelance missions (`contract_types` = `missions`, shown as "Prestation": 258 on 2026-10-20, the newest two days old) are kept and its CDI jobs left out. Engineering and tech.
+  - katchme.fr: WordPress REST `GET /wp-json/wp/v2/offre`, freelance offers told by the `type-contrat-freelance` class (CDI ones carry `type-contrat-cdi`), with daily rates ("TJM 400-550€"); newest 2026-10-12.
+  - freelancerepublik.com: its sitemap's `/missions/…` pages (68), each with a schema.org `JobPosting` (`CONTRACTOR`, `datePosted`; newest updated 2026-10-02), through the structured-data reader.
+  - easypartner.fr: `job-sitemap.xml` (248 jobs), each page with a `JobPosting`; keep `CONTRACTOR` ones (half of the ten newest, up to 2026-09-30), leave `FULL_TIME` out.
+  - welovedevs.com: its search API (`search.welovedevs.com`), keeping `contractTypes` = `freelance` (5 of 681 on 2026-10-20, against 236 CDI; most of the rest are spontaneous applications); no `robots.txt`.
+  - ouidesk.com: its sitemap's `/mission/…` pages (152, public without an account) give title, company, place, start, duration and description but no date, so offers are dated when first seen; its missions are "Régie" placements, to be confirmed as freelance on the first run.
 - [ ] Offer link to tracked opportunity: paste the link of an offer from one of the feed's sites and get a tracked opportunity on the Kanban board, prefilled from the offer's details, with the website as its source.
   - Where: a "From an offer link" entry next to the board's and the project list's add actions, and a link field at the top of the new-opportunity form. Any site the feed reads is accepted, including the URL of an "Also on" copy.
   - Finding the offer: the link is matched to a collected offer of the same site (tracking parameters, fragments and trailing slashes ignored). An offer not collected yet is read on demand by that site's reader, through the same polite client (built-in domains only, `robots.txt`, delay), and stored in the feed like any other.
@@ -208,7 +233,7 @@ Increments, implemented in order:
   - Review before saving: the form opens filled in, every field can be corrected, the board column is chosen (Contact by default), and nothing is created until it is saved.
   - Once per mission: a link to an offer, or to one of its copies, already in the pipeline opens that opportunity instead of creating another, and the feed card shows **In the pipeline** for an opportunity created from a link.
   - Refused with a clear message: links of sites the feed does not read (listing the supported ones), offers that are not freelance (CDI, CDD), and pages that no longer exist. Postings from any other site stay the "One-click import of a job posting" item of Job Board Integrations.
-- [ ] Every website above as a source: each workspace's **Sources** list holds every job board of the tables above as a job board source with its home link, so any opportunity can name it, not only one imported from the feed. This covers the sites the feed reads and the left-out ones that are still online (LinkedIn, HiTechPros, Opteamis, Comet, Amazing.dev, LookingForTechs/Sharebound, Mon Consultant Indépendant, Nexoris; anywr.frl no longer resolves). New workspaces get them at creation and existing ones once, without duplicating a source already named like the site (case aside). The feed import and offer links keep matching them by name.
+- [ ] Every website above as a source: each workspace's **Sources** list holds every site named in this section that is still online, with its home link, so any opportunity can name it, not only one imported from the feed. That means the sites the feed reads, the ones planned above, the ones to check by hand (HiTechPros, Opteamis, LookingForTechs/Sharebound, OuiDesk, Capgemini TalentNet, HelloWork), the matching services (Malt, Freelance.com, WheelOfWork, Comet, Amazing.dev, Crème de la Crème, FreelanceRepublik, EasyPartner) and the other boards and firms named (LinkedIn, Mon Consultant Indépendant, Nexoris, Welcome to the Jungle, Urban Linker, Bluecoders, UNLCK, Konekt, HireSweet), as job board sources, LinkedIn as social media. Dead sites are left out (anywr.frl, malova.fr, talent.io). New workspaces get them at creation and existing ones once, without duplicating a source already named like the site (case aside). The feed import and offer links keep matching them by name.
 
 ## AI & Automation
 
