@@ -1,15 +1,15 @@
 import { Directive, ElementRef, EventEmitter, Output, inject } from '@angular/core';
 
-export type OfferKeyAction = 'save' | 'hide' | 'add' | 'details';
+export type OfferKeyAction = 'save' | 'hide' | 'add' | 'details' | 'note';
 
 /** Keys of the offer list; they act only while the focus is in the list, so typing elsewhere is never caught. */
-const ACTIONS: Record<string, OfferKeyAction> = { s: 'save', h: 'hide', a: 'add', d: 'details' };
+const ACTIONS: Record<string, OfferKeyAction> = { s: 'save', h: 'hide', a: 'add', d: 'details', n: 'note' };
 const EDITABLE = 'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"], [role="combobox"]';
 
 /**
  * Keyboard use of the offer feed: `j`/`k` (or the arrow keys) move between offers, `o` opens one on its site, and `s`,
- * `h`, `a` and `d` save, hide, add to the pipeline and show the details of the focused offer. Offers are the list's
- * `[data-offer-item]` elements, one tab stop for the list (roving tabindex).
+ * `h`, `a`, `d` and `n` save, hide, add to the pipeline, show the details of and write a note on the focused offer.
+ * Offers are the list's `[data-offer-item]` elements, one tab stop for the list (roving tabindex).
  */
 @Directive({
   selector: '[appOfferListKeys]',

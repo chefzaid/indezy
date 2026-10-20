@@ -335,8 +335,9 @@ Table: `job_offer_states`
 
 Purpose: what one workspace did with an offer. Unique per freelance and offer (`uk_job_offer_states_freelance_offer`).
 
-Fields: `saved`, `hidden`, `seenAt`, and `importedProject`, the opportunity created from the offer (cleared when
-that project is deleted, so the offer can be imported again). The copies of a mission share their states: an
+Fields: `saved`, `hidden`, `seenAt`, `importedProject`, the opportunity created from the offer (cleared when
+that project is deleted, so the offer can be imported again), and `note`, the workspace's private note (2,000
+characters, blank stored as none) with `noteKey`, its words folded for the keyword filter. The copies of a mission share their states: an
 action is written on each copy, and the feed reads the states of every copy of an offer.
 
 ## SavedOfferSearch

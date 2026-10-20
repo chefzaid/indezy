@@ -285,6 +285,25 @@ describe('OfferFeedComponent', () => {
     expect(service.blockPublisher).toHaveBeenCalledTimes(2);
   });
 
+  it('keeps a note on an offer at once and puts the old one back when the server refuses', () => {
+    const fixture = create({}, page([offer(1, { note: 'Ancienne' }), offer(2)]));
+    const component = fixture.componentInstance;
+    service.updateState.and.returnValue(of({ offerId: 2, saved: false, hidden: false, seen: false, note: 'Rappeler' }));
+
+    component.saveNote(component.page!.content[1], ' Rappeler ');
+    expect(service.updateState).toHaveBeenCalledWith(2, { note: ' Rappeler ' });
+    expect(component.page!.content[1].note).toBe('Rappeler');
+
+    service.updateState.and.returnValue(of({ offerId: 1, saved: false, hidden: false, seen: false }));
+    component.saveNote(component.page!.content[0], '');
+    expect(component.page!.content[0].note).toBeUndefined();
+
+    service.updateState.and.returnValue(throwError(() => new Error('down')));
+    component.saveNote(component.page!.content[1], 'Autre');
+    expect(component.page!.content[1].note).toBe('Rappeler');
+    expect(notifications.error).toHaveBeenCalledWith('offers.errors.note');
+  });
+
   it('keeps the saved offers of a blocked publisher in the saved view', () => {
     const fixture = create({ view: 'SAVED' }, page([offer(1, { company: 'Acme', saved: true })]));
     service.blockPublisher.and.returnValue(of({ id: 8, name: 'Acme' }));
@@ -306,11 +325,14 @@ describe('OfferFeedComponent', () => {
     component.onOfferKey({ action: 'add', index: 0 });
     component.onOfferKey({ action: 'hide', index: 1 });
     component.onOfferKey({ action: 'save', index: 9 });
+    component.onOfferKey({ action: 'note', index: 0 });
+    fixture.detectChanges();
 
     expect(service.updateState).toHaveBeenCalledWith(1, { saved: true });
     expect(service.get).toHaveBeenCalledWith(2);
     expect(service.importOffer).toHaveBeenCalledTimes(1);
     expect(service.updateState).toHaveBeenCalledWith(2, { hidden: true });
+    expect(fixture.nativeElement.querySelector('[data-offer-item] [data-note-editor]')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('ol[aria-describedby="offer-keys-hint"]')).not.toBeNull();
     expect(text(fixture)).toContain('Utilisez J et K');
   });

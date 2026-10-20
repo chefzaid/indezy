@@ -190,7 +190,7 @@ published (the hint says when a site gives no date and the offer is dated when I
 marked **New**.
 
 - **Filters**, kept in the address so a search can be bookmarked or shared: keywords (every word must appear in the
-  title, publisher, skills, place or description, accents ignored), daily rate minimum and maximum with "hide offers
+  title, publisher, skills, place or description, or in the workspace's note on the offer, accents ignored), daily rate minimum and maximum with "hide offers
   without a daily rate", regions, departments, distance from the profile's city (10 to 200 km), work modes, minimum
   remote days a week, duration, start by a date (missions starting as soon as possible stay listed), seniority,
   skills (suggested from the open offers), published within 24 hours, 3 days, a week or a month, sites, unseen
@@ -207,14 +207,20 @@ marked **New**.
   intermediary when the workspace has no client of that name; the site itself when the offer names none), and its
   source is the job board: the workspace's source named after the site, created as a job board on first import. An
   offer is added once; the card then links to its opportunity, until that opportunity is deleted. The card's
-  **More actions** menu also hides every offer from its publisher (see the blocklist below).
+  **More actions** menu also hides every offer from its publisher (see the blocklist below) and keeps a note on it.
+- **Private notes**: **Add a note** (or **Edit the note**) in an offer's menu, or `N` on the focused offer, opens a
+  text field under the excerpt for whatever the workspace wants to remember (who called, the rate to ask, why the
+  mission is not for it), up to 2,000 characters. `Ctrl+Enter` or **Save the note** keeps it, `Esc` or **Cancel**
+  closes the field unchanged, and **Delete the note** (or saving it blank) removes it. The card shows the note under
+  its excerpt, the keyword filter finds offers by the words of their note, the note is shared by every copy of the
+  mission, and **Add to pipeline** adds it to the new opportunity's notes.
 - **One card per mission**: boards republish each other's missions (WorkDispo republishes Cherry Pick, Collective.work
   and Free-Work republish Mon Consultant Indépendant, ESNs post on several boards), so offers of different sites whose
   titles read the same and whose publisher or opening text is the same are one mission. The feed shows its earliest
   copy that matches the filters, with **Also on** links to the others (one per site, still open). Saving, hiding,
   marking seen or adding one copy to the pipeline does it for the mission: the other copies never come back as new.
-- What a workspace does with offers (saved, hidden, seen, imported) is private to it and part of the account data
-  export. Offers older than 90 days or past their expiry are removed every night, unless a workspace saved or
+- What a workspace does with offers (saved, hidden, seen, imported, its notes) is private to it and part of the
+  account data export. Offers older than 90 days or past their expiry are removed every night, unless a workspace saved or
   imported them.
 
 - **Saved searches**: **Save this search** keeps the current filters and sort under a name (up to 20 per workspace,
@@ -445,7 +451,7 @@ stage to move it; moving to Lost still requires the existing loss-reason dialog.
 In the offer feed, single keys act while one of its offers has the focus (Tab to
 the list, one tab stop for all offers): `J` and `K` (or the arrow keys) move to the
 next and previous offer, `O` opens it on its site, `S` saves it, `H` hides it, `A`
-adds it to the pipeline and `D` shows or folds its details; when an offer leaves the
+adds it to the pipeline, `D` shows or folds its details and `N` opens its note; when an offer leaves the
 list, the next one takes the focus. The shortcut help lists them, and screen readers
 hear them from the list's description.
 

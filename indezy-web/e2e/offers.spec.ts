@@ -108,8 +108,9 @@ async function mockFeed(page: Page, language: string, matchAvailable = true):
     return route.fulfill({ json: market });
   });
   await page.route('**/api/offers/*/state', route => {
-    states.push(route.request().postDataJSON());
-    return route.fulfill({ json: { offerId: 1, saved: true, hidden: false, seen: true } });
+    const body = route.request().postDataJSON();
+    states.push(body);
+    return route.fulfill({ json: { offerId: 1, saved: true, hidden: false, seen: true, note: body.note?.trim() || undefined } });
   });
   await page.route('**/api/offers/*/import', route => {
     imports.push(Number(new URL(route.request().url()).pathname.split('/').at(-2)));
@@ -411,6 +412,36 @@ test('moves through the feed and acts on offers with the keyboard (en)', async (
 
   await page.keyboard.press('Alt+Shift+H');
   await expect(page.getByRole('dialog').locator('[data-feed-shortcuts]')).toContainText('Add the offer to the pipeline');
+});
+
+test('keeps a private note on an offer and edits it from the keyboard (en)', async ({ page }) => {
+  const api = await mockFeed(page, 'en');
+
+  await page.goto('/offers');
+  const cards = page.locator('app-offer-card');
+  await expect(cards).toHaveCount(2);
+  await cards.first().getByRole('button', { name: 'More actions' }).click();
+  await page.getByRole('menuitem', { name: 'Add a note' }).click();
+  const note = cards.first().getByLabel('Your note');
+  await expect(note).toBeFocused();
+  await note.fill('Called Julie: rate 650, starts in November');
+  await cards.first().getByRole('button', { name: 'Save the note' }).click();
+  await expect(cards.first().locator('[data-note]')).toContainText('Called Julie: rate 650, starts in November');
+  expect(api.states).toContainEqual({ note: 'Called Julie: rate 650, starts in November' });
+  await expect(cards.first().getByRole('button', { name: 'More actions' })).toBeFocused();
+
+  await page.keyboard.press('n');
+  await expect(note).toBeFocused();
+  await expect(note).toHaveValue('Called Julie: rate 650, starts in November');
+  await note.fill('Not for me: onsite every day');
+  await page.keyboard.press('Escape');
+  await expect(cards.first().locator('[data-note]')).toContainText('Called Julie');
+  await page.keyboard.press('n');
+  await note.fill('Not for me: onsite every day');
+  await page.keyboard.press('Control+Enter');
+  await expect(cards.first().locator('[data-note]')).toContainText('Not for me: onsite every day');
+  await settle(page);
+  await page.screenshot({ path: test.info().outputPath('offer-note-en.png'), fullPage: true });
 });
 
 test('shows the best new missions on the dashboard (en)', async ({ page }) => {

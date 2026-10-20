@@ -232,7 +232,7 @@ Indezy stores personal and commercially sensitive information:
 - phone numbers
 - addresses and city
 - job prospects
-- client and contact notes
+- client and contact notes, and private notes on job offers
 - rates and revenue estimates
 - possible CV file path
 

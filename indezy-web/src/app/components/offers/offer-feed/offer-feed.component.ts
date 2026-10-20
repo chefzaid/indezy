@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, LOCALE_ID, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, LOCALE_ID, OnInit, QueryList, ViewChildren, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -69,6 +69,8 @@ export class OfferFeedComponent implements OnInit {
   /** Filters panel open on small screens. */
   filtersOpen = false;
   marketOpen = readMarketOpen();
+  /** The cards of the page, in its order. */
+  @ViewChildren(OfferCardComponent) private cards?: QueryList<OfferCardComponent>;
   readonly expanded = new Set<number>();
   readonly loadingDetails = new Set<number>();
   readonly importing = new Set<number>();
@@ -198,6 +200,9 @@ export class OfferFeedComponent implements OnInit {
       case 'details':
         this.toggleDetails(offer);
         break;
+      case 'note':
+        this.cards?.get(event.index)?.editNote();
+        break;
     }
   }
 
@@ -286,6 +291,19 @@ export class OfferFeedComponent implements OnInit {
         this.changes.markForCheck();
       },
       error: () => this.notifications.error('offers.errors.block')
+    });
+  }
+
+  /** Keeps the workspace's note on the offer (a blank one removes it), shown at once and put back on failure. */
+  saveNote(offer: Offer, note: string): void {
+    const before = offer.note;
+    this.patch(offer.id, { note: note.trim() || undefined });
+    this.offerService.updateState(offer.id, { note }).subscribe({
+      next: state => this.patch(offer.id, { note: state.note ?? undefined }),
+      error: () => {
+        this.patch(offer.id, { note: before });
+        this.notifications.error('offers.errors.note');
+      }
     });
   }
 

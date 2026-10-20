@@ -196,7 +196,70 @@ describe('OfferCardComponent', () => {
     expect(blocked.map(value => value.id)).toEqual([7]);
     fixture.componentRef.setInput('offer', offer({ company: undefined }));
     fixture.detectChanges();
-    expect(element(fixture, '.more-button')).toBeNull();
+    element(fixture, '.more-button').click();
+    fixture.detectChanges();
+    expect(document.querySelector('[data-block-publisher]')).toBeNull();
+    expect(document.querySelector('[data-edit-note]')).not.toBeNull();
+  });
+
+  it('adds, edits and deletes a private note from the menu', async () => {
+    const fixture = create();
+    const saved: { offer: Offer; note: string }[] = [];
+    fixture.componentInstance.saveNote.subscribe(value => saved.push(value));
+    expect(element(fixture, '[data-note]')).toBeNull();
+
+    element(fixture, '.more-button').click();
+    fixture.detectChanges();
+    const add = document.querySelector('[data-edit-note]') as HTMLButtonElement;
+    expect(add.innerText).toContain('Ajouter une note');
+    add.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(element(fixture, '[data-delete-note]')).toBeNull();
+    const input = element(fixture, '[data-note-editor] textarea') as HTMLTextAreaElement;
+    expect(input.maxLength).toBe(2000);
+    input.value = 'Rappeler Julie lundi';
+    input.dispatchEvent(new Event('input'));
+    element(fixture, '[data-save-note]').click();
+    fixture.detectChanges();
+
+    expect(saved.map(value => [value.offer.id, value.note])).toEqual([[7, 'Rappeler Julie lundi']]);
+    expect(element(fixture, '[data-note-editor]')).toBeNull();
+    await new Promise(resolve => setTimeout(resolve));
+    expect(document.activeElement).toBe(element(fixture, '.more-button'));
+
+    fixture.componentRef.setInput('offer', offer({ note: 'Rappeler Julie lundi\nTJM 650' }));
+    fixture.detectChanges();
+    expect(element(fixture, '[data-note]').textContent).toContain('Rappeler Julie lundi\nTJM 650');
+    fixture.componentInstance.editNote();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect((element(fixture, '[data-note-editor] textarea') as HTMLTextAreaElement).value).toBe('Rappeler Julie lundi\nTJM 650');
+    element(fixture, '[data-delete-note]').click();
+    fixture.detectChanges();
+    expect(saved.at(-1)?.note).toBe('');
+  });
+
+  it('saves nothing for an unchanged note and closes the editor on Escape', () => {
+    const fixture = create(offer({ note: 'Déjà vue' }));
+    const saved: unknown[] = [];
+    fixture.componentInstance.saveNote.subscribe(value => saved.push(value));
+
+    fixture.componentInstance.editNote();
+    fixture.detectChanges();
+    fixture.componentInstance.noteDraft = '  Déjà vue ';
+    element(fixture, '[data-note-editor]').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true }));
+    fixture.detectChanges();
+    expect(saved).toEqual([]);
+    expect(element(fixture, '[data-note-editor]')).toBeNull();
+
+    fixture.componentInstance.editNote();
+    fixture.detectChanges();
+    fixture.componentInstance.noteDraft = 'Autre chose';
+    element(fixture, '[data-note-editor]').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(saved).toEqual([]);
+    expect(element(fixture, '[data-note]').textContent).toContain('Déjà vue');
   });
 
   it('shows the full description when expanded and links an imported offer to its project', () => {

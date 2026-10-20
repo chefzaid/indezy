@@ -78,8 +78,13 @@ public final class JobOfferSpecifications {
         Origin origin = profile.origin();
         List<Predicate> predicates = new ArrayList<>();
         predicates.addAll(view(request, freelanceId, root, query, cb, now));
-        keywords(request.getQ()).forEach(term ->
-            predicates.add(cb.like(root.get("searchText"), "%" + escapeLike(term) + "%", '\\')));
+        for (String term : keywords(request.getQ())) {
+            String pattern = "%" + escapeLike(term) + "%";
+            Predicate inText = cb.like(root.get("searchText"), pattern, '\\');
+            // The workspace's own notes are searched too.
+            predicates.add(freelanceId == null ? inText :
+                cb.or(inText, state(freelanceId, root, query, cb, state -> cb.like(state.get("noteKey"), pattern, '\\'))));
+        }
         rate(request, root, cb, predicates);
         place(request, origin, root, cb, predicates);
         work(request, root, cb, predicates);

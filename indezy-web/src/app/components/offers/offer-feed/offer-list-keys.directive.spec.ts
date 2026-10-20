@@ -57,14 +57,16 @@ describe('OfferListKeysDirective', () => {
     expect(document.activeElement).toBe(item(0));
   });
 
-  it('opens, saves, hides, adds and folds the focused offer, even from one of its buttons', () => {
+  it('opens, saves, hides, adds, folds and notes the focused offer, even from one of its buttons', () => {
     press(item(1), 'o');
     press(item(1).querySelector('button') as HTMLElement, 's');
     press(item(2), 'A');
     press(item(0), 'd');
+    press(item(2), 'n');
 
     expect(fixture.componentInstance.opened).toEqual([2]);
-    expect(fixture.componentInstance.actions).toEqual([{ action: 'save', index: 1 }, { action: 'add', index: 2 }, { action: 'details', index: 0 }]);
+    expect(fixture.componentInstance.actions).toEqual([{ action: 'save', index: 1 }, { action: 'add', index: 2 }, { action: 'details', index: 0 },
+      { action: 'note', index: 2 }]);
   });
 
   it('leaves typing, modified keys and other keys alone', () => {

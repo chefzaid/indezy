@@ -80,7 +80,7 @@ class UserDataExportServiceTest {
         report.setDecidedAt(Instant.parse("2026-11-02T09:30:00Z"));
         when(activityReportService.findByFreelanceId(5L)).thenReturn(List.of(report));
         when(offerStateService.export(5L)).thenReturn(List.of(new OfferStateExportDto(OfferSite.FREE_WORK, "Développeur Java",
-            "Exemple Conseil", "https://www.free-work.com/7", true, false, Instant.parse("2026-10-19T08:00:00Z"), null)));
+            "Exemple Conseil", "https://www.free-work.com/7", true, false, Instant.parse("2026-10-19T08:00:00Z"), null, "Call Léa")));
 
         OfferSearchRequest filters = new OfferSearchRequest();
         filters.setQ("kafka");
@@ -115,6 +115,7 @@ class UserDataExportServiceTest {
             .contains("\"excludedOfferSites\" : [ \"YEETS\" ]")
             .contains("\"blockedOfferPublishers\"")
             .contains("\"offerSiteVisits\"")
+            .contains("Call Léa")
             .contains("\"MALT\"")
             .contains("\"name\" : \"Exemple Conseil\"");
     }

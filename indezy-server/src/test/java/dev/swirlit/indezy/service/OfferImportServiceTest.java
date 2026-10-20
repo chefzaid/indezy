@@ -42,8 +42,9 @@ class OfferImportServiceTest {
     private final FreelanceRepository freelances = mock(FreelanceRepository.class);
     private final ProjectRepository projects = mock(ProjectRepository.class);
     private final ProjectService projectService = mock(ProjectService.class);
+    private final ProjectNoteService projectNotes = mock(ProjectNoteService.class);
     private final OfferImportService service = new OfferImportService(offerStates, states, clients, sources, freelances, projects,
-        projectService);
+        projectService, projectNotes);
 
     private JobOffer offer;
     private JobOfferState state;
@@ -89,6 +90,7 @@ class OfferImportServiceTest {
         ProjectDto created = service.importOffer(3L, 7L);
 
         assertThat(created.getId()).isEqualTo(40L);
+        verify(projectNotes, never()).addNote(any(), any());
         ArgumentCaptor<ProjectDto> project = ArgumentCaptor.forClass(ProjectDto.class);
         verify(projectService).create(project.capture());
         ProjectDto sent = project.getValue();
@@ -117,6 +119,19 @@ class OfferImportServiceTest {
         assertThat(state.getImportedProject().getId()).isEqualTo(40L);
         assertThat(state.getSeenAt()).isNotNull();
         verify(states).save(state);
+    }
+
+    @Test
+    void carriesTheWorkspacesNoteIntoTheOpportunity() {
+        JobOfferState copy = new JobOfferState();
+        copy.setNote("Rappeler Léa chez Exemple Conseil");
+        when(offerStates.groupStates(3L, 7L)).thenReturn(List.of(state, copy));
+        when(clients.findFirstByFreelanceIdAndCompanyNameIgnoreCase(any(), any())).thenReturn(Optional.empty());
+        when(sources.findFirstByFreelanceIdAndNameIgnoreCase(any(), any())).thenReturn(Optional.empty());
+
+        service.importOffer(3L, 7L);
+
+        verify(projectNotes).addNote(40L, "Rappeler Léa chez Exemple Conseil");
     }
 
     @Test

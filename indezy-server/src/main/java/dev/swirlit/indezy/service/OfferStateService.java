@@ -41,7 +41,7 @@ public class OfferStateService {
         this.clock = clock;
     }
 
-    /** Saves, hides or marks an offer seen, and its copies on other sites with it: they are one mission. */
+    /** Saves, hides, marks seen or notes an offer, and its copies on other sites with it: they are one mission. */
     public OfferStateDto update(Long freelanceId, Long offerId, OfferStateUpdateRequest request) {
         List<JobOfferState> group = groupStates(freelanceId, offerId);
         for (JobOfferState state : group) {
@@ -55,6 +55,9 @@ public class OfferStateService {
                 state.setSeenAt(clock.instant());
             } else if (Boolean.FALSE.equals(request.seen())) {
                 state.setSeenAt(null);
+            }
+            if (request.note() != null) {
+                state.setNote(request.note());
             }
         }
         return OfferStateDto.merged(offerId, states.saveAll(group).stream().map(OfferStateService::toDto).toList());
@@ -78,7 +81,7 @@ public class OfferStateService {
         return states.findByFreelanceId(freelanceId).stream()
             .map(state -> new OfferStateExportDto(state.getOffer().getSite(), state.getOffer().getTitle(),
                 state.getOffer().getCompany(), state.getOffer().getUrl(), state.isSaved(), state.isHidden(), state.getSeenAt(),
-                state.getImportedProject() == null ? null : state.getImportedProject().getId()))
+                state.getImportedProject() == null ? null : state.getImportedProject().getId(), state.getNote()))
             .toList();
     }
 
@@ -98,6 +101,6 @@ public class OfferStateService {
 
     static OfferStateDto toDto(JobOfferState state) {
         return new OfferStateDto(state.getOffer().getId(), state.isSaved(), state.isHidden(), state.getSeenAt() != null,
-            state.getImportedProject() == null ? null : state.getImportedProject().getId());
+            state.getImportedProject() == null ? null : state.getImportedProject().getId(), state.getNote());
     }
 }

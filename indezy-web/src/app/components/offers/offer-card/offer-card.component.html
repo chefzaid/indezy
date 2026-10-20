@@ -93,6 +93,33 @@
     <p class="excerpt">{{ offer.excerpt }}</p>
   }
 
+  @if (editingNote) {
+    <form class="note-editor" (ngSubmit)="submitNote()" (keydown.escape)="cancelNote()" (keydown.control.enter)="submitNote()"
+      data-note-editor>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="note-field">
+        <mat-label>{{ 'offers.card.noteLabel' | translate }}</mat-label>
+        <textarea matInput #noteInput name="note" [(ngModel)]="noteDraft" maxlength="2000" rows="3"
+          [placeholder]="'offers.card.notePlaceholder' | translate"></textarea>
+        <mat-hint>{{ 'offers.card.noteHint' | translate }}</mat-hint>
+        <mat-hint align="end">{{ noteDraft.length }} / 2000</mat-hint>
+      </mat-form-field>
+      <div class="note-actions">
+        @if (offer.note) {
+          <button mat-button type="button" (click)="deleteNote()" data-delete-note>{{ 'offers.card.deleteNote' | translate }}</button>
+        }
+        <span class="spacer"></span>
+        <button mat-button type="button" (click)="cancelNote()">{{ 'common.cancel' | translate }}</button>
+        <button mat-flat-button color="primary" type="submit" data-save-note>{{ 'offers.card.saveNote' | translate }}</button>
+      </div>
+    </form>
+  } @else if (offer.note) {
+    <p class="offer-note" data-note>
+      <mat-icon aria-hidden="true">sticky_note_2</mat-icon>
+      <span class="cdk-visually-hidden">{{ 'offers.card.noteLabel' | translate }}:</span>
+      <span>{{ offer.note }}</span>
+    </p>
+  }
+
   <div class="offer-actions">
     @if (offer.excerpt) {
       <button mat-button type="button" class="details-button" (click)="toggleDetails.emit(offer)" [attr.aria-expanded]="expanded"
@@ -116,18 +143,22 @@
       [matTooltip]="(offer.hidden ? 'offers.card.unhide' : 'offers.card.hide') | translate">
       <mat-icon>{{ offer.hidden ? 'visibility' : 'visibility_off' }}</mat-icon>
     </button>
-    @if (offer.company) {
-      <button mat-icon-button type="button" class="more-button" [matMenuTriggerFor]="moreActions"
-        [attr.aria-label]="'offers.card.moreActions' | translate" [matTooltip]="'offers.card.moreActions' | translate">
-        <mat-icon>more_vert</mat-icon>
+    <button mat-icon-button #moreButton type="button" class="more-button" [matMenuTriggerFor]="moreActions"
+      [attr.aria-label]="'offers.card.moreActions' | translate" [matTooltip]="'offers.card.moreActions' | translate">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #moreActions="matMenu" xPosition="before">
+      <button mat-menu-item type="button" (click)="editNote()" data-edit-note>
+        <mat-icon>sticky_note_2</mat-icon>
+        <span>{{ (offer.note ? 'offers.card.editNote' : 'offers.card.addNote') | translate }}</span>
       </button>
-      <mat-menu #moreActions="matMenu" xPosition="before">
+      @if (offer.company) {
         <button mat-menu-item type="button" (click)="blockPublisher.emit(offer)" data-block-publisher>
           <mat-icon>block</mat-icon>
           <span>{{ 'offers.card.blockPublisher' | translate: { publisher: offer.company } }}</span>
         </button>
-      </mat-menu>
-    }
+      }
+    </mat-menu>
     @if (offer.importedProjectId) {
       <a mat-stroked-button class="pipeline-link" [routerLink]="['/projects', offer.importedProjectId]">
         <mat-icon>check_circle</mat-icon>{{ 'offers.card.inPipeline' | translate }}

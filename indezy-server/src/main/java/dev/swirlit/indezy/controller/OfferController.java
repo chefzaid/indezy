@@ -75,7 +75,7 @@ public class OfferController {
 
     @Operation(summary = "Save, hide or mark an offer as seen")
     @PutMapping("/{id}/state")
-    public OfferStateDto updateState(@PathVariable Long id, @RequestBody OfferStateUpdateRequest request,
+    public OfferStateDto updateState(@PathVariable Long id, @Valid @RequestBody OfferStateUpdateRequest request,
                                      @RequestParam(required = false) Long freelanceId) {
         return stateService.update(accessGuard.requireWorkspace(freelanceId), id, request);
     }

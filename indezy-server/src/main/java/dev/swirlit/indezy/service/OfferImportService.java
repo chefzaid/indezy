@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Turns a job offer into an opportunity of the workspace's pipeline (status Contact). The publisher
@@ -48,6 +49,7 @@ public class OfferImportService {
     private final FreelanceRepository freelances;
     private final ProjectRepository projects;
     private final ProjectService projectService;
+    private final ProjectNoteService projectNotes;
 
     public ProjectDto importOffer(Long freelanceId, Long offerId) {
         List<JobOfferState> group = offerStates.groupStates(freelanceId, offerId);
@@ -80,6 +82,9 @@ public class OfferImportService {
             state.setSeenAt(Instant.now());
         }
         states.save(state);
+        // The workspace's note on the mission (on any of its copies) becomes the opportunity's first note.
+        group.stream().map(JobOfferState::getNote).filter(Objects::nonNull).findFirst()
+            .ifPresent(note -> projectNotes.addNote(created.getId(), note));
         log.info("Imported offer {} as project {}", offerId, created.getId());
         return created;
     }

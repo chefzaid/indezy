@@ -6,5 +6,5 @@ import java.time.Instant;
 
 /** An offer the workspace acted on, as the account data export lists it. */
 public record OfferStateExportDto(OfferSite site, String title, String company, String url, boolean saved, boolean hidden,
-                                  Instant seenAt, Long importedProjectId) {
+                                  Instant seenAt, Long importedProjectId, String note) {
 }

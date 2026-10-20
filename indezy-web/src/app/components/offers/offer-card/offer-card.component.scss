@@ -203,6 +203,49 @@
   white-space: pre-line;
 }
 
+.offer-note {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--app-subtle);
+  border-left: 3px solid #ffb300;
+  color: var(--app-text);
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+
+  mat-icon {
+    flex: none;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--app-text-muted);
+  }
+}
+
+.note-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .note-field {
+    width: 100%;
+  }
+
+  .note-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .spacer {
+      flex: 1 1 auto;
+    }
+  }
+}
+
 .offer-actions {
   display: flex;
   flex-wrap: wrap;

@@ -26,7 +26,7 @@ public class OfferSearchRequest {
 
     public enum Sort { NEWEST, RATE, DISTANCE, MATCH }
 
-    /** Words that must all appear in the title, company, skills, place or description. */
+    /** Words that must all appear in the title, company, skills, place or description, or in the workspace's note. */
     @Size(max = 200)
     private String q;
 

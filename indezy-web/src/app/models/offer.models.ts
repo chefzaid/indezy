@@ -87,6 +87,8 @@ export interface Offer {
   alsoOn?: OfferCopy[];
   /** Absent when the profile names no skills. */
   match?: OfferMatch;
+  /** The workspace's private note on the mission. */
+  note?: string;
 }
 
 /** Filters of the feed saved under a name, with the offers found for them since they were last opened. */
@@ -152,12 +154,15 @@ export interface OfferState {
   hidden: boolean;
   seen: boolean;
   importedProjectId?: number;
+  note?: string;
 }
 
 export interface OfferStateUpdate {
   saved?: boolean;
   hidden?: boolean;
   seen?: boolean;
+  /** A blank note clears it. */
+  note?: string;
 }
 
 export interface OfferSiteInfo {

@@ -246,6 +246,21 @@ class JobOfferSpecificationsTest {
     }
 
     @Test
+    void findsTheOffersAWorkspacesNoteNamesWithTheKeywords() {
+        groupJavaWithAnEarlierCopy();
+        JobOffer lyon = repository.findAll().stream().filter(offer -> offer.getExternalId().equals("lyon")).findFirst().orElseThrow();
+        JobOfferState noted = new JobOfferState();
+        noted.setFreelance(alice);
+        noted.setOffer(lyon);
+        noted.setNote("Rappeler Léa, ESN sérieuse");
+        entityManager.persistAndFlush(noted);
+
+        assertThat(search(request(r -> r.setQ("lea serieuse")), alice.getId())).containsExactly("lyon");
+        assertThat(search(request(r -> r.setQ("lea")), null)).isEmpty();
+        assertThat(search(request(r -> r.setQ("java")), alice.getId())).containsExactly("java-copy");
+    }
+
+    @Test
     void sortsByRateWithUnknownRatesLastAndByDistance() {
         assertThat(search(request(r -> r.setSort(OfferSearchRequest.Sort.RATE)), null))
             .containsExactly("courbevoie", "java", "lyon", "unknown");

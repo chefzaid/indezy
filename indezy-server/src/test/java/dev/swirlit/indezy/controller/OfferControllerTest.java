@@ -102,7 +102,8 @@ class OfferControllerTest {
             .andExpect(jsonPath("$.content[0].publishedAt").value("2026-10-19T08:47:42Z"))
             .andExpect(jsonPath("$.content[0].description").doesNotExist())
             .andExpect(jsonPath("$.content[0].alsoOn[0].siteName").value("Collective"))
-            .andExpect(jsonPath("$.content[0].alsoOn[0].url").value("https://www.collective.work/job/8"));
+            .andExpect(jsonPath("$.content[0].alsoOn[0].url").value("https://www.collective.work/job/8"))
+            .andExpect(jsonPath("$.content[0].note").value("Call Léa"));
 
         ArgumentCaptor<OfferSearchRequest> request = ArgumentCaptor.forClass(OfferSearchRequest.class);
         verify(searchService).search(eq(3L), request.capture());
@@ -188,6 +189,9 @@ class OfferControllerTest {
                 .content("{\"saved\":true}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.saved").value(true));
+        mockMvc.perform(put("/offers/7/state").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"note\":\"" + "x".repeat(2001) + "\"}"))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -234,6 +238,6 @@ class OfferControllerTest {
             WorkMode.HYBRID, 2, 6, LocalDate.of(2026, 11, 2), null, Seniority.SENIOR, List.of("Java", "Kafka"),
             Instant.parse("2026-10-19T08:47:42Z"), OfferDatePrecision.EXACT, null, false, false, false, false, null,
             List.of(new OfferCopyDto(8L, OfferSite.COLLECTIVE, "Collective", "https://www.collective.work/job/8")),
-            new OfferMatchDto(83, List.of("Java"), OfferMatchDto.RateFit.MEETS, OfferMatchDto.PlaceFit.NEAR));
+            new OfferMatchDto(83, List.of("Java"), OfferMatchDto.RateFit.MEETS, OfferMatchDto.PlaceFit.NEAR), "Call Léa");
     }
 }

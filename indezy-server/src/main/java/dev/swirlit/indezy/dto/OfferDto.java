@@ -51,7 +51,9 @@ public record OfferDto(
     /** The same mission on other sites, one copy per site. */
     List<OfferCopyDto> alsoOn,
     /** How well the mission fits the profile; absent when the profile names no skills. */
-    OfferMatchDto match) {
+    OfferMatchDto match,
+    /** The workspace's private note on the mission. */
+    String note) {
 
     public OfferDto {
         skills = skills == null ? List.of() : List.copyOf(skills);

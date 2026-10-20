@@ -900,7 +900,8 @@
       "save": "Enregistrer l’offre ou la retirer",
       "hide": "Masquer l’offre ou la réafficher",
       "add": "Ajouter l’offre au pipeline",
-      "details": "Afficher ou replier ses détails"
+      "details": "Afficher ou replier ses détails",
+      "note": "Écrire une note sur l'offre"
     }
   },
   "activityReports": {
@@ -1057,7 +1058,8 @@
       "import": "L'offre n'a pas pu être ajoutée au pipeline.",
       "alreadyImported": "Cette offre est déjà dans votre pipeline.",
       "state": "La modification n'a pas pu être enregistrée.",
-      "block": "L'éditeur n'a pas pu être masqué."
+      "block": "L'éditeur n'a pas pu être masqué.",
+      "note": "La note n'a pas pu être enregistrée."
     },
     "notifications": {
       "imported": "« {{role}} » ajoutée au pipeline (étape Contact)",
@@ -1100,7 +1102,14 @@
       "inPipeline": "Dans le pipeline",
       "import": "Ajouter au pipeline",
       "moreActions": "Plus d'actions",
-      "blockPublisher": "Masquer toutes les offres de {{publisher}}"
+      "blockPublisher": "Masquer toutes les offres de {{publisher}}",
+      "addNote": "Ajouter une note",
+      "editNote": "Modifier la note",
+      "noteLabel": "Votre note",
+      "notePlaceholder": "Qui vous avez eu au téléphone, le TJM que vous demanderiez, pourquoi elle ne vous convient pas…",
+      "saveNote": "Enregistrer la note",
+      "deleteNote": "Supprimer la note",
+      "noteHint": "Privée à votre espace ; prise en compte par la recherche par mots-clés. Ctrl+Entrée enregistre, Échap annule."
     },
     "match": {
       "score": "{{score}} %",
@@ -1320,7 +1329,7 @@
       }
     },
     "keyboard": {
-      "hint": "Utilisez J et K ou les flèches pour passer d'une offre à l'autre ; O ouvre l'offre sur son site, S l'enregistre, H la masque, A l'ajoute au pipeline et D affiche ses détails."
+      "hint": "Utilisez J et K ou les flèches pour passer d'une offre à l'autre ; O ouvre l'offre sur son site, S l'enregistre, H la masque, A l'ajoute au pipeline, D affiche ses détails et N ouvre sa note."
     }
   }
 }

@@ -1,9 +1,14 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, LOCALE_ID, Output, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, LOCALE_ID, Output, ViewChild, inject
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -21,8 +26,8 @@ const FAIR_MATCH = 35;
 /** One mission of the offer feed and what the workspace can do with it. */
 @Component({
   selector: 'app-offer-card',
-  imports: [DatePipe, RouterModule, MatButtonModule, MatCardModule, MatIconModule, MatMenuModule, MatProgressSpinnerModule,
-    MatTooltipModule, TranslateModule],
+  imports: [DatePipe, FormsModule, RouterModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule,
+    MatMenuModule, MatProgressSpinnerModule, MatTooltipModule, TranslateModule],
   templateUrl: './offer-card.component.html',
   styleUrls: ['./offer-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -41,9 +46,44 @@ export class OfferCardComponent {
   @Output() readonly importOffer = new EventEmitter<Offer>();
   /** Every offer of this offer's publisher is to leave the feed. */
   @Output() readonly blockPublisher = new EventEmitter<Offer>();
+  /** The workspace's note on the offer, changed (blank to remove it). */
+  @Output() readonly saveNote = new EventEmitter<{ offer: Offer; note: string }>();
+
+  /** The note editor is open, with its text. */
+  editingNote = false;
+  noteDraft = '';
+  @ViewChild('noteInput') private noteInput?: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('moreButton', { read: ElementRef }) private moreButton?: ElementRef<HTMLElement>;
 
   private readonly locale = inject(LOCALE_ID);
   private readonly translate = inject(TranslateService);
+  private readonly changes = inject(ChangeDetectorRef);
+
+  editNote(): void {
+    this.noteDraft = this.offer.note ?? '';
+    this.editingNote = true;
+    this.changes.markForCheck();
+    setTimeout(() => this.noteInput?.nativeElement.focus());
+  }
+
+  submitNote(): void {
+    if (this.noteDraft.trim() !== (this.offer.note ?? '')) {
+      this.saveNote.emit({ offer: this.offer, note: this.noteDraft });
+    }
+    this.cancelNote();
+  }
+
+  deleteNote(): void {
+    this.noteDraft = '';
+    this.submitNote();
+  }
+
+  /** Closes the editor and gives the focus back to the menu it was opened from. */
+  cancelNote(): void {
+    this.editingNote = false;
+    this.changes.markForCheck();
+    setTimeout(() => this.moreButton?.nativeElement.focus());
+  }
 
   get published(): string {
     return relativeTime(this.offer.publishedAt, this.locale);

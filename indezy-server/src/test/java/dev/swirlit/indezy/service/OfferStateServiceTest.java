@@ -103,6 +103,11 @@ class OfferStateServiceTest {
         assertThat(existing.getSeenAt()).isEqualTo(NOW.minusSeconds(60));
         assertThat(service.update(3L, 7L, new OfferStateUpdateRequest(false, false, false)))
             .isEqualTo(new OfferStateDto(7L, false, false, false, 12L));
+        assertThat(service.update(3L, 7L, new OfferStateUpdateRequest(null, null, null, " Rappeler Léa  ")).note()).isEqualTo("Rappeler Léa");
+        assertThat(existing.getNoteKey()).isEqualTo("rappeler lea");
+        assertThat(service.update(3L, 7L, new OfferStateUpdateRequest(true, null, null)).note()).isEqualTo("Rappeler Léa");
+        assertThat(service.update(3L, 7L, new OfferStateUpdateRequest(null, null, null, "  ")).note()).isNull();
+        assertThat(existing.getNoteKey()).isNull();
     }
 
     @Test
@@ -124,9 +129,10 @@ class OfferStateServiceTest {
         state.setOffer(offer);
         state.setHidden(true);
         state.setSeenAt(NOW);
+        state.setNote("  Rappeler l'ESN lundi ");
         when(states.findByFreelanceId(3L)).thenReturn(List.of(state));
 
         assertThat(service.export(3L)).containsExactly(new OfferStateExportDto(OfferSite.LEHIBOU, "Architecte", null,
-            "https://www.lehibou.com/annonce/7", false, true, NOW, null));
+            "https://www.lehibou.com/annonce/7", false, true, NOW, null, "Rappeler l'ESN lundi"));
     }
 }

@@ -900,7 +900,8 @@
       "save": "Save or unsave the offer",
       "hide": "Hide or show the offer",
       "add": "Add the offer to the pipeline",
-      "details": "Show or fold its details"
+      "details": "Show or fold its details",
+      "note": "Write a note on the offer"
     }
   },
   "activityReports": {
@@ -1057,7 +1058,8 @@
       "import": "The offer could not be added to the pipeline.",
       "alreadyImported": "This offer is already in your pipeline.",
       "state": "The change could not be saved.",
-      "block": "The publisher could not be hidden."
+      "block": "The publisher could not be hidden.",
+      "note": "The note could not be saved."
     },
     "notifications": {
       "imported": "“{{role}}” added to the pipeline (Contact stage)",
@@ -1100,7 +1102,14 @@
       "inPipeline": "In the pipeline",
       "import": "Add to pipeline",
       "moreActions": "More actions",
-      "blockPublisher": "Hide every offer from {{publisher}}"
+      "blockPublisher": "Hide every offer from {{publisher}}",
+      "addNote": "Add a note",
+      "editNote": "Edit the note",
+      "noteLabel": "Your note",
+      "notePlaceholder": "Who you spoke to, the rate you'd ask, why it's not for you…",
+      "saveNote": "Save the note",
+      "deleteNote": "Delete the note",
+      "noteHint": "Private to your workspace; searched with the keywords. Ctrl+Enter saves, Esc cancels."
     },
     "match": {
       "score": "{{score}}%",
@@ -1320,7 +1329,7 @@
       }
     },
     "keyboard": {
-      "hint": "Use J and K or the arrow keys to move between offers; O opens one on its site, S saves it, H hides it, A adds it to the pipeline and D shows its details."
+      "hint": "Use J and K or the arrow keys to move between offers; O opens one on its site, S saves it, H hides it, A adds it to the pipeline, D shows its details and N opens its note."
     }
   }
 }
