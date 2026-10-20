@@ -12,8 +12,7 @@ public enum OfferLeftOutSite {
     AMAZING_DEV("Amazing.dev", "https://amazing.dev"),
     LOOKINGFORTECHS("LookingForTechs", "https://www.sharebound.fr"),
     MON_CONSULTANT_INDEPENDANT("Mon Consultant Indépendant", "https://www.mon-consultant-independant.com"),
-    NEXORIS("Nexoris", "https://www.nexoris.com"),
-    ANYWR("Anywr", "https://anywr.frl");
+    NEXORIS("Nexoris", "https://www.nexoris.com");
 
     private final String displayName;
     private final String homeUrl;
