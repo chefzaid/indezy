@@ -259,7 +259,7 @@ public class OfferSearchService {
             offer.getDatePrecision(), offer.getExpiresAt(), offer.getExpiresAt() != null && !offer.getExpiresAt().isAfter(now),
             state != null && state.saved(), state != null && state.hidden(), state != null && state.seen(),
             state == null ? null : state.importedProjectId(), alsoOn, OfferMatch.score(offer, skills, profile),
-            state == null ? null : state.note());
+            state == null ? null : state.note(), state == null ? null : state.application());
     }
 
     /** The description's beginning on one line, cut at a word and ended with an ellipsis. */

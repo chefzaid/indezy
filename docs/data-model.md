@@ -337,7 +337,9 @@ Purpose: what one workspace did with an offer. Unique per freelance and offer (`
 
 Fields: `saved`, `hidden`, `seenAt`, `importedProject`, the opportunity created from the offer (cleared when
 that project is deleted, so the offer can be imported again), and `note`, the workspace's private note (2,000
-characters, blank stored as none) with `noteKey`, its words folded for the keyword filter. The copies of a mission share their states: an
+characters, blank stored as none) with `noteKey`, its words folded for the keyword filter, and `application`, embedded
+as `appliedOn` (the day, Paris time) and `appliedVia` (`SITE_FORM`, `EMAIL` or `PHONE`), both empty when the
+workspace did not apply. The copies of a mission share their states: an
 action is written on each copy, and the feed reads the states of every copy of an offer.
 
 ## SavedOfferSearch
@@ -469,7 +471,7 @@ Deletion rules:
 - deleting a source or a season keeps its projects, which lose that reference
 - deleting a client deletes its contacts
 - deleting a project clears the import of the offer it came from
-- offers published more than 90 days ago or expired are deleted every night with their states, unless a state saved or imported them
+- offers published more than 90 days ago or expired are deleted every night with their states, unless a state saved, applied to or imported them
 
 ## Related Guides
 

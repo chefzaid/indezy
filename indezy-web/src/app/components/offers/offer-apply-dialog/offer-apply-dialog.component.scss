@@ -1,0 +1,57 @@
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 480px;
+}
+
+.offer-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+
+  .site {
+    color: var(--app-text-muted);
+    font-size: 0.875rem;
+  }
+}
+
+.channels {
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: 4px;
+    color: var(--app-text-muted);
+    font-size: 0.875rem;
+  }
+
+  mat-radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+}
+
+.day-field,
+.days-field {
+  width: 100%;
+}
+
+.pipeline-note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: 0.875rem;
+
+  mat-icon {
+    flex: none;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}

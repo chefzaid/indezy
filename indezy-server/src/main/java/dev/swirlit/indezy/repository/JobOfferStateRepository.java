@@ -19,7 +19,7 @@ public interface JobOfferStateRepository extends JpaRepository<JobOfferState, Lo
 
     /** A workspace's state of each given offer it acted on. */
     @Query("select new dev.swirlit.indezy.dto.OfferStateDto(o.id, s.saved, s.hidden, " +
-        "case when s.seenAt is null then false else true end, p.id, s.note) " +
+        "case when s.seenAt is null then false else true end, p.id, s.note, s.application) " +
         "from JobOfferState s join s.offer o left join s.importedProject p " +
         "where s.freelance.id = :freelanceId and o.id in :offerIds")
     List<OfferStateDto> findStates(@Param("freelanceId") Long freelanceId, @Param("offerIds") Collection<Long> offerIds);

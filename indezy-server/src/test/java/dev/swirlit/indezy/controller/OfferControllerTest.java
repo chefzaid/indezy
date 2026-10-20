@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.dto.OfferApplicationRequest;
 import dev.swirlit.indezy.dto.OfferCopyDto;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferMatchDto;
@@ -14,10 +15,14 @@ import dev.swirlit.indezy.dto.OfferStateUpdateRequest;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.OfferApplication;
+import dev.swirlit.indezy.model.enums.ApplicationChannel;
+import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.Seniority;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.service.OfferApplicationService;
 import dev.swirlit.indezy.service.OfferImportService;
 import dev.swirlit.indezy.service.OfferMarketService;
 import dev.swirlit.indezy.service.OfferSearchService;
@@ -46,6 +51,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -76,6 +82,9 @@ class OfferControllerTest {
     @MockitoBean
     private OfferMarketService marketService;
 
+    @MockitoBean
+    private OfferApplicationService applicationService;
+
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -103,7 +112,9 @@ class OfferControllerTest {
             .andExpect(jsonPath("$.content[0].description").doesNotExist())
             .andExpect(jsonPath("$.content[0].alsoOn[0].siteName").value("Collective"))
             .andExpect(jsonPath("$.content[0].alsoOn[0].url").value("https://www.collective.work/job/8"))
-            .andExpect(jsonPath("$.content[0].note").value("Call Léa"));
+            .andExpect(jsonPath("$.content[0].note").value("Call Léa"))
+            .andExpect(jsonPath("$.content[0].application.appliedOn").value("2026-10-20"))
+            .andExpect(jsonPath("$.content[0].application.via").value("EMAIL"));
 
         ArgumentCaptor<OfferSearchRequest> request = ArgumentCaptor.forClass(OfferSearchRequest.class);
         verify(searchService).search(eq(3L), request.capture());
@@ -218,6 +229,36 @@ class OfferControllerTest {
     }
 
     @Test
+    void recordsAndForgetsAnApplication() throws Exception {
+        OfferApplication application = new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.SITE_FORM);
+        OfferApplicationRequest request = new OfferApplicationRequest(LocalDate.of(2026, 10, 20), ApplicationChannel.SITE_FORM, 7,
+            DocumentLanguage.FR);
+        when(applicationService.apply(3L, 7L, request)).thenReturn(new OfferStateDto(7L, false, false, true, 40L, null, application));
+        when(applicationService.withdraw(3L, 7L)).thenReturn(new OfferStateDto(7L, false, false, true, 40L));
+
+        mockMvc.perform(post("/offers/7/application").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"appliedOn\":\"2026-10-20\",\"via\":\"SITE_FORM\",\"followUpInDays\":7,\"language\":\"FR\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.importedProjectId").value(40))
+            .andExpect(jsonPath("$.application.via").value("SITE_FORM"));
+        mockMvc.perform(delete("/offers/7/application").param("freelanceId", "3"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.application").doesNotExist());
+        for (String invalid : List.of("{\"via\":\"EMAIL\"}", "{\"appliedOn\":\"2026-10-20\"}",
+            "{\"appliedOn\":\"2026-10-20\",\"via\":\"EMAIL\",\"followUpInDays\":0}",
+            "{\"appliedOn\":\"2026-10-20\",\"via\":\"EMAIL\",\"followUpInDays\":61}",
+            "{\"appliedOn\":\"2026-10-20\",\"via\":\"FAX\"}")) {
+            mockMvc.perform(post("/offers/7/application").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON).content(invalid))
+                .andExpect(status().isBadRequest());
+        }
+        mockMvc.perform(post("/offers/7/application").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"appliedOn\":\"2026-10-20\",\"via\":\"EMAIL\"}"))
+            .andExpect(status().isBadRequest());
+        verify(applicationService, never()).apply(any(), eq(7L), eq(new OfferApplicationRequest(LocalDate.of(2026, 10, 20),
+            ApplicationChannel.EMAIL, null, null)));
+    }
+
+    @Test
     void listsSitesSkillsAndRegions() throws Exception {
         when(searchService.sites(null)).thenReturn(List.of(new OfferSiteDto(OfferSite.YEETS, "Yeets", "https://www.yeets.fr", 12, null, false,
             false)));
@@ -238,6 +279,7 @@ class OfferControllerTest {
             WorkMode.HYBRID, 2, 6, LocalDate.of(2026, 11, 2), null, Seniority.SENIOR, List.of("Java", "Kafka"),
             Instant.parse("2026-10-19T08:47:42Z"), OfferDatePrecision.EXACT, null, false, false, false, false, null,
             List.of(new OfferCopyDto(8L, OfferSite.COLLECTIVE, "Collective", "https://www.collective.work/job/8")),
-            new OfferMatchDto(83, List.of("Java"), OfferMatchDto.RateFit.MEETS, OfferMatchDto.PlaceFit.NEAR), "Call Léa");
+            new OfferMatchDto(83, List.of("Java"), OfferMatchDto.RateFit.MEETS, OfferMatchDto.PlaceFit.NEAR), "Call Léa",
+            new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.EMAIL));
     }
 }

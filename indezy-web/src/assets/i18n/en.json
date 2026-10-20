@@ -1039,6 +1039,7 @@
       "label": "Offers shown",
       "FEED": "All",
       "SAVED": "Saved",
+      "APPLIED": "Applied",
       "HIDDEN": "Hidden"
     },
     "sort": {
@@ -1050,7 +1051,8 @@
     "empty": {
       "FEED": "No offer matches these filters for now.",
       "SAVED": "You have not saved any offer. Use an offer's bookmark to find it here.",
-      "HIDDEN": "No hidden offers."
+      "HIDDEN": "No hidden offers.",
+      "APPLIED": "You have not recorded any application. Use “I applied” in an offer's menu to follow it here."
     },
     "errors": {
       "search": "The offers could not be loaded.",
@@ -1059,11 +1061,16 @@
       "alreadyImported": "This offer is already in your pipeline.",
       "state": "The change could not be saved.",
       "block": "The publisher could not be hidden.",
-      "note": "The note could not be saved."
+      "note": "The note could not be saved.",
+      "apply": "The application could not be recorded.",
+      "alreadyApplied": "You already applied to this offer."
     },
     "notifications": {
       "imported": "“{{role}}” added to the pipeline (Contact stage)",
-      "publisherBlocked": "Offers from {{publisher}} are hidden from your feed. Bring them back from your profile."
+      "publisherBlocked": "Offers from {{publisher}} are hidden from your feed. Bring them back from your profile.",
+      "applied": "Application to “{{role}}” recorded in your pipeline",
+      "appliedWithFollowUp": "Application to “{{role}}” recorded; its follow-up is in your Timeline",
+      "withdrawn": "Application undone; the opportunity stays in your pipeline."
     },
     "seniority": {
       "JUNIOR": "Junior",
@@ -1109,7 +1116,15 @@
       "notePlaceholder": "Who you spoke to, the rate you'd ask, why it's not for you…",
       "saveNote": "Save the note",
       "deleteNote": "Delete the note",
-      "noteHint": "Private to your workspace; searched with the keywords. Ctrl+Enter saves, Esc cancels."
+      "noteHint": "Private to your workspace; searched with the keywords. Ctrl+Enter saves, Esc cancels.",
+      "applied": "Applied {{when}}",
+      "apply": "I applied",
+      "withdraw": "Undo the application",
+      "appliedVia": {
+        "SITE_FORM": "Applied with the site's form on {{date}}",
+        "EMAIL": "Applied by email on {{date}}",
+        "PHONE": "Applied by phone on {{date}}"
+      }
     },
     "match": {
       "score": "{{score}}%",
@@ -1330,6 +1345,25 @@
     },
     "keyboard": {
       "hint": "Use J and K or the arrow keys to move between offers; O opens one on its site, S saves it, H hides it, A adds it to the pipeline, D shows its details and N opens its note."
+    },
+    "apply": {
+      "title": "Record your application",
+      "via": "How did you apply?",
+      "channels": {
+        "SITE_FORM": "The site's form",
+        "EMAIL": "Email",
+        "PHONE": "Phone"
+      },
+      "appliedOn": "Applied on",
+      "noLaterDay": "An application cannot be dated after today.",
+      "dayRequired": "Enter the day you applied.",
+      "followUp": "Plan a follow-up",
+      "followUpDays": "Follow up after (days)",
+      "followUpOn": "On {{date}}, in your Timeline",
+      "daysRange": "Between 1 and {{max}} days.",
+      "joinsPipeline": "The mission joins your pipeline at the Contact stage, with an “Application sent” step waiting for feedback.",
+      "inPipeline": "Its opportunity in your pipeline gets an “Application sent” step waiting for feedback.",
+      "confirm": "Record"
     }
   }
 }

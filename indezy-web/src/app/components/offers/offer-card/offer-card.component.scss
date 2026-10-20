@@ -50,6 +50,21 @@
   color: #b71c1c;
 }
 
+.applied-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #e3f2fd;
+  color: #0d47a1;
+  cursor: help;
+
+  mat-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
+}
+
 .match-badge {
   display: inline-flex;
   align-items: center;
@@ -276,6 +291,11 @@
   .expired-badge {
     background: rgba(239, 154, 154, 0.18);
     color: #ef9a9a;
+  }
+
+  .applied-badge {
+    background: rgba(144, 202, 249, 0.18);
+    color: #90caf9;
   }
 
   .match-badge.good,

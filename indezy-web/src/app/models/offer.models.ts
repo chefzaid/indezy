@@ -1,5 +1,6 @@
 // Freelance offer feed: missions collected from the job boards (see docs/features.md#freelance-offer-feed)
 
+import { DocumentLanguage } from './activity-report.models';
 import { WorkMode } from './project.models';
 
 export type OfferSite =
@@ -22,13 +23,16 @@ export type OfferSite =
   | 'SIXIEME_HOMME';
 export type Seniority = 'JUNIOR' | 'CONFIRMED' | 'SENIOR' | 'EXPERT';
 export type OfferDatePrecision = 'EXACT' | 'DAY' | 'FIRST_SEEN';
-export type OfferView = 'FEED' | 'SAVED' | 'HIDDEN';
+export type OfferView = 'FEED' | 'SAVED' | 'HIDDEN' | 'APPLIED';
+/** How the workspace applied to an offer. */
+export type ApplicationChannel = 'SITE_FORM' | 'EMAIL' | 'PHONE';
 export type OfferSort = 'NEWEST' | 'RATE' | 'DISTANCE' | 'MATCH';
 export type OfferRateFit = 'MEETS' | 'CLOSE' | 'BELOW' | 'UNKNOWN';
 export type OfferPlaceFit = 'REMOTE' | 'NEAR' | 'REACHABLE' | 'MOSTLY_REMOTE' | 'FAR' | 'UNKNOWN';
 
 export const SENIORITIES: Seniority[] = ['JUNIOR', 'CONFIRMED', 'SENIOR', 'EXPERT'];
 export const OFFER_WORK_MODES: WorkMode[] = ['ONSITE', 'HYBRID', 'REMOTE'];
+export const APPLICATION_CHANNELS: ApplicationChannel[] = ['SITE_FORM', 'EMAIL', 'PHONE'];
 
 /** How well an offer fits the profile, out of 100 (see docs/features.md#profile-match). */
 export interface OfferMatch {
@@ -39,6 +43,21 @@ export interface OfferMatch {
   rate?: OfferRateFit;
   /** Absent when the profile names no city. */
   place?: OfferPlaceFit;
+}
+
+/** The workspace applied to the mission: on which day (yyyy-MM-dd) and how. */
+export interface OfferApplication {
+  appliedOn: string;
+  via: ApplicationChannel;
+}
+
+/** Recording an application: the pipeline's steps are titled in `language`. */
+export interface OfferApplicationRequest {
+  appliedOn: string;
+  via: ApplicationChannel;
+  /** A follow-up is planned that many days later (1 to 60). */
+  followUpInDays?: number;
+  language?: DocumentLanguage;
 }
 
 /** The same mission published on another site. */
@@ -89,6 +108,7 @@ export interface Offer {
   match?: OfferMatch;
   /** The workspace's private note on the mission. */
   note?: string;
+  application?: OfferApplication;
 }
 
 /** Filters of the feed saved under a name, with the offers found for them since they were last opened. */
@@ -155,6 +175,7 @@ export interface OfferState {
   seen: boolean;
   importedProjectId?: number;
   note?: string;
+  application?: OfferApplication;
 }
 
 export interface OfferStateUpdate {

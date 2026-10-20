@@ -104,6 +104,19 @@ describe('OfferService', () => {
     imported.flush({ id: 40 });
   });
 
+  it('records an application and forgets it', () => {
+    service.apply(7, { appliedOn: '2026-10-20', via: 'EMAIL', followUpInDays: 7, language: 'FR' }).subscribe();
+    const applied = http.expectOne(`${api}/7/application`);
+    expect(applied.request.method).toBe('POST');
+    expect(applied.request.body).toEqual({ appliedOn: '2026-10-20', via: 'EMAIL', followUpInDays: 7, language: 'FR' });
+    applied.flush({ offerId: 7, saved: false, hidden: false, seen: true, importedProjectId: 40 });
+
+    service.withdrawApplication(7).subscribe();
+    const withdrawn = http.expectOne(`${api}/7/application`);
+    expect(withdrawn.request.method).toBe('DELETE');
+    withdrawn.flush({ offerId: 7, saved: false, hidden: false, seen: true });
+  });
+
   it('lists sites, skills and regions', () => {
     service.sites().subscribe();
     http.expectOne(`${api}/sites`).flush([]);

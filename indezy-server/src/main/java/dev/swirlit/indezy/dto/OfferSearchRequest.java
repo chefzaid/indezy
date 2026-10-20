@@ -22,7 +22,7 @@ public class OfferSearchRequest {
      * Which offers: the feed (not hidden, still open, from a site the workspace keeps and a publisher it did not block),
      * the saved ones or the hidden ones.
      */
-    public enum View { FEED, SAVED, HIDDEN }
+    public enum View { FEED, SAVED, HIDDEN, APPLIED }
 
     public enum Sort { NEWEST, RATE, DISTANCE, MATCH }
 

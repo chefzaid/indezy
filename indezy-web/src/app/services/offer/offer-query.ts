@@ -14,7 +14,7 @@ import {
 } from '../../models/offer.models';
 
 export const OFFER_PAGE_SIZES = [20, 50, 100];
-const VIEWS: OfferView[] = ['FEED', 'SAVED', 'HIDDEN'];
+const VIEWS: OfferView[] = ['FEED', 'SAVED', 'HIDDEN', 'APPLIED'];
 const SORTS: OfferSort[] = ['NEWEST', 'RATE', 'DISTANCE', 'MATCH'];
 const SITES: OfferSite[] = [
   'FREE_WORK',

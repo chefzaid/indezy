@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.dto.OfferApplicationRequest;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferMarketDto;
@@ -11,6 +12,7 @@ import dev.swirlit.indezy.dto.OfferStateDto;
 import dev.swirlit.indezy.dto.OfferStateUpdateRequest;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.service.AccessGuard;
+import dev.swirlit.indezy.service.OfferApplicationService;
 import dev.swirlit.indezy.service.OfferImportService;
 import dev.swirlit.indezy.service.OfferMarketService;
 import dev.swirlit.indezy.service.OfferSearchService;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,6 +53,7 @@ public class OfferController {
     private final OfferSearchService searchService;
     private final OfferStateService stateService;
     private final OfferImportService importService;
+    private final OfferApplicationService applicationService;
     private final OfferMarketService marketService;
     private final AccessGuard accessGuard;
 
@@ -84,6 +88,19 @@ public class OfferController {
     @PostMapping("/{id}/import")
     public ResponseEntity<ProjectDto> importOffer(@PathVariable Long id, @RequestParam(required = false) Long freelanceId) {
         return new ResponseEntity<>(importService.importOffer(accessGuard.requireWorkspace(freelanceId), id), HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Record that the workspace applied to an offer, adding it to the pipeline with its steps")
+    @PostMapping("/{id}/application")
+    public OfferStateDto apply(@PathVariable Long id, @Valid @RequestBody OfferApplicationRequest request,
+                               @RequestParam(required = false) Long freelanceId) {
+        return applicationService.apply(accessGuard.requireWorkspace(freelanceId), id, request);
+    }
+
+    @Operation(summary = "Forget an application; the opportunity stays in the pipeline")
+    @DeleteMapping("/{id}/application")
+    public OfferStateDto withdraw(@PathVariable Long id, @RequestParam(required = false) Long freelanceId) {
+        return applicationService.withdraw(accessGuard.requireWorkspace(freelanceId), id);
     }
 
     @Operation(summary = "List the job boards of the feed and how their collection goes")

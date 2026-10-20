@@ -9,8 +9,10 @@ import dev.swirlit.indezy.dto.OfferStateExportDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.dto.SavedOfferSearchDto;
 import dev.swirlit.indezy.dto.UserDto;
+import dev.swirlit.indezy.model.OfferApplication;
 import dev.swirlit.indezy.model.enums.ActivityDayType;
 import dev.swirlit.indezy.model.enums.ActivityReportStatus;
+import dev.swirlit.indezy.model.enums.ApplicationChannel;
 import dev.swirlit.indezy.model.enums.OfferLeftOutSite;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import org.junit.jupiter.api.Test;
@@ -80,7 +82,8 @@ class UserDataExportServiceTest {
         report.setDecidedAt(Instant.parse("2026-11-02T09:30:00Z"));
         when(activityReportService.findByFreelanceId(5L)).thenReturn(List.of(report));
         when(offerStateService.export(5L)).thenReturn(List.of(new OfferStateExportDto(OfferSite.FREE_WORK, "Développeur Java",
-            "Exemple Conseil", "https://www.free-work.com/7", true, false, Instant.parse("2026-10-19T08:00:00Z"), null, "Call Léa")));
+            "Exemple Conseil", "https://www.free-work.com/7", true, false, Instant.parse("2026-10-19T08:00:00Z"), null, "Call Léa",
+            new OfferApplication(LocalDate.of(2026, 10, 19), ApplicationChannel.PHONE))));
 
         OfferSearchRequest filters = new OfferSearchRequest();
         filters.setQ("kafka");
@@ -116,6 +119,7 @@ class UserDataExportServiceTest {
             .contains("\"blockedOfferPublishers\"")
             .contains("\"offerSiteVisits\"")
             .contains("Call Léa")
+            .contains("\"via\" : \"PHONE\"")
             .contains("\"MALT\"")
             .contains("\"name\" : \"Exemple Conseil\"");
     }

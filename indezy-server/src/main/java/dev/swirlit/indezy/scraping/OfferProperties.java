@@ -13,7 +13,7 @@ import java.time.Duration;
  * @param requestDelay minimum pause between two requests to the same site
  * @param maxPages pages one run may read on a site
  * @param staleRunAfter after this long, a run that never finished (its server stopped) no longer holds its site
- * @param retentionDays offers published longer ago are removed unless a workspace saved or imported them
+ * @param retentionDays offers published longer ago are removed unless a workspace saved, applied to or imported them
  * @param userAgent how Indezy introduces itself to the sites
  * @param geocodingEnabled whether places are looked up on {@code geocodingUrl} (the French government API)
  * @param geocodingUrl base URL of the geocoding API

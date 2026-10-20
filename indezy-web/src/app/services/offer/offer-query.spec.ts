@@ -48,6 +48,12 @@ describe('offer query', () => {
     expect(query).toEqual({ ...defaultOfferQuery(), regions: ['11'], rateKnown: undefined, unseenOnly: undefined, matchesProfile: undefined });
   });
 
+  it('reads every view of the feed', () => {
+    for (const view of ['FEED', 'SAVED', 'APPLIED', 'HIDDEN']) {
+      expect(offerQueryFromParams(convertToParamMap({ view })).view).toBe(view);
+    }
+  });
+
   it('leaves default values out of the address and repeats list values in API requests', () => {
     const query = { ...defaultOfferQuery(), q: 'java', regions: ['11', '84'], rateKnown: true, page: 1 };
 

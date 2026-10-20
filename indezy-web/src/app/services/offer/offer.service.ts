@@ -6,6 +6,7 @@ import { ProjectDto } from '../../models/project.models';
 import {
   Offer,
   OfferAlerts,
+  OfferApplicationRequest,
   OfferFacet,
   OfferMarket,
   OfferPage,
@@ -56,6 +57,16 @@ export class OfferService {
 
   importOffer(id: number): Observable<ProjectDto> {
     return this.http.post<ProjectDto>(`${this.API_URL}/${id}/import`, null);
+  }
+
+  /** Records an application: the mission joins the pipeline (if it has not) with its steps. */
+  apply(id: number, request: OfferApplicationRequest): Observable<OfferState> {
+    return this.http.post<OfferState>(`${this.API_URL}/${id}/application`, request);
+  }
+
+  /** Forgets the application; the opportunity stays in the pipeline. */
+  withdrawApplication(id: number): Observable<OfferState> {
+    return this.http.delete<OfferState>(`${this.API_URL}/${id}/application`);
   }
 
   sites(): Observable<OfferSiteInfo[]> {

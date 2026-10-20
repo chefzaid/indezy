@@ -1039,6 +1039,7 @@
       "label": "Offres affichées",
       "FEED": "Toutes",
       "SAVED": "Sauvegardées",
+      "APPLIED": "Candidatures",
       "HIDDEN": "Masquées"
     },
     "sort": {
@@ -1050,7 +1051,8 @@
     "empty": {
       "FEED": "Aucune offre ne correspond à ces filtres pour le moment.",
       "SAVED": "Vous n'avez sauvegardé aucune offre. Utilisez le marque-page d'une offre pour la retrouver ici.",
-      "HIDDEN": "Aucune offre masquée."
+      "HIDDEN": "Aucune offre masquée.",
+      "APPLIED": "Vous n'avez enregistré aucune candidature. Utilisez « J'ai postulé » dans le menu d'une offre pour la suivre ici."
     },
     "errors": {
       "search": "Les offres n'ont pas pu être chargées.",
@@ -1059,11 +1061,16 @@
       "alreadyImported": "Cette offre est déjà dans votre pipeline.",
       "state": "La modification n'a pas pu être enregistrée.",
       "block": "L'éditeur n'a pas pu être masqué.",
-      "note": "La note n'a pas pu être enregistrée."
+      "note": "La note n'a pas pu être enregistrée.",
+      "apply": "La candidature n'a pas pu être enregistrée.",
+      "alreadyApplied": "Vous avez déjà postulé à cette offre."
     },
     "notifications": {
       "imported": "« {{role}} » ajoutée au pipeline (étape Contact)",
-      "publisherBlocked": "Les offres de {{publisher}} sont masquées de votre fil. Rétablissez-les depuis votre profil."
+      "publisherBlocked": "Les offres de {{publisher}} sont masquées de votre fil. Rétablissez-les depuis votre profil.",
+      "applied": "Candidature à « {{role}} » enregistrée dans votre pipeline",
+      "appliedWithFollowUp": "Candidature à « {{role}} » enregistrée ; sa relance est dans votre Planning",
+      "withdrawn": "Candidature annulée ; l'opportunité reste dans votre pipeline."
     },
     "seniority": {
       "JUNIOR": "Junior",
@@ -1109,7 +1116,15 @@
       "notePlaceholder": "Qui vous avez eu au téléphone, le TJM que vous demanderiez, pourquoi elle ne vous convient pas…",
       "saveNote": "Enregistrer la note",
       "deleteNote": "Supprimer la note",
-      "noteHint": "Privée à votre espace ; prise en compte par la recherche par mots-clés. Ctrl+Entrée enregistre, Échap annule."
+      "noteHint": "Privée à votre espace ; prise en compte par la recherche par mots-clés. Ctrl+Entrée enregistre, Échap annule.",
+      "applied": "Candidature {{when}}",
+      "apply": "J'ai postulé",
+      "withdraw": "Annuler la candidature",
+      "appliedVia": {
+        "SITE_FORM": "Candidature via le formulaire du site le {{date}}",
+        "EMAIL": "Candidature par e-mail le {{date}}",
+        "PHONE": "Candidature par téléphone le {{date}}"
+      }
     },
     "match": {
       "score": "{{score}} %",
@@ -1330,6 +1345,25 @@
     },
     "keyboard": {
       "hint": "Utilisez J et K ou les flèches pour passer d'une offre à l'autre ; O ouvre l'offre sur son site, S l'enregistre, H la masque, A l'ajoute au pipeline, D affiche ses détails et N ouvre sa note."
+    },
+    "apply": {
+      "title": "Enregistrer votre candidature",
+      "via": "Comment avez-vous postulé ?",
+      "channels": {
+        "SITE_FORM": "Formulaire du site",
+        "EMAIL": "E-mail",
+        "PHONE": "Téléphone"
+      },
+      "appliedOn": "Date de candidature",
+      "noLaterDay": "Une candidature ne peut pas être datée après aujourd'hui.",
+      "dayRequired": "Indiquez le jour de votre candidature.",
+      "followUp": "Planifier une relance",
+      "followUpDays": "Relancer après (jours)",
+      "followUpOn": "Le {{date}}, dans votre Planning",
+      "daysRange": "Entre 1 et {{max}} jours.",
+      "joinsPipeline": "La mission rejoint votre pipeline à l'étape Contact, avec une étape « Candidature envoyée » en attente de retour.",
+      "inPipeline": "Son opportunité dans votre pipeline reçoit une étape « Candidature envoyée » en attente de retour.",
+      "confirm": "Enregistrer"
     }
   }
 }

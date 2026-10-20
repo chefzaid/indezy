@@ -240,6 +240,37 @@ describe('OfferCardComponent', () => {
     expect(saved.at(-1)?.note).toBe('');
   });
 
+  it('shows when and how the workspace applied, and applies or takes the application back from the menu', () => {
+    const fixture = create();
+    const applied: number[] = [];
+    const withdrawn: number[] = [];
+    fixture.componentInstance.applyOffer.subscribe(value => applied.push(value.id));
+    fixture.componentInstance.withdrawApplication.subscribe(value => withdrawn.push(value.id));
+    expect(element(fixture, '[data-applied]')).toBeNull();
+
+    element(fixture, '.more-button').click();
+    fixture.detectChanges();
+    expect(document.querySelector('[data-withdraw]')).toBeNull();
+    (document.querySelector('[data-apply]') as HTMLButtonElement).click();
+    expect(applied).toEqual([7]);
+
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    const day = `${threeDaysAgo.getFullYear()}-${`${threeDaysAgo.getMonth() + 1}`.padStart(2, '0')}-` +
+      `${`${threeDaysAgo.getDate()}`.padStart(2, '0')}`;
+    fixture.componentRef.setInput('offer', offer({ seen: true, application: { appliedOn: day, via: 'EMAIL' } }));
+    fixture.detectChanges();
+    const badge = element(fixture, '[data-applied]');
+    expect(badge.textContent).toContain('Candidature il y a 3 jours');
+    expect(badge.getAttribute('aria-label')).toContain('Candidature par e-mail le');
+    expect(text(fixture)).not.toContain('Nouvelle');
+    element(fixture, '.more-button').click();
+    fixture.detectChanges();
+    expect(document.querySelector('[data-apply]')).toBeNull();
+    (document.querySelector('[data-withdraw]') as HTMLButtonElement).click();
+    expect(withdrawn).toEqual([7]);
+  });
+
   it('saves nothing for an unchanged note and closes the editor on Escape', () => {
     const fixture = create(offer({ note: 'Déjà vue' }));
     const saved: unknown[] = [];

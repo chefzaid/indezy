@@ -8,6 +8,11 @@
     @if (offer.expired) {
       <span class="badge expired-badge">{{ 'offers.card.expired' | translate }}</span>
     }
+    @if (offer.application; as application) {
+      <span class="badge applied-badge" data-applied tabindex="0" [matTooltip]="appliedDetails" [attr.aria-label]="appliedDetails">
+        <mat-icon aria-hidden="true">send</mat-icon>{{ 'offers.card.applied' | translate: { when: appliedAgo } }}
+      </span>
+    }
     @if (offer.match; as match) {
       <span class="badge match-badge" [class]="matchLevel" data-match tabindex="0" [matTooltip]="matchDetails"
         [attr.aria-label]="('offers.match.aria' | translate: { score: match.score }) + '. ' + matchDetails">
@@ -148,6 +153,17 @@
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #moreActions="matMenu" xPosition="before">
+      @if (offer.application) {
+        <button mat-menu-item type="button" (click)="withdrawApplication.emit(offer)" data-withdraw>
+          <mat-icon>undo</mat-icon>
+          <span>{{ 'offers.card.withdraw' | translate }}</span>
+        </button>
+      } @else {
+        <button mat-menu-item type="button" (click)="applyOffer.emit(offer)" data-apply>
+          <mat-icon>send</mat-icon>
+          <span>{{ 'offers.card.apply' | translate }}</span>
+        </button>
+      }
       <button mat-menu-item type="button" (click)="editNote()" data-edit-note>
         <mat-icon>sticky_note_2</mat-icon>
         <span>{{ (offer.note ? 'offers.card.editNote' : 'offers.card.addNote') | translate }}</span>

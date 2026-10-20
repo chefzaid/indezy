@@ -4,11 +4,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
-import { Offer, OfferPage } from '../../../models/offer.models';
+import { Offer, OfferApplicationRequest, OfferPage } from '../../../models/offer.models';
 import { ProjectDto } from '../../../models/project.models';
 import { OfferService } from '../../../services/offer/offer.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -37,7 +38,7 @@ describe('OfferFeedComponent', () => {
                   before: () => void = () => undefined): ComponentFixture<OfferFeedComponent> {
     registerLocaleData(localeFr);
     service = jasmine.createSpyObj('OfferService', ['search', 'get', 'updateState', 'importOffer', 'sites', 'regions', 'skills',
-      'savedSearches', 'alerts', 'market', 'blockPublisher']);
+      'savedSearches', 'alerts', 'market', 'blockPublisher', 'apply', 'withdrawApplication']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     service.search.and.returnValue(of(result));
     service.sites.and.returnValue(of([
@@ -302,6 +303,62 @@ describe('OfferFeedComponent', () => {
     component.saveNote(component.page!.content[1], 'Autre');
     expect(component.page!.content[1].note).toBe('Rappeler');
     expect(notifications.error).toHaveBeenCalledWith('offers.errors.note');
+  });
+
+  it('records an application from the dialog in the interface language and shows it on the card', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const request: OfferApplicationRequest = { appliedOn: '2026-10-20', via: 'EMAIL', followUpInDays: 7 };
+    const open = spyOn(TestBed.inject(MatDialog), 'open').and.returnValues(
+      { afterClosed: () => of(request) } as MatDialogRef<unknown>, { afterClosed: () => of(undefined) } as MatDialogRef<unknown>);
+    service.apply.and.returnValue(of({ offerId: 1, saved: false, hidden: false, seen: true, importedProjectId: 40,
+      application: { appliedOn: '2026-10-20', via: 'EMAIL' } }));
+
+    component.applyToOffer(component.page!.content[0]);
+    component.applyToOffer(component.page!.content[1]);
+
+    expect(open.calls.first().args[1]?.data).toEqual({ offer: jasmine.objectContaining({ id: 1 }) });
+    expect(service.apply).toHaveBeenCalledOnceWith(1, { ...request, language: 'FR' });
+    expect(component.page!.content[0]).toEqual(jasmine.objectContaining({ importedProjectId: 40, seen: true,
+      application: { appliedOn: '2026-10-20', via: 'EMAIL' } }));
+    expect(notifications.success).toHaveBeenCalledWith('offers.notifications.appliedWithFollowUp', 6000, { role: 'Mission 1' });
+    expect(text(fixture)).toContain("Candidature");
+  });
+
+  it('explains a second application or a failure', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    spyOn(TestBed.inject(MatDialog), 'open').and.returnValue(
+      { afterClosed: () => of({ appliedOn: '2026-10-20', via: 'PHONE' }) } as MatDialogRef<unknown>);
+    service.apply.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+    service.get.and.returnValue(of(offer(1, { importedProjectId: 40, application: { appliedOn: '2026-10-18', via: 'EMAIL' } })));
+
+    component.applyToOffer(component.page!.content[0]);
+    expect(notifications.error).toHaveBeenCalledWith('offers.errors.alreadyApplied');
+    expect(component.page!.content[0].application).toEqual({ appliedOn: '2026-10-18', via: 'EMAIL' });
+
+    service.apply.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    component.applyToOffer(component.page!.content[1]);
+    expect(notifications.error).toHaveBeenCalledWith('offers.errors.apply');
+    expect(component.page!.content[1].application).toBeUndefined();
+  });
+
+  it('takes an application back at once, out of the applied view, and puts it back on failure', () => {
+    const application = { appliedOn: '2026-10-20', via: 'EMAIL' as const };
+    const fixture = create({ view: 'APPLIED' }, page([offer(1, { application }), offer(2, { application })]));
+    const component = fixture.componentInstance;
+    service.withdrawApplication.and.returnValue(of({ offerId: 1, saved: false, hidden: false, seen: true }));
+
+    component.withdrawApplication(component.page!.content[0]);
+    expect(component.page!.content.map(item => item.id)).toEqual([2]);
+    expect(component.page!.totalElements).toBe(1);
+    expect(notifications.success).toHaveBeenCalledWith('offers.notifications.withdrawn', 4000);
+
+    service.withdrawApplication.and.returnValue(throwError(() => new Error('down')));
+    component.withdrawApplication(component.page!.content[0]);
+    expect(component.page!.content[0].application).toEqual(application);
+    expect(notifications.error).toHaveBeenCalledWith('offers.errors.state');
+    expect(fixture.nativeElement.querySelector('[data-view="APPLIED"]')).not.toBeNull();
   });
 
   it('keeps the saved offers of a blocked publisher in the saved view', () => {

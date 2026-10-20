@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, LOCALE_ID, Output, ViewChild, inject
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { DatePipe, formatDate } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Offer } from '../../../models/offer.models';
-import { relativeTime } from '../../../shared/utils/relative-time';
+import { relativeDay, relativeTime } from '../../../shared/utils/relative-time';
 import { offerPlace, offerRate } from '../../../shared/utils/offer-format';
 
 /** Skills shown before the rest collapse into "+n". */
@@ -46,6 +46,9 @@ export class OfferCardComponent {
   @Output() readonly importOffer = new EventEmitter<Offer>();
   /** Every offer of this offer's publisher is to leave the feed. */
   @Output() readonly blockPublisher = new EventEmitter<Offer>();
+  /** The workspace applied to the offer, or takes its application back. */
+  @Output() readonly applyOffer = new EventEmitter<Offer>();
+  @Output() readonly withdrawApplication = new EventEmitter<Offer>();
   /** The workspace's note on the offer, changed (blank to remove it). */
   @Output() readonly saveNote = new EventEmitter<{ offer: Offer; note: string }>();
 
@@ -83,6 +86,21 @@ export class OfferCardComponent {
     this.editingNote = false;
     this.changes.markForCheck();
     setTimeout(() => this.moreButton?.nativeElement.focus());
+  }
+
+  /** "today", "3 days ago": when the workspace applied. */
+  get appliedAgo(): string {
+    return this.offer.application ? relativeDay(this.offer.application.appliedOn, this.locale) : '';
+  }
+
+  /** "Applied by email on Oct 18, 2026". */
+  get appliedDetails(): string {
+    const application = this.offer.application;
+    if (!application) {
+      return '';
+    }
+    return this.translate.instant(`offers.card.appliedVia.${application.via}`,
+      { date: formatDate(application.appliedOn, 'mediumDate', this.locale) });
   }
 
   get published(): string {

@@ -5,11 +5,13 @@ import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
+import dev.swirlit.indezy.model.OfferApplication;
 import dev.swirlit.indezy.model.OfferPublisherBlock;
 import dev.swirlit.indezy.model.OfferSiteExclusion;
 import dev.swirlit.indezy.model.OfferSiteStatus;
 import dev.swirlit.indezy.model.OfferSkip;
 import dev.swirlit.indezy.model.Project;
+import dev.swirlit.indezy.model.enums.ApplicationChannel;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
@@ -24,6 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,19 +149,29 @@ class JobOfferRepositoryTest {
     }
 
     @Test
+    void keepsTheOffersAWorkspaceAppliedTo() {
+        state(expired, false, null).setApplication(new OfferApplication(LocalDate.of(2026, 10, 1), ApplicationChannel.PHONE));
+        entityManager.flush();
+
+        assertThat(offers.findDisposableIds(NOW.minus(Duration.ofDays(90)), NOW)).containsExactly(old.getId());
+    }
+
+    @Test
     void projectsTheWorkspacesStatesAndForgetsDeletedProjects() {
         Project project = project();
         state(recent, false, project);
         JobOfferState hidden = state(old, false, null);
         hidden.setHidden(true);
         hidden.setSeenAt(NOW);
+        OfferApplication application = new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.EMAIL);
+        hidden.setApplication(application);
         entityManager.flush();
 
         List<OfferStateDto> found = states.findStates(freelance.getId(), List.of(recent.getId(), old.getId(), expired.getId()));
 
         assertThat(found).containsExactlyInAnyOrder(
             new OfferStateDto(recent.getId(), false, false, false, project.getId()),
-            new OfferStateDto(old.getId(), false, true, true, null));
+            new OfferStateDto(old.getId(), false, true, true, null, null, application));
         assertThat(states.findByFreelanceIdAndOfferId(freelance.getId(), old.getId())).isPresent();
         assertThat(states.findByFreelanceId(freelance.getId())).hasSize(2);
 

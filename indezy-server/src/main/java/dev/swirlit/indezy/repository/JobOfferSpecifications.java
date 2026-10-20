@@ -130,6 +130,8 @@ public final class JobOfferSpecifications {
             }
         } else if (freelanceId == null) {
             predicates.add(cb.disjunction());
+        } else if (request.getView() == OfferSearchRequest.View.APPLIED) {
+            predicates.add(state(freelanceId, root, query, cb, state -> cb.isNotNull(state.get("application").get("appliedOn"))));
         } else {
             String flag = request.getView() == OfferSearchRequest.View.SAVED ? "saved" : "hidden";
             predicates.add(state(freelanceId, root, query, cb, state -> cb.isTrue(state.get(flag))));

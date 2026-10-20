@@ -199,7 +199,7 @@ marked **New**.
 - **Sort** by newest, highest daily rate (offers without a rate last), closest (when the profile has a city) or best
   match (when the profile names skills).
 - **Views**: all offers (the hidden ones and expired ones are left out), saved offers (expired ones stay, marked
-  **Expired**) and hidden offers.
+  **Expired**), offers applied to (expired ones stay) and hidden offers. On a phone the four views sit two by two.
 - **Actions** on each offer: open it on its site (it is marked seen), show its full description, save it, hide it
   (or show it again), and **Add to pipeline**: a new opportunity at the Contact stage with the offer's title, rate
   (the highest rate stated, else the profile's target daily rate), work mode and remote days a month, start date,
@@ -207,7 +207,17 @@ marked **New**.
   intermediary when the workspace has no client of that name; the site itself when the offer names none), and its
   source is the job board: the workspace's source named after the site, created as a job board on first import. An
   offer is added once; the card then links to its opportunity, until that opportunity is deleted. The card's
-  **More actions** menu also hides every offer from its publisher (see the blocklist below) and keeps a note on it.
+  **More actions** menu also records an application (see below), hides every offer from its publisher (see the
+  blocklist below) and keeps a note on it.
+- **Applications**: **I applied** in an offer's menu asks how (the site's form, email or phone) and on which day (today
+  by default, never later) the workspace applied, and whether to plan a follow-up (after 7 days by default, 1 to 60;
+  one due already is planned for the next morning). The mission joins the pipeline at the Contact stage, as **Add to
+  pipeline** does, unless it already is there, and its opportunity gets an "Application sent" step waiting for
+  feedback, dated that day, plus a planned "Follow up on the application" step at 9:00 that the **Timeline** lists;
+  steps are titled in the interface's language. The card then reads **Applied 3 days ago** (its tooltip says how and
+  on which day) and links to the opportunity, and the **Applied** view lists those offers. A mission is applied to
+  once, whichever copy; **Undo the application** forgets it and leaves the opportunity and its steps in the
+  pipeline. Offers a workspace applied to are kept past the 90 days.
 - **Private notes**: **Add a note** (or **Edit the note**) in an offer's menu, or `N` on the focused offer, opens a
   text field under the excerpt for whatever the workspace wants to remember (who called, the rate to ask, why the
   mission is not for it), up to 2,000 characters. `Ctrl+Enter` or **Save the note** keeps it, `Esc` or **Cancel**
@@ -219,9 +229,9 @@ marked **New**.
   titles read the same and whose publisher or opening text is the same are one mission. The feed shows its earliest
   copy that matches the filters, with **Also on** links to the others (one per site, still open). Saving, hiding,
   marking seen or adding one copy to the pipeline does it for the mission: the other copies never come back as new.
-- What a workspace does with offers (saved, hidden, seen, imported, its notes) is private to it and part of the
-  account data export. Offers older than 90 days or past their expiry are removed every night, unless a workspace saved or
-  imported them.
+- What a workspace does with offers (saved, hidden, seen, imported, its notes and applications) is private to it and
+  part of the account data export. Offers older than 90 days or past their expiry are removed every night, unless a
+  workspace saved, applied to or imported them.
 
 - **Saved searches**: **Save this search** keeps the current filters and sort under a name (up to 20 per workspace,
   names unique). They sit above the feed, each with the offers Indezy found for it since it was last opened ("3 new":
@@ -247,8 +257,10 @@ marked **New**.
   filters), the ten publishers naming the most offers (intermediaries or clients, spellings that differ only by case,
   accents or punctuation counting as one) and the offers published each of the last 30 days, Paris time.
 
-API: `GET /offers` (filters, `matchesProfile`, `view`, `sort` = `NEWEST`, `RATE`, `DISTANCE` or `MATCH`, `page`,
-`size`), `GET /offers/market` (the same filters and view), `GET /offers/{id}`, `PUT /offers/{id}/state`, `POST /offers/{id}/import`, `GET /offers/sites`,
+API: `GET /offers` (filters, `matchesProfile`, `view` = `FEED`, `SAVED`, `APPLIED` or `HIDDEN`, `sort` = `NEWEST`, `RATE`, `DISTANCE` or `MATCH`, `page`,
+`size`), `GET /offers/market` (the same filters and view), `GET /offers/{id}`, `PUT /offers/{id}/state`, `POST /offers/{id}/import`,
+`POST /offers/{id}/application` (`appliedOn`, `via` = `SITE_FORM`, `EMAIL` or `PHONE`, `followUpInDays`, `language` =
+`FR` or `EN`; `409` once applied, `400` for a later day) and `DELETE /offers/{id}/application`, `GET /offers/sites`,
 `GET /offers/skills?q=`, `GET /offers/regions`, the site health (`GET /offers/sites/health`,
 `PUT /offers/sites/{site}/exclusion`, `POST /offers/sites/{site}/refresh`, and `PUT` or `DELETE
 /offers/sites/left-out/{site}/visit`), the blocklist (`GET /offers/blocked-publishers`,

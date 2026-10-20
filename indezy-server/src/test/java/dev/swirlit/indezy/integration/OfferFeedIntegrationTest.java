@@ -35,6 +35,8 @@ import org.springframework.test.context.ActiveProfiles;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -195,6 +197,35 @@ class OfferFeedIntegrationTest {
 
         ResponseEntity<byte[]> export = call(alice, HttpMethod.GET, "/users/export", null, byte[].class);
         assertThat(new String(export.getBody(), StandardCharsets.UTF_8)).contains("\"jobOffers\"").contains("Développeur Java Spring");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void anApplicationPutsTheMissionInThePipelineWithItsStepsForItsWorkspaceOnly() {
+        String today = LocalDate.now(ZoneId.of("Europe/Paris")).toString();
+        ResponseEntity<Map> applied = call(alice, HttpMethod.POST, "/offers/" + paris.getId() + "/application",
+            Map.of("appliedOn", today, "via", "EMAIL", "followUpInDays", 7, "language", "FR"));
+
+        assertThat(applied.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(applied.getBody()).containsEntry("seen", true).containsEntry("application", Map.of("appliedOn", today, "via", "EMAIL"));
+        long projectId = ((Number) applied.getBody().get("importedProjectId")).longValue();
+        List<Map<String, Object>> steps = call(alice, HttpMethod.GET, "/interview-steps/by-project/" + projectId + "/ordered", null,
+            List.class).getBody();
+        assertThat(steps).extracting(step -> step.get("title")).containsExactly("Candidature envoyée (e-mail)", "Relancer la candidature");
+        assertThat(steps).extracting(step -> step.get("status")).containsExactly("WAITING_FEEDBACK", "PLANNED");
+        assertThat(call(alice, HttpMethod.POST, "/offers/" + paris.getId() + "/application", Map.of("appliedOn", today, "via", "PHONE"))
+            .getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(alice, HttpMethod.POST, "/offers/" + lyon.getId() + "/application",
+            Map.of("appliedOn", LocalDate.now(ZoneId.of("Europe/Paris")).plusDays(2).toString(), "via", "PHONE")).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+
+        assertThat(titles(call(alice, HttpMethod.GET, "/offers?view=APPLIED", null))).containsExactly("Développeur Java Spring");
+        assertThat(titles(call(bob, HttpMethod.GET, "/offers?view=APPLIED", null))).isEmpty();
+        assertThat(call(bob, HttpMethod.GET, "/offers/" + paris.getId(), null).getBody()).doesNotContainKey("application");
+
+        ResponseEntity<Map> withdrawn = call(alice, HttpMethod.DELETE, "/offers/" + paris.getId() + "/application", null);
+        assertThat(withdrawn.getBody()).doesNotContainKey("application").containsEntry("importedProjectId", (int) projectId);
+        assertThat(titles(call(alice, HttpMethod.GET, "/offers?view=APPLIED", null))).isEmpty();
     }
 
     @Test

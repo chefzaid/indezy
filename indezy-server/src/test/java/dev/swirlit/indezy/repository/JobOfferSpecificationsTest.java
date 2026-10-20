@@ -4,8 +4,10 @@ import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
+import dev.swirlit.indezy.model.OfferApplication;
 import dev.swirlit.indezy.model.OfferPublisherBlock;
 import dev.swirlit.indezy.model.OfferSiteExclusion;
+import dev.swirlit.indezy.model.enums.ApplicationChannel;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
@@ -243,6 +245,23 @@ class JobOfferSpecificationsTest {
         assertThat(search(request(), alice.getId())).containsExactly("courbevoie", "unknown");
         assertThat(search(request(r -> r.setView(OfferSearchRequest.View.SAVED)), alice.getId())).containsExactly("lyon");
         assertThat(search(request(), null)).containsExactly("java", "courbevoie", "lyon", "unknown");
+    }
+
+    @Test
+    void listsTheOffersTheWorkspaceAppliedTo() {
+        groupJavaWithAnEarlierCopy();
+        JobOffer lyon = repository.findAll().stream().filter(offer -> offer.getExternalId().equals("lyon")).findFirst().orElseThrow();
+        JobOfferState applied = new JobOfferState();
+        applied.setFreelance(alice);
+        applied.setOffer(lyon);
+        applied.setApplication(new OfferApplication(LocalDate.of(2026, 10, 18), ApplicationChannel.SITE_FORM));
+        entityManager.persistAndFlush(applied);
+        Freelance bob = freelance("bob@example.com");
+
+        assertThat(search(request(r -> r.setView(OfferSearchRequest.View.APPLIED)), alice.getId())).containsExactly("lyon");
+        assertThat(search(request(r -> r.setView(OfferSearchRequest.View.APPLIED)), bob.getId())).isEmpty();
+        assertThat(search(request(r -> r.setView(OfferSearchRequest.View.APPLIED)), null)).isEmpty();
+        assertThat(search(request(), alice.getId())).contains("lyon");
     }
 
     @Test

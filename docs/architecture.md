@@ -112,7 +112,7 @@ Routes are organized around the main product areas:
 12. `OfferSiteHealthService` gives each site's `offer_site_statuses` row, its open offers and what it brought over a day and a week (`JobOfferRepository.collectionBySite`). A workspace's `offer_site_exclusions` leave the site out of the feed's specification (a `NOT EXISTS` in the feed view), so the feed, saved search counts and market snapshot follow it. `OfferSiteRefresher` reads a site on request: `OfferSiteRuns.requestRefresh` makes it due now with a conditional update that refuses when the site ran or was asked for in the last 15 minutes or a run holds it, then a task on Spring's `applicationTaskExecutor` claims it like the scheduler does and runs `OfferCollector.collect`.
 13. Each offer keeps its publisher's folded words in `company_key`, set whenever its company is (`JobOffer.setCompany`); `OfferScheduler.keyStoredOffers` gives offers stored before it their key, 500 at a time after the last one looked at, then reads again the descriptions stored with markup a site escaped twice (`HtmlText.toText` reads such HTML twice from the start), reads the remote policy of offers stored without a work mode from their description, and `OfferRelocation` looks up again, 50 at a time, the offers that name a French place and have no coordinates (a lookup that timed out is not cached, and sites read page by page never read a stored offer again); `OfferNormalizer.relocate` only completes what an offer knows of its place. A workspace's `offer_publisher_blocks` hold the same key, and the feed view's specification leaves out offers whose `company_key` one of them names (`NOT EXISTS`), like an excluded site.
 14. `JobBoardSources` gives a workspace the job boards (`OfferSite` and `OfferLeftOutSite`) as sources: `AuthService` calls it when it creates a workspace, and `JobBoardSourcesBackfill` for the workspaces created before, when the server is ready. `freelances.job_board_sources_seeded`, set by a conditional update, makes it happen once per workspace, whichever replica claims it.
-15. Every night at 04:15 (Paris time), `OfferRetention` removes offers older than 90 days or expired, with their workspace states, unless a workspace saved or imported them, and forgets skips older than 30 days.
+15. Every night at 04:15 (Paris time), `OfferRetention` removes offers older than 90 days or expired, with their workspace states, unless a workspace saved, applied to or imported them, and forgets skips older than 30 days.
 
 ### Deployment
 
@@ -134,7 +134,7 @@ Current practical rules:
 - `User` owns account profile, preferences, and two-factor settings.
 - `Season` belongs to a freelance and groups projects.
 - `ActivityReport` belongs to a project (one per month) and is deleted with it.
-- `JobOffer` is shared by every workspace; `JobOfferState` holds what one workspace did with an offer (saved, hidden, seen, imported project, its private note) and is never visible to another.
+- `JobOffer` is shared by every workspace; `JobOfferState` holds what one workspace did with an offer (saved, hidden, seen, imported project, its private note, its application) and is never visible to another. `OfferApplicationService` records an application: it imports the mission when needed and adds its steps through `InterviewStepService`.
 
 Future account work should clarify whether `User` and `Freelance` remain separate concepts or become a one-to-one account/workspace model.
 

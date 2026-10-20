@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Removes offers published more than {@code indezy.offers.retention-days} ago or past their expiry,
- * with what workspaces did with them, unless a workspace saved or imported them; and forgets skipped offers
+ * with what workspaces did with them, unless a workspace saved, applied to or imported them; and forgets skipped offers
  * after {@link #SKIP_MEMORY}.
  */
 @Slf4j

@@ -78,9 +78,10 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
         "group by lower(s) order by count(o) desc")
     List<Object[]> findTopSkills(@Param("now") Instant now, @Param("prefix") String prefix, Pageable page);
 
-    /** Offers too old or expired that no workspace saved or imported. */
+    /** Offers too old or expired that no workspace saved, applied to or imported. */
     @Query("select o.id from JobOffer o where (o.publishedAt < :publishedBefore or o.expiresAt < :now) " +
-        "and not exists (select s.id from JobOfferState s where s.offer = o and (s.saved = true or s.importedProject is not null))")
+        "and not exists (select s.id from JobOfferState s where s.offer = o and (s.saved = true or s.importedProject is not null " +
+        "or s.application.appliedOn is not null))")
     List<Long> findDisposableIds(@Param("publishedBefore") Instant publishedBefore, @Param("now") Instant now);
 
     @Modifying

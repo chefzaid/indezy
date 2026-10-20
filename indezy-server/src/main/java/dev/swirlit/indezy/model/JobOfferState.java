@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.model;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -14,7 +15,7 @@ import lombok.Setter;
 
 import java.time.Instant;
 
-/** What one workspace did with a job offer: saved it, hid it, saw it or imported it into its pipeline. */
+/** What one workspace did with a job offer: saved it, hid it, saw it, noted it, applied to it or imported it into its pipeline. */
 @Entity
 @Table(name = "job_offer_states",
     uniqueConstraints = @UniqueConstraint(name = "uk_job_offer_states_freelance_offer", columnNames = {"freelance_id", "offer_id"}))
@@ -48,6 +49,10 @@ public class JobOfferState extends BaseEntity {
     @Setter(AccessLevel.NONE)
     @Column(name = "note_key", length = OfferNotes.MAX_LENGTH)
     private String noteKey;
+
+    /** When and how the workspace applied; {@code null} when it did not. */
+    @Embedded
+    private OfferApplication application;
 
     /** The opportunity created from the offer; cleared when that project is deleted. */
     @ManyToOne(fetch = FetchType.LAZY)

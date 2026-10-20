@@ -34,6 +34,8 @@ public final class ErrorMessages {
 
     public static final String OFFER_NOT_FOUND = "Job offer not found with id: %d";
     public static final String OFFER_ALREADY_IMPORTED = "This offer is already in the pipeline as project %d";
+    public static final String OFFER_ALREADY_APPLIED = "You already applied to this offer on %s";
+    public static final String OFFER_APPLIED_LATER = "An application cannot be dated after today";
     public static final String OFFER_DISTANCE_NEEDS_CITY = "Add your city to your profile to filter offers by distance";
     public static final String OFFER_COLLECTION_OFF = "Offer collection is off on this server";
     public static final String OFFER_REFRESH_TOO_SOON = "%s is read on request at most once every 15 minutes, and not while a reading runs";

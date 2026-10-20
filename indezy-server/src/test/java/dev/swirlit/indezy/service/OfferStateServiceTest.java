@@ -133,6 +133,6 @@ class OfferStateServiceTest {
         when(states.findByFreelanceId(3L)).thenReturn(List.of(state));
 
         assertThat(service.export(3L)).containsExactly(new OfferStateExportDto(OfferSite.LEHIBOU, "Architecte", null,
-            "https://www.lehibou.com/annonce/7", false, true, NOW, null, "Rappeler l'ESN lundi"));
+            "https://www.lehibou.com/annonce/7", false, true, NOW, null, "Rappeler l'ESN lundi", null));
     }
 }

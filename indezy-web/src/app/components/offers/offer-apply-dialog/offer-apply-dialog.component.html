@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>{{ 'offers.apply.title' | translate }}</h2>
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <mat-dialog-content>
+    <p class="offer-name">
+      <strong>{{ data.offer.title }}</strong>
+      <span class="site">{{ data.offer.company ? data.offer.company + ' · ' : '' }}{{ data.offer.siteName }}</span>
+    </p>
+
+    <fieldset class="channels">
+      <legend>{{ 'offers.apply.via' | translate }}</legend>
+      <mat-radio-group formControlName="via">
+        @for (channel of channels; track channel) {
+          <mat-radio-button [value]="channel" [attr.data-channel]="channel">{{ 'offers.apply.channels.' + channel | translate }}</mat-radio-button>
+        }
+      </mat-radio-group>
+    </fieldset>
+
+    <mat-form-field appearance="outline" class="day-field">
+      <mat-label>{{ 'offers.apply.appliedOn' | translate }}</mat-label>
+      <input matInput formControlName="appliedOn" [matDatepicker]="picker" [max]="today" required data-applied-on>
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      @if (form.controls.appliedOn.hasError('matDatepickerMax')) {
+        <mat-error>{{ 'offers.apply.noLaterDay' | translate }}</mat-error>
+      } @else {
+        <mat-error>{{ 'offers.apply.dayRequired' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-checkbox formControlName="followUp" data-follow-up>{{ 'offers.apply.followUp' | translate }}</mat-checkbox>
+    @if (form.controls.followUp.value) {
+      <mat-form-field appearance="outline" class="days-field">
+        <mat-label>{{ 'offers.apply.followUpDays' | translate }}</mat-label>
+        <input matInput type="number" formControlName="followUpInDays" min="1" [max]="maxFollowUpDays" data-follow-up-days>
+        @if (followUpDay; as day) {
+          <mat-hint data-follow-up-day>{{ 'offers.apply.followUpOn' | translate: { date: day } }}</mat-hint>
+        }
+        <mat-error>{{ 'offers.apply.daysRange' | translate: { max: maxFollowUpDays } }}</mat-error>
+      </mat-form-field>
+    }
+
+    <p class="pipeline-note">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      <span>{{ (data.offer.importedProjectId ? 'offers.apply.inPipeline' : 'offers.apply.joinsPipeline') | translate }}</span>
+    </p>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+    <button mat-flat-button color="primary" type="submit" data-confirm-apply>{{ 'offers.apply.confirm' | translate }}</button>
+  </mat-dialog-actions>
+</form>

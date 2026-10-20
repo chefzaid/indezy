@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import dev.swirlit.indezy.model.OfferApplication;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.Seniority;
@@ -53,7 +54,9 @@ public record OfferDto(
     /** How well the mission fits the profile; absent when the profile names no skills. */
     OfferMatchDto match,
     /** The workspace's private note on the mission. */
-    String note) {
+    String note,
+    /** When and how the workspace applied to the mission. */
+    OfferApplication application) {
 
     public OfferDto {
         skills = skills == null ? List.of() : List.copyOf(skills);

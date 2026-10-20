@@ -1,4 +1,4 @@
-import { relativeTime } from './relative-time';
+import { relativeDay, relativeTime } from './relative-time';
 
 describe('relativeTime', () => {
   const now = new Date('2026-10-19T12:00:00Z');
@@ -15,5 +15,18 @@ describe('relativeTime', () => {
 
   it('also reads moments to come', () => {
     expect(relativeTime('2026-10-20T12:00:00Z', 'en-US', now)).toBe('tomorrow');
+  });
+});
+
+describe('relativeDay', () => {
+  const evening = new Date(2026, 9, 20, 23, 30);
+
+  it('counts calendar days whatever the time of day', () => {
+    expect(relativeDay('2026-10-20', 'en-US', evening)).toBe('today');
+    expect(relativeDay('2026-10-19', 'en-US', evening)).toBe('yesterday');
+    expect(relativeDay('2026-10-17', 'fr-FR', evening)).toBe('il y a 3 jours');
+    expect(relativeDay('2026-10-06', 'en-US', evening)).toBe('2 weeks ago');
+    expect(relativeDay('2026-08-01', 'en-US', evening)).toBe('2 months ago');
+    expect(relativeDay('2026-10-21', 'en-US', evening)).toBe('tomorrow');
   });
 });

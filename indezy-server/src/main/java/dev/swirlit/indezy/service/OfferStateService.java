@@ -81,7 +81,7 @@ public class OfferStateService {
         return states.findByFreelanceId(freelanceId).stream()
             .map(state -> new OfferStateExportDto(state.getOffer().getSite(), state.getOffer().getTitle(),
                 state.getOffer().getCompany(), state.getOffer().getUrl(), state.isSaved(), state.isHidden(), state.getSeenAt(),
-                state.getImportedProject() == null ? null : state.getImportedProject().getId(), state.getNote()))
+                state.getImportedProject() == null ? null : state.getImportedProject().getId(), state.getNote(), state.getApplication()))
             .toList();
     }
 
@@ -101,6 +101,6 @@ public class OfferStateService {
 
     static OfferStateDto toDto(JobOfferState state) {
         return new OfferStateDto(state.getOffer().getId(), state.isSaved(), state.isHidden(), state.getSeenAt() != null,
-            state.getImportedProject() == null ? null : state.getImportedProject().getId(), state.getNote());
+            state.getImportedProject() == null ? null : state.getImportedProject().getId(), state.getNote(), state.getApplication());
     }
 }

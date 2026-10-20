@@ -10,10 +10,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslateModule } from '@ngx-translate/core';
+import { MatDialog } from '@angular/material/dialog';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject, catchError, combineLatest, forkJoin, map, of, switchMap, tap } from 'rxjs';
 import {
   Offer,
+  OfferApplicationRequest,
   OfferFilters,
   OfferPage,
   OfferQuery,
@@ -34,6 +36,7 @@ import {
 } from '../../../services/offer/offer-query';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { relativeTime } from '../../../shared/utils/relative-time';
+import { OfferApplyDialogComponent, OfferApplyDialogData } from '../offer-apply-dialog/offer-apply-dialog.component';
 import { OfferCardComponent } from '../offer-card/offer-card.component';
 import { OfferFiltersComponent } from '../offer-filters/offer-filters.component';
 import { OfferMarketComponent } from '../offer-market/offer-market.component';
@@ -54,7 +57,7 @@ const MARKET_OPEN_KEY = 'indezy.offers.marketOpen';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OfferFeedComponent implements OnInit {
-  readonly views: OfferView[] = ['FEED', 'SAVED', 'HIDDEN'];
+  readonly views: OfferView[] = ['FEED', 'SAVED', 'APPLIED', 'HIDDEN'];
   readonly sorts: OfferSort[] = ['NEWEST', 'RATE', 'DISTANCE', 'MATCH'];
   readonly pageSizes = OFFER_PAGE_SIZES;
 
@@ -82,6 +85,8 @@ export class OfferFeedComponent implements OnInit {
   private readonly changes = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly locale = inject(LOCALE_ID);
+  private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
   /** Searches again with the same filters (after a failure). */
   private readonly reload$ = new BehaviorSubject<void>(undefined);
 
@@ -270,6 +275,51 @@ export class OfferFeedComponent implements OnInit {
         } else {
           this.notifications.error('offers.errors.import');
         }
+      }
+    });
+  }
+
+  /** Asks how and when the workspace applied, then records it: the mission joins the pipeline with its steps. */
+  applyToOffer(offer: Offer): void {
+    this.dialog.open<OfferApplyDialogComponent, OfferApplyDialogData, OfferApplicationRequest>(OfferApplyDialogComponent,
+      { data: { offer }, autoFocus: 'first-tabbable' }).afterClosed().subscribe(request => {
+      if (!request) {
+        return;
+      }
+      const language = this.translate.getCurrentLang() === 'en' ? 'EN' : 'FR';
+      this.offerService.apply(offer.id, { ...request, language }).subscribe({
+        next: state => {
+          this.patch(offer.id, { application: state.application, importedProjectId: state.importedProjectId, seen: true });
+          this.notifications.success(request.followUpInDays ? 'offers.notifications.appliedWithFollowUp' : 'offers.notifications.applied',
+            6000, { role: offer.title });
+        },
+        error: (error: HttpErrorResponse) => {
+          if (error.status === 409) {
+            this.notifications.error('offers.errors.alreadyApplied');
+            this.offerService.get(offer.id).subscribe(full =>
+              this.patch(offer.id, { application: full.application, importedProjectId: full.importedProjectId }));
+          } else {
+            this.notifications.error('offers.errors.apply');
+          }
+        }
+      });
+    });
+  }
+
+  /** Forgets the application at once (the opportunity stays), and puts it back on failure. */
+  withdrawApplication(offer: Offer): void {
+    const before = this.page;
+    this.patch(offer.id, { application: undefined });
+    if (this.query.view === 'APPLIED' && this.page) {
+      this.page = { ...this.page, content: this.page.content.filter(item => item.id !== offer.id),
+        totalElements: this.page.totalElements - 1 };
+    }
+    this.offerService.withdrawApplication(offer.id).subscribe({
+      next: () => this.notifications.success('offers.notifications.withdrawn', 4000),
+      error: () => {
+        this.page = before;
+        this.notifications.error('offers.errors.state');
+        this.changes.markForCheck();
       }
     });
   }
