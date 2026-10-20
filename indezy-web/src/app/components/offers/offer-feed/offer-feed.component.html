@@ -44,6 +44,8 @@
     </button>
   </div>
 
+  <app-offer-saved-searches class="saved-searches-bar" [query]="query" (searchOpened)="openSavedSearch($event)" />
+
   <div class="feed-layout">
     <aside id="offer-filters-panel" class="filters-panel" [class.open]="filtersOpen">
       <app-offer-filters [filters]="filters" [regions]="regions" [sites]="sites"

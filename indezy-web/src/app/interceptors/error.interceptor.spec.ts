@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { HttpClient, provideHttpClient, withInterceptors, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpContext, provideHttpClient, withInterceptors, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { errorInterceptor } from './error.interceptor';
+import { SILENT_HTTP_ERRORS, errorInterceptor } from './error.interceptor';
 import { AuthService } from '../services/auth/auth.service';
 import { NotificationService } from '../services/notification/notification.service';
 
@@ -331,5 +331,19 @@ describe('errorInterceptor', () => {
       const req = httpMock.expectOne(testUrl);
       req.error(new ProgressEvent('timeout'));
     });
+  });
+
+  it('reports nothing for a background request, and still signs out when the session expired', () => {
+    const silent = { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) };
+    httpClient.get('/api/offers/searches/alerts', silent).subscribe({ error: () => undefined });
+    httpMock.expectOne('/api/offers/searches/alerts').flush('Down', { status: 503, statusText: 'Unavailable' });
+    httpClient.get('/api/offers/searches/alerts', silent).subscribe({ error: () => undefined });
+    httpMock.expectOne('/api/offers/searches/alerts').error(new ProgressEvent('offline'));
+
+    expect(notificationService.error).not.toHaveBeenCalled();
+
+    httpClient.get('/api/offers/searches/alerts', silent).subscribe({ error: () => undefined });
+    httpMock.expectOne('/api/offers/searches/alerts').flush('Expired', { status: 401, statusText: 'Unauthorized' });
+    expect(authService.logout).toHaveBeenCalled();
   });
 });

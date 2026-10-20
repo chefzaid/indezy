@@ -1,9 +1,15 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { HttpContextToken, HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { Injector, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth/auth.service';
 import { NotificationService } from '../services/notification/notification.service';
+
+/**
+ * Set on requests made in the background (a badge counting every few minutes): their failures are not reported to
+ * the user, who did not ask for them. An expired session still signs out.
+ */
+export const SILENT_HTTP_ERRORS = new HttpContextToken<boolean>(() => false);
 
 /** Authentication endpoints report bad credentials themselves; a 401 there is not an expired session. */
 const AUTH_ENDPOINT = /\/auth\/(login|register|sso)(\?|$)/;
@@ -14,7 +20,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   // Resolved lazily: TranslateService (a NotificationService dependency) loads its
   // translation files through HttpClient, so injecting it eagerly here is circular.
   const injector = inject(Injector);
-  const notify = (messageKey: string): void => injector.get(NotificationService).error(messageKey, 5000);
+  const silent = req.context.get(SILENT_HTTP_ERRORS);
+  const notify = (messageKey: string): void => {
+    if (!silent) {
+      injector.get(NotificationService).error(messageKey, 5000);
+    }
+  };
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {

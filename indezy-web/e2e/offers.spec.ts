@@ -14,6 +14,12 @@ function offer(id: number, overrides: Record<string, unknown> = {}): MockOffer {
   };
 }
 
+/** A search saved four new offers ago. */
+const savedSearch = {
+  id: 5, name: 'Java remote', filters: { q: 'java', workModes: ['REMOTE'], sort: 'NEWEST', view: 'FEED', page: 0, size: 20 },
+  lastOpenedAt: new Date(Date.now() - 86_400_000).toISOString(), newOffers: 4
+};
+
 /** The first offer is also published on Collective. */
 const copy = { id: 11, site: 'COLLECTIVE', siteName: 'Collective', url: 'https://www.collective.work/job/11' };
 
@@ -28,10 +34,12 @@ const regions = [
 ];
 
 /** Answers the feed's API like the server would, and records the searches and state changes. */
-async function mockFeed(page: Page, language: string): Promise<{ searches: URL[]; states: unknown[]; imports: number[] }> {
+async function mockFeed(page: Page, language: string):
+  Promise<{ searches: URL[]; states: unknown[]; imports: number[]; saves: Record<string, unknown>[] }> {
   const searches: URL[] = [];
   const states: unknown[] = [];
   const imports: number[] = [];
+  const saves: Record<string, unknown>[] = [];
   await mockWorkspaceSession(page, language);
   await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light', language } }));
   await page.route('**/api/offers/sites', route => route.fulfill({ json: sites }));
@@ -45,6 +53,16 @@ async function mockFeed(page: Page, language: string): Promise<{ searches: URL[]
     imports.push(Number(new URL(route.request().url()).pathname.split('/').at(-2)));
     return route.fulfill({ status: 201, json: { id: 40, role: 'Développeur Java 1' } });
   });
+  await page.route('**/api/offers/searches/alerts', route => route.fulfill({ json: { newOffers: 4 } }));
+  await page.route('**/api/offers/searches/*/open', route => route.fulfill({ json: { ...savedSearch, newOffers: 0 } }));
+  await page.route(/\/api\/offers\/searches$/, route => {
+    if (route.request().method() !== 'POST') {
+      return route.fulfill({ json: [savedSearch] });
+    }
+    const body = route.request().postDataJSON();
+    saves.push(body);
+    return route.fulfill({ status: 201, json: { id: 6, name: body.name, filters: body.filters, lastOpenedAt: new Date().toISOString(), newOffers: 0 } });
+  });
   await page.route(/\/api\/offers\/\d+$/, route =>
     route.fulfill({ json: offer(1, { description: 'Contexte\nRefonte complète du SI bancaire.\n\nProfil\n5 ans d\'expérience.' }) }));
   await page.route(/\/api\/offers(\?.*)?$/, route => {
@@ -55,7 +73,7 @@ async function mockFeed(page: Page, language: string): Promise<{ searches: URL[]
       rateMin: undefined, rateMax: 700, workMode: 'REMOTE', remoteDaysPerWeek: 5, seen: true })];
     return route.fulfill({ json: { content, page: 0, size: 20, totalElements: content.length, totalPages: 1, distanceAvailable: false } });
   });
-  return { searches, states, imports };
+  return { searches, states, imports, saves };
 }
 
 /** Lets the router's cross-fade between two addresses finish before a screenshot. */
@@ -90,6 +108,14 @@ test('browses, filters, saves, hides and imports freelance offers (en)', async (
   await page.getByLabel('Minimum', { exact: true }).fill('600');
   await rateSearch;
 
+  await expect(page.locator('[data-nav-badge]')).toHaveText('4');
+  await expect(page.locator('[data-saved-search="5"] [data-new-count]')).toHaveText('4 new');
+  await page.getByRole('button', { name: 'Save this search' }).click();
+  await page.getByRole('dialog').getByLabel('Name').fill('Kafka 600+');
+  await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.locator('.search-name', { hasText: 'Kafka 600+' })).toBeVisible();
+  expect(api.saves).toEqual([expect.objectContaining({ name: 'Kafka 600+', filters: expect.objectContaining({ q: 'kafka', rateMin: 600 }) })]);
+
   await first.getByRole('button', { name: 'Save the offer' }).click();
   await expect(first.getByRole('button', { name: 'Remove from saved offers' })).toHaveAttribute('aria-pressed', 'true');
   expect(api.states).toContainEqual({ saved: true });
@@ -113,6 +139,12 @@ test('browses, filters, saves, hides and imports freelance offers (en)', async (
   await expect(cards).toHaveCount(2);
   await settle(page);
   await page.screenshot({ path: test.info().outputPath('offers-en.png'), fullPage: true });
+
+  const savedSearchOpened = page.waitForRequest(request => isSearch(request) && request.url().includes('workModes=REMOTE'));
+  await page.locator('[data-saved-search="5"] .open-search').click();
+  await savedSearchOpened;
+  await expect(page).toHaveURL(/q=java/);
+  await expect(page.locator('[data-saved-search="5"] [data-new-count]')).toHaveCount(0);
 });
 
 test('opens the filters on a phone and narrows the feed to full remote (fr)', async ({ page }) => {

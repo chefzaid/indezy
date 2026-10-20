@@ -1,19 +1,22 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ProjectDto } from '../../models/project.models';
 import {
   Offer,
+  OfferAlerts,
   OfferFacet,
   OfferPage,
   OfferQuery,
   OfferRegion,
   OfferSiteInfo,
   OfferState,
-  OfferStateUpdate
+  OfferStateUpdate,
+  SavedOfferSearch
 } from '../../models/offer.models';
 import { offerQueryToHttpParams } from './offer-query';
+import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 
 /** The freelance offer feed: search, per-workspace state and import into the pipeline. */
 @Injectable({
@@ -50,5 +53,28 @@ export class OfferService {
 
   regions(): Observable<OfferRegion[]> {
     return this.http.get<OfferRegion[]>(`${this.API_URL}/regions`);
+  }
+
+  savedSearches(): Observable<SavedOfferSearch[]> {
+    return this.http.get<SavedOfferSearch[]>(`${this.API_URL}/searches`);
+  }
+
+  /** Saves the query's filters (the server keeps neither its view nor its page) under a name. */
+  saveSearch(name: string, query: OfferQuery): Observable<SavedOfferSearch> {
+    return this.http.post<SavedOfferSearch>(`${this.API_URL}/searches`, { name, filters: query });
+  }
+
+  /** Marks a saved search opened: what it found so far is no longer new. */
+  openSearch(id: number): Observable<SavedOfferSearch> {
+    return this.http.post<SavedOfferSearch>(`${this.API_URL}/searches/${id}/open`, null);
+  }
+
+  deleteSearch(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/searches/${id}`);
+  }
+
+  /** Counted in the background for the badge on Offers: a failure is not reported. */
+  alerts(): Observable<OfferAlerts> {
+    return this.http.get<OfferAlerts>(`${this.API_URL}/searches/alerts`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
   }
 }

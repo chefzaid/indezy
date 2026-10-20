@@ -147,7 +147,7 @@ public class OfferSearchService {
     }
 
     /** Where distances are measured from: the profile's city, or the workspace's. */
-    Optional<Origin> origin(Long freelanceId) {
+    public Optional<Origin> origin(Long freelanceId) {
         return freelances.findProfileCity(freelanceId)
             .filter(city -> !city.isBlank())
             .or(() -> freelances.findById(freelanceId).map(Freelance::getCity).filter(city -> city != null && !city.isBlank()))

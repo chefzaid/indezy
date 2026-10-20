@@ -313,8 +313,11 @@ The backend reads public job boards for the offer feed ([ADR 0009](./adr/0009-co
   links with `rel="noopener noreferrer"`. The readers skip the application contacts sites publish in their own
   fields (recruiter emails and phone numbers); a description keeps only what its text says.
 - XML (sitemaps) is parsed with jsoup's XML parser, which never resolves external entities.
-- What a workspace does with offers (`job_offer_states`) is read and written only for the caller's workspace;
-  `freelanceId` is accepted only when security checks are off in tests, and a foreign one is refused with `403`.
+- What a workspace does with offers (`job_offer_states`) and its saved searches (`saved_offer_searches`) are read
+  and written only for the caller's workspace; `freelanceId` is accepted only when security checks are off in tests,
+  a foreign one is refused with `403`, and another workspace's saved search answers `404`. Both are part of the
+  account data export. The badge's background count is sent with `SILENT_HTTP_ERRORS`, so its failures raise no
+  message; an expired session still signs out.
 - Places are looked up on the French government geocoding API (`geo.api.gouv.fr`) with the city and postal code of an
   offer or of the profile only, never a person's address.
 

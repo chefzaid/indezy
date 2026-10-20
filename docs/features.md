@@ -207,8 +207,16 @@ marked **New**.
   export. Offers older than 90 days or past their expiry are removed every night, unless a workspace saved or
   imported them.
 
+- **Saved searches**: **Save this search** keeps the current filters and sort under a name (up to 20 per workspace,
+  names unique). They sit above the feed, each with the offers Indezy found for it since it was last opened ("3 new":
+  collected after that moment, one per mission); opening one shows its offers and starts counting afresh. The
+  **Offers** item of the menu carries a badge with the offers new for any saved search, counted again every five
+  minutes and after each change; a failed count is not reported.
+
 API: `GET /offers` (filters, `view`, `sort`, `page`, `size`), `GET /offers/{id}`, `PUT /offers/{id}/state`,
-`POST /offers/{id}/import`, `GET /offers/sites`, `GET /offers/skills?q=` and `GET /offers/regions`.
+`POST /offers/{id}/import`, `GET /offers/sites`, `GET /offers/skills?q=`, `GET /offers/regions`, and the saved
+searches: `GET /offers/searches`, `POST /offers/searches`, `POST /offers/searches/{id}/open`,
+`DELETE /offers/searches/{id}` and `GET /offers/searches/alerts`.
 
 ## Interview Steps
 

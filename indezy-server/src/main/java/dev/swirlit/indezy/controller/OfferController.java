@@ -1,6 +1,5 @@
 package dev.swirlit.indezy.controller;
 
-import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
@@ -68,13 +67,13 @@ public class OfferController {
     @PutMapping("/{id}/state")
     public OfferStateDto updateState(@PathVariable Long id, @RequestBody OfferStateUpdateRequest request,
                                      @RequestParam(required = false) Long freelanceId) {
-        return stateService.update(workspace(freelanceId), id, request);
+        return stateService.update(accessGuard.requireWorkspace(freelanceId), id, request);
     }
 
     @Operation(summary = "Add an offer to the pipeline as a new opportunity")
     @PostMapping("/{id}/import")
     public ResponseEntity<ProjectDto> importOffer(@PathVariable Long id, @RequestParam(required = false) Long freelanceId) {
-        return new ResponseEntity<>(importService.importOffer(workspace(freelanceId), id), HttpStatus.CREATED);
+        return new ResponseEntity<>(importService.importOffer(accessGuard.requireWorkspace(freelanceId), id), HttpStatus.CREATED);
     }
 
     @Operation(summary = "List the job boards of the feed and how their collection goes")
@@ -93,13 +92,5 @@ public class OfferController {
     @GetMapping("/regions")
     public List<OfferRegionDto> regions() {
         return searchService.regions();
-    }
-
-    private Long workspace(Long requested) {
-        Long freelanceId = accessGuard.resolveFreelanceId(requested);
-        if (freelanceId == null) {
-            throw new IllegalArgumentException(ErrorMessages.WORKSPACE_REQUIRED);
-        }
-        return freelanceId;
     }
 }

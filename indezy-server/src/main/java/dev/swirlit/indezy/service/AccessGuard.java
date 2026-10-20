@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.ContactRepository;
@@ -53,6 +54,15 @@ public class AccessGuard {
                 return current;
             })
             .orElse(requested);
+    }
+
+    /** The workspace an action applies to, as {@link #resolveFreelanceId}; refused when there is none. */
+    public Long requireWorkspace(Long requested) {
+        Long freelanceId = resolveFreelanceId(requested);
+        if (freelanceId == null) {
+            throw new IllegalArgumentException(ErrorMessages.WORKSPACE_REQUIRED);
+        }
+        return freelanceId;
     }
 
     /** Rejects a request addressed to another workspace. */

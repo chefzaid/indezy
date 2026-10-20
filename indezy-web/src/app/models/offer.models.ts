@@ -74,6 +74,20 @@ export interface Offer {
   alsoOn?: OfferCopy[];
 }
 
+/** Filters of the feed saved under a name, with the offers found for them since they were last opened. */
+export interface SavedOfferSearch {
+  id: number;
+  name: string;
+  /** The filters as the server keeps them: unset values are null. */
+  filters: Partial<Record<keyof OfferQuery, unknown>>;
+  lastOpenedAt: string;
+  newOffers: number;
+}
+
+export interface OfferAlerts {
+  newOffers: number;
+}
+
 export interface OfferPage {
   content: Offer[];
   page: number;

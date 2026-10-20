@@ -1,0 +1,15 @@
+.hint {
+  margin: 0 0 12px;
+  color: var(--app-text-muted);
+}
+
+.name-field {
+  width: 100%;
+  min-width: 320px;
+}
+
+@media (max-width: 600px) {
+  .name-field {
+    min-width: 0;
+  }
+}

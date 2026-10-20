@@ -35,6 +35,9 @@ public final class ErrorMessages {
     public static final String OFFER_NOT_FOUND = "Job offer not found with id: %d";
     public static final String OFFER_ALREADY_IMPORTED = "This offer is already in the pipeline as project %d";
     public static final String OFFER_DISTANCE_NEEDS_CITY = "Add your city to your profile to filter offers by distance";
+    public static final String SAVED_SEARCH_NOT_FOUND = "Saved search not found with id: %d";
+    public static final String SAVED_SEARCH_NAME_TAKEN = "A saved search is already named \"%s\"";
+    public static final String SAVED_SEARCHES_LIMIT = "A workspace keeps at most %d saved searches";
     public static final String WORKSPACE_REQUIRED = "This action needs a workspace";
 
     public static final String INVALID_DATE_RANGE = "Start date cannot be after end date";

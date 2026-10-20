@@ -1,0 +1,34 @@
+:host {
+  display: block;
+}
+
+.saved-searches {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.saved-search {
+  display: inline-flex;
+  align-items: center;
+}
+
+.new-count {
+  margin-left: 6px;
+  padding: 0 8px;
+  border-radius: 10px;
+  background: var(--mat-sys-primary, #3f51b5);
+  color: var(--mat-sys-on-primary, #fff);
+  font-size: 0.75rem;
+  line-height: 20px;
+}

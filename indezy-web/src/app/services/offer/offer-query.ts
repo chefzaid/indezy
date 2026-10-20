@@ -1,5 +1,5 @@
 import { HttpParams } from '@angular/common/http';
-import { ParamMap, Params } from '@angular/router';
+import { ParamMap, Params, convertToParamMap } from '@angular/router';
 import { WorkMode } from '../../models/project.models';
 import {
   OFFER_WORK_MODES,
@@ -120,4 +120,18 @@ function valid<T extends string>(values: string[], accept: (value: string) => va
 function valid(values: string[], accept: (value: string) => boolean): string[];
 function valid(values: string[], accept: (value: string) => boolean): string[] {
   return [...new Set(values.flatMap(value => value.split(',')).filter(accept))];
+}
+
+/**
+ * The query of a saved search, for the feed: its filters and sort as the server keeps them (unset values are null),
+ * read like the page address so a stale or edited value is left out, on the feed's first page.
+ */
+export function offerQueryFromSaved(filters: Partial<Record<keyof OfferQuery, unknown>>): OfferQuery {
+  const params: Params = {};
+  for (const [key, value] of Object.entries(filters)) {
+    if (value !== null && value !== undefined && key !== 'view' && key !== 'page') {
+      params[key] = Array.isArray(value) ? value.map(String) : String(value);
+    }
+  }
+  return offerQueryFromParams(convertToParamMap(params));
 }

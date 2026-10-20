@@ -195,7 +195,7 @@ Increments, implemented in order:
 - [x] Structured-data sites: a generic sitemap and schema.org `JobPosting` reader used for WorkDispo, Next Mondays and Mindquest, the Freelance Factory WordPress reader and the Little Big Connection reader.
 - [x] HTML sites: Silkhom, LeGratin, Freelance-Informatique, Espace Freelance, Beyond Skills IT, Koïno and Sixième Homme readers, each tested on a sample shaped like the site's page (Le Studio Tech is left out, see above).
 - [x] Cross-site duplicates: the same mission published on several sites (WorkDispo republishes Cherry Pick, Collective.work and Free-Work republish Mon Consultant Indépendant) shows as one card, with "Also on" links to each site and the earliest publication date.
-- [ ] Saved searches and alerts: save the current filters under a name, see how many new offers match each saved search since it was last opened, and a badge on **Offers** in the navigation.
+- [x] Saved searches and alerts: save the current filters under a name, see how many new offers match each saved search since it was last opened, and a badge on **Offers** in the navigation.
 - [ ] Profile match: a match score from the profile's skills, target daily rate and city, shown on each card, as a sort option and as a "matches my profile" filter.
 - [ ] Market snapshot for the current filters: offer count, median and quartile daily rates, a daily-rate histogram, the remote split, top skills, top intermediaries and offers published per day.
 - [ ] Site health: a page listing each site with its status, last successful run, offers collected over 24 hours and 7 days, active offers and last error, plus the left-out sites and why; a per-workspace switch to exclude a site, and a manual refresh limited to one every 15 minutes.

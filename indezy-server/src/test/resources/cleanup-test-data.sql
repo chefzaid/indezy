@@ -2,6 +2,7 @@
 -- This script removes all test data to ensure test isolation
 
 -- Delete in reverse order of dependencies to avoid foreign key constraint violations
+DELETE FROM saved_offer_searches WHERE 1=1;
 DELETE FROM job_offer_states WHERE 1=1;
 DELETE FROM job_offer_skills WHERE 1=1;
 DELETE FROM job_offers WHERE 1=1;

@@ -4,6 +4,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { environment } from '../../../environments/environment';
 import { OfferService } from './offer.service';
 import { defaultOfferQuery } from './offer-query';
+import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 
 describe('OfferService', () => {
   const api = `${environment.apiUrl}/offers`;
@@ -54,5 +55,24 @@ describe('OfferService', () => {
     skills.flush([]);
     service.regions().subscribe();
     http.expectOne(`${api}/regions`).flush([]);
+  });
+
+  it('saves, lists, opens and deletes searches and counts what is new for them', () => {
+    service.saveSearch('Java', { ...defaultOfferQuery(), q: 'java' }).subscribe();
+    const saved = http.expectOne(`${api}/searches`);
+    expect(saved.request.method).toBe('POST');
+    expect(saved.request.body).toEqual(jasmine.objectContaining({ name: 'Java', filters: jasmine.objectContaining({ q: 'java' }) }));
+    saved.flush({ id: 3 });
+
+    service.savedSearches().subscribe();
+    http.expectOne(req => req.method === 'GET' && req.url === `${api}/searches`).flush([]);
+    service.openSearch(3).subscribe();
+    expect(http.expectOne(`${api}/searches/3/open`).request.method).toBe('POST');
+    service.deleteSearch(3).subscribe();
+    expect(http.expectOne(`${api}/searches/3`).request.method).toBe('DELETE');
+    service.alerts().subscribe(alerts => expect(alerts.newOffers).toBe(4));
+    const alerts = http.expectOne(`${api}/searches/alerts`);
+    expect(alerts.request.context.get(SILENT_HTTP_ERRORS)).toBeTrue();
+    alerts.flush({ newOffers: 4 });
   });
 });

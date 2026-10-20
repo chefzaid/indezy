@@ -3,12 +3,14 @@ package dev.swirlit.indezy.integration;
 import dev.swirlit.indezy.dto.RegisterRequest;
 import dev.swirlit.indezy.model.GeoPlace;
 import dev.swirlit.indezy.model.JobOffer;
+import dev.swirlit.indezy.model.SavedOfferSearch;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.GeoPlaceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
+import dev.swirlit.indezy.repository.SavedOfferSearchRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,6 +67,9 @@ class OfferFeedIntegrationTest {
     @Autowired
     private UserRepository users;
 
+    @Autowired
+    private SavedOfferSearchRepository savedSearches;
+
     private Account alice;
     private Account bob;
     private JobOffer paris;
@@ -81,6 +86,7 @@ class OfferFeedIntegrationTest {
 
     @AfterEach
     void tearDown() {
+        savedSearches.deleteAll();
         states.deleteAll();
         offers.deleteAll();
     }
@@ -102,6 +108,44 @@ class OfferFeedIntegrationTest {
         assertThat(call(bob, HttpMethod.GET, "/offers?freelanceId=" + alice.freelanceId(), null).getStatusCode())
             .isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(restTemplate.getForEntity(url("/offers"), Map.class).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void eachWorkspaceKeepsItsSavedSearchesAndSeesWhatIsNewForThem() {
+        ResponseEntity<Map> created = call(alice, HttpMethod.POST, "/offers/searches",
+            Map.of("name", "Java", "filters", Map.of("q", "java", "view", "SAVED", "page", 2)));
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(created.getBody()).containsEntry("name", "Java").containsEntry("newOffers", 0);
+        // The filters are kept, not the view or the page.
+        assertThat((Map<String, Object>) created.getBody().get("filters")).containsEntry("q", "java").containsEntry("view", "FEED")
+            .containsEntry("page", 0);
+        Object id = created.getBody().get("id");
+        // Opened half an hour ago; two offers came in ten minutes ago.
+        SavedOfferSearch stored = savedSearches.findById(((Number) id).longValue()).orElseThrow();
+        stored.setLastOpenedAt(Instant.now().minus(Duration.ofMinutes(30)));
+        savedSearches.save(stored);
+        Instant later = Instant.now().minus(Duration.ofMinutes(10));
+        offers.save(offer("fw-3", "Développeur Java senior", "Exemple Conseil", later, 48.8566, 2.3522));
+        offers.save(offer("fw-4", "Data engineer", null, later, 48.8566, 2.3522));
+
+        ResponseEntity<List> listed = call(alice, HttpMethod.GET, "/offers/searches", null, List.class);
+        assertThat(listed.getBody()).singleElement().satisfies(search -> assertThat((Map<String, Object>) search)
+            .containsEntry("name", "Java").containsEntry("newOffers", 1));
+        assertThat(call(alice, HttpMethod.GET, "/offers/searches/alerts", null).getBody()).containsEntry("newOffers", 1);
+        assertThat(call(bob, HttpMethod.GET, "/offers/searches", null, List.class).getBody()).isEmpty();
+        assertThat(call(bob, HttpMethod.GET, "/offers/searches/alerts", null).getBody()).containsEntry("newOffers", 0);
+        assertThat(call(bob, HttpMethod.POST, "/offers/searches/" + id + "/open", null).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.POST, "/offers/searches", Map.of("name", " java ", "filters", Map.of())).getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(alice, HttpMethod.POST, "/offers/searches", Map.of("name", "", "filters", Map.of())).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+
+        assertThat(call(alice, HttpMethod.POST, "/offers/searches/" + id + "/open", null).getBody()).containsEntry("newOffers", 0);
+        assertThat(call(alice, HttpMethod.GET, "/offers/searches/alerts", null).getBody()).containsEntry("newOffers", 0);
+        assertThat(call(bob, HttpMethod.DELETE, "/offers/searches/" + id, null).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.DELETE, "/offers/searches/" + id, null).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(call(alice, HttpMethod.GET, "/offers/searches", null, List.class).getBody()).isEmpty();
     }
 
     @Test

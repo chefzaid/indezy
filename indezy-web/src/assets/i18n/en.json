@@ -61,6 +61,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "offers": "Offers",
+    "newOffers": "{{count}} new offers in your saved searches",
     "timeline": "Timeline",
     "projects": "Projects",
     "clients": "Clients",
@@ -1107,6 +1108,28 @@
       "sites": "Sites",
       "unseenOnly": "Only offers I have not seen",
       "clear": "Clear filters ({{count}})"
+    },
+    "savedSearches": {
+      "title": "Saved searches",
+      "save": "Save this search",
+      "saveHint": "Keep these filters under a name and see what is new for them",
+      "saveNeedsFilters": "Choose some filters to save a search",
+      "openHint": "Show its offers: what is new is counted again from now",
+      "newCount": "{{count}} new",
+      "delete": "Delete the saved search “{{name}}”",
+      "deleteTitle": "Delete the saved search",
+      "deleteMessage": "Delete “{{name}}”? The offers stay in the feed.",
+      "dialogTitle": "Save this search",
+      "dialogHint": "Indezy counts the offers it finds for these filters until you open the search again, and shows them on Offers in the menu.",
+      "name": "Name",
+      "confirm": "Save",
+      "defaultName": "My search",
+      "saved": "Search “{{name}}” saved",
+      "errors": {
+        "conflict": "A saved search already has this name, or you already keep 20 of them.",
+        "save": "The search could not be saved.",
+        "delete": "The search could not be deleted."
+      }
     }
   }
 }

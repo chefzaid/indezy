@@ -35,12 +35,13 @@ import { NotificationService } from '../../../services/notification/notification
 import { relativeTime } from '../../../shared/utils/relative-time';
 import { OfferCardComponent } from '../offer-card/offer-card.component';
 import { OfferFiltersComponent } from '../offer-filters/offer-filters.component';
+import { OfferSavedSearchesComponent } from '../offer-saved-searches/offer-saved-searches.component';
 
 /** The freelance missions of every job board in one feed, newest first, with filters kept in the address. */
 @Component({
   selector: 'app-offer-feed',
   imports: [MatButtonModule, MatButtonToggleModule, MatCardModule, MatFormFieldModule, MatIconModule, MatPaginatorModule,
-    MatProgressSpinnerModule, MatSelectModule, TranslateModule, OfferCardComponent, OfferFiltersComponent],
+    MatProgressSpinnerModule, MatSelectModule, TranslateModule, OfferCardComponent, OfferFiltersComponent, OfferSavedSearchesComponent],
   templateUrl: './offer-feed.component.html',
   styleUrls: ['./offer-feed.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -133,6 +134,10 @@ export class OfferFeedComponent implements OnInit {
 
   onPage(event: PageEvent): void {
     this.navigate({ ...this.query, page: event.pageIndex, size: event.pageSize });
+  }
+
+  openSavedSearch(query: OfferQuery): void {
+    this.navigate(query);
   }
 
   clearFilters(): void {

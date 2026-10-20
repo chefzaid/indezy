@@ -35,7 +35,8 @@ describe('OfferFeedComponent', () => {
   function create(query: Record<string, string> = {}, result: OfferPage = page([offer(1), offer(2)]),
                   before: () => void = () => undefined): ComponentFixture<OfferFeedComponent> {
     registerLocaleData(localeFr);
-    service = jasmine.createSpyObj('OfferService', ['search', 'get', 'updateState', 'importOffer', 'sites', 'regions', 'skills']);
+    service = jasmine.createSpyObj('OfferService', ['search', 'get', 'updateState', 'importOffer', 'sites', 'regions', 'skills',
+      'savedSearches', 'alerts']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     service.search.and.returnValue(of(result));
     service.sites.and.returnValue(of([
@@ -43,6 +44,8 @@ describe('OfferFeedComponent', () => {
       { site: 'YEETS', name: 'Yeets', homeUrl: 'https://www.yeets.fr', openOffers: 30, failing: true }
     ]));
     service.regions.and.returnValue(of([]));
+    service.savedSearches.and.returnValue(of([]));
+    service.alerts.and.returnValue(of({ newOffers: 0 }));
     service.updateState.and.returnValue(of({ offerId: 1, saved: true, hidden: false, seen: true }));
     params = new BehaviorSubject(convertToParamMap(query));
     TestBed.configureTestingModule({
@@ -230,5 +233,14 @@ describe('OfferFeedComponent', () => {
     expect(fixture.componentInstance.openOffers).toBe(0);
     expect(fixture.componentInstance.lastUpdate).toBeNull();
     expect(text(fixture)).toContain('1 offre');
+  });
+
+  it('shows the query of a saved search when one is opened', () => {
+    const fixture = create();
+
+    fixture.componentInstance.openSavedSearch({ ...fixture.componentInstance.query, q: 'java', rateMin: 600 });
+
+    expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { q: 'java', rateMin: '600' } }));
+    expect(fixture.nativeElement.querySelector('app-offer-saved-searches')).not.toBeNull();
   });
 });

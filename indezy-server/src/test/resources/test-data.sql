@@ -2,6 +2,7 @@
 -- This file contains minimal test data for running integration tests
 
 -- Clear existing data (ignore errors if tables don't exist)
+DELETE FROM saved_offer_searches WHERE 1=1;
 DELETE FROM job_offer_states WHERE 1=1;
 DELETE FROM job_offer_skills WHERE 1=1;
 DELETE FROM job_offers WHERE 1=1;

@@ -339,6 +339,16 @@ Fields: `saved`, `hidden`, `seenAt`, and `importedProject`, the opportunity crea
 that project is deleted, so the offer can be imported again). The copies of a mission share their states: an
 action is written on each copy, and the feed reads the states of every copy of an offer.
 
+## SavedOfferSearch
+
+Table: `saved_offer_searches`
+
+Purpose: filters of the offer feed a workspace saved under a name. Unique per freelance and name
+(`uk_saved_offer_searches_freelance_name`); at most 20 per workspace.
+
+Fields: `name` (80 characters), `filters` (the feed's filters and sort as JSON, without view or page) and
+`lastOpenedAt`: offers first seen after it are new for the search.
+
 ## OfferSiteStatus, OfferSkip And GeoPlace
 
 `offer_site_statuses`: one row per job board, keyed by the site: `nextRunAt`, `runningSince` (the claim of a running

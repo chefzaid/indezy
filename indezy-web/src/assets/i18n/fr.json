@@ -61,6 +61,7 @@
   "nav": {
     "dashboard": "Tableau de bord",
     "offers": "Offres",
+    "newOffers": "{{count}} nouvelles offres dans vos recherches enregistrées",
     "timeline": "Planning",
     "projects": "Missions",
     "clients": "Clients",
@@ -1107,6 +1108,28 @@
       "sites": "Sites",
       "unseenOnly": "Seulement les offres non vues",
       "clear": "Effacer les filtres ({{count}})"
+    },
+    "savedSearches": {
+      "title": "Recherches enregistrées",
+      "save": "Enregistrer cette recherche",
+      "saveHint": "Garder ces filtres sous un nom et voir ce qui est nouveau pour eux",
+      "saveNeedsFilters": "Choisissez des filtres pour enregistrer une recherche",
+      "openHint": "Afficher ses offres : les nouveautés sont comptées à nouveau à partir de maintenant",
+      "newCount": "{{count}} nouvelles",
+      "delete": "Supprimer la recherche « {{name}} »",
+      "deleteTitle": "Supprimer la recherche enregistrée",
+      "deleteMessage": "Supprimer « {{name}} » ? Les offres restent dans le flux.",
+      "dialogTitle": "Enregistrer cette recherche",
+      "dialogHint": "Indezy compte les offres qu'il trouve pour ces filtres jusqu'à ce que vous rouvriez la recherche, et les signale sur Offres dans le menu.",
+      "name": "Nom",
+      "confirm": "Enregistrer",
+      "defaultName": "Ma recherche",
+      "saved": "Recherche « {{name}} » enregistrée",
+      "errors": {
+        "conflict": "Une recherche enregistrée porte déjà ce nom, ou vous en gardez déjà 20.",
+        "save": "La recherche n'a pas pu être enregistrée.",
+        "delete": "La recherche n'a pas pu être supprimée."
+      }
     }
   }
 }

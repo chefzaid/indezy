@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>{{ 'offers.savedSearches.dialogTitle' | translate }}</h2>
+
+<mat-dialog-content>
+  <p class="hint">{{ 'offers.savedSearches.dialogHint' | translate }}</p>
+  <mat-form-field appearance="outline" class="name-field">
+    <mat-label>{{ 'offers.savedSearches.name' | translate }}</mat-label>
+    <input matInput name="name" [(ngModel)]="name" [maxlength]="maxLength" required cdkFocusInitial (keydown.enter)="save()">
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+  <button mat-raised-button color="primary" type="button" [disabled]="!name.trim()" (click)="save()">
+    {{ 'offers.savedSearches.confirm' | translate }}
+  </button>
+</mat-dialog-actions>

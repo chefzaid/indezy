@@ -2,6 +2,7 @@
 -- This script removes all test data to ensure test isolation
 
 -- Delete in reverse order of dependencies to avoid foreign key constraint violations
+DELETE FROM saved_offer_searches WHERE freelance_id = 100;
 DELETE FROM job_offer_states WHERE freelance_id = 100
     OR imported_project_id IN (SELECT id FROM projects WHERE freelance_id = 100);
 DELETE FROM interview_steps WHERE project_id IN (SELECT id FROM projects WHERE freelance_id = 100);

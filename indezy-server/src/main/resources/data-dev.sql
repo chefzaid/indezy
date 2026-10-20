@@ -2,6 +2,7 @@
 -- Run it through `mask db-reset`; normal application startup never executes this file.
 
 TRUNCATE TABLE
+    saved_offer_searches,
     offer_skips,
     job_offer_states,
     job_offer_skills,
@@ -442,6 +443,11 @@ SELECT 1, offer.id, offer.external_id = 'sample-1', offer.external_id = 'sample-
     CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0
 FROM job_offers AS offer
 WHERE offer.external_id IN ('sample-1', 'sample-7');
+
+-- A saved search last opened three days ago: the badge on Offers counts what came in since.
+INSERT INTO saved_offer_searches (freelance_id, name, filters, last_opened_at, created_at, updated_at, version)
+VALUES (1, 'Java à Paris', '{"q":"java","departments":["75"]}', CURRENT_TIMESTAMP - INTERVAL '3 days',
+    CURRENT_TIMESTAMP - INTERVAL '10 days', CURRENT_TIMESTAMP, 0);
 
 -- The profile's city, already located, so distances work without the geocoding API.
 INSERT INTO geo_places (query_key, found, city, department_code, region_code, latitude, longitude, resolved_at)

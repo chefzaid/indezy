@@ -1,13 +1,15 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.ActivityDayDto;
-import dev.swirlit.indezy.dto.OfferStateExportDto;
-import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.dto.ActivityReportDto;
+import dev.swirlit.indezy.dto.OfferSearchRequest;
+import dev.swirlit.indezy.dto.OfferStateExportDto;
 import dev.swirlit.indezy.dto.ProjectDto;
+import dev.swirlit.indezy.dto.SavedOfferSearchDto;
 import dev.swirlit.indezy.dto.UserDto;
 import dev.swirlit.indezy.model.enums.ActivityDayType;
 import dev.swirlit.indezy.model.enums.ActivityReportStatus;
+import dev.swirlit.indezy.model.enums.OfferSite;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -41,6 +43,9 @@ class UserDataExportServiceTest {
     @Mock
     private OfferStateService offerStateService;
 
+    @Mock
+    private SavedOfferSearchService savedOfferSearchService;
+
     @InjectMocks
     private UserDataExportService userDataExportService;
 
@@ -67,6 +72,11 @@ class UserDataExportServiceTest {
         when(offerStateService.export(5L)).thenReturn(List.of(new OfferStateExportDto(OfferSite.FREE_WORK, "Développeur Java",
             "Exemple Conseil", "https://www.free-work.com/7", true, false, Instant.parse("2026-10-19T08:00:00Z"), null)));
 
+        OfferSearchRequest filters = new OfferSearchRequest();
+        filters.setQ("kafka");
+        when(savedOfferSearchService.export(5L)).thenReturn(List.of(new SavedOfferSearchDto(3L, "Kafka à Paris", filters,
+            Instant.parse("2026-10-18T07:00:00Z"), 0)));
+
         String json = new String(userDataExportService.exportUserData(1L, 5L), StandardCharsets.UTF_8);
 
         // Every section is present, and the profile and projects carry their data.
@@ -85,6 +95,9 @@ class UserDataExportServiceTest {
             .contains("\"2026-11-02T09:30:00Z\"")
             .contains("\"jobOffers\"")
             .contains("FREE_WORK")
-            .contains("\"2026-10-19T08:00:00Z\"");
+            .contains("\"2026-10-19T08:00:00Z\"")
+            .contains("\"offerSearches\"")
+            .contains("Kafka à Paris")
+            .contains("\"q\" : \"kafka\"");
     }
 }

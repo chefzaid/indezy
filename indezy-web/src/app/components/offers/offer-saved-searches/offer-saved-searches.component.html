@@ -1,0 +1,27 @@
+<section class="saved-searches" data-saved-searches [attr.aria-label]="'offers.savedSearches.title' | translate">
+  @if (searches.length) {
+    <ul class="search-list">
+      @for (search of searches; track search.id) {
+        <li class="saved-search" [attr.data-saved-search]="search.id">
+          <button mat-stroked-button type="button" class="open-search" (click)="open(search)"
+            [matTooltip]="'offers.savedSearches.openHint' | translate">
+            <mat-icon>bookmark</mat-icon>
+            <span class="search-name">{{ search.name }}</span>
+            @if (search.newOffers) {
+              <span class="new-count" data-new-count>{{ 'offers.savedSearches.newCount' | translate: { count: search.newOffers } }}</span>
+            }
+          </button>
+          <button mat-icon-button type="button" class="delete-search" (click)="remove(search)"
+            [attr.aria-label]="'offers.savedSearches.delete' | translate: { name: search.name }">
+            <mat-icon>close</mat-icon>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+  <button mat-button type="button" class="save-search" [disabled]="!canSave" (click)="save()"
+    [matTooltip]="(canSave ? 'offers.savedSearches.saveHint' : 'offers.savedSearches.saveNeedsFilters') | translate">
+    <mat-icon>bookmark_add</mat-icon>
+    {{ 'offers.savedSearches.save' | translate }}
+  </button>
+</section>

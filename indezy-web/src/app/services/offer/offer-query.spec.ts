@@ -3,11 +3,26 @@ import {
   countActiveFilters,
   defaultOfferQuery,
   offerQueryFromParams,
+  offerQueryFromSaved,
   offerQueryToHttpParams,
   offerQueryToParams
 } from './offer-query';
 
 describe('offer query', () => {
+  it('reads the query of a saved search like the page address, on the feed', () => {
+    const query = offerQueryFromSaved({
+      q: 'kafka', rateMin: 500, rateMax: null, regions: ['11'], workModes: ['REMOTE', 'BOAT'], sites: ['FREE_WORK'],
+      rateKnown: true, sort: 'RATE', view: 'SAVED', page: 4, size: 50, startBefore: null
+    });
+
+    expect(query).toEqual(offerQueryFromParams(convertToParamMap({
+      q: 'kafka', rateMin: '500', regions: ['11'], workModes: ['REMOTE'], sites: ['FREE_WORK'], rateKnown: 'true', sort: 'RATE',
+      size: '50'
+    })));
+    expect(query.view).toBe('FEED');
+    expect(query.page).toBe(0);
+  });
+
   it('reads every filter of the page address', () => {
     const query = offerQueryFromParams(convertToParamMap({
       q: '  java spring  ', rateMin: '500', rateMax: '800', rateKnown: 'true', regions: ['11', '84'], departments: '2A,92',

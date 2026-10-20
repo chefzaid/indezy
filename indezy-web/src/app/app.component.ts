@@ -1,4 +1,6 @@
 import { Component, DestroyRef, OnInit, ChangeDetectionStrategy, HostListener, inject } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Observable } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 
@@ -16,11 +18,14 @@ import { LANGUAGE_STORAGE_KEY, getSavedLanguage } from './shared/locale/app-loca
 import { ThemeService } from './shared/theme/theme.service';
 import { UserManagementService } from './services/user-management/user-management.service';
 import { KeyboardShortcutsService } from './shared/shortcuts/keyboard-shortcuts.service';
+import { OfferAlertsService } from './services/offer/offer-alerts.service';
 
 interface MenuItem {
   labelKey: string;
   route: string;
   icon: string;
+  /** A count shown next to the item when not zero. */
+  badge$?: Observable<number>;
 }
 
 @Component({
@@ -35,7 +40,8 @@ interface MenuItem {
     MatListModule,
     MatMenuModule,
     MatTooltipModule,
-    TranslateModule
+    TranslateModule,
+    AsyncPipe
 ],
     templateUrl: './app.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -57,13 +63,14 @@ export class AppComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly userManagementService = inject(UserManagementService);
+  private readonly offerAlerts = inject(OfferAlertsService);
   readonly themeService = inject(ThemeService);
   /** Account id whose saved theme preference has been applied. */
   private themeSyncedFor: number | null = null;
 
   menuItems: MenuItem[] = [
     { labelKey: 'nav.dashboard', route: '/dashboard', icon: 'dashboard' },
-    { labelKey: 'nav.offers', route: '/offers', icon: 'travel_explore' },
+    { labelKey: 'nav.offers', route: '/offers', icon: 'travel_explore', badge$: this.offerAlerts.newOffers$ },
     { labelKey: 'nav.timeline', route: '/timeline', icon: 'event' },
     { labelKey: 'nav.projects', route: '/projects', icon: 'work' },
     { labelKey: 'nav.clients', route: '/clients', icon: 'business' },
@@ -84,6 +91,11 @@ export class AppComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.syncThemeFromAccount();
+      if (user && this.authService.isAuthenticated()) {
+        this.offerAlerts.start();
+      } else {
+        this.offerAlerts.stop();
+      }
     });
     this.breakpointObserver.observe(AppComponent.COMPACT_LAYOUT_QUERY)
       .pipe(takeUntilDestroyed(this.destroyRef))
