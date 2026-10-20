@@ -35,6 +35,12 @@ export class OfferService {
     return this.http.get<OfferPage>(this.API_URL, { params: offerQueryToHttpParams(query) });
   }
 
+  /** A search made in the background (a dashboard widget): its failure is not reported. */
+  searchQuietly(query: OfferQuery): Observable<OfferPage> {
+    return this.http.get<OfferPage>(this.API_URL, { params: offerQueryToHttpParams(query),
+      context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
   /** The market of the offers the query finds: its sort and page do not matter. */
   market(query: OfferQuery): Observable<OfferMarket> {
     return this.http.get<OfferMarket>(`${this.API_URL}/market`, { params: offerQueryToHttpParams(query) });

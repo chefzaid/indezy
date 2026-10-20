@@ -201,7 +201,14 @@
     "analyticsTitle": "Analyses",
     "outcomesTitle": "Bilan des opportunités",
     "showAll": "Tout afficher ({{count}})",
-    "showLess": "Réduire"
+    "showLess": "Réduire",
+    "offers": {
+      "bestMatches": "Vos meilleures nouvelles missions",
+      "newest": "Nouvelles missions",
+      "openFeed": "Ouvrir le fil",
+      "completeProfile": "Ajoutez vos compétences à votre profil pour voir les missions qui vous correspondent le mieux.",
+      "empty": "Aucune nouvelle mission depuis votre dernier passage dans le fil."
+    }
   },
   "projects": {
     "title": "Mes Missions",

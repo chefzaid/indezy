@@ -254,7 +254,7 @@ Increments, implemented in order:
 - [ ] Offer page and sharing: each offer gets its own address (`/offers/{id}`) with its full description, facts, copies, match and history, opened from alerts and emails; **Copy link** shares it with another workspace member, and the page explains when the offer has expired or was removed.
 - [ ] Suspicious offers: flag offers that look like fake or spam listings (no publisher and no description, a daily rate far outside the market, the same text posted by many publishers, or a publisher already dropped elsewhere such as Free-Work's Digistrat), shown with a warning on the card and a filter to hide them, the rules listed in the docs.
 - [ ] Market trends: store the market snapshot's figures per skill and region every night, and show in the **Market** panel how the median daily rate and the number of offers moved over 30, 90 and 365 days, with the profile's skills preselected.
-- [ ] Feed widget on the dashboard: the five best matches published since the last visit, with their score, rate and place, and a link to the feed sorted by best match.
+- [x] Feed widget on the dashboard: the five best matches published since the last visit, with their score, rate and place, and a link to the feed sorted by best match. Done as the five unseen offers ("since the last visit" is what the workspace has not seen), the newest when the profile names no skills.
 - [ ] Search performance at scale: a trigram index (`pg_trgm`) on the offers' search text for the keyword filter, the per-site counts and skills facets served from a short cache, and a load test with 50,000 offers and 20 concurrent searches, its timings recorded in the docs (target under 300 ms at the 95th percentile).
 
 ## AI & Automation

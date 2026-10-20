@@ -410,6 +410,9 @@ The dashboard provides an overview of the opportunity workspace with:
 - pipeline conversion funnel (how many opportunities reach each stage, to reveal where they drop off), overall and broken down by source, client type (direct vs through an ESN) and ESN
 - mission end-date reminders (signed missions ending within six weeks, so prospection can restart before the bench)
 - stale-opportunity detection (active opportunities idle for the configured inactivity period, surfaced to follow up or archive before they go cold)
+- new missions from the offer feed: the five offers not seen yet that match the profile best (or the five newest, with
+  an invitation to add skills, when the profile names none), each with its publisher, rate, place, site and score;
+  opening one on its site marks it seen, and **Open the feed** shows them all; a feed that cannot be read hides it
 - recent projects
 - overview and Kanban display modes
 - a season picker that scopes all of the above to one job-hunting season (see [Job-Hunting Seasons](#job-hunting-seasons))

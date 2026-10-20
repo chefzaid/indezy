@@ -1,0 +1,44 @@
+@if (loaded) {
+  <section class="offers-widget" aria-labelledby="dashboard-offers-title">
+    <div class="widget-header">
+      <h2 class="section-title" id="dashboard-offers-title">
+        <mat-icon aria-hidden="true">travel_explore</mat-icon>
+        {{ (matched ? 'dashboard.offers.bestMatches' : 'dashboard.offers.newest') | translate }}
+      </h2>
+      <a class="feed-link" routerLink="/offers" [queryParams]="feedQuery">{{ 'dashboard.offers.openFeed' | translate }}</a>
+    </div>
+    @if (!matched) {
+      <p class="hint" data-profile-hint>
+        {{ 'dashboard.offers.completeProfile' | translate }} <a routerLink="/profile">{{ 'offers.match.completeProfile' | translate }}</a>
+      </p>
+    }
+    @if (offers.length) {
+      <ul class="offer-rows">
+        @for (offer of offers; track offer.id) {
+          <li [attr.data-dashboard-offer]="offer.id">
+            <a class="title" [href]="offer.url" target="_blank" rel="noopener noreferrer" (click)="opened(offer)">{{ offer.title }}</a>
+            <span class="facts">
+              @if (offer.company) {
+                <span>{{ offer.company }}</span>
+              }
+              @if (rate(offer)) {
+                <span>{{ rate(offer) }}</span>
+              }
+              @if (place(offer)) {
+                <span>{{ place(offer) }}</span>
+              }
+              <span class="site">{{ offer.siteName }}</span>
+            </span>
+            @if (offer.match; as match) {
+              <span class="score" [attr.aria-label]="'offers.match.aria' | translate: { score: match.score }">
+                {{ 'offers.match.score' | translate: { score: match.score } }}
+              </span>
+            }
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="hint" data-dashboard-offers-empty>{{ 'dashboard.offers.empty' | translate }}</p>
+    }
+  </section>
+}

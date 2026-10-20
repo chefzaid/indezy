@@ -201,7 +201,14 @@
     "analyticsTitle": "Analytics",
     "outcomesTitle": "Opportunity outcomes",
     "showAll": "Show all ({{count}})",
-    "showLess": "Show less"
+    "showLess": "Show less",
+    "offers": {
+      "bestMatches": "Your best new missions",
+      "newest": "New missions",
+      "openFeed": "Open the feed",
+      "completeProfile": "Add your skills to your profile to see the missions that match you best.",
+      "empty": "No new mission since you last looked at the feed."
+    }
   },
   "projects": {
     "title": "My Projects",

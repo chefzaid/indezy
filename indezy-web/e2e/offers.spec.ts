@@ -1,5 +1,5 @@
 import { Page, Request, expect, test } from '@playwright/test';
-import { mockWorkspaceSession } from './helpers/workspace';
+import { emptyDashboardStats, mockWorkspaceSession } from './helpers/workspace';
 
 interface MockOffer { id: number; [key: string]: unknown }
 
@@ -411,4 +411,20 @@ test('moves through the feed and acts on offers with the keyboard (en)', async (
 
   await page.keyboard.press('Alt+Shift+H');
   await expect(page.getByRole('dialog').locator('[data-feed-shortcuts]')).toContainText('Add the offer to the pipeline');
+});
+
+test('shows the best new missions on the dashboard (en)', async ({ page }) => {
+  const api = await mockFeed(page, 'en');
+  await page.route('**/api/projects/stats/dashboard/1*', route => route.fulfill({ json: emptyDashboardStats }));
+  await page.route('**/api/projects/by-freelance/1', route => route.fulfill({ json: [] }));
+  await page.route('**/api/seasons/by-freelance/1', route => route.fulfill({ json: [] }));
+
+  await page.goto('/dashboard');
+  const widget = page.locator('app-dashboard-offers');
+  await expect(widget.getByRole('heading', { name: 'Your best new missions' })).toBeVisible();
+  await expect(widget.locator('[data-dashboard-offer]')).toHaveCount(2);
+  await expect(widget.locator('[data-dashboard-offer="1"]')).toContainText('80%');
+  expect(api.searches.some(url => url.searchParams.get('sort') === 'MATCH' && url.searchParams.get('unseenOnly') === 'true')).toBe(true);
+  await widget.getByRole('link', { name: 'Open the feed' }).click();
+  await expect(page).toHaveURL(/\/offers\?sort=MATCH&unseenOnly=true$/);
 });
