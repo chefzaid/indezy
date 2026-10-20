@@ -44,6 +44,9 @@ public class UserDto {
     @JsonDeserialize(using = WholeNumberDeserializer.class)
     private Integer targetDailyRate;
 
+    /** When the workspace is next available (its freelance record's), which offers' start dates are matched against. */
+    private LocalDate availabilityDate;
+
     // Computed fields
     private String fullName;
     private UserNotificationSettingsDto notifications;

@@ -31,6 +31,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -56,6 +58,8 @@ public class OfferSearchService {
     static final int EXCERPT_LENGTH = 280;
     private static final int TOP_SKILLS = 20;
     private static final double EARTH_RADIUS_KM = 6371.0;
+    /** Where "today" is read, against the profile's availability date. */
+    private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
 
     private final JobOfferRepository offers;
     private final JobOfferStateRepository states;
@@ -159,10 +163,10 @@ public class OfferSearchService {
         return profile;
     }
 
-    /** What the workspace's offers are measured against: the profile's skills, target daily rate and city. */
+    /** What the workspace's offers are measured against: the profile's skills, target daily rate, city and availability. */
     public OfferMatch.Profile profile(Long freelanceId) {
         return new OfferMatch.Profile(freelances.findProfileSkills(freelanceId), freelances.findTargetDailyRate(freelanceId).orElse(null),
-            origin(freelanceId).orElse(null));
+            origin(freelanceId).orElse(null), freelances.findAvailabilityDate(freelanceId).orElse(null), LocalDate.now(clock.withZone(PARIS)));
     }
 
     /** Where distances are measured from: the profile's city, or the workspace's. */

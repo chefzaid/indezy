@@ -11,6 +11,7 @@ public interface UserMapper {
     @Mapping(target = "avatar", expression = "java(user.getAvatarImage() != null ? user.getAvatarImage() : user.getAvatar())")
     @Mapping(target = "notifications", source = "user")
     @Mapping(target = "preferences", source = "user")
+    @Mapping(target = "availabilityDate", ignore = true)
     UserDto toDto(User user);
 
     @Mapping(target = "id", ignore = true)

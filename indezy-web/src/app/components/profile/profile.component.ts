@@ -17,7 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-info.component';
 import { BlockedPublishersComponent } from './blocked-publishers/blocked-publishers.component';
-import { LANGUAGE_STORAGE_KEY, getSavedLanguage } from '../../shared/locale/app-locale';
+import { LANGUAGE_STORAGE_KEY, fromIsoDate, getSavedLanguage, toIsoDate } from '../../shared/locale/app-locale';
 import { ThemeService } from '../../shared/theme/theme.service';
 import { passwordMaxBytes } from '../../shared/utils/password-max-bytes';
 import { saveBlob } from '../../shared/utils/download-file';
@@ -165,6 +165,7 @@ export class ProfileComponent implements OnInit {
       company: [''],
       position: [''],
       targetDailyRate: [null, [Validators.min(1), Validators.max(2147483647), Validators.pattern('^[0-9]+$')]],
+      availabilityDate: [null],
       website: [''],
       linkedin: [''],
       github: [''],
@@ -253,6 +254,7 @@ export class ProfileComponent implements OnInit {
       company: profile.company,
       position: profile.position,
       targetDailyRate: profile.targetDailyRate ?? null,
+      availabilityDate: fromIsoDate(profile.availabilityDate),
       website: profile.website,
       linkedin: profile.linkedin,
       github: profile.github,
@@ -285,7 +287,8 @@ export class ProfileComponent implements OnInit {
 
       const updatedProfile: Partial<UserProfile> = {
         ...formValue,
-        birthDate: formValue.birthDate ? formValue.birthDate.toISOString().split('T')[0] : null
+        birthDate: formValue.birthDate ? formValue.birthDate.toISOString().split('T')[0] : null,
+        availabilityDate: toIsoDate(formValue.availabilityDate) ?? null
       };
 
       this.userManagementService.updateUserProfile(updatedProfile).subscribe({

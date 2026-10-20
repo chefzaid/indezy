@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +26,10 @@ public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
     /** The city of the workspace owner's profile, where offer distances are measured from. */
     @Query("SELECT u.city FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     Optional<String> findProfileCity(@Param("freelanceId") Long freelanceId);
+
+    /** When the workspace is next available, which offers' start dates are matched against. */
+    @Query("SELECT f.availabilityDate FROM Freelance f WHERE f.id = :freelanceId")
+    Optional<LocalDate> findAvailabilityDate(@Param("freelanceId") Long freelanceId);
 
     /** The skills of the workspace owner's profile, which offers are matched against. */
     @Query("SELECT s FROM User u JOIN u.skills s, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")

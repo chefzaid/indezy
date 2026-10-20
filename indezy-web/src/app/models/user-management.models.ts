@@ -21,6 +21,8 @@ export interface UserProfile {
   timezone?: string;
   currency?: string;
   targetDailyRate?: number | null;
+  /** ISO day (yyyy-MM-dd) the workspace is next available from, which offers' start dates are matched against. */
+  availabilityDate?: string | null;
   notifications?: UserNotificationSettings;
   preferences?: UserPreferences;
 }

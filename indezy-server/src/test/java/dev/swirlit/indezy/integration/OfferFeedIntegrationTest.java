@@ -340,6 +340,17 @@ class OfferFeedIntegrationTest {
         assertThat(unscored.getBody()).containsEntry("matchAvailable", false);
         assertThat(titles(unscored)).containsExactly("Développeur Java Spring", "Architecte cloud");
         assertThat(((Map<?, ?>) ((List<?>) unscored.getBody().get("content")).get(0)).containsKey("match")).isFalse();
+
+        // Alice's availability, set on her profile, is her workspace's: the offers, which state no start, earn 5 of 10 more.
+        Map<String, Object> profile = new HashMap<>(call(alice, HttpMethod.GET, "/users/profile", null).getBody());
+        String nextMonth = LocalDate.now(ZoneId.of("Europe/Paris")).plusMonths(1).toString();
+        profile.put("availabilityDate", nextMonth);
+        assertThat(call(alice, HttpMethod.PUT, "/users/profile", profile).getBody()).containsEntry("availabilityDate", nextMonth);
+        assertThat(call(alice, HttpMethod.GET, "/users/profile", null).getBody()).containsEntry("availabilityDate", nextMonth);
+        Map<?, ?> available = (Map<?, ?>) ((Map<?, ?>) ((List<?>) call(alice, HttpMethod.GET, "/offers?sort=MATCH", null).getBody()
+            .get("content")).get(0)).get("match");
+        assertThat(available.get("availability")).isEqualTo("UNKNOWN");
+        assertThat(available.get("score")).isEqualTo(63);
     }
 
     @Test

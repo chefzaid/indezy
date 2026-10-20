@@ -757,7 +757,9 @@
       "loadError": "Les éditeurs masqués n'ont pas pu être chargés.",
       "unblocked": "Les offres de {{publisher}} reviennent dans votre fil",
       "sites": "Choisir les sites d'offres de votre fil"
-    }
+    },
+    "availabilityDate": "Disponible à partir du",
+    "availabilityDateHint": "Les offres qui démarrent quand vous êtes disponible obtiennent un meilleur score dans le fil. Laissez vide pour ne pas en tenir compte."
   },
   "errors": {
     "notFoundTitle": "404 - Page non trouvée",
@@ -1178,7 +1180,13 @@
         "FAR": "Loin de chez vous",
         "UNKNOWN": "Lieu non précisé"
       },
-      "hint": "Ajoutez vos compétences à votre profil, avec votre TJM cible et votre ville, pour voir à quel point chaque mission vous correspond.",
+      "availability": {
+        "READY": "Démarre quand vous êtes disponible",
+        "SOON": "Démarre jusqu'à deux semaines avant votre disponibilité",
+        "TOO_EARLY": "Démarre avant votre disponibilité",
+        "UNKNOWN": "Démarrage non précisé"
+      },
+      "hint": "Ajoutez vos compétences à votre profil, avec votre TJM cible, votre ville et votre date de disponibilité, pour voir à quel point chaque mission vous correspond.",
       "completeProfile": "Compléter mon profil"
     },
     "market": {

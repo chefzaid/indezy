@@ -107,7 +107,15 @@ class OfferSearchServiceTest {
         assertThat(match.skills()).containsExactly("Java");
         assertThat(match.rate()).isEqualTo(OfferMatchDto.RateFit.MEETS);
         assertThat(match.place()).isNull();
+        assertThat(match.availability()).isNull();
         assertThat(service.search(null, new OfferSearchRequest()).matchAvailable()).isFalse();
+
+        // Available from mid-November (today is 19 October in Paris), for a mission starting on 2 November: 5 of 10 more.
+        offer.setStartDate(java.time.LocalDate.of(2026, 11, 2));
+        when(freelances.findAvailabilityDate(3L)).thenReturn(Optional.of(java.time.LocalDate.of(2026, 11, 16)));
+        OfferMatchDto available = service.search(3L, new OfferSearchRequest()).content().get(0).match();
+        assertThat(available.availability()).isEqualTo(OfferMatchDto.AvailabilityFit.SOON);
+        assertThat(available.score()).isEqualTo(63);
     }
 
     @Test

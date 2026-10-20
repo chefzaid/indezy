@@ -364,7 +364,7 @@ class OfferControllerTest {
             WorkMode.HYBRID, 2, 6, LocalDate.of(2026, 11, 2), null, Seniority.SENIOR, List.of("Java", "Kafka"),
             Instant.parse("2026-10-19T08:47:42Z"), OfferDatePrecision.EXACT, null, false, false, false, false, null,
             List.of(new OfferCopyDto(8L, OfferSite.COLLECTIVE, "Collective", "https://www.collective.work/job/8")),
-            new OfferMatchDto(83, List.of("Java"), OfferMatchDto.RateFit.MEETS, OfferMatchDto.PlaceFit.NEAR), "Call Léa",
+            new OfferMatchDto(83, List.of("Java"), OfferMatchDto.RateFit.MEETS, OfferMatchDto.PlaceFit.NEAR, null), "Call Léa",
             new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.EMAIL));
     }
 }

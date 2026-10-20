@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.repository;
 
 import dev.swirlit.indezy.dto.OfferMatchDto;
+import dev.swirlit.indezy.dto.OfferMatchDto.AvailabilityFit;
 import dev.swirlit.indezy.dto.OfferMatchDto.PlaceFit;
 import dev.swirlit.indezy.dto.OfferMatchDto.RateFit;
 import dev.swirlit.indezy.model.JobOffer;
@@ -15,6 +16,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -24,15 +26,19 @@ import java.util.Objects;
 /**
  * How well an offer fits the workspace's profile, out of 100: up to {@value #SKILL_POINTS} points for the profile's
  * skills it mentions (full marks from {@value #SKILLS_FOR_FULL}), {@value #RATE_POINTS} for paying the target daily
- * rate and {@value #PLACE_POINTS} for being remote or near the profile's city, over the points the profile can earn:
- * a profile without a target rate or a city is scored on the rest, one without skills is not scored. The same rule
- * runs in Java for the cards and in SQL for the sort and the "matches my profile" filter.
+ * rate, {@value #PLACE_POINTS} for being remote or near the profile's city and {@value #AVAILABILITY_POINTS} for
+ * starting once the freelance is available, over the points the profile can earn: a profile without a target rate, a
+ * city or an availability date is scored on the rest, one without skills is not scored. The same rule runs in Java for
+ * the cards and in SQL for the sort and the "matches my profile" filter.
  */
 public final class OfferMatch {
 
     static final int SKILL_POINTS = 60;
     static final int RATE_POINTS = 25;
     static final int PLACE_POINTS = 15;
+    static final int AVAILABILITY_POINTS = 10;
+    /** A mission starting this many days before the freelance is available or less can usually wait. */
+    static final int SOON_DAYS = 14;
     /** Skills an offer mentions for full skill points. */
     static final int SKILLS_FOR_FULL = 3;
     /** Score from which an offer matches the profile. */
@@ -50,14 +56,21 @@ public final class OfferMatch {
         RateFit.BELOW, 0);
     private static final Map<PlaceFit, Integer> PLACE = Map.of(PlaceFit.REMOTE, PLACE_POINTS, PlaceFit.NEAR, PLACE_POINTS,
         PlaceFit.REACHABLE, 10, PlaceFit.MOSTLY_REMOTE, 5, PlaceFit.UNKNOWN, 5, PlaceFit.FAR, 0);
+    private static final Map<AvailabilityFit, Integer> AVAILABILITY = Map.of(AvailabilityFit.READY, AVAILABILITY_POINTS,
+        AvailabilityFit.SOON, 5, AvailabilityFit.UNKNOWN, 5, AvailabilityFit.TOO_EARLY, 0);
 
     /**
      * What offers are measured against: the profile's skills (distinct once folded, at most {@value #MAX_SKILLS}), its
-     * target daily rate and where it lives, each optional.
+     * target daily rate, where it lives and the day it is available from (today when that day has passed, as
+     * {@code today} says), each optional.
      */
-    public record Profile(List<String> skills, Integer targetRate, Origin origin) {
+    public record Profile(List<String> skills, Integer targetRate, Origin origin, LocalDate availableFrom, LocalDate today) {
 
         public static final Profile NONE = new Profile(List.of(), null, null);
+
+        public Profile(List<String> skills, Integer targetRate, Origin origin) {
+            this(skills, targetRate, origin, null, null);
+        }
 
         public Profile {
             Map<String, String> byFolded = new LinkedHashMap<>();
@@ -69,6 +82,11 @@ public final class OfferMatch {
             }
             skills = List.copyOf(byFolded.values());
             targetRate = targetRate != null && targetRate > 0 ? targetRate : null;
+            if (availableFrom == null || today == null) {
+                availableFrom = null;
+            } else if (availableFrom.isBefore(today)) {
+                availableFrom = today;
+            }
         }
 
         /** Where distances are measured from, without the rest. */
@@ -83,7 +101,8 @@ public final class OfferMatch {
 
         /** The points the profile can earn. */
         int available() {
-            return SKILL_POINTS + (targetRate == null ? 0 : RATE_POINTS) + (origin == null ? 0 : PLACE_POINTS);
+            return SKILL_POINTS + (targetRate == null ? 0 : RATE_POINTS) + (origin == null ? 0 : PLACE_POINTS) +
+                (availableFrom == null ? 0 : AVAILABILITY_POINTS);
         }
 
         /** Full skill points from this many skills mentioned. */
@@ -109,9 +128,11 @@ public final class OfferMatch {
             .toList();
         RateFit rate = profile.targetRate() == null ? null : rateFit(offer, profile.targetRate());
         PlaceFit place = profile.origin() == null ? null : placeFit(offer, profile.origin());
+        AvailabilityFit availability = profile.availableFrom() == null ? null : availabilityFit(offer, profile);
         int points = Math.min(mentioned.size(), profile.skillsForFull()) * (SKILL_POINTS / profile.skillsForFull()) +
-            (rate == null ? 0 : RATE.get(rate)) + (place == null ? 0 : PLACE.get(place));
-        return new OfferMatchDto((int) Math.round(100.0 * points / profile.available()), mentioned, rate, place);
+            (rate == null ? 0 : RATE.get(rate)) + (place == null ? 0 : PLACE.get(place)) +
+            (availability == null ? 0 : AVAILABILITY.get(availability));
+        return new OfferMatchDto((int) Math.round(100.0 * points / profile.available()), mentioned, rate, place, availability);
     }
 
     /** A folded skill in the offer's search text, as a whole word, or (when short) in its skill list. */
@@ -158,6 +179,25 @@ public final class OfferMatch {
         return mostlyRemote ? PlaceFit.MOSTLY_REMOTE : PlaceFit.FAR;
     }
 
+    /**
+     * When the mission starts against when the freelance is available: a mission starting as soon as possible, or on a
+     * day already past, starts today.
+     */
+    static AvailabilityFit availabilityFit(JobOffer offer, Profile profile) {
+        LocalDate start = Boolean.TRUE.equals(offer.getStartAsap()) ? profile.today() : offer.getStartDate();
+        if (start == null) {
+            return AvailabilityFit.UNKNOWN;
+        }
+        return fitOf(start.isBefore(profile.today()) ? profile.today() : start, profile.availableFrom());
+    }
+
+    private static AvailabilityFit fitOf(LocalDate start, LocalDate availableFrom) {
+        if (!start.isBefore(availableFrom)) {
+            return AvailabilityFit.READY;
+        }
+        return start.isBefore(availableFrom.minusDays(SOON_DAYS)) ? AvailabilityFit.TOO_EARLY : AvailabilityFit.SOON;
+    }
+
     /** The offer's points as SQL, the same as {@link #score}'s before they are turned into a score. */
     static Expression<Integer> points(Profile profile, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
         Expression<Integer> mentioned = cb.literal(0);
@@ -172,6 +212,9 @@ public final class OfferMatch {
         }
         if (profile.origin() != null) {
             points = cb.sum(points, placePoints(profile.origin(), root, cb));
+        }
+        if (profile.availableFrom() != null) {
+            points = cb.sum(points, availabilityPoints(profile, root, cb));
         }
         return points;
     }
@@ -214,5 +257,18 @@ public final class OfferMatch {
             .when(cb.le(squared, (double) REACHABLE_KM * REACHABLE_KM), PLACE.get(PlaceFit.REACHABLE))
             .when(mostlyRemote, PLACE.get(PlaceFit.MOSTLY_REMOTE))
             .otherwise(PLACE.get(PlaceFit.FAR));
+    }
+
+    private static Expression<Integer> availabilityPoints(Profile profile, Root<JobOffer> root, CriteriaBuilder cb) {
+        Expression<LocalDate> start = root.get("startDate");
+        // As soon as possible, or on a day already past: today.
+        int today = AVAILABILITY.get(fitOf(profile.today(), profile.availableFrom()));
+        return cb.<Integer>selectCase()
+            .when(cb.isTrue(root.get("startAsap")), today)
+            .when(cb.isNull(start), AVAILABILITY.get(AvailabilityFit.UNKNOWN))
+            .when(cb.lessThanOrEqualTo(start, profile.today()), today)
+            .when(cb.greaterThanOrEqualTo(start, profile.availableFrom()), AVAILABILITY.get(AvailabilityFit.READY))
+            .when(cb.greaterThanOrEqualTo(start, profile.availableFrom().minusDays(SOON_DAYS)), AVAILABILITY.get(AvailabilityFit.SOON))
+            .otherwise(AVAILABILITY.get(AvailabilityFit.TOO_EARLY));
     }
 }

@@ -757,7 +757,9 @@
       "loadError": "The hidden publishers could not be loaded.",
       "unblocked": "Offers from {{publisher}} are back in your feed",
       "sites": "Choose the job boards of your feed"
-    }
+    },
+    "availabilityDate": "Available from",
+    "availabilityDateHint": "Offers starting once you are available score higher in the feed. Leave empty if you do not want it counted."
   },
   "errors": {
     "notFoundTitle": "404 - Page not found",
@@ -1178,7 +1180,13 @@
         "FAR": "Far from you",
         "UNKNOWN": "Place not stated"
       },
-      "hint": "Add your skills to your profile, with your target daily rate and city, to see how well each mission fits you.",
+      "availability": {
+        "READY": "Starts once you are available",
+        "SOON": "Starts up to two weeks before you are available",
+        "TOO_EARLY": "Starts before you are available",
+        "UNKNOWN": "Start not stated"
+      },
+      "hint": "Add your skills to your profile, with your target daily rate, city and availability date, to see how well each mission fits you.",
       "completeProfile": "Complete my profile"
     },
     "market": {

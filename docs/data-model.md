@@ -93,7 +93,7 @@ Important fields:
 - phone, birth date, address, city
 - status: `FREELANCE`, `PORTAGE`, or `CDI`
 - notice period in days
-- availability date
+- availability date (edited as **Available from** on the profile through `PUT /users/profile`, which writes it to the owner's workspace)
 - reversion rate
 - income tax rate
 - CV file path

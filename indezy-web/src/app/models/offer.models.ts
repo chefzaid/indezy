@@ -29,6 +29,8 @@ export type ApplicationChannel = 'SITE_FORM' | 'EMAIL' | 'PHONE';
 export type OfferSort = 'NEWEST' | 'RATE' | 'DISTANCE' | 'MATCH';
 export type OfferRateFit = 'MEETS' | 'CLOSE' | 'BELOW' | 'UNKNOWN';
 export type OfferPlaceFit = 'REMOTE' | 'NEAR' | 'REACHABLE' | 'MOSTLY_REMOTE' | 'FAR' | 'UNKNOWN';
+/** When the mission starts against when the freelance is available: once available, up to two weeks before, earlier. */
+export type OfferAvailabilityFit = 'READY' | 'SOON' | 'TOO_EARLY' | 'UNKNOWN';
 
 export const SENIORITIES: Seniority[] = ['JUNIOR', 'CONFIRMED', 'SENIOR', 'EXPERT'];
 export const OFFER_WORK_MODES: WorkMode[] = ['ONSITE', 'HYBRID', 'REMOTE'];
@@ -43,6 +45,8 @@ export interface OfferMatch {
   rate?: OfferRateFit;
   /** Absent when the profile names no city. */
   place?: OfferPlaceFit;
+  /** Absent when the profile states no availability date. */
+  availability?: OfferAvailabilityFit;
 }
 
 /** The workspace applied to the mission: on which day (yyyy-MM-dd) and how. */

@@ -4,7 +4,9 @@ import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.*;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.UserMapper;
+import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
+import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final TotpService totpService;
+    private final FreelanceRepository freelances;
 
     private static final String TWO_FACTOR_ISSUER = "Indezy";
 
@@ -42,7 +45,9 @@ public class UserService {
         log.debug("Getting user profile for user ID: {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
-        return userMapper.toDto(user);
+        UserDto profile = userMapper.toDto(user);
+        freelances.findByEmail(user.getEmail()).map(Freelance::getAvailabilityDate).ifPresent(profile::setAvailabilityDate);
+        return profile;
     }
 
     /**
@@ -55,7 +60,13 @@ public class UserService {
         
         userMapper.updateEntity(userDto, user);
         User savedUser = userRepository.save(user);
-        return userMapper.toDto(savedUser);
+        UserDto profile = userMapper.toDto(savedUser);
+        // The availability date is the workspace's, edited with the profile.
+        freelances.findByEmail(savedUser.getEmail()).ifPresent(freelance -> {
+            freelance.setAvailabilityDate(userDto.getAvailabilityDate());
+            profile.setAvailabilityDate(freelance.getAvailabilityDate());
+        });
+        return profile;
     }
 
     /** Largest accepted avatar image; the web app downscales photos to 256px before uploading. */

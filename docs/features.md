@@ -36,7 +36,7 @@ The freelancer model captures the working identity used by opportunities:
 
 - first name, last name, email, phone, birth date, address, and city
 - employment status: `FREELANCE`, `PORTAGE`, or `CDI`
-- notice period and availability date
+- notice period and availability date (the availability date is edited as **Available from** on the profile page, and the offer feed's profile match compares offers' start dates with it)
 - reversion rate and income tax rate
 - optional CV file path
 
@@ -309,18 +309,20 @@ tracking parameters, fragments and trailing slashes aside) and **Fill in** (or `
 
 ### Profile Match
 
-Once the profile names skills, every offer is scored out of 100 against the profile's skills, target daily rate and
-city (the workspace's city when the profile has none):
+Once the profile names skills, every offer is scored out of 100 against the profile's skills, target daily rate, city
+(the workspace's city when the profile has none) and availability date (**Available from** on the profile, the
+workspace's next availability date):
 
 | Part | Points | How |
 | --- | --- | --- |
 | Skills | up to 60 | 20 per profile skill the offer mentions, full marks from three (or from every skill of a profile with fewer). A skill counts when its words appear whole in the title, publisher, place, skills or description, case and accents aside ("Java" is not found in "JavaScript"); skills shorter than three characters ("Go", "R", "C#") count only when the offer lists them, since in a text they are ordinary words. Up to 20 profile skills are compared. |
 | Daily rate | 25 | 25 when the highest rate the offer states meets the target, 15 when it is less than 10 percent below, 10 when the offer states no rate, 0 below that. |
 | Place | 15 | 15 when the mission is full remote or within 30 km, 10 within 80 km, 5 farther with three remote days a week or more, 5 when the offer states no place, 0 otherwise. |
+| Availability | 10 | 10 when the mission starts once the freelance is available, 5 when it starts up to two weeks before (missions can often wait that long), 5 when the offer states no start, 0 earlier. A mission starting as soon as possible, or on a day already past, starts today (Paris time); an availability date already past means available today. |
 
-The score is the share of the points the profile can earn: a profile without a target rate or a city is scored on the
-other parts (out of 60 or 85 points). The card shows the score as a badge (green from 60, amber from 35), whose tooltip
-lists the skills found and how the rate and place compare, and puts the profile's skills first among the offer's,
+The score is the share of the points the profile can earn: a profile without a target rate, a city or an availability
+date is scored on the other parts (out of 60 to 110 points). The card shows the score as a badge (green from 60, amber
+from 35), whose tooltip lists the skills found and how the rate, place and start compare, and puts the profile's skills first among the offer's,
 highlighted. **Matches my profile** keeps the offers scoring 60 or more, and **Best match** sorts by score, newest first
 among equal scores; both are computed by the database with the same rules as the cards and also apply to saved
 searches. Until the profile names skills, the feed invites to complete it and the filter and sort are unavailable.

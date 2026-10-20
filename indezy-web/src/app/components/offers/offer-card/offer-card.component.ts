@@ -158,7 +158,7 @@ export class OfferCardComponent {
     return score >= FAIR_MATCH ? 'fair' : 'low';
   }
 
-  /** What makes up the match: the skills found, the rate and the place compared with the profile's. */
+  /** What makes up the match: the skills found, the rate, the place and the start compared with the profile's. */
   get matchDetails(): string {
     const match = this.offer.match;
     if (!match) {
@@ -171,6 +171,9 @@ export class OfferCardComponent {
     }
     if (match.place) {
       parts.push(this.translate.instant(`offers.match.place.${match.place}`));
+    }
+    if (match.availability) {
+      parts.push(this.translate.instant(`offers.match.availability.${match.availability}`));
     }
     return parts.join(' · ');
   }

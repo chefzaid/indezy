@@ -316,12 +316,24 @@ class JobOfferSpecificationsTest {
             offer.setWorkMode(WorkMode.HYBRID);
             offer.setRemoteDaysPerWeek(3);
             offer.setPublishedAt(NOW.minus(Duration.ofHours(2)));
+            offer.setStartDate(LocalDate.of(2026, 9, 1));
         });
+        // Every way an offer states its start: as soon as possible, a day after, a day two weeks before, none.
+        Map<String, Consumer<JobOffer>> starts = Map.of(
+            "java", offer -> offer.setStartAsap(true),
+            "courbevoie", offer -> offer.setStartDate(LocalDate.of(2026, 12, 1)),
+            "lyon", offer -> offer.setStartDate(LocalDate.of(2026, 11, 20)));
+        repository.findAll().forEach(offer -> starts.getOrDefault(offer.getExternalId(), ignored -> { }).accept(offer));
+        repository.flush();
+        LocalDate today = LocalDate.of(2026, 10, 19);
         List<OfferMatch.Profile> profiles = List.of(
             new OfferMatch.Profile(List.of("Java", "Spring", "AWS"), 600, PARIS),
             new OfferMatch.Profile(List.of("Go", "Kubernetes", "Spark", "SAP"), 600, new Origin(45.764, 4.8357)),
             new OfferMatch.Profile(List.of("sap", "Cloud"), null, null),
-            new OfferMatch.Profile(List.of("Spark"), 700, null));
+            new OfferMatch.Profile(List.of("Spark"), 700, null),
+            new OfferMatch.Profile(List.of("Java", "Spring", "AWS"), 600, PARIS, LocalDate.of(2026, 12, 1), today),
+            new OfferMatch.Profile(List.of("Java", "Go"), null, null, LocalDate.of(2026, 10, 1), today),
+            new OfferMatch.Profile(List.of("Spark", "Java"), 700, null, LocalDate.of(2026, 11, 2), today));
         for (OfferMatch.Profile profile : profiles) {
             Map<String, Integer> scores = new HashMap<>();
             List<JobOffer> open = repository.findAll().stream().filter(offer -> offer.getExpiresAt() == null).toList();

@@ -11,9 +11,11 @@ import java.util.List;
  * @param skills the profile's skills the offer mentions, as the profile spells them
  * @param rate   how the offer's daily rate compares with the target one; absent when the profile sets none
  * @param place  how far the mission is from the profile's city; absent when the profile names none
+ * @param availability when the mission starts against when the freelance is available; absent when the profile does
+ *                     not say
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record OfferMatchDto(int score, List<String> skills, RateFit rate, PlaceFit place) {
+public record OfferMatchDto(int score, List<String> skills, RateFit rate, PlaceFit place, AvailabilityFit availability) {
 
     public enum RateFit {
         /** At or above the target. */
@@ -35,6 +37,17 @@ public record OfferMatchDto(int score, List<String> skills, RateFit rate, PlaceF
         MOSTLY_REMOTE,
         FAR,
         /** The offer states no place. */
+        UNKNOWN
+    }
+
+    public enum AvailabilityFit {
+        /** Once the freelance is available. */
+        READY,
+        /** Up to two weeks before. */
+        SOON,
+        /** Earlier than that. */
+        TOO_EARLY,
+        /** The offer states no start. */
         UNKNOWN
     }
 

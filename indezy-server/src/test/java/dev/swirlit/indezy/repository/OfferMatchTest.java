@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.repository;
 
 import dev.swirlit.indezy.dto.OfferMatchDto;
+import dev.swirlit.indezy.dto.OfferMatchDto.AvailabilityFit;
 import dev.swirlit.indezy.dto.OfferMatchDto.PlaceFit;
 import dev.swirlit.indezy.dto.OfferMatchDto.RateFit;
 import dev.swirlit.indezy.model.JobOffer;
@@ -8,6 +9,7 @@ import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.JobOfferSpecifications.Origin;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
@@ -75,6 +77,47 @@ class OfferMatchTest {
             o.setRemoteDaysPerWeek(3);
         }), PARIS)).isEqualTo(PlaceFit.MOSTLY_REMOTE);
         assertThat(OfferMatch.placeFit(offer(o -> o.setWorkMode(WorkMode.HYBRID)), PARIS)).isEqualTo(PlaceFit.UNKNOWN);
+    }
+
+    @Test
+    void comparesWhenTheMissionStartsWithWhenTheFreelanceIsAvailable() {
+        LocalDate today = LocalDate.of(2026, 10, 20);
+        OfferMatch.Profile freeInNovember = new OfferMatch.Profile(List.of("Java"), null, null, LocalDate.of(2026, 11, 16), today);
+
+        assertThat(OfferMatch.availabilityFit(offer(o -> o.setStartDate(LocalDate.of(2026, 11, 16))), freeInNovember))
+            .isEqualTo(AvailabilityFit.READY);
+        assertThat(OfferMatch.availabilityFit(offer(o -> o.setStartDate(LocalDate.of(2026, 11, 2))), freeInNovember))
+            .isEqualTo(AvailabilityFit.SOON);
+        assertThat(OfferMatch.availabilityFit(offer(o -> o.setStartDate(LocalDate.of(2026, 11, 1))), freeInNovember))
+            .isEqualTo(AvailabilityFit.TOO_EARLY);
+        assertThat(OfferMatch.availabilityFit(offer(o -> o.setStartAsap(true)), freeInNovember)).isEqualTo(AvailabilityFit.TOO_EARLY);
+        assertThat(OfferMatch.availabilityFit(offer(o -> { }), freeInNovember)).isEqualTo(AvailabilityFit.UNKNOWN);
+
+        // Available since a day already past: available today, as soon as possible and on a start already passed.
+        OfferMatch.Profile freeNow = new OfferMatch.Profile(List.of("Java"), null, null, LocalDate.of(2026, 9, 1), today);
+        assertThat(freeNow.availableFrom()).isEqualTo(today);
+        assertThat(OfferMatch.availabilityFit(offer(o -> o.setStartAsap(true)), freeNow)).isEqualTo(AvailabilityFit.READY);
+        assertThat(OfferMatch.availabilityFit(offer(o -> o.setStartDate(LocalDate.of(2026, 10, 1))), freeNow)).isEqualTo(AvailabilityFit.READY);
+        OfferMatch.Profile freeSoon = new OfferMatch.Profile(List.of("Java"), null, null, LocalDate.of(2026, 10, 30), today);
+        assertThat(OfferMatch.availabilityFit(offer(o -> o.setStartAsap(true)), freeSoon)).isEqualTo(AvailabilityFit.SOON);
+    }
+
+    @Test
+    void scoresTheAvailabilityAsAFourthPartWhenTheProfileStatesIt() {
+        LocalDate today = LocalDate.of(2026, 10, 20);
+        JobOffer starting = offer(o -> {
+            o.setSearchText("java spring boot kafka");
+            o.setStartDate(LocalDate.of(2026, 11, 2));
+        });
+        OfferMatch.Profile available = new OfferMatch.Profile(JAVA_DEV.skills(), 600, PARIS, LocalDate.of(2026, 11, 16), today);
+
+        // 60 skill points + rate not stated (10) + place not stated (5) + starting two weeks early (5), over 110.
+        OfferMatchDto match = OfferMatch.score(starting, starting.getSkills(), available);
+        assertThat(match.score()).isEqualTo(73);
+        assertThat(match.availability()).isEqualTo(AvailabilityFit.SOON);
+        assertThat(OfferMatch.score(starting, starting.getSkills(), JAVA_DEV).availability()).isNull();
+        // An availability date without a today to read it against counts for nothing.
+        assertThat(new OfferMatch.Profile(List.of("Java"), null, null, LocalDate.of(2026, 11, 16), null).availableFrom()).isNull();
     }
 
     @Test

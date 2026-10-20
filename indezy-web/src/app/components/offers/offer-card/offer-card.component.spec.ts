@@ -92,6 +92,8 @@ describe('OfferCardComponent', () => {
     component.offer = offer({ match: { score: 20, skills: ['Java'], rate: 'UNKNOWN', place: 'MOSTLY_REMOTE' } });
     expect(component.matchLevel).toBe('low');
     expect(component.matchDetails).toBe('Vos compétences : Java · TJM non précisé · Loin, mais surtout en télétravail');
+    component.offer = offer({ match: { score: 73, skills: ['Java'], availability: 'SOON' } });
+    expect(component.matchDetails).toBe('Vos compétences : Java · Démarre jusqu\'à deux semaines avant votre disponibilité');
     fixture.componentRef.setInput('offer', offer());
     fixture.detectChanges();
     expect(element(fixture, '[data-match]')).toBeNull();

@@ -7,7 +7,9 @@ import dev.swirlit.indezy.dto.UserNotificationSettingsDto;
 import dev.swirlit.indezy.dto.UserPreferencesDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.UserMapper;
+import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
+import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +46,9 @@ class UserServiceTest {
 
     @Spy
     private TotpService totpService = new TotpService();
+
+    @Mock
+    private FreelanceRepository freelances;
 
     @InjectMocks
     private UserService userService;
@@ -74,6 +80,25 @@ class UserServiceTest {
         UserDto result = userService.getUserProfile(1L);
 
         assertThat(result.getEmail()).isEqualTo("john.doe@example.com");
+    }
+
+    @Test
+    void editsTheWorkspacesAvailabilityWithTheProfile() {
+        Freelance workspace = new Freelance();
+        workspace.setAvailabilityDate(LocalDate.of(2026, 11, 2));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userRepository.save(testUser)).thenReturn(testUser);
+        when(userMapper.toDto(testUser)).thenAnswer(invocation -> new UserDto());
+        when(freelances.findByEmail("john.doe@example.com")).thenReturn(Optional.of(workspace));
+
+        assertThat(userService.getUserProfile(1L).getAvailabilityDate()).isEqualTo(LocalDate.of(2026, 11, 2));
+        testUserDto.setAvailabilityDate(LocalDate.of(2026, 12, 1));
+        assertThat(userService.updateUserProfile(1L, testUserDto).getAvailabilityDate()).isEqualTo(LocalDate.of(2026, 12, 1));
+        assertThat(workspace.getAvailabilityDate()).isEqualTo(LocalDate.of(2026, 12, 1));
+        // Left empty, the workspace has no availability date any more.
+        testUserDto.setAvailabilityDate(null);
+        assertThat(userService.updateUserProfile(1L, testUserDto).getAvailabilityDate()).isNull();
+        assertThat(workspace.getAvailabilityDate()).isNull();
     }
 
     @Test
