@@ -66,6 +66,10 @@ public class Freelance extends BaseEntity {
     @Column(name = "password_hash")
     private String passwordHash;
 
+    /** Whether the workspace was given the job boards as sources (once: those deleted since stay deleted). */
+    @Column(name = "job_board_sources_seeded")
+    private Boolean jobBoardSourcesSeeded;
+
     @OneToMany(mappedBy = "freelance", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Project> projects = new ArrayList<>();
 

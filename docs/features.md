@@ -136,6 +136,13 @@ Implemented source fields include:
 
 Source data feeds filtering and the dashboard's source ROI ranking. Deleting a source keeps its opportunities, which simply lose their origin.
 
+Every workspace starts with the job boards Indezy knows as sources: the boards of the offer feed and the sites it does
+not read (to visit yourself, matching services, and the ones left out), each with its home link, as job boards with
+the listing flag (matching services without it) and LinkedIn as social media. A workspace gets them once, when it is
+created, and the workspaces created before got them on the first start of the version that knows them: a board
+deleted since stays deleted, and a source already named like a board (case aside) is kept as it is. Adding an offer
+of the feed to the pipeline uses the board's source by its name.
+
 ## Freelance Offer Feed
 
 **Offers** in the navigation lists the freelance missions published on the job boards Indezy reads, newest first,

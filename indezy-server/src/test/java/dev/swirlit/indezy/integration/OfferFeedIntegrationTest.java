@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.GeoPlace;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.SavedOfferSearch;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
+import dev.swirlit.indezy.model.enums.OfferLeftOutSite;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.GeoPlaceRepository;
@@ -182,8 +183,10 @@ class OfferFeedIntegrationTest {
 
         ResponseEntity<Map> second = call(alice, HttpMethod.POST, "/offers/" + lyon.getId() + "/import", null);
         assertThat(second.getBody()).containsEntry("clientName", "Free-Work").containsEntry("sourceName", "Free-Work");
+        // The workspace was given every job board as a source when it was created: the import uses the Free-Work one.
         List<?> sources = call(alice, HttpMethod.GET, "/sources", null, List.class).getBody();
-        assertThat(sources).hasSize(1);
+        assertThat(sources).hasSize(OfferSite.values().length + OfferLeftOutSite.values().length);
+        assertThat(sources.stream().map(source -> ((Map<?, ?>) source).get("name")).filter("Free-Work"::equals)).hasSize(1);
 
         assertThat(call(alice, HttpMethod.DELETE, "/projects/" + projectId, null).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(call(alice, HttpMethod.GET, "/offers/" + paris.getId(), null).getBody()).doesNotContainKey("importedProjectId");

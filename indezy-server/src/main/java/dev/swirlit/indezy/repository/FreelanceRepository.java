@@ -2,6 +2,7 @@ package dev.swirlit.indezy.repository;
 
 import dev.swirlit.indezy.model.Freelance;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -29,4 +30,13 @@ public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
     @Query("SELECT s FROM User u JOIN u.skills s, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     List<String> findProfileSkills(@Param("freelanceId") Long freelanceId);
 
+
+    /** Claims the workspace's job board sources; 1 for the caller that gives them, 0 when it already has them. */
+    @Modifying
+    @Query("update Freelance f set f.jobBoardSourcesSeeded = true where f.id = :freelanceId " +
+        "and (f.jobBoardSourcesSeeded is null or f.jobBoardSourcesSeeded = false)")
+    int claimJobBoardSources(@Param("freelanceId") Long freelanceId);
+
+    @Query("select f.id from Freelance f where f.jobBoardSourcesSeeded is null or f.jobBoardSourcesSeeded = false order by f.id")
+    List<Long> findIdsWithoutJobBoardSources();
 }

@@ -51,6 +51,9 @@ class AuthServiceTest {
     @Mock
     private TotpService totpService;
 
+    @Mock
+    private JobBoardSources jobBoardSources;
+
     @InjectMocks
     private AuthService authService;
 
@@ -256,6 +259,7 @@ class AuthServiceTest {
         verify(freelanceRepository).save(argThat(freelance ->
                 freelance.getStatus() == EmploymentStatus.FREELANCE &&
                         "zaid@swirlit.dev".equals(freelance.getEmail())));
+        verify(jobBoardSources).seed(8L);
     }
 
     @Test

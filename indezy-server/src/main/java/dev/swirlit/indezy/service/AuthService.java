@@ -36,6 +36,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final JwtDecoder keycloakJwtDecoder;
     private final TotpService totpService;
+    private final JobBoardSources jobBoardSources;
 
     public LoginResponse login(LoginRequest request) {
         log.debug("Attempting login");
@@ -140,7 +141,9 @@ public class AuthService {
             created.setLastName(user.getLastName());
             created.setEmail(user.getEmail());
             created.setStatus(EmploymentStatus.FREELANCE);
-            return freelanceRepository.save(created);
+            Freelance saved = freelanceRepository.save(created);
+            jobBoardSources.seed(saved.getId());
+            return saved;
         });
     }
 
