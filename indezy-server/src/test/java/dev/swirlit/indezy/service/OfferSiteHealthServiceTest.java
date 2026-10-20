@@ -1,16 +1,19 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.dto.OfferBoardVisitDto;
 import dev.swirlit.indezy.dto.OfferSiteExclusionDto;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto.Site;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto.Status;
 import dev.swirlit.indezy.model.Freelance;
+import dev.swirlit.indezy.model.OfferBoardVisit;
 import dev.swirlit.indezy.model.OfferSiteExclusion;
 import dev.swirlit.indezy.model.OfferSiteStatus;
 import dev.swirlit.indezy.model.enums.OfferLeftOutSite;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
+import dev.swirlit.indezy.repository.OfferBoardVisitRepository;
 import dev.swirlit.indezy.repository.OfferSiteExclusionRepository;
 import dev.swirlit.indezy.repository.OfferSiteStatusRepository;
 import dev.swirlit.indezy.scraping.OfferProperties;
@@ -22,8 +25,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -38,7 +43,8 @@ class OfferSiteHealthServiceTest {
     private final JobOfferRepository offers = mock(JobOfferRepository.class);
     private final OfferSiteExclusionRepository exclusions = mock(OfferSiteExclusionRepository.class);
     private final FreelanceRepository freelances = mock(FreelanceRepository.class);
-    private final OfferSiteHealthService service = new OfferSiteHealthService(statuses, offers, exclusions, freelances,
+    private final OfferBoardVisitRepository visits = mock(OfferBoardVisitRepository.class);
+    private final OfferSiteHealthService service = new OfferSiteHealthService(statuses, offers, exclusions, freelances, visits,
         properties(true), Clock.fixed(NOW, ZoneOffset.UTC));
 
     @Test
@@ -60,6 +66,7 @@ class OfferSiteHealthServiceTest {
         when(offers.collectionBySite(NOW.minus(Duration.ofDays(1)), NOW.minus(Duration.ofDays(7))))
             .thenReturn(List.<Object[]>of(new Object[] {OfferSite.FREE_WORK, 40L, 210L, NOW.minus(Duration.ofHours(1))}));
         when(exclusions.findSitesByFreelanceId(3L)).thenReturn(List.of(OfferSite.YEETS));
+        when(visits.findByFreelanceIdOrderBySite(3L)).thenReturn(List.of(visit(OfferLeftOutSite.MALT, NOW.minus(Duration.ofDays(2)))));
 
         OfferSiteHealthDto health = service.health(3L);
 
@@ -78,12 +85,20 @@ class OfferSiteHealthServiceTest {
         assertThat(site(health, OfferSite.KOINO).status()).isEqualTo(Status.WAITING);
         assertThat(site(health, OfferSite.KOINO).refreshAvailableAt()).isNull();
         assertThat(health.leftOut()).hasSize(OfferLeftOutSite.values().length).first()
-            .isEqualTo(new OfferSiteHealthDto.LeftOut(OfferLeftOutSite.LINKEDIN, "LinkedIn", "https://www.linkedin.com"));
+            .isEqualTo(new OfferSiteHealthDto.LeftOut(OfferLeftOutSite.HITECHPROS, "HiTechPros", "https://www.hitechpros.com",
+                OfferLeftOutSite.Kind.VISIT, OfferLeftOutSite.Access.MEMBERSHIP, null));
+        assertThat(health.leftOut()).filteredOn(site -> site.site() == OfferLeftOutSite.MALT).singleElement()
+            .satisfies(malt -> {
+                assertThat(malt.kind()).isEqualTo(OfferLeftOutSite.Kind.MATCHING);
+                assertThat(malt.visitedAt()).isEqualTo(NOW.minus(Duration.ofDays(2)));
+            });
+        assertThat(health.leftOut()).filteredOn(site -> site.site() == OfferLeftOutSite.LINKEDIN).singleElement()
+            .satisfies(linkedin -> assertThat(linkedin.access()).isNull());
     }
 
     @Test
     void tellsWhenReadingOnRequestIsOff() {
-        OfferSiteHealthService off = new OfferSiteHealthService(statuses, offers, exclusions, freelances, properties(false),
+        OfferSiteHealthService off = new OfferSiteHealthService(statuses, offers, exclusions, freelances, visits, properties(false),
             Clock.fixed(NOW, ZoneOffset.UTC));
 
         OfferSiteHealthDto health = off.health(null);
@@ -108,6 +123,31 @@ class OfferSiteHealthServiceTest {
         assertThat(saved.getValue().getFreelance()).isSameAs(freelance);
         assertThat(saved.getValue().getSite()).isEqualTo(OfferSite.YEETS);
         verify(exclusions).deleteByFreelanceIdAndSite(3L, OfferSite.YEETS);
+    }
+
+    @Test
+    void recordsTheDayASiteWasVisitedAndForgetsIt() {
+        Freelance freelance = new Freelance();
+        when(freelances.getReferenceById(3L)).thenReturn(freelance);
+        OfferBoardVisit known = visit(OfferLeftOutSite.OUIDESK, NOW.minus(Duration.ofDays(9)));
+        when(visits.findByFreelanceIdAndSite(3L, OfferLeftOutSite.OUIDESK)).thenReturn(Optional.of(known));
+
+        assertThat(service.visit(3L, OfferLeftOutSite.MALT)).isEqualTo(new OfferBoardVisitDto(OfferLeftOutSite.MALT, NOW));
+        assertThat(service.visit(3L, OfferLeftOutSite.OUIDESK)).isEqualTo(new OfferBoardVisitDto(OfferLeftOutSite.OUIDESK, NOW));
+        assertThat(known.getVisitedAt()).isEqualTo(NOW);
+        assertThat(service.clearVisit(3L, OfferLeftOutSite.MALT)).isEqualTo(new OfferBoardVisitDto(OfferLeftOutSite.MALT, null));
+        verify(visits).deleteByFreelanceIdAndSite(3L, OfferLeftOutSite.MALT);
+        assertThatThrownBy(() -> service.visit(3L, OfferLeftOutSite.LINKEDIN)).isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("LinkedIn is not one of the sites to visit");
+        when(visits.findByFreelanceIdOrderBySite(3L)).thenReturn(List.of(known));
+        assertThat(service.visits(3L)).containsExactly(new OfferBoardVisitDto(OfferLeftOutSite.OUIDESK, NOW));
+    }
+
+    private static OfferBoardVisit visit(OfferLeftOutSite site, Instant at) {
+        OfferBoardVisit visit = new OfferBoardVisit();
+        visit.setSite(site);
+        visit.setVisitedAt(at);
+        return visit;
     }
 
     private static Site site(OfferSiteHealthDto health, OfferSite site) {

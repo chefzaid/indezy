@@ -1021,6 +1021,7 @@
     "sitesLink": "Sites d'offres",
     "oneSiteFailing": "1 site en échec",
     "sitesFailing": "{{count}} sites en échec",
+    "sitesToVisit": "Sites à consulter vous-même",
     "loading": "Chargement des offres…",
     "retry": "Réessayer",
     "results": "{{count}} offres",
@@ -1202,7 +1203,43 @@
         "AMAZING_DEV": "un service de mise en relation sans liste publique de missions.",
         "LOOKINGFORTECHS": "devenu Sharebound : chaque mission demande une connexion LinkedIn.",
         "MON_CONSULTANT_INDEPENDANT": "sa liste est construite dans le navigateur sans source publique ; Free-Work et Collective republient ses missions.",
-        "NEXORIS": "un site institutionnel : ses missions sont celles de LeGratin, que le fil lit."
+        "NEXORIS": "un site institutionnel : ses missions sont celles de LeGratin, que le fil lit.",
+        "OUIDESK": "l'inscription se fait par parrainage (cooptation) et postuler demande un compte ; ses pages de missions sont publiques.",
+        "CAPGEMINI_TALENTNET": "le réseau freelance de Capgemini : ses missions s'affichent sans connexion, mais ses données sont fermées aux robots.",
+        "HELLOWORK": "il publie des offres freelance parmi ses emplois (filtrez sur le contrat Freelance), mais il est fermé aux robots.",
+        "MALT": "créez votre profil : les clients vous contactent avec des missions.",
+        "FREELANCE_COM": "inscrivez votre profil : ses consultants vous appellent quand une mission correspond.",
+        "WHEELOFWORK": "inscrivez votre profil : il propose les missions tech, ingénierie et management de transition qui correspondent.",
+        "CREMEDELACREME": "rejoignez la communauté : les missions sont proposées à ses membres (ses pages publiques de missions ont cessé en décembre 2024).",
+        "FREELANCEREPUBLIK": "créez votre profil pour recevoir des missions ; il en publie aussi certaines publiquement.",
+        "EASYPARTNER": "envoyez votre profil à ses recruteurs ; il publie aussi des postes freelance parmi ses offres.",
+        "WELCOME_TO_THE_JUNGLE": "des emplois de tous contrats, surtout salariés : les freelance ne se distinguent pas, et ses listes sont fermées aux robots.",
+        "URBAN_LINKER": "un cabinet de recrutement dont toutes les offres ouvertes sont en CDI.",
+        "BLUECODERS": "un cabinet de recrutement dont les offres ouvertes sont en CDI.",
+        "UNLCK": "un cabinet de recrutement aux offres en CDI uniquement.",
+        "KONEKT": "un cabinet de recrutement sans liste publique d'offres."
+      },
+      "visit": {
+        "title": "Sites à consulter vous-même",
+        "intro": "Indezy ne peut pas lire ces sites, mais vous pouvez y trouver des missions vous-même. Ouvrir l'un d'eux enregistre votre visite.",
+        "groups": {
+          "VISIT": "Missions à consulter en personne",
+          "MATCHING": "Services de mise en relation : créez votre profil une fois, ils vous appellent"
+        },
+        "access": {
+          "MEMBERSHIP": "Abonnement payant",
+          "SIGN_IN": "Compte nécessaire",
+          "REFERRAL": "Parrainage nécessaire",
+          "CRAWLERS": "Ouvert aux personnes, pas aux robots",
+          "PROFILE": "Profil, puis un appel"
+        },
+        "visited": "Consulté {{when}}",
+        "notVisited": "Pas encore consulté",
+        "mark": "Marquer comme consulté",
+        "markAria": "Marquer {{site}} comme consulté",
+        "clear": "Oublier cette visite",
+        "clearAria": "Oublier la visite de {{site}}",
+        "error": "La visite n'a pas pu être enregistrée."
       }
     },
     "filters": {

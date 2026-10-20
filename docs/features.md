@@ -236,7 +236,8 @@ marked **New**.
 API: `GET /offers` (filters, `matchesProfile`, `view`, `sort` = `NEWEST`, `RATE`, `DISTANCE` or `MATCH`, `page`,
 `size`), `GET /offers/market` (the same filters and view), `GET /offers/{id}`, `PUT /offers/{id}/state`, `POST /offers/{id}/import`, `GET /offers/sites`,
 `GET /offers/skills?q=`, `GET /offers/regions`, the site health (`GET /offers/sites/health`,
-`PUT /offers/sites/{site}/exclusion`, `POST /offers/sites/{site}/refresh`), the blocklist (`GET /offers/blocked-publishers`,
+`PUT /offers/sites/{site}/exclusion`, `POST /offers/sites/{site}/refresh`, and `PUT` or `DELETE
+/offers/sites/left-out/{site}/visit`), the blocklist (`GET /offers/blocked-publishers`,
 `POST /offers/blocked-publishers` with a `name`, which answers the existing block for a name read the same, and
 `DELETE /offers/blocked-publishers/{id}`) and the saved searches: `GET /offers/searches`, `POST /offers/searches`,
 `POST /offers/searches/{id}/open`, `DELETE /offers/searches/{id}` and `GET /offers/searches/alerts`. Each offer carries
@@ -267,7 +268,17 @@ searches. Until the profile names skills, the feed invites to complete it and th
 Indezy reads, failing ones first, each with its status (working, failing with its failed readings in a row, reading
 now, or not read yet), its last successful reading, its next one, the offers it brought over 24 hours and 7 days
 (first seen then), its open offers, its newest offer (flagged when nothing new came for a month: the board may be
-dying), what its last reading found and its last error. Below come the boards left out and why.
+dying), what its last reading found and its last error. Below come the sites to visit yourself and the boards left out
+and why.
+
+- **Sites to visit yourself** (also linked from the feed's summary): the sites Indezy does not read but where missions
+  are found independently, each with what it takes and why. Missions to see in person need a paid membership
+  (HiTechPros), an account (Opteamis, LookingForTechs), a referral (OuiDesk), or are open to people but closed to
+  crawlers (Capgemini TalentNet, HelloWork); matching services take a profile once and call back (Malt, Freelance.com,
+  WheelOfWork, Comet, Amazing.dev, Crème de la Crème, FreelanceRepublik, EasyPartner). Opening a site, or **Mark as
+  visited**, records the day of the workspace's last visit, shown as "Visited 3 days ago" until it is forgotten; visits
+  are part of the account data export. The boards left out for other reasons (LinkedIn, Mon Consultant Indépendant,
+  Nexoris, Welcome to the Jungle and recruitment firms with CDI jobs only) are listed after them.
 
 - **Show in my feed**: switched off, the board's offers leave the workspace's feed, its saved searches' new offers and
   market snapshot, and its copies leave the **Also on** links (another site's copy of a mission then stands for it);

@@ -89,6 +89,17 @@ export class OfferService {
     return this.http.delete<void>(`${this.API_URL}/blocked-publishers/${id}`);
   }
 
+  /** Records that the workspace visited a site Indezy does not read; errors are the caller's to tell. */
+  visitSite(site: string): Observable<{ site: string; visitedAt: string | null }> {
+    return this.http.put<{ site: string; visitedAt: string | null }>(`${this.API_URL}/sites/left-out/${site}/visit`, null,
+      { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
+  clearSiteVisit(site: string): Observable<{ site: string; visitedAt: string | null }> {
+    return this.http.delete<{ site: string; visitedAt: string | null }>(`${this.API_URL}/sites/left-out/${site}/visit`,
+      { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
   regions(): Observable<OfferRegion[]> {
     return this.http.get<OfferRegion[]>(`${this.API_URL}/regions`);
   }

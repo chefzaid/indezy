@@ -1,16 +1,20 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.constants.ErrorMessages;
+import dev.swirlit.indezy.dto.OfferBoardVisitDto;
 import dev.swirlit.indezy.dto.OfferSiteExclusionDto;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto.LeftOut;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto.Site;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto.Status;
+import dev.swirlit.indezy.model.OfferBoardVisit;
 import dev.swirlit.indezy.model.OfferSiteExclusion;
 import dev.swirlit.indezy.model.OfferSiteStatus;
 import dev.swirlit.indezy.model.enums.OfferLeftOutSite;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
+import dev.swirlit.indezy.repository.OfferBoardVisitRepository;
 import dev.swirlit.indezy.repository.OfferSiteExclusionRepository;
 import dev.swirlit.indezy.repository.OfferSiteStatusRepository;
 import dev.swirlit.indezy.scraping.OfferProperties;
@@ -24,6 +28,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -43,21 +48,23 @@ public class OfferSiteHealthService {
     private final JobOfferRepository offers;
     private final OfferSiteExclusionRepository exclusions;
     private final FreelanceRepository freelances;
+    private final OfferBoardVisitRepository visits;
     private final OfferProperties properties;
     private final Clock clock;
 
     @Autowired
     public OfferSiteHealthService(OfferSiteStatusRepository statuses, JobOfferRepository offers, OfferSiteExclusionRepository exclusions,
-                                  FreelanceRepository freelances, OfferProperties properties) {
-        this(statuses, offers, exclusions, freelances, properties, Clock.systemUTC());
+                                  FreelanceRepository freelances, OfferBoardVisitRepository visits, OfferProperties properties) {
+        this(statuses, offers, exclusions, freelances, visits, properties, Clock.systemUTC());
     }
 
     OfferSiteHealthService(OfferSiteStatusRepository statuses, JobOfferRepository offers, OfferSiteExclusionRepository exclusions,
-                           FreelanceRepository freelances, OfferProperties properties, Clock clock) {
+                           FreelanceRepository freelances, OfferBoardVisitRepository visits, OfferProperties properties, Clock clock) {
         this.statuses = statuses;
         this.offers = offers;
         this.exclusions = exclusions;
         this.freelances = freelances;
+        this.visits = visits;
         this.properties = properties;
         this.clock = clock;
     }
@@ -81,8 +88,12 @@ public class OfferSiteHealthService {
             .map(site -> site(site, byStatus.get(site), open.getOrDefault(site, 0L), collected.get(site), excluded.contains(site), now))
             .sorted(Comparator.comparing((Site site) -> site.status() != Status.FAILING).thenComparing(Site::name, String.CASE_INSENSITIVE_ORDER))
             .toList();
+        Map<OfferLeftOutSite, Instant> visited = new EnumMap<>(OfferLeftOutSite.class);
+        if (freelanceId != null) {
+            visits.findByFreelanceIdOrderBySite(freelanceId).forEach(visit -> visited.put(visit.getSite(), visit.getVisitedAt()));
+        }
         List<LeftOut> leftOut = Arrays.stream(OfferLeftOutSite.values())
-            .map(site -> new LeftOut(site, site.getDisplayName(), site.getHomeUrl()))
+            .map(site -> new LeftOut(site, site.getDisplayName(), site.getHomeUrl(), site.getKind(), site.getAccess(), visited.get(site)))
             .toList();
         return new OfferSiteHealthDto(sites, leftOut, properties.collectionEnabled());
     }
@@ -109,6 +120,38 @@ public class OfferSiteHealthService {
             exclusions.save(exclusion);
         }
         return new OfferSiteExclusionDto(site, excluded);
+    }
+
+    /** Records that the workspace visited a site to visit or a matching service now. */
+    @Transactional
+    public OfferBoardVisitDto visit(Long freelanceId, OfferLeftOutSite site) {
+        if (site.getKind() == OfferLeftOutSite.Kind.OTHER) {
+            throw new IllegalArgumentException(String.format(ErrorMessages.OFFER_SITE_NOT_TO_VISIT, site.getDisplayName()));
+        }
+        OfferBoardVisit visit = visits.findByFreelanceIdAndSite(freelanceId, site).orElseGet(() -> {
+            OfferBoardVisit created = new OfferBoardVisit();
+            created.setFreelance(freelances.getReferenceById(freelanceId));
+            created.setSite(site);
+            return created;
+        });
+        visit.setVisitedAt(clock.instant());
+        visits.save(visit);
+        return new OfferBoardVisitDto(site, visit.getVisitedAt());
+    }
+
+    /** Forgets the workspace's visit of a site. */
+    @Transactional
+    public OfferBoardVisitDto clearVisit(Long freelanceId, OfferLeftOutSite site) {
+        visits.deleteByFreelanceIdAndSite(freelanceId, site);
+        return new OfferBoardVisitDto(site, null);
+    }
+
+    /** The workspace's visits, for the account data export. */
+    @Transactional(readOnly = true)
+    public List<OfferBoardVisitDto> visits(Long freelanceId) {
+        return visits.findByFreelanceIdOrderBySite(freelanceId).stream()
+            .map(visit -> new OfferBoardVisitDto(visit.getSite(), visit.getVisitedAt()))
+            .toList();
     }
 
     /** A site never read has no status yet: it reads as a blank one. */

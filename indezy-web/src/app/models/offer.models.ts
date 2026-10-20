@@ -195,9 +195,24 @@ export interface OfferSiteHealthEntry {
   refreshAvailableAt?: string | null;
 }
 
+/** Whether a site Indezy does not read is to visit, a matching service, or left out. */
+export type OfferLeftOutKind = 'VISIT' | 'MATCHING' | 'OTHER';
+/** What seeing a site's missions takes. */
+export type OfferLeftOutAccess = 'MEMBERSHIP' | 'SIGN_IN' | 'REFERRAL' | 'CRAWLERS' | 'PROFILE';
+
+export interface OfferLeftOutSite {
+  site: string;
+  name: string;
+  homeUrl: string;
+  kind: OfferLeftOutKind;
+  access?: OfferLeftOutAccess | null;
+  /** When the workspace last visited it, if it did. */
+  visitedAt?: string | null;
+}
+
 export interface OfferSiteHealth {
   sites: OfferSiteHealthEntry[];
-  leftOut: { site: string; name: string; homeUrl: string }[];
+  leftOut: OfferLeftOutSite[];
   refreshEnabled: boolean;
 }
 

@@ -1,17 +1,18 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 import { interval } from 'rxjs';
-import { OfferSiteHealth, OfferSiteHealthEntry } from '../../../models/offer.models';
+import { OfferLeftOutSite, OfferSiteHealth, OfferSiteHealthEntry } from '../../../models/offer.models';
 import { OfferService } from '../../../services/offer/offer.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { relativeTime } from '../../../shared/utils/relative-time';
+import { OfferSitesToVisitComponent } from '../offer-sites-to-visit/offer-sites-to-visit.component';
 
 /** A site whose newest offer is older than this reads as quiet. */
 const QUIET_AFTER_MS = 30 * 86_400_000;
@@ -24,18 +25,22 @@ const CLOCK_TICK_MS = 30_000;
  */
 @Component({
   selector: 'app-offer-sites',
-  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatSlideToggleModule, RouterLink, TranslateModule],
+  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatSlideToggleModule, RouterLink, TranslateModule,
+    OfferSitesToVisitComponent],
   templateUrl: './offer-sites.component.html',
   styleUrls: ['./offer-sites.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OfferSitesComponent implements OnInit {
   health: OfferSiteHealth | null = null;
+  /** The sites left out, neither to visit nor matching services. */
+  leftOutOnly: OfferLeftOutSite[] = [];
   loading = true;
   failed = false;
   readonly saving = new Set<string>();
   readonly refreshing = new Set<string>();
 
+  private readonly route = inject(ActivatedRoute);
   private readonly offerService = inject(OfferService);
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
@@ -59,9 +64,11 @@ export class OfferSitesComponent implements OnInit {
     this.offerService.siteHealth().subscribe({
       next: health => {
         this.health = health;
+        this.leftOutOnly = health.leftOut.filter(site => site.kind === 'OTHER');
         this.now = Date.now();
         this.loading = false;
         this.changes.markForCheck();
+        this.scrollToFragment();
       },
       error: () => {
         this.failed = true;
@@ -69,6 +76,14 @@ export class OfferSitesComponent implements OnInit {
         this.changes.markForCheck();
       }
     });
+  }
+
+  /** The feed links to a section of the page (`#sites-to-visit`): show it once the page is drawn. */
+  private scrollToFragment(): void {
+    const fragment = this.route.snapshot.fragment;
+    if (fragment) {
+      setTimeout(() => document.getElementById(fragment)?.scrollIntoView({ block: 'start' }));
+    }
   }
 
   get failingCount(): number {

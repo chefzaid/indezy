@@ -48,6 +48,19 @@ describe('OfferService', () => {
     refresh.flush({ site: 'YEETS', refreshAvailableAt: '2026-10-19T10:15:00Z' });
   });
 
+  it('records and forgets a visit of a site Indezy does not read', () => {
+    service.visitSite('MALT').subscribe();
+    const visit = http.expectOne(`${api}/sites/left-out/MALT/visit`);
+    expect(visit.request.method).toBe('PUT');
+    expect(visit.request.context.get(SILENT_HTTP_ERRORS)).toBeTrue();
+    visit.flush({ site: 'MALT', visitedAt: '2026-10-20T10:00:00Z' });
+
+    service.clearSiteVisit('MALT').subscribe();
+    const clear = http.expectOne(`${api}/sites/left-out/MALT/visit`);
+    expect(clear.request.method).toBe('DELETE');
+    clear.flush({ site: 'MALT', visitedAt: null });
+  });
+
   it('lists, blocks and unblocks the publishers the workspace hides', () => {
     service.blockedPublishers().subscribe();
     http.expectOne(`${api}/blocked-publishers`).flush([]);

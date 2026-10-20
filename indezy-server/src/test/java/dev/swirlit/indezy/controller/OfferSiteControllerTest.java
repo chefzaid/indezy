@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.dto.OfferBoardVisitDto;
 import dev.swirlit.indezy.dto.OfferSiteExclusionDto;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
@@ -28,6 +29,7 @@ import java.util.List;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -64,7 +66,8 @@ class OfferSiteControllerTest {
         when(healthService.health(3L)).thenReturn(new OfferSiteHealthDto(List.of(new OfferSiteHealthDto.Site(OfferSite.YEETS, "Yeets",
                 "https://www.yeets.fr", OfferSiteHealthDto.Status.FAILING, now, null, now.plusSeconds(3600), "SiteResponseException: 503", 2,
                 null, null, 0, 3, 12, now.minusSeconds(86_400), true, now.plusSeconds(600))),
-            List.of(new OfferSiteHealthDto.LeftOut(OfferLeftOutSite.LINKEDIN, "LinkedIn", "https://www.linkedin.com")), true));
+            List.of(new OfferSiteHealthDto.LeftOut(OfferLeftOutSite.MALT, "Malt", "https://www.malt.fr", OfferLeftOutSite.Kind.MATCHING,
+                OfferLeftOutSite.Access.PROFILE, now.minusSeconds(3600))), true));
 
         mockMvc.perform(get("/offers/sites/health").param("freelanceId", "3"))
             .andExpect(status().isOk())
@@ -74,7 +77,9 @@ class OfferSiteControllerTest {
             .andExpect(jsonPath("$.sites[0].collectedWeek").value(3))
             .andExpect(jsonPath("$.sites[0].excluded").value(true))
             .andExpect(jsonPath("$.sites[0].refreshAvailableAt").value("2026-10-19T10:10:00Z"))
-            .andExpect(jsonPath("$.leftOut[0].site").value("LINKEDIN"));
+            .andExpect(jsonPath("$.leftOut[0].site").value("MALT"))
+            .andExpect(jsonPath("$.leftOut[0].kind").value("MATCHING"))
+            .andExpect(jsonPath("$.leftOut[0].visitedAt").value("2026-10-19T09:00:00Z"));
     }
 
     @Test
@@ -93,6 +98,24 @@ class OfferSiteControllerTest {
         mockMvc.perform(put("/offers/sites/YEETS/exclusion").contentType(MediaType.APPLICATION_JSON).content("{\"excluded\":true}"))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value("This action needs a workspace"));
+    }
+
+    @Test
+    void recordsAndForgetsTheWorkspacesVisitOfASite() throws Exception {
+        when(healthService.visit(3L, OfferLeftOutSite.OUIDESK))
+            .thenReturn(new OfferBoardVisitDto(OfferLeftOutSite.OUIDESK, Instant.parse("2026-10-20T10:00:00Z")));
+        when(healthService.clearVisit(3L, OfferLeftOutSite.OUIDESK)).thenReturn(new OfferBoardVisitDto(OfferLeftOutSite.OUIDESK, null));
+        when(healthService.visit(3L, OfferLeftOutSite.LINKEDIN)).thenThrow(new IllegalArgumentException("LinkedIn is not one of the sites to visit"));
+
+        mockMvc.perform(put("/offers/sites/left-out/OUIDESK/visit").param("freelanceId", "3"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.visitedAt").value("2026-10-20T10:00:00Z"));
+        mockMvc.perform(delete("/offers/sites/left-out/OUIDESK/visit").param("freelanceId", "3"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.visitedAt").doesNotExist());
+        mockMvc.perform(put("/offers/sites/left-out/LINKEDIN/visit").param("freelanceId", "3")).andExpect(status().isBadRequest());
+        mockMvc.perform(put("/offers/sites/left-out/YEETS/visit").param("freelanceId", "3")).andExpect(status().isBadRequest());
+        mockMvc.perform(put("/offers/sites/left-out/OUIDESK/visit")).andExpect(status().isBadRequest());
     }
 
     @Test

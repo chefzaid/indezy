@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.ActivityDayDto;
 import dev.swirlit.indezy.dto.ActivityReportDto;
+import dev.swirlit.indezy.dto.OfferBoardVisitDto;
 import dev.swirlit.indezy.dto.OfferPublisherBlockDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.OfferStateExportDto;
@@ -10,6 +11,7 @@ import dev.swirlit.indezy.dto.SavedOfferSearchDto;
 import dev.swirlit.indezy.dto.UserDto;
 import dev.swirlit.indezy.model.enums.ActivityDayType;
 import dev.swirlit.indezy.model.enums.ActivityReportStatus;
+import dev.swirlit.indezy.model.enums.OfferLeftOutSite;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,6 +87,7 @@ class UserDataExportServiceTest {
         when(savedOfferSearchService.export(5L)).thenReturn(List.of(new SavedOfferSearchDto(3L, "Kafka à Paris", filters,
             Instant.parse("2026-10-18T07:00:00Z"), 0)));
         when(offerSiteHealthService.excludedSites(5L)).thenReturn(Set.of(OfferSite.YEETS));
+        when(offerSiteHealthService.visits(5L)).thenReturn(List.of(new OfferBoardVisitDto(OfferLeftOutSite.MALT, Instant.parse("2026-10-20T08:00:00Z"))));
         when(offerPublisherBlockService.list(5L)).thenReturn(List.of(new OfferPublisherBlockDto(8L, "Exemple Conseil")));
 
         String json = new String(userDataExportService.exportUserData(1L, 5L), StandardCharsets.UTF_8);
@@ -111,6 +114,8 @@ class UserDataExportServiceTest {
             .contains("\"q\" : \"kafka\"")
             .contains("\"excludedOfferSites\" : [ \"YEETS\" ]")
             .contains("\"blockedOfferPublishers\"")
+            .contains("\"offerSiteVisits\"")
+            .contains("\"MALT\"")
             .contains("\"name\" : \"Exemple Conseil\"");
     }
 }

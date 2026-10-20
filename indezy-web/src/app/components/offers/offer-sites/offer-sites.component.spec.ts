@@ -37,7 +37,8 @@ describe('OfferSitesComponent', () => {
         site({ site: 'KOINO', name: 'Koïno', status: 'WAITING', lastRunAt: null, lastSuccessAt: null, nextRunAt: null, lastFound: null,
           newestOfferAt: null, refreshAvailableAt: minutes(10) })
       ],
-      leftOut: [{ site: 'LINKEDIN', name: 'LinkedIn', homeUrl: 'https://www.linkedin.com' }],
+      leftOut: [{ site: 'LINKEDIN', name: 'LinkedIn', homeUrl: 'https://www.linkedin.com', kind: 'OTHER' },
+        { site: 'MALT', name: 'Malt', homeUrl: 'https://www.malt.fr', kind: 'MATCHING', access: 'PROFILE' }],
       refreshEnabled: true,
       ...overrides
     };
@@ -45,7 +46,7 @@ describe('OfferSitesComponent', () => {
 
   function create(result: Observable<OfferSiteHealth> = of(health())): ComponentFixture<OfferSitesComponent> {
     registerLocaleData(localeFr);
-    service = jasmine.createSpyObj('OfferService', ['siteHealth', 'setSiteExcluded', 'refreshSite']);
+    service = jasmine.createSpyObj('OfferService', ['siteHealth', 'setSiteExcluded', 'refreshSite', 'visitSite', 'clearSiteVisit']);
     service.siteHealth.and.returnValue(result);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
@@ -96,6 +97,8 @@ describe('OfferSitesComponent', () => {
     expect(text(fixture, '[data-site="KOINO"] [data-fact="newest"]')).toBe('Aucune');
     expect(text(fixture, '[data-left-out="LINKEDIN"]')).toContain('LinkedIn son robots.txt');
     expect(fixture.nativeElement.querySelector('[data-left-out="LINKEDIN"] a').getAttribute('href')).toBe('https://www.linkedin.com');
+    expect(fixture.nativeElement.querySelector('[data-left-out="MALT"]')).toBeNull();
+    expect(text(fixture, '#sites-to-visit [data-visit="MALT"]')).toContain('créez votre profil');
   });
 
   it('lets a board be read when nobody did in the last quarter of an hour', () => {

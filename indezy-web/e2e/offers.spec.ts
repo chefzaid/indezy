@@ -61,8 +61,9 @@ function siteHealth(): Record<string, unknown> {
       entry('COLLECTIVE', 'Collective', { collectedDay: 12, openOffers: 430 }),
       entry('FREE_WORK', 'Free-Work')
     ],
-    leftOut: [{ site: 'LINKEDIN', name: 'LinkedIn', homeUrl: 'https://www.linkedin.com' },
-      { site: 'HITECHPROS', name: 'HiTechPros', homeUrl: 'https://www.hitechpros.com' }],
+    leftOut: [{ site: 'HITECHPROS', name: 'HiTechPros', homeUrl: 'https://www.hitechpros.com', kind: 'VISIT', access: 'MEMBERSHIP' },
+      { site: 'MALT', name: 'Malt', homeUrl: 'https://www.malt.fr', kind: 'MATCHING', access: 'PROFILE' },
+      { site: 'LINKEDIN', name: 'LinkedIn', homeUrl: 'https://www.linkedin.com', kind: 'OTHER' }],
     refreshEnabled: true
   };
 }
@@ -70,11 +71,12 @@ function siteHealth(): Record<string, unknown> {
 /** Answers the feed's API like the server would, and records the searches and state changes. */
 async function mockFeed(page: Page, language: string, matchAvailable = true):
   Promise<{ searches: URL[]; states: unknown[]; imports: number[]; saves: Record<string, unknown>[]; markets: URL[];
-    exclusions: unknown[]; refreshes: string[] }> {
+    exclusions: unknown[]; refreshes: string[]; visits: string[] }> {
   const searches: URL[] = [];
   const markets: URL[] = [];
   const exclusions: unknown[] = [];
   const refreshes: string[] = [];
+  const visits: string[] = [];
   const states: unknown[] = [];
   const imports: number[] = [];
   const saves: Record<string, unknown>[] = [];
@@ -88,6 +90,11 @@ async function mockFeed(page: Page, language: string, matchAvailable = true):
     const site = new URL(route.request().url()).pathname.split('/').at(-2);
     exclusions.push({ site, ...route.request().postDataJSON() });
     return route.fulfill({ json: { site, ...route.request().postDataJSON() } });
+  });
+  await page.route('**/api/offers/sites/left-out/*/visit', route => {
+    const site = new URL(route.request().url()).pathname.split('/').at(-2) as string;
+    visits.push(`${route.request().method()} ${site}`);
+    return route.fulfill({ json: { site, visitedAt: route.request().method() === 'PUT' ? new Date().toISOString() : null } });
   });
   await page.route('**/api/offers/sites/*/refresh', route => {
     const site = new URL(route.request().url()).pathname.split('/').at(-2) as string;
@@ -132,7 +139,7 @@ async function mockFeed(page: Page, language: string, matchAvailable = true):
     return route.fulfill({ json: { content, page: 0, size: 20, totalElements: content.length, totalPages: 1, distanceAvailable: false,
       matchAvailable } });
   });
-  return { searches, states, imports, saves, markets, exclusions, refreshes };
+  return { searches, states, imports, saves, markets, exclusions, refreshes, visits };
 }
 
 /** Lets the router's cross-fade between two addresses finish before a screenshot. */
@@ -290,6 +297,13 @@ test('checks the job boards, keeps one out of the feed and reads another on requ
   await expect(freeWork.locator('[data-fact="collected"]')).toHaveText('40 in 24 h · 210 in 7 days');
   await expect(freeWork.locator('[data-fact="last-run"]')).toHaveText('120 offers, 4 new');
   await expect(page.locator('[data-left-out="LINKEDIN"]')).toContainText('its robots.txt and user agreement forbid crawling');
+  const malt = page.locator('[data-visit="MALT"]');
+  await expect(malt).toContainText('Profile, then a call');
+  await malt.getByRole('button', { name: 'Mark Malt as visited' }).click();
+  await expect(malt.locator('[data-visited]')).toContainText('Visited now');
+  await malt.getByRole('button', { name: 'Forget the visit of Malt' }).click();
+  await expect(malt).toContainText('Not visited yet');
+  expect(api.visits).toEqual(['PUT MALT', 'DELETE MALT']);
 
   await freeWork.getByRole('switch', { name: 'Show in my feed' }).click();
   await expect(page.getByText('Free-Work is left out of your feed')).toBeVisible();
@@ -312,8 +326,11 @@ test('reads the job boards on a phone (fr)', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await mockFeed(page, 'fr');
 
-  await page.goto('/offers/sites');
+  await page.goto('/offers');
+  await page.locator('[data-sites-to-visit-link]').click();
+  await expect(page).toHaveURL(/\/offers\/sites#sites-to-visit$/);
   await expect(page.getByRole('heading', { name: "Sites d'offres", level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Sites à consulter vous-même' })).toBeInViewport();
   await expect(page.locator('[data-site="YEETS"] [data-status]')).toHaveText('En échec');
   await expect(page.locator('[data-site="FREE_WORK"] [data-fact="collected"]')).toHaveText('40 en 24 h · 210 en 7 jours');
   await expect(page.getByRole('heading', { name: 'Sites écartés' })).toBeVisible();

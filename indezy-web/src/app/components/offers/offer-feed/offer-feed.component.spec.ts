@@ -320,6 +320,7 @@ describe('OfferFeedComponent', () => {
     const link = fixture.nativeElement.querySelector('[data-sites-link]') as HTMLAnchorElement;
 
     expect(link.getAttribute('href')).toBe('/offers/sites');
+    expect(fixture.nativeElement.querySelector('[data-sites-to-visit-link]').getAttribute('href')).toBe('/offers/sites#sites-to-visit');
     expect(text(fixture)).toContain('1 site en échec');
   });
 

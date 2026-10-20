@@ -1,9 +1,11 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.dto.OfferBoardVisitDto;
 import dev.swirlit.indezy.dto.OfferSiteExclusionDto;
 import dev.swirlit.indezy.dto.OfferSiteExclusionRequest;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto;
 import dev.swirlit.indezy.dto.OfferSiteRefreshDto;
+import dev.swirlit.indezy.model.enums.OfferLeftOutSite;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.scraping.OfferSiteRefresher;
 import dev.swirlit.indezy.service.AccessGuard;
@@ -14,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,6 +51,18 @@ public class OfferSiteController {
     public OfferSiteExclusionDto setExcluded(@PathVariable OfferSite site, @Valid @RequestBody OfferSiteExclusionRequest request,
                                              @RequestParam(required = false) Long freelanceId) {
         return healthService.setExcluded(accessGuard.requireWorkspace(freelanceId), site, request.excluded());
+    }
+
+    @Operation(summary = "Record that the workspace visited a site Indezy does not read, now")
+    @PutMapping("/left-out/{site}/visit")
+    public OfferBoardVisitDto visit(@PathVariable OfferLeftOutSite site, @RequestParam(required = false) Long freelanceId) {
+        return healthService.visit(accessGuard.requireWorkspace(freelanceId), site);
+    }
+
+    @Operation(summary = "Forget the workspace's visit of a site Indezy does not read")
+    @DeleteMapping("/left-out/{site}/visit")
+    public OfferBoardVisitDto clearVisit(@PathVariable OfferLeftOutSite site, @RequestParam(required = false) Long freelanceId) {
+        return healthService.clearVisit(accessGuard.requireWorkspace(freelanceId), site);
     }
 
     @Operation(summary = "Read a job board now; at most once every 15 minutes, whoever asks")

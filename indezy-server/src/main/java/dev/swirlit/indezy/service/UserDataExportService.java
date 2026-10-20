@@ -52,6 +52,7 @@ public class UserDataExportService {
         export.put("jobOffers", offerStateService.export(freelanceId));
         export.put("offerSearches", savedOfferSearchService.export(freelanceId));
         export.put("excludedOfferSites", offerSiteHealthService.excludedSites(freelanceId));
+        export.put("offerSiteVisits", offerSiteHealthService.visits(freelanceId));
         export.put("blockedOfferPublishers", offerPublisherBlockService.list(freelanceId));
 
         try {

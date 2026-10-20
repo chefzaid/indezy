@@ -10,7 +10,7 @@ import java.util.List;
  * How the collection of each job board goes, for the site health page.
  *
  * @param sites          the boards Indezy reads, failing ones first, then by name
- * @param leftOut        the boards it does not read (the page explains why)
+ * @param leftOut        the boards it does not read: to visit, matching services, then the ones left out (the page explains why)
  * @param refreshEnabled whether a site can be read on request (collection is on)
  */
 public record OfferSiteHealthDto(List<Site> sites, List<LeftOut> leftOut, boolean refreshEnabled) {
@@ -42,7 +42,13 @@ public record OfferSiteHealthDto(List<Site> sites, List<LeftOut> leftOut, boolea
                        Instant refreshAvailableAt) {
     }
 
-    public record LeftOut(OfferLeftOutSite site, String name, String homeUrl) {
+    /**
+     * @param kind      whether it is to visit, a matching service, or left out
+     * @param access    what seeing its missions takes; {@code null} for a site left out
+     * @param visitedAt when the workspace last visited it, if it did
+     */
+    public record LeftOut(OfferLeftOutSite site, String name, String homeUrl, OfferLeftOutSite.Kind kind, OfferLeftOutSite.Access access,
+                          Instant visitedAt) {
     }
 
     public OfferSiteHealthDto {

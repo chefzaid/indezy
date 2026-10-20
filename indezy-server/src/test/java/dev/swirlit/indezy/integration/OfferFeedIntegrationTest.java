@@ -10,6 +10,7 @@ import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.GeoPlaceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
+import dev.swirlit.indezy.repository.OfferBoardVisitRepository;
 import dev.swirlit.indezy.repository.OfferPublisherBlockRepository;
 import dev.swirlit.indezy.repository.OfferSiteExclusionRepository;
 import dev.swirlit.indezy.repository.SavedOfferSearchRepository;
@@ -78,6 +79,9 @@ class OfferFeedIntegrationTest {
     @Autowired
     private OfferPublisherBlockRepository blocks;
 
+    @Autowired
+    private OfferBoardVisitRepository visits;
+
     private Account alice;
     private Account bob;
     private JobOffer paris;
@@ -97,6 +101,7 @@ class OfferFeedIntegrationTest {
         savedSearches.deleteAll();
         exclusions.deleteAll();
         blocks.deleteAll();
+        visits.deleteAll();
         states.deleteAll();
         offers.deleteAll();
     }
@@ -284,6 +289,25 @@ class OfferFeedIntegrationTest {
         ResponseEntity<String> crossOrigin = restTemplate.exchange(url("/offers/sites/health"), HttpMethod.GET, new HttpEntity<>(headers),
             String.class);
         assertThat(crossOrigin.getHeaders().getAccessControlExposeHeaders()).contains("Retry-After");
+    }
+
+    @Test
+    void recordsEachWorkspacesVisitsOfTheSitesToVisit() {
+        ResponseEntity<Map> visited = call(alice, HttpMethod.PUT, "/offers/sites/left-out/MALT/visit", null);
+
+        assertThat(visited.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(leftOut(call(alice, HttpMethod.GET, "/offers/sites/health", null), "MALT")).containsEntry("kind", "MATCHING")
+            .containsEntry("access", "PROFILE").containsKey("visitedAt");
+        assertThat(leftOut(call(bob, HttpMethod.GET, "/offers/sites/health", null), "MALT").get("visitedAt")).isNull();
+        assertThat(call(alice, HttpMethod.PUT, "/offers/sites/left-out/LINKEDIN/visit", null).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        call(alice, HttpMethod.DELETE, "/offers/sites/left-out/MALT/visit", null);
+        assertThat(leftOut(call(alice, HttpMethod.GET, "/offers/sites/health", null), "MALT").get("visitedAt")).isNull();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> leftOut(ResponseEntity<Map> health, String site) {
+        return ((List<?>) health.getBody().get("leftOut")).stream().map(entry -> (Map<String, Object>) entry)
+            .filter(entry -> site.equals(entry.get("site"))).findFirst().orElseThrow();
     }
 
     @Test

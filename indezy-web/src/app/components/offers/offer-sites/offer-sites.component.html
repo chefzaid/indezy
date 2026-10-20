@@ -113,11 +113,13 @@
       }
     </ul>
 
+    <app-offer-sites-to-visit [sites]="health.leftOut" />
+
     <section class="left-out" aria-labelledby="left-out-title">
       <h2 id="left-out-title">{{ 'offers.sites.leftOutTitle' | translate }}</h2>
       <p class="subtitle">{{ 'offers.sites.leftOutIntro' | translate }}</p>
       <ul>
-        @for (site of health.leftOut; track site.site) {
+        @for (site of leftOutOnly; track site.site) {
           <li [attr.data-left-out]="site.site">
             <a [href]="site.homeUrl" target="_blank" rel="noopener noreferrer">{{ site.name }}</a>&ngsp;
             <span>{{ 'offers.sites.leftOut.' + site.site | translate }}</span>

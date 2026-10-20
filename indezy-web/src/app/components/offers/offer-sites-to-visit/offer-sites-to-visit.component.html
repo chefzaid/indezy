@@ -1,0 +1,37 @@
+<section class="to-visit" id="sites-to-visit" aria-labelledby="to-visit-title">
+  <h2 id="to-visit-title">{{ 'offers.sites.visit.title' | translate }}</h2>
+  <p class="subtitle">{{ 'offers.sites.visit.intro' | translate }}</p>
+  @for (group of groups; track group.kind) {
+    <h3>{{ 'offers.sites.visit.groups.' + group.kind | translate }}</h3>
+    <ul class="visit-list">
+      @for (site of group.sites; track site.site) {
+        <li class="visit-card" [attr.data-visit]="site.site">
+          <div class="visit-head">
+            <a [href]="site.homeUrl" target="_blank" rel="noopener noreferrer" (click)="opened(site)">
+              {{ site.name }}<mat-icon aria-hidden="true">open_in_new</mat-icon>
+            </a>
+            @if (site.access) {
+              <span class="access" [attr.data-access]="site.access">{{ 'offers.sites.visit.access.' + site.access | translate }}</span>
+            }
+          </div>
+          <p class="reason">{{ 'offers.sites.leftOut.' + site.site | translate }}</p>
+          <div class="visit-status">
+            @if (site.visitedAt) {
+              <span data-visited>{{ 'offers.sites.visit.visited' | translate: { when: when(site.visitedAt) } }}</span>
+              <button mat-button type="button" (click)="clear(site)" [disabled]="saving.has(site.site)"
+                [attr.aria-label]="'offers.sites.visit.clearAria' | translate: { site: site.name }">
+                {{ 'offers.sites.visit.clear' | translate }}
+              </button>
+            } @else {
+              <span class="muted">{{ 'offers.sites.visit.notVisited' | translate }}</span>
+              <button mat-stroked-button type="button" (click)="markVisited(site)" [disabled]="saving.has(site.site)"
+                [attr.aria-label]="'offers.sites.visit.markAria' | translate: { site: site.name }">
+                <mat-icon>done</mat-icon>{{ 'offers.sites.visit.mark' | translate }}
+              </button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>
