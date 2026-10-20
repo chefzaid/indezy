@@ -6,6 +6,12 @@ import { BehaviorSubject, filter } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
 import { ShortcutHelpComponent } from './shortcut-help.component';
 
+/**
+ * Open dialogs, menus and selection panels, which Material renders in the CDK overlay. A list of chips or options shown
+ * in the page itself (a filter's `mat-chip-listbox`) is not one.
+ */
+const OPEN_PANELS = ['dialog', 'menu', 'listbox'].map(role => `.cdk-overlay-container [role="${role}"]`).join(', ');
+
 @Injectable({ providedIn: 'root' })
 export class KeyboardShortcutsService {
   private readonly document = inject(DOCUMENT);
@@ -22,7 +28,7 @@ export class KeyboardShortcutsService {
         || event.isComposing || event.defaultPrevented || !this.auth.isAuthenticated()) { return; }
     const target = event.target instanceof Element ? event.target : null;
     if (target?.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"], [role="combobox"]')
-        || this.document.querySelector('[role="dialog"], [role="menu"], [role="listbox"]')) { return; }
+        || this.document.querySelector(OPEN_PANELS)) { return; }
 
     switch (event.code) {
       case 'KeyN':

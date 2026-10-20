@@ -884,7 +884,17 @@
     "search": "Open and focus project search",
     "move": "Choose the stage of the open project or focused Kanban card",
     "help": "Show keyboard shortcuts",
-    "typingHint": "Shortcuts are paused while typing, choosing an option, or using a dialog. Tab to a Kanban card before using M; choose a stage from its menu to confirm the move."
+    "typingHint": "Shortcuts are paused while typing, choosing an option, or using a dialog. Tab to a Kanban card before using M; choose a stage from its menu to confirm the move.",
+    "feedTitle": "In the offer feed",
+    "feedHint": "These keys work while an offer of the feed has the focus: Tab to the list first.",
+    "feed": {
+      "move": "Move to the next or previous offer (or the arrow keys)",
+      "open": "Open the offer on its site",
+      "save": "Save or unsave the offer",
+      "hide": "Hide or show the offer",
+      "add": "Add the offer to the pipeline",
+      "details": "Show or fold its details"
+    }
   },
   "activityReports": {
     "title": "Activity reports (timesheets)",
@@ -1263,6 +1273,9 @@
         "save": "The search could not be saved.",
         "delete": "The search could not be deleted."
       }
+    },
+    "keyboard": {
+      "hint": "Use J and K or the arrow keys to move between offers; O opens one on its site, S saves it, H hides it, A adds it to the pipeline and D shows its details."
     }
   }
 }

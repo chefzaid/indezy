@@ -15,6 +15,13 @@ import { TranslateModule } from '@ngx-translate/core';
         }
       </dl>
       <p>{{ 'shortcuts.typingHint' | translate }}</p>
+      <h3>{{ 'shortcuts.feedTitle' | translate }}</h3>
+      <dl data-feed-shortcuts>
+        @for (entry of feedEntries; track entry.label) {
+          <div><dt><kbd>{{ entry.keys }}</kbd></dt><dd>{{ entry.label | translate }}</dd></div>
+        }
+      </dl>
+      <p>{{ 'shortcuts.feedHint' | translate }}</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>{{ 'common.close' | translate }}</button>
@@ -27,6 +34,7 @@ import { TranslateModule } from '@ngx-translate/core';
     dd { flex: 1; min-width: 180px; margin: 0; }
     kbd { font-size: .9rem; }
     p { color: var(--app-text-muted); margin-top: 20px; }
+    h3 { margin: 24px 0 0; font-size: 1rem; }
   `
 })
 export class ShortcutHelpComponent {
@@ -35,5 +43,15 @@ export class ShortcutHelpComponent {
     { key: 'F', label: 'shortcuts.search' },
     { key: 'M', label: 'shortcuts.move' },
     { key: 'H', label: 'shortcuts.help' }
+  ];
+
+  /** Single keys of the offer feed, active while one of its offers has the focus. */
+  readonly feedEntries = [
+    { keys: 'J / K', label: 'shortcuts.feed.move' },
+    { keys: 'O', label: 'shortcuts.feed.open' },
+    { keys: 'S', label: 'shortcuts.feed.save' },
+    { keys: 'H', label: 'shortcuts.feed.hide' },
+    { keys: 'A', label: 'shortcuts.feed.add' },
+    { keys: 'D', label: 'shortcuts.feed.details' }
   ];
 }

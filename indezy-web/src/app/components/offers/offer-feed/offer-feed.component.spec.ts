@@ -294,6 +294,27 @@ describe('OfferFeedComponent', () => {
     expect(fixture.componentInstance.page!.content.length).toBe(1);
   });
 
+  it('acts on the offer a key is pressed on', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    service.get.and.returnValue(of(offer(2, { description: 'Contexte' })));
+    service.importOffer.and.returnValue(of({ id: 40 } as ProjectDto));
+
+    component.onOfferKey({ action: 'save', index: 0 });
+    component.onOfferKey({ action: 'details', index: 1 });
+    component.onOfferKey({ action: 'add', index: 0 });
+    component.onOfferKey({ action: 'add', index: 0 });
+    component.onOfferKey({ action: 'hide', index: 1 });
+    component.onOfferKey({ action: 'save', index: 9 });
+
+    expect(service.updateState).toHaveBeenCalledWith(1, { saved: true });
+    expect(service.get).toHaveBeenCalledWith(2);
+    expect(service.importOffer).toHaveBeenCalledTimes(1);
+    expect(service.updateState).toHaveBeenCalledWith(2, { hidden: true });
+    expect(fixture.nativeElement.querySelector('ol[aria-describedby="offer-keys-hint"]')).not.toBeNull();
+    expect(text(fixture)).toContain('Utilisez J et K');
+  });
+
   it('links to the job boards and warns when one fails', () => {
     const fixture = create();
     const link = fixture.nativeElement.querySelector('[data-sites-link]') as HTMLAnchorElement;

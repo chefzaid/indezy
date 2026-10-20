@@ -419,7 +419,15 @@ field, expanding the filters on phones. `Alt+Shift+M` opens the stage menu for t
 current project, or opens the focused Kanban card with that menu ready. Choose a
 stage to move it; moving to Lost still requires the existing loss-reason dialog.
 
-Shortcuts do not run inside editable fields, menus, selection panels or dialogs,
+In the offer feed, single keys act while one of its offers has the focus (Tab to
+the list, one tab stop for all offers): `J` and `K` (or the arrow keys) move to the
+next and previous offer, `O` opens it on its site, `S` saves it, `H` hides it, `A`
+adds it to the pipeline and `D` shows or folds its details; when an offer leaves the
+list, the next one takes the focus. The shortcut help lists them, and screen readers
+hear them from the list's description.
+
+Shortcuts do not run inside editable fields, open menus, selection panels or dialogs
+(lists of chips shown in the page, such as the feed's filters, do not stop them),
 or during composition and repeated key presses. They are available in both
 French and English, and leave ordinary browser shortcuts unchanged.
 

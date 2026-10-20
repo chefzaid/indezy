@@ -20,7 +20,7 @@
   </div>
 
   <h3 class="offer-title">
-    <a [href]="offer.url" target="_blank" rel="noopener noreferrer" (click)="opened.emit(offer)">{{ offer.title }}</a>
+    <a [href]="offer.url" target="_blank" rel="noopener noreferrer" (click)="opened.emit(offer)" data-open-offer>{{ offer.title }}</a>
   </h3>
   @if (offer.company) {
     <p class="company">{{ offer.company }}</p>

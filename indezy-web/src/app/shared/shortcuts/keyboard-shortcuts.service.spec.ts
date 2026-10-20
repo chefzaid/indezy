@@ -103,12 +103,27 @@ describe('workspace keyboard shortcuts', () => {
     expect(router.navigate).not.toHaveBeenCalled();
   });
 
-  it('does not interrupt menus, selection panels or dialogs', () => {
+  it('does not interrupt open menus, selection panels or dialogs', () => {
+    const overlay = document.createElement('div');
+    overlay.className = 'cdk-overlay-container';
+    const panel = document.createElement('div');
+    overlay.append(panel);
+    document.body.append(overlay);
     for (const role of ['dialog', 'menu', 'listbox']) {
-      surface.setAttribute('role', role);
+      panel.setAttribute('role', role);
       press('KeyN');
     }
+    overlay.remove();
     expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('still works beside a list of options shown in the page, such as filter chips', () => {
+    const chips = document.createElement('div');
+    chips.setAttribute('role', 'listbox');
+    surface.append(chips);
+
+    expect(press('KeyN').defaultPrevented).toBeTrue();
+    expect(router.navigate).toHaveBeenCalledWith(['/projects/new']);
   });
 
   it('ignores signed-out sessions, repeats, composition and other modifier combinations', () => {

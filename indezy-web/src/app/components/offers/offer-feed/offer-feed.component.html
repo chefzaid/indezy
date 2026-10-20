@@ -101,9 +101,10 @@
           }
         </mat-card>
       } @else if (page) {
-        <ol class="offer-list">
-          @for (offer of page.content; track offer.id) {
-            <li>
+        <p id="offer-keys-hint" class="cdk-visually-hidden">{{ 'offers.keyboard.hint' | translate }}</p>
+        <ol class="offer-list" appOfferListKeys (offerAction)="onOfferKey($event)" aria-describedby="offer-keys-hint">
+          @for (offer of page.content; track offer.id; let first = $first) {
+            <li data-offer-item [attr.tabindex]="first ? 0 : -1" [attr.aria-label]="offer.title">
               <app-offer-card [offer]="offer" [expanded]="expanded.has(offer.id)" [loadingDetails]="loadingDetails.has(offer.id)"
                 [importing]="importing.has(offer.id)" (toggleDetails)="toggleDetails($event)" (toggleSaved)="toggleSaved($event)"
                 (toggleHidden)="toggleHidden($event)" (opened)="opened($event)" (importOffer)="importOffer($event)"

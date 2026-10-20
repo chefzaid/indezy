@@ -884,7 +884,17 @@
     "search": "Ouvrir et activer la recherche de projets",
     "move": "Choisir le statut du projet ouvert ou de la carte Kanban sélectionnée",
     "help": "Afficher les raccourcis clavier",
-    "typingHint": "Les raccourcis sont suspendus pendant la saisie, le choix d’une option ou l’utilisation d’une fenêtre de dialogue. Accédez à une carte Kanban avec Tab avant d’utiliser M, puis choisissez un statut dans le menu pour confirmer le déplacement."
+    "typingHint": "Les raccourcis sont suspendus pendant la saisie, le choix d’une option ou l’utilisation d’une fenêtre de dialogue. Accédez à une carte Kanban avec Tab avant d’utiliser M, puis choisissez un statut dans le menu pour confirmer le déplacement.",
+    "feedTitle": "Dans le fil d'offres",
+    "feedHint": "Ces touches agissent lorsqu'une offre du fil a le focus : tabulez d'abord jusqu'à la liste.",
+    "feed": {
+      "move": "Passer à l'offre suivante ou précédente (ou les flèches)",
+      "open": "Ouvrir l’offre sur son site",
+      "save": "Enregistrer l’offre ou la retirer",
+      "hide": "Masquer l’offre ou la réafficher",
+      "add": "Ajouter l’offre au pipeline",
+      "details": "Afficher ou replier ses détails"
+    }
   },
   "activityReports": {
     "title": "Comptes rendus d'activité (CRA)",
@@ -1263,6 +1273,9 @@
         "save": "La recherche n'a pas pu être enregistrée.",
         "delete": "La recherche n'a pas pu être supprimée."
       }
+    },
+    "keyboard": {
+      "hint": "Utilisez J et K ou les flèches pour passer d'une offre à l'autre ; O ouvre l'offre sur son site, S l'enregistre, H la masque, A l'ajoute au pipeline et D affiche ses détails."
     }
   }
 }

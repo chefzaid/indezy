@@ -37,6 +37,7 @@ import { relativeTime } from '../../../shared/utils/relative-time';
 import { OfferCardComponent } from '../offer-card/offer-card.component';
 import { OfferFiltersComponent } from '../offer-filters/offer-filters.component';
 import { OfferMarketComponent } from '../offer-market/offer-market.component';
+import { OfferKeyAction, OfferListKeysDirective } from './offer-list-keys.directive';
 import { OfferSavedSearchesComponent } from '../offer-saved-searches/offer-saved-searches.component';
 
 /** Whether the market snapshot was left open, in this browser. */
@@ -47,7 +48,7 @@ const MARKET_OPEN_KEY = 'indezy.offers.marketOpen';
   selector: 'app-offer-feed',
   imports: [MatButtonModule, MatButtonToggleModule, MatCardModule, MatFormFieldModule, MatIconModule, MatPaginatorModule,
     MatProgressSpinnerModule, MatSelectModule, RouterLink, TranslateModule, OfferCardComponent, OfferFiltersComponent, OfferMarketComponent,
-    OfferSavedSearchesComponent],
+    OfferSavedSearchesComponent, OfferListKeysDirective],
   templateUrl: './offer-feed.component.html',
   styleUrls: ['./offer-feed.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -173,6 +174,30 @@ export class OfferFeedComponent implements OnInit {
       localStorage.setItem(MARKET_OPEN_KEY, String(this.marketOpen));
     } catch {
       // Storage blocked: the panel just opens closed next time.
+    }
+  }
+
+  /** A key pressed on an offer of the list (see {@link OfferListKeysDirective}). */
+  onOfferKey(event: { action: OfferKeyAction; index: number }): void {
+    const offer = this.page?.content[event.index];
+    if (!offer) {
+      return;
+    }
+    switch (event.action) {
+      case 'save':
+        this.toggleSaved(offer);
+        break;
+      case 'hide':
+        this.toggleHidden(offer);
+        break;
+      case 'add':
+        if (!offer.importedProjectId && !this.importing.has(offer.id)) {
+          this.importOffer(offer);
+        }
+        break;
+      case 'details':
+        this.toggleDetails(offer);
+        break;
     }
   }
 

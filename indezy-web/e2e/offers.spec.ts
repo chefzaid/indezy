@@ -371,3 +371,27 @@ test('hides a publisher from an offer and shows it again from the profile (en)',
   await settle(page);
   await page.screenshot({ path: test.info().outputPath('blocked-publishers-en.png'), fullPage: true });
 });
+
+test('moves through the feed and acts on offers with the keyboard (en)', async ({ page }) => {
+  const api = await mockFeed(page, 'en');
+
+  await page.goto('/offers');
+  const items = page.locator('[data-offer-item]');
+  await expect(items).toHaveCount(2);
+  await items.first().focus();
+  await page.keyboard.press('j');
+  await expect(items.nth(1)).toBeFocused();
+  await page.keyboard.press('s');
+  await expect.poll(() => api.states).toContainEqual({ saved: true });
+  await page.keyboard.press('k');
+  await expect(items.first()).toBeFocused();
+  await page.keyboard.press('d');
+  await expect(items.first().locator('[data-description]')).toContainText('Refonte complète du SI bancaire.');
+  await page.keyboard.press('h');
+  await expect(items).toHaveCount(1);
+  await expect(items.first()).toBeFocused();
+  expect(api.states).toContainEqual({ hidden: true });
+
+  await page.keyboard.press('Alt+Shift+H');
+  await expect(page.getByRole('dialog').locator('[data-feed-shortcuts]')).toContainText('Add the offer to the pipeline');
+});
