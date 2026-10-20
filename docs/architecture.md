@@ -128,7 +128,7 @@ Routes are organized around the main product areas:
 Current practical rules:
 
 - `Freelance` owns projects, clients, contacts, and sources.
-- `Project` must have one final client and may have a middleman client.
+- `Project` must have one client (the final client, or an ESN when that one is unknown) and may have a middleman client.
 - `Contact` belongs to a client and a freelance.
 - `InterviewStep` belongs to a project.
 - `User` owns account profile, preferences, and two-factor settings.

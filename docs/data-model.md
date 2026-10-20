@@ -141,7 +141,7 @@ Important fields:
 Relationships:
 
 - required freelance owner
-- required final client
+- required client: the final client, or an ESN when the final client is unknown
 - optional middleman client
 - optional source
 - optional season (`season_id`)
@@ -454,7 +454,7 @@ Recommended direction:
 Practical ownership rules for new development:
 
 - A project must belong to one freelance.
-- A project must have one final client.
+- A project must have one client, the final client or an ESN when the final client is unknown.
 - A project may have one middleman client.
 - A project may have one source.
 - A contact belongs to one client and one freelance.

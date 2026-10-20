@@ -75,8 +75,20 @@
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.client' | translate }}</mat-label>
                   <mat-select formControlName="clientId">
-                    @for (client of clients; track client.id) {
-                      <mat-option [value]="client.id">{{ client.companyName }}</mat-option>
+                    @if (clients.length) {
+                      <mat-optgroup [label]="'clients.finalClients' | translate">
+                        @for (client of clients; track client.id) {
+                          <mat-option [value]="client.id">{{ client.companyName }}</mat-option>
+                        }
+                      </mat-optgroup>
+                    }
+                    <!-- An ESN is the client when the final client is unknown, as for missions added from the offer feed. -->
+                    @if (intermediaries.length) {
+                      <mat-optgroup [label]="'clients.esnPlural' | translate">
+                        @for (esn of intermediaries; track esn.id) {
+                          <mat-option [value]="esn.id">{{ esn.companyName }}</mat-option>
+                        }
+                      </mat-optgroup>
                     }
                   </mat-select>
                   @if (clients.length === 0) {

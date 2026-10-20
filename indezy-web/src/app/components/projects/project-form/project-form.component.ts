@@ -52,7 +52,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   projectForm: FormGroup;
   /** Final clients (companies the mission is delivered for). */
   clients: ClientDto[] = [];
-  /** Intermediaries (ESN, agencies) that can sit between the freelance and the final client. */
+  /** Intermediaries (ESN, agencies) between the freelance and the final client, or the client when that one is unknown. */
   intermediaries: ClientDto[] = [];
   sources: SourceDto[] = [];
   seasons: Season[] = [];

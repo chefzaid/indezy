@@ -69,7 +69,7 @@ Implemented project fields include:
 - favorite flag (pins hot leads to the top of their Kanban column)
 - client, optional middleman, source, optional job-hunting season, and freelance owner
 
-The project form edits the pipeline stage (with the loss reason for lost opportunities), the final client, the optional ESN/intermediary, the source and the season. The project page shows the stage as a pill that can be changed in place and names the opportunity's season, and the projects list filters by stage and season and paginates results.
+The project form edits the pipeline stage (with the loss reason for lost opportunities), the client (final clients and ESNs are listed in two groups, an ESN being the client when the final client is unknown, as for missions added from the offer feed), the optional ESN/intermediary, the source and the season. The project page shows the stage as a pill that can be changed in place and names the opportunity's season, and the projects list filters by stage and season and paginates results.
 
 Project pages and Kanban cards offer **Copy project link**. The copied
 `/projects?project=<id>` URL opens that project's detail page; `/dashboard?project=<id>`
