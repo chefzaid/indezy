@@ -62,8 +62,41 @@ class OfferTextTest {
         assertThat(remote.daysPerWeek()).isEqualTo(days);
     }
 
+    /** Sentences of production descriptions on 2026-10-20, from sites that give no work mode. */
+    @ParameterizedTest(name = "{0}")
+    @CsvSource(delimiter = '|', nullValues = "-", value = {
+        "Localisation : Nantes- Télétravail : Non ; full présentiel                              | ONSITE | 0",
+        "/!\\ Mission basée 100% à Montrouge, pas de télétravail                                 | ONSITE | 0",
+        "NB : Mission entièrement sur site / Pas de télétravaille                                | ONSITE | 0",
+        "La mission est à réaliser en 100 % présentiel sur site.                                 | ONSITE | 0",
+        "Environnement RISE with SAP / AWS — full remote                                         | REMOTE | 5",
+        "Télétravail : 2 à 3 jours de télétravail par semaine / On-boarding de deux semaines     | HYBRID | 2",
+        "Localisation : Lyon- Télétravail : 1 à 2 jours par semaine après une phase d'on-boarding | HYBRID | 1",
+        "pour une mission longue située à Puteaux ( 2 jrs de Télétravail possible)               | HYBRID | 2",
+        "Télétravail : 2 jours/semaine Présentiel : 3 jours/semaine                              | HYBRID | 2",
+        "Anglais technique. Télétravail 10 jours par mois                                        | HYBRID | 2",
+        "à pourvoir à Aix-en-Provence (50% de télétravail)                                        | HYBRID | 2",
+        "Télétravail possible jusqu'à 40% du temps de travail, soumis à accord.                  | HYBRID | 2",
+        "Localisation : Paris 15 Télétravail partiel possible (présence sur site 3 jours/semaine) | HYBRID | 2",
+        "Localisation : Bordeaux Présence sur site : 2 jours par semaine                         | HYBRID | 3",
+        "3 jours sur site à Saint-Denis / 2 jours à distance                                      | HYBRID | 2",
+        "Rythme : 1 jour sur site / semaine.                                                     | HYBRID | 4",
+        "la mission s'effectue en français selon un mode hybride, avec 50 % de présence          | HYBRID | -",
+        "Le SI est composé d'un environnement hybride avec une majorité de solutions Cloud       | -      | -",
+        "Solide expérience de pilotage de projets en méthodologie hybride (cycle en V et agile)   | -      | -",
+        "réglementaire de l'administration publique (absences, congés, temps, télétravail).      | -      | -",
+        "Vous intervenez de manière autonome sur site, en suivant un planning quotidien           | -      | -"
+    })
+    void readsTheRemotePolicyADescriptionStates(String text, WorkMode mode, Integer days) {
+        OfferText.Remote remote = OfferText.remoteInText(text);
+
+        assertThat(remote.mode()).isEqualTo(mode);
+        assertThat(remote.daysPerWeek()).isEqualTo(days);
+    }
+
     @Test
     void readsNoRemotePolicyFromNothing() {
+        assertThat(OfferText.remoteInText(null)).isEqualTo(OfferText.Remote.UNKNOWN);
         assertThat(OfferText.remote(null)).isEqualTo(OfferText.Remote.UNKNOWN);
         assertThat(OfferText.remote("  ")).isEqualTo(OfferText.Remote.UNKNOWN);
     }

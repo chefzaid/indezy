@@ -21,6 +21,7 @@ class OfferSchedulerTest {
         when(store.keyStoredCompanies(0L)).thenReturn(812L);
         when(store.keyStoredCompanies(812L)).thenReturn(null);
         when(store.cleanStoredDescriptions(0L)).thenReturn(null);
+        when(store.readStoredRemotePolicies(0L)).thenReturn(null);
         when(relocation.locateStoredOffers(0L)).thenReturn(50L);
         when(relocation.locateStoredOffers(50L)).thenReturn(null);
 
@@ -29,6 +30,7 @@ class OfferSchedulerTest {
         verify(store, times(3)).keyStoredOffers();
         verify(store).keyStoredCompanies(812L);
         verify(store).cleanStoredDescriptions(0L);
+        verify(store).readStoredRemotePolicies(0L);
         verify(relocation).locateStoredOffers(50L);
     }
 

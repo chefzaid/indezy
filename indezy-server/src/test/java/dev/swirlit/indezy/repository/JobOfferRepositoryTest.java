@@ -13,6 +13,7 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.model.enums.WorkMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -259,6 +260,16 @@ class JobOfferRepositoryTest {
 
         assertThat(offers.findUnlocatedAfter(0L, PageRequest.of(0, 10))).extracting(JobOffer::getExternalId).containsExactly("1");
         assertThat(offers.findUnlocatedAfter(recent.getId(), PageRequest.of(0, 10))).isEmpty();
+    }
+
+    @Test
+    void findsTheOffersWithADescriptionAndNoWorkMode() {
+        recent.setDescription("Télétravail : 2 jours par semaine");
+        old.setDescription("Sur site");
+        old.setWorkMode(WorkMode.ONSITE);
+        entityManager.flush();
+
+        assertThat(offers.findWithoutWorkModeAfter(0L, PageRequest.of(0, 10))).extracting(JobOffer::getExternalId).containsExactly("1");
     }
 
     @Test

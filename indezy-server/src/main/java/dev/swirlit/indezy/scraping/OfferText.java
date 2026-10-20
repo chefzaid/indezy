@@ -55,6 +55,30 @@ public final class OfferText {
     private static final Pattern FREELANCE = Pattern.compile("\\b(freelances?|independants?|portage)\\b");
     private static final Pattern ONSITE_DAYS = Pattern.compile("(\\d)\\s*(?:j|jours?|days?)\\b[^.]{0,20}?(?:sur site|on site|onsite|presentiel)");
 
+    // Phrases of a description, folded (lower case, no accents, "%" and "/" read as spaces).
+    private static final Pattern NO_REMOTE = Pattern.compile("\\b(?:pas de teletravail\\w*|sans teletravail|aucun teletravail" +
+        "|teletravail non\\b|teletravail impossible|no remote|full presentiel|100 presentiel|100 sur site|100 on site" +
+        "|entierement sur site|totalement sur site|uniquement sur site|exclusivement sur site)");
+    private static final Pattern FULL_REMOTE = Pattern.compile("\\b(?:full remote|fully remote|100 remote|remote only|100 teletravail" +
+        "|teletravail complet|teletravail total|totalement en teletravail|full teletravail|full distanciel|100 distanciel)\\b");
+    private static final String DAYS = "(?:j|jr|jrs|jours?|days?)\\b";
+    private static final String WEEK = "(?:\\s*(?:par|per)?\\s*(?:semaine|sem|week))?";
+    private static final Pattern TEXT_REMOTE_DAYS = Pattern.compile(
+        "(?<!\\d)([1-4])(?:\\s*(?:a|ou)\\s*[1-4])?\\s*" + DAYS + WEEK + "\\s*(?:de\\s+)?(?:teletravail|tt|remote|a distance|distanciel)\\b" +
+            "|\\b(?:teletravail|remote|tt)\\s*(?:possible\\s*)?(?:de\\s*)?(?<!\\d)([1-4])(?:\\s*(?:a|ou)\\s*[1-4])?\\s*" + DAYS +
+            "(?!\\s*(?:par\\s*)?mois)");
+    private static final Pattern TEXT_REMOTE_DAYS_A_MONTH = Pattern.compile(
+        "\\bteletravail\\s*(?:possible\\s*)?(?:de\\s*)?(\\d{1,2})\\s*" + DAYS + "\\s*(?:par\\s*)?mois");
+    private static final Pattern TEXT_REMOTE_SHARE = Pattern.compile(
+        "(?<!\\d)([1-9]0)\\s*(?:de\\s+)?(?:teletravail|remote)\\b|\\bteletravail\\s*(?:possible\\s*)?(?:jusqu a\\s*)?(?<!\\d)([1-9]0)\\b(?!\\s*" +
+            DAYS + ")");
+    private static final Pattern TEXT_ONSITE_DAYS = Pattern.compile(
+        "(?<!\\d)([1-4])\\s*" + DAYS + WEEK + "\\s*(?:sur site|on site|en presentiel|de presence|au bureau|dans les bureaux)\\b" +
+            "|\\b(?:presence sur site|sur site|presentiel)\\s*(?<!\\d)([1-4])\\s*" + DAYS);
+    private static final Pattern HYBRID_WORK = Pattern.compile("\\b(?:teletravail partiel|teletravail possible|partiellement en teletravail" +
+        "|mode hybride|format hybride|rythme hybride|travail hybride|organisation hybride|en hybride|hybrid work|hybrid remote)\\b");
+    private static final float WEEKS_A_MONTH = 4.33f;
+
     private OfferText() {
     }
 
@@ -135,6 +159,43 @@ public final class OfferText {
             return new Remote(WorkMode.ONSITE, 0);
         }
         return Remote.UNKNOWN;
+    }
+
+    /**
+     * The remote policy a description states, or {@link Remote#UNKNOWN}: stricter than {@link #remote}, which reads a
+     * field given to it, as a description mentions remote work in passing ("cloud hybride", "congés, télétravail"). Only
+     * phrases about how the mission is worked count: no remote work ("pas de télétravail", "100% présentiel"), full remote,
+     * remote or on-site days (a week, a month or as a share of the week), then a hybrid way of working.
+     */
+    public static Remote remoteInText(String text) {
+        String folded = TextFolding.words(text);
+        if (folded == null || folded.isEmpty()) {
+            return Remote.UNKNOWN;
+        }
+        if (NO_REMOTE.matcher(folded).find()) {
+            return new Remote(WorkMode.ONSITE, 0);
+        }
+        if (FULL_REMOTE.matcher(folded).find()) {
+            return new Remote(WorkMode.REMOTE, 5);
+        }
+        Matcher days = TEXT_REMOTE_DAYS.matcher(folded);
+        if (days.find()) {
+            return remoteDaysPerWeek(Integer.parseInt(days.group(1) != null ? days.group(1) : days.group(2)));
+        }
+        Matcher monthly = TEXT_REMOTE_DAYS_A_MONTH.matcher(folded);
+        if (monthly.find()) {
+            return remoteDaysPerWeek(Math.clamp(Math.round(Integer.parseInt(monthly.group(1)) / WEEKS_A_MONTH), 1, 4));
+        }
+        Matcher share = TEXT_REMOTE_SHARE.matcher(folded);
+        if (share.find()) {
+            int percent = Integer.parseInt(share.group(1) != null ? share.group(1) : share.group(2));
+            return remoteDaysPerWeek(Math.clamp(percent * 5 / 100, 1, 4));
+        }
+        Matcher onsite = TEXT_ONSITE_DAYS.matcher(folded);
+        if (onsite.find()) {
+            return remoteDaysPerWeek(5 - Integer.parseInt(onsite.group(1) != null ? onsite.group(1) : onsite.group(2)));
+        }
+        return HYBRID_WORK.matcher(folded).find() ? new Remote(WorkMode.HYBRID, null) : Remote.UNKNOWN;
     }
 
     /** On site at 0 days, full remote at 5 or more, hybrid between. */

@@ -92,6 +92,17 @@ public class OfferStore {
     }
 
     /**
+     * Reads, up to {@value #KEY_BATCH} at a time after {@code afterId}, the remote policy that the descriptions of offers
+     * stored without a work mode state; returns the last offer looked at, or {@code null} when none was left.
+     */
+    @Transactional
+    public Long readStoredRemotePolicies(Long afterId) {
+        List<JobOffer> unknown = offers.findWithoutWorkModeAfter(afterId, PageRequest.of(0, KEY_BATCH));
+        unknown.forEach(OfferNormalizer::readRemotePolicy);
+        return unknown.isEmpty() ? null : unknown.getLast().getId();
+    }
+
+    /**
      * Gives up to {@value #KEY_BATCH} offers stored before publishers had a key, after {@code afterId}, their publisher's
      * key; returns the last offer looked at, or {@code null} when none was left.
      */

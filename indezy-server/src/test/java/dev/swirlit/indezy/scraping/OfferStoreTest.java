@@ -3,6 +3,7 @@ package dev.swirlit.indezy.scraping;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.model.OfferSkip;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.OfferSkipRepository;
@@ -142,6 +143,23 @@ class OfferStoreTest {
         assertThat(comparison.getDescription()).isEqualTo("Java < 5 ans > 3 ans");
         assertThat(comparison.getSearchText()).isEqualTo("unchanged");
         assertThat(store.cleanStoredDescriptions(7L)).isNull();
+    }
+
+    @Test
+    void readsTheRemotePolicyOfOffersStoredWithoutAWorkMode() {
+        JobOffer stated = offer("2", "Développeur Java", OfferDatePrecision.EXACT, null);
+        stated.setId(4L);
+        stated.setDescription("Localisation : Lyon\nTélétravail : 2 jours par semaine");
+        JobOffer silent = offer("3", "Développeur Java", OfferDatePrecision.EXACT, null);
+        silent.setId(6L);
+        silent.setDescription("Un environnement cloud hybride.");
+        when(offers.findWithoutWorkModeAfter(eq(0L), any())).thenReturn(List.of(stated, silent));
+
+        assertThat(store.readStoredRemotePolicies(0L)).isEqualTo(6L);
+        assertThat(stated.getWorkMode()).isEqualTo(WorkMode.HYBRID);
+        assertThat(stated.getRemoteDaysPerWeek()).isEqualTo(2);
+        assertThat(silent.getWorkMode()).isNull();
+        assertThat(store.readStoredRemotePolicies(6L)).isNull();
     }
 
     @Test

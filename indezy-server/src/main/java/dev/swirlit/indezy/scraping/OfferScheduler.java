@@ -28,8 +28,9 @@ public class OfferScheduler {
 
     /**
      * Groups the copies among offers stored before copies were told apart, keys the publishers of offers stored before
-     * publishers had a key, cleans descriptions stored with markup escaped twice and locates the offers whose place was not
-     * located when they were read; finds nothing to do once they are.
+     * publishers had a key, cleans descriptions stored with markup escaped twice, reads the remote policy their descriptions state for offers
+     * without a work mode and locates the offers whose place was not located when they were read; finds nothing to do
+     * once they are.
      */
     @Scheduled(initialDelayString = "PT30S", fixedDelayString = "PT6H")
     public void keyStoredOffers() {
@@ -44,6 +45,10 @@ public class OfferScheduler {
         last = 0L;
         do {
             last = store.cleanStoredDescriptions(last);
+        } while (last != null);
+        last = 0L;
+        do {
+            last = store.readStoredRemotePolicies(last);
         } while (last != null);
         last = 0L;
         do {

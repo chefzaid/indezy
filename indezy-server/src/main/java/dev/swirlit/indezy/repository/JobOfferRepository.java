@@ -32,6 +32,10 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
     /** Offers stored before copies were told apart, which have no copy keys yet. */
     List<JobOffer> findByPublisherKeyIsNullOrderById(Pageable pageable);
 
+    /** Offers after {@code afterId} with a description and no work mode. */
+    @Query("select o from JobOffer o where o.id > :afterId and o.workMode is null and o.description is not null order by o.id")
+    List<JobOffer> findWithoutWorkModeAfter(@Param("afterId") Long afterId, Pageable pageable);
+
     /** Offers after {@code afterId} that name a French (or unknown) place and have no coordinates. */
     @Query("select o from JobOffer o where o.id > :afterId and o.latitude is null and (o.city is not null or o.postalCode is not null) " +
         "and (o.countryCode is null or o.countryCode = 'FR') order by o.id")

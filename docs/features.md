@@ -184,7 +184,8 @@ and why (LinkedIn forbids crawling; HiTechPros, Opteamis, Comet and others keep 
 
 Each offer shows its site, title, publisher, daily rate ("550 € – 650 €", "≤ 600 €" or "TJM non précisé"), place with
 its department and the distance from the profile's city, work mode (on site, hybrid with remote days a week, full
-remote), duration, start date or "as soon as possible", seniority, skills, an excerpt and how long ago it was
+remote; read from the title and description when the site gives none, from phrases about how the mission is worked
+only), duration, start date or "as soon as possible", seniority, skills, an excerpt and how long ago it was
 published (the hint says when a site gives no date and the offer is dated when Indezy first saw it). Unseen offers are
 marked **New**.
 

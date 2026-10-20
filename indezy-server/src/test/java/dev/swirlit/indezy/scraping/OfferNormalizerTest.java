@@ -187,6 +187,28 @@ class OfferNormalizerTest {
     }
 
     @Test
+    void readsTheRemotePolicyFromTheTextWhenTheSiteGivesNone() {
+        JobOffer fromText = normalizer.normalize(OfferSite.SILKHOM,
+            base().description("Durée : 6 mois- Localisation : Cholet- Télétravail : 2 à 3 jours de télétravail par semaine").build(), NOW)
+            .orElseThrow();
+        JobOffer fromTitle = normalizer.normalize(OfferSite.MINDQUEST, base().title("Architecte AWS - Full remote").build(), NOW).orElseThrow();
+        JobOffer stated = normalizer.normalize(OfferSite.FREE_WORK,
+            base().remoteText("Sur site").description("Télétravail : 2 jours par semaine").build(), NOW).orElseThrow();
+
+        assertThat(fromText.getWorkMode()).isEqualTo(WorkMode.HYBRID);
+        assertThat(fromText.getRemoteDaysPerWeek()).isEqualTo(2);
+        assertThat(fromTitle.getWorkMode()).isEqualTo(WorkMode.REMOTE);
+        assertThat(stated.getWorkMode()).isEqualTo(WorkMode.ONSITE);
+
+        JobOffer stored = new JobOffer();
+        stored.setTitle("Développeur");
+        stored.setDescription("Mission 100% sur site à Lille");
+        assertThat(OfferNormalizer.readRemotePolicy(stored)).isTrue();
+        assertThat(stored.getWorkMode()).isEqualTo(WorkMode.ONSITE);
+        assertThat(OfferNormalizer.readRemotePolicy(stored)).isFalse();
+    }
+
+    @Test
     void readsTheDurationFromTheTitleOrTheDescription() {
         JobOffer fromTitle = normalizer.normalize(OfferSite.COLLECTIVE, base().title("PMO - freelance - 7 mois").build(), NOW).orElseThrow();
         JobOffer fromText = normalizer.normalize(OfferSite.COLLECTIVE,

@@ -94,11 +94,15 @@ public class OfferNormalizer {
         offer.setRateMax(max);
     }
 
+    /** The site's work mode, else its remote text, else what the title and description say of remote work. */
     private static void applyRemote(JobOffer offer, ScrapedOffer scraped) {
         WorkMode mode = scraped.getWorkMode();
         Integer days = scraped.getRemoteDaysPerWeek();
         if (mode == null) {
             OfferText.Remote parsed = OfferText.remote(scraped.getRemoteText());
+            if (parsed.mode() == null) {
+                parsed = OfferText.remoteInText(remoteSearchText(offer));
+            }
             mode = parsed.mode();
             days = days != null ? days : parsed.daysPerWeek();
         }
@@ -112,6 +116,31 @@ public class OfferNormalizer {
         }
         offer.setWorkMode(mode);
         offer.setRemoteDaysPerWeek(days);
+    }
+
+    /**
+     * Reads the remote policy of a stored offer that has no work mode from its title and description; whether it found
+     * one. Offers stored before descriptions were read for it, from sites that never read a stored offer again.
+     */
+    public static boolean readRemotePolicy(JobOffer offer) {
+        if (offer.getWorkMode() != null) {
+            return false;
+        }
+        OfferText.Remote parsed = OfferText.remoteInText(remoteSearchText(offer));
+        if (parsed.mode() == null) {
+            return false;
+        }
+        offer.setWorkMode(parsed.mode());
+        offer.setRemoteDaysPerWeek(parsed.daysPerWeek());
+        return true;
+    }
+
+    private static String remoteSearchText(JobOffer offer) {
+        String description = offer.getDescription();
+        if (description != null && description.length() > SEARCHED_DESCRIPTION_LENGTH) {
+            description = description.substring(0, SEARCHED_DESCRIPTION_LENGTH);
+        }
+        return HtmlText.join("\n", offer.getTitle(), description);
     }
 
     /**
