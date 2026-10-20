@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.OfferCopyDto;
 import dev.swirlit.indezy.dto.OfferDto;
+import dev.swirlit.indezy.dto.OfferMatchDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
 import dev.swirlit.indezy.dto.OfferRegionDto;
@@ -77,17 +78,21 @@ class OfferControllerTest {
 
     @Test
     void searchBindsEveryFilterFromTheQueryString() throws Exception {
-        when(searchService.search(eq(3L), any())).thenReturn(new OfferPageDto(List.of(offer()), 0, 20, 1, 1, true));
+        when(searchService.search(eq(3L), any())).thenReturn(new OfferPageDto(List.of(offer()), 0, 20, 1, 1, true, true));
 
         mockMvc.perform(get("/offers").param("freelanceId", "3").param("q", "java spring").param("rateMin", "500")
                 .param("rateKnown", "true").param("regions", "11", "84").param("departments", "2A")
                 .param("workModes", "REMOTE,HYBRID").param("minRemoteDays", "2").param("durationMin", "3")
                 .param("startBefore", "2026-12-01").param("publishedWithinDays", "7").param("sites", "FREE_WORK")
                 .param("seniorities", "SENIOR").param("skills", "Java").param("view", "SAVED").param("unseenOnly", "true")
-                .param("sort", "RATE").param("page", "2").param("size", "50"))
+                .param("matchesProfile", "true").param("sort", "RATE").param("page", "2").param("size", "50"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.totalElements").value(1))
             .andExpect(jsonPath("$.distanceAvailable").value(true))
+            .andExpect(jsonPath("$.matchAvailable").value(true))
+            .andExpect(jsonPath("$.content[0].match.score").value(83))
+            .andExpect(jsonPath("$.content[0].match.skills[0]").value("Java"))
+            .andExpect(jsonPath("$.content[0].match.place").value("NEAR"))
             .andExpect(jsonPath("$.content[0].siteName").value("Free-Work"))
             .andExpect(jsonPath("$.content[0].publishedAt").value("2026-10-19T08:47:42Z"))
             .andExpect(jsonPath("$.content[0].description").doesNotExist())
@@ -108,6 +113,7 @@ class OfferControllerTest {
         assertThat(bound.getSort()).isEqualTo(OfferSearchRequest.Sort.RATE);
         assertThat(bound.isRateKnown()).isTrue();
         assertThat(bound.isUnseenOnly()).isTrue();
+        assertThat(bound.isMatchesProfile()).isTrue();
         assertThat(bound.getPage()).isEqualTo(2);
         assertThat(bound.getSize()).isEqualTo(50);
     }
@@ -195,6 +201,7 @@ class OfferControllerTest {
             "Exemple Conseil", "Refonte d'un SI", null, 550, 650, "Paris", "75008", "75", "Paris", "Île-de-France", "FR", 3,
             WorkMode.HYBRID, 2, 6, LocalDate.of(2026, 11, 2), null, Seniority.SENIOR, List.of("Java", "Kafka"),
             Instant.parse("2026-10-19T08:47:42Z"), OfferDatePrecision.EXACT, null, false, false, false, false, null,
-            List.of(new OfferCopyDto(8L, OfferSite.COLLECTIVE, "Collective", "https://www.collective.work/job/8")));
+            List.of(new OfferCopyDto(8L, OfferSite.COLLECTIVE, "Collective", "https://www.collective.work/job/8")),
+            new OfferMatchDto(83, List.of("Java"), OfferMatchDto.RateFit.MEETS, OfferMatchDto.PlaceFit.NEAR));
     }
 }

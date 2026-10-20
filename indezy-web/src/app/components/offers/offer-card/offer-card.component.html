@@ -8,6 +8,12 @@
     @if (offer.expired) {
       <span class="badge expired-badge">{{ 'offers.card.expired' | translate }}</span>
     }
+    @if (offer.match; as match) {
+      <span class="badge match-badge" [class]="matchLevel" data-match tabindex="0" [matTooltip]="matchDetails"
+        [attr.aria-label]="('offers.match.aria' | translate: { score: match.score }) + '. ' + matchDetails">
+        <mat-icon aria-hidden="true">auto_awesome</mat-icon>{{ 'offers.match.score' | translate: { score: match.score } }}
+      </span>
+    }
     <span class="published" [matTooltip]="publishedHint | translate: { date: (offer.publishedAt | date: 'medium') }">
       {{ published }}
     </span>
@@ -73,7 +79,7 @@
   @if (offer.skills.length) {
     <ul class="skills" [attr.aria-label]="'offers.card.skills' | translate">
       @for (skill of visibleSkills; track skill) {
-        <li class="skill">{{ skill }}</li>
+        <li class="skill" [class.matched]="isMatched(skill)">{{ skill }}</li>
       }
       @if (hiddenSkills) {
         <li class="skill more">+{{ hiddenSkills }}</li>

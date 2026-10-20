@@ -34,7 +34,7 @@ const regions = [
 ];
 
 /** Answers the feed's API like the server would, and records the searches and state changes. */
-async function mockFeed(page: Page, language: string):
+async function mockFeed(page: Page, language: string, matchAvailable = true):
   Promise<{ searches: URL[]; states: unknown[]; imports: number[]; saves: Record<string, unknown>[] }> {
   const searches: URL[] = [];
   const states: unknown[] = [];
@@ -69,9 +69,12 @@ async function mockFeed(page: Page, language: string):
     const url = new URL(route.request().url());
     searches.push(url);
     const filtered = url.searchParams.has('workModes') && !url.searchParams.getAll('workModes').includes('HYBRID');
-    const content = filtered ? [] : [offer(1, { alsoOn: [copy] }), offer(2, { title: 'Data engineer Spark', site: 'COLLECTIVE', siteName: 'Collective',
-      rateMin: undefined, rateMax: 700, workMode: 'REMOTE', remoteDaysPerWeek: 5, seen: true })];
-    return route.fulfill({ json: { content, page: 0, size: 20, totalElements: content.length, totalPages: 1, distanceAvailable: false } });
+    const match = (score: number, skills: string[], place: string) => matchAvailable ? { score, skills, rate: 'MEETS', place } : undefined;
+    const content = filtered ? [] : [offer(1, { alsoOn: [copy], match: match(80, ['Java', 'Kafka'], 'NEAR') }), offer(2, {
+      title: 'Data engineer Spark', site: 'COLLECTIVE', siteName: 'Collective', rateMin: undefined, rateMax: 700, workMode: 'REMOTE',
+      remoteDaysPerWeek: 5, seen: true, skills: ['Spark'], match: match(40, [], 'REMOTE') })];
+    return route.fulfill({ json: { content, page: 0, size: 20, totalElements: content.length, totalPages: 1, distanceAvailable: false,
+      matchAvailable } });
   });
   return { searches, states, imports, saves };
 }
@@ -99,6 +102,19 @@ test('browses, filters, saves, hides and imports freelance offers (en)', async (
   await expect(first.locator('[data-fact="remote"]')).toContainText('Hybrid · 2 remote days a week');
   await expect(first.locator('[data-also-on]')).toContainText('Also on');
   await expect(first.locator('[data-also-on]').getByRole('link', { name: 'Collective' })).toHaveAttribute('href', copy.url);
+  await expect(first.locator('[data-match]')).toHaveText(/80%/);
+  await expect(first.locator('[data-match]')).toHaveAttribute('aria-label', /Your skills: Java, Kafka · Pays your target daily rate · Near you/);
+  await expect(first.locator('.skill.matched')).toHaveText(['Java', 'Kafka']);
+  await expect(page.locator('[data-match-hint]')).toHaveCount(0);
+
+  const matchSearch = page.waitForRequest(request => isSearch(request) && request.url().includes('sort=MATCH'));
+  await page.getByRole('combobox', { name: 'Sort by' }).click();
+  await page.getByRole('option', { name: 'Best match' }).click();
+  await matchSearch;
+  const profileSearch = page.waitForRequest(request => isSearch(request) && request.url().includes('matchesProfile=true'));
+  await page.getByRole('switch', { name: 'Matches my profile' }).click();
+  await profileSearch;
+  await expect(page).toHaveURL(/sort=MATCH/);
 
   const keywordSearch = page.waitForRequest(request => isSearch(request) && request.url().includes('q=kafka'));
   await page.getByLabel('Keywords').fill('kafka');
@@ -149,11 +165,14 @@ test('browses, filters, saves, hides and imports freelance offers (en)', async (
 
 test('opens the filters on a phone and narrows the feed to full remote (fr)', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  const api = await mockFeed(page, 'fr');
+  const api = await mockFeed(page, 'fr', false);
 
   await page.goto('/offers?publishedWithinDays=7');
   await expect(page.getByRole('heading', { name: 'Missions freelance' })).toBeVisible();
   await expect(page.locator('app-offer-card')).toHaveCount(2);
+  await expect(page.locator('[data-match-hint]')).toContainText('Ajoutez vos compétences à votre profil');
+  await expect(page.locator('[data-match-hint]').getByRole('link', { name: 'Compléter mon profil' })).toHaveAttribute('href', '/profile');
+  await expect(page.locator('[data-match]')).toHaveCount(0);
   await expect(page.locator('app-offer-filters')).toBeHidden();
   const toggle = page.getByRole('button', { name: /Filtres/ });
   await expect(toggle).toContainText('1');

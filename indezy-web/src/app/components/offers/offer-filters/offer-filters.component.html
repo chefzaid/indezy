@@ -6,6 +6,15 @@
       [placeholder]="'offers.filters.keywordsPlaceholder' | translate">
   </mat-form-field>
 
+  <div class="match-toggle">
+    <mat-slide-toggle name="matchesProfile" [(ngModel)]="draft.matchesProfile" (ngModelChange)="changed()" [disabled]="!matchAvailable">
+      {{ 'offers.filters.matchesProfile' | translate }}
+    </mat-slide-toggle>
+    @if (!matchAvailable) {
+      <span class="hint">{{ 'offers.filters.matchNeedsSkills' | translate }}</span>
+    }
+  </div>
+
   <fieldset class="group">
     <legend>{{ 'offers.filters.rate' | translate }}</legend>
     <div class="pair">

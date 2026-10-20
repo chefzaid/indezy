@@ -21,7 +21,7 @@ public class OfferSearchRequest {
     /** Which offers: the feed (not hidden, still open), the saved ones or the hidden ones. */
     public enum View { FEED, SAVED, HIDDEN }
 
-    public enum Sort { NEWEST, RATE, DISTANCE }
+    public enum Sort { NEWEST, RATE, DISTANCE, MATCH }
 
     /** Words that must all appear in the title, company, skills, place or description. */
     @Size(max = 200)
@@ -85,6 +85,9 @@ public class OfferSearchRequest {
 
     /** Leave out offers the workspace already opened. */
     private boolean unseenOnly;
+
+    /** Keep the offers that match the profile (see {@code OfferMatch#GOOD_MATCH}); ignored when the profile names no skills. */
+    private boolean matchesProfile;
 
     private Sort sort = Sort.NEWEST;
 

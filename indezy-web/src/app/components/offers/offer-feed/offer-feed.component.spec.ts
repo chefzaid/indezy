@@ -29,7 +29,8 @@ describe('OfferFeedComponent', () => {
   }
 
   function page(content: Offer[], overrides: Partial<OfferPage> = {}): OfferPage {
-    return { content, page: 0, size: 20, totalElements: content.length, totalPages: 1, distanceAvailable: false, ...overrides };
+    return { content, page: 0, size: 20, totalElements: content.length, totalPages: 1, distanceAvailable: false, matchAvailable: false,
+      ...overrides };
   }
 
   function create(query: Record<string, string> = {}, result: OfferPage = page([offer(1), offer(2)]),
@@ -40,7 +41,8 @@ describe('OfferFeedComponent', () => {
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     service.search.and.returnValue(of(result));
     service.sites.and.returnValue(of([
-      { site: 'FREE_WORK', name: 'Free-Work', homeUrl: 'https://www.free-work.com', openOffers: 120, lastSuccessAt: '2026-10-19T09:00:00Z', failing: false },
+      { site: 'FREE_WORK', name: 'Free-Work', homeUrl: 'https://www.free-work.com', openOffers: 120,
+        lastSuccessAt: new Date(Date.now() - 2 * 3_600_000).toISOString(), failing: false },
       { site: 'YEETS', name: 'Yeets', homeUrl: 'https://www.yeets.fr', openOffers: 30, failing: true }
     ]));
     service.regions.and.returnValue(of([]));
@@ -102,6 +104,24 @@ describe('OfferFeedComponent', () => {
     expect(lastQueryParams()).toEqual({ q: 'java', page: '2', size: '50' });
     component.clearFilters();
     expect(lastQueryParams()).toEqual({});
+  });
+
+  it('sorts by match and stops asking for skills once the profile names some', () => {
+    const fixture = create({}, page([offer(1)]));
+    const component = fixture.componentInstance;
+
+    expect(component.sortUnavailable('MATCH')).toBeTrue();
+    expect(component.sortUnavailable('DISTANCE')).toBeTrue();
+    expect(component.sortUnavailable('RATE')).toBeFalse();
+    expect(text(fixture)).toContain('Ajoutez vos compétences à votre profil');
+    expect(fixture.nativeElement.querySelector('[data-match-hint] a').getAttribute('href')).toBe('/profile');
+
+    service.search.and.returnValue(of(page([offer(1, { match: { score: 80, skills: ['Java'] } })], { matchAvailable: true })));
+    params.next(convertToParamMap({ sort: 'MATCH' }));
+
+    expect(service.search.calls.mostRecent().args[0].sort).toBe('MATCH');
+    expect(component.sortUnavailable('MATCH')).toBeFalse();
+    expect(text(fixture)).not.toContain('Ajoutez vos compétences à votre profil');
   });
 
   it('searches again when the address changes', () => {

@@ -1010,7 +1010,8 @@
     "sort": {
       "NEWEST": "Newest",
       "RATE": "Highest daily rate",
-      "DISTANCE": "Closest"
+      "DISTANCE": "Closest",
+      "MATCH": "Best match"
     },
     "empty": {
       "FEED": "No offer matches these filters for now.",
@@ -1064,6 +1065,28 @@
       "inPipeline": "In the pipeline",
       "import": "Add to pipeline"
     },
+    "match": {
+      "score": "{{score}}%",
+      "aria": "Matches your profile at {{score}}%",
+      "skills": "Your skills: {{skills}}",
+      "noSkills": "None of your skills",
+      "rate": {
+        "MEETS": "Pays your target daily rate",
+        "CLOSE": "Just below your target daily rate",
+        "BELOW": "Below your target daily rate",
+        "UNKNOWN": "Daily rate not stated"
+      },
+      "place": {
+        "REMOTE": "Full remote",
+        "NEAR": "Near you",
+        "REACHABLE": "Within reach",
+        "MOSTLY_REMOTE": "Far, but mostly remote",
+        "FAR": "Far from you",
+        "UNKNOWN": "Place not stated"
+      },
+      "hint": "Add your skills to your profile, with your target daily rate and city, to see how well each mission fits you.",
+      "completeProfile": "Complete my profile"
+    },
     "filters": {
       "title": "Filters",
       "keywords": "Keywords",
@@ -1107,6 +1130,8 @@
       },
       "sites": "Sites",
       "unseenOnly": "Only offers I have not seen",
+      "matchesProfile": "Matches my profile",
+      "matchNeedsSkills": "Add skills to your profile first",
       "clear": "Clear filters ({{count}})"
     },
     "savedSearches": {

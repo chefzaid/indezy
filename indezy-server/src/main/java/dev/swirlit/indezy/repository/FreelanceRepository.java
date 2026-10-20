@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
@@ -23,5 +24,9 @@ public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
     /** The city of the workspace owner's profile, where offer distances are measured from. */
     @Query("SELECT u.city FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     Optional<String> findProfileCity(@Param("freelanceId") Long freelanceId);
+
+    /** The skills of the workspace owner's profile, which offers are matched against. */
+    @Query("SELECT s FROM User u JOIN u.skills s, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
+    List<String> findProfileSkills(@Param("freelanceId") Long freelanceId);
 
 }

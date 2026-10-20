@@ -12,7 +12,7 @@ import dev.swirlit.indezy.model.SavedOfferSearch;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferSpecifications;
-import dev.swirlit.indezy.repository.JobOfferSpecifications.Origin;
+import dev.swirlit.indezy.repository.OfferMatch;
 import dev.swirlit.indezy.repository.SavedOfferSearchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -61,9 +61,9 @@ public class SavedOfferSearchService {
     @Transactional(readOnly = true)
     public List<SavedOfferSearchDto> list(Long freelanceId) {
         Instant now = clock.instant();
-        Origin origin = offerSearch.origin(freelanceId).orElse(null);
+        OfferMatch.Profile profile = offerSearch.profile(freelanceId);
         return searches.findByFreelanceIdOrderByNameAsc(freelanceId).stream()
-            .map(search -> toDto(search, offers.count(newOffers(search, freelanceId, origin, now))))
+            .map(search -> toDto(search, offers.count(newOffers(search, freelanceId, profile, now))))
             .toList();
     }
 
@@ -107,9 +107,9 @@ public class SavedOfferSearchService {
             return new OfferAlertsDto(0);
         }
         Instant now = clock.instant();
-        Origin origin = offerSearch.origin(freelanceId).orElse(null);
+        OfferMatch.Profile profile = offerSearch.profile(freelanceId);
         return new OfferAlertsDto(offers.count(Specification.anyOf(saved.stream()
-            .map(search -> newOffers(search, freelanceId, origin, now))
+            .map(search -> newOffers(search, freelanceId, profile, now))
             .toList())));
     }
 
@@ -120,9 +120,10 @@ public class SavedOfferSearchService {
     }
 
     /** The feed's offers for the search that Indezy found after the search was last opened (one per mission). */
-    private static Specification<JobOffer> newOffers(SavedOfferSearch search, Long freelanceId, Origin origin, Instant now) {
+    private static Specification<JobOffer> newOffers(SavedOfferSearch search, Long freelanceId, OfferMatch.Profile profile,
+                                                     Instant now) {
         Instant since = search.getLastOpenedAt();
-        return JobOfferSpecifications.matching(filters(search), freelanceId, origin, now)
+        return JobOfferSpecifications.matching(filters(search), freelanceId, profile, now)
             .and((root, query, cb) -> cb.greaterThan(root.get("firstSeenAt"), since));
     }
 

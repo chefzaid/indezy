@@ -49,7 +49,9 @@ public record OfferDto(
     boolean seen,
     Long importedProjectId,
     /** The same mission on other sites, one copy per site. */
-    List<OfferCopyDto> alsoOn) {
+    List<OfferCopyDto> alsoOn,
+    /** How well the mission fits the profile; absent when the profile names no skills. */
+    OfferMatchDto match) {
 
     public OfferDto {
         skills = skills == null ? List.of() : List.copyOf(skills);

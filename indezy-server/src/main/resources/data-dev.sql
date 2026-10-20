@@ -42,7 +42,7 @@ INSERT INTO freelances (
 
 INSERT INTO users (
     first_name, last_name, email, phone, birth_date, address, city, avatar, bio,
-    company, position, website, linkedin, github, timezone, currency, password_hash,
+    company, position, website, linkedin, github, timezone, currency, target_daily_rate, password_hash,
     last_password_change, theme, language_preference, date_format, time_format,
     default_view, items_per_page, auto_save, email_notifications, push_notifications,
     project_updates, client_messages, system_alerts, weekly_reports, marketing_emails,
@@ -53,7 +53,7 @@ INSERT INTO users (
     'Freelance Java and TypeScript engineer focused on business applications.',
     'Doe Consulting', 'Senior full-stack engineer', 'https://john-doe.example',
     'https://linkedin.com/in/john-doe', 'https://github.com/john-doe',
-    'Europe/Paris', 'EUR',
+    'Europe/Paris', 'EUR', 600,
     '$2a$10$XgbOojgg.CTmnSP8gwpOT.aikY7bnfM4cgCrQhgJOh5UAY1lOpC9S',
     CURRENT_TIMESTAMP - INTERVAL '90 days', 'light', 'fr', 'DD/MM/YYYY', '24h',
     'dashboard', 25, true, true, false, true, true, true, true, false, false,

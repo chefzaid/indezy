@@ -19,6 +19,7 @@ import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferSpecifications;
 import dev.swirlit.indezy.repository.JobOfferSpecifications.Origin;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
+import dev.swirlit.indezy.repository.OfferMatch;
 import dev.swirlit.indezy.repository.OfferSiteStatusRepository;
 import dev.swirlit.indezy.scraping.GeoLocator;
 import dev.swirlit.indezy.util.FrenchGeography;
@@ -81,11 +82,11 @@ public class OfferSearchService {
     /** One page of offers matching the request, for {@code freelanceId}'s workspace (or none). */
     public OfferPageDto search(Long freelanceId, OfferSearchRequest request) {
         Instant now = clock.instant();
-        Origin origin = freelanceId == null ? null : origin(freelanceId).orElse(null);
-        if (request.getRadiusKm() != null && origin == null) {
+        OfferMatch.Profile profile = freelanceId == null ? OfferMatch.Profile.NONE : profile(freelanceId);
+        if (request.getRadiusKm() != null && profile.origin() == null) {
             throw new IllegalArgumentException(ErrorMessages.OFFER_DISTANCE_NEEDS_CITY);
         }
-        Page<JobOffer> page = offers.findAll(JobOfferSpecifications.matching(request, freelanceId, origin, now),
+        Page<JobOffer> page = offers.findAll(JobOfferSpecifications.matching(request, freelanceId, profile, now),
             PageRequest.of(request.getPage(), request.getSize()));
         List<Long> ids = page.getContent().stream().map(JobOffer::getId).toList();
         Map<Long, List<String>> skills = skillsOf(ids);
@@ -93,21 +94,21 @@ public class OfferSearchService {
         Map<Long, OfferStateDto> stateByOffer = statesOf(freelanceId, page.getContent(), copies);
         List<OfferDto> content = page.getContent().stream()
             .map(offer -> toDto(offer, skills.get(offer.getId()), stateByOffer.get(offer.getId()),
-                alsoOn(offer, copies.getOrDefault(offer.getId(), List.of()), now), origin, now, false))
+                alsoOn(offer, copies.getOrDefault(offer.getId(), List.of()), now), profile, now, false))
             .toList();
         return new OfferPageDto(content, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
-            origin != null);
+            profile.origin() != null, profile.canMatch());
     }
 
     /** One offer with its full description. */
     public OfferDto get(Long freelanceId, Long id) {
         JobOffer offer = offers.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.OFFER_NOT_FOUND, id)));
-        Origin origin = freelanceId == null ? null : origin(freelanceId).orElse(null);
+        OfferMatch.Profile profile = freelanceId == null ? OfferMatch.Profile.NONE : profile(freelanceId);
         Map<Long, List<JobOffer>> copies = copiesOf(List.of(offer));
         Instant now = clock.instant();
         return toDto(offer, skillsOf(List.of(id)).get(id), statesOf(freelanceId, List.of(offer), copies).get(id),
-            alsoOn(offer, copies.getOrDefault(id, List.of()), now), origin, now, true);
+            alsoOn(offer, copies.getOrDefault(id, List.of()), now), profile, now, true);
     }
 
     /** Every job board of the feed, with its open offers and collection health. */
@@ -146,8 +147,14 @@ public class OfferSearchService {
             .toList();
     }
 
+    /** What the workspace's offers are measured against: the profile's skills, target daily rate and city. */
+    public OfferMatch.Profile profile(Long freelanceId) {
+        return new OfferMatch.Profile(freelances.findProfileSkills(freelanceId), freelances.findTargetDailyRate(freelanceId).orElse(null),
+            origin(freelanceId).orElse(null));
+    }
+
     /** Where distances are measured from: the profile's city, or the workspace's. */
-    public Optional<Origin> origin(Long freelanceId) {
+    Optional<Origin> origin(Long freelanceId) {
         return freelances.findProfileCity(freelanceId)
             .filter(city -> !city.isBlank())
             .or(() -> freelances.findById(freelanceId).map(Freelance::getCity).filter(city -> city != null && !city.isBlank()))
@@ -219,8 +226,9 @@ public class OfferSearchService {
         return merged;
     }
 
-    static OfferDto toDto(JobOffer offer, List<String> skills, OfferStateDto state, List<OfferCopyDto> alsoOn, Origin origin,
-                          Instant now, boolean full) {
+    static OfferDto toDto(JobOffer offer, List<String> skills, OfferStateDto state, List<OfferCopyDto> alsoOn,
+                          OfferMatch.Profile profile, Instant now, boolean full) {
+        Origin origin = profile.origin();
         Integer distance = origin == null || offer.getLatitude() == null || offer.getLongitude() == null ? null :
             (int) Math.round(distanceKm(origin.latitude(), origin.longitude(), offer.getLatitude(), offer.getLongitude()));
         return new OfferDto(
@@ -233,7 +241,7 @@ public class OfferSearchService {
             offer.getStartDate(), offer.getStartAsap(), offer.getSeniority(), skills, offer.getPublishedAt(),
             offer.getDatePrecision(), offer.getExpiresAt(), offer.getExpiresAt() != null && !offer.getExpiresAt().isAfter(now),
             state != null && state.saved(), state != null && state.hidden(), state != null && state.seen(),
-            state == null ? null : state.importedProjectId(), alsoOn);
+            state == null ? null : state.importedProjectId(), alsoOn, OfferMatch.score(offer, skills, profile));
     }
 
     /** The description's beginning on one line, cut at a word and ended with an ellipsis. */

@@ -56,6 +56,8 @@ export class OfferFiltersComponent implements OnInit, OnChanges {
   @Input() sites: OfferSiteInfo[] = [];
   /** Whether the profile's city is known, so a distance can be chosen. */
   @Input() distanceAvailable = false;
+  /** Whether the profile names skills, so offers can be kept by how well they match it. */
+  @Input() matchAvailable = false;
 
   @Output() readonly filtersChange = new EventEmitter<OfferFilters>();
 
@@ -174,6 +176,7 @@ export class OfferFiltersComponent implements OnInit, OnChanges {
       rateMax: positive(this.draft.rateMax),
       rateKnown: this.draft.rateKnown || undefined,
       unseenOnly: this.draft.unseenOnly || undefined,
+      matchesProfile: (this.matchAvailable && this.draft.matchesProfile) || undefined,
       radiusKm: this.distanceAvailable ? this.draft.radiusKm : undefined
     });
   }

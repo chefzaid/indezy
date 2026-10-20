@@ -30,6 +30,17 @@
   width: 100%;
 }
 
+.match-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .hint {
+    font-size: 0.75rem;
+    color: var(--app-text-muted);
+  }
+}
+
 .pair {
   display: grid;
   grid-template-columns: 1fr 1fr;

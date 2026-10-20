@@ -87,6 +87,25 @@ describe('OfferFiltersComponent', () => {
     expect((fixture.nativeElement as HTMLElement).innerText).toContain('Renseignez votre ville dans le profil');
   });
 
+  it('keeps the offers matching the profile only once it names skills', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const toggle = (): HTMLButtonElement => fixture.nativeElement.querySelector('.match-toggle button[role="switch"]');
+
+    expect(toggle().disabled).toBeTrue();
+    expect((fixture.nativeElement as HTMLElement).innerText).toContain("Ajoutez d'abord des compétences à votre profil");
+    component.draft.matchesProfile = true;
+    component.changed();
+    fixture.componentRef.setInput('matchAvailable', true);
+    fixture.detectChanges();
+    component.draft.matchesProfile = true;
+    component.changed();
+
+    expect(emitted.map(filters => filters.matchesProfile)).toEqual([undefined, true]);
+    expect(toggle().disabled).toBeFalse();
+    expect((fixture.nativeElement as HTMLElement).innerText).not.toContain("Ajoutez d'abord des compétences");
+  });
+
   it('adds skills once, from typing or suggestions, and removes them', () => {
     const component = create().componentInstance;
 

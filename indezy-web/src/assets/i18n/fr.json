@@ -1010,7 +1010,8 @@
     "sort": {
       "NEWEST": "Plus récentes",
       "RATE": "TJM le plus haut",
-      "DISTANCE": "Plus proches"
+      "DISTANCE": "Plus proches",
+      "MATCH": "Meilleure correspondance"
     },
     "empty": {
       "FEED": "Aucune offre ne correspond à ces filtres pour le moment.",
@@ -1064,6 +1065,28 @@
       "inPipeline": "Dans le pipeline",
       "import": "Ajouter au pipeline"
     },
+    "match": {
+      "score": "{{score}} %",
+      "aria": "Correspond à votre profil à {{score}} %",
+      "skills": "Vos compétences : {{skills}}",
+      "noSkills": "Aucune de vos compétences",
+      "rate": {
+        "MEETS": "Atteint votre TJM cible",
+        "CLOSE": "Juste sous votre TJM cible",
+        "BELOW": "Sous votre TJM cible",
+        "UNKNOWN": "TJM non précisé"
+      },
+      "place": {
+        "REMOTE": "Full remote",
+        "NEAR": "Près de chez vous",
+        "REACHABLE": "Accessible",
+        "MOSTLY_REMOTE": "Loin, mais surtout en télétravail",
+        "FAR": "Loin de chez vous",
+        "UNKNOWN": "Lieu non précisé"
+      },
+      "hint": "Ajoutez vos compétences à votre profil, avec votre TJM cible et votre ville, pour voir à quel point chaque mission vous correspond.",
+      "completeProfile": "Compléter mon profil"
+    },
     "filters": {
       "title": "Filtres",
       "keywords": "Mots-clés",
@@ -1107,6 +1130,8 @@
       },
       "sites": "Sites",
       "unseenOnly": "Seulement les offres non vues",
+      "matchesProfile": "Correspond à mon profil",
+      "matchNeedsSkills": "Ajoutez d'abord des compétences à votre profil",
       "clear": "Effacer les filtres ({{count}})"
     },
     "savedSearches": {

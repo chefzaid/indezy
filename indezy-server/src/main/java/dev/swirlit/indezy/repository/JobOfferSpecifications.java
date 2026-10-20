@@ -43,26 +43,27 @@ public final class JobOfferSpecifications {
     }
 
     /**
-     * The offers a search finds, one per mission: of the copies of a mission on several sites, only the earliest one
-     * the search finds is listed (see {@link #earlierCopy}).
+     * The offers a search finds for a workspace with this profile, one per mission: of the copies of a mission on several
+     * sites, only the earliest one the search finds is listed (see {@link #earlierCopy}).
      */
-    public static Specification<JobOffer> matching(OfferSearchRequest request, Long freelanceId, Origin origin, Instant now) {
+    public static Specification<JobOffer> matching(OfferSearchRequest request, Long freelanceId, OfferMatch.Profile profile,
+                                                   Instant now) {
         return (root, query, cb) -> {
-            List<Predicate> predicates = filters(request, freelanceId, origin, now, root, query, cb);
-            predicates.add(cb.not(earlierCopy(request, freelanceId, origin, now, root, query, cb)));
+            List<Predicate> predicates = filters(request, freelanceId, profile, now, root, query, cb);
+            predicates.add(cb.not(earlierCopy(request, freelanceId, profile, now, root, query, cb)));
             if (!isCountQuery(query)) {
-                query.orderBy(order(request.getSort(), origin, root, cb));
+                query.orderBy(order(request.getSort(), profile, root, query, cb));
             }
             return cb.and(predicates.toArray(Predicate[]::new));
         };
     }
 
     /** A copy of the offer, published before it (or at once with a smaller id), that the same search finds. */
-    private static Predicate earlierCopy(OfferSearchRequest request, Long freelanceId, Origin origin, Instant now,
+    private static Predicate earlierCopy(OfferSearchRequest request, Long freelanceId, OfferMatch.Profile profile, Instant now,
                                          Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
         Subquery<Long> copy = query.subquery(Long.class);
         Root<JobOffer> other = copy.from(JobOffer.class);
-        List<Predicate> conditions = filters(request, freelanceId, origin, now, other, copy, cb);
+        List<Predicate> conditions = filters(request, freelanceId, profile, now, other, copy, cb);
         conditions.add(cb.equal(other.get("copyGroup"), root.get("copyGroup")));
         conditions.add(cb.or(cb.lessThan(other.get("publishedAt"), root.get("publishedAt")),
             cb.and(cb.equal(other.get("publishedAt"), root.get("publishedAt")), cb.lessThan(other.get("id"), root.get("id")))));
@@ -70,8 +71,9 @@ public final class JobOfferSpecifications {
         return cb.exists(copy);
     }
 
-    private static List<Predicate> filters(OfferSearchRequest request, Long freelanceId, Origin origin, Instant now,
+    private static List<Predicate> filters(OfferSearchRequest request, Long freelanceId, OfferMatch.Profile profile, Instant now,
                                            Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
+        Origin origin = profile.origin();
         List<Predicate> predicates = new ArrayList<>();
         predicates.addAll(view(request, freelanceId, root, query, cb, now));
         keywords(request.getQ()).forEach(term ->
@@ -93,6 +95,9 @@ public final class JobOfferSpecifications {
             if (skill != null && !skill.isBlank()) {
                 predicates.add(hasSkill(skill, root, query, cb));
             }
+        }
+        if (request.isMatchesProfile() && profile.canMatch()) {
+            predicates.add(OfferMatch.good(profile, root, query, cb));
         }
         return predicates;
     }
@@ -207,16 +212,30 @@ public final class JobOfferSpecifications {
      * Squared distance in km² on a plane tangent at the origin: precise to a few percent within a few
      * hundred kilometres, and plain arithmetic that every database runs.
      */
-    private static Expression<Double> squaredDistance(Origin origin, Root<JobOffer> root, CriteriaBuilder cb) {
-        double kmPerDegreeLongitude = KM_PER_DEGREE_LONGITUDE_AT_EQUATOR * Math.cos(Math.toRadians(origin.latitude()));
+    static Expression<Double> squaredDistance(Origin origin, Root<JobOffer> root, CriteriaBuilder cb) {
         Expression<Double> north = cb.prod(cb.diff(root.<Double>get("latitude"), origin.latitude()), KM_PER_DEGREE_LATITUDE);
-        Expression<Double> east = cb.prod(cb.diff(root.<Double>get("longitude"), origin.longitude()), kmPerDegreeLongitude);
+        Expression<Double> east = cb.prod(cb.diff(root.<Double>get("longitude"), origin.longitude()), kmPerDegreeLongitude(origin));
         return cb.sum(cb.prod(north, north), cb.prod(east, east));
     }
 
-    private static List<Order> order(OfferSearchRequest.Sort sort, Origin origin, Root<JobOffer> root, CriteriaBuilder cb) {
+    /** {@link #squaredDistance} in Java. */
+    static double squaredDistanceKm(Origin origin, double latitude, double longitude) {
+        double north = (latitude - origin.latitude()) * KM_PER_DEGREE_LATITUDE;
+        double east = (longitude - origin.longitude()) * kmPerDegreeLongitude(origin);
+        return north * north + east * east;
+    }
+
+    private static double kmPerDegreeLongitude(Origin origin) {
+        return KM_PER_DEGREE_LONGITUDE_AT_EQUATOR * Math.cos(Math.toRadians(origin.latitude()));
+    }
+
+    private static List<Order> order(OfferSearchRequest.Sort sort, OfferMatch.Profile profile, Root<JobOffer> root,
+                                     CommonAbstractCriteria query, CriteriaBuilder cb) {
+        Origin origin = profile.origin();
         List<Order> orders = new ArrayList<>();
-        if (sort == OfferSearchRequest.Sort.RATE) {
+        if (sort == OfferSearchRequest.Sort.MATCH && profile.canMatch()) {
+            orders.add(cb.desc(OfferMatch.points(profile, root, query, cb)));
+        } else if (sort == OfferSearchRequest.Sort.RATE) {
             Expression<Integer> rate = cb.coalesce(root.get("rateMax"), root.get("rateMin"));
             orders.add(cb.asc(cb.selectCase().when(cb.isNull(rate), 1).otherwise(0)));
             orders.add(cb.desc(rate));
@@ -233,7 +252,7 @@ public final class JobOfferSpecifications {
         return Long.class.equals(query.getResultType()) || long.class.equals(query.getResultType());
     }
 
-    private static String escapeLike(String term) {
+    static String escapeLike(String term) {
         return term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 }

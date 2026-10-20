@@ -28,7 +28,7 @@
       <mat-label>{{ 'common.sortBy' | translate }}</mat-label>
       <mat-select [value]="query.sort" (selectionChange)="setSort($event.value)">
         @for (sort of sorts; track sort) {
-          <mat-option [value]="sort" [disabled]="sort === 'DISTANCE' && !page?.distanceAvailable">
+          <mat-option [value]="sort" [disabled]="sortUnavailable(sort)">
             {{ 'offers.sort.' + sort | translate }}
           </mat-option>
         }
@@ -49,11 +49,19 @@
   <div class="feed-layout">
     <aside id="offer-filters-panel" class="filters-panel" [class.open]="filtersOpen">
       <app-offer-filters [filters]="filters" [regions]="regions" [sites]="sites"
-        [distanceAvailable]="page?.distanceAvailable ?? false" (filtersChange)="onFiltersChange($event)">
+        [distanceAvailable]="page?.distanceAvailable ?? false" [matchAvailable]="page?.matchAvailable ?? false"
+        (filtersChange)="onFiltersChange($event)">
       </app-offer-filters>
     </aside>
 
     <section class="results" [attr.aria-busy]="loading">
+      @if (page && !page.matchAvailable && !loading) {
+        <p class="match-hint" data-match-hint>
+          <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+          <span>{{ 'offers.match.hint' | translate }}</span>
+          <a mat-button routerLink="/profile">{{ 'offers.match.completeProfile' | translate }}</a>
+        </p>
+      }
       @if (loading) {
         <div class="state">
           <mat-spinner diameter="40"></mat-spinner>

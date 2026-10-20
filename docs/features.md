@@ -184,10 +184,11 @@ marked **New**.
   title, publisher, skills, place or description, accents ignored), daily rate minimum and maximum with "hide offers
   without a daily rate", regions, departments, distance from the profile's city (10 to 200 km), work modes, minimum
   remote days a week, duration, start by a date (missions starting as soon as possible stay listed), seniority,
-  skills (suggested from the open offers), published within 24 hours, 3 days, a week or a month, sites, and unseen
-  offers only. An offer that does not state its duration, start or seniority stays listed when filtering on them;
+  skills (suggested from the open offers), published within 24 hours, 3 days, a week or a month, sites, unseen
+  offers only, and offers matching the profile (see [Profile Match](#profile-match)). An offer that does not state its duration, start or seniority stays listed when filtering on them;
   one without a place, work mode or remote days is left out of filters on those.
-- **Sort** by newest, highest daily rate (offers without a rate last) or closest (when the profile has a city).
+- **Sort** by newest, highest daily rate (offers without a rate last), closest (when the profile has a city) or best
+  match (when the profile names skills).
 - **Views**: all offers (the hidden ones and expired ones are left out), saved offers (expired ones stay, marked
   **Expired**) and hidden offers.
 - **Actions** on each offer: open it on its site (it is marked seen), show its full description, save it, hide it
@@ -212,10 +213,30 @@ marked **New**.
   **Offers** item of the menu carries a badge with the offers new for any saved search, counted again every five
   minutes and after each change; a failed count is not reported.
 
-API: `GET /offers` (filters, `view`, `sort`, `page`, `size`), `GET /offers/{id}`, `PUT /offers/{id}/state`,
-`POST /offers/{id}/import`, `GET /offers/sites`, `GET /offers/skills?q=`, `GET /offers/regions`, and the saved
-searches: `GET /offers/searches`, `POST /offers/searches`, `POST /offers/searches/{id}/open`,
-`DELETE /offers/searches/{id}` and `GET /offers/searches/alerts`.
+API: `GET /offers` (filters, `matchesProfile`, `view`, `sort` = `NEWEST`, `RATE`, `DISTANCE` or `MATCH`, `page`,
+`size`), `GET /offers/{id}`, `PUT /offers/{id}/state`, `POST /offers/{id}/import`, `GET /offers/sites`,
+`GET /offers/skills?q=`, `GET /offers/regions`, and the saved searches: `GET /offers/searches`, `POST /offers/searches`,
+`POST /offers/searches/{id}/open`, `DELETE /offers/searches/{id}` and `GET /offers/searches/alerts`. Each offer carries
+its `match` (score, skills, rate and place fit) and each page says whether distances (`distanceAvailable`) and matches
+(`matchAvailable`) can be computed.
+
+### Profile Match
+
+Once the profile names skills, every offer is scored out of 100 against the profile's skills, target daily rate and
+city (the workspace's city when the profile has none):
+
+| Part | Points | How |
+| --- | --- | --- |
+| Skills | up to 60 | 20 per profile skill the offer mentions, full marks from three (or from every skill of a profile with fewer). A skill counts when its words appear whole in the title, publisher, place, skills or description, case and accents aside ("Java" is not found in "JavaScript"); skills shorter than three characters ("Go", "R", "C#") count only when the offer lists them, since in a text they are ordinary words. Up to 20 profile skills are compared. |
+| Daily rate | 25 | 25 when the highest rate the offer states meets the target, 15 when it is less than 10 percent below, 10 when the offer states no rate, 0 below that. |
+| Place | 15 | 15 when the mission is full remote or within 30 km, 10 within 80 km, 5 farther with three remote days a week or more, 5 when the offer states no place, 0 otherwise. |
+
+The score is the share of the points the profile can earn: a profile without a target rate or a city is scored on the
+other parts (out of 60 or 85 points). The card shows the score as a badge (green from 60, amber from 35), whose tooltip
+lists the skills found and how the rate and place compare, and puts the profile's skills first among the offer's,
+highlighted. **Matches my profile** keeps the offers scoring 60 or more, and **Best match** sorts by score, newest first
+among equal scores; both are computed by the database with the same rules as the cards and also apply to saved
+searches. Until the profile names skills, the feed invites to complete it and the filter and sort are unavailable.
 
 ## Interview Steps
 

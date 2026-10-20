@@ -70,6 +70,35 @@ describe('OfferCardComponent', () => {
     expect(element(fixture, '.offer-card').classList).toContain('unseen');
   });
 
+  it('shows how well the offer matches the profile, with its skills first', () => {
+    const fixture = create(offer({ skills: ['Kafka', 'AWS', 'java'], match: { score: 80, skills: ['Java', 'Spring'], rate: 'MEETS', place: 'NEAR' } }));
+
+    const badge = element(fixture, '[data-match]');
+    expect(spaced(badge.innerText)).toContain('80 %');
+    expect(badge.classList).toContain('good');
+    expect(badge.getAttribute('aria-label'))
+      .toBe('Correspond à votre profil à 80 %. Vos compétences : Java, Spring · Atteint votre TJM cible · Près de chez vous');
+    const skills = Array.from(fixture.nativeElement.querySelectorAll('.skill') as NodeListOf<HTMLElement>);
+    expect(skills.map(skill => skill.innerText.trim())).toEqual(['java', 'Kafka', 'AWS']);
+    expect(skills.map(skill => skill.classList.contains('matched'))).toEqual([true, false, false]);
+  });
+
+  it('grades weaker matches and shows none without profile skills', () => {
+    const fixture = create(offer({ match: { score: 40, skills: [] } }));
+    const component = fixture.componentInstance;
+
+    expect(component.matchLevel).toBe('fair');
+    expect(component.matchDetails).toBe('Aucune de vos compétences');
+    component.offer = offer({ match: { score: 20, skills: ['Java'], rate: 'UNKNOWN', place: 'MOSTLY_REMOTE' } });
+    expect(component.matchLevel).toBe('low');
+    expect(component.matchDetails).toBe('Vos compétences : Java · TJM non précisé · Loin, mais surtout en télétravail');
+    fixture.componentRef.setInput('offer', offer());
+    fixture.detectChanges();
+    expect(element(fixture, '[data-match]')).toBeNull();
+    expect(component.matchDetails).toBe('');
+    expect(component.isMatched('Java')).toBeFalse();
+  });
+
   it('describes partial rates, places and remote policies', () => {
     const fixture = create(offer({
       rateMin: undefined, rateMax: 600, city: undefined, departmentCode: undefined, departmentName: undefined, distanceKm: undefined,

@@ -205,6 +205,30 @@ class OfferFeedIntegrationTest {
         places.deleteById("|paris");
     }
 
+    @Test
+    void scoresTheOffersAgainstEachWorkspacesProfile() {
+        users.findByEmail(alice.email()).ifPresent(user -> {
+            user.setSkills(List.of("Spring", "Go"));
+            user.setTargetDailyRate(600);
+            users.save(user);
+        });
+
+        ResponseEntity<Map> best = call(alice, HttpMethod.GET, "/offers?sort=MATCH", null);
+
+        assertThat(best.getBody()).containsEntry("matchAvailable", true);
+        assertThat(titles(best)).containsExactly("Développeur Java Spring", "Architecte cloud");
+        // Spring of two skills (30 of 60) and the rate met (25), over 85 points: no city to measure from.
+        Map<?, ?> match = (Map<?, ?>) ((Map<?, ?>) ((List<?>) best.getBody().get("content")).get(0)).get("match");
+        assertThat(match.get("score")).isEqualTo(65);
+        assertThat(match.get("skills")).isEqualTo(List.of("Spring"));
+        assertThat(match.get("rate")).isEqualTo("MEETS");
+        assertThat(titles(call(alice, HttpMethod.GET, "/offers?matchesProfile=true", null))).containsExactly("Développeur Java Spring");
+        ResponseEntity<Map> unscored = call(bob, HttpMethod.GET, "/offers?matchesProfile=true&sort=MATCH", null);
+        assertThat(unscored.getBody()).containsEntry("matchAvailable", false);
+        assertThat(titles(unscored)).containsExactly("Développeur Java Spring", "Architecte cloud");
+        assertThat(((Map<?, ?>) ((List<?>) unscored.getBody().get("content")).get(0)).containsKey("match")).isFalse();
+    }
+
     private static JobOffer offer(String externalId, String title, String company, Instant publishedAt, double latitude, double longitude) {
         JobOffer offer = new JobOffer();
         offer.setSite(OfferSite.FREE_WORK);

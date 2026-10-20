@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
@@ -41,14 +41,14 @@ import { OfferSavedSearchesComponent } from '../offer-saved-searches/offer-saved
 @Component({
   selector: 'app-offer-feed',
   imports: [MatButtonModule, MatButtonToggleModule, MatCardModule, MatFormFieldModule, MatIconModule, MatPaginatorModule,
-    MatProgressSpinnerModule, MatSelectModule, TranslateModule, OfferCardComponent, OfferFiltersComponent, OfferSavedSearchesComponent],
+    MatProgressSpinnerModule, MatSelectModule, RouterLink, TranslateModule, OfferCardComponent, OfferFiltersComponent, OfferSavedSearchesComponent],
   templateUrl: './offer-feed.component.html',
   styleUrls: ['./offer-feed.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OfferFeedComponent implements OnInit {
   readonly views: OfferView[] = ['FEED', 'SAVED', 'HIDDEN'];
-  readonly sorts: OfferSort[] = ['NEWEST', 'RATE', 'DISTANCE'];
+  readonly sorts: OfferSort[] = ['NEWEST', 'RATE', 'DISTANCE', 'MATCH'];
   readonly pageSizes = OFFER_PAGE_SIZES;
 
   query: OfferQuery = defaultOfferQuery();
@@ -108,6 +108,11 @@ export class OfferFeedComponent implements OnInit {
 
   get activeFilters(): number {
     return countActiveFilters(this.query);
+  }
+
+  /** Whether a sort needs what the profile does not say yet. */
+  sortUnavailable(sort: OfferSort): boolean {
+    return (sort === 'DISTANCE' && !this.page?.distanceAvailable) || (sort === 'MATCH' && !this.page?.matchAvailable);
   }
 
   get openOffers(): number {

@@ -50,6 +50,34 @@
   color: #b71c1c;
 }
 
+.match-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  cursor: help;
+
+  mat-icon {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+  }
+
+  &.good {
+    background: #e8f5e9;
+    color: #1b5e20;
+  }
+
+  &.fair {
+    background: #fff4e5;
+    color: #8a4b00;
+  }
+
+  &.low {
+    background: var(--app-hover);
+    color: var(--app-text-muted);
+  }
+}
+
 .published {
   margin-left: auto;
   color: var(--app-text-muted);
@@ -149,6 +177,13 @@
   border: 1px solid var(--app-border);
   font-size: 0.8rem;
 
+  &.matched {
+    border-color: #2e7d32;
+    background: #e8f5e9;
+    color: #1b5e20;
+    font-weight: 600;
+  }
+
   &.more {
     background: transparent;
     border-color: transparent;
@@ -198,6 +233,21 @@
   .expired-badge {
     background: rgba(239, 154, 154, 0.18);
     color: #ef9a9a;
+  }
+
+  .match-badge.good,
+  .skill.matched {
+    background: rgba(129, 199, 132, 0.18);
+    color: #a5d6a7;
+  }
+
+  .skill.matched {
+    border-color: #81c784;
+  }
+
+  .match-badge.fair {
+    background: rgba(255, 183, 77, 0.18);
+    color: #ffcc80;
   }
 }
 

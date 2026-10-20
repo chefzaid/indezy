@@ -72,6 +72,23 @@
   background: var(--app-surface);
 }
 
+.match-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border: 1px dashed var(--app-border);
+  border-radius: 12px;
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+
+  span {
+    flex: 1 1 240px;
+  }
+}
+
 .offer-list {
   display: flex;
   flex-direction: column;

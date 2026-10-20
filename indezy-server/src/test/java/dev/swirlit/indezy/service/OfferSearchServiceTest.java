@@ -3,6 +3,7 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.dto.OfferCopyDto;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
+import dev.swirlit.indezy.dto.OfferMatchDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
 import dev.swirlit.indezy.dto.OfferRegionDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
@@ -82,6 +83,29 @@ class OfferSearchServiceTest {
         assertThat(dto.description()).isNull();
         assertThat(dto.excerpt()).isEqualTo("Mission longue à La Défense.");
         assertThat(dto.expired()).isFalse();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void scoresEachOfferAgainstTheProfile() {
+        JobOffer offer = offer(7L);
+        offer.setSearchText("developpeur java la defense");
+        offer.setRateMax(620);
+        when(offers.findAll(any(Specification.class), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(offer), PageRequest.of(0, 20), 1));
+        when(freelances.findProfileSkills(3L)).thenReturn(List.of("Java", "Kafka"));
+        when(freelances.findTargetDailyRate(3L)).thenReturn(Optional.of(600));
+
+        OfferPageDto page = service.search(3L, new OfferSearchRequest());
+
+        assertThat(page.matchAvailable()).isTrue();
+        OfferMatchDto match = page.content().get(0).match();
+        // One skill of two (30 of 60) and the rate met (25), over 85: no city to measure from.
+        assertThat(match.score()).isEqualTo(65);
+        assertThat(match.skills()).containsExactly("Java");
+        assertThat(match.rate()).isEqualTo(OfferMatchDto.RateFit.MEETS);
+        assertThat(match.place()).isNull();
+        assertThat(service.search(null, new OfferSearchRequest()).matchAvailable()).isFalse();
     }
 
     @Test

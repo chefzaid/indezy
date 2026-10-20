@@ -22,7 +22,10 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -192,7 +195,7 @@ class JobOfferSpecificationsTest {
             r.setRateKnown(true);
         }), null)).containsExactly("java", "courbevoie");
         assertThat(search(request(r -> r.setSites(List.of(OfferSite.FREE_WORK))), null)).containsExactly("java", "lyon", "unknown");
-        Page<JobOffer> page = repository.findAll(JobOfferSpecifications.matching(request(), null, null, NOW), PageRequest.of(0, 2));
+        Page<JobOffer> page = repository.findAll(JobOfferSpecifications.matching(request(), null, OfferMatch.Profile.NONE, NOW), PageRequest.of(0, 2));
         assertThat(page.getTotalElements()).isEqualTo(4);
     }
 
@@ -219,8 +222,58 @@ class JobOfferSpecificationsTest {
     }
 
     @Test
+    void sortsAndFiltersOnHowWellOffersMatchTheProfile() {
+        OfferMatch.Profile profile = new OfferMatch.Profile(List.of("Java", "Spring", "AWS"), 600, PARIS);
+
+        // 80 (two skills, rate met, in Paris), 40 (rate met, remote), 20 (AWS only), 15 (rate and place not stated).
+        assertThat(search(request(r -> r.setSort(OfferSearchRequest.Sort.MATCH)), profile))
+            .containsExactly("java", "courbevoie", "lyon", "unknown");
+        assertThat(search(request(r -> r.setMatchesProfile(true)), profile)).containsExactly("java");
+        // A profile without skills scores nothing: the filter and the sort are left out.
+        assertThat(search(request(r -> {
+            r.setMatchesProfile(true);
+            r.setSort(OfferSearchRequest.Sort.MATCH);
+        }), OfferMatch.Profile.at(PARIS))).containsExactly("java", "courbevoie", "lyon", "unknown");
+    }
+
+    @Test
+    void scoresOffersInTheDatabaseAsTheCardsDo() {
+        persist("go", offer -> {
+            offer.setTitle("Développeur Go");
+            offer.setSearchText("developpeur go kubernetes compiegne. spark");
+            offer.setSkills(List.of("Go", "Kubernetes"));
+            offer.setRateMax(540);
+            offer.setLatitude(49.4175);
+            offer.setLongitude(2.8261);
+            offer.setWorkMode(WorkMode.HYBRID);
+            offer.setRemoteDaysPerWeek(3);
+            offer.setPublishedAt(NOW.minus(Duration.ofHours(2)));
+        });
+        List<OfferMatch.Profile> profiles = List.of(
+            new OfferMatch.Profile(List.of("Java", "Spring", "AWS"), 600, PARIS),
+            new OfferMatch.Profile(List.of("Go", "Kubernetes", "Spark", "SAP"), 600, new Origin(45.764, 4.8357)),
+            new OfferMatch.Profile(List.of("sap", "Cloud"), null, null),
+            new OfferMatch.Profile(List.of("Spark"), 700, null));
+        for (OfferMatch.Profile profile : profiles) {
+            Map<String, Integer> scores = new HashMap<>();
+            List<JobOffer> open = repository.findAll().stream().filter(offer -> offer.getExpiresAt() == null).toList();
+            open.forEach(offer -> scores.put(offer.getExternalId(), OfferMatch.score(offer, offer.getSkills(), profile).score()));
+            List<String> byScore = open.stream()
+                .sorted(Comparator.comparing((JobOffer offer) -> scores.get(offer.getExternalId())).reversed()
+                    .thenComparing(JobOffer::getPublishedAt, Comparator.reverseOrder()))
+                .map(JobOffer::getExternalId)
+                .toList();
+
+            assertThat(search(request(r -> r.setSort(OfferSearchRequest.Sort.MATCH)), profile)).as("%s", profile).isEqualTo(byScore);
+            assertThat(search(request(r -> r.setMatchesProfile(true)), profile)).as("%s", profile)
+                .containsExactlyInAnyOrderElementsOf(scores.entrySet().stream()
+                    .filter(entry -> entry.getValue() >= OfferMatch.GOOD_MATCH).map(Map.Entry::getKey).toList());
+        }
+    }
+
+    @Test
     void pagesAndCountsTheResults() {
-        Page<JobOffer> page = repository.findAll(JobOfferSpecifications.matching(request(), null, null, NOW), PageRequest.of(1, 3));
+        Page<JobOffer> page = repository.findAll(JobOfferSpecifications.matching(request(), null, OfferMatch.Profile.NONE, NOW), PageRequest.of(1, 3));
 
         assertThat(page.getTotalElements()).isEqualTo(4);
         assertThat(page.getTotalPages()).isEqualTo(2);
@@ -236,8 +289,9 @@ class JobOfferSpecificationsTest {
 
     private List<String> search(OfferSearchRequest request, Object context) {
         Long freelanceId = context instanceof Long id ? id : null;
-        Origin origin = context instanceof Origin place ? place : null;
-        return repository.findAll(JobOfferSpecifications.matching(request, freelanceId, origin, NOW), PageRequest.of(0, 20))
+        OfferMatch.Profile profile = context instanceof Origin place ? OfferMatch.Profile.at(place) :
+            context instanceof OfferMatch.Profile given ? given : OfferMatch.Profile.NONE;
+        return repository.findAll(JobOfferSpecifications.matching(request, freelanceId, profile, NOW), PageRequest.of(0, 20))
             .getContent().stream().map(JobOffer::getExternalId).toList();
     }
 

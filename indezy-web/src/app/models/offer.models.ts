@@ -23,10 +23,23 @@ export type OfferSite =
 export type Seniority = 'JUNIOR' | 'CONFIRMED' | 'SENIOR' | 'EXPERT';
 export type OfferDatePrecision = 'EXACT' | 'DAY' | 'FIRST_SEEN';
 export type OfferView = 'FEED' | 'SAVED' | 'HIDDEN';
-export type OfferSort = 'NEWEST' | 'RATE' | 'DISTANCE';
+export type OfferSort = 'NEWEST' | 'RATE' | 'DISTANCE' | 'MATCH';
+export type OfferRateFit = 'MEETS' | 'CLOSE' | 'BELOW' | 'UNKNOWN';
+export type OfferPlaceFit = 'REMOTE' | 'NEAR' | 'REACHABLE' | 'MOSTLY_REMOTE' | 'FAR' | 'UNKNOWN';
 
 export const SENIORITIES: Seniority[] = ['JUNIOR', 'CONFIRMED', 'SENIOR', 'EXPERT'];
 export const OFFER_WORK_MODES: WorkMode[] = ['ONSITE', 'HYBRID', 'REMOTE'];
+
+/** How well an offer fits the profile, out of 100 (see docs/features.md#profile-match). */
+export interface OfferMatch {
+  score: number;
+  /** The profile's skills the offer mentions, as the profile spells them. */
+  skills: string[];
+  /** Absent when the profile sets no target daily rate. */
+  rate?: OfferRateFit;
+  /** Absent when the profile names no city. */
+  place?: OfferPlaceFit;
+}
 
 /** The same mission published on another site. */
 export interface OfferCopy {
@@ -72,6 +85,8 @@ export interface Offer {
   importedProjectId?: number;
   /** The same mission on other sites, one copy per site. */
   alsoOn?: OfferCopy[];
+  /** Absent when the profile names no skills. */
+  match?: OfferMatch;
 }
 
 /** Filters of the feed saved under a name, with the offers found for them since they were last opened. */
@@ -96,6 +111,8 @@ export interface OfferPage {
   totalPages: number;
   /** Whether the profile's city is known, so distances can be shown and filtered on. */
   distanceAvailable: boolean;
+  /** Whether the profile names skills, so offers are scored against it. */
+  matchAvailable: boolean;
 }
 
 /** What the feed can be narrowed down by; empty lists and undefined values filter nothing. */
@@ -118,6 +135,8 @@ export interface OfferFilters {
   seniorities: Seniority[];
   skills: string[];
   unseenOnly?: boolean;
+  /** Offers scoring 60 or more against the profile. */
+  matchesProfile?: boolean;
 }
 
 export interface OfferQuery extends OfferFilters {
