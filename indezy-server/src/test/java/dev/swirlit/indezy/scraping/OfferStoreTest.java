@@ -126,6 +126,25 @@ class OfferStoreTest {
     }
 
     @Test
+    void cleansDescriptionsStoredWithMarkupEscapedTwice() {
+        JobOffer marked = offer("2", "Consultant sécurité", OfferDatePrecision.EXACT, null);
+        marked.setId(4L);
+        marked.setDescription("mission\nLe consultant :<br /><br />Construction.");
+        JobOffer comparison = offer("3", "Développeur", OfferDatePrecision.EXACT, null);
+        comparison.setId(7L);
+        comparison.setDescription("Java < 5 ans > 3 ans");
+        comparison.setSearchText("unchanged");
+        when(offers.findWithMarkupAfter(eq(0L), any())).thenReturn(List.of(marked, comparison));
+
+        assertThat(store.cleanStoredDescriptions(0L)).isEqualTo(7L);
+        assertThat(marked.getDescription()).isEqualTo("mission\nLe consultant :\n\nConstruction.");
+        assertThat(marked.getSearchText()).isEqualTo("consultant securite mission le consultant construction.");
+        assertThat(comparison.getDescription()).isEqualTo("Java < 5 ans > 3 ans");
+        assertThat(comparison.getSearchText()).isEqualTo("unchanged");
+        assertThat(store.cleanStoredDescriptions(7L)).isNull();
+    }
+
+    @Test
     void looksForNoCopiesOfAnOfferWithoutKeys() {
         store.save(OfferSite.FREE_WORK, List.of(offer("2", "Architecte", OfferDatePrecision.EXACT, null)));
 

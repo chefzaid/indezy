@@ -26,8 +26,8 @@ public class OfferScheduler {
     }
 
     /**
-     * Groups the copies among offers stored before copies were told apart, and keys the publishers of offers stored
-     * before publishers had a key; finds nothing to do once they are.
+     * Groups the copies among offers stored before copies were told apart, keys the publishers of offers stored before
+     * publishers had a key and cleans descriptions stored with markup escaped twice; finds nothing to do once they are.
      */
     @Scheduled(initialDelayString = "PT30S", fixedDelayString = "PT6H")
     public void keyStoredOffers() {
@@ -38,6 +38,10 @@ public class OfferScheduler {
         Long last = 0L;
         do {
             last = store.keyStoredCompanies(last);
+        } while (last != null);
+        last = 0L;
+        do {
+            last = store.cleanStoredDescriptions(last);
         } while (last != null);
     }
 

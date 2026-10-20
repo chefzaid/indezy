@@ -28,6 +28,17 @@ class HtmlTextTest {
     }
 
     @Test
+    void readsHtmlASiteEscapedTwiceAndKeepsAPlainLessThan() {
+        String html = "<p>mission<br>Le consultant :&lt;br /&gt;&lt;br /&gt;Construction.&lt;br /&gt;Mise en place.</p>";
+
+        assertThat(HtmlText.toText(html)).isEqualTo("mission\nLe consultant :\n\nConstruction.\nMise en place.");
+        assertThat(HtmlText.toText("<p>Java &lt; 5 ans &amp; C++ &gt; 3 ans</p>")).isEqualTo("Java < 5 ans & C++ > 3 ans");
+        assertThat(HtmlText.hasEscapedMarkup("Java < 5 ans > 3")).isFalse();
+        assertThat(HtmlText.hasEscapedMarkup("a<BR/>b")).isTrue();
+        assertThat(HtmlText.hasEscapedMarkup(null)).isFalse();
+    }
+
+    @Test
     void returnsNothingForEmptyHtml() {
         assertThat(HtmlText.toText(null)).isNull();
         assertThat(HtmlText.toText("   ")).isNull();

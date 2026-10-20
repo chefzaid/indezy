@@ -236,6 +236,18 @@ class JobOfferRepositoryTest {
     }
 
     @Test
+    void findsTheDescriptionsThatMayHoldMarkup() {
+        recent.setDescription("Contexte :<br />Refonte");
+        old.setDescription("Java < 5 ans");
+        // Read again by the store, which leaves a text without markup as it is.
+        expired.setDescription("Java < 5 ans > 3");
+        entityManager.flush();
+
+        assertThat(offers.findWithMarkupAfter(0L, PageRequest.of(0, 10))).extracting(JobOffer::getExternalId).containsExactly("1", "3");
+        assertThat(offers.findWithMarkupAfter(recent.getId(), PageRequest.of(0, 10))).extracting(JobOffer::getExternalId).containsExactly("3");
+    }
+
+    @Test
     void keepsEachWorkspacesBlockedPublishers() {
         OfferPublisherBlock block = new OfferPublisherBlock();
         block.setFreelance(freelance);

@@ -32,6 +32,10 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
     /** Offers stored before copies were told apart, which have no copy keys yet. */
     List<JobOffer> findByPublisherKeyIsNullOrderById(Pageable pageable);
 
+    /** Offers after {@code afterId} whose description may still hold markup (see {@code HtmlText.hasEscapedMarkup}). */
+    @Query("select o from JobOffer o where o.id > :afterId and o.description like '%<%>%' order by o.id")
+    List<JobOffer> findWithMarkupAfter(@Param("afterId") Long afterId, Pageable pageable);
+
     /** Offers stored before publishers had a key, from {@code afterId} on (a name without words never gets one). */
     List<JobOffer> findByCompanyIsNotNullAndCompanyKeyIsNullAndIdGreaterThanOrderById(Long afterId, Pageable pageable);
 

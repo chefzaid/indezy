@@ -78,6 +78,20 @@ public class OfferStore {
     }
 
     /**
+     * Reads again, up to {@value #KEY_BATCH} at a time after {@code afterId}, the descriptions stored with markup a site
+     * escaped twice, and their search text; returns the last offer looked at, or {@code null} when none was left.
+     */
+    @Transactional
+    public Long cleanStoredDescriptions(Long afterId) {
+        List<JobOffer> marked = offers.findWithMarkupAfter(afterId, PageRequest.of(0, KEY_BATCH));
+        marked.stream().filter(offer -> HtmlText.hasEscapedMarkup(offer.getDescription())).forEach(offer -> {
+            offer.setDescription(HtmlText.toText(offer.getDescription()));
+            offer.setSearchText(OfferNormalizer.searchText(offer));
+        });
+        return marked.isEmpty() ? null : marked.getLast().getId();
+    }
+
+    /**
      * Gives up to {@value #KEY_BATCH} offers stored before publishers had a key, after {@code afterId}, their publisher's
      * key; returns the last offer looked at, or {@code null} when none was left.
      */

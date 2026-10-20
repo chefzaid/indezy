@@ -19,6 +19,9 @@ public final class HtmlText {
     private static final String BREAK = " ";
     private static final Pattern SPACES = Pattern.compile("[ \\t\\x0B\\f\\u00A0]+");
     private static final Pattern BLANK_LINES = Pattern.compile("\\n{3,}");
+    /** Markup left in a text once decoded: the site escaped its HTML twice ({@code &lt;br /&gt;}). */
+    private static final Pattern ESCAPED_TAG = Pattern.compile("</?(?:br|p|div|span|ul|ol|li|strong|b|em|i|u|h[1-6])\\b[^<>]*>",
+        Pattern.CASE_INSENSITIVE);
 
     private HtmlText() {
     }
@@ -34,8 +37,24 @@ public final class HtmlText {
         return joined.isEmpty() ? null : joined;
     }
 
-    /** Plain text of an HTML fragment, or {@code null} when it holds no text. */
+    /**
+     * Plain text of an HTML fragment, or {@code null} when it holds no text. HTML escaped twice is read twice, its line
+     * breaks kept.
+     */
     public static String toText(String html) {
+        String text = flatten(html);
+        if (hasEscapedMarkup(text)) {
+            text = flatten(text.replace("\n", "<br>"));
+        }
+        return text;
+    }
+
+    /** Whether a text still holds markup that {@link #toText} reads again. */
+    public static boolean hasEscapedMarkup(String text) {
+        return text != null && ESCAPED_TAG.matcher(text).find();
+    }
+
+    private static String flatten(String html) {
         if (html == null || html.isBlank()) {
             return null;
         }
