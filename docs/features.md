@@ -172,8 +172,7 @@ recently changed first, so their backlog fills in over the first runs. An offer 
 gone) is remembered for 30 days and not read again.
 
 The other boards are planned in [TODO.md](../TODO.md#freelance-offer-feed-added-2026-10-19), with the ones left out
-and why (LinkedIn forbids crawling; HiTechPros, Opteamis, Comet and others keep missions behind a sign-in; Le Studio
-Tech's list is mostly generated listings).
+and why (LinkedIn forbids crawling; HiTechPros, Opteamis, Comet and others keep missions behind a sign-in).
 
 Each offer shows its site, title, publisher, daily rate ("550 € – 650 €", "≤ 600 €" or "TJM non précisé"), place with
 its department and the distance from the profile's city, work mode (on site, hybrid with remote days a week, full
