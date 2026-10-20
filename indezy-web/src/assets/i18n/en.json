@@ -901,7 +901,8 @@
       "hide": "Hide or show the offer",
       "add": "Add the offer to the pipeline",
       "details": "Show or fold its details",
-      "note": "Write a note on the offer"
+      "note": "Write a note on the offer",
+      "select": "Select or unselect the offer"
     }
   },
   "activityReports": {
@@ -1124,7 +1125,8 @@
         "SITE_FORM": "Applied with the site's form on {{date}}",
         "EMAIL": "Applied by email on {{date}}",
         "PHONE": "Applied by phone on {{date}}"
-      }
+      },
+      "select": "Select “{{title}}”"
     },
     "match": {
       "score": "{{score}}%",
@@ -1344,7 +1346,7 @@
       }
     },
     "keyboard": {
-      "hint": "Use J and K or the arrow keys to move between offers; O opens one on its site, S saves it, H hides it, A adds it to the pipeline, D shows its details and N opens its note."
+      "hint": "Use J and K or the arrow keys to move between offers; O opens one on its site, S saves it, H hides it, A adds it to the pipeline, D shows its details, N opens its note and X selects it."
     },
     "apply": {
       "title": "Record your application",
@@ -1364,6 +1366,29 @@
       "joinsPipeline": "The mission joins your pipeline at the Contact stage, with an “Application sent” step waiting for feedback.",
       "inPipeline": "Its opportunity in your pipeline gets an “Application sent” step waiting for feedback.",
       "confirm": "Record"
+    },
+    "bulk": {
+      "label": "Selected offers",
+      "selected": "{{count}} selected",
+      "selectedOne": "1 selected",
+      "selectPage": "Select every offer of the page",
+      "selectNone": "Select none",
+      "save": "Save",
+      "unsave": "Unsave",
+      "hide": "Hide",
+      "unhide": "Show again",
+      "seen": "Mark seen",
+      "add": "Add to pipeline",
+      "clear": "Clear the selection",
+      "done": "{{count}} offers changed",
+      "doneOne": "1 offer changed",
+      "hidden": "{{count}} offers hidden",
+      "hiddenOne": "1 offer hidden",
+      "undo": "Undo",
+      "imported": "{{count}} offers added to the pipeline (Contact stage)",
+      "importedOne": "1 offer added to the pipeline (Contact stage)",
+      "importedNone": "These missions were already in the pipeline.",
+      "allInPipeline": "The selected offers are already in the pipeline."
     }
   }
 }

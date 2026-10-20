@@ -7,6 +7,7 @@ import {
   OfferQuery,
   OfferSite,
   OfferSort,
+  OfferStateUpdate,
   OfferView,
   SENIORITIES,
   Seniority,
@@ -14,6 +15,15 @@ import {
 } from '../../models/offer.models';
 
 export const OFFER_PAGE_SIZES = [20, 50, 100];
+
+/**
+ * Whether a state change takes an offer out of the view: unsaved from the saved view, hidden from the feed, shown again
+ * from the hidden view.
+ */
+export function leavesView(view: OfferView, update: OfferStateUpdate): boolean {
+  return (view === 'SAVED' && update.saved === false) || (view === 'FEED' && update.hidden === true) ||
+    (view === 'HIDDEN' && update.hidden === false);
+}
 const VIEWS: OfferView[] = ['FEED', 'SAVED', 'HIDDEN', 'APPLIED'];
 const SORTS: OfferSort[] = ['NEWEST', 'RATE', 'DISTANCE', 'MATCH'];
 const SITES: OfferSite[] = [

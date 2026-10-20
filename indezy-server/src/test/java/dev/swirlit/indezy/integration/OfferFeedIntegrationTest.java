@@ -229,6 +229,26 @@ class OfferFeedIntegrationTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void eachWorkspaceActsOnSeveralOffersAtOnce() {
+        List<Map<String, Object>> hidden = call(alice, HttpMethod.PUT, "/offers/states",
+            Map.of("offerIds", List.of(paris.getId(), lyon.getId(), Long.MAX_VALUE), "hidden", true), List.class).getBody();
+
+        assertThat(hidden).extracting(state -> state.get("hidden")).containsExactly(true, true);
+        assertThat(titles(call(alice, HttpMethod.GET, "/offers", null))).isEmpty();
+        assertThat(titles(call(bob, HttpMethod.GET, "/offers", null))).hasSize(2);
+
+        Map<String, Object> imported = call(alice, HttpMethod.POST, "/offers/import", Map.of("offerIds", List.of(paris.getId(), lyon.getId())))
+            .getBody();
+        assertThat((List<?>) imported.get("imported")).hasSize(2);
+        Map<String, Object> again = call(alice, HttpMethod.POST, "/offers/import", Map.of("offerIds", List.of(paris.getId()))).getBody();
+        assertThat((List<?>) again.get("imported")).isEmpty();
+        assertThat((List<?>) again.get("alreadyInPipeline")).hasSize(1);
+        assertThat(call(alice, HttpMethod.GET, "/offers/" + lyon.getId(), null).getBody()).containsKey("importedProjectId");
+        assertThat(call(bob, HttpMethod.GET, "/offers/" + lyon.getId(), null).getBody()).doesNotContainKey("importedProjectId");
+    }
+
+    @Test
     void measuresDistancesFromTheProfilesCity() {
         GeoPlace place = new GeoPlace();
         place.setQueryKey("|paris");

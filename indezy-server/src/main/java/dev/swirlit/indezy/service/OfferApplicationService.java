@@ -8,7 +8,6 @@ import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
 import dev.swirlit.indezy.model.OfferApplication;
-import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.ApplicationChannel;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.StepStatus;
@@ -80,8 +79,7 @@ public class OfferApplicationService {
         group.stream().map(JobOfferState::getApplication).filter(Objects::nonNull).findFirst().ifPresent(application -> {
             throw new InvalidStateException(String.format(ErrorMessages.OFFER_ALREADY_APPLIED, application.appliedOn()));
         });
-        Long projectId = group.stream().map(JobOfferState::getImportedProject).filter(Objects::nonNull).findFirst()
-            .map(Project::getId)
+        Long projectId = OfferStateService.pipelineProject(group)
             .orElseGet(() -> importService.importOffer(freelanceId, offerId).getId());
         // Importing saved the offer's state: read the group again so it is not created twice.
         group = offerStates.groupStates(freelanceId, offerId);

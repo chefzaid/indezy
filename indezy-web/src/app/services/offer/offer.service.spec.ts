@@ -104,6 +104,20 @@ describe('OfferService', () => {
     imported.flush({ id: 40 });
   });
 
+  it('acts on several offers at once', () => {
+    service.updateStates([7, 8], { hidden: true }).subscribe();
+    const states = http.expectOne(`${api}/states`);
+    expect(states.request.method).toBe('PUT');
+    expect(states.request.body).toEqual({ offerIds: [7, 8], hidden: true });
+    states.flush([]);
+
+    service.importOffers([7, 8]).subscribe();
+    const imported = http.expectOne(`${api}/import`);
+    expect(imported.request.method).toBe('POST');
+    expect(imported.request.body).toEqual({ offerIds: [7, 8] });
+    imported.flush({ imported: [], alreadyInPipeline: [], missing: [] });
+  });
+
   it('records an application and forgets it', () => {
     service.apply(7, { appliedOn: '2026-10-20', via: 'EMAIL', followUpInDays: 7, language: 'FR' }).subscribe();
     const applied = http.expectOne(`${api}/7/application`);

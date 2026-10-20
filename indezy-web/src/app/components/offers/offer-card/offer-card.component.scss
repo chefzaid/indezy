@@ -17,6 +17,11 @@
   &.expired {
     opacity: 0.75;
   }
+
+  &.selected {
+    background: var(--app-subtle);
+    box-shadow: inset 0 0 0 2px var(--mat-sys-primary, #3f51b5);
+  }
 }
 
 .offer-head {
@@ -25,6 +30,10 @@
   align-items: center;
   gap: 8px;
   font-size: 0.8rem;
+}
+
+.select-box {
+  margin: -8px 0 -8px -12px;
 }
 
 .site-badge,

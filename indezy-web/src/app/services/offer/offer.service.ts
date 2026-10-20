@@ -7,6 +7,7 @@ import {
   Offer,
   OfferAlerts,
   OfferApplicationRequest,
+  OfferBulkImport,
   OfferFacet,
   OfferMarket,
   OfferPage,
@@ -53,6 +54,16 @@ export class OfferService {
 
   updateState(id: number, update: OfferStateUpdate): Observable<OfferState> {
     return this.http.put<OfferState>(`${this.API_URL}/${id}/state`, update);
+  }
+
+  /** The same change to several offers (100 at most). */
+  updateStates(offerIds: number[], update: OfferStateUpdate): Observable<OfferState[]> {
+    return this.http.put<OfferState[]>(`${this.API_URL}/states`, { offerIds, ...update });
+  }
+
+  /** Adds several offers to the pipeline (50 at most), each mission once. */
+  importOffers(offerIds: number[]): Observable<OfferBulkImport> {
+    return this.http.post<OfferBulkImport>(`${this.API_URL}/import`, { offerIds });
   }
 
   importOffer(id: number): Observable<ProjectDto> {

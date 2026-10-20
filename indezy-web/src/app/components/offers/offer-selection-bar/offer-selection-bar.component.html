@@ -1,0 +1,27 @@
+<div class="selection-bar" role="region" [attr.aria-label]="'offers.bulk.label' | translate" data-selection-bar>
+  <mat-checkbox [checked]="allSelected" [indeterminate]="!allSelected" (change)="toggleAll()" data-select-page
+    [aria-label]="(allSelected ? 'offers.bulk.selectNone' : 'offers.bulk.selectPage') | translate">
+  </mat-checkbox>
+  <span class="count" aria-live="polite" data-selected-count>{{ (count === 1 ? 'offers.bulk.selectedOne' : 'offers.bulk.selected') | translate: { count: count } }}</span>
+  <span class="spacer"></span>
+  <div class="actions">
+    <button mat-stroked-button type="button" (click)="save()" [disabled]="busy" data-bulk-save>
+      <mat-icon>{{ view === 'SAVED' ? 'bookmark_remove' : 'bookmark_add' }}</mat-icon>
+      {{ (view === 'SAVED' ? 'offers.bulk.unsave' : 'offers.bulk.save') | translate }}
+    </button>
+    <button mat-stroked-button type="button" (click)="hide()" [disabled]="busy" data-bulk-hide>
+      <mat-icon>{{ view === 'HIDDEN' ? 'visibility' : 'visibility_off' }}</mat-icon>
+      {{ (view === 'HIDDEN' ? 'offers.bulk.unhide' : 'offers.bulk.hide') | translate }}
+    </button>
+    <button mat-stroked-button type="button" (click)="markSeen()" [disabled]="busy" data-bulk-seen>
+      <mat-icon>done_all</mat-icon>{{ 'offers.bulk.seen' | translate }}
+    </button>
+    <button mat-flat-button color="primary" type="button" (click)="add()" [disabled]="busy" data-bulk-add>
+      <mat-icon>add_task</mat-icon>{{ 'offers.bulk.add' | translate }}
+    </button>
+  </div>
+  <button mat-icon-button type="button" (click)="clear.emit()" [attr.aria-label]="'offers.bulk.clear' | translate"
+    [matTooltip]="'offers.bulk.clear' | translate" data-bulk-clear>
+    <mat-icon>close</mat-icon>
+  </button>
+</div>

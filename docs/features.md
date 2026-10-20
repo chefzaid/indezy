@@ -224,6 +224,12 @@ marked **New**.
   closes the field unchanged, and **Delete the note** (or saving it blank) removes it. The card shows the note under
   its excerpt, the keyword filter finds offers by the words of their note, the note is shared by every copy of the
   mission, and **Add to pipeline** adds it to the new opportunity's notes.
+- **Several offers at once**: each card has a checkbox (or `X` on the focused offer). Once one is ticked, a bar held at
+  the bottom of the screen counts them, selects the whole page or none, and saves (unsaves in the saved view), hides
+  (shows again in the hidden view), marks seen or adds to the pipeline every selected offer at once. Changes show at
+  once and are put back if the server refuses them; hidden offers leave the feed with an **Undo** in the notification
+  for 8 seconds. Adding skips the offers already in the pipeline, adds each mission once (two copies of one mission make
+  one opportunity) and says how many were added. A new page or new filters clear the selection.
 - **One card per mission**: boards republish each other's missions (WorkDispo republishes Cherry Pick, Collective.work
   and Free-Work republish Mon Consultant Indépendant, ESNs post on several boards), so offers of different sites whose
   titles read the same and whose publisher or opening text is the same are one mission. The feed shows its earliest
@@ -259,6 +265,8 @@ marked **New**.
 
 API: `GET /offers` (filters, `matchesProfile`, `view` = `FEED`, `SAVED`, `APPLIED` or `HIDDEN`, `sort` = `NEWEST`, `RATE`, `DISTANCE` or `MATCH`, `page`,
 `size`), `GET /offers/market` (the same filters and view), `GET /offers/{id}`, `PUT /offers/{id}/state`, `POST /offers/{id}/import`,
+`PUT /offers/states` (`offerIds`, 100 at most, with `saved`, `hidden` or `seen`), `POST /offers/import` (`offerIds`, 50
+at most; answers the offers `imported`, `alreadyInPipeline` with their opportunity, and `missing`),
 `POST /offers/{id}/application` (`appliedOn`, `via` = `SITE_FORM`, `EMAIL` or `PHONE`, `followUpInDays`, `language` =
 `FR` or `EN`; `409` once applied, `400` for a later day) and `DELETE /offers/{id}/application`, `GET /offers/sites`,
 `GET /offers/skills?q=`, `GET /offers/regions`, the site health (`GET /offers/sites/health`,
@@ -463,7 +471,7 @@ stage to move it; moving to Lost still requires the existing loss-reason dialog.
 In the offer feed, single keys act while one of its offers has the focus (Tab to
 the list, one tab stop for all offers): `J` and `K` (or the arrow keys) move to the
 next and previous offer, `O` opens it on its site, `S` saves it, `H` hides it, `A`
-adds it to the pipeline, `D` shows or folds its details and `N` opens its note; when an offer leaves the
+adds it to the pipeline, `D` shows or folds its details, `N` opens its note and `X` selects it; when an offer leaves the
 list, the next one takes the focus. The shortcut help lists them, and screen readers
 hear them from the list's description.
 

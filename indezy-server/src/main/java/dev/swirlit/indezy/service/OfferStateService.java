@@ -8,6 +8,7 @@ import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
+import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /** What a workspace does with offers: save, hide, mark as seen. */
 @Service
@@ -73,6 +76,16 @@ public class OfferStateService {
             }
         }
         return group;
+    }
+
+    /** The opportunity the workspace made of the offer's mission, by any of its copies. */
+    @Transactional(readOnly = true)
+    public Optional<Long> pipelineProject(Long freelanceId, Long offerId) {
+        return pipelineProject(groupStates(freelanceId, offerId));
+    }
+
+    static Optional<Long> pipelineProject(List<JobOfferState> group) {
+        return group.stream().map(JobOfferState::getImportedProject).filter(Objects::nonNull).findFirst().map(Project::getId);
     }
 
     /** Every offer the workspace acted on, for the account data export. */

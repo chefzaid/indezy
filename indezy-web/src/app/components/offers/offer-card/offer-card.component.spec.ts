@@ -304,6 +304,22 @@ describe('OfferCardComponent', () => {
     expect(element(fixture, '.hide-button').getAttribute('aria-label')).toBe('Réafficher l\'offre');
   });
 
+  it('is selected with its checkbox', () => {
+    const fixture = create();
+    const changed: number[] = [];
+    fixture.componentInstance.selectedChange.subscribe(value => changed.push(value.id));
+    const box = element(fixture, '[data-select] input') as HTMLInputElement;
+
+    expect(box.getAttribute('aria-label')).toBe('Sélectionner « Développeur Java Spring »');
+    expect(box.checked).toBeFalse();
+    box.click();
+    expect(changed).toEqual([7]);
+    fixture.componentRef.setInput('selected', true);
+    fixture.detectChanges();
+    expect(box.checked).toBeTrue();
+    expect(element(fixture, '.offer-card').classList).toContain('selected');
+  });
+
   it('shows the work in progress', () => {
     const fixture = create(offer(), { loadingDetails: true, importing: true });
 

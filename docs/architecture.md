@@ -134,7 +134,7 @@ Current practical rules:
 - `User` owns account profile, preferences, and two-factor settings.
 - `Season` belongs to a freelance and groups projects.
 - `ActivityReport` belongs to a project (one per month) and is deleted with it.
-- `JobOffer` is shared by every workspace; `JobOfferState` holds what one workspace did with an offer (saved, hidden, seen, imported project, its private note, its application) and is never visible to another. `OfferApplicationService` records an application: it imports the mission when needed and adds its steps through `InterviewStepService`.
+- `JobOffer` is shared by every workspace; `JobOfferState` holds what one workspace did with an offer (saved, hidden, seen, imported project, its private note, its application) and is never visible to another. `OfferBulkService` acts on several offers, each in its own transaction so one offer gone or already imported leaves the others done. `OfferApplicationService` records an application: it imports the mission when needed and adds its steps through `InterviewStepService`.
 
 Future account work should clarify whether `User` and `Freelance` remain separate concepts or become a one-to-one account/workspace model.
 

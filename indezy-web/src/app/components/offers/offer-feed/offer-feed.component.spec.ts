@@ -383,6 +383,7 @@ describe('OfferFeedComponent', () => {
     component.onOfferKey({ action: 'hide', index: 1 });
     component.onOfferKey({ action: 'save', index: 9 });
     component.onOfferKey({ action: 'note', index: 0 });
+    component.onOfferKey({ action: 'select', index: 0 });
     fixture.detectChanges();
 
     expect(service.updateState).toHaveBeenCalledWith(1, { saved: true });
@@ -390,6 +391,10 @@ describe('OfferFeedComponent', () => {
     expect(service.importOffer).toHaveBeenCalledTimes(1);
     expect(service.updateState).toHaveBeenCalledWith(2, { hidden: true });
     expect(fixture.nativeElement.querySelector('[data-offer-item] [data-note-editor]')).not.toBeNull();
+    expect(component.bulk.selected.has(1)).toBeTrue();
+    expect(fixture.nativeElement.querySelector('[data-selection-bar]')).not.toBeNull();
+    params.next(convertToParamMap({ page: '1' }));
+    expect(component.bulk.selected.size).toBe(0);
     expect(fixture.nativeElement.querySelector('ol[aria-describedby="offer-keys-hint"]')).not.toBeNull();
     expect(text(fixture)).toContain('Utilisez J et K');
   });

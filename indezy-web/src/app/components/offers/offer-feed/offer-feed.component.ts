@@ -31,13 +31,17 @@ import {
   OFFER_PAGE_SIZES,
   countActiveFilters,
   defaultOfferQuery,
+  leavesView,
   offerQueryFromParams,
   offerQueryToParams
 } from '../../../services/offer/offer-query';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { dropOffers, patchOffers } from '../../../services/offer/offer-page';
 import { relativeTime } from '../../../shared/utils/relative-time';
 import { OfferApplyDialogComponent, OfferApplyDialogData } from '../offer-apply-dialog/offer-apply-dialog.component';
 import { OfferCardComponent } from '../offer-card/offer-card.component';
+import { OfferSelectionBarComponent } from '../offer-selection-bar/offer-selection-bar.component';
+import { OfferBulkActions, OfferPageHost } from './offer-bulk-actions';
 import { OfferFiltersComponent } from '../offer-filters/offer-filters.component';
 import { OfferMarketComponent } from '../offer-market/offer-market.component';
 import { OfferKeyAction, OfferListKeysDirective } from './offer-list-keys.directive';
@@ -50,13 +54,13 @@ const MARKET_OPEN_KEY = 'indezy.offers.marketOpen';
 @Component({
   selector: 'app-offer-feed',
   imports: [MatButtonModule, MatButtonToggleModule, MatCardModule, MatFormFieldModule, MatIconModule, MatPaginatorModule,
-    MatProgressSpinnerModule, MatSelectModule, RouterLink, TranslateModule, OfferCardComponent, OfferFiltersComponent, OfferMarketComponent,
+    MatProgressSpinnerModule, MatSelectModule, RouterLink, TranslateModule, OfferCardComponent, OfferSelectionBarComponent, OfferFiltersComponent, OfferMarketComponent,
     OfferSavedSearchesComponent, OfferListKeysDirective],
   templateUrl: './offer-feed.component.html',
   styleUrls: ['./offer-feed.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class OfferFeedComponent implements OnInit {
+export class OfferFeedComponent implements OnInit, OfferPageHost {
   readonly views: OfferView[] = ['FEED', 'SAVED', 'APPLIED', 'HIDDEN'];
   readonly sorts: OfferSort[] = ['NEWEST', 'RATE', 'DISTANCE', 'MATCH'];
   readonly pageSizes = OFFER_PAGE_SIZES;
@@ -87,6 +91,8 @@ export class OfferFeedComponent implements OnInit {
   private readonly locale = inject(LOCALE_ID);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  /** The offers picked for an action on several at once. */
+  readonly bulk = new OfferBulkActions(this, this.offerService, this.notifications);
   /** Searches again with the same filters (after a failure). */
   private readonly reload$ = new BehaviorSubject<void>(undefined);
 
@@ -113,6 +119,7 @@ export class OfferFeedComponent implements OnInit {
     ).subscribe(page => {
       // A new page brings its offers without descriptions: fold every card.
       this.expanded.clear();
+      this.bulk.clear();
       this.page = page;
       this.failed = page === null;
       this.loading = false;
@@ -171,6 +178,10 @@ export class OfferFeedComponent implements OnInit {
     this.navigate({ ...defaultOfferQuery(), view: this.query.view, sort: this.query.sort });
   }
 
+  redraw(): void {
+    this.changes.markForCheck();
+  }
+
   retry(): void {
     this.reload$.next();
   }
@@ -208,6 +219,9 @@ export class OfferFeedComponent implements OnInit {
       case 'note':
         this.cards?.get(event.index)?.editNote();
         break;
+      case 'select':
+        this.bulk.toggle(offer);
+        break;
     }
   }
 
@@ -217,14 +231,11 @@ export class OfferFeedComponent implements OnInit {
   }
 
   toggleSaved(offer: Offer): void {
-    const saved = !offer.saved;
-    this.change(offer, { saved }, this.query.view === 'SAVED' && !saved);
+    this.change(offer, { saved: !offer.saved });
   }
 
   toggleHidden(offer: Offer): void {
-    const hidden = !offer.hidden;
-    const leavesView = this.query.view === 'FEED' ? hidden : this.query.view === 'HIDDEN' && !hidden;
-    this.change(offer, { hidden }, leavesView);
+    this.change(offer, { hidden: !offer.hidden });
   }
 
   opened(offer: Offer): void {
@@ -311,8 +322,7 @@ export class OfferFeedComponent implements OnInit {
     const before = this.page;
     this.patch(offer.id, { application: undefined });
     if (this.query.view === 'APPLIED' && this.page) {
-      this.page = { ...this.page, content: this.page.content.filter(item => item.id !== offer.id),
-        totalElements: this.page.totalElements - 1 };
+      this.page = dropOffers(this.page, item => item.id === offer.id);
     }
     this.offerService.withdrawApplication(offer.id).subscribe({
       next: () => this.notifications.success('offers.notifications.withdrawn', 4000),
@@ -334,8 +344,7 @@ export class OfferFeedComponent implements OnInit {
       next: () => {
         if (this.page && this.query.view === 'FEED') {
           const key = publisherKey(name);
-          const kept = this.page.content.filter(item => publisherKey(item.company) !== key);
-          this.page = { ...this.page, content: kept, totalElements: this.page.totalElements - (this.page.content.length - kept.length) };
+          this.page = dropOffers(this.page, item => publisherKey(item.company) === key);
         }
         this.notifications.success('offers.notifications.publisherBlocked', 6000, { publisher: name });
         this.changes.markForCheck();
@@ -365,12 +374,11 @@ export class OfferFeedComponent implements OnInit {
   }
 
   /** Applies a state change at once, takes the card out of a view it no longer belongs to, and undoes both on failure. */
-  private change(offer: Offer, update: OfferStateUpdate, leavesView: boolean): void {
+  private change(offer: Offer, update: OfferStateUpdate): void {
     const before = this.page;
     this.patch(offer.id, update);
-    if (leavesView && this.page) {
-      this.page = { ...this.page, content: this.page.content.filter(item => item.id !== offer.id),
-        totalElements: this.page.totalElements - 1 };
+    if (leavesView(this.query.view, update) && this.page) {
+      this.page = dropOffers(this.page, item => item.id === offer.id);
     }
     this.offerService.updateState(offer.id, update).subscribe({
       error: () => {
@@ -384,7 +392,7 @@ export class OfferFeedComponent implements OnInit {
   /** Replaces one offer of the page with a changed copy, so its card redraws. */
   private patch(id: number, changes: Partial<Offer>): void {
     if (this.page) {
-      this.page = { ...this.page, content: this.page.content.map(item => item.id === id ? { ...item, ...changes } : item) };
+      this.page = patchOffers(this.page, [id], changes);
     }
     this.changes.markForCheck();
   }

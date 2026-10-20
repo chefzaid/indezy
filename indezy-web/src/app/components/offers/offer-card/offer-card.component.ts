@@ -6,6 +6,7 @@ import { DatePipe, formatDate } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -26,8 +27,8 @@ const FAIR_MATCH = 35;
 /** One mission of the offer feed and what the workspace can do with it. */
 @Component({
   selector: 'app-offer-card',
-  imports: [DatePipe, FormsModule, RouterModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule,
-    MatMenuModule, MatProgressSpinnerModule, MatTooltipModule, TranslateModule],
+  imports: [DatePipe, FormsModule, RouterModule, MatButtonModule, MatCardModule, MatCheckboxModule, MatFormFieldModule, MatIconModule,
+    MatInputModule, MatMenuModule, MatProgressSpinnerModule, MatTooltipModule, TranslateModule],
   templateUrl: './offer-card.component.html',
   styleUrls: ['./offer-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -38,8 +39,11 @@ export class OfferCardComponent {
   @Input() expanded = false;
   @Input() loadingDetails = false;
   @Input() importing = false;
+  /** Picked for an action on several offers at once. */
+  @Input() selected = false;
 
   @Output() readonly toggleDetails = new EventEmitter<Offer>();
+  @Output() readonly selectedChange = new EventEmitter<Offer>();
   @Output() readonly toggleSaved = new EventEmitter<Offer>();
   @Output() readonly toggleHidden = new EventEmitter<Offer>();
   @Output() readonly opened = new EventEmitter<Offer>();

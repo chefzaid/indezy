@@ -1,6 +1,8 @@
-<mat-card class="offer-card" appearance="outlined" [class.unseen]="!offer.seen" [class.expired]="offer.expired"
+<mat-card class="offer-card" appearance="outlined" [class.unseen]="!offer.seen" [class.expired]="offer.expired" [class.selected]="selected"
   [attr.data-offer]="offer.id">
   <div class="offer-head">
+    <mat-checkbox class="select-box" [checked]="selected" (change)="selectedChange.emit(offer)" data-select
+      [aria-label]="'offers.card.select' | translate: { title: offer.title }"></mat-checkbox>
     <span class="site-badge" [attr.data-site]="offer.site">{{ offer.siteName }}</span>
     @if (!offer.seen) {
       <span class="badge new-badge">{{ 'offers.card.new' | translate }}</span>

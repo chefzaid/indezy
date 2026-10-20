@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
+import { Observable } from 'rxjs';
 
 const DEFAULT_DURATION = 3000;
 
@@ -25,6 +26,13 @@ export class NotificationService {
 
   info(messageKey: string, duration: number = DEFAULT_DURATION, params?: Record<string, unknown>): void {
     this.open(messageKey, duration, 'info-snackbar', params);
+  }
+
+  /** A success notification offering an action (such as an undo) instead of Close; emits when the action is chosen. */
+  successWithAction(messageKey: string, actionKey: string, duration: number = DEFAULT_DURATION,
+                    params?: Record<string, unknown>): Observable<void> {
+    return this.snackBar.open(this.translate.instant(messageKey, params), this.translate.instant(actionKey),
+      { duration, panelClass: ['success-snackbar'] }).onAction();
   }
 
   /** Shows an already-built message (e.g. server-provided text) as a success notification. */

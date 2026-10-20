@@ -2,6 +2,7 @@ import { convertToParamMap } from '@angular/router';
 import {
   countActiveFilters,
   defaultOfferQuery,
+  leavesView,
   offerQueryFromParams,
   offerQueryFromSaved,
   offerQueryToHttpParams,
@@ -46,6 +47,15 @@ describe('offer query', () => {
     }));
 
     expect(query).toEqual({ ...defaultOfferQuery(), regions: ['11'], rateKnown: undefined, unseenOnly: undefined, matchesProfile: undefined });
+  });
+
+  it('tells which changes take an offer out of its view', () => {
+    expect(leavesView('FEED', { hidden: true })).toBeTrue();
+    expect(leavesView('FEED', { saved: true, seen: true })).toBeFalse();
+    expect(leavesView('SAVED', { saved: false })).toBeTrue();
+    expect(leavesView('SAVED', { hidden: true })).toBeFalse();
+    expect(leavesView('HIDDEN', { hidden: false })).toBeTrue();
+    expect(leavesView('APPLIED', { hidden: true, saved: false })).toBeFalse();
   });
 
   it('reads every view of the feed', () => {

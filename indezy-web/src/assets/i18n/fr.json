@@ -901,7 +901,8 @@
       "hide": "Masquer l’offre ou la réafficher",
       "add": "Ajouter l’offre au pipeline",
       "details": "Afficher ou replier ses détails",
-      "note": "Écrire une note sur l'offre"
+      "note": "Écrire une note sur l'offre",
+      "select": "Sélectionner ou désélectionner l'offre"
     }
   },
   "activityReports": {
@@ -1124,7 +1125,8 @@
         "SITE_FORM": "Candidature via le formulaire du site le {{date}}",
         "EMAIL": "Candidature par e-mail le {{date}}",
         "PHONE": "Candidature par téléphone le {{date}}"
-      }
+      },
+      "select": "Sélectionner « {{title}} »"
     },
     "match": {
       "score": "{{score}} %",
@@ -1344,7 +1346,7 @@
       }
     },
     "keyboard": {
-      "hint": "Utilisez J et K ou les flèches pour passer d'une offre à l'autre ; O ouvre l'offre sur son site, S l'enregistre, H la masque, A l'ajoute au pipeline, D affiche ses détails et N ouvre sa note."
+      "hint": "Utilisez J et K ou les flèches pour passer d'une offre à l'autre ; O ouvre l'offre sur son site, S l'enregistre, H la masque, A l'ajoute au pipeline, D affiche ses détails, N ouvre sa note et X la sélectionne."
     },
     "apply": {
       "title": "Enregistrer votre candidature",
@@ -1364,6 +1366,29 @@
       "joinsPipeline": "La mission rejoint votre pipeline à l'étape Contact, avec une étape « Candidature envoyée » en attente de retour.",
       "inPipeline": "Son opportunité dans votre pipeline reçoit une étape « Candidature envoyée » en attente de retour.",
       "confirm": "Enregistrer"
+    },
+    "bulk": {
+      "label": "Offres sélectionnées",
+      "selected": "{{count}} sélectionnées",
+      "selectedOne": "1 sélectionnée",
+      "selectPage": "Sélectionner toutes les offres de la page",
+      "selectNone": "Tout désélectionner",
+      "save": "Sauvegarder",
+      "unsave": "Retirer des sauvegardées",
+      "hide": "Masquer",
+      "unhide": "Réafficher",
+      "seen": "Marquer comme vues",
+      "add": "Ajouter au pipeline",
+      "clear": "Vider la sélection",
+      "done": "{{count}} offres modifiées",
+      "doneOne": "1 offre modifiée",
+      "hidden": "{{count}} offres masquées",
+      "hiddenOne": "1 offre masquée",
+      "undo": "Annuler",
+      "imported": "{{count}} offres ajoutées au pipeline (étape Contact)",
+      "importedOne": "1 offre ajoutée au pipeline (étape Contact)",
+      "importedNone": "Ces missions étaient déjà dans le pipeline.",
+      "allInPipeline": "Les offres sélectionnées sont déjà dans le pipeline."
     }
   }
 }

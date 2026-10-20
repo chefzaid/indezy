@@ -1,6 +1,9 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.OfferApplicationRequest;
+import dev.swirlit.indezy.dto.OfferBulkImportDto;
+import dev.swirlit.indezy.dto.OfferBulkImportRequest;
+import dev.swirlit.indezy.dto.OfferBulkStateRequest;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferMarketDto;
@@ -13,6 +16,7 @@ import dev.swirlit.indezy.dto.OfferStateUpdateRequest;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.OfferApplicationService;
+import dev.swirlit.indezy.service.OfferBulkService;
 import dev.swirlit.indezy.service.OfferImportService;
 import dev.swirlit.indezy.service.OfferMarketService;
 import dev.swirlit.indezy.service.OfferSearchService;
@@ -54,6 +58,7 @@ public class OfferController {
     private final OfferStateService stateService;
     private final OfferImportService importService;
     private final OfferApplicationService applicationService;
+    private final OfferBulkService bulkService;
     private final OfferMarketService marketService;
     private final AccessGuard accessGuard;
 
@@ -82,6 +87,20 @@ public class OfferController {
     public OfferStateDto updateState(@PathVariable Long id, @Valid @RequestBody OfferStateUpdateRequest request,
                                      @RequestParam(required = false) Long freelanceId) {
         return stateService.update(accessGuard.requireWorkspace(freelanceId), id, request);
+    }
+
+    @Operation(summary = "Save, hide or mark seen several offers at once")
+    @PutMapping("/states")
+    public List<OfferStateDto> updateStates(@Valid @RequestBody OfferBulkStateRequest request,
+                                            @RequestParam(required = false) Long freelanceId) {
+        return bulkService.updateAll(accessGuard.requireWorkspace(freelanceId), request);
+    }
+
+    @Operation(summary = "Add several offers to the pipeline, each mission once")
+    @PostMapping("/import")
+    public OfferBulkImportDto importOffers(@Valid @RequestBody OfferBulkImportRequest request,
+                                           @RequestParam(required = false) Long freelanceId) {
+        return bulkService.importAll(accessGuard.requireWorkspace(freelanceId), request);
     }
 
     @Operation(summary = "Add an offer to the pipeline as a new opportunity")

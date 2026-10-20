@@ -149,3 +149,47 @@ test('records an application from an offer and follows it in the applied view (e
   await expect(page.getByText('Application undone; the opportunity stays in your pipeline.')).toBeVisible();
   expect(applications.map(call => call.method)).toEqual(['POST', 'DELETE']);
 });
+
+test('selects offers, hides them at once with an undo and adds the page to the pipeline (en)', async ({ page }) => {
+  const api = await mockFeed(page, 'en');
+  const bulk: { path: string; body: { offerIds: number[]; hidden?: boolean } }[] = [];
+  await page.route('**/api/offers/states', route => {
+    bulk.push({ path: 'states', body: route.request().postDataJSON() });
+    return route.fulfill({ json: [] });
+  });
+  await page.route('**/api/offers/import', route => {
+    const body = route.request().postDataJSON();
+    bulk.push({ path: 'import', body });
+    return route.fulfill({ json: { imported: body.offerIds.map((offerId: number) => ({ offerId, projectId: 40 + offerId })),
+      alreadyInPipeline: [], missing: [] } });
+  });
+
+  await page.goto('/offers');
+  const cards = page.locator('app-offer-card');
+  await expect(cards).toHaveCount(2);
+  await cards.first().getByRole('checkbox', { name: 'Select “Développeur Java 1”' }).check();
+  const bar = page.locator('[data-selection-bar]');
+  await expect(bar).toContainText('1 selected');
+  await page.locator('[data-offer-item]').nth(1).focus();
+  await page.keyboard.press('x');
+  await expect(bar).toContainText('2 selected');
+  await settle(page);
+  await page.screenshot({ path: test.info().outputPath('offer-selection-en.png') });
+
+  await bar.getByRole('button', { name: 'Hide' }).click();
+  await expect(cards).toHaveCount(0);
+  const searches = api.searches.length;
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect(cards).toHaveCount(2);
+  expect(api.searches.length).toBeGreaterThan(searches);
+  expect(bulk.map(call => [call.path, call.body.hidden])).toEqual([['states', true], ['states', false]]);
+
+  await cards.first().getByRole('checkbox').check();
+  await bar.getByRole('checkbox', { name: 'Select every offer of the page' }).check();
+  await expect(bar).toContainText('2 selected');
+  await bar.getByRole('button', { name: 'Add to pipeline' }).click();
+  await expect(page.getByText('2 offers added to the pipeline (Contact stage)')).toBeVisible();
+  await expect(cards.nth(1).getByRole('link', { name: 'In the pipeline' })).toHaveAttribute('href', '/projects/42');
+  await expect(bar).toHaveCount(0);
+  expect(bulk.at(-1)).toEqual({ path: 'import', body: { offerIds: [1, 2] } });
+});

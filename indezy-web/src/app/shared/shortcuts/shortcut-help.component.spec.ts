@@ -16,7 +16,7 @@ describe('ShortcutHelpComponent', () => {
 
     expect(text).toContain('Alt + Shift + N');
     expect(text).toContain('In the offer feed');
-    expect(fixture.nativeElement.querySelectorAll('[data-feed-shortcuts] div').length).toBe(7);
+    expect(fixture.nativeElement.querySelectorAll('[data-feed-shortcuts] div').length).toBe(8);
     expect(text).toContain('Add the offer to the pipeline');
     expect(text).toContain('Write a note on the offer');
   });

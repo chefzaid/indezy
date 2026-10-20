@@ -178,6 +178,14 @@ export interface OfferState {
   application?: OfferApplication;
 }
 
+/** What adding several offers to the pipeline did: each offer with the opportunity of its mission. */
+export interface OfferBulkImport {
+  imported: { offerId: number; projectId: number }[];
+  alreadyInPipeline: { offerId: number; projectId: number }[];
+  /** Offers no longer collected. */
+  missing: number[];
+}
+
 export interface OfferStateUpdate {
   saved?: boolean;
   hidden?: boolean;

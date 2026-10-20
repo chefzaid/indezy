@@ -53,6 +53,7 @@ export class ShortcutHelpComponent {
     { keys: 'H', label: 'shortcuts.feed.hide' },
     { keys: 'A', label: 'shortcuts.feed.add' },
     { keys: 'D', label: 'shortcuts.feed.details' },
-    { keys: 'N', label: 'shortcuts.feed.note' }
+    { keys: 'N', label: 'shortcuts.feed.note' },
+    { keys: 'X', label: 'shortcuts.feed.select' }
   ];
 }

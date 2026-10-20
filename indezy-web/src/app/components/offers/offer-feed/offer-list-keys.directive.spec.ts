@@ -63,10 +63,11 @@ describe('OfferListKeysDirective', () => {
     press(item(2), 'A');
     press(item(0), 'd');
     press(item(2), 'n');
+    press(item(1), 'x');
 
     expect(fixture.componentInstance.opened).toEqual([2]);
     expect(fixture.componentInstance.actions).toEqual([{ action: 'save', index: 1 }, { action: 'add', index: 2 }, { action: 'details', index: 0 },
-      { action: 'note', index: 2 }]);
+      { action: 'note', index: 2 }, { action: 'select', index: 1 }]);
   });
 
   it('leaves typing, modified keys and other keys alone', () => {

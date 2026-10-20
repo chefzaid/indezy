@@ -1,6 +1,9 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.OfferApplicationRequest;
+import dev.swirlit.indezy.dto.OfferBulkImportDto;
+import dev.swirlit.indezy.dto.OfferBulkImportRequest;
+import dev.swirlit.indezy.dto.OfferBulkStateRequest;
 import dev.swirlit.indezy.dto.OfferCopyDto;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferMatchDto;
@@ -23,6 +26,7 @@ import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.Seniority;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.service.OfferApplicationService;
+import dev.swirlit.indezy.service.OfferBulkService;
 import dev.swirlit.indezy.service.OfferImportService;
 import dev.swirlit.indezy.service.OfferMarketService;
 import dev.swirlit.indezy.service.OfferSearchService;
@@ -84,6 +88,9 @@ class OfferControllerTest {
 
     @MockitoBean
     private OfferApplicationService applicationService;
+
+    @MockitoBean
+    private OfferBulkService bulkService;
 
     @BeforeEach
     void setUp() {
@@ -226,6 +233,35 @@ class OfferControllerTest {
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.id").value(40));
         mockMvc.perform(post("/offers/9/import").param("freelanceId", "3")).andExpect(status().isConflict());
+    }
+
+    @Test
+    void actsOnSeveralOffersAtOnce() throws Exception {
+        when(bulkService.updateAll(3L, new OfferBulkStateRequest(List.of(7L, 8L), true, null, null)))
+            .thenReturn(List.of(new OfferStateDto(7L, true, false, false, null), new OfferStateDto(8L, true, false, true, null)));
+        when(bulkService.importAll(3L, new OfferBulkImportRequest(List.of(7L, 8L)))).thenReturn(new OfferBulkImportDto(
+            List.of(new OfferBulkImportDto.Imported(7L, 41L)), List.of(new OfferBulkImportDto.Imported(8L, 40L)), List.of()));
+
+        mockMvc.perform(put("/offers/states").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"offerIds\":[7,8],\"saved\":true}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[1].offerId").value(8))
+            .andExpect(jsonPath("$[1].saved").value(true));
+        mockMvc.perform(post("/offers/import").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"offerIds\":[7,8]}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.imported[0].projectId").value(41))
+            .andExpect(jsonPath("$.alreadyInPipeline[0].offerId").value(8));
+        String tooMany = "{\"offerIds\":[" + "1,".repeat(100) + "1]}";
+        for (String invalid : List.of("{\"offerIds\":[]}", "{\"saved\":true}", "{\"offerIds\":[7,null]}", tooMany)) {
+            mockMvc.perform(put("/offers/states").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON).content(invalid))
+                .andExpect(status().isBadRequest());
+        }
+        mockMvc.perform(post("/offers/import").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"offerIds\":[" + "1,".repeat(50) + "1]}"))
+            .andExpect(status().isBadRequest());
+        mockMvc.perform(put("/offers/states").contentType(MediaType.APPLICATION_JSON).content("{\"offerIds\":[7],\"saved\":true}"))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
