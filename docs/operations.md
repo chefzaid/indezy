@@ -64,7 +64,9 @@ The API's exception handler logs rejected requests (4xx) at `WARN`, naming only
 the fields, parameters or database constraint involved (or, for another request
 error such as an unsupported `Content-Type`, only the exception type and
 status: `Rejected request: HttpMediaTypeNotSupportedException (415)`), and
-unexpected server faults at `ERROR` with their stack trace. Rejected values are
+unexpected server faults at `ERROR` with their stack trace; a client that left
+before its response was written (a closed tab: `Broken pipe`) is no fault, and is
+logged at `DEBUG` only. Rejected values are
 not logged (see [Security › Logging](./security.md#logging)). Failed logins,
 lockouts and duplicate registrations are logged at `WARN` without the email: to
 spot a brute-force attempt, count the `Login rejected: invalid credentials` and

@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
@@ -40,6 +41,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -235,6 +237,15 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(logLine(output, "Unexpected error")).contains("ERROR", "Mapper failed");
         assertThat(output).contains("java.lang.IllegalStateException: Mapper failed", "at " + GlobalExceptionHandlerTest.class.getName());
+    }
+
+    @Test
+    void clientDisconnected_ShouldBeLoggedAtDebugWithoutStackTraceOrBody(CapturedOutput output) {
+        HttpMessageNotWritableException brokenPipe = new HttpMessageNotWritableException(
+            "Could not write JSON: ServletOutputStream failed to write: java.io.IOException: Broken pipe", new IOException("Broken pipe"));
+
+        assertThat(handler.handleGenericException(brokenPipe)).isNull();
+        assertThat(output).doesNotContain("Unexpected error").doesNotContain("ERROR").doesNotContain("at " + GlobalExceptionHandlerTest.class.getName());
     }
 
     @Test

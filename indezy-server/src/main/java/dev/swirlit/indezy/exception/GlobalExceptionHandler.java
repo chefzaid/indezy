@@ -29,6 +29,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.util.DisconnectedClientHelper;
 
 import java.lang.reflect.Method;
 import java.time.ZoneId;
@@ -44,7 +45,8 @@ import java.util.stream.Collectors;
  * Maps exceptions to error responses. Client errors (4xx) are logged at WARN. Validation, binding, parser, database and
  * {@link IllegalArgumentException} messages can quote what the user sent (emails, phone numbers, passwords), so they are
  * never logged: the log names only the fields, constraints, parameters or SQL state involved. The other Spring MVC
- * request errors keep their own status and headers. Unexpected server errors stay at ERROR with their stack trace.
+ * request errors keep their own status and headers. A client that left mid-response is logged at DEBUG and answered
+ * nothing. Unexpected server errors stay at ERROR with their stack trace.
  */
 @RestControllerAdvice
 @Slf4j
@@ -184,6 +186,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         if (ex instanceof org.springframework.web.ErrorResponse requestError) {
             return handleRequestError(ex, requestError);
+        }
+        if (DisconnectedClientHelper.isClientDisconnectedException(ex)) {
+            // The client left mid-response (a closed tab, another page): no fault of the server, and nobody to answer.
+            log.debug("Client disconnected before its response was written: {}", ex.getClass().getSimpleName());
+            return null;
         }
         log.error("Unexpected error: {}", ex.getMessage(), ex);
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", UNEXPECTED_ERROR);
