@@ -12,6 +12,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../services/auth/auth.service';
+import { LogoComponent } from '../../../shared/components/logo/logo.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { environment } from '../../../../environments/environment';
 
@@ -27,7 +28,8 @@ import { environment } from '../../../../environments/environment';
     MatIconModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    TranslateModule
+    TranslateModule,
+    LogoComponent
 ],
     templateUrl: './login.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,

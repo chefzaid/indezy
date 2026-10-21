@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LogoComponent } from '../logo/logo.component';
 
 export interface ErrorDisplayConfig {
   title?: string;
@@ -23,7 +24,8 @@ export interface ErrorDisplayConfig {
     MatIconModule,
     MatCardModule,
     RouterModule,
-    TranslateModule
+    TranslateModule,
+    LogoComponent
 ],
     templateUrl: './error-display.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,

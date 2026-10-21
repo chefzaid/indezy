@@ -16,6 +16,7 @@ import { ACTIVITY_REPORT_STATUS_COLORS, PublicActivityReport } from '../../model
 import { ActivityReportService } from '../../services/activity-report/activity-report.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ActivityCalendarComponent } from '../../shared/components/activity-calendar/activity-calendar.component';
+import { LogoComponent } from '../../shared/components/logo/logo.component';
 import { AppLanguage, LANGUAGE_STORAGE_KEY, getSavedLanguage } from '../../shared/locale/app-locale';
 import { saveBlob } from '../../shared/utils/download-file';
 
@@ -36,7 +37,8 @@ import { saveBlob } from '../../shared/utils/download-file';
     MatInputModule,
     MatProgressSpinnerModule,
     TranslateModule,
-    ActivityCalendarComponent
+    ActivityCalendarComponent,
+    LogoComponent
   ],
   templateUrl: './activity-report-validation.component.html',
   styleUrls: ['./activity-report-validation.component.scss'],

@@ -16,6 +16,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from './services/auth/auth.service';
 import { LANGUAGE_STORAGE_KEY, getSavedLanguage } from './shared/locale/app-locale';
 import { ThemeService } from './shared/theme/theme.service';
+import { LogoComponent } from './shared/components/logo/logo.component';
 import { UserManagementService } from './services/user-management/user-management.service';
 import { KeyboardShortcutsService } from './shared/shortcuts/keyboard-shortcuts.service';
 import { OfferAlertsService } from './services/offer/offer-alerts.service';
@@ -41,7 +42,8 @@ interface MenuItem {
     MatMenuModule,
     MatTooltipModule,
     TranslateModule,
-    AsyncPipe
+    AsyncPipe,
+    LogoComponent
 ],
     templateUrl: './app.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,

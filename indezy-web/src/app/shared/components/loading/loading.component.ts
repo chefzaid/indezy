@@ -2,12 +2,14 @@ import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { LogoComponent } from '../logo/logo.component';
 
 @Component({
     selector: 'app-loading',
     imports: [
     MatProgressSpinnerModule,
-    MatIconModule
+    MatIconModule,
+    LogoComponent
 ],
     templateUrl: './loading.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,

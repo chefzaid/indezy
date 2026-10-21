@@ -1,6 +1,6 @@
 <main class="validation-page">
   <header class="page-header">
-    <img src="assets/images/indezy-logo.svg" alt="Indezy" height="36">
+    <app-logo [height]="36"></app-logo>
     <div class="languages" role="group" [attr.aria-label]="'activityReports.validation.language' | translate">
       <button mat-button type="button" [class.active]="language === 'fr'" [attr.aria-pressed]="language === 'fr'"
         lang="fr" (click)="switchLanguage('fr')">{{ 'language.fr' | translate }}</button>

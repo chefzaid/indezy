@@ -18,13 +18,6 @@
     margin-left: 4px;
   }
 
-  .app-logo {
-    height: 32px;
-    width: auto;
-    // The logo artwork is blue; render it white so it stays legible on the primary toolbar.
-    filter: brightness(0) invert(1);
-  }
-
   .spacer {
     flex: 1 1 auto;
   }
