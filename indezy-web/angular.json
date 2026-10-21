@@ -111,6 +111,7 @@
             "codeCoverageExclude": [
               "src/test.ts",
               "src/polyfills.ts",
+              "src/app/coverage-sources.ts",
               "**/*.spec.ts"
             ]
           }

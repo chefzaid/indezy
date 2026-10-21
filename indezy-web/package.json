@@ -10,7 +10,8 @@
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI",
     "test:e2e": "playwright test",
-    "lint": "ng lint"
+    "lint": "ng lint && node scripts/coverage-sources.mjs --check",
+    "coverage-sources": "node scripts/coverage-sources.mjs"
   },
   "private": true,
   "dependencies": {
