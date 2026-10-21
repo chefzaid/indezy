@@ -432,6 +432,7 @@
       "fill": "Préremplir",
       "reading": "Lecture de {{site}} pour trouver cette offre…",
       "filled": "Prérempli depuis l'offre : vérifiez chaque champ, puis enregistrez.",
+      "filledFromPosting": "Lu sur la page de {{site}}, que le fil ne collecte pas : vérifiez chaque champ, puis enregistrez.",
       "expired": "Cette offre a expiré : vérifiez que la mission est toujours ouverte.",
       "linked": "Depuis l'offre {{site}} « {{title}} » : l'enregistrer l'ajoute une seule fois à votre pipeline.",
       "unlink": "Délier",
@@ -445,7 +446,6 @@
       "alreadyInPipeline": "Cette mission est déjà dans votre pipeline.",
       "status": {
         "IN_PIPELINE": "Cette mission est déjà dans votre pipeline.",
-        "UNSUPPORTED_SITE": "Indezy lit uniquement les offres de ces sites : {{sites}}. Remplissez le formulaire à la main pour celle-ci.",
         "NOT_COLLECTED": "Cette offre {{site}} n'est pas encore dans le fil. Réessayez plus tard, ou remplissez le formulaire à la main.",
         "NOT_COLLECTED_UNTIL": "Cette offre {{site}} n'est pas encore dans le fil. {{site}} pourra être relu à {{time}} ; d'ici là, remplissez le formulaire à la main.",
         "NOT_FREELANCE": "Ce n'est pas une mission freelance (CDI ou CDD) : Indezy l'écarte.",

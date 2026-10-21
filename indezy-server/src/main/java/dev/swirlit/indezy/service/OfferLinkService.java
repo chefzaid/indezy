@@ -7,6 +7,8 @@ import dev.swirlit.indezy.exception.TooManyRequestsException;
 import dev.swirlit.indezy.model.enums.OfferLinkStatus;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.scraping.OfferLinkReader;
+import dev.swirlit.indezy.scraping.OfferNormalizer;
+import dev.swirlit.indezy.scraping.PostingReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,20 +37,27 @@ public class OfferLinkService {
     private final OfferStateService offerStates;
     private final OfferImportService importService;
     private final OfferSearchService search;
+    private final Postings postings;
     private final Clock clock;
     private final Map<Long, Deque<Instant>> reads = new ConcurrentHashMap<>();
 
+    /** What reads the postings of the sites the feed does not collect, and makes them offers stored nowhere. */
+    record Postings(PostingReader reader, OfferNormalizer normalizer) {
+    }
+
     @Autowired
-    public OfferLinkService(OfferLinkReader reader, OfferStateService offerStates, OfferImportService importService, OfferSearchService search) {
-        this(reader, offerStates, importService, search, Clock.systemUTC());
+    public OfferLinkService(OfferLinkReader reader, OfferStateService offerStates, OfferImportService importService, OfferSearchService search,
+                            PostingReader postingReader, OfferNormalizer normalizer) {
+        this(reader, offerStates, importService, search, new Postings(postingReader, normalizer), Clock.systemUTC());
     }
 
     OfferLinkService(OfferLinkReader reader, OfferStateService offerStates, OfferImportService importService, OfferSearchService search,
-                     Clock clock) {
+                     Postings postings, Clock clock) {
         this.reader = reader;
         this.offerStates = offerStates;
         this.importService = importService;
         this.search = search;
+        this.postings = postings;
         this.clock = clock;
     }
 
@@ -56,20 +65,56 @@ public class OfferLinkService {
         URI uri = OfferLinkReader.parse(link);
         Optional<OfferSite> site = reader.siteOf(uri);
         if (site.isEmpty()) {
-            return new OfferLinkDto(OfferLinkStatus.UNSUPPORTED_SITE, null, null, null, null, null, reader.siteNames());
+            return posting(freelanceId, uri);
         }
         String siteName = site.get().getDisplayName();
         OfferLinkReader.Lookup lookup = reader.find(site.get(), uri, () -> countRead(freelanceId));
         if (lookup.status() != OfferLinkStatus.FOUND) {
-            return new OfferLinkDto(lookup.status(), siteName, null, null, null, lookup.retryAt(), null);
+            return new OfferLinkDto(lookup.status(), siteName, null, null, null, lookup.retryAt());
         }
         Long offerId = lookup.offerId();
         OfferDto offer = search.get(freelanceId, offerId);
         Optional<Long> project = offerStates.pipelineProject(freelanceId, offerId);
         if (project.isPresent()) {
-            return new OfferLinkDto(OfferLinkStatus.IN_PIPELINE, siteName, offer, project.get(), null, null, null);
+            return new OfferLinkDto(OfferLinkStatus.IN_PIPELINE, siteName, offer, project.get(), null, null);
         }
-        return new OfferLinkDto(OfferLinkStatus.FOUND, siteName, offer, null, importService.draft(freelanceId, offerId), null, null);
+        return new OfferLinkDto(OfferLinkStatus.FOUND, siteName, offer, null, importService.draft(freelanceId, offerId), null);
+    }
+
+    /**
+     * A link to a site the feed does not collect: its page's posting, read once (counted like a page of the feed's sites)
+     * and stored nowhere, made into the draft of an opportunity, unless the workspace has one from that link already.
+     */
+    private OfferLinkDto posting(Long freelanceId, URI uri) {
+        PostingSite website = PostingSite.of(uri);
+        Optional<Long> project = importService.postingProject(freelanceId, uri.toString());
+        if (project.isPresent()) {
+            return new OfferLinkDto(OfferLinkStatus.IN_PIPELINE, website.name(), null, project.get(), null, null);
+        }
+        countRead(freelanceId);
+        PostingReader.Reading reading;
+        try {
+            reading = postings.reader().read(uri);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            reading = new PostingReader.Reading(PostingReader.Outcome.UNAVAILABLE, null);
+        }
+        if (reading.outcome() != PostingReader.Outcome.FOUND) {
+            return new OfferLinkDto(statusOf(reading.outcome()), website.name(), null, null, null, null);
+        }
+        return postings.normalizer().posting(reading.offer(), clock.instant())
+            .map(offer -> new OfferLinkDto(OfferLinkStatus.POSTING, website.name(), null, null,
+                importService.draftPosting(freelanceId, offer, website), null))
+            .orElseGet(() -> new OfferLinkDto(OfferLinkStatus.GONE, website.name(), null, null, null, null));
+    }
+
+    private static OfferLinkStatus statusOf(PostingReader.Outcome outcome) {
+        return switch (outcome) {
+            case FOUND -> OfferLinkStatus.POSTING;
+            case NOT_FREELANCE -> OfferLinkStatus.NOT_FREELANCE;
+            case NONE -> OfferLinkStatus.GONE;
+            case UNAVAILABLE -> OfferLinkStatus.SITE_UNAVAILABLE;
+        };
     }
 
     /** Counts one offer read for the workspace, refused past {@link #READS_PER_WINDOW} in the last {@link #READ_WINDOW}. */

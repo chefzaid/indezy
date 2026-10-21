@@ -275,15 +275,21 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         startDate: toIsoDate(formValue.startDate)
       };
 
-      const fromOffer = this.isEditMode ? undefined : this.offerLink?.offer;
-      if (fromOffer) {
+      const linked = this.isEditMode ? undefined : this.offerLink;
+      const fromOffer = linked?.offer;
+      // A posting of a site the feed does not collect: saved with the client and source its draft names.
+      const fromPosting = linked?.status === 'POSTING' ? linked.draft : undefined;
+      if (fromOffer || fromPosting) {
         // Unset, the server takes the offer's publisher and site, created when missing.
         projectData.clientId = projectData.clientId === NEW_RECORD ? undefined : projectData.clientId;
         projectData.sourceId = projectData.sourceId === NEW_RECORD ? undefined : projectData.sourceId;
       }
       const operation = this.isEditMode
         ? this.projectService.update(this.projectId!, projectData)
-        : fromOffer ? this.offerService.importOffer(fromOffer.id, projectData) : this.projectService.create(projectData);
+        : fromOffer ? this.offerService.importOffer(fromOffer.id, projectData)
+          : fromPosting ? this.offerService.importPosting({ project: projectData, clientName: fromPosting.clientName,
+            sourceName: fromPosting.sourceName, sourceLink: fromPosting.sourceLink })
+            : this.projectService.create(projectData);
 
       operation.pipe(takeUntil(this.destroy$)).subscribe({
         next: (saved) => {
@@ -293,7 +299,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         },
         error: (error: HttpErrorResponse) => {
           console.error('Error saving project:', error);
-          const inPipeline = fromOffer && error?.status === 409;
+          const inPipeline = (fromOffer || fromPosting) && error?.status === 409;
           this.notificationService.error(inPipeline ? 'projects.offerLink.alreadyInPipeline'
             : this.isEditMode ? 'errors.updatingProject' : 'errors.creatingProject');
           this.isSubmitting = false;
@@ -304,10 +310,10 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Fills the form in from an offer found by its link; the stage chosen stays. */
+  /** Fills the form in from an offer found by its link, or a posting read from another site; the stage chosen stays. */
   fillFromOffer(link: OfferLink): void {
     const draft = link.draft;
-    if (!draft || !link.offer) {
+    if (!draft || (!link.offer && link.status !== 'POSTING')) {
       return;
     }
     const project = draft.project;

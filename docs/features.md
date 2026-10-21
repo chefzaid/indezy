@@ -326,8 +326,9 @@ suggestions are counted again after 10 minutes, or at once when the profile or t
 
 **From an offer link**, next to the Kanban board's title and the projects list's **New project**, opens the new
 opportunity form with the cursor in its **Offer link** field, which the form always offers on a new opportunity.
-Pasting the link of an offer from one of the sites the feed reads (any copy of the mission, with or without `https://`,
-tracking parameters, fragments and trailing slashes aside) and **Fill in** (or `Enter`) looks the offer up:
+Pasting the link of an offer (any copy of the mission, with or without `https://`, tracking parameters, fragments and
+trailing slashes aside) and **Fill in** (or `Enter`) looks the offer up, on one of the sites the feed reads or on any
+other job site:
 
 - **Found in the feed**: the form is filled in with what **Add to pipeline** would make of it (role, description, tech
   stack, daily rate, work mode and remote days a month, start date, duration and link), its client is the offer's
@@ -344,10 +345,16 @@ tracking parameters, fragments and trailing slashes aside) and **Fill in** (or `
   request, as the **Job boards** page does (at most once every 15 minutes per site), which finds the offers published
   since their last run; the field says it is reading the site and looks again every 5 seconds for 2 minutes. When the
   site was read moments ago, the field says when it can be read again.
-- **Refused**, with the reason: a link to a site the feed does not read (the field names the ones it does), a page
-  without an offer or gone, a job that is not freelance (CDI or CDD), an offer expired or older than 90 days, a site
-  that cannot be reached, or an address that is not a web page. Collection off on the server finds collected offers
-  only.
+- **On another site** (a company's careers page, an applicant tracking system, a board the feed does not read): the
+  page is read once, for its schema.org `JobPosting` (which most job sites publish: title, description, publisher,
+  place, daily rate, dates) or else its title and summary, and the form is filled in the same way, its client named
+  after the posting's publisher (else the site) and its source after the site (a board Indezy knows by its name, such
+  as Welcome to the Jungle, any other by its host), both created on save when missing. Nothing joins the feed. The read
+  counts against the same 20 an hour; the same link again opens the opportunity it made instead of reading the page.
+- **Refused**, with the reason: a page without an offer or gone, a job that is not freelance (CDI or CDD, or a posting
+  that states a salaried contract and no `CONTRACTOR`), an offer expired or older than 90 days, a site that cannot be
+  reached (its `robots.txt` included, or an address off the public internet), or an address that is not a web page.
+  Collection off on the server finds collected offers only.
 
 ### Profile Match
 

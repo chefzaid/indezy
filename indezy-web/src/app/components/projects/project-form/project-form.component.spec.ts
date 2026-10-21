@@ -27,7 +27,7 @@ describe('ProjectFormComponent', () => {
 
   function create(id?: number, query: Record<string, string> = {}): ComponentFixture<ProjectFormComponent> {
     projects = jasmine.createSpyObj('ProjectService', ['getById', 'create', 'update']);
-    offers = jasmine.createSpyObj('OfferService', ['resolveLink', 'importOffer']);
+    offers = jasmine.createSpyObj('OfferService', ['resolveLink', 'importOffer', 'importPosting']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
       imports: [ProjectFormComponent, TranslateModule.forRoot()],
@@ -158,6 +158,31 @@ describe('ProjectFormComponent', () => {
 
       expect(notifications.error).toHaveBeenCalledWith('projects.offerLink.alreadyInPipeline');
       expect(fixture.componentInstance.isSubmitting).toBeFalse();
+    });
+
+    it('adds a posting of another site as corrected, with the client and source its draft names', () => {
+      const fixture = create();
+      fixture.detectChanges();
+      const posting: OfferLink = { status: 'POSTING', siteName: 'acme-careers.fr', draft: {
+        project: { role: 'Développeur Java', dailyRate: 600, link: 'https://www.acme-careers.fr/postes/42', status: ProjectStatus.CONTACT },
+        clientName: 'Acme', sourceName: 'acme-careers.fr', sourceLink: 'https://www.acme-careers.fr' } };
+      fixture.componentInstance.fillFromOffer(posting);
+      fixture.detectChanges();
+      offers.importPosting.and.returnValue(of({ id: 44 } as ProjectDto));
+
+      expect(fixture.nativeElement.querySelector('[data-from-offer]').textContent).toContain('projects.offerLink.linked');
+      expect(fixture.componentInstance.newClientName).toBe('Acme');
+      fixture.componentInstance.onSubmit();
+
+      expect(offers.importOffer).not.toHaveBeenCalled();
+      expect(projects.create).not.toHaveBeenCalled();
+      const [sent] = offers.importPosting.calls.mostRecent().args;
+      expect(sent).toEqual(jasmine.objectContaining({ clientName: 'Acme', sourceName: 'acme-careers.fr', sourceLink: 'https://www.acme-careers.fr' }));
+      expect(sent.project).toEqual(jasmine.objectContaining({ role: 'Développeur Java', clientId: undefined, sourceId: undefined }));
+      expect(navigate).toHaveBeenCalledWith(['/projects', 44]);
+      // A link that gave nothing to fill in leaves the form as it is.
+      fixture.componentInstance.fillFromOffer({ status: 'GONE', siteName: 'acme-careers.fr' });
+      expect(fixture.componentInstance.offerLink).toBe(posting);
     });
 
     it('keeps what was filled in as an opportunity of its own once unlinked', () => {

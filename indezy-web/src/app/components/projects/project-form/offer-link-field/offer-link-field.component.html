@@ -27,7 +27,7 @@
     <p [class]="shown.tone">
       <mat-icon aria-hidden="true">{{ shown.tone === 'success' ? 'check_circle' : 'info' }}</mat-icon>
       <span>
-        {{ shown.key | translate: { site: shown.site, sites: shown.sites, title: shown.title, time: (shown.at | date: 'shortTime') } }}
+        {{ shown.key | translate: { site: shown.site, title: shown.title, time: (shown.at | date: 'shortTime') } }}
         @if (shown.projectId) {
           <a [routerLink]="['/projects', shown.projectId]" data-open-project>{{ 'projects.offerLink.openProject' | translate }}</a>
         }

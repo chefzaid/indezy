@@ -20,6 +20,7 @@ import {
   OfferSearchSuggestions,
   OfferSite,
   OfferSiteHealth,
+  PostingImport,
   OfferSiteInfo,
   OfferState,
   OfferStateUpdate,
@@ -75,6 +76,11 @@ export class OfferService {
   importOffer(id: number, project?: ProjectDto): Observable<ProjectDto> {
     return this.http.post<ProjectDto>(`${this.API_URL}/${id}/import`, project ?? null);
   }
+  /** Adds a posting read from a site the feed does not collect to the pipeline, as the project form corrected its draft. */
+  importPosting(posting: PostingImport): Observable<ProjectDto> {
+    return this.http.post<ProjectDto>(`${this.API_URL}/postings/import`, posting);
+  }
+
 
   /** The offer of a pasted link with the opportunity it would make. Errors are the caller's to tell. */
   resolveLink(url: string): Observable<OfferLink> {

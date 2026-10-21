@@ -22,6 +22,7 @@ import dev.swirlit.indezy.dto.OfferSiteDto;
 import dev.swirlit.indezy.dto.OfferStateDto;
 import dev.swirlit.indezy.dto.OfferStateUpdateRequest;
 import dev.swirlit.indezy.dto.OfferTrendDto;
+import dev.swirlit.indezy.dto.PostingImportRequest;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -269,7 +270,7 @@ class OfferControllerTest {
         ProjectDto project = new ProjectDto();
         project.setRole("Développeur Java");
         when(linkService.resolve(3L, "https://www.free-work.com/fr/mission/dev-java")).thenReturn(new OfferLinkDto(OfferLinkStatus.FOUND,
-            "Free-Work", null, null, new OfferDraftDto(project, "Exemple Conseil", "Free-Work"), null, null));
+            "Free-Work", null, null, new OfferDraftDto(project, "Exemple Conseil", "Free-Work", null), null));
 
         mockMvc.perform(post("/offers/link").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"url\":\"https://www.free-work.com/fr/mission/dev-java\"}"))
@@ -304,6 +305,36 @@ class OfferControllerTest {
         mockMvc.perform(post("/offers/7/import").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"role\":\"\",\"dailyRate\":700}"))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void importsAPostingFromAnotherSiteAsCorrectedInTheProjectForm() throws Exception {
+        ProjectDto created = new ProjectDto();
+        created.setId(42L);
+        when(importService.importPosting(eq(3L), any(PostingImportRequest.class))).thenReturn(created);
+        String posting = "{\"project\":{\"role\":\"Développeur Java\",\"dailyRate\":600,\"link\":\"https://www.acme-careers.fr/postes/42\"}," +
+            "\"clientName\":\"Acme\",\"sourceName\":\"acme-careers.fr\",\"sourceLink\":\"https://www.acme-careers.fr\"}";
+
+        mockMvc.perform(post("/offers/postings/import").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON).content(posting))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").value(42));
+        org.mockito.ArgumentCaptor<PostingImportRequest> sent = org.mockito.ArgumentCaptor.forClass(PostingImportRequest.class);
+        verify(importService).importPosting(eq(3L), sent.capture());
+        assertThat(sent.getValue().getClientName()).isEqualTo("Acme");
+        assertThat(sent.getValue().getProject().getRole()).isEqualTo("Développeur Java");
+        // The form's checks apply, and the names and the link are required and checked.
+        for (String refused : new String[] {
+            "{\"project\":{\"role\":\"\",\"dailyRate\":600},\"clientName\":\"Acme\",\"sourceName\":\"acme-careers.fr\"}",
+            "{\"project\":{\"role\":\"Dev\",\"dailyRate\":600},\"clientName\":\" \",\"sourceName\":\"acme-careers.fr\"}",
+            "{\"project\":{\"role\":\"Dev\",\"dailyRate\":600},\"clientName\":\"Acme\",\"sourceName\":\"x\",\"sourceLink\":\"javascript:alert(1)\"}",
+            "{\"clientName\":\"Acme\",\"sourceName\":\"x\"}"}) {
+            mockMvc.perform(post("/offers/postings/import").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON).content(refused))
+                .andExpect(status().isBadRequest());
+        }
+        when(importService.importPosting(eq(3L), any(PostingImportRequest.class)))
+            .thenThrow(new InvalidStateException("This offer is already in the pipeline as project 42"));
+        mockMvc.perform(post("/offers/postings/import").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON).content(posting))
+            .andExpect(status().isConflict());
     }
 
     @Test

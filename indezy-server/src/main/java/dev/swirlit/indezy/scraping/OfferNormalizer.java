@@ -52,9 +52,28 @@ public class OfferNormalizer {
             isStale(scraped, now)) {
             return Optional.empty();
         }
-        JobOffer offer = new JobOffer();
+        JobOffer offer = read(scraped, title, url, now);
         offer.setSite(site);
         offer.setExternalId(externalId);
+        offer.setSearchText(searchText(offer));
+        offer.setPublisherKey(OfferFingerprint.publisherKey(site, offer.getTitle(), offer.getCompany()));
+        offer.setOpeningKey(OfferFingerprint.openingKey(offer.getTitle(), offer.getDescription()));
+        return Optional.of(offer);
+    }
+
+    /**
+     * A posting read from a page of any site, made into an offer that is never stored, of no site: what the draft of an
+     * opportunity is built from. Empty without a title or a web link.
+     */
+    public Optional<JobOffer> posting(ScrapedOffer scraped, Instant now) {
+        String title = cap(scraped.getTitle(), 300);
+        String url = webLink(scraped.getUrl());
+        return title == null || url == null ? Optional.empty() : Optional.of(read(scraped, title, url, now));
+    }
+
+    /** What every offer takes from what was read: its text, rate, remote policy, place, duration, start, skills and dates. */
+    private JobOffer read(ScrapedOffer scraped, String title, String url, Instant now) {
+        JobOffer offer = new JobOffer();
         offer.setUrl(url);
         offer.setTitle(title);
         offer.setCompany(cap(scraped.getCompany(), 200));
@@ -71,10 +90,7 @@ public class OfferNormalizer {
         offer.setSeniority(scraped.getSeniority());
         offer.setSkills(skills(scraped.getSkills()));
         applyDates(offer, scraped, now);
-        offer.setSearchText(searchText(offer));
-        offer.setPublisherKey(OfferFingerprint.publisherKey(site, offer.getTitle(), offer.getCompany()));
-        offer.setOpeningKey(OfferFingerprint.openingKey(offer.getTitle(), offer.getDescription()));
-        return Optional.of(offer);
+        return offer;
     }
 
     private static void applyRate(JobOffer offer, ScrapedOffer scraped) {

@@ -10,8 +10,8 @@ public enum OfferLinkStatus {
     READING,
     /** The offer is not in the feed, and its site cannot be read on request now. */
     NOT_COLLECTED,
-    /** The link is on none of the sites the feed reads. */
-    UNSUPPORTED_SITE,
+    /** The link is on a site the feed does not read, and its page's posting was read: the draft of an opportunity. */
+    POSTING,
     /** A permanent or fixed-term job, or a mission closed to freelancers. */
     NOT_FREELANCE,
     /** Expired, or published longer ago than the feed keeps offers. */

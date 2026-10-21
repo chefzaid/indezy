@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
@@ -76,7 +77,16 @@ public class SiteHttpClient {
 
     /** A fetcher limited to {@code domain} and its subdomains. */
     public PageFetcher fetcherFor(String domain) {
-        String allowed = domain.toLowerCase(Locale.ROOT);
+        return fetcherFor(domain, host -> true);
+    }
+
+    /**
+     * A fetcher limited to {@code domain} and its subdomains, and to the hosts {@code allowedHost} accepts, checked before
+     * every request (each redirect and the {@code robots.txt} included): a page someone pasted the link of is read only
+     * on the public internet (see {@link PublicHosts}).
+     */
+    public PageFetcher fetcherFor(String domain, Predicate<String> allowedHost) {
+        Target allowed = new Target(domain.toLowerCase(Locale.ROOT), allowedHost);
         return new PageFetcher() {
             @Override
             public String get(String url) throws IOException, InterruptedException {
@@ -90,11 +100,15 @@ public class SiteHttpClient {
         };
     }
 
-    private String send(String domain, URI target, String jsonBody) throws IOException, InterruptedException {
-        URI uri = target;
+    /** Where a fetcher may go: its domain, and the hosts its check accepts. */
+    private record Target(String domain, Predicate<String> allowedHost) {
+    }
+
+    private String send(Target target, URI start, String jsonBody) throws IOException, InterruptedException {
+        URI uri = start;
         for (int redirects = 0; ; redirects++) {
-            requireOnDomain(domain, uri);
-            if (!robotsFor(domain, uri).allows(pathAndQuery(uri))) {
+            requireOnDomain(target, uri);
+            if (!robotsFor(target, uri).allows(pathAndQuery(uri))) {
                 throw new SiteResponseException(0, "robots.txt disallows " + uri.getPath());
             }
             HttpResponse<InputStream> response = exchange(uri, jsonBody);
@@ -116,23 +130,23 @@ public class SiteHttpClient {
         }
     }
 
-    private RobotsRules robotsFor(String domain, URI uri) throws IOException, InterruptedException {
+    private RobotsRules robotsFor(Target target, URI uri) throws IOException, InterruptedException {
         String origin = uri.getScheme() + "://" + uri.getRawAuthority();
         CachedRobots cached = robots.get(origin);
         Instant now = clock.instant();
         if (cached != null && cached.fetchedAt().plus(ROBOTS_TTL).isAfter(now)) {
             return cached.rules();
         }
-        RobotsRules rules = fetchRobots(domain, URI.create(origin + "/robots.txt"));
+        RobotsRules rules = fetchRobots(target, URI.create(origin + "/robots.txt"));
         robots.put(origin, new CachedRobots(rules, now));
         return rules;
     }
 
-    private RobotsRules fetchRobots(String domain, URI robotsUri) throws InterruptedException {
+    private RobotsRules fetchRobots(Target target, URI robotsUri) throws InterruptedException {
         URI uri = robotsUri;
         try {
             for (int redirects = 0; redirects <= MAX_REDIRECTS; redirects++) {
-                requireOnDomain(domain, uri);
+                requireOnDomain(target, uri);
                 HttpResponse<InputStream> response = exchange(uri, null);
                 int status = response.statusCode();
                 String location = response.headers().firstValue("Location").orElse(null);
@@ -215,12 +229,16 @@ public class SiteHttpClient {
         return StandardCharsets.UTF_8;
     }
 
-    private static void requireOnDomain(String domain, URI uri) throws SiteResponseException {
+    private static void requireOnDomain(Target target, URI uri) throws SiteResponseException {
         String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(Locale.ROOT);
         String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase(Locale.ROOT);
+        String domain = target.domain();
         boolean onDomain = host.equals(domain) || host.endsWith("." + domain);
         if (!("https".equals(scheme) || "http".equals(scheme)) || !onDomain) {
             throw new SiteResponseException(0, "Refused to leave " + domain + " for " + host);
+        }
+        if (!target.allowedHost().test(host)) {
+            throw new SiteResponseException(0, "Refused to read " + host);
         }
     }
 

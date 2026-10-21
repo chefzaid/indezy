@@ -309,10 +309,18 @@ The backend reads public job boards for the offer feed ([ADR 0009](./adr/0009-co
 
 - Requests go to fixed, built-in addresses only: each reader names its site's domain, and `SiteHttpClient` refuses any
   URL, redirect included, outside that domain or with a scheme other than `http` or `https`. The only fetched address
-  that comes from a user is a pasted offer link ([From An Offer Link](./features.md#from-an-offer-link)): it is
-  fetched only when its host is one of those built-in domains, rewritten to `https` without credentials, port,
-  fragment or tracking parameters, goes through the same client, and counts against the workspace's 20 such reads an
-  hour, so the collection cannot be turned against internal addresses (SSRF) or another site.
+  that comes from a user is a pasted offer link ([From An Offer Link](./features.md#from-an-offer-link)), rewritten to
+  `https` without credentials, port, fragment or tracking parameters, read through the same client and counted against
+  the workspace's 20 such reads an hour. On one of the built-in domains it goes to that site's reader. On any other
+  site (`PostingReader`), it is read only when its host is on the public internet (`PublicHosts`): IP literals,
+  single-label names and private suffixes (`.internal`, `.local`, `.svc`, `.cluster.local`, `.home.arpa` and the like)
+  are refused, and so is a name resolving to a loopback, private, link-local (the cloud metadata address included),
+  carrier-grade NAT (the cluster's pod range), unique-local, multicast or unspecified address. The check runs before
+  every request of the reading, each redirect (kept on the page's own site) and the `robots.txt` included, so a link
+  cannot be turned against the cluster's services or another network (SSRF). A name resolving differently between
+  the check and the request (DNS rebinding) is the remaining gap: the API's network policy restricts ingress only, and
+  an egress policy refusing private ranges is planned in [TODO.md](../TODO.md#platform--security). The page read is
+  stored nowhere.
 - `robots.txt` is honoured for the `IndezyBot` product token (RFC 9309: a missing file allows everything, an
   unreachable one stops the site's run); requests wait 2 seconds per host, time out after 30 seconds, identify Indezy
   with a contact URL and stop reading past 8 MB.

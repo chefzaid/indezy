@@ -64,7 +64,6 @@ class OfferLinkReaderTest {
         assertThat(linkReader.siteOf(URI.create("https://api.lehibou.com/annonce/1"))).contains(OfferSite.LEHIBOU);
         assertThat(linkReader.siteOf(URI.create("https://free-work.com/fr"))).contains(OfferSite.FREE_WORK);
         assertThat(linkReader.siteOf(URI.create("https://notlehibou.com/annonce/1"))).isEmpty();
-        assertThat(linkReader.siteNames()).containsExactly("Cherry Pick", "Free-Work", "LeHibou");
     }
 
     @Test

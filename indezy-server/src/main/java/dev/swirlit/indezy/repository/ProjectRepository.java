@@ -45,4 +45,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     /** Owner workspace of the project, used by access checks without loading the entity graph. */
     @Query("SELECT p.freelance.id FROM Project p WHERE p.id = :id")
     Optional<Long> findOwnerFreelanceIdById(@Param("id") Long id);
+
+    /** The workspace's first opportunity made from the posting at {@code link}, as the link field kept it. */
+    @Query("SELECT p.id FROM Project p WHERE p.freelance.id = :freelanceId AND p.link = :link ORDER BY p.id")
+    List<Long> findIdsByFreelanceIdAndLink(@Param("freelanceId") Long freelanceId, @Param("link") String link);
 }

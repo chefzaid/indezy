@@ -156,6 +156,16 @@ class SiteHttpClientTest {
     }
 
     @Test
+    void readsOnlyTheHostsItsCheckAccepts() throws Exception {
+        assertThat(client.fetcherFor(DOMAIN, host -> true).get(base + "/page")).isEqualTo("Café");
+        // Refused before any request, its robots.txt included.
+        assertThatThrownBy(() -> client.fetcherFor(DOMAIN, host -> false).get(base + "/page"))
+            .isInstanceOf(SiteResponseException.class).hasMessage("Refused to read 127.0.0.1");
+        assertThatThrownBy(() -> client.fetcherFor(DOMAIN, host -> false).get(base + "/redirect"))
+            .isInstanceOf(SiteResponseException.class);
+    }
+
+    @Test
     void honoursRobotsTxt() {
         assertThatThrownBy(() -> client.fetcherFor(DOMAIN).get(base + "/private/jobs"))
             .isInstanceOf(SiteResponseException.class).hasMessageContaining("robots.txt disallows");

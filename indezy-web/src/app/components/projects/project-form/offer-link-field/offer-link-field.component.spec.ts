@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { Offer, OfferLink } from '../../../../models/offer.models';
+import { ProjectDto } from '../../../../models/project.models';
 import { OfferService } from '../../../../services/offer/offer.service';
 import { LOOK_AGAIN_MS, OfferLinkFieldComponent, READING_FOR_MS, messageOf } from './offer-link-field.component';
 
@@ -98,14 +99,27 @@ describe('OfferLinkFieldComponent', () => {
   }));
 
   it('tells why a link gave no offer', () => {
-    expect(messageOf({ status: 'UNSUPPORTED_SITE', sites: ['Free-Work', 'LeHibou'] }))
-      .toEqual({ key: 'projects.offerLink.status.UNSUPPORTED_SITE', tone: 'problem', sites: 'Free-Work, LeHibou' });
+    expect(messageOf({ status: 'SITE_UNAVAILABLE', siteName: 'acme-careers.fr' }))
+      .toEqual({ key: 'projects.offerLink.status.SITE_UNAVAILABLE', tone: 'problem', site: 'acme-careers.fr' });
     expect(messageOf({ status: 'NOT_COLLECTED', siteName: 'Free-Work', retryAt: '2026-10-20T10:15:00Z' }))
       .toEqual({ key: 'projects.offerLink.status.NOT_COLLECTED_UNTIL', tone: 'problem', site: 'Free-Work', at: '2026-10-20T10:15:00Z' });
     expect(messageOf({ status: 'NOT_COLLECTED', siteName: 'Free-Work' }).key).toBe('projects.offerLink.status.NOT_COLLECTED');
     expect(messageOf({ status: 'NOT_FREELANCE', siteName: 'Mindquest' }))
       .toEqual({ key: 'projects.offerLink.status.NOT_FREELANCE', tone: 'problem', site: 'Mindquest' });
-    expect(messageOf({ status: 'UNSUPPORTED_SITE' }).sites).toBe('');
+  });
+
+  it('fills the form in from a posting read on a site the feed does not collect', () => {
+    const posting: OfferLink = { status: 'POSTING', siteName: 'acme-careers.fr', draft: { project: { role: 'Développeur Java' } as ProjectDto,
+      clientName: 'Acme', sourceName: 'acme-careers.fr', sourceLink: 'https://www.acme-careers.fr' } };
+
+    expect(messageOf(posting))
+      .toEqual({ key: 'projects.offerLink.filledFromPosting', tone: 'success', site: 'acme-careers.fr', title: 'Développeur Java' });
+    offers.resolveLink.and.returnValue(of(posting));
+
+    paste('https://www.acme-careers.fr/postes/developpeur-java');
+
+    expect(emitted).toEqual([posting]);
+    expect(status()).toContain('projects.offerLink.filledFromPosting');
   });
 
   it('tells a link refused by the server', () => {

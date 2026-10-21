@@ -16,6 +16,7 @@ import dev.swirlit.indezy.repository.OfferSiteExclusionRepository;
 import dev.swirlit.indezy.repository.OfferSuggestionDismissalRepository;
 import dev.swirlit.indezy.repository.SavedOfferSearchRepository;
 import dev.swirlit.indezy.repository.UserRepository;
+import dev.swirlit.indezy.scraping.PostingReader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -38,6 +40,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * What the offer feed's HTTP tests share: two real accounts, Alice and Bob, two collected offers (one in Paris with a
@@ -89,13 +93,18 @@ abstract class OfferIntegrationTestSupport {
     @Autowired
     protected OfferAppearanceRepository appearances;
 
+    /** Pages of the sites the feed does not collect are never read in tests: each test says what they hold. */
+    @MockitoBean
+    protected PostingReader postingReader;
+
     protected Account alice;
     protected Account bob;
     protected JobOffer paris;
     protected JobOffer lyon;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws InterruptedException {
+        when(postingReader.read(any())).thenReturn(new PostingReader.Reading(PostingReader.Outcome.UNAVAILABLE, null));
         alice = register("Alice");
         bob = register("Bob");
         Instant now = Instant.now();

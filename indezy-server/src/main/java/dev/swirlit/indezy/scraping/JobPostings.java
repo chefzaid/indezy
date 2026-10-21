@@ -28,10 +28,19 @@ public final class JobPostings {
 
     /** The page's job posting as an offer to complete (identifier, link, site-specific facts), or empty. */
     public static Optional<ScrapedOffer.ScrapedOfferBuilder> read(Document page) {
+        return posting(page).map(JobPostings::offer);
+    }
+
+    /** The employment types the page's job posting states ({@code CONTRACTOR}, {@code FULL_TIME}), none when it states none. */
+    public static List<String> employmentTypes(Document page) {
+        return posting(page).map(posting -> values(posting.path("employmentType"))).orElse(List.of());
+    }
+
+    private static Optional<JsonNode> posting(Document page) {
         for (Element script : page.select("script[type=application/ld+json]")) {
             JsonNode posting = find(script.data());
             if (posting != null) {
-                return Optional.of(offer(posting));
+                return Optional.of(posting);
             }
         }
         return Optional.empty();

@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.OfferDraftDto;
+import dev.swirlit.indezy.dto.PostingImportRequest;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.model.Client;
@@ -271,6 +272,60 @@ class OfferImportServiceTest {
 
         assertThatThrownBy(() -> service.importOffer(3L, 7L)).isInstanceOf(InvalidStateException.class).hasMessageContaining("41");
         verify(projectService, never()).create(any());
+    }
+
+    @Test
+    void draftsTheOpportunityOfAPostingFromAnotherSite() {
+        offer.setSite(null);
+        offer.setUrl("https://www.acme-careers.fr/postes/42");
+        PostingSite site = new PostingSite("acme-careers.fr", "https://www.acme-careers.fr");
+        Source known = withId(new Source(), 33L);
+        when(sources.findFirstByFreelanceIdAndNameIgnoreCase(3L, "acme-careers.fr")).thenReturn(Optional.of(known));
+
+        OfferDraftDto draft = service.draftPosting(3L, offer, site);
+
+        assertThat(draft.getClientName()).isEqualTo("Exemple Conseil");
+        assertThat(draft.getSourceName()).isEqualTo("acme-careers.fr");
+        assertThat(draft.getSourceLink()).isEqualTo("https://www.acme-careers.fr");
+        assertThat(draft.getProject().getSourceId()).isEqualTo(33L);
+        assertThat(draft.getProject().getClientId()).isNull();
+        assertThat(draft.getProject().getLink()).isEqualTo("https://www.acme-careers.fr/postes/42");
+        assertThat(draft.getProject().getDailyRate()).isEqualTo(650);
+        offer.setCompany(null);
+        assertThat(service.draftPosting(3L, offer, site).getClientName()).isEqualTo("acme-careers.fr");
+        verify(clients, never()).save(any());
+    }
+
+    @Test
+    void importsAPostingWithTheClientAndSourceItNamesOnce() {
+        Freelance freelance = new Freelance();
+        freelance.setId(3L);
+        when(freelances.getReferenceById(3L)).thenReturn(freelance);
+        when(projects.findIdsByFreelanceIdAndLink(3L, "https://www.acme-careers.fr/postes/42")).thenReturn(List.of());
+        PostingImportRequest request = new PostingImportRequest();
+        ProjectDto project = new ProjectDto();
+        project.setRole("Développeur Java");
+        project.setLink("https://www.acme-careers.fr/postes/42");
+        request.setProject(project);
+        request.setClientName("Acme");
+        request.setSourceName("acme-careers.fr");
+        request.setSourceLink("https://www.acme-careers.fr");
+
+        assertThat(service.importPosting(3L, request).getId()).isEqualTo(40L);
+
+        ArgumentCaptor<Client> client = ArgumentCaptor.forClass(Client.class);
+        verify(clients).save(client.capture());
+        assertThat(client.getValue()).extracting(Client::getCompanyName, Client::getCity, Client::getIsFinal).containsExactly("Acme", "France", false);
+        ArgumentCaptor<Source> source = ArgumentCaptor.forClass(Source.class);
+        verify(sources).save(source.capture());
+        assertThat(source.getValue()).extracting(Source::getName, Source::getLink, Source::getType)
+            .containsExactly("acme-careers.fr", "https://www.acme-careers.fr", SourceType.JOB_BOARD);
+        assertThat(project).extracting(ProjectDto::getClientId, ProjectDto::getSourceId, ProjectDto::getStatus, ProjectDto::getFreelanceId)
+            .containsExactly(20L, 30L, ProjectStatus.CONTACT, 3L);
+
+        when(projects.findIdsByFreelanceIdAndLink(3L, "https://www.acme-careers.fr/postes/42")).thenReturn(List.of(40L));
+        assertThat(service.postingProject(3L, "https://www.acme-careers.fr/postes/42")).contains(40L);
+        assertThatThrownBy(() -> service.importPosting(3L, request)).isInstanceOf(InvalidStateException.class).hasMessageContaining("40");
     }
 
     private static <T extends dev.swirlit.indezy.model.BaseEntity> T withId(T entity, Long id) {

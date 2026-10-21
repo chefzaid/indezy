@@ -95,3 +95,34 @@ for (const language of ['en', 'fr'] as const) {
     await expect(page).toHaveURL(/\/projects\/40$/);
   });
 }
+
+test('makes an opportunity from a posting of a site the feed does not collect (en)', async ({ page }) => {
+  test.setTimeout(60_000);
+  const posting = 'https://www.acme-careers.fr/postes/developpeur-java';
+  const { imported } = await mockWorkspace(page, 'en');
+  const postings: unknown[] = [];
+  // Registered last, so it answers instead of the workspace's route: the page's posting, read and stored nowhere.
+  await page.route('**/api/offers/link', route => route.fulfill({ json: { status: 'POSTING', siteName: 'acme-careers.fr', draft: {
+    clientName: 'Acme', sourceName: 'acme-careers.fr', sourceLink: 'https://www.acme-careers.fr',
+    project: { role: 'Développeur Java', status: 'CONTACT', dailyRate: 600, link: posting, freelanceId: 1 } } } }));
+  await page.route('**/api/offers/postings/import', async route => {
+    postings.push(route.request().postDataJSON());
+    await route.fulfill({ status: 201, json: { id: 42, role: 'Développeur Java', status: 'CONTACT' } });
+  });
+
+  await page.goto('/projects/new?from=link');
+  const field = page.getByRole('textbox', { name: texts.en.label });
+  await field.fill(posting);
+  await field.press('Enter');
+
+  await expect(page.getByText('Read from the page on acme-careers.fr, which the feed does not collect')).toBeVisible();
+  await expect(page.getByRole('textbox', { name: texts.en.role, exact: true })).toHaveValue('Développeur Java');
+  await expect(page.locator('[data-from-offer]')).toContainText('Développeur Java');
+  await expect(page.locator('mat-select[formcontrolname="clientId"]')).toContainText('Acme (new ESN, created on save)');
+  await page.getByRole('button', { name: texts.en.save, exact: true }).click();
+
+  await expect(page).toHaveURL(/\/projects\/42$/);
+  expect(postings).toEqual([expect.objectContaining({ clientName: 'Acme', sourceName: 'acme-careers.fr',
+    sourceLink: 'https://www.acme-careers.fr', project: expect.objectContaining({ role: 'Développeur Java', dailyRate: 600 }) })]);
+  expect(imported).toEqual([]);
+});

@@ -135,9 +135,9 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
         project.put("clientId", clientId);
         assertThat(call(bob, HttpMethod.POST, "/offers/" + paris.getId() + "/import", project).getStatusCode().is4xxClientError()).isTrue();
 
+        // Another site's page is read for its posting (see PostingImportIntegrationTest); this one cannot be read.
         ResponseEntity<Map> elsewhere = call(alice, HttpMethod.POST, "/offers/link", Map.of("url", "https://www.example.com/offre/1"));
-        assertThat(elsewhere.getBody()).containsEntry("status", "UNSUPPORTED_SITE");
-        assertThat((List<String>) elsewhere.getBody().get("sites")).contains("Free-Work", "LeHibou");
+        assertThat(elsewhere.getBody()).containsEntry("status", "SITE_UNAVAILABLE").containsEntry("siteName", "example.com");
         // Collection is off in tests, so an offer not collected yet is not read.
         assertThat(call(alice, HttpMethod.POST, "/offers/link", Map.of("url", "https://www.free-work.com/fr/mission/inconnue")).getBody())
             .containsEntry("status", "NOT_COLLECTED");

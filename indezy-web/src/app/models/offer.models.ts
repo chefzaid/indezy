@@ -287,7 +287,7 @@ export type OfferLinkStatus =
   | 'IN_PIPELINE'
   | 'READING'
   | 'NOT_COLLECTED'
-  | 'UNSUPPORTED_SITE'
+  | 'POSTING'
   | 'NOT_FREELANCE'
   | 'EXPIRED'
   | 'GONE'
@@ -298,6 +298,16 @@ export interface OfferDraft {
   project: ProjectDto;
   clientName: string;
   sourceName: string;
+  /** The site's home, for a posting of a site the feed does not collect (POSTING). */
+  sourceLink?: string;
+}
+
+/** A posting of a site the feed does not collect, added to the pipeline as the project form corrected its draft. */
+export interface PostingImport {
+  project: ProjectDto;
+  clientName: string;
+  sourceName: string;
+  sourceLink?: string;
 }
 
 export interface OfferLink {
@@ -307,12 +317,10 @@ export interface OfferLink {
   offer?: Offer;
   /** The opportunity of the mission, with IN_PIPELINE. */
   projectId?: number;
-  /** With FOUND. */
+  /** With FOUND, and with POSTING (a posting read from a site the feed does not collect, stored nowhere). */
   draft?: OfferDraft;
   /** When to look again (READING), or when the site can be read on request again (NOT_COLLECTED). */
   retryAt?: string;
-  /** The sites the feed reads, with UNSUPPORTED_SITE. */
-  sites?: string[];
 }
 
 export interface OfferStateUpdate {

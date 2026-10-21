@@ -284,4 +284,22 @@ class OfferNormalizerTest {
     private static ScrapedOffer.ScrapedOfferBuilder base() {
         return ScrapedOffer.builder().externalId("42").url("https://www.example.com/offre/42").title("Développeur Java");
     }
+
+    @Test
+    void makesAPostingOfAnotherSiteAnOfferOfNoSite() {
+        ScrapedOffer posting = ScrapedOffer.builder().title("  Développeur Java  ").url("https://www.acme-careers.fr/postes/42")
+            .company("Acme").description("Mission de 6 mois. 2 jours de télétravail par semaine.").rateText("TJM 600 €")
+            .postalCode("69002").city("Lyon").build();
+
+        JobOffer offer = normalizer.posting(posting, NOW).orElseThrow();
+
+        assertThat(offer.getSite()).isNull();
+        assertThat(offer.getTitle()).isEqualTo("Développeur Java");
+        assertThat(offer.getUrl()).isEqualTo("https://www.acme-careers.fr/postes/42");
+        assertThat(offer.getRateMax()).isEqualTo(600);
+        assertThat(offer.getDepartmentCode()).isEqualTo("69");
+        assertThat(offer.getDurationMonths()).isEqualTo(6);
+        assertThat(normalizer.posting(posting.toBuilder().url("ftp://acme/42").build(), NOW)).isEmpty();
+        assertThat(normalizer.posting(posting.toBuilder().title(" ").build(), NOW)).isEmpty();
+    }
 }

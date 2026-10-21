@@ -147,7 +147,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 
 - [ ] Use OpenClaw to automate job posting for platforms without an API
 - [ ] Malt connector (Malt is not part of the offer feed below)
-- [ ] One-click import of a job posting into the pipeline (URL paste -> parsed project)
+- [x] One-click import of a job posting into the pipeline (URL paste -> parsed project). Done on 2026-10-21 through the offer link field: a link to a site the feed does not collect is read once for its schema.org `JobPosting` (else its title and summary) by `PostingReader`, on the public internet only (`PublicHosts`), and drafts the opportunity, saved with its client and source named (`POST /api/offers/postings/import`), once per link; a salaried posting is refused.
 - [ ] Chrome extension to capture postings from any site (already in roadmap - implement)
 
 ### Freelance Offer Feed (added 2026-10-19)
@@ -351,6 +351,7 @@ Increments, implemented in order:
 
 ## Platform & Security
 
+- [ ] Egress network policy for `indezy-server` (`infra/k8s/network-policy.yaml` restricts ingress only): allow DNS, the shared PostgreSQL, Keycloak, the geocoding API and the public internet, and refuse the private ranges (10/8, 172.16/12, 192.168/16, 100.64/10, 169.254/16), closing the DNS-rebinding gap of the pasted posting links that `PublicHosts` checks by name.
 - [x] User registration through `/api/auth/register`
 - [x] User login through `/api/auth/login`
 - [x] JWT creation on successful authentication

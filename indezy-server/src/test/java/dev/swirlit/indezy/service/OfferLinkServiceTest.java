@@ -9,6 +9,9 @@ import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.enums.OfferLinkStatus;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.scraping.OfferLinkReader;
+import dev.swirlit.indezy.scraping.OfferNormalizer;
+import dev.swirlit.indezy.scraping.PostingReader;
+import dev.swirlit.indezy.scraping.ScrapedOffer;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -16,7 +19,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,31 +41,74 @@ class OfferLinkServiceTest {
     private final OfferStateService offerStates = mock(OfferStateService.class);
     private final OfferImportService importService = mock(OfferImportService.class);
     private final OfferSearchService search = mock(OfferSearchService.class);
+    private final PostingReader postingReader = mock(PostingReader.class);
+    private final OfferNormalizer normalizer = mock(OfferNormalizer.class);
     private final MovableClock clock = new MovableClock();
-    private final OfferLinkService service = new OfferLinkService(reader, offerStates, importService, search, clock);
+    private final OfferLinkService service = new OfferLinkService(reader, offerStates, importService, search,
+        new OfferLinkService.Postings(postingReader, normalizer), clock);
 
     @Test
-    void namesTheSupportedSitesForALinkOnAnotherSite() {
+    void draftsTheOpportunityOfAPostingOnAnotherSiteWithoutStoringIt() throws Exception {
+        String link = "https://www.welcometothejungle.com/fr/companies/acme/jobs/developpeur-java";
         when(reader.siteOf(any())).thenReturn(Optional.empty());
-        when(reader.siteNames()).thenReturn(List.of("Free-Work", "LeHibou"));
+        when(importService.postingProject(3L, link)).thenReturn(Optional.empty());
+        ScrapedOffer scraped = ScrapedOffer.builder().title("Développeur Java").url(link).build();
+        when(postingReader.read(URI.create(link))).thenReturn(new PostingReader.Reading(PostingReader.Outcome.FOUND, scraped));
+        JobOffer posting = new JobOffer();
+        when(normalizer.posting(scraped, NOW)).thenReturn(Optional.of(posting));
+        PostingSite jungle = new PostingSite("Welcome to the Jungle", "https://www.welcometothejungle.com");
+        OfferDraftDto draft = new OfferDraftDto(new ProjectDto(), "Acme", jungle.name(), jungle.homeUrl());
+        when(importService.draftPosting(3L, posting, jungle)).thenReturn(draft);
 
-        OfferLinkDto link = service.resolve(3L, "https://www.example.com/offre/1");
-
-        assertThat(link).isEqualTo(new OfferLinkDto(OfferLinkStatus.UNSUPPORTED_SITE, null, null, null, null, null, List.of("Free-Work", "LeHibou")));
+        assertThat(service.resolve(3L, link))
+            .isEqualTo(new OfferLinkDto(OfferLinkStatus.POSTING, "Welcome to the Jungle", null, null, draft, null));
         verify(reader, never()).find(any(), any(), any());
+    }
+
+    @Test
+    void tellsWhatTheLinkOfAPostingGaveWhenItGaveNoDraft() throws Exception {
+        String link = "https://jobs.example.org/postes/42";
+        when(reader.siteOf(any())).thenReturn(Optional.empty());
+        when(importService.postingProject(eq(3L), any())).thenReturn(Optional.empty());
+        ScrapedOffer permanent = ScrapedOffer.builder().title("Comptable (CDI)").build();
+        Map<PostingReader.Reading, OfferLinkStatus> expected = new LinkedHashMap<>();
+        expected.put(new PostingReader.Reading(PostingReader.Outcome.NOT_FREELANCE, permanent), OfferLinkStatus.NOT_FREELANCE);
+        expected.put(new PostingReader.Reading(PostingReader.Outcome.NONE, null), OfferLinkStatus.GONE);
+        expected.put(new PostingReader.Reading(PostingReader.Outcome.UNAVAILABLE, null), OfferLinkStatus.SITE_UNAVAILABLE);
+        ScrapedOffer untitled = ScrapedOffer.builder().build();
+        expected.put(new PostingReader.Reading(PostingReader.Outcome.FOUND, untitled), OfferLinkStatus.GONE);
+        when(normalizer.posting(untitled, NOW)).thenReturn(Optional.empty());
+
+        for (Map.Entry<PostingReader.Reading, OfferLinkStatus> outcome : expected.entrySet()) {
+            when(postingReader.read(any())).thenReturn(outcome.getKey());
+            assertThat(service.resolve(3L, link))
+                .isEqualTo(new OfferLinkDto(outcome.getValue(), "jobs.example.org", null, null, null, null));
+        }
+        verify(importService, never()).draftPosting(any(), any(), any());
+    }
+
+    @Test
+    void opensTheOpportunityTheLinkOfAPostingMadeAlready() throws Exception {
+        String link = "https://jobs.example.org/postes/42";
+        when(reader.siteOf(any())).thenReturn(Optional.empty());
+        when(importService.postingProject(3L, link)).thenReturn(Optional.of(12L));
+
+        assertThat(service.resolve(3L, link))
+            .isEqualTo(new OfferLinkDto(OfferLinkStatus.IN_PIPELINE, "jobs.example.org", null, 12L, null, null));
+        verify(postingReader, never()).read(any());
     }
 
     @Test
     void draftsTheOpportunityOfAnOfferFound() {
         JobOffer offer = foundOffer();
         OfferDto dto = mock(OfferDto.class);
-        OfferDraftDto draft = new OfferDraftDto(new ProjectDto(), "Exemple Conseil", "LeHibou");
+        OfferDraftDto draft = new OfferDraftDto(new ProjectDto(), "Exemple Conseil", "LeHibou", null);
         when(search.get(3L, offer.getId())).thenReturn(dto);
         when(offerStates.pipelineProject(3L, offer.getId())).thenReturn(Optional.empty());
         when(importService.draft(3L, offer.getId())).thenReturn(draft);
 
         assertThat(service.resolve(3L, LINK))
-            .isEqualTo(new OfferLinkDto(OfferLinkStatus.FOUND, "LeHibou", dto, null, draft, null, null));
+            .isEqualTo(new OfferLinkDto(OfferLinkStatus.FOUND, "LeHibou", dto, null, draft, null));
     }
 
     @Test
@@ -72,7 +119,7 @@ class OfferLinkServiceTest {
         when(offerStates.pipelineProject(3L, offer.getId())).thenReturn(Optional.of(40L));
 
         assertThat(service.resolve(3L, LINK))
-            .isEqualTo(new OfferLinkDto(OfferLinkStatus.IN_PIPELINE, "LeHibou", dto, 40L, null, null, null));
+            .isEqualTo(new OfferLinkDto(OfferLinkStatus.IN_PIPELINE, "LeHibou", dto, 40L, null, null));
         verify(importService, never()).draft(any(), any());
     }
 
@@ -83,7 +130,7 @@ class OfferLinkServiceTest {
             .thenReturn(new OfferLinkReader.Lookup(OfferLinkStatus.READING, null, NOW.plusSeconds(5)));
 
         assertThat(service.resolve(3L, LINK + "/?utm_source=alerte"))
-            .isEqualTo(new OfferLinkDto(OfferLinkStatus.READING, "LeHibou", null, null, null, NOW.plusSeconds(5), null));
+            .isEqualTo(new OfferLinkDto(OfferLinkStatus.READING, "LeHibou", null, null, null, NOW.plusSeconds(5)));
     }
 
     @Test

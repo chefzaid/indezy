@@ -25,7 +25,6 @@ export interface OfferLinkMessage {
   key: string;
   tone: 'success' | 'problem';
   site?: string;
-  sites?: string;
   title?: string;
   /** A time to name ("can be read again at"). */
   at?: string;
@@ -49,7 +48,7 @@ export interface OfferLinkMessage {
 export class OfferLinkFieldComponent implements AfterViewInit {
   /** Puts the cursor in the field, as when the page was opened to start from a link. */
   @Input() autofocus = false;
-  /** An offer found and not in the pipeline yet: its draft fills the form in. */
+  /** An offer found, or a posting read from another site, not in the pipeline yet: its draft fills the form in. */
   @Output() readonly found = new EventEmitter<OfferLink>();
   @ViewChild('linkInput') private linkInput?: ElementRef<HTMLInputElement>;
 
@@ -108,7 +107,7 @@ export class OfferLinkFieldComponent implements AfterViewInit {
     } else {
       this.readingSite = undefined;
       this.message = messageOf(link);
-      if (link.status === 'FOUND') {
+      if (link.status === 'FOUND' || link.status === 'POSTING') {
         this.found.emit(link);
       }
     }
@@ -141,8 +140,8 @@ export function messageOf(link: OfferLink): OfferLinkMessage {
       return { key: 'projects.offerLink.filled', tone: 'success', site, title: link.offer?.title, expired: link.offer?.expired };
     case 'IN_PIPELINE':
       return { key: 'projects.offerLink.status.IN_PIPELINE', tone: 'problem', site, projectId: link.projectId };
-    case 'UNSUPPORTED_SITE':
-      return { key: 'projects.offerLink.status.UNSUPPORTED_SITE', tone: 'problem', sites: (link.sites ?? []).join(', ') };
+    case 'POSTING':
+      return { key: 'projects.offerLink.filledFromPosting', tone: 'success', site, title: link.draft?.project.role };
     case 'NOT_COLLECTED':
       return link.retryAt
         ? { key: 'projects.offerLink.status.NOT_COLLECTED_UNTIL', tone: 'problem', site, at: link.retryAt }

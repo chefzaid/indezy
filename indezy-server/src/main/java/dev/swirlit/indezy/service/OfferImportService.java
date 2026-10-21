@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.OfferDraftDto;
+import dev.swirlit.indezy.dto.PostingImportRequest;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.model.Client;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Turns a job offer into an opportunity of the workspace's pipeline (status Contact). The publisher
@@ -42,6 +44,8 @@ public class OfferImportService {
     /** Weeks per month, to turn remote days a week into remote days a month. */
     private static final double WEEKS_PER_MONTH = 52.0 / 12;
     private static final int MAX_COLUMN_LENGTH = 255;
+    /** A client needs a city: a posting's publisher is placed in France until the workspace knows better. */
+    private static final String POSTING_CLIENT_CITY = "France";
 
     private final OfferStateService offerStates;
     private final JobOfferStateRepository states;
@@ -110,7 +114,55 @@ public class OfferImportService {
         String sourceName = offer.getSite().getDisplayName();
         clients.findFirstByFreelanceIdAndCompanyNameIgnoreCase(freelanceId, clientName).ifPresent(client -> project.setClientId(client.getId()));
         sources.findFirstByFreelanceIdAndNameIgnoreCase(freelanceId, sourceName).ifPresent(source -> project.setSourceId(source.getId()));
-        return new OfferDraftDto(project, clientName, sourceName);
+        return new OfferDraftDto(project, clientName, sourceName, null);
+    }
+
+    /**
+     * The opportunity a posting read from a site the feed does not collect would make, nothing created: like
+     * {@link #draft}, its client named after the posting's publisher (else the site) and its source after the site.
+     */
+    @Transactional(readOnly = true)
+    public OfferDraftDto draftPosting(Long freelanceId, JobOffer posting, PostingSite site) {
+        ProjectDto project = prefill(posting, freelanceId);
+        String clientName = posting.getCompany() != null ? cut(posting.getCompany()) : site.name();
+        clients.findFirstByFreelanceIdAndCompanyNameIgnoreCase(freelanceId, clientName).ifPresent(client -> project.setClientId(client.getId()));
+        sources.findFirstByFreelanceIdAndNameIgnoreCase(freelanceId, site.name()).ifPresent(source -> project.setSourceId(source.getId()));
+        return new OfferDraftDto(project, clientName, site.name(), site.homeUrl());
+    }
+
+    /** The workspace's opportunity made from the posting at {@code link}, if any. */
+    @Transactional(readOnly = true)
+    public Optional<Long> postingProject(Long freelanceId, String link) {
+        return projects.findIdsByFreelanceIdAndLink(freelanceId, link).stream().findFirst();
+    }
+
+    /**
+     * Adds a posting read from a site the feed does not collect to the pipeline, as the project form corrected its draft:
+     * an unset client or source is the one the request names, created when missing, and an unset stage is Contact. A
+     * posting whose link is in the pipeline already is refused, once per mission as for the feed's offers.
+     */
+    public ProjectDto importPosting(Long freelanceId, PostingImportRequest request) {
+        ProjectDto project = request.getProject();
+        if (project.getLink() != null) {
+            postingProject(freelanceId, project.getLink()).ifPresent(projectId -> {
+                throw new InvalidStateException(String.format(ErrorMessages.OFFER_ALREADY_IMPORTED, projectId));
+            });
+        }
+        Freelance freelance = freelances.getReferenceById(freelanceId);
+        project.setId(null);
+        project.setFreelanceId(freelanceId);
+        if (project.getStatus() == null) {
+            project.setStatus(ProjectStatus.CONTACT);
+        }
+        if (project.getClientId() == null) {
+            project.setClientId(client(freelance, cut(request.getClientName()), POSTING_CLIENT_CITY).getId());
+        }
+        if (project.getSourceId() == null) {
+            project.setSourceId(source(freelance, cut(request.getSourceName()), request.getSourceLink()).getId());
+        }
+        ProjectDto created = projectService.create(project);
+        log.info("Imported a posting from another site as project {}", created.getId());
+        return created;
     }
 
     private ProjectDto prefill(JobOffer offer, Long freelanceId) {
@@ -150,11 +202,15 @@ public class OfferImportService {
 
     /** The client named like the publisher (the site itself when the offer names none), created when missing. */
     private Client publisher(Freelance freelance, JobOffer offer) {
-        String name = publisherName(offer);
+        return client(freelance, publisherName(offer), cityOf(offer));
+    }
+
+    /** The workspace's client of that name, else a new intermediary in {@code city}. */
+    private Client client(Freelance freelance, String name, String city) {
         return clients.findFirstByFreelanceIdAndCompanyNameIgnoreCase(freelance.getId(), name).orElseGet(() -> {
             Client client = new Client();
             client.setCompanyName(name);
-            client.setCity(cityOf(offer));
+            client.setCity(city);
             client.setIsFinal(false);
             client.setFreelance(freelance);
             return clients.save(client);
@@ -166,11 +222,16 @@ public class OfferImportService {
     }
 
     private Source source(Freelance freelance, OfferSite site) {
-        return sources.findFirstByFreelanceIdAndNameIgnoreCase(freelance.getId(), site.getDisplayName()).orElseGet(() -> {
+        return source(freelance, site.getDisplayName(), site.getHomeUrl());
+    }
+
+    /** The workspace's source of that name, else a new job board at {@code link}. */
+    private Source source(Freelance freelance, String name, String link) {
+        return sources.findFirstByFreelanceIdAndNameIgnoreCase(freelance.getId(), name).orElseGet(() -> {
             Source source = new Source();
-            source.setName(site.getDisplayName());
+            source.setName(name);
             source.setType(SourceType.JOB_BOARD);
-            source.setLink(site.getHomeUrl());
+            source.setLink(link);
             source.setIsListing(true);
             source.setFreelance(freelance);
             return sources.save(source);

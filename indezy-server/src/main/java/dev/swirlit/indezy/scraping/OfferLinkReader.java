@@ -106,11 +106,6 @@ public class OfferLinkReader {
             .findFirst();
     }
 
-    /** The names of the sites the feed reads, alphabetically. */
-    public List<String> siteNames() {
-        return readers.stream().map(reader -> reader.site().getDisplayName()).sorted(String.CASE_INSENSITIVE_ORDER).toList();
-    }
-
     /**
      * The offer at {@code link} on {@code site}. An offer not collected yet is read from its page when the site's reader
      * can, after {@code beforeRead} (which refuses by throwing); otherwise a reading of the site is asked for.

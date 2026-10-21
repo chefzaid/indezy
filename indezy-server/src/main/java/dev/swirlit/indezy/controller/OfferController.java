@@ -17,6 +17,7 @@ import dev.swirlit.indezy.dto.OfferSiteDto;
 import dev.swirlit.indezy.dto.OfferStateDto;
 import dev.swirlit.indezy.dto.OfferStateUpdateRequest;
 import dev.swirlit.indezy.dto.OfferTrendDto;
+import dev.swirlit.indezy.dto.PostingImportRequest;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.OfferApplicationService;
@@ -150,6 +151,21 @@ public class OfferController {
             accessGuard.requireSeasonIfPresent(project.getSeasonId());
         }
         return new ResponseEntity<>(importService.importOffer(workspace, id, project), HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Add a posting read from a site the feed does not collect to the pipeline",
+        description = "As the body (the draft of its link, corrected in the project form) says: no client or source is the one " +
+            "named, created when missing; 409 when its link is in the pipeline already")
+    @PostMapping("/postings/import")
+    public ResponseEntity<ProjectDto> importPosting(@Valid @RequestBody PostingImportRequest request,
+                                                    @RequestParam(required = false) Long freelanceId) {
+        Long workspace = accessGuard.requireWorkspace(freelanceId);
+        ProjectDto project = request.getProject();
+        accessGuard.requireClientIfPresent(project.getClientId());
+        accessGuard.requireClientIfPresent(project.getMiddlemanId());
+        accessGuard.requireSourceIfPresent(project.getSourceId());
+        accessGuard.requireSeasonIfPresent(project.getSeasonId());
+        return new ResponseEntity<>(importService.importPosting(workspace, request), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Record that the workspace applied to an offer, adding it to the pipeline with its steps")

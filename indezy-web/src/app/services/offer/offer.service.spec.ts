@@ -138,6 +138,16 @@ describe('OfferService', () => {
     imported.flush({ id: 41 });
   });
 
+  it('adds a posting of another site as corrected in the form', () => {
+    const posting = { project: { role: 'Développeur Java', dailyRate: 600 }, clientName: 'Acme', sourceName: 'acme-careers.fr',
+      sourceLink: 'https://www.acme-careers.fr' };
+    service.importPosting(posting).subscribe();
+    const imported = http.expectOne(`${api}/postings/import`);
+    expect(imported.request.method).toBe('POST');
+    expect(imported.request.body).toEqual(posting);
+    imported.flush({ id: 44 });
+  });
+
   it('acts on several offers at once', () => {
     service.updateStates([7, 8], { hidden: true }).subscribe();
     const states = http.expectOne(`${api}/states`);
