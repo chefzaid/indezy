@@ -1,5 +1,9 @@
 package dev.swirlit.indezy.service;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import dev.swirlit.indezy.dto.ContactDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.ContactMapper;
@@ -16,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -137,18 +142,34 @@ class ContactServiceTest {
     }
 
     @Test
-    void create_WithValidData_ShouldCreateContact() {
+    void create_WithValidData_ShouldCreateContactAndLogItsIdOnly() {
+        Logger logger = (Logger) LoggerFactory.getLogger(ContactService.class);
+        ListAppender<ILoggingEvent> logs = new ListAppender<>();
+        logs.start();
+        logger.addAppender(logs);
+        Level level = logger.getLevel();
+        logger.setLevel(Level.DEBUG);
         when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
         when(clientRepository.findById(1L)).thenReturn(Optional.of(testClient));
         when(contactMapper.toEntity(testContactDto)).thenReturn(testContact);
         when(contactRepository.save(any(Contact.class))).thenReturn(testContact);
         when(contactMapper.toDto(testContact)).thenReturn(testContactDto);
 
-        ContactDto result = contactService.create(testContactDto);
+        ContactDto result;
+        try {
+            result = contactService.create(testContactDto);
+        } finally {
+            logger.detachAppender(logs);
+            logger.setLevel(level);
+        }
 
         assertThat(result).isNotNull();
         assertThat(result.getFirstName()).isEqualTo("Jane");
         verify(contactRepository).save(any(Contact.class));
+        // Its debug lines name the contact by its id, never by its name.
+        List<String> lines = logs.list.stream().map(ILoggingEvent::getFormattedMessage).toList();
+        assertThat(lines).contains("Creating new contact").anyMatch(line -> line.startsWith("Created contact with id: "));
+        assertThat(lines).noneMatch(line -> line.contains("Jane") || line.contains("Smith"));
     }
 
     @Test

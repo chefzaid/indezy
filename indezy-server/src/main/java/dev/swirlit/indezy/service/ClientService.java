@@ -46,7 +46,7 @@ public class ClientService {
     }
 
     public ClientDto create(ClientDto clientDto) {
-        log.debug("Creating new client: {}", clientDto.getCompanyName());
+        log.debug("Creating new client");
         
         // Validate freelance exists
         Freelance freelance = freelanceRepository.findById(clientDto.getFreelanceId())

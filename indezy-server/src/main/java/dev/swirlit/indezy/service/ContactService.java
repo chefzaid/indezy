@@ -64,7 +64,7 @@ public class ContactService {
     }
 
     public ContactDto create(ContactDto contactDto) {
-        log.debug("Creating new contact: {} {}", contactDto.getFirstName(), contactDto.getLastName());
+        log.debug("Creating new contact");
         
         if (contactDto.getFreelanceId() == null || contactDto.getClientId() == null) {
             throw new IllegalArgumentException(ErrorMessages.CONTACT_OWNER_REQUIRED);

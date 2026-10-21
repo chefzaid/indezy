@@ -46,7 +46,7 @@ public class SourceService {
     }
 
     public SourceDto create(SourceDto sourceDto) {
-        log.debug("Creating new source: {}", sourceDto.getName());
+        log.debug("Creating new source");
         
         // Validate freelance exists
         Freelance freelance = freelanceRepository.findById(sourceDto.getFreelanceId())

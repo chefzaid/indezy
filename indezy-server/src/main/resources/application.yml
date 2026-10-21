@@ -86,7 +86,8 @@ management:
 
 logging:
   level:
-    "[dev.swirlit.indezy]": DEBUG
+    # Production logs the application at INFO: its DEBUG lines are for development (the devcontainer and test profiles).
+    "[dev.swirlit.indezy]": INFO
     "[org.springframework.security]": WARN
     "[org.springframework.web]": WARN
     "[org.hibernate.SQL]": WARN

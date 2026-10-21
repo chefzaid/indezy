@@ -273,6 +273,8 @@ The authentication flow (`AuthController`, `AuthService`) never logs the email, 
 
 `AuthControllerTest` checks the level of each case and that the email is absent; `AuthLoggingIntegrationTest` replays registration, a duplicate registration and wrong passwords up to the lockout over HTTP, with Spring MVC and the test client logging the request and response bodies at `DEBUG`, and checks that the whole log never contains the email, the name or a password.
 
+Production logs the application (`dev.swirlit.indezy`) at `INFO`: `application.yml` sets it and the `kubernetes` profile keeps it, while the `devcontainer` and `test` profiles raise it to `DEBUG`. Debug lines name a record by its id, never by the names, emails or company names submitted (`Creating new contact`, then `Created contact with id: 12`). `LoggingLevelsTest` checks the production level, and `ContactServiceTest` that creating a contact logs neither of its names.
+
 Spring MVC logs each request and response body at `DEBUG` through its `toString`, which Lombok's `@Data` generates with every field. Production keeps `org.springframework.web` at `WARN`, but the `test` profile raises it to `DEBUG`, as an operator may when diagnosing a deployment, so no DTO or entity prints a secret:
 
 - `LoginRequest`, `RegisterRequest`, `PasswordChangeRequestDto`, `TwoFactorSetupDto`, `TwoFactorCodeRequest` and `LoginResponse` mark their passwords, two-factor codes, TOTP secret, provisioning URI (which embeds the secret and the email) and JWT with `@ToString.Exclude`

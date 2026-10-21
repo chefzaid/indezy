@@ -59,7 +59,7 @@ class AuthLoggingIntegrationTest {
         }
         assertThat(post("/auth/login", login(email, PASSWORD)).value()).isEqualTo(429);
 
-        // The application logs at DEBUG in every profile, so the debug lines of the flow are read as well.
+        // The test profile logs the application at DEBUG, so the debug lines of the flow are read as well.
         assertThat(authFlowLines(output)).anyMatch(line -> line.contains("DEBUG") && line.contains("Registration successful for user ID"));
         assertThat(authFlowLine(output, "Registration rejected: an account already exists for this email")).contains("WARN");
         assertThat(authFlowLine(output, "Login rejected: invalid credentials")).contains("WARN");
