@@ -1504,6 +1504,22 @@
       "RATE_OUTSIDE_MARKET": "A daily rate far from the market for its skill",
       "SAME_TEXT_MANY_PUBLISHERS": "The same text posted by four publishers or more",
       "KNOWN_FAKE_PUBLISHER": "A publisher known for fake listings"
+    },
+    "trends": {
+      "title": "Trends",
+      "skill": "Skill",
+      "error": "The trends could not be loaded.",
+      "noSkill": "Add skills to your profile to follow their market over time.",
+      "noHistory": "No history yet for {{skill}} {{where}}: figures are kept every night once ten open offers name it first.",
+      "caption": "{{skill}} {{where}}: the median daily rate and the open offers naming it first, against earlier nights",
+      "figure": "Figure",
+      "now": "Latest night",
+      "over30": "30 days",
+      "over90": "90 days",
+      "over365": "1 year",
+      "median": "Median daily rate",
+      "offers": "Open offers",
+      "percent": "{{sign}}{{value}}%"
     }
   }
 }

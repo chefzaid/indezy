@@ -22,6 +22,7 @@ import {
   OfferSiteInfo,
   OfferState,
   OfferStateUpdate,
+  OfferTrend,
   SavedOfferSearch
 } from '../../models/offer.models';
 import { offerQueryToHttpParams } from './offer-query';
@@ -157,6 +158,18 @@ export class OfferService {
 
   deleteSearch(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/searches/${id}`);
+  }
+
+  /** How a skill's market moved (the profile's first skill without one, all of France without a region). Errors are the caller's to tell. */
+  marketTrends(skill?: string, region?: string): Observable<OfferTrend> {
+    let params = new HttpParams();
+    if (skill) {
+      params = params.set('skill', skill);
+    }
+    if (region) {
+      params = params.set('region', region);
+    }
+    return this.http.get<OfferTrend>(`${this.API_URL}/market/trends`, { params, context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
   }
 
   /** Searches suggested from the profile and the pipeline. Errors are the caller's to tell. */

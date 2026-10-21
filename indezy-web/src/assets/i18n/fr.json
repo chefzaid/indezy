@@ -1504,6 +1504,22 @@
       "RATE_OUTSIDE_MARKET": "Un TJM très éloigné du marché de sa compétence",
       "SAME_TEXT_MANY_PUBLISHERS": "Le même texte publié par quatre éditeurs ou plus",
       "KNOWN_FAKE_PUBLISHER": "Un éditeur connu pour ses fausses annonces"
+    },
+    "trends": {
+      "title": "Tendances",
+      "skill": "Compétence",
+      "error": "Les tendances n'ont pas pu être chargées.",
+      "noSkill": "Ajoutez des compétences à votre profil pour suivre leur marché dans le temps.",
+      "noHistory": "Pas encore d'historique pour {{skill}} {{where}} : les chiffres sont gardés chaque nuit dès que dix offres ouvertes la citent en premier.",
+      "caption": "{{skill}} {{where}} : le TJM médian et les offres ouvertes qui la citent en premier, comparés aux nuits précédentes",
+      "figure": "Chiffre",
+      "now": "Dernière nuit",
+      "over30": "30 jours",
+      "over90": "90 jours",
+      "over365": "1 an",
+      "median": "TJM médian",
+      "offers": "Offres ouvertes",
+      "percent": "{{sign}}{{value}} %"
     }
   }
 }

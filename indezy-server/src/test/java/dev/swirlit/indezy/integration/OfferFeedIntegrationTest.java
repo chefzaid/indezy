@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.enums.OfferLeftOutSite;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.repository.OfferRateBenchmarkRepository;
+import dev.swirlit.indezy.repository.OfferRateHistoryRepository;
 import dev.swirlit.indezy.service.OfferRateBenchmarkService;
 import dev.swirlit.indezy.service.OfferSuspicionService;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,9 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
 
     @Autowired
     private OfferRateBenchmarkRepository benchmarks;
+
+    @Autowired
+    private OfferRateHistoryRepository nights;
 
     @Autowired
     private OfferSuspicionService suspicionService;
@@ -355,7 +359,22 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
             .get("rateMarket");
         assertThat(market).containsEntry("percent", -11).containsEntry("median", 675).containsEntry("offers", 12)
             .containsEntry("skill", "Java").doesNotContainKey("regionName");
+
+        // The night joins the trends: Alice's profile names Java, and Île-de-France has its own median.
+        users.findByEmail(alice.email()).ifPresent(user -> {
+            user.setSkills(List.of("Java", "Kafka"));
+            users.save(user);
+        });
+        Map<String, Object> trends = call(alice, HttpMethod.GET, "/offers/market/trends?region=11", null).getBody();
+        assertThat(trends).containsEntry("skills", List.of("Java", "Kafka")).containsEntry("skill", "Java")
+            .containsEntry("regionName", "Île-de-France");
+        assertThat((Map<String, Object>) trends.get("latest")).containsEntry("median", 725).containsEntry("offers", 10);
+        assertThat((List<Map<String, Object>>) trends.get("changes")).extracting(change -> change.get("days")).containsExactly(30, 90, 365);
+        assertThat(call(alice, HttpMethod.GET, "/offers/market/trends?skill=Kafka", null).getBody()).doesNotContainKey("latest");
+        assertThat(call(alice, HttpMethod.GET, "/offers/market/trends?skill=" + "x".repeat(61), null).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
         benchmarks.deleteAll();
+        nights.deleteAll();
     }
 
     @Test

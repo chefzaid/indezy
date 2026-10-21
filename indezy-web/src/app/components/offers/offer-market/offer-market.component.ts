@@ -11,6 +11,7 @@ import { Subject, catchError, of, switchMap, tap } from 'rxjs';
 import { OfferFacet, OfferMarket, OfferQuery } from '../../../models/offer.models';
 import { OfferService } from '../../../services/offer/offer.service';
 import { OfferBarChartComponent } from '../offer-bar-chart/offer-bar-chart.component';
+import { OfferMarketTrendsComponent } from '../offer-market-trends/offer-market-trends.component';
 
 type RemotePart = 'remote' | 'hybrid' | 'onsite' | 'unstated';
 
@@ -39,7 +40,8 @@ function absent(value: number | null | undefined): value is null | undefined {
  */
 @Component({
   selector: 'app-offer-market',
-  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, RouterLink, TranslateModule, OfferBarChartComponent],
+  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, RouterLink, TranslateModule, OfferBarChartComponent,
+    OfferMarketTrendsComponent],
   templateUrl: './offer-market.component.html',
   styleUrls: ['./offer-market.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -78,6 +80,11 @@ export class OfferMarketComponent implements OnChanges {
       this.loading = false;
       this.changes.markForCheck();
     });
+  }
+
+  /** The one region the feed is narrowed to, where the trends are read. */
+  get trendRegion(): string | undefined {
+    return this.query.regions.length === 1 ? this.query.regions[0] : undefined;
   }
 
   ngOnChanges(): void {

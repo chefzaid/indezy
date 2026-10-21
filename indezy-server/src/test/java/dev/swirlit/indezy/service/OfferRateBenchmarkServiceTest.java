@@ -3,14 +3,17 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.dto.OfferRateMarketDto;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.OfferRateBenchmark;
+import dev.swirlit.indezy.model.OfferRateHistory;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.OfferRateBenchmarkRepository;
+import dev.swirlit.indezy.repository.OfferRateHistoryRepository;
 import org.junit.jupiter.api.Test;
 import org.assertj.core.groups.Tuple;
 import org.mockito.ArgumentCaptor;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -31,8 +34,9 @@ class OfferRateBenchmarkServiceTest {
 
     private final JobOfferRepository offers = mock(JobOfferRepository.class);
     private final OfferRateBenchmarkRepository benchmarks = mock(OfferRateBenchmarkRepository.class);
+    private final OfferRateHistoryRepository history = mock(OfferRateHistoryRepository.class);
     private final MovableClock clock = new MovableClock();
-    private final OfferRateBenchmarkService service = new OfferRateBenchmarkService(offers, benchmarks, clock);
+    private final OfferRateBenchmarkService service = new OfferRateBenchmarkService(offers, benchmarks, history, clock);
 
     @Test
     @SuppressWarnings("unchecked")
@@ -63,6 +67,15 @@ class OfferRateBenchmarkServiceTest {
             .containsExactly(Tuple.tuple("11", "java", "Java", 725, 10),
                 Tuple.tuple(OfferRateBenchmark.FRANCE, "java", "Java", 675, 12));
         assertThat(kept).extracting(OfferRateBenchmark::getComputedAt).containsOnly(NOW);
+        // The night joins the history, replacing an earlier run of the same day; nights older than 400 days go.
+        LocalDate today = LocalDate.of(2026, 10, 21);
+        var nights = inOrder(history);
+        nights.verify(history).forgetDay(today);
+        nights.verify(history).forgetBefore(today.minusDays(OfferRateBenchmarkService.HISTORY_DAYS));
+        ArgumentCaptor<List<OfferRateHistory>> remembered = ArgumentCaptor.forClass(List.class);
+        nights.verify(history).saveAll(remembered.capture());
+        assertThat(remembered.getValue()).extracting(OfferRateHistory::getDay, OfferRateHistory::getRegionCode, OfferRateHistory::getMedianRate)
+            .containsExactlyInAnyOrder(Tuple.tuple(today, "11", 725), Tuple.tuple(today, OfferRateBenchmark.FRANCE, 675));
     }
 
     @Test

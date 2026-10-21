@@ -31,6 +31,9 @@ test('browses, filters, saves, hides and imports freelance offers (en)', async (
   await expect(snapshot.locator('[data-market-rates] canvas')).toHaveAttribute('aria-label', /^Daily rates; < €500: 2 offers; €500 – €600: 10 offers/);
   await expect(snapshot.locator('[data-remote="hybrid"]')).toContainText('Hybrid 50% (21)');
   await expect(snapshot.locator('[data-market-intermediaries]')).toContainText('Exemple Conseil');
+  const trends = snapshot.locator('[data-market-trends] tbody tr');
+  await expect(trends.first()).toHaveText(/Median daily rate\s*€630\s*\+5%\s*0%\s*—/);
+  await expect(trends.last()).toHaveText(/Open offers\s*120\s*−25%\s*\+12%\s*—/);
   const skillSearch = page.waitForRequest(request => isSearch(request) && request.url().includes('skills=Kafka'));
   await snapshot.getByRole('button', { name: 'Filter on Kafka (5 offers)' }).click();
   await skillSearch;

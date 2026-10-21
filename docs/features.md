@@ -374,6 +374,17 @@ aside), in the offer's region when ten offers or more make it, else in all of Fr
 shown. Its tooltip names the median and how many offers it is taken over. The medians are computed every night at
 04:45 (Paris time), after old offers are removed, and once when a server starts with none.
 
+### Market Trends
+
+The **Market** panel ends with **Trends**: for one of the profile's skills (the first one preselected, any other
+chosen from a list) it shows the median daily rate and the open offers naming that skill first on the latest night,
+and how each moved over 30 days, 90 days and a year, in the region the feed is narrowed to (when exactly one is
+chosen) or in all of France. The figures are those of [Rate Versus Market](#rate-versus-market), kept every night for
+400 days; a span shows "—" until a night stands for it (one at most a week earlier than the span), and a skill with
+fewer than ten offers, or none yet, says it has no history. A profile without skills is invited to add some.
+
+API: `GET /offers/market/trends` (`skill`, the profile's first one by default; `region`, all of France by default).
+
 ### Suspicious Offers
 
 A card whose offer looks like a fake or spam listing carries a **Looks suspicious** badge, whose tooltip says why, and

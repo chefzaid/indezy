@@ -3,8 +3,10 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.dto.OfferRateMarketDto;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.OfferRateBenchmark;
+import dev.swirlit.indezy.model.OfferRateHistory;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.OfferRateBenchmarkRepository;
+import dev.swirlit.indezy.repository.OfferRateHistoryRepository;
 import dev.swirlit.indezy.util.FrenchGeography;
 import dev.swirlit.indezy.util.TextFolding;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -40,6 +44,9 @@ public class OfferRateBenchmarkService {
     static final int MIN_OFFERS = 10;
     /** How long the medians read from the database are kept in memory. */
     static final Duration KEEP_FOR = Duration.ofMinutes(10);
+    /** Nights the history keeps, for the trends over a year. */
+    static final int HISTORY_DAYS = 400;
+    static final ZoneId PARIS = ZoneId.of("Europe/Paris");
 
     /** A skill in a region (or in all of France). */
     record Key(String skillKey, String regionCode) {
@@ -51,6 +58,7 @@ public class OfferRateBenchmarkService {
 
     private final JobOfferRepository offers;
     private final OfferRateBenchmarkRepository benchmarks;
+    private final OfferRateHistoryRepository history;
     private final Clock clock;
     private volatile Loaded loaded;
 
@@ -87,9 +95,26 @@ public class OfferRateBenchmarkService {
         });
         benchmarks.deleteAllInBatch();
         benchmarks.saveAll(computed);
+        remember(computed, LocalDate.ofInstant(now, PARIS));
         loaded = null;
         log.info("Computed {} daily rate medians from {} missions", computed.size(), missions.size());
         return computed.size();
+    }
+
+    /** Keeps the night's medians in the history (replacing an earlier run of the same day) and forgets the oldest nights. */
+    private void remember(List<OfferRateBenchmark> computed, LocalDate today) {
+        history.forgetDay(today);
+        history.forgetBefore(today.minusDays(HISTORY_DAYS));
+        history.saveAll(computed.stream().map(benchmark -> {
+            OfferRateHistory night = new OfferRateHistory();
+            night.setDay(today);
+            night.setSkillKey(benchmark.getSkillKey());
+            night.setSkill(benchmark.getSkill());
+            night.setRegionCode(benchmark.getRegionCode());
+            night.setMedianRate(benchmark.getMedianRate());
+            night.setOffers(benchmark.getOffers());
+            return night;
+        }).toList());
     }
 
     /** Whether no median was computed yet. */

@@ -365,6 +365,15 @@ night. Unique per skill and region (`uk_offer_rate_benchmarks_skill_region`).
 Fields: `skillKey` (the skill's folded words), `skill` (as offers write it most), `regionCode` (a region's code, or
 `FR` for all of France), `medianRate`, `offers` (ten or more, one per mission) and `computedAt`.
 
+## OfferRateHistory
+
+Table: `offer_rate_history`
+
+Purpose: each night's medians of [OfferRateBenchmark](#offerratebenchmark), kept 400 days for the market trends.
+Unique per day, skill and region (`uk_offer_rate_history_day_skill_region`).
+
+Fields: `day` (`computed_on`, Paris time), `skillKey`, `skill`, `regionCode`, `medianRate` and `offers`.
+
 ## OfferSuggestionDismissal
 
 Table: `offer_suggestion_dismissals`

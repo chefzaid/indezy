@@ -18,6 +18,7 @@ import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.OfferSiteDto;
 import dev.swirlit.indezy.dto.OfferStateDto;
 import dev.swirlit.indezy.dto.OfferStateUpdateRequest;
+import dev.swirlit.indezy.dto.OfferTrendDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -37,6 +38,7 @@ import dev.swirlit.indezy.service.OfferLinkService;
 import dev.swirlit.indezy.service.OfferMarketService;
 import dev.swirlit.indezy.service.OfferSearchService;
 import dev.swirlit.indezy.service.OfferStateService;
+import dev.swirlit.indezy.service.OfferTrendService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -100,6 +102,9 @@ class OfferControllerTest {
 
     @MockitoBean
     private OfferLinkService linkService;
+
+    @MockitoBean
+    private OfferTrendService trendService;
 
     @BeforeEach
     void setUp() {
@@ -288,6 +293,20 @@ class OfferControllerTest {
         mockMvc.perform(post("/offers/7/import").param("freelanceId", "3").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"role\":\"\",\"dailyRate\":700}"))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void tellsHowTheMarketOfASkillMoved() throws Exception {
+        when(trendService.trends(3L, "Java", "11")).thenReturn(new OfferTrendDto(List.of("Java"), "Java", "Île-de-France",
+            new OfferTrendDto.Night(LocalDate.of(2026, 10, 21), 600, 34), List.of(new OfferTrendDto.Change(30, 5, null)), List.of()));
+
+        mockMvc.perform(get("/offers/market/trends").param("skill", "Java").param("region", "11").param("freelanceId", "3"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.latest.median").value(600))
+            .andExpect(jsonPath("$.changes[0].medianPercent").value(5))
+            .andExpect(jsonPath("$.changes[0].offersPercent").doesNotExist());
+        mockMvc.perform(get("/offers/market/trends").param("region", "1234").param("freelanceId", "3")).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/offers/market/trends")).andExpect(status().isBadRequest());
     }
 
     @Test

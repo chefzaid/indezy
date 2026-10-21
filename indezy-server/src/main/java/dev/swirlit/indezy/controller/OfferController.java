@@ -15,6 +15,7 @@ import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.OfferSiteDto;
 import dev.swirlit.indezy.dto.OfferStateDto;
 import dev.swirlit.indezy.dto.OfferStateUpdateRequest;
+import dev.swirlit.indezy.dto.OfferTrendDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.OfferApplicationService;
@@ -24,6 +25,7 @@ import dev.swirlit.indezy.service.OfferLinkService;
 import dev.swirlit.indezy.service.OfferMarketService;
 import dev.swirlit.indezy.service.OfferSearchService;
 import dev.swirlit.indezy.service.OfferStateService;
+import dev.swirlit.indezy.service.OfferTrendService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -63,6 +65,7 @@ public class OfferController {
     private final OfferApplicationService applicationService;
     private final OfferBulkService bulkService;
     private final OfferLinkService linkService;
+    private final OfferTrendService trendService;
     private final OfferMarketService marketService;
     private final AccessGuard accessGuard;
 
@@ -78,6 +81,15 @@ public class OfferController {
     public OfferMarketDto market(@Valid @ModelAttribute OfferSearchRequest request,
                                  @RequestParam(required = false) Long freelanceId) {
         return marketService.snapshot(accessGuard.resolveFreelanceId(freelanceId), request);
+    }
+
+    @Operation(summary = "How the median daily rate and the open offers of a skill moved over 30, 90 and 365 days",
+        description = "The profile's first skill without one, all of France without a region")
+    @GetMapping("/market/trends")
+    public OfferTrendDto marketTrends(@RequestParam(required = false) @Size(max = 60) String skill,
+                                      @RequestParam(required = false) @Size(max = 3) String region,
+                                      @RequestParam(required = false) Long freelanceId) {
+        return trendService.trends(accessGuard.requireWorkspace(freelanceId), skill, region);
     }
 
     @Operation(summary = "Get an offer with its full description")

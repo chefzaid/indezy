@@ -29,8 +29,9 @@ describe('OfferMarketComponent', () => {
 
   function create(query: OfferQuery = defaultOfferQuery(), result: Observable<OfferMarket> = of(market())): ComponentFixture<OfferMarketComponent> {
     registerLocaleData(localeFr);
-    service = jasmine.createSpyObj('OfferService', ['market']);
+    service = jasmine.createSpyObj('OfferService', ['market', 'marketTrends']);
     service.market.and.returnValue(result);
+    service.marketTrends.and.returnValue(of({ skills: [] }));
     TestBed.configureTestingModule({
       imports: [OfferMarketComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: LOCALE_ID, useValue: 'fr-FR' }, { provide: OfferService, useValue: service }]
@@ -102,6 +103,18 @@ describe('OfferMarketComponent', () => {
     (fixture.nativeElement.querySelector('[role="alert"] button') as HTMLButtonElement).click();
 
     expect(text(fixture, '[data-market-empty]')).toBe('Aucune offre à décrire avec ces filtres.');
+  });
+
+  it('reads the trends in the one region the feed is narrowed to, else in all of France', () => {
+    const fixture = create();
+    expect(service.marketTrends).toHaveBeenCalledWith(undefined, undefined);
+
+    fixture.componentRef.setInput('query', { ...defaultOfferQuery(), regions: ['11'] });
+    fixture.detectChanges();
+    expect(service.marketTrends).toHaveBeenCalledWith(undefined, '11');
+    fixture.componentRef.setInput('query', { ...defaultOfferQuery(), regions: ['11', '84'] });
+    fixture.detectChanges();
+    expect(service.marketTrends.calls.mostRecent().args).toEqual([undefined, undefined]);
   });
 
   it('invites to set a target rate and copes with offers stating nothing', () => {

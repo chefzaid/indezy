@@ -107,6 +107,11 @@ export async function mockFeed(page: Page, language: string, matchAvailable = tr
     markets.push(new URL(route.request().url()));
     return route.fulfill({ json: market });
   });
+  // Registered after the snapshot's, so it answers the trends.
+  await page.route('**/api/offers/market/trends**', route => route.fulfill({ json: {
+    skills: ['Java', 'Kafka'], skill: 'Java', latest: { day: new Date().toISOString().slice(0, 10), median: 630, offers: 120 },
+    changes: [{ days: 30, medianPercent: 5, offersPercent: -25 }, { days: 90, medianPercent: 0, offersPercent: 12 }, { days: 365 }]
+  } }));
   await page.route('**/api/offers/*/state', route => {
     const body = route.request().postDataJSON();
     states.push(body);

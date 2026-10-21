@@ -1,0 +1,53 @@
+<section class="trends" data-market-trends aria-labelledby="market-trends-title">
+  <div class="trends-header">
+    <h3 id="market-trends-title">{{ 'offers.trends.title' | translate }}</h3>
+    @if (trend?.skills?.length) {
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="skill-field">
+        <mat-label>{{ 'offers.trends.skill' | translate }}</mat-label>
+        <mat-select [value]="trend!.skill" (selectionChange)="choose($event.value)" data-trend-skill>
+          @for (skill of trend!.skills; track skill) {
+            <mat-option [value]="skill">{{ skill }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+  </div>
+  @if (loading && !trend) {
+    <mat-spinner diameter="24" [attr.aria-label]="'offers.loading' | translate"></mat-spinner>
+  } @else if (failed) {
+    <p class="muted">
+      {{ 'offers.trends.error' | translate }}
+      <button mat-button type="button" (click)="load()">{{ 'offers.retry' | translate }}</button>
+    </p>
+  } @else if (trend && !trend.skill) {
+    <p class="muted" data-trends-no-skill>
+      {{ 'offers.trends.noSkill' | translate }} <a routerLink="/profile">{{ 'offers.match.completeProfile' | translate }}</a>
+    </p>
+  } @else if (trend && !trend.latest) {
+    <p class="muted" data-trends-no-history>{{ 'offers.trends.noHistory' | translate: { skill: trend.skill, where: where } }}</p>
+  } @else if (trend) {
+    <table class="trend-table">
+      <caption>{{ 'offers.trends.caption' | translate: { skill: trend.skill, where: where } }}</caption>
+      <thead>
+        <tr>
+          <th scope="col"><span class="cdk-visually-hidden">{{ 'offers.trends.figure' | translate }}</span></th>
+          <th scope="col">{{ 'offers.trends.now' | translate }}</th>
+          @for (days of spans; track days) {
+            <th scope="col">{{ 'offers.trends.over' + days | translate }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows; track row.label) {
+          <tr>
+            <th scope="row">{{ row.label }}</th>
+            <td class="now">{{ row.now }}</td>
+            @for (change of row.changes; track $index) {
+              <td [class]="change.tone">{{ change.text }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

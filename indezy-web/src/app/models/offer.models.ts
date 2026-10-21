@@ -361,6 +361,27 @@ export interface OfferMarket {
   perDay: { day: string; offers: number }[];
 }
 
+/** One night of a skill's market: its median daily rate and open offers. */
+export interface OfferTrendNight {
+  day: string;
+  median: number;
+  offers: number;
+}
+
+/** How a skill's market moved (see docs/features.md#market-trends). */
+export interface OfferTrend {
+  /** The profile's skills, to choose from. */
+  skills: string[];
+  skill?: string;
+  /** Absent in all of France. */
+  regionName?: string;
+  /** Absent without history. */
+  latest?: OfferTrendNight;
+  /** Over 30, 90 and 365 days; a percentage is absent without a night that far back. */
+  changes?: { days: number; medianPercent?: number; offersPercent?: number }[];
+  nights?: OfferTrendNight[];
+}
+
 export interface OfferRegion {
   regionCode: string;
   name: string;
