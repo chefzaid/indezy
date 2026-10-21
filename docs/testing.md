@@ -240,7 +240,8 @@ When adding risky behavior, treat the 80 percent report as a prompt for targeted
 
 Playwright is a first-class part of the optional manual E2E job. Run it locally with
 `cd indezy-web && npm run test:e2e`. The configuration starts the Angular development
-server automatically and retains HTML output and failure traces. The suite checks
+server automatically and retains HTML output and failure traces. Assertions wait up to 10 seconds (Playwright's
+default is 5): throttled beside other workloads, a route's first load can take longer. The suite checks
 the public authentication forms and exact-rate dashboard chart in French and English,
 including switching seasons, and saving the inactivity preference before checking
 its effect on Kanban highlighting. Target-rate scenarios cover profile validation,

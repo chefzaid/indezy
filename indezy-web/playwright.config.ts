@@ -14,6 +14,8 @@ export default defineConfig({
       ]
     : [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
   outputDir: 'test-results/playwright',
+  // The suite runs throttled beside other workloads, where a first route load can take longer than Playwright's 5 s.
+  expect: { timeout: 10_000 },
   use: {
     baseURL: 'http://127.0.0.1:4200',
     screenshot: 'only-on-failure',

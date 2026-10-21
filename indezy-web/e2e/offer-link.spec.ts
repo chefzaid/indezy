@@ -74,7 +74,7 @@ for (const language of ['en', 'fr'] as const) {
     await field.press('Enter');
     await expect(page.getByText(t.reading)).toBeVisible();
     // Looked up again five seconds later, once the site was read.
-    await expect(page.getByRole('textbox', { name: t.role, exact: true })).toHaveValue('Développeur Java 7', { timeout: 10_000 });
+    await expect(page.getByRole('textbox', { name: t.role, exact: true })).toHaveValue('Développeur Java 7');
     await expect(page.locator('[data-from-offer]')).toContainText('Développeur Java 7');
     await expect(page.locator('mat-select[formcontrolname="clientId"]')).toContainText(t.newEsn);
     await page.locator('.form-card').screenshot({ path: test.info().outputPath('offer-link.png') });
