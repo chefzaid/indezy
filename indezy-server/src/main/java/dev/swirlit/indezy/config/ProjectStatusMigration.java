@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.sql.Connection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,7 +37,7 @@ public class ProjectStatusMigration implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (!isPostgres() || !projectsTableExists()) {
+        if (!PostgresCatalog.isPostgres(jdbcTemplate) || !PostgresCatalog.tableExists(jdbcTemplate, "projects")) {
             return;
         }
         String definition = currentConstraintDefinition();
@@ -69,17 +68,6 @@ public class ProjectStatusMigration implements ApplicationRunner {
         return Arrays.stream(ProjectStatus.values())
             .map(status -> "'" + status.name() + "'")
             .collect(Collectors.joining(", "));
-    }
-
-    private boolean isPostgres() {
-        String product = jdbcTemplate.execute((Connection connection) ->
-            connection.getMetaData().getDatabaseProductName());
-        return "PostgreSQL".equalsIgnoreCase(product);
-    }
-
-    private boolean projectsTableExists() {
-        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(
-            "SELECT to_regclass('projects') IS NOT NULL", Boolean.class));
     }
 
     private String currentConstraintDefinition() {

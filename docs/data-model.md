@@ -330,7 +330,9 @@ Important fields:
   keys match and they are not placed in two different departments. Offers stored before these columns existed are
   given their keys, and grouped, by the scheduler.
 
-Indexes: `published_at` (the feed's order), `department_code`, `publisher_key`, `opening_key` and `copy_group`.
+Indexes: `published_at` (the feed's order), `department_code`, `publisher_key`, `opening_key` and `copy_group`; on
+PostgreSQL, a trigram index of `search_text` (`idx_job_offers_search_text_trgm`, built at startup by `OfferSearchIndex`,
+see [Architecture](./architecture.md#offer-search-at-scale)).
 
 ## JobOfferState
 
@@ -452,6 +454,9 @@ The Docker PostgreSQL init script is `infra/database/init/01-init.sql`.
 It currently:
 
 - enables `uuid-ossp`
+- enables `pg_trgm`, for the trigram index of the offers' search text (see [JobOffer](#joboffer))
+- sets `jit = off` and `random_page_cost = 1.1` for its role, as the cluster's database setup hook does for `indezy_user`
+  (see [Architecture](./architecture.md#offer-search-at-scale))
 - adds a database comment
 - leaves table creation to JPA/Hibernate
 - leaves development sample data to the explicit `mask db-reset` command

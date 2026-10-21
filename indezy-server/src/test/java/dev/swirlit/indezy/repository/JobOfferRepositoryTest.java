@@ -161,11 +161,11 @@ class JobOfferRepositoryTest {
         assertThat(offers.countOpenBySite(NOW)).singleElement()
             .satisfies(row -> assertThat(row).containsExactly(OfferSite.FREE_WORK, 2L));
 
-        List<Object[]> skills = offers.findTopSkills(NOW, "ja%", PageRequest.of(0, 5));
+        List<Object[]> skills = offers.countOpenSkills(NOW);
 
-        assertThat(skills).hasSize(1);
-        assertThat(skills.get(0)[1]).isEqualTo(2L);
-        assertThat(((String) skills.get(0)[0]).toLowerCase()).isEqualTo("java");
+        assertThat(skills).filteredOn(row -> ((String) row[0]).equalsIgnoreCase("java")).singleElement()
+            .satisfies(row -> assertThat(row[1]).isEqualTo(2L));
+        assertThat(skills).noneMatch(row -> row[0].equals("Jakarta"));
     }
 
     @Test

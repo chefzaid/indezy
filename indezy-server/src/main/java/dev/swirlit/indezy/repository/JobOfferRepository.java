@@ -93,14 +93,9 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
         "sum(case when o.firstSeenAt >= :week then 1 else 0 end), max(o.publishedAt) from JobOffer o group by o.site")
     List<Object[]> collectionBySite(@Param("day") Instant day, @Param("week") Instant week);
 
-    /**
-     * Open offers' most frequent skills starting with a prefix (folded to lower case), as
-     * {@code [skill, count]} rows; spellings that differ only by case count as one skill.
-     */
-    @Query("select min(s), count(o) from JobOffer o join o.skills s " +
-        "where (o.expiresAt is null or o.expiresAt > :now) and lower(s) like :prefix " +
-        "group by lower(s) order by count(o) desc")
-    List<Object[]> findTopSkills(@Param("now") Instant now, @Param("prefix") String prefix, Pageable page);
+    /** Open offers per skill, as {@code [skill, count]} rows; spellings that differ only by case count as one skill. */
+    @Query("select min(s), count(o) from JobOffer o join o.skills s where o.expiresAt is null or o.expiresAt > :now group by lower(s)")
+    List<Object[]> countOpenSkills(@Param("now") Instant now);
 
     /** Offers too old or expired that no workspace saved, applied to or imported. */
     @Query("select o.id from JobOffer o where (o.publishedAt < :publishedBefore or o.expiresAt < :now) " +

@@ -20,8 +20,8 @@
     
     <properties>
         <java.version>25</java.version>
-        <!-- The reader canaries read live sites: only the scheduled canary job runs them (see docs/testing.md). -->
-        <test.excludedGroups>canary</test.excludedGroups>
+        <!-- The reader canaries read live sites and the load test needs a PostgreSQL: each runs on request only (see docs/testing.md). -->
+        <test.excludedGroups>canary,load</test.excludedGroups>
         <!-- Security fixes pending inclusion in the Spring Boot dependency BOM. -->
         <tomcat.version>11.0.25</tomcat.version>
         <jjwt.version>0.12.6</jjwt.version>

@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
 import dev.swirlit.indezy.model.OfferPublisherBlock;
 import dev.swirlit.indezy.model.OfferSiteExclusion;
+import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.util.TextFolding;
 import jakarta.persistence.criteria.CommonAbstractCriteria;
@@ -80,6 +81,7 @@ public final class JobOfferSpecifications {
         predicates.addAll(view(request, freelanceId, root, query, cb, now));
         for (String term : keywords(request.getQ())) {
             String pattern = "%" + escapeLike(term) + "%";
+            // On each offer, after the cheaper filters: typed words are mostly common ones, which no index narrows.
             Predicate inText = cb.like(root.get("searchText"), pattern, '\\');
             // The workspace's own notes are searched too.
             predicates.add(freelanceId == null ? inText :
@@ -211,33 +213,58 @@ public final class JobOfferSpecifications {
         return cb.exists(match);
     }
 
-    /** Whether the workspace did something with the offer or with one of its copies: copies share their state. */
+    /**
+     * Whether the workspace did something with the offer or with one of its copies: copies share their state. Asked as
+     * two subqueries, one on the offer and one on its copy group, each joined on one equality that PostgreSQL hashes; one
+     * subquery matching either compared every offer with every state of the workspace (see
+     * docs/architecture.md#offer-search-at-scale).
+     */
     private static Predicate state(Long freelanceId, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb,
                                    Function<Root<JobOfferState>, Predicate> condition) {
+        return cb.or(stateOf(freelanceId, query, cb, condition, offer -> cb.equal(offer, root)),
+            stateOf(freelanceId, query, cb, condition, offer -> cb.equal(offer.get("copyGroup"), root.get("copyGroup"))));
+    }
+
+    private static Predicate stateOf(Long freelanceId, CommonAbstractCriteria query, CriteriaBuilder cb,
+                                     Function<Root<JobOfferState>, Predicate> condition, Function<Path<JobOffer>, Predicate> offer) {
         Subquery<Long> match = query.subquery(Long.class);
         Root<JobOfferState> state = match.from(JobOfferState.class);
-        Path<JobOffer> offer = state.get("offer");
-        match.select(state.get("id")).where(cb.or(cb.equal(offer, root), cb.equal(offer.get("copyGroup"), root.get("copyGroup"))),
-            cb.equal(state.get("freelance").get("id"), freelanceId), condition.apply(state));
+        match.select(state.get("id")).where(offer.apply(state.get("offer")), cb.equal(state.get("freelance").get("id"), freelanceId),
+            condition.apply(state));
         return cb.exists(match);
     }
 
-    /** The offer's site is one the workspace keeps out of its feed. */
-    private static Predicate excludedSite(Long freelanceId, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
-        Subquery<Long> exclusion = query.subquery(Long.class);
-        Root<OfferSiteExclusion> excluded = exclusion.from(OfferSiteExclusion.class);
-        exclusion.select(excluded.get("id")).where(cb.equal(excluded.get("freelance").get("id"), freelanceId),
-            cb.equal(excluded.get("site"), root.get("site")));
-        return cb.exists(exclusion);
+    /**
+     * The offers whose folded search text meets the condition, as a subquery the database runs once for the whole query:
+     * PostgreSQL finds them through the trigram index (see {@code OfferSearchIndex}) and reads only their texts, where
+     * the condition written on each offer reads every offer's text. Worth it when every offer is measured, as the match
+     * score does; a keyword filtered with others is cheaper read on the offers the others leave.
+     */
+    static Subquery<Long> textMatching(CommonAbstractCriteria query, CriteriaBuilder cb, Function<Expression<String>, Predicate> condition) {
+        Subquery<Long> matching = query.subquery(Long.class);
+        Root<JobOffer> offer = matching.from(JobOffer.class);
+        matching.select(offer.get("id")).where(condition.apply(offer.get("searchText")));
+        return matching;
     }
 
-    /** The offer's publisher is one the workspace blocked. */
+    /**
+     * The offer's site is one the workspace keeps out of its feed. Like {@link #blockedPublisher}, asked as a list read
+     * once for the query rather than a lookup per offer.
+     */
+    private static Predicate excludedSite(Long freelanceId, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
+        Subquery<OfferSite> sites = query.subquery(OfferSite.class);
+        Root<OfferSiteExclusion> excluded = sites.from(OfferSiteExclusion.class);
+        sites.select(excluded.<OfferSite>get("site")).where(cb.equal(excluded.get("freelance").get("id"), freelanceId));
+        return root.get("site").in(sites);
+    }
+
+    /** The offer's publisher is one the workspace blocked; an offer without a publisher never is. */
     private static Predicate blockedPublisher(Long freelanceId, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
-        Subquery<Long> block = query.subquery(Long.class);
-        Root<OfferPublisherBlock> blocked = block.from(OfferPublisherBlock.class);
-        block.select(blocked.get("id")).where(cb.equal(blocked.get("freelance").get("id"), freelanceId),
-            cb.equal(blocked.get("publisherKey"), root.get("companyKey")));
-        return cb.exists(block);
+        Subquery<String> keys = query.subquery(String.class);
+        Root<OfferPublisherBlock> blocked = keys.from(OfferPublisherBlock.class);
+        keys.select(blocked.<String>get("publisherKey")).where(cb.equal(blocked.get("freelance").get("id"), freelanceId));
+        Path<String> companyKey = root.get("companyKey");
+        return cb.and(cb.isNotNull(companyKey), companyKey.in(keys));
     }
 
     /**

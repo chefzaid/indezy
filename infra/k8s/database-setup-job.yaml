@@ -41,6 +41,11 @@ spec:
               \gexec
               SQL
 
+              echo "Tuning the planner for indezy_user's short queries..."
+              # Indezy's role only: no JIT compilation, which costs more than the feed's queries, and SSD page costs, so
+              # the planner reads the indexes (see docs/architecture.md#offer-search-at-scale).
+              $PSQL -c "ALTER ROLE indezy_user SET jit = off;" -c "ALTER ROLE indezy_user SET random_page_cost = 1.1;"
+
               echo "Creating indezy database if not exists..."
               $PSQL -tc "SELECT 1 FROM pg_database WHERE datname='indezy'" | grep -q 1 || \
                 $PSQL -c "CREATE DATABASE indezy OWNER indezy_user;"
@@ -52,6 +57,8 @@ spec:
                 -U indezy_user -d indezy <<-SQL
                   GRANT ALL ON SCHEMA public TO indezy_user;
                   CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+                  -- Trigram index of the offers' search text (see docs/architecture.md).
+                  CREATE EXTENSION IF NOT EXISTS pg_trgm;
               SQL
 
               echo "Database setup complete."

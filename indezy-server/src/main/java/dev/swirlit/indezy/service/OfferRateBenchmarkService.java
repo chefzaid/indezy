@@ -7,6 +7,7 @@ import dev.swirlit.indezy.model.OfferRateHistory;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.OfferRateBenchmarkRepository;
 import dev.swirlit.indezy.repository.OfferRateHistoryRepository;
+import dev.swirlit.indezy.util.ExpiringValue;
 import dev.swirlit.indezy.util.FrenchGeography;
 import dev.swirlit.indezy.util.TextFolding;
 import lombok.RequiredArgsConstructor;
@@ -52,15 +53,11 @@ public class OfferRateBenchmarkService {
     record Key(String skillKey, String regionCode) {
     }
 
-    /** The medians in memory, and when they were read. */
-    private record Loaded(Map<Key, OfferRateBenchmark> byKey, Instant at) {
-    }
-
     private final JobOfferRepository offers;
     private final OfferRateBenchmarkRepository benchmarks;
     private final OfferRateHistoryRepository history;
     private final Clock clock;
-    private volatile Loaded loaded;
+    private final ExpiringValue<Map<Key, OfferRateBenchmark>> medians = new ExpiringValue<>(KEEP_FOR, this::readMedians);
 
     /** Computes the medians again from the open offers and replaces the stored ones; how many were kept. */
     @Transactional
@@ -96,7 +93,7 @@ public class OfferRateBenchmarkService {
         benchmarks.deleteAllInBatch();
         benchmarks.saveAll(computed);
         remember(computed, LocalDate.ofInstant(now, PARIS));
-        loaded = null;
+        medians.forget();
         log.info("Computed {} daily rate medians from {} missions", computed.size(), missions.size());
         return computed.size();
     }
@@ -135,7 +132,7 @@ public class OfferRateBenchmarkService {
         if (rate == null || skillKey == null || skillKey.isBlank()) {
             return null;
         }
-        Map<Key, OfferRateBenchmark> byKey = medians();
+        Map<Key, OfferRateBenchmark> byKey = medians.get(clock.instant());
         OfferRateBenchmark benchmark = regionCode == null ? null : byKey.get(new Key(skillKey, regionCode));
         if (benchmark == null) {
             benchmark = byKey.get(new Key(skillKey, OfferRateBenchmark.FRANCE));
@@ -164,15 +161,9 @@ public class OfferRateBenchmarkService {
         return sorted.size() % 2 == 1 ? sorted.get(middle) : Math.round((sorted.get(middle - 1) + sorted.get(middle)) / 2f);
     }
 
-    private Map<Key, OfferRateBenchmark> medians() {
-        Loaded current = loaded;
-        Instant now = clock.instant();
-        if (current == null || !current.at().plus(KEEP_FOR).isAfter(now)) {
-            current = new Loaded(benchmarks.findAll().stream()
-                .collect(Collectors.toMap(benchmark -> new Key(benchmark.getSkillKey(), benchmark.getRegionCode()), Function.identity())), now);
-            loaded = current;
-        }
-        return current.byKey();
+    private Map<Key, OfferRateBenchmark> readMedians() {
+        return benchmarks.findAll().stream()
+            .collect(Collectors.toMap(benchmark -> new Key(benchmark.getSkillKey(), benchmark.getRegionCode()), Function.identity()));
     }
 
     private static OfferRateBenchmark benchmark(Key key, String skill, List<Integer> rates, Instant now) {

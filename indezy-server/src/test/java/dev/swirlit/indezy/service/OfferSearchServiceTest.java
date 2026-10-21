@@ -43,6 +43,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -244,14 +245,19 @@ class OfferSearchServiceTest {
         assertThat(sites.get(0).failing()).isFalse();
         assertThat(sites.get(0).excluded()).isFalse();
         assertThat(service.sites(null)).noneMatch(OfferSiteDto::excluded);
+        verify(offers, times(1)).countOpenBySite(NOW);
     }
 
     @Test
-    void suggestsSkillsByPrefix() {
-        when(offers.findTopSkills(eq(NOW), eq("ja%"), any())).thenReturn(List.<Object[]>of(new Object[] {"Java", 42L}));
+    void suggestsSkillsByPrefixFromCountsReadOncePerMinute() {
+        when(offers.countOpenSkills(NOW)).thenReturn(List.of(new Object[] {"Java", 42L}, new Object[] {"Kafka", 60L},
+            new Object[] {"jakarta EE", 42L}, new Object[] {"JavaScript", 50L}));
 
-        assertThat(service.skills(" Ja%_ ")).containsExactly(new OfferFacetDto("Java", 42));
-        assertThat(service.skills(null)).isEmpty();
+        assertThat(service.skills(" Ja ")).containsExactly(new OfferFacetDto("JavaScript", 50), new OfferFacetDto("jakarta EE", 42),
+            new OfferFacetDto("Java", 42));
+        assertThat(service.skills(null)).extracting(OfferFacetDto::value).containsExactly("Kafka", "JavaScript", "jakarta EE", "Java");
+        assertThat(service.skills("ja%")).isEmpty();
+        verify(offers, times(1)).countOpenSkills(NOW);
     }
 
     @Test

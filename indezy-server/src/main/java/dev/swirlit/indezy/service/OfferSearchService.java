@@ -26,6 +26,7 @@ import dev.swirlit.indezy.repository.OfferMatch;
 import dev.swirlit.indezy.repository.OfferSiteExclusionRepository;
 import dev.swirlit.indezy.repository.OfferSiteStatusRepository;
 import dev.swirlit.indezy.scraping.GeoLocator;
+import dev.swirlit.indezy.util.ExpiringValue;
 import dev.swirlit.indezy.util.FrenchGeography;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -62,6 +64,8 @@ public class OfferSearchService {
 
     static final int EXCERPT_LENGTH = 280;
     private static final int TOP_SKILLS = 20;
+    /** How long the open offers per site and per skill are kept in memory: every feed asks them, and they move slowly. */
+    static final Duration FACETS_KEEP_FOR = Duration.ofMinutes(1);
     private static final double EARTH_RADIUS_KM = 6371.0;
     /** Where "today" is read, against the profile's availability date. */
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
@@ -75,6 +79,12 @@ public class OfferSearchService {
     private final OfferRateBenchmarkService benchmarks;
     private final OfferHistoryService history;
     private final Clock clock;
+    private final ExpiringValue<Map<OfferSite, Long>> openBySite = new ExpiringValue<>(FACETS_KEEP_FOR, this::countOpenBySite);
+    private final ExpiringValue<List<SkillCount>> openSkills = new ExpiringValue<>(FACETS_KEEP_FOR, this::countOpenSkills);
+
+    /** A skill of the open offers (spellings that differ only by case count as one), in lower case to match a prefix. */
+    private record SkillCount(String skill, String lowerCase, long offers) {
+    }
 
     /** One page of offers matching the request, for {@code freelanceId}'s workspace (or none). */
     public OfferPageDto search(Long freelanceId, OfferSearchRequest request) {
@@ -114,10 +124,7 @@ public class OfferSearchService {
         Set<OfferSite> excluded = excludedSites(freelanceId);
         Map<OfferSite, OfferSiteStatus> byStatus = statuses.findAll().stream()
             .collect(Collectors.toMap(OfferSiteStatus::getSite, Function.identity()));
-        Map<OfferSite, Long> open = new HashMap<>();
-        for (Object[] row : offers.countOpenBySite(clock.instant())) {
-            open.put((OfferSite) row[0], (Long) row[1]);
-        }
+        Map<OfferSite, Long> open = openBySite.get(clock.instant());
         return Arrays.stream(OfferSite.values())
             .map(site -> {
                 OfferSiteStatus status = byStatus.get(site);
@@ -128,14 +135,30 @@ public class OfferSearchService {
             .toList();
     }
 
-    /** The open offers' most frequent skills starting with {@code prefix}. */
+    /** The open offers' most frequent skills starting with {@code prefix}, case aside. */
     public List<OfferFacetDto> skills(String prefix) {
-        String start = prefix == null ? "" : prefix.strip().toLowerCase(Locale.ROOT).replaceAll("[%_\\\\]", "");
-        List<OfferFacetDto> facets = new ArrayList<>();
-        for (Object[] row : offers.findTopSkills(clock.instant(), start + "%", PageRequest.of(0, TOP_SKILLS))) {
-            facets.add(new OfferFacetDto((String) row[0], (Long) row[1]));
+        String start = prefix == null ? "" : prefix.strip().toLowerCase(Locale.ROOT);
+        return openSkills.get(clock.instant()).stream()
+            .filter(skill -> skill.lowerCase().startsWith(start))
+            .limit(TOP_SKILLS)
+            .map(skill -> new OfferFacetDto(skill.skill(), skill.offers()))
+            .toList();
+    }
+
+    private Map<OfferSite, Long> countOpenBySite() {
+        Map<OfferSite, Long> open = new EnumMap<>(OfferSite.class);
+        for (Object[] row : offers.countOpenBySite(clock.instant())) {
+            open.put((OfferSite) row[0], (Long) row[1]);
         }
-        return facets;
+        return open;
+    }
+
+    /** Every skill of the open offers, the most frequent first, then alphabetically. */
+    private List<SkillCount> countOpenSkills() {
+        return offers.countOpenSkills(clock.instant()).stream()
+            .map(row -> new SkillCount((String) row[0], ((String) row[0]).toLowerCase(Locale.ROOT), (Long) row[1]))
+            .sorted(Comparator.comparingLong(SkillCount::offers).reversed().thenComparing(SkillCount::lowerCase))
+            .toList();
     }
 
     /** French regions with their departments, for the location filter. */

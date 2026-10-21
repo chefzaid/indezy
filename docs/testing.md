@@ -365,6 +365,57 @@ by hand from the GitLab interface; every other job skips such a pipeline, so it 
 JUnit report and samples are kept 30 days. To set the weekly run up, create a pipeline schedule on `main` (CI/CD →
 Schedules, for instance `0 6 * * 1` in `Europe/Paris`) with the variable `READER_CANARY` set to `true`.
 
+## Search Load Test
+
+`OfferSearchLoadTest` checks the offer feed stays fast with a production-sized catalogue. It collects 50,000 offers
+into PostgreSQL through the real `OfferNormalizer` and `OfferStore` (`LoadTestOffers` writes them as the job boards
+do, the same ones on every run: a role and a skill in the title, one to three thousand characters of description, two
+thirds with a rate, one mission in eight on a second site, a fifth expired since), computes the rate medians, and
+creates a workspace near Paris whose profile names Java, Spring Boot and Kubernetes at 650 € a day, with 200 offers
+saved, 100 hidden, 1,300 read and 30 noted. It times each of the feed's twelve common searches (keywords common and
+rare, filters, best match, distance, a deep page, the saved view) and its side requests (sites, skill suggestions,
+market) alone, then sends them 20 at a time over HTTP, 400 searches in all, writes the timings per request to
+`indezy-server/target/load-test/report.md`, and fails when a request is not answered or when the 95th percentile of
+the searches reaches 300 ms.
+
+The test carries the JUnit tag `load`, which `mvn test` and `mvn verify` leave out. It needs a disposable PostgreSQL;
+the offers are kept there for the next run, so only the first run collects them (about three minutes on two cores).
+`-Dindezy.load.rounds=2` sends 40 searches instead of 400, to measure a slow build quickly.
+Locally, on the loopback interface only:
+
+```bash
+docker run -d --name indezy-load-pg -p 127.0.0.1:55432:5432 --cpus=2 --memory=1g \
+  -e POSTGRES_USER=indezy -e POSTGRES_PASSWORD=indezy -e POSTGRES_DB=indezy_load postgres:18.6-bookworm
+cd indezy-server
+./mvnw test -Dtest=OfferSearchLoadTest -Dgroups=load -Dtest.excludedGroups=none -Djacoco.skip=true
+docker rm -f indezy-load-pg
+```
+
+`INDEZY_LOAD_DATABASE_URL`, `INDEZY_LOAD_DATABASE_USER` and `INDEZY_LOAD_DATABASE_PASSWORD` point it at another
+database. Never point it at a database holding real data: it adds its offers and accounts there. The test's
+connections take the planner settings the database setup hook gives the application's role (`jit = off`,
+`random_page_cost = 1.1`, see [Architecture](./architecture.md#offer-search-at-scale)).
+
+Measured on 2026-10-21 against PostgreSQL 18.6 limited to two cores at low priority on the shared cluster node, the
+server and the test sharing two more, before and after the changes of the
+[offer search at scale](./architecture.md#offer-search-at-scale):
+
+| Request | Before, 20 at a time: p50 / p95 | Now, alone: median | Now, 20 at a time: p50 / p95 |
+|---|---:|---:|---:|
+| All searches | 44.3 s / 87.7 s | 393 ms (mean of the medians) | 3.6 s / 8.2 s |
+| Newest, no filter | 18.8 s / 44.3 s | 170 ms | 2.7 s / 3.9 s |
+| Keyword: java | 69.0 s / 87.7 s | 462 ms | 4.5 s / 6.7 s |
+| Keyword, rate, region, remote | 29.4 s / 56.6 s | 184 ms | 3.0 s / 4.3 s |
+| Best match | 68.9 s / 68.9 s | 863 ms | 6.6 s / 8.0 s |
+| Unread offers matching the profile | 54.4 s / 61.5 s | 1,154 ms | 8.4 s / 10.0 s |
+| Sites with their open offers | 1.4 s / 3.3 s | 16 ms | 1.2 s / 3.2 s |
+| Skill suggestions | 1.4 s / 2.7 s | 8 ms | 5 ms / 269 ms |
+| Market of a keyword search | 49.3 s / 50.5 s | 1,090 ms | 7.5 s / 10.8 s |
+
+The "before" run sent 40 searches; both answered every request. Alone, a search now takes 393 ms on average, so
+twenty at a time on two database cores queue for seconds: the 300 ms target is not met yet, and the test fails on it.
+The work left is listed in [TODO.md](../TODO.md#job-board-integrations).
+
 ## Troubleshooting
 
 ### ChromeHeadless is unavailable

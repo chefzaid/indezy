@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * How well an offer fits the workspace's profile, out of 100: up to {@value #SKILL_POINTS} points for the profile's
@@ -205,8 +206,8 @@ public final class OfferMatch {
             mentioned = cb.sum(mentioned, cb.<Integer>selectCase().when(mentions(TextFolding.words(skill), root, query, cb), 1).otherwise(0));
         }
         int full = profile.skillsForFull();
-        Expression<Integer> points = cb.prod(cb.<Integer>selectCase().when(cb.ge(mentioned, full), cb.literal(full)).otherwise(mentioned),
-            SKILL_POINTS / full);
+        // least() names the skills once: each mention is a subquery the database would otherwise run twice.
+        Expression<Integer> points = cb.prod(cb.function("least", Integer.class, mentioned, cb.literal(full)), SKILL_POINTS / full);
         if (profile.targetRate() != null) {
             points = cb.sum(points, ratePoints(profile.targetRate(), root, cb));
         }
@@ -232,9 +233,18 @@ public final class OfferMatch {
             listed.select(offer.get("id")).where(cb.equal(offer, root), cb.equal(cb.lower(skills), skill));
             return cb.exists(listed);
         }
-        Expression<String> text = cb.concat(cb.concat(" ", cb.coalesce(root.<String>get("searchText"), "")), " ");
         String word = JobOfferSpecifications.escapeLike(skill);
-        return cb.or(cb.like(text, "% " + word + " %", '\\'), cb.like(text, "% " + word + ". %", '\\'));
+        Function<Expression<String>, Predicate> wholeWord = searchText -> {
+            Expression<String> text = cb.concat(cb.concat(" ", searchText), " ");
+            return cb.and(cb.like(searchText, "%" + word + "%", '\\'),
+                cb.or(cb.like(text, "% " + word + " %", '\\'), cb.like(text, "% " + word + ". %", '\\')));
+        };
+        // A subquery reads the copies of one mission (see JobOfferSpecifications#earlierCopy): their few texts are read
+        // directly. The feed's offers come from the trigram index, which only their texts are read on.
+        if (query instanceof Subquery<?>) {
+            return wholeWord.apply(root.get("searchText"));
+        }
+        return root.get("id").in(JobOfferSpecifications.textMatching(query, cb, wholeWord));
     }
 
     private static Expression<Integer> ratePoints(int target, Root<JobOffer> root, CriteriaBuilder cb) {
