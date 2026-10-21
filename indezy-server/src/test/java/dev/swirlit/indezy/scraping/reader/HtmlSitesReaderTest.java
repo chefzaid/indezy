@@ -138,30 +138,41 @@ class HtmlSitesReaderTest {
     }
 
     @Test
-    void readsBeyondSkillsFreelanceOffersDatedBySitemap() throws Exception {
+    void readsBeyondSkillsFreelanceOffersFromTheirPageDatedBySitemap() throws Exception {
+        String architect = BeyondSkillsItReader.LIST_URL + "/architecte-frontend-vuejs-freelance";
+        String golang = BeyondSkillsItReader.LIST_URL + "/senior-backend-golang";
         FakeFetcher fetcher = new FakeFetcher()
             .resource(BeyondSkillsItReader.SITEMAP, "beyond-skills-sitemap.xml")
-            .resource(BeyondSkillsItReader.LIST_URL, "beyond-skills-list.html");
+            .resource(BeyondSkillsItReader.LIST_URL, "beyond-skills-list.html")
+            .resource(architect, "beyond-skills-offer.html")
+            .page(golang, "<html><body><div class=\"offres_title\"><h1>Senior Backend Golang</h1></div></body></html>");
         WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of());
         BeyondSkillsItReader reader = new BeyondSkillsItReader();
 
         reader.read(fetcher, batch);
 
+        // The CDI offer's page is never read.
+        assertThat(fetcher.requests()).containsExactly(BeyondSkillsItReader.SITEMAP, BeyondSkillsItReader.LIST_URL, architect, golang);
         assertThat(batch.offers).extracting(ScrapedOffer::getExternalId).containsExactly("architecte-frontend-vuejs-freelance", "senior-backend-golang");
-        ScrapedOffer architect = batch.offers.get(0);
-        assertThat(architect.getTitle()).isEqualTo("Architecte Frontend Vue.js");
-        assertThat(architect.getUrl()).isEqualTo("https://www.beyondskillsit.com/offres-disponibles/architecte-frontend-vuejs-freelance");
-        assertThat(architect.getCity()).isEqualTo("Paris");
-        assertThat(architect.getRegionName()).isEqualTo("Île-de-France");
-        assertThat(architect.getRemoteText()).isEqualTo("Remote");
-        assertThat(architect.getRateText()).isEqualTo("600-650€/jour");
-        assertThat(architect.getPublishedAt()).isEqualTo(Instant.parse("2026-10-12T00:00:00Z"));
-        assertThat(architect.isPublishedDayOnly()).isTrue();
-        ScrapedOffer golang = batch.offers.get(1);
-        assertThat(golang.getPublishedAt()).isNull();
-        assertThat(golang.isPublishedDayOnly()).isFalse();
-        assertThat(golang.getCity()).isNull();
-        assertThat(golang.getRateText()).isNull();
+        ScrapedOffer offer = batch.offers.get(0);
+        assertThat(offer.getTitle()).isEqualTo("Architecte Frontend Vue.js");
+        assertThat(offer.getUrl()).isEqualTo(architect);
+        assertThat(offer.getCity()).isEqualTo("Paris");
+        assertThat(offer.getRemoteText()).isEqualTo("Remote");
+        assertThat(offer.getRateText()).isEqualTo("600-650€/jour");
+        assertThat(offer.getSkills()).containsExactly("Vue.js", "TypeScript");
+        assertThat(offer.getDescription()).isEqualTo("🏢 L'entreprise\n\nUn éditeur SaaS en forte croissance.\n\n🎯 Le rôle\n\n• Définir l'architecture frontend");
+        assertThat(offer.getPublishedAt()).isEqualTo(Instant.parse("2026-10-12T00:00:00Z"));
+        assertThat(offer.isPublishedDayOnly()).isTrue();
+        assertThat(offer.isFreelance()).isTrue();
+        // A page that no longer says Freelance is set aside.
+        ScrapedOffer bare = batch.offers.get(1);
+        assertThat(bare.isFreelance()).isFalse();
+        assertThat(bare.getPublishedAt()).isNull();
+        assertThat(bare.getCity()).isNull();
+        assertThat(bare.getRateText()).isNull();
+        assertThat(reader.offer(new DetailPagesReader.Entry(golang, "x", null), Jsoup.parse("<p>Offre pourvue</p>"))).isNull();
+        assertThat(reader.offerId(architect)).contains("architecte-frontend-vuejs-freelance");
         assertThat(reader.site()).isEqualTo(OfferSite.BEYOND_SKILLS_IT);
         assertThat(reader.domain()).isEqualTo("beyondskillsit.com");
     }

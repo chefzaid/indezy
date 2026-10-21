@@ -169,7 +169,7 @@ Sites read today:
 | LeGratin | the missions page with the daily rate, context, duration, city and remote days; each mission is dated by its id | every 3 hours |
 | Freelance-Informatique | its freelance offers page after page, with skills, department, start and duration, dated by their reference | every 2 hours |
 | Espace Freelance | its missions page after page, with the trade, agency, reference, start and daily rate | every 12 hours |
-| Beyond Skills IT | the offers labelled Freelance on its offers page, with place, work mode and daily rate, dated by the sitemap | every 12 hours |
+| Beyond Skills IT | the offers labelled Freelance on its offers page, each read from its own page with place, work mode, daily rate, skills and description, dated by the sitemap | every 12 hours |
 | Koïno | the missions of its sitemap whose applications are open, with the daily rate, place and description | every 12 hours |
 | Sixième Homme | the missions its home page showcases (the only public ones), with start, duration, rate, place and remote work | every 12 hours |
 | FreelanceRepublik | the missions of its sitemap, from their schema.org contractor posting, with place and full description | every 12 hours |
@@ -178,7 +178,7 @@ Sites read today:
 | KatchMe | the open freelance offers of its WordPress API (its CDI jobs and filled missions are left out), with the place, daily rate, remote policy and description of their page | every 6 hours |
 
 Sites that describe each offer on its own page (WorkDispo, Next Mondays, Mindquest, Freelance Factory, Koïno,
-Sixième Homme, FreelanceRepublik, EasyPartner, KatchMe) are read a few pages at a time: each run reads up to 100 offers Indezy does not hold yet, most
+Sixième Homme, FreelanceRepublik, EasyPartner, KatchMe, Beyond Skills IT) are read a few pages at a time: each run reads up to 100 offers Indezy does not hold yet, most
 recently changed first, so their backlog fills in over the first runs. An offer set aside (a CDI or CDD job, an offer older than 90 days, a page
 gone) is remembered for 30 days and not read again.
 
@@ -337,7 +337,7 @@ tracking parameters, fragments and trailing slashes aside) and **Fill in** (or `
   note on the mission joins the opportunity's notes. A banner names the offer, with **Unlink** to keep what was filled
   in as an opportunity of its own; an expired offer is pointed out.
 - **Already in the pipeline** (by this offer or one of its copies): the field says so and links to its opportunity.
-- **Not collected yet**: Mindquest, WorkDispo, Koïno, Next Mondays, Sixième Homme, FreelanceRepublik, EasyPartner and KatchMe describe each offer on its own
+- **Not collected yet**: Mindquest, WorkDispo, Koïno, Next Mondays, Sixième Homme, FreelanceRepublik, EasyPartner, KatchMe and Beyond Skills IT describe each offer on its own
   page, so that page is read at once, through the collection's polite client, and the offer joins the feed. Each
   workspace reads at most 20 offers an hour this way (`429` with `Retry-After` beyond). The other sites are read on
   request, as the **Job boards** page does (at most once every 15 minutes per site), which finds the offers published
