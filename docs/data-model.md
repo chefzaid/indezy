@@ -309,7 +309,7 @@ Important fields:
 
 - `site` (`OfferSite`: `FREE_WORK`, `COLLECTIVE`, `CHERRY_PICK`, `LEHIBOU`, `YEETS`, `WORKDISPO`, `NEXT_MONDAYS`,
   `MINDQUEST`, `FREELANCE_FACTORY`, `LITTLE_BIG_CONNECTION`, `SILKHOM`, `LEGRATIN`, `FREELANCE_INFORMATIQUE`,
-  `ESPACE_FREELANCE`, `BEYOND_SKILLS_IT`, `KOINO`, `SIXIEME_HOMME`, `FREELANCE_REPUBLIK`, `EASY_PARTNER`) and `externalId`, the offer's
+  `ESPACE_FREELANCE`, `BEYOND_SKILLS_IT`, `KOINO`, `SIXIEME_HOMME`, `FREELANCE_REPUBLIK`, `EASY_PARTNER`, `CASTOR_NETWORK`, `KATCHME`) and `externalId`, the offer's
   identifier on its site, unique together (`uk_job_offers_site_external_id`); `url`, the offer on its site
 - `title`, `company` (the publisher: ESN, agency or client), `description` (plain text, at most 20,000 characters)
 - `rateMin`, `rateMax`: daily rate in euros, either can be missing ("TJM max 600 €" has only a maximum)

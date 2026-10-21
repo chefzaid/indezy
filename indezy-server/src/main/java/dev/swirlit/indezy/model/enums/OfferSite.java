@@ -27,7 +27,9 @@ public enum OfferSite {
     KOINO("Koïno", "https://www.koino.fr", Duration.ofHours(12)),
     SIXIEME_HOMME("Sixième Homme", "https://sixiemehomme.io", Duration.ofHours(12)),
     FREELANCE_REPUBLIK("FreelanceRepublik", "https://www.freelancerepublik.com", Duration.ofHours(12)),
-    EASY_PARTNER("EasyPartner", "https://easypartner.fr", Duration.ofHours(12));
+    EASY_PARTNER("EasyPartner", "https://easypartner.fr", Duration.ofHours(12)),
+    CASTOR_NETWORK("Castor Network", "https://www.castor-network.com", Duration.ofHours(12)),
+    KATCHME("KatchMe", "https://www.katchme.fr", Duration.ofHours(6));
 
     private final String displayName;
     private final String homeUrl;

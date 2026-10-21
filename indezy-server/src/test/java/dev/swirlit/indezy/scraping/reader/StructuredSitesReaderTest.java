@@ -19,7 +19,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** Next Mondays, Mindquest, Freelance Factory and LittleBig Connection, read from samples of their pages. */
+/** Next Mondays, Mindquest, Freelance Factory, KatchMe and LittleBig Connection, read from samples of their pages. */
 class StructuredSitesReaderTest {
 
     @Test
@@ -93,6 +93,51 @@ class StructuredSitesReaderTest {
         assertThat(offer.isFreelance()).isTrue();
         assertThat(reader.site()).isEqualTo(OfferSite.FREELANCE_FACTORY);
         assertThat(reader.domain()).isEqualTo("freelance-factory.fr");
+    }
+
+    @Test
+    void readsKatchMeOpenFreelanceOffersWithTheirOwnFacts() throws Exception {
+        String offer = "https://www.katchme.fr/offre/ingenieur-reseau-securite-palo-alto-prisma-access/";
+        FakeFetcher fetcher = new FakeFetcher()
+            .resource(KatchMeReader.API, "katchme-api.json")
+            .resource(offer, "katchme-offer.html");
+        WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of());
+        KatchMeReader reader = new KatchMeReader();
+
+        reader.read(fetcher, batch);
+
+        // The CDI offer and the filled one are never fetched.
+        assertThat(fetcher.requests()).containsExactly(KatchMeReader.API, offer);
+        ScrapedOffer network = batch.offers.get(0);
+        assertThat(batch.offers).hasSize(1);
+        assertThat(network.getExternalId()).isEqualTo("ingenieur-reseau-securite-palo-alto-prisma-access");
+        assertThat(network.getTitle()).isEqualTo("Ingénieur Réseau & Sécurité – Palo Alto Prisma Access");
+        assertThat(network.getPublishedAt()).isEqualTo(Instant.parse("2026-10-12T16:13:55Z"));
+        assertThat(network.getCity()).isEqualTo("Massy");
+        assertThat(network.getRateText()).isEqualTo("TJM 400-550€");
+        assertThat(network.getRemoteText()).isEqualTo("Télétravail partiel");
+        assertThat(network.getDescription()).isEqualTo("Infos sur l’entreprise\n\nNotre client recherche un(e) Ingénieur Réseau & " +
+            "Sécurité maîtrisant Palo Alto Prisma Access.\n\nLes missions\n\n• Concevoir des architectures réseau et sécurité.");
+        assertThat(network.isFreelance()).isTrue();
+        assertThat(reader.offerId(offer)).contains("ingenieur-reseau-securite-palo-alto-prisma-access");
+        assertThat(reader.site()).isEqualTo(OfferSite.KATCHME);
+        assertThat(reader.domain()).isEqualTo("katchme.fr");
+    }
+
+    @Test
+    void readsAKatchMeOfferFromItsPageAloneAndTellsItsContract() throws Exception {
+        String permanent = "https://www.katchme.fr/offre/controleur-de-gestion/";
+        FakeFetcher fetcher = new FakeFetcher().page(permanent, "<html><body><div id=\"topbtn\"><h2 class=\"elementor-heading-title\">" +
+            "Contrôleur de Gestion</h2></div><ul><li><span class=\"elementor-post-info__terms-list-item\">Hauts-de-Seine</span></li>" +
+            "<li><span class=\"elementor-post-info__terms-list-item\">45-50K€</span></li>" +
+            "<li><span class=\"elementor-post-info__terms-list-item\">CDI</span></li></ul></body></html>");
+
+        ScrapedOffer offer = new KatchMeReader().readOne(fetcher, permanent).orElseThrow();
+
+        assertThat(offer.getTitle()).isEqualTo("Contrôleur de Gestion");
+        assertThat(offer.getCity()).isEqualTo("Hauts-de-Seine");
+        assertThat(offer.isFreelance()).isFalse();
+        assertThat(new KatchMeReader().offer(null, Jsoup.parse("<html><body><h1>Offres</h1></body></html>"))).isNull();
     }
 
     @Test

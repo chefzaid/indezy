@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.scraping.reader;
 
 import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.model.enums.Seniority;
 import dev.swirlit.indezy.scraping.FakeFetcher;
 import dev.swirlit.indezy.scraping.ScrapedOffer;
 import dev.swirlit.indezy.scraping.SiteResponseException;
@@ -15,7 +16,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 
-/** Silkhom, LeGratin, Freelance-Informatique, Espace Freelance, Beyond Skills IT, Koïno and Sixième Homme, read from samples of their pages. */
+/**
+ * Silkhom, LeGratin, Freelance-Informatique, Espace Freelance, Beyond Skills IT, Koïno, Sixième Homme and Castor Network, read
+ * from samples of their pages.
+ */
 class HtmlSitesReaderTest {
 
     @Test
@@ -222,6 +226,42 @@ class HtmlSitesReaderTest {
         assertThat(reader.offer(null, Jsoup.parse("<p>Mission introuvable</p>"))).isNull();
         assertThat(reader.site()).isEqualTo(OfferSite.SIXIEME_HOMME);
         assertThat(reader.domain()).isEqualTo("sixiemehomme.io");
+    }
+
+    @Test
+    void readsCastorNetworkMissionsWithTheirIconFacts() throws Exception {
+        FakeFetcher fetcher = new FakeFetcher()
+            .resource(CastorNetworkReader.LIST_URL + 1, "castor-list.html")
+            .page(CastorNetworkReader.LIST_URL + 2, "<html><body><div class=\"availableMissions\">52 mission(s)</div></body></html>");
+        WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of());
+        CastorNetworkReader reader = new CastorNetworkReader();
+
+        reader.read(fetcher, batch);
+
+        assertThat(batch.offers).extracting(ScrapedOffer::getExternalId).containsExactly("3571", "3570");
+        ScrapedOffer lead = batch.offers.get(0);
+        assertThat(lead.getUrl()).isEqualTo("https://www.castor-network.com/fr/mission-freelance/3571/" +
+            "developpement-de-a-a-z-d-un-projet-en-environnement-industriels-production");
+        assertThat(lead.getTitle()).isEqualTo("Chef de Projet Industriel");
+        assertThat(lead.getDescription()).startsWith("Développement de A à Z d'un projet en environnement industriels/production\n\n" +
+            "Chef de Projet Industriel Freelance").contains("Piloter des projets industriels de bout en bout.");
+        assertThat(lead.getCompany()).isEqualTo("ALTEN");
+        assertThat(lead.getDurationMonths()).isEqualTo(6);
+        assertThat(lead.getStartAsap()).isTrue();
+        assertThat(lead.getCity()).isEqualTo("Auxerre");
+        assertThat(lead.getSeniority()).isEqualTo(Seniority.CONFIRMED);
+        assertThat(lead.getPublishedAt()).isEqualTo(Instant.parse("2026-10-11T22:00:00Z"));
+        assertThat(lead.isPublishedDayOnly()).isTrue();
+        assertThat(lead.isFreelance()).isTrue();
+        ScrapedOffer embedded = batch.offers.get(1);
+        assertThat(embedded.getStartDate()).isEqualTo(LocalDate.of(2026, 11, 2));
+        assertThat(embedded.getStartAsap()).isNull();
+        assertThat(embedded.getCompany()).isNull();
+        assertThat(fetcher.requests()).containsExactly(CastorNetworkReader.LIST_URL + 1, CastorNetworkReader.LIST_URL + 2);
+        assertThat(reader.site()).isEqualTo(OfferSite.CASTOR_NETWORK);
+        assertThat(reader.domain()).isEqualTo("castor-network.com");
+        assertThat(reader.offers(Jsoup.parse("<div class=\"missionListItem\"><a href=\"/fr/mission-freelance/9/x\"></a>" +
+            "<div class=\"missionContainer-missionDescription\"><p>Publiée le 01/10/2026</p></div></div>"))).isEmpty();
     }
 
     @Test

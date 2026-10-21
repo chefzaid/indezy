@@ -22,7 +22,9 @@ export type OfferSite =
   | 'KOINO'
   | 'SIXIEME_HOMME'
   | 'FREELANCE_REPUBLIK'
-  | 'EASY_PARTNER';
+  | 'EASY_PARTNER'
+  | 'CASTOR_NETWORK'
+  | 'KATCHME';
 export type Seniority = 'JUNIOR' | 'CONFIRMED' | 'SENIOR' | 'EXPERT';
 export type OfferDatePrecision = 'EXACT' | 'DAY' | 'FIRST_SEEN';
 export type OfferView = 'FEED' | 'SAVED' | 'HIDDEN' | 'APPLIED';

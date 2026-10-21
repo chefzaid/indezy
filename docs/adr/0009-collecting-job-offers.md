@@ -17,10 +17,10 @@ The server runs as one replica with 1 GiB of memory on a shared node.
   `ScrapedOffer`s, `OfferNormalizer` checks and completes them, `OfferStore` saves each page, and `OfferCollector`
   runs the readers one site at a time from `OfferScheduler` (every 5 minutes it reads the sites that are due; each
   site has its own refresh interval in `OfferSite`).
-- Read a site's own structured data before its HTML: its public JSON API (Free-Work, Cherry Pick, LeHibou, Yeets), the
+- Read a site's own structured data before its HTML: its public JSON API (Free-Work, Cherry Pick, LeHibou, Yeets, KatchMe's WordPress API), the
   page's framework data (Collective.work's `__NEXT_DATA__`, LittleBig Connection's React Server Components payload),
   then sitemaps with schema.org `JobPosting` markup (WorkDispo, Next Mondays, Mindquest, FreelanceRepublik, EasyPartner) and finally HTML (Silkhom,
-  LeGratin, Freelance-Informatique, Espace Freelance, Beyond Skills IT, Koïno, Sixième Homme), parsed with jsoup
+  LeGratin, Freelance-Informatique, Espace Freelance, Beyond Skills IT, Koïno, Sixième Homme, Castor Network), parsed with jsoup
   (MIT license, `org.jsoup:jsoup`).
 - Leave out listings that look generated rather than published by people (Free-Work's Digistrat, Propulse IT and
   Omicrone), whatever their markers say.

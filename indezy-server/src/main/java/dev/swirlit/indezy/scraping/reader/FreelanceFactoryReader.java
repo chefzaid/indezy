@@ -12,10 +12,6 @@ import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +44,8 @@ public class FreelanceFactoryReader extends DetailPagesReader {
             String id = Json.text(mission.path("id"));
             if (link != null && id != null) {
                 String title = HtmlText.unescape(Json.text(mission.path("title").path("rendered")));
-                entries.add(new Entry(link, id, utc(Json.text(mission.path("modified_gmt"))), title, utc(Json.text(mission.path("date_gmt")))));
+                entries.add(new Entry(link, id, WordPress.utc(Json.text(mission.path("modified_gmt"))), title,
+                    WordPress.utc(Json.text(mission.path("date_gmt")))));
             }
         }
         return entries;
@@ -78,17 +75,5 @@ public class FreelanceFactoryReader extends DetailPagesReader {
         Element description = page.selectFirst("div[role=tabpanel][data-tab-index=2]");
         offer.description(description == null ? null : HtmlText.toText(description.html()));
         return offer.build();
-    }
-
-    /** WordPress's {@code *_gmt} times have no offset: they are UTC. */
-    private static Instant utc(String value) {
-        if (value == null) {
-            return null;
-        }
-        try {
-            return LocalDateTime.parse(value).toInstant(ZoneOffset.UTC);
-        } catch (DateTimeParseException e) {
-            return null;
-        }
     }
 }
