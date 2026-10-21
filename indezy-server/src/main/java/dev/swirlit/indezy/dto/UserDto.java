@@ -5,13 +5,17 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.ToString;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.time.LocalDate;
 import java.util.List;
 
+// Spring MVC logs bodies through toString at DEBUG: the id alone, never the person (see docs/security.md).
 @Data
+@ToString(onlyExplicitlyIncluded = true)
 public class UserDto {
+    @ToString.Include
     private Long id;
 
     @NotBlank(message = "First name is required")

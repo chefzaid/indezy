@@ -1,13 +1,17 @@
 package dev.swirlit.indezy;
 
 import dev.swirlit.indezy.dto.ActivityReportLinkDto;
+import dev.swirlit.indezy.dto.ContactDto;
+import dev.swirlit.indezy.dto.FreelanceDto;
 import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.PasswordChangeRequestDto;
 import dev.swirlit.indezy.dto.RegisterRequest;
 import dev.swirlit.indezy.dto.TwoFactorCodeRequest;
 import dev.swirlit.indezy.dto.TwoFactorSetupDto;
+import dev.swirlit.indezy.dto.UserDto;
 import dev.swirlit.indezy.model.ActivityReport;
+import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
 import org.junit.jupiter.api.Test;
@@ -28,7 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Spring MVC logs request and response bodies at DEBUG through their {@code toString}, which Lombok's {@code @Data}
  * generates with every field. Every class of the dto and model packages that holds a password (or its hash), a token, a
  * two-factor secret or code, a backup code or an API key must print none of them; such a class and the classes nested in
- * it (the auth requests and responses, the account entities) must not print the email or name of the account either.
+ * it (the auth requests and responses, the account entities) must not print the email or name of the account either,
+ * nor may any class holding a person's email or phone (the contact, workspace and profile bodies) print who they are.
  */
 class SensitiveToStringTest {
 
@@ -36,13 +41,16 @@ class SensitiveToStringTest {
     /** A bare {@code code} is the two-factor code of a request; a qualified one, such as a postal code, is not a secret. */
     private static final Pattern SECRET_FIELD =
         Pattern.compile("(?i)code|.*(password|secret|token|totp|otpauth|backupcode|recoverycode|apikey).*");
-    private static final Set<String> IDENTITY_FIELDS = Set.of("email", "firstName", "lastName");
+    private static final Set<String> IDENTITY_FIELDS = Set.of("email", "phone", "firstName", "lastName", "fullName", "address");
+    /** A person's contact details: a class holding one holds personal data. */
+    private static final Set<String> CONTACT_FIELDS = Set.of("email", "phone");
 
     @Test
     void scan_ShouldFindEveryClassHoldingASecretOrNestedInOne() {
         assertThat(sensitiveClasses()).contains(LoginRequest.class, RegisterRequest.class, PasswordChangeRequestDto.class,
             TwoFactorSetupDto.class, TwoFactorCodeRequest.class, LoginResponse.class, LoginResponse.UserInfo.class, User.class,
-            Freelance.class, ActivityReportLinkDto.class, ActivityReport.class);
+            Freelance.class, ActivityReportLinkDto.class, ActivityReport.class, ContactDto.class, FreelanceDto.class, UserDto.class,
+            Contact.class);
     }
 
     @Test
@@ -75,9 +83,13 @@ class SensitiveToStringTest {
             .toList();
     }
 
-    /** The secret fields of the class, plus its identity fields when it or its enclosing class holds a secret. */
+    /**
+     * The secret fields of the class, plus its identity fields when it or its enclosing class holds a secret, or when it
+     * holds a person's contact details.
+     */
     private static List<Field> protectedFields(Class<?> type) {
-        boolean hidesIdentity = holdsSecrets(type) || (type.getEnclosingClass() != null && holdsSecrets(type.getEnclosingClass()));
+        boolean hidesIdentity = holdsSecrets(type) || (type.getEnclosingClass() != null && holdsSecrets(type.getEnclosingClass())) ||
+            textFields(type).stream().anyMatch(field -> CONTACT_FIELDS.contains(field.getName()));
         return textFields(type).stream()
             .filter(field -> isSecret(field) || (hidesIdentity && IDENTITY_FIELDS.contains(field.getName())))
             .toList();

@@ -3,9 +3,13 @@ package dev.swirlit.indezy.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.ToString;
 
+// Spring MVC logs bodies through toString at DEBUG: the id alone, never the person (see docs/security.md).
 @Data
+@ToString(onlyExplicitlyIncluded = true)
 public class ContactDto {
+    @ToString.Include
     private Long id;
 
     @NotBlank(message = "First name is required")

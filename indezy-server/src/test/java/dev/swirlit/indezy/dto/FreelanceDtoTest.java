@@ -304,14 +304,14 @@ class FreelanceDtoTest {
     }
 
     @Test
-    void freelanceDto_ToString_ShouldContainAllFields() {
+    void freelanceDto_ToString_ShouldNameTheWorkspaceByItsIdOnly() {
+        // Given
+        freelanceDto.setId(7L);
+
         // When
         String toString = freelanceDto.toString();
 
-        // Then
-        assertThat(toString).contains("firstName=John");
-        assertThat(toString).contains("lastName=Doe");
-        assertThat(toString).contains("email=john.doe@example.com");
-        assertThat(toString).contains("status=FREELANCE");
+        // Then: Spring MVC logs bodies through toString at DEBUG.
+        assertThat(toString).isEqualTo("FreelanceDto(id=7)");
     }
 }
