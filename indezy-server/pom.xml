@@ -20,6 +20,8 @@
     
     <properties>
         <java.version>25</java.version>
+        <!-- The reader canaries read live sites: only the scheduled canary job runs them (see docs/testing.md). -->
+        <test.excludedGroups>canary</test.excludedGroups>
         <!-- Security fixes pending inclusion in the Spring Boot dependency BOM. -->
         <tomcat.version>11.0.25</tomcat.version>
         <jjwt.version>0.12.6</jjwt.version>
@@ -264,6 +266,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.3</version>
+                <configuration>
+                    <excludedGroups>${test.excludedGroups}</excludedGroups>
+                </configuration>
             </plugin>
 
             <!-- JaCoCo Test Coverage Plugin -->

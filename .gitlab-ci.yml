@@ -23,6 +23,9 @@ variables:
   GIT_DEPTH: "0"
   SONAR_SCAN_ONLY: "false"
   APP_ONBOARDING: "false"
+  READER_CANARY:
+    value: "false"
+    description: "true in the weekly schedule that reads one live page per job board (see docs/testing.md#reader-canaries); nothing else runs."
   PIPELINE_MODE:
     value: "standard"
     options:
@@ -67,6 +70,8 @@ variables:
       - indezy-web/dist/
       - indezy-web/indezy-web-*.tar.gz
   rules:
+    - if: '$READER_CANARY == "true"'
+      when: never
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH'
 
@@ -114,6 +119,8 @@ variables:
       - coverage-policy-junit.xml
       - coverage-policy.env
   rules:
+    - if: '$READER_CANARY == "true"'
+      when: never
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH'
 
@@ -142,6 +149,8 @@ variables:
   script:
     - infra/scripts/ci-container-build.sh verify
   rules:
+    - if: '$READER_CANARY == "true"'
+      when: never
     - if: '$SONAR_SCAN_ONLY == "true"'
       when: never
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -179,6 +188,8 @@ variables:
       - indezy-web/test-results/
   manual_confirmation: "Run the optional Playwright E2E tests for $CI_COMMIT_SHORT_SHA?"
   rules:
+    - if: '$READER_CANARY == "true"'
+      when: never
     - if: '$SONAR_SCAN_ONLY == "true"'
       when: never
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -223,6 +234,8 @@ variables:
     paths:
       - quality-reports/
   rules:
+    - if: '$READER_CANARY == "true"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     - if: '$PIPELINE_MODE == "full" && $CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$PIPELINE_MODE == "full" && $CI_COMMIT_BRANCH'
@@ -261,6 +274,8 @@ variables:
     paths:
       - security-reports/
   rules:
+    - if: '$READER_CANARY == "true"'
+      when: never
     - if: '$SONAR_SCAN_ONLY == "true"'
       when: never
     - if: '$PIPELINE_MODE == "full" && $CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -310,6 +325,8 @@ variables:
       - release.env
   manual_confirmation: "Release the successful Indezy build for $CI_COMMIT_SHORT_SHA?"
   rules:
+    - if: '$READER_CANARY == "true"'
+      when: never
     - if: '$SONAR_SCAN_ONLY == "true"'
       when: never
     - if: '$CI_PIPELINE_SOURCE == "api" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $APP_ONBOARDING == "true"'
@@ -340,6 +357,8 @@ variables:
     url: https://indezy.swirlit.dev
     deployment_tier: production
   rules:
+    - if: '$READER_CANARY == "true"'
+      when: never
     - if: '$SONAR_SCAN_ONLY == "true"'
       when: never
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
@@ -359,8 +378,33 @@ set-major-version:
     - infra/scripts/ci-set-major-version.sh
   manual_confirmation: "Set the next Indezy major version from NEW_MAJOR_VERSION?"
   rules:
+    - if: '$READER_CANARY == "true"'
+      when: never
     - if: '$SONAR_SCAN_ONLY == "true"'
       when: never
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: manual
       allow_failure: false
+
+04-reader-canary:
+  stage: verify
+  needs: []
+  image: docker.io/library/maven@sha256:8df9a1dbc464977482f726f28a8a1985dcef4e4e68bdda1ae0330711bcb3a192
+  cache:
+    - key: indezy-maven-v2
+      paths:
+        - .cache/maven/
+      policy: pull
+  script:
+    - cd indezy-server
+    - ./mvnw --batch-mode test -Dgroups=canary -Dtest.excludedGroups=none -Djacoco.skip=true -Dcheckstyle.skip=true -Dspotbugs.skip=true
+  artifacts:
+    name: "indezy-reader-canary-$CI_COMMIT_SHORT_SHA"
+    when: always
+    expire_in: 30 days
+    reports:
+      junit: indezy-server/target/surefire-reports/TEST-*.xml
+    paths:
+      - indezy-server/target/reader-canary/
+  rules:
+    - if: '$READER_CANARY == "true" && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'

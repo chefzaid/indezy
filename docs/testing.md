@@ -338,8 +338,32 @@ The current CI verification and reporting includes:
 - independent Trivy dependency, IaC, and secret scans with JSON and SARIF artifacts
 - seven-day JUnit, coverage, browser, and compiled-output job artifacts
 - immutable JAR/SPA archives and checksums in the Generic Package Registry
+- the weekly reader canaries, in a scheduled pipeline of their own (see [Reader Canaries](#reader-canaries))
 
 Required `01-build` and `03-package` own compilation and image validation; optional `02-test` owns unit-test, SpotBugs and coverage reporting. Its `./mvnw clean verify -Djacoco.haltOnFailure=false` reaches SpotBugs despite the JaCoCo branch rule, and a finding fails the job like a failing backend test: the frontend lint, tests and coverage policy of that job do not run, and release is not blocked. Optional manual `01-e2e` runs Playwright. Default-branch `02-quality` runs automatically; standard mode leaves independent `03-security` manual, while full mode runs both automatically as non-blocking reports. Security has no dependency on quality and retains Trivy JSON/SARIF output. Release exists only on `main`, requires the successful build path, and publishes packages/images and Git state; deploy requires that release job and then waits for Argo CD plus both health checks. `PIPELINE_MODE=full` also automates release and deploy while E2E remains manual.
+
+## Reader Canaries
+
+The readers are tested on hand-written samples of each site's pages, which a site redesign does not change, so the
+feed could quietly empty. `ReaderCanaryTest` reads the first page of every site the feed reads, live, through its
+reader and the collection's polite client (its domain only, `robots.txt`, 2 seconds between requests), and fails naming
+each site whose freelance offers no longer yield a title, a link and a date (Little Big Connection and Sixième Homme
+date no offer, so only their title and link are checked), or that answers with an error. The pages read from a failing
+site are written to `indezy-server/target/reader-canary/<SITE>/`, each with its address on its first line, to update
+the test samples.
+
+The test carries the JUnit tag `canary`, which `mvn test` and `mvn verify` leave out (`test.excludedGroups` in
+`pom.xml`). Run it locally with:
+
+```bash
+cd indezy-server
+./mvnw test -Dgroups=canary -Dtest.excludedGroups=none
+```
+
+CI runs it in `04-reader-canary`, only in a pipeline whose `READER_CANARY` variable is `true`, started by a schedule or
+by hand from the GitLab interface; every other job skips such a pipeline, so it never builds, releases or deploys. Its
+JUnit report and samples are kept 30 days. To set the weekly run up, create a pipeline schedule on `main` (CI/CD →
+Schedules, for instance `0 6 * * 1` in `Europe/Paris`) with the variable `READER_CANARY` set to `true`.
 
 ## Troubleshooting
 
