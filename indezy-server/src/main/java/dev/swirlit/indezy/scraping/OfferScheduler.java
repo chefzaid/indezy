@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.scraping;
 
+import dev.swirlit.indezy.service.OfferRateBenchmarkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -8,7 +9,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Runs the offer collection in the background when {@code indezy.offers.collection-enabled} is true:
- * looks for due sites every {@code indezy.offers.tick}, and removes old offers every night.
+ * looks for due sites every {@code indezy.offers.tick}, removes old offers every night and computes the medians offers'
+ * daily rates are compared with.
  */
 @Component
 @EnableScheduling
@@ -20,6 +22,7 @@ public class OfferScheduler {
     private final OfferRetention retention;
     private final OfferStore store;
     private final OfferRelocation relocation;
+    private final OfferRateBenchmarkService benchmarks;
 
     @Scheduled(initialDelayString = "PT1M", fixedDelayString = "${indezy.offers.tick:PT5M}")
     public void collectDueSites() {
@@ -59,5 +62,19 @@ public class OfferScheduler {
     @Scheduled(cron = "0 15 4 * * *", zone = "Europe/Paris")
     public void purgeOldOffers() {
         retention.purge();
+    }
+
+    /** The medians daily rates are compared with, each night once old offers are gone. */
+    @Scheduled(cron = "0 45 4 * * *", zone = "Europe/Paris")
+    public void computeRateBenchmarks() {
+        benchmarks.refresh();
+    }
+
+    /** A server started before any night computes the medians once it is up. */
+    @Scheduled(initialDelayString = "PT2M", fixedDelay = Long.MAX_VALUE)
+    public void computeRateBenchmarksIfNone() {
+        if (benchmarks.isEmpty()) {
+            benchmarks.refresh();
+        }
     }
 }

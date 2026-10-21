@@ -209,6 +209,31 @@ describe('OfferCardComponent', () => {
     expect(document.querySelector('[data-edit-note]')).not.toBeNull();
   });
 
+  it('compares the rate with the market of its main skill, in its region or in France', () => {
+    const fixture = create(offer({ rateMarket: { percent: 12, median: 600, offers: 34, skill: 'Java', regionName: 'Île-de-France' } }));
+    const chip = element(fixture, '[data-rate-market]');
+
+    expect(spaced(chip.innerText)).toBe('+12 % vs Java en Île-de-France');
+    expect(chip.classList).toContain('above');
+    expect(spaced(chip.getAttribute('aria-label')!))
+      .toBe('+12 % vs Java en Île-de-France. TJM médian des 34 offres ouvertes qui citent d\'abord Java en Île-de-France : 600 €');
+    const component = fixture.componentInstance;
+    component.offer = offer({ rateMarket: { percent: -8, median: 650, offers: 120, skill: 'Java' } });
+    expect(spaced(component.marketLabel)).toBe('−8 % vs Java en France');
+    expect(component.marketLevel).toBe('below');
+    component.offer = offer({ rateMarket: { percent: 0, median: 650, offers: 120, skill: 'Java' } });
+    expect(component.marketLabel).toBe('Au TJM médian de Java en France');
+    expect(component.marketLevel).toBe('close');
+    component.offer = offer();
+    expect(component.marketLabel).toBe('');
+    expect(component.marketHint).toBe('');
+    // No rate, no chip.
+    fixture.componentRef.setInput('offer', offer({ rateMin: undefined, rateMax: undefined,
+      rateMarket: { percent: 0, median: 650, offers: 120, skill: 'Java' } }));
+    fixture.detectChanges();
+    expect(element(fixture, '[data-rate-market]')).toBeNull();
+  });
+
   it('opens the offer\'s own page and copies its link from the menu', () => {
     const fixture = create();
 

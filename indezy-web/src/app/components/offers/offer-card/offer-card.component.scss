@@ -102,6 +102,31 @@
   }
 }
 
+.market-chip {
+  margin-left: 6px;
+  padding: 0 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: help;
+
+  &.above {
+    background: #e8f5e9;
+    color: #1b5e20;
+  }
+
+  &.close {
+    background: var(--app-hover);
+    color: var(--app-text-muted);
+  }
+
+  &.below {
+    background: #fff4e5;
+    color: #8a4b00;
+  }
+}
+
 .published {
   margin-left: auto;
   color: var(--app-text-muted);
@@ -315,6 +340,16 @@
 
   .skill.matched {
     border-color: #81c784;
+  }
+
+  .market-chip.above {
+    background: rgba(129, 199, 132, 0.18);
+    color: #a5d6a7;
+  }
+
+  .market-chip.below {
+    background: rgba(255, 183, 77, 0.18);
+    color: #ffcc80;
   }
 
   .match-badge.fair {

@@ -352,6 +352,16 @@ Purpose: filters of the offer feed a workspace saved under a name. Unique per fr
 Fields: `name` (80 characters), `filters` (the feed's filters and sort as JSON, without view or page) and
 `lastOpenedAt`: offers first seen after it are new for the search.
 
+## OfferRateBenchmark
+
+Table: `offer_rate_benchmarks`
+
+Purpose: the median daily rate of the open offers naming a skill first, in a region or in all of France, replaced every
+night. Unique per skill and region (`uk_offer_rate_benchmarks_skill_region`).
+
+Fields: `skillKey` (the skill's folded words), `skill` (as offers write it most), `regionCode` (a region's code, or
+`FR` for all of France), `medianRate`, `offers` (ten or more, one per mission) and `computedAt`.
+
 ## OfferSuggestionDismissal
 
 Table: `offer_suggestion_dismissals`

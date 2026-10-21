@@ -56,7 +56,9 @@ public record OfferDto(
     /** The workspace's private note on the mission. */
     String note,
     /** When and how the workspace applied to the mission. */
-    OfferApplication application) {
+    OfferApplication application,
+    /** The daily rate against the market; absent without a stated rate, a skill or ten comparable offers. */
+    OfferRateMarketDto rateMarket) {
 
     public OfferDto {
         skills = skills == null ? List.of() : List.copyOf(skills);

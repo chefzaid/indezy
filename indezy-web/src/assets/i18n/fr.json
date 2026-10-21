@@ -1162,7 +1162,15 @@
         "PHONE": "Candidature par téléphone le {{date}}"
       },
       "select": "Sélectionner « {{title}} »",
-      "openPage": "Ouvrir sa page"
+      "openPage": "Ouvrir sa page",
+      "market": {
+        "above": "+{{percent}} % vs {{skill}} {{where}}",
+        "below": "−{{percent}} % vs {{skill}} {{where}}",
+        "same": "Au TJM médian de {{skill}} {{where}}",
+        "inRegion": "en {{region}}",
+        "inFrance": "en France",
+        "hint": "TJM médian des {{offers}} offres ouvertes qui citent d'abord {{skill}} {{where}} : {{median}}"
+      }
     },
     "match": {
       "score": "{{score}} %",

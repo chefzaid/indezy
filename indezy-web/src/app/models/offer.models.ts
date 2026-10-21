@@ -113,6 +113,22 @@ export interface Offer {
   /** The workspace's private note on the mission. */
   note?: string;
   application?: OfferApplication;
+  /** Absent without a stated rate, a skill or ten comparable offers. */
+  rateMarket?: OfferRateMarket;
+}
+
+/**
+ * The offer's daily rate (the middle of its range) against the median of the open offers naming the same skill first,
+ * in its region, or in all of France when `regionName` is absent.
+ */
+export interface OfferRateMarket {
+  /** Above (positive) or below the median, rounded. */
+  percent: number;
+  median: number;
+  /** The offers the median is taken over, one per mission. */
+  offers: number;
+  skill: string;
+  regionName?: string;
 }
 
 /** Filters of the feed saved under a name, with the offers found for them since they were last opened. */

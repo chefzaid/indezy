@@ -1,9 +1,13 @@
 package dev.swirlit.indezy.integration;
 
 import dev.swirlit.indezy.model.GeoPlace;
+import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.enums.OfferLeftOutSite;
 import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.repository.OfferRateBenchmarkRepository;
+import dev.swirlit.indezy.service.OfferRateBenchmarkService;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -11,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -26,6 +31,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * from the profile's city.
  */
 class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
+
+    @Autowired
+    private OfferRateBenchmarkService benchmarkService;
+
+    @Autowired
+    private OfferRateBenchmarkRepository benchmarks;
 
     @Test
     void eachWorkspaceSavesAndHidesItsOwnOffers() {
@@ -319,5 +330,27 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
         assertThat(health.getStatusCode()).isEqualTo(HttpStatus.OK);
         return ((List<?>) health.getBody().get("sites")).stream().map(site -> (Map<String, Object>) site)
             .filter(site -> "FREE_WORK".equals(site.get("site"))).findFirst().orElseThrow();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void comparesEachOffersRateWithTheMedianOfItsSkill() {
+        Instant now = Instant.now();
+        // Ten more Java missions in Île-de-France from 500 to 950 €: with the two offers, twelve in all of France.
+        for (int index = 0; index < 10; index++) {
+            JobOffer other = offer("fw-rate-" + index, "Développeur Java " + index, null, now.minus(Duration.ofHours(5)), 48.85, 2.35);
+            other.setRateMin(500 + index * 50);
+            other.setRateMax(null);
+            other.setRegionCode("11");
+            offers.save(other);
+        }
+        assertThat(benchmarkService.refresh()).isEqualTo(2);
+
+        // Paris states 550 to 650 € (600) and no region: against the median of France, 675 €.
+        Map<String, Object> market = (Map<String, Object>) call(alice, HttpMethod.GET, "/offers/" + paris.getId(), null).getBody()
+            .get("rateMarket");
+        assertThat(market).containsEntry("percent", -11).containsEntry("median", 675).containsEntry("offers", 12)
+            .containsEntry("skill", "Java").doesNotContainKey("regionName");
+        benchmarks.deleteAll();
     }
 }

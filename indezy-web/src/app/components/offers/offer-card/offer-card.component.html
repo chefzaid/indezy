@@ -49,6 +49,10 @@
       <mat-icon aria-hidden="true">euro</mat-icon>
       @if (rate) {
         <span>{{ rate }}<span class="unit">{{ 'common.perDay' | translate }}</span></span>
+        @if (offer.rateMarket) {
+          <span class="market-chip" [class]="marketLevel" data-rate-market tabindex="0" [matTooltip]="marketHint"
+            [attr.aria-label]="marketLabel + '. ' + marketHint">{{ marketLabel }}</span>
+        }
       } @else {
         {{ 'offers.card.noRate' | translate }}
       }

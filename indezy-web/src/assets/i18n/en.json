@@ -1162,7 +1162,15 @@
         "PHONE": "Applied by phone on {{date}}"
       },
       "select": "Select “{{title}}”",
-      "openPage": "Open its page"
+      "openPage": "Open its page",
+      "market": {
+        "above": "+{{percent}}% vs. {{skill}} {{where}}",
+        "below": "−{{percent}}% vs. {{skill}} {{where}}",
+        "same": "At the median for {{skill}} {{where}}",
+        "inRegion": "in {{region}}",
+        "inFrance": "in France",
+        "hint": "Median daily rate of the {{offers}} open offers naming {{skill}} first {{where}}: {{median}}"
+      }
     },
     "match": {
       "score": "{{score}}%",

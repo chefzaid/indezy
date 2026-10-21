@@ -24,7 +24,7 @@ import dev.swirlit.indezy.repository.OfferSiteExclusionRepository;
 import dev.swirlit.indezy.repository.OfferSiteStatusRepository;
 import dev.swirlit.indezy.scraping.GeoLocator;
 import dev.swirlit.indezy.util.FrenchGeography;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -53,6 +53,7 @@ import java.util.stream.Stream;
  * write to the geocoding cache, and every read below is a single repository query (no lazy loading).
  */
 @Service
+@RequiredArgsConstructor
 public class OfferSearchService {
 
     static final int EXCERPT_LENGTH = 280;
@@ -67,24 +68,8 @@ public class OfferSearchService {
     private final FreelanceRepository freelances;
     private final GeoLocator geoLocator;
     private final OfferSiteExclusionRepository exclusions;
+    private final OfferRateBenchmarkService benchmarks;
     private final Clock clock;
-
-    @Autowired
-    public OfferSearchService(JobOfferRepository offers, JobOfferStateRepository states, OfferSiteStatusRepository statuses,
-                              FreelanceRepository freelances, GeoLocator geoLocator, OfferSiteExclusionRepository exclusions) {
-        this(offers, states, statuses, freelances, geoLocator, exclusions, Clock.systemUTC());
-    }
-
-    OfferSearchService(JobOfferRepository offers, JobOfferStateRepository states, OfferSiteStatusRepository statuses,
-                       FreelanceRepository freelances, GeoLocator geoLocator, OfferSiteExclusionRepository exclusions, Clock clock) {
-        this.offers = offers;
-        this.states = states;
-        this.statuses = statuses;
-        this.freelances = freelances;
-        this.geoLocator = geoLocator;
-        this.exclusions = exclusions;
-        this.clock = clock;
-    }
 
     /** One page of offers matching the request, for {@code freelanceId}'s workspace (or none). */
     public OfferPageDto search(Long freelanceId, OfferSearchRequest request) {
@@ -251,8 +236,8 @@ public class OfferSearchService {
         return merged;
     }
 
-    static OfferDto toDto(JobOffer offer, List<String> skills, OfferStateDto state, List<OfferCopyDto> alsoOn,
-                          OfferMatch.Profile profile, Instant now, boolean full) {
+    private OfferDto toDto(JobOffer offer, List<String> skills, OfferStateDto state, List<OfferCopyDto> alsoOn,
+                           OfferMatch.Profile profile, Instant now, boolean full) {
         Origin origin = profile.origin();
         Integer distance = origin == null || offer.getLatitude() == null || offer.getLongitude() == null ? null :
             (int) Math.round(distanceKm(origin.latitude(), origin.longitude(), offer.getLatitude(), offer.getLongitude()));
@@ -267,7 +252,7 @@ public class OfferSearchService {
             offer.getDatePrecision(), offer.getExpiresAt(), offer.getExpiresAt() != null && !offer.getExpiresAt().isAfter(now),
             state != null && state.saved(), state != null && state.hidden(), state != null && state.seen(),
             state == null ? null : state.importedProjectId(), alsoOn, OfferMatch.score(offer, skills, profile),
-            state == null ? null : state.note(), state == null ? null : state.application());
+            state == null ? null : state.note(), state == null ? null : state.application(), benchmarks.compare(offer, skills));
     }
 
     /** The description's beginning on one line, cut at a word and ended with an ellipsis. */

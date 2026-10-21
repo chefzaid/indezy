@@ -80,6 +80,20 @@ class JobOfferRepositoryTest {
     }
 
     @Test
+    void listsTheOpenOffersStatingARateWithTheSkillTheyNameFirst() {
+        recent.setRateMin(550);
+        recent.setRateMax(650);
+        recent.setRegionCode("11");
+        recent.setCopyGroup(41L);
+        expired.setRateMax(700);
+        entityManager.flush();
+
+        // The old offer states no rate, the expired one is closed.
+        assertThat(offers.findRatedMainSkills(NOW)).singleElement()
+            .satisfies(row -> assertThat(row).containsExactly(recent.getId(), 41L, "11", 550, 650, "Java"));
+    }
+
+    @Test
     void findsOffersOfASiteByTheirIds() {
         assertThat(offers.findBySiteAndExternalIdIn(OfferSite.FREE_WORK, List.of("1", "3", "9")))
             .extracting(JobOffer::getExternalId).containsExactly("1");

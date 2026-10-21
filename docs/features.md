@@ -364,6 +364,16 @@ highlighted. **Matches my profile** keeps the offers scoring 60 or more, and **B
 among equal scores; both are computed by the database with the same rules as the cards and also apply to saved
 searches. Until the profile names skills, the feed invites to complete it and the filter and sort are unavailable.
 
+### Rate Versus Market
+
+Each card stating a daily rate whose first skill is common enough shows, next to the rate, how it compares with the
+market: "+12% vs. Java in Île-de-France", "−8% vs. Java in France" or "At the median for Java in Île-de-France", green
+from 5% above, amber from 5% below. The offer's rate is the middle of the range it states; the market is the median
+rate of the open offers stating a rate and naming the same skill first (one per mission, copies on other sites
+aside), in the offer's region when ten offers or more make it, else in all of France; with fewer than ten, nothing is
+shown. Its tooltip names the median and how many offers it is taken over. The medians are computed every night at
+04:45 (Paris time), after old offers are removed, and once when a server starts with none.
+
 ### Site Health
 
 **Job boards**, linked from the feed's summary (which says how many boards fail, when some do), lists every board

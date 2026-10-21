@@ -12,6 +12,7 @@ import dev.swirlit.indezy.dto.OfferMatchDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferMarketDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
+import dev.swirlit.indezy.dto.OfferRateMarketDto;
 import dev.swirlit.indezy.dto.OfferRegionDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.OfferSiteDto;
@@ -127,6 +128,8 @@ class OfferControllerTest {
             .andExpect(jsonPath("$.content[0].alsoOn[0].siteName").value("Collective"))
             .andExpect(jsonPath("$.content[0].alsoOn[0].url").value("https://www.collective.work/job/8"))
             .andExpect(jsonPath("$.content[0].note").value("Call Léa"))
+            .andExpect(jsonPath("$.content[0].rateMarket.percent").value(9))
+            .andExpect(jsonPath("$.content[0].rateMarket.regionName").value("Île-de-France"))
             .andExpect(jsonPath("$.content[0].application.appliedOn").value("2026-10-20"))
             .andExpect(jsonPath("$.content[0].application.via").value("EMAIL"));
 
@@ -365,6 +368,6 @@ class OfferControllerTest {
             Instant.parse("2026-10-19T08:47:42Z"), OfferDatePrecision.EXACT, null, false, false, false, false, null,
             List.of(new OfferCopyDto(8L, OfferSite.COLLECTIVE, "Collective", "https://www.collective.work/job/8")),
             new OfferMatchDto(83, List.of("Java"), OfferMatchDto.RateFit.MEETS, OfferMatchDto.PlaceFit.NEAR, null), "Call Léa",
-            new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.EMAIL));
+            new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.EMAIL), new OfferRateMarketDto(9, 550, 34, "Java", "Île-de-France"));
     }
 }

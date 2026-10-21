@@ -19,6 +19,11 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
 
     List<JobOffer> findBySiteAndExternalIdIn(OfferSite site, Collection<String> externalIds);
 
+    /** Each open offer stating a daily rate, with its mission (copy group), region, rates and first skill. */
+    @Query("select o.id, o.copyGroup, o.regionCode, o.rateMin, o.rateMax, s from JobOffer o join o.skills s " +
+        "where index(s) = 0 and (o.rateMin is not null or o.rateMax is not null) and (o.expiresAt is null or o.expiresAt > :now)")
+    List<Object[]> findRatedMainSkills(@Param("now") Instant now);
+
     /** The newest offers of {@code site} whose address holds {@code fragment}, case aside: the candidates for a pasted link. */
     List<JobOffer> findTop20BySiteAndUrlContainingIgnoreCaseOrderByIdDesc(OfferSite site, String fragment);
 

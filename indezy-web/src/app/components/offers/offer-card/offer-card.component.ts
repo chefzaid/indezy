@@ -169,6 +169,40 @@ export class OfferCardComponent {
     return score >= FAIR_MATCH ? 'fair' : 'low';
   }
 
+  /** The rate against the market, in words: "+12 % vs. Java in Île-de-France". */
+  get marketLabel(): string {
+    const market = this.offer.rateMarket;
+    if (!market) {
+      return '';
+    }
+    const params = { percent: Math.abs(market.percent), skill: market.skill, where: this.marketWhere };
+    const key = market.percent > 0 ? 'above' : market.percent < 0 ? 'below' : 'same';
+    return this.translate.instant(`offers.card.market.${key}`, params);
+  }
+
+  /** What the comparison is made with: the median and how many offers it is taken over. */
+  get marketHint(): string {
+    const market = this.offer.rateMarket;
+    if (!market) {
+      return '';
+    }
+    return this.translate.instant('offers.card.market.hint', {
+      offers: market.offers, skill: market.skill, where: this.marketWhere,
+      median: new Intl.NumberFormat(this.locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(market.median)
+    });
+  }
+
+  /** Well above the market, close to it, or well below: five percent either way. */
+  get marketLevel(): 'above' | 'close' | 'below' {
+    const percent = this.offer.rateMarket?.percent ?? 0;
+    return percent >= 5 ? 'above' : percent <= -5 ? 'below' : 'close';
+  }
+
+  private get marketWhere(): string {
+    const region = this.offer.rateMarket?.regionName;
+    return region ? this.translate.instant('offers.card.market.inRegion', { region }) : this.translate.instant('offers.card.market.inFrance');
+  }
+
   /** What makes up the match: the skills found, the rate, the place and the start compared with the profile's. */
   get matchDetails(): string {
     const match = this.offer.match;
