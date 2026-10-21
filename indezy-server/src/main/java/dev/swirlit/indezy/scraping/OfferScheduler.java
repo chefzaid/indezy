@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.scraping;
 
 import dev.swirlit.indezy.service.OfferRateBenchmarkService;
+import dev.swirlit.indezy.service.OfferSuspicionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -9,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Runs the offer collection in the background when {@code indezy.offers.collection-enabled} is true:
- * looks for due sites every {@code indezy.offers.tick}, removes old offers every night and computes the medians offers'
- * daily rates are compared with.
+ * looks for due sites every {@code indezy.offers.tick}, removes old offers every night, computes the medians offers'
+ * daily rates are compared with and flags suspicious offers every hour.
  */
 @Component
 @EnableScheduling
@@ -23,6 +24,7 @@ public class OfferScheduler {
     private final OfferStore store;
     private final OfferRelocation relocation;
     private final OfferRateBenchmarkService benchmarks;
+    private final OfferSuspicionService suspicions;
 
     @Scheduled(initialDelayString = "PT1M", fixedDelayString = "${indezy.offers.tick:PT5M}")
     public void collectDueSites() {
@@ -64,10 +66,17 @@ public class OfferScheduler {
         retention.purge();
     }
 
-    /** The medians daily rates are compared with, each night once old offers are gone. */
+    /** The medians daily rates are compared with, each night once old offers are gone, and the suspicions they tell. */
     @Scheduled(cron = "0 45 4 * * *", zone = "Europe/Paris")
     public void computeRateBenchmarks() {
         benchmarks.refresh();
+        suspicions.refresh();
+    }
+
+    /** Flags the offers collected since that look like fake or spam listings. */
+    @Scheduled(initialDelayString = "PT3M", fixedDelayString = "PT1H")
+    public void flagSuspiciousOffers() {
+        suspicions.refresh();
     }
 
     /** A server started before any night computes the medians once it is up. */

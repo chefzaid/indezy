@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import dev.swirlit.indezy.model.OfferApplication;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.model.enums.OfferSuspicion;
 import dev.swirlit.indezy.model.enums.Seniority;
 import dev.swirlit.indezy.model.enums.WorkMode;
 
@@ -58,10 +59,13 @@ public record OfferDto(
     /** When and how the workspace applied to the mission. */
     OfferApplication application,
     /** The daily rate against the market; absent without a stated rate, a skill or ten comparable offers. */
-    OfferRateMarketDto rateMarket) {
+    OfferRateMarketDto rateMarket,
+    /** Why the offer looks like a fake or spam listing; absent when it does not. */
+    List<OfferSuspicion> suspicion) {
 
     public OfferDto {
         skills = skills == null ? List.of() : List.copyOf(skills);
         alsoOn = alsoOn == null ? List.of() : List.copyOf(alsoOn);
+        suspicion = suspicion == null ? null : List.copyOf(suspicion);
     }
 }

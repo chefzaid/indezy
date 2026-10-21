@@ -14,6 +14,7 @@ import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.OfferSiteStatus;
 import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.model.enums.OfferSuspicion;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferSpecifications;
@@ -252,7 +253,8 @@ public class OfferSearchService {
             offer.getDatePrecision(), offer.getExpiresAt(), offer.getExpiresAt() != null && !offer.getExpiresAt().isAfter(now),
             state != null && state.saved(), state != null && state.hidden(), state != null && state.seen(),
             state == null ? null : state.importedProjectId(), alsoOn, OfferMatch.score(offer, skills, profile),
-            state == null ? null : state.note(), state == null ? null : state.application(), benchmarks.compare(offer, skills));
+            state == null ? null : state.note(), state == null ? null : state.application(), benchmarks.compare(offer, skills),
+            OfferSuspicion.of(offer.getSuspicion()));
     }
 
     /** The description's beginning on one line, cut at a word and ended with an ellipsis. */

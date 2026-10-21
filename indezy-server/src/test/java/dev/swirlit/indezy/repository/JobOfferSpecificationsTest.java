@@ -11,6 +11,7 @@ import dev.swirlit.indezy.model.enums.ApplicationChannel;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.model.enums.OfferSuspicion;
 import dev.swirlit.indezy.model.enums.Seniority;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.JobOfferSpecifications.Origin;
@@ -349,6 +350,16 @@ class JobOfferSpecificationsTest {
                 .containsExactlyInAnyOrderElementsOf(scores.entrySet().stream()
                     .filter(entry -> entry.getValue() >= OfferMatch.GOOD_MATCH).map(Map.Entry::getKey).toList());
         }
+    }
+
+    @Test
+    void hidesTheOffersThatLookSuspiciousOnRequest() {
+        JobOffer lyon = repository.findAll().stream().filter(offer -> offer.getExternalId().equals("lyon")).findFirst().orElseThrow();
+        lyon.setSuspicion(OfferSuspicion.SAME_TEXT_MANY_PUBLISHERS.bit());
+        repository.flush();
+
+        assertThat(search(request(r -> r.setHideSuspicious(true)), null)).containsExactly("java", "courbevoie", "unknown");
+        assertThat(search(request(), null)).contains("lyon");
     }
 
     @Test

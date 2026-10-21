@@ -24,6 +24,19 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSp
         "where index(s) = 0 and (o.rateMin is not null or o.rateMax is not null) and (o.expiresAt is null or o.expiresAt > :now)")
     List<Object[]> findRatedMainSkills(@Param("now") Instant now);
 
+    /** What tells whether each open offer looks suspicious: publisher, opening, rates, region, stored reasons, no description. */
+    @Query("select o.id, o.companyKey, o.openingKey, o.rateMin, o.rateMax, o.regionCode, o.suspicion, " +
+        "case when o.description is null then true else false end from JobOffer o where o.expiresAt is null or o.expiresAt > :now")
+    List<Object[]> findSuspicionInputs(@Param("now") Instant now);
+
+    /** The skill each open offer names first. */
+    @Query("select o.id, s from JobOffer o join o.skills s where index(s) = 0 and (o.expiresAt is null or o.expiresAt > :now)")
+    List<Object[]> findMainSkills(@Param("now") Instant now);
+
+    @Modifying
+    @Query("update JobOffer o set o.suspicion = :suspicion where o.id in :ids")
+    int setSuspicion(@Param("suspicion") Integer suspicion, @Param("ids") Collection<Long> ids);
+
     /** The newest offers of {@code site} whose address holds {@code fragment}, case aside: the candidates for a pasted link. */
     List<JobOffer> findTop20BySiteAndUrlContainingIgnoreCaseOrderByIdDesc(OfferSite site, String fragment);
 

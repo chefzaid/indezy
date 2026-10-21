@@ -29,14 +29,15 @@ describe('offer query', () => {
       q: '  java spring  ', rateMin: '500', rateMax: '800', rateKnown: 'true', regions: ['11', '84'], departments: '2A,92',
       radiusKm: '30', workModes: ['REMOTE', 'HYBRID'], minRemoteDays: '2', durationMin: '6', durationMax: '24',
       startBefore: '2026-12-01', publishedWithinDays: '7', sites: ['FREE_WORK', 'SIXIEME_HOMME'], seniorities: 'SENIOR',
-      skills: ['Java', 'Kafka'], unseenOnly: 'true', matchesProfile: 'true', view: 'SAVED', sort: 'MATCH', page: '2', size: '50'
+      skills: ['Java', 'Kafka'], unseenOnly: 'true', matchesProfile: 'true', hideSuspicious: 'true', view: 'SAVED', sort: 'MATCH',
+      page: '2', size: '50'
     }));
 
     expect(query).toEqual({
       q: 'java spring', rateMin: 500, rateMax: 800, rateKnown: true, regions: ['11', '84'], departments: ['2A', '92'],
       radiusKm: 30, workModes: ['REMOTE', 'HYBRID'], minRemoteDays: 2, durationMin: 6, durationMax: 24, startBefore: '2026-12-01',
       publishedWithinDays: 7, sites: ['FREE_WORK', 'SIXIEME_HOMME'], seniorities: ['SENIOR'], skills: ['Java', 'Kafka'],
-      unseenOnly: true, matchesProfile: true, view: 'SAVED', sort: 'MATCH', page: 2, size: 50
+      unseenOnly: true, matchesProfile: true, hideSuspicious: true, view: 'SAVED', sort: 'MATCH', page: 2, size: 50
     });
   });
 
@@ -46,7 +47,8 @@ describe('offer query', () => {
       seniorities: 'GURU', skills: ['', 'x'.repeat(61)], startBefore: '01/12/2026', view: 'ALL', sort: 'RANDOM', page: '-1', size: '13'
     }));
 
-    expect(query).toEqual({ ...defaultOfferQuery(), regions: ['11'], rateKnown: undefined, unseenOnly: undefined, matchesProfile: undefined });
+    expect(query).toEqual({ ...defaultOfferQuery(), regions: ['11'], rateKnown: undefined, unseenOnly: undefined, matchesProfile: undefined,
+      hideSuspicious: undefined });
   });
 
   it('tells which changes take an offer out of its view', () => {
@@ -76,5 +78,6 @@ describe('offer query', () => {
     expect(countActiveFilters(defaultOfferQuery())).toBe(0);
     expect(countActiveFilters({ ...defaultOfferQuery(), q: 'java', rateMin: 500, sites: ['YEETS'], skills: ['A', 'B'], unseenOnly: true,
       matchesProfile: true })).toBe(6);
+    expect(countActiveFilters({ ...defaultOfferQuery(), hideSuspicious: true })).toBe(1);
   });
 });

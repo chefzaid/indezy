@@ -106,6 +106,9 @@ public final class JobOfferSpecifications {
         if (request.isMatchesProfile() && profile.canMatch()) {
             predicates.add(OfferMatch.good(profile, root, query, cb));
         }
+        if (request.isHideSuspicious()) {
+            predicates.add(cb.isNull(root.get("suspicion")));
+        }
         return predicates;
     }
 

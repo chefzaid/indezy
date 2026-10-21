@@ -29,6 +29,8 @@ export type ApplicationChannel = 'SITE_FORM' | 'EMAIL' | 'PHONE';
 export type OfferSort = 'NEWEST' | 'RATE' | 'DISTANCE' | 'MATCH';
 export type OfferRateFit = 'MEETS' | 'CLOSE' | 'BELOW' | 'UNKNOWN';
 export type OfferPlaceFit = 'REMOTE' | 'NEAR' | 'REACHABLE' | 'MOSTLY_REMOTE' | 'FAR' | 'UNKNOWN';
+/** Why an offer looks like a fake or spam listing (see docs/features.md#suspicious-offers). */
+export type OfferSuspicion = 'NO_PUBLISHER_NO_DESCRIPTION' | 'RATE_OUTSIDE_MARKET' | 'SAME_TEXT_MANY_PUBLISHERS' | 'KNOWN_FAKE_PUBLISHER';
 /** When the mission starts against when the freelance is available: once available, up to two weeks before, earlier. */
 export type OfferAvailabilityFit = 'READY' | 'SOON' | 'TOO_EARLY' | 'UNKNOWN';
 
@@ -115,6 +117,8 @@ export interface Offer {
   application?: OfferApplication;
   /** Absent without a stated rate, a skill or ten comparable offers. */
   rateMarket?: OfferRateMarket;
+  /** Why it looks like a fake or spam listing; absent when it does not. */
+  suspicion?: OfferSuspicion[];
 }
 
 /**
@@ -204,6 +208,8 @@ export interface OfferFilters {
   unseenOnly?: boolean;
   /** Offers scoring 60 or more against the profile. */
   matchesProfile?: boolean;
+  /** Leave out the offers that look like fake or spam listings. */
+  hideSuspicious?: boolean;
 }
 
 export interface OfferQuery extends OfferFilters {

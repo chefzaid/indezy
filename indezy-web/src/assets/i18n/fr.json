@@ -1170,7 +1170,8 @@
         "inRegion": "en {{region}}",
         "inFrance": "en France",
         "hint": "TJM médian des {{offers}} offres ouvertes qui citent d'abord {{skill}} {{where}} : {{median}}"
-      }
+      },
+      "suspicious": "Douteuse"
     },
     "match": {
       "score": "{{score}} %",
@@ -1371,7 +1372,8 @@
       "unseenOnly": "Seulement les offres non vues",
       "matchesProfile": "Correspond à mon profil",
       "matchNeedsSkills": "Ajoutez d'abord des compétences à votre profil",
-      "clear": "Effacer les filtres ({{count}})"
+      "clear": "Effacer les filtres ({{count}})",
+      "hideSuspicious": "Masquer les offres douteuses"
     },
     "savedSearches": {
       "title": "Recherches enregistrées",
@@ -1496,6 +1498,12 @@
       "copy": "Copier le lien",
       "copied": "Lien de l'offre copié",
       "failed": "Le lien n'a pas pu être copié"
+    },
+    "suspicion": {
+      "NO_PUBLISHER_NO_DESCRIPTION": "Ni éditeur ni description",
+      "RATE_OUTSIDE_MARKET": "Un TJM très éloigné du marché de sa compétence",
+      "SAME_TEXT_MANY_PUBLISHERS": "Le même texte publié par quatre éditeurs ou plus",
+      "KNOWN_FAKE_PUBLISHER": "Un éditeur connu pour ses fausses annonces"
     }
   }
 }

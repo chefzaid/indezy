@@ -100,13 +100,18 @@ public class OfferRateBenchmarkService {
 
     /** The offer's rate against the market, or {@code null} without a rate, a skill ({@code skills} listed first) or a median. */
     public OfferRateMarketDto compare(JobOffer offer, List<String> skills) {
-        Integer rate = middle(offer.getRateMin(), offer.getRateMax());
-        String skillKey = skills == null || skills.isEmpty() ? null : TextFolding.words(skills.get(0));
+        return compare(offer.getRateMin(), offer.getRateMax(), offer.getRegionCode(), skills == null || skills.isEmpty() ? null : skills.get(0));
+    }
+
+    /** The rates of an offer of {@code regionCode} naming {@code mainSkill} first against the market, as {@link #compare(JobOffer, List)}. */
+    public OfferRateMarketDto compare(Integer rateMin, Integer rateMax, String regionCode, String mainSkill) {
+        Integer rate = middle(rateMin, rateMax);
+        String skillKey = TextFolding.words(mainSkill);
         if (rate == null || skillKey == null || skillKey.isBlank()) {
             return null;
         }
         Map<Key, OfferRateBenchmark> byKey = medians();
-        OfferRateBenchmark benchmark = offer.getRegionCode() == null ? null : byKey.get(new Key(skillKey, offer.getRegionCode()));
+        OfferRateBenchmark benchmark = regionCode == null ? null : byKey.get(new Key(skillKey, regionCode));
         if (benchmark == null) {
             benchmark = byKey.get(new Key(skillKey, OfferRateBenchmark.FRANCE));
         }

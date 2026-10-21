@@ -6,6 +6,7 @@ import dev.swirlit.indezy.model.enums.OfferLeftOutSite;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.repository.OfferRateBenchmarkRepository;
 import dev.swirlit.indezy.service.OfferRateBenchmarkService;
+import dev.swirlit.indezy.service.OfferSuspicionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -37,6 +38,9 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
 
     @Autowired
     private OfferRateBenchmarkRepository benchmarks;
+
+    @Autowired
+    private OfferSuspicionService suspicionService;
 
     @Test
     void eachWorkspaceSavesAndHidesItsOwnOffers() {
@@ -352,5 +356,23 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
         assertThat(market).containsEntry("percent", -11).containsEntry("median", 675).containsEntry("offers", 12)
             .containsEntry("skill", "Java").doesNotContainKey("regionName");
         benchmarks.deleteAll();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void flagsSuspiciousOffersAndHidesThemOnRequest() {
+        JobOffer anonymous = offer("fw-anonymous", "Développeur Java urgent", null, Instant.now().minus(Duration.ofHours(2)), 48.85, 2.35);
+        anonymous.setDescription(null);
+        offers.save(anonymous);
+        assertThat(suspicionService.refresh()).isEqualTo(1);
+
+        List<Map<String, Object>> feed = (List<Map<String, Object>>) call(alice, HttpMethod.GET, "/offers", null).getBody().get("content");
+        assertThat(feed).filteredOn(item -> "Développeur Java urgent".equals(item.get("title"))).singleElement()
+            .satisfies(item -> assertThat(item).containsEntry("suspicion", List.of("NO_PUBLISHER_NO_DESCRIPTION")));
+        assertThat(feed).filteredOn(item -> item.containsKey("suspicion")).hasSize(1);
+        assertThat(titles(call(alice, HttpMethod.GET, "/offers?hideSuspicious=true", null)))
+            .containsExactly("Développeur Java Spring", "Architecte cloud");
+        // Read again with nothing new, nothing changes.
+        assertThat(suspicionService.refresh()).isZero();
     }
 }

@@ -67,12 +67,14 @@ describe('OfferFiltersComponent', () => {
     component.toggleWorkMode('REMOTE');
     component.dateChanged(new Date(2026, 11, 1));
     component.draft.unseenOnly = true;
+    component.draft.hideSuspicious = true;
     component.draft.radiusKm = 25;
     component.changed();
 
     expect(emitted.map(filters => filters.workModes)).toEqual([['REMOTE'], ['REMOTE', 'HYBRID'], ['HYBRID'], ['HYBRID'], ['HYBRID']]);
     expect(emitted[3].startBefore).toBe('2026-12-01');
     expect(emitted[4].unseenOnly).toBeTrue();
+    expect(emitted[4].hideSuspicious).toBeTrue();
     expect(emitted[4].radiusKm).toBe(25);
   });
 

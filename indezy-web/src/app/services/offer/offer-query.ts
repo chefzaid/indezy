@@ -78,6 +78,7 @@ export function offerQueryFromParams(params: ParamMap): OfferQuery {
   query.rateKnown = params.get('rateKnown') === 'true' || undefined;
   query.unseenOnly = params.get('unseenOnly') === 'true' || undefined;
   query.matchesProfile = params.get('matchesProfile') === 'true' || undefined;
+  query.hideSuspicious = params.get('hideSuspicious') === 'true' || undefined;
   const view = params.get('view') as OfferView;
   query.view = VIEWS.includes(view) ? view : 'FEED';
   const sort = params.get('sort') as OfferSort;
@@ -124,7 +125,8 @@ export function countActiveFilters(filters: OfferFilters): number {
   for (const key of NUMBER_KEYS) {
     count += filters[key] !== undefined ? 1 : 0;
   }
-  return count + [filters.q, filters.startBefore, filters.rateKnown, filters.unseenOnly, filters.matchesProfile].filter(Boolean).length;
+  return count + [filters.q, filters.startBefore, filters.rateKnown, filters.unseenOnly, filters.matchesProfile, filters.hideSuspicious]
+    .filter(Boolean).length;
 }
 
 function valid<T extends string>(values: string[], accept: (value: string) => value is T): T[];

@@ -73,6 +73,10 @@ public class JobOffer extends BaseEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    /** Why it looks like a fake or spam listing, as {@code OfferSuspicion} bits; {@code null} when it does not. */
+    @Column(name = "suspicion")
+    private Integer suspicion;
+
     @Column(name = "rate_min")
     private Integer rateMin;
 

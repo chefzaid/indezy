@@ -374,6 +374,22 @@ aside), in the offer's region when ten offers or more make it, else in all of Fr
 shown. Its tooltip names the median and how many offers it is taken over. The medians are computed every night at
 04:45 (Paris time), after old offers are removed, and once when a server starts with none.
 
+### Suspicious Offers
+
+A card whose offer looks like a fake or spam listing carries a **Looks suspicious** badge, whose tooltip says why, and
+**Hide suspicious offers** in the filters leaves such offers out of the feed, its market snapshot and saved searches
+saved with it. An offer looks suspicious when:
+
+| Rule | When |
+| --- | --- |
+| No publisher, no description | the offer names no publisher and has no description |
+| Rate far from the market | its daily rate (the middle of its range) is below 40% or above 250% of the median of its first skill (see [Rate Versus Market](#rate-versus-market)) |
+| Same text, many publishers | four publishers or more post an offer with the same title and the same opening text |
+| Known for fake listings | its publisher is Digistrat, Propulse IT or Omicrone, whose Free-Work offers Indezy drops as fake listings |
+
+The rules are read again for every open offer every hour, three minutes after a server starts and after the nightly
+medians, so a new offer is flagged within the hour.
+
 ### Site Health
 
 **Job boards**, linked from the feed's summary (which says how many boards fail, when some do), lists every board

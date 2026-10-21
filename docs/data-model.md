@@ -315,6 +315,9 @@ Important fields:
 - `rateMin`, `rateMax`: daily rate in euros, either can be missing ("TJM max 600 €" has only a maximum)
 - `city`, `postalCode`, `departmentCode` and `regionCode` (INSEE codes), `countryCode`, `latitude`, `longitude`
 - `workMode` (`ONSITE`, `HYBRID`, `REMOTE`) and `remoteDaysPerWeek` (0 to 5)
+- `suspicion`: why the offer looks like a fake or spam listing, as `OfferSuspicion` bits (1 no publisher and no
+  description, 2 rate far from the market, 4 same text from four publishers or more, 8 known for fake listings), null
+  when it does not
 - `durationMonths`, `startDate`, `startAsap`, `seniority` (`JUNIOR`, `CONFIRMED`, `SENIOR`, `EXPERT`)
 - skills (`job_offer_skills`, an element collection kept in the site's order)
 - `publishedAt` with `datePrecision` (`EXACT`, `DAY`, or `FIRST_SEEN` when the site gives no date and the offer is

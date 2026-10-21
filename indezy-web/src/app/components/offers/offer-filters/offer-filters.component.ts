@@ -176,6 +176,7 @@ export class OfferFiltersComponent implements OnInit, OnChanges {
       rateMax: positive(this.draft.rateMax),
       rateKnown: this.draft.rateKnown || undefined,
       unseenOnly: this.draft.unseenOnly || undefined,
+      hideSuspicious: this.draft.hideSuspicious || undefined,
       matchesProfile: (this.matchAvailable && this.draft.matchesProfile) || undefined,
       radiusKm: this.distanceAvailable ? this.draft.radiusKm : undefined
     });

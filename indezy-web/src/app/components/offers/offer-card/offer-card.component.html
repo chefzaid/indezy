@@ -12,6 +12,12 @@
     @if (offer.expired) {
       <span class="badge expired-badge">{{ 'offers.card.expired' | translate }}</span>
     }
+    @if (offer.suspicion?.length) {
+      <span class="badge suspicious-badge" data-suspicious tabindex="0" [matTooltip]="suspicionDetails"
+        [attr.aria-label]="('offers.card.suspicious' | translate) + '. ' + suspicionDetails">
+        <mat-icon aria-hidden="true">report</mat-icon>{{ 'offers.card.suspicious' | translate }}
+      </span>
+    }
     @if (offer.application; as application) {
       <span class="badge applied-badge" data-applied tabindex="0" [matTooltip]="appliedDetails" [attr.aria-label]="appliedDetails">
         <mat-icon aria-hidden="true">send</mat-icon>{{ 'offers.card.applied' | translate: { when: appliedAgo } }}

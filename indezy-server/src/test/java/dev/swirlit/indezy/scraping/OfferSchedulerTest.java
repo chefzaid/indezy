@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.scraping;
 
 import dev.swirlit.indezy.service.OfferRateBenchmarkService;
+import dev.swirlit.indezy.service.OfferSuspicionService;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
@@ -15,7 +16,8 @@ class OfferSchedulerTest {
     private final OfferStore store = mock(OfferStore.class);
     private final OfferRelocation relocation = mock(OfferRelocation.class);
     private final OfferRateBenchmarkService benchmarks = mock(OfferRateBenchmarkService.class);
-    private final OfferScheduler scheduler = new OfferScheduler(collector, retention, store, relocation, benchmarks);
+    private final OfferSuspicionService suspicions = mock(OfferSuspicionService.class);
+    private final OfferScheduler scheduler = new OfferScheduler(collector, retention, store, relocation, benchmarks, suspicions);
 
     @Test
     void keysStoredOffersBatchAfterBatchUntilOneIsNotFull() {
@@ -49,6 +51,9 @@ class OfferSchedulerTest {
     void computesTheRateMediansEveryNightAndOnceAtStartWhenThereAreNone() {
         scheduler.computeRateBenchmarks();
         verify(benchmarks).refresh();
+        verify(suspicions).refresh();
+        scheduler.flagSuspiciousOffers();
+        verify(suspicions, times(2)).refresh();
 
         when(benchmarks.isEmpty()).thenReturn(false, true);
         scheduler.computeRateBenchmarksIfNone();

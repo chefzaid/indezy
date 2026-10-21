@@ -27,6 +27,7 @@ import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferLinkStatus;
 import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.model.enums.OfferSuspicion;
 import dev.swirlit.indezy.model.enums.Seniority;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.service.OfferApplicationService;
@@ -114,7 +115,7 @@ class OfferControllerTest {
                 .param("workModes", "REMOTE,HYBRID").param("minRemoteDays", "2").param("durationMin", "3")
                 .param("startBefore", "2026-12-01").param("publishedWithinDays", "7").param("sites", "FREE_WORK")
                 .param("seniorities", "SENIOR").param("skills", "Java").param("view", "SAVED").param("unseenOnly", "true")
-                .param("matchesProfile", "true").param("sort", "RATE").param("page", "2").param("size", "50"))
+                .param("matchesProfile", "true").param("hideSuspicious", "true").param("sort", "RATE").param("page", "2").param("size", "50"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.totalElements").value(1))
             .andExpect(jsonPath("$.distanceAvailable").value(true))
@@ -130,6 +131,7 @@ class OfferControllerTest {
             .andExpect(jsonPath("$.content[0].note").value("Call Léa"))
             .andExpect(jsonPath("$.content[0].rateMarket.percent").value(9))
             .andExpect(jsonPath("$.content[0].rateMarket.regionName").value("Île-de-France"))
+            .andExpect(jsonPath("$.content[0].suspicion[0]").value("SAME_TEXT_MANY_PUBLISHERS"))
             .andExpect(jsonPath("$.content[0].application.appliedOn").value("2026-10-20"))
             .andExpect(jsonPath("$.content[0].application.via").value("EMAIL"));
 
@@ -148,6 +150,7 @@ class OfferControllerTest {
         assertThat(bound.isRateKnown()).isTrue();
         assertThat(bound.isUnseenOnly()).isTrue();
         assertThat(bound.isMatchesProfile()).isTrue();
+        assertThat(bound.isHideSuspicious()).isTrue();
         assertThat(bound.getPage()).isEqualTo(2);
         assertThat(bound.getSize()).isEqualTo(50);
     }
@@ -368,6 +371,7 @@ class OfferControllerTest {
             Instant.parse("2026-10-19T08:47:42Z"), OfferDatePrecision.EXACT, null, false, false, false, false, null,
             List.of(new OfferCopyDto(8L, OfferSite.COLLECTIVE, "Collective", "https://www.collective.work/job/8")),
             new OfferMatchDto(83, List.of("Java"), OfferMatchDto.RateFit.MEETS, OfferMatchDto.PlaceFit.NEAR, null), "Call Léa",
-            new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.EMAIL), new OfferRateMarketDto(9, 550, 34, "Java", "Île-de-France"));
+            new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.EMAIL), new OfferRateMarketDto(9, 550, 34, "Java", "Île-de-France"),
+            List.of(OfferSuspicion.SAME_TEXT_MANY_PUBLISHERS));
     }
 }

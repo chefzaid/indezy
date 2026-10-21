@@ -209,6 +209,19 @@ describe('OfferCardComponent', () => {
     expect(document.querySelector('[data-edit-note]')).not.toBeNull();
   });
 
+  it('warns that an offer looks suspicious, and why', () => {
+    const fixture = create(offer({ suspicion: ['NO_PUBLISHER_NO_DESCRIPTION', 'KNOWN_FAKE_PUBLISHER'] }));
+    const badge = element(fixture, '[data-suspicious]');
+
+    expect(spaced(badge.innerText)).toContain('Douteuse');
+    expect(badge.getAttribute('aria-label'))
+      .toBe('Douteuse. Ni éditeur ni description · Un éditeur connu pour ses fausses annonces');
+    fixture.componentRef.setInput('offer', offer());
+    fixture.detectChanges();
+    expect(element(fixture, '[data-suspicious]')).toBeNull();
+    expect(fixture.componentInstance.suspicionDetails).toBe('');
+  });
+
   it('compares the rate with the market of its main skill, in its region or in France', () => {
     const fixture = create(offer({ rateMarket: { percent: 12, median: 600, offers: 34, skill: 'Java', regionName: 'Île-de-France' } }));
     const chip = element(fixture, '[data-rate-market]');

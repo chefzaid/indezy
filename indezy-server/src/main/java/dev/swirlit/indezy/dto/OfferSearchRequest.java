@@ -89,6 +89,9 @@ public class OfferSearchRequest {
     /** Leave out offers the workspace already opened. */
     private boolean unseenOnly;
 
+    /** Leave out offers that look like fake or spam listings (see {@code OfferSuspicion}). */
+    private boolean hideSuspicious;
+
     /** Keep the offers that match the profile (see {@code OfferMatch#GOOD_MATCH}); ignored when the profile names no skills. */
     private boolean matchesProfile;
 

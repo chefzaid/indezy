@@ -1170,7 +1170,8 @@
         "inRegion": "in {{region}}",
         "inFrance": "in France",
         "hint": "Median daily rate of the {{offers}} open offers naming {{skill}} first {{where}}: {{median}}"
-      }
+      },
+      "suspicious": "Looks suspicious"
     },
     "match": {
       "score": "{{score}}%",
@@ -1371,7 +1372,8 @@
       "unseenOnly": "Only offers I have not seen",
       "matchesProfile": "Matches my profile",
       "matchNeedsSkills": "Add skills to your profile first",
-      "clear": "Clear filters ({{count}})"
+      "clear": "Clear filters ({{count}})",
+      "hideSuspicious": "Hide suspicious offers"
     },
     "savedSearches": {
       "title": "Saved searches",
@@ -1496,6 +1498,12 @@
       "copy": "Copy the link",
       "copied": "Link to the offer copied",
       "failed": "The link could not be copied"
+    },
+    "suspicion": {
+      "NO_PUBLISHER_NO_DESCRIPTION": "No publisher and no description",
+      "RATE_OUTSIDE_MARKET": "A daily rate far from the market for its skill",
+      "SAME_TEXT_MANY_PUBLISHERS": "The same text posted by four publishers or more",
+      "KNOWN_FAKE_PUBLISHER": "A publisher known for fake listings"
     }
   }
 }

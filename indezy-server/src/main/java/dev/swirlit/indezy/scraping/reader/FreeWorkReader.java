@@ -2,6 +2,7 @@ package dev.swirlit.indezy.scraping.reader;
 
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.scraping.FakePublishers;
 import dev.swirlit.indezy.scraping.HtmlText;
 import dev.swirlit.indezy.scraping.Json;
 import dev.swirlit.indezy.scraping.OfferBatch;
@@ -9,7 +10,6 @@ import dev.swirlit.indezy.scraping.OfferReader;
 import dev.swirlit.indezy.scraping.OfferText;
 import dev.swirlit.indezy.scraping.PageFetcher;
 import dev.swirlit.indezy.scraping.ScrapedOffer;
-import dev.swirlit.indezy.util.TextFolding;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 
@@ -28,8 +28,6 @@ public class FreeWorkReader implements OfferReader {
 
     static final String API = "https://www.free-work.com/api/job_postings?contracts=contractor&itemsPerPage=50&page=";
     static final String OFFER_URL = "https://www.free-work.com/fr/tech-it/job-mission/";
-    /** Folded names of publishers whose Free-Work offers are fake listings. */
-    static final Set<String> FAKE_PUBLISHERS = Set.of("digistrat", "propulse it", "omicrone");
 
     @Override
     public OfferSite site() {
@@ -56,7 +54,7 @@ public class FreeWorkReader implements OfferReader {
 
     static ScrapedOffer offer(JsonNode posting) {
         String company = Json.text(posting.path("company").path("name"));
-        if (company != null && FAKE_PUBLISHERS.stream().anyMatch(TextFolding.words(company)::startsWith)) {
+        if (FakePublishers.named(company)) {
             return null;
         }
         String slug = Json.text(posting.path("slug"));

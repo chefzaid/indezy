@@ -27,6 +27,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,6 +92,26 @@ class JobOfferRepositoryTest {
         // The old offer states no rate, the expired one is closed.
         assertThat(offers.findRatedMainSkills(NOW)).singleElement()
             .satisfies(row -> assertThat(row).containsExactly(recent.getId(), 41L, "11", 550, 650, "Java"));
+    }
+
+    @Test
+    void readsWhatTellsSuspiciousOffersAndStoresTheirReasons() {
+        recent.setCompany("Exemple Conseil");
+        recent.setOpeningKey("opening");
+        recent.setDescription("Refonte d'un SI");
+        recent.setRateMin(600);
+        recent.setRegionCode("11");
+        entityManager.flush();
+
+        // The expired offer is left out; the old one has neither publisher nor description.
+        assertThat(offers.findSuspicionInputs(NOW)).extracting(Arrays::asList).containsExactlyInAnyOrder(
+            Arrays.asList(recent.getId(), "exemple conseil", "opening", 600, null, "11", null, false),
+            Arrays.asList(old.getId(), null, null, null, null, null, null, true));
+        assertThat(offers.findMainSkills(NOW)).extracting(row -> row[1]).containsExactlyInAnyOrder("Java", "java");
+
+        assertThat(offers.setSuspicion(5, List.of(recent.getId(), old.getId()))).isEqualTo(2);
+        entityManager.clear();
+        assertThat(offers.findById(recent.getId()).orElseThrow().getSuspicion()).isEqualTo(5);
     }
 
     @Test

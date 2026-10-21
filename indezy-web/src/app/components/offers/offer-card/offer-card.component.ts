@@ -169,6 +169,11 @@ export class OfferCardComponent {
     return score >= FAIR_MATCH ? 'fair' : 'low';
   }
 
+  /** Why the offer looks like a fake or spam listing, one reason after the other. */
+  get suspicionDetails(): string {
+    return (this.offer.suspicion ?? []).map(reason => this.translate.instant(`offers.suspicion.${reason}`)).join(' · ');
+  }
+
   /** The rate against the market, in words: "+12 % vs. Java in Île-de-France". */
   get marketLabel(): string {
     const market = this.offer.rateMarket;
