@@ -116,9 +116,24 @@ class PasswordLengthIntegrationTest {
 
         ResponseEntity<Map> rejected = post("/users/change-password", mismatched, token);
         assertThat(rejected.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(rejected.getBody().get("message")).isEqualTo("New password and confirmation do not match");
+        assertThat(rejected.getBody().get("validationErrors")).isEqualTo(Map.of("confirmPassword", "New password and confirmation do not match"));
         assertThat(post("/auth/login", login(email, "NewPassword456!"), null).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(post("/auth/login", login(email, PASSWORD), null).getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void changePassword_WithAWrongCurrentPassword_ShouldRejectThatFieldAndLogOnlyItsName(CapturedOutput output) {
+        String email = newEmail();
+        String token = (String) post("/auth/register", register(email, PASSWORD), null).getBody().get("token");
+        PasswordChangeRequestDto wrong = passwordChange("NewPassword456!");
+        wrong.setCurrentPassword("NotMyPassword1!");
+
+        ResponseEntity<Map> rejected = post("/users/change-password", wrong, token);
+
+        assertThat(rejected.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(rejected.getBody().get("validationErrors")).isEqualTo(Map.of("currentPassword", "Current password is incorrect"));
+        assertThat(post("/auth/login", login(email, PASSWORD), null).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(output.getAll().lines()).anyMatch(line -> line.contains(" WARN ") && line.endsWith("Rejected field: currentPassword"));
     }
 
     private ResponseEntity<Map> post(String path, Object body, String token) {

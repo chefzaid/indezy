@@ -5,6 +5,7 @@ import dev.swirlit.indezy.dto.TwoFactorSetupDto;
 import dev.swirlit.indezy.dto.UserDto;
 import dev.swirlit.indezy.dto.UserNotificationSettingsDto;
 import dev.swirlit.indezy.dto.UserPreferencesDto;
+import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.UserMapper;
 import dev.swirlit.indezy.model.Freelance;
@@ -142,20 +143,20 @@ class UserServiceTest {
     }
 
     @Test
-    void changePassword_WithMismatchedConfirmation_ShouldThrowIllegalArgumentException() {
+    void changePassword_WithMismatchedConfirmation_ShouldRejectTheConfirmation() {
         PasswordChangeRequestDto request = new PasswordChangeRequestDto();
         request.setCurrentPassword("old");
         request.setNewPassword("newPass123");
         request.setConfirmPassword("different");
 
         assertThatThrownBy(() -> userService.changePassword(1L, request))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOfSatisfying(FieldRejectedException.class, rejected -> assertThat(rejected.getField()).isEqualTo("confirmPassword"))
             .hasMessageContaining("do not match");
         verify(userRepository, never()).save(any());
     }
 
     @Test
-    void changePassword_WithWrongCurrentPassword_ShouldThrowIllegalArgumentException() {
+    void changePassword_WithWrongCurrentPassword_ShouldRejectTheCurrentPassword() {
         PasswordChangeRequestDto request = new PasswordChangeRequestDto();
         request.setCurrentPassword("wrong");
         request.setNewPassword("newPass123");
@@ -165,7 +166,7 @@ class UserServiceTest {
         when(passwordEncoder.matches("wrong", "hashed")).thenReturn(false);
 
         assertThatThrownBy(() -> userService.changePassword(1L, request))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOfSatisfying(FieldRejectedException.class, rejected -> assertThat(rejected.getField()).isEqualTo("currentPassword"))
             .hasMessageContaining("incorrect");
         verify(userRepository, never()).save(any());
     }

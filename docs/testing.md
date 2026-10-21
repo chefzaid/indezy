@@ -254,7 +254,8 @@ forms refuse a password over 72 bytes (37 accented letters) with the translated 
 accept one of exactly 72 bytes, and that a rejected registration other than a conflict
 is not reported as an existing account. The password-change form also refuses a new
 password under 8 characters with the translated minimum, and a server rejection of the
-change shows the translated error and keeps the typed values. They also find the
+change shows the translated error and keeps the typed values, while a wrong current password is told on its field
+until it is typed again. They also find the
 register page's password visibility buttons by their translated accessible name and
 check that `aria-pressed` follows the toggle, and read the login page's email placeholder
 in each language.

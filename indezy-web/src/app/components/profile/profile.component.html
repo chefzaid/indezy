@@ -45,6 +45,11 @@
                         {{ 'profile.errors.currentPasswordRequired' | translate }}
                       </mat-error>
                     }
+                    @if (passwordForm.get('currentPassword')?.hasError('incorrect')) {
+                      <mat-error>
+                        {{ 'profile.errors.currentPasswordIncorrect' | translate }}
+                      </mat-error>
+                    }
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'profile.newPassword' | translate }}</mat-label>

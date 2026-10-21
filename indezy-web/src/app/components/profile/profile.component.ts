@@ -22,6 +22,7 @@ import { LANGUAGE_STORAGE_KEY, fromIsoDate, getSavedLanguage, toIsoDate } from '
 import { ThemeService } from '../../shared/theme/theme.service';
 import { passwordMaxBytes } from '../../shared/utils/password-max-bytes';
 import { saveBlob } from '../../shared/utils/download-file';
+import { rejectedPasswordField } from './password-rejection';
 
 @Component({
     selector: 'app-profile',
@@ -329,7 +330,15 @@ export class ProfileComponent implements OnInit {
         error: (error: unknown) => {
           console.error('Error changing password:', error);
           this.isUpdating = false;
-          this.notificationService.error('profile.errors.changingPassword');
+          const rejected = rejectedPasswordField(error);
+          if (rejected) {
+            // The server checked what the form cannot: the current password, or the confirmation once more.
+            const control = this.passwordForm.get(rejected.field)!;
+            control.setErrors({ ...control.errors, [rejected.error]: true });
+            control.markAsTouched();
+          } else {
+            this.notificationService.error('profile.errors.changingPassword');
+          }
         }
       });
     }

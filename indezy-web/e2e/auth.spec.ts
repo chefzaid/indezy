@@ -13,7 +13,8 @@ const text = {
     registerError: 'Error creating account. Please try again.', emailExists: 'An account already exists with this email.',
     security: 'Security', currentPassword: 'Current password', newPassword: 'New password',
     changePassword: 'Change password', passwordChanged: 'Password changed successfully',
-    tooShort: 'Password must be at least 8 characters', changeError: 'Error changing password'
+    tooShort: 'Password must be at least 8 characters', changeError: 'Error changing password',
+    wrongCurrent: 'The current password is incorrect'
   },
   fr: {
     tooLong: 'Maximum 72 octets (é = 2, emoji = 4)', firstName: 'Prénom', lastName: 'Nom', email: 'Email',
@@ -23,7 +24,8 @@ const text = {
     registerError: 'Erreur lors de la création du compte. Veuillez réessayer.', emailExists: 'Un compte existe déjà avec cet email.',
     security: 'Sécurité', currentPassword: 'Mot de passe actuel', newPassword: 'Nouveau mot de passe',
     changePassword: 'Changer le mot de passe', passwordChanged: 'Mot de passe changé avec succès',
-    tooShort: 'Le mot de passe doit contenir au moins 8 caractères', changeError: 'Erreur lors du changement de mot de passe'
+    tooShort: 'Le mot de passe doit contenir au moins 8 caractères', changeError: 'Erreur lors du changement de mot de passe',
+    wrongCurrent: 'Le mot de passe actuel est incorrect'
   }
 };
 
@@ -151,6 +153,27 @@ for (const language of ['en', 'fr'] as const) {
       await expect(newPassword).toHaveValue('Abcdef12');
       expect(newPasswords).toEqual(['Abcdef12']);
     });
+  test(`tells a wrong current password on its field (${language})`, async ({ page }) => {
+    await mockProfilePage(page, language);
+    await page.route('**/api/users/change-password', route => route.fulfill({ status: 400, json: {
+      status: 400, error: 'Validation Failed', validationErrors: { currentPassword: 'Current password is incorrect' }
+    } }));
+
+    await page.goto('/profile');
+    await page.getByRole('tab', { name: t.security }).click();
+    const current = page.getByLabel(t.currentPassword, { exact: true });
+    await current.fill('NotMyPassword1!');
+    await page.getByLabel(t.newPassword, { exact: true }).fill('Abcdef12');
+    await page.getByLabel(t.confirmPassword, { exact: true }).fill('Abcdef12');
+    await page.getByRole('button', { name: t.changePassword }).click();
+
+    await expect(page.getByText(t.wrongCurrent)).toBeVisible();
+    await expect(page.getByText(t.changeError)).toBeHidden();
+    await expect(current).toHaveAttribute('aria-invalid', 'true');
+    // Typing again clears it.
+    await current.fill('Password123!');
+    await expect(page.getByText(t.wrongCurrent)).toBeHidden();
+  });
 }
 
 /** The profile page of a signed-in session, with the API calls it makes on load intercepted. */

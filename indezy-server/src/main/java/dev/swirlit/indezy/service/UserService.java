@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.*;
+import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.UserMapper;
 import dev.swirlit.indezy.model.Freelance;
@@ -106,7 +107,7 @@ public class UserService {
         log.debug("Changing password for user ID: {}", userId);
         
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new IllegalArgumentException("New password and confirmation do not match");
+            throw new FieldRejectedException("confirmPassword", "New password and confirmation do not match");
         }
 
         User user = userRepository.findById(userId)
@@ -114,7 +115,7 @@ public class UserService {
 
         // Verify current password
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
-            throw new IllegalArgumentException("Current password is incorrect");
+            throw new FieldRejectedException("currentPassword", "Current password is incorrect");
         }
 
         // Update password

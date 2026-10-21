@@ -84,6 +84,12 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage());
     }
 
+    @ExceptionHandler(FieldRejectedException.class)
+    public ResponseEntity<ErrorResponse> handleFieldRejected(FieldRejectedException ex) {
+        log.warn("Rejected field: {}", ex.getField());
+        return validationFailed(Map.of(ex.getField(), ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<ObjectError> bindingErrors = ex.getBindingResult().getAllErrors();

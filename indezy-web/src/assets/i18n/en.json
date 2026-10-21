@@ -742,6 +742,7 @@
       "lastNameRequired": "Last name is required",
       "emailRequired": "Email is required",
       "currentPasswordRequired": "Current password is required",
+      "currentPasswordIncorrect": "The current password is incorrect",
       "newPasswordRequired": "New password is required",
       "passwordMinLength": "Password must be at least 8 characters",
       "confirmRequired": "Password confirmation is required",
