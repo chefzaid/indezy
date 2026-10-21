@@ -125,6 +125,31 @@ export interface SavedOfferSearch {
   newOffers: number;
 }
 
+/** A search suggested from the profile and the pipeline, with what it finds in the feed now. */
+export interface OfferSearchSuggestion {
+  /** Tells its filters apart: the same filters, saved or dismissed, are not suggested again. */
+  key: string;
+  /** The filters as the server keeps them: unset values are null. */
+  filters: Partial<Record<keyof OfferQuery, unknown>>;
+  /** The profile's city when the filters measure a distance from it, or the region they keep. */
+  place?: string | null;
+  offers: number;
+  /** Offers scoring 60 or more against the profile. */
+  goodMatches: number;
+  /** Offers published in the last seven days. */
+  newThisWeek: number;
+}
+
+/** A profile field suggestions are drawn from. */
+export type OfferProfileField = 'SKILLS' | 'POSITION' | 'CITY' | 'TARGET_RATE';
+
+export interface OfferSearchSuggestions {
+  /** At most five, best first. */
+  suggestions: OfferSearchSuggestion[];
+  /** The profile fields left empty, which would bring more suggestions. */
+  missing: OfferProfileField[];
+}
+
 export interface OfferAlerts {
   newOffers: number;
 }

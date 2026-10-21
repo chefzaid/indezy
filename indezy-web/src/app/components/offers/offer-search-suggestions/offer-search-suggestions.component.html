@@ -1,0 +1,56 @@
+<section class="suggestions" data-search-suggestions aria-labelledby="search-suggestions-title">
+  <h3 id="search-suggestions-title">
+    <mat-icon aria-hidden="true">tips_and_updates</mat-icon>{{ 'offers.suggestions.title' | translate }}
+  </h3>
+  @if (loading) {
+    <mat-spinner diameter="24" [attr.aria-label]="'offers.suggestions.loading' | translate"></mat-spinner>
+  } @else if (failed) {
+    <p class="hint">
+      {{ 'offers.suggestions.failed' | translate }}
+      <button mat-button type="button" (click)="load()">{{ 'common.retry' | translate }}</button>
+    </p>
+  } @else {
+    @if (!shown.length) {
+      <p class="hint" data-no-suggestion>{{ 'offers.suggestions.none' | translate }}</p>
+    }
+    <ul class="suggestion-list">
+      @for (item of shown; track item.suggestion.key) {
+        <li class="suggestion" [attr.data-suggestion]="item.suggestion.key">
+          <div class="suggestion-text">
+            <span class="suggestion-name">{{ item.name }}</span>
+            <span class="suggestion-counts">
+              {{ countKey('offers.suggestions.offers', item.suggestion.offers) | translate: { count: item.suggestion.offers } }}
+              @if (item.suggestion.goodMatches) {
+                · {{ countKey('offers.suggestions.goodMatches', item.suggestion.goodMatches) | translate: { count: item.suggestion.goodMatches } }}
+              }
+              @if (item.suggestion.newThisWeek) {
+                · {{ countKey('offers.suggestions.newThisWeek', item.suggestion.newThisWeek) | translate: { count: item.suggestion.newThisWeek } }}
+              }
+            </span>
+          </div>
+          <div class="suggestion-actions">
+            <button mat-button type="button" (click)="preview.emit(item.query)" data-preview-suggestion
+              [attr.aria-label]="'offers.suggestions.previewNamed' | translate: { name: item.name }">
+              {{ 'offers.suggestions.preview' | translate }}
+            </button>
+            <button mat-stroked-button color="primary" type="button" (click)="save(item)" data-save-suggestion
+              [attr.aria-label]="'offers.suggestions.saveNamed' | translate: { name: item.name }">
+              <mat-icon>bookmark_add</mat-icon>{{ 'offers.suggestions.save' | translate }}
+            </button>
+            <button mat-icon-button type="button" (click)="dismiss(item)" data-dismiss-suggestion
+              [attr.aria-label]="'offers.suggestions.dismiss' | translate: { name: item.name }"
+              [matTooltip]="'offers.suggestions.dismissHint' | translate">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+    @if (missing.length) {
+      <p class="hint" data-missing-profile>
+        {{ 'offers.suggestions.missing' | translate: { fields: missingFields } }}
+        <a routerLink="/profile">{{ 'offers.suggestions.completeProfile' | translate }}</a>
+      </p>
+    }
+  }
+</section>

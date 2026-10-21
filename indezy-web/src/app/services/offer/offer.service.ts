@@ -15,6 +15,8 @@ import {
   OfferPublisherBlock,
   OfferQuery,
   OfferRegion,
+  OfferSearchSuggestion,
+  OfferSearchSuggestions,
   OfferSite,
   OfferSiteHealth,
   OfferSiteInfo,
@@ -155,6 +157,17 @@ export class OfferService {
 
   deleteSearch(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/searches/${id}`);
+  }
+
+  /** Searches suggested from the profile and the pipeline. Errors are the caller's to tell. */
+  searchSuggestions(): Observable<OfferSearchSuggestions> {
+    return this.http.get<OfferSearchSuggestions>(`${this.API_URL}/searches/suggestions`,
+      { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
+  /** Dismisses a suggested search: the same filters are not suggested again. */
+  dismissSuggestion(filters: OfferSearchSuggestion['filters']): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/searches/suggestions/dismissals`, filters);
   }
 
   /** Counted in the background for the badge on Offers: a failure is not reported. */

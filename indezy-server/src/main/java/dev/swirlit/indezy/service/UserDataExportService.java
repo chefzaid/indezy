@@ -30,6 +30,7 @@ public class UserDataExportService {
     private final ActivityReportService activityReportService;
     private final OfferStateService offerStateService;
     private final SavedOfferSearchService savedOfferSearchService;
+    private final OfferSearchSuggestionService offerSearchSuggestionService;
     private final OfferSiteHealthService offerSiteHealthService;
     private final OfferPublisherBlockService offerPublisherBlockService;
 
@@ -51,6 +52,7 @@ public class UserDataExportService {
         export.put("activityReports", activityReportService.findByFreelanceId(freelanceId));
         export.put("jobOffers", offerStateService.export(freelanceId));
         export.put("offerSearches", savedOfferSearchService.export(freelanceId));
+        export.put("dismissedOfferSearchSuggestions", offerSearchSuggestionService.export(freelanceId));
         export.put("excludedOfferSites", offerSiteHealthService.excludedSites(freelanceId));
         export.put("offerSiteVisits", offerSiteHealthService.visits(freelanceId));
         export.put("blockedOfferPublishers", offerPublisherBlockService.list(freelanceId));

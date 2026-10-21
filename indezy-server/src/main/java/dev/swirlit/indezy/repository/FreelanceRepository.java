@@ -27,6 +27,10 @@ public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
     @Query("SELECT u.city FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     Optional<String> findProfileCity(@Param("freelanceId") Long freelanceId);
 
+    /** The job title of the workspace owner's profile, which offer searches are suggested from. */
+    @Query("SELECT u.position FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
+    Optional<String> findProfilePosition(@Param("freelanceId") Long freelanceId);
+
     /** When the workspace is next available, which offers' start dates are matched against. */
     @Query("SELECT f.availabilityDate FROM Freelance f WHERE f.id = :freelanceId")
     Optional<LocalDate> findAvailabilityDate(@Param("freelanceId") Long freelanceId);

@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { AbstractControlOptions, ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -50,6 +51,7 @@ export class ProfileComponent implements OnInit {
   static readonly AVATAR_SIZE = 256;
 
   private readonly themeService = inject(ThemeService);
+  private readonly router = inject(Router);
 
   userProfile: UserProfile | null = null;
   profileForm!: FormGroup;
@@ -291,11 +293,18 @@ export class ProfileComponent implements OnInit {
         availabilityDate: toIsoDate(formValue.availabilityDate) ?? null
       };
 
+      const before = this.userProfile;
       this.userManagementService.updateUserProfile(updatedProfile).subscribe({
         next: (profile: UserProfile) => {
           this.userProfile = profile;
           this.isUpdating = false;
-          this.notificationService.success('profile.updateSuccess');
+          if (suggestionInputsChanged(before, profile)) {
+            // What the offer feed's searches are suggested from changed: offer to see them.
+            this.notificationService.successWithAction('profile.updateSuccessSuggestions', 'profile.seeSuggestions', 8000)
+              .subscribe(() => this.router.navigate(['/offers'], { state: { openSuggestions: true } }));
+          } else {
+            this.notificationService.success('profile.updateSuccess');
+          }
         },
         error: (error: unknown) => {
           console.error('Error updating profile:', error);
@@ -461,4 +470,11 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+}
+
+/** Whether the job title, skills, target daily rate or city changed: the offer feed suggests searches from them. */
+function suggestionInputsChanged(before: UserProfile | null | undefined, after: UserProfile): boolean {
+  const inputs = (profile: UserProfile | null | undefined): string => JSON.stringify([profile?.position?.trim() || null,
+    [...(profile?.skills ?? [])].sort(), profile?.targetDailyRate ?? null, profile?.city?.trim() || null]);
+  return inputs(before) !== inputs(after);
 }

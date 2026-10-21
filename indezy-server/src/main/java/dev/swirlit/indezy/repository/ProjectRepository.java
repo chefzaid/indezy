@@ -14,6 +14,11 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     List<Project> findByFreelanceId(Long freelanceId);
 
+    /** The tech stacks and daily rates of the opportunities added since {@code since} or won: what searches are suggested from. */
+    @Query("select p.techStack, p.dailyRate from Project p where p.freelance.id = :freelanceId " +
+        "and (p.createdAt >= :since or p.status = dev.swirlit.indezy.model.enums.ProjectStatus.WON)")
+    List<Object[]> findRecentStacksAndRates(@Param("freelanceId") Long freelanceId, @Param("since") LocalDateTime since);
+
     List<Project> findByClientId(Long clientId);
 
     List<Project> findByFreelanceIdAndSeasonId(Long freelanceId, Long seasonId);

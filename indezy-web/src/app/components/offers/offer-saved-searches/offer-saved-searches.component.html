@@ -24,4 +24,12 @@
     <mat-icon>bookmark_add</mat-icon>
     {{ 'offers.savedSearches.save' | translate }}
   </button>
+  <button mat-button type="button" class="suggestions-toggle" (click)="toggleSuggestions()" [attr.aria-expanded]="showSuggestions"
+    data-toggle-suggestions>
+    <mat-icon>tips_and_updates</mat-icon>
+    {{ 'offers.suggestions.toggle' | translate }}
+  </button>
 </section>
+@if (showSuggestions) {
+  <app-offer-search-suggestions (preview)="searchOpened.emit($event)" (saved)="addSaved($event)"></app-offer-search-suggestions>
+}

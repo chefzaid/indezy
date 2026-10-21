@@ -759,7 +759,9 @@
       "sites": "Choose the job boards of your feed"
     },
     "availabilityDate": "Available from",
-    "availabilityDateHint": "Offers starting once you are available score higher in the feed. Leave empty if you do not want it counted."
+    "availabilityDateHint": "Offers starting once you are available score higher in the feed. Leave empty if you do not want it counted.",
+    "updateSuccessSuggestions": "Profile updated. The offer feed has new suggested searches for it.",
+    "seeSuggestions": "See them"
   },
   "errors": {
     "notFoundTitle": "404 - Page not found",
@@ -1428,6 +1430,46 @@
       "importedOne": "1 offer added to the pipeline (Contact stage)",
       "importedNone": "These missions were already in the pipeline.",
       "allInPipeline": "The selected offers are already in the pipeline."
+    },
+    "suggestions": {
+      "toggle": "Suggested searches",
+      "title": "Suggested for you",
+      "loading": "Looking for searches that fit your profile",
+      "failed": "The suggestions could not be loaded.",
+      "none": "No suggestion for now: the searches drawn from your profile find no offer, or you saved or dismissed them.",
+      "offers": "{{count}} open offers",
+      "offersOne": "1 open offer",
+      "goodMatches": "{{count}} match your profile",
+      "goodMatchesOne": "1 matches your profile",
+      "newThisWeek": "{{count}} new this week",
+      "newThisWeekOne": "1 new this week",
+      "preview": "Preview",
+      "previewNamed": "Preview the offers of {{name}}",
+      "save": "Save",
+      "saveNamed": "Save the search {{name}}",
+      "dismiss": "Dismiss the suggestion {{name}}",
+      "dismissHint": "Not suggested again",
+      "missing": "For more suggestions, fill in on your profile: {{fields}}.",
+      "completeProfile": "Complete my profile",
+      "fields": {
+        "SKILLS": "skills",
+        "POSITION": "job title",
+        "CITY": "city",
+        "TARGET_RATE": "target daily rate"
+      },
+      "errors": {
+        "dismiss": "The suggestion could not be dismissed."
+      }
+    },
+    "searchParts": {
+      "q": "“{{q}}”",
+      "rateMin": "{{rate}} €/day or more",
+      "near": "{{place}} + {{km}} km",
+      "within": "Within {{km}} km",
+      "remote": "Full remote",
+      "hybrid": "Hybrid",
+      "hybridDays": "Hybrid, {{days}}+ remote days a week",
+      "startBefore": "Starting by {{date}}"
     }
   }
 }

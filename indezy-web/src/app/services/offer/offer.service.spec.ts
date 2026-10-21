@@ -104,6 +104,19 @@ describe('OfferService', () => {
     imported.flush({ id: 40 });
   });
 
+  it('loads the suggested searches quietly and dismisses one', () => {
+    service.searchSuggestions().subscribe();
+    const suggestions = http.expectOne(`${api}/searches/suggestions`);
+    expect(suggestions.request.context.get(SILENT_HTTP_ERRORS)).toBeTrue();
+    suggestions.flush({ suggestions: [], missing: [] });
+
+    service.dismissSuggestion({ skills: ['Java'] }).subscribe();
+    const dismissal = http.expectOne(`${api}/searches/suggestions/dismissals`);
+    expect(dismissal.request.method).toBe('POST');
+    expect(dismissal.request.body).toEqual({ skills: ['Java'] });
+    dismissal.flush(null);
+  });
+
   it('finds the offer of a link quietly and imports it as corrected in the form', () => {
     service.resolveLink('https://www.free-work.com/fr/mission/1').subscribe();
     const link = http.expectOne(`${api}/link`);

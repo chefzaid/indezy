@@ -26,7 +26,9 @@ describe('OfferSavedSearchesComponent', () => {
 
   function create(query: OfferQuery = { ...defaultOfferQuery(), q: 'kafka' },
                   searches: SavedOfferSearch[] = [search(1, 'Java', 3), search(2, 'Python', 0)]): ComponentFixture<OfferSavedSearchesComponent> {
-    offers = jasmine.createSpyObj('OfferService', ['savedSearches', 'saveSearch', 'openSearch', 'deleteSearch']);
+    offers = jasmine.createSpyObj('OfferService', ['savedSearches', 'saveSearch', 'openSearch', 'deleteSearch', 'searchSuggestions',
+      'dismissSuggestion']);
+    offers.searchSuggestions.and.returnValue(of({ suggestions: [], missing: [] }));
     alerts = jasmine.createSpyObj('OfferAlertsService', ['refresh']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
@@ -133,5 +135,60 @@ describe('OfferSavedSearchesComponent', () => {
     const fixture = create(undefined, []);
 
     expect(fixture.nativeElement.querySelector('.search-list')).toBeNull();
+  });
+
+  describe('suggested searches', () => {
+    afterEach(() => {
+      localStorage.removeItem('indezy-offer-suggestions-closed');
+      history.replaceState(null, '');
+    });
+
+    function suggestions(fixture: ComponentFixture<OfferSavedSearchesComponent>): HTMLElement | null {
+      return fixture.nativeElement.querySelector('[data-search-suggestions]');
+    }
+
+    it('opens them by itself while nothing is saved, until they are closed', () => {
+      const fixture = create(undefined, []);
+      expect(suggestions(fixture)).not.toBeNull();
+
+      buttons(fixture, '[data-toggle-suggestions]')[0].click();
+      fixture.detectChanges();
+      expect(suggestions(fixture)).toBeNull();
+      expect(localStorage.getItem('indezy-offer-suggestions-closed')).toBe('true');
+
+      TestBed.resetTestingModule();
+      const again = create(undefined, []);
+      expect(suggestions(again)).toBeNull();
+      buttons(again, '[data-toggle-suggestions]')[0].click();
+      again.detectChanges();
+      expect(suggestions(again)).not.toBeNull();
+      expect(buttons(again, '[data-toggle-suggestions]')[0].getAttribute('aria-expanded')).toBe('true');
+      expect(localStorage.getItem('indezy-offer-suggestions-closed')).toBeNull();
+    });
+
+    it('keeps them closed beside saved searches unless the page was opened to see them', () => {
+      expect(suggestions(create())).toBeNull();
+
+      TestBed.resetTestingModule();
+      localStorage.setItem('indezy-offer-suggestions-closed', 'true');
+      history.replaceState({ openSuggestions: true }, '');
+      expect(suggestions(create())).not.toBeNull();
+    });
+
+    it('adds a saved suggestion to the saved searches and previews one in the feed', () => {
+      const fixture = create(undefined, [search(2, 'Python', 0)]);
+      const opened: OfferQuery[] = [];
+      fixture.componentInstance.searchOpened.subscribe(query => opened.push(query));
+
+      fixture.componentInstance.addSaved(search(3, 'Kafka', 0));
+      fixture.detectChanges();
+      buttons(fixture, '[data-toggle-suggestions]')[0].click();
+      fixture.detectChanges();
+      const panel = fixture.debugElement.query(debug => debug.name === 'app-offer-search-suggestions');
+      panel.componentInstance.preview.emit({ ...defaultOfferQuery(), skills: ['Java'] });
+
+      expect(names(fixture)).toEqual(['Kafka', 'Python']);
+      expect(opened[0].skills).toEqual(['Java']);
+    });
   });
 });

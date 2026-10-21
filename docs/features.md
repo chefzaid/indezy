@@ -244,6 +244,8 @@ marked **New**.
   collected after that moment, one per mission); opening one shows its offers and starts counting afresh. The
   **Offers** item of the menu carries a badge with the offers new for any saved search, counted again every five
   minutes and after each change; a failed count is not reported.
+- **Suggested searches** (see [Suggested Searches](#suggested-searches)): searches drawn from the profile and the
+  pipeline, to preview, save in one click or dismiss.
 
 - **Blocklist**: **Hide every offer from …** in an offer's menu, or a name typed in the profile's **Offer feed** tab,
   keeps a publisher's offers (an intermediary's or a client's) out of the workspace's feed, saved searches' new offers
@@ -276,9 +278,36 @@ at most; answers the offers `imported`, `alreadyInPipeline` with their opportuni
 /offers/sites/left-out/{site}/visit`), the blocklist (`GET /offers/blocked-publishers`,
 `POST /offers/blocked-publishers` with a `name`, which answers the existing block for a name read the same, and
 `DELETE /offers/blocked-publishers/{id}`) and the saved searches: `GET /offers/searches`, `POST /offers/searches`,
-`POST /offers/searches/{id}/open`, `DELETE /offers/searches/{id}` and `GET /offers/searches/alerts`. Each offer carries
+`POST /offers/searches/{id}/open`, `DELETE /offers/searches/{id}`, `GET /offers/searches/alerts`,
+`GET /offers/searches/suggestions` (`suggestions`, each with its `key`, `filters`, `place`, `offers`, `goodMatches` and
+`newThisWeek`, and the profile fields `missing`) and `POST /offers/searches/suggestions/dismissals` (the filters). Each offer carries
 its `match` (score, skills, rate and place fit) and each page says whether distances (`distanceAvailable`) and matches
 (`matchAvailable`) can be computed.
+
+### Suggested Searches
+
+**Suggested searches**, beside **Save this search** above the feed, opens a list of searches drawn from the profile
+and the pipeline; it opens by itself while the workspace has no saved search (until it is closed once in that browser),
+and when the profile's job title, skills, target daily rate or city change, the profile's confirmation offers **See
+them**. The searches tried, all at the target daily rate or more (the median daily rate of the pipeline when the profile
+sets none):
+
+- the job title as keywords, within 30 km of the profile's city;
+- each of the profile's first two skills, within 30 km of its city, and the pair among its first four skills that
+  most open offers ask for together;
+- the first skill full remote, in the city's region, hybrid with two remote days a week or more (within 80 km), and
+  starting within 30 days after the profile's availability date;
+- the two skills the opportunities added in the last 90 days or won name most and the profile does not, within 30 km.
+
+Each is counted in the workspace's feed (its hidden offers, excluded sites and blocked publishers left out): searches
+finding no offer, with the filters of a saved search, or dismissed are left out, and at most five are shown, those
+finding the most offers that match the profile (60 or more) first, then the most offers. Each one reads as its filters
+("Java · 600 €/day or more · Lyon + 30 km"), with its open offers, those matching the profile and those published in
+the last seven days. **Preview** shows its offers in the feed without saving anything; **Save** offers its words as the
+name of a saved search; dismissing it means the same filters (whatever their sort or order) are never suggested again,
+up to the 200 most recent dismissals, which are part of the account data export. The list says which empty profile
+fields (skills, job title, city, target daily rate) would bring more, with a link to the profile. A workspace's
+suggestions are counted again after 10 minutes, or at once when the profile or the pipeline they come from change.
 
 ### From An Offer Link
 

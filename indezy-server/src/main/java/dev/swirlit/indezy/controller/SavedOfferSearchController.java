@@ -1,9 +1,12 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.OfferAlertsDto;
+import dev.swirlit.indezy.dto.OfferSearchRequest;
+import dev.swirlit.indezy.dto.OfferSearchSuggestionsDto;
 import dev.swirlit.indezy.dto.SavedOfferSearchDto;
 import dev.swirlit.indezy.dto.SavedOfferSearchRequest;
 import dev.swirlit.indezy.service.AccessGuard;
+import dev.swirlit.indezy.service.OfferSearchSuggestionService;
 import dev.swirlit.indezy.service.SavedOfferSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +36,7 @@ import java.util.List;
 public class SavedOfferSearchController {
 
     private final SavedOfferSearchService savedSearches;
+    private final OfferSearchSuggestionService suggestions;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "List the saved searches with the offers found for each since it was last opened")
@@ -58,6 +62,20 @@ public class SavedOfferSearchController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id, @RequestParam(required = false) Long freelanceId) {
         savedSearches.delete(accessGuard.requireWorkspace(freelanceId), id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Suggest searches from the profile and the pipeline, with the offers each finds now",
+        description = "At most five, best first, leaving out the ones saved or dismissed; missing names the profile fields left empty")
+    @GetMapping("/suggestions")
+    public OfferSearchSuggestionsDto suggestions(@RequestParam(required = false) Long freelanceId) {
+        return suggestions.suggestions(accessGuard.requireWorkspace(freelanceId));
+    }
+
+    @Operation(summary = "Dismiss a suggested search: the same filters are not suggested again")
+    @PostMapping("/suggestions/dismissals")
+    public ResponseEntity<Void> dismiss(@Valid @RequestBody OfferSearchRequest filters, @RequestParam(required = false) Long freelanceId) {
+        suggestions.dismiss(accessGuard.requireWorkspace(freelanceId), filters);
         return ResponseEntity.noContent().build();
     }
 

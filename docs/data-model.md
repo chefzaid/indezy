@@ -352,6 +352,16 @@ Purpose: filters of the offer feed a workspace saved under a name. Unique per fr
 Fields: `name` (80 characters), `filters` (the feed's filters and sort as JSON, without view or page) and
 `lastOpenedAt`: offers first seen after it are new for the search.
 
+## OfferSuggestionDismissal
+
+Table: `offer_suggestion_dismissals`
+
+Purpose: the suggested searches a workspace dismissed, so the same filters are not suggested again. Unique per
+freelance and key (`uk_offer_suggestion_dismissals_key`); the 200 most recent are kept per workspace.
+
+Fields: `suggestionKey` (32 hexadecimal characters: the start of a SHA-256 of the filters written canonically),
+`filters` (the filters dismissed as JSON, for the account data export) and `dismissedAt`.
+
 ## OfferSiteStatus, OfferSkip And GeoPlace
 
 `offer_site_statuses`: one row per job board, keyed by the site: `nextRunAt`, `runningSince` (the claim of a running

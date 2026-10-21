@@ -759,7 +759,9 @@
       "sites": "Choisir les sites d'offres de votre fil"
     },
     "availabilityDate": "Disponible à partir du",
-    "availabilityDateHint": "Les offres qui démarrent quand vous êtes disponible obtiennent un meilleur score dans le fil. Laissez vide pour ne pas en tenir compte."
+    "availabilityDateHint": "Les offres qui démarrent quand vous êtes disponible obtiennent un meilleur score dans le fil. Laissez vide pour ne pas en tenir compte.",
+    "updateSuccessSuggestions": "Profil mis à jour. Le fil d'offres vous suggère de nouvelles recherches.",
+    "seeSuggestions": "Les voir"
   },
   "errors": {
     "notFoundTitle": "404 - Page non trouvée",
@@ -1428,6 +1430,46 @@
       "importedOne": "1 offre ajoutée au pipeline (étape Contact)",
       "importedNone": "Ces missions étaient déjà dans le pipeline.",
       "allInPipeline": "Les offres sélectionnées sont déjà dans le pipeline."
+    },
+    "suggestions": {
+      "toggle": "Recherches suggérées",
+      "title": "Suggérées pour vous",
+      "loading": "Recherche des recherches adaptées à votre profil",
+      "failed": "Les suggestions n'ont pas pu être chargées.",
+      "none": "Aucune suggestion pour l'instant : les recherches tirées de votre profil ne trouvent aucune offre, ou vous les avez sauvegardées ou écartées.",
+      "offers": "{{count}} offres ouvertes",
+      "offersOne": "1 offre ouverte",
+      "goodMatches": "{{count}} correspondent à votre profil",
+      "goodMatchesOne": "1 correspond à votre profil",
+      "newThisWeek": "{{count}} nouvelles cette semaine",
+      "newThisWeekOne": "1 nouvelle cette semaine",
+      "preview": "Aperçu",
+      "previewNamed": "Voir les offres de {{name}}",
+      "save": "Sauvegarder",
+      "saveNamed": "Sauvegarder la recherche {{name}}",
+      "dismiss": "Écarter la suggestion {{name}}",
+      "dismissHint": "Ne plus la suggérer",
+      "missing": "Pour plus de suggestions, renseignez dans votre profil : {{fields}}.",
+      "completeProfile": "Compléter mon profil",
+      "fields": {
+        "SKILLS": "compétences",
+        "POSITION": "intitulé de poste",
+        "CITY": "ville",
+        "TARGET_RATE": "TJM cible"
+      },
+      "errors": {
+        "dismiss": "La suggestion n'a pas pu être écartée."
+      }
+    },
+    "searchParts": {
+      "q": "« {{q}} »",
+      "rateMin": "{{rate}} €/jour ou plus",
+      "near": "{{place}} + {{km}} km",
+      "within": "À {{km}} km au plus",
+      "remote": "Full remote",
+      "hybrid": "Hybride",
+      "hybridDays": "Hybride, {{days}} jours de télétravail ou plus par semaine",
+      "startBefore": "Démarrage d'ici le {{date}}"
     }
   }
 }

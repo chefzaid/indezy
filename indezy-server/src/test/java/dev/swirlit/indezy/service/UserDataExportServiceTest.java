@@ -6,6 +6,7 @@ import dev.swirlit.indezy.dto.OfferBoardVisitDto;
 import dev.swirlit.indezy.dto.OfferPublisherBlockDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.OfferStateExportDto;
+import dev.swirlit.indezy.dto.OfferSuggestionDismissalDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.dto.SavedOfferSearchDto;
 import dev.swirlit.indezy.dto.UserDto;
@@ -53,6 +54,9 @@ class UserDataExportServiceTest {
     private SavedOfferSearchService savedOfferSearchService;
 
     @Mock
+    private OfferSearchSuggestionService offerSearchSuggestionService;
+
+    @Mock
     private OfferSiteHealthService offerSiteHealthService;
 
     @Mock
@@ -87,6 +91,10 @@ class UserDataExportServiceTest {
 
         OfferSearchRequest filters = new OfferSearchRequest();
         filters.setQ("kafka");
+        OfferSearchRequest dismissed = new OfferSearchRequest();
+        dismissed.getSkills().add("Cobol");
+        when(offerSearchSuggestionService.export(5L)).thenReturn(List.of(new OfferSuggestionDismissalDto(dismissed,
+            Instant.parse("2026-10-20T07:00:00Z"))));
         when(savedOfferSearchService.export(5L)).thenReturn(List.of(new SavedOfferSearchDto(3L, "Kafka à Paris", filters,
             Instant.parse("2026-10-18T07:00:00Z"), 0)));
         when(offerSiteHealthService.excludedSites(5L)).thenReturn(Set.of(OfferSite.YEETS));
@@ -114,6 +122,9 @@ class UserDataExportServiceTest {
             .contains("\"2026-10-19T08:00:00Z\"")
             .contains("\"offerSearches\"")
             .contains("Kafka à Paris")
+            .contains("\"dismissedOfferSearchSuggestions\"")
+            .contains("Cobol")
+            .contains("\"2026-10-20T07:00:00Z\"")
             .contains("\"q\" : \"kafka\"")
             .contains("\"excludedOfferSites\" : [ \"YEETS\" ]")
             .contains("\"blockedOfferPublishers\"")
