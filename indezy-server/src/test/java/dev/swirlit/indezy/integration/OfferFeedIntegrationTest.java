@@ -6,6 +6,7 @@ import dev.swirlit.indezy.model.enums.OfferLeftOutSite;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.repository.OfferRateBenchmarkRepository;
 import dev.swirlit.indezy.repository.OfferRateHistoryRepository;
+import dev.swirlit.indezy.scraping.OfferStore;
 import dev.swirlit.indezy.service.OfferRateBenchmarkService;
 import dev.swirlit.indezy.service.OfferSuspicionService;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,9 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
 
     @Autowired
     private OfferSuspicionService suspicionService;
+
+    @Autowired
+    private OfferStore store;
 
     @Test
     void eachWorkspaceSavesAndHidesItsOwnOffers() {
@@ -413,5 +417,28 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
         assertThat(call(bob, HttpMethod.GET, "/offers/publishers/Exemple Conseil", null).getBody())
             .doesNotContainKeys("client", "blockId");
         assertThat(call(alice, HttpMethod.GET, "/offers/publishers/Personne", null).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void keepsWhatEachOffersSiteChangedAndHowOftenItsMissionCameBack() {
+        JobOffer read = offer("fw-1", "Développeur Java Spring", "Exemple Conseil", Instant.now(), 48.8566, 2.3522);
+        read.setExternalId(paris.getExternalId());
+        read.setRateMax(700);
+        read.setPublisherKey("dev-java-spring");
+        JobOffer again = offer("fw-again", "Développeur Java Spring", "Exemple Conseil", Instant.now(), 48.8566, 2.3522);
+        again.setPublisherKey("dev-java-spring");
+        JobOffer third = offer("fw-third", "Développeur Java Spring", "Exemple Conseil", Instant.now(), 48.8566, 2.3522);
+        third.setPublisherKey("dev-java-spring");
+        store.save(OfferSite.FREE_WORK, List.of(read, again, third));
+
+        Map<String, Object> history = (Map<String, Object>) call(alice, HttpMethod.GET, "/offers/" + paris.getId(), null).getBody()
+            .get("history");
+        assertThat((List<Map<String, Object>>) history.get("changes")).singleElement()
+            .satisfies(change -> assertThat(change).containsEntry("field", "RATE").containsEntry("before", "550|650")
+                .containsEntry("after", "550|700"));
+        Map<String, Object> newer = (Map<String, Object>) call(alice, HttpMethod.GET, "/offers/" + offers.findAll().stream()
+            .filter(offer -> offer.getExternalId().startsWith("fw-third")).findFirst().orElseThrow().getId(), null).getBody().get("history");
+        assertThat(newer).containsEntry("publishedTimes", 2).doesNotContainKey("changes");
     }
 }

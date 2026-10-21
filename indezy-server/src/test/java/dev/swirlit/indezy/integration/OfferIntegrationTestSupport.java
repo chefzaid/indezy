@@ -8,7 +8,9 @@ import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.GeoPlaceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
+import dev.swirlit.indezy.repository.OfferAppearanceRepository;
 import dev.swirlit.indezy.repository.OfferBoardVisitRepository;
+import dev.swirlit.indezy.repository.OfferChangeRepository;
 import dev.swirlit.indezy.repository.OfferPublisherBlockRepository;
 import dev.swirlit.indezy.repository.OfferSiteExclusionRepository;
 import dev.swirlit.indezy.repository.OfferSuggestionDismissalRepository;
@@ -81,6 +83,12 @@ abstract class OfferIntegrationTestSupport {
     @Autowired
     protected OfferSuggestionDismissalRepository dismissals;
 
+    @Autowired
+    protected OfferChangeRepository changes;
+
+    @Autowired
+    protected OfferAppearanceRepository appearances;
+
     protected Account alice;
     protected Account bob;
     protected JobOffer paris;
@@ -103,6 +111,8 @@ abstract class OfferIntegrationTestSupport {
         visits.deleteAll();
         states.deleteAll();
         dismissals.deleteAll();
+        changes.deleteAll();
+        appearances.deleteAll();
         offers.deleteAll();
     }
 

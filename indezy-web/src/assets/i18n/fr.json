@@ -1545,6 +1545,20 @@
       "sites": "Sites où il publie",
       "offers": "Ses offres ouvertes",
       "noOpenOffer": "Aucune offre ouverte."
+    },
+    "history": {
+      "rateRaised": "TJM relevé de {{before}} à {{after}}",
+      "rateLowered": "TJM baissé de {{before}} à {{after}}",
+      "rateStated": "TJM précisé : {{after}}",
+      "rateChanged": "Fourchette de TJM modifiée",
+      "startAsap": "Démarre désormais au plus tôt",
+      "startMoved": "Démarrage déplacé au {{day}}",
+      "startStated": "Démarrage précisé : {{day}}",
+      "description": "Description réécrite",
+      "published": "Publiée {{count}} fois en 60 jours",
+      "title": "Historique",
+      "on": "{{change}}, le {{date}}",
+      "hint": "Les modifications faites par son site depuis qu'Indezy a lu l'offre, de la plus récente à la plus ancienne."
     }
   }
 }

@@ -15,7 +15,8 @@ test('opens an offer\'s own page from the feed and the dashboard, and shares it 
   await page.route(/\/api\/offers\/99$/, route => route.fulfill({ status: 404, json: { message: 'Job offer not found with id: 99' } }));
   // Offer 3 pays 12 % above the median of Java in Île-de-France.
   await page.route(/\/api\/offers\/3$/, route => route.fulfill({ json: offer(3, { description: 'Refonte.',
-    rateMarket: { percent: 12, median: 600, offers: 34, skill: 'Java', regionName: 'Île-de-France' } }) }));
+    rateMarket: { percent: 12, median: 600, offers: 34, skill: 'Java', regionName: 'Île-de-France' },
+    history: { publishedTimes: 3, changes: [{ field: 'RATE', before: '|500', after: '|550', changedAt: new Date().toISOString() }] } }) }));
 
   await page.goto('/offers');
   await page.locator('[data-offer="1"] .more-button').click();
@@ -35,6 +36,9 @@ test('opens an offer\'s own page from the feed and the dashboard, and shares it 
   await expect(chip).toHaveText('+12% vs. Java in Île-de-France');
   await expect(chip).toHaveAttribute('aria-label',
     '+12% vs. Java in Île-de-France. Median daily rate of the 34 open offers naming Java first in Île-de-France: €600');
+
+  await expect(page.locator('[data-offer-history]')).toHaveText(/Rate raised from €500 to €550 · Published 3 times in 60 days/);
+  await expect(page.locator('[data-offer-history-list] li')).toHaveText([/^Rate raised from €500 to €550, /]);
 
   await page.goto('/offers/2');
   await expect(page.locator('[data-offer-expired]')).toContainText('This offer expired on');

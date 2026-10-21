@@ -2,6 +2,8 @@ package dev.swirlit.indezy.scraping;
 
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
+import dev.swirlit.indezy.repository.OfferAppearanceRepository;
+import dev.swirlit.indezy.repository.OfferChangeRepository;
 import dev.swirlit.indezy.repository.OfferSkipRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -30,7 +32,9 @@ class OfferRetentionTest {
     private final JobOfferRepository offers = mock(JobOfferRepository.class);
     private final JobOfferStateRepository states = mock(JobOfferStateRepository.class);
     private final OfferSkipRepository skips = mock(OfferSkipRepository.class);
-    private final OfferRetention retention = new OfferRetention(offers, states, skips, new OfferProperties(true, Duration.ofMinutes(5),
+    private final OfferChangeRepository changes = mock(OfferChangeRepository.class);
+    private final OfferAppearanceRepository appearances = mock(OfferAppearanceRepository.class);
+    private final OfferRetention retention = new OfferRetention(offers, states, skips, changes, appearances, new OfferProperties(true, Duration.ofMinutes(5),
         Duration.ofSeconds(2), 10, Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1"),
         Clock.fixed(NOW, ZoneOffset.UTC));
 
@@ -41,8 +45,9 @@ class OfferRetentionTest {
 
         assertThat(retention.purge()).isEqualTo(1200);
 
-        InOrder order = inOrder(states, offers);
+        InOrder order = inOrder(states, changes, offers);
         order.verify(states).deleteByOfferIdIn(ids.subList(0, 500));
+        order.verify(changes).deleteByOfferIdIn(ids.subList(0, 500));
         order.verify(offers).deleteSkillsOf(ids.subList(0, 500));
         order.verify(offers).deleteByIdIn(ids.subList(0, 500));
         verify(offers, times(3)).deleteByIdIn(anyCollection());
@@ -56,5 +61,6 @@ class OfferRetentionTest {
         assertThat(retention.purge()).isZero();
         verify(offers, never()).deleteByIdIn(anyCollection());
         verify(skips).deleteSkippedBefore(NOW.minus(OfferRetention.SKIP_MEMORY));
+        verify(appearances).forgetBefore(NOW.minus(OfferRetention.APPEARANCE_MEMORY));
     }
 }

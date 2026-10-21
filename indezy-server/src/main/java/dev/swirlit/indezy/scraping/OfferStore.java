@@ -1,9 +1,13 @@
 package dev.swirlit.indezy.scraping;
 
 import dev.swirlit.indezy.model.JobOffer;
+import dev.swirlit.indezy.model.OfferAppearance;
+import dev.swirlit.indezy.model.OfferChange;
 import dev.swirlit.indezy.model.OfferSkip;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.repository.JobOfferRepository;
+import dev.swirlit.indezy.repository.OfferAppearanceRepository;
+import dev.swirlit.indezy.repository.OfferChangeRepository;
 import dev.swirlit.indezy.repository.OfferSkipRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +41,8 @@ public class OfferStore {
 
     private final JobOfferRepository offers;
     private final OfferSkipRepository skips;
+    private final OfferChangeRepository changes;
+    private final OfferAppearanceRepository appearances;
 
     /** How many of {@code collected} (normalized offers of {@code site}) Indezy had never seen. */
     @Transactional
@@ -49,15 +55,19 @@ public class OfferStore {
         Map<String, JobOffer> known = offers.findBySiteAndExternalIdIn(site, byExternalId.keySet()).stream()
             .collect(Collectors.toMap(JobOffer::getExternalId, Function.identity()));
         List<JobOffer> created = new ArrayList<>();
+        List<OfferChange> changed = new ArrayList<>();
         for (JobOffer offer : byExternalId.values()) {
             JobOffer existing = known.get(offer.getExternalId());
             if (existing == null) {
                 created.add(offer);
             } else {
+                changed.addAll(OfferChanges.between(existing, offer));
                 existing.updateFrom(offer);
             }
         }
         offers.saveAll(created);
+        changes.saveAll(changed);
+        remember(site, created);
         byExternalId.values().forEach(offer -> linkCopies(site, known.getOrDefault(offer.getExternalId(), offer)));
         return created.size();
     }
@@ -163,6 +173,25 @@ public class OfferStore {
         }
         fresh.removeAll(skips.findSkippedIds(site, fresh));
         skips.saveAll(fresh.stream().map(id -> new OfferSkip(site, id, now)).toList());
+    }
+
+    /** Keeps the references new offers were published under, once each (an offer removed and read again keeps its first). */
+    private void remember(OfferSite site, List<JobOffer> created) {
+        List<JobOffer> keyed = created.stream().filter(offer -> offer.getPublisherKey() != null).toList();
+        if (keyed.isEmpty()) {
+            return;
+        }
+        Set<String> kept = new HashSet<>(appearances.findKnownIds(site, keyed.stream().map(JobOffer::getExternalId).toList()));
+        appearances.saveAll(keyed.stream().filter(offer -> !kept.contains(offer.getExternalId())).map(OfferStore::appearance).toList());
+    }
+
+    private static OfferAppearance appearance(JobOffer offer) {
+        OfferAppearance appearance = new OfferAppearance();
+        appearance.setSite(offer.getSite());
+        appearance.setPublisherKey(offer.getPublisherKey());
+        appearance.setExternalId(offer.getExternalId());
+        appearance.setFirstSeenAt(offer.getFirstSeenAt());
+        return appearance;
     }
 
     /** Which identifiers of a site are stored or recently skipped. */

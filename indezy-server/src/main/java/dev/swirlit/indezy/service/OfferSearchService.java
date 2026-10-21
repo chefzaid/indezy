@@ -3,6 +3,7 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.OfferCopyDto;
 import dev.swirlit.indezy.dto.OfferDto;
+import dev.swirlit.indezy.dto.OfferHistoryDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
 import dev.swirlit.indezy.dto.OfferPublisherSpreadDto;
@@ -72,6 +73,7 @@ public class OfferSearchService {
     private final GeoLocator geoLocator;
     private final OfferSiteExclusionRepository exclusions;
     private final OfferRateBenchmarkService benchmarks;
+    private final OfferHistoryService history;
     private final Clock clock;
 
     /** One page of offers matching the request, for {@code freelanceId}'s workspace (or none). */
@@ -85,9 +87,11 @@ public class OfferSearchService {
         Map<Long, List<JobOffer>> copies = copiesOf(page.getContent());
         Map<Long, OfferStateDto> stateByOffer = statesOf(freelanceId, page.getContent(), copies);
         Set<OfferSite> excluded = excludedSites(freelanceId);
+        Map<Long, OfferHistoryDto> histories = history.of(page.getContent(), now);
         List<OfferDto> content = page.getContent().stream()
             .map(offer -> toDto(offer, skills.get(offer.getId()), stateByOffer.get(offer.getId()),
-                alsoOn(offer, copies.getOrDefault(offer.getId(), List.of()), excluded, now), profile, now, false))
+                alsoOn(offer, copies.getOrDefault(offer.getId(), List.of()), excluded, now).with(histories.get(offer.getId())), profile, now,
+                false))
             .toList();
         return new OfferPageDto(content, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages(),
             profile.origin() != null, profile.canMatch());
@@ -101,7 +105,8 @@ public class OfferSearchService {
         Map<Long, List<JobOffer>> copies = copiesOf(List.of(offer));
         Instant now = clock.instant();
         return toDto(offer, skillsOf(List.of(id)).get(id), statesOf(freelanceId, List.of(offer), copies).get(id),
-            alsoOn(offer, copies.getOrDefault(id, List.of()), excludedSites(freelanceId), now), profile, now, true);
+            alsoOn(offer, copies.getOrDefault(id, List.of()), excludedSites(freelanceId), now).with(history.of(List.of(offer), now).get(id)),
+            profile, now, true);
     }
 
     /** Every job board of the feed, with its open offers, collection health and whether the workspace (if any) keeps it. */
@@ -203,11 +208,18 @@ public class OfferSearchService {
     }
 
     /** Where else the mission is open: one copy per other site the workspace keeps, the earliest, by site name. */
-    /** The open copies of a mission on other sites (one per site), and how its intermediaries' rates spread. */
-    record Copies(List<OfferCopyDto> alsoOn, OfferPublisherSpreadDto spread) {
+    /**
+     * What an offer shows beside itself: the open copies of its mission on other sites (one per site), how its
+     * intermediaries' rates spread, and its history.
+     */
+    record Related(List<OfferCopyDto> alsoOn, OfferPublisherSpreadDto spread, OfferHistoryDto history) {
+
+        Related with(OfferHistoryDto offerHistory) {
+            return new Related(alsoOn, spread, offerHistory);
+        }
     }
 
-    static Copies alsoOn(JobOffer offer, List<JobOffer> copies, Set<OfferSite> excluded, Instant now) {
+    static Related alsoOn(JobOffer offer, List<JobOffer> copies, Set<OfferSite> excluded, Instant now) {
         Map<OfferSite, JobOffer> bySite = new EnumMap<>(OfferSite.class);
         List<JobOffer> open = copies.stream().filter(copy -> copy.getExpiresAt() == null || copy.getExpiresAt().isAfter(now)).toList();
         open.stream()
@@ -218,7 +230,7 @@ public class OfferSearchService {
             .sorted(Comparator.comparing(copy -> copy.getSite().getDisplayName()))
             .map(copy -> new OfferCopyDto(copy.getId(), copy.getSite(), copy.getSite().getDisplayName(), copy.getUrl()))
             .toList();
-        return new Copies(alsoOn, spread(offer, open));
+        return new Related(alsoOn, spread(offer, open), null);
     }
 
     /** The intermediaries publishing the offer's mission (it and its open copies), when more than one does. */
@@ -262,7 +274,7 @@ public class OfferSearchService {
         return merged;
     }
 
-    private OfferDto toDto(JobOffer offer, List<String> skills, OfferStateDto state, Copies copies, OfferMatch.Profile profile,
+    private OfferDto toDto(JobOffer offer, List<String> skills, OfferStateDto state, Related related, OfferMatch.Profile profile,
                            Instant now, boolean full) {
         Origin origin = profile.origin();
         Integer distance = origin == null || offer.getLatitude() == null || offer.getLongitude() == null ? null :
@@ -277,9 +289,9 @@ public class OfferSearchService {
             offer.getStartDate(), offer.getStartAsap(), offer.getSeniority(), skills, offer.getPublishedAt(),
             offer.getDatePrecision(), offer.getExpiresAt(), offer.getExpiresAt() != null && !offer.getExpiresAt().isAfter(now),
             state != null && state.saved(), state != null && state.hidden(), state != null && state.seen(),
-            state == null ? null : state.importedProjectId(), copies.alsoOn(), OfferMatch.score(offer, skills, profile),
+            state == null ? null : state.importedProjectId(), related.alsoOn(), OfferMatch.score(offer, skills, profile),
             state == null ? null : state.note(), state == null ? null : state.application(), benchmarks.compare(offer, skills),
-            OfferSuspicion.of(offer.getSuspicion()), copies.spread());
+            OfferSuspicion.of(offer.getSuspicion()), related.spread(), related.history());
     }
 
     /** The description's beginning on one line, cut at a word and ended with an ellipsis. */

@@ -101,6 +101,12 @@
     }
   </ul>
 
+  @if (historyLine) {
+    <p class="history-line" data-offer-history>
+      <mat-icon aria-hidden="true">history</mat-icon>{{ historyLine }}
+    </p>
+  }
+
   @if (offer.skills.length) {
     <ul class="skills" [attr.aria-label]="'offers.card.skills' | translate">
       @for (skill of visibleSkills; track skill) {

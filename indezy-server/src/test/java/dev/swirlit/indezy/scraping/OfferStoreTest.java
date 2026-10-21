@@ -1,21 +1,28 @@
 package dev.swirlit.indezy.scraping;
 
 import dev.swirlit.indezy.model.JobOffer;
+import dev.swirlit.indezy.model.OfferAppearance;
+import dev.swirlit.indezy.model.OfferChange;
+import dev.swirlit.indezy.model.enums.OfferChangeField;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.model.OfferSkip;
 import dev.swirlit.indezy.repository.JobOfferRepository;
+import dev.swirlit.indezy.repository.OfferAppearanceRepository;
+import dev.swirlit.indezy.repository.OfferChangeRepository;
 import dev.swirlit.indezy.repository.OfferSkipRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -28,7 +35,9 @@ class OfferStoreTest {
 
     private final JobOfferRepository offers = mock(JobOfferRepository.class);
     private final OfferSkipRepository skips = mock(OfferSkipRepository.class);
-    private final OfferStore store = new OfferStore(offers, skips);
+    private final OfferChangeRepository changes = mock(OfferChangeRepository.class);
+    private final OfferAppearanceRepository appearances = mock(OfferAppearanceRepository.class);
+    private final OfferStore store = new OfferStore(offers, skips, changes, appearances);
 
     @Test
     @SuppressWarnings("unchecked")
@@ -49,6 +58,55 @@ class OfferStoreTest {
         ArgumentCaptor<List<JobOffer>> saved = ArgumentCaptor.forClass(List.class);
         verify(offers).saveAll(saved.capture());
         assertThat(saved.getValue()).extracting(JobOffer::getTitle).containsExactly("Data engineer");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void recordsWhatItsSiteChangedAndTheReferencesNewOffersCameUnder() {
+        JobOffer known = offer("1", "Titre", OfferDatePrecision.EXACT, Instant.parse("2026-10-01T00:00:00Z"));
+        known.setRateMax(500);
+        known.setDescription("Ancienne description");
+        when(offers.findBySiteAndExternalIdIn(eq(OfferSite.FREE_WORK), any())).thenReturn(List.of(known));
+        JobOffer read = offer("1", "Titre", OfferDatePrecision.EXACT, Instant.parse("2026-10-19T00:00:00Z"));
+        read.setRateMin(500);
+        read.setRateMax(550);
+        read.setStartAsap(true);
+        read.setDescription("Nouvelle description");
+        JobOffer fresh = offer("2", "Data engineer", OfferDatePrecision.EXACT, Instant.parse("2026-10-19T08:00:00Z"));
+        fresh.setPublisherKey("data-engineer");
+        JobOffer backAgain = offer("3", "Data engineer", OfferDatePrecision.EXACT, Instant.parse("2026-10-19T08:00:00Z"));
+        backAgain.setPublisherKey("data-engineer");
+        when(appearances.findKnownIds(OfferSite.FREE_WORK, List.of("2", "3"))).thenReturn(List.of("3"));
+
+        store.save(OfferSite.FREE_WORK, List.of(read, fresh, backAgain, offer("4", "Sans clé", OfferDatePrecision.EXACT, null)));
+
+        ArgumentCaptor<List<OfferChange>> changed = ArgumentCaptor.forClass(List.class);
+        verify(changes).saveAll(changed.capture());
+        assertThat(changed.getValue()).extracting(OfferChange::getField, OfferChange::getBefore, OfferChange::getAfter)
+            .containsExactly(tuple(OfferChangeField.RATE, "|500", "500|550"), tuple(OfferChangeField.START, null, "ASAP"),
+                tuple(OfferChangeField.DESCRIPTION, null, null));
+        assertThat(changed.getValue()).extracting(OfferChange::getOffer).containsOnly(known);
+        assertThat(changed.getValue()).extracting(OfferChange::getChangedAt).containsOnly(Instant.parse("2026-10-19T00:00:00Z"));
+        // The third one was read before, under the same reference: its first appearance is kept.
+        ArgumentCaptor<List<OfferAppearance>> remembered = ArgumentCaptor.forClass(List.class);
+        verify(appearances).saveAll(remembered.capture());
+        assertThat(remembered.getValue()).extracting(OfferAppearance::getExternalId, OfferAppearance::getPublisherKey)
+            .containsExactly(tuple("2", "data-engineer"));
+    }
+
+    @Test
+    void leavesOutWhatASiteStopsStating() {
+        JobOffer known = offer("1", "Titre", OfferDatePrecision.EXACT, Instant.parse("2026-10-01T00:00:00Z"));
+        known.setRateMax(500);
+        known.setStartDate(LocalDate.of(2026, 11, 2));
+        when(offers.findBySiteAndExternalIdIn(eq(OfferSite.FREE_WORK), any())).thenReturn(List.of(known));
+        JobOffer read = offer("1", "Titre", OfferDatePrecision.EXACT, Instant.parse("2026-10-19T00:00:00Z"));
+        read.setDescription("Une description apparaît");
+
+        store.save(OfferSite.FREE_WORK, List.of(read));
+
+        verify(changes).saveAll(List.of());
+        verify(appearances, never()).findKnownIds(any(), any());
     }
 
     @Test

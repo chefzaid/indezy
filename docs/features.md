@@ -374,6 +374,17 @@ aside), in the offer's region when ten offers or more make it, else in all of Fr
 shown. Its tooltip names the median and how many offers it is taken over. The medians are computed every night at
 04:45 (Paris time), after old offers are removed, and once when a server starts with none.
 
+### Mission History
+
+When a site publishes an offer Indezy holds with other details, Indezy keeps what changed: a daily rate stated or
+changed, a start stated or moved, a description rewritten (a detail the site stops stating is not a change). The card
+shows the latest change and, when the site published the mission (its title and publisher) under more than one
+reference in the last 60 days, how many times: "Rate raised from €500 to €550 · Published 3 times in 60 days", a sign
+of a mission hard to fill and room to negotiate. The offer's page lists every change, the latest first, up to ten.
+Changes are removed with their offer; the references a mission was published under are kept 90 days even once its
+offers are removed. Sites read through their sitemap read each offer once, so only the sites read through a list or an
+API (Free-Work, Collective.work, Cherry Pick, LeHibou, Yeets and the HTML lists) report changes.
+
 ### Publisher Page
 
 A card's publisher name opens what that publisher (an intermediary or a client, however it is written) puts in the feed

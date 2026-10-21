@@ -48,5 +48,16 @@
     @if (offer.hidden) {
       <p class="hint" data-offer-hidden>{{ 'offers.page.hidden' | translate }}</p>
     }
+    @if (offer.history?.changes?.length) {
+      <section class="history" aria-labelledby="offer-history-title" data-offer-history-list>
+        <h2 id="offer-history-title">{{ 'offers.history.title' | translate }}</h2>
+        <p class="hint">{{ 'offers.history.hint' | translate }}</p>
+        <ol>
+          @for (change of offer.history!.changes; track $index) {
+            <li>{{ 'offers.history.on' | translate: { change: describe(change), date: (change.changedAt | date: 'mediumDate') } }}</li>
+          }
+        </ol>
+      </section>
+    }
   }
 </div>

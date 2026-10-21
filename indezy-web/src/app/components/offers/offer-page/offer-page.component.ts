@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, LOCALE_ID, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -9,7 +9,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Offer, OfferView } from '../../../models/offer.models';
+import { Offer, OfferChange, OfferView } from '../../../models/offer.models';
+import { describeOfferChange } from '../../../services/offer/offer-history';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { OfferService } from '../../../services/offer/offer.service';
 import { OfferShareService } from '../../../services/offer/offer-share.service';
@@ -44,7 +45,9 @@ export class OfferPageComponent implements OnInit, OfferActionsHost {
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
-  readonly actions = new OfferActions(this, this.offerService, this.notifications, inject(MatDialog), inject(TranslateService));
+  private readonly translate = inject(TranslateService);
+  private readonly locale = inject(LOCALE_ID);
+  readonly actions = new OfferActions(this, this.offerService, this.notifications, inject(MatDialog), this.translate);
   private id?: number;
 
   ngOnInit(): void {
@@ -77,6 +80,10 @@ export class OfferPageComponent implements OnInit, OfferActionsHost {
         this.changes.markForCheck();
       }
     });
+  }
+
+  describe(change: OfferChange): string {
+    return describeOfferChange(change, this.translate, this.locale);
   }
 
   copyLink(): void {

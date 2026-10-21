@@ -222,6 +222,20 @@ describe('OfferCardComponent', () => {
     expect(component.spreadLabel).toBe('');
   });
 
+  it('tells the latest change of its site and how often the mission came back', () => {
+    const fixture = create(offer({ history: { publishedTimes: 3, changes: [
+      { field: 'RATE', before: '|500', after: '|550', changedAt: '2026-10-20T08:00:00Z' },
+      { field: 'DESCRIPTION', changedAt: '2026-10-19T08:00:00Z' }] } }));
+
+    expect(spaced(element(fixture, '[data-offer-history]').innerText)).toBe('history TJM relevé de 500 € à 550 € · Publiée 3 fois en 60 jours');
+    const component = fixture.componentInstance;
+    component.offer = offer({ history: { publishedTimes: 2 } });
+    expect(component.historyLine).toBe('Publiée 2 fois en 60 jours');
+    fixture.componentRef.setInput('offer', offer());
+    fixture.detectChanges();
+    expect(element(fixture, '[data-offer-history]')).toBeNull();
+  });
+
   it('warns that an offer looks suspicious, and why', () => {
     const fixture = create(offer({ suspicion: ['NO_PUBLISHER_NO_DESCRIPTION', 'KNOWN_FAKE_PUBLISHER'] }));
     const badge = element(fixture, '[data-suspicious]');

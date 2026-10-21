@@ -57,8 +57,9 @@ class OfferSearchServiceTest {
     private final GeoLocator geoLocator = mock(GeoLocator.class);
     private final OfferSiteExclusionRepository exclusions = mock(OfferSiteExclusionRepository.class);
     private final OfferRateBenchmarkService benchmarks = mock(OfferRateBenchmarkService.class);
+    private final OfferHistoryService history = mock(OfferHistoryService.class);
     private final OfferSearchService service = new OfferSearchService(offers, states, statuses, freelances, geoLocator, exclusions,
-        benchmarks, Clock.fixed(NOW, ZoneOffset.UTC));
+        benchmarks, history, Clock.fixed(NOW, ZoneOffset.UTC));
 
     @Test
     @SuppressWarnings("unchecked")

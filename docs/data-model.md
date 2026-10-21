@@ -374,6 +374,15 @@ Unique per day, skill and region (`uk_offer_rate_history_day_skill_region`).
 
 Fields: `day` (`computed_on`, Paris time), `skillKey`, `skill`, `regionCode`, `medianRate` and `offers`.
 
+## OfferChange And OfferAppearance
+
+`job_offer_changes`: what a site changed on a stored offer (`offer_id`, indexed), the `field` (`RATE`, `START`,
+`DESCRIPTION`), `before_value` and `after_value` (rates as "min|max", starts as an ISO day or "ASAP", none for a
+description) and `changed_at`; removed with the offer.
+
+`offer_appearances`: the reference (`site`, `external_id`, unique together) a mission (`publisher_key`, indexed) was
+published under and when it was first seen; kept 90 days, even once the offer is removed.
+
 ## OfferSuggestionDismissal
 
 Table: `offer_suggestion_dismissals`

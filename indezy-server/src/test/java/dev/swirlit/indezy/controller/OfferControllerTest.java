@@ -10,6 +10,7 @@ import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferLinkDto;
 import dev.swirlit.indezy.dto.OfferMatchDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
+import dev.swirlit.indezy.dto.OfferHistoryDto;
 import dev.swirlit.indezy.dto.OfferMarketDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
 import dev.swirlit.indezy.dto.OfferPublisherDto;
@@ -26,6 +27,7 @@ import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.OfferApplication;
 import dev.swirlit.indezy.model.enums.ApplicationChannel;
+import dev.swirlit.indezy.model.enums.OfferChangeField;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferLinkStatus;
@@ -144,6 +146,8 @@ class OfferControllerTest {
             .andExpect(jsonPath("$.content[0].rateMarket.regionName").value("Île-de-France"))
             .andExpect(jsonPath("$.content[0].suspicion[0]").value("SAME_TEXT_MANY_PUBLISHERS"))
             .andExpect(jsonPath("$.content[0].publisherSpread.publishers").value(3))
+            .andExpect(jsonPath("$.content[0].history.publishedTimes").value(3))
+            .andExpect(jsonPath("$.content[0].history.changes[0].after").value("|550"))
             .andExpect(jsonPath("$.content[0].application.appliedOn").value("2026-10-20"))
             .andExpect(jsonPath("$.content[0].application.via").value("EMAIL"));
 
@@ -414,6 +418,7 @@ class OfferControllerTest {
             List.of(new OfferCopyDto(8L, OfferSite.COLLECTIVE, "Collective", "https://www.collective.work/job/8")),
             new OfferMatchDto(83, List.of("Java"), OfferMatchDto.RateFit.MEETS, OfferMatchDto.PlaceFit.NEAR, null), "Call Léa",
             new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.EMAIL), new OfferRateMarketDto(9, 550, 34, "Java", "Île-de-France"),
-            List.of(OfferSuspicion.SAME_TEXT_MANY_PUBLISHERS), new OfferPublisherSpreadDto(3, 520, 600));
+            List.of(OfferSuspicion.SAME_TEXT_MANY_PUBLISHERS), new OfferPublisherSpreadDto(3, 520, 600),
+            new OfferHistoryDto(3, List.of(new OfferHistoryDto.Change(OfferChangeField.RATE, "|500", "|550", Instant.parse("2026-10-20T08:00:00Z")))));
     }
 }

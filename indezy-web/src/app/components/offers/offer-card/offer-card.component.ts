@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Offer } from '../../../models/offer.models';
 import { OfferShareService } from '../../../services/offer/offer-share.service';
+import { describeOfferChange } from '../../../services/offer/offer-history';
 import { relativeDay, relativeTime } from '../../../shared/utils/relative-time';
 import { offerPlace, offerRate } from '../../../shared/utils/offer-format';
 
@@ -178,6 +179,19 @@ export class OfferCardComponent {
     // The server sends both ends of the spread, or neither when no intermediary states a rate.
     const rates = spread.rateMax ? offerRate({ rateMin: spread.rateMin, rateMax: spread.rateMax }, this.locale) : '';
     return this.translate.instant(rates ? 'offers.card.spreadRates' : 'offers.card.spread', { count: spread.publishers, rates });
+  }
+
+  /** The latest change its site made and how often the mission came back: "Rate raised from €500 to €550 · Published 3 times". */
+  get historyLine(): string {
+    const history = this.offer.history;
+    const parts: string[] = [];
+    if (history?.changes?.length) {
+      parts.push(describeOfferChange(history.changes[0], this.translate, this.locale));
+    }
+    if (history?.publishedTimes) {
+      parts.push(this.translate.instant('offers.history.published', { count: history.publishedTimes }));
+    }
+    return parts.join(' · ');
   }
 
   /** Why the offer looks like a fake or spam listing, one reason after the other. */

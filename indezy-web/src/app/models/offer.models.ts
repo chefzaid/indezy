@@ -121,6 +121,24 @@ export interface Offer {
   suspicion?: OfferSuspicion[];
   /** The intermediaries publishing the mission and the spread of their best rates; absent when one does. */
   publisherSpread?: { publishers: number; rateMin?: number; rateMax?: number };
+  /** What its site changed on it and how often the mission came back; absent without either. */
+  history?: OfferHistory;
+}
+
+/** What changed on an offer: rates as "min|max" (either side empty), starts as an ISO day or "ASAP", descriptions without values. */
+export interface OfferChange {
+  field: 'RATE' | 'START' | 'DESCRIPTION';
+  before?: string;
+  after?: string;
+  changedAt: string;
+}
+
+/** See docs/features.md#mission-history. */
+export interface OfferHistory {
+  /** References the mission was published under in 60 days, when more than one. */
+  publishedTimes?: number;
+  /** The latest first. */
+  changes?: OfferChange[];
 }
 
 /** What a publisher puts in the feed (see docs/features.md#publisher-page). */

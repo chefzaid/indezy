@@ -1545,6 +1545,20 @@
       "sites": "Sites it posts on",
       "offers": "Its open offers",
       "noOpenOffer": "No open offer."
+    },
+    "history": {
+      "rateRaised": "Rate raised from {{before}} to {{after}}",
+      "rateLowered": "Rate lowered from {{before}} to {{after}}",
+      "rateStated": "Rate stated: {{after}}",
+      "rateChanged": "Rate range changed",
+      "startAsap": "Now starts as soon as possible",
+      "startMoved": "Start moved to {{day}}",
+      "startStated": "Start stated: {{day}}",
+      "description": "Description rewritten",
+      "published": "Published {{count}} times in 60 days",
+      "title": "History",
+      "on": "{{change}}, {{date}}",
+      "hint": "Changes its site made since Indezy first read the offer, the latest first."
     }
   }
 }

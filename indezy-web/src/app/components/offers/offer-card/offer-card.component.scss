@@ -142,6 +142,21 @@
   }
 }
 
+.history-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.85rem;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
 .published {
   margin-left: auto;
   color: var(--app-text-muted);

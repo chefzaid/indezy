@@ -63,7 +63,9 @@ public record OfferDto(
     /** Why the offer looks like a fake or spam listing; absent when it does not. */
     List<OfferSuspicion> suspicion,
     /** The intermediaries publishing the mission and their rates; absent when one publishes it. */
-    OfferPublisherSpreadDto publisherSpread) {
+    OfferPublisherSpreadDto publisherSpread,
+    /** What changed on the offer and how often its mission came back; absent without either. */
+    OfferHistoryDto history) {
 
     public OfferDto {
         skills = skills == null ? List.of() : List.copyOf(skills);

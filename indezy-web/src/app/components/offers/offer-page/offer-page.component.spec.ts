@@ -96,6 +96,16 @@ describe('OfferPageComponent', () => {
     expect(component.offer!.saved).toBeTrue();
   });
 
+  it('lists every change its site made', () => {
+    const fixture = create(of({ ...offer, history: { changes: [
+      { field: 'START', after: 'ASAP', changedAt: '2026-10-20T08:00:00Z' },
+      { field: 'RATE', before: '|500', after: '|550', changedAt: '2026-10-18T08:00:00Z' }] } }));
+
+    expect(Array.from(fixture.nativeElement.querySelectorAll('[data-offer-history-list] li') as NodeListOf<HTMLElement>)
+      .map(item => item.textContent!.replace(/\s+/g, ' ').trim()))
+      .toEqual(['Démarre désormais au plus tôt, le 20 oct. 2026', 'TJM relevé de 500 € à 550 €, le 18 oct. 2026']);
+  });
+
   it('says when the offer has expired', () => {
     const expiring = create(of({ ...offer, expired: true, expiresAt: '2026-10-15T10:00:00Z' }));
     expect(expiring.nativeElement.querySelector('[data-offer-expired]').textContent).toContain('Cette offre a expiré le 15 octobre 2026');
