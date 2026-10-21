@@ -42,6 +42,7 @@ Parts of tasks that cannot advance without the owner's decision or information. 
   - Answer:
 - [ ] Which mail relay should Indezy send saved search emails through (Offer feed, "Saved search emails")? Indezy sends no email today. The platform's operator-supplied SMTP relay (`swirl-cloud` Vault `infra/smtp`, described in `swirl-cloud` `docs/guides/platform-mail.md`) is read only by the platform's `infra` and `corp` namespaces and is seeded off. Using it means a Vault policy and an ExternalSecret giving Indezy's namespace that relay (a `swirl-cloud` change), and a sender address in a domain the relay accepts; a relay of Indezy's own needs its credentials and sender instead. The emails, their schedule (grouped every 30 minutes or a daily digest), unsubscribe links and the 60-day stop can be built once the relay is chosen, sending nothing while it is not configured.
   - Answer:
+- [ ] May the offer collection read a site through its API on another domain? Kicklox (258 freelance missions on 2026-10-20, "More sites") renders its missions in the browser from its GraphQL API on `prod-kicklox.kicklox.io` (with the access token its web app embeds) or from its public Algolia index, while the collection's client keeps to each site's own domain (ADR 0009). Allowing a reader one API host of its site's company would add Kicklox; otherwise it is listed among the sites to visit.
 
 ## Pipeline & Kanban
 
