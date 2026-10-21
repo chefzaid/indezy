@@ -18,8 +18,6 @@ public enum OfferLeftOutSite {
     COMET("Comet", "https://www.comet.co", Kind.MATCHING, Access.PROFILE),
     AMAZING_DEV("Amazing.dev", "https://amazing.dev", Kind.MATCHING, Access.PROFILE),
     CREMEDELACREME("Crème de la Crème", "https://www.cremedelacreme.io", Kind.MATCHING, Access.PROFILE),
-    FREELANCEREPUBLIK("FreelanceRepublik", "https://www.freelancerepublik.com", Kind.MATCHING, Access.PROFILE),
-    EASYPARTNER("EasyPartner", "https://easypartner.fr", Kind.MATCHING, Access.PROFILE),
     LINKEDIN("LinkedIn", "https://www.linkedin.com", Kind.OTHER, null),
     MON_CONSULTANT_INDEPENDANT("Mon Consultant Indépendant", "https://www.mon-consultant-independant.com", Kind.OTHER, null),
     NEXORIS("Nexoris", "https://www.nexoris.com", Kind.OTHER, null),

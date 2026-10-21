@@ -188,7 +188,7 @@ Matching services: they call you when a mission matches your profile, with no pu
 
 - malt.fr (see the Malt connector above), freelance.com, wheelofwork.com (its "missions" pages describe its trades, not missions), comet.co and amazing.dev.
 - cremedelacreme.io: its public mission pages (`/pages-mission/…`) stopped in December 2024 (missions starting in January 2024), so only its matching remains.
-- freelancerepublik.com and easypartner.fr match profiles too, and also publish missions publicly, so they are planned below.
+- freelancerepublik.com and easypartner.fr match profiles too, and also publish missions publicly, which the feed reads (see More sites below).
 
 Sites left out for other reasons:
 
@@ -227,8 +227,8 @@ Increments, implemented in order:
   - castor-network.com (Alten's freelance network): the public list `/fr/mission-freelance/?page=` (five missions a page, about eleven pages, all freelance), each card with "Publiée le dd/mm/yyyy" (newest 2026-10-12), title, role and description; details on `/fr/mission-freelance/<id>/<slug>`. Engineering (industry, aerospace, nuclear) as well as IT. Its `/robots.txt` answers a web page, so no rules apply.
   - kicklox.com: `app.kicklox.com/sitemap-missions.xml` (2,737 missions, updated daily) and the public Algolia `Mission` index its pages load; its freelance missions (`contract_types` = `missions`, shown as "Prestation": 258 on 2026-10-20, the newest two days old) are kept and its CDI jobs left out. Engineering and tech.
   - katchme.fr: WordPress REST `GET /wp-json/wp/v2/offre`, freelance offers told by the `type-contrat-freelance` class (CDI ones carry `type-contrat-cdi`), with daily rates ("TJM 400-550€"); newest 2026-10-12.
-  - freelancerepublik.com: its sitemap's `/missions/…` pages (68), each with a schema.org `JobPosting` (`CONTRACTOR`, `datePosted`; newest updated 2026-10-02), through the structured-data reader.
-  - easypartner.fr: `job-sitemap.xml` (248 jobs), each page with a `JobPosting`; keep `CONTRACTOR` ones (half of the ten newest, up to 2026-09-30), leave `FULL_TIME` out.
+  - freelancerepublik.com: its sitemap's `/missions/…` pages (68), each with a schema.org `JobPosting` (`CONTRACTOR`, `datePosted`; newest updated 2026-10-02), through the structured-data reader. Done (`FreelanceRepublikReader`), leaving the matching services of the **Job boards** page.
+  - easypartner.fr: `job-sitemap.xml` (248 jobs), each page with a `JobPosting`; keep `CONTRACTOR` ones (half of the ten newest, up to 2026-09-30), leave `FULL_TIME` out. Done (`EasyPartnerReader`, the description read from the page, as the posting's only repeats the title), leaving the matching services of the **Job boards** page.
   - welovedevs.com: its search API (`search.welovedevs.com`), keeping `contractTypes` = `freelance` (5 of 681 on 2026-10-20, against 236 CDI; most of the rest are spontaneous applications); no `robots.txt`.
   - ouidesk.com: its sitemap's `/mission/…` pages (152, public without an account) give title, company, place, start, duration and description but no date, so offers are dated when first seen; its missions are "Régie" placements, to be confirmed as freelance on the first run.
 - [x] Offer link to tracked opportunity: paste the link of an offer from one of the feed's sites and get a tracked opportunity on the Kanban board, prefilled from the offer's details, with the website as its source.

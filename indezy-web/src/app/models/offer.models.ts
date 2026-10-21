@@ -20,7 +20,9 @@ export type OfferSite =
   | 'ESPACE_FREELANCE'
   | 'BEYOND_SKILLS_IT'
   | 'KOINO'
-  | 'SIXIEME_HOMME';
+  | 'SIXIEME_HOMME'
+  | 'FREELANCE_REPUBLIK'
+  | 'EASY_PARTNER';
 export type Seniority = 'JUNIOR' | 'CONFIRMED' | 'SENIOR' | 'EXPERT';
 export type OfferDatePrecision = 'EXACT' | 'DAY' | 'FIRST_SEEN';
 export type OfferView = 'FEED' | 'SAVED' | 'HIDDEN' | 'APPLIED';

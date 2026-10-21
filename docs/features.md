@@ -172,9 +172,11 @@ Sites read today:
 | Beyond Skills IT | the offers labelled Freelance on its offers page, with place, work mode and daily rate, dated by the sitemap | every 12 hours |
 | Koïno | the missions of its sitemap whose applications are open, with the daily rate, place and description | every 12 hours |
 | Sixième Homme | the missions its home page showcases (the only public ones), with start, duration, rate, place and remote work | every 12 hours |
+| FreelanceRepublik | the missions of its sitemap, from their schema.org contractor posting, with place and full description | every 12 hours |
+| EasyPartner | the jobs of its job sitemap whose posting is a contractor one ("Prestation"; its CDI jobs are left out), with the daily rate and the page's description | every 12 hours |
 
 Sites that describe each offer on its own page (WorkDispo, Next Mondays, Mindquest, Freelance Factory, Koïno,
-Sixième Homme) are read a few pages at a time: each run reads up to 100 offers Indezy does not hold yet, most
+Sixième Homme, FreelanceRepublik, EasyPartner) are read a few pages at a time: each run reads up to 100 offers Indezy does not hold yet, most
 recently changed first, so their backlog fills in over the first runs. An offer set aside (a CDI or CDD job, an offer older than 90 days, a page
 gone) is remembered for 30 days and not read again.
 
@@ -333,7 +335,7 @@ tracking parameters, fragments and trailing slashes aside) and **Fill in** (or `
   note on the mission joins the opportunity's notes. A banner names the offer, with **Unlink** to keep what was filled
   in as an opportunity of its own; an expired offer is pointed out.
 - **Already in the pipeline** (by this offer or one of its copies): the field says so and links to its opportunity.
-- **Not collected yet**: Mindquest, WorkDispo, Koïno, Next Mondays and Sixième Homme describe each offer on its own
+- **Not collected yet**: Mindquest, WorkDispo, Koïno, Next Mondays, Sixième Homme, FreelanceRepublik and EasyPartner describe each offer on its own
   page, so that page is read at once, through the collection's polite client, and the offer joins the feed. Each
   workspace reads at most 20 offers an hour this way (`429` with `Retry-After` beyond). The other sites are read on
   request, as the **Job boards** page does (at most once every 15 minutes per site), which finds the offers published
@@ -438,7 +440,8 @@ and why.
   are found independently, each with what it takes and why. Missions to see in person need a paid membership
   (HiTechPros), an account (Opteamis, LookingForTechs), a referral (OuiDesk), or are open to people but closed to
   crawlers (Capgemini TalentNet, HelloWork); matching services take a profile once and call back (Malt, Freelance.com,
-  WheelOfWork, Comet, Amazing.dev, Crème de la Crème, FreelanceRepublik, EasyPartner). Opening a site, or **Mark as
+  WheelOfWork, Comet, Amazing.dev, Crème de la Crème; FreelanceRepublik and EasyPartner match profiles too, and the
+  feed reads the missions they publish). Opening a site, or **Mark as
   visited**, records the day of the workspace's last visit, shown as "Visited 3 days ago" until it is forgotten; visits
   are part of the account data export. The boards left out for other reasons (LinkedIn, Mon Consultant Indépendant,
   Nexoris, Welcome to the Jungle and recruitment firms with CDI jobs only) are listed after them.

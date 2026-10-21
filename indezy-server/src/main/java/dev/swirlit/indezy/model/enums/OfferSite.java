@@ -25,7 +25,9 @@ public enum OfferSite {
     ESPACE_FREELANCE("Espace Freelance", "https://www.espace-freelance.fr", Duration.ofHours(12)),
     BEYOND_SKILLS_IT("Beyond Skills IT", "https://www.beyondskillsit.com", Duration.ofHours(12)),
     KOINO("Koïno", "https://www.koino.fr", Duration.ofHours(12)),
-    SIXIEME_HOMME("Sixième Homme", "https://sixiemehomme.io", Duration.ofHours(12));
+    SIXIEME_HOMME("Sixième Homme", "https://sixiemehomme.io", Duration.ofHours(12)),
+    FREELANCE_REPUBLIK("FreelanceRepublik", "https://www.freelancerepublik.com", Duration.ofHours(12)),
+    EASY_PARTNER("EasyPartner", "https://easypartner.fr", Duration.ofHours(12));
 
     private final String displayName;
     private final String homeUrl;
