@@ -260,7 +260,9 @@ Logs must not carry what a user typed. `GlobalExceptionHandler` applies these ru
 - application exceptions (`ResourceNotFoundException`, `ResourceInUseException`, `InvalidStateException`, the `409` of a request that does not fit a resource's state) are logged with their message, so they must be built from ids and fixed text only, never from request values
 - unexpected server errors (5xx) stay at `ERROR` with their message and stack trace, as they are needed to diagnose faults, and answer only `An unexpected error occurred`
 
-The restriction applies to the server log only: error responses still return each invalid field with its message (a constraint message, which does not quote the rejected value), the message of an `IllegalArgumentException`, and Spring's description of a request error (`Content-Type 'text/plain' is not supported.`), to the client that sent the request. `GlobalExceptionHandlerTest` captures the log output to check the level of each line and that no rejected value appears, and `GlobalExceptionHandlerMvcTest` lets Spring MVC raise these errors on a probe controller to check that each reaches its handler.
+The restriction applies to the server log only: error responses still return each invalid field with its message (a constraint message, which does not quote the rejected value), the message of an `IllegalArgumentException`, and Spring's description of a request error (`Content-Type 'text/plain' is not supported.`), to the client that sent the request. A client whose `Accept` header takes no JSON gets the status alone: a body it
+refuses could not be written, and Spring would then answer through its own resolver, which logs the exception's message
+at `WARN`. `GlobalExceptionHandlerTest` captures the log output to check the level of each line and that no rejected value appears, and `GlobalExceptionHandlerMvcTest` lets Spring MVC raise these errors on a probe controller to check that each reaches its handler.
 
 The authentication flow (`AuthController`, `AuthService`) never logs the email, at any level, and keeps its responses:
 

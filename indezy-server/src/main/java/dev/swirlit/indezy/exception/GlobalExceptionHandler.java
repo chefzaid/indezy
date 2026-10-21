@@ -7,6 +7,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.InvalidMediaTypeException;
+import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -240,6 +244,9 @@ public class GlobalExceptionHandler {
     }
 
     private static ResponseEntity<ErrorResponse> validationFailed(Map<String, String> errors) {
+        if (!acceptsJson()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         ErrorResponse errorResponse = ErrorResponse.builder()
             .timestamp(LocalDateTime.now(ZoneId.systemDefault()))
             .status(HttpStatus.BAD_REQUEST.value())
@@ -255,6 +262,9 @@ public class GlobalExceptionHandler {
     }
 
     private static ResponseEntity<ErrorResponse> buildResponse(HttpStatusCode status, HttpHeaders headers, String error, String message) {
+        if (!acceptsJson()) {
+            return new ResponseEntity<>(headers, status);
+        }
         ErrorResponse errorResponse = ErrorResponse.builder()
             .timestamp(LocalDateTime.now(ZoneId.systemDefault()))
             .status(status.value())
@@ -262,5 +272,26 @@ public class GlobalExceptionHandler {
             .message(message)
             .build();
         return new ResponseEntity<>(errorResponse, headers, status);
+    }
+
+    /**
+     * Whether the request takes the JSON error body, as one without an {@code Accept} header does. A client that accepts
+     * no JSON gets the status alone: a body it refuses cannot be written, and Spring would then answer through its own
+     * resolver, which logs the exception's message, rejected values included, at WARN.
+     */
+    private static boolean acceptsJson() {
+        if (!(RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes)) {
+            return true;
+        }
+        String accept = attributes.getRequest().getHeader(HttpHeaders.ACCEPT);
+        if (accept == null || accept.isBlank()) {
+            return true;
+        }
+        try {
+            return MediaType.parseMediaTypes(accept).stream()
+                .anyMatch(type -> type.getQualityValue() > 0 && type.isCompatibleWith(MediaType.APPLICATION_JSON));
+        } catch (InvalidMediaTypeException e) {
+            return true;
+        }
     }
 }

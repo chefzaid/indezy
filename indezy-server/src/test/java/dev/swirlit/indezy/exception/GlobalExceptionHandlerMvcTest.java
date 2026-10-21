@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -82,6 +83,24 @@ class GlobalExceptionHandlerMvcTest {
             .andExpect(jsonPath("$.error", is("Method Not Allowed")));
 
         assertThat(handlerLines(output)).singleElement().asString().contains("WARN", "Method not supported");
+    }
+
+    @Test
+    void clientAcceptingNoJson_ShouldGetTheStatusAloneWithoutSpringsFallbackLoggingTheValue(CapturedOutput output) throws Exception {
+        mockMvc.perform(get("/probe/search").param("q", REJECTED_EMAIL).accept(MediaType.TEXT_PLAIN))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(""));
+        mockMvc.perform(get("/probe/header").header(HttpHeaders.ACCEPT, "text/plain, application/json;q=0"))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(""));
+        mockMvc.perform(get("/probe/header").header(HttpHeaders.ACCEPT, "application/*"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error", is("Bad Request")));
+
+        assertThat(handlerLines(output)).anyMatch(line -> line.endsWith("Validation failed for ProbeController.search: q (Size)"));
+        // Spring writes no body, so it never falls back to the resolver logging the exception's message at WARN.
+        assertThat(output.getAll().lines()).noneMatch(line -> line.contains("WARN") &&
+            (line.contains("Failure in @ExceptionHandler") || line.contains("Resolved [")));
     }
 
     /**
