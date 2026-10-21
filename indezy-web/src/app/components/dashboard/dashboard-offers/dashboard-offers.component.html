@@ -16,7 +16,7 @@
       <ul class="offer-rows">
         @for (offer of offers; track offer.id) {
           <li [attr.data-dashboard-offer]="offer.id">
-            <a class="title" [href]="offer.url" target="_blank" rel="noopener noreferrer" (click)="opened(offer)">{{ offer.title }}</a>
+            <a class="title" [routerLink]="['/offers', offer.id]">{{ offer.title }}</a>
             <span class="facts">
               @if (offer.company) {
                 <span>{{ offer.company }}</span>

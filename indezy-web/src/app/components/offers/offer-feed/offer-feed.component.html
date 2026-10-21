@@ -109,10 +109,11 @@
             <li data-offer-item [attr.tabindex]="first ? 0 : -1" [attr.aria-label]="offer.title">
               <app-offer-card [offer]="offer" [selected]="bulk.selected.has(offer.id)" (selectedChange)="bulk.toggle($event)"
                 [expanded]="expanded.has(offer.id)" [loadingDetails]="loadingDetails.has(offer.id)"
-                [importing]="importing.has(offer.id)" (toggleDetails)="toggleDetails($event)" (toggleSaved)="toggleSaved($event)"
-                (toggleHidden)="toggleHidden($event)" (opened)="opened($event)" (importOffer)="importOffer($event)"
-                (blockPublisher)="blockPublisher($event)" (saveNote)="saveNote($event.offer, $event.note)"
-                (applyOffer)="applyToOffer($event)" (withdrawApplication)="withdrawApplication($event)">
+                [importing]="importing.has(offer.id)" (toggleDetails)="toggleDetails($event)"
+                (toggleSaved)="actions.toggleSaved($event)" (toggleHidden)="actions.toggleHidden($event)" (opened)="actions.markSeen($event)"
+                (importOffer)="actions.importOffer($event)" (blockPublisher)="actions.blockPublisher($event)"
+                (saveNote)="actions.saveNote($event.offer, $event.note)" (applyOffer)="actions.applyToOffer($event)"
+                (withdrawApplication)="actions.withdrawApplication($event)">
               </app-offer-card>
             </li>
           }

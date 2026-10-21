@@ -15,6 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Offer } from '../../../models/offer.models';
+import { OfferShareService } from '../../../services/offer/offer-share.service';
 import { relativeDay, relativeTime } from '../../../shared/utils/relative-time';
 import { offerPlace, offerRate } from '../../../shared/utils/offer-format';
 
@@ -41,6 +42,10 @@ export class OfferCardComponent {
   @Input() importing = false;
   /** Picked for an action on several offers at once. */
   @Input() selected = false;
+  /** Offers to show the full description or fold it back; the offer's own page always shows it. */
+  @Input() detailsToggle = true;
+  /** Can be picked for an action on several offers at once, as in the feed. */
+  @Input() selectable = true;
 
   @Output() readonly toggleDetails = new EventEmitter<Offer>();
   @Output() readonly selectedChange = new EventEmitter<Offer>();
@@ -65,6 +70,12 @@ export class OfferCardComponent {
   private readonly locale = inject(LOCALE_ID);
   private readonly translate = inject(TranslateService);
   private readonly changes = inject(ChangeDetectorRef);
+  private readonly share = inject(OfferShareService);
+
+  /** Copies the address of the offer's own page. */
+  copyLink(): void {
+    this.share.copyLink(this.offer.id);
+  }
 
   editNote(): void {
     this.noteDraft = this.offer.note ?? '';

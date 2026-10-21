@@ -1,0 +1,71 @@
+.offer-page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.back-link {
+  margin-bottom: 12px;
+}
+
+.state {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 16px;
+  text-align: center;
+
+  mat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+    color: var(--app-text-muted);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.3rem;
+  }
+
+  p {
+    max-width: 560px;
+    margin: 0;
+    color: var(--app-text-muted);
+  }
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #fdecea;
+  color: #8c1d18;
+}
+
+:host-context(html.dark-theme) .banner {
+  background: rgba(239, 154, 154, 0.18);
+  color: #ef9a9a;
+}
+
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.hint {
+  margin: 12px 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+}

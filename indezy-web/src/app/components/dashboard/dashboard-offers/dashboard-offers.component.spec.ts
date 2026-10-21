@@ -60,20 +60,15 @@ describe('DashboardOffersComponent', () => {
     expect(fixture.nativeElement.querySelector('[data-profile-hint]')).toBeNull();
   });
 
-  it('shows the newest unseen offers when the profile names no skills, and marks an opened one seen', () => {
+  it('shows the newest unseen offers when the profile names no skills, each linked to its page', () => {
     const fixture = create(of(page([], false)), of(page([offer(2), offer(3)], false)));
 
     expect(service.searchQuietly.calls.mostRecent().args[0].sort).toBe('NEWEST');
     expect(text(fixture)).toContain('Nouvelles missions');
     expect(text(fixture)).toContain('Ajoutez vos compétences à votre profil');
     const link = fixture.nativeElement.querySelector('[data-dashboard-offer="2"] a') as HTMLAnchorElement;
-    link.addEventListener('click', event => event.preventDefault());
-    link.click();
-
-    fixture.detectChanges();
-
-    expect(service.updateState).toHaveBeenCalledWith(2, { seen: true });
-    expect(fixture.nativeElement.querySelectorAll('[data-dashboard-offer]').length).toBe(1);
+    expect(link.getAttribute('href')).toBe('/offers/2');
+    expect(link.target).toBe('');
     expect(fixture.nativeElement.querySelector('.feed-link').getAttribute('href')).toBe('/offers?unseenOnly=true');
   });
 

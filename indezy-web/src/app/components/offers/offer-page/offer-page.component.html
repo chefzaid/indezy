@@ -1,0 +1,52 @@
+<div class="offer-page" data-offer-page>
+  <a mat-button routerLink="/offers" class="back-link"><mat-icon>arrow_back</mat-icon>{{ 'offers.page.back' | translate }}</a>
+
+  @if (loading) {
+    <div class="state" role="status">
+      <mat-spinner diameter="32"></mat-spinner>
+      <span class="cdk-visually-hidden">{{ 'offers.page.loading' | translate }}</span>
+    </div>
+  } @else if (missing) {
+    <mat-card appearance="outlined" class="state-card" data-offer-gone>
+      <mat-icon aria-hidden="true">search_off</mat-icon>
+      <h1>{{ 'offers.page.goneTitle' | translate }}</h1>
+      <p>{{ 'offers.page.gone' | translate }}</p>
+      <a mat-flat-button color="primary" routerLink="/offers">{{ 'offers.page.backToFeed' | translate }}</a>
+    </mat-card>
+  } @else if (failed) {
+    <mat-card appearance="outlined" class="state-card">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <p>{{ 'offers.page.failed' | translate }}</p>
+      <button mat-stroked-button type="button" (click)="load()">{{ 'common.retry' | translate }}</button>
+    </mat-card>
+  } @else if (offer) {
+    <h1 class="cdk-visually-hidden">{{ offer.title }}</h1>
+    @if (offer.expired) {
+      <p class="banner" role="status" data-offer-expired>
+        <mat-icon aria-hidden="true">event_busy</mat-icon>
+        @if (offer.expiresAt) {
+          {{ 'offers.page.expiredOn' | translate: { date: (offer.expiresAt | date: 'longDate') } }}
+        } @else {
+          {{ 'offers.page.expired' | translate }}
+        }
+      </p>
+    }
+    <app-offer-card [offer]="offer" [expanded]="true" [detailsToggle]="false" [selectable]="false" [importing]="importing.has(offer.id)"
+      (toggleSaved)="actions.toggleSaved($event)" (toggleHidden)="actions.toggleHidden($event)" (opened)="actions.markSeen($event)"
+      (importOffer)="actions.importOffer($event)" (blockPublisher)="actions.blockPublisher($event)"
+      (saveNote)="actions.saveNote($event.offer, $event.note)" (applyOffer)="actions.applyToOffer($event)"
+      (withdrawApplication)="actions.withdrawApplication($event)">
+    </app-offer-card>
+    <div class="page-actions">
+      <button mat-stroked-button type="button" (click)="copyLink()" data-copy-offer-link>
+        <mat-icon>link</mat-icon>{{ 'offers.share.copy' | translate }}
+      </button>
+      <a mat-button [href]="offer.url" target="_blank" rel="noopener noreferrer" (click)="actions.markSeen(offer)">
+        <mat-icon>open_in_new</mat-icon>{{ 'offers.page.openOnSite' | translate: { site: offer.siteName } }}
+      </a>
+    </div>
+    @if (offer.hidden) {
+      <p class="hint" data-offer-hidden>{{ 'offers.page.hidden' | translate }}</p>
+    }
+  }
+</div>

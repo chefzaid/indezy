@@ -1,8 +1,10 @@
 <mat-card class="offer-card" appearance="outlined" [class.unseen]="!offer.seen" [class.expired]="offer.expired" [class.selected]="selected"
   [attr.data-offer]="offer.id">
   <div class="offer-head">
-    <mat-checkbox class="select-box" [checked]="selected" (change)="selectedChange.emit(offer)" data-select
-      [aria-label]="'offers.card.select' | translate: { title: offer.title }"></mat-checkbox>
+    @if (selectable) {
+      <mat-checkbox class="select-box" [checked]="selected" (change)="selectedChange.emit(offer)" data-select
+        [aria-label]="'offers.card.select' | translate: { title: offer.title }"></mat-checkbox>
+    }
     <span class="site-badge" [attr.data-site]="offer.site">{{ offer.siteName }}</span>
     @if (!offer.seen) {
       <span class="badge new-badge">{{ 'offers.card.new' | translate }}</span>
@@ -128,7 +130,7 @@
   }
 
   <div class="offer-actions">
-    @if (offer.excerpt) {
+    @if (offer.excerpt && detailsToggle) {
       <button mat-button type="button" class="details-button" (click)="toggleDetails.emit(offer)" [attr.aria-expanded]="expanded"
         [disabled]="loadingDetails">
         @if (loadingDetails) {
@@ -166,6 +168,14 @@
           <span>{{ 'offers.card.apply' | translate }}</span>
         </button>
       }
+      <a mat-menu-item [routerLink]="['/offers', offer.id]" data-open-offer-page>
+        <mat-icon>article</mat-icon>
+        <span>{{ 'offers.card.openPage' | translate }}</span>
+      </a>
+      <button mat-menu-item type="button" (click)="copyLink()" data-copy-offer-link>
+        <mat-icon>link</mat-icon>
+        <span>{{ 'offers.share.copy' | translate }}</span>
+      </button>
       <button mat-menu-item type="button" (click)="editNote()" data-edit-note>
         <mat-icon>sticky_note_2</mat-icon>
         <span>{{ (offer.note ? 'offers.card.editNote' : 'offers.card.addNote') | translate }}</span>

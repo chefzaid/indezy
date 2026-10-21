@@ -57,11 +57,4 @@ export class DashboardOffersComponent implements OnInit {
   place(offer: Offer): string {
     return offerPlace(offer);
   }
-
-  /** The offer was opened on its site: it is seen, and leaves the widget. */
-  opened(offer: Offer): void {
-    this.offers = this.offers.filter(item => item.id !== offer.id);
-    this.changes.markForCheck();
-    this.offerService.updateState(offer.id, { seen: true }).subscribe({ error: () => undefined });
-  }
 }

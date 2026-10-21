@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, LOCALE_ID, OnInit, QueryList, ViewChildren, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -15,33 +14,29 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject, catchError, combineLatest, forkJoin, map, of, switchMap, tap } from 'rxjs';
 import {
   Offer,
-  OfferApplicationRequest,
   OfferFilters,
   OfferPage,
   OfferQuery,
   OfferRegion,
   OfferSiteInfo,
   OfferSort,
-  OfferStateUpdate,
-  OfferView,
-  publisherKey
+  OfferView
 } from '../../../models/offer.models';
 import { OfferService } from '../../../services/offer/offer.service';
 import {
   OFFER_PAGE_SIZES,
   countActiveFilters,
   defaultOfferQuery,
-  leavesView,
   offerQueryFromParams,
   offerQueryToParams
 } from '../../../services/offer/offer-query';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { dropOffers, patchOffers } from '../../../services/offer/offer-page';
 import { relativeTime } from '../../../shared/utils/relative-time';
-import { OfferApplyDialogComponent, OfferApplyDialogData } from '../offer-apply-dialog/offer-apply-dialog.component';
 import { OfferCardComponent } from '../offer-card/offer-card.component';
 import { OfferSelectionBarComponent } from '../offer-selection-bar/offer-selection-bar.component';
 import { OfferBulkActions, OfferPageHost } from './offer-bulk-actions';
+import { OfferActions, OfferActionsHost } from './offer-actions';
 import { OfferFiltersComponent } from '../offer-filters/offer-filters.component';
 import { OfferMarketComponent } from '../offer-market/offer-market.component';
 import { OfferKeyAction, OfferListKeysDirective } from './offer-list-keys.directive';
@@ -60,7 +55,7 @@ const MARKET_OPEN_KEY = 'indezy.offers.marketOpen';
   styleUrls: ['./offer-feed.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class OfferFeedComponent implements OnInit, OfferPageHost {
+export class OfferFeedComponent implements OnInit, OfferPageHost, OfferActionsHost {
   readonly views: OfferView[] = ['FEED', 'SAVED', 'APPLIED', 'HIDDEN'];
   readonly sorts: OfferSort[] = ['NEWEST', 'RATE', 'DISTANCE', 'MATCH'];
   readonly pageSizes = OFFER_PAGE_SIZES;
@@ -93,6 +88,7 @@ export class OfferFeedComponent implements OnInit, OfferPageHost {
   private readonly translate = inject(TranslateService);
   /** The offers picked for an action on several at once. */
   readonly bulk = new OfferBulkActions(this, this.offerService, this.notifications);
+  readonly actions = new OfferActions(this, this.offerService, this.notifications, this.dialog, this.translate);
   /** Searches again with the same filters (after a failure). */
   private readonly reload$ = new BehaviorSubject<void>(undefined);
 
@@ -203,14 +199,14 @@ export class OfferFeedComponent implements OnInit, OfferPageHost {
     }
     switch (event.action) {
       case 'save':
-        this.toggleSaved(offer);
+        this.actions.toggleSaved(offer);
         break;
       case 'hide':
-        this.toggleHidden(offer);
+        this.actions.toggleHidden(offer);
         break;
       case 'add':
         if (!offer.importedProjectId && !this.importing.has(offer.id)) {
-          this.importOffer(offer);
+          this.actions.importOffer(offer);
         }
         break;
       case 'details':
@@ -230,25 +226,13 @@ export class OfferFeedComponent implements OnInit, OfferPageHost {
     this.navigate({ ...this.query, skills: [...this.query.skills, skill], page: 0 });
   }
 
-  toggleSaved(offer: Offer): void {
-    this.change(offer, { saved: !offer.saved });
-  }
-
-  toggleHidden(offer: Offer): void {
-    this.change(offer, { hidden: !offer.hidden });
-  }
-
-  opened(offer: Offer): void {
-    this.markSeen(offer);
-  }
-
   toggleDetails(offer: Offer): void {
     if (this.expanded.has(offer.id)) {
       this.expanded.delete(offer.id);
       this.patch(offer.id, {});
       return;
     }
-    this.markSeen(offer);
+    this.actions.markSeen(offer);
     if (offer.description) {
       this.expanded.add(offer.id);
       this.patch(offer.id, {});
@@ -269,128 +253,28 @@ export class OfferFeedComponent implements OnInit, OfferPageHost {
     });
   }
 
-  importOffer(offer: Offer): void {
-    this.importing.add(offer.id);
-    this.offerService.importOffer(offer.id).subscribe({
-      next: project => {
-        this.importing.delete(offer.id);
-        this.patch(offer.id, { importedProjectId: project.id, seen: true });
-        this.notifications.success('offers.notifications.imported', 4000, { role: offer.title });
-      },
-      error: (error: HttpErrorResponse) => {
-        this.importing.delete(offer.id);
-        this.patch(offer.id, {});
-        if (error.status === 409) {
-          this.notifications.error('offers.errors.alreadyImported');
-          this.offerService.get(offer.id).subscribe(full => this.patch(offer.id, { importedProjectId: full.importedProjectId }));
-        } else {
-          this.notifications.error('offers.errors.import');
-        }
-      }
-    });
+  /** The view of the page: an offer that leaves it is taken out (see {@link OfferActionsHost}). */
+  get view(): OfferView {
+    return this.query.view;
   }
 
-  /** Asks how and when the workspace applied, then records it: the mission joins the pipeline with its steps. */
-  applyToOffer(offer: Offer): void {
-    this.dialog.open<OfferApplyDialogComponent, OfferApplyDialogData, OfferApplicationRequest>(OfferApplyDialogComponent,
-      { data: { offer }, autoFocus: 'first-tabbable' }).afterClosed().subscribe(request => {
-      if (!request) {
-        return;
-      }
-      const language = this.translate.getCurrentLang() === 'en' ? 'EN' : 'FR';
-      this.offerService.apply(offer.id, { ...request, language }).subscribe({
-        next: state => {
-          this.patch(offer.id, { application: state.application, importedProjectId: state.importedProjectId, seen: true });
-          this.notifications.success(request.followUpInDays ? 'offers.notifications.appliedWithFollowUp' : 'offers.notifications.applied',
-            6000, { role: offer.title });
-        },
-        error: (error: HttpErrorResponse) => {
-          if (error.status === 409) {
-            this.notifications.error('offers.errors.alreadyApplied');
-            this.offerService.get(offer.id).subscribe(full =>
-              this.patch(offer.id, { application: full.application, importedProjectId: full.importedProjectId }));
-          } else {
-            this.notifications.error('offers.errors.apply');
-          }
-        }
-      });
-    });
+  drop(matching: (offer: Offer) => boolean): void {
+    if (this.page) {
+      this.page = dropOffers(this.page, matching);
+    }
+    this.changes.markForCheck();
   }
 
-  /** Forgets the application at once (the opportunity stays), and puts it back on failure. */
-  withdrawApplication(offer: Offer): void {
+  checkpoint(): () => void {
     const before = this.page;
-    this.patch(offer.id, { application: undefined });
-    if (this.query.view === 'APPLIED' && this.page) {
-      this.page = dropOffers(this.page, item => item.id === offer.id);
-    }
-    this.offerService.withdrawApplication(offer.id).subscribe({
-      next: () => this.notifications.success('offers.notifications.withdrawn', 4000),
-      error: () => {
-        this.page = before;
-        this.notifications.error('offers.errors.state');
-        this.changes.markForCheck();
-      }
-    });
-  }
-
-  /** Hides the publisher's offers everywhere in the feed; the saved and hidden views keep theirs. */
-  blockPublisher(offer: Offer): void {
-    const name = offer.company;
-    if (!name) {
-      return;
-    }
-    this.offerService.blockPublisher(name).subscribe({
-      next: () => {
-        if (this.page && this.query.view === 'FEED') {
-          const key = publisherKey(name);
-          this.page = dropOffers(this.page, item => publisherKey(item.company) === key);
-        }
-        this.notifications.success('offers.notifications.publisherBlocked', 6000, { publisher: name });
-        this.changes.markForCheck();
-      },
-      error: () => this.notifications.error('offers.errors.block')
-    });
-  }
-
-  /** Keeps the workspace's note on the offer (a blank one removes it), shown at once and put back on failure. */
-  saveNote(offer: Offer, note: string): void {
-    const before = offer.note;
-    this.patch(offer.id, { note: note.trim() || undefined });
-    this.offerService.updateState(offer.id, { note }).subscribe({
-      next: state => this.patch(offer.id, { note: state.note ?? undefined }),
-      error: () => {
-        this.patch(offer.id, { note: before });
-        this.notifications.error('offers.errors.note');
-      }
-    });
-  }
-
-  private markSeen(offer: Offer): void {
-    if (!offer.seen) {
-      this.patch(offer.id, { seen: true });
-      this.offerService.updateState(offer.id, { seen: true }).subscribe({ error: () => undefined });
-    }
-  }
-
-  /** Applies a state change at once, takes the card out of a view it no longer belongs to, and undoes both on failure. */
-  private change(offer: Offer, update: OfferStateUpdate): void {
-    const before = this.page;
-    this.patch(offer.id, update);
-    if (leavesView(this.query.view, update) && this.page) {
-      this.page = dropOffers(this.page, item => item.id === offer.id);
-    }
-    this.offerService.updateState(offer.id, update).subscribe({
-      error: () => {
-        this.page = before;
-        this.notifications.error('offers.errors.state');
-        this.changes.markForCheck();
-      }
-    });
+    return () => {
+      this.page = before;
+      this.changes.markForCheck();
+    };
   }
 
   /** Replaces one offer of the page with a changed copy, so its card redraws. */
-  private patch(id: number, changes: Partial<Offer>): void {
+  patch(id: number, changes: Partial<Offer>): void {
     if (this.page) {
       this.page = patchOffers(this.page, [id], changes);
     }

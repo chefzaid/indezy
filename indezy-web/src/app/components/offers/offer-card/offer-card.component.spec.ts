@@ -6,6 +6,7 @@ import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import fr from '../../../../assets/i18n/fr.json';
 import { Offer } from '../../../models/offer.models';
+import { OfferShareService } from '../../../services/offer/offer-share.service';
 import { OfferCardComponent } from './offer-card.component';
 
 describe('OfferCardComponent', () => {
@@ -20,11 +21,15 @@ describe('OfferCardComponent', () => {
     };
   }
 
+  let share: jasmine.SpyObj<OfferShareService>;
+
   function create(value: Offer = offer(), inputs: Record<string, unknown> = {}): ComponentFixture<OfferCardComponent> {
+    share = jasmine.createSpyObj('OfferShareService', ['copyLink']);
     registerLocaleData(localeFr);
     TestBed.configureTestingModule({
       imports: [OfferCardComponent, TranslateModule.forRoot()],
-      providers: [provideRouter([]), { provide: LOCALE_ID, useValue: 'fr-FR' }]
+      providers: [provideRouter([]), { provide: LOCALE_ID, useValue: 'fr-FR' },
+        { provide: OfferShareService, useValue: share }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('fr', fr);
@@ -202,6 +207,25 @@ describe('OfferCardComponent', () => {
     fixture.detectChanges();
     expect(document.querySelector('[data-block-publisher]')).toBeNull();
     expect(document.querySelector('[data-edit-note]')).not.toBeNull();
+  });
+
+  it('opens the offer\'s own page and copies its link from the menu', () => {
+    const fixture = create();
+
+    element(fixture, '.more-button').click();
+    fixture.detectChanges();
+    expect((document.querySelector('[data-open-offer-page]') as HTMLAnchorElement).getAttribute('href')).toBe('/offers/7');
+    (document.querySelector('[data-copy-offer-link]') as HTMLButtonElement).click();
+
+    expect(share.copyLink).toHaveBeenCalledWith(7);
+  });
+
+  it('leaves out the details toggle and the selection where they mean nothing', () => {
+    const fixture = create(offer({ description: 'Contexte complet' }), { expanded: true, detailsToggle: false, selectable: false });
+
+    expect(element(fixture, '.details-button')).toBeNull();
+    expect(element(fixture, '[data-select]')).toBeNull();
+    expect(element(fixture, '[data-description]').innerText).toBe('Contexte complet');
   });
 
   it('adds, edits and deletes a private note from the menu', async () => {

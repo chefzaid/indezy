@@ -1161,7 +1161,8 @@
         "EMAIL": "Candidature par e-mail le {{date}}",
         "PHONE": "Candidature par téléphone le {{date}}"
       },
-      "select": "Sélectionner « {{title}} »"
+      "select": "Sélectionner « {{title}} »",
+      "openPage": "Ouvrir sa page"
     },
     "match": {
       "score": "{{score}} %",
@@ -1470,6 +1471,23 @@
       "hybrid": "Hybride",
       "hybridDays": "Hybride, {{days}} jours de télétravail ou plus par semaine",
       "startBefore": "Démarrage d'ici le {{date}}"
+    },
+    "page": {
+      "back": "Toutes les offres",
+      "loading": "Chargement de l'offre",
+      "goneTitle": "Cette offre n'est plus dans le fil",
+      "gone": "Les offres quittent le fil 90 jours après leur publication, ou quand elles expirent ou quittent leur site, sauf si vous les avez sauvegardées, si vous y avez candidaté ou si vous les avez ajoutées à votre pipeline.",
+      "backToFeed": "Voir le fil",
+      "failed": "L'offre n'a pas pu être chargée.",
+      "expiredOn": "Cette offre a expiré le {{date}} : vérifiez que la mission est toujours ouverte avant de candidater.",
+      "expired": "Cette offre a expiré : vérifiez que la mission est toujours ouverte avant de candidater.",
+      "openOnSite": "Ouvrir sur {{site}}",
+      "hidden": "Vous avez masqué cette offre : elle reste hors de votre fil jusqu'à ce que vous l'affichiez de nouveau."
+    },
+    "share": {
+      "copy": "Copier le lien",
+      "copied": "Lien de l'offre copié",
+      "failed": "Le lien n'a pas pu être copié"
     }
   }
 }

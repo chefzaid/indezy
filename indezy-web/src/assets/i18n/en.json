@@ -1161,7 +1161,8 @@
         "EMAIL": "Applied by email on {{date}}",
         "PHONE": "Applied by phone on {{date}}"
       },
-      "select": "Select “{{title}}”"
+      "select": "Select “{{title}}”",
+      "openPage": "Open its page"
     },
     "match": {
       "score": "{{score}}%",
@@ -1470,6 +1471,23 @@
       "hybrid": "Hybrid",
       "hybridDays": "Hybrid, {{days}}+ remote days a week",
       "startBefore": "Starting by {{date}}"
+    },
+    "page": {
+      "back": "All offers",
+      "loading": "Loading the offer",
+      "goneTitle": "This offer is no longer in the feed",
+      "gone": "Offers leave the feed 90 days after they are published, or once they expire or leave their site, unless you saved them, applied to them or added them to your pipeline.",
+      "backToFeed": "See the feed",
+      "failed": "The offer could not be loaded.",
+      "expiredOn": "This offer expired on {{date}}: check that the mission is still open before applying.",
+      "expired": "This offer has expired: check that the mission is still open before applying.",
+      "openOnSite": "Open on {{site}}",
+      "hidden": "You hid this offer: it stays out of your feed until you show it again."
+    },
+    "share": {
+      "copy": "Copy the link",
+      "copied": "Link to the offer copied",
+      "failed": "The link could not be copied"
     }
   }
 }

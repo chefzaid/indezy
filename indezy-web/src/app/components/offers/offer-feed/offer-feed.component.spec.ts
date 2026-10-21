@@ -161,38 +161,38 @@ describe('OfferFeedComponent', () => {
     const fixture = create();
     const component = fixture.componentInstance;
 
-    component.toggleSaved(component.page!.content[0]);
+    component.actions.toggleSaved(component.page!.content[0]);
     expect(component.page!.content[0].saved).toBeTrue();
     expect(service.updateState).toHaveBeenCalledWith(1, { saved: true });
 
     service.updateState.and.returnValue(throwError(() => new Error('down')));
-    component.toggleSaved(component.page!.content[1]);
+    component.actions.toggleSaved(component.page!.content[1]);
     expect(component.page!.content[1].saved).toBeFalse();
     expect(notifications.error).toHaveBeenCalledWith('offers.errors.state');
   });
 
   it('takes an offer out of the view it leaves', () => {
     const feed = create();
-    feed.componentInstance.toggleHidden(feed.componentInstance.page!.content[0]);
+    feed.componentInstance.actions.toggleHidden(feed.componentInstance.page!.content[0]);
     expect(feed.componentInstance.page!.content.map(o => o.id)).toEqual([2]);
     expect(feed.componentInstance.page!.totalElements).toBe(1);
 
     TestBed.resetTestingModule();
     const saved = create({ view: 'SAVED' }, page([offer(1, { saved: true })]));
-    saved.componentInstance.toggleSaved(saved.componentInstance.page!.content[0]);
+    saved.componentInstance.actions.toggleSaved(saved.componentInstance.page!.content[0]);
     expect(saved.componentInstance.page!.content).toEqual([]);
 
     TestBed.resetTestingModule();
     const hidden = create({ view: 'HIDDEN' }, page([offer(1, { hidden: true })]));
-    hidden.componentInstance.toggleHidden(hidden.componentInstance.page!.content[0]);
+    hidden.componentInstance.actions.toggleHidden(hidden.componentInstance.page!.content[0]);
     expect(hidden.componentInstance.page!.content).toEqual([]);
   });
 
   it('marks an opened offer as seen once', () => {
     const component = create().componentInstance;
 
-    component.opened(component.page!.content[0]);
-    component.opened(component.page!.content[0]);
+    component.actions.markSeen(component.page!.content[0]);
+    component.actions.markSeen(component.page!.content[0]);
 
     expect(service.updateState).toHaveBeenCalledOnceWith(1, { seen: true });
     expect(component.page!.content[0].seen).toBeTrue();
@@ -225,7 +225,7 @@ describe('OfferFeedComponent', () => {
     const component = fixture.componentInstance;
     service.importOffer.and.returnValue(of({ id: 40 } as ProjectDto));
 
-    component.importOffer(component.page!.content[0]);
+    component.actions.importOffer(component.page!.content[0]);
 
     expect(component.page!.content[0].importedProjectId).toBe(40);
     expect(notifications.success).toHaveBeenCalledWith('offers.notifications.imported', 4000, { role: 'Mission 1' });
@@ -238,12 +238,12 @@ describe('OfferFeedComponent', () => {
     service.importOffer.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
     service.get.and.returnValue(of(offer(1, { importedProjectId: 41 })));
 
-    component.importOffer(component.page!.content[0]);
+    component.actions.importOffer(component.page!.content[0]);
     expect(notifications.error).toHaveBeenCalledWith('offers.errors.alreadyImported');
     expect(component.page!.content[0].importedProjectId).toBe(41);
 
     service.importOffer.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
-    component.importOffer(component.page!.content[1]);
+    component.actions.importOffer(component.page!.content[1]);
     expect(notifications.error).toHaveBeenCalledWith('offers.errors.import');
     expect(component.importing.size).toBe(0);
   });
@@ -274,16 +274,16 @@ describe('OfferFeedComponent', () => {
     const component = fixture.componentInstance;
     service.blockPublisher.and.returnValue(of({ id: 8, name: 'Exemple Conseil' }));
 
-    component.blockPublisher(component.page!.content[0]);
+    component.actions.blockPublisher(component.page!.content[0]);
 
     expect(service.blockPublisher).toHaveBeenCalledWith('Exemple Conseil');
     expect(component.page!.content.map(item => item.id)).toEqual([3]);
     expect(component.page!.totalElements).toBe(28);
     expect(notifications.success).toHaveBeenCalledWith('offers.notifications.publisherBlocked', 6000, { publisher: 'Exemple Conseil' });
     service.blockPublisher.and.returnValue(throwError(() => new Error('down')));
-    component.blockPublisher(component.page!.content[0]);
+    component.actions.blockPublisher(component.page!.content[0]);
     expect(notifications.error).toHaveBeenCalledWith('offers.errors.block');
-    component.blockPublisher(offer(4));
+    component.actions.blockPublisher(offer(4));
     expect(service.blockPublisher).toHaveBeenCalledTimes(2);
   });
 
@@ -292,16 +292,16 @@ describe('OfferFeedComponent', () => {
     const component = fixture.componentInstance;
     service.updateState.and.returnValue(of({ offerId: 2, saved: false, hidden: false, seen: false, note: 'Rappeler' }));
 
-    component.saveNote(component.page!.content[1], ' Rappeler ');
+    component.actions.saveNote(component.page!.content[1], ' Rappeler ');
     expect(service.updateState).toHaveBeenCalledWith(2, { note: ' Rappeler ' });
     expect(component.page!.content[1].note).toBe('Rappeler');
 
     service.updateState.and.returnValue(of({ offerId: 1, saved: false, hidden: false, seen: false }));
-    component.saveNote(component.page!.content[0], '');
+    component.actions.saveNote(component.page!.content[0], '');
     expect(component.page!.content[0].note).toBeUndefined();
 
     service.updateState.and.returnValue(throwError(() => new Error('down')));
-    component.saveNote(component.page!.content[1], 'Autre');
+    component.actions.saveNote(component.page!.content[1], 'Autre');
     expect(component.page!.content[1].note).toBe('Rappeler');
     expect(notifications.error).toHaveBeenCalledWith('offers.errors.note');
   });
@@ -315,8 +315,8 @@ describe('OfferFeedComponent', () => {
     service.apply.and.returnValue(of({ offerId: 1, saved: false, hidden: false, seen: true, importedProjectId: 40,
       application: { appliedOn: '2026-10-20', via: 'EMAIL' } }));
 
-    component.applyToOffer(component.page!.content[0]);
-    component.applyToOffer(component.page!.content[1]);
+    component.actions.applyToOffer(component.page!.content[0]);
+    component.actions.applyToOffer(component.page!.content[1]);
 
     expect(open.calls.first().args[1]?.data).toEqual({ offer: jasmine.objectContaining({ id: 1 }) });
     expect(service.apply).toHaveBeenCalledOnceWith(1, { ...request, language: 'FR' });
@@ -334,12 +334,12 @@ describe('OfferFeedComponent', () => {
     service.apply.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
     service.get.and.returnValue(of(offer(1, { importedProjectId: 40, application: { appliedOn: '2026-10-18', via: 'EMAIL' } })));
 
-    component.applyToOffer(component.page!.content[0]);
+    component.actions.applyToOffer(component.page!.content[0]);
     expect(notifications.error).toHaveBeenCalledWith('offers.errors.alreadyApplied');
     expect(component.page!.content[0].application).toEqual({ appliedOn: '2026-10-18', via: 'EMAIL' });
 
     service.apply.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
-    component.applyToOffer(component.page!.content[1]);
+    component.actions.applyToOffer(component.page!.content[1]);
     expect(notifications.error).toHaveBeenCalledWith('offers.errors.apply');
     expect(component.page!.content[1].application).toBeUndefined();
   });
@@ -350,13 +350,13 @@ describe('OfferFeedComponent', () => {
     const component = fixture.componentInstance;
     service.withdrawApplication.and.returnValue(of({ offerId: 1, saved: false, hidden: false, seen: true }));
 
-    component.withdrawApplication(component.page!.content[0]);
+    component.actions.withdrawApplication(component.page!.content[0]);
     expect(component.page!.content.map(item => item.id)).toEqual([2]);
     expect(component.page!.totalElements).toBe(1);
     expect(notifications.success).toHaveBeenCalledWith('offers.notifications.withdrawn', 4000);
 
     service.withdrawApplication.and.returnValue(throwError(() => new Error('down')));
-    component.withdrawApplication(component.page!.content[0]);
+    component.actions.withdrawApplication(component.page!.content[0]);
     expect(component.page!.content[0].application).toEqual(application);
     expect(notifications.error).toHaveBeenCalledWith('offers.errors.state');
     expect(fixture.nativeElement.querySelector('[data-view="APPLIED"]')).not.toBeNull();
@@ -366,7 +366,7 @@ describe('OfferFeedComponent', () => {
     const fixture = create({ view: 'SAVED' }, page([offer(1, { company: 'Acme', saved: true })]));
     service.blockPublisher.and.returnValue(of({ id: 8, name: 'Acme' }));
 
-    fixture.componentInstance.blockPublisher(fixture.componentInstance.page!.content[0]);
+    fixture.componentInstance.actions.blockPublisher(fixture.componentInstance.page!.content[0]);
 
     expect(fixture.componentInstance.page!.content.length).toBe(1);
   });

@@ -230,6 +230,14 @@ marked **New**.
   once and are put back if the server refuses them; hidden offers leave the feed with an **Undo** in the notification
   for 8 seconds. Adding skips the offers already in the pipeline, adds each mission once (two copies of one mission make
   one opportunity) and says how many were added. A new page or new filters clear the selection.
+- **Offer page** (`/offers/{id}`): **Open its page** in an offer's menu, or an offer of the dashboard's widget, opens
+  the offer on its own page, which marks it seen: its full description, facts, copies on other sites and match, the
+  same actions as its card in the feed, **Open on Free-Work** and **Copy the link** (also in the card's menu), which
+  copies the page's address to share it with whoever has an Indezy account (each one sees the offer with their own
+  workspace's state). An expired offer says when it expired; an address of an offer no longer collected explains that
+  offers leave the feed 90 days after their publication or once they expire or leave their site, unless saved, applied
+  to or added to the pipeline, and links back to the feed. Hiding an offer from its page keeps it on the page, which
+  says it is out of the feed.
 - **One card per mission**: boards republish each other's missions (WorkDispo republishes Cherry Pick, Collective.work
   and Free-Work republish Mon Consultant Indépendant, ESNs post on several boards), so offers of different sites whose
   titles read the same and whose publisher or opening text is the same are one mission. The feed shows its earliest
