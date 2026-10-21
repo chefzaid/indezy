@@ -67,6 +67,8 @@ class PasswordLengthIntegrationTest {
         assertThat(output.getAll().lines()).anyMatch(line -> line.contains(" WARN ") &&
             line.endsWith("Validation failed for registerRequest: password (PasswordMaxBytes)"));
         assertThat(output.getAll()).doesNotContain("Registration rejected").doesNotContain("password cannot be more than 72 bytes");
+        // Not even Spring MVC, which logs the request at DEBUG in this profile, prints a rejected password.
+        assertThat(output.getAll()).doesNotContain("a".repeat(80)).doesNotContain(MULTIBYTE_TOO_LONG);
     }
 
     @Test

@@ -85,6 +85,7 @@ logging:
     "[org.hibernate.SQL]": INFO
     "[org.hibernate.type.descriptor.sql.BasicBinder]": INFO
     "[org.springframework.web]": INFO
+    "[org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver]": INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
