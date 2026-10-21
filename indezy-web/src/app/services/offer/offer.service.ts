@@ -12,6 +12,7 @@ import {
   OfferLink,
   OfferMarket,
   OfferPage,
+  OfferPublisher,
   OfferPublisherBlock,
   OfferQuery,
   OfferRegion,
@@ -170,6 +171,12 @@ export class OfferService {
       params = params.set('region', region);
     }
     return this.http.get<OfferTrend>(`${this.API_URL}/market/trends`, { params, context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
+  /** What a publisher, named however it is written, puts in the feed; 404 when none of its offers is collected. */
+  publisher(name: string): Observable<OfferPublisher> {
+    return this.http.get<OfferPublisher>(`${this.API_URL}/publishers/${encodeURIComponent(name)}`,
+      { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
   }
 
   /** Searches suggested from the profile and the pipeline. Errors are the caller's to tell. */

@@ -374,6 +374,18 @@ aside), in the offer's region when ten offers or more make it, else in all of Fr
 shown. Its tooltip names the median and how many offers it is taken over. The medians are computed every night at
 04:45 (Paris time), after old offers are removed, and once when a server starts with none.
 
+### Publisher Page
+
+A card's publisher name opens what that publisher (an intermediary or a client, however it is written) puts in the feed
+(`/offers/publishers/{name}`): its open missions (each once, copies on other sites aside), their median daily rate and
+age, how many of its missions of the last 90 days it published again under a new reference (a sign of a mission hard to
+fill), the sites it posts on, its newest open offers (up to 20, each opening its page), the workspace's client record of
+that name (linked, and marked ESN when it is one) and **Hide its offers** or **Show its offers again**, the same block
+as the card's menu. A mission several intermediaries publish says so after the publisher's name, with the spread of
+the best rates they state: "3 intermediaries, €520 – €600".
+
+API: `GET /offers/publishers/{name}` (`404` when Indezy holds none of its offers).
+
 ### Market Trends
 
 The **Market** panel ends with **Trends**: for one of the profile's skills (the first one preselected, any other

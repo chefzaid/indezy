@@ -10,6 +10,7 @@ import dev.swirlit.indezy.dto.OfferLinkDto;
 import dev.swirlit.indezy.dto.OfferLinkRequest;
 import dev.swirlit.indezy.dto.OfferMarketDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
+import dev.swirlit.indezy.dto.OfferPublisherDto;
 import dev.swirlit.indezy.dto.OfferRegionDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.OfferSiteDto;
@@ -23,6 +24,7 @@ import dev.swirlit.indezy.service.OfferBulkService;
 import dev.swirlit.indezy.service.OfferImportService;
 import dev.swirlit.indezy.service.OfferLinkService;
 import dev.swirlit.indezy.service.OfferMarketService;
+import dev.swirlit.indezy.service.OfferPublisherInsightService;
 import dev.swirlit.indezy.service.OfferSearchService;
 import dev.swirlit.indezy.service.OfferStateService;
 import dev.swirlit.indezy.service.OfferTrendService;
@@ -66,6 +68,7 @@ public class OfferController {
     private final OfferBulkService bulkService;
     private final OfferLinkService linkService;
     private final OfferTrendService trendService;
+    private final OfferPublisherInsightService publisherService;
     private final OfferMarketService marketService;
     private final AccessGuard accessGuard;
 
@@ -90,6 +93,13 @@ public class OfferController {
                                       @RequestParam(required = false) @Size(max = 3) String region,
                                       @RequestParam(required = false) Long freelanceId) {
         return trendService.trends(accessGuard.requireWorkspace(freelanceId), skill, region);
+    }
+
+    @Operation(summary = "What a publisher puts in the feed: its open missions, rates, republications, sites and offers",
+        description = "The publisher named however it is written; 404 when none of its offers is collected")
+    @GetMapping("/publishers/{name}")
+    public OfferPublisherDto publisher(@PathVariable @Size(max = 200) String name, @RequestParam(required = false) Long freelanceId) {
+        return publisherService.insights(accessGuard.requireWorkspace(freelanceId), name);
     }
 
     @Operation(summary = "Get an offer with its full description")

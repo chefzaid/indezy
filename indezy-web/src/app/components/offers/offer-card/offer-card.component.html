@@ -38,7 +38,13 @@
     <a [href]="offer.url" target="_blank" rel="noopener noreferrer" (click)="opened.emit(offer)" data-open-offer>{{ offer.title }}</a>
   </h3>
   @if (offer.company) {
-    <p class="company">{{ offer.company }}</p>
+    <p class="company">
+      <a [routerLink]="['/offers/publishers', offer.company]" [attr.aria-label]="'offers.card.publisherPage' | translate: { publisher: offer.company }"
+        data-publisher-link>{{ offer.company }}</a>
+      @if (offer.publisherSpread; as spread) {
+        <span class="spread" data-publisher-spread>· {{ spreadLabel }}</span>
+      }
+    </p>
   }
   @if (offer.alsoOn?.length) {
     <p class="also-on" data-also-on>

@@ -1171,7 +1171,10 @@
         "inFrance": "en France",
         "hint": "TJM médian des {{offers}} offres ouvertes qui citent d'abord {{skill}} {{where}} : {{median}}"
       },
-      "suspicious": "Douteuse"
+      "suspicious": "Douteuse",
+      "publisherPage": "Ce que {{publisher}} publie dans le fil",
+      "spread": "{{count}} intermédiaires",
+      "spreadRates": "{{count}} intermédiaires, {{rates}}"
     },
     "match": {
       "score": "{{score}} %",
@@ -1520,6 +1523,28 @@
       "median": "TJM médian",
       "offers": "Offres ouvertes",
       "percent": "{{sign}}{{value}} %"
+    },
+    "publisher": {
+      "loading": "Chargement de l'éditeur",
+      "goneTitle": "Aucune offre de cet éditeur n'est dans le fil",
+      "gone": "Indezy ne garde aucune offre qu'il a publiée : elles ont peut-être expiré ou quitté leur site.",
+      "failed": "L'éditeur n'a pas pu être chargé.",
+      "clientEsn": "{{name}} dans vos clients (ESN)",
+      "clientFinal": "{{name}} dans vos clients",
+      "noClient": "Absent de vos clients",
+      "block": "Masquer ses offres",
+      "unblock": "Afficher à nouveau ses offres",
+      "blocked": "Ses offres restent hors de votre fil, de vos recherches sauvegardées et de l'aperçu du marché.",
+      "openMissions": "Missions ouvertes",
+      "medianRate": "TJM médian",
+      "medianAge": "Âge médian de ses offres ouvertes",
+      "days": "{{count}} jours",
+      "republished": "Republiées (90 jours)",
+      "republishedOf": "{{count}} missions sur {{missions}}",
+      "none": "Non précisé",
+      "sites": "Sites où il publie",
+      "offers": "Ses offres ouvertes",
+      "noOpenOffer": "Aucune offre ouverte."
     }
   }
 }

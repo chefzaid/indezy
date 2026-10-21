@@ -61,7 +61,9 @@ public record OfferDto(
     /** The daily rate against the market; absent without a stated rate, a skill or ten comparable offers. */
     OfferRateMarketDto rateMarket,
     /** Why the offer looks like a fake or spam listing; absent when it does not. */
-    List<OfferSuspicion> suspicion) {
+    List<OfferSuspicion> suspicion,
+    /** The intermediaries publishing the mission and their rates; absent when one publishes it. */
+    OfferPublisherSpreadDto publisherSpread) {
 
     public OfferDto {
         skills = skills == null ? List.of() : List.copyOf(skills);

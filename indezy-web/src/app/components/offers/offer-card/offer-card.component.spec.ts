@@ -209,6 +209,19 @@ describe('OfferCardComponent', () => {
     expect(document.querySelector('[data-edit-note]')).not.toBeNull();
   });
 
+  it('links its publisher to its page and shows how intermediaries spread their rates', () => {
+    const fixture = create(offer({ publisherSpread: { publishers: 3, rateMin: 520, rateMax: 600 } }));
+
+    const link = element(fixture, '[data-publisher-link]') as HTMLAnchorElement;
+    expect(link.getAttribute('href')).toBe('/offers/publishers/Exemple%20Conseil');
+    expect(spaced(element(fixture, '[data-publisher-spread]').innerText)).toBe('· 3 intermédiaires, 520 € – 600 €');
+    const component = fixture.componentInstance;
+    component.offer = offer({ publisherSpread: { publishers: 2 } });
+    expect(component.spreadLabel).toBe('2 intermédiaires');
+    component.offer = offer();
+    expect(component.spreadLabel).toBe('');
+  });
+
   it('warns that an offer looks suspicious, and why', () => {
     const fixture = create(offer({ suspicion: ['NO_PUBLISHER_NO_DESCRIPTION', 'KNOWN_FAKE_PUBLISHER'] }));
     const badge = element(fixture, '[data-suspicious]');

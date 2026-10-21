@@ -104,6 +104,13 @@ describe('OfferService', () => {
     imported.flush({ id: 40 });
   });
 
+  it('loads a publisher by its name quietly', () => {
+    service.publisher('Exemple / Conseil').subscribe();
+    const publisher = http.expectOne(`${api}/publishers/Exemple%20%2F%20Conseil`);
+    expect(publisher.request.context.get(SILENT_HTTP_ERRORS)).toBeTrue();
+    publisher.flush({});
+  });
+
   it('loads the suggested searches quietly and dismisses one', () => {
     service.searchSuggestions().subscribe();
     const suggestions = http.expectOne(`${api}/searches/suggestions`);

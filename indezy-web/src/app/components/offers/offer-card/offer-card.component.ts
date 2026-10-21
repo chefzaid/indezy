@@ -169,6 +169,17 @@ export class OfferCardComponent {
     return score >= FAIR_MATCH ? 'fair' : 'low';
   }
 
+  /** How many intermediaries publish the mission and the spread of their best rates: "3 intermediaries, 520 € – 600 €". */
+  get spreadLabel(): string {
+    const spread = this.offer.publisherSpread;
+    if (!spread) {
+      return '';
+    }
+    // The server sends both ends of the spread, or neither when no intermediary states a rate.
+    const rates = spread.rateMax ? offerRate({ rateMin: spread.rateMin, rateMax: spread.rateMax }, this.locale) : '';
+    return this.translate.instant(rates ? 'offers.card.spreadRates' : 'offers.card.spread', { count: spread.publishers, rates });
+  }
+
   /** Why the offer looks like a fake or spam listing, one reason after the other. */
   get suspicionDetails(): string {
     return (this.offer.suspicion ?? []).map(reason => this.translate.instant(`offers.suspicion.${reason}`)).join(' · ');

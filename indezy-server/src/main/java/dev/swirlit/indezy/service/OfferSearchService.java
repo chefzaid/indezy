@@ -5,6 +5,7 @@ import dev.swirlit.indezy.dto.OfferCopyDto;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
+import dev.swirlit.indezy.dto.OfferPublisherSpreadDto;
 import dev.swirlit.indezy.dto.OfferRegionDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.OfferSiteDto;
@@ -39,6 +40,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -201,17 +203,40 @@ public class OfferSearchService {
     }
 
     /** Where else the mission is open: one copy per other site the workspace keeps, the earliest, by site name. */
-    static List<OfferCopyDto> alsoOn(JobOffer offer, List<JobOffer> copies, Set<OfferSite> excluded, Instant now) {
+    /** The open copies of a mission on other sites (one per site), and how its intermediaries' rates spread. */
+    record Copies(List<OfferCopyDto> alsoOn, OfferPublisherSpreadDto spread) {
+    }
+
+    static Copies alsoOn(JobOffer offer, List<JobOffer> copies, Set<OfferSite> excluded, Instant now) {
         Map<OfferSite, JobOffer> bySite = new EnumMap<>(OfferSite.class);
-        copies.stream()
+        List<JobOffer> open = copies.stream().filter(copy -> copy.getExpiresAt() == null || copy.getExpiresAt().isAfter(now)).toList();
+        open.stream()
             .filter(copy -> copy.getSite() != offer.getSite() && !excluded.contains(copy.getSite()))
-            .filter(copy -> copy.getExpiresAt() == null || copy.getExpiresAt().isAfter(now))
             .sorted(Comparator.comparing(JobOffer::getPublishedAt))
             .forEach(copy -> bySite.putIfAbsent(copy.getSite(), copy));
-        return bySite.values().stream()
+        List<OfferCopyDto> alsoOn = bySite.values().stream()
             .sorted(Comparator.comparing(copy -> copy.getSite().getDisplayName()))
             .map(copy -> new OfferCopyDto(copy.getId(), copy.getSite(), copy.getSite().getDisplayName(), copy.getUrl()))
             .toList();
+        return new Copies(alsoOn, spread(offer, open));
+    }
+
+    /** The intermediaries publishing the offer's mission (it and its open copies), when more than one does. */
+    static OfferPublisherSpreadDto spread(JobOffer offer, List<JobOffer> copies) {
+        Map<String, Integer> bestRates = new HashMap<>();
+        Set<String> publishers = new HashSet<>();
+        Stream.concat(Stream.of(offer), copies.stream()).filter(item -> item.getCompanyKey() != null).forEach(item -> {
+            publishers.add(item.getCompanyKey());
+            Integer rate = OfferMatch.bestRate(item.getRateMin(), item.getRateMax());
+            if (rate != null) {
+                bestRates.merge(item.getCompanyKey(), rate, Math::max);
+            }
+        });
+        if (publishers.size() < 2) {
+            return null;
+        }
+        return new OfferPublisherSpreadDto(publishers.size(), bestRates.values().stream().min(Integer::compare).orElse(null),
+            bestRates.values().stream().max(Integer::compare).orElse(null));
     }
 
     /** The workspace's state of each offer, merged with its copies' (see {@link OfferStateDto#merged}). */
@@ -237,8 +262,8 @@ public class OfferSearchService {
         return merged;
     }
 
-    private OfferDto toDto(JobOffer offer, List<String> skills, OfferStateDto state, List<OfferCopyDto> alsoOn,
-                           OfferMatch.Profile profile, Instant now, boolean full) {
+    private OfferDto toDto(JobOffer offer, List<String> skills, OfferStateDto state, Copies copies, OfferMatch.Profile profile,
+                           Instant now, boolean full) {
         Origin origin = profile.origin();
         Integer distance = origin == null || offer.getLatitude() == null || offer.getLongitude() == null ? null :
             (int) Math.round(distanceKm(origin.latitude(), origin.longitude(), offer.getLatitude(), offer.getLongitude()));
@@ -252,9 +277,9 @@ public class OfferSearchService {
             offer.getStartDate(), offer.getStartAsap(), offer.getSeniority(), skills, offer.getPublishedAt(),
             offer.getDatePrecision(), offer.getExpiresAt(), offer.getExpiresAt() != null && !offer.getExpiresAt().isAfter(now),
             state != null && state.saved(), state != null && state.hidden(), state != null && state.seen(),
-            state == null ? null : state.importedProjectId(), alsoOn, OfferMatch.score(offer, skills, profile),
+            state == null ? null : state.importedProjectId(), copies.alsoOn(), OfferMatch.score(offer, skills, profile),
             state == null ? null : state.note(), state == null ? null : state.application(), benchmarks.compare(offer, skills),
-            OfferSuspicion.of(offer.getSuspicion()));
+            OfferSuspicion.of(offer.getSuspicion()), copies.spread());
     }
 
     /** The description's beginning on one line, cut at a word and ended with an ellipsis. */

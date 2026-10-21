@@ -35,6 +35,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'offers/publishers/:name',
+    loadComponent: () => import('./components/offers/offer-publisher/offer-publisher.component').then(m => m.OfferPublisherComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'offers/:id',
     loadComponent: () => import('./components/offers/offer-page/offer-page.component').then(m => m.OfferPageComponent),
     canActivate: [authGuard]

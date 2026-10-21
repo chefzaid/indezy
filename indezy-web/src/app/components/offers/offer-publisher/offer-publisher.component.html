@@ -1,0 +1,99 @@
+<div class="publisher-page" data-publisher-page>
+  <a mat-button routerLink="/offers" class="back-link"><mat-icon>arrow_back</mat-icon>{{ 'offers.page.back' | translate }}</a>
+
+  @if (loading) {
+    <div class="state" role="status">
+      <mat-spinner diameter="32"></mat-spinner>
+      <span class="cdk-visually-hidden">{{ 'offers.publisher.loading' | translate }}</span>
+    </div>
+  } @else if (missing) {
+    <mat-card appearance="outlined" class="state-card" data-publisher-gone>
+      <mat-icon aria-hidden="true">search_off</mat-icon>
+      <h1>{{ 'offers.publisher.goneTitle' | translate }}</h1>
+      <p>{{ 'offers.publisher.gone' | translate }}</p>
+      <a mat-flat-button color="primary" routerLink="/offers">{{ 'offers.page.backToFeed' | translate }}</a>
+    </mat-card>
+  } @else if (failed) {
+    <mat-card appearance="outlined" class="state-card">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <p>{{ 'offers.publisher.failed' | translate }}</p>
+      <button mat-stroked-button type="button" (click)="load()">{{ 'common.retry' | translate }}</button>
+    </mat-card>
+  } @else if (publisher) {
+    <header class="publisher-header">
+      <h1>{{ publisher.name }}</h1>
+      <div class="header-actions">
+        @if (publisher.client; as client) {
+          <a mat-stroked-button [routerLink]="['/clients', client.id]" data-publisher-client>
+            <mat-icon>business</mat-icon>
+            {{ (client.intermediary ? 'offers.publisher.clientEsn' : 'offers.publisher.clientFinal') | translate: { name: client.name } }}
+          </a>
+        } @else {
+          <span class="muted" data-publisher-no-client>{{ 'offers.publisher.noClient' | translate }}</span>
+        }
+        <button mat-stroked-button type="button" (click)="toggleBlock()" [disabled]="busy" data-publisher-block>
+          <mat-icon>{{ publisher.blockId ? 'visibility' : 'block' }}</mat-icon>
+          {{ (publisher.blockId ? 'offers.publisher.unblock' : 'offers.publisher.block') | translate }}
+        </button>
+      </div>
+    </header>
+    @if (publisher.blockId) {
+      <p class="banner" role="status" data-publisher-blocked>{{ 'offers.publisher.blocked' | translate }}</p>
+    }
+
+    <dl class="kpis">
+      <div class="kpi" data-publisher-kpi="missions">
+        <dt>{{ 'offers.publisher.openMissions' | translate }}</dt>
+        <dd>{{ publisher.openMissions }}</dd>
+      </div>
+      <div class="kpi" data-publisher-kpi="rate">
+        <dt>{{ 'offers.publisher.medianRate' | translate }}</dt>
+        <dd>{{ publisher.medianRate ? euros(publisher.medianRate) : ('offers.publisher.none' | translate) }}</dd>
+      </div>
+      <div class="kpi" data-publisher-kpi="age">
+        <dt>{{ 'offers.publisher.medianAge' | translate }}</dt>
+        <dd>{{ publisher.medianOpenDays !== undefined && publisher.medianOpenDays !== null
+          ? ('offers.publisher.days' | translate: { count: publisher.medianOpenDays }) : ('offers.publisher.none' | translate) }}</dd>
+      </div>
+      <div class="kpi" data-publisher-kpi="republished">
+        <dt>{{ 'offers.publisher.republished' | translate }}</dt>
+        <dd>{{ 'offers.publisher.republishedOf' | translate: { count: publisher.republished, missions: publisher.missions } }}</dd>
+      </div>
+    </dl>
+
+    <div class="columns">
+      <section aria-labelledby="publisher-sites-title">
+        <h2 id="publisher-sites-title">{{ 'offers.publisher.sites' | translate }}</h2>
+        <ul class="sites">
+          @for (site of publisher.sites; track site.site) {
+            <li><span class="site-badge" [attr.data-site]="site.site">{{ site.siteName }}</span> {{ site.offers }}</li>
+          } @empty {
+            <li class="muted">{{ 'offers.publisher.noOpenOffer' | translate }}</li>
+          }
+        </ul>
+      </section>
+      <section aria-labelledby="publisher-offers-title">
+        <h2 id="publisher-offers-title">{{ 'offers.publisher.offers' | translate }}</h2>
+        <ul class="offers">
+          @for (offer of publisher.offers; track offer.id) {
+            <li [attr.data-publisher-offer]="offer.id">
+              <a [routerLink]="['/offers', offer.id]">{{ offer.title }}</a>
+              <span class="facts">
+                {{ offer.siteName }}
+                @if (rate(offer)) {
+                  · {{ rate(offer) }}
+                }
+                @if (offer.city) {
+                  · {{ offer.city }}
+                }
+                · {{ offer.publishedAt | date: 'mediumDate' }}
+              </span>
+            </li>
+          } @empty {
+            <li class="muted">{{ 'offers.publisher.noOpenOffer' | translate }}</li>
+          }
+        </ul>
+      </section>
+    </div>
+  }
+</div>

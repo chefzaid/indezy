@@ -12,6 +12,8 @@ import dev.swirlit.indezy.dto.OfferMatchDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferMarketDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
+import dev.swirlit.indezy.dto.OfferPublisherDto;
+import dev.swirlit.indezy.dto.OfferPublisherSpreadDto;
 import dev.swirlit.indezy.dto.OfferRateMarketDto;
 import dev.swirlit.indezy.dto.OfferRegionDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
@@ -36,6 +38,7 @@ import dev.swirlit.indezy.service.OfferBulkService;
 import dev.swirlit.indezy.service.OfferImportService;
 import dev.swirlit.indezy.service.OfferLinkService;
 import dev.swirlit.indezy.service.OfferMarketService;
+import dev.swirlit.indezy.service.OfferPublisherInsightService;
 import dev.swirlit.indezy.service.OfferSearchService;
 import dev.swirlit.indezy.service.OfferStateService;
 import dev.swirlit.indezy.service.OfferTrendService;
@@ -106,6 +109,9 @@ class OfferControllerTest {
     @MockitoBean
     private OfferTrendService trendService;
 
+    @MockitoBean
+    private OfferPublisherInsightService publisherService;
+
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -137,6 +143,7 @@ class OfferControllerTest {
             .andExpect(jsonPath("$.content[0].rateMarket.percent").value(9))
             .andExpect(jsonPath("$.content[0].rateMarket.regionName").value("Île-de-France"))
             .andExpect(jsonPath("$.content[0].suspicion[0]").value("SAME_TEXT_MANY_PUBLISHERS"))
+            .andExpect(jsonPath("$.content[0].publisherSpread.publishers").value(3))
             .andExpect(jsonPath("$.content[0].application.appliedOn").value("2026-10-20"))
             .andExpect(jsonPath("$.content[0].application.via").value("EMAIL"));
 
@@ -296,6 +303,22 @@ class OfferControllerTest {
     }
 
     @Test
+    void describesAPublisherByItsNameHoweverItIsWritten() throws Exception {
+        when(publisherService.insights(3L, "Exemple Conseil")).thenReturn(new OfferPublisherDto("exemple conseil", "Exemple Conseil", 4,
+            600, 12, 6, 2, List.of(new OfferPublisherDto.SiteOffers(OfferSite.FREE_WORK, "Free-Work", 4)), null, 9L, List.of()));
+        when(publisherService.insights(3L, "Personne")).thenThrow(new ResourceNotFoundException("No offer of this publisher is collected"));
+
+        mockMvc.perform(get("/offers/publishers/{name}", "Exemple Conseil").param("freelanceId", "3"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.openMissions").value(4))
+            .andExpect(jsonPath("$.sites[0].siteName").value("Free-Work"))
+            .andExpect(jsonPath("$.blockId").value(9))
+            .andExpect(jsonPath("$.client").doesNotExist());
+        mockMvc.perform(get("/offers/publishers/{name}", "Personne").param("freelanceId", "3")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/offers/publishers/{name}", "x".repeat(201)).param("freelanceId", "3")).andExpect(status().isBadRequest());
+    }
+
+    @Test
     void tellsHowTheMarketOfASkillMoved() throws Exception {
         when(trendService.trends(3L, "Java", "11")).thenReturn(new OfferTrendDto(List.of("Java"), "Java", "Île-de-France",
             new OfferTrendDto.Night(LocalDate.of(2026, 10, 21), 600, 34), List.of(new OfferTrendDto.Change(30, 5, null)), List.of()));
@@ -391,6 +414,6 @@ class OfferControllerTest {
             List.of(new OfferCopyDto(8L, OfferSite.COLLECTIVE, "Collective", "https://www.collective.work/job/8")),
             new OfferMatchDto(83, List.of("Java"), OfferMatchDto.RateFit.MEETS, OfferMatchDto.PlaceFit.NEAR, null), "Call Léa",
             new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.EMAIL), new OfferRateMarketDto(9, 550, 34, "Java", "Île-de-France"),
-            List.of(OfferSuspicion.SAME_TEXT_MANY_PUBLISHERS));
+            List.of(OfferSuspicion.SAME_TEXT_MANY_PUBLISHERS), new OfferPublisherSpreadDto(3, 520, 600));
     }
 }

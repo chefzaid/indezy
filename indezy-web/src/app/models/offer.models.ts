@@ -119,6 +119,27 @@ export interface Offer {
   rateMarket?: OfferRateMarket;
   /** Why it looks like a fake or spam listing; absent when it does not. */
   suspicion?: OfferSuspicion[];
+  /** The intermediaries publishing the mission and the spread of their best rates; absent when one does. */
+  publisherSpread?: { publishers: number; rateMin?: number; rateMax?: number };
+}
+
+/** What a publisher puts in the feed (see docs/features.md#publisher-page). */
+export interface OfferPublisher {
+  key: string;
+  name: string;
+  openMissions: number;
+  medianRate?: number;
+  /** How long its open offers have been published, the median, in days. */
+  medianOpenDays?: number;
+  /** Its missions of the last 90 days, each once per site, and how many it published again under a new reference. */
+  missions: number;
+  republished: number;
+  sites: { site: OfferSite; siteName: string; offers: number }[];
+  /** The workspace's client named like it. */
+  client?: { id: number; name: string; intermediary: boolean };
+  /** The workspace's block of it, absent when its offers are in the feed. */
+  blockId?: number;
+  offers: { id: number; title: string; siteName: string; rateMin?: number; rateMax?: number; city?: string; publishedAt: string }[];
 }
 
 /**

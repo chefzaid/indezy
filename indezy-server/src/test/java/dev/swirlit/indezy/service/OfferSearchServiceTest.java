@@ -5,6 +5,7 @@ import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.dto.OfferFacetDto;
 import dev.swirlit.indezy.dto.OfferMatchDto;
 import dev.swirlit.indezy.dto.OfferPageDto;
+import dev.swirlit.indezy.dto.OfferPublisherSpreadDto;
 import dev.swirlit.indezy.dto.OfferRegionDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.OfferSiteDto;
@@ -145,6 +146,29 @@ class OfferSearchServiceTest {
         assertThat(dto.alsoOn().get(0).url()).isEqualTo("https://www.example.com/8");
         assertThat(dto.saved()).isTrue();
         assertThat(dto.seen()).isFalse();
+    }
+
+    @Test
+    void spreadsTheRatesOfTheIntermediariesPublishingAMission() {
+        JobOffer acme = publisherOffer("Acme", 550, 600);
+        JobOffer acmeAgain = publisherOffer("ACME", null, 650);
+        JobOffer globex = publisherOffer("Globex", 520, 560);
+        JobOffer initech = publisherOffer("Initech", null, null);
+        JobOffer anonymous = publisherOffer(null, 900, null);
+
+        assertThat(OfferSearchService.spread(acme, List.of(acmeAgain, globex, initech, anonymous)))
+            .isEqualTo(new OfferPublisherSpreadDto(3, 560, 650));
+        assertThat(OfferSearchService.spread(acme, List.of(acmeAgain))).isNull();
+        assertThat(OfferSearchService.spread(publisherOffer("Acme", null, null), List.of(initech)))
+            .isEqualTo(new OfferPublisherSpreadDto(2, null, null));
+    }
+
+    private static JobOffer publisherOffer(String company, Integer rateMin, Integer rateMax) {
+        JobOffer offer = new JobOffer();
+        offer.setCompany(company);
+        offer.setRateMin(rateMin);
+        offer.setRateMax(rateMax);
+        return offer;
     }
 
     @Test

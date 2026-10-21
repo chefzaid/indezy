@@ -33,6 +33,7 @@ public final class ErrorMessages {
     public static final String ACTIVITY_REPORT_LINK_INVALID = "This validation link is invalid or has expired";
 
     public static final String OFFER_NOT_FOUND = "Job offer not found with id: %d";
+    public static final String OFFER_PUBLISHER_NOT_FOUND = "No offer of this publisher is collected";
     public static final String OFFER_ALREADY_IMPORTED = "This offer is already in the pipeline as project %d";
     public static final String OFFER_ALREADY_APPLIED = "You already applied to this offer on %s";
     public static final String OFFER_APPLIED_LATER = "An application cannot be dated after today";

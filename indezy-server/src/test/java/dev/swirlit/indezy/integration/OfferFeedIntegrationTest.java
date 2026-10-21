@@ -394,4 +394,24 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
         // Read again with nothing new, nothing changes.
         assertThat(suspicionService.refresh()).isZero();
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void describesAPublisherForEachWorkspace() {
+        assertThat(call(alice, HttpMethod.POST, "/offers/" + paris.getId() + "/import", null).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(call(alice, HttpMethod.POST, "/offers/blocked-publishers", Map.of("name", "EXEMPLE conseil")).getStatusCode().is2xxSuccessful())
+            .isTrue();
+
+        Map<String, Object> publisher = call(alice, HttpMethod.GET, "/offers/publishers/exemple-CONSEIL", null).getBody();
+
+        assertThat(publisher).containsEntry("name", "Exemple Conseil").containsEntry("openMissions", 1).containsEntry("medianRate", 600)
+            .containsKey("blockId");
+        assertThat((Map<String, Object>) publisher.get("client")).containsEntry("name", "Exemple Conseil").containsEntry("intermediary", true);
+        assertThat((List<Map<String, Object>>) publisher.get("offers")).extracting(offer -> offer.get("title"))
+            .containsExactly("Développeur Java Spring");
+        // Bob has neither the client nor the block.
+        assertThat(call(bob, HttpMethod.GET, "/offers/publishers/Exemple Conseil", null).getBody())
+            .doesNotContainKeys("client", "blockId");
+        assertThat(call(alice, HttpMethod.GET, "/offers/publishers/Personne", null).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }

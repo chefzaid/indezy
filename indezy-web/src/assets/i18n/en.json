@@ -1171,7 +1171,10 @@
         "inFrance": "in France",
         "hint": "Median daily rate of the {{offers}} open offers naming {{skill}} first {{where}}: {{median}}"
       },
-      "suspicious": "Looks suspicious"
+      "suspicious": "Looks suspicious",
+      "publisherPage": "What {{publisher}} puts in the feed",
+      "spread": "{{count}} intermediaries",
+      "spreadRates": "{{count}} intermediaries, {{rates}}"
     },
     "match": {
       "score": "{{score}}%",
@@ -1520,6 +1523,28 @@
       "median": "Median daily rate",
       "offers": "Open offers",
       "percent": "{{sign}}{{value}}%"
+    },
+    "publisher": {
+      "loading": "Loading the publisher",
+      "goneTitle": "No offer of this publisher is in the feed",
+      "gone": "Indezy holds no offer it published: they may have expired or left their site.",
+      "failed": "The publisher could not be loaded.",
+      "clientEsn": "{{name}} in your clients (ESN)",
+      "clientFinal": "{{name}} in your clients",
+      "noClient": "Not in your clients",
+      "block": "Hide its offers",
+      "unblock": "Show its offers again",
+      "blocked": "Its offers are kept out of your feed, saved searches and market snapshot.",
+      "openMissions": "Open missions",
+      "medianRate": "Median daily rate",
+      "medianAge": "Median age of its open offers",
+      "days": "{{count}} days",
+      "republished": "Published again (90 days)",
+      "republishedOf": "{{count}} of {{missions}} missions",
+      "none": "Not stated",
+      "sites": "Sites it posts on",
+      "offers": "Its open offers",
+      "noOpenOffer": "No open offer."
     }
   }
 }
