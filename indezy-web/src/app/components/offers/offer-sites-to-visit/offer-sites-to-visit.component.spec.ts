@@ -17,7 +17,7 @@ describe('OfferSitesToVisitComponent', () => {
 
   const sites: OfferLeftOutSite[] = [
     { site: 'HITECHPROS', name: 'HiTechPros', homeUrl: 'https://www.hitechpros.com', kind: 'VISIT', access: 'MEMBERSHIP' },
-    { site: 'OUIDESK', name: 'OuiDesk', homeUrl: 'https://ouidesk.com', kind: 'VISIT', access: 'REFERRAL', visitedAt: twoDaysAgo },
+    { site: 'OPTEAMIS', name: 'Opteamis', homeUrl: 'https://www.opteamis.com', kind: 'VISIT', access: 'SIGN_IN', visitedAt: twoDaysAgo },
     { site: 'MALT', name: 'Malt', homeUrl: 'https://www.malt.fr', kind: 'MATCHING', access: 'PROFILE' },
     { site: 'LINKEDIN', name: 'LinkedIn', homeUrl: 'https://www.linkedin.com', kind: 'OTHER' }
   ];
@@ -51,7 +51,7 @@ describe('OfferSitesToVisitComponent', () => {
 
     expect(headings).toEqual(['Missions à consulter en personne', 'Services de mise en relation : créez votre profil une fois, ils vous appellent']);
     expect(text(fixture, '[data-visit="HITECHPROS"] [data-access]')).toBe('Abonnement payant');
-    expect(text(fixture, '[data-visit="OUIDESK"]')).toContain('Consulté avant-hier');
+    expect(text(fixture, '[data-visit="OPTEAMIS"]')).toContain('Consulté avant-hier');
     expect(text(fixture, '[data-visit="MALT"]')).toContain('Pas encore consulté');
     expect(fixture.nativeElement.querySelector('[data-visit="LINKEDIN"]')).toBeNull();
     expect(fixture.nativeElement.querySelector('[data-visit="MALT"] a').getAttribute('href')).toBe('https://www.malt.fr');
@@ -60,17 +60,17 @@ describe('OfferSitesToVisitComponent', () => {
   it('records a visit when the site is opened or marked, and forgets it', () => {
     const fixture = create();
     service.visitSite.and.returnValue(of({ site: 'MALT', visitedAt: new Date().toISOString() }));
-    service.clearSiteVisit.and.returnValue(of({ site: 'OUIDESK', visitedAt: null }));
+    service.clearSiteVisit.and.returnValue(of({ site: 'OPTEAMIS', visitedAt: null }));
 
     const link = fixture.nativeElement.querySelector('[data-visit="MALT"] a') as HTMLAnchorElement;
     link.addEventListener('click', event => event.preventDefault());
     link.click();
-    (fixture.nativeElement.querySelector('[data-visit="OUIDESK"] button') as HTMLButtonElement).click();
+    (fixture.nativeElement.querySelector('[data-visit="OPTEAMIS"] button') as HTMLButtonElement).click();
 
     expect(service.visitSite).toHaveBeenCalledWith('MALT');
     expect(text(fixture, '[data-visit="MALT"] [data-visited]')).toContain('Consulté');
-    expect(service.clearSiteVisit).toHaveBeenCalledWith('OUIDESK');
-    expect(text(fixture, '[data-visit="OUIDESK"]')).toContain('Pas encore consulté');
+    expect(service.clearSiteVisit).toHaveBeenCalledWith('OPTEAMIS');
+    expect(text(fixture, '[data-visit="OPTEAMIS"]')).toContain('Pas encore consulté');
     expect(fixture.nativeElement.querySelector('[data-visit="HITECHPROS"] button').getAttribute('aria-label'))
       .toBe('Marquer HiTechPros comme consulté');
   });
@@ -81,7 +81,7 @@ describe('OfferSitesToVisitComponent', () => {
 
     fixture.componentInstance.clear(sites[1]);
 
-    expect(text(fixture, '[data-visit="OUIDESK"]')).toContain('Consulté avant-hier');
+    expect(text(fixture, '[data-visit="OPTEAMIS"]')).toContain('Consulté avant-hier');
     expect(notifications.error).toHaveBeenCalledWith('offers.sites.visit.error');
     expect(fixture.componentInstance.saving.size).toBe(0);
   });

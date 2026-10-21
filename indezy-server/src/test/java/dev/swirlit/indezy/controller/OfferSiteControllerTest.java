@@ -102,20 +102,20 @@ class OfferSiteControllerTest {
 
     @Test
     void recordsAndForgetsTheWorkspacesVisitOfASite() throws Exception {
-        when(healthService.visit(3L, OfferLeftOutSite.OUIDESK))
-            .thenReturn(new OfferBoardVisitDto(OfferLeftOutSite.OUIDESK, Instant.parse("2026-10-20T10:00:00Z")));
-        when(healthService.clearVisit(3L, OfferLeftOutSite.OUIDESK)).thenReturn(new OfferBoardVisitDto(OfferLeftOutSite.OUIDESK, null));
+        when(healthService.visit(3L, OfferLeftOutSite.OPTEAMIS))
+            .thenReturn(new OfferBoardVisitDto(OfferLeftOutSite.OPTEAMIS, Instant.parse("2026-10-20T10:00:00Z")));
+        when(healthService.clearVisit(3L, OfferLeftOutSite.OPTEAMIS)).thenReturn(new OfferBoardVisitDto(OfferLeftOutSite.OPTEAMIS, null));
         when(healthService.visit(3L, OfferLeftOutSite.LINKEDIN)).thenThrow(new IllegalArgumentException("LinkedIn is not one of the sites to visit"));
 
-        mockMvc.perform(put("/offers/sites/left-out/OUIDESK/visit").param("freelanceId", "3"))
+        mockMvc.perform(put("/offers/sites/left-out/OPTEAMIS/visit").param("freelanceId", "3"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.visitedAt").value("2026-10-20T10:00:00Z"));
-        mockMvc.perform(delete("/offers/sites/left-out/OUIDESK/visit").param("freelanceId", "3"))
+        mockMvc.perform(delete("/offers/sites/left-out/OPTEAMIS/visit").param("freelanceId", "3"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.visitedAt").doesNotExist());
         mockMvc.perform(put("/offers/sites/left-out/LINKEDIN/visit").param("freelanceId", "3")).andExpect(status().isBadRequest());
         mockMvc.perform(put("/offers/sites/left-out/YEETS/visit").param("freelanceId", "3")).andExpect(status().isBadRequest());
-        mockMvc.perform(put("/offers/sites/left-out/OUIDESK/visit")).andExpect(status().isBadRequest());
+        mockMvc.perform(put("/offers/sites/left-out/OPTEAMIS/visit")).andExpect(status().isBadRequest());
     }
 
     @Test

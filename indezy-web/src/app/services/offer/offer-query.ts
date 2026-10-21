@@ -48,6 +48,7 @@ const SITES: OfferSite[] = [
   'EASY_PARTNER',
   'CASTOR_NETWORK',
   'KATCHME',
+  'OUIDESK',
 ];
 const LIST_KEYS = ['regions', 'departments', 'workModes', 'sites', 'seniorities', 'skills'] as const;
 const NUMBER_KEYS = ['rateMin', 'rateMax', 'radiusKm', 'minRemoteDays', 'durationMin', 'durationMax', 'publishedWithinDays'] as const;

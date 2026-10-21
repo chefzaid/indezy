@@ -129,18 +129,18 @@ class OfferSiteHealthServiceTest {
     void recordsTheDayASiteWasVisitedAndForgetsIt() {
         Freelance freelance = new Freelance();
         when(freelances.getReferenceById(3L)).thenReturn(freelance);
-        OfferBoardVisit known = visit(OfferLeftOutSite.OUIDESK, NOW.minus(Duration.ofDays(9)));
-        when(visits.findByFreelanceIdAndSite(3L, OfferLeftOutSite.OUIDESK)).thenReturn(Optional.of(known));
+        OfferBoardVisit known = visit(OfferLeftOutSite.OPTEAMIS, NOW.minus(Duration.ofDays(9)));
+        when(visits.findByFreelanceIdAndSite(3L, OfferLeftOutSite.OPTEAMIS)).thenReturn(Optional.of(known));
 
         assertThat(service.visit(3L, OfferLeftOutSite.MALT)).isEqualTo(new OfferBoardVisitDto(OfferLeftOutSite.MALT, NOW));
-        assertThat(service.visit(3L, OfferLeftOutSite.OUIDESK)).isEqualTo(new OfferBoardVisitDto(OfferLeftOutSite.OUIDESK, NOW));
+        assertThat(service.visit(3L, OfferLeftOutSite.OPTEAMIS)).isEqualTo(new OfferBoardVisitDto(OfferLeftOutSite.OPTEAMIS, NOW));
         assertThat(known.getVisitedAt()).isEqualTo(NOW);
         assertThat(service.clearVisit(3L, OfferLeftOutSite.MALT)).isEqualTo(new OfferBoardVisitDto(OfferLeftOutSite.MALT, null));
         verify(visits).deleteByFreelanceIdAndSite(3L, OfferLeftOutSite.MALT);
         assertThatThrownBy(() -> service.visit(3L, OfferLeftOutSite.LINKEDIN)).isInstanceOf(IllegalArgumentException.class)
             .hasMessage("LinkedIn is not one of the sites to visit");
         when(visits.findByFreelanceIdOrderBySite(3L)).thenReturn(List.of(known));
-        assertThat(service.visits(3L)).containsExactly(new OfferBoardVisitDto(OfferLeftOutSite.OUIDESK, NOW));
+        assertThat(service.visits(3L)).containsExactly(new OfferBoardVisitDto(OfferLeftOutSite.OPTEAMIS, NOW));
     }
 
     private static OfferBoardVisit visit(OfferLeftOutSite site, Instant at) {

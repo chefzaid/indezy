@@ -17,8 +17,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 
 /**
- * Silkhom, LeGratin, Freelance-Informatique, Espace Freelance, Beyond Skills IT, Koïno, Sixième Homme and Castor Network, read
- * from samples of their pages.
+ * Silkhom, LeGratin, Freelance-Informatique, Espace Freelance, Beyond Skills IT, Koïno, Sixième Homme, Castor Network and
+ * OuiDesk, read from samples of their pages.
  */
 class HtmlSitesReaderTest {
 
@@ -273,6 +273,42 @@ class HtmlSitesReaderTest {
         assertThat(reader.domain()).isEqualTo("castor-network.com");
         assertThat(reader.offers(Jsoup.parse("<div class=\"missionListItem\"><a href=\"/fr/mission-freelance/9/x\"></a>" +
             "<div class=\"missionContainer-missionDescription\"><p>Publiée le 01/10/2026</p></div></div>"))).isEmpty();
+    }
+
+    @Test
+    void readsOuiDeskMissionsAsTheyDescribeThemselves() throws Exception {
+        String mission = "https://ouidesk.com/mission/Consultant-réseaux-et-sécurité-H-F-1196ae9a011ad6a2c1d91fdb23574712";
+        FakeFetcher fetcher = new FakeFetcher()
+            .resource(OuiDeskReader.SITEMAP, "ouidesk-sitemap.xml")
+            .resource(mission, "ouidesk-mission.html");
+        WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of());
+        OuiDeskReader reader = new OuiDeskReader();
+
+        reader.read(fetcher, batch);
+
+        // Only the mission page: the talents' profiles and the search pages are left aside.
+        assertThat(fetcher.requests()).containsExactly(OuiDeskReader.SITEMAP, mission);
+        ScrapedOffer offer = batch.offers.get(0);
+        assertThat(batch.offers).hasSize(1);
+        assertThat(offer.getExternalId()).isEqualTo("1196ae9a011ad6a2c1d91fdb23574712");
+        assertThat(offer.getTitle()).isEqualTo("Consultant réseaux et sécurité H/F");
+        assertThat(offer.getCity()).isEqualTo("Lille");
+        assertThat(offer.getStartAsap()).isTrue();
+        assertThat(offer.getDurationMonths()).isEqualTo(12);
+        assertThat(offer.getRateText()).isEqualTo("550 €/jour");
+        assertThat(offer.getDescription()).startsWith("Référence:\n\n20-AMOA-QO").contains("Intégré(e) au programme One Network")
+            .contains("Déployer SD-WAN FortiGate.").doesNotContain("Rémunération").doesNotContain("SE CONNECTER");
+        assertThat(offer.getPublishedAt()).isNull();
+        assertThat(offer.isFreelance()).isTrue();
+        // The same mission whatever its address's encoding.
+        assertThat(reader.offerId("https://ouidesk.com/mission/Consultant-r%c3%a9seaux-et-s%c3%a9curit%c3%a9-H-F-1196ae9a011ad6a2c1d91fdb23574712/"))
+            .contains("1196ae9a011ad6a2c1d91fdb23574712");
+        assertThat(reader.offerId("https://ouidesk.com/profile/Geoffrey-28a01d2f8adc0a94e3f6e3db37b98406/")).isEmpty();
+        assertThat(reader.offer(new DetailPagesReader.Entry(mission, "x", null), Jsoup.parse(
+            "<meta name=\"description\" content=\"Poste en CDI\"><h4 class=\"text-blue\">Comptable</h4>")).isFreelance()).isFalse();
+        assertThat(reader.offer(new DetailPagesReader.Entry(mission, "x", null), Jsoup.parse("<p>Mission introuvable</p>"))).isNull();
+        assertThat(reader.site()).isEqualTo(OfferSite.OUIDESK);
+        assertThat(reader.domain()).isEqualTo("ouidesk.com");
     }
 
     @Test

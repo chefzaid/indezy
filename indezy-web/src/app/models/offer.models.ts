@@ -24,7 +24,8 @@ export type OfferSite =
   | 'FREELANCE_REPUBLIK'
   | 'EASY_PARTNER'
   | 'CASTOR_NETWORK'
-  | 'KATCHME';
+  | 'KATCHME'
+  | 'OUIDESK';
 export type Seniority = 'JUNIOR' | 'CONFIRMED' | 'SENIOR' | 'EXPERT';
 export type OfferDatePrecision = 'EXACT' | 'DAY' | 'FIRST_SEEN';
 export type OfferView = 'FEED' | 'SAVED' | 'HIDDEN' | 'APPLIED';
@@ -360,7 +361,7 @@ export interface OfferSiteHealthEntry {
 /** Whether a site Indezy does not read is to visit, a matching service, or left out. */
 export type OfferLeftOutKind = 'VISIT' | 'MATCHING' | 'OTHER';
 /** What seeing a site's missions takes. */
-export type OfferLeftOutAccess = 'MEMBERSHIP' | 'SIGN_IN' | 'REFERRAL' | 'CRAWLERS' | 'PROFILE';
+export type OfferLeftOutAccess = 'MEMBERSHIP' | 'SIGN_IN' | 'CRAWLERS' | 'PROFILE';
 
 export interface OfferLeftOutSite {
   site: string;

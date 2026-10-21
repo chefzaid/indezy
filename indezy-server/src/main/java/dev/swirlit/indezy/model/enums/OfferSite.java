@@ -29,7 +29,8 @@ public enum OfferSite {
     FREELANCE_REPUBLIK("FreelanceRepublik", "https://www.freelancerepublik.com", Duration.ofHours(12)),
     EASY_PARTNER("EasyPartner", "https://easypartner.fr", Duration.ofHours(12)),
     CASTOR_NETWORK("Castor Network", "https://www.castor-network.com", Duration.ofHours(12)),
-    KATCHME("KatchMe", "https://www.katchme.fr", Duration.ofHours(6));
+    KATCHME("KatchMe", "https://www.katchme.fr", Duration.ofHours(6)),
+    OUIDESK("OuiDesk", "https://ouidesk.com", Duration.ofHours(12));
 
     private final String displayName;
     private final String homeUrl;

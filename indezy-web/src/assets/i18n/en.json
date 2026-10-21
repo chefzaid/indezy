@@ -1292,7 +1292,6 @@
         "LOOKINGFORTECHS": "now Sharebound: every mission page needs a LinkedIn sign-in.",
         "MON_CONSULTANT_INDEPENDANT": "its list is drawn in the browser with no public source; Free-Work and Collective republish its missions.",
         "NEXORIS": "a corporate site: its missions are LeGratin's, which the feed reads.",
-        "OUIDESK": "joining is by referral (cooptation), and applying needs an account; its mission pages are public.",
         "CAPGEMINI_TALENTNET": "Capgemini's freelance network: its missions show without signing in, but its data is closed to crawlers.",
         "HELLOWORK": "it lists freelance offers among its jobs (filter on the Freelance contract), but it is closed to crawlers.",
         "MALT": "create your profile: clients contact you with missions.",
@@ -1315,7 +1314,6 @@
         "access": {
           "MEMBERSHIP": "Paid membership",
           "SIGN_IN": "Account needed",
-          "REFERRAL": "Referral needed",
           "CRAWLERS": "Open to people, not to crawlers",
           "PROFILE": "Profile, then a call"
         },

@@ -36,7 +36,7 @@ class ReaderCanaryTest {
     private static final Logger LOG = LoggerFactory.getLogger(ReaderCanaryTest.class);
 
     /** Sites whose list dates no offer: Indezy dates them when it first sees them. */
-    static final Set<OfferSite> UNDATED = Set.of(OfferSite.LITTLE_BIG_CONNECTION, OfferSite.SIXIEME_HOMME);
+    static final Set<OfferSite> UNDATED = Set.of(OfferSite.LITTLE_BIG_CONNECTION, OfferSite.SIXIEME_HOMME, OfferSite.OUIDESK);
     private static final Path SAMPLES = Path.of("target", "reader-canary");
 
     @Autowired

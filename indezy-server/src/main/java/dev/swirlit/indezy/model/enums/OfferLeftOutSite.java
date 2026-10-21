@@ -9,7 +9,6 @@ public enum OfferLeftOutSite {
     HITECHPROS("HiTechPros", "https://www.hitechpros.com", Kind.VISIT, Access.MEMBERSHIP),
     OPTEAMIS("Opteamis", "https://www.opteamis.com", Kind.VISIT, Access.SIGN_IN),
     LOOKINGFORTECHS("LookingForTechs", "https://www.sharebound.fr", Kind.VISIT, Access.SIGN_IN),
-    OUIDESK("OuiDesk", "https://ouidesk.com", Kind.VISIT, Access.REFERRAL),
     CAPGEMINI_TALENTNET("Capgemini TalentNet", "https://fr.capgemini.talentnet.community", Kind.VISIT, Access.CRAWLERS),
     HELLOWORK("HelloWork", "https://www.hellowork.com", Kind.VISIT, Access.CRAWLERS),
     MALT("Malt", "https://www.malt.fr", Kind.MATCHING, Access.PROFILE),
@@ -43,8 +42,6 @@ public enum OfferLeftOutSite {
         MEMBERSHIP,
         /** An account. */
         SIGN_IN,
-        /** A referral by a member. */
-        REFERRAL,
         /** Nothing for a person, but the site refuses crawlers. */
         CRAWLERS,
         /** A profile the service matches with missions. */
