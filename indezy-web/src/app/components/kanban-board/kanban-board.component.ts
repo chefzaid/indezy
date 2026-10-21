@@ -166,7 +166,7 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
   /** Ask why the opportunity was lost before persisting; reverts the move if cancelled. */
   private promptLostReasonAndPersist(card: KanbanProjectCardDto): void {
     const dialogData: KanbanLostReasonDialogData = { role: card.role };
-    this.dialog.open(KanbanLostReasonDialogComponent, { data: dialogData })
+    KanbanLostReasonDialogComponent.open(this.dialog, dialogData)
       .afterClosed()
       .pipe(takeUntil(this.destroy$))
       .subscribe((reason?: LostReason) => {

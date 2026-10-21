@@ -244,7 +244,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       return;
     }
     const dialogData: KanbanLostReasonDialogData = { role: this.project.role };
-    this.dialog.open(KanbanLostReasonDialogComponent, { data: dialogData })
+    KanbanLostReasonDialogComponent.open(this.dialog, dialogData)
       .afterClosed()
       .pipe(takeUntil(this.destroy$))
       .subscribe((reason?: LostReason) => {

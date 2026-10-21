@@ -1,7 +1,7 @@
 import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -30,6 +30,14 @@ export interface KanbanLostReasonDialogData {
   styleUrls: ['./kanban-lost-reason-dialog.component.scss']
 })
 export class KanbanLostReasonDialogComponent {
+  /**
+   * Opens the dialog focused on itself, announced by its title: the stage menu's Enter that opens it must not reach
+   * the reason select, which an Enter opens (and did on a busy machine, the dialog's first control holding the focus).
+   */
+  static open(dialog: MatDialog, data: KanbanLostReasonDialogData): MatDialogRef<KanbanLostReasonDialogComponent, LostReason> {
+    return dialog.open(KanbanLostReasonDialogComponent, { data, autoFocus: 'dialog' });
+  }
+
   readonly lostReasons = LOST_REASONS;
   reasonForm: FormGroup;
 

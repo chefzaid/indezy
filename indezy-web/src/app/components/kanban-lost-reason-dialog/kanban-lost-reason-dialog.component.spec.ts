@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 
 import {
@@ -59,5 +59,14 @@ describe('KanbanLostReasonDialogComponent', () => {
   it('should close with no value on cancel', () => {
     component.onCancel();
     expect(mockDialogRef.close).toHaveBeenCalledWith();
+  });
+
+  it('opens focused on the dialog itself, so the Enter that opened it cannot open the reason select', () => {
+    const dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
+    const data: KanbanLostReasonDialogData = { role: 'Tech Lead' };
+
+    KanbanLostReasonDialogComponent.open(dialog, data);
+
+    expect(dialog.open).toHaveBeenCalledWith(KanbanLostReasonDialogComponent, { data, autoFocus: 'dialog' });
   });
 });
