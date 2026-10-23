@@ -37,3 +37,10 @@ Sonar credentials. `.sonar-auto.json` declares the `SONAR_SCAN_ONLY=true` contra
 only build, test and quality run in scheduled analysis pipelines. Package, E2E,
 security, release, deploy and version jobs are absent. Failed scanner submissions
 fail the non-blocking quality job visibly; quality gates do not authorize release.
+
+## Amendment: SpotBugs blocks delivery (2026-10-23)
+
+`01-build` runs `spotbugs:check` after packaging, so a SpotBugs finding fails
+the required build job and release is unavailable, as for a Checkstyle warning,
+which `package` already checks. The analysis adds about 11 seconds to the job.
+Unit tests and the coverage policy stay in the optional `02-test`.

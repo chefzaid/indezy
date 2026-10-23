@@ -333,7 +333,7 @@ The current CI verification and reporting includes:
 
 - backend unit and integration tests
 - backend Checkstyle, failing the build on any warning (also in `01-build`, whose `package` runs it)
-- backend SpotBugs, failing `02-test` on any finding (`01-build` packages with `-DskipTests` and does not reach `verify`)
+- backend SpotBugs, failing the build on any finding (also in `01-build`, which runs `spotbugs:check` after packaging)
 - frontend headless tests
 - frontend lint
 - backend package build
@@ -346,7 +346,7 @@ The current CI verification and reporting includes:
 - immutable JAR/SPA archives and checksums in the Generic Package Registry
 - the weekly reader canaries, in a scheduled pipeline of their own (see [Reader Canaries](#reader-canaries))
 
-Required `01-build` and `03-package` own compilation and image validation; optional `02-test` owns unit-test, SpotBugs and coverage reporting. Its `./mvnw clean verify -Djacoco.haltOnFailure=false` reaches SpotBugs despite the JaCoCo branch rule, and a finding fails the job like a failing backend test: the frontend lint, tests and coverage policy of that job do not run, and release is not blocked. Optional manual `01-e2e` runs Playwright. Default-branch `02-quality` runs automatically; standard mode leaves independent `03-security` manual, while full mode runs both automatically as non-blocking reports. Security has no dependency on quality and retains Trivy JSON/SARIF output. Release exists only on `main`, requires the successful build path, and publishes packages/images and Git state; deploy requires that release job and then waits for Argo CD plus both health checks. `PIPELINE_MODE=full` also automates release and deploy while E2E remains manual.
+Required `01-build` and `03-package` own compilation, the Checkstyle and SpotBugs gates, and image validation: a Checkstyle warning or a SpotBugs finding fails `01-build`, so release is unavailable. Optional `02-test` owns unit-test and coverage reporting; its `./mvnw clean verify -Djacoco.haltOnFailure=false` runs SpotBugs again despite the JaCoCo branch rule. Optional manual `01-e2e` runs Playwright. Default-branch `02-quality` runs automatically; standard mode leaves independent `03-security` manual, while full mode runs both automatically as non-blocking reports. Security has no dependency on quality and retains Trivy JSON/SARIF output. Release exists only on `main`, requires the successful build path, and publishes packages/images and Git state; deploy requires that release job and then waits for Argo CD plus both health checks. `PIPELINE_MODE=full` also automates release and deploy while E2E remains manual.
 
 ## Reader Canaries
 

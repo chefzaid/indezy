@@ -19,7 +19,8 @@ build_application() {
     -f infra/argocd/application.yaml >/dev/null
 
   pushd indezy-server >/dev/null
-  ./mvnw --batch-mode clean package -DskipTests
+  # SpotBugs blocks delivery, as Checkstyle does through package's validate phase (ADR 0007).
+  ./mvnw --batch-mode clean package -DskipTests spotbugs:check
   artifact="$(find target -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' ! -name '*-javadoc.jar' -print -quit)"
   test -n "$artifact"
   cp "$artifact" target/indezy-server.jar
