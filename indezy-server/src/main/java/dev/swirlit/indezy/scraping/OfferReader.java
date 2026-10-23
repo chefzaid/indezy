@@ -14,6 +14,15 @@ public interface OfferReader {
     String domain();
 
     /**
+     * The registrable domain of the site's own API when it is not {@link #domain()}, which the reader may fetch from
+     * too: Kicklox's pages (app.kicklox.com) load their missions from prod-kicklox.kicklox.io. Never another company's
+     * (see ADR 0009).
+     */
+    default Optional<String> apiDomain() {
+        return Optional.empty();
+    }
+
+    /**
      * Whether the site lists its newest offers first, so a page holding only known offers ends the run.
      * Sites sorted otherwise are read up to the page budget on every run.
      */

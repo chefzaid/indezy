@@ -2,6 +2,7 @@ package dev.swirlit.indezy.scraping;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import dev.swirlit.indezy.model.enums.OfferSite;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPOutputStream;
 
@@ -153,6 +155,27 @@ class SiteHttpClientTest {
         assertThatThrownBy(() -> fetcher.get(base + "/page")).isInstanceOf(SiteResponseException.class)
             .extracting(e -> ((SiteResponseException) e).getStatus()).isEqualTo(0);
         assertThatThrownBy(() -> client.fetcherFor(DOMAIN).get("ftp://127.0.0.1/file")).isInstanceOf(SiteResponseException.class);
+    }
+
+    @Test
+    void readsAReadersSiteAndItsApiOnly() throws Exception {
+        assertThat(client.fetcherFor(new ApiReader("example.org", Optional.of(DOMAIN))).get(base + "/page")).isEqualTo("Café");
+        assertThat(client.fetcherFor(new ApiReader(DOMAIN, Optional.empty())).get(base + "/page")).isEqualTo("Café");
+        assertThatThrownBy(() -> client.fetcherFor(new ApiReader("example.org", Optional.of("example.net"))).get(base + "/page"))
+            .isInstanceOf(SiteResponseException.class).hasMessage("Refused to leave example.org and example.net for 127.0.0.1");
+    }
+
+    /** A reader of {@code domain} whose site's API is on {@code apiDomain}. */
+    private record ApiReader(String domain, Optional<String> apiDomain) implements OfferReader {
+        @Override
+        public OfferSite site() {
+            return OfferSite.KICKLOX;
+        }
+
+        @Override
+        public void read(PageFetcher fetcher, OfferBatch batch) {
+            // Only its domains are read here.
+        }
     }
 
     @Test

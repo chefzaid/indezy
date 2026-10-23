@@ -6,6 +6,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ public class FakeFetcher implements PageFetcher {
     private final Map<String, Integer> statuses = new HashMap<>();
     private final List<String> requests = new ArrayList<>();
     private final List<String> postedBodies = new ArrayList<>();
+    private final Map<String, Map<String, String>> postAnswers = new HashMap<>();
 
     public FakeFetcher page(String url, String body) {
         statuses.remove(url);
@@ -27,6 +29,12 @@ public class FakeFetcher implements PageFetcher {
     public FakeFetcher status(String url, int status) {
         pages.remove(url);
         statuses.put(url, status);
+        return this;
+    }
+
+    /** Has a JSON post to {@code url} whose body holds {@code containing} answer {@code body}, as an API answers by request. */
+    public FakeFetcher post(String url, String containing, String body) {
+        postAnswers.computeIfAbsent(url, key -> new LinkedHashMap<>()).put(containing, body);
         return this;
     }
 
@@ -55,6 +63,11 @@ public class FakeFetcher implements PageFetcher {
     public String postJson(String url, String json) throws IOException {
         requests.add(url);
         postedBodies.add(json);
+        for (Map.Entry<String, String> answer : postAnswers.getOrDefault(url, Map.of()).entrySet()) {
+            if (json.contains(answer.getKey())) {
+                return answer.getValue();
+            }
+        }
         return answer(url);
     }
 

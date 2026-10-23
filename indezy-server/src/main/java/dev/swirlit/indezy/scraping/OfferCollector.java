@@ -73,7 +73,7 @@ public class OfferCollector {
         OfferReader reader = readers.get(site);
         SiteBatch batch = new SiteBatch(site, reader);
         try {
-            reader.read(http.fetcherFor(reader.domain()), batch);
+            reader.read(http.fetcherFor(reader), batch);
             runs.succeeded(site, clock.instant(), batch.found, batch.created);
             log.info("Collected {}: {} pages, {} freelance offers, {} new", site, batch.pages, batch.found, batch.created);
         } catch (IOException | RuntimeException e) {
@@ -100,7 +100,7 @@ public class OfferCollector {
     public OfferLinkStatus readOne(OfferSite site, String url) {
         OfferReader reader = readers.get(site);
         try {
-            Optional<ScrapedOffer> read = reader.readOne(http.fetcherFor(reader.domain()), url);
+            Optional<ScrapedOffer> read = reader.readOne(http.fetcherFor(reader), url);
             if (read.isEmpty()) {
                 return OfferLinkStatus.GONE;
             }

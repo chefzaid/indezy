@@ -177,9 +177,10 @@ Sites read today:
 | Castor Network | Alten's freelance missions page after page (engineering as well as IT), with the client, duration, start, place and experience | every 12 hours |
 | KatchMe | the open freelance offers of its WordPress API (its CDI jobs and filled missions are left out), with the place, daily rate, remote policy and description of their page | every 6 hours |
 | OuiDesk | the missions of its sitemap, each page calling itself a freelance mission, with place, start, duration and description; the site gives no date, so they are dated when first seen (applying takes an account, joined by referral) | every 12 hours |
+| Kicklox | the missions of its sitemap whose contract is "Prestation", read from the API its pages load (on kicklox.io), with the daily rate, remote policy, place, start, duration, skills and texts; its partners' permanent and temporary jobs and its own generic offers (standing ads for no mission in particular) are left out | every 3 hours |
 
 Sites that describe each offer on its own page (WorkDispo, Next Mondays, Mindquest, Freelance Factory, Koïno,
-Sixième Homme, FreelanceRepublik, EasyPartner, KatchMe, Beyond Skills IT, OuiDesk) are read a few pages at a time: each run reads up to 100 offers Indezy does not hold yet, most
+Sixième Homme, FreelanceRepublik, EasyPartner, KatchMe, Beyond Skills IT, OuiDesk, Kicklox) are read a few pages at a time: each run reads up to 100 offers Indezy does not hold yet, most
 recently changed first, so their backlog fills in over the first runs. An offer set aside (a CDI or CDD job, an offer older than 90 days, a page
 gone) is remembered for 30 days and not read again.
 
@@ -339,8 +340,8 @@ other job site:
   note on the mission joins the opportunity's notes. A banner names the offer, with **Unlink** to keep what was filled
   in as an opportunity of its own; an expired offer is pointed out.
 - **Already in the pipeline** (by this offer or one of its copies): the field says so and links to its opportunity.
-- **Not collected yet**: Mindquest, WorkDispo, Koïno, Next Mondays, Sixième Homme, FreelanceRepublik, EasyPartner, KatchMe, Beyond Skills IT and OuiDesk describe each offer on its own
-  page, so that page is read at once, through the collection's polite client, and the offer joins the feed. Each
+- **Not collected yet**: Mindquest, WorkDispo, Koïno, Next Mondays, Sixième Homme, FreelanceRepublik, EasyPartner, KatchMe, Beyond Skills IT, OuiDesk and Kicklox describe each offer on its own
+  page (Kicklox through its API), so that offer is read at once, through the collection's polite client, and the offer joins the feed. Each
   workspace reads at most 20 offers an hour this way (`429` with `Retry-After` beyond). The other sites are read on
   request, as the **Job boards** page does (at most once every 15 minutes per site), which finds the offers published
   since their last run; the field says it is reading the site and looks again every 5 seconds for 2 minutes. When the

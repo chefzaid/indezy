@@ -17,6 +17,8 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,8 +28,8 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 /**
- * The only way the offer collection reaches the network. Each request stays on the reader's domain
- * (redirects included), is checked against the host's {@code robots.txt}, waits the configured delay
+ * The only way the offer collection reaches the network. Each request stays on the reader's domain, or its site's
+ * API's ({@link OfferReader#apiDomain()}), redirects included, is checked against the host's {@code robots.txt}, waits the configured delay
  * since the previous request to that host, and is refused when its body passes {@link #MAX_BODY_BYTES}.
  */
 @Component
@@ -80,13 +82,24 @@ public class SiteHttpClient {
         return fetcherFor(domain, host -> true);
     }
 
+    /** A fetcher limited to a reader's domain and its API's ({@link OfferReader#apiDomain()}), and their subdomains. */
+    public PageFetcher fetcherFor(OfferReader reader) {
+        List<String> domains = new ArrayList<>();
+        domains.add(reader.domain().toLowerCase(Locale.ROOT));
+        reader.apiDomain().ifPresent(api -> domains.add(api.toLowerCase(Locale.ROOT)));
+        return fetcher(new Target(List.copyOf(domains), host -> true));
+    }
+
     /**
      * A fetcher limited to {@code domain} and its subdomains, and to the hosts {@code allowedHost} accepts, checked before
      * every request (each redirect and the {@code robots.txt} included): a page someone pasted the link of is read only
      * on the public internet (see {@link PublicHosts}).
      */
     public PageFetcher fetcherFor(String domain, Predicate<String> allowedHost) {
-        Target allowed = new Target(domain.toLowerCase(Locale.ROOT), allowedHost);
+        return fetcher(new Target(List.of(domain.toLowerCase(Locale.ROOT)), allowedHost));
+    }
+
+    private PageFetcher fetcher(Target allowed) {
         return new PageFetcher() {
             @Override
             public String get(String url) throws IOException, InterruptedException {
@@ -100,8 +113,8 @@ public class SiteHttpClient {
         };
     }
 
-    /** Where a fetcher may go: its domain, and the hosts its check accepts. */
-    private record Target(String domain, Predicate<String> allowedHost) {
+    /** Where a fetcher may go: its domains, and the hosts its check accepts. */
+    private record Target(List<String> domains, Predicate<String> allowedHost) {
     }
 
     private String send(Target target, URI start, String jsonBody) throws IOException, InterruptedException {
@@ -232,10 +245,9 @@ public class SiteHttpClient {
     private static void requireOnDomain(Target target, URI uri) throws SiteResponseException {
         String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(Locale.ROOT);
         String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase(Locale.ROOT);
-        String domain = target.domain();
-        boolean onDomain = host.equals(domain) || host.endsWith("." + domain);
+        boolean onDomain = target.domains().stream().anyMatch(domain -> host.equals(domain) || host.endsWith("." + domain));
         if (!("https".equals(scheme) || "http".equals(scheme)) || !onDomain) {
-            throw new SiteResponseException(0, "Refused to leave " + domain + " for " + host);
+            throw new SiteResponseException(0, "Refused to leave " + String.join(" and ", target.domains()) + " for " + host);
         }
         if (!target.allowedHost().test(host)) {
             throw new SiteResponseException(0, "Refused to read " + host);

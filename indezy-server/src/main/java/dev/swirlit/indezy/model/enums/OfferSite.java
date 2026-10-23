@@ -30,7 +30,9 @@ public enum OfferSite {
     EASY_PARTNER("EasyPartner", "https://easypartner.fr", Duration.ofHours(12)),
     CASTOR_NETWORK("Castor Network", "https://www.castor-network.com", Duration.ofHours(12)),
     KATCHME("KatchMe", "https://www.katchme.fr", Duration.ofHours(6)),
-    OUIDESK("OuiDesk", "https://ouidesk.com", Duration.ofHours(12));
+    OUIDESK("OuiDesk", "https://ouidesk.com", Duration.ofHours(12)),
+    // Its sitemap lists its salaried jobs too, about ten for each mission, so its backlog takes a few days to read.
+    KICKLOX("Kicklox", "https://app.kicklox.com", Duration.ofHours(3));
 
     private final String displayName;
     private final String homeUrl;

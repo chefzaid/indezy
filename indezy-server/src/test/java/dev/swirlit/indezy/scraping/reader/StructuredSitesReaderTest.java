@@ -290,6 +290,75 @@ class StructuredSitesReaderTest {
     }
 
     @Test
+    void readsKickloxMissionsThroughItsApiAndSetsItsPartnersJobsAside() throws Exception {
+        String freelance = "13495fce-95e1-49f9-b9c6-8bd681f406c8";
+        String job = "00156822-842b-4664-abe7-4f688b182e65";
+        String gone = "0012069c-e556-4b4e-9af3-2b2f2217a38b";
+        FakeFetcher fetcher = new FakeFetcher().resource(KickloxReader.SITEMAP, "kicklox-sitemap.xml")
+            .post(KickloxReader.API, freelance, FakeFetcher.read("kicklox-mission.json"))
+            .post(KickloxReader.API, job, FakeFetcher.read("kicklox-job.json"))
+            .post(KickloxReader.API, gone, "{\"data\":{\"mission\":null},\"errors\":[{\"message\":\"not_found\"}]}");
+        KickloxReader reader = new KickloxReader();
+        WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of());
+
+        reader.read(fetcher, batch);
+
+        // Its pages are never fetched: they render in the browser from the API, asked once for each mission. The day most
+        // of the sitemap shares is when its partners' jobs were imported again: those are read after the missions.
+        assertThat(fetcher.requests()).containsExactly(KickloxReader.SITEMAP, KickloxReader.API, KickloxReader.API, KickloxReader.API,
+            KickloxReader.API, KickloxReader.API);
+        assertThat(fetcher.postedBodies()).allSatisfy(body -> assertThat(Json.parse(body).path("query").asString()).startsWith("query getMissionOffline"));
+        assertThat(batch.offers).extracting(ScrapedOffer::getExternalId)
+            .containsExactly(freelance, gone, job, "6cb19dd2-41bd-4dbb-a64c-ace40af6e5ce", "d615392c-09b2-491a-b37b-674cbecc7430");
+        assertThat(batch.offers).extracting(ScrapedOffer::isFreelance).containsExactly(true, false, false, false, false);
+        ScrapedOffer mission = batch.offers.get(0);
+        assertThat(mission.getTitle()).isEqualTo("Développeur Front AngularJS - Assurance - Lille (H/F)");
+        assertThat(mission.getUrl()).isEqualTo("https://app.kicklox.com/missions/" + freelance);
+        // A client kept confidential, a placeholder goal left out.
+        assertThat(mission.getCompany()).isNull();
+        assertThat(mission.getDescription()).isEqualTo("Contexte du poste\n\nNous sommes une entreprise spécialisée dans les solutions " +
+            "technologiques pour les assureurs.\n\nProfil recherché\n\n- Au moins 4 ans d'expérience en développement front-end.");
+        assertThat(mission.getRateMin()).isEqualTo(400);
+        assertThat(mission.getRateMax()).isEqualTo(450);
+        assertThat(mission.getWorkMode()).isEqualTo(WorkMode.HYBRID);
+        assertThat(mission.getCity()).isEqualTo("Lille");
+        assertThat(mission.getCountryCode()).isEqualTo("FR");
+        assertThat(mission.getStartAsap()).isTrue();
+        assertThat(mission.getDurationMonths()).isEqualTo(3);
+        assertThat(mission.getSkills()).containsExactly("AngularJS", "Web Component", "Jira");
+        assertThat(mission.getPublishedAt()).isEqualTo(Instant.parse("2026-09-04T12:30:29Z"));
+        assertThat(batch.offers.get(2).getCompany()).isEqualTo("LORELEC");
+    }
+
+    @Test
+    void readsKickloxRemotePoliciesStartsAndPublishers() throws Exception {
+        String mission = "{\"status\":\"published\",\"job\":{\"name\":\"Ingénieur Linux\"},\"contract_types\":[\"missions\"],%s}";
+        ScrapedOffer remote = KickloxReader.offer(Json.parse(mission.formatted("\"modalities\":\"remote\",\"company\":{\"name\":\"Easy Partner\"}")));
+        ScrapedOffer onSite = KickloxReader.offer(Json.parse(mission.formatted(
+            "\"modalities\":\"on_site\",\"begin\":\"precise\",\"begin_at\":\"2026-10-26T00:00:00.000+01:00\",\"daily_rate\":[500]")));
+        ScrapedOffer unknown = KickloxReader.offer(Json.parse(mission.formatted("\"modalities\":null,\"begin\":\"precise\"")));
+
+        assertThat(remote.getWorkMode()).isEqualTo(WorkMode.REMOTE);
+        assertThat(remote.getRemoteDaysPerWeek()).isEqualTo(5);
+        assertThat(remote.getCompany()).isEqualTo("Easy Partner");
+        assertThat(onSite.getWorkMode()).isEqualTo(WorkMode.ONSITE);
+        assertThat(onSite.getStartDate()).isEqualTo(LocalDate.of(2026, 10, 26));
+        assertThat(onSite.getStartAsap()).isNull();
+        assertThat(onSite.getRateMin()).isNull();
+        assertThat(unknown.getWorkMode()).isNull();
+        assertThat(unknown.getStartDate()).isNull();
+        assertThat(unknown.getDescription()).isNull();
+        // Closed, no longer published, or a standing ad for no mission in particular.
+        assertThat(KickloxReader.offer(Json.parse("{\"status\":\"archived\",\"job\":{\"name\":\"Ingénieur Linux\"}}"))).isNull();
+        assertThat(KickloxReader.offer(Json.parse(mission.formatted("\"generic_offer\":true")))).isNull();
+        assertThat(KickloxReader.offer(Json.parse("{\"status\":\"published\"}"))).isNull();
+        KickloxReader reader = new KickloxReader();
+        assertThat(reader.offerId("https://app.kicklox.com/missions/13495fce-95e1-49f9-b9c6-8bd681f406c8")).contains("13495fce-95e1-49f9-b9c6-8bd681f406c8");
+        assertThat(reader.offerId("https://app.kicklox.com/missions-offres-emploi/freelance")).isEmpty();
+        assertThat(reader.apiDomain()).contains("kicklox.io");
+    }
+
+    @Test
     void readsRemoteWordsOfTheseSites() {
         assertThat(OfferText.remote("À distance").mode()).isEqualTo(WorkMode.REMOTE);
         assertThat(OfferText.remote("Télétravail 2 jours min.").daysPerWeek()).isEqualTo(2);

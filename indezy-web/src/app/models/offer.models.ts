@@ -25,7 +25,8 @@ export type OfferSite =
   | 'EASY_PARTNER'
   | 'CASTOR_NETWORK'
   | 'KATCHME'
-  | 'OUIDESK';
+  | 'OUIDESK'
+  | 'KICKLOX';
 export type Seniority = 'JUNIOR' | 'CONFIRMED' | 'SENIOR' | 'EXPERT';
 export type OfferDatePrecision = 'EXACT' | 'DAY' | 'FIRST_SEEN';
 export type OfferView = 'FEED' | 'SAVED' | 'HIDDEN' | 'APPLIED';

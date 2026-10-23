@@ -49,6 +49,7 @@ const SITES: OfferSite[] = [
   'CASTOR_NETWORK',
   'KATCHME',
   'OUIDESK',
+  'KICKLOX',
 ];
 const LIST_KEYS = ['regions', 'departments', 'workModes', 'sites', 'seniorities', 'skills'] as const;
 const NUMBER_KEYS = ['rateMin', 'rateMax', 'radiusKm', 'minRemoteDays', 'durationMin', 'durationMax', 'publishedWithinDays'] as const;

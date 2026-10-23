@@ -23,7 +23,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Reads the first page of every site the feed reads, live, through its reader and the collection's polite client, and
+ * Reads the first page holding a freelance offer (within five) of every site the feed reads, live, through its reader and the collection's polite client, and
  * fails naming each site whose offers no longer yield a title, a link and a date (see docs/testing.md#reader-canaries).
  * The pages read from a failing site are kept under {@code target/reader-canary/} to update the test samples. Only the
  * scheduled canary job runs it: Maven leaves the {@code canary} tag out otherwise.
@@ -49,7 +49,7 @@ class ReaderCanaryTest {
     void everySiteStillYieldsOffersWithATitleALinkAndADate() throws IOException, InterruptedException {
         List<String> failures = new ArrayList<>();
         for (OfferReader reader : readers) {
-            RecordingFetcher fetcher = new RecordingFetcher(http.fetcherFor(reader.domain()));
+            RecordingFetcher fetcher = new RecordingFetcher(http.fetcherFor(reader));
             FirstPage batch = new FirstPage();
             String failure;
             try {
@@ -58,7 +58,7 @@ class ReaderCanaryTest {
             } catch (IOException | RuntimeException e) {
                 failure = e.getClass().getSimpleName() + ": " + e.getMessage();
             }
-            LOG.info("{}: {} offers on the first page, {} freelance{}", reader.site().getDisplayName(), batch.offers.size(),
+            LOG.info("{}: {} offers on the first pages, {} freelance{}", reader.site().getDisplayName(), batch.offers.size(),
                 batch.offers.stream().filter(ScrapedOffer::isFreelance).count(), failure == null ? "" : " - " + failure);
             if (failure != null) {
                 failures.add(reader.site().getDisplayName() + ": " + failure);
@@ -72,7 +72,7 @@ class ReaderCanaryTest {
     static String check(OfferSite site, List<ScrapedOffer> offers) {
         List<ScrapedOffer> freelance = offers.stream().filter(ScrapedOffer::isFreelance).toList();
         if (freelance.isEmpty()) {
-            return "no freelance offer on the first page (" + offers.size() + " read)";
+            return "no freelance offer in the first pages (" + offers.size() + " read)";
         }
         List<String> missing = new ArrayList<>();
         if (freelance.stream().anyMatch(offer -> blank(offer.getTitle()))) {
@@ -91,14 +91,17 @@ class ReaderCanaryTest {
         return value == null || value.isBlank();
     }
 
-    /** Keeps the first page a reader hands on and stops it. */
+    /** Keeps the pages a reader hands on up to the first holding a freelance offer, five at most, then stops it. */
     private static final class FirstPage implements OfferBatch {
+        private static final int MAX_PAGES = 5;
         private final List<ScrapedOffer> offers = new ArrayList<>();
+        private int pages;
 
         @Override
         public boolean add(List<ScrapedOffer> page) {
             offers.addAll(page);
-            return false;
+            pages++;
+            return pages < MAX_PAGES && offers.stream().noneMatch(ScrapedOffer::isFreelance);
         }
 
         @Override

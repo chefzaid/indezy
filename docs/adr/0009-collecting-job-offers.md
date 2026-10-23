@@ -29,7 +29,9 @@ The server runs as one replica with 1 GiB of memory on a shared node.
 - Keep freelance missions only, by each site's own marker (a contract type, a mission type or a filter parameter),
   and leave out offers whose title names a CDI or CDD job and no freelance mission, which some sites mark as
   freelance; permanent and fixed-term jobs never enter the feed.
-- Go through `SiteHttpClient` for every request: fixed site domains only (redirects included), `robots.txt` honoured
+- Go through `SiteHttpClient` for every request: fixed site domains only (redirects included), plus the domain of
+  the site's own API when its pages load their offers from another of its company's domains (Kicklox's
+  app.kicklox.com reads kicklox.io; never another company's, such as a search provider's), `robots.txt` honoured
   for the `IndezyBot` token, at least 2 seconds between two requests to a host, an honest user agent, a 30-second
   timeout and an 8 MB response cap.
 - Leave out sites that forbid crawling, hide missions behind a sign-in or a payment, or no longer exist; the
@@ -55,3 +57,11 @@ the load on each board lower than one person browsing it.
 - Offers are shared data (`job_offers`); what a workspace does with them is in `job_offer_states`, removed with the
   offer by the nightly retention unless the workspace saved or imported it.
 - Collection is off in tests and in the one-off schema-migration and seed runs (`indezy.offers.collection-enabled`).
+
+## Amendment: a site's own API domain (2026-10-23)
+
+Kicklox's mission pages render in the browser from its API on `prod-kicklox.kicklox.io`, another domain of the same
+company, which needs no token; its public search index is hosted by Algolia. A reader may now name one API domain of
+its site's company (`OfferReader.apiDomain`), which `SiteHttpClient` allows besides the site's domain, with the same
+`robots.txt`, delay and size rules. Third-party hosts, even ones a site's pages call, stay out.
+
