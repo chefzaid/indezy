@@ -5,9 +5,11 @@ import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.OfferSearchSuggestionsDto;
 import dev.swirlit.indezy.dto.SavedOfferSearchDto;
 import dev.swirlit.indezy.dto.SavedOfferSearchRequest;
+import dev.swirlit.indezy.dto.SavedSearchEmailsRequest;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.OfferSearchSuggestionService;
 import dev.swirlit.indezy.service.SavedOfferSearchService;
+import dev.swirlit.indezy.service.SavedSearchEmailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +39,7 @@ import java.util.List;
 public class SavedOfferSearchController {
 
     private final SavedOfferSearchService savedSearches;
+    private final SavedSearchEmailService emails;
     private final OfferSearchSuggestionService suggestions;
     private final AccessGuard accessGuard;
 
@@ -56,6 +60,22 @@ public class SavedOfferSearchController {
     @PostMapping("/{id}/open")
     public SavedOfferSearchDto open(@PathVariable Long id, @RequestParam(required = false) Long freelanceId) {
         return savedSearches.open(accessGuard.requireWorkspace(freelanceId), id);
+    }
+
+    @Operation(summary = "Set how often a saved search emails its new offers",
+        description = "At once (grouped every 30 minutes) or daily at an hour, Paris time, in the given language; OFF stops them")
+    @PutMapping("/{id}/emails")
+    public SavedOfferSearchDto updateEmails(@PathVariable Long id, @Valid @RequestBody SavedSearchEmailsRequest request,
+                                            @RequestParam(required = false) Long freelanceId) {
+        return emails.update(accessGuard.requireWorkspace(freelanceId), id, request);
+    }
+
+    @Operation(summary = "Tell that an offer was opened from a saved search's email",
+        description = "The emails are read: sending goes on for 60 more days of unopened emails")
+    @PostMapping("/{id}/emails/opened")
+    public ResponseEntity<Void> emailOpened(@PathVariable Long id, @RequestParam(required = false) Long freelanceId) {
+        emails.opened(accessGuard.requireWorkspace(freelanceId), id);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Delete a saved search")

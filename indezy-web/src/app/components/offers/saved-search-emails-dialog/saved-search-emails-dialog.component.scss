@@ -1,0 +1,23 @@
+.frequencies {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 12px;
+}
+
+.hour-field {
+  width: 160px;
+}
+
+.notice {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: var(--app-subtle);
+}
+
+.hint {
+  margin: 12px 0 0;
+  color: var(--app-text-muted);
+  max-width: 420px;
+}

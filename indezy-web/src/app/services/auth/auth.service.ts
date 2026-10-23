@@ -6,8 +6,8 @@ import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, LoginResponse, RegisterRequest, User } from '../../models/auth.models';
 
-/** Pages opened by people without an Indezy account, such as an ESN validating an activity report. */
-export const PUBLIC_PAGE_PATHS = ['/activity-report'];
+/** Pages opened without an Indezy account: an ESN validating an activity report, an email's unsubscribe link. */
+export const PUBLIC_PAGE_PATHS = ['/activity-report', '/emails/unsubscribe'];
 
 @Injectable({
   providedIn: 'root'

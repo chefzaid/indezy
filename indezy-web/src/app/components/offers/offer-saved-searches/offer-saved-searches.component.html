@@ -11,6 +11,11 @@
               <span class="new-count" data-new-count>{{ 'offers.savedSearches.newCount' | translate: { count: search.newOffers } }}</span>
             }
           </button>
+          <button mat-icon-button type="button" class="search-emails" (click)="editEmails(search)" [attr.data-search-emails]="search.emails.frequency"
+            [attr.aria-label]="'offers.savedSearches.emails.button' | translate: { name: search.name }"
+            [matTooltip]="('offers.savedSearches.emails.state.' + search.emails.frequency) | translate: { hour: search.emails.hour }">
+            <mat-icon>{{ emailIcon(search) }}</mat-icon>
+          </button>
           <button mat-icon-button type="button" class="delete-search" (click)="remove(search)"
             [attr.aria-label]="'offers.savedSearches.delete' | translate: { name: search.name }">
             <mat-icon>close</mat-icon>

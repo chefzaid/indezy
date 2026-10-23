@@ -147,6 +147,14 @@
   },
   "vault": [
     {
+      "path": "apps/indezy/mail",
+      "fields": {
+        "RESEND_API_KEY": {
+          "value": ""
+        }
+      }
+    },
+    {
       "path": "apps/indezy/runtime",
       "fields": {
         "database_password": {

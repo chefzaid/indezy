@@ -45,6 +45,12 @@ indezy:
     collection-enabled: ${INDEZY_OFFERS_COLLECTION_ENABLED:true}
     # Locates offer cities through geo.api.gouv.fr (French government, no key).
     geocoding-enabled: ${INDEZY_OFFERS_GEOCODING_ENABLED:true}
+  mail:
+    # Saved search emails go through Resend (see docs/deployment.md#saved-search-email-credentials); without a key
+    # nothing is sent and the app says so.
+    resend-api-key: ${RESEND_API_KEY:}
+    from: ${INDEZY_MAIL_FROM:Indezy <noreply@swirlit.dev>}
+    public-url: ${INDEZY_PUBLIC_URL:https://indezy.swirlit.dev}
 
 cors:
   allowed-origins: 

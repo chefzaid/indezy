@@ -1395,6 +1395,30 @@
         "conflict": "A saved search already has this name, or you already keep 20 of them.",
         "save": "The search could not be saved.",
         "delete": "The search could not be deleted."
+      },
+      "emails": {
+        "button": "Emails for “{{name}}”",
+        "title": "Email me the new offers of “{{name}}”",
+        "frequency": "How often",
+        "off": "Never",
+        "instant": "As they come (grouped every 30 minutes)",
+        "daily": "Once a day",
+        "hour": "At",
+        "hourHint": "Paris time",
+        "hint": "Sent to your account's address in the current language, with a link to stop them. They stop by themselves after 60 days of emails without an offer opened from them.",
+        "unavailable": "This server does not send emails yet.",
+        "stopped": "Emails stopped on {{date}}: no offer was opened from them in 60 days.",
+        "state": {
+          "OFF": "No email",
+          "INSTANT": "New offers emailed as they come",
+          "DAILY": "New offers emailed daily at {{hour}}:00"
+        },
+        "saved": {
+          "OFF": "Emails stopped for “{{name}}”",
+          "INSTANT": "The new offers of “{{name}}” will be emailed as they come",
+          "DAILY": "The new offers of “{{name}}” will be emailed daily"
+        },
+        "error": "The emails could not be changed."
       }
     },
     "keyboard": {
@@ -1557,5 +1581,16 @@
       "on": "{{change}}, {{date}}",
       "hint": "Changes its site made since Indezy first read the offer, the latest first."
     }
+  },
+  "emailsUnsubscribe": {
+    "title": "Stop these emails?",
+    "message": "You receive the new offers of the search “{{name}}” by email.",
+    "stop": "Stop these emails",
+    "doneTitle": "Emails stopped",
+    "doneMessage": "You no longer receive the new offers of “{{name}}” by email. You can turn them back on from the search in Indezy.",
+    "openSearches": "Open my searches",
+    "invalidTitle": "This link is no longer valid",
+    "invalidMessage": "The search may have been deleted. Its emails are no longer sent.",
+    "error": "The emails could not be stopped. Try again in a moment."
   }
 }

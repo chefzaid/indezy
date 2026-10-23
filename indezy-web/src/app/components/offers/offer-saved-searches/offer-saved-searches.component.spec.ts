@@ -18,16 +18,19 @@ describe('OfferSavedSearchesComponent', () => {
   let alerts: jasmine.SpyObj<OfferAlertsService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
-  let dialogResult: string | undefined;
+  let dialogResult: unknown;
 
   function search(id: number, name: string, newOffers: number): SavedOfferSearch {
-    return { id, name, filters: { q: name.toLowerCase(), sort: 'RATE', view: 'FEED', page: 0, rateMin: null }, lastOpenedAt: '2026-10-18T08:00:00Z', newOffers };
+    return {
+      id, name, filters: { q: name.toLowerCase(), sort: 'RATE', view: 'FEED', page: 0, rateMin: null }, lastOpenedAt: '2026-10-18T08:00:00Z', newOffers,
+      emails: { frequency: 'OFF', hour: null, language: null, stoppedAt: null }, emailsAvailable: true
+    };
   }
 
   function create(query: OfferQuery = { ...defaultOfferQuery(), q: 'kafka' },
                   searches: SavedOfferSearch[] = [search(1, 'Java', 3), search(2, 'Python', 0)]): ComponentFixture<OfferSavedSearchesComponent> {
     offers = jasmine.createSpyObj('OfferService', ['savedSearches', 'saveSearch', 'openSearch', 'deleteSearch', 'searchSuggestions',
-      'dismissSuggestion']);
+      'dismissSuggestion', 'updateSearchEmails']);
     offers.searchSuggestions.and.returnValue(of({ suggestions: [], missing: [] }));
     alerts = jasmine.createSpyObj('OfferAlertsService', ['refresh']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -189,6 +192,47 @@ describe('OfferSavedSearchesComponent', () => {
 
       expect(names(fixture)).toEqual(['Kafka', 'Python']);
       expect(opened[0].skills).toEqual(['Java']);
+    });
+  });
+  describe('emails', () => {
+    it('tells each search whether it emails its offers', () => {
+      const daily = { ...search(1, 'Java', 3), emails: { frequency: 'DAILY' as const, hour: 7, language: 'FR' as const, stoppedAt: null } };
+      const stopped = { ...search(2, 'Python', 0), emails: { frequency: 'OFF' as const, hour: null, language: 'FR' as const, stoppedAt: '2026-10-01T08:00:00Z' } };
+      const fixture = create(undefined, [daily, stopped]);
+      const emailButtons = buttons(fixture, '.search-emails');
+
+      expect(emailButtons.map(button => button.getAttribute('data-search-emails'))).toEqual(['DAILY', 'OFF']);
+      expect(emailButtons[0].getAttribute('aria-label')).toBe('Emails pour « Java »');
+      expect(emailButtons.map(button => button.textContent!.trim())).toEqual(['notifications_active', 'notifications_paused']);
+      expect(fixture.componentInstance.emailIcon(search(3, 'Go', 0))).toBe('notifications_none');
+    });
+
+    it('keeps how often a search emails, as the dialog answered', () => {
+      const fixture = create();
+      dialogResult = { frequency: 'DAILY', hour: 7, language: 'FR' };
+      offers.updateSearchEmails.and.returnValue(of({ ...search(1, 'Java', 0),
+        emails: { frequency: 'DAILY', hour: 7, language: 'FR', stoppedAt: null } }));
+
+      buttons(fixture, '.search-emails')[0].click();
+      fixture.detectChanges();
+
+      expect(offers.updateSearchEmails).toHaveBeenCalledOnceWith(1, { frequency: 'DAILY', hour: 7, language: 'FR' });
+      expect(notifications.success).toHaveBeenCalledOnceWith('offers.savedSearches.emails.saved.DAILY', 4000, { name: 'Java' });
+      expect(buttons(fixture, '.search-emails')[0].getAttribute('data-search-emails')).toBe('DAILY');
+      // The new offers counted for it are kept.
+      expect(fixture.nativeElement.querySelector('[data-new-count]').textContent.trim()).toBe('3 nouvelles');
+    });
+
+    it('changes nothing when the dialog is cancelled and says so when the change fails', () => {
+      const fixture = create();
+      dialogResult = undefined;
+      buttons(fixture, '.search-emails')[0].click();
+      expect(offers.updateSearchEmails).not.toHaveBeenCalled();
+
+      dialogResult = { frequency: 'INSTANT', language: 'EN' };
+      offers.updateSearchEmails.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+      buttons(fixture, '.search-emails')[0].click();
+      expect(notifications.error).toHaveBeenCalledOnceWith('offers.savedSearches.emails.error');
     });
   });
 });

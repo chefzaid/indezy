@@ -355,7 +355,11 @@ Purpose: filters of the offer feed a workspace saved under a name. Unique per fr
 (`uk_saved_offer_searches_freelance_name`); at most 20 per workspace.
 
 Fields: `name` (80 characters), `filters` (the feed's filters and sort as JSON, without view or page) and
-`lastOpenedAt`: offers first seen after it are new for the search.
+`lastOpenedAt`: offers first seen after it are new for the search. Its emails: `emailFrequency` (`OFF`, `INSTANT`,
+`DAILY`; `null` for a search saved before emails, read as `OFF`), `emailHour` (a daily email's hour, Paris time),
+`emailLanguage` (`FR` or `EN`), `emailedUntil` (offers first seen after it are the next email's), `unopenedSince` (the
+first email sent since an offer was last opened from one; sending stops 60 days after it), `emailsStoppedAt` and
+`emailToken` (unique, 43 characters: the unsubscribe link's token).
 
 ## OfferRateBenchmark
 

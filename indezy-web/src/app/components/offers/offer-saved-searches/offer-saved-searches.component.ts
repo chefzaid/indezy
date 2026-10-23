@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, filter, of, switchMap } from 'rxjs';
-import { OfferQuery, SavedOfferSearch } from '../../../models/offer.models';
+import { OfferQuery, SavedOfferSearch, SavedSearchEmailsUpdate } from '../../../models/offer.models';
 import { OfferService } from '../../../services/offer/offer.service';
 import { OfferAlertsService } from '../../../services/offer/offer-alerts.service';
 import { countActiveFilters, offerQueryFromSaved } from '../../../services/offer/offer-query';
@@ -15,6 +15,10 @@ import { NotificationService } from '../../../services/notification/notification
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { SaveSearchDialogComponent, SaveSearchDialogData } from '../save-search-dialog/save-search-dialog.component';
 import { OfferSearchSuggestionsComponent } from '../offer-search-suggestions/offer-search-suggestions.component';
+import {
+  SavedSearchEmailsDialogComponent,
+  SavedSearchEmailsDialogData
+} from '../saved-search-emails-dialog/saved-search-emails-dialog.component';
 
 /**
  * The workspace's saved searches above the feed, each with the offers found for it since it was last opened, the
@@ -95,6 +99,34 @@ export class OfferSavedSearchesComponent implements OnInit {
     this.searches = this.searches.map(item => item.id === search.id ? { ...item, newOffers: 0 } : item);
     this.offerService.openSearch(search.id).subscribe({ next: () => this.alerts.refresh(), error: () => undefined });
     this.searchOpened.emit(offerQueryFromSaved(search.filters));
+  }
+
+  /** Asks how often the search should email its new offers, and keeps the answer. */
+  editEmails(search: SavedOfferSearch): void {
+    const data: SavedSearchEmailsDialogData = { search };
+    this.dialog.open<SavedSearchEmailsDialogComponent, SavedSearchEmailsDialogData, SavedSearchEmailsUpdate>(SavedSearchEmailsDialogComponent,
+      { data, width: '480px' })
+      .afterClosed()
+      .pipe(
+        filter((emails): emails is SavedSearchEmailsUpdate => !!emails),
+        switchMap(emails => this.offerService.updateSearchEmails(search.id, emails)),
+        takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: updated => {
+          this.searches = this.searches.map(item => item.id === updated.id ? { ...updated, newOffers: item.newOffers } : item);
+          this.notifications.success(`offers.savedSearches.emails.saved.${updated.emails.frequency}`, 4000, { name: updated.name });
+          this.changes.markForCheck();
+        },
+        error: () => this.notifications.error('offers.savedSearches.emails.error')
+      });
+  }
+
+  /** The icon of a search's emails: on, stopped after 60 unopened days, or off. */
+  emailIcon(search: SavedOfferSearch): string {
+    if (search.emails.frequency !== 'OFF') {
+      return 'notifications_active';
+    }
+    return search.emails.stoppedAt ? 'notifications_paused' : 'notifications_none';
   }
 
   remove(search: SavedOfferSearch): void {

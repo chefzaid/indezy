@@ -258,6 +258,16 @@ marked **New**.
   collected after that moment, one per mission); opening one shows its offers and starts counting afresh. The
   **Offers** item of the menu carries a badge with the offers new for any saved search, counted again every five
   minutes and after each change; a failed count is not reported.
+- **Saved search emails**: the bell beside a saved search sets how often it emails the offers Indezy finds for it:
+  never (the default), as they come (grouped every 30 minutes) or once a day at a chosen hour, Paris time. The emails
+  go to the workspace's address, in the language the app was in when they were turned on, and list up to 20 offers
+  (the search's order) with their publisher, place, remote policy, daily rate, duration and match score, each linking
+  to its page in Indezy, then how many more there are. They carry no tracking pixel: an offer opened from an email
+  counts once its page is open in the app, signed in. After 60 days of emails without an offer opened from them,
+  sending stops and a last email says so, as does the bell (turning them on again gives 60 more days). Each email has
+  a **Stop these emails** link, whose page names the search and stops it with one button, without an account, and the
+  one-click unsubscribe of mailboxes (RFC 8058). Nothing is sent while the server has no Resend key, and the dialog says
+  so (see [Deployment](./deployment.md#saved-search-email-credentials)).
 - **Suggested searches** (see [Suggested Searches](#suggested-searches)): searches drawn from the profile and the
   pipeline, to preview, save in one click or dismiss.
 
@@ -292,7 +302,9 @@ at most; answers the offers `imported`, `alreadyInPipeline` with their opportuni
 /offers/sites/left-out/{site}/visit`), the blocklist (`GET /offers/blocked-publishers`,
 `POST /offers/blocked-publishers` with a `name`, which answers the existing block for a name read the same, and
 `DELETE /offers/blocked-publishers/{id}`) and the saved searches: `GET /offers/searches`, `POST /offers/searches`,
-`POST /offers/searches/{id}/open`, `DELETE /offers/searches/{id}`, `GET /offers/searches/alerts`,
+`POST /offers/searches/{id}/open`, `DELETE /offers/searches/{id}`, `PUT /offers/searches/{id}/emails` (`frequency`
+`OFF`, `INSTANT` or `DAILY`, `hour` 0 to 23 and `language` `FR` or `EN`), `POST /offers/searches/{id}/emails/opened`,
+`GET /offers/searches/alerts`,
 `GET /offers/searches/suggestions` (`suggestions`, each with its `key`, `filters`, `place`, `offers`, `goodMatches` and
 `newThisWeek`, and the profile fields `missing`) and `POST /offers/searches/suggestions/dismissals` (the filters). Each offer carries
 its `match` (score, skills, rate and place fit) and each page says whether distances (`distanceAvailable`) and matches

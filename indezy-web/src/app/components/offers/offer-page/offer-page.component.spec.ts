@@ -26,9 +26,10 @@ describe('OfferPageComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   let params: BehaviorSubject<Record<string, string>>;
 
-  function create(answer: Observable<Offer>, id = '7'): ComponentFixture<OfferPageComponent> {
+  function create(answer: Observable<Offer>, id = '7', query: Record<string, string> = {}): ComponentFixture<OfferPageComponent> {
     registerLocaleData(localeFr);
-    offers = jasmine.createSpyObj('OfferService', ['get', 'updateState']);
+    offers = jasmine.createSpyObj('OfferService', ['get', 'updateState', 'searchEmailOpened']);
+    offers.searchEmailOpened.and.returnValue(of(undefined));
     share = jasmine.createSpyObj('OfferShareService', ['copyLink']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     offers.get.and.returnValue(answer);
@@ -40,7 +41,7 @@ describe('OfferPageComponent', () => {
         provideRouter([]),
         { provide: LOCALE_ID, useValue: 'fr-FR' },
         { provide: ActivatedRoute, useValue: { paramMap: params.pipe(source => new Observable(subscriber =>
-          source.subscribe(value => subscriber.next(convertToParamMap(value))))) } },
+          source.subscribe(value => subscriber.next(convertToParamMap(value))))), snapshot: { queryParamMap: convertToParamMap(query) } } },
         { provide: OfferService, useValue: offers },
         { provide: OfferShareService, useValue: share },
         { provide: NotificationService, useValue: notifications },
@@ -140,5 +141,16 @@ describe('OfferPageComponent', () => {
     fixture.detectChanges();
     expect(offers.get).toHaveBeenCalledWith(8);
     expect(fixture.nativeElement.querySelector('h1').textContent).toContain('Architecte cloud');
+  });
+
+  it('tells a saved search its email was opened when the offer is opened from it', () => {
+    create(of(offer), '7', { search: '4', from: 'email' });
+    expect(offers.searchEmailOpened).toHaveBeenCalledOnceWith(4);
+
+    TestBed.resetTestingModule();
+    create(of(offer), '7', { search: '4' });
+    TestBed.resetTestingModule();
+    create(of(offer), '7', { search: 'x', from: 'email' });
+    expect(offers.searchEmailOpened).not.toHaveBeenCalled();
   });
 });

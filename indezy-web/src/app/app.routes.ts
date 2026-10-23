@@ -19,6 +19,11 @@ export const routes: Routes = [
       .then(m => m.ActivityReportValidationComponent)
   },
   {
+    // Opened from a saved search email's unsubscribe link, without an account.
+    path: 'emails/unsubscribe',
+    loadComponent: () => import('./components/emails-unsubscribe/emails-unsubscribe.component').then(m => m.EmailsUnsubscribeComponent)
+  },
+  {
     path: 'dashboard',
     loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [authGuard, projectLinkGuard],

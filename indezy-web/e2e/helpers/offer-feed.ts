@@ -15,9 +15,14 @@ export function offer(id: number, overrides: Record<string, unknown> = {}): Mock
 }
 
 /** A search saved four new offers ago. */
-const savedSearch = {
+/** A saved search's emails, off unless given. */
+export function searchEmails(overrides: Record<string, unknown> = {}) {
+  return { emails: { frequency: 'OFF', hour: null, language: null, stoppedAt: null, ...overrides }, emailsAvailable: true };
+}
+
+export const savedSearch = {
   id: 5, name: 'Java remote', filters: { q: 'java', workModes: ['REMOTE'], sort: 'NEWEST', view: 'FEED', page: 0, size: 20 },
-  lastOpenedAt: new Date(Date.now() - 86_400_000).toISOString(), newOffers: 4
+  lastOpenedAt: new Date(Date.now() - 86_400_000).toISOString(), newOffers: 4, ...searchEmails()
 };
 
 /** The first offer is also published on Collective. */
@@ -129,7 +134,8 @@ export async function mockFeed(page: Page, language: string, matchAvailable = tr
     }
     const body = route.request().postDataJSON();
     saves.push(body);
-    return route.fulfill({ status: 201, json: { id: 6, name: body.name, filters: body.filters, lastOpenedAt: new Date().toISOString(), newOffers: 0 } });
+    return route.fulfill({ status: 201, json: { id: 6, name: body.name, filters: body.filters, lastOpenedAt: new Date().toISOString(), newOffers: 0,
+      ...searchEmails() } });
   });
   await page.route(/\/api\/offers\/\d+$/, route =>
     route.fulfill({ json: offer(1, { description: 'Contexte\nRefonte complète du SI bancaire.\n\nProfil\n5 ans d\'expérience.' }) }));

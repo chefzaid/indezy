@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { environment } from '../../../environments/environment';
-import { OfferService } from './offer.service';
+import { EMAIL_TOKEN_HEADER, OfferService } from './offer.service';
 import { defaultOfferQuery } from './offer-query';
 import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 
@@ -199,6 +199,25 @@ describe('OfferService', () => {
     expect(http.expectOne(`${api}/searches/3/open`).request.method).toBe('POST');
     service.deleteSearch(3).subscribe();
     expect(http.expectOne(`${api}/searches/3`).request.method).toBe('DELETE');
+    service.updateSearchEmails(3, { frequency: 'DAILY', hour: 7, language: 'FR' }).subscribe();
+    const emails = http.expectOne(`${api}/searches/3/emails`);
+    expect(emails.request.method).toBe('PUT');
+    expect(emails.request.body).toEqual({ frequency: 'DAILY', hour: 7, language: 'FR' });
+    emails.flush({});
+    service.searchEmailOpened(3).subscribe();
+    const opened = http.expectOne(`${api}/searches/3/emails/opened`);
+    expect(opened.request.context.get(SILENT_HTTP_ERRORS)).toBeTrue();
+    opened.flush(null);
+    // The unsubscribe link's token travels in a header, never in the address.
+    service.publicSearchEmails('tok3n').subscribe();
+    const shown = http.expectOne(`${environment.apiUrl}/public/saved-search-emails`);
+    expect(shown.request.headers.get(EMAIL_TOKEN_HEADER)).toBe('tok3n');
+    shown.flush({});
+    service.unsubscribeSearchEmails('tok3n').subscribe();
+    const stopped = http.expectOne(`${environment.apiUrl}/public/saved-search-emails/unsubscribe`);
+    expect(stopped.request.method).toBe('POST');
+    expect(stopped.request.headers.get(EMAIL_TOKEN_HEADER)).toBe('tok3n');
+    stopped.flush({});
     service.alerts().subscribe(alerts => expect(alerts.newOffers).toBe(4));
     const alerts = http.expectOne(`${api}/searches/alerts`);
     expect(alerts.request.context.get(SILENT_HTTP_ERRORS)).toBeTrue();

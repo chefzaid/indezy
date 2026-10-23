@@ -1,5 +1,5 @@
 import { expect, Page, test } from '@playwright/test';
-import { isSearch, mockFeed } from './helpers/offer-feed';
+import { isSearch, mockFeed, searchEmails } from './helpers/offer-feed';
 
 const suggestions = {
   suggestions: [
@@ -27,7 +27,8 @@ async function mockSuggestions(page: Page, savedSearches: unknown[]): Promise<{ 
     }
     const body = route.request().postDataJSON();
     saves.push(body);
-    return route.fulfill({ status: 201, json: { id: 7, name: body.name, filters: body.filters, lastOpenedAt: new Date().toISOString(), newOffers: 0 } });
+    return route.fulfill({ status: 201, json: { id: 7, name: body.name, filters: body.filters, lastOpenedAt: new Date().toISOString(), newOffers: 0,
+      ...searchEmails() } });
   });
   return { saves, dismissed };
 }
@@ -80,7 +81,8 @@ test('offers the suggested searches once the profile changes (fr)', async ({ pag
   test.setTimeout(60_000);
   await page.setViewportSize({ width: 390, height: 844 });
   await mockFeed(page, 'fr');
-  await mockSuggestions(page, [{ id: 5, name: 'Java remote', filters: { skills: ['Java'] }, lastOpenedAt: new Date().toISOString(), newOffers: 0 }]);
+  await mockSuggestions(page, [{ id: 5, name: 'Java remote', filters: { skills: ['Java'] }, lastOpenedAt: new Date().toISOString(), newOffers: 0,
+    ...searchEmails() }]);
   let profile: Record<string, unknown> = { id: 1, firstName: 'Workspace', lastName: 'Test', email: 'workspace@example.test', skills: ['Java'],
     targetDailyRate: 550 };
   await page.route('**/api/users/profile', async route => {

@@ -9,13 +9,16 @@ import dev.swirlit.indezy.dto.OfferStateExportDto;
 import dev.swirlit.indezy.dto.OfferSuggestionDismissalDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.dto.SavedOfferSearchDto;
+import dev.swirlit.indezy.dto.SavedSearchEmailsDto;
 import dev.swirlit.indezy.dto.UserDto;
 import dev.swirlit.indezy.model.OfferApplication;
 import dev.swirlit.indezy.model.enums.ActivityDayType;
 import dev.swirlit.indezy.model.enums.ActivityReportStatus;
 import dev.swirlit.indezy.model.enums.ApplicationChannel;
+import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.OfferLeftOutSite;
 import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.model.enums.SavedSearchEmails;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -96,7 +99,7 @@ class UserDataExportServiceTest {
         when(offerSearchSuggestionService.export(5L)).thenReturn(List.of(new OfferSuggestionDismissalDto(dismissed,
             Instant.parse("2026-10-20T07:00:00Z"))));
         when(savedOfferSearchService.export(5L)).thenReturn(List.of(new SavedOfferSearchDto(3L, "Kafka à Paris", filters,
-            Instant.parse("2026-10-18T07:00:00Z"), 0)));
+            Instant.parse("2026-10-18T07:00:00Z"), 0, new SavedSearchEmailsDto(SavedSearchEmails.DAILY, 8, DocumentLanguage.FR, null), true)));
         when(offerSiteHealthService.excludedSites(5L)).thenReturn(Set.of(OfferSite.YEETS));
         when(offerSiteHealthService.visits(5L)).thenReturn(List.of(new OfferBoardVisitDto(OfferLeftOutSite.MALT, Instant.parse("2026-10-20T08:00:00Z"))));
         when(offerPublisherBlockService.list(5L)).thenReturn(List.of(new OfferPublisherBlockDto(8L, "Exemple Conseil")));

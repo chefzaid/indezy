@@ -5,8 +5,10 @@ import dev.swirlit.indezy.dto.OfferAlertsDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.SavedOfferSearchDto;
 import dev.swirlit.indezy.dto.SavedOfferSearchRequest;
+import dev.swirlit.indezy.dto.SavedSearchEmailsDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.mail.MailProperties;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.SavedOfferSearch;
 import dev.swirlit.indezy.repository.FreelanceRepository;
@@ -40,20 +42,22 @@ public class SavedOfferSearchService {
     private final JobOfferRepository offers;
     private final FreelanceRepository freelances;
     private final OfferSearchService offerSearch;
+    private final MailProperties mail;
     private final Clock clock;
 
     @Autowired
     public SavedOfferSearchService(SavedOfferSearchRepository searches, JobOfferRepository offers, FreelanceRepository freelances,
-                                   OfferSearchService offerSearch) {
-        this(searches, offers, freelances, offerSearch, Clock.systemUTC());
+                                   OfferSearchService offerSearch, MailProperties mail) {
+        this(searches, offers, freelances, offerSearch, mail, Clock.systemUTC());
     }
 
     SavedOfferSearchService(SavedOfferSearchRepository searches, JobOfferRepository offers, FreelanceRepository freelances,
-                            OfferSearchService offerSearch, Clock clock) {
+                            OfferSearchService offerSearch, MailProperties mail, Clock clock) {
         this.searches = searches;
         this.offers = offers;
         this.freelances = freelances;
         this.offerSearch = offerSearch;
+        this.mail = mail;
         this.clock = clock;
     }
 
@@ -132,11 +136,14 @@ public class SavedOfferSearchService {
             .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.SAVED_SEARCH_NOT_FOUND, id)));
     }
 
-    private static OfferSearchRequest filters(SavedOfferSearch search) {
+    static OfferSearchRequest filters(SavedOfferSearch search) {
         return JSON.readValue(search.getFilters(), OfferSearchRequest.class);
     }
 
-    private static SavedOfferSearchDto toDto(SavedOfferSearch search, long newOffers) {
-        return new SavedOfferSearchDto(search.getId(), search.getName(), filters(search), search.getLastOpenedAt(), newOffers);
+    SavedOfferSearchDto toDto(SavedOfferSearch search, long newOffers) {
+        SavedSearchEmailsDto emails = new SavedSearchEmailsDto(search.getEmailFrequency(), search.getEmailHour(), search.getEmailLanguage(),
+            search.getEmailsStoppedAt());
+        return new SavedOfferSearchDto(search.getId(), search.getName(), filters(search), search.getLastOpenedAt(), newOffers, emails,
+            mail.configured());
     }
 }

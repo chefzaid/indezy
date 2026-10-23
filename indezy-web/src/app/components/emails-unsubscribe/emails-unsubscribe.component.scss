@@ -1,0 +1,46 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--app-bg);
+}
+
+.unsubscribe-page {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.page-header {
+  margin-bottom: 12px;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 8px;
+  text-align: center;
+}
+
+.state-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 48px;
+  color: var(--app-text-muted);
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+p {
+  margin: 0;
+}
+
+.error {
+  color: var(--mat-sys-error, #d32f2f);
+}

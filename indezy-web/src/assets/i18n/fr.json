@@ -1395,6 +1395,30 @@
         "conflict": "Une recherche enregistrée porte déjà ce nom, ou vous en gardez déjà 20.",
         "save": "La recherche n'a pas pu être enregistrée.",
         "delete": "La recherche n'a pas pu être supprimée."
+      },
+      "emails": {
+        "button": "Emails pour « {{name}} »",
+        "title": "Recevoir par email les nouvelles offres de « {{name}} »",
+        "frequency": "Fréquence",
+        "off": "Jamais",
+        "instant": "Au fil de l'eau (regroupées toutes les 30 minutes)",
+        "daily": "Une fois par jour",
+        "hour": "À",
+        "hourHint": "Heure de Paris",
+        "hint": "Envoyés à l'adresse de votre compte dans la langue actuelle, avec un lien pour les arrêter. Ils s'arrêtent d'eux-mêmes après 60 jours d'emails sans offre ouverte depuis l'un d'eux.",
+        "unavailable": "Ce serveur n'envoie pas encore d'emails.",
+        "stopped": "Emails arrêtés le {{date}} : aucune offre n'a été ouverte depuis ces emails en 60 jours.",
+        "state": {
+          "OFF": "Aucun email",
+          "INSTANT": "Nouvelles offres envoyées au fil de l'eau",
+          "DAILY": "Nouvelles offres envoyées chaque jour à {{hour}} h"
+        },
+        "saved": {
+          "OFF": "Emails arrêtés pour « {{name}} »",
+          "INSTANT": "Les nouvelles offres de « {{name}} » seront envoyées au fil de l'eau",
+          "DAILY": "Les nouvelles offres de « {{name}} » seront envoyées chaque jour"
+        },
+        "error": "Les emails n'ont pas pu être modifiés."
       }
     },
     "keyboard": {
@@ -1557,5 +1581,16 @@
       "on": "{{change}}, le {{date}}",
       "hint": "Les modifications faites par son site depuis qu'Indezy a lu l'offre, de la plus récente à la plus ancienne."
     }
+  },
+  "emailsUnsubscribe": {
+    "title": "Arrêter ces emails ?",
+    "message": "Vous recevez par email les nouvelles offres de la recherche « {{name}} ».",
+    "stop": "Arrêter ces emails",
+    "doneTitle": "Emails arrêtés",
+    "doneMessage": "Vous ne recevez plus par email les nouvelles offres de « {{name}} ». Vous pouvez les réactiver depuis la recherche dans Indezy.",
+    "openSearches": "Ouvrir mes recherches",
+    "invalidTitle": "Ce lien n'est plus valide",
+    "invalidMessage": "La recherche a peut-être été supprimée. Ses emails ne sont plus envoyés.",
+    "error": "Les emails n'ont pas pu être arrêtés. Réessayez dans un instant."
   }
 }

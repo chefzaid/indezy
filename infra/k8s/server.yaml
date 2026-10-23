@@ -118,6 +118,13 @@ spec:
                 configMapKeyRef:
                   name: indezy-server-config
                   key: INDEZY_SECURITY_KEYCLOAK_AUDIENCE
+            # Saved search emails: without the key nothing is sent, and the app keeps serving.
+            - name: RESEND_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: indezy-mail
+                  key: RESEND_API_KEY
+                  optional: true
           livenessProbe:
             httpGet:
               path: /api/actuator/health/liveness

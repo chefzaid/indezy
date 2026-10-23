@@ -77,9 +77,27 @@ External Secrets projects these Vault contracts into `apps`:
 |---|---|
 | `apps/indezy/runtime` | database password and JWT signing secret |
 | `apps/indezy/registry` | read-only private-registry credential |
+| `apps/indezy/mail` | Resend sending key of the saved search emails (`RESEND_API_KEY`, empty sends nothing) |
 | `infra/postgres` | shared administrator used only by the database setup hook |
 
 The app bootstrap generates strong runtime values when `apps/indezy/runtime` does not exist. Do not commit plaintext or base64-encoded secret values. An optional Google Maps server key should likewise be added to the external secret contract before the feature is enabled.
+
+## Saved search email credentials
+
+Saved search emails go through Resend, from `Indezy <noreply@swirlit.dev>` (`INDEZY_MAIL_FROM`), with links to
+`https://indezy.swirlit.dev` (`INDEZY_PUBLIC_URL`). `swirlit.dev` is the domain the website already verified in
+Resend for sending; create a sending access key restricted to it for Indezy, separate from the website's, and store it
+as the `RESEND_API_KEY` field at Vault KV v2 path `secret/apps/indezy/mail`. `infra/k8s/external-secrets.yaml`
+synchronizes it to the `indezy-mail` Secret, which the server reads through an optional `secretKeyRef`.
+
+The field must exist before a release that holds the `indezy-mail` ExternalSecret, even empty: otherwise the secret
+fails to sync, Argo CD reports the application degraded and the deploy job's health check fails. The onboarding
+contract (`infra/onboarding.json`) seeds it empty when missing and keeps an existing value. With an empty key the
+server sends nothing and the saved search dialog says emails are not set up. After adding or rotating the key, wait
+for the ExternalSecret to be Ready and restart the server Deployment, which reads it at startup.
+
+Resend accepting an email means accepted for delivery, not delivered; its logs show bounces. Each email carries an
+idempotency key (`saved-search/<id>/<cutoff>`), so a retry within Resend's 24 hours sends it once.
 
 ## Delivery Pipeline, Images, and Artifacts
 

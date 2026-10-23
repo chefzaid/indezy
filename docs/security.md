@@ -233,6 +233,7 @@ Indezy stores personal and commercially sensitive information:
 - addresses and city
 - job prospects
 - client and contact notes, and private notes on job offers
+- saved searches and when an offer was opened from their emails
 - rates and revenue estimates
 - possible CV file path
 
@@ -293,7 +294,9 @@ Spring MVC logs each request and response body at `DEBUG` through its `toString`
 ## External APIs
 
 Google Maps Distance Matrix API is used for commute-time sorting. The offer collection calls the job boards and the
-French government geocoding API, without keys (see [Job Offer Collection](#job-offer-collection)).
+French government geocoding API, without keys (see [Job Offer Collection](#job-offer-collection)). Saved search emails
+go through Resend, which receives the workspace's address and the email's offers, with a sending key kept in Vault
+(see [Saved Search Emails](#saved-search-emails)).
 
 Rules:
 
@@ -427,3 +430,21 @@ Bare-metal database helper jobs consume the official public PostgreSQL 18.6
 image pinned by digest. They execute client commands as UID 65534 with a read-only
 filesystem and need no platform registry credential. This repository owns their
 configuration and image pin; application images retain app-owned pull credentials.
+
+## Saved Search Emails
+
+- An email goes to the workspace's own address only, and only for a search whose emails the workspace turned on.
+- The Resend key stays in Vault and the `indezy-mail` Secret; the server sends the address, the subject and the bodies
+  to Resend over HTTPS and logs neither: an email's `toString` is its idempotency key, and Resend's errors are logged by
+  their name only.
+- No tracking pixel and no click-tracking redirect: the offer links open the offer's page in the app, which tells the
+  server an email was read once the workspace is signed in (`POST /offers/searches/{id}/emails/opened`, its own searches
+  only). A mailbox's link scanner opening the links records nothing.
+- The unsubscribe link carries a 256-bit random token per search, after `#`, so it reaches neither access logs nor
+  Referer headers; the page sends it in the `X-Email-Token` header to `/api/public/saved-search-emails`, which only
+  shows the search's name and stops its emails, and only on a button press, so a link scanner opening the page stops
+  nothing. The one-click unsubscribe of the `List-Unsubscribe` header (RFC 8058) must hold the token in its address
+  (`POST /api/public/saved-search-emails/unsubscribe/{token}`); that address only stops the emails. Tokens longer than
+  64 characters are refused before any lookup.
+- Sending stops by itself after 60 days of emails without an offer opened from them, and says so.
+

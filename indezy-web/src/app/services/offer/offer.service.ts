@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ProjectDto } from '../../models/project.models';
@@ -25,10 +25,19 @@ import {
   OfferState,
   OfferStateUpdate,
   OfferTrend,
-  SavedOfferSearch
+  PublicSavedSearchEmails,
+  SavedOfferSearch,
+  SavedSearchEmailsUpdate
 } from '../../models/offer.models';
 import { offerQueryToHttpParams } from './offer-query';
 import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
+
+/** Header carrying an unsubscribe link's token, which the link keeps after its #. */
+export const EMAIL_TOKEN_HEADER = 'X-Email-Token';
+
+function emailTokenHeaders(token: string): HttpHeaders {
+  return new HttpHeaders({ [EMAIL_TOKEN_HEADER]: token });
+}
 
 /** The freelance offer feed: search, per-workspace state and import into the pipeline. */
 @Injectable({
@@ -165,6 +174,28 @@ export class OfferService {
 
   deleteSearch(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/searches/${id}`);
+  }
+
+  /** Sets how often a saved search emails its new offers, in the given language. */
+  updateSearchEmails(id: number, emails: SavedSearchEmailsUpdate): Observable<SavedOfferSearch> {
+    return this.http.put<SavedOfferSearch>(`${this.API_URL}/searches/${id}/emails`, emails);
+  }
+
+  /** Tells that an offer was opened from a saved search's email, so its emails go on. */
+  searchEmailOpened(id: number): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/searches/${id}/emails/opened`, null,
+      { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
+  /** The search an unsubscribe link stops the emails of; its token travels in a header, never in the URL. */
+  publicSearchEmails(token: string): Observable<PublicSavedSearchEmails> {
+    return this.http.get<PublicSavedSearchEmails>(`${environment.apiUrl}/public/saved-search-emails`,
+      { headers: emailTokenHeaders(token), context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
+  unsubscribeSearchEmails(token: string): Observable<PublicSavedSearchEmails> {
+    return this.http.post<PublicSavedSearchEmails>(`${environment.apiUrl}/public/saved-search-emails/unsubscribe`, null,
+      { headers: emailTokenHeaders(token), context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
   }
 
   /** How a skill's market moved (the profile's first skill without one, all of France without a region). Errors are the caller's to tell. */

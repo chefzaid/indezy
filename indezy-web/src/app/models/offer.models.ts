@@ -188,6 +188,35 @@ export interface SavedOfferSearch {
   filters: Partial<Record<keyof OfferQuery, unknown>>;
   lastOpenedAt: string;
   newOffers: number;
+  emails: SavedSearchEmails;
+  /** Whether the server can send email. */
+  emailsAvailable: boolean;
+}
+
+/** How often a saved search emails its new offers: at once (grouped every 30 minutes) or as a daily digest. */
+export type SavedSearchEmailFrequency = 'OFF' | 'INSTANT' | 'DAILY';
+export type EmailLanguage = 'FR' | 'EN';
+
+/** A saved search's emails; {@code stoppedAt} is when they stopped after 60 days of emails left unopened. */
+export interface SavedSearchEmails {
+  frequency: SavedSearchEmailFrequency;
+  /** A daily email's hour, Paris time. */
+  hour: number | null;
+  language: EmailLanguage | null;
+  stoppedAt: string | null;
+}
+
+export interface SavedSearchEmailsUpdate {
+  frequency: SavedSearchEmailFrequency;
+  hour?: number;
+  language: EmailLanguage;
+}
+
+/** What an unsubscribe link shows without an account. */
+export interface PublicSavedSearchEmails {
+  searchName: string;
+  frequency: SavedSearchEmailFrequency;
+  language: EmailLanguage;
 }
 
 /** A search suggested from the profile and the pipeline, with what it finds in the feed now. */

@@ -31,6 +31,7 @@ import dev.swirlit.indezy.util.FrenchGeography;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -88,10 +89,24 @@ public class OfferSearchService {
 
     /** One page of offers matching the request, for {@code freelanceId}'s workspace (or none). */
     public OfferPageDto search(Long freelanceId, OfferSearchRequest request) {
+        return search(freelanceId, request, null, PageRequest.of(request.getPage(), request.getSize()));
+    }
+
+    /**
+     * The first {@code size} offers of a search, in its order, that Indezy found after {@code since} and up to
+     * {@code until}: a saved search's email.
+     */
+    public OfferPageDto foundBetween(Long freelanceId, OfferSearchRequest request, Instant since, Instant until, int size) {
+        Specification<JobOffer> found = (root, query, cb) ->
+            cb.and(cb.greaterThan(root.get("firstSeenAt"), since), cb.lessThanOrEqualTo(root.get("firstSeenAt"), until));
+        return search(freelanceId, request, found, PageRequest.of(0, size));
+    }
+
+    private OfferPageDto search(Long freelanceId, OfferSearchRequest request, Specification<JobOffer> within, PageRequest pageRequest) {
         Instant now = clock.instant();
         OfferMatch.Profile profile = profileFor(freelanceId, request);
-        Page<JobOffer> page = offers.findAll(JobOfferSpecifications.matching(request, freelanceId, profile, now),
-            PageRequest.of(request.getPage(), request.getSize()));
+        Specification<JobOffer> matching = JobOfferSpecifications.matching(request, freelanceId, profile, now);
+        Page<JobOffer> page = offers.findAll(within == null ? matching : matching.and(within), pageRequest);
         List<Long> ids = page.getContent().stream().map(JobOffer::getId).toList();
         Map<Long, List<String>> skills = skillsOf(ids);
         Map<Long, List<JobOffer>> copies = copiesOf(page.getContent());

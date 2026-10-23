@@ -5,6 +5,7 @@ import dev.swirlit.indezy.dto.SavedOfferSearchDto;
 import dev.swirlit.indezy.dto.SavedOfferSearchRequest;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.mail.MailProperties;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.SavedOfferSearch;
 import dev.swirlit.indezy.model.enums.WorkMode;
@@ -38,7 +39,7 @@ class SavedOfferSearchServiceTest {
     private final FreelanceRepository freelances = mock(FreelanceRepository.class);
     private final OfferSearchService offerSearch = mock(OfferSearchService.class);
     private final SavedOfferSearchService service = new SavedOfferSearchService(searches, offers, freelances, offerSearch,
-        Clock.fixed(NOW, ZoneOffset.UTC));
+        new MailProperties(null, "Indezy <noreply@swirlit.dev>", "https://indezy.swirlit.dev", "https://api.resend.com"), Clock.fixed(NOW, ZoneOffset.UTC));
 
     @Test
     void savesTheFiltersUnderATrimmedNameAndKeepsEveryFilter() {

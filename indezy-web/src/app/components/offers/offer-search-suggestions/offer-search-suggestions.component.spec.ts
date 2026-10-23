@@ -83,7 +83,8 @@ describe('OfferSearchSuggestionsComponent', () => {
     const fixture = create();
     const saved: SavedOfferSearch[] = [];
     fixture.componentInstance.saved.subscribe(search => saved.push(search));
-    const search = { id: 9, name: 'Java à Lyon', filters: java.filters, lastOpenedAt: '2026-10-21T08:00:00Z', newOffers: 0 };
+    const search: SavedOfferSearch = { id: 9, name: 'Java à Lyon', filters: java.filters, lastOpenedAt: '2026-10-21T08:00:00Z', newOffers: 0,
+      emails: { frequency: 'OFF', hour: null, language: null, stoppedAt: null }, emailsAvailable: false };
     offers.saveSearch.and.returnValue(of(search));
     dialogResult = 'Java à Lyon';
 

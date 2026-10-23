@@ -1,0 +1,39 @@
+<h2 mat-dialog-title>{{ 'offers.savedSearches.emails.title' | translate: { name: search.name } }}</h2>
+
+<mat-dialog-content>
+  @if (!search.emailsAvailable) {
+    <p class="notice" data-emails-unavailable>{{ 'offers.savedSearches.emails.unavailable' | translate }}</p>
+  }
+  @if (stoppedOn; as date) {
+    <p class="notice" data-emails-stopped>{{ 'offers.savedSearches.emails.stopped' | translate: { date } }}</p>
+  }
+  <mat-radio-group class="frequencies" name="frequency" [(ngModel)]="frequency"
+    [attr.aria-label]="'offers.savedSearches.emails.frequency' | translate">
+    <mat-radio-button value="OFF">{{ 'offers.savedSearches.emails.off' | translate }}</mat-radio-button>
+    <mat-radio-button value="INSTANT" [disabled]="!search.emailsAvailable">
+      {{ 'offers.savedSearches.emails.instant' | translate }}
+    </mat-radio-button>
+    <mat-radio-button value="DAILY" [disabled]="!search.emailsAvailable">
+      {{ 'offers.savedSearches.emails.daily' | translate }}
+    </mat-radio-button>
+  </mat-radio-group>
+  @if (frequency === 'DAILY') {
+    <mat-form-field appearance="outline" class="hour-field">
+      <mat-label>{{ 'offers.savedSearches.emails.hour' | translate }}</mat-label>
+      <mat-select name="hour" [(ngModel)]="hour">
+        @for (option of hours; track option) {
+          <mat-option [value]="option">{{ option | number: '2.0-0' }}:00</mat-option>
+        }
+      </mat-select>
+      <mat-hint>{{ 'offers.savedSearches.emails.hourHint' | translate }}</mat-hint>
+    </mat-form-field>
+  }
+  <p class="hint">{{ 'offers.savedSearches.emails.hint' | translate }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+  <button mat-raised-button color="primary" type="button" [disabled]="!canSave" (click)="save()" data-save-emails>
+    {{ 'common.save' | translate }}
+  </button>
+</mat-dialog-actions>

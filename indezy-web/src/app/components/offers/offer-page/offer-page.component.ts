@@ -56,6 +56,16 @@ export class OfferPageComponent implements OnInit, OfferActionsHost {
       this.id = Number.isInteger(id) && id > 0 ? id : undefined;
       this.load();
     });
+    this.tellOpenedFromEmail();
+  }
+
+  /** Opened from a saved search's email: the search's emails are read, so they go on. */
+  private tellOpenedFromEmail(): void {
+    const query = this.route.snapshot.queryParamMap;
+    const search = Number(query.get('search'));
+    if (query.get('from') === 'email' && Number.isInteger(search) && search > 0) {
+      this.offerService.searchEmailOpened(search).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ error: () => undefined });
+    }
   }
 
   load(): void {

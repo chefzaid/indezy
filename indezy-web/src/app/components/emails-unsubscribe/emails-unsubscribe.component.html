@@ -1,0 +1,40 @@
+<main class="unsubscribe-page">
+  <header class="page-header">
+    <app-logo [height]="36"></app-logo>
+  </header>
+
+  <mat-card class="unsubscribe-card">
+    <mat-card-content>
+      @if (loading) {
+        <div class="state">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+      } @else if (invalidLink || !view) {
+        <div class="state" data-invalid-link>
+          <mat-icon class="state-icon">link_off</mat-icon>
+          <h1>{{ 'emailsUnsubscribe.invalidTitle' | translate }}</h1>
+          <p>{{ 'emailsUnsubscribe.invalidMessage' | translate }}</p>
+        </div>
+      } @else if (view.frequency === 'OFF') {
+        <div class="state" data-unsubscribed>
+          <mat-icon class="state-icon">notifications_off</mat-icon>
+          <h1>{{ 'emailsUnsubscribe.doneTitle' | translate }}</h1>
+          <p>{{ 'emailsUnsubscribe.doneMessage' | translate: { name: view.searchName } }}</p>
+          <a mat-button routerLink="/offers">{{ 'emailsUnsubscribe.openSearches' | translate }}</a>
+        </div>
+      } @else {
+        <div class="state">
+          <mat-icon class="state-icon">mail</mat-icon>
+          <h1>{{ 'emailsUnsubscribe.title' | translate }}</h1>
+          <p>{{ 'emailsUnsubscribe.message' | translate: { name: view.searchName } }}</p>
+          @if (failed) {
+            <p class="error" role="alert">{{ 'emailsUnsubscribe.error' | translate }}</p>
+          }
+          <button mat-raised-button color="primary" type="button" [disabled]="sending" (click)="unsubscribe()" data-unsubscribe>
+            {{ 'emailsUnsubscribe.stop' | translate }}
+          </button>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</main>

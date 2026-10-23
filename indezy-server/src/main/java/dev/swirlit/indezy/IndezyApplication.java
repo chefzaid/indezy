@@ -1,5 +1,6 @@
 package dev.swirlit.indezy;
 
+import dev.swirlit.indezy.mail.MailProperties;
 import dev.swirlit.indezy.scraping.OfferProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,7 +13,7 @@ import java.sql.SQLException;
 
 @SpringBootApplication
 @EnableJpaAuditing
-@EnableConfigurationProperties(OfferProperties.class)
+@EnableConfigurationProperties({OfferProperties.class, MailProperties.class})
 public class IndezyApplication {
 
     public static void main(String[] args) throws SQLException {
