@@ -8,6 +8,10 @@ import java.util.Map;
  */
 public record Email(String to, String subject, String html, String text, Map<String, String> headers, String idempotencyKey) {
 
+    public Email {
+        headers = Map.copyOf(headers);
+    }
+
     @Override
     public String toString() {
         // The address and the bodies are personal data, kept out of logs.

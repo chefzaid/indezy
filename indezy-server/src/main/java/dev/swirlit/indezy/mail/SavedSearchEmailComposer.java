@@ -35,6 +35,10 @@ public class SavedSearchEmailComposer {
     public record Digest(Long searchId, String searchName, String recipient, DocumentLanguage language, String token,
                          List<OfferDto> offers, long total, Instant cutoff) {
 
+        public Digest {
+            offers = List.copyOf(offers);
+        }
+
         @Override
         public String toString() {
             return "Digest[" + searchId + ", " + offers.size() + " offers]";
