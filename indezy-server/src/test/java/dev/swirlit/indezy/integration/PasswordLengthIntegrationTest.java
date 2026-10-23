@@ -27,8 +27,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * BCrypt cannot hash more than 72 bytes, so registration and the password change answer a validation error for a longer
  * password, counted in UTF-8 bytes, before it reaches BCrypt: a new email used to get a 409 as if it already had an
- * account. The password change also enforces the 8-character minimum of the profile form, which a request sent outside
- * the form used to bypass, and its matching confirmation. The DTOs are posted rather than maps, whose {@code toString}
+ * account. Both enforce the 8-character minimum of their forms, which a request sent outside the form used to bypass,
+ * and the password change its matching confirmation. The DTOs are posted rather than maps, whose {@code toString}
  * the test client would log with the password.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -107,6 +107,20 @@ class PasswordLengthIntegrationTest {
         assertThat(post("/auth/login", login(email, "Abcdef12"), null).getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(output.getAll().lines()).anyMatch(line -> line.contains(" WARN ") &&
             line.endsWith("Validation failed for passwordChangeRequestDto: newPassword (Size)"));
+    }
+
+    @Test
+    void register_WithAPasswordUnder8Characters_ShouldAnswerAValidationErrorAndCreateNoAccount() {
+        String email = newEmail();
+        for (String tooShort : new String[] {"a", "Abcdef1"}) {
+            ResponseEntity<Map> rejected = post("/auth/register", register(email, tooShort), null);
+            assertThat(rejected.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(rejected.getBody().get("validationErrors")).isEqualTo(Map.of("password", "Password must be at least 8 characters long"));
+        }
+
+        // The email is still free, and 8 characters, the minimum the register form asks for, is enough.
+        assertThat(post("/auth/register", register(email, "Abcdef12"), null).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(post("/auth/login", login(email, "Abcdef12"), null).getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test

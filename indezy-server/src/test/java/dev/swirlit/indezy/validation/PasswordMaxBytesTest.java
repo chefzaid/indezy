@@ -74,9 +74,9 @@ class PasswordMaxBytesTest {
     }
 
     @Test
-    void registrationMinimumLength_ShouldBeUnchanged() {
-        assertThat(messages(validator.validate(register("abcde")))).containsExactly("password: Password must be at least 6 characters long");
-        assertThat(validator.validate(register("abcdef"))).isEmpty();
+    void registrationMinimumLength_ShouldBeThePasswordChangeMinimum() {
+        assertThat(messages(validator.validate(register("Abcdef1")))).containsExactly("password: Password must be at least 8 characters long");
+        assertThat(validator.validate(register("Abcdef12"))).isEmpty();
     }
 
     @Test

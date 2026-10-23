@@ -51,7 +51,7 @@ export class RegisterComponent implements OnInit {
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6), passwordMaxBytes]],
+      password: ['', [Validators.required, Validators.minLength(8), passwordMaxBytes]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator } as AbstractControlOptions);
   }

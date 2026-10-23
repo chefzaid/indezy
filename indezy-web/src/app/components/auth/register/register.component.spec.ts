@@ -54,7 +54,7 @@ describe('RegisterComponent', () => {
 
   it('explains the other field errors', () => {
     fill('abc', 'abd');
-    expect(component.getErrorMessage('password')).toBe('common.minChars {"count":6}');
+    expect(component.getErrorMessage('password')).toBe('common.minChars {"count":8}');
     expect(component.getErrorMessage('confirmPassword')).toBe('common.passwordMismatch');
     component.registerForm.patchValue({ firstName: '', email: 'not-an-email', password: '', confirmPassword: '' });
     expect(component.getErrorMessage('firstName')).toBe('auth.firstNameRequired');
