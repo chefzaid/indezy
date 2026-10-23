@@ -487,6 +487,12 @@ This is convenient during early development, but production should move to versi
 
 Hibernate `update` adds tables and columns (such as `seasons` and `projects.season_id`) but never rewrites the check constraints it generated for enum columns. `ProjectStatusMigration` runs at startup on PostgreSQL: when `projects_status_check` does not match the current `ProjectStatus` values it moves `IDENTIFIED` and `APPLIED` projects to `CONTACT` and rebuilds the constraint in one transaction. It does nothing once the constraint is current.
 
+`EnumCheckConstraints` runs next, for every other enum column: it reads each enum column the entities map from
+Hibernate's metamodel (embeddables, element collections and identifiers included), and when that column's check
+constraint misses a value of its enum (a job board added to `OfferSite`), rebuilds the constraint in one transaction
+with the enum's values and those it allowed before. It never narrows a constraint, so stored rows and the version still
+running during a rollout keep working, and it does nothing once every constraint allows its enum.
+
 Recommended direction:
 
 1. Introduce Flyway or Liquibase.
