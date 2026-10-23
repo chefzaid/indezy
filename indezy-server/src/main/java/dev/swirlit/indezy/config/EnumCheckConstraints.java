@@ -17,7 +17,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -71,7 +70,7 @@ public class EnumCheckConstraints implements ApplicationRunner {
         }
         Map<String, List<String>> columns = enumColumns.get();
         for (Constraint constraint : constraints()) {
-            List<String> values = columns.get(key(constraint.table(), constraint.column()));
+            List<String> values = columns.get(MappedColumns.key(constraint.table(), constraint.column()));
             Set<String> allowed = allowed(constraint.definition());
             if (values != null && !allowed.isEmpty() && !allowed.containsAll(values)) {
                 widen(constraint, values, allowed);
@@ -86,15 +85,11 @@ public class EnumCheckConstraints implements ApplicationRunner {
             Class<?> type = selectable.getJdbcMapping().getJavaTypeDescriptor().getJavaTypeClass();
             // Stored by name; an ordinal column's constraint is a range, not a list.
             if (type.isEnum() && !selectable.isFormula() && !selectable.getJdbcMapping().getJdbcType().isNumber()) {
-                columns.put(key(selectable.getContainingTableExpression(), selectable.getSelectionExpression()),
+                columns.put(MappedColumns.key(selectable.getContainingTableExpression(), selectable.getSelectionExpression()),
                     Arrays.stream(type.getEnumConstants()).map(value -> ((Enum<?>) value).name()).toList());
             }
         };
-        metamodel.forEachEntityDescriptor(entity -> {
-            entity.getIdentifierMapping().forEachSelectable(collect);
-            entity.forEachSelectable(collect);
-        });
-        metamodel.forEachCollectionDescriptor(collection -> collection.getAttributeMapping().getElementDescriptor().forEachSelectable(collect));
+        MappedColumns.forEach(metamodel, collect);
         return columns;
     }
 
@@ -120,22 +115,14 @@ public class EnumCheckConstraints implements ApplicationRunner {
     private void widen(Constraint constraint, List<String> values, Set<String> allowed) {
         Set<String> widened = new LinkedHashSet<>(values);
         widened.addAll(allowed);
-        String table = identifier(constraint.table());
-        String name = identifier(constraint.name());
+        String table = MappedColumns.identifier(constraint.table());
+        String name = MappedColumns.identifier(constraint.name());
         String list = widened.stream().map(value -> "'" + value.replace("'", "''") + "'").collect(Collectors.joining(", "));
         transactionTemplate.executeWithoutResult(status -> {
             jdbcTemplate.execute("ALTER TABLE " + table + " DROP CONSTRAINT " + name);
-            jdbcTemplate.execute("ALTER TABLE " + table + " ADD CONSTRAINT " + name + " CHECK (" + identifier(constraint.column()) + " IN (" + list + "))");
+            jdbcTemplate.execute("ALTER TABLE " + table + " ADD CONSTRAINT " + name + " CHECK (" + MappedColumns.identifier(constraint.column()) + " IN (" + list + "))");
         });
         log.info("Check constraint {} now allows {} {} values", constraint.name(), widened.size(), constraint.table() + "." + constraint.column());
     }
 
-    private static String key(String table, String column) {
-        String name = table.substring(table.lastIndexOf('.') + 1);
-        return (name + "." + column).replace("\"", "").toLowerCase(Locale.ROOT);
-    }
-
-    private static String identifier(String name) {
-        return "\"" + name.replace("\"", "\"\"") + "\"";
-    }
 }

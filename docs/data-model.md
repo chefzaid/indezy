@@ -493,6 +493,10 @@ constraint misses a value of its enum (a job board added to `OfferSite`), rebuil
 with the enum's values and those it allowed before. It never narrows a constraint, so stored rows and the version still
 running during a rollout keep working, and it does nothing once every constraint allows its enum.
 
+`ColumnLengths` widens each varchar column shorter than its entity declares (Hibernate creates a column with its
+length but never changes it), such as `region_code`, now 3 characters for the overseas collectivities ("978",
+Saint-Martin; "987", French Polynesia). PostgreSQL widens a varchar in its catalog only; no column is ever narrowed.
+
 Recommended direction:
 
 1. Introduce Flyway or Liquibase.

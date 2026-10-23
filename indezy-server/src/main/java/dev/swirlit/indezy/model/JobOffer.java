@@ -92,7 +92,8 @@ public class JobOffer extends BaseEntity {
     @Column(name = "department_code", length = 3)
     private String departmentCode;
 
-    @Column(name = "region_code", length = 2)
+    /** Two digits for a region, three for an overseas collectivity ("978", Saint-Martin). */
+    @Column(name = "region_code", length = 3)
     private String regionCode;
 
     @Column(name = "country_code", length = 2)
