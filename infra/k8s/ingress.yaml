@@ -9,7 +9,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/group: Applications - PROD
     gethomepage.dev/href: https://indezy.swirlit.dev
-    gethomepage.dev/icon: mdi-domain
+    gethomepage.dev/icon: /icons/indezy.svg
     gethomepage.dev/name: Indezy
     gethomepage.dev/weight: "40"
     gethomepage.dev/pod-selector: app=indezy-web
