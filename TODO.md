@@ -341,10 +341,29 @@ Increments, implemented in order:
 
 ## Product & Website
 
-- [ ] Landing page with features presentation, screenshots and sign-up call to action
 - [ ] Terms of Service, Privacy Policy, and Contact/Support pages with FAQ
 - [ ] Subscription/freemium model: premium features (AI, integrations) behind a paywall with free trial; billing management in profile
 - [ ] Admin console (usage monitoring, user moderation, AI model/cost management, app settings)
+
+### Presentation Website (added 2026-10-23)
+
+Indezy has no presentation website: `https://indezy.swirlit.dev` redirects straight to `/dashboard` (`app.routes.ts`), and a signed-out visitor in production is sent to Keycloak. Thoughty's presentation page is the model. Once it is built, the root URL opens it instead of the dashboard.
+
+- [ ] Presentation page at `/` for every visitor, replacing the `'' → dashboard` redirect: signed-out visitors get **Sign up** and **Sign in**, signed-in users an **Open the dashboard** button. In production, `/` tries the silent Keycloak exchange (`AuthService.initializeSso`) to know whether the visitor is signed in but never sends them to Keycloak; sign-in and app routes keep the redirect, and the app's own pages and deep links (`/dashboard`, `?project=`, offers, activity report and unsubscribe links) are unchanged.
+- [ ] Hero with the one-line positioning from the product direction (find the mission, win it at the right rate, then run it), aimed at French IT freelancers, with a product scene of the Kanban board.
+- [ ] Feature sections for what ships today, from `docs/features.md`: the freelance offer feed (the French freelance sites it reads, suggested and saved searches, profile match, rate versus market, suspicious offers, adding an offer from its link), the pipeline Kanban with interview steps and job-hunting seasons, clients, ESNs, contacts and sources, monthly activity reports validated by the client or ESN through a link, and the dashboard (source ROI, skill demand trends, activity heatmap, commute-time sorting, reversion rate calculator). Planned features appear only once they ship.
+- [ ] Screenshots of the Kanban board, the offer feed, an activity report and the dashboard, taken from a demo workspace (no real client, contact or offer data), in light and dark themes and in French and English.
+- [ ] How it works in steps, following the core workflow: profile, clients and sources, opportunities captured or added from the feed, pipeline and interviews, activity reports after signature.
+- [ ] Trust section limited to what is true at release: where data is hosted, who can see it, and what can be exported.
+- [ ] Sign-up call to action that works in production: the Keycloak realm has no self-registration and the platform's OAuth2 Proxy admits only `platform-admins`, so either accounts open to the public before launch or, until they do, **Sign up** collects an early-access request (email, freelance status, main stack) that Indezy stores and acknowledges by email.
+- [ ] Pricing section with the plans of the subscription item above and of "Plans and entitlements" below.
+- [ ] FAQ: who Indezy is for, which sites the feed reads, data ownership and export, languages.
+- [ ] Footer linking the Terms, Privacy and Contact pages of the item above, plus a legal notice (mentions légales) naming the publisher and host.
+- [ ] French and English versions, chosen from the browser language with the existing language switch, each with its own URL.
+- [ ] Search and sharing: a title and meta description per language, canonical and `hreflang` links, an Open Graph and Twitter card image, schema.org `SoftwareApplication` data, and `robots.txt` and `sitemap.xml` listing only the public pages; `/` is prerendered so crawlers and link previews get the content without JavaScript.
+- [ ] Accessibility and performance: an Axe WCAG 2.2 AA scan of the page in both themes, keyboard and screen-reader access, and a phone layout without horizontal scrolling.
+- [ ] Tests: `app.routes.spec.ts` and a Playwright spec for `/` signed out and signed in (buttons, no Keycloak redirect, **Open the dashboard** opening `/dashboard`).
+- [ ] Main entry: once live, `https://indezy.swirlit.dev` opens the presentation page, so the platform Homepage tile (`gethomepage.dev/href` in `infra/k8s/ingress.yaml`), the GitLab environment link (`.gitlab-ci.yml`) and a production link added to the README all land on it; `docs/features.md` and `docs/security.md` (public routes) describe it.
 
 ## Platform & Security
 
