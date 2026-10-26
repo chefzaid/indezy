@@ -356,11 +356,14 @@ When adding a feature:
 
 ## Adding Frontend Features
 
-The frontend uses Angular standalone components and lazy route loading.
+The frontend uses Angular standalone components and lazy route loading. Every page is reached through
+`loadComponent` or a section's `loadChildren`, so the initial bundle holds only the application shell and each page
+downloads when first opened. `app.routes.spec.ts` fails when a route imports its page eagerly through `component`, or
+when a loader no longer resolves.
 
 When adding a feature:
 
-1. Add route definitions in the relevant `*.routes.ts` file.
+1. Add route definitions in the relevant `*.routes.ts` file, loading the page with `loadComponent`.
 2. Keep API calls in services under `src/app/services`.
 3. Keep shared UI in `src/app/shared/components`.
 4. Add models under `src/app/models`.

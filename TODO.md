@@ -400,7 +400,7 @@ Indezy has no presentation website: `https://indezy.swirlit.dev` redirects strai
 - [x] Richer database seeding for development (realistic projects, clients, pipeline states)
 - [x] Mask commands to reset/reseed the dev database with test data
 - [ ] Caching of frequent requests (dashboard stats, job feed)
-- [ ] Lazy loading of routes/components for faster initial load
+- [x] Lazy loading of routes/components for faster initial load (checked on 2026-10-26: every page and section loads on demand, the production build's initial bundle is the shell at 228 kB transferred, and `app.routes.spec.ts` fails if a route imports its page eagerly or a loader breaks)
 - [ ] Feature flags to enable/disable features without redeploying
 - [ ] Structured JSON logging, request tracing, monitoring and alerting
 - [ ] Usage telemetry to learn which features are used and prioritize development
