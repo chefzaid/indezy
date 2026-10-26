@@ -213,15 +213,14 @@ export class ProfileComponent implements OnInit {
     const confirmPassword = group.get('confirmPassword');
 
     if (newPassword && confirmPassword && newPassword.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
+      // Added to the field's own errors (such as required), not in their place.
+      confirmPassword.setErrors({ ...confirmPassword.errors, passwordMismatch: true });
       return { passwordMismatch: true };
     }
 
     if (confirmPassword?.hasError('passwordMismatch')) {
-      delete confirmPassword.errors!['passwordMismatch'];
-      if (Object.keys(confirmPassword.errors!).length === 0) {
-        confirmPassword.setErrors(null);
-      }
+      const others = Object.entries(confirmPassword.errors!).filter(([key]) => key !== 'passwordMismatch');
+      confirmPassword.setErrors(others.length > 0 ? Object.fromEntries(others) : null);
     }
 
     return null;

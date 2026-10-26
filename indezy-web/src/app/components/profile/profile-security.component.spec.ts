@@ -93,6 +93,20 @@ describe('ProfileComponent security', () => {
       expect(button('profile.changePassword').disabled).toBeFalse();
     });
 
+    it('keeps an empty confirmation required while it differs from the new password', async () => {
+      await create();
+      fillPassword('old-secret', 'new-secret-1', '');
+
+      const confirmation = component.passwordForm.get('confirmPassword')!;
+      expect(confirmation.hasError('required')).toBeTrue();
+      expect(confirmation.hasError('passwordMismatch')).toBeTrue();
+
+      fillPassword('old-secret', '', '');
+
+      expect(confirmation.hasError('required')).toBeTrue();
+      expect(confirmation.hasError('passwordMismatch')).toBeFalse();
+    });
+
     it('keeps the other errors of the confirmation when the passwords match again', async () => {
       await create();
       fillPassword('old-secret', 'new-secret-1', 'new-secret-2');
