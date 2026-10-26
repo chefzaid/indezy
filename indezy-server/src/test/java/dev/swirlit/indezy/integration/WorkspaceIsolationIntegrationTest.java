@@ -8,6 +8,7 @@ import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,7 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.util.LinkedMultiValueMap;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -236,6 +239,36 @@ class WorkspaceIsolationIntegrationTest {
         assertThat(call(bob, HttpMethod.POST, "/pipeline-templates", Map.of("name", "Stolen", "projectId", projectId), String.class)
             .getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(alice, HttpMethod.GET, "/pipeline-templates", null, List.class).getBody()).hasSize(1);
+    }
+
+    @Test
+    void attachmentsStayInTheirWorkspace() {
+        long projectId = ((Number) call(alice, HttpMethod.POST, "/projects",
+            Map.of("role", "Dev", "dailyRate", 500, "clientId", aliceClientId, "freelanceId", alice.freelanceId()), Map.class)
+            .getBody().get("id")).longValue();
+        LinkedMultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+        form.add("file", new ByteArrayResource("%PDF-1.7".getBytes(StandardCharsets.US_ASCII)) {
+            @Override
+            public String getFilename() {
+                return "brief.pdf";
+            }
+        });
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alice.token());
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        ResponseEntity<Map> uploaded = restTemplate.exchange(url("/projects/" + projectId + "/attachments"), HttpMethod.POST,
+            new HttpEntity<>(form, headers), Map.class);
+        assertThat(uploaded.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        long attachmentId = ((Number) uploaded.getBody().get("id")).longValue();
+
+        assertThat(call(bob, HttpMethod.GET, "/projects/" + projectId + "/attachments", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.GET, "/projects/attachments/" + attachmentId + "/content", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.DELETE, "/projects/attachments/" + attachmentId, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.GET, "/projects/attachments/" + attachmentId + "/content", null, byte[].class).getBody())
+            .startsWith("%PDF".getBytes(StandardCharsets.US_ASCII));
     }
 
     @Test

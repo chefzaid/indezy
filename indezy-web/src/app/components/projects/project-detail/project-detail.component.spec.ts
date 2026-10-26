@@ -11,6 +11,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { InterviewStepService } from '../../../services/interview-step/interview-step.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ProjectService } from '../../../services/project/project.service';
+import { ProjectAttachmentService } from '../../../services/project/project-attachment.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { KanbanLostReasonDialogComponent } from '../../kanban-lost-reason-dialog/kanban-lost-reason-dialog.component';
@@ -62,6 +63,7 @@ describe('ProjectDetailComponent', () => {
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { params, snapshot: { queryParamMap: convertToParamMap(query) } } },
         { provide: ProjectService, useValue: projectService },
+        { provide: ProjectAttachmentService, useValue: { list: () => of([]) } },
         { provide: InterviewStepService, useValue: steps },
         { provide: ActivityReportService, useValue: reports },
         { provide: NotificationService, useValue: notifications },
@@ -136,7 +138,9 @@ describe('ProjectDetailComponent', () => {
 
     expect(fixture.nativeElement.querySelector('app-activity-report-card')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('.client-link')).toBeNull();
-    expect(fixture.nativeElement.querySelector('app-project-resources')).toBeNull();
+    // The files card is always there, without documents or link to show.
+    expect(fixture.nativeElement.querySelector('app-project-resources .document')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-project-resources .link-row')).toBeNull();
     expect(page).toContain('common.notSpecifiedFeminine');
     expect(page).toContain('common.notSpecifiedPlural');
     expect(page).toContain('common.notSpecified');

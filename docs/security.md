@@ -345,29 +345,35 @@ The backend reads public job boards for the offer feed ([ADR 0009](./adr/0009-co
 
 ## File Uploads And Attachments
 
-Backend multipart limits are currently:
+Backend multipart limits are:
 
 ```yaml
 spring:
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 6MB
+      max-file-size: 10MB
+      max-request-size: 11MB
 ```
 
-The 5 MB file limit matches the avatar picker; the 6 MB request limit leaves
-room for multipart encoding. Both standard and devcontainer profiles enforce it.
+The 10 MB file limit matches an opportunity's files; avatars keep their own 512 KB limit in `UserService`. The 11 MB
+request limit leaves room for multipart encoding, under the ingress's 16 MiB body limit. Both standard and
+devcontainer profiles enforce it.
 
-The project model stores document paths, but a full attachment storage/security model is not complete.
+Opportunity files (`/api/projects/{id}/attachments`, see [ADR 0010](./adr/0010-attachments-in-postgresql.md)):
 
-Before enabling broad uploads:
+- are stored in PostgreSQL, never on a disk the web server serves, and deleted with their opportunity;
+- are accepted only when their first bytes are those of a PDF, PNG, JPEG, GIF or WebP file, a Word or OpenDocument
+  archive with that extension, or UTF-8 text named `.txt` or `.md`: HTML, SVG, scripts and executables are refused,
+  whatever the browser declares;
+- keep a name without folders or control characters, of at most 255 characters;
+- are read, listed and deleted only by their workspace (other workspaces get `404`);
+- are served with the type recognised at upload, `Content-Disposition: inline` for PDF and images and `attachment`
+  for the rest, `X-Content-Type-Options: nosniff`, `Content-Security-Policy: sandbox; default-src 'none'` and
+  `Cache-Control: no-store, private`; the interface shows PDF and images from a `blob:` address of the content it read
+  with the session's credentials.
 
-- validate file type
-- scan or quarantine untrusted files
-- avoid executable content
-- store files outside the web root
-- enforce ownership on download
-- add size, retention, and deletion rules
+Files are not scanned for malware: only their owner can read them back, so a file harms no one but the account that
+uploaded it; a scanner is listed in the [Security Backlog](#security-backlog).
 
 ## Software Supply Chain and Code Quality
 
@@ -379,6 +385,7 @@ The manual release-publication job publishes immutable, checksummed JAR and SPA 
 
 Priority items:
 
+- scan opportunity files for malware (for example a ClamAV service) before they are kept
 - enforce ownership checks for every user-owned resource
 - add password reset and email validation
 - add rate limiting and brute-force protection on auth endpoints

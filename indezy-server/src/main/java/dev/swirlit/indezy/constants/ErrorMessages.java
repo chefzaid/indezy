@@ -49,6 +49,11 @@ public final class ErrorMessages {
     public static final String SAVED_SEARCH_NOT_FOUND = "Saved search not found with id: %d";
     public static final String SAVED_SEARCH_NAME_TAKEN = "A saved search is already named \"%s\"";
     public static final String SAVED_SEARCHES_LIMIT = "A workspace keeps at most %d saved searches";
+    public static final String ATTACHMENT_NOT_FOUND = "Attachment not found with id: %d";
+    public static final String ATTACHMENT_EMPTY = "The file is empty";
+    public static final String ATTACHMENT_TOO_LARGE = "The file is larger than 10 MB";
+    public static final String ATTACHMENT_TYPE = "Only PDF, PNG, JPEG, GIF, WebP, Word (.docx), OpenDocument (.odt) and text files are accepted";
+    public static final String ATTACHMENTS_LIMIT = "An opportunity keeps at most %d files";
     public static final String PIPELINE_TEMPLATE_NOT_FOUND = "Pipeline template not found with id: %d";
     public static final String PIPELINE_TEMPLATE_NAME_TAKEN = "A pipeline template is already named \"%s\"";
     public static final String PIPELINE_TEMPLATES_LIMIT = "A workspace keeps at most %d pipeline templates";

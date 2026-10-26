@@ -150,8 +150,10 @@ class ProjectServiceTest extends ProjectServiceTestSupport {
         projectService.delete(1L);
 
         // Then
-        InOrder order = inOrder(projectNoteRepository, activityReportRepository, jobOfferStateRepository, projectRepository);
+        InOrder order = inOrder(projectNoteRepository, projectAttachmentRepository, activityReportRepository, jobOfferStateRepository,
+            projectRepository);
         order.verify(projectNoteRepository).deleteByProjectId(1L);
+        order.verify(projectAttachmentRepository).deleteByProjectId(1L);
         order.verify(activityReportRepository).deleteByProjectId(1L);
         order.verify(jobOfferStateRepository).clearImportedProject(1L);
         order.verify(projectRepository).deleteById(1L);

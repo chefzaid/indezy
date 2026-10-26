@@ -24,8 +24,9 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 6MB
+      # Opportunities' files go up to 10 MB (avatars stay under 512 KB in UserService).
+      max-file-size: 10MB
+      max-request-size: 11MB
   
   security:
     oauth2:

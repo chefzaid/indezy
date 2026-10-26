@@ -339,9 +339,7 @@
             </mat-card-content>
           </mat-card>
         }
-        @if (project.documents?.length || project.link) {
-          <app-project-resources [documents]="project.documents ?? []" [link]="project.link"></app-project-resources>
-        }
+        <app-project-resources [projectId]="project.id!" [documents]="project.documents ?? []" [link]="project.link"></app-project-resources>
         <!-- Interview steps -->
         <mat-card class="info-card steps-card">
           <mat-card-header>

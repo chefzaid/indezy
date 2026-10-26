@@ -283,3 +283,13 @@ export interface ProjectBulkUpdate {
   lostReason?: LostReason;
   sourceId?: number;
 }
+
+/** A file kept with an opportunity; {@code inline} when the browser may show it in the page (PDF and images). */
+export interface ProjectAttachment {
+  id: number;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  createdAt: string;
+  inline: boolean;
+}

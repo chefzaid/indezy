@@ -188,6 +188,7 @@ NNNN-short-title.md
 - [ADR 0007: Explicit Delivery Jobs And Non-Blocking Verification](./adr/0007-explicit-delivery-jobs.md)
 - [ADR 0008: Generate PDF Documents With Apache PDFBox](./adr/0008-pdf-documents-with-pdfbox.md)
 - [ADR 0009: Collect Freelance Offers From Job Boards In The Backend](./adr/0009-collecting-job-offers.md)
+- [ADR 0010: Keep Opportunity Files In PostgreSQL](./adr/0010-attachments-in-postgresql.md)
 
 ## Proposed ADRs For Upcoming Work
 

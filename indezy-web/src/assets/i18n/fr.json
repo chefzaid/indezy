@@ -461,6 +461,25 @@
         "GONE": "Cette page ne contient plus d'offre : elle a peut-être été retirée.",
         "SITE_UNAVAILABLE": "{{site}} n'a pas pu être lu à l'instant. Réessayez plus tard, ou remplissez le formulaire à la main."
       }
+    },
+    "attachments": {
+      "title": "Fichiers",
+      "add": "Joindre un fichier",
+      "none": "Aucun fichier : joignez la fiche de poste, le contrat ou l'énoncé d'un test.",
+      "preview": "Afficher « {{name}} »",
+      "download": "Télécharger « {{name}} »",
+      "delete": "Supprimer « {{name}} »",
+      "deleteConfirm": "Supprimer le fichier « {{name}} » ?",
+      "uploaded": "Fichier joint",
+      "deleted": "Fichier supprimé",
+      "tooLarge": "« {{name}} » dépasse 10 Mo",
+      "refused": "« {{name}} » n'a pas pu être joint : seuls les PDF, images, fichiers Word (.docx), OpenDocument (.odt) et texte sont acceptés",
+      "limit": "Une opportunité garde au plus 20 fichiers",
+      "uploadError": "Le fichier n'a pas pu être joint",
+      "loadError": "Les fichiers n'ont pas pu être chargés",
+      "openError": "Le fichier n'a pas pu être ouvert",
+      "deleteError": "Le fichier n'a pas pu être supprimé",
+      "close": "Fermer"
     }
   },
   "clients": {

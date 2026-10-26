@@ -6,6 +6,7 @@ import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.PipelineTemplateRepository;
+import dev.swirlit.indezy.repository.ProjectAttachmentRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SeasonRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
@@ -37,6 +38,7 @@ public class AccessGuard {
     private final InterviewStepRepository interviewStepRepository;
     private final SeasonRepository seasonRepository;
     private final PipelineTemplateRepository pipelineTemplateRepository;
+    private final ProjectAttachmentRepository projectAttachmentRepository;
 
     /**
      * The caller's freelance workspace id, or empty when checks are disabled (permit-all test
@@ -117,6 +119,10 @@ public class AccessGuard {
         if (seasonId != null) {
             requireSeason(seasonId);
         }
+    }
+
+    public void requireProjectAttachment(Long attachmentId) {
+        requireOwned(attachmentId, projectAttachmentRepository::findOwnerFreelanceIdById, "Attachment");
     }
 
     public void requirePipelineTemplate(Long templateId) {

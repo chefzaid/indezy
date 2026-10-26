@@ -8,6 +8,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { InterviewStepService } from '../../../services/interview-step/interview-step.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ProjectService } from '../../../services/project/project.service';
+import { ProjectAttachmentService } from '../../../services/project/project-attachment.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { UserProfile } from '../../../models/user-management.models';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -47,6 +48,7 @@ describe('ProjectDetailComponent steps and journal', () => {
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { params: of({ id: '12' }), snapshot: { queryParamMap: convertToParamMap({}) } } },
         { provide: ProjectService, useValue: projectService },
+        { provide: ProjectAttachmentService, useValue: { list: () => of([]) } },
         { provide: InterviewStepService, useValue: stepService },
         { provide: NotificationService, useValue: notifications },
         { provide: ConfirmDialogService, useValue: confirmDialog },

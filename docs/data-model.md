@@ -448,6 +448,19 @@ Model helpers:
 - `isFailed()`
 - `isPlanned()`
 
+## ProjectAttachment
+
+Table: `project_attachments`
+
+Purpose: the files kept with an opportunity (see [ADR 0010](./adr/0010-attachments-in-postgresql.md)).
+
+Important fields:
+
+- project (`project_id`); deleted with it
+- `fileName` (up to 255 characters, without folders or control characters)
+- `contentType`: the type recognised from the content (PDF, PNG, JPEG, GIF, WebP, Word, OpenDocument or UTF-8 text)
+- `sizeBytes` (up to 10 MB) and `content` (`bytea`), read only to serve the file
+
 ## PipelineTemplate
 
 Table: `pipeline_templates`

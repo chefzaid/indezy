@@ -1,0 +1,39 @@
+<div class="attachments">
+  <div class="attachments-header">
+    <span class="attachments-title"><mat-icon>attach_file</mat-icon>{{ 'projects.attachments.title' | translate }}</span>
+    <input #picker type="file" hidden [accept]="accepted" (change)="upload(picker)">
+    <button mat-stroked-button type="button" (click)="picker.click()" [disabled]="uploading">
+      <mat-icon>upload_file</mat-icon>
+      {{ 'projects.attachments.add' | translate }}
+    </button>
+  </div>
+  @if (uploading) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+  @for (attachment of attachments; track attachment.id) {
+    <div class="attachment">
+      <button type="button" class="attachment-open" (click)="open(attachment)"
+        [attr.aria-label]="(attachment.inline ? 'projects.attachments.preview' : 'projects.attachments.download') | translate:{ name: attachment.fileName }">
+        <mat-icon>{{ icon(attachment) }}</mat-icon>
+        <span class="attachment-name">{{ attachment.fileName }}</span>
+      </button>
+      <span class="attachment-meta">{{ size(attachment.sizeBytes) }} · {{ attachment.createdAt | date:'mediumDate' }}</span>
+      @if (attachment.inline) {
+        <button mat-icon-button type="button" (click)="download(attachment)"
+          [matTooltip]="'projects.attachments.download' | translate:{ name: attachment.fileName }"
+          [attr.aria-label]="'projects.attachments.download' | translate:{ name: attachment.fileName }">
+          <mat-icon>download</mat-icon>
+        </button>
+      }
+      <button mat-icon-button type="button" (click)="remove(attachment)"
+        [matTooltip]="'projects.attachments.delete' | translate:{ name: attachment.fileName }"
+        [attr.aria-label]="'projects.attachments.delete' | translate:{ name: attachment.fileName }">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+    </div>
+  } @empty {
+    @if (!uploading) {
+      <p class="attachments-empty">{{ 'projects.attachments.none' | translate }}</p>
+    }
+  }
+</div>

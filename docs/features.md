@@ -62,6 +62,9 @@ Implemented project fields include:
 - duration and renewal timing
 - days per year
 - document paths
+- files: PDF, images, Word, OpenDocument and text files of up to 10 MB, 20 per opportunity, attached from the
+  **Files** part of its **Documents and links** card; PDF and images open in the page, the others download (see
+  [Security](./security.md#file-uploads-and-attachments))
 - original link
 - personal rating
 - notes

@@ -91,7 +91,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [x] Commute-time sorting support using home address and job location
 - [x] Google Maps Distance Matrix API integration for driving and transit modes
 - [x] Graceful commute fallback when no Google Maps API key is configured
-- [ ] Attachments per project (job description PDF, contract, technical test brief) with inline preview (image, PDF) instead of forcing downloads
+- [x] Attachments per project (job description PDF, contract, technical test brief) with inline preview (image, PDF) instead of forcing downloads: stored in PostgreSQL ([ADR 0010](docs/adr/0010-attachments-in-postgresql.md)), 10 MB each, 20 per opportunity
 - [x] Notes/journal timeline per project (every call, email, decision logged chronologically), with Markdown support and live preview
 - [x] Note templates (call debrief, interview debrief, negotiation summary) selectable when adding a note
 - [ ] Voice memo after a call: record, transcribe, attach the transcript as a project note

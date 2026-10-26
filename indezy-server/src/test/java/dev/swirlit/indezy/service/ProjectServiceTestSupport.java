@@ -12,6 +12,7 @@ import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
+import dev.swirlit.indezy.repository.ProjectAttachmentRepository;
 import dev.swirlit.indezy.repository.ProjectNoteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,6 +55,9 @@ abstract class ProjectServiceTestSupport {
 
     @Mock
     ProjectNoteRepository projectNoteRepository;
+
+    @Mock
+    ProjectAttachmentRepository projectAttachmentRepository;
 
     @Mock
     ActivityReportRepository activityReportRepository;

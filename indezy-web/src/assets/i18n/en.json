@@ -461,6 +461,25 @@
         "GONE": "This page no longer holds an offer: it may have been taken down.",
         "SITE_UNAVAILABLE": "{{site}} could not be read just now. Try again later, or fill the form in by hand."
       }
+    },
+    "attachments": {
+      "title": "Files",
+      "add": "Attach a file",
+      "none": "No files yet: attach the job description, the contract or a test brief.",
+      "preview": "Show \"{{name}}\"",
+      "download": "Download \"{{name}}\"",
+      "delete": "Delete \"{{name}}\"",
+      "deleteConfirm": "Delete the file \"{{name}}\"?",
+      "uploaded": "File attached",
+      "deleted": "File deleted",
+      "tooLarge": "\"{{name}}\" is larger than 10 MB",
+      "refused": "\"{{name}}\" could not be attached: only PDF, images, Word (.docx), OpenDocument (.odt) and text files are accepted",
+      "limit": "An opportunity keeps at most 20 files",
+      "uploadError": "The file could not be attached",
+      "loadError": "The files could not be loaded",
+      "openError": "The file could not be opened",
+      "deleteError": "The file could not be deleted",
+      "close": "Close"
     }
   },
   "clients": {

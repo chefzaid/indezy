@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ProjectAttachmentsComponent } from '../project-attachments/project-attachments.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
@@ -6,13 +7,17 @@ import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-project-resources',
-  imports: [MatCardModule, MatIconModule, MatDividerModule, TranslateModule],
+  imports: [MatCardModule, MatIconModule, MatDividerModule, TranslateModule, ProjectAttachmentsComponent],
+  // Checked with the page, so the files it holds show what they load.
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <mat-card>
       <mat-card-header>
         <mat-card-title><mat-icon>folder</mat-icon>{{ 'projects.detail.documentsAndLinks' | translate }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
+        <app-project-attachments [projectId]="projectId"></app-project-attachments>
+        @if (documents.length || link) { <mat-divider></mat-divider> }
         @for (document of documents; track document) {
           <div class="document"><mat-icon>description</mat-icon><span>{{ document }}</span></div>
         }
@@ -46,6 +51,7 @@ import { TranslateModule } from '@ngx-translate/core';
   `
 })
 export class ProjectResourcesComponent {
+  @Input({ required: true }) projectId!: number;
   @Input() documents: string[] = [];
   @Input() link?: string;
 }
