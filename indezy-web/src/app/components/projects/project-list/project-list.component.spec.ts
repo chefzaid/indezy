@@ -1,7 +1,7 @@
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, of, throwError } from 'rxjs';
 import { FreelanceDto, PROJECT_STATUS_COLORS, ProjectDto, ProjectStatus } from '../../../models';
@@ -384,5 +384,27 @@ describe('ProjectListComponent', () => {
     fixture.debugElement.query(By.css('app-project-selection-bar')).triggerEventHandler('clear');
     fixture.detectChanges();
     expect(element.querySelector('app-project-selection-bar')).toBeNull();
+  });
+
+  it('starts from the filters in the address and keeps the address in step', () => {
+    const fixture = create([
+      { id: 1, role: 'Java', dailyRate: 600, techStack: 'Java' },
+      { id: 2, role: 'Kafka', dailyRate: 700, techStack: 'Kafka', archivedAt: '2026-10-01T03:30:00' },
+      { id: 3, role: 'Go', dailyRate: 400, techStack: 'Go' }
+    ] as ProjectDto[], { id: 7 }, [], () => TestBed.overrideProvider(ActivatedRoute, {
+      useValue: { snapshot: { queryParamMap: convertToParamMap({ min: '500', archived: 'active' }) } }
+    }));
+    const component = fixture.componentInstance;
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+
+    expect(titles(fixture)).toEqual(['Java']);
+    expect(component.filterForm.value.archived).toBe('active');
+
+    component.filterForm.patchValue({ archived: '', searchQuery: 'kafka' });
+
+    expect(titles(fixture)).toEqual(['Kafka']);
+    expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({
+      queryParams: { q: 'kafka', min: '500' }, replaceUrl: true
+    }));
   });
 });

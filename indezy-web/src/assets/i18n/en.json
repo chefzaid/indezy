@@ -488,6 +488,11 @@
       "openError": "The file could not be opened",
       "deleteError": "The file could not be deleted",
       "close": "Close"
+    },
+    "archiveFilter": {
+      "label": "Archive",
+      "active": "In the pipeline",
+      "archived": "Archived"
     }
   },
   "clients": {

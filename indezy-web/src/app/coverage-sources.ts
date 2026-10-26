@@ -122,6 +122,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'services/offer/offer.service',
   'services/pipeline-template/pipeline-template.service',
   'services/project/project-attachment.service',
+  'services/project/project-filter-url',
   'services/project/project-filter.util',
   'services/project/project.service',
   'services/search/global-search.service',

@@ -89,6 +89,12 @@ Implemented project fields include:
 
 The project form edits the pipeline stage (with the loss reason for lost opportunities), the client (final clients and ESNs are listed in two groups, an ESN being the client when the final client is unknown, as for missions added from the offer feed), the optional ESN/intermediary, the source and the season. The project page shows the stage as a pill that can be changed in place and names the opportunity's season, and the projects list filters by stage and season and paginates results.
 
+The projects list's filters combine: words searched, daily rate range, work mode, technologies (typed or picked as
+chips), stage, season, start and end dates, duration, client and **Archive** (all, those in the pipeline or the
+archived ones), with the sort. They live in the page's address (`/projects?q=java&min=500&archived=active&tags=Java,Kafka`,
+nothing for a filter left at its default), which is kept up to date as they change without adding to the browser's
+history, so a filtered view can be bookmarked, shared or reloaded; parameters that mean nothing are left out.
+
 Project pages and Kanban cards offer **Copy project link**. The copied
 `/projects?project=<id>` URL opens that project's detail page; `/dashboard?project=<id>`
 also works. Password login preserves the destination. These links require access to

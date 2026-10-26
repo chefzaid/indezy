@@ -488,6 +488,11 @@
       "openError": "Le fichier n'a pas pu être ouvert",
       "deleteError": "Le fichier n'a pas pu être supprimé",
       "close": "Fermer"
+    },
+    "archiveFilter": {
+      "label": "Archive",
+      "active": "Dans le pipeline",
+      "archived": "Archivées"
     }
   },
   "clients": {

@@ -27,6 +27,14 @@ describe('project filters', () => {
     expect(filterProjects(seasonal, { season: '' }).map(p => p.id)).toEqual([4, 5, 6]);
   });
 
+  it('keeps the opportunities in the pipeline, the archived ones or both, counting the filter when set', () => {
+    const shelved = [project({ id: 7 }), project({ id: 8, archivedAt: '2026-10-01T03:30:00' })];
+    expect(filterProjects(shelved, { archived: 'active' }).map(p => p.id)).toEqual([7]);
+    expect(filterProjects(shelved, { archived: 'archived' }).map(p => p.id)).toEqual([8]);
+    expect(filterProjects(shelved, { archived: '' }).map(p => p.id)).toEqual([7, 8]);
+    expect(countActiveFilters({ archived: 'archived' })).toBe(1);
+  });
+
   it('filters by derived end date and drops projects without one', () => {
     const result = filterProjects(projects, { endDateFrom: '2026-08-01' });
     expect(result.map(p => p.id)).toEqual([2]);

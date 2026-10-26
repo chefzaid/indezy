@@ -21,6 +21,8 @@ export interface ProjectFilterValues {
   duration?: string;
   client?: string;
   selectedTechStack?: string[];
+  /** '' for every opportunity, 'active' for those in the pipeline, 'archived' for the archived ones. */
+  archived?: '' | 'active' | 'archived';
   sortBy?: string;
   sortOrder?: string;
 }
@@ -45,7 +47,8 @@ export function filterProjects(projects: ProjectDto[], filters: ProjectFilterVal
     matchesSelectedTechStack(project, filters) &&
     matchesDateRange(project, filters) &&
     matchesDuration(project, filters) &&
-    matchesClient(project, filters)
+    matchesClient(project, filters) &&
+    matchesArchive(project, filters)
   );
 }
 
@@ -101,7 +104,8 @@ export function countActiveFilters(filters: ProjectFilterValues): number {
     filters.endDateTo,
     filters.duration,
     filters.client?.trim(),
-    filters.season
+    filters.season,
+    filters.archived
   ];
   return active.filter(Boolean).length;
 }
@@ -127,6 +131,10 @@ function matchesRate(project: ProjectDto, filters: ProjectFilterValues): boolean
     return false;
   }
   return true;
+}
+
+function matchesArchive(project: ProjectDto, filters: ProjectFilterValues): boolean {
+  return !filters.archived || (filters.archived === 'archived') === !!project.archivedAt;
 }
 
 function matchesWorkMode(project: ProjectDto, filters: ProjectFilterValues): boolean {

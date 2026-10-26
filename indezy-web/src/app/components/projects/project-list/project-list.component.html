@@ -96,6 +96,15 @@
               </mat-select>
             </mat-form-field>
 
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>{{ 'projects.archiveFilter.label' | translate }}</mat-label>
+              <mat-select formControlName="archived">
+                <mat-option value="">{{ 'common.all' | translate }}</mat-option>
+                <mat-option value="active">{{ 'projects.archiveFilter.active' | translate }}</mat-option>
+                <mat-option value="archived">{{ 'projects.archiveFilter.archived' | translate }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
             @if (seasons.length) {
               <mat-form-field appearance="outline" class="filter-field">
                 <mat-label>{{ 'seasons.label' | translate }}</mat-label>

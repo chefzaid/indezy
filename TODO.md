@@ -321,7 +321,7 @@ Increments, implemented in order:
 - [x] Language switching and saved language preference loading
 - [x] Global search (projects, clients, contacts, notes) with keyboard shortcut and match highlighting in results. Done on 2026-10-26: `Alt+Shift+S` or the top bar's search button; accent- and case-insensitive, every word in one field, up to 8 hits of each kind with the words highlighted and the passage they were found in; arrow keys and Enter (`docs/features.md#keyboard-shortcuts`). The top bar was tightened on phones so its five buttons fit 360 px without scrolling sideways.
 - [x] Consistent error handling and user feedback (toasts instead of pop-ups, explicit loading and empty states)
-- [ ] Composable filters (text + tags + status + date + archive) with state encoded in the URL for bookmarkable views
+- [x] Composable filters (text + tags + status + date + archive) with state encoded in the URL for bookmarkable views. Done on 2026-10-26: the projects list gains an **Archive** filter and keeps all its filters and sort in its address, read on load and updated as they change (`docs/features.md#projects-and-opportunities`).
 - [x] Stable deep links to any project or Kanban card (?project=<id>) for sharing and reopening directly
 - [x] Multi-select mode on project/client/contact lists (bulk delete, tag, status change, archive). Done on 2026-10-26: the projects list picks cards (or a whole page) and shares the Kanban board's bar, which now also adds a tag and deletes; the clients and contacts lists pick rows and delete them at once, keeping clients still linked to missions (`docs/features.md#kanban-and-pipeline-view`).
 - [x] Internationalization hardening (French/English translation coverage, language switch persistence, missing-key checks)

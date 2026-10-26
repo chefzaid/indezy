@@ -1,7 +1,7 @@
 import { Component, DestroyRef, ElementRef, Injector, OnInit, ViewChild, afterNextRender, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -41,6 +41,7 @@ import { TravelMode, ProjectCommuteDto, CommuteInfoDto } from '../../../models/c
 import { KeyboardShortcutsService } from '../../../shared/shortcuts/keyboard-shortcuts.service';
 import { saveBlob } from '../../../shared/utils/download-file';
 import { IdSelection } from '../../../shared/utils/id-selection';
+import { filtersFromParams, filtersToParams } from '../../../services/project/project-filter-url';
 import { ProjectSelectionBarComponent } from '../../project-selection-bar/project-selection-bar.component';
 
 @Component({
@@ -147,6 +148,8 @@ export class ProjectListComponent implements OnInit {
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly seasonService = inject(SeasonService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   constructor(
     private readonly projectService: ProjectService,
@@ -176,6 +179,7 @@ export class ProjectListComponent implements OnInit {
       duration: [''],
       client: [''],
       selectedTechStack: [[]],
+      archived: [''],
 
       // Sorting
       sortBy: ['startDate'],
@@ -190,10 +194,11 @@ export class ProjectListComponent implements OnInit {
       afterNextRender(() => this.projectSearch?.nativeElement.focus(), { injector: this.injector });
     });
     this.currentUser = this.authService.getUser();
+    // The address's filters apply from the first list shown.
+    this.setupFilters();
     this.loadProjects();
     this.loadSeasons();
     this.loadFreelanceProfile();
-    this.setupFilters();
   }
 
   loadProjects(): void {
@@ -229,10 +234,15 @@ export class ProjectListComponent implements OnInit {
       });
   }
 
+  /** Starts from the filters in the address, and keeps the address in step so the view can be bookmarked. */
   setupFilters(): void {
+    this.filterForm.patchValue(filtersFromParams(this.route.snapshot.queryParamMap), { emitEvent: false });
     this.filterForm.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.applyFilters());
+      .subscribe(filters => {
+        this.applyFilters();
+        void this.router.navigate([], { relativeTo: this.route, queryParams: filtersToParams(filters), replaceUrl: true });
+      });
   }
 
   applyFilters(): void {
