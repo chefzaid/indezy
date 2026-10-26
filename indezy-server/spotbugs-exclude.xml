@@ -9,4 +9,13 @@
     <Match>
         <Class name="~.*\.mapper\..*MapperImpl"/>
     </Match>
+    <!--
+        RequestIdFilter returns the caller's X-Request-Id only after matching it against
+        [A-Za-z0-9._-]{1,64}: no CR or LF can reach the header, so it cannot split the
+        response; anything else gets a generated UUID.
+    -->
+    <Match>
+        <Class name="dev.swirlit.indezy.config.RequestIdFilter"/>
+        <Bug pattern="HRS_REQUEST_PARAMETER_TO_HTTP_HEADER"/>
+    </Match>
 </FindBugsFilter>
