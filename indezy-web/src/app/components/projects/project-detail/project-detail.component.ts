@@ -51,6 +51,7 @@ import { UserManagementService } from '../../../services/user-management/user-ma
 import { AuthService } from '../../../services/auth/auth.service';
 import { RenameTagDialogComponent, RenameTagResult } from '../rename-tag-dialog/rename-tag-dialog.component';
 import { NOTE_TEMPLATES } from './note-templates';
+import { StepChecklistComponent } from '../step-checklist/step-checklist.component';
 
 @Component({
     selector: 'app-project-detail',
@@ -58,6 +59,7 @@ import { NOTE_TEMPLATES } from './note-templates';
         ProjectLinkComponent,
         ProjectResourcesComponent,
         ActivityReportCardComponent,
+        StepChecklistComponent,
         CommonModule,
         FormsModule,
         RouterModule,
@@ -332,6 +334,11 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         next: project => this.project = project ?? this.project,
         error: () => this.notificationService.error('errors.loadingProject')
       });
+  }
+
+  /** Keeps a step saved from its checklist, so its dialog opens with it. */
+  replaceStep(saved: InterviewStepDto): void {
+    this.steps = this.steps.map(step => step.id === saved.id ? saved : step);
   }
 
   isStepDone(step: InterviewStepDto): boolean {

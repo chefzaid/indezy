@@ -16,6 +16,7 @@ TRUNCATE TABLE
     project_documents,
     project_notes,
     seasons,
+    interview_step_checklist,
     interview_steps,
     contacts,
     projects,
@@ -291,6 +292,18 @@ SELECT
     0
 FROM projects AS project
 CROSS JOIN generate_series(1, 2) AS steps(step_number);
+
+-- Upcoming steps carry a preparation checklist, half of it ticked.
+INSERT INTO interview_step_checklist (step_id, position, label, done)
+SELECT step.id, item.position, item.label, item.position < 2
+FROM interview_steps AS step
+CROSS JOIN (VALUES
+    (0, 'Reread the job description and the client''s website'),
+    (1, 'Prepare two project examples matching the stack'),
+    (2, 'Prepare questions about the team and the delivery process'),
+    (3, 'Test the video call link and the microphone')
+) AS item(position, label)
+WHERE step.status = 'PLANNED';
 
 -- Accepted missions get last month's activity report, approved by their client or ESN, and the
 -- current month in progress up to yesterday. Days follow the work mode (hybrid: remote on Mondays

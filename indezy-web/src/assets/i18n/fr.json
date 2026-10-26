@@ -853,6 +853,23 @@
       "managerInterview": "Entretien manager",
       "clientInterview": "Entretien client",
       "finalValidation": "Validation finale"
+    },
+    "checklist": {
+      "title": "Préparation",
+      "progress": "{{done}}/{{total}} prêt(s)",
+      "newItem": "Un point à préparer",
+      "add": "Ajouter à la liste",
+      "remove": "Retirer « {{label}} »",
+      "suggest": "Ajouter les points suggérés",
+      "saveError": "La liste de préparation n'a pas pu être enregistrée",
+      "suggestions": {
+        "jobDescription": "Relire la fiche de poste",
+        "company": "Se renseigner sur le client et ses produits",
+        "examples": "Préparer deux exemples de projets sur la même stack",
+        "questions": "Préparer des questions sur l'équipe et l'organisation",
+        "rate": "Fixer le TJM à défendre",
+        "connection": "Tester le lien de visio, la caméra et le micro"
+      }
     }
   },
   "language": {

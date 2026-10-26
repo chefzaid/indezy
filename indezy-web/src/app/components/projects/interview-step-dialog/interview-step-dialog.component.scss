@@ -29,3 +29,32 @@
     min-width: 0;
   }
 }
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.checklist-title {
+  margin: 4px 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.checklist-item,
+.checklist-add {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  mat-checkbox,
+  .checklist-new {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.checklist-suggest {
+  align-self: flex-start;
+}

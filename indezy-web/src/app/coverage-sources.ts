@@ -60,6 +60,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/projects/project-list/project-list.component',
   'components/projects/projects.routes',
   'components/projects/rename-tag-dialog/rename-tag-dialog.component',
+  'components/projects/step-checklist/step-checklist.component',
   'components/seasons/season-dialog/season-dialog.component',
   'components/seasons/season-picker/season-picker.component',
   'components/sources/source-form/source-form.component',

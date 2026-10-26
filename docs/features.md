@@ -497,7 +497,14 @@ Current step statuses:
 - `VALIDATED`
 - `FAILED`
 
-The project page lists the steps as a timeline: each step can be added or edited (title with suggestions, status, local date and time, notes), moved to another status from its status pill, or deleted, and the header summarizes how many steps are validated. The backend exposes interview-step endpoints for creation, updates, transitions, and project-level retrieval.
+The project page lists the steps as a timeline: each step can be added or edited (title with suggestions, status, local date and time, notes), moved to another status from its status pill, or deleted, and the header summarizes how many steps are validated.
+
+Each step can carry a preparation checklist (up to 30 items of 200 characters, kept in their order). The step dialog
+adds items, removes them, ticks them and offers suggested ones in the interface language (reread the job description,
+research the client, prepare project examples and questions, decide the rate to defend, test the video call); an item
+already listed, whatever its case, is not added twice. On the timeline the checklist shows how much is ready
+(**Preparation · 2/4 ready**) and each item is ticked in place, saved with the step and put back if the save fails.
+The checklist travels in `InterviewStepDto.checklist`; a step saved without one has none. The backend exposes interview-step endpoints for creation, updates, transitions, and project-level retrieval.
 
 ## Project Journal
 

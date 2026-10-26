@@ -853,6 +853,23 @@
       "managerInterview": "Manager interview",
       "clientInterview": "Client interview",
       "finalValidation": "Final validation"
+    },
+    "checklist": {
+      "title": "Preparation",
+      "progress": "{{done}}/{{total}} ready",
+      "newItem": "Something to prepare",
+      "add": "Add to the checklist",
+      "remove": "Remove \"{{label}}\"",
+      "suggest": "Add suggested items",
+      "saveError": "The checklist could not be saved",
+      "suggestions": {
+        "jobDescription": "Reread the job description",
+        "company": "Research the client and its products",
+        "examples": "Prepare two project examples matching the stack",
+        "questions": "Prepare questions about the team and the delivery process",
+        "rate": "Decide the daily rate to defend",
+        "connection": "Test the video call link, camera and microphone"
+      }
     }
   },
   "language": {

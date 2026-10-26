@@ -404,6 +404,7 @@
                       @if (step.notes) {
                         <p class="step-notes">{{ step.notes }}</p>
                       }
+                      <app-step-checklist [step]="step" (saved)="replaceStep($event)"></app-step-checklist>
                     </div>
                   </li>
                 }

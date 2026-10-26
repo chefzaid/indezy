@@ -1,0 +1,15 @@
+@if (items.length > 0) {
+  <div class="step-checklist">
+    <span class="checklist-progress" [class.ready]="done === items.length">
+      {{ 'steps.checklist.title' | translate }} ·
+      {{ 'steps.checklist.progress' | translate:{ done: done, total: items.length } }}
+    </span>
+    <ul>
+      @for (item of items; track $index; let i = $index) {
+        <li>
+          <mat-checkbox [checked]="item.done" (change)="toggle(i)">{{ item.label }}</mat-checkbox>
+        </li>
+      }
+    </ul>
+  </div>
+}

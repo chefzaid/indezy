@@ -53,6 +53,36 @@
         [attr.aria-label]="'steps.notesOptional' | translate"
         [placeholder]="'steps.scheduleNotesPlaceholder' | translate"></textarea>
     </mat-form-field>
+
+    <section class="checklist" formArrayName="checklist">
+      <h3 class="checklist-title">{{ 'steps.checklist.title' | translate }}</h3>
+      @for (item of checklist.controls; track item; let i = $index) {
+        <div class="checklist-item" [formGroupName]="i">
+          <mat-checkbox formControlName="done">{{ item.value.label }}</mat-checkbox>
+          <button mat-icon-button type="button" (click)="removeItem(i)"
+            [attr.aria-label]="'steps.checklist.remove' | translate:{ label: item.value.label }">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+      <div class="checklist-add">
+        <mat-form-field appearance="outline" class="checklist-new" subscriptSizing="dynamic">
+          <mat-label>{{ 'steps.checklist.newItem' | translate }}</mat-label>
+          <input matInput [formControl]="newItem" [maxlength]="labelMax"
+            (keydown.enter)="$event.preventDefault(); addItem()">
+        </mat-form-field>
+        <button mat-icon-button type="button" (click)="addItem()" [disabled]="!newItem.value.trim()"
+          [attr.aria-label]="'steps.checklist.add' | translate">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+      @if (!suggestionsListed) {
+        <button mat-button type="button" class="checklist-suggest" (click)="addSuggestions()">
+          <mat-icon>playlist_add</mat-icon>
+          {{ 'steps.checklist.suggest' | translate }}
+        </button>
+      }
+    </section>
   </form>
 </mat-dialog-content>
 

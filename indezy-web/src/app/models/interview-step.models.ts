@@ -9,12 +9,20 @@ export enum StepStatus {
   FAILED = 'FAILED'
 }
 
+/** One thing to prepare before a step, ticked once done. */
+export interface StepChecklistItem {
+  label: string;
+  done: boolean;
+}
+
 export interface InterviewStepDto {
   id?: number;
   title: string;
   date?: string;
   status: StepStatus;
   notes?: string;
+  /** The preparation checklist, in its order; a step saved without one has none. */
+  checklist?: StepChecklistItem[];
   projectId?: number;
   projectRole?: string;
 }
@@ -24,6 +32,7 @@ export interface CreateInterviewStepDto {
   date?: string;
   status: StepStatus;
   notes?: string;
+  checklist?: StepChecklistItem[];
   projectId: number;
 }
 
@@ -33,6 +42,7 @@ export interface UpdateInterviewStepDto {
   date?: string;
   status?: StepStatus;
   notes?: string;
+  checklist?: StepChecklistItem[];
   projectId?: number;
 }
 

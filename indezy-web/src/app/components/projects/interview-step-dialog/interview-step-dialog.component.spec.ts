@@ -5,6 +5,7 @@ import { of, Subject, throwError } from 'rxjs';
 import { InterviewStepDto, StepStatus } from '../../../models';
 import { InterviewStepService } from '../../../services/interview-step/interview-step.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { TranslateService } from '@ngx-translate/core';
 
 describe('InterviewStepDialogComponent helpers', () => {
   it('sends the chosen wall-clock time without a time zone', () => {
@@ -35,8 +36,10 @@ describe('InterviewStepDialogComponent submissions', () => {
     notification = jasmine.createSpyObj('NotificationService', ['success', 'error']);
   });
 
+  const translate = { instant: (key: string) => `T:${key.split('.').pop()}` } as unknown as TranslateService;
+
   function create(step?: InterviewStepDto): InterviewStepDialogComponent {
-    return new InterviewStepDialogComponent(new FormBuilder(), dialog, { projectId: 9, step }, service, notification);
+    return new InterviewStepDialogComponent(new FormBuilder(), dialog, { projectId: 9, step }, service, notification, translate);
   }
 
   it('plans a new step when a date is chosen and saves the selected wall-clock time', () => {
@@ -46,7 +49,7 @@ describe('InterviewStepDialogComponent submissions', () => {
     expect(component.stepForm.value.status).toBe(StepStatus.PLANNED);
     component.onSubmit();
     expect(service.create).toHaveBeenCalledOnceWith({
-      title: 'Interview', date: '2026-09-15T14:30:00', notes: 'Prepare', status: StepStatus.PLANNED, projectId: 9
+      title: 'Interview', date: '2026-09-15T14:30:00', notes: 'Prepare', status: StepStatus.PLANNED, projectId: 9, checklist: []
     });
     expect(dialog.close).toHaveBeenCalledOnceWith(saved);
     expect(notification.success).toHaveBeenCalledWith('steps.addedSuccess');
@@ -59,7 +62,8 @@ describe('InterviewStepDialogComponent submissions', () => {
     component.stepForm.patchValue({ date: new Date(2026, 8, 16) });
     component.onSubmit();
     expect(service.update).toHaveBeenCalledOnceWith(4, {
-      id: 4, title: 'Interview', date: '2026-09-16T14:30:00', notes: undefined, status: StepStatus.VALIDATED, projectId: 9
+      id: 4, title: 'Interview', date: '2026-09-16T14:30:00', notes: undefined, status: StepStatus.VALIDATED, projectId: 9,
+      checklist: []
     });
     expect(notification.success).toHaveBeenCalledWith('steps.updatedSuccess');
   });
@@ -90,5 +94,54 @@ describe('InterviewStepDialogComponent submissions', () => {
     expect(dialog.close).not.toHaveBeenCalled();
     component.onCancel();
     expect(dialog.close).toHaveBeenCalledWith();
+  });
+
+  describe('preparation checklist', () => {
+    it('keeps the step\'s checklist and saves it edited, in its order', () => {
+      service.update.and.returnValue(of(saved));
+      const component = create({ ...saved, checklist: [{ label: 'Reread the offer', done: true }, { label: 'Test the call', done: false }] });
+
+      component.newItem.setValue('  Prepare questions ');
+      component.addItem();
+      component.removeItem(0);
+      component.checklist.at(0).patchValue({ done: true });
+      component.onSubmit();
+
+      expect(component.newItem.value).toBe('');
+      expect(service.update.calls.mostRecent().args[1].checklist).toEqual([
+        { label: 'Test the call', done: true }, { label: 'Prepare questions', done: false }
+      ]);
+    });
+
+    it('adds neither an empty item nor one already listed, whatever its case', () => {
+      const component = create({ ...saved, checklist: [{ label: 'Test the call', done: false }] });
+
+      component.addItem('   ');
+      component.addItem(' test THE call ');
+
+      expect(component.checklist.length).toBe(1);
+    });
+
+    it('cuts an item at the length the API keeps', () => {
+      const component = create();
+
+      component.addItem('x'.repeat(250));
+
+      expect(component.checklist.at(0).value.label.length).toBe(200);
+    });
+
+    it('adds the suggested items once, in the interface language', () => {
+      const component = create({ ...saved, checklist: [{ label: 'T:company', done: true }] });
+      expect(component.suggestionsListed).toBeFalse();
+
+      component.addSuggestions();
+      component.addSuggestions();
+
+      expect(component.checklist.value.map((item: { label: string }) => item.label)).toEqual([
+        'T:company', 'T:jobDescription', 'T:examples', 'T:questions', 'T:rate', 'T:connection'
+      ]);
+      expect(component.checklist.at(0).value.done).toBeTrue();
+      expect(component.suggestionsListed).toBeTrue();
+    });
   });
 });

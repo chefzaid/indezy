@@ -150,6 +150,16 @@ describe('ProjectDetailComponent steps and journal', () => {
       expect(fixture.componentInstance.project).toEqual(mission);
     });
 
+    it('keeps a step saved from its checklist for its next edit', () => {
+      const component = create().componentInstance;
+      const ticked = { ...interview, checklist: [{ label: 'Test the call', done: true }] };
+
+      component.replaceStep(ticked);
+
+      expect(component.steps.find(step => step.id === interview.id)).toBe(ticked);
+      expect(component.steps.length).toBe(2);
+    });
+
     it('keeps a step without id or already in that status', () => {
       const component = create().componentInstance;
 
