@@ -1,0 +1,30 @@
+:host {
+  // Sits with the add button at the end of the steps card's header.
+  margin-left: auto;
+}
+
+.template-row {
+  display: flex;
+  align-items: center;
+
+  .mat-mdc-menu-item {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.template-name {
+  display: block;
+  font-weight: 500;
+}
+
+.template-meta {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+.template-delete {
+  margin-right: 4px;
+}

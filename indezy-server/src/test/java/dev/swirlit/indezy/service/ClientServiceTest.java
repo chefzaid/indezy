@@ -8,6 +8,7 @@ import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.repository.PipelineTemplateRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,9 @@ class ClientServiceTest {
 
     @Mock
     private ClientMapper clientMapper;
+
+    @Mock
+    private PipelineTemplateRepository pipelineTemplateRepository;
 
     @InjectMocks
     private ClientService clientService;
@@ -202,6 +206,8 @@ class ClientServiceTest {
         // Then
         verify(clientRepository).findById(1L);
         verify(clientRepository).delete(testClient);
+        // Its pipeline templates are kept, for anyone.
+        verify(pipelineTemplateRepository).detachClient(1L);
     }
 
     @Test

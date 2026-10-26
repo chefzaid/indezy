@@ -5,6 +5,7 @@ import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
+import dev.swirlit.indezy.repository.PipelineTemplateRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SeasonRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
@@ -35,6 +36,7 @@ public class AccessGuard {
     private final SourceRepository sourceRepository;
     private final InterviewStepRepository interviewStepRepository;
     private final SeasonRepository seasonRepository;
+    private final PipelineTemplateRepository pipelineTemplateRepository;
 
     /**
      * The caller's freelance workspace id, or empty when checks are disabled (permit-all test
@@ -115,6 +117,10 @@ public class AccessGuard {
         if (seasonId != null) {
             requireSeason(seasonId);
         }
+    }
+
+    public void requirePipelineTemplate(Long templateId) {
+        requireOwned(templateId, pipelineTemplateRepository::findOwnerFreelanceIdById, "Pipeline template");
     }
 
     private void requireOwned(Long id, Function<Long, Optional<Long>> ownerLookup, String label) {

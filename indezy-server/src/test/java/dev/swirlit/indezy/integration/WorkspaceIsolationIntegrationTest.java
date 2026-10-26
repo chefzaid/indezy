@@ -218,6 +218,27 @@ class WorkspaceIsolationIntegrationTest {
     }
 
     @Test
+    void pipelineTemplatesStayInTheirWorkspace() {
+        long projectId = ((Number) call(alice, HttpMethod.POST, "/projects",
+            Map.of("role", "Dev", "dailyRate", 500, "clientId", aliceClientId, "freelanceId", alice.freelanceId()), Map.class)
+            .getBody().get("id")).longValue();
+        call(alice, HttpMethod.POST, "/interview-steps", Map.of("title", "Call", "status", "TO_PLAN", "projectId", projectId), Map.class);
+        ResponseEntity<Map> template = call(alice, HttpMethod.POST, "/pipeline-templates",
+            Map.of("name", "Alice process", "projectId", projectId, "clientId", aliceClientId), Map.class);
+        assertThat(template.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        long templateId = ((Number) template.getBody().get("id")).longValue();
+
+        assertThat(call(bob, HttpMethod.GET, "/pipeline-templates", null, List.class).getBody()).isEmpty();
+        assertThat(call(bob, HttpMethod.POST, "/pipeline-templates/" + templateId + "/apply/" + projectId, null, String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.DELETE, "/pipeline-templates/" + templateId, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.POST, "/pipeline-templates", Map.of("name", "Stolen", "projectId", projectId), String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.GET, "/pipeline-templates", null, List.class).getBody()).hasSize(1);
+    }
+
+    @Test
     void listEndpointsOnlyReturnTheCallersRecords() {
         ResponseEntity<List> bobClients = call(bob, HttpMethod.GET, "/clients", null, List.class);
         assertThat(bobClients.getStatusCode()).isEqualTo(HttpStatus.OK);

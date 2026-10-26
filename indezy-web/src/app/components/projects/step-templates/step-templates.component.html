@@ -1,0 +1,30 @@
+<button mat-stroked-button type="button" [matMenuTriggerFor]="templateMenu" (menuOpened)="load()">
+  <mat-icon>content_paste_go</mat-icon>
+  {{ 'steps.templates.menu' | translate }}
+</button>
+<mat-menu #templateMenu="matMenu" class="step-templates-menu">
+  @for (template of templates; track template.id) {
+    <div class="template-row">
+      <button mat-menu-item (click)="apply(template)">
+        <span class="template-name">{{ template.name }}</span>
+        <span class="template-meta">
+          {{ template.clientName ? ('steps.templates.forClient' | translate:{ client: template.clientName }) : ('steps.templates.forAnyone' | translate) }}
+          · {{ 'steps.templates.stepCount' | translate:{ count: template.steps.length } }}
+        </span>
+      </button>
+      <button mat-icon-button type="button" class="template-delete" (click)="remove(template, $event)"
+        [attr.aria-label]="'steps.templates.delete' | translate:{ name: template.name }">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+    </div>
+  } @empty {
+    @if (loaded) {
+      <button mat-menu-item disabled>{{ 'steps.templates.none' | translate }}</button>
+    }
+  }
+  <mat-divider></mat-divider>
+  <button mat-menu-item (click)="save()" [disabled]="!hasSteps">
+    <mat-icon>bookmark_add</mat-icon>
+    {{ 'steps.templates.save' | translate }}
+  </button>
+</mat-menu>

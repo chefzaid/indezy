@@ -892,6 +892,30 @@
         "rate": "Decide the daily rate to defend",
         "connection": "Test the video call link, camera and microphone"
       }
+    },
+    "templates": {
+      "menu": "Templates",
+      "apply": "Apply a template",
+      "forClient": "For {{client}}",
+      "forAnyone": "Any client",
+      "stepCount": "{{count}} step(s)",
+      "none": "No templates yet",
+      "save": "Save these steps as a template",
+      "saveTitle": "Save the recruitment process",
+      "name": "Template name",
+      "for": "For",
+      "anyone": "Any client or ESN",
+      "saved": "Template saved",
+      "applied": "{{count}} step(s) added from \"{{name}}\"",
+      "deleted": "Template deleted",
+      "delete": "Delete \"{{name}}\"",
+      "deleteConfirm": "Delete the template \"{{name}}\"? The steps it added stay.",
+      "nameTaken": "A template already has this name",
+      "limit": "The workspace keeps at most 50 templates",
+      "saveError": "The template could not be saved",
+      "applyError": "The template could not be applied",
+      "deleteError": "The template could not be deleted",
+      "loadError": "The templates could not be loaded"
     }
   },
   "language": {

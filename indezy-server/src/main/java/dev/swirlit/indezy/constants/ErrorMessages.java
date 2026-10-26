@@ -49,6 +49,10 @@ public final class ErrorMessages {
     public static final String SAVED_SEARCH_NOT_FOUND = "Saved search not found with id: %d";
     public static final String SAVED_SEARCH_NAME_TAKEN = "A saved search is already named \"%s\"";
     public static final String SAVED_SEARCHES_LIMIT = "A workspace keeps at most %d saved searches";
+    public static final String PIPELINE_TEMPLATE_NOT_FOUND = "Pipeline template not found with id: %d";
+    public static final String PIPELINE_TEMPLATE_NAME_TAKEN = "A pipeline template is already named \"%s\"";
+    public static final String PIPELINE_TEMPLATES_LIMIT = "A workspace keeps at most %d pipeline templates";
+    public static final String PIPELINE_TEMPLATE_WITHOUT_STEPS = "The opportunity has no steps to save as a template";
     public static final String SAVED_SEARCH_EMAIL_LINK_INVALID = "This email link is no longer valid";
     public static final String WORKSPACE_REQUIRED = "This action needs a workspace";
 

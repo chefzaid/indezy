@@ -448,6 +448,20 @@ Model helpers:
 - `isFailed()`
 - `isPlanned()`
 
+## PipelineTemplate
+
+Table: `pipeline_templates`
+
+Purpose: a recruitment process saved from an opportunity's steps to start another one with.
+
+Important fields:
+
+- name (up to 100 characters, unique per workspace whatever its case)
+- freelance (owning workspace)
+- optional client (`client_id`): the client or ESN whose process it is; cleared when that client is deleted
+- `steps` (`pipeline_template_steps`: `template_id`, `position`, `title`, `checklist`): each step's title and its
+  preparation items, one per line (an embedded collection cannot hold another one, and an item is a single line)
+
 ## Element Collections
 
 Current element collections:
@@ -457,6 +471,7 @@ Current element collections:
 - `project_documents`
 - `job_offer_skills`
 - `interview_step_checklist` (embeddable `StepChecklistItem`: label and done flag, ordered by `position`)
+- `pipeline_template_steps` (embeddable `TemplateStep`: title and checklist lines, ordered by `position`)
 - `activity_report_days` (embeddable `ActivityDay`)
 
 Use element collections for simple owned scalar lists. Use real entities when values need identity, auditing, search, ownership, permissions, or relationships.

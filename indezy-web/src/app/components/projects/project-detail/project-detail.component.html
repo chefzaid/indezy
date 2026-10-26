@@ -354,6 +354,7 @@
                 </span>
               }
             </mat-card-title>
+            <app-step-templates [project]="project" [hasSteps]="steps.length > 0" (applied)="refreshAfterStepChange()"></app-step-templates>
             <button mat-stroked-button color="primary" class="add-step-btn" (click)="openStepDialog()">
               <mat-icon>add</mat-icon>
               {{ 'steps.add' | translate }}

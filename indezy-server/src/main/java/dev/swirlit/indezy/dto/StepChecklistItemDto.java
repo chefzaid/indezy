@@ -10,6 +10,7 @@ public record StepChecklistItemDto(
     boolean done) {
 
     public StepChecklistItemDto {
-        label = label == null ? null : label.strip();
+        // One line: a pipeline template keeps a step's items one per line.
+        label = label == null ? null : label.strip().replaceAll("\\s*\\R\\s*", " ");
     }
 }

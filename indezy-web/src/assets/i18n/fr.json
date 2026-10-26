@@ -892,6 +892,30 @@
         "rate": "Fixer le TJM à défendre",
         "connection": "Tester le lien de visio, la caméra et le micro"
       }
+    },
+    "templates": {
+      "menu": "Modèles",
+      "apply": "Appliquer un modèle",
+      "forClient": "Pour {{client}}",
+      "forAnyone": "Tout client",
+      "stepCount": "{{count}} étape(s)",
+      "none": "Aucun modèle pour le moment",
+      "save": "Enregistrer ces étapes comme modèle",
+      "saveTitle": "Enregistrer le processus de recrutement",
+      "name": "Nom du modèle",
+      "for": "Pour",
+      "anyone": "Tout client ou ESN",
+      "saved": "Modèle enregistré",
+      "applied": "{{count}} étape(s) ajoutée(s) depuis « {{name}} »",
+      "deleted": "Modèle supprimé",
+      "delete": "Supprimer « {{name}} »",
+      "deleteConfirm": "Supprimer le modèle « {{name}} » ? Les étapes qu'il a ajoutées restent.",
+      "nameTaken": "Un modèle porte déjà ce nom",
+      "limit": "Un espace garde au plus 50 modèles",
+      "saveError": "Le modèle n'a pas pu être enregistré",
+      "applyError": "Le modèle n'a pas pu être appliqué",
+      "deleteError": "Le modèle n'a pas pu être supprimé",
+      "loadError": "Les modèles n'ont pas pu être chargés"
     }
   },
   "language": {

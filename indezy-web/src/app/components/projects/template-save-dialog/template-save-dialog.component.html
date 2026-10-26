@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>{{ 'steps.templates.saveTitle' | translate }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="save()" class="template-form">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'steps.templates.name' | translate }}</mat-label>
+      <input matInput formControlName="name" maxlength="100" cdkFocusInitial>
+      @if (form.get('name')?.hasError('required')) {
+        <mat-error>{{ 'errors.fieldRequired' | translate }}</mat-error>
+      }
+      @if (form.get('name')?.hasError('taken')) {
+        <mat-error>{{ 'steps.templates.nameTaken' | translate }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'steps.templates.for' | translate }}</mat-label>
+      <mat-select formControlName="clientId">
+        @for (choice of choices; track choice.id) {
+          <mat-option [value]="choice.id">{{ choice.name }}</mat-option>
+        }
+        <mat-option [value]="null">{{ 'steps.templates.anyone' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close [disabled]="saving">{{ 'common.cancel' | translate }}</button>
+  <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="form.invalid || saving">
+    {{ (saving ? 'common.saving' : 'common.save') | translate }}
+  </button>
+</mat-dialog-actions>

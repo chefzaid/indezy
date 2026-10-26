@@ -65,6 +65,9 @@ class UserDataExportServiceTest {
     @Mock
     private OfferPublisherBlockService offerPublisherBlockService;
 
+    @Mock
+    private PipelineTemplateService pipelineTemplateService;
+
     @InjectMocks
     private UserDataExportService userDataExportService;
 
@@ -131,6 +134,7 @@ class UserDataExportServiceTest {
             .contains("\"q\" : \"kafka\"")
             .contains("\"excludedOfferSites\" : [ \"YEETS\" ]")
             .contains("\"blockedOfferPublishers\"")
+            .contains("\"pipelineTemplates\"")
             .contains("\"offerSiteVisits\"")
             .contains("Call Léa")
             .contains("\"via\" : \"PHONE\"")

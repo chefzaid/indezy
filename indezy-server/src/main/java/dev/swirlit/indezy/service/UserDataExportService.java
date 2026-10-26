@@ -33,6 +33,7 @@ public class UserDataExportService {
     private final OfferSearchSuggestionService offerSearchSuggestionService;
     private final OfferSiteHealthService offerSiteHealthService;
     private final OfferPublisherBlockService offerPublisherBlockService;
+    private final PipelineTemplateService pipelineTemplateService;
 
     // Self-contained mapper (the app does not expose an ObjectMapper bean); modules add date support, written as ISO-8601.
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules()
@@ -56,6 +57,7 @@ public class UserDataExportService {
         export.put("excludedOfferSites", offerSiteHealthService.excludedSites(freelanceId));
         export.put("offerSiteVisits", offerSiteHealthService.visits(freelanceId));
         export.put("blockedOfferPublishers", offerPublisherBlockService.list(freelanceId));
+        export.put("pipelineTemplates", pipelineTemplateService.list(freelanceId));
 
         try {
             return objectMapper.writerWithDefaultPrettyPrinter()

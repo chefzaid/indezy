@@ -53,6 +53,7 @@ import { RenameTagDialogComponent, RenameTagResult } from '../rename-tag-dialog/
 import { NOTE_TEMPLATES } from './note-templates';
 import { StepChecklistComponent } from '../step-checklist/step-checklist.component';
 import { ProjectArchiveActionComponent } from '../project-archive-action/project-archive-action.component';
+import { StepTemplatesComponent } from '../step-templates/step-templates.component';
 
 @Component({
     selector: 'app-project-detail',
@@ -62,6 +63,7 @@ import { ProjectArchiveActionComponent } from '../project-archive-action/project
         ActivityReportCardComponent,
         StepChecklistComponent,
         ProjectArchiveActionComponent,
+        StepTemplatesComponent,
         CommonModule,
         FormsModule,
         RouterModule,
@@ -326,7 +328,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   }
 
   /** Step counters on the project come from the server; reload both after a change. */
-  private refreshAfterStepChange(): void {
+  refreshAfterStepChange(): void {
     this.loadSteps();
     if (!this.projectId) { return; }
     this.projectService.getById(this.projectId)

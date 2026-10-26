@@ -504,7 +504,17 @@ adds items, removes them, ticks them and offers suggested ones in the interface 
 research the client, prepare project examples and questions, decide the rate to defend, test the video call); an item
 already listed, whatever its case, is not added twice. On the timeline the checklist shows how much is ready
 (**Preparation · 2/4 ready**) and each item is ticked in place, saved with the step and put back if the save fails.
-The checklist travels in `InterviewStepDto.checklist`; a step saved without one has none. The backend exposes interview-step endpoints for creation, updates, transitions, and project-level retrieval.
+The checklist travels in `InterviewStepDto.checklist`; a step saved without one has none.
+
+Recruitment processes can be reused: **Templates** on the steps card saves the opportunity's
+steps, in their timeline order and with their checklist items, as a named template kept for
+its ESN (proposed first, since an ESN keeps its process across clients), its client, or any
+client. The same menu lists the workspace's templates, the opportunity's ESN's and client's
+first, each with how many steps it holds; picking one adds its steps to the opportunity, to
+plan, without dates, their checklists unticked, after the steps it already has. A template is
+deleted from the menu after a confirmation; the steps it added stay. A workspace keeps up to
+50 templates with distinct names (case aside), deleting a client keeps its templates for any
+client, and the GDPR export includes them (`/pipeline-templates`). The backend exposes interview-step endpoints for creation, updates, transitions, and project-level retrieval.
 
 ## Project Journal
 

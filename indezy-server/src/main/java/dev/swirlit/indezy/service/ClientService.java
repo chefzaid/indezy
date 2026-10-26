@@ -9,6 +9,7 @@ import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.repository.PipelineTemplateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class ClientService {
     private final ClientRepository clientRepository;
     private final FreelanceRepository freelanceRepository;
     private final ClientMapper clientMapper;
+    private final PipelineTemplateRepository pipelineTemplateRepository;
 
     @Transactional(readOnly = true)
     public List<ClientDto> findAll() {
@@ -95,6 +97,7 @@ public class ClientService {
             throw new ResourceInUseException(String.format(ErrorMessages.CLIENT_HAS_PROJECTS, id));
         }
         
+        pipelineTemplateRepository.detachClient(id);
         clientRepository.delete(client);
         log.debug("Deleted client with id: {}", id);
     }
