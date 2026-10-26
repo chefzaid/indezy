@@ -4,6 +4,27 @@
     {{ 'dashboard.remindersTitle' | translate }}
   </h2>
   <div class="reminders-grid">
+    @if (getUpcomingInterviews().length > 0) {
+      <section class="reminder-card accent-teal">
+        <h3 class="reminder-title">
+          <mat-icon>event</mat-icon>
+          {{ 'dashboard.charts.upcomingInterviews' | translate }}
+          <span class="count">{{ getUpcomingInterviews().length }}</span>
+        </h3>
+        @for (interview of visible(getUpcomingInterviews(), 'interviews'); track interview.stepId) {
+          <a class="reminder-row" [routerLink]="['/projects', interview.projectId]">
+            <span class="primary">{{ interview.title }}</span>
+            <span class="secondary">{{ interview.role }}{{ interview.clientName ? ' · ' + interview.clientName : '' }}</span>
+            <span class="meta">{{ interview.date | date:'EEE d MMM, HH:mm' }}</span>
+          </a>
+        }
+        @if (getUpcomingInterviews().length > collapsedSize) {
+          <button type="button" class="toggle-btn" (click)="toggle('interviews')">
+            {{ isExpanded('interviews') ? ('dashboard.showLess' | translate) : ('dashboard.showAll' | translate:{ count: getUpcomingInterviews().length }) }}
+          </button>
+        }
+      </section>
+    }
     @if (getMissionsEndingSoon().length > 0) {
       <section class="reminder-card accent-orange">
         <h3 class="reminder-title">

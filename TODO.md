@@ -135,7 +135,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 
 ## Calendar & Scheduling
 
-- [ ] In-app calendar with interview reminders (already in roadmap - implement)
+- [x] In-app calendar with interview reminders (already in roadmap - implement): **Calendar** page and the dashboard's interviews of the week (`docs/features.md#calendar`)
 - [ ] Two-way sync with Google Calendar / Outlook Calendar and external notification systems
 - [ ] Availability sharing link (let recruiters book a slot, Calendly-style)
 - [x] Interview preparation checklist attached to each scheduled step (step dialog with suggested items, ticked from the project's timeline, see `docs/features.md#interview-steps`)

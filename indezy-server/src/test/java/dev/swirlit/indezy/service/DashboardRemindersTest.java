@@ -2,8 +2,10 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.model.Contact;
+import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.model.enums.StepStatus;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -15,6 +17,34 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class DashboardRemindersTest extends DashboardStatsTestSupport {
+
+    @Test
+    void upcomingInterviews_ShouldListThePlannedStepsOfTheComingWeekSoonestFirst() {
+        LocalDateTime now = LocalDateTime.of(2026, 10, 26, 9, 0);
+        Project mission = activeOpportunity(4L, ProjectStatus.INTERVIEW, now);
+        mission.setRole("Java developer");
+        InterviewStep later = step(1L, mission, "Client interview", StepStatus.PLANNED, now.plusDays(7));
+        InterviewStep sooner = step(2L, mission, "Technical test", StepStatus.PLANNED, now.plusHours(2));
+        InterviewStep past = step(3L, mission, "Call", StepStatus.PLANNED, now.minusMinutes(1));
+        InterviewStep tooLate = step(4L, mission, "Final", StepStatus.PLANNED, now.plusDays(7).plusMinutes(1));
+        InterviewStep unplanned = step(5L, mission, "To plan", StepStatus.TO_PLAN, now.plusDays(1));
+        InterviewStep undated = step(6L, mission, "Undated", StepStatus.PLANNED, null);
+
+        assertThat(DashboardReminders.buildUpcomingInterviews(List.of(later, sooner, past, tooLate, unplanned, undated), now))
+            .extracting(DashboardStatsDto.UpcomingInterview::getStepId, DashboardStatsDto.UpcomingInterview::getTitle,
+                DashboardStatsDto.UpcomingInterview::getRole, DashboardStatsDto.UpcomingInterview::getProjectId)
+            .containsExactly(tuple(2L, "Technical test", "Java developer", 4L), tuple(1L, "Client interview", "Java developer", 4L));
+    }
+
+    private static InterviewStep step(Long id, Project project, String title, StepStatus status, LocalDateTime date) {
+        InterviewStep step = new InterviewStep();
+        step.setId(id);
+        step.setProject(project);
+        step.setTitle(title);
+        step.setStatus(status);
+        step.setDate(date);
+        return step;
+    }
 
     @Test
     void staleOpportunities_ShouldLeaveArchivedOnesOut() {

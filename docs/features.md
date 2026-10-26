@@ -534,6 +534,14 @@ Variables, written `{{name}}`: `firstName`, `lastName` (the recipient), `company
 to complete. Templates are stored per workspace (`/email-templates`) and included in the GDPR export; nothing is sent by
 Indezy.
 
+## Calendar
+
+**Calendar** in the navigation shows a month, Monday first, of every dated interview step across the opportunities:
+each day lists up to three steps by time, coloured by status, then how many more, and the picked day (today at first)
+lists all of them below the grid with their opportunity, which they open. The arrows and **Today** change the month,
+kept in the address (`/calendar?month=2026-10`). On a phone, days show how many steps they hold and the list below
+gives them.
+
 ## Project Journal
 
 Each project has a chronological journal of free-text notes (calls, emails, decisions) exposed under `/api/projects/{projectId}/notes` (list newest-first, add, delete). The project detail page shows the timeline with timestamps and lets the user add or remove entries. Notes are stored and rendered as plain text for now; Markdown support with live preview is a planned enhancement.
@@ -643,6 +651,7 @@ The dashboard provides an overview of the opportunity workspace with:
 - daily rate evolution by year (average asked vs obtained daily rate)
 - bench time tracking (idle days and number of gaps between signed missions, with an estimated cost)
 - pipeline conversion funnel (how many opportunities reach each stage, to reveal where they drop off), overall and broken down by source, client type (direct vs through an ESN) and ESN
+- interviews of the week (steps planned in the next seven days, soonest first, with their time and opportunity), first among the reminders
 - mission end-date reminders (signed missions ending within six weeks, so prospection can restart before the bench)
 - stale-opportunity detection (active opportunities idle for the configured inactivity period, surfaced to follow up or archive before they go cold)
 - new missions from the offer feed: the five offers not seen yet that match the profile best (or the five newest, with

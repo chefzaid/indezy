@@ -35,6 +35,7 @@ describe('DashboardRemindersComponent', () => {
     expect(component.getMissionsEndingSoon()).toEqual([]);
     expect(component.getDormantContacts()).toEqual([]);
     expect(component.getStaleOpportunities()).toEqual([]);
+    expect(component.getUpcomingInterviews()).toEqual([]);
   });
 
   it('reads reminder lists from the provided stats', () => {
@@ -83,6 +84,23 @@ describe('DashboardRemindersComponent', () => {
     expect(section(element, 'accent-grey').textContent).toContain('Jane Doe');
     expect(section(element, 'accent-pink').textContent).toContain('Pied Piper');
     expect(element.querySelector('.toggle-btn')).toBeNull();
+  });
+
+  it('lists the interviews of the week first, with their time and opportunity', () => {
+    const element = render({
+      upcomingInterviews: [{ stepId: 9, projectId: 4, title: 'Technical test', role: 'Java dev', clientName: 'Alten', date: '2026-10-27T14:30:00' }],
+      missionsEndingSoon: [{ projectId: 1, role: 'Java dev', clientName: 'Acme', endDate: '2026-11-01', daysUntilEnd: 6 }]
+    });
+
+    expect(component.hasReminders()).toBeTrue();
+    const card = element.querySelector<HTMLElement>('.reminder-card')!;
+    expect(card.classList).toContain('accent-teal');
+    expect(rows(card).map(row => row.getAttribute('href'))).toEqual(['/projects/4']);
+    expect(card.textContent).toContain('Technical test');
+    expect(card.textContent).toContain('Java dev · Alten');
+    expect(card.textContent).toContain('Tue 27 Oct, 14:30');
+    expect(render({ upcomingInterviews: [{ stepId: 1, projectId: 2, title: 'Call', role: 'Ops', date: '2026-10-27T09:00:00' }] })
+      .querySelector('.reminder-card.accent-teal')!.textContent).not.toContain(' · ');
   });
 
   it('shows the first rows of a long list until it is expanded', () => {

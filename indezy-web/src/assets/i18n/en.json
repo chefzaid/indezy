@@ -70,7 +70,8 @@
     "archive": "Archive",
     "profile": "Profile",
     "logout": "Sign out",
-    "toggleMenu": "Toggle navigation menu"
+    "toggleMenu": "Toggle navigation menu",
+    "calendar": "Calendar"
   },
   "timeline": {
     "title": "Timeline",
@@ -201,7 +202,8 @@
       "dormantContacts": "Contacts to reconnect with",
       "quietForMonths": "quiet for {{months}} months",
       "staleOpportunities": "Stale opportunities (follow up or archive)",
-      "idleForDays": "idle for {{days}} days"
+      "idleForDays": "idle for {{days}} days",
+      "upcomingInterviews": "Interviews this week"
     },
     "estimatedRevenueHint": "Total value of accepted missions and open opportunities (lost ones excluded), unweighted.",
     "forecastRevenueHint": "Mission value weighted by the win probability of each pipeline stage.",
@@ -1729,5 +1731,15 @@
       "deleteError": "The template could not be deleted",
       "loadError": "The templates could not be loaded"
     }
+  },
+  "calendar": {
+    "title": "Calendar",
+    "previous": "Previous month",
+    "next": "Next month",
+    "today": "Today",
+    "nothing": "Nothing planned this day",
+    "loadError": "The steps could not be loaded",
+    "more": "+{{count}}",
+    "dayLabel": "{{date}}: {{count}} step(s)"
   }
 }

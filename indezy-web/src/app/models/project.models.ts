@@ -146,6 +146,8 @@ export interface DashboardStatsDto {
   upcomingRenewals: UpcomingRenewal[];
   onThisDay: OnThisDayItem[];
   dormantContacts: DormantContact[];
+  /** Interview steps planned in the next seven days, soonest first. */
+  upcomingInterviews?: UpcomingInterview[];
   skillTrends: SkillTrend[];
   processDurations: ProcessDuration[];
   activityHeatmap: ActivityDay[];
@@ -187,6 +189,15 @@ export interface MissionEndingSoon {
   clientName: string;
   endDate: string;
   daysUntilEnd: number;
+}
+
+export interface UpcomingInterview {
+  stepId: number;
+  projectId: number;
+  title: string;
+  role: string;
+  clientName?: string;
+  date: string;
 }
 
 export interface StaleOpportunity {

@@ -120,6 +120,10 @@ public class DashboardStatsService {
             today.minusDays(DashboardAnalytics.HEATMAP_WINDOW_DAYS).atStartOfDay(),
             today.plusDays(1).atStartOfDay()), seasonId);
 
+        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+        List<InterviewStep> upcomingSteps = inSeason(interviewStepRepository.findByFreelanceIdAndDateBetween(
+            freelanceId, now, now.plusDays(DashboardReminders.UPCOMING_INTERVIEW_DAYS)), seasonId);
+
         return DashboardStatsDto.builder()
             .totalProjects(totalProjects)
             .averageDailyRate(averageDailyRate)
@@ -152,6 +156,7 @@ public class DashboardStatsService {
             .upcomingRenewals(DashboardReminders.buildUpcomingRenewals(projects, today, noticePeriodInDays))
             .onThisDay(DashboardReminders.buildOnThisDay(projects, contacts, today))
             .dormantContacts(DashboardReminders.buildDormantContacts(contacts, LocalDateTime.now(ZoneId.systemDefault())))
+            .upcomingInterviews(DashboardReminders.buildUpcomingInterviews(upcomingSteps, now))
             .skillTrends(DashboardAnalytics.buildSkillTrends(projects))
             .processDurations(DashboardAnalytics.buildProcessDurations(
                 projects, DashboardAnalytics.signatureDates(validatedSteps)))

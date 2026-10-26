@@ -70,7 +70,8 @@
     "archive": "Archives",
     "profile": "Profil",
     "logout": "Déconnexion",
-    "toggleMenu": "Afficher ou masquer le menu"
+    "toggleMenu": "Afficher ou masquer le menu",
+    "calendar": "Calendrier"
   },
   "timeline": {
     "title": "Planning",
@@ -201,7 +202,8 @@
       "dormantContacts": "Contacts à relancer",
       "quietForMonths": "sans activité depuis {{months}} mois",
       "staleOpportunities": "Opportunités dormantes (relancer ou archiver)",
-      "idleForDays": "inactive depuis {{days}} jours"
+      "idleForDays": "inactive depuis {{days}} jours",
+      "upcomingInterviews": "Entretiens de la semaine"
     },
     "estimatedRevenueHint": "Valeur totale des missions acceptées et des opportunités en cours (hors perdues), sans pondération.",
     "forecastRevenueHint": "Valeur des missions pondérée par la probabilité de gain de chaque étape du pipeline.",
@@ -1729,5 +1731,15 @@
       "deleteError": "Le modèle n'a pas pu être supprimé",
       "loadError": "Les modèles n'ont pas pu être chargés"
     }
+  },
+  "calendar": {
+    "title": "Calendrier",
+    "previous": "Mois précédent",
+    "next": "Mois suivant",
+    "today": "Aujourd'hui",
+    "nothing": "Rien de prévu ce jour",
+    "loadError": "Les étapes n'ont pas pu être chargées",
+    "more": "+{{count}}",
+    "dayLabel": "{{date}} : {{count}} étape(s)"
   }
 }

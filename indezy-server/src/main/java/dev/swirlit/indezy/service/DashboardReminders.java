@@ -2,8 +2,10 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.model.Contact;
+import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.model.enums.StepStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,13 +18,14 @@ import java.util.List;
 
 /**
  * Pure computations for the dashboard's time-based nudges: stale opportunities, missions ending
- * soon, upcoming renewals, "on this day" anniversaries and dormant contacts.
+ * soon, upcoming renewals, "on this day" anniversaries, dormant contacts and the interviews of the coming week.
  */
 final class DashboardReminders {
 
     private static final int ENDING_SOON_WEEKS = 6;
     private static final int ANNIVERSARY_WINDOW_DAYS = 3;
     private static final int DORMANT_THRESHOLD_MONTHS = 6;
+    static final int UPCOMING_INTERVIEW_DAYS = 7;
 
     private DashboardReminders() {
     }
@@ -176,6 +179,24 @@ final class DashboardReminders {
      * {@link #DORMANT_THRESHOLD_MONTHS} months, so the freelance can reconnect before the
      * relationship goes cold. Most dormant first.
      */
+    /** The planned interview steps from {@code now} to seven days later, soonest first. */
+    static List<DashboardStatsDto.UpcomingInterview> buildUpcomingInterviews(List<InterviewStep> steps, LocalDateTime now) {
+        LocalDateTime until = now.plusDays(UPCOMING_INTERVIEW_DAYS);
+        return steps.stream()
+            .filter(step -> step.getStatus() == StepStatus.PLANNED && step.getDate() != null &&
+                !step.getDate().isBefore(now) && !step.getDate().isAfter(until))
+            .sorted(Comparator.comparing(InterviewStep::getDate))
+            .map(step -> DashboardStatsDto.UpcomingInterview.builder()
+                .stepId(step.getId())
+                .projectId(step.getProject().getId())
+                .title(step.getTitle())
+                .role(step.getProject().getRole())
+                .clientName(step.getProject().getClient() != null ? step.getProject().getClient().getCompanyName() : null)
+                .date(step.getDate())
+                .build())
+            .toList();
+    }
+
     static List<DashboardStatsDto.DormantContact> buildDormantContacts(List<Contact> contacts, LocalDateTime now) {
         List<DashboardStatsDto.DormantContact> dormant = new ArrayList<>();
         for (Contact contact : contacts) {

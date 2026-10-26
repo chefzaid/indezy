@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,8 @@ public class DashboardStatsDto {
     private List<UpcomingRenewal> upcomingRenewals;
     private List<OnThisDayItem> onThisDay;
     private List<DormantContact> dormantContacts;
+    /** Interview steps planned in the next seven days, soonest first. */
+    private List<UpcomingInterview> upcomingInterviews;
     private List<SkillTrend> skillTrends;
     private List<ProcessDuration> processDurations;
     private List<ActivityDay> activityHeatmap;
@@ -229,5 +232,18 @@ public class DashboardStatsDto {
         private String clientName;
         private String status;
         private long daysSinceActivity;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpcomingInterview {
+        private Long stepId;
+        private Long projectId;
+        private String title;
+        private String role;
+        private String clientName;
+        private LocalDateTime date;
     }
 }

@@ -1,0 +1,64 @@
+<div class="calendar-container">
+  <div class="calendar-header">
+    <h1>{{ 'calendar.title' | translate }}</h1>
+    <div class="month-nav">
+      <button mat-icon-button type="button" (click)="go(-1)" [attr.aria-label]="'calendar.previous' | translate"
+        [matTooltip]="'calendar.previous' | translate">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="month-name">{{ month | date:'MMMM y' }}</span>
+      <button mat-icon-button type="button" (click)="go(1)" [attr.aria-label]="'calendar.next' | translate"
+        [matTooltip]="'calendar.next' | translate">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <button mat-stroked-button type="button" (click)="go()">{{ 'calendar.today' | translate }}</button>
+    </div>
+  </div>
+
+  <div class="month-grid" role="grid" [attr.aria-label]="month | date:'MMMM y'">
+    <div class="weekdays" role="row">
+      @for (day of weeks[0]; track day.key) {
+        <span role="columnheader">{{ day.date | date:'EEE' }}</span>
+      }
+    </div>
+    @for (week of weeks; track week[0].key) {
+      <div class="week" role="row">
+        @for (day of week; track day.key) {
+          <button type="button" role="gridcell" class="day" [class.out]="!day.inMonth" [class.today]="day.key === todayKey"
+            [class.selected]="day.key === selected?.key" (click)="select(day)"
+            [attr.aria-label]="'calendar.dayLabel' | translate:{ date: (day.date | date:'fullDate'), count: day.steps.length }">
+            <span class="day-number">{{ day.date | date:'d' }}</span>
+            @for (step of day.steps.slice(0, perDay); track step.id) {
+              <span class="day-step" [style.--status-color]="statusColors[step.status]">
+                {{ step.date | date:'HH:mm' }} {{ step.title }}
+              </span>
+            }
+            @if (day.steps.length > perDay) {
+              <span class="day-more">{{ 'calendar.more' | translate:{ count: day.steps.length - perDay } }}</span>
+            }
+            @if (day.steps.length) {
+              <span class="day-count" aria-hidden="true">{{ day.steps.length }}</span>
+            }
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  @if (selected) {
+    <section class="day-detail">
+      <h2>{{ selected.date | date:'fullDate' }}</h2>
+      @for (step of selected.steps; track step.id) {
+        <a class="detail-step" [routerLink]="['/projects', step.projectId]" [style.--status-color]="statusColors[step.status]">
+          <span class="detail-time">{{ step.date | date:'HH:mm' }}</span>
+          <span class="detail-text">
+            <span class="detail-title">{{ step.title }}</span>
+            <span class="detail-meta">{{ step.projectRole }} · {{ 'steps.statuses.' + step.status | translate }}</span>
+          </span>
+        </a>
+      } @empty {
+        <p class="nothing">{{ 'calendar.nothing' | translate }}</p>
+      }
+    </section>
+  }
+</div>

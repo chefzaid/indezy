@@ -7,6 +7,8 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/archive/archive.component',
   'components/auth/login/login.component',
   'components/auth/register/register.component',
+  'components/calendar/calendar-month',
+  'components/calendar/calendar.component',
   'components/clients/client-detail/client-detail.component',
   'components/clients/client-form/client-form.component',
   'components/clients/client-list/client-list.component',

@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
-import { DashboardStatsDto, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, OnThisDayItem, DormantContact } from '../../../models';
+import {
+  DashboardStatsDto, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, OnThisDayItem, DormantContact, UpcomingInterview
+} from '../../../models';
 
 /**
- * Renders the dashboard's time-based reminder lists (missions ending, renewals, "on this day",
+ * Renders the dashboard's time-based reminder lists (interviews of the week, missions ending, renewals, "on this day",
  * dormant contacts, stale opportunities) from the aggregated dashboard stats.
  */
 @Component({
@@ -42,8 +44,12 @@ export class DashboardRemindersComponent {
   }
 
   hasReminders(): boolean {
-    return this.getMissionsEndingSoon().length + this.getUpcomingRenewals().length +
+    return this.getUpcomingInterviews().length + this.getMissionsEndingSoon().length + this.getUpcomingRenewals().length +
       this.getOnThisDay().length + this.getDormantContacts().length + this.getStaleOpportunities().length > 0;
+  }
+
+  getUpcomingInterviews(): UpcomingInterview[] {
+    return this.stats?.upcomingInterviews ?? [];
   }
 
   getMissionsEndingSoon(): MissionEndingSoon[] {
