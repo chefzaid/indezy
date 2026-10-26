@@ -41,6 +41,12 @@ describe('project filters', () => {
     expect(countActiveFilters({ status: 'WON', searchQuery: ' ', client: 'Acme' })).toBe(2);
   });
 
+  it('counts a chosen season, or opportunities outside any season, but not every season', () => {
+    expect(countActiveFilters({ season: '' })).toBe(0);
+    expect(countActiveFilters({ season: 'none' })).toBe(1);
+    expect(countActiveFilters({ season: 4, status: 'WON' })).toBe(2);
+  });
+
   it('combines search, rate, work mode, skills and client filters', () => {
     const opportunities = [
       project({ id: 1, role: 'Java Developer', clientName: 'Acme', workMode: 'REMOTE', techStack: 'Java, Spring' }),

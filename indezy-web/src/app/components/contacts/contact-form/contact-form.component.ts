@@ -18,6 +18,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { ClientDto, ContactDto } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { fieldError } from '../../../shared/utils/form-errors';
+import { trimmedEmail } from '../../../shared/utils/trimmed-email';
 
 @Component({
     selector: 'app-contact-form',
@@ -95,7 +96,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
     return this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required]],
-      email: ['', [Validators.email]],
+      email: ['', [trimmedEmail]],
       phone: [''],
       clientId: [null, [Validators.required]],
       notes: ['']

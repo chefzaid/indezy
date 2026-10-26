@@ -126,4 +126,5 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'shared/utils/offer-format',
   'shared/utils/password-max-bytes',
   'shared/utils/relative-time',
+  'shared/utils/trimmed-email',
 ];

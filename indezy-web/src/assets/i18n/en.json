@@ -585,6 +585,7 @@
     "subtitle": "Manage your platforms and channels for finding projects",
     "newSource": "New source",
     "loading": "Loading sources...",
+    "resultsCount": "{{count}} source(s)",
     "noSources": "No sources found",
     "addSource": "Add a source",
     "addPlatforms": "Start by adding your search platforms!",

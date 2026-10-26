@@ -100,7 +100,8 @@ export function countActiveFilters(filters: ProjectFilterValues): number {
     filters.endDateFrom,
     filters.endDateTo,
     filters.duration,
-    filters.client?.trim()
+    filters.client?.trim(),
+    filters.season
   ];
   return active.filter(Boolean).length;
 }

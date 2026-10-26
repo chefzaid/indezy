@@ -15,7 +15,7 @@
     <mat-card-content>
       <div class="actions-row">
         @if (!isLoading) {
-          <span class="results-count">{{ filteredSources.length }} source(s)</span>
+          <span class="results-count">{{ 'sources.resultsCount' | translate:{ count: filteredSources.length } }}</span>
         }
         <button mat-raised-button color="primary" (click)="onCreate()">
           <mat-icon>add</mat-icon>

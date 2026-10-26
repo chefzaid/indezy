@@ -585,6 +585,7 @@
     "subtitle": "Gérez vos plateformes et canaux de recherche de missions",
     "newSource": "Nouvelle source",
     "loading": "Chargement des sources...",
+    "resultsCount": "{{count}} source(s)",
     "noSources": "Aucune source trouvée",
     "addSource": "Ajouter une source",
     "addPlatforms": "Commencez par ajouter vos plateformes de recherche !",
