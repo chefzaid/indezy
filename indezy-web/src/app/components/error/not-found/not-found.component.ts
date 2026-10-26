@@ -12,10 +12,7 @@ import { TranslateService } from '@ngx-translate/core';
 ],
     template: `
     <div class="not-found-container">
-      <app-error-display 
-        [config]="errorConfig"
-        (retry)="goHome()">
-      </app-error-display>
+      <app-error-display [config]="errorConfig"></app-error-display>
     </div>
   `,
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -41,9 +38,5 @@ export class NotFoundComponent {
       showHome: true,
       showLogo: true
     };
-  }
-
-  goHome(): void {
-    // Navigation handled by error-display component
   }
 }

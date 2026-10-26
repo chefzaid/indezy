@@ -796,6 +796,7 @@
     "deletingProject": "Erreur lors de la suppression de la mission",
     "deletingSource": "Erreur lors de la suppression de la source",
     "missingContactId": "Erreur : ID du contact manquant",
+    "missingSourceId": "Erreur : ID de la source manquant",
     "movingCard": "Erreur lors du déplacement de la carte",
     "updatingFavorite": "Erreur lors de la mise à jour du favori",
     "fieldRequired": "Ce champ est requis",

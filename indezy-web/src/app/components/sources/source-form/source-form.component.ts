@@ -123,6 +123,9 @@ export class SourceFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    if (this.isSubmitting) {
+      return;
+    }
     if (this.sourceForm.valid) {
       this.isSubmitting = true;
       const formValue = this.sourceForm.value;

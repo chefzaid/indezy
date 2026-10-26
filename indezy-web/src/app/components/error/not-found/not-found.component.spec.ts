@@ -27,6 +27,5 @@ describe('NotFoundComponent', () => {
     const buttons = element.querySelectorAll('button');
     expect(buttons.length).toBe(1);
     expect(buttons[0].getAttribute('routerLink')).toBe('/dashboard');
-    expect(() => fixture.componentInstance.goHome()).not.toThrow();
   });
 });

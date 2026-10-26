@@ -796,6 +796,7 @@
     "deletingProject": "Error deleting project",
     "deletingSource": "Error deleting source",
     "missingContactId": "Error: Contact ID missing",
+    "missingSourceId": "Error: Source ID missing",
     "movingCard": "Error moving card",
     "updatingFavorite": "Error updating favorite",
     "fieldRequired": "This field is required",

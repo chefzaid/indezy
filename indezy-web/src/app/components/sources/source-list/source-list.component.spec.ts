@@ -147,12 +147,13 @@ describe('SourceListComponent', () => {
   });
 
   describe('deleting a source', () => {
-    it('ignores a source without id', () => {
+    it('refuses a source without id and says so', () => {
       const component = create().componentInstance;
 
       component.onDelete({ ...malt, id: undefined });
 
       expect(confirm.confirm).not.toHaveBeenCalled();
+      expect(notifications.error).toHaveBeenCalledWith('errors.missingSourceId');
     });
 
     it('keeps the source when the deletion is not confirmed', () => {

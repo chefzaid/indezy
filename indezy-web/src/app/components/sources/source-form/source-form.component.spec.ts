@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, Subject, of, throwError } from 'rxjs';
 import { SourceDto } from '../../../models/source.models';
 import { AuthService } from '../../../services/auth/auth.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -61,6 +61,17 @@ describe('SourceFormComponent', () => {
       expect(sources.create.calls.mostRecent().args[0].popularityRating).toBeNull();
       expect(notifications.success).toHaveBeenCalledWith('sources.createSuccess');
       expect(navigate).toHaveBeenCalledWith(['/sources']);
+    });
+
+    it('saves once while a save is running', () => {
+      const component = create().componentInstance;
+      sources.create.and.returnValue(new Subject<SourceDto>());
+      component.sourceForm.patchValue({ name: 'LinkedIn', type: 'SOCIAL_MEDIA', usefulnessRating: 3 });
+
+      component.onSubmit();
+      component.onSubmit();
+
+      expect(sources.create).toHaveBeenCalledTimes(1);
     });
 
     it('shows the errors of an invalid form instead of saving', () => {

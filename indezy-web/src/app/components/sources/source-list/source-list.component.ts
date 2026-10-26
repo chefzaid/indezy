@@ -125,7 +125,10 @@ export class SourceListComponent implements OnInit, OnDestroy {
   }
 
   onDelete(source: SourceDto): void {
-    if (!source.id) {return;}
+    if (!source.id) {
+      this.notificationService.error('errors.missingSourceId');
+      return;
+    }
     const sourceId = source.id;
     this.confirmDialog.confirm({
       messageKey: 'sources.confirmDelete',
