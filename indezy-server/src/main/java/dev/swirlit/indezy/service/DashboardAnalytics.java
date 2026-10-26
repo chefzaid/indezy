@@ -3,6 +3,7 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
+import dev.swirlit.indezy.util.SkillNames;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 
 import java.time.LocalDate;
@@ -13,7 +14,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -141,8 +141,9 @@ final class DashboardAnalytics {
                 if (skill.isEmpty()) {
                     continue;
                 }
-                SkillAccumulator acc = bySkill.computeIfAbsent(
-                    skill.toLowerCase(Locale.ROOT), key -> new SkillAccumulator(skill));
+                // Spellings of one skill ("JS", "JavaScript") add up under its usual name.
+                String name = SkillNames.canonical(skill);
+                SkillAccumulator acc = bySkill.computeIfAbsent(SkillNames.key(name), key -> new SkillAccumulator(name));
                 acc.count++;
                 if (project.getDailyRate() != null) {
                     acc.rateSum += project.getDailyRate();

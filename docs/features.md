@@ -38,10 +38,24 @@ The freelancer model captures the working identity used by opportunities:
 - employment status: `FREELANCE`, `PORTAGE`, or `CDI`
 - notice period and availability date (the availability date is edited as **Available from** on the profile page, and the offer feed's profile match compares offers' start dates with it)
 - reversion rate and income tax rate
-- skills written freely (suggestions while typing, up to 50 of 60 characters each, the same name once whatever its case), each with an optional level (beginner, intermediate, advanced, expert) and years of experience (0 to 60), edited in the profile's **Personal information** tab
+- skills written freely (suggestions while typing, up to 50 of 60 characters each, one skill once whatever its spelling, see [Skill Names](#skill-names)), each with an optional level (beginner, intermediate, advanced, expert) and years of experience (0 to 60), edited in the profile's **Personal information** tab
 - optional CV file path
 
 The freelancer owns the main opportunity workspace: projects, clients, contacts, and sources are all attached back to a freelance profile.
+
+### Skill Names
+
+Spellings of one skill are one skill: case, accents, spaces, dots and dashes aside ("Spring Boot", "SpringBoot",
+"spring-boot"), and a list of known aliases names the skill they stand for ("JS" and "ECMAScript" for JavaScript, "K8s"
+for Kubernetes, "Postgres" for PostgreSQL, "Golang" for Go, about thirty skills; `GET /skills/aliases`). It applies to:
+
+- the profile: adding another spelling of a listed skill says under which name it is listed, typing an alias suggests
+  the skill ("k8" offers Kubernetes), and skills listed twice or under an alias are offered to merge under the usual
+  name (**Use JavaScript**), keeping the higher level and the most years of experience;
+- the profile match: a skill counts once, however many spellings the profile lists, and an offer naming any of its
+  spellings mentions it;
+- project tags: the dashboard's skill trends count the spellings of a skill together under its usual name, the bulk
+  **Add a tag** adds nothing to a stack already naming the skill, and renaming a tag folds a spelling already there.
 
 ## Projects And Opportunities
 
@@ -415,7 +429,7 @@ workspace's next availability date):
 
 | Part | Points | How |
 | --- | --- | --- |
-| Skills | up to 60 | 20 per profile skill the offer mentions, full marks from three (or from every skill of a profile with fewer). A skill counts when its words appear whole in the title, publisher, place, skills or description, case and accents aside ("Java" is not found in "JavaScript"); skills shorter than three characters ("Go", "R", "C#") count only when the offer lists them, since in a text they are ordinary words. Up to 20 profile skills are compared. |
+| Skills | up to 60 | 20 per profile skill the offer mentions, full marks from three (or from every skill of a profile with fewer). A skill counts when its words appear whole in the title, publisher, place, skills or description, case and accents aside ("Java" is not found in "JavaScript"); skills shorter than three characters ("Go", "R", "C#") count only when the offer lists them, since in a text they are ordinary words. A skill is found under any of its spellings, and spellings of one profile skill count once ([Skill Names](#skill-names)). Up to 20 profile skills are compared. |
 | Daily rate | 25 | 25 when the highest rate the offer states meets the target, 15 when it is less than 10 percent below, 10 when the offer states no rate, 0 below that. |
 | Place | 15 | 15 when the mission is full remote or within 30 km, 10 within 80 km, 5 farther with three remote days a week or more, 5 when the offer states no place, 0 otherwise. |
 | Availability | 10 | 10 when the mission starts once the freelance is available, 5 when it starts up to two weeks before (missions can often wait that long), 5 when the offer states no start, 0 earlier. A mission starting as soon as possible, or on a day already past, starts today (Paris time); an availability date already past means available today. |

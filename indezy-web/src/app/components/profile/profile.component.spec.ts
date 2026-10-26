@@ -1,3 +1,5 @@
+import { SkillNamesService } from '../../services/skill/skill-names.service';
+import { SkillNames } from '../../shared/utils/skill-names';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { Router, provideRouter } from '@angular/router';
@@ -61,6 +63,7 @@ describe('ProfileComponent', () => {
     TestBed.configureTestingModule({
       imports: [ProfileComponent, TranslateModule.forRoot()],
       providers: [
+        { provide: SkillNamesService, useValue: { names$: of(SkillNames.NONE) } },
         provideRouter([]),
         provideNativeDateAdapter(),
         { provide: UserManagementService, useValue: users },

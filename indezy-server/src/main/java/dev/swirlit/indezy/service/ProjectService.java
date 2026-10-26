@@ -22,6 +22,7 @@ import dev.swirlit.indezy.repository.ProjectAttachmentRepository;
 import dev.swirlit.indezy.repository.ProjectNoteRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
+import dev.swirlit.indezy.util.SkillNames;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -129,7 +130,8 @@ public class ProjectService {
             }
             String next = tag.equalsIgnoreCase(fromTag) ? toTag : tag;
             changed |= !next.equals(tag);
-            if (renamed.stream().noneMatch(existing -> existing.equalsIgnoreCase(next))) {
+            // Renaming "JS" to "JavaScript" also folds a "JavaScript" already there.
+            if (renamed.stream().noneMatch(existing -> SkillNames.same(existing, next))) {
                 renamed.add(next);
             } else {
                 changed = true;

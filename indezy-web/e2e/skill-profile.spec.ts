@@ -11,7 +11,7 @@ for (const language of ['en', 'fr']) {
     await mockWorkspaceSession(page, language);
     let profile: Record<string, unknown> = {
       id: 1, firstName: 'Workspace', lastName: 'Test', email: 'workspace@example.test',
-      skills: ['Java'], skillDetails: { Java: { level: 'EXPERT', years: 10 } }
+      skills: ['Java', 'JS'], skillDetails: { Java: { level: 'EXPERT', years: 10 }, JS: { years: 4 } }
     };
     await page.route('**/api/users/profile', async route => {
       if (route.request().method() === 'PUT') {
@@ -22,13 +22,18 @@ for (const language of ['en', 'fr']) {
     await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light', language, inactivityDays: 14 } }));
     await page.route('**/api/users/security', route => route.fulfill({ json: { twoFactorEnabled: false } }));
     await page.route('**/api/users/notifications', route => route.fulfill({ json: {} }));
+    await page.route('**/api/skills/aliases', route => route.fulfill({ json: { JavaScript: ['JS', 'ECMAScript'], Kubernetes: ['K8s'] } }));
 
     await page.goto('/profile');
     const section = page.locator('.skills-section');
     const rows = section.locator('.skill-row');
-    await expect(rows).toHaveCount(1);
+    await expect(rows).toHaveCount(2);
     await expect(rows.first().getByRole('spinbutton')).toHaveValue('10');
     await expect(rows.first().getByRole('combobox')).toContainText('Expert');
+    // "JS" is JavaScript: the editor offers its usual name, keeping its years.
+    await section.getByRole('button', { name: en ? 'Use JavaScript' : 'Utiliser JavaScript' }).click();
+    await expect(section.locator('.skill-name')).toHaveText(['Java', 'JavaScript']);
+    await expect(rows.nth(1).getByRole('spinbutton')).toHaveValue('4');
 
     const add = section.getByRole('combobox', { name: en ? 'Add a skill' : 'Ajouter une compétence' });
     await add.fill('Kub');
@@ -37,24 +42,28 @@ for (const language of ['en', 'fr']) {
     await add.press('Enter');
     await add.fill('java');
     await add.press('Enter');
-    await expect(rows).toHaveCount(3);
-    await expect(section.locator('.skill-name')).toHaveText(['Java', 'Kubernetes', 'Event Sourcing']);
+    await add.fill('ECMAScript');
+    await add.press('Enter');
+    await expect(section).toContainText(en ? 'Already listed as JavaScript' : 'Déjà listée comme JavaScript');
+    await expect(rows).toHaveCount(4);
+    await expect(section.locator('.skill-name')).toHaveText(['Java', 'JavaScript', 'Kubernetes', 'Event Sourcing']);
 
-    const sourcing = rows.nth(2);
+    const sourcing = rows.nth(3);
     await sourcing.getByRole('combobox').click();
     await page.getByRole('option', { name: en ? 'Advanced' : 'Avancé', exact: true }).click();
     await expect(page.getByRole('listbox')).toBeHidden();
     await sourcing.getByRole('spinbutton').fill('3');
     await sourcing.getByRole('spinbutton').press('Tab');
-    await rows.nth(1).getByRole('button', { name: en ? 'Remove Kubernetes' : 'Retirer Kubernetes' }).click();
+    await rows.nth(2).getByRole('button', { name: en ? 'Remove Kubernetes' : 'Retirer Kubernetes' }).click();
     await section.screenshot({ path: test.info().outputPath('skills.png') });
 
     await page.getByRole('tabpanel').getByRole('button', { name: en ? 'Save' : 'Sauvegarder', exact: true }).click();
-    await expect.poll(() => profile['skills']).toEqual(['Java', 'Event Sourcing']);
-    expect(profile['skillDetails']).toEqual({ Java: { level: 'EXPERT', years: 10 }, 'Event Sourcing': { level: 'ADVANCED', years: 3 } });
+    await expect.poll(() => profile['skills']).toEqual(['Java', 'JavaScript', 'Event Sourcing']);
+    expect(profile['skillDetails']).toEqual({ Java: { level: 'EXPERT', years: 10 }, JavaScript: { years: 4 },
+      'Event Sourcing': { level: 'ADVANCED', years: 3 } });
 
     await page.reload();
-    await expect(section.locator('.skill-name')).toHaveText(['Java', 'Event Sourcing']);
-    await expect(rows.nth(1).getByRole('spinbutton')).toHaveValue('3');
+    await expect(section.locator('.skill-name')).toHaveText(['Java', 'JavaScript', 'Event Sourcing']);
+    await expect(rows.nth(2).getByRole('spinbutton')).toHaveValue('3');
   });
 }

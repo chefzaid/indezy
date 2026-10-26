@@ -215,6 +215,25 @@ class DashboardAnalyticsTest extends DashboardStatsTestSupport {
     }
 
     @Test
+    void getDashboardStats_ShouldCountTheSpellingsOfASkillAsOne() {
+        Project p1 = new Project();
+        p1.setTechStack("JS, Postgres");
+        p1.setDailyRate(600);
+        Project p2 = new Project();
+        p2.setTechStack("javascript, PostgreSQL, Spring-Boot");
+        p2.setDailyRate(700);
+        Project p3 = new Project();
+        p3.setTechStack("SpringBoot");
+
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(p1, p2, p3));
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
+
+        assertThat(stats.getSkillTrends()).extracting(DashboardStatsDto.SkillTrend::getSkill, DashboardStatsDto.SkillTrend::getCount)
+            .containsExactlyInAnyOrder(tuple("JavaScript", 2L), tuple("PostgreSQL", 2L), tuple("Spring Boot", 2L));
+    }
+
+    @Test
     void getDashboardStats_ShouldAverageProcessDurationByCounterparty() {
         dev.swirlit.indezy.model.Client middleman = new dev.swirlit.indezy.model.Client();
         middleman.setId(9L);

@@ -7,6 +7,7 @@ import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
+import dev.swirlit.indezy.util.SkillNames;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -93,11 +94,11 @@ public class ProjectBulkService {
         return changed;
     }
 
-    /** {@code techStack} ("Java, Spring") with {@code tag} at its end, unless it already names it (case aside). */
+    /** {@code techStack} ("Java, Spring") with {@code tag} at its end, unless it already names that skill, however spelled. */
     static String withTag(String techStack, String tag) {
         List<String> tags = new ArrayList<>(Arrays.stream(techStack == null ? new String[0] : techStack.split(","))
             .map(String::strip).filter(existing -> !existing.isEmpty()).toList());
-        if (tags.stream().noneMatch(existing -> existing.equalsIgnoreCase(tag))) {
+        if (tags.stream().noneMatch(existing -> SkillNames.same(existing, tag))) {
             tags.add(tag);
         }
         return String.join(", ", tags);

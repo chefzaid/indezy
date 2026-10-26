@@ -44,3 +44,18 @@
     padding: 8px 0;
   }
 }
+
+.skill-merge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 8px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--app-subtle);
+
+  span {
+    flex: 1 1 200px;
+  }
+}

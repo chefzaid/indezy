@@ -903,7 +903,10 @@
     "skillHint": "Type a skill and press Enter, or pick a suggestion",
     "removeSkill": "Remove {{skill}}",
     "skillsLimit": "A profile names at most 50 skills",
-    "noSkills": "No skills yet: they score the offers that match your profile."
+    "noSkills": "No skills yet: they score the offers that match your profile.",
+    "skillMerge": "{{skills}}: one skill, {{skill}}",
+    "skillMergeApply": "Use {{skill}}",
+    "skillAlreadyListed": "Already listed as {{skill}}"
   },
   "errors": {
     "notFoundTitle": "404 - Page not found",

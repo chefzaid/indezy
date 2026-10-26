@@ -111,6 +111,11 @@ class ProjectBulkUpdateIntegrationTest {
 
         assertThat(jdbc.queryForList("select tech_stack from projects order by id", String.class))
             .containsExactly("Java, kafka", "Kafka", "x".repeat(250));
+
+        // Another spelling of a skill the stack names is the same tag.
+        jdbc.update("update projects set tech_stack = 'JavaScript' where id = 2");
+        bulk("""
+            {"projectIds": [2], "action": "TAG", "tag": "JS"}""").andExpect(jsonPath("$.updated").value(0));
     }
 
     @Test

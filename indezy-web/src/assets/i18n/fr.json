@@ -903,7 +903,10 @@
     "skillHint": "Saisissez une compétence puis Entrée, ou choisissez une suggestion",
     "removeSkill": "Retirer {{skill}}",
     "skillsLimit": "Un profil nomme au plus 50 compétences",
-    "noSkills": "Aucune compétence : elles notent les offres qui correspondent à votre profil."
+    "noSkills": "Aucune compétence : elles notent les offres qui correspondent à votre profil.",
+    "skillMerge": "{{skills}} : une seule compétence, {{skill}}",
+    "skillMergeApply": "Utiliser {{skill}}",
+    "skillAlreadyListed": "Déjà listée comme {{skill}}"
   },
   "errors": {
     "notFoundTitle": "404 - Page non trouvée",

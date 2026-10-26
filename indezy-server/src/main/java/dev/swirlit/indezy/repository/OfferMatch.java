@@ -7,7 +7,7 @@ import dev.swirlit.indezy.dto.OfferMatchDto.RateFit;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.JobOfferSpecifications.Origin;
-import dev.swirlit.indezy.util.TextFolding;
+import dev.swirlit.indezy.util.SkillNames;
 import jakarta.persistence.criteria.CommonAbstractCriteria;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Expression;
@@ -17,6 +17,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -74,14 +75,15 @@ public final class OfferMatch {
         }
 
         public Profile {
-            Map<String, String> byFolded = new LinkedHashMap<>();
+            // Spellings of one skill ("JS", "JavaScript") count once.
+            Map<String, String> byKey = new LinkedHashMap<>();
             for (String skill : skills == null ? List.<String>of() : skills) {
-                String folded = TextFolding.words(skill);
-                if (folded != null && !folded.isEmpty() && byFolded.size() < MAX_SKILLS) {
-                    byFolded.putIfAbsent(folded, skill.strip());
+                String key = skill == null ? "" : SkillNames.key(SkillNames.canonical(skill));
+                if (!key.isEmpty() && byKey.size() < MAX_SKILLS) {
+                    byKey.putIfAbsent(key, skill.strip());
                 }
             }
-            skills = List.copyOf(byFolded.values());
+            skills = List.copyOf(byKey.values());
             targetRate = targetRate != null && targetRate > 0 ? targetRate : null;
             if (availableFrom == null || today == null) {
                 availableFrom = null;
@@ -125,7 +127,7 @@ public final class OfferMatch {
         }
         List<String> listed = skills == null ? List.of() : skills;
         List<String> mentioned = profile.skills().stream()
-            .filter(skill -> mentions(offer.getSearchText(), listed, TextFolding.words(skill)))
+            .filter(skill -> SkillNames.variants(skill).stream().anyMatch(variant -> mentions(offer.getSearchText(), listed, variant)))
             .toList();
         RateFit rate = profile.targetRate() == null ? null : rateFit(offer, profile.targetRate());
         PlaceFit place = profile.origin() == null ? null : placeFit(offer, profile.origin());
@@ -203,7 +205,7 @@ public final class OfferMatch {
     static Expression<Integer> points(Profile profile, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
         Expression<Integer> mentioned = cb.literal(0);
         for (String skill : profile.skills()) {
-            mentioned = cb.sum(mentioned, cb.<Integer>selectCase().when(mentions(TextFolding.words(skill), root, query, cb), 1).otherwise(0));
+            mentioned = cb.sum(mentioned, cb.<Integer>selectCase().when(mentions(SkillNames.variants(skill), root, query, cb), 1).otherwise(0));
         }
         int full = profile.skillsForFull();
         // least() names the skills once: each mention is a subquery the database would otherwise run twice.
@@ -225,26 +227,33 @@ public final class OfferMatch {
         return cb.ge(cb.prod(points(profile, root, query, cb), 200), (2 * GOOD_MATCH - 1) * profile.available());
     }
 
-    private static Predicate mentions(String skill, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
-        if (skill.length() < MIN_TEXT_SKILL_LENGTH) {
+    /** Whether the offer names one of a skill's spellings: the short ones in its skill list, the others in its text. */
+    private static Predicate mentions(List<String> variants, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
+        List<String> shortOnes = variants.stream().filter(variant -> variant.length() < MIN_TEXT_SKILL_LENGTH).toList();
+        List<String> words = variants.stream().filter(variant -> variant.length() >= MIN_TEXT_SKILL_LENGTH)
+            .map(JobOfferSpecifications::escapeLike).toList();
+        List<Predicate> found = new ArrayList<>();
+        if (!shortOnes.isEmpty()) {
             Subquery<Long> listed = query.subquery(Long.class);
             Root<JobOffer> offer = listed.from(JobOffer.class);
             Join<JobOffer, String> skills = offer.join("skills");
-            listed.select(offer.get("id")).where(cb.equal(offer, root), cb.equal(cb.lower(skills), skill));
-            return cb.exists(listed);
+            listed.select(offer.get("id")).where(cb.equal(offer, root), cb.lower(skills).in(shortOnes));
+            found.add(cb.exists(listed));
         }
-        String word = JobOfferSpecifications.escapeLike(skill);
-        Function<Expression<String>, Predicate> wholeWord = searchText -> {
-            Expression<String> text = cb.concat(cb.concat(" ", searchText), " ");
-            return cb.and(cb.like(searchText, "%" + word + "%", '\\'),
-                cb.or(cb.like(text, "% " + word + " %", '\\'), cb.like(text, "% " + word + ". %", '\\')));
-        };
-        // A subquery reads the copies of one mission (see JobOfferSpecifications#earlierCopy): their few texts are read
-        // directly. The feed's offers come from the trigram index, which only their texts are read on.
-        if (query instanceof Subquery<?>) {
-            return wholeWord.apply(root.get("searchText"));
+        if (!words.isEmpty()) {
+            // One text match for every spelling: each is a subquery on the trigram index.
+            Function<Expression<String>, Predicate> wholeWord = searchText -> {
+                Expression<String> text = cb.concat(cb.concat(" ", searchText), " ");
+                return cb.or(words.stream().map(word -> cb.and(cb.like(searchText, "%" + word + "%", '\\'),
+                    cb.or(cb.like(text, "% " + word + " %", '\\'), cb.like(text, "% " + word + ". %", '\\'))))
+                    .toArray(Predicate[]::new));
+            };
+            // A subquery reads the copies of one mission (see JobOfferSpecifications#earlierCopy): their few texts are
+            // read directly. The feed's offers come from the trigram index, which only their texts are read on.
+            found.add(query instanceof Subquery<?> ? wholeWord.apply(root.get("searchText")) :
+                root.get("id").in(JobOfferSpecifications.textMatching(query, cb, wholeWord)));
         }
-        return root.get("id").in(JobOfferSpecifications.textMatching(query, cb, wholeWord));
+        return cb.or(found.toArray(Predicate[]::new));
     }
 
     private static Expression<Integer> ratePoints(int target, Root<JobOffer> root, CriteriaBuilder cb) {

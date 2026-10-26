@@ -123,6 +123,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'services/project/project-filter.util',
   'services/project/project.service',
   'services/season/season.service',
+  'services/skill/skill-names.service',
   'services/source/source.service',
   'services/user-management/user-management.service',
   'shared/components/activity-calendar/activity-calendar.component',
@@ -151,5 +152,6 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'shared/utils/offer-format',
   'shared/utils/password-max-bytes',
   'shared/utils/relative-time',
+  'shared/utils/skill-names',
   'shared/utils/trimmed-email',
 ];

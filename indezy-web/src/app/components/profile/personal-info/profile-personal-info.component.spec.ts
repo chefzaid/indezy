@@ -1,3 +1,6 @@
+import { SkillNamesService } from '../../../services/skill/skill-names.service';
+import { SkillNames } from '../../../shared/utils/skill-names';
+import { of } from 'rxjs';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -15,7 +18,7 @@ describe('ProfilePersonalInfoComponent', () => {
   function create(overrides: Partial<UserProfile> = {}, values: Record<string, unknown> = {}): void {
     TestBed.configureTestingModule({
       imports: [ProfilePersonalInfoComponent, TranslateModule.forRoot()],
-      providers: [provideNativeDateAdapter()]
+      providers: [provideNativeDateAdapter(), { provide: SkillNamesService, useValue: { names$: of(SkillNames.NONE) } }]
     });
     form = new FormBuilder().group({
       firstName: ['Ada', [Validators.required]],

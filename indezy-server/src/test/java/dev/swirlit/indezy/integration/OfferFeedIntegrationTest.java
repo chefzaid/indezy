@@ -221,6 +221,25 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
     }
 
     @Test
+    void matchesASkillWhateverSpellingTheOfferUses() {
+        lyon.setSearchText("architecte cloud kubernetes");
+        offers.save(lyon);
+        users.findByEmail(alice.email()).ifPresent(user -> {
+            user.setSkills(List.of("K8s", "Kube"));
+            users.save(user);
+        });
+
+        ResponseEntity<Map> best = call(alice, HttpMethod.GET, "/offers?sort=MATCH", null);
+
+        assertThat(titles(best)).containsExactly("Architecte cloud", "Développeur Java Spring");
+        Map<?, ?> match = (Map<?, ?>) ((Map<?, ?>) ((List<?>) best.getBody().get("content")).get(0)).get("match");
+        // Two spellings of one skill count once: Kubernetes is the profile's single skill, and the offer names it.
+        assertThat(match.get("skills")).isEqualTo(List.of("K8s"));
+        assertThat(match.get("score")).isEqualTo(100);
+        assertThat(titles(call(alice, HttpMethod.GET, "/offers?matchesProfile=true", null))).containsExactly("Architecte cloud");
+    }
+
+    @Test
     void scoresTheOffersAgainstEachWorkspacesProfile() {
         users.findByEmail(alice.email()).ifPresent(user -> {
             user.setSkills(List.of("Spring", "Go"));

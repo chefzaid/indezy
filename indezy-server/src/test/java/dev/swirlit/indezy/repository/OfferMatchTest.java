@@ -121,6 +121,21 @@ class OfferMatchTest {
     }
 
     @Test
+    void findsASkillUnderAnyOfItsSpellings() {
+        OfferMatch.Profile profile = new OfferMatch.Profile(List.of("JS", "JavaScript", "Postgres", "Spring-Boot"), null, null);
+        JobOffer offer = offer(o -> {
+            o.setSearchText("developpeur fullstack javascript. base postgresql et springboot.");
+            o.setSkills(List.of("TS"));
+        });
+
+        assertThat(profile.skills()).containsExactly("JS", "Postgres", "Spring-Boot");
+        assertThat(OfferMatch.score(offer, offer.getSkills(), profile).skills()).containsExactly("JS", "Postgres", "Spring-Boot");
+        JobOffer typed = offer(o -> o.setSkills(List.of("TS")));
+        assertThat(OfferMatch.score(typed, typed.getSkills(), new OfferMatch.Profile(List.of("TypeScript"), null, null)).skills())
+            .containsExactly("TypeScript");
+    }
+
+    @Test
     void keepsEachSkillOnceAndAtMostTwenty() {
         OfferMatch.Profile profile = new OfferMatch.Profile(List.of(" Java ", "JAVA", "Éclair", "eclair", " "), 0, null);
 

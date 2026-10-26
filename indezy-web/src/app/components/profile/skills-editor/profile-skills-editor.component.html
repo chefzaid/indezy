@@ -23,15 +23,25 @@
   } @empty {
     <p class="no-skills">{{ 'profile.noSkills' | translate }}</p>
   }
+  @for (group of merges; track group.canonical) {
+    <div class="skill-merge">
+      <mat-icon aria-hidden="true">merge</mat-icon>
+      <span>{{ 'profile.skillMerge' | translate:{ skills: group.skills.join(', '), skill: group.canonical } }}</span>
+      <button mat-button type="button" (click)="merge(group)">{{ 'profile.skillMergeApply' | translate:{ skill: group.canonical } }}</button>
+    </div>
+  }
   <mat-form-field appearance="outline" class="skill-input" subscriptSizing="dynamic">
     <mat-label>{{ 'profile.addSkill' | translate }}</mat-label>
-    <input matInput [formControl]="newSkill" [matAutocomplete]="skillSuggestions" [maxlength]="skillMax"
+    <input matInput [formControl]="newSkill" [matAutocomplete]="skillSuggestions" [maxlength]="skillMax" (input)="alreadyListed = null"
       (keydown.enter)="$event.preventDefault(); add()">
     <mat-autocomplete #skillSuggestions="matAutocomplete" (optionSelected)="add($event.option.value)">
       @for (skill of suggestions; track skill) {
         <mat-option [value]="skill">{{ skill }}</mat-option>
       }
     </mat-autocomplete>
-    <mat-hint>{{ (full ? 'profile.skillsLimit' : 'profile.skillHint') | translate }}</mat-hint>
+    <mat-hint>
+      {{ alreadyListed ? ('profile.skillAlreadyListed' | translate:{ skill: alreadyListed })
+        : ((full ? 'profile.skillsLimit' : 'profile.skillHint') | translate) }}
+    </mat-hint>
   </mat-form-field>
 </div>
