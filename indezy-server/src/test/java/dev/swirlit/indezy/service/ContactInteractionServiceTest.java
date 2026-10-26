@@ -10,6 +10,7 @@ import dev.swirlit.indezy.model.enums.InteractionChannel;
 import dev.swirlit.indezy.model.enums.InteractionDirection;
 import dev.swirlit.indezy.repository.ContactInteractionRepository;
 import dev.swirlit.indezy.repository.ContactRepository;
+import dev.swirlit.indezy.repository.ProjectRepository;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -79,7 +80,7 @@ class ContactInteractionServiceTest {
     void asksTheDatabaseNothingForNoContacts() {
         ContactInteractionRepository repository = mock(ContactInteractionRepository.class);
         ContactInteractionService service = new ContactInteractionService(repository, mock(ContactRepository.class),
-            Clock.systemUTC());
+            mock(ProjectRepository.class), Clock.systemUTC());
 
         assertThat(service.lastContacted(List.of())).isEmpty();
         verifyNoInteractions(repository);
@@ -90,10 +91,10 @@ class ContactInteractionServiceTest {
         ContactInteractionRepository repository = mock(ContactInteractionRepository.class);
         when(repository.countByContactId(1L)).thenReturn((long) ContactInteractionService.MAX_INTERACTIONS);
         ContactInteractionService service = new ContactInteractionService(repository, mock(ContactRepository.class),
-            Clock.systemUTC());
+            mock(ProjectRepository.class), Clock.systemUTC());
 
-        assertThatThrownBy(() -> service.create(1L, new ContactInteractionDto(null, null, LocalDate.of(2026, 9, 1), EMAIL,
-            OUTGOING, null, null)))
+        assertThatThrownBy(() -> service.create(1L, new ContactInteractionDto(null, null, null, LocalDate.of(2026, 9, 1), EMAIL,
+            OUTGOING, null, null, null, null)))
             .isInstanceOf(InvalidStateException.class)
             .hasMessage("A contact keeps at most 500 interactions");
         verify(repository, never()).save(any());
@@ -114,7 +115,7 @@ class ContactInteractionServiceTest {
         when(repository.findByContactFreelanceIdOrderByContactIdAscOccurredOnDescIdDesc(7L))
             .thenReturn(List.of(waiting, older, answeredLater, before, recent));
         ContactInteractionService service = new ContactInteractionService(repository, mock(ContactRepository.class),
-            Clock.systemUTC());
+            mock(ProjectRepository.class), Clock.systemUTC());
 
         List<DashboardStatsDto.FollowUpDue> due = service.followUpsDue(7L, 5, LocalDate.of(2026, 9, 12));
 

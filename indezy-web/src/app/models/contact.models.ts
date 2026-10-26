@@ -28,6 +28,10 @@ export const INTERACTION_CHANNELS: InteractionChannel[] = ['EMAIL', 'PHONE', 'LI
 export interface ContactInteraction {
   id?: number;
   contactId?: number;
+  /** Read-only: whom the exchange was with, and the opportunity it was about. */
+  contactName?: string;
+  projectId?: number | null;
+  projectRole?: string;
   occurredOn: string;
   channel: InteractionChannel;
   direction: InteractionDirection;

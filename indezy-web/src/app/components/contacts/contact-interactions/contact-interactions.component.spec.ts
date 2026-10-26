@@ -1,8 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, of, throwError } from 'rxjs';
 import { ContactInteraction, ContactInteractions } from '../../../models/contact.models';
+import { ProjectDto } from '../../../models/project.models';
+import { AuthService } from '../../../services/auth/auth.service';
 import { ContactService } from '../../../services/contact/contact.service';
+import { ProjectService } from '../../../services/project/project.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { ContactInteractionsComponent, localDay } from './contact-interactions.component';
@@ -13,6 +17,10 @@ describe('ContactInteractionsComponent', () => {
   let contacts: jasmine.SpyObj<ContactService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
+  let projects: jasmine.SpyObj<ProjectService>;
+  const kafka = { id: 40, role: 'Kafka engineer', dailyRate: 700, clientName: 'Acme' } as ProjectDto;
+  const java = { id: 41, role: 'Java developer', dailyRate: 600 } as ProjectDto;
+  const archived = { id: 42, role: 'Archived role', dailyRate: 500, archivedAt: '2026-10-01T03:30:00' } as ProjectDto;
 
   const sent: ContactInteraction = { id: 7, occurredOn: '2026-09-10', channel: 'EMAIL', direction: 'OUTGOING', replied: true,
     summary: 'Sent my CV' };
@@ -20,7 +28,10 @@ describe('ContactInteractionsComponent', () => {
   const history: ContactInteractions = { interactions: [received, sent], lastContactedOn: '2026-09-12', asked: 1, answered: 1,
     responseRate: 100, preferredChannel: 'PHONE' };
 
-  function create(loaded: Observable<ContactInteractions> = of(history)): void {
+  function create(loaded: Observable<ContactInteractions> = of(history),
+                  opportunities: Observable<ProjectDto[]> = of([kafka, archived, java])): void {
+    projects = jasmine.createSpyObj('ProjectService', ['getByFreelanceId']);
+    projects.getByFreelanceId.and.returnValue(opportunities);
     contacts = jasmine.createSpyObj('ContactService', ['getInteractions', 'addInteraction', 'updateInteraction', 'deleteInteraction']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
@@ -28,9 +39,12 @@ describe('ContactInteractionsComponent', () => {
     TestBed.configureTestingModule({
       imports: [ContactInteractionsComponent, TranslateModule.forRoot()],
       providers: [
+        provideRouter([]),
         { provide: ContactService, useValue: contacts },
         { provide: NotificationService, useValue: notifications },
-        { provide: ConfirmDialogService, useValue: confirm }
+        { provide: ConfirmDialogService, useValue: confirm },
+        { provide: ProjectService, useValue: projects },
+        { provide: AuthService, useValue: { getUser: () => ({ id: 7 }) } }
       ]
     });
     fixture = TestBed.createComponent(ContactInteractionsComponent);
@@ -80,7 +94,7 @@ describe('ContactInteractionsComponent', () => {
     component.save();
 
     expect(contacts.addInteraction).toHaveBeenCalledWith(3, { occurredOn: localDay(), channel: 'LINKEDIN', direction: 'OUTGOING',
-      replied: false, summary: 'Followed up' });
+      replied: false, summary: 'Followed up', projectId: null });
     expect(notifications.success).toHaveBeenCalledWith('contacts.interactions.saved');
     expect(contacts.getInteractions).toHaveBeenCalledTimes(2);
     expect(component.formOpen).toBe(false);
@@ -108,7 +122,7 @@ describe('ContactInteractionsComponent', () => {
 
     component.startEdit(sent);
     expect(component.form.getRawValue()).toEqual({ occurredOn: '2026-09-10', channel: 'EMAIL', direction: 'OUTGOING',
-      answer: 'ANSWERED', summary: 'Sent my CV' });
+      answer: 'ANSWERED', summary: 'Sent my CV', projectId: null });
     component.form.patchValue({ answer: 'WAITING' });
     component.save();
     expect(contacts.updateInteraction).toHaveBeenCalledWith(3, 7, jasmine.objectContaining({ replied: null }));
@@ -183,5 +197,31 @@ describe('ContactInteractionsComponent', () => {
 
   it('writes the local day', () => {
     expect(localDay(new Date(2026, 0, 5, 23, 30))).toBe('2026-01-05');
+  });
+
+  it('offers the opportunities in the pipeline, by role, and keeps the one an exchange is about', () => {
+    create(of({ ...history, interactions: [{ ...sent, projectId: 40, projectRole: 'Kafka engineer' }, received] }));
+    contacts.updateInteraction.and.returnValue(of(sent));
+
+    expect(projects.getByFreelanceId).toHaveBeenCalledWith(7);
+    expect(component.projects.map(project => project.role)).toEqual(['Java developer', 'Kafka engineer']);
+    const link = element().querySelector<HTMLAnchorElement>('.interaction-project')!;
+    expect(link.getAttribute('href')).toBe('/projects/40');
+    expect(link.textContent).toContain('Kafka engineer');
+
+    component.startEdit({ ...sent, projectId: 40 });
+    expect(component.form.getRawValue().projectId).toBe(40);
+    component.form.patchValue({ projectId: 41 });
+    component.save();
+    expect(contacts.updateInteraction).toHaveBeenCalledWith(3, 7, jasmine.objectContaining({ projectId: 41 }));
+  });
+
+  it('records exchanges without opportunities when they cannot be loaded', () => {
+    create(of(history), throwError(() => new Error('down')));
+
+    component.startAdd();
+
+    expect(component.projects).toEqual([]);
+    expect(element().querySelector('mat-select[formControlName="projectId"]')).toBeNull();
   });
 });

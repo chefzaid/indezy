@@ -16,46 +16,57 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/contacts/{contactId}/interactions")
 @RequiredArgsConstructor
 @Tag(name = "Contacts", description = "People at clients and ESNs")
 public class ContactInteractionController {
+
+    private static final String CONTACT_INTERACTIONS = "/contacts/{contactId}/interactions";
 
     private final ContactInteractionService interactionService;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "List a contact's exchanges, with its last contact, response rate and preferred channel")
-    @GetMapping
+    @GetMapping(CONTACT_INTERACTIONS)
     public ContactInteractionsDto list(@PathVariable Long contactId) {
         accessGuard.requireContact(contactId);
         return interactionService.list(contactId);
     }
 
     @Operation(summary = "Record an exchange with a contact")
-    @PostMapping
+    @PostMapping(CONTACT_INTERACTIONS)
     public ResponseEntity<ContactInteractionDto> create(@PathVariable Long contactId,
                                                         @Valid @RequestBody ContactInteractionDto request) {
         accessGuard.requireContact(contactId);
+        accessGuard.requireProjectIfPresent(request.projectId());
         return new ResponseEntity<>(interactionService.create(contactId, request), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Change an exchange with a contact")
-    @PutMapping("/{id}")
+    @PutMapping(CONTACT_INTERACTIONS + "/{id}")
     public ContactInteractionDto update(@PathVariable Long contactId, @PathVariable Long id,
                                         @Valid @RequestBody ContactInteractionDto request) {
         accessGuard.requireContact(contactId);
+        accessGuard.requireProjectIfPresent(request.projectId());
         return interactionService.update(contactId, id, request);
     }
 
     @Operation(summary = "Delete an exchange with a contact")
-    @DeleteMapping("/{id}")
+    @DeleteMapping(CONTACT_INTERACTIONS + "/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long contactId, @PathVariable Long id) {
         accessGuard.requireContact(contactId);
         interactionService.delete(contactId, id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "List the exchanges about an opportunity, for its journal")
+    @GetMapping("/projects/{projectId}/interactions")
+    public List<ContactInteractionDto> listForProject(@PathVariable Long projectId) {
+        accessGuard.requireProject(projectId);
+        return interactionService.listForProject(projectId);
     }
 }

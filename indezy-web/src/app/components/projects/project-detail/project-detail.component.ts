@@ -26,7 +26,6 @@ import {
   PROJECT_STATUS_COLORS,
   PROJECT_STATUS_ICONS,
   ProjectDto,
-  ProjectNote,
   ProjectStatus,
   STEP_STATUS_COLORS,
   StepStatus
@@ -43,14 +42,12 @@ import {
 } from '../../kanban-lost-reason-dialog/kanban-lost-reason-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
-import { MarkdownService } from '../../../shared/services/markdown.service';
-import { SafeHtml } from '@angular/platform-browser';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { SkillMatchService } from '../../../shared/services/skill-match.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { RenameTagDialogComponent, RenameTagResult } from '../rename-tag-dialog/rename-tag-dialog.component';
-import { NOTE_TEMPLATES } from './note-templates';
+import { ProjectJournalComponent } from '../project-journal/project-journal.component';
 import { StepChecklistComponent } from '../step-checklist/step-checklist.component';
 import { ProjectArchiveActionComponent } from '../project-archive-action/project-archive-action.component';
 import { StepTemplatesComponent } from '../step-templates/step-templates.component';
@@ -81,7 +78,8 @@ import { ProjectEmailButtonComponent } from '../project-email/project-email-butt
         MatMenuModule,
         MatDialogModule,
         MatTooltipModule,
-        TranslateModule
+        TranslateModule,
+        ProjectJournalComponent
     ],
     templateUrl: './project-detail.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -94,7 +92,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   isLoading = false;
   projectId?: number;
 
-  notes: ProjectNote[] = [];
   steps: InterviewStepDto[] = [];
   isUpdatingStatus = false;
 
@@ -105,10 +102,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   readonly stepStatusColors = STEP_STATUS_COLORS;
   private readonly locale = inject(LOCALE_ID);
   private readonly interviewStepService = inject(InterviewStepService);
-  newNoteContent = '';
-  isSavingNote = false;
-  readonly noteTemplates = NOTE_TEMPLATES;
-  selectedNoteTemplate = '';
 
   private readonly destroy$ = new Subject<void>();
 
@@ -119,7 +112,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     private readonly notificationService: NotificationService,
     private readonly translate: TranslateService,
     private readonly confirmDialog: ConfirmDialogService,
-    private readonly markdownService: MarkdownService,
     private readonly skillMatchService: SkillMatchService,
     private readonly userManagementService: UserManagementService,
     private readonly authService: AuthService,
@@ -173,11 +165,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  /** Renders note content written in Markdown as safe, bindable HTML. */
-  renderMarkdown(text: string): SafeHtml {
-    return this.markdownService.render(text);
-  }
-
   ngOnInit(): void {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       if (params['id']) {
@@ -203,7 +190,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         next: (project) => {
           if (project) {
             this.project = project;
-            this.loadNotes();
             this.loadSteps();
             if (this.route.snapshot.queryParamMap.get('focus') === 'status') {
               afterNextRender(() => this.statusTrigger?.openMenu(), { injector: this.injector });
@@ -221,16 +207,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
           // Nothing to show or edit: go back to the list instead of an empty page.
           this.router.navigate(['/projects']);
         }
-      });
-  }
-
-  private loadNotes(): void {
-    if (!this.projectId) { return; }
-    this.projectService.getProjectNotes(this.projectId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (notes) => this.notes = notes,
-        error: () => this.notificationService.error('projects.notes.loadError')
       });
   }
 
@@ -349,57 +325,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
   isStepDone(step: InterviewStepDto): boolean {
     return step.status === StepStatus.VALIDATED;
-  }
-
-  /**
-   * Inserts the selected note template into the editor. Appends to any text already
-   * typed rather than overwriting it, then clears the template selection.
-   */
-  applyNoteTemplate(templateId: string): void {
-    if (!templateId) { return; }
-    const body = this.translate.instant(`projects.notes.templates.${templateId}.body`) as string;
-    this.newNoteContent = this.newNoteContent.trim()
-      ? `${this.newNoteContent.trimEnd()}\n\n${body}`
-      : body;
-    this.selectedNoteTemplate = '';
-  }
-
-  addNote(): void {
-    const content = this.newNoteContent.trim();
-    if (!content || !this.projectId || this.isSavingNote) { return; }
-
-    this.isSavingNote = true;
-    this.projectService.addProjectNote(this.projectId, content)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (note) => {
-          this.notes = [note, ...this.notes];
-          this.newNoteContent = '';
-          this.isSavingNote = false;
-        },
-        error: () => {
-          this.notificationService.error('projects.notes.saveError');
-          this.isSavingNote = false;
-        }
-      });
-  }
-
-  deleteNote(noteId: number): void {
-    if (!this.projectId) { return; }
-    const projectId = this.projectId;
-
-    this.confirmDialog.confirm({
-      messageKey: 'projects.notes.deleteConfirm',
-      danger: true
-    }).subscribe(confirmed => {
-      if (!confirmed) { return; }
-      this.projectService.deleteProjectNote(projectId, noteId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => this.notes = this.notes.filter(n => n.id !== noteId),
-          error: () => this.notificationService.error('projects.notes.deleteError')
-        });
-    });
   }
 
   onBack(): void {

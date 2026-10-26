@@ -37,7 +37,8 @@ for (const language of ['en', 'fr']) {
     await expect(search).toBeFocused();
     await search.fill('Java');
     await page.keyboard.press('Alt+Shift+KeyN');
-    await expect(page).toHaveURL(/\/projects$/);
+    // The search typed stays in the address (filters are bookmarkable).
+    await expect(page).toHaveURL(/\/projects\?q=Java$/);
     await expect(search).toHaveValue('Java');
     await page.getByRole('heading', { level: 1 }).click();
     await page.keyboard.press('Alt+Shift+KeyF');

@@ -134,3 +134,19 @@
   padding: 8px 0;
   color: var(--app-text-muted);
 }
+
+.interaction-project {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--app-link);
+  text-decoration: none;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}

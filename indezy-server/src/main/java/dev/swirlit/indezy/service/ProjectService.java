@@ -15,6 +15,7 @@ import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.repository.ActivityReportRepository;
 import dev.swirlit.indezy.repository.ClientRepository;
+import dev.swirlit.indezy.repository.ContactInteractionRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
@@ -53,6 +54,7 @@ public class ProjectService {
     private final InterviewStepRepository interviewStepRepository;
     private final ProjectNoteRepository projectNoteRepository;
     private final ProjectAttachmentRepository projectAttachmentRepository;
+    private final ContactInteractionRepository contactInteractionRepository;
     private final ActivityReportRepository activityReportRepository;
     private final JobOfferStateRepository jobOfferStateRepository;
     private final ProjectMapper projectMapper;
@@ -273,6 +275,7 @@ public class ProjectService {
         }
 
         // Interview steps cascade with the project; journal notes, files and activity reports are not mapped on it.
+        contactInteractionRepository.clearProject(id);
         projectNoteRepository.deleteByProjectId(id);
         projectAttachmentRepository.deleteByProjectId(id);
         activityReportRepository.deleteByProjectId(id);

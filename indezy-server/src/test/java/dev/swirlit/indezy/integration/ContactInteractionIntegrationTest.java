@@ -169,6 +169,34 @@ class ContactInteractionIntegrationTest {
         mockMvc.perform(get("/projects/stats/dashboard/100")).andExpect(jsonPath("$.followUpsDue", hasSize(0)));
     }
 
+    @Test
+    void keepsAnExchangeInTheJournalOfTheOpportunityItWasAbout() throws Exception {
+        jdbcTemplate.update("""
+            insert into projects (id, role, status, daily_rate, is_favorite, freelance_id, client_id, created_at, updated_at, version)
+            values (500, 'Architecte Kafka', 'CONTACT', 700, false, 100, 100, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0)""");
+        submit("""
+            {"occurredOn": "2026-09-01", "channel": "PHONE", "direction": "OUTGOING", "replied": true, "projectId": 500}""")
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.projectId").value(500))
+            .andExpect(jsonPath("$.projectRole").value("Architecte Kafka"))
+            .andExpect(jsonPath("$.contactName").value("Bob Wilson"));
+        create("2026-09-02", "EMAIL", "INCOMING", "null", "null");
+        submit("""
+            {"occurredOn": "2026-09-01", "channel": "PHONE", "direction": "OUTGOING", "projectId": 999}""")
+            .andExpect(status().isNotFound());
+
+        mockMvc.perform(get("/projects/500/interactions"))
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].contactName").value("Bob Wilson"))
+            .andExpect(jsonPath("$[0].channel").value("PHONE"));
+
+        mockMvc.perform(delete("/projects/500")).andExpect(status().isNoContent());
+        entityManager.flush();
+        mockMvc.perform(get(INTERACTIONS))
+            .andExpect(jsonPath("$.interactions", hasSize(2)))
+            .andExpect(jsonPath("$.interactions[1].projectId").doesNotExist());
+    }
+
     private long create(String day, String channel, String direction, String replied, String summary) throws Exception {
         String body = submit("{\"occurredOn\": \"" + day + "\", \"channel\": \"" + channel + "\", \"direction\": \"" + direction +
             "\", \"replied\": " + replied + ", \"summary\": " + summary + "}")

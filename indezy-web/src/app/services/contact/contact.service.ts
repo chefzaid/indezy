@@ -68,6 +68,11 @@ export class ContactService {
     return this.http.get<ContactInteractions>(`${this.API_URL}/${contactId}/interactions`);
   }
 
+  /** The exchanges about an opportunity, with whom, newest first. */
+  getProjectInteractions(projectId: number): Observable<ContactInteraction[]> {
+    return this.http.get<ContactInteraction[]>(`${environment.apiUrl}/projects/${projectId}/interactions`);
+  }
+
   addInteraction(contactId: number, interaction: ContactInteraction): Observable<ContactInteraction> {
     return this.http.post<ContactInteraction>(`${this.API_URL}/${contactId}/interactions`, interaction);
   }

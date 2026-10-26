@@ -52,4 +52,10 @@ public class ContactInteraction extends BaseEntity {
 
     @Column(name = "summary", length = SUMMARY_MAX)
     private String summary;
+
+    /** The opportunity the exchange was about, shown in its journal; the link goes when the opportunity is deleted. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private Project project;
 }

@@ -1,0 +1,141 @@
+<mat-card class="info-card journal-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>history_edu</mat-icon>
+      {{ 'projects.notes.title' | translate }}
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="journal-add">
+      <mat-form-field appearance="outline" class="journal-template">
+        <mat-label>{{ 'projects.notes.templates.select' | translate }}</mat-label>
+        <mat-select [(ngModel)]="selectedNoteTemplate" (selectionChange)="applyNoteTemplate($event.value)">
+          @for (template of noteTemplates; track template.id) {
+            <mat-option [value]="template.id">{{ template.labelKey | translate }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="journal-input">
+        <mat-label>{{ 'projects.notes.addLabel' | translate }}</mat-label>
+        <textarea aria-label="{{ 'projects.notes.addLabel' | translate }}" matInput rows="3" [(ngModel)]="newNoteContent"
+                  [placeholder]="'projects.notes.placeholder' | translate"></textarea>
+        <mat-hint>{{ 'projects.notes.markdownHint' | translate }}</mat-hint>
+      </mat-form-field>
+      @if (newNoteContent.trim()) {
+        <div class="journal-preview">
+          <span class="journal-preview-label">{{ 'projects.notes.preview' | translate }}</span>
+          <div class="journal-content" [innerHTML]="renderMarkdown(newNoteContent)"></div>
+        </div>
+      }
+      <div class="journal-actions">
+        @if (!recording) {
+          <button mat-stroked-button type="button" class="record-exchange" (click)="startRecording()">
+            <mat-icon>forum</mat-icon>
+            {{ 'projects.journal.recordExchange' | translate }}
+          </button>
+        }
+        <button mat-raised-button color="primary" [disabled]="!newNoteContent.trim() || isSavingNote" (click)="addNote()">
+          <mat-icon>add_comment</mat-icon>
+          {{ 'projects.notes.add' | translate }}
+        </button>
+      </div>
+    </div>
+
+    @if (recording) {
+      <form class="exchange-form" [formGroup]="exchangeForm" (ngSubmit)="recordExchange()"
+        [attr.aria-label]="'projects.journal.recordExchange' | translate">
+        @if (contacts.length) {
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'projects.journal.contact' | translate }}</mat-label>
+              <mat-select formControlName="contactId">
+                @for (contact of contacts; track contact.id) {
+                  <mat-option [value]="contact.id">{{ nameOf(contact) }} · {{ contact.clientName }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'contacts.interactions.date' | translate }}</mat-label>
+              <input matInput type="date" formControlName="occurredOn" [max]="today" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'contacts.interactions.channel' | translate }}</mat-label>
+              <mat-select formControlName="channel">
+                @for (channel of channels; track channel) {
+                  <mat-option [value]="channel">{{ 'contacts.interactions.channels.' + channel | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-button-toggle-group formControlName="direction" [attr.aria-label]="'contacts.interactions.direction' | translate">
+              <mat-button-toggle value="OUTGOING">{{ 'contacts.interactions.directions.OUTGOING' | translate }}</mat-button-toggle>
+              <mat-button-toggle value="INCOMING">{{ 'contacts.interactions.directions.INCOMING' | translate }}</mat-button-toggle>
+            </mat-button-toggle-group>
+            @if (exchangeForm.controls.direction.value === 'OUTGOING') {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'contacts.interactions.answer' | translate }}</mat-label>
+                <mat-select formControlName="answered">
+                  <mat-option [value]="null">{{ 'contacts.interactions.answers.WAITING' | translate }}</mat-option>
+                  <mat-option [value]="true">{{ 'contacts.interactions.answers.ANSWERED' | translate }}</mat-option>
+                  <mat-option [value]="false">{{ 'contacts.interactions.answers.UNANSWERED' | translate }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            }
+          </div>
+          <mat-form-field appearance="outline" class="journal-input">
+            <mat-label>{{ 'contacts.interactions.summary' | translate }}</mat-label>
+            <textarea matInput formControlName="summary" rows="2" [maxlength]="summaryMax"></textarea>
+          </mat-form-field>
+        } @else {
+          <p class="journal-empty">{{ 'projects.journal.noContacts' | translate }}</p>
+        }
+        <div class="journal-actions">
+          <button mat-button type="button" (click)="recording = false">{{ 'common.cancel' | translate }}</button>
+          <button mat-raised-button color="primary" type="submit"
+            [disabled]="!contacts.length || exchangeForm.invalid || isSavingExchange">{{ 'common.save' | translate }}</button>
+        </div>
+      </form>
+    }
+
+    @if (entries.length > 0) {
+      <div class="journal-timeline">
+        @for (entry of entries; track entry.kind + entry.at + (entry.kind === 'note' ? entry.note.id : entry.exchange.id)) {
+          @if (entry.kind === 'note') {
+            <div class="journal-entry">
+              <div class="journal-entry-header">
+                <span class="journal-date">{{ entry.note.createdAt | date:'d MMM y, HH:mm' }}</span>
+                <button mat-icon-button color="warn" class="journal-delete"
+                        [attr.aria-label]="'common.delete' | translate" (click)="deleteNote(entry.note.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+              <div class="journal-content" [innerHTML]="renderMarkdown(entry.note.content)"></div>
+            </div>
+          } @else {
+            <div class="journal-entry exchange-entry">
+              <div class="journal-entry-header">
+                <span class="exchange-title">
+                  <mat-icon aria-hidden="true">{{ icons[entry.exchange.channel] }}</mat-icon>
+                  <a [routerLink]="['/contacts', entry.exchange.contactId]">{{ entry.exchange.contactName }}</a>
+                  · {{ 'contacts.interactions.channels.' + entry.exchange.channel | translate }}
+                  · {{ 'contacts.interactions.directions.' + entry.exchange.direction | translate }}
+                  @if (entry.exchange.direction === 'OUTGOING') {
+                    · {{ 'contacts.interactions.answers.' + (entry.exchange.replied === true ? 'ANSWERED'
+                      : entry.exchange.replied === false ? 'UNANSWERED' : 'WAITING') | translate }}
+                  }
+                </span>
+                <span class="journal-date">{{ entry.exchange.occurredOn | date:'d MMM y' }}</span>
+              </div>
+              @if (entry.exchange.summary) {
+                <div class="journal-content">{{ entry.exchange.summary }}</div>
+              }
+            </div>
+          }
+        }
+      </div>
+    } @else {
+      <p class="journal-empty">{{ 'projects.notes.empty' | translate }}</p>
+    }
+  </mat-card-content>
+</mat-card>

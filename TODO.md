@@ -150,7 +150,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [ ] Gmail/Outlook inbox sync: auto-link emails to the matching project/contact
 - [x] Follow-up sequences (auto-remind me to relance after N days without reply). Done on 2026-10-26: a contact whose latest exchange is a message sent and unanswered past the follow-up delay (5 days, set in Profile → Preferences) shows in the dashboard's **Follow-ups due**, linked to the contact (`docs/features.md#contact-interaction-history`).
 - [ ] Email open/reply tracking on sent follow-ups
-- [ ] Centralized message history per opportunity (email + notes + LinkedIn exchanges)
+- [x] Centralized message history per opportunity (email + notes + LinkedIn exchanges). Done on 2026-10-26: an exchange with a contact can be about an opportunity, and the opportunity's journal shows its notes and those exchanges together, newest first, and records an exchange with a contact of the client or its ESN (`docs/features.md#project-journal`). Reading the emails themselves waits for the inbox sync item.
 
 ## Job Board Integrations
 

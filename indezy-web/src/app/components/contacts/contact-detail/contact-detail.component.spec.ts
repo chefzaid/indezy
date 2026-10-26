@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Observable, of, throwError } from 'rxjs';
 import { ContactDto } from '../../../models';
 import { ContactService } from '../../../services/contact/contact.service';
+import { ProjectService } from '../../../services/project/project.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { ContactDetailComponent } from './contact-detail.component';
@@ -32,7 +33,8 @@ describe('ContactDetailComponent', () => {
         { provide: ActivatedRoute, useValue: { params: of(id ? { id } : {}) } },
         { provide: ContactService, useValue: contacts },
         { provide: NotificationService, useValue: notifications },
-        { provide: ConfirmDialogService, useValue: confirm }
+        { provide: ConfirmDialogService, useValue: confirm },
+        { provide: ProjectService, useValue: { getByFreelanceId: () => of([]) } }
       ]
     });
     navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);

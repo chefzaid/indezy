@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnChanges, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -13,7 +14,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import {
   ContactInteraction, ContactInteractions, INTERACTION_CHANNELS, InteractionChannel, InteractionDirection
 } from '../../../models/contact.models';
+import { ProjectDto } from '../../../models/project.models';
+import { AuthService } from '../../../services/auth/auth.service';
 import { ContactService } from '../../../services/contact/contact.service';
+import { ProjectService } from '../../../services/project/project.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
@@ -39,7 +43,7 @@ export function localDay(date: Date = new Date()): string {
  */
 @Component({
   selector: 'app-contact-interactions',
-  imports: [DatePipe, ReactiveFormsModule, MatButtonModule, MatButtonToggleModule, MatCardModule, MatFormFieldModule,
+  imports: [DatePipe, RouterModule, ReactiveFormsModule, MatButtonModule, MatButtonToggleModule, MatCardModule, MatFormFieldModule,
     MatIconModule, MatInputModule, MatSelectModule, TranslateModule],
   templateUrl: './contact-interactions.component.html',
   styleUrls: ['./contact-interactions.component.scss'],
@@ -51,6 +55,8 @@ export class ContactInteractionsComponent implements OnChanges {
   private readonly contactService = inject(ContactService);
   private readonly notificationService = inject(NotificationService);
   private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly projectService = inject(ProjectService);
+  private readonly authService = inject(AuthService);
 
   readonly channels = INTERACTION_CHANNELS;
   readonly icons = CHANNEL_ICONS;
@@ -60,8 +66,12 @@ export class ContactInteractionsComponent implements OnChanges {
     channel: ['EMAIL' as InteractionChannel, Validators.required],
     direction: ['OUTGOING' as InteractionDirection, Validators.required],
     answer: ['WAITING' as Answer],
-    summary: ['', Validators.maxLength(SUMMARY_MAX)]
+    summary: ['', Validators.maxLength(SUMMARY_MAX)],
+    projectId: [null as number | null]
   });
+
+  /** The workspace's opportunities in the pipeline, which an exchange may be about, by role. */
+  projects: ProjectDto[] = [];
 
   history?: ContactInteractions;
   formOpen = false;
@@ -71,6 +81,15 @@ export class ContactInteractionsComponent implements OnChanges {
 
   ngOnChanges(): void {
     this.load();
+    const freelanceId = this.authService.getUser()?.id;
+    if (freelanceId && !this.projects.length) {
+      this.projectService.getByFreelanceId(freelanceId).subscribe({
+        next: projects => this.projects = projects.filter(project => !project.archivedAt)
+          .sort((a, b) => a.role.localeCompare(b.role)),
+        // The opportunity is optional: exchanges are recorded without one.
+        error: () => this.projects = []
+      });
+    }
   }
 
   get outgoing(): boolean {
@@ -80,7 +99,7 @@ export class ContactInteractionsComponent implements OnChanges {
   startAdd(): void {
     this.today = localDay();
     this.editingId = null;
-    this.form.reset({ occurredOn: this.today, channel: 'EMAIL', direction: 'OUTGOING', answer: 'WAITING', summary: '' });
+    this.form.reset({ occurredOn: this.today, channel: 'EMAIL', direction: 'OUTGOING', answer: 'WAITING', summary: '', projectId: null });
     this.formOpen = true;
   }
 
@@ -92,7 +111,8 @@ export class ContactInteractionsComponent implements OnChanges {
       channel: interaction.channel,
       direction: interaction.direction,
       answer: interaction.replied === true ? 'ANSWERED' : interaction.replied === false ? 'UNANSWERED' : 'WAITING',
-      summary: interaction.summary ?? ''
+      summary: interaction.summary ?? '',
+      projectId: interaction.projectId ?? null
     });
     this.formOpen = true;
   }
@@ -107,11 +127,12 @@ export class ContactInteractionsComponent implements OnChanges {
       this.form.markAllAsTouched();
       return;
     }
-    const { occurredOn, channel, direction, answer, summary } = this.form.getRawValue();
+    const { occurredOn, channel, direction, answer, summary, projectId } = this.form.getRawValue();
     const interaction: ContactInteraction = {
       occurredOn, channel, direction,
       replied: direction === 'OUTGOING' && answer !== 'WAITING' ? answer === 'ANSWERED' : null,
-      summary: summary.trim() || null
+      summary: summary.trim() || null,
+      projectId
     };
     const request = this.editingId === null
       ? this.contactService.addInteraction(this.contactId, interaction)

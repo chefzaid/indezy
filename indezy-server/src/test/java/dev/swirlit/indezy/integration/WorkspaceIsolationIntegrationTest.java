@@ -22,6 +22,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -343,6 +344,16 @@ class WorkspaceIsolationIntegrationTest {
         assertThat(call(bob, HttpMethod.PUT, throughBob, exchange, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(bob, HttpMethod.DELETE, throughBob, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(alice, HttpMethod.GET, alicePath, null, Map.class).getBody()).containsEntry("responseRate", 100);
+
+        // Nor tie his own exchanges to Alice's opportunities, or read the exchanges about them.
+        long aliceProject = idOf(call(alice, HttpMethod.POST, "/projects",
+            Map.of("role", "Dev", "dailyRate", 500, "clientId", aliceClientId, "freelanceId", alice.freelanceId()), Map.class));
+        Map<String, Object> aboutAlice = new HashMap<>(exchange);
+        aboutAlice.put("projectId", aliceProject);
+        assertThat(call(bob, HttpMethod.POST, "/contacts/" + bobContact + "/interactions", aboutAlice, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.GET, "/projects/" + aliceProject + "/interactions", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test

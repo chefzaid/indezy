@@ -256,6 +256,8 @@ Important fields:
 - `direction`: `OUTGOING` (the freelancer started it) or `INCOMING`
 - `replied`: for an `OUTGOING` one, whether it was answered; null while waiting or unknown, always null for `INCOMING`
 - `summary`: up to 500 characters, optional
+- project (`project_id`): the opportunity the exchange was about, optional; `ON DELETE SET NULL`, and the application
+  clears it in bulk before deleting the opportunity
 
 ## Source
 

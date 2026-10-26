@@ -602,7 +602,18 @@ gives them.
 
 ## Project Journal
 
-Each project has a chronological journal of free-text notes (calls, emails, decisions) exposed under `/api/projects/{projectId}/notes` (list newest-first, add, delete). The project detail page shows the timeline with timestamps and lets the user add or remove entries. Notes are stored and rendered as plain text for now; Markdown support with live preview is a planned enhancement.
+Each opportunity's page has a **Journal**: its history in one place, newest first.
+
+- Notes (calls, decisions, impressions) are written in Markdown with a live preview, can start from a template (call
+  debrief, negotiation summary...), and can be deleted (`/api/projects/{projectId}/notes`: list newest first, add,
+  delete).
+- The exchanges with contacts recorded about the opportunity (emails, calls, LinkedIn messages, meetings, see
+  [Contact Interaction History](#contact-interaction-history)) appear among the notes by their day, with whom, the
+  channel, who started it, whether it was answered and its summary, linked to the contact's page.
+- **Record an exchange** notes one with a contact of the client or its ESN, tied to the opportunity; it is changed or
+  deleted from the contact's page, whose exchange form can also tie any exchange to one of the opportunities in the
+  pipeline. `GET /projects/{projectId}/interactions` lists the exchanges about an opportunity; deleting the opportunity
+  keeps them, about none.
 
 ## Monthly Activity Reports (CRA)
 

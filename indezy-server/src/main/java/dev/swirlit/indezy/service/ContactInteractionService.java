@@ -8,10 +8,12 @@ import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.ContactInteraction;
+import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.InteractionChannel;
 import dev.swirlit.indezy.model.enums.InteractionDirection;
 import dev.swirlit.indezy.repository.ContactInteractionRepository;
 import dev.swirlit.indezy.repository.ContactRepository;
+import dev.swirlit.indezy.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +43,7 @@ public class ContactInteractionService {
 
     private final ContactInteractionRepository interactions;
     private final ContactRepository contacts;
+    private final ProjectRepository projects;
     private final Clock clock;
 
     @Transactional(readOnly = true)
@@ -64,6 +67,12 @@ public class ContactInteractionService {
 
     public void delete(Long contactId, Long id) {
         interactions.delete(find(contactId, id));
+    }
+
+    /** The exchanges about opportunity {@code projectId}, with whom, newest first. */
+    @Transactional(readOnly = true)
+    public List<ContactInteractionDto> listForProject(Long projectId) {
+        return interactions.findByProjectIdOrderByOccurredOnDescIdDesc(projectId).stream().map(ContactInteractionService::toDto).toList();
     }
 
     /** The day of the latest exchange of each of {@code contactIds} that has one. */
@@ -162,6 +171,8 @@ public class ContactInteractionService {
         interaction.setReplied(request.direction() == InteractionDirection.OUTGOING ? request.replied() : null);
         String summary = request.summary() == null ? "" : request.summary().strip();
         interaction.setSummary(summary.isEmpty() ? null : summary);
+        interaction.setProject(request.projectId() == null ? null : projects.findById(request.projectId()).orElseThrow(() ->
+            new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, request.projectId()))));
         return interaction;
     }
 
@@ -176,7 +187,9 @@ public class ContactInteractionService {
     }
 
     private static ContactInteractionDto toDto(ContactInteraction interaction) {
-        return new ContactInteractionDto(interaction.getId(), interaction.getContact().getId(), interaction.getOccurredOn(),
-            interaction.getChannel(), interaction.getDirection(), interaction.getReplied(), interaction.getSummary());
+        Project project = interaction.getProject();
+        return new ContactInteractionDto(interaction.getId(), interaction.getContact().getId(), interaction.getContact().getFullName(),
+            interaction.getOccurredOn(), interaction.getChannel(), interaction.getDirection(), interaction.getReplied(),
+            interaction.getSummary(), project == null ? null : project.getId(), project == null ? null : project.getRole());
     }
 }

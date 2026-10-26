@@ -71,6 +71,17 @@
             </mat-select>
           </mat-form-field>
         }
+        @if (projects.length) {
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'projects.journal.opportunity' | translate }}</mat-label>
+            <mat-select formControlName="projectId">
+              <mat-option [value]="null">{{ 'projects.journal.noOpportunity' | translate }}</mat-option>
+              @for (project of projects; track project.id) {
+                <mat-option [value]="project.id">{{ project.role }}@if (project.clientName) { · {{ project.clientName }} }</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
         <mat-form-field appearance="outline" class="summary-field">
           <mat-label>{{ 'contacts.interactions.summary' | translate }}</mat-label>
           <textarea matInput formControlName="summary" rows="2" [maxlength]="summaryMax"></textarea>
@@ -110,6 +121,11 @@
                   </span>
                 }
               </div>
+              @if (interaction.projectId) {
+                <a class="interaction-project" [routerLink]="['/projects', interaction.projectId]">
+                  <mat-icon aria-hidden="true">work</mat-icon>{{ interaction.projectRole }}
+                </a>
+              }
               @if (interaction.summary) {
                 <p class="interaction-summary-text">{{ interaction.summary }}</p>
               }

@@ -8,6 +8,7 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.ClientRepository;
+import dev.swirlit.indezy.repository.ContactInteractionRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
@@ -64,6 +65,9 @@ abstract class ProjectServiceTestSupport {
 
     @Mock
     JobOfferStateRepository jobOfferStateRepository;
+
+    @Mock
+    ContactInteractionRepository contactInteractionRepository;
 
     @InjectMocks
     ProjectService projectService;

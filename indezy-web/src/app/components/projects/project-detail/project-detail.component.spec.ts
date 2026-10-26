@@ -17,6 +17,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 import { KanbanLostReasonDialogComponent } from '../../kanban-lost-reason-dialog/kanban-lost-reason-dialog.component';
 import { RenameTagDialogComponent } from '../rename-tag-dialog/rename-tag-dialog.component';
 import { ProjectDetailComponent } from './project-detail.component';
+import { ContactService } from '../../../services/contact/contact.service';
 
 describe('ProjectDetailComponent', () => {
   const mission: ProjectDto = {
@@ -69,7 +70,8 @@ describe('ProjectDetailComponent', () => {
         { provide: NotificationService, useValue: notifications },
         { provide: ConfirmDialogService, useValue: confirmDialog },
         { provide: UserManagementService, useValue: userManagement },
-        { provide: AuthService, useValue: { getUser: () => user } }
+        { provide: AuthService, useValue: { getUser: () => user } },
+        { provide: ContactService, useValue: { getByClientId: () => of([]), getProjectInteractions: () => of([]) } }
       ]
     });
     TestBed.overrideProvider(MatDialog, { useValue: dialog });
@@ -182,8 +184,6 @@ describe('ProjectDetailComponent', () => {
     expect(projectService.getById).not.toHaveBeenCalled();
     expect(fixture.componentInstance.project).toBeUndefined();
     fixture.componentInstance.openStepDialog();
-    fixture.componentInstance.addNote();
-    fixture.componentInstance.deleteNote(1);
     fixture.componentInstance.onEdit();
     fixture.componentInstance.onDelete();
     expect(dialog.open).not.toHaveBeenCalled();

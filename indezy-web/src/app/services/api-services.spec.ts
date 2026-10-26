@@ -79,6 +79,7 @@ describe('API services', () => {
     { name: 'import contacts', call: () => contact().importForClient(3, 'csv'), method: 'POST', url: `${api}/contacts/import/by-client/3`, body: { content: 'csv' } },
     { name: 'delete picked contacts', call: () => contact().deleteAll([4, 5]), method: 'POST', url: `${api}/contacts/bulk-delete`, body: { ids: [4, 5] } },
     { name: 'contact exchanges', call: () => contact().getInteractions(4), method: 'GET', url: `${api}/contacts/4/interactions` },
+    { name: 'exchanges about an opportunity', call: () => contact().getProjectInteractions(12), method: 'GET', url: `${api}/projects/12/interactions` },
     { name: 'record an exchange', call: () => contact().addInteraction(4, { occurredOn: '2026-09-01' } as never), method: 'POST', url: `${api}/contacts/4/interactions`, body: { occurredOn: '2026-09-01' } },
     { name: 'change an exchange', call: () => contact().updateInteraction(4, 2, { occurredOn: '2026-09-01' } as never), method: 'PUT', url: `${api}/contacts/4/interactions/2`, body: { occurredOn: '2026-09-01' } },
     { name: 'delete an exchange', call: () => contact().deleteInteraction(4, 2), method: 'DELETE', url: `${api}/contacts/4/interactions/2` },

@@ -495,6 +495,14 @@
       "label": "Archive",
       "active": "Dans le pipeline",
       "archived": "Archivées"
+    },
+    "journal": {
+      "recordExchange": "Noter un échange",
+      "contact": "Avec",
+      "noContacts": "Aucun contact chez ce client ou son ESN : ajoutez-en un depuis la page du client.",
+      "exchangesError": "Les échanges sur cette opportunité n'ont pas pu être chargés",
+      "opportunity": "Au sujet de l'opportunité (facultatif)",
+      "noOpportunity": "Aucune"
     }
   },
   "clients": {

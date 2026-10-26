@@ -82,6 +82,13 @@ public class AccessGuard {
         requireOwned(projectId, projectRepository::findOwnerFreelanceIdById, "Project");
     }
 
+    /** Checks an optional opportunity reference (e.g. the one an exchange was about). */
+    public void requireProjectIfPresent(Long projectId) {
+        if (projectId != null) {
+            requireProject(projectId);
+        }
+    }
+
     public void requireClient(Long clientId) {
         requireOwned(clientId, clientRepository::findOwnerFreelanceIdById, "Client");
     }

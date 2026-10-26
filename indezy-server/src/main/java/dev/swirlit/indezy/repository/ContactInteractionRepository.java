@@ -1,7 +1,9 @@
 package dev.swirlit.indezy.repository;
 
 import dev.swirlit.indezy.model.ContactInteraction;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -24,6 +26,14 @@ public interface ContactInteractionRepository extends JpaRepository<ContactInter
     List<ContactInteraction> findByContactFreelanceIdOrderByContactIdAscOccurredOnDescIdDesc(Long freelanceId);
 
     Optional<ContactInteraction> findByIdAndContactId(Long id, Long contactId);
+
+    @EntityGraph(attributePaths = "contact")
+    List<ContactInteraction> findByProjectIdOrderByOccurredOnDescIdDesc(Long projectId);
+
+    /** The exchanges about the opportunity are about none: run before deleting it. */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE ContactInteraction i SET i.project = null WHERE i.project.id = :projectId")
+    int clearProject(@Param("projectId") Long projectId);
 
     long countByContactId(Long contactId);
 
