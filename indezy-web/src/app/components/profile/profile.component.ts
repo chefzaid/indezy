@@ -194,6 +194,7 @@ export class ProfileComponent implements OnInit {
       defaultView: ['dashboard'],
       itemsPerPage: [25],
       autoSave: [true],
+      autoArchive: [false],
       inactivityDays: [null, [Validators.required, Validators.min(1), Validators.max(365), Validators.pattern('^[0-9]+$')]]
     });
 

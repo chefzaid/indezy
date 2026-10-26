@@ -79,10 +79,18 @@
   },
   "archive": {
     "title": "Archives",
-    "subtitle": "Vos opportunités passées (acceptées et perdues)",
+    "subtitle": "Vos opportunités passées (acceptées et perdues) et celles sorties du pipeline",
     "search": "Rechercher",
     "searchPlaceholder": "Poste, stack technique, client, notes...",
-    "empty": "Aucune opportunité correspondante"
+    "empty": "Aucune opportunité correspondante",
+    "archived": "Archivée le {{date}}",
+    "restore": "Restaurer",
+    "archiveAction": "Archiver",
+    "archivedSuccess": "Opportunité archivée",
+    "restoredSuccess": "Opportunité remise dans sa colonne du pipeline",
+    "archiveError": "L'opportunité n'a pas pu être archivée",
+    "restoreError": "L'opportunité n'a pas pu être restaurée",
+    "archiveHint": "La sortir du pipeline ; elle garde son statut"
   },
   "auth": {
     "loginTitle": "Connexion à Indezy",
@@ -763,7 +771,9 @@
     "availabilityDate": "Disponible à partir du",
     "availabilityDateHint": "Les offres qui démarrent quand vous êtes disponible obtiennent un meilleur score dans le fil. Laissez vide pour ne pas en tenir compte.",
     "updateSuccessSuggestions": "Profil mis à jour. Le fil d'offres vous suggère de nouvelles recherches.",
-    "seeSuggestions": "Les voir"
+    "seeSuggestions": "Les voir",
+    "autoArchive": "Archiver chaque nuit les opportunités inactives",
+    "autoArchiveHint": "Les opportunités du pipeline sans mise à jour pendant la période d'inactivité vont aux archives, d'où elles peuvent être restaurées."
   },
   "errors": {
     "notFoundTitle": "404 - Page non trouvée",

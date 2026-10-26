@@ -557,8 +557,18 @@ Profile → Preferences lets the user set the inactivity period to 1–365 whole
 The same saved value controls dashboard follow-up reminders and Kanban highlighting;
 it counts elapsed days since the opportunity's last update, including the threshold day.
 Saving other preferences leaves this setting unchanged when it is omitted. Existing
-accounts without a saved value keep the 14-day default. This setting flags opportunities;
-automatic archiving remains on the roadmap.
+accounts without a saved value keep the 14-day default.
+
+Opportunities can be archived: they leave the Kanban board and the stale reminders but keep
+their status, so the statistics and funnel still count them. **Archive** on an opportunity's
+page (contact, interviews or offer) archives it by hand; Profile → Preferences → **Archive idle
+opportunities every night** (off by default) lets the server archive, at 03:30 Paris time,
+every pipeline opportunity with no update for the inactivity period: exactly the ones the
+board flags. Archived opportunities are listed in the **Archive** view with the won and lost
+ones, by when they were archived, and marked **Archive** in the projects list; **Restore**,
+there or on the opportunity's page, puts it back in its column and counts as activity, so the
+inactivity period starts again. `INDEZY_PROJECTS_ARCHIVING_ENABLED=false` stops the nightly
+run.
 
 The board has five status-driven columns: Contact, Tests & Entretiens, Offre, Accepté and Perdu / Abandonné. Intermediate recruitment steps (technical test, client interview...) are tracked as interview steps inside the Tests & Entretiens column. The board follows the season selected on the dashboard (`GET /projects/kanban/{freelanceId}?seasonId=`), and cards quick-added to it join that season.
 
@@ -619,7 +629,7 @@ Every list uses the same kind of inline filters, applied in the browser as you t
 - clients: search, type (final client or ESN), city and sort
 - contacts: search and client
 - sources: search, type and minimum usefulness rating
-- archive: full-text search across past opportunities
+- archive: full-text search across past and archived opportunities, archived ones restored to their pipeline column
 
 ## Keyboard Shortcuts
 

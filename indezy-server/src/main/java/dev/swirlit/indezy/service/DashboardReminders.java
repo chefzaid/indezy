@@ -28,7 +28,7 @@ final class DashboardReminders {
     }
 
     /**
-     * Lists active (in-pipeline, i.e. neither WON nor LOST) opportunities whose last update is at
+     * Lists active (in-pipeline, i.e. neither WON nor LOST, nor archived) opportunities whose last update is at
      * least the account's configured inactivity period old, so they can be followed up on or archived before
      * going cold. Most stale first.
      */
@@ -38,7 +38,7 @@ final class DashboardReminders {
         for (Project project : projects) {
             ProjectStatus status = project.getStatus();
             if (status == null || status == ProjectStatus.WON || status == ProjectStatus.LOST ||
-                project.getUpdatedAt() == null) {
+                project.getUpdatedAt() == null || project.getArchivedAt() != null) {
                 continue;
             }
             long daysSinceActivity = ChronoUnit.DAYS.between(project.getUpdatedAt().atZone(ZoneId.systemDefault()),

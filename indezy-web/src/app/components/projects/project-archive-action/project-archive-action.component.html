@@ -1,0 +1,15 @@
+@if (project.archivedAt) {
+  <span class="archived-since">
+    <mat-icon inline>inventory_2</mat-icon>
+    {{ 'archive.archived' | translate:{ date: (project.archivedAt | date:'mediumDate') } }}
+  </span>
+  <button mat-stroked-button type="button" (click)="toggle()" [disabled]="busy">
+    <mat-icon>unarchive</mat-icon>
+    {{ 'archive.restore' | translate }}
+  </button>
+} @else if (project.status !== 'WON' && project.status !== 'LOST') {
+  <button mat-button type="button" (click)="toggle()" [disabled]="busy" [matTooltip]="'archive.archiveHint' | translate">
+    <mat-icon>archive</mat-icon>
+    {{ 'archive.archiveAction' | translate }}
+  </button>
+}

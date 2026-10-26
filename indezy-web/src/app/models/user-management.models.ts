@@ -48,6 +48,8 @@ export interface UserPreferences {
   itemsPerPage: number;
   autoSave: boolean;
   inactivityDays: number;
+  /** Archive opportunities idle for the inactivity period, every night. */
+  autoArchive?: boolean;
 }
 
 export interface PasswordChangeRequest {

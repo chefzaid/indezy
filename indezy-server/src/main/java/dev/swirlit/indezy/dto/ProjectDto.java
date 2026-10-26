@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +52,9 @@ public class ProjectDto {
     private LostReason lostReason;
 
     private Boolean isFavorite;
+
+    /** When the opportunity was archived, or null in the pipeline; changed only by archiving and restoring it. */
+    private LocalDateTime archivedAt;
 
     // Related entities
     private Long freelanceId;

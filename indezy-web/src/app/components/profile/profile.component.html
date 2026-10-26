@@ -227,6 +227,10 @@
                     </mat-form-field>
                   </div>
                   <div class="toggle-section">
+                    <mat-slide-toggle formControlName="autoArchive">
+                      {{ 'profile.autoArchive' | translate }}
+                    </mat-slide-toggle>
+                    <p class="toggle-hint">{{ 'profile.autoArchiveHint' | translate }}</p>
                     <mat-slide-toggle formControlName="autoSave">
                       {{ 'profile.autoSave' | translate }}
                     </mat-slide-toggle>

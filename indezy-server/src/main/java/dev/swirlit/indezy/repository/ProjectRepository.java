@@ -21,6 +21,13 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     List<Project> findByClientId(Long clientId);
 
+    /** Archives a workspace's pipeline opportunities (contact, interviews, offer) last updated at or before {@code idleSince}. */
+    @Modifying(clearAutomatically = true)
+    @Query("update Project p set p.archivedAt = :now where p.freelance.id = :freelanceId and p.archivedAt is null " +
+        "and p.status in (dev.swirlit.indezy.model.enums.ProjectStatus.CONTACT, dev.swirlit.indezy.model.enums.ProjectStatus.INTERVIEW, " +
+        "dev.swirlit.indezy.model.enums.ProjectStatus.OFFER) and p.updatedAt <= :idleSince")
+    int archiveIdle(@Param("freelanceId") Long freelanceId, @Param("idleSince") LocalDateTime idleSince, @Param("now") LocalDateTime now);
+
     List<Project> findByFreelanceIdAndSeasonId(Long freelanceId, Long seasonId);
 
     long countBySeasonId(Long seasonId);

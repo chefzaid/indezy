@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -293,9 +294,11 @@ public class ProjectService {
     public KanbanBoardDto getKanbanBoard(Long freelanceId, Long seasonId) {
         log.debug("Getting kanban board for freelance: {} (season: {})", freelanceId, seasonId);
 
-        List<Project> projects = seasonId != null ?
+        List<Project> projects = (seasonId != null ?
             projectRepository.findByFreelanceIdAndSeasonId(freelanceId, seasonId) :
-            projectRepository.findByFreelanceId(freelanceId);
+            projectRepository.findByFreelanceId(freelanceId)).stream()
+            .filter(project -> project.getArchivedAt() == null)
+            .toList();
 
         Map<String, List<KanbanBoardDto.ProjectCardDto>> columns = new LinkedHashMap<>();
         for (ProjectStatus status : KANBAN_COLUMN_ORDER) {
@@ -328,6 +331,21 @@ public class ProjectService {
         kanbanBoard.setColumns(columns);
         kanbanBoard.setColumnOrder(KANBAN_COLUMN_ORDER.stream().map(Enum::name).toList());
         return kanbanBoard;
+    }
+
+    /**
+     * Takes an opportunity out of the pipeline into the archive, or restores it to its Kanban column: its status is
+     * kept either way, and restoring it counts as activity, so the inactivity period starts again.
+     */
+    public ProjectDto setArchived(Long id, boolean archived) {
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
+        if (archived != (project.getArchivedAt() != null)) {
+            project.setArchivedAt(archived ? LocalDateTime.now() : null);
+            project = projectRepository.save(project);
+            log.info("{} project with id: {}", archived ? "Archived" : "Restored", id);
+        }
+        return projectMapper.toDto(project);
     }
 
     public ProjectDto toggleFavorite(Long id) {

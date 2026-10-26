@@ -98,6 +98,20 @@ public class ProjectController {
         return projectService.updateStatus(id, status, lostReason);
     }
 
+    @Operation(summary = "Archive an opportunity: it leaves the Kanban board and keeps its status")
+    @PatchMapping("/{id}/archive")
+    public ProjectDto archive(@PathVariable Long id) {
+        accessGuard.requireProject(id);
+        return projectService.setArchived(id, true);
+    }
+
+    @Operation(summary = "Restore an archived opportunity to its Kanban column")
+    @PatchMapping("/{id}/restore")
+    public ProjectDto restore(@PathVariable Long id) {
+        accessGuard.requireProject(id);
+        return projectService.setArchived(id, false);
+    }
+
     @Operation(summary = "Pin or unpin a project at the top of its Kanban column")
     @PatchMapping("/{id}/favorite")
     public ProjectDto toggleFavorite(@PathVariable Long id) {

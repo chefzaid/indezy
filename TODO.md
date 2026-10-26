@@ -48,6 +48,8 @@ Parts of tasks that cannot advance without the owner's decision or information. 
 
 - [ ] Create Indezy's Resend sending key and store it in Vault before the next release (Offer feed, "Saved search emails", answered: Resend). The emails are built and send nothing without a key; the release that brings them adds the `indezy-mail` ExternalSecret, which needs the field `RESEND_API_KEY` at Vault KV v2 path `secret/apps/indezy/mail` to exist, even empty, or Argo CD reports the app degraded and the deploy job fails. Steps (`docs/deployment.md#saved-search-email-credentials`): in Resend, create a sending access key restricted to `swirlit.dev` (already verified for the website's `noreply@swirlit.dev`), then write it to that path, or write an empty value to release first and add the key later (restart `indezy-server` after the ExternalSecret refreshes). Options: (a) you write the key; (b) the agent writes an empty field now with your approval, and you add the key later. *(task: Offer feed › Saved search emails; asked by: Coding Agent)*
   - Answer:
+- [ ] Should the nightly archiving of idle opportunities be on by default? It ships off: each account turns it on in Profile → Preferences, so nothing leaves anyone's board unannounced. Options: (a) keep it opt-in; (b) on for new accounts only; (c) on for every account, existing ones included, announced in the interface first. *(task: Pipeline & Kanban › Automatic archiving; asked by: Coding Agent)*
+  - Answer:
 
 ## Pipeline & Kanban
 
@@ -72,7 +74,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [x] Lost/rejected reason tracking (rate too low, position filled, no response...) with stats
 - [x] Automatic stale-opportunity detection and suggested follow-up or archival
 - [x] Configurable inactivity period: the user sets in their preferences after how many days without activity an opportunity counts as stale (14 days by default, shared by backend reminders and the Kanban board)
-- [ ] Automatic archiving of opportunities with no contact for that period (instead of only flagging them), with an unarchive action from the archive view and the project page that puts the opportunity back in its pipeline column
+- [ ] Automatic archiving of opportunities with no contact for that period (instead of only flagging them), with an unarchive action from the archive view and the project page that puts the opportunity back in its pipeline column Done on 2026-10-26, all but the default (waiting in **Needs Input**): opt-in in Profile → Preferences, nightly at 03:30 Paris time, plus **Archive** / **Restore** on the opportunity's page and **Restore** in the archive view; archived opportunities keep their status (`docs/features.md#kanban-and-pipeline-view`).
 - [x] Duplicate opportunity detection (same client + same role posted on several job boards), flagged for manual deduplication
 
 ## Opportunities & Projects

@@ -52,6 +52,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/profile/profile.component',
   'components/projects/activity-report-card/activity-report-card.component',
   'components/projects/interview-step-dialog/interview-step-dialog.component',
+  'components/projects/project-archive-action/project-archive-action.component',
   'components/projects/project-detail/note-templates',
   'components/projects/project-detail/project-detail.component',
   'components/projects/project-detail/project-resources.component',

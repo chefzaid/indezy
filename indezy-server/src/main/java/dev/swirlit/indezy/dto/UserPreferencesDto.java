@@ -21,4 +21,6 @@ public class UserPreferencesDto {
     @Max(365)
     @JsonDeserialize(using = WholeNumberDeserializer.class)
     private Integer inactivityDays;
+    /** Archive opportunities idle for {@code inactivityDays}, every night. */
+    private Boolean autoArchive;
 }

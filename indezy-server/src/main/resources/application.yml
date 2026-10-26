@@ -40,6 +40,9 @@ google:
     api-key: ${GOOGLE_MAPS_API_KEY:}
 
 indezy:
+  projects:
+    # Archives every night the idle opportunities of the accounts that asked for it (see docs/features.md#kanban-and-pipeline-view).
+    archiving-enabled: ${INDEZY_PROJECTS_ARCHIVING_ENABLED:true}
   offers:
     # Reads the job boards in the background (see docs/features.md#freelance-offer-feed).
     collection-enabled: ${INDEZY_OFFERS_COLLECTION_ENABLED:true}

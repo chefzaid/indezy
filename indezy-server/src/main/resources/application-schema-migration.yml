@@ -13,6 +13,9 @@ spring:
         "[hbm2ddl.halt_on_error]": true
 
 indezy:
+  projects:
+    # A one-off run: never archive opportunities.
+    archiving-enabled: false
   offers:
     # A one-off run: never start reading the job boards.
     collection-enabled: false

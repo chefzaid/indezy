@@ -17,6 +17,17 @@ import static org.mockito.Mockito.*;
 class DashboardRemindersTest extends DashboardStatsTestSupport {
 
     @Test
+    void staleOpportunities_ShouldLeaveArchivedOnesOut() {
+        LocalDateTime now = LocalDateTime.of(2026, 9, 27, 12, 0);
+        Project idle = activeOpportunity(1L, ProjectStatus.CONTACT, now.minusDays(20));
+        Project archived = activeOpportunity(2L, ProjectStatus.CONTACT, now.minusDays(20));
+        archived.setArchivedAt(now.minusDays(1));
+
+        assertThat(DashboardReminders.buildStaleOpportunities(List.of(idle, archived), now, 7))
+            .extracting(stale -> stale.getProjectId()).containsExactly(1L);
+    }
+
+    @Test
     void staleOpportunities_ShouldUseTheConfiguredPeriodAtTheExactBoundary() {
         LocalDateTime now = LocalDateTime.of(2026, 9, 27, 12, 0);
         Project old = activeOpportunity(1L, ProjectStatus.CONTACT, now.minusDays(20));

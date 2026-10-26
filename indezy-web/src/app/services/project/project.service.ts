@@ -53,6 +53,16 @@ export class ProjectService {
     return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/favorite`, null);
   }
 
+  /** Takes an opportunity out of the pipeline into the archive; it keeps its status. */
+  archive(id: number): Observable<ProjectDto> {
+    return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/archive`, null);
+  }
+
+  /** Puts an archived opportunity back in its pipeline column. */
+  restore(id: number): Observable<ProjectDto> {
+    return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/restore`, null);
+  }
+
   /** Kanban board of the workspace, limited to one season when a season id is given. */
   getKanbanBoard(freelanceId: number, seasonId?: number | null): Observable<KanbanBoardDto> {
     return this.http.get<KanbanBoardDto>(`${this.API_URL}/kanban/${freelanceId}`, { params: seasonParams(seasonId) });

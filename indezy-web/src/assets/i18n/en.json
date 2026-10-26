@@ -79,10 +79,18 @@
   },
   "archive": {
     "title": "Archive",
-    "subtitle": "Your past opportunities (accepted and lost)",
+    "subtitle": "Your past opportunities (accepted and lost) and the ones taken out of the pipeline",
     "search": "Search",
     "searchPlaceholder": "Role, tech stack, client, notes...",
-    "empty": "No matching opportunities"
+    "empty": "No matching opportunities",
+    "archived": "Archived {{date}}",
+    "restore": "Restore",
+    "archiveAction": "Archive",
+    "archivedSuccess": "Opportunity archived",
+    "restoredSuccess": "Opportunity back in its pipeline column",
+    "archiveError": "The opportunity could not be archived",
+    "restoreError": "The opportunity could not be restored",
+    "archiveHint": "Take it out of the pipeline; it keeps its status"
   },
   "auth": {
     "loginTitle": "Sign in to Indezy",
@@ -763,7 +771,9 @@
     "availabilityDate": "Available from",
     "availabilityDateHint": "Offers starting once you are available score higher in the feed. Leave empty if you do not want it counted.",
     "updateSuccessSuggestions": "Profile updated. The offer feed has new suggested searches for it.",
-    "seeSuggestions": "See them"
+    "seeSuggestions": "See them",
+    "autoArchive": "Archive idle opportunities every night",
+    "autoArchiveHint": "Opportunities in the pipeline with no update for the inactivity period go to the archive, from where they can be restored."
   },
   "errors": {
     "notFoundTitle": "404 - Page not found",

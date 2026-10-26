@@ -110,6 +110,15 @@ describe('ProjectListComponent', () => {
     expect(fixture.nativeElement.querySelector('mat-paginator')).toBeNull();
   });
 
+  it('marks an archived opportunity, keeping its pipeline stage', () => {
+    const fixture = create([{ ...missions[0], archivedAt: '2026-10-26T03:30:00' }, missions[1]]);
+
+    const pills = (fixture.nativeElement as HTMLElement).querySelectorAll('.archived-pill');
+    expect(pills.length).toBe(1);
+    expect(pills[0].textContent!.trim()).toBe('archive.title');
+    expect(text(fixture)).toContain('projects.statuses.CONTACT');
+  });
+
   it('shows each project\'s pipeline stage, a project without one as a first contact', () => {
     const fixture = create();
     const component = fixture.componentInstance;

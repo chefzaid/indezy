@@ -52,6 +52,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { RenameTagDialogComponent, RenameTagResult } from '../rename-tag-dialog/rename-tag-dialog.component';
 import { NOTE_TEMPLATES } from './note-templates';
 import { StepChecklistComponent } from '../step-checklist/step-checklist.component';
+import { ProjectArchiveActionComponent } from '../project-archive-action/project-archive-action.component';
 
 @Component({
     selector: 'app-project-detail',
@@ -60,6 +61,7 @@ import { StepChecklistComponent } from '../step-checklist/step-checklist.compone
         ProjectResourcesComponent,
         ActivityReportCardComponent,
         StepChecklistComponent,
+        ProjectArchiveActionComponent,
         CommonModule,
         FormsModule,
         RouterModule,

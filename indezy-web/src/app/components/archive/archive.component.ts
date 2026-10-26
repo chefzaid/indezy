@@ -7,22 +7,25 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ProjectService } from '../../services/project/project.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { ProjectDto, ProjectStatus } from '../../models';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
+import { NotificationService } from '../../services/notification/notification.service';
 
 /**
- * Read-only archive of closed opportunities (won or lost) with a full-text search
- * across their role, description, tech stack, notes and client.
+ * Archive of closed opportunities (won or lost) and of the ones taken out of the pipeline, by hand or after the
+ * inactivity period, with a full-text search across their role, description, tech stack, notes and client. An archived
+ * opportunity can be restored to its pipeline column.
  */
 @Component({
   selector: 'app-archive',
   imports: [
     CommonModule, FormsModule, RouterModule, MatCardModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatChipsModule, TranslateModule, LoadingComponent
+    MatFormFieldModule, MatInputModule, MatChipsModule, MatButtonModule, TranslateModule, LoadingComponent
   ],
   templateUrl: './archive.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -37,7 +40,8 @@ export class ArchiveComponent implements OnInit {
 
   constructor(
     private readonly projectService: ProjectService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -62,12 +66,25 @@ export class ArchiveComponent implements OnInit {
     this.applySearch();
   }
 
-  /** Keeps only closed (won/lost) opportunities, most recent first. */
+  /** Keeps closed (won/lost) and archived opportunities, most recent first: archived ones by when they were archived. */
   toArchived(projects: ProjectDto[]): ProjectDto[] {
     const closed = new Set([ProjectStatus.WON, ProjectStatus.LOST]);
     return projects
-      .filter(project => !!project.status && closed.has(project.status))
-      .sort((a, b) => this.startTime(b) - this.startTime(a));
+      .filter(project => !!project.archivedAt || (!!project.status && closed.has(project.status)))
+      .sort((a, b) => this.time(b) - this.time(a));
+  }
+
+  /** Puts an archived opportunity back in its pipeline column, and takes it off this list unless it is closed. */
+  restore(project: ProjectDto, event: Event): void {
+    event.stopPropagation();
+    this.projectService.restore(project.id!).subscribe({
+      next: saved => {
+        this.archivedProjects = this.toArchived(this.archivedProjects.map(item => item.id === saved.id ? saved : item));
+        this.applySearch();
+        this.notificationService.success('archive.restoredSuccess');
+      },
+      error: () => this.notificationService.error('archive.restoreError')
+    });
   }
 
   /** Filters projects whose searchable text fields contain the query (case-insensitive). */
@@ -85,7 +102,8 @@ export class ArchiveComponent implements OnInit {
     this.filteredProjects = this.matchQuery(this.archivedProjects, this.searchQuery);
   }
 
-  private startTime(project: ProjectDto): number {
-    return project.startDate ? new Date(project.startDate).getTime() : 0;
+  private time(project: ProjectDto): number {
+    const date = project.archivedAt ?? project.startDate;
+    return date ? new Date(date).getTime() : 0;
   }
 }

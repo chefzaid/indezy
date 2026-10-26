@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,6 +102,13 @@ public class Project extends BaseEntity {
     /** Pins hot leads to the top of their Kanban column and the favorites view. */
     @Column(name = "is_favorite", nullable = false, columnDefinition = "boolean default false")
     private Boolean isFavorite = false;
+
+    /**
+     * When the opportunity left the pipeline for the archive, by hand or after the inactivity period; its status is
+     * kept, so restoring it puts it back in its Kanban column. Null while it is in the pipeline.
+     */
+    @Column(name = "archived_at")
+    private LocalDateTime archivedAt;
 
     /** Manual priority within a Kanban column (lower comes first); null keeps default ordering. */
     @Column(name = "board_position")

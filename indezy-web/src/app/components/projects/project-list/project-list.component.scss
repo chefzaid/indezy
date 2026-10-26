@@ -550,3 +550,12 @@
     }
   }
 }
+
+.archived-pill {
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  border: 1px solid currentColor;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}

@@ -91,3 +91,12 @@
   font-size: 0.85em;
   color: var(--text-secondary);
 }
+
+.archive-archived {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 0.8125rem;
+}

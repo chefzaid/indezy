@@ -41,6 +41,15 @@
               }
               <span>{{ project.dailyRate }} €/j</span>
             </div>
+            @if (project.archivedAt) {
+              <div class="archive-archived">
+                <span>{{ 'archive.archived' | translate:{ date: (project.archivedAt | date:'mediumDate') } }}</span>
+                <button mat-stroked-button type="button" (click)="restore(project, $event)">
+                  <mat-icon>unarchive</mat-icon>
+                  {{ 'archive.restore' | translate }}
+                </button>
+              </div>
+            }
           </mat-card-content>
         </mat-card>
       }

@@ -352,9 +352,10 @@ describe('ProfileComponent', () => {
       const reload = spyOn(component, 'reloadPage');
       users.updateUserPreferences.and.returnValue(of(preferences));
 
+      component.preferencesForm.patchValue({ autoArchive: true });
       component.onUpdatePreferences();
 
-      expect(users.updateUserPreferences).toHaveBeenCalledWith(jasmine.objectContaining({ theme: 'dark', itemsPerPage: 50 }));
+      expect(users.updateUserPreferences).toHaveBeenCalledWith(jasmine.objectContaining({ theme: 'dark', itemsPerPage: 50, autoArchive: true }));
       expect(notifications.success).toHaveBeenCalledWith('profile.preferencesUpdated');
       expect(theme.apply).toHaveBeenCalledWith('dark');
       expect(component.isUpdating).toBeFalse();

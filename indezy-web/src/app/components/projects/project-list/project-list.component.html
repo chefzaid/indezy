@@ -329,6 +329,9 @@
               <span class="status-pill" [style.--status-color]="getStatusColor(project)">
                 {{ 'projects.statuses.' + (project.status ?? 'CONTACT') | translate }}
               </span>
+              @if (project.archivedAt) {
+                <span class="archived-pill">{{ 'archive.title' | translate }}</span>
+              }
             </div>
           </mat-card-header>
           <mat-card-content>

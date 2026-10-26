@@ -75,6 +75,8 @@ Important fields:
   default to 14 days. Hibernate adds the nullable column without rewriting existing
   rows. The account's preference is resolved for its freelance workspace through
   their email link and returned as `inactivityDays` on the Kanban response.
+- `autoArchive` (`users.auto_archive`): archive the workspace's pipeline opportunities idle
+  for the inactivity period every night (off by default; a null column reads as off).
 - notification preferences
 - two-factor fields (`twoFactorEnabled`, `twoFactorSecret`), enforced at local password login
 - `deletedAt` (a soft-deleted account can no longer sign in)
@@ -137,6 +139,10 @@ Important fields:
 - notes
 - `lostReason` (why a lost opportunity was rejected: rate too low, position filled, no response, profile mismatch, client canceled, accepted another offer, other; cleared when the project leaves the LOST status)
 - `isFavorite` flag (pins hot leads to the top of their Kanban column)
+- `archivedAt` (`projects.archived_at`): when the opportunity left the pipeline for the archive, by hand or by the
+  nightly archiving; null in the pipeline. The status is kept, so restoring the opportunity (clearing the column) puts
+  it back in its Kanban column. Changed only through `PATCH /projects/{id}/archive` and `/restore`, never by a
+  project update.
 
 Relationships:
 
@@ -423,6 +429,8 @@ Important fields:
 - date
 - status
 - notes
+- `checklist` (`interview_step_checklist`: `step_id`, `position`, `label` up to 200 characters, `done`): the
+  preparation items, in their order, replaced as a whole when the step is saved
 - project
 
 Step status values:
@@ -448,6 +456,8 @@ Current element collections:
 - `user_languages`
 - `project_documents`
 - `job_offer_skills`
+- `interview_step_checklist` (embeddable `StepChecklistItem`: label and done flag, ordered by `position`)
+- `activity_report_days` (embeddable `ActivityDay`)
 
 Use element collections for simple owned scalar lists. Use real entities when values need identity, auditing, search, ownership, permissions, or relationships.
 

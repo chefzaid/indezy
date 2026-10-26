@@ -75,6 +75,7 @@
             <mat-icon>edit</mat-icon>
             {{ 'common.edit' | translate }}
           </button>
+          <app-project-archive-action [project]="project" (changed)="project = $event"></app-project-archive-action>
           <button mat-button color="warn" (click)="onDelete()">
             <mat-icon>delete</mat-icon>
             {{ 'common.delete' | translate }}

@@ -97,6 +97,8 @@ export interface ProjectDto {
   link?: string;
   personalRating?: number;
   notes?: string;
+  /** When the opportunity was archived; absent while it is in the pipeline. */
+  archivedAt?: string;
   isFavorite?: boolean;
   lostReason?: LostReason;
   freelanceId?: number;

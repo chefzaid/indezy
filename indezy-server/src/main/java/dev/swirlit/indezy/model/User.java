@@ -127,6 +127,15 @@ public class User extends BaseEntity {
         return inactivityDays != null ? inactivityDays : UserPreferenceDefaults.INACTIVITY_DAYS;
     }
 
+    /** Archive the workspace's opportunities left idle for the inactivity period, every night. */
+    @Column(name = "auto_archive")
+    private Boolean autoArchive = false;
+
+    /** Existing accounts have a null column once Hibernate adds this preference: off. */
+    public Boolean getAutoArchive() {
+        return Boolean.TRUE.equals(autoArchive);
+    }
+
     // Notification Settings
     @Column(name = "email_notifications")
     private Boolean emailNotifications = true;
