@@ -10,6 +10,10 @@
         <app-logo surface="primary" [height]="32"></app-logo>
       </a>
       <span class="spacer"></span>
+      <button mat-icon-button (click)="shortcuts.openSearch()" class="search-button"
+        [attr.aria-label]="'globalSearch.open' | translate" [matTooltip]="'globalSearch.open' | translate">
+        <mat-icon>search</mat-icon>
+      </button>
       <button mat-icon-button (click)="toggleTheme()" class="theme-button"
         [attr.aria-label]="(themeService.isDark() ? 'theme.useLight' : 'theme.useDark') | translate"
         [matTooltip]="(themeService.isDark() ? 'theme.useLight' : 'theme.useDark') | translate">

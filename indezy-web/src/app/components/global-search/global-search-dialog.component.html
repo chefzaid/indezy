@@ -1,0 +1,57 @@
+<div class="search-box">
+  <mat-icon aria-hidden="true">search</mat-icon>
+  <input class="search-input" [formControl]="query" cdkFocusInitial role="combobox" aria-autocomplete="list"
+    aria-controls="global-search-results" [attr.aria-expanded]="options.length > 0"
+    [attr.aria-activedescendant]="options.length ? 'global-search-option-' + active : null"
+    [attr.aria-label]="'globalSearch.label' | translate" [placeholder]="'globalSearch.placeholder' | translate"
+    (keydown)="onKeydown($event)" autocomplete="off">
+</div>
+@if (loading) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+}
+<div mat-dialog-content class="search-results">
+  @if (failed) {
+    <p class="search-message">{{ 'globalSearch.error' | translate }}</p>
+  } @else if (empty) {
+    <p class="search-message">{{ 'globalSearch.empty' | translate:{ query: query.value.trim() } }}</p>
+  } @else if (!result) {
+    <p class="search-message">{{ 'globalSearch.hint' | translate }}</p>
+  }
+  <div id="global-search-results" role="listbox" [attr.aria-label]="'globalSearch.results' | translate">
+    @for (group of kinds; track group.kind) {
+      @if (optionsOf(group.kind).length) {
+        <div role="group" class="search-group" [attr.aria-labelledby]="'global-search-' + group.kind">
+          <h3 [id]="'global-search-' + group.kind">{{ 'globalSearch.kinds.' + group.kind | translate }}</h3>
+          @for (option of optionsOf(group.kind); track option.hit.id) {
+            <div role="option" class="search-option" [id]="'global-search-option-' + indexOf(option)"
+              [class.active]="indexOf(option) === active" [attr.aria-selected]="indexOf(option) === active"
+              (click)="open(option)" (mouseenter)="active = indexOf(option)">
+              <mat-icon aria-hidden="true">{{ group.icon }}</mat-icon>
+              <div class="search-text">
+                <span class="search-title">
+                  @for (part of parts(option.hit.title); track $index) {
+                    @if (part.match) { <mark>{{ part.text }}</mark> } @else { {{ part.text }} }
+                  }
+                </span>
+                @if (option.hit.subtitle) {
+                  <span class="search-subtitle">
+                    @for (part of parts(option.hit.subtitle); track $index) {
+                      @if (part.match) { <mark>{{ part.text }}</mark> } @else { {{ part.text }} }
+                    }
+                  </span>
+                }
+                @if (option.hit.excerpt) {
+                  <span class="search-excerpt">
+                    @for (part of parts(option.hit.excerpt); track $index) {
+                      @if (part.match) { <mark>{{ part.text }}</mark> } @else { {{ part.text }} }
+                    }
+                  </span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

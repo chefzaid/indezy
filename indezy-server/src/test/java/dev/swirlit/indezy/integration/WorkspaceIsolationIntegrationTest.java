@@ -352,6 +352,17 @@ class WorkspaceIsolationIntegrationTest {
         assertThat(call(alice, HttpMethod.GET, "/contacts/" + aliceContact + "/relations", null, List.class).getBody()).isEmpty();
     }
 
+    @Test
+    void theGlobalSearchOnlyReadsTheCallersWorkspace() {
+        Map aliceResults = call(alice, HttpMethod.GET, "/search?q=alice", null, Map.class).getBody();
+        assertThat((List<?>) aliceResults.get("clients")).hasSize(1);
+
+        Map bobResults = call(bob, HttpMethod.GET, "/search?q=alice", null, Map.class).getBody();
+        assertThat((List<?>) bobResults.get("clients")).isEmpty();
+        assertThat(call(bob, HttpMethod.GET, "/search?q=alice&freelanceId=" + alice.freelanceId(), null, String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
     private static long idOf(ResponseEntity<Map> response) {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         return ((Number) response.getBody().get("id")).longValue();

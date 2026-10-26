@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject, filter } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
 import { ShortcutHelpComponent } from './shortcut-help.component';
+import { GlobalSearchDialogComponent } from '../../components/global-search/global-search-dialog.component';
 
 /**
  * Open dialogs, menus and selection panels, which Material renders in the CDK overlay. A list of chips or options shown
@@ -52,11 +53,22 @@ export class KeyboardShortcutsService {
         }
         break;
       }
+      case 'KeyS':
+        event.preventDefault();
+        this.openSearch();
+        break;
       case 'KeyH':
         event.preventDefault();
         this.openHelp();
         break;
     }
+  }
+
+  /** The search through the whole workspace, at the top of the screen. */
+  openSearch(): void {
+    this.dialog.open(GlobalSearchDialogComponent, {
+      width: '640px', maxWidth: '95vw', position: { top: '10vh' }, autoFocus: 'first-tabbable', panelClass: 'global-search-panel'
+    });
   }
 
   openHelp(): void {

@@ -288,6 +288,7 @@ Spring MVC logs each request and response body at `DEBUG` through its `toString`
 - the bodies about a person (`ContactDto`, `FreelanceDto`, `UserDto`: names, email, phone, address, birth date, profile links) print their id only, as `ContactDto(id=1)`
 - an exchange with a contact (`ContactInteractionDto`) prints its id, channel and direction, never its summary
 - a link between contacts (`ContactRelationDto`, `ContactRelationRequest`) prints the contact ids only, never a name or its note
+- a global search hit (`GlobalSearchResultDto.Hit`) prints its id only, never a name or a passage of a note
 - the `User` and `Freelance` entities, which hold the password hash and the two-factor secret, generate no `toString`
 - JSON serialization is unchanged: the excluded fields are still read from requests and returned in responses
 

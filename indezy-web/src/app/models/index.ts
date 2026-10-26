@@ -19,3 +19,4 @@ export * from './activity-report.models';
 
 export * from './offer.models';
 export * from './bulk.models';
+export * from './search.models';

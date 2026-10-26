@@ -1125,7 +1125,8 @@
       "details": "Show or fold its details",
       "note": "Write a note on the offer",
       "select": "Select or unselect the offer"
-    }
+    },
+    "globalSearch": "Search everything (opportunities, clients, contacts, notes)"
   },
   "activityReports": {
     "title": "Activity reports (timesheets)",
@@ -1840,5 +1841,20 @@
     "loadError": "The steps could not be loaded",
     "more": "+{{count}}",
     "dayLabel": "{{date}}: {{count}} step(s)"
+  },
+  "globalSearch": {
+    "open": "Search everything",
+    "label": "Search opportunities, clients, contacts and notes",
+    "placeholder": "Search opportunities, clients, contacts, notes…",
+    "hint": "Type at least 2 characters. ↑ ↓ to move, Enter to open.",
+    "empty": "Nothing found for “{{query}}”.",
+    "error": "The search failed. Try again.",
+    "results": "Search results",
+    "kinds": {
+      "projects": "Opportunities",
+      "clients": "Clients",
+      "contacts": "Contacts",
+      "notes": "Notes"
+    }
   }
 }

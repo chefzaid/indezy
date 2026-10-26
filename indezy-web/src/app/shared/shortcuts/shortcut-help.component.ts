@@ -41,6 +41,7 @@ export class ShortcutHelpComponent {
   readonly entries = [
     { key: 'N', label: 'shortcuts.newProject' },
     { key: 'F', label: 'shortcuts.search' },
+    { key: 'S', label: 'shortcuts.globalSearch' },
     { key: 'M', label: 'shortcuts.move' },
     { key: 'H', label: 'shortcuts.help' }
   ];

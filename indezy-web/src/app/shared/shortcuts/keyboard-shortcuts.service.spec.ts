@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { GlobalSearchDialogComponent } from '../../components/global-search/global-search-dialog.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { KeyboardShortcutsService } from './keyboard-shortcuts.service';
 import { ShortcutHelpComponent } from './shortcut-help.component';
@@ -51,6 +52,9 @@ describe('workspace keyboard shortcuts', () => {
   it('opens help from its shortcut and leaves unrelated keys alone', () => {
     expect(press('KeyH').defaultPrevented).toBeTrue();
     expect(dialog.open).toHaveBeenCalledWith(ShortcutHelpComponent, { width: '560px', maxWidth: '95vw' });
+
+    expect(press('KeyS').defaultPrevented).toBeTrue();
+    expect(dialog.open).toHaveBeenCalledWith(GlobalSearchDialogComponent, jasmine.objectContaining({ width: '640px' }));
     expect(press('KeyX').defaultPrevented).toBeFalse();
   });
 

@@ -1125,7 +1125,8 @@
       "details": "Afficher ou replier ses détails",
       "note": "Écrire une note sur l'offre",
       "select": "Sélectionner ou désélectionner l'offre"
-    }
+    },
+    "globalSearch": "Tout rechercher (opportunités, clients, contacts, notes)"
   },
   "activityReports": {
     "title": "Comptes rendus d'activité (CRA)",
@@ -1840,5 +1841,20 @@
     "loadError": "Les étapes n'ont pas pu être chargées",
     "more": "+{{count}}",
     "dayLabel": "{{date}} : {{count}} étape(s)"
+  },
+  "globalSearch": {
+    "open": "Tout rechercher",
+    "label": "Rechercher opportunités, clients, contacts et notes",
+    "placeholder": "Rechercher opportunités, clients, contacts, notes…",
+    "hint": "Saisissez au moins 2 caractères. ↑ ↓ pour se déplacer, Entrée pour ouvrir.",
+    "empty": "Rien trouvé pour « {{query}} ».",
+    "error": "La recherche a échoué. Réessayez.",
+    "results": "Résultats de la recherche",
+    "kinds": {
+      "projects": "Opportunités",
+      "clients": "Clients",
+      "contacts": "Contacts",
+      "notes": "Notes"
+    }
   }
 }

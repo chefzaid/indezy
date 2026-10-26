@@ -753,6 +753,15 @@ adds it to the pipeline, `D` shows or folds its details, `N` opens its note and 
 list, the next one takes the focus. The shortcut help lists them, and screen readers
 hear them from the list's description.
 
+`Alt+Shift+S`, or the search button in the top bar, opens the **global search**: typed words (two characters at
+least) are looked up in the workspace's opportunities (role, client, tech stack, description, notes), clients (name,
+city, website, notes), contacts (name, company, email, phone, notes) and journal notes, accents and case aside; a record
+matches when one of its fields holds every word. Up to 8 hits of each kind are listed under their heading, with the
+words highlighted and, when they were found in a longer text, the passage around them. The arrow keys move through the
+hits (wrapping round) and Enter opens one; a note opens its opportunity. API: `GET /search?q=` answers the
+`projects`, `clients`, `contacts` and `notes` found, each hit with its `title`, `subtitle`, `excerpt` and, for a
+note, `projectId`.
+
 Shortcuts do not run inside editable fields, open menus, selection panels or dialogs
 (lists of chips shown in the page, such as the feed's filters, do not stop them),
 or during composition and repeated key presses. They are available in both

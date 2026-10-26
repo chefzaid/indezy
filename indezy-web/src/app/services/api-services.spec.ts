@@ -7,6 +7,7 @@ import { environment } from '../../environments/environment';
 import { AuthService } from './auth/auth.service';
 import { ClientService } from './client/client.service';
 import { ContactService } from './contact/contact.service';
+import { GlobalSearchService } from './search/global-search.service';
 import { FreelanceService } from './freelance/freelance.service';
 import { InterviewStepService } from './interview-step/interview-step.service';
 import { ProjectService } from './project/project.service';
@@ -49,6 +50,7 @@ describe('API services', () => {
 
   const client = (): ClientService => TestBed.inject(ClientService);
   const contact = (): ContactService => TestBed.inject(ContactService);
+  const globalSearch = (): GlobalSearchService => TestBed.inject(GlobalSearchService);
   const freelance = (): FreelanceService => TestBed.inject(FreelanceService);
   const steps = (): InterviewStepService => TestBed.inject(InterviewStepService);
   const project = (): ProjectService => TestBed.inject(ProjectService);
@@ -69,6 +71,7 @@ describe('API services', () => {
 
     { name: 'contacts of the signed-in freelance', call: () => contact().getForCurrentFreelance(), method: 'GET', url: `${api}/contacts/by-freelance/7` },
     { name: 'contact by id', call: () => contact().getById(4), method: 'GET', url: `${api}/contacts/4` },
+    { name: 'search everything', call: () => globalSearch().search('kafka'), method: 'GET', url: `${api}/search`, params: { q: 'kafka' } },
     { name: 'contacts of a client', call: () => contact().getByClientId(3), method: 'GET', url: `${api}/contacts/by-client/3` },
     { name: 'create contact', call: () => contact().create({ firstName: 'Ana' } as never), method: 'POST', url: `${api}/contacts`, body: { firstName: 'Ana' } },
     { name: 'update contact', call: () => contact().update(4, { id: 4 } as never), method: 'PUT', url: `${api}/contacts/4`, body: { id: 4 } },

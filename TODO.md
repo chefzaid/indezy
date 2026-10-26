@@ -319,7 +319,7 @@ Increments, implemented in order:
 - [x] Consistent inline filters on every list (search, type/status/season, sort), collapsible on small screens
 - [x] French and English translations with `@ngx-translate`
 - [x] Language switching and saved language preference loading
-- [ ] Global search (projects, clients, contacts, notes) with keyboard shortcut and match highlighting in results
+- [x] Global search (projects, clients, contacts, notes) with keyboard shortcut and match highlighting in results. Done on 2026-10-26: `Alt+Shift+S` or the top bar's search button; accent- and case-insensitive, every word in one field, up to 8 hits of each kind with the words highlighted and the passage they were found in; arrow keys and Enter (`docs/features.md#keyboard-shortcuts`). The top bar was tightened on phones so its five buttons fit 360 px without scrolling sideways.
 - [x] Consistent error handling and user feedback (toasts instead of pop-ups, explicit loading and empty states)
 - [ ] Composable filters (text + tags + status + date + archive) with state encoded in the URL for bookmarkable views
 - [x] Stable deep links to any project or Kanban card (?project=<id>) for sharing and reopening directly

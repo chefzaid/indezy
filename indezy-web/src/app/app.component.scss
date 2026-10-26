@@ -93,6 +93,24 @@
     display: none;
   }
 
+  // Five buttons and the logo fit a 360px phone without scrolling the page sideways.
+  .app-toolbar {
+    gap: 0;
+    padding: 0 4px;
+
+    .mat-mdc-icon-button {
+      --mat-icon-button-state-layer-size: 40px;
+      width: 40px;
+      height: 40px;
+      padding: 8px;
+    }
+
+    .user-button {
+      min-width: 0;
+      padding: 0 4px;
+    }
+  }
+
   .app-sidenav {
     width: min(280px, 85vw);
   }
