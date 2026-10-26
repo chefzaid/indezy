@@ -9,6 +9,9 @@ export interface ContactDto {
   clientId: number;
   clientName?: string;
   freelanceId?: number;
+  /** Whom the contact reports to, in the same workspace; null for nobody. */
+  managerId?: number | null;
+  managerName?: string;
   fullName?: string;
   notes?: string;
   /** The day (yyyy-MM-dd) of the latest recorded exchange; read-only. */
@@ -41,4 +44,15 @@ export interface ContactInteractions {
   answered: number;
   responseRate?: number | null;
   preferredChannel?: InteractionChannel | null;
+}
+
+/** Someone {@code contactId} works with, at their company (a client or an ESN), and how they work together. */
+export interface ContactRelation {
+  contactId: number;
+  otherId: number;
+  otherName: string;
+  otherClientId?: number;
+  otherClientName?: string;
+  otherClientIsFinal?: boolean;
+  note?: string | null;
 }

@@ -27,6 +27,7 @@ public class UserDataExportService {
     private final ClientService clientService;
     private final ContactService contactService;
     private final ContactInteractionService contactInteractionService;
+    private final ContactRelationService contactRelationService;
     private final SourceService sourceService;
     private final ActivityReportService activityReportService;
     private final OfferStateService offerStateService;
@@ -53,6 +54,7 @@ public class UserDataExportService {
         export.put("clients", clientService.findByFreelanceId(freelanceId));
         export.put("contacts", contactService.findByFreelanceId(freelanceId));
         export.put("contactInteractions", contactInteractionService.export(freelanceId));
+        export.put("contactRelations", contactRelationService.export(freelanceId));
         export.put("sources", sourceService.findByFreelanceId(freelanceId));
         export.put("activityReports", activityReportService.findByFreelanceId(freelanceId));
         export.put("jobOffers", offerStateService.export(freelanceId));

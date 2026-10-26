@@ -578,7 +578,11 @@
     "confirmBulkDelete": "Delete these {{count}} clients and their contacts? Those still linked to missions are kept.",
     "bulkDeleted": "{{deleted}} clients deleted",
     "bulkDeletedSomeKept": "{{deleted}} clients deleted; {{kept}} kept because missions are linked to them",
-    "bulkDeleteError": "The selected clients could not be deleted"
+    "bulkDeleteError": "The selected clients could not be deleted",
+    "orgChart": {
+      "title": "Org chart",
+      "reportsTo": "reports to {{name}}"
+    }
   },
   "contacts": {
     "title": "Contact Management",
@@ -662,7 +666,25 @@
     "confirmBulkDelete": "Delete these {{count}} contacts and their exchanges?",
     "bulkDeleted": "{{deleted}} contacts deleted",
     "bulkDeletedSomeKept": "{{deleted}} contacts deleted; {{kept}} kept",
-    "bulkDeleteError": "The selected contacts could not be deleted"
+    "bulkDeleteError": "The selected contacts could not be deleted",
+    "network": {
+      "title": "Network",
+      "reportsTo": "Reports to",
+      "reportsToHint": "Their manager, at this company or another",
+      "nobody": "Nobody",
+      "team": "Team",
+      "noTeam": "No one reports to them",
+      "worksWith": "Works with",
+      "noRelations": "No one linked yet.",
+      "person": "Person",
+      "note": "How they work together (optional)",
+      "link": "Link",
+      "unlink": "Unlink {{name}}",
+      "linkError": "The link could not be saved",
+      "unlinkError": "The link could not be removed",
+      "loadError": "The network could not be loaded",
+      "managerLoop": "This contact already manages, directly or not, the chosen manager"
+    }
   },
   "sources": {
     "title": "Source Management",

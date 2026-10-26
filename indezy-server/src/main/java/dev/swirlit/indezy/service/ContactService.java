@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.BulkDeleteResult;
 import dev.swirlit.indezy.dto.ContactDto;
+import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.ContactMapper;
 import dev.swirlit.indezy.model.Contact;
@@ -25,6 +26,8 @@ import java.util.Map;
 @Slf4j
 @Transactional
 public class ContactService {
+
+    private static final int MAX_CHAIN = 1000;
 
     private final ContactRepository contactRepository;
     private final ClientRepository clientRepository;
@@ -77,6 +80,7 @@ public class ContactService {
         contact.setId(null); // Ensure ID is null for creation
         contact.setFreelance(freelance);
         contact.setClient(client);
+        contact.setManager(manager(contact, contactDto.getManagerId()));
         
         Contact savedContact = contactRepository.save(contact);
         log.debug("Created contact with id: {}", savedContact.getId());
@@ -107,6 +111,8 @@ public class ContactService {
         }
 
         contactMapper.updateEntity(contactDto, existingContact);
+        // The form always sends whom the contact reports to: none clears it.
+        existingContact.setManager(manager(existingContact, contactDto.getManagerId()));
         Contact updatedContact = contactRepository.save(existingContact);
         
         log.info("Updated contact with id: {}", updatedContact.getId());
@@ -120,16 +126,39 @@ public class ContactService {
             throw new ResourceNotFoundException(String.format(ErrorMessages.CONTACT_NOT_FOUND, id));
         }
 
+        contactRepository.clearManager(List.of(id));
         contactRepository.deleteById(id);
         log.info("Deleted contact with id: {}", id);
     }
 
     /** Deletes the contacts of {@code ids}, with their exchanges. */
     public BulkDeleteResult deleteAll(List<Long> ids) {
+        contactRepository.clearManager(ids);
         List<Contact> contacts = contactRepository.findAllById(ids);
         contactRepository.deleteAll(contacts);
         log.info("Bulk deleted {} contacts", contacts.size());
         return new BulkDeleteResult(contacts.size(), 0);
+    }
+
+    /** The contact {@code managerId}, checked not to be {@code contact} nor anyone it manages, directly or not. */
+    private Contact manager(Contact contact, Long managerId) {
+        if (managerId == null) {
+            return null;
+        }
+        if (managerId.equals(contact.getId())) {
+            throw new FieldRejectedException("managerId", ErrorMessages.CONTACT_MANAGER_SELF);
+        }
+        Contact manager = contactRepository.findById(managerId)
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.CONTACT_NOT_FOUND, managerId)));
+        // A new contact manages nobody yet; the chain is bounded in case stored data already loops.
+        int steps = 0;
+        for (Contact above = manager; above != null && contact.getId() != null && steps < MAX_CHAIN; above = above.getManager()) {
+            if (contact.getId().equals(above.getId())) {
+                throw new FieldRejectedException("managerId", ErrorMessages.CONTACT_MANAGER_LOOP);
+            }
+            steps++;
+        }
+        return manager;
     }
 
     /** {@code contacts} as DTOs, each with the day of its latest exchange. */

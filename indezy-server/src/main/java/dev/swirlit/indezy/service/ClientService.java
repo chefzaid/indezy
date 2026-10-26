@@ -7,8 +7,10 @@ import dev.swirlit.indezy.exception.ResourceInUseException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.ClientMapper;
 import dev.swirlit.indezy.model.Client;
+import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.repository.ClientRepository;
+import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.PipelineTemplateRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class ClientService {
     private final FreelanceRepository freelanceRepository;
     private final ClientMapper clientMapper;
     private final PipelineTemplateRepository pipelineTemplateRepository;
+    private final ContactRepository contactRepository;
 
     @Transactional(readOnly = true)
     public List<ClientDto> findAll() {
@@ -120,6 +123,11 @@ public class ClientService {
     }
 
     private void remove(Client client) {
+        // Its contacts go with it: those reporting to them, at other companies, report to nobody.
+        List<Long> contactIds = client.getContacts().stream().map(Contact::getId).toList();
+        if (!contactIds.isEmpty()) {
+            contactRepository.clearManager(contactIds);
+        }
         pipelineTemplateRepository.detachClient(client.getId());
         clientRepository.delete(client);
         log.debug("Deleted client with id: {}", client.getId());

@@ -123,6 +123,22 @@ Contacts belong to both a client and a freelancer. A contact can store:
 
 These relationships make it possible to track who is attached to a client or ESN and which opportunities depend on that relationship.
 
+### Contact Network And Org Charts
+
+A contact's form has **Reports to**: whom the contact reports to, at the same company or another (nobody by
+default). It cannot be the contact itself nor anyone it manages, directly or not (the API answers `400` on
+`managerId`). The contact's page shows a **Network** card: whom it reports to, its team (who reports to it) and whom it
+**works with**: links between two contacts, often across a client and its ESN, each with an optional note of up to 100
+characters on how they work together; a contact has up to 100 links. A link goes both ways, is listed on both
+contacts' pages, and goes with either contact; a manager's team reports to nobody once the manager is deleted.
+
+The client's **Contacts** tab draws them as an **Org chart**: those reporting to nobody at the client at the top (with
+whom they report to elsewhere, if anyone), their teams nested below, by name, and beside each person the people they
+work with at other companies, linked to their pages. API: contacts carry `managerId` and `managerName`;
+`GET /contacts/{id}/relations`, `PUT /contacts/{id}/relations` (`otherId`, `note`: links, or changes the note),
+`DELETE /contacts/{id}/relations/{otherId}` and `GET /clients/{id}/contact-relations`. Links are part of the account
+data export.
+
 ### Contact Interaction History
 
 A contact's page keeps its **Exchanges**: each one has a day (today at the latest), a channel (email, phone, LinkedIn,

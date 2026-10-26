@@ -223,8 +223,22 @@ Important fields:
 - notes
 - client
 - freelance owner
+- manager (`manager_id`): whom the contact reports to, in the same workspace; `ON DELETE SET NULL`, and the
+  application clears it in bulk before deleting a contact or a client so loaded entities stay consistent
 
 The model exposes `getFullName()` and falls back to first name when last name is empty.
+
+## ContactRelation
+
+Table: `contact_relations` (unique `first_contact_id, second_contact_id`)
+
+Purpose: two contacts who work together, stored once with the lower id first; both foreign keys are
+`ON DELETE CASCADE`.
+
+Important fields:
+
+- first and second contact
+- `note`: how they work together, up to 100 characters, optional
 
 ## ContactInteraction
 

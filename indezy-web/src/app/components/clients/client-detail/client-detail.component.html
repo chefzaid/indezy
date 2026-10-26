@@ -244,6 +244,7 @@
                 <tr mat-row *matRowDef="let row; columns: contactDisplayedColumns;" class="clickable-row" (click)="onViewContact(row)"></tr>
               </table>
             </div>
+            <app-client-org-chart [clientId]="clientId!" [contacts]="contacts"></app-client-org-chart>
           }
         </div>
       </mat-tab>

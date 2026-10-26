@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "contacts")
@@ -36,6 +38,12 @@ public class Contact extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "freelance_id", nullable = false)
     private Freelance freelance;
+
+    /** Whom the contact reports to, at the same company or another; the link goes when the manager is deleted. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private Contact manager;
 
     // Helper method
     public String getFullName() {

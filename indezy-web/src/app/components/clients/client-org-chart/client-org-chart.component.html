@@ -1,0 +1,35 @@
+<section class="org-chart" [attr.aria-label]="'clients.orgChart.title' | translate">
+  <h3>
+    <mat-icon aria-hidden="true">account_tree</mat-icon>
+    {{ 'clients.orgChart.title' | translate }}
+  </h3>
+  <ul class="org-level">
+    @for (node of roots; track node.contact.id) {
+      <ng-container [ngTemplateOutlet]="branch" [ngTemplateOutletContext]="{ $implicit: node }"></ng-container>
+    }
+  </ul>
+</section>
+
+<ng-template #branch let-node>
+  <li class="org-node">
+    <div class="org-person">
+      <a [routerLink]="['/contacts', node.contact.id]" class="org-name">{{ nameOf(node.contact) }}</a>
+      @if (node.externalManager) {
+        <span class="org-external">{{ 'clients.orgChart.reportsTo' | translate:{ name: node.externalManager } }}</span>
+      }
+      @for (relation of node.worksWith; track relation.otherId) {
+        <a class="org-link" [routerLink]="['/contacts', relation.otherId]" [title]="relation.note ?? ''">
+          <mat-icon aria-hidden="true">link</mat-icon>
+          {{ relation.otherName }}@if (relation.otherClientName) { · {{ relation.otherClientName }} }
+        </a>
+      }
+    </div>
+    @if (node.reports.length) {
+      <ul class="org-level">
+        @for (report of node.reports; track report.contact.id) {
+          <ng-container [ngTemplateOutlet]="branch" [ngTemplateOutletContext]="{ $implicit: report }"></ng-container>
+        }
+      </ul>
+    }
+  </li>
+</ng-template>

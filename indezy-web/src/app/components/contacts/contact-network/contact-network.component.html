@@ -1,0 +1,76 @@
+<mat-card class="network-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>hub</mat-icon>
+      {{ 'contacts.network.title' | translate }}
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <dl class="network-lines">
+      <div>
+        <dt>{{ 'contacts.network.reportsTo' | translate }}</dt>
+        <dd>
+          @if (contact.managerId) {
+            <a [routerLink]="['/contacts', contact.managerId]">{{ contact.managerName }}</a>
+          } @else {
+            <span class="muted">{{ 'contacts.network.nobody' | translate }}</span>
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>{{ 'contacts.network.team' | translate }}</dt>
+        <dd class="team">
+          @for (member of team; track member.id) {
+            <a [routerLink]="['/contacts', member.id]">{{ nameOf(member) }}</a>
+          } @empty {
+            <span class="muted">{{ 'contacts.network.noTeam' | translate }}</span>
+          }
+        </dd>
+      </div>
+    </dl>
+
+    <h3 class="works-with-title">{{ 'contacts.network.worksWith' | translate }}</h3>
+    <ul class="relation-list">
+      @for (relation of relations; track relation.otherId) {
+        <li class="relation">
+          <div class="relation-main">
+            <a [routerLink]="['/contacts', relation.otherId]" class="relation-name">{{ relation.otherName }}</a>
+            @if (relation.otherClientName) {
+              <span class="relation-company">
+                {{ relation.otherClientName }}@if (relation.otherClientIsFinal === false) { · ESN }
+              </span>
+            }
+            @if (relation.note) {
+              <p class="relation-note">{{ relation.note }}</p>
+            }
+          </div>
+          <button mat-icon-button type="button" (click)="unlink(relation)"
+            [attr.aria-label]="'contacts.network.unlink' | translate:{ name: relation.otherName }">
+            <mat-icon>link_off</mat-icon>
+          </button>
+        </li>
+      } @empty {
+        <li class="muted">{{ 'contacts.network.noRelations' | translate }}</li>
+      }
+    </ul>
+
+    <form class="link-form" [formGroup]="form" (ngSubmit)="link()" [attr.aria-label]="'contacts.network.link' | translate">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'contacts.network.person' | translate }}</mat-label>
+        <mat-select formControlName="otherId">
+          @for (candidate of candidates; track candidate.id) {
+            <mat-option [value]="candidate.id">{{ nameOf(candidate) }} · {{ candidate.clientName }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ 'contacts.network.note' | translate }}</mat-label>
+        <input matInput formControlName="note" [maxlength]="noteMax">
+      </mat-form-field>
+      <button mat-stroked-button type="submit" [disabled]="form.controls.otherId.value === null || form.invalid || saving">
+        <mat-icon>add_link</mat-icon>
+        {{ 'contacts.network.link' | translate }}
+      </button>
+    </form>
+  </mat-card-content>
+</mat-card>

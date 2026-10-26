@@ -18,7 +18,9 @@ describe('ContactDetailComponent', () => {
     clientName: 'Acme', notes: 'Prefers calls' };
 
   function create(contact: Observable<ContactDto | null> = of(alice), id = 3): ComponentFixture<ContactDetailComponent> {
-    contacts = jasmine.createSpyObj('ContactService', ['getById', 'delete', 'getInteractions']);
+    contacts = jasmine.createSpyObj('ContactService', ['getById', 'delete', 'getInteractions', 'getForCurrentFreelance', 'getRelations']);
+    contacts.getForCurrentFreelance.and.returnValue(of([]));
+    contacts.getRelations.and.returnValue(of([]));
     contacts.getInteractions.and.returnValue(of({ interactions: [], asked: 0, answered: 0 }));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);

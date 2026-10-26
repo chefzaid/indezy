@@ -1,0 +1,67 @@
+.org-chart {
+  margin-top: 24px;
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+  }
+}
+
+.org-level {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  .org-level {
+    margin-left: 12px;
+    padding-left: 16px;
+    border-left: 2px solid var(--app-border);
+  }
+}
+
+.org-node {
+  padding: 4px 0;
+}
+
+.org-person {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.org-name {
+  font-weight: 600;
+}
+
+.org-external {
+  font-size: 13px;
+  color: var(--app-text-muted);
+}
+
+.org-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  background: var(--app-subtle);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+a {
+  color: var(--app-link);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

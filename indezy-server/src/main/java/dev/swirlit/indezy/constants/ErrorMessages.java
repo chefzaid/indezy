@@ -55,6 +55,11 @@ public final class ErrorMessages {
     public static final String CONTACT_INTERACTIONS_LIMIT = "A contact keeps at most %d interactions";
     public static final String CONTACT_INTERACTION_NOT_FOUND = "Interaction not found with id: %d";
     public static final String CONTACT_INTERACTION_IN_FUTURE = "An interaction cannot be dated after today";
+    public static final String CONTACT_RELATIONS_LIMIT = "A contact is linked to at most %d people";
+    public static final String CONTACT_RELATION_NOT_FOUND = "No link with contact %d";
+    public static final String CONTACT_RELATION_SELF = "A contact cannot be linked to themselves";
+    public static final String CONTACT_MANAGER_SELF = "A contact cannot report to themselves";
+    public static final String CONTACT_MANAGER_LOOP = "This contact already manages, directly or not, the chosen manager";
     public static final String ATTACHMENT_NOT_FOUND = "Attachment not found with id: %d";
     public static final String ATTACHMENT_EMPTY = "The file is empty";
     public static final String ATTACHMENT_TOO_LARGE = "The file is larger than 10 MB";

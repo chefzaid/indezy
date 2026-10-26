@@ -41,6 +41,8 @@ import { trimmedEmail } from '../../../shared/utils/trimmed-email';
 export class ContactFormComponent implements OnInit, OnDestroy {
   contactForm: FormGroup;
   clients: ClientDto[] = [];
+  /** The other contacts of the workspace, whom this one may report to. */
+  managers: ContactDto[] = [];
   isLoading = false;
   isSubmitting = false;
   isEditMode = false;
@@ -66,6 +68,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadClients();
+    this.loadManagers();
 
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       // Under /clients/:id/contacts/... the id parameter is the owning client.
@@ -99,6 +102,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
       email: ['', [trimmedEmail]],
       phone: [''],
       clientId: [null, [Validators.required]],
+      managerId: [null],
       notes: ['']
     });
   }
@@ -117,6 +121,25 @@ export class ContactFormComponent implements OnInit, OnDestroy {
       });
   }
 
+  private loadManagers(): void {
+    this.contactService.getForCurrentFreelance()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: contacts => this.managers = [...contacts].sort((a, b) => this.nameOf(a).localeCompare(this.nameOf(b))),
+        // Reporting lines are optional: the form works without them.
+        error: () => this.managers = []
+      });
+  }
+
+  /** The contacts this one may report to: anyone but itself. */
+  get managerOptions(): ContactDto[] {
+    return this.managers.filter(contact => contact.id !== this.contactId);
+  }
+
+  nameOf(contact: ContactDto): string {
+    return [contact.firstName, contact.lastName].filter(Boolean).join(' ');
+  }
+
   private loadContact(): void {
     if (!this.contactId) { return; }
     
@@ -133,6 +156,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
               email: contact.email,
               phone: contact.phone,
               clientId: contact.clientId,
+              managerId: contact.managerId ?? null,
               notes: contact.notes
             });
           } else {
@@ -163,6 +187,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
         phone: formValue.phone?.trim() || undefined,
         notes: formValue.notes?.trim() || undefined,
         clientId: formValue.clientId,
+        managerId: formValue.managerId ?? null,
         freelanceId: this.loadedContact?.freelanceId ?? this.authService.getUser()?.id
       };
 
@@ -177,7 +202,8 @@ export class ContactFormComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error saving contact:', error);
-          this.notificationService.error(this.isEditMode ? 'errors.updatingContact' : 'errors.creatingContact');
+          this.notificationService.error(error?.error?.validationErrors?.managerId ? 'contacts.network.managerLoop'
+            : this.isEditMode ? 'errors.updatingContact' : 'errors.creatingContact');
           this.isSubmitting = false;
         }
       });

@@ -19,6 +19,7 @@ describe('ContactFormComponent', () => {
     clientId: 1, clientName: 'Acme', freelanceId: 42, notes: 'CTO' };
 
   interface Options {
+    managers?: Observable<ContactDto[]>;
     params?: Record<string, number>;
     query?: Record<string, string>;
     clientList?: Observable<ClientDto[]>;
@@ -26,7 +27,8 @@ describe('ContactFormComponent', () => {
   }
 
   function create(options: Options = {}): ComponentFixture<ContactFormComponent> {
-    contacts = jasmine.createSpyObj('ContactService', ['getById', 'create', 'update']);
+    contacts = jasmine.createSpyObj('ContactService', ['getById', 'create', 'update', 'getForCurrentFreelance']);
+    contacts.getForCurrentFreelance.and.returnValue(options.managers ?? of([]));
     clients = jasmine.createSpyObj('ClientService', ['getForCurrentFreelance']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     clients.getForCurrentFreelance.and.returnValue(options.clientList ?? of([
@@ -80,7 +82,7 @@ describe('ContactFormComponent', () => {
 
       expect(contacts.create).toHaveBeenCalledWith({
         firstName: 'Bob', lastName: 'Durand', email: 'bob@acme.fr', phone: undefined, notes: undefined, clientId: 1,
-        freelanceId: 7
+        managerId: null, freelanceId: 7
       });
       expect(notifications.success).toHaveBeenCalledWith('contacts.createSuccess');
       expect(navigate).toHaveBeenCalledWith(['/contacts', 12]);
@@ -178,6 +180,31 @@ describe('ContactFormComponent', () => {
     });
   });
 
+  describe('choosing whom the contact reports to', () => {
+    const nadia: ContactDto = { id: 5, firstName: 'Nadia', lastName: 'Kaci', clientId: 2, clientName: 'Esn' };
+    const self: ContactDto = { id: 3, firstName: 'Alice', clientId: 1, clientName: 'Acme' };
+    const adam: ContactDto = { id: 6, firstName: 'Adam', clientId: 1, clientName: 'Acme' };
+
+    it('offers the other contacts by name, saves the choice and explains a reporting loop', () => {
+      const fixture = create({ params: { contactId: 3 }, managers: of([nadia, self, adam]) });
+      const component = fixture.componentInstance;
+      contacts.update.and.returnValue(throwError(() => ({ status: 400, error: { validationErrors: { managerId: 'loop' } } })));
+
+      expect(component.managerOptions.map(contact => component.nameOf(contact))).toEqual(['Adam', 'Nadia Kaci']);
+      component.contactForm.patchValue({ managerId: 5 });
+      component.onSubmit();
+
+      expect(contacts.update).toHaveBeenCalledWith(3, jasmine.objectContaining({ managerId: 5 }));
+      expect(notifications.error).toHaveBeenCalledWith('contacts.network.managerLoop');
+    });
+
+    it('works without the other contacts when they cannot be loaded', () => {
+      const component = create({ managers: throwError(() => new Error('down')) }).componentInstance;
+
+      expect(component.managerOptions).toEqual([]);
+    });
+  });
+
   describe('editing a contact', () => {
     it('loads the contact and saves it with its original owner', () => {
       const fixture = create({ params: { contactId: 3 }, query: { clientId: '2' } });
@@ -188,7 +215,7 @@ describe('ContactFormComponent', () => {
       expect(component.isEditMode).toBeTrue();
       expect(component.isLoading).toBeFalse();
       expect(component.contactForm.value).toEqual({
-        firstName: 'Alice', lastName: 'Martin', email: 'alice@acme.fr', phone: '0601', clientId: 1, notes: 'CTO'
+        firstName: 'Alice', lastName: 'Martin', email: 'alice@acme.fr', phone: '0601', clientId: 1, managerId: null, notes: 'CTO'
       });
       expect(component.pageTitle).toBe('contacts.editContact');
       expect(component.submitButtonText).toBe('common.edit');
@@ -198,7 +225,7 @@ describe('ContactFormComponent', () => {
       component.onSubmit();
 
       expect(contacts.update).toHaveBeenCalledWith(3, {
-        ...loaded, lastName: 'Martin-Durand', phone: '0700', freelanceId: 42
+        ...loaded, lastName: 'Martin-Durand', phone: '0700', managerId: null, freelanceId: 42
       });
       expect(notifications.success).toHaveBeenCalledWith('contacts.updateSuccess');
       expect(navigate).toHaveBeenCalledWith(['/contacts', 3]);

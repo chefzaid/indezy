@@ -35,7 +35,8 @@ describe('ClientDetailComponent', () => {
   function create(options: Options = {}): ComponentFixture<ClientDetailComponent> {
     const { id = 9, tab, userId = 7 } = options;
     clients = jasmine.createSpyObj('ClientService', ['getById', 'delete']);
-    contacts = jasmine.createSpyObj('ContactService', ['getByClientId', 'delete', 'importForClient']);
+    contacts = jasmine.createSpyObj('ContactService', ['getByClientId', 'delete', 'importForClient', 'getClientRelations']);
+    contacts.getClientRelations.and.returnValue(of([]));
     projects = jasmine.createSpyObj('ProjectService', ['getByFreelanceId', 'getByClientId']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);

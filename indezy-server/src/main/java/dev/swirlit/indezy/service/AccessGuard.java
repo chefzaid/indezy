@@ -97,6 +97,13 @@ public class AccessGuard {
         requireOwned(contactId, contactRepository::findOwnerFreelanceIdById, "Contact");
     }
 
+    /** Checks an optional contact reference (e.g. whom a contact reports to). */
+    public void requireContactIfPresent(Long contactId) {
+        if (contactId != null) {
+            requireContact(contactId);
+        }
+    }
+
     public void requireSource(Long sourceId) {
         requireOwned(sourceId, sourceRepository::findOwnerFreelanceIdById, "Source");
     }

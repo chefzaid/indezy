@@ -7,6 +7,7 @@ import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.repository.ClientRepository;
+import dev.swirlit.indezy.repository.ContactRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.PipelineTemplateRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,9 @@ class ClientServiceTest {
 
     @Mock
     private PipelineTemplateRepository pipelineTemplateRepository;
+
+    @Mock
+    private ContactRepository contactRepository;
 
     @InjectMocks
     private ClientService clientService;

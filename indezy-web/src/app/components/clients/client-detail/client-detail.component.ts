@@ -21,6 +21,7 @@ import { ClientDto, ContactDto, PROJECT_STATUS_COLORS, ProjectDto, ProjectStatus
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { ContactImportDialogComponent } from '../../contacts/contact-import-dialog/contact-import-dialog.component';
+import { ClientOrgChartComponent } from '../client-org-chart/client-org-chart.component';
 
 /** Tab order of the client page; the "tab" query parameter selects one by name. */
 const TABS = ['details', 'projects', 'contacts'] as const;
@@ -40,7 +41,8 @@ const TABS = ['details', 'projects', 'contacts'] as const;
     MatMenuModule,
     MatTooltipModule,
     MatDialogModule,
-    TranslateModule
+    TranslateModule,
+    ClientOrgChartComponent
 ],
     templateUrl: './client-detail.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,

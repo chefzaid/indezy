@@ -330,6 +330,28 @@ class WorkspaceIsolationIntegrationTest {
         assertThat(call(alice, HttpMethod.GET, alicePath, null, Map.class).getBody()).containsEntry("responseRate", 100);
     }
 
+    @Test
+    void contactNetworksStayInTheirWorkspace() {
+        long aliceContact = idOf(call(alice, HttpMethod.POST, "/contacts",
+            Map.of("firstName", "Claire", "clientId", aliceClientId, "freelanceId", alice.freelanceId()), Map.class));
+        long bobClient = idOf(call(bob, HttpMethod.POST, "/clients",
+            Map.of("companyName", "Bob Corp", "city", "Lyon", "isFinal", true, "freelanceId", bob.freelanceId()), Map.class));
+        long bobContact = idOf(call(bob, HttpMethod.POST, "/contacts",
+            Map.of("firstName", "Marc", "clientId", bobClient, "freelanceId", bob.freelanceId()), Map.class));
+
+        assertThat(call(bob, HttpMethod.PUT, "/contacts/" + bobContact + "/relations", Map.of("otherId", aliceContact),
+            String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.POST, "/contacts", Map.of("firstName", "Spy", "clientId", bobClient,
+            "freelanceId", bob.freelanceId(), "managerId", aliceContact), String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.PUT, "/contacts/" + bobContact, Map.of("firstName", "Marc", "clientId", bobClient,
+            "managerId", aliceContact), String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.GET, "/clients/" + aliceClientId + "/contact-relations", null, String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.GET, "/contacts/" + aliceContact + "/relations", null, String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.GET, "/contacts/" + aliceContact + "/relations", null, List.class).getBody()).isEmpty();
+    }
+
     private static long idOf(ResponseEntity<Map> response) {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         return ((Number) response.getBody().get("id")).longValue();

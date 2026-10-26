@@ -19,6 +19,7 @@ TRUNCATE TABLE
     interview_step_checklist,
     interview_steps,
     contact_interactions,
+    contact_relations,
     contacts,
     projects,
     sources,
@@ -152,6 +153,14 @@ SELECT
     CURRENT_TIMESTAMP - ((n % 9) * INTERVAL '17 days'),
     0
 FROM generate_series(1, 48) AS series(n);
+
+-- The second contact of each company reports to the first, and the first contacts of companies 1 to 4 work with
+-- those of companies 5 to 8 (an ESN's account manager and the client's lead).
+UPDATE contacts SET manager_id = id - 1 WHERE id % 2 = 0;
+INSERT INTO contact_relations (first_contact_id, second_contact_id, note, created_at, updated_at, version)
+SELECT c.id, c.id + 8, 'Staffed the last mission together', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0
+FROM contacts c
+WHERE c.id % 2 = 1 AND c.id <= 7;
 
 -- A few exchanges with the first contacts: messages answered or not, calls and a meeting.
 INSERT INTO contact_interactions (

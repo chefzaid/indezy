@@ -64,6 +64,7 @@ describe('API services', () => {
     { name: 'client by id', call: () => client().getById(3), method: 'GET', url: `${api}/clients/3` },
     { name: 'create client', call: () => client().create({ companyName: 'Acme' } as never), method: 'POST', url: `${api}/clients`, body: { companyName: 'Acme' } },
     { name: 'update client', call: () => client().update(3, { id: 3 } as never), method: 'PUT', url: `${api}/clients/3`, body: { id: 3 } },
+    { name: 'delete picked clients', call: () => client().deleteAll([3, 6]), method: 'POST', url: `${api}/clients/bulk-delete`, body: { ids: [3, 6] } },
     { name: 'delete client', call: () => client().delete(3), method: 'DELETE', url: `${api}/clients/3` },
 
     { name: 'contacts of the signed-in freelance', call: () => contact().getForCurrentFreelance(), method: 'GET', url: `${api}/contacts/by-freelance/7` },
@@ -73,6 +74,15 @@ describe('API services', () => {
     { name: 'update contact', call: () => contact().update(4, { id: 4 } as never), method: 'PUT', url: `${api}/contacts/4`, body: { id: 4 } },
     { name: 'delete contact', call: () => contact().delete(4), method: 'DELETE', url: `${api}/contacts/4` },
     { name: 'import contacts', call: () => contact().importForClient(3, 'csv'), method: 'POST', url: `${api}/contacts/import/by-client/3`, body: { content: 'csv' } },
+    { name: 'delete picked contacts', call: () => contact().deleteAll([4, 5]), method: 'POST', url: `${api}/contacts/bulk-delete`, body: { ids: [4, 5] } },
+    { name: 'contact exchanges', call: () => contact().getInteractions(4), method: 'GET', url: `${api}/contacts/4/interactions` },
+    { name: 'record an exchange', call: () => contact().addInteraction(4, { occurredOn: '2026-09-01' } as never), method: 'POST', url: `${api}/contacts/4/interactions`, body: { occurredOn: '2026-09-01' } },
+    { name: 'change an exchange', call: () => contact().updateInteraction(4, 2, { occurredOn: '2026-09-01' } as never), method: 'PUT', url: `${api}/contacts/4/interactions/2`, body: { occurredOn: '2026-09-01' } },
+    { name: 'delete an exchange', call: () => contact().deleteInteraction(4, 2), method: 'DELETE', url: `${api}/contacts/4/interactions/2` },
+    { name: 'people a contact works with', call: () => contact().getRelations(4), method: 'GET', url: `${api}/contacts/4/relations` },
+    { name: 'links of a client\'s contacts', call: () => contact().getClientRelations(3), method: 'GET', url: `${api}/clients/3/contact-relations` },
+    { name: 'link two contacts', call: () => contact().link(4, 5, 'Same team'), method: 'PUT', url: `${api}/contacts/4/relations`, body: { otherId: 5, note: 'Same team' } },
+    { name: 'unlink two contacts', call: () => contact().unlink(4, 5), method: 'DELETE', url: `${api}/contacts/4/relations/5` },
 
     { name: 'freelance by id', call: () => freelance().getById(7), method: 'GET', url: `${api}/freelances/7` },
     { name: 'update freelance', call: () => freelance().update(7, { id: 7 } as never), method: 'PUT', url: `${api}/freelances/7`, body: { id: 7 } },

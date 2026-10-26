@@ -62,6 +62,7 @@ public class ContactController {
     public ResponseEntity<ContactDto> createContact(@Valid @RequestBody ContactDto contactDto) {
         contactDto.setFreelanceId(accessGuard.resolveFreelanceId(contactDto.getFreelanceId()));
         accessGuard.requireClient(contactDto.getClientId());
+        accessGuard.requireContactIfPresent(contactDto.getManagerId());
         return new ResponseEntity<>(contactService.create(contactDto), HttpStatus.CREATED);
     }
 
@@ -71,6 +72,7 @@ public class ContactController {
         accessGuard.requireContact(id);
         contactDto.setFreelanceId(accessGuard.resolveFreelanceId(contactDto.getFreelanceId()));
         accessGuard.requireClientIfPresent(contactDto.getClientId());
+        accessGuard.requireContactIfPresent(contactDto.getManagerId());
         return contactService.update(id, contactDto);
     }
 

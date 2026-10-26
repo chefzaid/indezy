@@ -12,6 +12,8 @@ public interface ContactMapper {
     @Mapping(target = "freelanceId", source = "freelance.id")
     @Mapping(target = "fullName", expression = "java(contact.getFirstName() + (contact.getLastName() != null ? \" \" + contact.getLastName() : \"\"))")
     @Mapping(target = "lastContactedOn", ignore = true)
+    @Mapping(target = "managerId", source = "manager.id")
+    @Mapping(target = "managerName", source = "manager.fullName")
     ContactDto toDto(Contact contact);
 
     @Mapping(target = "id", ignore = true)
@@ -20,6 +22,7 @@ public interface ContactMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
+    @Mapping(target = "manager", ignore = true)
     Contact toEntity(ContactDto contactDto);
 
     @Mapping(target = "id", ignore = true)
@@ -28,6 +31,7 @@ public interface ContactMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
+    @Mapping(target = "manager", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(ContactDto contactDto, @MappingTarget Contact contact);
 }

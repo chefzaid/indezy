@@ -15,6 +15,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { ContactDto } from '../../../models';
 import { ContactInteractionsComponent } from '../contact-interactions/contact-interactions.component';
+import { ContactNetworkComponent } from '../contact-network/contact-network.component';
 
 @Component({
     selector: 'app-contact-detail',
@@ -27,7 +28,8 @@ import { ContactInteractionsComponent } from '../contact-interactions/contact-in
     MatDividerModule,
     MatProgressSpinnerModule,
     TranslateModule,
-    ContactInteractionsComponent
+    ContactInteractionsComponent,
+    ContactNetworkComponent
 ],
     templateUrl: './contact-detail.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,

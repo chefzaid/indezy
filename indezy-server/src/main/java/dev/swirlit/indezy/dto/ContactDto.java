@@ -29,6 +29,9 @@ public class ContactDto {
     private Long clientId;
     private String clientName;
     private Long freelanceId;
+    /** Whom the contact reports to, in the same workspace; null for nobody. */
+    private Long managerId;
+    private String managerName;
 
     // Computed fields
     private String fullName;

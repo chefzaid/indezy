@@ -74,6 +74,18 @@
                   <mat-error>{{ getFieldError('clientId') }}</mat-error>
                 </mat-form-field>
               </div>
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'contacts.network.reportsTo' | translate }}</mat-label>
+                  <mat-select formControlName="managerId">
+                    <mat-option [value]="null">{{ 'contacts.network.nobody' | translate }}</mat-option>
+                    @for (manager of managerOptions; track manager.id) {
+                      <mat-option [value]="manager.id">{{ nameOf(manager) }} · {{ manager.clientName }}</mat-option>
+                    }
+                  </mat-select>
+                  <mat-hint>{{ 'contacts.network.reportsToHint' | translate }}</mat-hint>
+                </mat-form-field>
+              </div>
             </div>
             <!-- Additional Information Section -->
             <div class="form-section">

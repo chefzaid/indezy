@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ContactDto, ContactInteraction, ContactInteractions } from '../../models/contact.models';
+import { ContactDto, ContactInteraction, ContactInteractions, ContactRelation } from '../../models/contact.models';
 import { AuthService } from '../auth/auth.service';
 import { BulkDeleteResult } from '../../models/bulk.models';
 
@@ -78,5 +78,24 @@ export class ContactService {
 
   deleteInteraction(contactId: number, id: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/${contactId}/interactions/${id}`);
+  }
+
+  /** The people the contact works with, by name. */
+  getRelations(contactId: number): Observable<ContactRelation[]> {
+    return this.http.get<ContactRelation[]>(`${this.API_URL}/${contactId}/relations`);
+  }
+
+  /** Whom the contacts of a client work with, for its org chart. */
+  getClientRelations(clientId: number): Observable<ContactRelation[]> {
+    return this.http.get<ContactRelation[]>(`${environment.apiUrl}/clients/${clientId}/contact-relations`);
+  }
+
+  /** Links two contacts who work together, or changes how. */
+  link(contactId: number, otherId: number, note?: string): Observable<ContactRelation> {
+    return this.http.put<ContactRelation>(`${this.API_URL}/${contactId}/relations`, { otherId, note });
+  }
+
+  unlink(contactId: number, otherId: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${contactId}/relations/${otherId}`);
   }
 }

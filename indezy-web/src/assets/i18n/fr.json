@@ -578,7 +578,11 @@
     "confirmBulkDelete": "Supprimer ces {{count}} clients et leurs contacts ? Ceux encore liés à des missions sont conservés.",
     "bulkDeleted": "{{deleted}} client(s) supprimé(s)",
     "bulkDeletedSomeKept": "{{deleted}} client(s) supprimé(s) ; {{kept}} conservé(s) car des missions y sont liées",
-    "bulkDeleteError": "Les clients sélectionnés n'ont pas pu être supprimés"
+    "bulkDeleteError": "Les clients sélectionnés n'ont pas pu être supprimés",
+    "orgChart": {
+      "title": "Organigramme",
+      "reportsTo": "rattaché à {{name}}"
+    }
   },
   "contacts": {
     "title": "Gestion des Contacts",
@@ -662,7 +666,25 @@
     "confirmBulkDelete": "Supprimer ces {{count}} contacts et leurs échanges ?",
     "bulkDeleted": "{{deleted}} contact(s) supprimé(s)",
     "bulkDeletedSomeKept": "{{deleted}} contact(s) supprimé(s) ; {{kept}} conservé(s)",
-    "bulkDeleteError": "Les contacts sélectionnés n'ont pas pu être supprimés"
+    "bulkDeleteError": "Les contacts sélectionnés n'ont pas pu être supprimés",
+    "network": {
+      "title": "Réseau",
+      "reportsTo": "Rattaché à",
+      "reportsToHint": "Son manager, dans cette société ou une autre",
+      "nobody": "Personne",
+      "team": "Équipe",
+      "noTeam": "Personne ne lui est rattaché",
+      "worksWith": "Travaille avec",
+      "noRelations": "Personne n'est lié pour l'instant.",
+      "person": "Personne",
+      "note": "Comment ils travaillent ensemble (facultatif)",
+      "link": "Lier",
+      "unlink": "Délier {{name}}",
+      "linkError": "Le lien n'a pas pu être enregistré",
+      "unlinkError": "Le lien n'a pas pu être supprimé",
+      "loadError": "Le réseau n'a pas pu être chargé",
+      "managerLoop": "Ce contact manage déjà, directement ou non, le manager choisi"
+    }
   },
   "sources": {
     "title": "Gestion des Sources",
