@@ -151,6 +151,7 @@ describe('ProjectFormComponent', () => {
     });
 
     it('says when the mission joined the pipeline meanwhile', () => {
+      spyOn(console, 'error');
       const fixture = fill();
       offers.importOffer.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
 
