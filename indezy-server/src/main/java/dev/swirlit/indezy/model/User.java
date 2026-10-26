@@ -135,6 +135,14 @@ public class User extends BaseEntity {
         return inactivityDays != null ? inactivityDays : UserPreferenceDefaults.INACTIVITY_DAYS;
     }
 
+    @Column(name = "follow_up_days")
+    private Integer followUpDays = UserPreferenceDefaults.FOLLOW_UP_DAYS;
+
+    /** Existing accounts can have a null column after Hibernate adds this preference. */
+    public Integer getFollowUpDays() {
+        return followUpDays != null ? followUpDays : UserPreferenceDefaults.FOLLOW_UP_DAYS;
+    }
+
     /** Archive the workspace's opportunities left idle for the inactivity period, every night. */
     @Column(name = "auto_archive")
     private Boolean autoArchive = false;

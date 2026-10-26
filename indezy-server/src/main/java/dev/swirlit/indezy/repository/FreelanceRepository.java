@@ -20,6 +20,9 @@ public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
     @Query("SELECT u.inactivityDays FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     Optional<Integer> findInactivityDays(@Param("freelanceId") Long freelanceId);
 
+    @Query("SELECT u.followUpDays FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
+    Optional<Integer> findFollowUpDays(@Param("freelanceId") Long freelanceId);
+
     /** The workspaces whose account archives idle opportunities, each with that account's inactivity period (maybe null). */
     @Query("SELECT f.id, u.inactivityDays FROM User u, Freelance f WHERE u.email = f.email AND u.autoArchive = true")
     List<Object[]> findAutoArchivingWorkspaces();

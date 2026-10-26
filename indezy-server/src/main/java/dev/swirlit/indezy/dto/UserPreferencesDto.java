@@ -21,6 +21,11 @@ public class UserPreferencesDto {
     @Max(365)
     @JsonDeserialize(using = WholeNumberDeserializer.class)
     private Integer inactivityDays;
+    /** Days a message sent to a contact waits for an answer before the dashboard says to follow up. */
+    @Min(1)
+    @Max(60)
+    @JsonDeserialize(using = WholeNumberDeserializer.class)
+    private Integer followUpDays;
     /** Archive opportunities idle for {@code inactivityDays}, every night. */
     private Boolean autoArchive;
 }

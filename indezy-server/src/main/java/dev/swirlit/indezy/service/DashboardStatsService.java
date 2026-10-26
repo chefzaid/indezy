@@ -112,6 +112,7 @@ public class DashboardStatsService {
         List<Contact> contacts = contactRepository.findByFreelanceId(freelanceId);
         int inactivityDays = freelanceRepository.findInactivityDays(freelanceId)
             .orElse(UserPreferenceDefaults.INACTIVITY_DAYS);
+        int followUpDays = freelanceRepository.findFollowUpDays(freelanceId).orElse(UserPreferenceDefaults.FOLLOW_UP_DAYS);
 
         LocalDate today = LocalDate.now(ZoneId.systemDefault());
         List<InterviewStep> validatedSteps = inSeason(
@@ -159,6 +160,7 @@ public class DashboardStatsService {
             .dormantContacts(DashboardReminders.buildDormantContacts(contacts,
                 contactInteractionService.lastContactedInWorkspace(freelanceId), LocalDateTime.now(ZoneId.systemDefault())))
             .upcomingInterviews(DashboardReminders.buildUpcomingInterviews(upcomingSteps, now))
+            .followUpsDue(contactInteractionService.followUpsDue(freelanceId, followUpDays, today))
             .skillTrends(DashboardAnalytics.buildSkillTrends(projects))
             .processDurations(DashboardAnalytics.buildProcessDurations(
                 projects, DashboardAnalytics.signatureDates(validatedSteps)))

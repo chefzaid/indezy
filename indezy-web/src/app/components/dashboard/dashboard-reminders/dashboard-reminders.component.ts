@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import {
-  DashboardStatsDto, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, OnThisDayItem, DormantContact, UpcomingInterview
+  DashboardStatsDto, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, OnThisDayItem, DormantContact, FollowUpDue, UpcomingInterview
 } from '../../../models';
 
 /**
@@ -45,7 +45,8 @@ export class DashboardRemindersComponent {
 
   hasReminders(): boolean {
     return this.getUpcomingInterviews().length + this.getMissionsEndingSoon().length + this.getUpcomingRenewals().length +
-      this.getOnThisDay().length + this.getDormantContacts().length + this.getStaleOpportunities().length > 0;
+      this.getOnThisDay().length + this.getDormantContacts().length + this.getStaleOpportunities().length +
+      this.getFollowUpsDue().length > 0;
   }
 
   getUpcomingInterviews(): UpcomingInterview[] {
@@ -62,6 +63,10 @@ export class DashboardRemindersComponent {
 
   getOnThisDay(): OnThisDayItem[] {
     return this.stats?.onThisDay ?? [];
+  }
+
+  getFollowUpsDue(): FollowUpDue[] {
+    return this.stats?.followUpsDue ?? [];
   }
 
   getDormantContacts(): DormantContact[] {

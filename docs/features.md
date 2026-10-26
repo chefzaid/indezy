@@ -172,7 +172,10 @@ changed or deleted, and a contact keeps up to 500. Above them the page reads:
 - **Preferred channel**: the channel the contact answers or writes first on most, the latest used on a tie.
 
 An exchange counts as activity for the dashboard's dormant contacts, so a contact written to recently is not listed
-there. Exchanges are deleted with their contact (also when its client or account goes) and are part of the account
+there. When a contact's latest exchange is one the freelancer started that still waits for an answer, it shows in the
+dashboard's **Follow-ups due** once it has waited the follow-up delay (5 days unless set otherwise in Profile →
+Preferences, from 1 to 60), longest waiting first, with the channel used; recording the answer, or any newer exchange,
+takes it off (`followUpsDue` in the dashboard statistics, `followUpDays` in the preferences). Exchanges are deleted with their contact (also when its client or account goes) and are part of the account
 data export. API: `GET /contacts/{id}/interactions` (the exchanges with `lastContactedOn`, `asked`, `answered`,
 `responseRate` and `preferredChannel`), `POST /contacts/{id}/interactions`, `PUT` and `DELETE
 /contacts/{id}/interactions/{interactionId}`; contacts carry `lastContactedOn`.

@@ -58,6 +58,8 @@ export interface UserPreferences {
   itemsPerPage: number;
   autoSave: boolean;
   inactivityDays: number;
+  /** Days a message sent to a contact waits for an answer before the dashboard says to follow up. */
+  followUpDays?: number;
   /** Archive opportunities idle for the inactivity period, every night. */
   autoArchive?: boolean;
 }

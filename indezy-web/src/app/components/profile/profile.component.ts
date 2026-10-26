@@ -198,7 +198,8 @@ export class ProfileComponent implements OnInit {
       itemsPerPage: [25],
       autoSave: [true],
       autoArchive: [false],
-      inactivityDays: [null, [Validators.required, Validators.min(1), Validators.max(365), Validators.pattern('^[0-9]+$')]]
+      inactivityDays: [null, [Validators.required, Validators.min(1), Validators.max(365), Validators.pattern('^[0-9]+$')]],
+      followUpDays: [5, [Validators.required, Validators.min(1), Validators.max(60), Validators.pattern('^[0-9]+$')]]
     });
 
     this.notificationForm = this.fb.group({

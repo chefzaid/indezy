@@ -153,6 +153,22 @@ class ContactInteractionIntegrationTest {
             .andExpect(jsonPath("$.preferredChannel").value("EMAIL"));
     }
 
+    @Test
+    void remindsToFollowUpAMessageLeftUnanswered() throws Exception {
+        LocalDate today = LocalDate.now(ZoneId.systemDefault());
+        create(today.minusDays(9).toString(), "LINKEDIN", "OUTGOING", "null", "\"Sent my CV\"");
+
+        mockMvc.perform(get("/projects/stats/dashboard/100"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.followUpsDue[0].contactId").value(100))
+            .andExpect(jsonPath("$.followUpsDue[0].name").value("Bob Wilson"))
+            .andExpect(jsonPath("$.followUpsDue[0].channel").value("LINKEDIN"))
+            .andExpect(jsonPath("$.followUpsDue[0].daysWaiting").value(9));
+
+        create(today.minusDays(1).toString(), "LINKEDIN", "INCOMING", "null", "null");
+        mockMvc.perform(get("/projects/stats/dashboard/100")).andExpect(jsonPath("$.followUpsDue", hasSize(0)));
+    }
+
     private long create(String day, String channel, String direction, String replied, String summary) throws Exception {
         String body = submit("{\"occurredOn\": \"" + day + "\", \"channel\": \"" + channel + "\", \"direction\": \"" + direction +
             "\", \"replied\": " + replied + ", \"summary\": " + summary + "}")

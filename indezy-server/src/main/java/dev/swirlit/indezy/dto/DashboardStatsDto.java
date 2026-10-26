@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.dto;
 
+import dev.swirlit.indezy.model.enums.InteractionChannel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,6 +44,8 @@ public class DashboardStatsDto {
     private List<UpcomingRenewal> upcomingRenewals;
     private List<OnThisDayItem> onThisDay;
     private List<DormantContact> dormantContacts;
+    /** Contacts whose latest exchange is a message sent and unanswered for the follow-up period, longest waiting first. */
+    private List<FollowUpDue> followUpsDue;
     /** Interview steps planned in the next seven days, soonest first. */
     private List<UpcomingInterview> upcomingInterviews;
     private List<SkillTrend> skillTrends;
@@ -175,6 +178,20 @@ public class DashboardStatsDto {
         private String name;
         private String clientName;
         private long monthsSinceActivity;
+    }
+
+    /** A message sent to a contact that still waits for an answer, past the follow-up period. */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FollowUpDue {
+        private Long contactId;
+        private String name;
+        private String clientName;
+        private InteractionChannel channel;
+        private LocalDate sentOn;
+        private long daysWaiting;
     }
 
     /**

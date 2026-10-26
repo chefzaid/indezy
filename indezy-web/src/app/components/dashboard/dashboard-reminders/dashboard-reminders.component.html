@@ -88,6 +88,29 @@
         }
       </section>
     }
+    @if (getFollowUpsDue().length > 0) {
+      <section class="reminder-card accent-purple">
+        <h3 class="reminder-title">
+          <mat-icon>reply</mat-icon>
+          {{ 'dashboard.charts.followUpsDue' | translate }}
+          <span class="count">{{ getFollowUpsDue().length }}</span>
+        </h3>
+        @for (due of visible(getFollowUpsDue(), 'followUps'); track due.contactId) {
+          <a class="reminder-row" [routerLink]="['/contacts', due.contactId]">
+            <span class="primary">{{ due.name }}</span>
+            <span class="secondary">{{ due.clientName }}</span>
+            <span class="meta">
+              {{ 'dashboard.charts.waitingSince' | translate:{ days: due.daysWaiting, channel: ('contacts.interactions.channels.' + due.channel | translate) } }}
+            </span>
+          </a>
+        }
+        @if (getFollowUpsDue().length > collapsedSize) {
+          <button type="button" class="toggle-btn" (click)="toggle('followUps')">
+            {{ isExpanded('followUps') ? ('dashboard.showLess' | translate) : ('dashboard.showAll' | translate:{ count: getFollowUpsDue().length }) }}
+          </button>
+        }
+      </section>
+    }
     @if (getDormantContacts().length > 0) {
       <section class="reminder-card accent-grey">
         <h3 class="reminder-title">

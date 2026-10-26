@@ -157,4 +157,19 @@ describe('DashboardRemindersComponent', () => {
     component.toggle('any');
     expect(component.visible(list, 'any')).toEqual(list);
   });
+
+  it('lists the follow-ups due, longest waiting first, with how long and by which channel', () => {
+    const element = render({
+      followUpsDue: [
+        { contactId: 3, name: 'Bob Durand', clientName: 'Acme', channel: 'EMAIL', sentOn: '2026-09-01', daysWaiting: 11 },
+        { contactId: 4, name: 'Zoé Leroy', channel: 'LINKEDIN', sentOn: '2026-09-05', daysWaiting: 7 }
+      ]
+    });
+
+    expect(component.hasReminders()).toBe(true);
+    const card = section(element, 'accent-purple');
+    expect(card.textContent).toContain('dashboard.charts.followUpsDue');
+    expect(rows(card).map(row => row.getAttribute('href'))).toEqual(['/contacts/3', '/contacts/4']);
+    expect(rows(card)[0].textContent).toContain('Bob Durand');
+  });
 });

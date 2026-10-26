@@ -401,6 +401,18 @@ describe('ProfileComponent', () => {
       expect(users.updateUserPreferences).not.toHaveBeenCalled();
     });
 
+    it('keeps the follow-up delay read, and does not save one out of range', () => {
+      const component = create().componentInstance;
+      expect(component.preferencesForm.value.followUpDays).toBe(5);
+
+      for (const days of [0, 61, 2.5]) {
+        component.preferencesForm.patchValue({ followUpDays: days });
+        component.onUpdatePreferences();
+      }
+
+      expect(users.updateUserPreferences).not.toHaveBeenCalled();
+    });
+
     it('reports preferences that cannot be saved', () => {
       const component = create().componentInstance;
       users.updateUserPreferences.and.returnValue(throwError(() => new Error('offline')));

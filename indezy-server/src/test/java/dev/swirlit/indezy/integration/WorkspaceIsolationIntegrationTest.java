@@ -152,6 +152,21 @@ class WorkspaceIsolationIntegrationTest {
             .containsEntry("inactivityDays", 14);
     }
 
+    @Test
+    void followUpPreference_ShouldPersistRejectInvalidValuesAndDefaultLegacyAccounts() {
+        assertThat(call(alice, HttpMethod.GET, "/users/preferences", null, Map.class).getBody()).containsEntry("followUpDays", 5);
+        assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("followUpDays", 10), Map.class).getBody())
+            .containsEntry("followUpDays", 10);
+        for (Number days : List.of(0, 61, 2.5)) {
+            assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("followUpDays", days), String.class)
+                .getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
+        assertThat(call(bob, HttpMethod.GET, "/users/preferences", null, Map.class).getBody()).containsEntry("followUpDays", 5);
+        jdbcTemplate.update("UPDATE users SET follow_up_days = NULL WHERE email = (SELECT email FROM freelances WHERE id = ?)",
+            alice.freelanceId());
+        assertThat(call(alice, HttpMethod.GET, "/users/preferences", null, Map.class).getBody()).containsEntry("followUpDays", 5);
+    }
+
     private record Account(String token, Long freelanceId) {
     }
 

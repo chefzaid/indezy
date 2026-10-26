@@ -209,7 +209,9 @@
       "quietForMonths": "sans activité depuis {{months}} mois",
       "staleOpportunities": "Opportunités dormantes (relancer ou archiver)",
       "idleForDays": "inactive depuis {{days}} jours",
-      "upcomingInterviews": "Entretiens de la semaine"
+      "upcomingInterviews": "Entretiens de la semaine",
+      "followUpsDue": "Relances à faire",
+      "waitingSince": "{{channel}} envoyé il y a {{days}} jours, sans réponse"
     },
     "estimatedRevenueHint": "Valeur totale des missions acceptées et des opportunités en cours (hors perdues), sans pondération.",
     "forecastRevenueHint": "Valeur des missions pondérée par la probabilité de gain de chaque étape du pipeline.",
@@ -911,7 +913,10 @@
     "noSkills": "Aucune compétence : elles notent les offres qui correspondent à votre profil.",
     "skillMerge": "{{skills}} : une seule compétence, {{skill}}",
     "skillMergeApply": "Utiliser {{skill}}",
-    "skillAlreadyListed": "Déjà listée comme {{skill}}"
+    "skillAlreadyListed": "Déjà listée comme {{skill}}",
+    "followUpDays": "Relancer après (jours)",
+    "followUpDaysHint": "Un message à un contact resté sans réponse aussi longtemps apparaît au tableau de bord",
+    "followUpDaysError": "Saisissez un nombre entier de 1 à 60"
   },
   "errors": {
     "notFoundTitle": "404 - Page non trouvée",

@@ -209,7 +209,9 @@
       "quietForMonths": "quiet for {{months}} months",
       "staleOpportunities": "Stale opportunities (follow up or archive)",
       "idleForDays": "idle for {{days}} days",
-      "upcomingInterviews": "Interviews this week"
+      "upcomingInterviews": "Interviews this week",
+      "followUpsDue": "Follow-ups due",
+      "waitingSince": "{{channel}} sent {{days}} days ago, no answer"
     },
     "estimatedRevenueHint": "Total value of accepted missions and open opportunities (lost ones excluded), unweighted.",
     "forecastRevenueHint": "Mission value weighted by the win probability of each pipeline stage.",
@@ -911,7 +913,10 @@
     "noSkills": "No skills yet: they score the offers that match your profile.",
     "skillMerge": "{{skills}}: one skill, {{skill}}",
     "skillMergeApply": "Use {{skill}}",
-    "skillAlreadyListed": "Already listed as {{skill}}"
+    "skillAlreadyListed": "Already listed as {{skill}}",
+    "followUpDays": "Follow up after (days)",
+    "followUpDaysHint": "A message to a contact unanswered this long shows on the dashboard",
+    "followUpDaysError": "Enter a whole number from 1 to 60"
   },
   "errors": {
     "notFoundTitle": "404 - Page not found",

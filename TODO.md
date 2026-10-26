@@ -148,7 +148,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [x] Email templates (follow-up, rate proposal, availability announcement) with variables: **Write an email** on an opportunity and Profile → **Emails** (`docs/features.md#emails-from-templates`)
 - [ ] AI polish of outgoing messages (grammar/tone fix before sending a follow-up or proposal)
 - [ ] Gmail/Outlook inbox sync: auto-link emails to the matching project/contact
-- [ ] Follow-up sequences (auto-remind me to relance after N days without reply)
+- [x] Follow-up sequences (auto-remind me to relance after N days without reply). Done on 2026-10-26: a contact whose latest exchange is a message sent and unanswered past the follow-up delay (5 days, set in Profile → Preferences) shows in the dashboard's **Follow-ups due**, linked to the contact (`docs/features.md#contact-interaction-history`).
 - [ ] Email open/reply tracking on sent follow-ups
 - [ ] Centralized message history per opportunity (email + notes + LinkedIn exchanges)
 

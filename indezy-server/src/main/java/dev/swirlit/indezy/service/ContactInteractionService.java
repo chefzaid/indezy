@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.ContactInteractionDto;
+import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.ContactInteractionsDto;
 import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.InvalidStateException;
@@ -18,9 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -75,6 +79,31 @@ public class ContactInteractionService {
     @Transactional(readOnly = true)
     public Map<Long, LocalDate> lastContactedInWorkspace(Long freelanceId) {
         return toMap(interactions.findLastByFreelanceId(freelanceId));
+    }
+
+    /**
+     * The contacts of workspace {@code freelanceId} whose latest exchange is a message the freelancer sent, still
+     * waiting for an answer {@code followUpDays} days or more after {@code today}'s, longest waiting first.
+     */
+    @Transactional(readOnly = true)
+    public List<DashboardStatsDto.FollowUpDue> followUpsDue(Long freelanceId, int followUpDays, LocalDate today) {
+        Map<Long, ContactInteraction> latest = new LinkedHashMap<>();
+        // Newest first within each contact: the first one seen is its latest.
+        interactions.findByContactFreelanceIdOrderByContactIdAscOccurredOnDescIdDesc(freelanceId)
+            .forEach(interaction -> latest.putIfAbsent(interaction.getContact().getId(), interaction));
+        return latest.values().stream()
+            .filter(interaction -> interaction.getDirection() == InteractionDirection.OUTGOING && interaction.getReplied() == null)
+            .map(interaction -> DashboardStatsDto.FollowUpDue.builder()
+                .contactId(interaction.getContact().getId())
+                .name(interaction.getContact().getFullName())
+                .clientName(interaction.getContact().getClient() == null ? null : interaction.getContact().getClient().getCompanyName())
+                .channel(interaction.getChannel())
+                .sentOn(interaction.getOccurredOn())
+                .daysWaiting(ChronoUnit.DAYS.between(interaction.getOccurredOn(), today))
+                .build())
+            .filter(due -> due.getDaysWaiting() >= followUpDays)
+            .sorted(Comparator.comparingLong(DashboardStatsDto.FollowUpDue::getDaysWaiting).reversed())
+            .toList();
     }
 
     /** Every exchange of workspace {@code freelanceId}, by contact, for the account data export. */

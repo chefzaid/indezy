@@ -89,6 +89,7 @@ public interface UserMapper {
     @Mapping(target = "languagePreference", source = "language")
     @Mapping(target = "inactivityDays", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "autoArchive", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "followUpDays", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updatePreferences(UserPreferencesDto dto, @MappingTarget User user);
 
     // Security settings mapping

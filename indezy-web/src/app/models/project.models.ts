@@ -146,6 +146,8 @@ export interface DashboardStatsDto {
   upcomingRenewals: UpcomingRenewal[];
   onThisDay: OnThisDayItem[];
   dormantContacts: DormantContact[];
+  /** Contacts whose latest exchange is a message sent and unanswered for the follow-up period, longest waiting first. */
+  followUpsDue?: FollowUpDue[];
   /** Interview steps planned in the next seven days, soonest first. */
   upcomingInterviews?: UpcomingInterview[];
   skillTrends: SkillTrend[];
@@ -223,6 +225,15 @@ export interface OnThisDayItem {
   subLabel: string;
   date: string;
   yearsAgo: number;
+}
+
+export interface FollowUpDue {
+  contactId: number;
+  name: string;
+  clientName?: string;
+  channel: string;
+  sentOn: string;
+  daysWaiting: number;
 }
 
 export interface DormantContact {

@@ -61,6 +61,8 @@ Important fields:
 - website, LinkedIn, GitHub
 - skills and languages as element collections, and `skillDetails`, an optional level (`BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `EXPERT`) and years of experience (0 to 60) keyed by skill name; a detail is only kept for a skill the profile names and with a level or years
 - timezone and currency
+- `followUpDays` (`users.follow_up_days`): days a message sent to a contact waits for an answer before the dashboard
+  says to follow up, 1 to 60; null (accounts from before the column) reads as 5
 - `targetDailyRate` (`users.target_daily_rate`): an optional positive whole-euro daily
   rate, editable through the profile. Existing accounts keep null when Hibernate adds
   the column. A new season without an explicit rate copies this value; existing seasons
