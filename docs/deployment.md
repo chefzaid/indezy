@@ -47,8 +47,8 @@ validation links are opened by clients and ESNs who have no account, and the lin
 `infra/k8s/ingress.yaml` also owns the 16 MiB request limit and a ServersTransport
 that allows 120 seconds for backend response headers. Connection timeouts and
 HTTP-to-HTTPS redirects are platform settings. NetworkPolicy permits Traefik
-pods. Database setup and readiness helpers use the public PostgreSQL 18.6 client
-image pinned by digest, without platform registry credentials.
+pods. Database setup and readiness helpers use the public PostgreSQL 18.6 Alpine
+image pinned by its multi-architecture digest, without platform registry credentials.
 
 | Concern | Repository resource |
 |---|---|
