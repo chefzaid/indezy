@@ -321,9 +321,10 @@ The backend reads public job boards for the offer feed ([ADR 0009](./adr/0009-co
   carrier-grade NAT (the cluster's pod range), unique-local, multicast or unspecified address. The check runs before
   every request of the reading, each redirect (kept on the page's own site) and the `robots.txt` included, so a link
   cannot be turned against the cluster's services or another network (SSRF). A name resolving differently between
-  the check and the request (DNS rebinding) is the remaining gap: the API's network policy restricts ingress only, and
-  an egress policy refusing private ranges is planned in [TODO.md](../TODO.md#platform--security). The page read is
-  stored nowhere.
+  the check and the request (DNS rebinding) is stopped by the network: the API's egress policy
+  (`allow-indezy-server-egress` in `infra/k8s/network-policy.yaml`) admits DNS, PostgreSQL and Keycloak in `infra`
+  and the public internet only, refusing 10/8, 172.16/12, 192.168/16, 100.64/10, 169.254/16 and the loopback,
+  unspecified and multicast ranges. The page read is stored nowhere.
 - `robots.txt` is honoured for the `IndezyBot` product token (RFC 9309: a missing file allows everything, an
   unreachable one stops the site's run); requests wait 2 seconds per host, time out after 30 seconds, identify Indezy
   with a contact URL and stop reading past 8 MB.

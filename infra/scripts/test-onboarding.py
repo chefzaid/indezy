@@ -140,6 +140,17 @@ class RenderingTests(unittest.TestCase):
         for script in ("configure-gitlab.sh", "configure-repository-sync.sh", "configure-code-quality.sh"):
             command(["bash", "-n", "infra/scripts/" + script], self.root)
 
+    def test_api_egress_refuses_private_ranges(self):
+        for profile in ("infra/k8s", "infra/overlays/ha"):
+            policies = [resource for resource in rendered_resources(self.root, profile)
+                        if resource.get("kind") == "NetworkPolicy" and "Egress" in resource["spec"]["policyTypes"]]
+            self.assertEqual([policy["spec"]["podSelector"] for policy in policies],
+                             [{"matchLabels": {"app": APP + "-server"}}], profile)
+            blocks = [peer["ipBlock"] for rule in policies[0]["spec"]["egress"] for peer in rule["to"] if "ipBlock" in peer]
+            self.assertEqual([block["cidr"] for block in blocks], ["0.0.0.0/0"], profile)
+            for private in ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.64.0.0/10", "169.254.0.0/16"):
+                self.assertIn(private, blocks[0]["except"], profile)
+
     def test_imported_sync_workflow_uses_github_variables(self):
         path = self.root / ".github/workflows/sync-gitlab.yml"
         workflow = yaml.safe_load(path.read_text())

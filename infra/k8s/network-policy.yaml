@@ -46,3 +46,70 @@ spec:
       ports:
         - protocol: TCP
           port: 8080
+---
+# The API's outbound traffic: DNS, the shared PostgreSQL and Keycloak in infra, and the public internet for the job
+# boards, geocoding and mail. Private ranges stay closed, so a pasted posting link whose name passed PublicHosts and
+# then resolves to a cluster or home-network address (DNS rebinding) is refused by the network too.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-indezy-server-egress
+  namespace: apps
+spec:
+  podSelector:
+    matchLabels:
+      app: indezy-server
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # The single PostgreSQL writer, or the CloudNativePG cluster once the platform's HA profile is active.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: infra
+          podSelector:
+            matchLabels:
+              app: postgres
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: infra
+          podSelector:
+            matchLabels:
+              cnpg.io/cluster: postgres-ha
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: infra
+          podSelector:
+            matchLabels:
+              app: keycloak
+      ports:
+        - protocol: TCP
+          port: 8080
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 0.0.0.0/8
+              - 10.0.0.0/8
+              - 100.64.0.0/10
+              - 127.0.0.0/8
+              - 169.254.0.0/16
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 224.0.0.0/4

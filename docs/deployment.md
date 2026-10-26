@@ -62,7 +62,10 @@ image pinned by digest, without platform registry credentials.
 Application resources run in `apps`; Argo CD and shared services run in `infra`; disposable CI pods run in `gitlab-runners`.
 
 The backend reads the freelance job boards and the French government geocoding API (`geo.api.gouv.fr`) over HTTPS
-for the offer feed, so its pods need outbound internet access; the NetworkPolicy restricts ingress only. Collection
+for the offer feed, so its pods need outbound internet access. Their egress policy admits DNS (`kube-system/kube-dns`),
+PostgreSQL (`app: postgres`, or `cnpg.io/cluster: postgres-ha` under the platform's HA profile) and Keycloak
+(`app: keycloak`) in `infra`, and every public address; private, link-local and carrier-grade NAT ranges are refused,
+so a service the backend starts using elsewhere in the cluster needs its own rule there. Collection
 runs inside the server, one site at a time; each site is claimed in the database, so more replicas would not read a
 site twice. `INDEZY_OFFERS_COLLECTION_ENABLED=false` stops it and `INDEZY_OFFERS_GEOCODING_ENABLED=false` stops the
 geocoding calls (offers are then placed by postal code or department name only), without a redeploy of the image.
