@@ -93,6 +93,11 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+    distribution:
+      # A few buckets per route, so Prometheus can tell the share of slow requests and alert on the 95th percentile
+      # (swirl-cloud's IndezyApiSlow) without a full histogram's hundred series per route.
+      slo:
+        "[http.server.requests]": 100ms,250ms,500ms,1s,2s,5s
 
 logging:
   level:

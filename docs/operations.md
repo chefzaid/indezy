@@ -64,6 +64,13 @@ site over 24 hours found nothing (`IndezyOfferSiteFindsNothing`, a sign its page
 when more than 20 lookups to `geo.api.gouv.fr` fail in an hour (`IndezyGeocodingTimeouts`);
 their runbooks are in `swirl-cloud`'s `docs/guides/alert-runbooks.md`.
 
+Request durations (`http_server_requests_seconds`) carry buckets at 100 ms, 250 ms, 500 ms, 1 s, 2 s and 5 s
+(`management.metrics.distribution.slo`), enough for a 95th percentile without a full histogram per route. The dashboard's
+**Response Time** shows the average and the 95th percentile, **Slowest Routes** the five slowest routes and **Server
+Errors by Route** the routes answering 5xx. Two more rules watch the API, the actuator left out and only with 20
+requests in 10 minutes at least: over 5 % of 5xx answers for 10 minutes (`IndezyApiErrors`), and a 95th percentile
+over a second for 15 minutes, attachments left out (`IndezyApiSlow`).
+
 The API's exception handler logs rejected requests (4xx) at `WARN`, naming only
 the fields, parameters or database constraint involved (or, for another request
 error such as an unsupported `Content-Type`, only the exception type and

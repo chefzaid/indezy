@@ -51,4 +51,14 @@ class SecurityConfigStrictIntegrationTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody() != null && response.getBody().contains("jvm_memory_used_bytes"));
     }
+
+    @Test
+    void requestDurationsArePublishedWithTheirAlertBuckets() {
+        restTemplate.getForEntity(url("/actuator/health"), String.class);
+
+        String metrics = restTemplate.getForEntity(url("/actuator/prometheus"), String.class).getBody();
+
+        assertTrue(metrics != null && metrics.lines().anyMatch(line ->
+            line.startsWith("http_server_requests_seconds_bucket{") && line.contains("le=\"1.0\"")), metrics);
+    }
 }

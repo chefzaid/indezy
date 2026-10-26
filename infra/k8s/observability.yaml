@@ -70,10 +70,13 @@ data:
         {
           "id": 6,
           "type": "timeseries",
-          "title": "Average Response Time",
+          "title": "Response Time",
           "gridPos": {"x": 12, "y": 4, "w": 12, "h": 8},
           "datasource": {"type": "prometheus", "uid": "prometheus"},
-          "targets": [{"refId": "A", "expr": "sum(rate(http_server_requests_seconds_sum{namespace=\"apps\",app=\"indezy-server\",uri!~\"/actuator.*\"}[5m])) / clamp_min(sum(rate(http_server_requests_seconds_count{namespace=\"apps\",app=\"indezy-server\",uri!~\"/actuator.*\"}[5m])), 0.000001)", "legendFormat": "average"}],
+          "targets": [
+            {"refId": "A", "expr": "sum(rate(http_server_requests_seconds_sum{namespace=\"apps\",app=\"indezy-server\",uri!~\"/actuator.*\"}[5m])) / clamp_min(sum(rate(http_server_requests_seconds_count{namespace=\"apps\",app=\"indezy-server\",uri!~\"/actuator.*\"}[5m])), 0.000001)", "legendFormat": "average"},
+            {"refId": "B", "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{namespace=\"apps\",app=\"indezy-server\",uri!~\".*actuator.*\"}[5m])))", "legendFormat": "95th percentile"}
+          ],
           "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
           "options": {"legend": {"displayMode": "table", "placement": "bottom"}}
         },
@@ -139,6 +142,26 @@ data:
           ],
           "fieldConfig": {"defaults": {"unit": "short", "min": 0}, "overrides": []},
           "options": {"legend": {"displayMode": "table", "placement": "bottom"}}
+        },
+        {
+          "id": 13,
+          "type": "timeseries",
+          "title": "Slowest Routes (95th percentile)",
+          "gridPos": {"x": 0, "y": 36, "w": 12, "h": 8},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"refId": "A", "expr": "topk(5, histogram_quantile(0.95, sum by (le, method, uri) (rate(http_server_requests_seconds_bucket{namespace=\"apps\",app=\"indezy-server\",uri!~\".*actuator.*\"}[5m]))))", "legendFormat": "{{method}} {{uri}}"}],
+          "fieldConfig": {"defaults": {"unit": "s", "min": 0}, "overrides": []},
+          "options": {"legend": {"displayMode": "table", "placement": "right"}}
+        },
+        {
+          "id": 14,
+          "type": "timeseries",
+          "title": "Server Errors by Route",
+          "gridPos": {"x": 12, "y": 36, "w": 12, "h": 8},
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "targets": [{"refId": "A", "expr": "sum by (method, uri) (increase(http_server_requests_seconds_count{namespace=\"apps\",app=\"indezy-server\",status=~\"5..\"}[15m])) > 0", "legendFormat": "{{method}} {{uri}}"}],
+          "fieldConfig": {"defaults": {"unit": "short", "min": 0}, "overrides": []},
+          "options": {"legend": {"displayMode": "table", "placement": "right"}}
         }
       ]
     }
