@@ -519,6 +519,21 @@ deleted from the menu after a confirmation; the steps it added stay. A workspace
 50 templates with distinct names (case aside), deleting a client keeps its templates for any
 client, and the GDPR export includes them (`/pipeline-templates`). The backend exposes interview-step endpoints for creation, updates, transitions, and project-level retrieval.
 
+## Emails From Templates
+
+**Write an email** on an opportunity's page opens a composer: a template, a recipient among the contacts (with an
+email address) of the opportunity's ESN and client, the ESN's first, then a subject and a message filled from them and
+free to edit. **Open in my mail app** opens a `mailto:` message to the contact, **Copy** copies the subject and the
+message. The follow-up, rate proposal and availability announcement are always offered, in the interface language;
+Profile → **Emails** adds, changes and deletes the workspace's own templates (up to 50, each name once, case aside),
+their variables inserted by clicking them.
+
+Variables, written `{{name}}`: `firstName`, `lastName` (the recipient), `company` (the recipient's client or ESN),
+`role` and `rate` (the opportunity's daily rate), `availability` (the profile's availability date), `myName` and
+`myPhone` (the profile). A variable without a value stays as written, and the composer says the message still has some
+to complete. Templates are stored per workspace (`/email-templates`) and included in the GDPR export; nothing is sent by
+Indezy.
+
 ## Project Journal
 
 Each project has a chronological journal of free-text notes (calls, emails, decisions) exposed under `/api/projects/{projectId}/notes` (list newest-first, add, delete). The project detail page shows the timeline with timestamps and lets the user add or remove entries. Notes are stored and rendered as plain text for now; Markdown support with live preview is a planned enhancement.

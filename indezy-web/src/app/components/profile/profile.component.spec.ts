@@ -473,7 +473,8 @@ describe('ProfileComponent', () => {
       const fixture = create();
       users.exportUserData.and.returnValue(throwError(() => new Error('offline')));
       const element = fixture.nativeElement as HTMLElement;
-      element.querySelectorAll<HTMLElement>('[role="tab"]')[5].click();
+      Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'))
+        .find(tab => tab.textContent!.includes('profile.tabs.account'))!.click();
       for (let attempt = 0; attempt < 50 && !element.querySelector('mat-tab-body.mat-mdc-tab-body-active')?.textContent!
         .includes('common.export'); attempt++) {
         fixture.detectChanges();

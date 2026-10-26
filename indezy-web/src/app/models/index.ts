@@ -12,6 +12,7 @@ export * from './freelance.models';
 export * from './user-management.models';
 export * from './interview-step.models';
 export * from './pipeline-template.models';
+export * from './email-template.models';
 export * from './commute.models';
 export * from './season.models';
 export * from './activity-report.models';

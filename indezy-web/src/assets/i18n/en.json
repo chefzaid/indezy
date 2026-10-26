@@ -741,7 +741,8 @@
       "preferences": "Preferences",
       "notifications": "Notifications",
       "offers": "Offer feed",
-      "account": "Account"
+      "account": "Account",
+      "emails": "Emails"
     },
     "themes": {
       "light": "Light",
@@ -1676,5 +1677,57 @@
     "invalidTitle": "This link is no longer valid",
     "invalidMessage": "The search may have been deleted. Its emails are no longer sent.",
     "error": "The emails could not be stopped. Try again in a moment."
+  },
+  "emails": {
+    "builtIn": {
+      "followUp": {
+        "name": "Follow-up",
+        "subject": "Following up on the {{role}} mission",
+        "body": "Hello {{firstName}},\n\nI am following up on the {{role}} mission we discussed. Is there any news on your side, or anything else I can send you to move forward?\n\nKind regards,\n{{myName}}\n{{myPhone}}"
+      },
+      "rateProposal": {
+        "name": "Rate proposal",
+        "subject": "My rate for the {{role}} mission",
+        "body": "Hello {{firstName}},\n\nThank you for your interest. For the {{role}} mission at {{company}}, my daily rate is {{rate}} excluding VAT.\n\nI remain available to discuss it.\n\nKind regards,\n{{myName}}\n{{myPhone}}"
+      },
+      "availability": {
+        "name": "Availability announcement",
+        "subject": "Available from {{availability}}",
+        "body": "Hello {{firstName}},\n\nI will be available for a new mission from {{availability}}. Would any of your current needs fit my profile?\n\nKind regards,\n{{myName}}\n{{myPhone}}"
+      }
+    },
+    "action": "Write an email",
+    "title": "Email about {{role}}",
+    "template": "Template",
+    "recipient": "To",
+    "noRecipient": "No contact",
+    "subject": "Subject",
+    "body": "Message",
+    "copy": "Copy",
+    "copied": "Message copied",
+    "copyError": "The message could not be copied",
+    "open": "Open in my mail app",
+    "missing": "Some variables have no value yet: complete them before sending.",
+    "loadError": "The contacts or templates could not be loaded",
+    "settings": {
+      "title": "Email templates",
+      "intro": "Write the messages you send again and again. Variables are filled from the opportunity and the contact when you write an email.",
+      "variables": "Variables",
+      "name": "Name",
+      "add": "New template",
+      "save": "Save",
+      "saved": "Template saved",
+      "deleted": "Template deleted",
+      "delete": "Delete \"{{name}}\"",
+      "deleteConfirm": "Delete the email template \"{{name}}\"?",
+      "edit": "Edit \"{{name}}\"",
+      "cancel": "Cancel",
+      "none": "No templates of your own yet: the follow-up, rate proposal and availability announcement are always offered.",
+      "nameTaken": "A template already has this name",
+      "limit": "The workspace keeps at most 50 email templates",
+      "saveError": "The template could not be saved",
+      "deleteError": "The template could not be deleted",
+      "loadError": "The templates could not be loaded"
+    }
   }
 }

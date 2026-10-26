@@ -49,6 +49,9 @@ public final class ErrorMessages {
     public static final String SAVED_SEARCH_NOT_FOUND = "Saved search not found with id: %d";
     public static final String SAVED_SEARCH_NAME_TAKEN = "A saved search is already named \"%s\"";
     public static final String SAVED_SEARCHES_LIMIT = "A workspace keeps at most %d saved searches";
+    public static final String EMAIL_TEMPLATE_NOT_FOUND = "Email template not found with id: %d";
+    public static final String EMAIL_TEMPLATE_NAME_TAKEN = "An email template is already named \"%s\"";
+    public static final String EMAIL_TEMPLATES_LIMIT = "A workspace keeps at most %d email templates";
     public static final String ATTACHMENT_NOT_FOUND = "Attachment not found with id: %d";
     public static final String ATTACHMENT_EMPTY = "The file is empty";
     public static final String ATTACHMENT_TOO_LARGE = "The file is larger than 10 MB";

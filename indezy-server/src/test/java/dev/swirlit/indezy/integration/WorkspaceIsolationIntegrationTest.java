@@ -272,6 +272,23 @@ class WorkspaceIsolationIntegrationTest {
     }
 
     @Test
+    void emailTemplatesStayInTheirWorkspace() {
+        ResponseEntity<Map> created = call(alice, HttpMethod.POST, "/email-templates",
+            Map.of("name", "Relance", "subject", "Suivi", "body", "Bonjour {{firstName}}"), Map.class);
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        long templateId = ((Number) created.getBody().get("id")).longValue();
+
+        assertThat(call(bob, HttpMethod.GET, "/email-templates", null, List.class).getBody()).isEmpty();
+        assertThat(call(bob, HttpMethod.PUT, "/email-templates/" + templateId,
+            Map.of("name", "Hijacked", "subject", "x", "body", "y"), String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.DELETE, "/email-templates/" + templateId, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.GET, "/email-templates?freelanceId=" + alice.freelanceId(), null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(alice, HttpMethod.GET, "/email-templates", null, List.class).getBody()).hasSize(1);
+    }
+
+    @Test
     void listEndpointsOnlyReturnTheCallersRecords() {
         ResponseEntity<List> bobClients = call(bob, HttpMethod.GET, "/clients", null, List.class);
         assertThat(bobClients.getStatusCode()).isEqualTo(HttpStatus.OK);

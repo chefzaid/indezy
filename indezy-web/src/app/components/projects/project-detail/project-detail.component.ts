@@ -54,6 +54,7 @@ import { NOTE_TEMPLATES } from './note-templates';
 import { StepChecklistComponent } from '../step-checklist/step-checklist.component';
 import { ProjectArchiveActionComponent } from '../project-archive-action/project-archive-action.component';
 import { StepTemplatesComponent } from '../step-templates/step-templates.component';
+import { ProjectEmailButtonComponent } from '../project-email/project-email-button.component';
 
 @Component({
     selector: 'app-project-detail',
@@ -64,6 +65,7 @@ import { StepTemplatesComponent } from '../step-templates/step-templates.compone
         StepChecklistComponent,
         ProjectArchiveActionComponent,
         StepTemplatesComponent,
+        ProjectEmailButtonComponent,
         CommonModule,
         FormsModule,
         RouterModule,

@@ -358,6 +358,14 @@
             </div>
           </ng-template>
         </mat-tab>
+        <!-- Emails Tab -->
+        <mat-tab [label]="'profile.tabs.emails' | translate">
+          <ng-template matTabContent>
+            <div class="tab-content">
+              <app-email-templates-settings />
+            </div>
+          </ng-template>
+        </mat-tab>
         <!-- Account Tab -->
         <mat-tab [label]="'profile.tabs.account' | translate">
           <div class="tab-content">

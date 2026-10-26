@@ -448,6 +448,17 @@ Model helpers:
 - `isFailed()`
 - `isPlanned()`
 
+## EmailTemplate
+
+Table: `email_templates`
+
+Purpose: a message written again and again, with variables the interface fills.
+
+Important fields:
+
+- freelance (owning workspace)
+- name (up to 100 characters, unique per workspace whatever its case), subject (up to 200), body (up to 5,000)
+
 ## ProjectAttachment
 
 Table: `project_attachments`

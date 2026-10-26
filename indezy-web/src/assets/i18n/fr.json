@@ -741,7 +741,8 @@
       "preferences": "Préférences",
       "notifications": "Notifications",
       "offers": "Fil d'offres",
-      "account": "Compte"
+      "account": "Compte",
+      "emails": "E-mails"
     },
     "themes": {
       "light": "Clair",
@@ -1676,5 +1677,57 @@
     "invalidTitle": "Ce lien n'est plus valide",
     "invalidMessage": "La recherche a peut-être été supprimée. Ses emails ne sont plus envoyés.",
     "error": "Les emails n'ont pas pu être arrêtés. Réessayez dans un instant."
+  },
+  "emails": {
+    "builtIn": {
+      "followUp": {
+        "name": "Relance",
+        "subject": "Suite à notre échange sur la mission {{role}}",
+        "body": "Bonjour {{firstName}},\n\nJe reviens vers vous au sujet de la mission {{role}} dont nous avons parlé. Avez-vous du nouveau de votre côté, ou puis-je vous envoyer autre chose pour avancer ?\n\nBien cordialement,\n{{myName}}\n{{myPhone}}"
+      },
+      "rateProposal": {
+        "name": "Proposition de TJM",
+        "subject": "Mon TJM pour la mission {{role}}",
+        "body": "Bonjour {{firstName}},\n\nMerci pour votre intérêt. Pour la mission {{role}} chez {{company}}, mon TJM est de {{rate}} HT.\n\nJe reste disponible pour en discuter.\n\nBien cordialement,\n{{myName}}\n{{myPhone}}"
+      },
+      "availability": {
+        "name": "Annonce de disponibilité",
+        "subject": "Disponible à partir du {{availability}}",
+        "body": "Bonjour {{firstName}},\n\nJe serai disponible pour une nouvelle mission à partir du {{availability}}. Un de vos besoins actuels correspondrait-il à mon profil ?\n\nBien cordialement,\n{{myName}}\n{{myPhone}}"
+      }
+    },
+    "action": "Écrire un e-mail",
+    "title": "E-mail à propos de {{role}}",
+    "template": "Modèle",
+    "recipient": "À",
+    "noRecipient": "Aucun contact",
+    "subject": "Objet",
+    "body": "Message",
+    "copy": "Copier",
+    "copied": "Message copié",
+    "copyError": "Le message n'a pas pu être copié",
+    "open": "Ouvrir dans ma messagerie",
+    "missing": "Certaines variables n'ont pas encore de valeur : complétez-les avant l'envoi.",
+    "loadError": "Les contacts ou les modèles n'ont pas pu être chargés",
+    "settings": {
+      "title": "Modèles d'e-mails",
+      "intro": "Rédigez les messages que vous envoyez souvent. Les variables sont remplies à partir de l'opportunité et du contact quand vous écrivez un e-mail.",
+      "variables": "Variables",
+      "name": "Nom",
+      "add": "Nouveau modèle",
+      "save": "Enregistrer",
+      "saved": "Modèle enregistré",
+      "deleted": "Modèle supprimé",
+      "delete": "Supprimer « {{name}} »",
+      "deleteConfirm": "Supprimer le modèle d'e-mail « {{name}} » ?",
+      "edit": "Modifier « {{name}} »",
+      "cancel": "Annuler",
+      "none": "Aucun modèle personnel pour l'instant : la relance, la proposition de TJM et l'annonce de disponibilité sont toujours proposées.",
+      "nameTaken": "Un modèle porte déjà ce nom",
+      "limit": "Un espace garde au plus 50 modèles d'e-mails",
+      "saveError": "Le modèle n'a pas pu être enregistré",
+      "deleteError": "Le modèle n'a pas pu être supprimé",
+      "loadError": "Les modèles n'ont pas pu être chargés"
+    }
   }
 }

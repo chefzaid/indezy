@@ -1,0 +1,58 @@
+<section class="email-templates">
+  <h3>{{ 'emails.settings.title' | translate }}</h3>
+  <p class="intro">{{ 'emails.settings.intro' | translate }}</p>
+
+  @for (template of templates; track template.id) {
+    <div class="template">
+      <div class="template-text">
+        <span class="template-name">{{ template.name }}</span>
+        <span class="template-subject">{{ template.subject }}</span>
+      </div>
+      <button mat-icon-button type="button" (click)="edit(template)" [attr.aria-label]="'emails.settings.edit' | translate:{ name: template.name }">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button type="button" (click)="remove(template)" [attr.aria-label]="'emails.settings.delete' | translate:{ name: template.name }">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+    </div>
+  } @empty {
+    <p class="none">{{ 'emails.settings.none' | translate }}</p>
+  }
+
+  @if (editing !== null) {
+    <form [formGroup]="form" (ngSubmit)="save()" class="template-form">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'emails.settings.name' | translate }}</mat-label>
+        <input matInput formControlName="name" maxlength="100">
+        @if (form.get('name')?.hasError('taken')) {
+          <mat-error>{{ 'emails.settings.nameTaken' | translate }}</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'emails.subject' | translate }}</mat-label>
+        <input matInput formControlName="subject" maxlength="200">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'emails.body' | translate }}</mat-label>
+        <textarea matInput formControlName="body" rows="8" maxlength="5000"></textarea>
+      </mat-form-field>
+      <div class="variables" [attr.aria-label]="'emails.settings.variables' | translate">
+        <span>{{ 'emails.settings.variables' | translate }}</span>
+        <mat-chip-set>
+          @for (variable of variables; track variable) {
+            <mat-chip (click)="insert(variable)">{{ placeholder(variable) }}</mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+      <div class="actions">
+        <button mat-button type="button" (click)="cancel()">{{ 'emails.settings.cancel' | translate }}</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving">{{ 'emails.settings.save' | translate }}</button>
+      </div>
+    </form>
+  } @else {
+    <button mat-stroked-button type="button" (click)="add()">
+      <mat-icon>add</mat-icon>
+      {{ 'emails.settings.add' | translate }}
+    </button>
+  }
+</section>

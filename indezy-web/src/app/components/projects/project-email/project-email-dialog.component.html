@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>{{ 'emails.title' | translate:{ role: project.role } }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="email-form">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'emails.template' | translate }}</mat-label>
+      <mat-select formControlName="template" (selectionChange)="fill()">
+        @for (template of templates; track template.key) {
+          <mat-option [value]="template.key">{{ template.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'emails.recipient' | translate }}</mat-label>
+      <mat-select formControlName="recipient" (selectionChange)="fill()">
+        @for (contact of contacts; track contact.id) {
+          <mat-option [value]="contact.id">{{ contact.firstName }} {{ contact.lastName }} · {{ contact.email }}</mat-option>
+        }
+        <mat-option [value]="null">{{ 'emails.noRecipient' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'emails.subject' | translate }}</mat-label>
+      <input matInput formControlName="subject">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'emails.body' | translate }}</mat-label>
+      <textarea matInput formControlName="body" rows="10"></textarea>
+    </mat-form-field>
+    @if (missing) {
+      <p class="missing" role="status">{{ 'emails.missing' | translate }}</p>
+    }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="copy()">
+    <mat-icon>content_copy</mat-icon>
+    {{ 'emails.copy' | translate }}
+  </button>
+  <a mat-flat-button color="primary" [href]="mailto">
+    <mat-icon>send</mat-icon>
+    {{ 'emails.open' | translate }}
+  </a>
+</mat-dialog-actions>

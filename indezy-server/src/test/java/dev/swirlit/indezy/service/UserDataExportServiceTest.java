@@ -71,6 +71,9 @@ class UserDataExportServiceTest {
     @Mock
     private ProjectAttachmentService projectAttachmentService;
 
+    @Mock
+    private EmailTemplateService emailTemplateService;
+
     @InjectMocks
     private UserDataExportService userDataExportService;
 
@@ -139,6 +142,7 @@ class UserDataExportServiceTest {
             .contains("\"blockedOfferPublishers\"")
             .contains("\"pipelineTemplates\"")
             .contains("\"projectAttachments\"")
+            .contains("\"emailTemplates\"")
             .contains("\"offerSiteVisits\"")
             .contains("Call Léa")
             .contains("\"via\" : \"PHONE\"")

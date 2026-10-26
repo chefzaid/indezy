@@ -18,6 +18,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-info.component';
 import { BlockedPublishersComponent } from './blocked-publishers/blocked-publishers.component';
+import { EmailTemplatesSettingsComponent } from './email-templates-settings/email-templates-settings.component';
 import { LANGUAGE_STORAGE_KEY, fromIsoDate, getSavedLanguage, toIsoDate } from '../../shared/locale/app-locale';
 import { ThemeService } from '../../shared/theme/theme.service';
 import { passwordMaxBytes } from '../../shared/utils/password-max-bytes';
@@ -41,7 +42,8 @@ import { rejectedPasswordField } from './password-rejection';
     MatDividerModule,
     TranslateModule,
     ProfilePersonalInfoComponent,
-    BlockedPublishersComponent
+    BlockedPublishersComponent,
+    EmailTemplatesSettingsComponent
 ],
     templateUrl: './profile.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,

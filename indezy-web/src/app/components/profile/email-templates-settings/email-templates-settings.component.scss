@@ -1,0 +1,52 @@
+.intro,
+.none {
+  color: var(--app-text-muted);
+}
+
+.template {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.template-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.template-name {
+  font-weight: 500;
+}
+
+.template-subject {
+  font-size: 0.875rem;
+  color: var(--app-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.template-form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+
+.variables {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  mat-chip {
+    cursor: pointer;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
