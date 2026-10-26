@@ -88,7 +88,7 @@ describe('ProfileComponent', () => {
         firstName: 'Ada', lastName: 'Lovelace', email: 'ada@example.com', city: 'Paris', position: 'Tech lead',
         skills: ['Java', 'Angular'], languages: ['Anglais'], targetDailyRate: 650
       }));
-      expect(component.profileForm.value.birthDate).toEqual(new Date('1990-05-12'));
+      expect(component.profileForm.value.birthDate).toEqual(new Date(1990, 4, 12));
       expect(component.profileForm.value.availabilityDate).toEqual(new Date(2026, 10, 2));
       expect(component.preferencesForm.value).toEqual(jasmine.objectContaining({
         theme: 'dark', dateFormat: 'DD/MM/YYYY', itemsPerPage: 50, defaultView: 'projects', autoSave: false, inactivityDays: 30
@@ -150,7 +150,8 @@ describe('ProfileComponent', () => {
     it('saves the profile with ISO dates and confirms when the suggestion inputs did not change', () => {
       const component = create().componentInstance;
       users.updateUserProfile.and.returnValue(of({ ...profile, skills: ['Angular', 'Java'], phone: '0700000000' }));
-      component.profileForm.patchValue({ phone: '0700000000', availabilityDate: new Date(2026, 11, 1) });
+      // The datepicker gives local midnight, whatever the time zone.
+      component.profileForm.patchValue({ phone: '0700000000', birthDate: new Date(1990, 4, 12), availabilityDate: new Date(2026, 11, 1) });
 
       component.onUpdateProfile();
 

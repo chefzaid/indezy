@@ -250,7 +250,7 @@ export class ProfileComponent implements OnInit {
       lastName: profile.lastName,
       email: profile.email,
       phone: profile.phone,
-      birthDate: profile.birthDate ? new Date(profile.birthDate) : null,
+      birthDate: fromIsoDate(profile.birthDate),
       address: profile.address,
       city: profile.city,
       bio: profile.bio,
@@ -290,7 +290,7 @@ export class ProfileComponent implements OnInit {
 
       const updatedProfile: Partial<UserProfile> = {
         ...formValue,
-        birthDate: formValue.birthDate ? formValue.birthDate.toISOString().split('T')[0] : null,
+        birthDate: toIsoDate(formValue.birthDate) ?? null,
         availabilityDate: toIsoDate(formValue.availabilityDate) ?? null
       };
 
