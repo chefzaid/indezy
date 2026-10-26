@@ -327,7 +327,11 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     if (!this.projectId) { return; }
     this.projectService.getById(this.projectId)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(project => this.project = project);
+      .subscribe({
+        // The step is saved: a failed reload keeps the project shown and says its figures may be stale.
+        next: project => this.project = project ?? this.project,
+        error: () => this.notificationService.error('errors.loadingProject')
+      });
   }
 
   isStepDone(step: InterviewStepDto): boolean {

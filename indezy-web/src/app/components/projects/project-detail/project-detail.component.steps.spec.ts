@@ -129,6 +129,27 @@ describe('ProjectDetailComponent steps and journal', () => {
       expect(fixture.componentInstance.project?.totalSteps).toBe(3);
     });
 
+    it('keeps the project shown and says so when its reload fails after a step change', () => {
+      const fixture = create();
+      stepService.updateStatus.and.returnValue(of({ ...interview, status: StepStatus.PLANNED }));
+      projectService.getById.and.returnValue(throwError(() => new Error('down')));
+
+      fixture.componentInstance.setStepStatus(interview, StepStatus.PLANNED);
+
+      expect(fixture.componentInstance.project).toEqual(mission);
+      expect(notifications.error).toHaveBeenCalledWith('errors.loadingProject');
+    });
+
+    it('keeps the project shown when its reload answers nothing', () => {
+      const fixture = create();
+      stepService.updateStatus.and.returnValue(of({ ...interview, status: StepStatus.PLANNED }));
+      projectService.getById.and.returnValue(of(null as unknown as ProjectDto));
+
+      fixture.componentInstance.setStepStatus(interview, StepStatus.PLANNED);
+
+      expect(fixture.componentInstance.project).toEqual(mission);
+    });
+
     it('keeps a step without id or already in that status', () => {
       const component = create().componentInstance;
 
