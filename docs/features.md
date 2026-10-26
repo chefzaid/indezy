@@ -625,14 +625,26 @@ there or on the opportunity's page, puts it back in its column and counts as act
 inactivity period starts again. `INDEZY_PROJECTS_ARCHIVING_ENABLED=false` stops the nightly
 run.
 
-Each card has a checkbox, next to its favorite star, that picks it without opening it. While
-cards are picked, a bar above the board counts them and acts on all of them at once: **Move
-to** a column (Lost asks for the reason first), **Source** gives them one of the workspace's
-sources, **Archive** archives them, and the close button clears the selection. The change goes
-through `PATCH /projects/bulk` (`projectIds`, `action` `STATUS`, `SOURCE` or `ARCHIVE`, with
-`status`, `lostReason` or `sourceId`), which checks that every opportunity and the source
-belong to the caller's workspace and applies it in one transaction; the board then reloads,
-selection cleared.
+Each card has a checkbox, next to its favorite star, that picks it without opening it; the
+projects list has one on each card too, and one beside the results count that picks the whole
+page. While opportunities are picked, a bar above the board or the list counts them and acts on
+all of them at once: **Move to** a column (Lost asks for the reason first), **Source** gives them
+one of the workspace's sources, **Add a tag** adds a typed tag to each tech stack that lacks it
+(case aside; a comma becomes a space, and a tech stack that would pass 255 characters is left
+as it is), **Archive** archives them, **Delete** deletes them once confirmed (with their notes,
+files and activity reports, as a single delete does), and the close button clears the
+selection. The change goes through `PATCH /projects/bulk` (`projectIds`, up to 200, `action`
+`STATUS`, `SOURCE`, `TAG`, `ARCHIVE` or `DELETE`, with `status`, `lostReason`, `sourceId` or
+`tag`), which checks that every opportunity and the source belong to the caller's workspace and
+applies it in one transaction, answering how many changed; the page then reloads, selection
+cleared.
+
+The clients and contacts lists have a checkbox column too (its header picks the page). Their bar
+counts the picked rows and deletes them once confirmed: `POST /clients/bulk-delete` and
+`POST /contacts/bulk-delete` (`ids`, up to 200, all in the caller's workspace) answer how many
+were `deleted` and `kept`. A client still linked to missions is kept, as a single delete
+refuses it, and the message says how many; a client goes with its contacts, a contact with its
+exchanges.
 
 The board has five status-driven columns: Contact, Tests & Entretiens, Offre, Accepté and Perdu / Abandonné. Intermediate recruitment steps (technical test, client interview...) are tracked as interview steps inside the Tests & Entretiens column. The board follows the season selected on the dashboard (`GET /projects/kanban/{freelanceId}?seasonId=`), and cards quick-added to it join that season.
 

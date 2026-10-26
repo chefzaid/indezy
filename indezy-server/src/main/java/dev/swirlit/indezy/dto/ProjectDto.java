@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.dto;
 
+import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
@@ -7,6 +8,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -23,6 +25,7 @@ public class ProjectDto {
 
     private ProjectStatus status;
     private String description;
+    @Size(max = Project.TECH_STACK_MAX)
     private String techStack;
 
     @NotNull(message = "Daily rate is required")

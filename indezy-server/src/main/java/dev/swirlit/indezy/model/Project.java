@@ -22,6 +22,9 @@ import java.util.List;
 @Setter
 public class Project extends BaseEntity {
 
+    /** The tags of the tech stack, comma-separated, fit in its column. */
+    public static final int TECH_STACK_MAX = 255;
+
     @NotBlank
     @Column(name = "role", nullable = false)
     private String role;
@@ -34,7 +37,7 @@ public class Project extends BaseEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "tech_stack")
+    @Column(name = "tech_stack", length = TECH_STACK_MAX)
     private String techStack;
 
     @NotNull

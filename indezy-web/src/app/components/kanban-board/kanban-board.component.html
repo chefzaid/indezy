@@ -10,8 +10,8 @@
   </div>
 
   @if (selectedIds.length > 0) {
-    <app-kanban-selection-bar [projectIds]="selectedIds" (done)="loadKanbanBoard()" (clear)="clearSelection()">
-    </app-kanban-selection-bar>
+    <app-project-selection-bar [projectIds]="selectedIds" (done)="loadKanbanBoard()" (clear)="clearSelection()">
+    </app-project-selection-bar>
   }
 
   @if (isLoading) {

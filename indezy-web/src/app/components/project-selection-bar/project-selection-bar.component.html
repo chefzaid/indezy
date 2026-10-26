@@ -23,9 +23,28 @@
       <button mat-menu-item disabled>{{ 'kanban.selection.noSources' | translate }}</button>
     }
   </mat-menu>
+  @if (tagging) {
+    <mat-form-field appearance="outline" class="tag-field" subscriptSizing="dynamic">
+      <mat-label>{{ 'kanban.selection.tagLabel' | translate }}</mat-label>
+      <input matInput [formControl]="tag" [maxlength]="tagMax" (keydown.enter)="$event.preventDefault(); addTag()"
+        (keydown.escape)="tagging = false" #tagInput>
+    </mat-form-field>
+    <button mat-flat-button type="button" (click)="addTag()" [disabled]="busy || !tag.value.trim()">
+      {{ 'kanban.selection.tagApply' | translate }}
+    </button>
+  } @else {
+    <button mat-stroked-button type="button" (click)="startTagging()" [disabled]="busy">
+      <mat-icon>sell</mat-icon>
+      {{ 'kanban.selection.tag' | translate }}
+    </button>
+  }
   <button mat-stroked-button type="button" (click)="archive()" [disabled]="busy">
     <mat-icon>archive</mat-icon>
     {{ 'kanban.selection.archive' | translate }}
+  </button>
+  <button mat-stroked-button type="button" color="warn" class="delete-selection" (click)="delete()" [disabled]="busy">
+    <mat-icon>delete</mat-icon>
+    {{ 'kanban.selection.delete' | translate }}
   </button>
   <button mat-icon-button type="button" (click)="clear.emit()" [attr.aria-label]="'kanban.selection.clear' | translate">
     <mat-icon>close</mat-icon>

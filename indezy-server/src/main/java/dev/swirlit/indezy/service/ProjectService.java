@@ -3,7 +3,6 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.constants.UserPreferenceDefaults;
 import dev.swirlit.indezy.dto.KanbanBoardDto;
-import dev.swirlit.indezy.dto.ProjectBulkUpdateRequest;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.ProjectMapper;
@@ -39,7 +38,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
@@ -292,40 +290,6 @@ public class ProjectService {
         Project updatedProject = projectRepository.save(project);
         log.info("Updated project status with id: {} to status: {}", id, status);
         return projectMapper.toDto(updatedProject);
-    }
-
-    /**
-     * Applies one change to several opportunities in one transaction: a new status (and lost reason), a source, or the
-     * archive. The caller has checked that they and the source belong to its workspace. Returns how many changed.
-     */
-    public int bulkUpdate(ProjectBulkUpdateRequest request) {
-        if (request.action() == ProjectBulkUpdateRequest.Action.STATUS && request.status() == null) {
-            throw new IllegalArgumentException("A status is required to change the status");
-        }
-        if (request.action() == ProjectBulkUpdateRequest.Action.SOURCE && request.sourceId() == null) {
-            throw new IllegalArgumentException("A source is required to assign a source");
-        }
-        Source source = request.action() == ProjectBulkUpdateRequest.Action.SOURCE ?
-            sourceRepository.findById(request.sourceId()).orElseThrow(() ->
-                new ResourceNotFoundException(String.format("Source not found with id: %d", request.sourceId()))) : null;
-        LocalDateTime now = LocalDateTime.now();
-        Consumer<Project> change = switch (request.action()) {
-            case STATUS -> project -> {
-                project.setStatus(request.status());
-                project.setLostReason(ProjectStatus.LOST.equals(request.status()) ? request.lostReason() : null);
-            };
-            case SOURCE -> project -> project.setSource(source);
-            case ARCHIVE -> project -> {
-                if (project.getArchivedAt() == null) {
-                    project.setArchivedAt(now);
-                }
-            };
-        };
-        List<Project> projects = projectRepository.findAllById(request.projectIds());
-        projects.forEach(change);
-        projectRepository.saveAll(projects);
-        log.info("Bulk {} on {} projects", request.action(), projects.size());
-        return projects.size();
     }
 
     /** Kanban board of a workspace, limited to one season's opportunities when a season is given. */

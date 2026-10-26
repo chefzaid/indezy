@@ -312,7 +312,14 @@
 
   <!-- Projects Grid -->
   @if (!isLoading && filteredProjects.length > 0) {
+    @if (selection.size > 0) {
+      <app-project-selection-bar [projectIds]="selection.ids" (done)="loadProjects()" (clear)="selection.clear()">
+      </app-project-selection-bar>
+    }
     <div class="results-summary">
+      <mat-checkbox class="select-page" [checked]="selection.hasAll(pagedProjectIds)" [indeterminate]="selection.hasSome(pagedProjectIds)"
+        (change)="selection.toggleAll(pagedProjectIds)" [aria-label]="'common.selection.selectAll' | translate">
+      </mat-checkbox>
       {{ 'projects.resultsCount' | translate:{ count: filteredProjects.length } }}
     </div>
     <div class="projects-grid">
@@ -403,6 +410,9 @@
             }
           </mat-card-content>
           <mat-card-actions class="project-actions">
+            <mat-checkbox class="select-project" [checked]="selection.has(project.id)" (change)="selection.toggle(project.id)"
+              [aria-label]="'common.selection.select' | translate:{ name: project.role }">
+            </mat-checkbox>
             <button mat-button [routerLink]="['/projects', project.id]">
               <mat-icon>visibility</mat-icon>
               {{ 'common.view' | translate }}

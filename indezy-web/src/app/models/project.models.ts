@@ -285,14 +285,16 @@ export interface CreateProjectDto {
   seasonId?: number;
 }
 
-/** One change applied to several opportunities at once, from the Kanban board's selection. */
+/** One change applied to several opportunities at once, from the Kanban board's or the list's selection. */
 export interface ProjectBulkUpdate {
   projectIds: number[];
-  action: 'STATUS' | 'SOURCE' | 'ARCHIVE';
+  action: 'STATUS' | 'SOURCE' | 'TAG' | 'ARCHIVE' | 'DELETE';
   status?: ProjectStatus;
   /** Why they were lost, when moved to LOST. */
   lostReason?: LostReason;
   sourceId?: number;
+  /** The tag added to their tech stack. */
+  tag?: string;
 }
 
 /** A file kept with an opportunity; {@code inline} when the browser may show it in the page (PDF and images). */

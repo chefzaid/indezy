@@ -1,5 +1,7 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.dto.BulkDeleteRequest;
+import dev.swirlit.indezy.dto.BulkDeleteResult;
 import dev.swirlit.indezy.dto.ClientDto;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.ClientService;
@@ -65,5 +67,12 @@ public class ClientController {
         accessGuard.requireClient(id);
         clientService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Delete several clients, keeping those still linked to missions")
+    @PostMapping("/bulk-delete")
+    public BulkDeleteResult deleteAll(@Valid @RequestBody BulkDeleteRequest request) {
+        request.ids().forEach(accessGuard::requireClient);
+        return clientService.deleteAll(request.ids());
     }
 }

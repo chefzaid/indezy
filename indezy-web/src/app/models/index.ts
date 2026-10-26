@@ -18,3 +18,4 @@ export * from './season.models';
 export * from './activity-report.models';
 
 export * from './offer.models';
+export * from './bulk.models';

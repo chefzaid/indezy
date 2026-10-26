@@ -56,7 +56,13 @@
     "additionalInfo": "Informations complémentaires",
     "loadingInfo": "Chargement des informations...",
     "loadingData": "Chargement des données...",
-    "pleaseWait": "Veuillez patienter..."
+    "pleaseWait": "Veuillez patienter...",
+    "selection": {
+      "count": "{{count}} sélectionné(s)",
+      "clear": "Vider la sélection",
+      "selectAll": "Tout sélectionner",
+      "select": "Sélectionner {{name}}"
+    }
   },
   "nav": {
     "dashboard": "Tableau de bord",
@@ -568,7 +574,11 @@
     "blacklistedPlural": "Sur liste noire",
     "missionsShort": "Missions",
     "resultsCount": "{{count}} client(s)",
-    "deleteInUse": "Ce client est encore lié à des missions ou des contacts. Supprimez-les ou réaffectez-les d'abord."
+    "deleteInUse": "Ce client est encore lié à des missions ou des contacts. Supprimez-les ou réaffectez-les d'abord.",
+    "confirmBulkDelete": "Supprimer ces {{count}} clients et leurs contacts ? Ceux encore liés à des missions sont conservés.",
+    "bulkDeleted": "{{deleted}} client(s) supprimé(s)",
+    "bulkDeletedSomeKept": "{{deleted}} client(s) supprimé(s) ; {{kept}} conservé(s) car des missions y sont liées",
+    "bulkDeleteError": "Les clients sélectionnés n'ont pas pu être supprimés"
   },
   "contacts": {
     "title": "Gestion des Contacts",
@@ -648,7 +658,11 @@
         "ANSWERED": "A répondu",
         "UNANSWERED": "Sans réponse"
       }
-    }
+    },
+    "confirmBulkDelete": "Supprimer ces {{count}} contacts et leurs échanges ?",
+    "bulkDeleted": "{{deleted}} contact(s) supprimé(s)",
+    "bulkDeletedSomeKept": "{{deleted}} contact(s) supprimé(s) ; {{kept}} conservé(s)",
+    "bulkDeleteError": "Les contacts sélectionnés n'ont pas pu être supprimés"
   },
   "sources": {
     "title": "Gestion des Sources",
@@ -716,7 +730,13 @@
       "clear": "Vider la sélection",
       "lostRole": "{{count}} opportunités",
       "done": "{{count}} opportunité(s) mise(s) à jour",
-      "error": "Les opportunités sélectionnées n'ont pas pu être mises à jour"
+      "error": "Les opportunités sélectionnées n'ont pas pu être mises à jour",
+      "tag": "Ajouter un tag",
+      "tagLabel": "Tag",
+      "tagApply": "Ajouter",
+      "delete": "Supprimer",
+      "confirmDelete": "Supprimer ces {{count}} opportunités, avec leurs notes, fichiers et comptes rendus d'activité ? C'est définitif.",
+      "deleted": "{{count}} opportunité(s) supprimée(s)"
     }
   },
   "profile": {

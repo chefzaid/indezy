@@ -216,8 +216,28 @@ class WorkspaceIsolationIntegrationTest {
         assertThat(call(bob, HttpMethod.PATCH, "/projects/bulk",
             Map.of("projectIds", List.of(bobProjectId), "action", "SOURCE", "sourceId", sourceId), String.class).getStatusCode())
             .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.PATCH, "/projects/bulk",
+            Map.of("projectIds", List.of(bobProjectId, projectId), "action", "DELETE"), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(alice, HttpMethod.GET, "/projects/" + projectId, null, Map.class).getBody().get("archivedAt")).isNull();
         assertThat(call(bob, HttpMethod.GET, "/projects/" + bobProjectId, null, Map.class).getBody().get("archivedAt")).isNull();
+    }
+
+    @Test
+    void anotherAccountCannotDeleteClientsOrContactsInBulk() {
+        long aliceContact = idOf(call(alice, HttpMethod.POST, "/contacts",
+            Map.of("firstName", "Claire", "clientId", aliceClientId, "freelanceId", alice.freelanceId()), Map.class));
+        long bobClient = idOf(call(bob, HttpMethod.POST, "/clients",
+            Map.of("companyName", "Bob Corp", "city", "Lyon", "isFinal", true, "freelanceId", bob.freelanceId()), Map.class));
+
+        assertThat(call(bob, HttpMethod.POST, "/clients/bulk-delete", Map.of("ids", List.of(bobClient, aliceClientId)),
+            String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.POST, "/contacts/bulk-delete", Map.of("ids", List.of(aliceContact)),
+            String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.GET, "/clients/" + aliceClientId, null, String.class).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(alice, HttpMethod.GET, "/contacts/" + aliceContact, null, String.class).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(bob, HttpMethod.POST, "/clients/bulk-delete", Map.of("ids", List.of(bobClient)), Map.class).getBody())
+            .containsEntry("deleted", 1);
     }
 
     @Test

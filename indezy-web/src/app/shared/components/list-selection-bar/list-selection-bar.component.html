@@ -1,0 +1,10 @@
+<div class="selection-bar" role="toolbar" [attr.aria-label]="'common.selection.count' | translate:{ count: count }">
+  <span class="selection-count">{{ 'common.selection.count' | translate:{ count: count } }}</span>
+  <button mat-stroked-button type="button" color="warn" class="delete-selection" (click)="delete.emit()" [disabled]="busy">
+    <mat-icon>delete</mat-icon>
+    {{ 'common.delete' | translate }}
+  </button>
+  <button mat-icon-button type="button" (click)="clear.emit()" [attr.aria-label]="'common.selection.clear' | translate">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>

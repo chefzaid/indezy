@@ -8,6 +8,7 @@ import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.DashboardStatsService;
+import dev.swirlit.indezy.service.ProjectBulkService;
 import dev.swirlit.indezy.service.ProjectExportService;
 import dev.swirlit.indezy.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +31,7 @@ import java.util.Map;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final ProjectBulkService projectBulkService;
     private final DashboardStatsService dashboardStatsService;
     private final ProjectExportService projectExportService;
     private final AccessGuard accessGuard;
@@ -99,14 +101,14 @@ public class ProjectController {
         return projectService.updateStatus(id, status, lostReason);
     }
 
-    @Operation(summary = "Change the status or source of several opportunities, or archive them, at once")
+    @Operation(summary = "Change the status, source or tags of several opportunities, or archive or delete them, at once")
     @PatchMapping("/bulk")
     public Map<String, Integer> bulkUpdate(@Valid @RequestBody ProjectBulkUpdateRequest request) {
         request.projectIds().forEach(accessGuard::requireProject);
         if (request.action() == ProjectBulkUpdateRequest.Action.SOURCE) {
             accessGuard.requireSourceIfPresent(request.sourceId());
         }
-        return Map.of("updated", projectService.bulkUpdate(request));
+        return Map.of("updated", projectBulkService.apply(request));
     }
 
     @Operation(summary = "Archive an opportunity: it leaves the Kanban board and keeps its status")

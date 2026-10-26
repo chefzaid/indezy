@@ -1,5 +1,7 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.dto.BulkDeleteRequest;
+import dev.swirlit.indezy.dto.BulkDeleteResult;
 import dev.swirlit.indezy.dto.ContactDto;
 import dev.swirlit.indezy.dto.ContactImportRequest;
 import dev.swirlit.indezy.dto.ContactImportResultDto;
@@ -87,5 +89,12 @@ public class ContactController {
                                                  @Valid @RequestBody ContactImportRequest request) {
         accessGuard.requireClient(clientId);
         return contactImportService.importForClient(clientId, request.getContent());
+    }
+
+    @Operation(summary = "Delete several contacts, with their exchanges")
+    @PostMapping("/bulk-delete")
+    public BulkDeleteResult deleteAll(@Valid @RequestBody BulkDeleteRequest request) {
+        request.ids().forEach(accessGuard::requireContact);
+        return contactService.deleteAll(request.ids());
     }
 }

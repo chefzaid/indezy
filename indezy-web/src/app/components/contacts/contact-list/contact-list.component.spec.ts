@@ -26,7 +26,7 @@ describe('ContactListComponent', () => {
                     { id: 2, companyName: 'Zenika', city: 'Paris', isFinal: false },
                     { id: 1, companyName: 'Acme', city: 'Lyon', isFinal: true }
                   ])): ComponentFixture<ContactListComponent> {
-    contacts = jasmine.createSpyObj('ContactService', ['getForCurrentFreelance', 'delete']);
+    contacts = jasmine.createSpyObj('ContactService', ['getForCurrentFreelance', 'delete', 'deleteAll']);
     clients = jasmine.createSpyObj('ClientService', ['getForCurrentFreelance']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
@@ -194,5 +194,20 @@ describe('ContactListComponent', () => {
 
       expect(notifications.error).toHaveBeenCalledWith('errors.deletingContact');
     });
+  });
+
+  it('deletes the picked contacts once confirmed', () => {
+    const fixture = create();
+    const element = fixture.nativeElement as HTMLElement;
+    contacts.deleteAll.and.returnValue(of({ deleted: 1, kept: 0 }));
+    confirm.confirm.and.returnValue(of(true));
+
+    element.querySelector<HTMLInputElement>('td.select-cell input')!.click();
+    fixture.detectChanges();
+    (element.querySelector('app-list-selection-bar .delete-selection') as HTMLButtonElement).click();
+
+    expect(contacts.deleteAll).toHaveBeenCalledWith([2]);
+    expect(notifications.success).toHaveBeenCalledWith('contacts.bulkDeleted', 5000, { deleted: 1, kept: 0 });
+    expect(navigate).not.toHaveBeenCalled();
   });
 });

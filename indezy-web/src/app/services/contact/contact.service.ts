@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ContactDto, ContactInteraction, ContactInteractions } from '../../models/contact.models';
 import { AuthService } from '../auth/auth.service';
+import { BulkDeleteResult } from '../../models/bulk.models';
 
 export interface ContactImportResult {
   imported: number;
@@ -50,6 +51,11 @@ export class ContactService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/${id}`);
+  }
+
+  /** Deletes the picked contacts, with their exchanges. */
+  deleteAll(ids: number[]): Observable<BulkDeleteResult> {
+    return this.http.post<BulkDeleteResult>(`${this.API_URL}/bulk-delete`, { ids });
   }
 
   /** Imports contacts from a CSV or vCard payload under the given client. */

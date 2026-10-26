@@ -309,14 +309,14 @@ describe('KanbanBoardComponent', () => {
     }
 
     it('picks cards with their checkbox and shows the selection bar', () => {
-      expect(fixture.nativeElement.querySelector('app-kanban-selection-bar')).toBeNull();
+      expect(fixture.nativeElement.querySelector('app-project-selection-bar')).toBeNull();
 
       checkboxes()[1].click();
       checkboxes()[0].click();
       fixture.detectChanges();
 
       expect(component.selectedIds).toEqual([99, 42]);
-      expect(fixture.nativeElement.querySelector('app-kanban-selection-bar')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('app-project-selection-bar')).not.toBeNull();
       expect(fixture.nativeElement.querySelectorAll('.project-card.selected').length).toBe(2);
 
       checkboxes()[1].click();

@@ -40,6 +40,8 @@ import { ProjectDto, User, FreelanceDto, ProjectStatus, PROJECT_STATUS_COLORS } 
 import { TravelMode, ProjectCommuteDto, CommuteInfoDto } from '../../../models/commute.models';
 import { KeyboardShortcutsService } from '../../../shared/shortcuts/keyboard-shortcuts.service';
 import { saveBlob } from '../../../shared/utils/download-file';
+import { IdSelection } from '../../../shared/utils/id-selection';
+import { ProjectSelectionBarComponent } from '../../project-selection-bar/project-selection-bar.component';
 
 @Component({
     selector: 'app-project-list',
@@ -64,11 +66,12 @@ import { saveBlob } from '../../../shared/utils/download-file';
         MatButtonToggleModule,
         MatTooltipModule,
         MatPaginatorModule,
-        TranslateModule
+        TranslateModule,
+        ProjectSelectionBarComponent
     ],
     templateUrl: './project-list.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrls: ['./project-list.component.scss']
+    styleUrls: ['./project-list.component.scss', './project-list-rates.component.scss']
 })
 export class ProjectListComponent implements OnInit {
   @ViewChild('projectSearch') private projectSearch?: ElementRef<HTMLInputElement>;
@@ -78,6 +81,12 @@ export class ProjectListComponent implements OnInit {
   filteredProjects: ProjectDto[] = [];
   /** The slice of filteredProjects shown on the current page. */
   pagedProjects: ProjectDto[] = [];
+  /** The opportunities picked for a change applied to all of them at once. */
+  readonly selection = new IdSelection();
+
+  get pagedProjectIds(): (number | undefined)[] {
+    return this.pagedProjects.map(project => project.id);
+  }
   pageIndex = 0;
   pageSize = 12;
   readonly pageSizeOptions = [12, 24, 48];
@@ -196,6 +205,7 @@ export class ProjectListComponent implements OnInit {
     this.projectService.getByFreelanceId(this.currentUser.id).subscribe({
       next: (projects) => {
         this.projects = projects;
+        this.selection.retain(projects.map(project => project.id));
         this.isLoading = false;
         this.applyFilters();
       },

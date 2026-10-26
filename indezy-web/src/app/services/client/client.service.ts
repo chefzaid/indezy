@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ClientDto, CreateClientDto, UpdateClientDto } from '../../models/client.models';
 import { AuthService } from '../auth/auth.service';
+import { BulkDeleteResult } from '../../models/bulk.models';
 
 @Injectable({
   providedIn: 'root'
@@ -38,5 +39,10 @@ export class ClientService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/${id}`);
+  }
+
+  /** Deletes the picked clients, keeping those still linked to missions. */
+  deleteAll(ids: number[]): Observable<BulkDeleteResult> {
+    return this.http.post<BulkDeleteResult>(`${this.API_URL}/bulk-delete`, { ids });
   }
 }

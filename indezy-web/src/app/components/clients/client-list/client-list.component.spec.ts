@@ -23,7 +23,7 @@ describe('ClientListComponent', () => {
   const all = [acme, capgemini, bnp];
 
   function create(load: Observable<ClientDto[]> = of(all)): ComponentFixture<ClientListComponent> {
-    clients = jasmine.createSpyObj('ClientService', ['getForCurrentFreelance', 'delete']);
+    clients = jasmine.createSpyObj('ClientService', ['getForCurrentFreelance', 'delete', 'deleteAll']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     clients.getForCurrentFreelance.and.returnValue(load);
@@ -201,5 +201,46 @@ describe('ClientListComponent', () => {
       component.deleteClient(acme);
       expect(notifications.error).toHaveBeenCalledWith('errors.deletingClient', 5000);
     });
+  });
+
+  it('deletes the picked clients once confirmed, saying how many were kept for their missions', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const element = fixture.nativeElement as HTMLElement;
+    clients.deleteAll.and.returnValues(of({ deleted: 2, kept: 1 }), of({ deleted: 1, kept: 0 }), throwError(() => new Error('down')));
+    confirm.confirm.and.returnValues(of(false), of(true), of(true), of(true));
+
+    element.querySelector<HTMLInputElement>('th.select-cell input')!.click();
+    fixture.detectChanges();
+    expect(component.selection.size).toBe(3);
+    const bar = () => element.querySelector('app-list-selection-bar .delete-selection') as HTMLButtonElement;
+    bar().click();
+    expect(clients.deleteAll).not.toHaveBeenCalled();
+
+    bar().click();
+    expect(clients.deleteAll.calls.argsFor(0)[0].sort()).toEqual([1, 2, 3]);
+    expect(notifications.success).toHaveBeenCalledWith('clients.bulkDeletedSomeKept', 5000, { deleted: 2, kept: 1 });
+    expect(component.selection.size).toBe(0);
+    expect(clients.getForCurrentFreelance).toHaveBeenCalledTimes(2);
+
+    element.querySelector<HTMLInputElement>('td.select-cell input')!.click();
+    component.deleteSelected();
+    expect(notifications.success).toHaveBeenCalledWith('clients.bulkDeleted', 5000, { deleted: 1, kept: 0 });
+    component.selection.toggle(2);
+    component.deleteSelected();
+    expect(notifications.error).toHaveBeenCalledWith('clients.bulkDeleteError');
+    expect(component.deletingSelection).toBe(false);
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('forgets picked clients that are gone after a reload', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    component.selection.toggleAll([1, 2]);
+    clients.getForCurrentFreelance.and.returnValue(of([acme]));
+
+    component.loadClients();
+
+    expect(component.selection.ids).toEqual([1]);
   });
 });

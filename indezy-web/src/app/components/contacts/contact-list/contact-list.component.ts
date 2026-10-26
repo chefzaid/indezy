@@ -22,6 +22,9 @@ import { ClientService } from '../../../services/client/client.service';
 import { ContactDto, ClientDto } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { IdSelection } from '../../../shared/utils/id-selection';
+import { ListSelectionBarComponent } from '../../../shared/components/list-selection-bar/list-selection-bar.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { relativeDay } from '../../../shared/utils/relative-time';
 
 @Component({
@@ -41,7 +44,9 @@ import { relativeDay } from '../../../shared/utils/relative-time';
     MatDialogModule,
     MatTooltipModule,
     TranslateModule,
-    DatePipe
+    DatePipe,
+    MatCheckboxModule,
+    ListSelectionBarComponent
 ],
     templateUrl: './contact-list.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -55,7 +60,10 @@ export class ContactListComponent implements OnInit, OnDestroy {
   searchQuery = '';
   selectedClient: number | '' = '';
 
-  displayedColumns: string[] = ['name', 'email', 'phone', 'client', 'lastContact', 'actions'];
+  displayedColumns: string[] = ['select', 'name', 'email', 'phone', 'client', 'lastContact', 'actions'];
+  /** The contacts picked to delete at once. */
+  readonly selection = new IdSelection();
+  deletingSelection = false;
 
   private readonly locale = inject(LOCALE_ID);
   private readonly destroy$ = new Subject<void>();
@@ -94,6 +102,7 @@ export class ContactListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (contacts) => {
           this.contacts = [...contacts].sort((a, b) => this.getFullName(a).localeCompare(this.getFullName(b)));
+          this.selection.retain(contacts.map(item => item.id));
           this.isLoading = false;
           this.applyFilters();
         },
@@ -201,5 +210,37 @@ export class ContactListComponent implements OnInit, OnDestroy {
   /** How long ago the contact's latest exchange was, in words ("il y a 3 semaines"). */
   lastContact(contact: ContactDto): string {
     return contact.lastContactedOn ? relativeDay(contact.lastContactedOn, this.locale) : '';
+  }
+
+  get pageIds(): (number | undefined)[] {
+    return this.filteredContacts.map(item => item.id);
+  }
+
+  /** Deletes the picked contacts once confirmed. */
+  deleteSelected(): void {
+    const ids = this.selection.ids;
+    this.confirmDialog.confirm({
+      messageKey: 'contacts.confirmBulkDelete',
+      messageParams: { count: ids.length },
+      confirmKey: 'common.delete',
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+      this.deletingSelection = true;
+      this.contactService.deleteAll(ids).subscribe({
+        next: ({ deleted, kept }) => {
+          this.deletingSelection = false;
+          this.notificationService.success(kept ? 'contacts.bulkDeletedSomeKept' : 'contacts.bulkDeleted', 5000, { deleted, kept });
+          this.selection.clear();
+          this.loadContacts();
+        },
+        error: () => {
+          this.deletingSelection = false;
+          this.notificationService.error('contacts.bulkDeleteError');
+        }
+      });
+    });
   }
 }

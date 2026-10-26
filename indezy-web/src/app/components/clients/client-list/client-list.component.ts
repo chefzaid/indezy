@@ -18,6 +18,9 @@ import { ClientDto } from '../../../models';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { IdSelection } from '../../../shared/utils/id-selection';
+import { ListSelectionBarComponent } from '../../../shared/components/list-selection-bar/list-selection-bar.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 export type ClientTypeFilter = 'ALL' | 'FINAL' | 'ESN' | 'BLACKLISTED';
 export type ClientSortField = 'name' | 'city' | 'rating' | 'projects';
@@ -54,7 +57,9 @@ const DEFAULT_FILTERS: ClientFilterValues = {
     MatTooltipModule,
     MatPaginatorModule,
     LoadingComponent,
-    TranslateModule
+    TranslateModule,
+    MatCheckboxModule,
+    ListSelectionBarComponent
 ],
     templateUrl: './client-list.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -65,7 +70,10 @@ export class ClientListComponent implements OnInit, OnDestroy {
   filteredClients: ClientDto[] = [];
   pagedClients: ClientDto[] = [];
   cities: string[] = [];
-  displayedColumns: string[] = ['name', 'type', 'city', 'projects', 'contacts', 'actions'];
+  displayedColumns: string[] = ['select', 'name', 'type', 'city', 'projects', 'contacts', 'actions'];
+  /** The clients picked to delete at once. */
+  readonly selection = new IdSelection();
+  deletingSelection = false;
   isLoading = false;
 
   pageIndex = 0;
@@ -120,6 +128,7 @@ export class ClientListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (clients) => {
           this.clients = clients;
+          this.selection.retain(clients.map(item => item.id));
           this.cities = [...new Set(clients.map(client => client.city).filter(Boolean))]
             .sort((a, b) => a.localeCompare(b));
           this.isLoading = false;
@@ -242,5 +251,37 @@ export class ClientListComponent implements OnInit, OnDestroy {
     this.pageIndex = Math.min(this.pageIndex, lastPage);
     const start = this.pageIndex * this.pageSize;
     this.pagedClients = this.filteredClients.slice(start, start + this.pageSize);
+  }
+
+  get pageIds(): (number | undefined)[] {
+    return this.pagedClients.map(item => item.id);
+  }
+
+  /** Deletes the picked clients once confirmed, and says how many were kept for their missions. */
+  deleteSelected(): void {
+    const ids = this.selection.ids;
+    this.confirmDialog.confirm({
+      messageKey: 'clients.confirmBulkDelete',
+      messageParams: { count: ids.length },
+      confirmKey: 'common.delete',
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+      this.deletingSelection = true;
+      this.clientService.deleteAll(ids).subscribe({
+        next: ({ deleted, kept }) => {
+          this.deletingSelection = false;
+          this.notificationService.success(kept ? 'clients.bulkDeletedSomeKept' : 'clients.bulkDeleted', 5000, { deleted, kept });
+          this.selection.clear();
+          this.loadClients();
+        },
+        error: () => {
+          this.deletingSelection = false;
+          this.notificationService.error('clients.bulkDeleteError');
+        }
+      });
+    });
   }
 }

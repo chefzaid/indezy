@@ -7,39 +7,43 @@ import { AuthService } from '../../services/auth/auth.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ProjectService } from '../../services/project/project.service';
 import { SourceService } from '../../services/source/source.service';
-import { KanbanSelectionBarComponent } from './kanban-selection-bar.component';
+import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
+import { ProjectSelectionBarComponent } from './project-selection-bar.component';
 import en from '../../../assets/i18n/en.json';
 
-describe('KanbanSelectionBarComponent', () => {
+describe('ProjectSelectionBarComponent', () => {
   let projects: jasmine.SpyObj<ProjectService>;
   let sources: jasmine.SpyObj<SourceService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let dialog: jasmine.SpyObj<MatDialog>;
+  let confirm: jasmine.SpyObj<ConfirmDialogService>;
   const boards: SourceDto[] = [
     { id: 3, name: 'Malt', type: 'JOB_BOARD' } as SourceDto,
     { id: 2, name: 'LinkedIn', type: 'SOCIAL_MEDIA' } as SourceDto
   ];
 
-  function create(user: { id: number } | null = { id: 7 }): ComponentFixture<KanbanSelectionBarComponent> {
+  function create(user: { id: number } | null = { id: 7 }): ComponentFixture<ProjectSelectionBarComponent> {
     projects = jasmine.createSpyObj('ProjectService', ['bulkUpdate']);
     sources = jasmine.createSpyObj('SourceService', ['getByFreelanceId']);
     sources.getByFreelanceId.and.returnValue(of(boards));
     notifications = jasmine.createSpyObj('NotificationService', ['successText', 'error']);
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
+    confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     TestBed.configureTestingModule({
-      imports: [KanbanSelectionBarComponent, TranslateModule.forRoot()],
+      imports: [ProjectSelectionBarComponent, TranslateModule.forRoot()],
       providers: [
         { provide: ProjectService, useValue: projects },
         { provide: SourceService, useValue: sources },
         { provide: AuthService, useValue: { getUser: () => user } },
         { provide: NotificationService, useValue: notifications },
-        { provide: MatDialog, useValue: dialog }
+        { provide: MatDialog, useValue: dialog },
+        { provide: ConfirmDialogService, useValue: confirm }
       ]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
     translate.use('en');
-    const fixture = TestBed.createComponent(KanbanSelectionBarComponent);
+    const fixture = TestBed.createComponent(ProjectSelectionBarComponent);
     fixture.componentRef.setInput('projectIds', [4, 9]);
     fixture.detectChanges();
     return fixture;
@@ -123,5 +127,48 @@ describe('KanbanSelectionBarComponent', () => {
     (fixture.nativeElement.querySelector('button[aria-label="Clear the selection"]') as HTMLButtonElement).click();
 
     expect(cleared).toBeTrue();
+  });
+
+  it('adds a typed tag, without commas, from a field that takes the focus', async () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const element = fixture.nativeElement as HTMLElement;
+    projects.bulkUpdate.and.returnValue(of({ updated: 1 }));
+
+    Array.from(element.querySelectorAll('button')).find(button => button.textContent!.includes('Add a tag'))!.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const input = element.querySelector<HTMLInputElement>('.tag-field input')!;
+    expect(document.activeElement).toBe(input);
+    component.addTag();
+    expect(projects.bulkUpdate).not.toHaveBeenCalled();
+
+    component.tag.setValue(' Spring, Boot ');
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    fixture.detectChanges();
+
+    expect(projects.bulkUpdate).toHaveBeenCalledWith({ action: 'TAG', tag: 'Spring  Boot', projectIds: [4, 9] });
+    expect(component.tagging).toBe(false);
+    expect(element.querySelector('.tag-field')).toBeNull();
+
+    component.startTagging();
+    fixture.detectChanges();
+    element.querySelector<HTMLInputElement>('.tag-field input')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(component.tagging).toBe(false);
+  });
+
+  it('deletes the selection once confirmed and says how many went', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    projects.bulkUpdate.and.returnValue(of({ updated: 2 }));
+    confirm.confirm.and.returnValues(of(false), of(true));
+
+    component.delete();
+    expect(projects.bulkUpdate).not.toHaveBeenCalled();
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.delete-selection')!.click();
+
+    expect(confirm.confirm).toHaveBeenCalledWith(jasmine.objectContaining({ messageParams: { count: 2 }, danger: true }));
+    expect(projects.bulkUpdate).toHaveBeenCalledWith({ action: 'DELETE', projectIds: [4, 9] });
+    expect(notifications.successText).toHaveBeenCalledWith('2 opportunities deleted', 3000);
   });
 });

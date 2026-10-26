@@ -1,3 +1,4 @@
+import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { provideRouter } from '@angular/router';
@@ -14,6 +15,7 @@ import { SeasonService } from '../../../services/season/season.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { KeyboardShortcutsService } from '../../../shared/shortcuts/keyboard-shortcuts.service';
 import { ProjectListComponent } from './project-list.component';
+import { SourceService } from '../../../services/source/source.service';
 
 /** An ISO date (yyyy-MM-dd) the given number of months away from today. */
 function monthsFromNow(months: number): string {
@@ -63,7 +65,8 @@ describe('ProjectListComponent', () => {
         { provide: AuthService, useValue: { getUser: () => user } },
         { provide: NotificationService, useValue: notifications },
         { provide: ConfirmDialogService, useValue: confirmDialog },
-        { provide: KeyboardShortcutsService, useValue: shortcuts }
+        { provide: KeyboardShortcutsService, useValue: shortcuts },
+        { provide: SourceService, useValue: { getByFreelanceId: () => of([]) } }
       ]
     });
     before();
@@ -359,5 +362,27 @@ describe('ProjectListComponent', () => {
     expect(shortcuts.acknowledgeSearchFocus).toHaveBeenCalled();
     const search = fixture.nativeElement.querySelector('input[formControlName="searchQuery"]');
     expect(document.activeElement).toBe(search);
+  });
+
+  it('picks opportunities one by one or a page at a time, and reloads once the selection was changed', () => {
+    const fixture = create(many(3));
+    const component = fixture.componentInstance;
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('app-project-selection-bar')).toBeNull();
+
+    element.querySelector<HTMLInputElement>('.select-project input')!.click();
+    fixture.detectChanges();
+    expect(component.selection.size).toBe(1);
+    expect(element.querySelector('app-project-selection-bar')).not.toBeNull();
+
+    element.querySelector<HTMLInputElement>('.select-page input')!.click();
+    expect(component.selection.ids.sort()).toEqual([1, 2, 3]);
+
+    projectService.getByFreelanceId.and.returnValue(of(many(2)));
+    fixture.debugElement.query(By.css('app-project-selection-bar')).triggerEventHandler('done');
+    expect(component.selection.ids.sort()).toEqual([1, 2]);
+    fixture.debugElement.query(By.css('app-project-selection-bar')).triggerEventHandler('clear');
+    fixture.detectChanges();
+    expect(element.querySelector('app-project-selection-bar')).toBeNull();
   });
 });

@@ -51,7 +51,7 @@
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'projects.form.techStack' | translate }}</mat-label>
-                  <input aria-label="{{ 'projects.form.techStack' | translate }}" matInput formControlName="techStack"
+                  <input aria-label="{{ 'projects.form.techStack' | translate }}" matInput formControlName="techStack" maxlength="255"
                     [placeholder]="'projects.form.techStackPlaceholder' | translate">
                 </mat-form-field>
               </div>

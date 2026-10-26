@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.dto.BulkDeleteResult;
 import dev.swirlit.indezy.dto.ContactDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.ContactMapper;
@@ -121,6 +122,14 @@ public class ContactService {
 
         contactRepository.deleteById(id);
         log.info("Deleted contact with id: {}", id);
+    }
+
+    /** Deletes the contacts of {@code ids}, with their exchanges. */
+    public BulkDeleteResult deleteAll(List<Long> ids) {
+        List<Contact> contacts = contactRepository.findAllById(ids);
+        contactRepository.deleteAll(contacts);
+        log.info("Bulk deleted {} contacts", contacts.size());
+        return new BulkDeleteResult(contacts.size(), 0);
     }
 
     /** {@code contacts} as DTOs, each with the day of its latest exchange. */

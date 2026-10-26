@@ -179,6 +179,18 @@ class ProjectIntegrationTest {
     }
 
     @Test
+    void createProject_ShouldRefuseATechStackLongerThanItsColumn() throws Exception {
+        ProjectDto projectDto = createValidProjectDto();
+        projectDto.setTechStack("x".repeat(256));
+
+        mockMvc.perform(post("/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(projectDto)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.validationErrors.techStack").exists());
+    }
+
+    @Test
     void deleteProject_WithExistingId_ShouldDeleteProject() throws Exception {
         // First create a project
         ProjectDto projectDto = createValidProjectDto();

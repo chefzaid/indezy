@@ -56,7 +56,13 @@
     "additionalInfo": "Additional information",
     "loadingInfo": "Loading information...",
     "loadingData": "Loading data...",
-    "pleaseWait": "Please wait..."
+    "pleaseWait": "Please wait...",
+    "selection": {
+      "count": "{{count}} selected",
+      "clear": "Clear the selection",
+      "selectAll": "Select all",
+      "select": "Select {{name}}"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -568,7 +574,11 @@
     "blacklistedPlural": "Blacklisted",
     "missionsShort": "Projects",
     "resultsCount": "{{count}} client(s)",
-    "deleteInUse": "This client is still linked to projects or contacts. Delete or reassign them first."
+    "deleteInUse": "This client is still linked to projects or contacts. Delete or reassign them first.",
+    "confirmBulkDelete": "Delete these {{count}} clients and their contacts? Those still linked to missions are kept.",
+    "bulkDeleted": "{{deleted}} clients deleted",
+    "bulkDeletedSomeKept": "{{deleted}} clients deleted; {{kept}} kept because missions are linked to them",
+    "bulkDeleteError": "The selected clients could not be deleted"
   },
   "contacts": {
     "title": "Contact Management",
@@ -648,7 +658,11 @@
         "ANSWERED": "Answered",
         "UNANSWERED": "No answer"
       }
-    }
+    },
+    "confirmBulkDelete": "Delete these {{count}} contacts and their exchanges?",
+    "bulkDeleted": "{{deleted}} contacts deleted",
+    "bulkDeletedSomeKept": "{{deleted}} contacts deleted; {{kept}} kept",
+    "bulkDeleteError": "The selected contacts could not be deleted"
   },
   "sources": {
     "title": "Source Management",
@@ -716,7 +730,13 @@
       "clear": "Clear the selection",
       "lostRole": "{{count}} opportunities",
       "done": "{{count}} opportunities updated",
-      "error": "The selected opportunities could not be updated"
+      "error": "The selected opportunities could not be updated",
+      "tag": "Add a tag",
+      "tagLabel": "Tag",
+      "tagApply": "Add",
+      "delete": "Delete",
+      "confirmDelete": "Delete these {{count}} opportunities, with their notes, files and activity reports? This cannot be undone.",
+      "deleted": "{{count}} opportunities deleted"
     }
   },
   "profile": {

@@ -26,7 +26,7 @@ import {
   KanbanLostReasonDialogComponent,
   KanbanLostReasonDialogData
 } from '../kanban-lost-reason-dialog/kanban-lost-reason-dialog.component';
-import { KanbanSelectionBarComponent } from '../kanban-selection-bar/kanban-selection-bar.component';
+import { ProjectSelectionBarComponent } from '../project-selection-bar/project-selection-bar.component';
 import {
   KanbanBoardDto,
   KanbanProjectCardDto,
@@ -50,7 +50,7 @@ import {
     MatTooltipModule,
     MatDialogModule,
     MatCheckboxModule,
-    KanbanSelectionBarComponent,
+    ProjectSelectionBarComponent,
     DragDropModule,
     TranslateModule
 ],

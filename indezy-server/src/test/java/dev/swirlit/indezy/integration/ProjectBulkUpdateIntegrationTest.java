@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Several opportunities changed at once from the Kanban board: their status, their source, or the archive. */
+/** Several opportunities changed at once from the Kanban board or the list: status, source, tag, archive or deletion. */
 @SpringBootTest
 @AutoConfigureWebMvc
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
@@ -100,6 +100,35 @@ class ProjectBulkUpdateIntegrationTest {
     }
 
     @Test
+    void addsATagOnceToEachTechStackWithRoomForIt() throws Exception {
+        jdbc.update("update projects set tech_stack = 'Java, kafka' where id = 1");
+        jdbc.update("update projects set tech_stack = ? where id = 3", "x".repeat(250));
+
+        bulk("""
+            {"projectIds": [1, 2, 3], "action": "TAG", "tag": " Kafka "}""")
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.updated").value(1));
+
+        assertThat(jdbc.queryForList("select tech_stack from projects order by id", String.class))
+            .containsExactly("Java, kafka", "Kafka", "x".repeat(250));
+    }
+
+    @Test
+    void deletesTheSelectionWithWhatHangsOnIt() throws Exception {
+        jdbc.update("""
+            insert into project_notes (id, project_id, content, created_at, updated_at, version)
+            values (900, 1, 'Call back', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0)""");
+
+        bulk("""
+            {"projectIds": [1, 3], "action": "DELETE"}""")
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.updated").value(2));
+
+        assertThat(jdbc.queryForList("select id from projects where freelance_id = 100 order by id", Long.class)).containsExactly(2L);
+        assertThat(jdbc.queryForObject("select count(*) from project_notes where project_id = 1", Integer.class)).isZero();
+    }
+
+    @Test
     void refusesAnIncompleteChange() throws Exception {
         bulk("""
             {"projectIds": [1], "action": "STATUS"}""").andExpect(status().isBadRequest());
@@ -109,6 +138,11 @@ class ProjectBulkUpdateIntegrationTest {
             {"projectIds": [], "action": "ARCHIVE"}""").andExpect(status().isBadRequest());
         bulk("""
             {"projectIds": [1, null], "action": "ARCHIVE"}""").andExpect(status().isBadRequest());
+        bulk("""
+            {"projectIds": [1], "action": "TAG", "tag": "  "}""").andExpect(status().isBadRequest());
+        bulk("""
+            {"projectIds": [1], "action": "TAG", "tag": "Java, Go"}""").andExpect(status().isBadRequest());
+        bulk("{\"projectIds\": [1], \"action\": \"TAG\", \"tag\": \"" + "x".repeat(61) + "\"}").andExpect(status().isBadRequest());
         bulk("""
             {"projectIds": [1], "action": "SOURCE", "sourceId": 999}""").andExpect(status().isNotFound());
     }
