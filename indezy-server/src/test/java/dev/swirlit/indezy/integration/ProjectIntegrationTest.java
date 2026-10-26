@@ -21,6 +21,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import jakarta.annotation.PostConstruct;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -157,6 +158,24 @@ class ProjectIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.role", is("Senior Full Stack Developer")))
                 .andExpect(jsonPath("$.dailyRate", is(700)));
+    }
+
+    @Test
+    void updateProject_ShouldReplaceItsDocuments() throws Exception {
+        ProjectDto projectDto = createValidProjectDto();
+        projectDto.setDocuments(List.of("Brief.pdf"));
+        ProjectDto created = objectMapper.readValue(mockMvc.perform(post("/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(projectDto)))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString(), ProjectDto.class);
+
+        created.setDocuments(List.of("Contract.pdf", "Test brief.pdf"));
+        mockMvc.perform(put("/projects/{id}", created.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(created)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.documents", contains("Contract.pdf", "Test brief.pdf")));
     }
 
     @Test

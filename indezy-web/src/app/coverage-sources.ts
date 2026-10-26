@@ -54,6 +54,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/profile/password-rejection',
   'components/profile/personal-info/profile-personal-info.component',
   'components/profile/profile.component',
+  'components/profile/skills-editor/profile-skills-editor.component',
   'components/projects/activity-report-card/activity-report-card.component',
   'components/projects/interview-step-dialog/interview-step-dialog.component',
   'components/projects/project-archive-action/project-archive-action.component',

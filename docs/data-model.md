@@ -59,7 +59,7 @@ Important fields:
 - avatar and bio
 - company and position
 - website, LinkedIn, GitHub
-- skills and languages as element collections
+- skills and languages as element collections, and `skillDetails`, an optional level (`BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `EXPERT`) and years of experience (0 to 60) keyed by skill name; a detail is only kept for a skill the profile names and with a level or years
 - timezone and currency
 - `targetDailyRate` (`users.target_daily_rate`): an optional positive whole-euro daily
   rate, editable through the profile. Existing accounts keep null when Hibernate adds
@@ -492,6 +492,7 @@ Current element collections:
 
 - `user_skills`
 - `user_languages`
+- `user_skill_details` (embeddable `SkillDetail`: level and years, keyed by the `skill` name)
 - `project_documents`
 - `job_offer_skills`
 - `interview_step_checklist` (embeddable `StepChecklistItem`: label and done flag, ordered by `position`)

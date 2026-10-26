@@ -1,15 +1,18 @@
 package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.util.WholeNumberDeserializer;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.ToString;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 // Spring MVC logs bodies through toString at DEBUG: the id alone, never the person (see docs/security.md).
 @Data
@@ -39,7 +42,10 @@ public class UserDto {
     private String website;
     private String linkedin;
     private String github;
-    private List<String> skills;
+    @Size(max = 50)
+    private List<@NotBlank @Size(max = 60) String> skills;
+    /** A level and years of experience for some of the skills, keyed by skill. */
+    private Map<String, @Valid SkillDetailDto> skillDetails;
     private List<String> languages;
     private String timezone;
     private String currency;

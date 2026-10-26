@@ -807,7 +807,20 @@
     "updateSuccessSuggestions": "Profil mis à jour. Le fil d'offres vous suggère de nouvelles recherches.",
     "seeSuggestions": "Les voir",
     "autoArchive": "Archiver chaque nuit les opportunités inactives",
-    "autoArchiveHint": "Les opportunités du pipeline sans mise à jour pendant la période d'inactivité vont aux archives, d'où elles peuvent être restaurées."
+    "autoArchiveHint": "Les opportunités du pipeline sans mise à jour pendant la période d'inactivité vont aux archives, d'où elles peuvent être restaurées.",
+    "skillLevel": "Niveau",
+    "skillYears": "Années",
+    "skillLevels": {
+      "BEGINNER": "Débutant",
+      "INTERMEDIATE": "Intermédiaire",
+      "ADVANCED": "Avancé",
+      "EXPERT": "Expert"
+    },
+    "noSkillLevel": "Non précisé",
+    "skillHint": "Saisissez une compétence puis Entrée, ou choisissez une suggestion",
+    "removeSkill": "Retirer {{skill}}",
+    "skillsLimit": "Un profil nomme au plus 50 compétences",
+    "noSkills": "Aucune compétence : elles notent les offres qui correspondent à votre profil."
   },
   "errors": {
     "notFoundTitle": "404 - Page non trouvée",

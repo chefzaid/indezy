@@ -10,7 +10,9 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "users")
@@ -72,6 +74,12 @@ public class User extends BaseEntity {
     @CollectionTable(name = "user_skills", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "skill")
     private List<String> skills = new ArrayList<>();
+
+    /** A level and years of experience for some of the skills, keyed by the skill as {@code skills} writes it. */
+    @ElementCollection
+    @CollectionTable(name = "user_skill_details", joinColumns = @JoinColumn(name = "user_id"))
+    @MapKeyColumn(name = "skill", length = 60)
+    private Map<String, SkillDetail> skillDetails = new HashMap<>();
 
     @ElementCollection
     @CollectionTable(name = "user_languages", joinColumns = @JoinColumn(name = "user_id"))
@@ -177,6 +185,23 @@ public class User extends BaseEntity {
 
     public void setSkills(List<String> skills) {
         this.skills = skills != null ? new ArrayList<>(skills) : new ArrayList<>();
+    }
+
+    public Map<String, SkillDetail> getSkillDetails() {
+        return skillDetails != null ? new HashMap<>(skillDetails) : new HashMap<>();
+    }
+
+    /** Keeps the details that say something about one of the profile's skills: set the skills first. */
+    public void setSkillDetails(Map<String, SkillDetail> details) {
+        Map<String, SkillDetail> kept = new HashMap<>();
+        if (details != null) {
+            details.forEach((skill, detail) -> {
+                if (detail != null && !detail.isEmpty() && skills.contains(skill)) {
+                    kept.put(skill, detail);
+                }
+            });
+        }
+        this.skillDetails = kept;
     }
 
     public List<String> getLanguages() {

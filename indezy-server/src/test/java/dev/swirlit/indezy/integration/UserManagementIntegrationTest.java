@@ -17,6 +17,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -141,6 +144,46 @@ class UserManagementIntegrationTest {
         assertTrue(response.getBody().contains("Jane"));
         assertTrue(response.getBody().contains("Smith"));
         assertTrue(response.getBody().contains("+1234567890"));
+    }
+
+    @Test
+    void updatingTheProfileKeepsItsSkillsAndTheirLevels() {
+        String url = getBaseUrl() + "/profile";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        String update = """
+            {"firstName": "John", "lastName": "Doe", "email": "john.doe@example.com", "skills": ["Java", "Spring Boot", "Kubernetes"],
+             "skillDetails": {"Java": {"level": "EXPERT", "years": 10}, "Kubernetes": {"years": 3},
+                              "Cobol": {"level": "BEGINNER"}, "Spring Boot": {}}}
+            """;
+
+        restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(update, headers), String.class);
+        Map<?, ?> profile = restTemplate.getForObject(url, Map.class);
+
+        assertEquals(List.of("Java", "Spring Boot", "Kubernetes"), profile.get("skills"));
+        // Details are kept for the profile's skills only, and only when they say something.
+        assertEquals(Map.of("Java", Map.of("level", "EXPERT", "years", 10), "Kubernetes", Map.of("years", 3)),
+            profile.get("skillDetails"));
+
+        restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>("""
+            {"firstName": "John", "lastName": "Doe", "email": "john.doe@example.com", "skills": ["Kubernetes"], "skillDetails": {"Kubernetes": {"years": 4}}}
+            """, headers), String.class);
+        profile = restTemplate.getForObject(url, Map.class);
+        assertEquals(List.of("Kubernetes"), profile.get("skills"));
+        assertEquals(Map.of("Kubernetes", Map.of("years", 4)), profile.get("skillDetails"));
+    }
+
+    @Test
+    void refusesAnOverlongSkillOrAnImpossibleExperience() {
+        String url = getBaseUrl() + "/profile";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        for (String body : new String[] {
+            "{\"firstName\": \"John\", \"lastName\": \"Doe\", \"email\": \"john.doe@example.com\", \"skills\": [\"" + "x".repeat(61) + "\"]}",
+            "{\"firstName\": \"John\", \"lastName\": \"Doe\", \"email\": \"john.doe@example.com\", \"skills\": [\"Java\"], \"skillDetails\": {\"Java\": {\"years\": 61}}}"}) {
+            assertEquals(HttpStatus.BAD_REQUEST,
+                restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(body, headers), String.class).getStatusCode());
+        }
     }
 
     @Test

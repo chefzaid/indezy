@@ -807,7 +807,20 @@
     "updateSuccessSuggestions": "Profile updated. The offer feed has new suggested searches for it.",
     "seeSuggestions": "See them",
     "autoArchive": "Archive idle opportunities every night",
-    "autoArchiveHint": "Opportunities in the pipeline with no update for the inactivity period go to the archive, from where they can be restored."
+    "autoArchiveHint": "Opportunities in the pipeline with no update for the inactivity period go to the archive, from where they can be restored.",
+    "skillLevel": "Level",
+    "skillYears": "Years",
+    "skillLevels": {
+      "BEGINNER": "Beginner",
+      "INTERMEDIATE": "Intermediate",
+      "ADVANCED": "Advanced",
+      "EXPERT": "Expert"
+    },
+    "noSkillLevel": "Not said",
+    "skillHint": "Type a skill and press Enter, or pick a suggestion",
+    "removeSkill": "Remove {{skill}}",
+    "skillsLimit": "A profile names at most 50 skills",
+    "noSkills": "No skills yet: they score the offers that match your profile."
   },
   "errors": {
     "notFoundTitle": "404 - Page not found",

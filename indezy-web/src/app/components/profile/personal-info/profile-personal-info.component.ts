@@ -12,6 +12,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { UserProfile } from '../../../models/user-management.models';
+import { ProfileSkillsEditorComponent } from '../skills-editor/profile-skills-editor.component';
 
 /**
  * "Personal information" tab of the profile page: avatar, basic/professional
@@ -31,7 +32,8 @@ import { UserProfile } from '../../../models/user-management.models';
     MatChipsModule,
     MatDatepickerModule,
     MatProgressSpinnerModule,
-    TranslateModule
+    TranslateModule,
+    ProfileSkillsEditorComponent
 ],
     templateUrl: './profile-personal-info.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -55,12 +57,6 @@ export class ProfilePersonalInfoComponent {
     }
   }
 
-  availableSkills = [
-    'Angular', 'React', 'Vue.js', 'Node.js', 'Python', 'Java', 'C#', 'PHP',
-    'PostgreSQL', 'MongoDB', 'MySQL', 'Docker', 'Kubernetes', 'AWS', 'Azure',
-    'TypeScript', 'JavaScript', 'HTML/CSS', 'Git', 'GitLab CI', 'GraphQL'
-  ];
-
   availableLanguages = [
     'Français', 'Anglais', 'Espagnol', 'Allemand', 'Italien', 'Portugais',
     'Chinois', 'Japonais', 'Arabe', 'Russe', 'Néerlandais'
@@ -77,20 +73,6 @@ export class ProfilePersonalInfoComponent {
     { value: 'GBP', label: '£ Livre Sterling' },
     { value: 'CHF', label: 'CHF Franc Suisse' }
   ];
-
-  addSkill(skill: string): void {
-    const skills: string[] = this.form.get('skills')?.value || [];
-    if (!skills.includes(skill)) {
-      this.form.get('skills')?.setValue([...skills, skill]);
-    }
-  }
-
-  removeSkill(skill: string): void {
-    const skills: string[] = this.form.get('skills')?.value || [];
-    if (skills.includes(skill)) {
-      this.form.get('skills')?.setValue(skills.filter(s => s !== skill));
-    }
-  }
 
   addLanguage(language: string): void {
     const languages: string[] = this.form.get('languages')?.value || [];

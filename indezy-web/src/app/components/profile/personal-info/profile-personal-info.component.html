@@ -162,31 +162,7 @@
         <!-- Skills -->
         <div class="skills-section">
           <h4>{{ 'profile.skills' | translate }}</h4>
-          <div class="chips-container">
-            <mat-chip-set>
-              @for (skill of form.get('skills')?.value; track skill) {
-                <mat-chip
-                  (removed)="removeSkill(skill)">
-                  {{ skill }}
-                  <button matChipRemove>
-                    <mat-icon>cancel</mat-icon>
-                  </button>
-                </mat-chip>
-              }
-            </mat-chip-set>
-          </div>
-          <mat-form-field appearance="outline" class="skill-input">
-            <mat-label>{{ 'profile.addSkill' | translate }}</mat-label>
-            <mat-select (selectionChange)="addSkill($event.value)" [value]="">
-              @for (skill of availableSkills; track skill) {
-                <mat-option
-                  [value]="skill"
-                  [disabled]="form.get('skills')?.value?.includes(skill)">
-                  {{ skill }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          <app-profile-skills-editor [form]="form"></app-profile-skills-editor>
         </div>
 
         <!-- Languages -->

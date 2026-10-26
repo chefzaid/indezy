@@ -1,8 +1,12 @@
 package dev.swirlit.indezy.mapper;
 
 import dev.swirlit.indezy.dto.*;
+import dev.swirlit.indezy.model.SkillDetail;
 import dev.swirlit.indezy.model.User;
 import org.mapstruct.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -34,7 +38,29 @@ public interface UserMapper {
     @Mapping(target = "email", ignore = true) // Don't allow email updates through profile update
     @Mapping(target = "avatar", ignore = true) // Avatars only change through the upload endpoint
     @Mapping(target = "avatarImage", ignore = true)
+    @Mapping(target = "skills", ignore = true)
+    @Mapping(target = "skillDetails", ignore = true)
+    @Mapping(target = "languages", ignore = true)
     void updateEntity(UserDto dto, @MappingTarget User user);
+
+    /**
+     * Sets the profile's lists whole: the entity hands out copies, which a generated update would empty and fill in
+     * vain. The skills go first, since only their details are kept.
+     */
+    @AfterMapping
+    default void replaceLists(UserDto dto, @MappingTarget User user) {
+        user.setSkills(dto.getSkills());
+        user.setLanguages(dto.getLanguages());
+        Map<String, SkillDetail> details = new HashMap<>();
+        if (dto.getSkillDetails() != null) {
+            dto.getSkillDetails().forEach((skill, detail) -> {
+                if (detail != null) {
+                    details.put(skill, new SkillDetail(detail.level(), detail.years()));
+                }
+            });
+        }
+        user.setSkillDetails(details);
+    }
 
     // Notification settings mapping
     @Mapping(target = "emailNotifications", source = "emailNotifications")

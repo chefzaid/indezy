@@ -23,6 +23,7 @@ TRUNCATE TABLE
     sources,
     clients,
     user_skills,
+    user_skill_details,
     user_languages,
     users,
     freelances

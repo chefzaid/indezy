@@ -34,6 +34,7 @@ describe('ProfilePersonalInfoComponent', () => {
       linkedin: [''],
       github: [''],
       skills: [[]],
+      skillDetails: [{}],
       languages: [[]],
       timezone: ['Europe/Paris'],
       currency: ['EUR']
@@ -89,18 +90,6 @@ describe('ProfilePersonalInfoComponent', () => {
     expect(setter).not.toHaveBeenCalled();
   });
 
-  it('adds a skill once and removes it', () => {
-    create({}, { skills: ['Angular'] });
-
-    component.addSkill('Java');
-    component.addSkill('Java');
-    expect(form.value.skills).toEqual(['Angular', 'Java']);
-
-    component.removeSkill('Angular');
-    component.removeSkill('Kotlin');
-    expect(form.value.skills).toEqual(['Java']);
-  });
-
   it('adds a language once and removes it', () => {
     create({}, { languages: ['Français'] });
 
@@ -113,28 +102,23 @@ describe('ProfilePersonalInfoComponent', () => {
     expect(form.value.languages).toEqual(['Anglais']);
   });
 
-  it('treats missing skills and languages as empty lists', () => {
-    create({}, { skills: null, languages: null });
+  it('treats missing languages as an empty list', () => {
+    create({}, { languages: null });
 
-    component.removeSkill('Angular');
     component.removeLanguage('Anglais');
-    expect(form.value.skills).toBeNull();
     expect(form.value.languages).toBeNull();
 
-    component.addSkill('Angular');
     component.addLanguage('Anglais');
-    expect(form.value.skills).toEqual(['Angular']);
     expect(form.value.languages).toEqual(['Anglais']);
   });
 
-  it('renders the chosen skills and languages as removable chips', () => {
+  it('renders the chosen languages as removable chips and the skills in their editor', () => {
     create({}, { skills: ['Angular', 'Docker'], languages: ['Anglais'] });
 
     const chips = Array.from(element().querySelectorAll('mat-chip')).map(chip => chip.textContent!.replace('cancel', '').trim());
-    expect(chips).toEqual(['Angular', 'Docker', 'Anglais']);
-
-    element().querySelector<HTMLButtonElement>('.skills-section mat-chip button')!.click();
-    expect(form.value.skills).toEqual(['Docker']);
+    expect(chips).toEqual(['Anglais']);
+    const skills = Array.from(element().querySelectorAll('.skills-section .skill-name')).map(name => name.textContent!.trim());
+    expect(skills).toEqual(['Angular', 'Docker']);
 
     element().querySelector<HTMLButtonElement>('.languages-section mat-chip button')!.click();
     expect(form.value.languages).toEqual([]);

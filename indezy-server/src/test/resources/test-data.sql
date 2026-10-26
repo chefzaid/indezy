@@ -15,6 +15,7 @@ DELETE FROM sources WHERE 1=1;
 DELETE FROM clients WHERE 1=1;
 DELETE FROM freelances WHERE 1=1;
 DELETE FROM user_skills WHERE 1=1;
+DELETE FROM user_skill_details WHERE 1=1;
 DELETE FROM user_languages WHERE 1=1;
 DELETE FROM users WHERE 1=1;
 

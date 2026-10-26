@@ -50,10 +50,17 @@ public interface ProjectMapper {
     @Mapping(target = "season", ignore = true)
     @Mapping(target = "steps", ignore = true)
     @Mapping(target = "archivedAt", ignore = true)
+    @Mapping(target = "documents", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
     void updateEntity(ProjectDto dto, @MappingTarget Project project);
+
+    /** Sets the documents whole: the entity hands out a copy, which a generated update would empty and fill in vain. */
+    @AfterMapping
+    default void replaceDocuments(ProjectDto dto, @MappingTarget Project project) {
+        project.setDocuments(dto.getDocuments());
+    }
 
     default InterviewStepDto toInterviewStepDto(final InterviewStep interviewStep) {
         if (interviewStep == null) {

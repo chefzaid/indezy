@@ -1,5 +1,13 @@
 // User management related interfaces and types
 
+export type SkillLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
+
+/** What the profile says about one of its skills: a level, years of experience, or both. */
+export interface SkillDetail {
+  level?: SkillLevel;
+  years?: number;
+}
+
 export interface UserProfile {
   id: number;
   firstName: string;
@@ -17,6 +25,8 @@ export interface UserProfile {
   linkedin?: string;
   github?: string;
   skills?: string[];
+  /** A level and years of experience for some of the skills, keyed by skill. */
+  skillDetails?: Record<string, SkillDetail>;
   languages?: string[];
   timezone?: string;
   currency?: string;

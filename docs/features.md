@@ -38,6 +38,7 @@ The freelancer model captures the working identity used by opportunities:
 - employment status: `FREELANCE`, `PORTAGE`, or `CDI`
 - notice period and availability date (the availability date is edited as **Available from** on the profile page, and the offer feed's profile match compares offers' start dates with it)
 - reversion rate and income tax rate
+- skills written freely (suggestions while typing, up to 50 of 60 characters each, the same name once whatever its case), each with an optional level (beginner, intermediate, advanced, expert) and years of experience (0 to 60), edited in the profile's **Personal information** tab
 - optional CV file path
 
 The freelancer owns the main opportunity workspace: projects, clients, contacts, and sources are all attached back to a freelance profile.

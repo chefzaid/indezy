@@ -1,0 +1,37 @@
+<div class="skills-editor">
+  @for (skill of skills; track skill) {
+    <div class="skill-row">
+      <span class="skill-name">{{ skill }}</span>
+      <mat-form-field appearance="outline" class="skill-level" subscriptSizing="dynamic">
+        <mat-label>{{ 'profile.skillLevel' | translate }}</mat-label>
+        <mat-select [value]="detail(skill).level ?? null" (selectionChange)="setLevel(skill, $event.value)">
+          <mat-option [value]="null">{{ 'profile.noSkillLevel' | translate }}</mat-option>
+          @for (level of levels; track level) {
+            <mat-option [value]="level">{{ 'profile.skillLevels.' + level | translate }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="skill-years" subscriptSizing="dynamic">
+        <mat-label>{{ 'profile.skillYears' | translate }}</mat-label>
+        <input matInput type="number" min="0" max="60" step="1" [value]="detail(skill).years ?? ''"
+          (change)="setYears(skill, $any($event.target).value)">
+      </mat-form-field>
+      <button mat-icon-button type="button" class="remove-skill" (click)="remove(skill)" [attr.aria-label]="'profile.removeSkill' | translate:{ skill: skill }">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  } @empty {
+    <p class="no-skills">{{ 'profile.noSkills' | translate }}</p>
+  }
+  <mat-form-field appearance="outline" class="skill-input" subscriptSizing="dynamic">
+    <mat-label>{{ 'profile.addSkill' | translate }}</mat-label>
+    <input matInput [formControl]="newSkill" [matAutocomplete]="skillSuggestions" [maxlength]="skillMax"
+      (keydown.enter)="$event.preventDefault(); add()">
+    <mat-autocomplete #skillSuggestions="matAutocomplete" (optionSelected)="add($event.option.value)">
+      @for (skill of suggestions; track skill) {
+        <mat-option [value]="skill">{{ skill }}</mat-option>
+      }
+    </mat-autocomplete>
+    <mat-hint>{{ (full ? 'profile.skillsLimit' : 'profile.skillHint') | translate }}</mat-hint>
+  </mat-form-field>
+</div>

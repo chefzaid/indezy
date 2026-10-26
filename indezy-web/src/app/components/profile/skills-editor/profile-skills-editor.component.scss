@@ -1,0 +1,46 @@
+.skill-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px 96px 40px;
+  grid-template-areas: "name level years remove";
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.skill-name {
+  grid-area: name;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.skill-level {
+  grid-area: level;
+}
+
+.skill-years {
+  grid-area: years;
+}
+
+.remove-skill {
+  grid-area: remove;
+}
+
+.skill-input {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.no-skills {
+  color: var(--app-text-muted);
+}
+
+// On a phone the name and its remove button share a line, the level and years the next one.
+@media (max-width: 600px) {
+  .skill-row {
+    grid-template-columns: minmax(0, 1fr) 96px 40px;
+    grid-template-areas:
+      "name name remove"
+      "level years years";
+    padding: 8px 0;
+  }
+}

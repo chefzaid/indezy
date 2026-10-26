@@ -175,6 +175,7 @@ export class ProfileComponent implements OnInit {
       linkedin: [''],
       github: [''],
       skills: [[]],
+      skillDetails: [{}],
       languages: [[]],
       timezone: ['Europe/Paris'],
       currency: ['EUR']
@@ -264,6 +265,7 @@ export class ProfileComponent implements OnInit {
       linkedin: profile.linkedin,
       github: profile.github,
       skills: profile.skills || [],
+      skillDetails: profile.skillDetails ?? {},
       languages: profile.languages || [],
       timezone: profile.timezone,
       currency: profile.currency
