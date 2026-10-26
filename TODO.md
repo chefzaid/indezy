@@ -412,7 +412,8 @@ Indezy has no presentation website: `https://indezy.swirlit.dev` redirects strai
 - [ ] Caching of frequent requests (dashboard stats, job feed)
 - [x] Lazy loading of routes/components for faster initial load (checked on 2026-10-26: every page and section loads on demand, the production build's initial bundle is the shell at 228 kB transferred, and `app.routes.spec.ts` fails if a route imports its page eagerly or a loader breaks)
 - [ ] Feature flags to enable/disable features without redeploying
-- [ ] Structured JSON logging, request tracing, monitoring and alerting
+- [x] Structured JSON logging, request tracing, monitoring and alerting: Logstash JSON in the Kubernetes profile, a request id on each response and log line, the **Indezy Overview** Grafana dashboard and the platform's `applications.indezy` alert rules (`docs/operations.md#logs`)
+- [ ] Alert on the API's error rate and latency (5xx share and 95th percentile of `http_server_requests_seconds`), as rules beside `applications.indezy` in swirl-cloud
 - [ ] Usage telemetry to learn which features are used and prioritize development
 - [ ] Automated DB backups with point-in-time recovery; versioned migrations; connection pooling
 - [ ] CI: tests on every PR, scheduled e2e runs, dependency vulnerability scanning, zero-downtime deployments

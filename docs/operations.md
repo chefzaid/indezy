@@ -42,6 +42,10 @@ kubectl get pods -n apps
 The Kubernetes profile writes Logstash-compatible JSON to stdout. Fluent Bit
 automatically enriches and indexes it in Elasticsearch; use Kibana's generic
 **Applications Namespace Logs** dashboard and filter `app` to `indezy-server`.
+Every request gets an id (`RequestIdFilter`): the caller's `X-Request-Id` when it is a plain one of up to 64
+characters, else a new UUID, returned in the response's `X-Request-Id` header and written with the HTTP method on each
+line the request logs (`request_id`, `method`). Filter on `request_id` to follow one request; the path is not logged,
+since some carry a token.
 Prometheus discovers the backend pod annotations automatically, and Grafana
 loads the repository-owned **Indezy Overview** dashboard from its labeled
 ConfigMap.

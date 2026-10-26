@@ -41,6 +41,8 @@ class ActuatorHealthIntegrationTest {
         assertNotNull(response.getBody());
         assertTrue(response.getBody().contains("\"status\":\"UP\""),
                 "Expected health status UP but was: " + response.getBody());
+        // Every answer names the request it answers, for its log lines.
+        assertTrue(response.getHeaders().getFirst("X-Request-Id").matches("[0-9a-f-]{36}"));
     }
 
     @Test
