@@ -3,6 +3,7 @@ package dev.swirlit.indezy.dto;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.Seniority;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
@@ -104,4 +105,12 @@ public class OfferSearchRequest {
     @Min(1)
     @Max(100)
     private int size = 20;
+
+    /**
+     * The total a previous page of the same filters reported, sent back when another page or sort of them is read, so
+     * the offers are not counted again; it only shapes the caller's own paging. Never part of a saved search.
+     */
+    @Min(0)
+    @JsonIgnore
+    private Long total;
 }

@@ -106,7 +106,9 @@ public class OfferSearchService {
         Instant now = clock.instant();
         OfferMatch.Profile profile = profileFor(freelanceId, request);
         Specification<JobOffer> matching = JobOfferSpecifications.matching(request, freelanceId, profile, now);
-        Page<JobOffer> page = offers.findAll(within == null ? matching : matching.and(within), pageRequest);
+        // Another page or sort of the same filters: the caller already knows their total (about 100 ms of counting).
+        Page<JobOffer> page = within == null && request.getTotal() != null ? offers.findPage(matching, pageRequest, request.getTotal()) :
+            offers.findAll(within == null ? matching : matching.and(within), pageRequest);
         List<Long> ids = page.getContent().stream().map(JobOffer::getId).toList();
         Map<Long, List<String>> skills = skillsOf(ids);
         Map<Long, List<JobOffer>> copies = copiesOf(page.getContent());

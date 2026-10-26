@@ -6,7 +6,8 @@ import {
   offerQueryFromParams,
   offerQueryFromSaved,
   offerQueryToHttpParams,
-  offerQueryToParams
+  offerQueryToParams,
+  sameOfferFilters
 } from './offer-query';
 
 describe('offer query', () => {
@@ -79,5 +80,15 @@ describe('offer query', () => {
     expect(countActiveFilters({ ...defaultOfferQuery(), q: 'java', rateMin: 500, sites: ['YEETS'], skills: ['A', 'B'], unseenOnly: true,
       matchesProfile: true })).toBe(6);
     expect(countActiveFilters({ ...defaultOfferQuery(), hideSuspicious: true })).toBe(1);
+  });
+
+  it('tells another page, page size or sort of the same filters from other filters', () => {
+    const java = { ...defaultOfferQuery(), q: 'java', sites: ['FREE_WORK' as const, 'YEETS' as const] };
+
+    expect(sameOfferFilters(java, { ...java, page: 3, size: 50, sort: 'RATE' })).toBeTrue();
+    expect(sameOfferFilters(java, { ...java, sites: ['YEETS', 'FREE_WORK'] })).toBeFalse();
+    expect(sameOfferFilters(java, { ...java, q: 'kotlin' })).toBeFalse();
+    expect(sameOfferFilters(java, { ...java, view: 'SAVED' })).toBeFalse();
+    expect(sameOfferFilters(java, { ...java, unseenOnly: true })).toBeFalse();
   });
 });

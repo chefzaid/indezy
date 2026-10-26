@@ -116,6 +116,8 @@ class OfferSearchLoadTest {
         new Scenario("Within 30 km, nearest", "/offers?radiusKm=30&sort=DISTANCE"),
         new Scenario("Last 7 days, senior or expert", "/offers?publishedWithinDays=7&seniorities=SENIOR&seniorities=EXPERT"),
         new Scenario("Page 21", "/offers?page=20"),
+        // The feed sends the total its first page counted when it reads another page or sort of the same filters.
+        new Scenario("Page 21, total known", "/offers?page=20&total=34000"),
         new Scenario("Saved offers", "/offers?view=SAVED"),
         new Scenario("Unread offers matching the profile", "/offers?unseenOnly=true&matchesProfile=true"));
 

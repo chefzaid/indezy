@@ -28,7 +28,8 @@ import {
   countActiveFilters,
   defaultOfferQuery,
   offerQueryFromParams,
-  offerQueryToParams
+  offerQueryToParams,
+  sameOfferFilters
 } from '../../../services/offer/offer-query';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { dropOffers, patchOffers } from '../../../services/offer/offer-page';
@@ -91,6 +92,8 @@ export class OfferFeedComponent implements OnInit, OfferPageHost, OfferActionsHo
   readonly actions = new OfferActions(this, this.offerService, this.notifications, this.dialog, this.translate);
   /** Searches again with the same filters (after a failure). */
   private readonly reload$ = new BehaviorSubject<void>(undefined);
+  /** The query of the page shown, whose total another page or sort of the same filters reuses. */
+  private shownQuery: OfferQuery | null = null;
 
   ngOnInit(): void {
     forkJoin({
@@ -110,13 +113,17 @@ export class OfferFeedComponent implements OnInit, OfferPageHost, OfferActionsHo
         this.failed = false;
         this.changes.markForCheck();
       }),
-      switchMap(query => this.offerService.search(query).pipe(catchError(() => of(null)))),
+      switchMap(query => this.offerService.search(query, this.knownTotal(query)).pipe(
+        catchError(() => of(null)),
+        map(page => ({ query, page }))
+      )),
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(page => {
+    ).subscribe(({ query, page }) => {
       // A new page brings its offers without descriptions: fold every card.
       this.expanded.clear();
       this.bulk.clear();
       this.page = page;
+      this.shownQuery = page ? query : null;
       this.failed = page === null;
       this.loading = false;
       this.changes.markForCheck();
@@ -279,6 +286,11 @@ export class OfferFeedComponent implements OnInit, OfferPageHost, OfferActionsHo
       this.page = patchOffers(this.page, [id], changes);
     }
     this.changes.markForCheck();
+  }
+
+  /** The total of the page shown, offers taken out of it included, when {@code query} asks another page or sort of its filters. */
+  private knownTotal(query: OfferQuery): number | undefined {
+    return this.page && this.shownQuery && sameOfferFilters(query, this.shownQuery) ? this.page.totalElements : undefined;
   }
 
   private navigate(query: OfferQuery): void {

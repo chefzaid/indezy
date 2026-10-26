@@ -2,7 +2,10 @@ package dev.swirlit.indezy.repository;
 
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.enums.OfferSite;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,6 +19,11 @@ import java.util.List;
 
 @Repository
 public interface JobOfferRepository extends JpaRepository<JobOffer, Long>, JpaSpecificationExecutor<JobOffer> {
+
+    /** A page of the offers {@code spec} finds, without counting them: {@code total} is the count a previous page made. */
+    default Page<JobOffer> findPage(Specification<JobOffer> spec, Pageable pageable, long total) {
+        return new PageImpl<>(findBy(spec, query -> query.slice(pageable)).getContent(), pageable, total);
+    }
 
     List<JobOffer> findBySiteAndExternalIdIn(OfferSite site, Collection<String> externalIds);
 

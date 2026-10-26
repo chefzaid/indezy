@@ -122,6 +122,15 @@ export function offerQueryToHttpParams(query: OfferQuery): HttpParams {
   return params;
 }
 
+/** Whether two queries ask the same offers, maybe another page, page size or sort of them. */
+export function sameOfferFilters(a: OfferQuery, b: OfferQuery): boolean {
+  const filters = (query: OfferQuery): string => {
+    const params = offerQueryToParams({ ...query, page: 0, size: OFFER_PAGE_SIZES[0], sort: 'NEWEST' });
+    return JSON.stringify(params, Object.keys(params).sort());
+  };
+  return filters(a) === filters(b);
+}
+
 /** How many filters narrow the feed, for the badge on the filters toggle. */
 export function countActiveFilters(filters: OfferFilters): number {
   let count = 0;

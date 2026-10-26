@@ -30,6 +30,17 @@ describe('OfferService', () => {
     request.flush({ content: [], page: 2, size: 20, totalElements: 0, totalPages: 0, distanceAvailable: false });
   });
 
+  it('sends the known total of the filters only when there is one', () => {
+    service.search({ ...defaultOfferQuery(), page: 1 }, 41).subscribe();
+    service.search(defaultOfferQuery()).subscribe();
+
+    const [known, counted] = http.match(req => req.url === api);
+    expect(known.request.params.get('total')).toBe('41');
+    expect(counted.request.params.has('total')).toBeFalse();
+    known.flush({ content: [], page: 1, size: 20, totalElements: 41, totalPages: 3, distanceAvailable: false });
+    counted.flush({ content: [], page: 0, size: 20, totalElements: 41, totalPages: 3, distanceAvailable: false });
+  });
+
   it('reads the health of the job boards, excludes one and reads one on request without the generic error message', () => {
     service.siteHealth().subscribe();
     http.expectOne(`${api}/sites/health`).flush({ sites: [], leftOut: [], refreshEnabled: true });

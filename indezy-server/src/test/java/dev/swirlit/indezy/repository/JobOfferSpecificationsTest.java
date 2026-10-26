@@ -22,6 +22,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Duration;
@@ -120,6 +121,22 @@ class JobOfferSpecificationsTest {
     @Test
     void listsOpenOffersNewestFirst() {
         assertThat(search(request(), null)).containsExactly("java", "courbevoie", "lyon", "unknown");
+    }
+
+    @Test
+    void readsAPageWithoutCountingInTheSameOrderAsACountedOne() {
+        for (OfferSearchRequest.Sort sort : OfferSearchRequest.Sort.values()) {
+            OfferSearchRequest request = request(r -> r.setSort(sort));
+            Specification<JobOffer> matching = JobOfferSpecifications.matching(request, null, OfferMatch.Profile.at(PARIS), NOW);
+            PageRequest second = PageRequest.of(1, 2);
+
+            Page<JobOffer> counted = repository.findAll(matching, second);
+            Page<JobOffer> uncounted = repository.findPage(matching, second, counted.getTotalElements());
+
+            assertThat(uncounted.getContent()).as(sort.name()).containsExactlyElementsOf(counted.getContent());
+            assertThat(uncounted.getTotalElements()).as(sort.name()).isEqualTo(4);
+            assertThat(uncounted.getTotalPages()).as(sort.name()).isEqualTo(2);
+        }
     }
 
     @Test

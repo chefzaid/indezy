@@ -48,8 +48,10 @@ export class OfferService {
 
   constructor(private readonly http: HttpClient) {}
 
-  search(query: OfferQuery): Observable<OfferPage> {
-    return this.http.get<OfferPage>(this.API_URL, { params: offerQueryToHttpParams(query) });
+  /** One page of a search; {@code total}, the count of its filters already known, spares the server counting again. */
+  search(query: OfferQuery, total?: number): Observable<OfferPage> {
+    const params = offerQueryToHttpParams(query);
+    return this.http.get<OfferPage>(this.API_URL, { params: total === undefined ? params : params.set('total', total) });
   }
 
   /** A search made in the background (a dashboard widget): its failure is not reported. */

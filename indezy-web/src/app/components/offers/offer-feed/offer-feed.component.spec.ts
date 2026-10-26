@@ -88,7 +88,7 @@ describe('OfferFeedComponent', () => {
   it('searches with the filters of the address and lists the offers', () => {
     const fixture = create({ q: 'java', view: 'SAVED' });
 
-    expect(service.search).toHaveBeenCalledWith(jasmine.objectContaining({ q: 'java', view: 'SAVED', page: 0 }));
+    expect(service.search).toHaveBeenCalledWith(jasmine.objectContaining({ q: 'java', view: 'SAVED', page: 0 }), undefined);
     expect(text(fixture)).toContain('Missions freelance');
     expect(text(fixture)).toContain('150 offres ouvertes sur 2 sites');
     expect(text(fixture)).toContain('2 offres');
@@ -136,6 +136,27 @@ describe('OfferFeedComponent', () => {
 
     expect(service.search).toHaveBeenCalledTimes(2);
     expect(service.search.calls.mostRecent().args[0].sort).toBe('RATE');
+  });
+
+  it('reuses the total of the filters shown for another page or sort, not for other filters', () => {
+    const component = create({ q: 'java' }, page([offer(1), offer(2)], { totalElements: 41, totalPages: 3 })).componentInstance;
+    component.drop(offer => offer.id === 1);
+
+    params.next(convertToParamMap({ q: 'java', page: '1', sort: 'RATE' }));
+    expect(service.search.calls.mostRecent().args[1]).toBe(40);
+
+    params.next(convertToParamMap({ q: 'kotlin', page: '1' }));
+    expect(service.search.calls.mostRecent().args[1]).toBeUndefined();
+  });
+
+  it('counts again after a failed search', () => {
+    create({ q: 'java' });
+    service.search.and.returnValue(throwError(() => new Error('down')));
+    params.next(convertToParamMap({ q: 'java', page: '1' }));
+
+    params.next(convertToParamMap({ q: 'java', page: '2' }));
+
+    expect(service.search.calls.mostRecent().args[1]).toBeUndefined();
   });
 
   it('explains a failed search and tries again', () => {

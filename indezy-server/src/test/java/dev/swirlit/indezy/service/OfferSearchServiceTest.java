@@ -187,6 +187,24 @@ class OfferSearchServiceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void readsAnotherPageOfTheSameFiltersWithoutCountingThemAgain() {
+        PageRequest second = PageRequest.of(1, 20);
+        when(offers.findPage(any(Specification.class), eq(second), eq(41L)))
+            .thenReturn(new PageImpl<>(List.of(offer(7L)), second, 41));
+        OfferSearchRequest request = new OfferSearchRequest();
+        request.setPage(1);
+        request.setTotal(41L);
+
+        OfferPageDto page = service.search(null, request);
+
+        assertThat(page.totalElements()).isEqualTo(41);
+        assertThat(page.totalPages()).isEqualTo(3);
+        assertThat(page.content()).hasSize(1);
+        verify(offers, never()).findAll(any(Specification.class), any(Pageable.class));
+    }
+
+    @Test
     void needsTheProfilesCityToFilterByDistance() {
         when(freelances.findProfileCity(3L)).thenReturn(Optional.of(" "));
         Freelance freelance = new Freelance();
