@@ -1,0 +1,136 @@
+.interactions-card {
+  margin-top: 16px;
+
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.interaction-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 8px 0 16px;
+
+  dt {
+    font-size: 12px;
+    color: var(--app-text-muted);
+  }
+
+  dd {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 2px 0 0;
+    font-weight: 600;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.interaction-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    mat-form-field {
+      flex: 1 1 180px;
+    }
+  }
+
+  mat-button-toggle-group {
+    align-self: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}
+
+.add-interaction {
+  margin-bottom: 12px;
+}
+
+.interaction-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.interaction {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--app-border);
+
+  .channel-icon {
+    margin-top: 8px;
+    color: var(--app-text-muted);
+  }
+}
+
+.interaction-main {
+  flex: 1;
+  min-width: 0;
+  padding-top: 8px;
+}
+
+.interaction-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+
+  .interaction-title {
+    font-weight: 600;
+  }
+
+  .interaction-date {
+    font-size: 13px;
+    color: var(--app-text-muted);
+  }
+}
+
+.answer-pill {
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: #757575;
+
+  &.answered {
+    background: #2e7d32;
+  }
+
+  &.unanswered {
+    background: #c62828;
+  }
+}
+
+.interaction-summary-text {
+  margin: 4px 0 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.no-interactions {
+  padding: 8px 0;
+  color: var(--app-text-muted);
+}

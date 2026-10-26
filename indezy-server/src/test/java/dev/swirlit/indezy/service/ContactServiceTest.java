@@ -47,6 +47,9 @@ class ContactServiceTest {
     @Mock
     private ContactMapper contactMapper;
 
+    @Mock
+    private ContactInteractionService contactInteractionService;
+
     @InjectMocks
     private ContactService contactService;
 

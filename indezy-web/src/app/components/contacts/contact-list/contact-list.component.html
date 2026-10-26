@@ -103,6 +103,17 @@
                 </div>
               </td>
             </ng-container>
+            <!-- Last Contact Column -->
+            <ng-container matColumnDef="lastContact">
+              <th mat-header-cell *matHeaderCellDef>{{ 'contacts.interactions.lastContact' | translate }}</th>
+              <td mat-cell *matCellDef="let contact">
+                @if (contact.lastContactedOn) {
+                  <span [title]="contact.lastContactedOn | date:'mediumDate'">{{ lastContact(contact) }}</span>
+                } @else {
+                  <span class="muted">—</span>
+                }
+              </td>
+            </ng-container>
             <!-- Actions Column -->
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>{{ 'common.actions' | translate }}</th>

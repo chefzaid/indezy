@@ -33,6 +33,9 @@ abstract class DashboardStatsTestSupport {
     @Mock
     InterviewStepRepository interviewStepRepository;
 
+    @Mock
+    ContactInteractionService contactInteractionService;
+
     @InjectMocks
     DashboardStatsService dashboardStatsService;
 

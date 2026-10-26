@@ -74,6 +74,9 @@ class UserDataExportServiceTest {
     @Mock
     private EmailTemplateService emailTemplateService;
 
+    @Mock
+    private ContactInteractionService contactInteractionService;
+
     @InjectMocks
     private UserDataExportService userDataExportService;
 

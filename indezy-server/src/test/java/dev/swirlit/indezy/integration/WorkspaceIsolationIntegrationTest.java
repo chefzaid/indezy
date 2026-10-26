@@ -289,6 +289,33 @@ class WorkspaceIsolationIntegrationTest {
     }
 
     @Test
+    void contactInteractionsStayInTheirWorkspace() {
+        long aliceContact = idOf(call(alice, HttpMethod.POST, "/contacts",
+            Map.of("firstName", "Claire", "clientId", aliceClientId, "freelanceId", alice.freelanceId()), Map.class));
+        Map<String, Object> exchange = Map.of("occurredOn", LocalDate.now().minusDays(1).toString(), "channel", "EMAIL",
+            "direction", "OUTGOING", "replied", true);
+        long interaction = idOf(call(alice, HttpMethod.POST, "/contacts/" + aliceContact + "/interactions", exchange, Map.class));
+        long bobClient = idOf(call(bob, HttpMethod.POST, "/clients",
+            Map.of("companyName", "Bob Corp", "city", "Lyon", "isFinal", true, "freelanceId", bob.freelanceId()), Map.class));
+        long bobContact = idOf(call(bob, HttpMethod.POST, "/contacts",
+            Map.of("firstName", "Marc", "clientId", bobClient, "freelanceId", bob.freelanceId()), Map.class));
+
+        String alicePath = "/contacts/" + aliceContact + "/interactions";
+        assertThat(call(bob, HttpMethod.GET, alicePath, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.POST, alicePath, exchange, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        // Nor through his own contact.
+        String throughBob = "/contacts/" + bobContact + "/interactions/" + interaction;
+        assertThat(call(bob, HttpMethod.PUT, throughBob, exchange, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.DELETE, throughBob, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.GET, alicePath, null, Map.class).getBody()).containsEntry("responseRate", 100);
+    }
+
+    private static long idOf(ResponseEntity<Map> response) {
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        return ((Number) response.getBody().get("id")).longValue();
+    }
+
+    @Test
     void listEndpointsOnlyReturnTheCallersRecords() {
         ResponseEntity<List> bobClients = call(bob, HttpMethod.GET, "/clients", null, List.class);
         assertThat(bobClients.getStatusCode()).isEqualTo(HttpStatus.OK);

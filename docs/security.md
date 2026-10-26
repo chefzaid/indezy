@@ -286,6 +286,7 @@ Spring MVC logs each request and response body at `DEBUG` through its `toString`
 - a body holding a secret is read into such a DTO, never into a `Map`, whose `toString` prints every entry (`to [{code=123456}]`)
 - the auth requests and the login response also leave out the email and the name, so a login is logged as `LoginRequest()` and its response as `LoginResponse(user=LoginResponse.UserInfo(id=1, accountId=1), twoFactorRequired=null)`
 - the bodies about a person (`ContactDto`, `FreelanceDto`, `UserDto`: names, email, phone, address, birth date, profile links) print their id only, as `ContactDto(id=1)`
+- an exchange with a contact (`ContactInteractionDto`) prints its id, channel and direction, never its summary
 - the `User` and `Freelance` entities, which hold the password hash and the two-factor secret, generate no `toString`
 - JSON serialization is unchanged: the excluded fields are still read from requests and returned in responses
 

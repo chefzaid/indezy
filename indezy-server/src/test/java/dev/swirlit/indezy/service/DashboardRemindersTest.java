@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -246,5 +247,27 @@ class DashboardRemindersTest extends DashboardStatsTestSupport {
         assertThat(stats.getDormantContacts().getFirst().getName()).isEqualTo("Old Contact");
         assertThat(stats.getDormantContacts().getFirst().getClientName()).isEqualTo("Test Company");
         assertThat(stats.getDormantContacts().getFirst().getMonthsSinceActivity()).isGreaterThanOrEqualTo(6L);
+    }
+
+    @Test
+    void getDashboardStats_ShouldCountARecentExchangeAsActivity() {
+        Contact written = new Contact();
+        written.setId(5L);
+        written.setFirstName("Written");
+        written.setUpdatedAt(LocalDateTime.now().minusMonths(9));
+        Contact silent = new Contact();
+        silent.setId(6L);
+        silent.setFirstName("Silent");
+        silent.setUpdatedAt(LocalDateTime.now().minusMonths(9));
+
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of());
+        when(contactRepository.findByFreelanceId(1L)).thenReturn(List.of(written, silent));
+        when(contactInteractionService.lastContactedInWorkspace(1L)).thenReturn(Map.of(
+            5L, LocalDate.now().minusDays(10), 6L, LocalDate.now().minusYears(2)));
+
+        DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
+
+        assertThat(stats.getDormantContacts()).extracting(DashboardStatsDto.DormantContact::getId).containsExactly(6L);
+        assertThat(stats.getDormantContacts().getFirst().getMonthsSinceActivity()).isEqualTo(9L);
     }
 }

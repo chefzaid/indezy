@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ContactDto } from '../../models/contact.models';
+import { ContactDto, ContactInteraction, ContactInteractions } from '../../models/contact.models';
 import { AuthService } from '../auth/auth.service';
 
 export interface ContactImportResult {
@@ -55,5 +55,22 @@ export class ContactService {
   /** Imports contacts from a CSV or vCard payload under the given client. */
   importForClient(clientId: number, content: string): Observable<ContactImportResult> {
     return this.http.post<ContactImportResult>(`${this.API_URL}/import/by-client/${clientId}`, { content });
+  }
+
+  /** The contact's exchanges, newest first, with its last contact, response rate and preferred channel. */
+  getInteractions(contactId: number): Observable<ContactInteractions> {
+    return this.http.get<ContactInteractions>(`${this.API_URL}/${contactId}/interactions`);
+  }
+
+  addInteraction(contactId: number, interaction: ContactInteraction): Observable<ContactInteraction> {
+    return this.http.post<ContactInteraction>(`${this.API_URL}/${contactId}/interactions`, interaction);
+  }
+
+  updateInteraction(contactId: number, id: number, interaction: ContactInteraction): Observable<ContactInteraction> {
+    return this.http.put<ContactInteraction>(`${this.API_URL}/${contactId}/interactions/${id}`, interaction);
+  }
+
+  deleteInteraction(contactId: number, id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${contactId}/interactions/${id}`);
   }
 }

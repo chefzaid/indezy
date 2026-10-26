@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.ToString;
 
+import java.time.LocalDate;
+
 // Spring MVC logs bodies through toString at DEBUG: the id alone, never the person (see docs/security.md).
 @Data
 @ToString(onlyExplicitlyIncluded = true)
@@ -30,4 +32,6 @@ public class ContactDto {
 
     // Computed fields
     private String fullName;
+    /** The day of the latest recorded exchange; read-only. */
+    private LocalDate lastContactedOn;
 }

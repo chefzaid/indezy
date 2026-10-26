@@ -123,6 +123,24 @@ Contacts belong to both a client and a freelancer. A contact can store:
 
 These relationships make it possible to track who is attached to a client or ESN and which opportunities depend on that relationship.
 
+### Contact Interaction History
+
+A contact's page keeps its **Exchanges**: each one has a day (today at the latest), a channel (email, phone, LinkedIn,
+meeting, other), who started it (**From me** / **From them**), for one the freelancer started whether it was answered
+(waiting, answered, no answer), and an optional summary of up to 500 characters. They are listed newest first, can be
+changed or deleted, and a contact keeps up to 500. Above them the page reads:
+
+- **Last contact**: the day of the latest exchange, either way; the contacts list shows it too ("3 weeks ago");
+- **Response rate**: the exchanges the freelancer started that were answered, out of those whose answer is known
+  (waiting ones are left out), as "50% (1 of 2)";
+- **Preferred channel**: the channel the contact answers or writes first on most, the latest used on a tie.
+
+An exchange counts as activity for the dashboard's dormant contacts, so a contact written to recently is not listed
+there. Exchanges are deleted with their contact (also when its client or account goes) and are part of the account
+data export. API: `GET /contacts/{id}/interactions` (the exchanges with `lastContactedOn`, `asked`, `answered`,
+`responseRate` and `preferredChannel`), `POST /contacts/{id}/interactions`, `PUT` and `DELETE
+/contacts/{id}/interactions/{interactionId}`; contacts carry `lastContactedOn`.
+
 ## Sources
 
 Sources describe where opportunities come from. They can represent job boards, social channels, email, calls, or SMS.

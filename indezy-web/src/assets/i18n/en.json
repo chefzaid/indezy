@@ -607,7 +607,48 @@
     "newSubtitle": "Enter the new contact's information",
     "contactInfo": "Contact information",
     "loadingDetail": "Loading contact...",
-    "noClientsHint": "No client yet."
+    "noClientsHint": "No client yet.",
+    "interactions": {
+      "title": "Exchanges",
+      "lastContact": "Last contact",
+      "never": "Never",
+      "responseRate": "Response rate",
+      "rate": "{{rate}}% ({{answered}} of {{asked}})",
+      "noAnswerKnown": "No answer known yet",
+      "preferredChannel": "Preferred channel",
+      "noPreference": "Not known yet",
+      "add": "Record an exchange",
+      "edit": "Edit the exchange",
+      "editOne": "Edit the exchange of {{date}}",
+      "deleteOne": "Delete the exchange of {{date}}",
+      "date": "Date",
+      "channel": "Channel",
+      "direction": "Direction",
+      "answer": "Answer",
+      "summary": "Summary (optional)",
+      "empty": "No exchange recorded yet.",
+      "saved": "Exchange saved",
+      "saveError": "The exchange could not be saved",
+      "deleteError": "The exchange could not be deleted",
+      "loadError": "The exchanges could not be loaded",
+      "confirmDelete": "Delete this exchange?",
+      "channels": {
+        "EMAIL": "Email",
+        "PHONE": "Phone",
+        "LINKEDIN": "LinkedIn",
+        "MEETING": "Meeting",
+        "OTHER": "Other"
+      },
+      "directions": {
+        "OUTGOING": "From me",
+        "INCOMING": "From them"
+      },
+      "answers": {
+        "WAITING": "Waiting for an answer",
+        "ANSWERED": "Answered",
+        "UNANSWERED": "No answer"
+      }
+    }
   },
   "sources": {
     "title": "Source Management",

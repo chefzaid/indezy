@@ -57,6 +57,18 @@ describe('ContactListComponent', () => {
     return component.filteredContacts.map(contact => component.getFullName(contact));
   }
 
+  it('says how long ago each contact was last contacted', () => {
+    const day = new Date();
+    day.setDate(day.getDate() - 14);
+    const twoWeeksAgo = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
+    const fixture = create(of([{ ...zoe, lastContactedOn: twoWeeksAgo }, alice]));
+
+    const cells = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('td.mat-column-lastContact'))
+      .map(cell => cell.textContent!.trim());
+    expect(cells).toEqual(['—', '2 weeks ago']);
+    expect(fixture.componentInstance.lastContact(alice)).toBe('');
+  });
+
   it('lists the contacts by name with their links and client', () => {
     const fixture = create();
     const component = fixture.componentInstance;

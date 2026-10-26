@@ -1,0 +1,132 @@
+<mat-card class="interactions-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>forum</mat-icon>
+      {{ 'contacts.interactions.title' | translate }}
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (history) {
+      <dl class="interaction-summary">
+        <div>
+          <dt>{{ 'contacts.interactions.lastContact' | translate }}</dt>
+          <dd>{{ history.lastContactedOn ? (history.lastContactedOn | date:'mediumDate') : ('contacts.interactions.never' | translate) }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'contacts.interactions.responseRate' | translate }}</dt>
+          <dd>
+            @if (history.responseRate != null) {
+              {{ 'contacts.interactions.rate' | translate:{ rate: history.responseRate, answered: history.answered, asked: history.asked } }}
+            } @else {
+              {{ 'contacts.interactions.noAnswerKnown' | translate }}
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>{{ 'contacts.interactions.preferredChannel' | translate }}</dt>
+          <dd>
+            @if (history.preferredChannel) {
+              <mat-icon aria-hidden="true">{{ icons[history.preferredChannel] }}</mat-icon>
+              {{ 'contacts.interactions.channels.' + history.preferredChannel | translate }}
+            } @else {
+              {{ 'contacts.interactions.noPreference' | translate }}
+            }
+          </dd>
+        </div>
+      </dl>
+    }
+
+    @if (formOpen) {
+      <form class="interaction-form" [formGroup]="form" (ngSubmit)="save()"
+        [attr.aria-label]="(editingId === null ? 'contacts.interactions.add' : 'contacts.interactions.edit') | translate">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'contacts.interactions.date' | translate }}</mat-label>
+            <input matInput type="date" formControlName="occurredOn" [max]="today" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'contacts.interactions.channel' | translate }}</mat-label>
+            <mat-select formControlName="channel">
+              @for (channel of channels; track channel) {
+                <mat-option [value]="channel">{{ 'contacts.interactions.channels.' + channel | translate }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <mat-button-toggle-group formControlName="direction" [attr.aria-label]="'contacts.interactions.direction' | translate">
+          <mat-button-toggle value="OUTGOING">
+            <mat-icon aria-hidden="true">call_made</mat-icon> {{ 'contacts.interactions.directions.OUTGOING' | translate }}
+          </mat-button-toggle>
+          <mat-button-toggle value="INCOMING">
+            <mat-icon aria-hidden="true">call_received</mat-icon> {{ 'contacts.interactions.directions.INCOMING' | translate }}
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+        @if (outgoing) {
+          <mat-form-field appearance="outline" class="answer-field">
+            <mat-label>{{ 'contacts.interactions.answer' | translate }}</mat-label>
+            <mat-select formControlName="answer">
+              <mat-option value="WAITING">{{ 'contacts.interactions.answers.WAITING' | translate }}</mat-option>
+              <mat-option value="ANSWERED">{{ 'contacts.interactions.answers.ANSWERED' | translate }}</mat-option>
+              <mat-option value="UNANSWERED">{{ 'contacts.interactions.answers.UNANSWERED' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        }
+        <mat-form-field appearance="outline" class="summary-field">
+          <mat-label>{{ 'contacts.interactions.summary' | translate }}</mat-label>
+          <textarea matInput formControlName="summary" rows="2" [maxlength]="summaryMax"></textarea>
+          <mat-hint align="end">{{ form.controls.summary.value.length }}/{{ summaryMax }}</mat-hint>
+        </mat-form-field>
+        <div class="form-actions">
+          <button mat-button type="button" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || saving">
+            {{ 'common.save' | translate }}
+          </button>
+        </div>
+      </form>
+    } @else {
+      <button mat-stroked-button type="button" class="add-interaction" (click)="startAdd()">
+        <mat-icon>add</mat-icon>
+        {{ 'contacts.interactions.add' | translate }}
+      </button>
+    }
+
+    @if (history) {
+      <ul class="interaction-list">
+        @for (interaction of history.interactions; track interaction.id) {
+          <li class="interaction">
+            <mat-icon class="channel-icon" aria-hidden="true">{{ icons[interaction.channel] }}</mat-icon>
+            <div class="interaction-main">
+              <div class="interaction-head">
+                <span class="interaction-title">
+                  {{ 'contacts.interactions.channels.' + interaction.channel | translate }}
+                  · {{ 'contacts.interactions.directions.' + interaction.direction | translate }}
+                </span>
+                <span class="interaction-date">{{ interaction.occurredOn | date:'mediumDate' }}</span>
+                @if (interaction.direction === 'OUTGOING') {
+                  <span class="answer-pill" [class.answered]="interaction.replied === true"
+                    [class.unanswered]="interaction.replied === false">
+                    {{ 'contacts.interactions.answers.' + (interaction.replied === true ? 'ANSWERED'
+                      : interaction.replied === false ? 'UNANSWERED' : 'WAITING') | translate }}
+                  </span>
+                }
+              </div>
+              @if (interaction.summary) {
+                <p class="interaction-summary-text">{{ interaction.summary }}</p>
+              }
+            </div>
+            <button mat-icon-button type="button" (click)="startEdit(interaction)"
+              [attr.aria-label]="'contacts.interactions.editOne' | translate:{ date: (interaction.occurredOn | date:'mediumDate') }">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button type="button" (click)="remove(interaction)"
+              [attr.aria-label]="'contacts.interactions.deleteOne' | translate:{ date: (interaction.occurredOn | date:'mediumDate') }">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </li>
+        } @empty {
+          <li class="no-interactions">{{ 'contacts.interactions.empty' | translate }}</li>
+        }
+      </ul>
+    }
+  </mat-card-content>
+</mat-card>

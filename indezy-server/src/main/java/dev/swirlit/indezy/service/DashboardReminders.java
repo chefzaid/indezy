@@ -15,6 +15,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Pure computations for the dashboard's time-based nudges: stale opportunities, missions ending
@@ -174,11 +175,6 @@ final class DashboardReminders {
         return date.withYear(year);
     }
 
-    /**
-     * Lists contacts with no recorded activity (their last update) for at least
-     * {@link #DORMANT_THRESHOLD_MONTHS} months, so the freelance can reconnect before the
-     * relationship goes cold. Most dormant first.
-     */
     /** The planned interview steps from {@code now} to seven days later, soonest first. */
     static List<DashboardStatsDto.UpcomingInterview> buildUpcomingInterviews(List<InterviewStep> steps, LocalDateTime now) {
         LocalDateTime until = now.plusDays(UPCOMING_INTERVIEW_DAYS);
@@ -197,11 +193,21 @@ final class DashboardReminders {
             .toList();
     }
 
-    static List<DashboardStatsDto.DormantContact> buildDormantContacts(List<Contact> contacts, LocalDateTime now) {
+    /**
+     * Lists contacts with no activity (their last update or recorded exchange, in {@code lastContacted}) for at least
+     * {@link #DORMANT_THRESHOLD_MONTHS} months, so the freelance can reconnect before the
+     * relationship goes cold. Most dormant first.
+     */
+    static List<DashboardStatsDto.DormantContact> buildDormantContacts(List<Contact> contacts, Map<Long, LocalDate> lastContacted,
+                                                                       LocalDateTime now) {
         List<DashboardStatsDto.DormantContact> dormant = new ArrayList<>();
         for (Contact contact : contacts) {
             LocalDateTime lastActivity = contact.getUpdatedAt() != null ?
                 contact.getUpdatedAt() : contact.getCreatedAt();
+            LocalDate lastExchange = lastContacted.get(contact.getId());
+            if (lastExchange != null && (lastActivity == null || lastExchange.atStartOfDay().isAfter(lastActivity))) {
+                lastActivity = lastExchange.atStartOfDay();
+            }
             if (lastActivity == null) {
                 continue;
             }

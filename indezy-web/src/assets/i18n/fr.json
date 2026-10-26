@@ -607,7 +607,48 @@
     "newSubtitle": "Renseignez les informations du nouveau contact",
     "contactInfo": "Coordonnées",
     "loadingDetail": "Chargement du contact...",
-    "noClientsHint": "Aucun client pour l'instant."
+    "noClientsHint": "Aucun client pour l'instant.",
+    "interactions": {
+      "title": "Échanges",
+      "lastContact": "Dernier contact",
+      "never": "Jamais",
+      "responseRate": "Taux de réponse",
+      "rate": "{{rate}} % ({{answered}} sur {{asked}})",
+      "noAnswerKnown": "Aucune réponse connue",
+      "preferredChannel": "Canal préféré",
+      "noPreference": "Pas encore connu",
+      "add": "Noter un échange",
+      "edit": "Modifier l'échange",
+      "editOne": "Modifier l'échange du {{date}}",
+      "deleteOne": "Supprimer l'échange du {{date}}",
+      "date": "Date",
+      "channel": "Canal",
+      "direction": "Sens",
+      "answer": "Réponse",
+      "summary": "Résumé (facultatif)",
+      "empty": "Aucun échange noté pour l'instant.",
+      "saved": "Échange enregistré",
+      "saveError": "L'échange n'a pas pu être enregistré",
+      "deleteError": "L'échange n'a pas pu être supprimé",
+      "loadError": "Les échanges n'ont pas pu être chargés",
+      "confirmDelete": "Supprimer cet échange ?",
+      "channels": {
+        "EMAIL": "E-mail",
+        "PHONE": "Téléphone",
+        "LINKEDIN": "LinkedIn",
+        "MEETING": "Rendez-vous",
+        "OTHER": "Autre"
+      },
+      "directions": {
+        "OUTGOING": "De ma part",
+        "INCOMING": "De sa part"
+      },
+      "answers": {
+        "WAITING": "En attente de réponse",
+        "ANSWERED": "A répondu",
+        "UNANSWERED": "Sans réponse"
+      }
+    }
   },
   "sources": {
     "title": "Gestion des Sources",

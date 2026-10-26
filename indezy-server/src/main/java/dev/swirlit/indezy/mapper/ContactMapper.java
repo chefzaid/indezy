@@ -11,6 +11,7 @@ public interface ContactMapper {
     @Mapping(target = "clientName", source = "client.companyName")
     @Mapping(target = "freelanceId", source = "freelance.id")
     @Mapping(target = "fullName", expression = "java(contact.getFirstName() + (contact.getLastName() != null ? \" \" + contact.getLastName() : \"\"))")
+    @Mapping(target = "lastContactedOn", ignore = true)
     ContactDto toDto(Contact contact);
 
     @Mapping(target = "id", ignore = true)

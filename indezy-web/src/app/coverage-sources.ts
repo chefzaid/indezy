@@ -16,6 +16,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/contacts/contact-detail/contact-detail.component',
   'components/contacts/contact-form/contact-form.component',
   'components/contacts/contact-import-dialog/contact-import-dialog.component',
+  'components/contacts/contact-interactions/contact-interactions.component',
   'components/contacts/contact-list/contact-list.component',
   'components/contacts/contacts.routes',
   'components/dashboard/daily-rate-chart/daily-rate-chart.component',

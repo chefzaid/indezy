@@ -226,6 +226,21 @@ Important fields:
 
 The model exposes `getFullName()` and falls back to first name when last name is empty.
 
+## ContactInteraction
+
+Table: `contact_interactions` (index on `contact_id, occurred_on`)
+
+Purpose: one exchange with a contact, from which its last contact, response rate and preferred channel are read.
+
+Important fields:
+
+- contact (deleted with it: the foreign key is `ON DELETE CASCADE`, through `@OnDelete`)
+- `occurred_on`: the day, no later than tomorrow in Paris
+- `channel`: `EMAIL`, `PHONE`, `LINKEDIN`, `MEETING` or `OTHER`
+- `direction`: `OUTGOING` (the freelancer started it) or `INCOMING`
+- `replied`: for an `OUTGOING` one, whether it was answered; null while waiting or unknown, always null for `INCOMING`
+- `summary`: up to 500 characters, optional
+
 ## Source
 
 Table: `sources`

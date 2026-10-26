@@ -52,6 +52,9 @@ public final class ErrorMessages {
     public static final String EMAIL_TEMPLATE_NOT_FOUND = "Email template not found with id: %d";
     public static final String EMAIL_TEMPLATE_NAME_TAKEN = "An email template is already named \"%s\"";
     public static final String EMAIL_TEMPLATES_LIMIT = "A workspace keeps at most %d email templates";
+    public static final String CONTACT_INTERACTIONS_LIMIT = "A contact keeps at most %d interactions";
+    public static final String CONTACT_INTERACTION_NOT_FOUND = "Interaction not found with id: %d";
+    public static final String CONTACT_INTERACTION_IN_FUTURE = "An interaction cannot be dated after today";
     public static final String ATTACHMENT_NOT_FOUND = "Attachment not found with id: %d";
     public static final String ATTACHMENT_EMPTY = "The file is empty";
     public static final String ATTACHMENT_TOO_LARGE = "The file is larger than 10 MB";

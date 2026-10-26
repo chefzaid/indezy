@@ -113,7 +113,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [x] Contact management linked to both client and freelancer
 - [x] Client rating and blacklist (payment delays, ghosting, bad process)
 - [x] ESN/intermediary margin tracking (rate paid by client vs rate received)
-- [ ] Contact interaction history (last contacted, response rate, preferred channel)
+- [x] Contact interaction history (last contacted, response rate, preferred channel). Done on 2026-10-26: a contact's page records its exchanges (day, channel, who started it, answered or not, summary) and reads its last contact, response rate and preferred channel from them; the contacts list shows the last contact, and a recent exchange keeps a contact out of the dashboard's dormant list (`docs/features.md#contact-interaction-history`).
 - [ ] Org chart linking contacts to clients and ESNs (who works with whom)
 - [x] Reminder to nurture dormant contacts (no exchange in 6 months)
 - [x] "On this day last year": resurface contacts/opportunities from the same period to re-engage

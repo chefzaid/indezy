@@ -44,6 +44,7 @@ public class DashboardStatsService {
     private final FreelanceRepository freelanceRepository;
     private final ContactRepository contactRepository;
     private final InterviewStepRepository interviewStepRepository;
+    private final ContactInteractionService contactInteractionService;
 
     /** Notice period applied when the freelance has not configured one. */
     private static final int DEFAULT_NOTICE_PERIOD_DAYS = 30;
@@ -155,7 +156,8 @@ public class DashboardStatsService {
                 projects, LocalDateTime.now(ZoneId.systemDefault()), inactivityDays))
             .upcomingRenewals(DashboardReminders.buildUpcomingRenewals(projects, today, noticePeriodInDays))
             .onThisDay(DashboardReminders.buildOnThisDay(projects, contacts, today))
-            .dormantContacts(DashboardReminders.buildDormantContacts(contacts, LocalDateTime.now(ZoneId.systemDefault())))
+            .dormantContacts(DashboardReminders.buildDormantContacts(contacts,
+                contactInteractionService.lastContactedInWorkspace(freelanceId), LocalDateTime.now(ZoneId.systemDefault())))
             .upcomingInterviews(DashboardReminders.buildUpcomingInterviews(upcomingSteps, now))
             .skillTrends(DashboardAnalytics.buildSkillTrends(projects))
             .processDurations(DashboardAnalytics.buildProcessDurations(

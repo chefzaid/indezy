@@ -15,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -27,14 +29,12 @@ public class ContactService {
     private final ClientRepository clientRepository;
     private final FreelanceRepository freelanceRepository;
     private final ContactMapper contactMapper;
+    private final ContactInteractionService interactionService;
 
     @Transactional(readOnly = true)
     public List<ContactDto> findAll() {
         log.debug("Finding all contacts");
-        return contactRepository.findAll()
-            .stream()
-            .map(contactMapper::toDto)
-            .toList();
+        return withLastContact(contactRepository.findAll());
     }
 
     @Transactional(readOnly = true)
@@ -42,25 +42,19 @@ public class ContactService {
         log.debug("Finding contact by id: {}", id);
         Contact contact = contactRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.CONTACT_NOT_FOUND, id)));
-        return contactMapper.toDto(contact);
+        return withLastContact(List.of(contact)).getFirst();
     }
 
     @Transactional(readOnly = true)
     public List<ContactDto> findByFreelanceId(Long freelanceId) {
         log.debug("Finding contacts by freelance id: {}", freelanceId);
-        return contactRepository.findByFreelanceId(freelanceId)
-            .stream()
-            .map(contactMapper::toDto)
-            .toList();
+        return withLastContact(contactRepository.findByFreelanceId(freelanceId));
     }
 
     @Transactional(readOnly = true)
     public List<ContactDto> findByClientId(Long clientId) {
         log.debug("Finding contacts by client id: {}", clientId);
-        return contactRepository.findByClientId(clientId)
-            .stream()
-            .map(contactMapper::toDto)
-            .toList();
+        return withLastContact(contactRepository.findByClientId(clientId));
     }
 
     public ContactDto create(ContactDto contactDto) {
@@ -115,7 +109,7 @@ public class ContactService {
         Contact updatedContact = contactRepository.save(existingContact);
         
         log.info("Updated contact with id: {}", updatedContact.getId());
-        return contactMapper.toDto(updatedContact);
+        return withLastContact(List.of(updatedContact)).getFirst();
     }
 
     public void delete(Long id) {
@@ -129,4 +123,13 @@ public class ContactService {
         log.info("Deleted contact with id: {}", id);
     }
 
+    /** {@code contacts} as DTOs, each with the day of its latest exchange. */
+    private List<ContactDto> withLastContact(List<Contact> contacts) {
+        Map<Long, LocalDate> lastContacted = interactionService.lastContacted(contacts.stream().map(Contact::getId).toList());
+        return contacts.stream().map(contact -> {
+            ContactDto dto = contactMapper.toDto(contact);
+            dto.setLastContactedOn(lastContacted.get(contact.getId()));
+            return dto;
+        }).toList();
+    }
 }

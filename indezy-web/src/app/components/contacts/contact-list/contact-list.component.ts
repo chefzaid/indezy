@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
 
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -21,6 +22,7 @@ import { ClientService } from '../../../services/client/client.service';
 import { ContactDto, ClientDto } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { relativeDay } from '../../../shared/utils/relative-time';
 
 @Component({
     selector: 'app-contact-list',
@@ -38,7 +40,8 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
     MatProgressSpinnerModule,
     MatDialogModule,
     MatTooltipModule,
-    TranslateModule
+    TranslateModule,
+    DatePipe
 ],
     templateUrl: './contact-list.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -52,8 +55,9 @@ export class ContactListComponent implements OnInit, OnDestroy {
   searchQuery = '';
   selectedClient: number | '' = '';
 
-  displayedColumns: string[] = ['name', 'email', 'phone', 'client', 'actions'];
+  displayedColumns: string[] = ['name', 'email', 'phone', 'client', 'lastContact', 'actions'];
 
+  private readonly locale = inject(LOCALE_ID);
   private readonly destroy$ = new Subject<void>();
   private readonly searchSubject = new Subject<string>();
 
@@ -192,5 +196,10 @@ export class ContactListComponent implements OnInit, OnDestroy {
 
   getFullName(contact: ContactDto): string {
     return [contact.firstName, contact.lastName].filter(Boolean).join(' ');
+  }
+
+  /** How long ago the contact's latest exchange was, in words ("il y a 3 semaines"). */
+  lastContact(contact: ContactDto): string {
+    return contact.lastContactedOn ? relativeDay(contact.lastContactedOn, this.locale) : '';
   }
 }

@@ -18,6 +18,7 @@ TRUNCATE TABLE
     seasons,
     interview_step_checklist,
     interview_steps,
+    contact_interactions,
     contacts,
     projects,
     sources,
@@ -151,6 +152,22 @@ SELECT
     CURRENT_TIMESTAMP - ((n % 9) * INTERVAL '17 days'),
     0
 FROM generate_series(1, 48) AS series(n);
+
+-- A few exchanges with the first contacts: messages answered or not, calls and a meeting.
+INSERT INTO contact_interactions (
+    contact_id, occurred_on, channel, direction, replied, summary, created_at, updated_at, version
+)
+SELECT
+    c.id,
+    CURRENT_DATE - (c.id * 9 + k * 6)::int,
+    (ARRAY['EMAIL', 'LINKEDIN', 'PHONE', 'MEETING'])[1 + ((c.id + k) % 4)::int],
+    CASE WHEN k = 2 THEN 'INCOMING' ELSE 'OUTGOING' END,
+    CASE WHEN k = 2 THEN NULL WHEN (c.id + k) % 3 = 0 THEN false ELSE true END,
+    (ARRAY['Sent my availability and daily rate.', 'Followed up on the shortlist.', 'Asked for an update on the mission.'])[k + 1],
+    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0
+FROM contacts c
+CROSS JOIN generate_series(0, 2) AS series(k)
+WHERE c.id <= 12;
 
 -- Ninety-six opportunities spread evenly across the whole pipeline.
 WITH generated AS (
