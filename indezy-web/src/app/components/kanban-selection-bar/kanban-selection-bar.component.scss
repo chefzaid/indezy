@@ -1,0 +1,24 @@
+.selection-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: var(--mat-sys-secondary-container, #e8eaf6);
+  color: var(--mat-sys-on-secondary-container, inherit);
+}
+
+.selection-count {
+  font-weight: 500;
+  margin-right: auto;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}

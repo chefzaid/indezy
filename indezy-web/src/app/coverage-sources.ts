@@ -27,6 +27,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/kanban-board/kanban-board.component',
   'components/kanban-lost-reason-dialog/kanban-lost-reason-dialog.component',
   'components/kanban-quick-add-dialog/kanban-quick-add-dialog.component',
+  'components/kanban-selection-bar/kanban-selection-bar.component',
   'components/offers/offer-apply-dialog/offer-apply-dialog.component',
   'components/offers/offer-bar-chart/offer-bar-chart.component',
   'components/offers/offer-card/offer-card.component',

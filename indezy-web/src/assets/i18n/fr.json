@@ -643,7 +643,19 @@
     "quickAddSuccess": "Opportunité ajoutée",
     "quickAddError": "Erreur lors de l'ajout de l'opportunité",
     "lostReasonTitle": "Pourquoi cette opportunité a-t-elle été perdue ?",
-    "perDayShort": "/j"
+    "perDayShort": "/j",
+    "selectCard": "Sélectionner « {{role}} »",
+    "selection": {
+      "count": "{{count}} sélectionnée(s)",
+      "moveTo": "Déplacer vers",
+      "source": "Source",
+      "noSources": "Aucune source",
+      "archive": "Archiver",
+      "clear": "Vider la sélection",
+      "lostRole": "{{count}} opportunités",
+      "done": "{{count}} opportunité(s) mise(s) à jour",
+      "error": "Les opportunités sélectionnées n'ont pas pu être mises à jour"
+    }
   },
   "profile": {
     "targetDailyRate": "TJM cible",

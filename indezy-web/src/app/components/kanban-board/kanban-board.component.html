@@ -9,6 +9,11 @@
     </button>
   </div>
 
+  @if (selectedIds.length > 0) {
+    <app-kanban-selection-bar [projectIds]="selectedIds" (done)="loadKanbanBoard()" (clear)="clearSelection()">
+    </app-kanban-selection-bar>
+  }
+
   @if (isLoading) {
     <div class="loading-container">
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
@@ -43,7 +48,8 @@
             [cdkDropListConnectedTo]="getConnectedDropLists()"
             (cdkDropListDropped)="onCardDrop($event)">
             @for (card of getCardsForColumn(status); track card.projectId) {
-              <div class="project-card" cdkDrag [attr.data-project-id]="card.projectId">
+              <div class="project-card" cdkDrag [attr.data-project-id]="card.projectId"
+                [class.selected]="selectedIds.includes(card.projectId)">
                 <mat-card class="card-content" [routerLink]="['/projects', card.projectId]" style="cursor: pointer;">
                   <mat-card-header>
                     <mat-card-title class="card-role">{{ card.role }}</mat-card-title>
@@ -53,6 +59,9 @@
                         {{ card.clientName }}
                       </mat-card-subtitle>
                     }
+                    <mat-checkbox class="select-card" [checked]="selectedIds.includes(card.projectId)"
+                      (click)="$event.stopPropagation()" (change)="toggleSelected(card)"
+                      [aria-label]="'kanban.selectCard' | translate:{ role: card.role }"></mat-checkbox>
                     <button mat-icon-button class="favorite-btn"
                       [class.is-favorite]="card.isFavorite"
                       (click)="toggleFavorite(card, $event)"

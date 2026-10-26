@@ -294,6 +294,46 @@ describe('KanbanBoardComponent', () => {
     });
   });
 
+  describe('Selection', () => {
+    beforeEach(() => {
+      mockProjectService.getKanbanBoard.and.returnValue(of({
+        columns: { [ProjectStatus.CONTACT]: [{ ...mockCard }, { ...mockCard, projectId: 99, role: 'Data engineer' }] },
+        inactivityDays: 14,
+        columnOrder: [ProjectStatus.CONTACT]
+      }));
+      fixture.detectChanges();
+    });
+
+    function checkboxes(): HTMLInputElement[] {
+      return Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.select-card input[type="checkbox"]'));
+    }
+
+    it('picks cards with their checkbox and shows the selection bar', () => {
+      expect(fixture.nativeElement.querySelector('app-kanban-selection-bar')).toBeNull();
+
+      checkboxes()[1].click();
+      checkboxes()[0].click();
+      fixture.detectChanges();
+
+      expect(component.selectedIds).toEqual([99, 42]);
+      expect(fixture.nativeElement.querySelector('app-kanban-selection-bar')).not.toBeNull();
+      expect(fixture.nativeElement.querySelectorAll('.project-card.selected').length).toBe(2);
+
+      checkboxes()[1].click();
+      expect(component.selectedIds).toEqual([42]);
+    });
+
+    it('clears the selection on request and when the board reloads', () => {
+      component.toggleSelected(mockCard);
+      component.clearSelection();
+      expect(component.selectedIds).toEqual([]);
+
+      component.toggleSelected(mockCard);
+      component.loadKanbanBoard();
+      expect(component.selectedIds).toEqual([]);
+    });
+  });
+
   describe('Quick add', () => {
     let dialogOpenSpy: jasmine.Spy;
 

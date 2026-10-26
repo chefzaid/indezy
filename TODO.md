@@ -66,7 +66,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [x] Five generic Kanban columns: Contact, Tests & Entretiens, Offre, Accepté, Perdu / Abandonné (existing opportunities migrated automatically)
 - [x] Drag-and-drop status changes from the Kanban board
 - [ ] Customizable pipeline templates per client/ESN (save a recruitment process and reuse it)
-- [ ] Bulk actions on Kanban cards (archive, change status, assign source)
+- [x] Bulk actions on Kanban cards (archive, change status, assign source): a checkbox per card and a selection bar, through `PATCH /projects/bulk`
 - [x] Card aging indicators (highlight opportunities with no activity for X days)
 - [x] Drag-and-drop reordering within a column (manual priority)
 - [x] Quick-add card directly from the Kanban board (minimal form, enrich later)

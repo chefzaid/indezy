@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.KanbanBoardDto;
+import dev.swirlit.indezy.dto.ProjectBulkUpdateRequest;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
@@ -96,6 +97,16 @@ public class ProjectController {
                                           @RequestParam(required = false) LostReason lostReason) {
         accessGuard.requireProject(id);
         return projectService.updateStatus(id, status, lostReason);
+    }
+
+    @Operation(summary = "Change the status or source of several opportunities, or archive them, at once")
+    @PatchMapping("/bulk")
+    public Map<String, Integer> bulkUpdate(@Valid @RequestBody ProjectBulkUpdateRequest request) {
+        request.projectIds().forEach(accessGuard::requireProject);
+        if (request.action() == ProjectBulkUpdateRequest.Action.SOURCE) {
+            accessGuard.requireSourceIfPresent(request.sourceId());
+        }
+        return Map.of("updated", projectService.bulkUpdate(request));
     }
 
     @Operation(summary = "Archive an opportunity: it leaves the Kanban board and keeps its status")

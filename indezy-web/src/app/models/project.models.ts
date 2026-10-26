@@ -273,3 +273,13 @@ export interface CreateProjectDto {
   sourceId?: number;
   seasonId?: number;
 }
+
+/** One change applied to several opportunities at once, from the Kanban board's selection. */
+export interface ProjectBulkUpdate {
+  projectIds: number[];
+  action: 'STATUS' | 'SOURCE' | 'ARCHIVE';
+  status?: ProjectStatus;
+  /** Why they were lost, when moved to LOST. */
+  lostReason?: LostReason;
+  sourceId?: number;
+}

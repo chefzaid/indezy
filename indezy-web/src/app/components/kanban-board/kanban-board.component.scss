@@ -157,7 +157,14 @@
         font-size: 13px;
         font-weight: 600;
         line-height: 1.3;
-        padding-right: 28px;
+        padding-right: 56px;
+      }
+
+      .select-card {
+        --mat-checkbox-state-layer-size: 28px;
+        position: absolute;
+        top: 4px;
+        right: 32px;
       }
 
       .subtitle-icon {
@@ -394,4 +401,9 @@
   .kanban-column {
     min-width: 78vw;
   }
+}
+
+.project-card.selected .card-content {
+  outline: 2px solid var(--mat-sys-primary, #3f51b5);
+  outline-offset: -2px;
 }

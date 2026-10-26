@@ -10,6 +10,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -25,6 +26,7 @@ import {
   KanbanLostReasonDialogComponent,
   KanbanLostReasonDialogData
 } from '../kanban-lost-reason-dialog/kanban-lost-reason-dialog.component';
+import { KanbanSelectionBarComponent } from '../kanban-selection-bar/kanban-selection-bar.component';
 import {
   KanbanBoardDto,
   KanbanProjectCardDto,
@@ -47,6 +49,8 @@ import {
     MatSnackBarModule,
     MatTooltipModule,
     MatDialogModule,
+    MatCheckboxModule,
+    KanbanSelectionBarComponent,
     DragDropModule,
     TranslateModule
 ],
@@ -61,6 +65,8 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
   kanbanBoard: KanbanBoardDto | null = null;
   isLoading = false;
   currentUserId: number | null = null;
+  /** The cards picked for an action on several at once, in the order they were picked. */
+  selectedIds: number[] = [];
 
   private readonly destroy$ = new Subject<void>();
   private readonly locale = inject(LOCALE_ID);
@@ -102,6 +108,7 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.currentUserId) {return;}
 
     this.isLoading = true;
+    this.selectedIds = [];
     this.projectService.getKanbanBoard(this.currentUserId, this.seasonId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -279,6 +286,16 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
     const days = this.getDaysSinceActivity(card);
     const threshold = this.kanbanBoard?.inactivityDays;
     return days !== null && threshold !== undefined && days >= threshold;
+  }
+
+  /** Picks or unpicks a card for an action on several at once. */
+  toggleSelected(card: KanbanProjectCardDto): void {
+    this.selectedIds = this.selectedIds.includes(card.projectId) ?
+      this.selectedIds.filter(id => id !== card.projectId) : [...this.selectedIds, card.projectId];
+  }
+
+  clearSelection(): void {
+    this.selectedIds = [];
   }
 
   toggleFavorite(card: KanbanProjectCardDto, event: Event): void {

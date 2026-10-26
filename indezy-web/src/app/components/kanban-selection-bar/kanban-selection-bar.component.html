@@ -1,0 +1,33 @@
+<div class="selection-bar" role="toolbar" [attr.aria-label]="'kanban.selection.count' | translate:{ count: projectIds.length }">
+  <span class="selection-count">{{ 'kanban.selection.count' | translate:{ count: projectIds.length } }}</span>
+  <button mat-stroked-button type="button" [matMenuTriggerFor]="statusMenu" [disabled]="busy">
+    <mat-icon>drive_file_move</mat-icon>
+    {{ 'kanban.selection.moveTo' | translate }}
+  </button>
+  <mat-menu #statusMenu="matMenu">
+    @for (status of statuses; track status) {
+      <button mat-menu-item (click)="moveTo(status)">
+        <span class="status-dot" [style.background-color]="statusColors[status]"></span>
+        {{ 'projects.statuses.' + status | translate }}
+      </button>
+    }
+  </mat-menu>
+  <button mat-stroked-button type="button" [matMenuTriggerFor]="sourceMenu" [disabled]="busy">
+    <mat-icon>source</mat-icon>
+    {{ 'kanban.selection.source' | translate }}
+  </button>
+  <mat-menu #sourceMenu="matMenu">
+    @for (source of sources; track source.id) {
+      <button mat-menu-item (click)="assignSource(source.id!)">{{ source.name }}</button>
+    } @empty {
+      <button mat-menu-item disabled>{{ 'kanban.selection.noSources' | translate }}</button>
+    }
+  </mat-menu>
+  <button mat-stroked-button type="button" (click)="archive()" [disabled]="busy">
+    <mat-icon>archive</mat-icon>
+    {{ 'kanban.selection.archive' | translate }}
+  </button>
+  <button mat-icon-button type="button" (click)="clear.emit()" [attr.aria-label]="'kanban.selection.clear' | translate">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>

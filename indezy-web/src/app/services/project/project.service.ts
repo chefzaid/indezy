@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ProjectDto, ProjectStatus, KanbanBoardDto, DashboardStatsDto, LostReason, ProjectNote } from '../../models/project.models';
+import { ProjectDto, ProjectStatus, KanbanBoardDto, DashboardStatsDto, LostReason, ProjectNote, ProjectBulkUpdate } from '../../models/project.models';
 
 @Injectable({
   providedIn: 'root'
@@ -56,6 +56,11 @@ export class ProjectService {
   /** Takes an opportunity out of the pipeline into the archive; it keeps its status. */
   archive(id: number): Observable<ProjectDto> {
     return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/archive`, null);
+  }
+
+  /** Changes the status or source of several opportunities, or archives them, at once; answers how many changed. */
+  bulkUpdate(change: ProjectBulkUpdate): Observable<{ updated: number }> {
+    return this.http.patch<{ updated: number }>(`${this.API_URL}/bulk`, change);
   }
 
   /** Puts an archived opportunity back in its pipeline column. */

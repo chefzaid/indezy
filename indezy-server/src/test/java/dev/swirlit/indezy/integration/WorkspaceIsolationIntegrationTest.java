@@ -193,6 +193,31 @@ class WorkspaceIsolationIntegrationTest {
     }
 
     @Test
+    void anotherAccountCannotChangeOpportunitiesOrAssignSourcesInBulk() {
+        ResponseEntity<Map> project = call(alice, HttpMethod.POST, "/projects",
+            Map.of("role", "Dev", "dailyRate", 500, "clientId", aliceClientId, "freelanceId", alice.freelanceId()), Map.class);
+        long projectId = ((Number) project.getBody().get("id")).longValue();
+        ResponseEntity<Map> source = call(alice, HttpMethod.POST, "/sources",
+            Map.of("name", "Alice board", "type", "JOB_BOARD", "freelanceId", alice.freelanceId()), Map.class);
+        long sourceId = ((Number) source.getBody().get("id")).longValue();
+        ResponseEntity<Map> bobProject = call(bob, HttpMethod.POST, "/clients",
+            Map.of("companyName", "Bob Corp", "city", "Lyon", "isFinal", true, "freelanceId", bob.freelanceId()), Map.class);
+        long bobClientId = ((Number) bobProject.getBody().get("id")).longValue();
+        long bobProjectId = ((Number) call(bob, HttpMethod.POST, "/projects",
+            Map.of("role", "Ops", "dailyRate", 500, "clientId", bobClientId, "freelanceId", bob.freelanceId()), Map.class)
+            .getBody().get("id")).longValue();
+
+        assertThat(call(bob, HttpMethod.PATCH, "/projects/bulk",
+            Map.of("projectIds", List.of(bobProjectId, projectId), "action", "ARCHIVE"), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.PATCH, "/projects/bulk",
+            Map.of("projectIds", List.of(bobProjectId), "action", "SOURCE", "sourceId", sourceId), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.GET, "/projects/" + projectId, null, Map.class).getBody().get("archivedAt")).isNull();
+        assertThat(call(bob, HttpMethod.GET, "/projects/" + bobProjectId, null, Map.class).getBody().get("archivedAt")).isNull();
+    }
+
+    @Test
     void listEndpointsOnlyReturnTheCallersRecords() {
         ResponseEntity<List> bobClients = call(bob, HttpMethod.GET, "/clients", null, List.class);
         assertThat(bobClients.getStatusCode()).isEqualTo(HttpStatus.OK);

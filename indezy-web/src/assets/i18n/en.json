@@ -643,7 +643,19 @@
     "quickAddSuccess": "Opportunity added",
     "quickAddError": "Error adding opportunity",
     "lostReasonTitle": "Why was this opportunity lost?",
-    "perDayShort": "/d"
+    "perDayShort": "/d",
+    "selectCard": "Select \"{{role}}\"",
+    "selection": {
+      "count": "{{count}} selected",
+      "moveTo": "Move to",
+      "source": "Source",
+      "noSources": "No sources yet",
+      "archive": "Archive",
+      "clear": "Clear the selection",
+      "lostRole": "{{count}} opportunities",
+      "done": "{{count}} opportunities updated",
+      "error": "The selected opportunities could not be updated"
+    }
   },
   "profile": {
     "targetDailyRate": "Target daily rate",

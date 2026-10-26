@@ -570,6 +570,15 @@ there or on the opportunity's page, puts it back in its column and counts as act
 inactivity period starts again. `INDEZY_PROJECTS_ARCHIVING_ENABLED=false` stops the nightly
 run.
 
+Each card has a checkbox, next to its favorite star, that picks it without opening it. While
+cards are picked, a bar above the board counts them and acts on all of them at once: **Move
+to** a column (Lost asks for the reason first), **Source** gives them one of the workspace's
+sources, **Archive** archives them, and the close button clears the selection. The change goes
+through `PATCH /projects/bulk` (`projectIds`, `action` `STATUS`, `SOURCE` or `ARCHIVE`, with
+`status`, `lostReason` or `sourceId`), which checks that every opportunity and the source
+belong to the caller's workspace and applies it in one transaction; the board then reloads,
+selection cleared.
+
 The board has five status-driven columns: Contact, Tests & Entretiens, Offre, Accepté and Perdu / Abandonné. Intermediate recruitment steps (technical test, client interview...) are tracked as interview steps inside the Tests & Entretiens column. The board follows the season selected on the dashboard (`GET /projects/kanban/{freelanceId}?seasonId=`), and cards quick-added to it join that season.
 
 ## Job-Hunting Seasons
