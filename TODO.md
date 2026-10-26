@@ -39,6 +39,8 @@ Bugs, failing checks, security findings and code smells found while working on a
 - [ ] The project list does not count the season filter: `countActiveFilters` in `indezy-web/src/app/services/project/project-filter.util.ts` leaves out `filters.season`, so picking a season on `/projects` narrows the list without the "(n)" badge on **Filters** or the **Clear filters** button. *(found by: Coding Agent, frontend specs)*
 - [ ] A failed reload after an interview step change goes unreported: `refreshAfterStepChange()` in `project-detail.component.ts` subscribes to `getById` without an error handler, and a `null` answer clears the project, leaving a blank page. Reproduce: make `GET /projects/{id}` fail right after changing a step's status. *(found by: Coding Agent, frontend specs)*
 - [ ] Code smells in the source and error pages: `source-list.component.ts` `onDelete` silently ignores a source without id (contacts show `errors.missingContactId`); `source-form.component.ts` `onSubmit` has no guard against a second submit while saving (contact-form has one); `not-found.component.ts` `goHome()` is wired to `(retry)` whose button is hidden (`showRetry: false`), so it never runs. *(found by: Coding Agent, frontend specs)*
+- [ ] The profile's birth date moves by a day with the browser's time zone: `profile.component.ts` saves it with `birthDate.toISOString().split('T')[0]` (UTC, so a date picked at local midnight in Paris is saved as the day before) and reads it with `new Date(profile.birthDate)` (UTC midnight, so west of UTC the picker shows the day before). Reproduce: `TZ=Europe/Paris node -e "console.log(new Date(1990,4,12).toISOString().split('T')[0])"` prints `1990-05-11`. `toIsoDate` / `fromIsoDate`, used for the availability date, avoid it. *(found by: Coding Agent, frontend specs)*
+- [ ] `passwordMatchValidator` in `profile.component.ts` calls `confirmPassword.setErrors({ passwordMismatch: true })`, replacing the confirmation field's other errors (such as `required`) instead of adding to them. *(found by: Coding Agent, frontend specs)*
 
 ## Needs Input
 
@@ -395,12 +397,12 @@ Indezy has no presentation website: `https://indezy.swirlit.dev` redirects strai
 
 ## Technical Improvements
 
-- [ ] Unit specs for the frontend pages no spec covers, now that the report counts them (frontend at 65.22% lines on 2026-10-21, under the 85% target): `project-detail`, `project-list`, `profile` and its personal info, `dashboard`, `season-picker`, the client, contact and source lists, details and forms, under 5% each, then `rename-tag-dialog`, `error-display`, `loading`, the error pages and the route files.
+- [x] Unit specs for the frontend pages no spec covers, now that the report counts them (frontend at 65.22% lines on 2026-10-21, under the 85% target): `project-detail`, `project-list`, `profile` and its personal info, `dashboard`, `season-picker`, the client, contact and source lists, details and forms, under 5% each, then `rename-tag-dialog`, `error-display`, `loading`, the error pages and the route files. Done on 2026-10-26: 322 specs for these pages, the frontend at 98.26% lines and 93.64% branches.
 - [x] Modernize codebase with latest Java and Angular versions/features
 - [x] Split the docs into dedicated files and enrich them (development, deployment, ADRs, features, etc.), reusing existing content
 - [ ] Complete the deployment setup (Kubernetes manifests, GitLab CI pipeline, ...)
 - [ ] Improve the devcontainer setup
-- [ ] Measure and raise test coverage to at least 85% for both backend and frontend, with a focus on critical business logic and edge cases
+- [x] Measure and raise test coverage to at least 85% for both backend and frontend, with a focus on critical business logic and edge cases (measured on 2026-10-26: backend 95.81% lines and 86.20% branches, frontend 98.26% lines; see `docs/testing.md`)
 - [ ] Playwright e2e tests for critical user flows (register, login, create project, move Kanban card, filter lists)
 - [x] Add Spring Boot Actuator: K8s probes already reference /api/actuator/health but the actuator dependency is missing from pom.xml
 - [x] Richer database seeding for development (realistic projects, clients, pipeline states)

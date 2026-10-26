@@ -225,17 +225,16 @@ Playwright selectors should prefer roles, labels, and user-visible text over CSS
 
 The Maven JaCoCo configuration records an 80 percent instruction and branch target. CI also computes combined backend/frontend line coverage against an 80 percent policy and publishes a failed JUnit policy result when it is missed; that report does not fail the build job or block release.
 
-Measured on 21 October 2026 with the repository's configured reporters: backend
-95.70 percent lines / 95.69 percent instructions / 86.42 percent branches (JaCoCo);
-frontend 65.22 percent lines / 64.86 percent statements / 65.51 percent branches (Karma), combined 85.04 percent lines.
-The suites contain 998 backend tests, 538 frontend specs and 48 Playwright tests. The Karma figures count every
+Measured on 26 October 2026 with the repository's configured reporters: backend
+95.81 percent lines / 95.85 percent instructions / 86.20 percent branches (JaCoCo);
+frontend 98.26 percent lines / 97.92 percent statements / 93.64 percent branches (Karma).
+The suites contain 1,051 backend tests and 881 frontend specs. The Karma figures count every
 source file under `src/app`: `coverage-sources.spec.ts` imports the list `scripts/coverage-sources.mjs` writes in
 `src/app/coverage-sources.ts` (`npm run coverage-sources` after adding or removing a file; `npm run lint` fails while
-the list is out of date), so a page no spec imports shows its real coverage instead of leaving the report. Before,
-those pages were left out and the frontend read 95 percent. Backend line coverage exceeds the coding workflow's 85
-percent target and its branch coverage meets Maven's separate 80 percent rule; the frontend's pages without specs
-(the project, profile, dashboard, client, contact and source pages) keep it under the target (see
-[TODO.md](../TODO.md#technical-improvements)).
+the list is out of date), so a page no spec imports shows its real coverage instead of leaving the report. Both layers
+exceed the coding workflow's 85 percent target, and backend branch coverage meets Maven's separate 80 percent rule. The
+lines left uncovered are mostly browser-only paths a unit test cannot drive: a real `location.reload()` and image
+encodings failing in the avatar upload.
 
 When adding risky behavior, treat the 80 percent report as a prompt for targeted tests rather than a release switch.
 
