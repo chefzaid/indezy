@@ -2292,7 +2292,8 @@
       "DRAFT": "Draft",
       "ISSUED": "Issued",
       "PAID": "Paid",
-      "OVERDUE": "Overdue"
+      "OVERDUE": "Overdue",
+      "CREDITED": "Credited"
     },
     "dueOn": "due {{date}}",
     "paidOnDate": "paid {{date}}",
@@ -2342,7 +2343,14 @@
       "alreadyInvoiced": "This month is already invoiced.",
       "notValidated": "Only a month the client validated can be invoiced.",
       "frozen": "An issued invoice can no longer change.",
-      "clientGone": "The invoice's client no longer exists."
-    }
+      "clientGone": "The invoice's client no longer exists.",
+      "creditTooHigh": "A credit note cannot credit more than what is left of its invoice.",
+      "creditClient": "A credit note goes to the client of its invoice."
+    },
+    "creditNote": "Credit note",
+    "credits": "for {{number}}",
+    "createCreditNote": "Create a credit note",
+    "creditNoteCreated": "Credit note drafted: reduce it for a partial credit, then issue it",
+    "editCreditNote": "Change the credit note"
   }
 }

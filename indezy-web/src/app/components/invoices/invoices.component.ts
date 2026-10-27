@@ -57,13 +57,13 @@ export class InvoicesComponent implements OnInit {
       this.filter === 'ISSUED' ? invoice.status === 'ISSUED' && !invoice.overdue : invoice.status === this.filter));
   }
 
-  /** Issued and not paid yet. */
+  /** Issued invoices not paid yet, less what credit notes took back from them. */
   get outstanding(): number {
-    return this.invoices.filter(invoice => invoice.status === 'ISSUED').reduce((sum, invoice) => sum + invoice.total, 0);
+    return this.due(this.invoices.filter(invoice => invoice.kind !== 'CREDIT_NOTE' && invoice.status === 'ISSUED'));
   }
 
   get overdue(): number {
-    return this.invoices.filter(invoice => invoice.overdue).reduce((sum, invoice) => sum + invoice.total, 0);
+    return this.due(this.invoices.filter(invoice => invoice.overdue));
   }
 
   ngOnInit(): void {
@@ -124,6 +124,18 @@ export class InvoicesComponent implements OnInit {
     });
   }
 
+  /** Drafts a credit note of an issued invoice, then opens it to reduce for a partial credit. */
+  creditNote(invoice: Invoice): void {
+    this.invoiceService.creditNote(invoice.id).subscribe({
+      next: note => {
+        this.invoices = [note, ...this.invoices];
+        this.notifications.success('invoices.creditNoteCreated');
+        this.write(note);
+      },
+      error: (error: HttpErrorResponse) => this.notifications.error(invoiceErrorKey(error, 'invoices.saveError'))
+    });
+  }
+
   markUnpaid(invoice: Invoice): void {
     this.apply(this.invoiceService.setPaid(invoice.id, null), 'invoices.unpaidDone');
   }
@@ -145,9 +157,14 @@ export class InvoicesComponent implements OnInit {
 
   download(invoice: Invoice): void {
     this.invoiceService.downloadPdf(invoice.id).subscribe({
-      next: blob => saveBlob(blob, `${invoice.language === 'EN' ? 'invoice' : 'facture'}-${invoice.number ?? 'draft-' + invoice.id}.pdf`),
+      next: blob => saveBlob(blob, `${this.fileName(invoice)}-${invoice.number ?? 'draft-' + invoice.id}.pdf`),
       error: () => this.notifications.error('invoices.pdfError')
     });
+  }
+
+  private fileName(invoice: Invoice): string {
+    const english = invoice.language === 'EN';
+    return invoice.kind === 'CREDIT_NOTE' ? (english ? 'credit-note' : 'avoir') : (english ? 'invoice' : 'facture');
   }
 
   private saveDraft(invoice: Invoice | undefined, draft: InvoiceDraft): void {
@@ -173,5 +190,13 @@ export class InvoicesComponent implements OnInit {
 
   private sorted(clients: ClientDto[]): ClientDto[] {
     return [...clients].sort((a, b) => a.companyName.localeCompare(b.companyName));
+  }
+
+  /** What the invoices total, less their issued credit notes. */
+  private due(owed: Invoice[]): number {
+    const owedIds = new Set(owed.map(invoice => invoice.id));
+    const credited = this.invoices.filter(note => note.kind === 'CREDIT_NOTE' && note.status === 'ISSUED' &&
+      owedIds.has(note.creditedInvoiceId!)).reduce((sum, note) => sum + note.total, 0);
+    return owed.reduce((sum, invoice) => sum + invoice.total, 0) - credited;
   }
 }

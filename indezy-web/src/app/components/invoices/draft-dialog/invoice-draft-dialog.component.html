@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ (data.invoice ? 'invoices.editTitle' : 'invoices.newTitle') | translate }}</h2>
+<h2 mat-dialog-title>{{ (data.invoice?.kind === 'CREDIT_NOTE' ? 'invoices.editCreditNote' : data.invoice ? 'invoices.editTitle' : 'invoices.newTitle') | translate }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form" id="invoice-draft-form" (ngSubmit)="save()">
     <div class="row">

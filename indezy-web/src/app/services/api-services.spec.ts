@@ -171,6 +171,7 @@ describe('API services', () => {
     { name: 'invoices', call: () => invoices().list(7), method: 'GET', url: `${api}/invoices/by-freelance/7` },
     { name: 'invoice by hand', call: () => invoices().create({ clientId: 3 } as never), method: 'POST', url: `${api}/invoices`, body: { clientId: 3 } },
     { name: 'invoice of a report', call: () => invoices().fromReport(2, 2026, 11), method: 'POST', url: `${api}/invoices/from-report`, body: { projectId: 2, year: 2026, month: 11 } },
+    { name: 'credit note of an invoice', call: () => invoices().creditNote(5), method: 'POST', url: `${api}/invoices/5/credit-note` },
     { name: 'change a draft', call: () => invoices().update(5, { clientId: 3 } as never), method: 'PUT', url: `${api}/invoices/5`, body: { clientId: 3 } },
     { name: 'delete a draft', call: () => invoices().delete(5), method: 'DELETE', url: `${api}/invoices/5` },
     { name: 'issue an invoice', call: () => invoices().issue(5, '2026-10-27'), method: 'POST', url: `${api}/invoices/5/issue`, body: { issueDate: '2026-10-27' } },

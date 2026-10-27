@@ -97,6 +97,18 @@ mat-button-toggle-group {
     font-weight: 600;
   }
 
+  .kind {
+    margin-right: 6px;
+    color: var(--mat-sys-error, #b3261e);
+  }
+
+  .credits {
+    margin-left: 6px;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 400;
+  }
+
   .client {
     overflow-wrap: anywhere;
   }
@@ -129,6 +141,11 @@ mat-button-toggle-group {
   &.PAID {
     background: #e6f4ea;
     color: #1e5631;
+  }
+
+  &.CREDITED {
+    background: #fff3e0;
+    color: #7a3b00;
   }
 
   &.OVERDUE {

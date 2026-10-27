@@ -61,9 +61,31 @@ for (const width of [1280, 390]) {
     await page.locator('[data-invoice-date-confirm]').click();
     await expect(page.locator('[data-invoice="1"]')).toContainText('Paid');
 
+    await page.route('**/api/invoices/1/credit-note', route => {
+      calls.push('credit');
+      const note = { ...base, id: 3, kind: 'CREDIT_NOTE', number: null, creditedInvoiceId: 1, creditedNumber: 'F2026-0001',
+        lines: [{ description: 'Audit', quantity: 1, unitPrice: 600, vatRate: 0 }], totalExcludingVat: 600, total: 600 };
+      invoices = [note, ...invoices];
+      return route.fulfill({ status: 201, json: note });
+    });
+    await page.route('**/api/invoices/3', route => {
+      calls.push(route.request().postDataJSON());
+      return route.fulfill({ json: { ...invoices[0], ...route.request().postDataJSON(), totalExcludingVat: 200, total: 200 } });
+    });
+    await page.locator('[data-invoice="1"]').getByRole('button', { name: /Actions for/ }).click();
+    await page.getByRole('menuitem', { name: 'Create a credit note' }).click();
+    await expect(dialog.getByRole('heading', { name: 'Change the credit note' })).toBeVisible();
+    await dialog.getByLabel('Unit price').fill('200');
+    await dialog.locator('[data-save-draft]').click();
+    await expect(page.locator('[data-invoice="3"]')).toContainText('Credit note');
+    await expect(page.locator('[data-invoice="3"]')).toContainText('-200.00');
+
     expect(calls[0]).toEqual(expect.objectContaining({ clientId: 3, language: 'FR',
       lines: [{ description: 'Audit', quantity: 2, unitPrice: 650, vatRate: 0 }] }));
     expect(calls[1]).toBe('issue');
+    expect(calls[3]).toBe('credit');
+    expect(calls[4]).toEqual(expect.objectContaining({ clientId: 3,
+      lines: [{ description: 'Audit', quantity: 1, unitPrice: 200, vatRate: 0 }] }));
     const pageAudit = await new AxeBuilder({ page }).include('.invoices-page').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(pageAudit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

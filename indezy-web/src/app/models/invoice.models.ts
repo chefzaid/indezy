@@ -1,6 +1,9 @@
 import { DocumentLanguage } from './activity-report.models';
 
-export type InvoiceStatus = 'DRAFT' | 'ISSUED' | 'PAID';
+export type InvoiceStatus = 'DRAFT' | 'ISSUED' | 'PAID' | 'CREDITED';
+
+/** An invoice, or a credit note (avoir) correcting or cancelling an issued one. */
+export type InvoiceKind = 'INVOICE' | 'CREDIT_NOTE';
 
 /** A line: days (or any quantity) at a price before VAT, with its VAT rate in percent. */
 export interface InvoiceLine {
@@ -12,6 +15,10 @@ export interface InvoiceLine {
 
 export interface Invoice {
   id: number;
+  kind: InvoiceKind;
+  /** The invoice a credit note credits, and its number. */
+  creditedInvoiceId: number | null;
+  creditedNumber: string | null;
   /** Given when issued: "F2026-0007". */
   number: string | null;
   status: InvoiceStatus;

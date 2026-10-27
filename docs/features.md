@@ -76,12 +76,20 @@ SIRET, legal form with share capital and registration for a company, VAT number 
 issue, due and service dates, the client (name, address, SIREN and VAT number when known), the lines with their VAT
 rate, the totals before VAT, VAT and with VAT, or "TVA non applicable, art. 293 B du CGI" and the amount due when
 exempt, then the payment term and date, the IBAN and BIC, that there is no discount for early payment, and the late
-payment penalties and the €40 recovery fee (art. L441-10 du Code de commerce). Corrections to an issued invoice through
-a credit note are not offered yet (TODO.md).
+payment penalties and the €40 recovery fee (art. L441-10 du Code de commerce).
+
+An issued or paid invoice is corrected or cancelled with a **credit note** (avoir): **Create a credit note** in its menu
+drafts one for the same client, mission, period, language and lines, and opens it to reduce for a partial credit (its
+client cannot change). The draft is issued like an invoice, in the same numbering and under the same date rules; it
+refers to the invoice's number and date, has no due date and is never paid. It cannot credit more than what the
+invoice's issued credit notes leave of it, and once they cover it in full the invoice reads as **Credited**: it can no
+longer be credited or marked paid, and it no longer counts as overdue. In the list a credit note shows its amounts
+negative and is counted off what is awaiting payment; its PDF is titled "Avoir" or "Credit note", shows negative totals,
+names the invoice it credits and leaves out the payment terms (`avoir-<number>.pdf`, `credit-note-<number>.pdf`).
 
 The API: `GET /api/invoices/by-freelance/{freelanceId}`, `GET /api/invoices/{id}`, `POST /api/invoices` (a draft by
 hand), `POST /api/invoices/from-report` (`{ projectId, year, month }`), `PUT` and `DELETE /api/invoices/{id}` (drafts),
-`POST /api/invoices/{id}/issue` (`{ issueDate }`, optional), `PUT /api/invoices/{id}/payment` (`{ paidOn }`, absent to
+`POST /api/invoices/{id}/issue` (`{ issueDate }`, optional), `POST /api/invoices/{id}/credit-note` (a draft credit note), `PUT /api/invoices/{id}/payment` (`{ paidOn }`, absent to
 take it back) and `GET /api/invoices/{id}/pdf`; another workspace's invoice answers `404`. Invoices are part of the data
 export.
 

@@ -51,7 +51,11 @@ final class InvoicePage {
     }
 
     String title() {
-        return InvoiceLabel.TITLE.in(language) + (invoice.getNumber() == null ? "" : " " + invoice.getNumber());
+        return heading() + (invoice.getNumber() == null ? "" : " " + invoice.getNumber());
+    }
+
+    private String heading() {
+        return (invoice.isCreditNote() ? InvoiceLabel.CREDIT_TITLE : InvoiceLabel.TITLE).in(language);
     }
 
     void write() throws IOException {
@@ -92,14 +96,19 @@ final class InvoicePage {
     private void invoiceBlock() throws IOException {
         float right = writer.right();
         writer.moveDown(TITLE);
-        writer.textRight(right, writer.cursor(), InvoiceLabel.TITLE.in(language), true, TITLE);
+        writer.textRight(right, writer.cursor(), heading(), true, TITLE);
         List<String> lines = new ArrayList<>();
         if (invoice.getNumber() != null) {
             lines.add(InvoiceLabel.NUMBER.format(language, invoice.getNumber()));
         }
         if (invoice.getIssueDate() != null) {
             lines.add(InvoiceLabel.ISSUED.format(language, date(invoice.getIssueDate())));
-            lines.add(InvoiceLabel.DUE.format(language, date(invoice.getDueDate())));
+            if (invoice.getDueDate() != null) {
+                lines.add(InvoiceLabel.DUE.format(language, date(invoice.getDueDate())));
+            }
+        }
+        if (invoice.isCreditNote() && invoice.getCreditedNumber() != null) {
+            lines.add(InvoiceLabel.CREDITS.format(language, invoice.getCreditedNumber(), date(invoice.getCreditedIssueDate())));
         }
         if (invoice.getPeriodStart() != null && invoice.getPeriodEnd() != null) {
             lines.add(InvoiceLabel.PERIOD.format(language, date(invoice.getPeriodStart()), date(invoice.getPeriodEnd())));
@@ -110,7 +119,8 @@ final class InvoicePage {
         }
         if (invoice.getStatus() == InvoiceStatus.DRAFT) {
             writer.moveDown(LINE);
-            writer.textRight(right, writer.cursor(), InvoiceLabel.DRAFT.in(language), true, BODY);
+            writer.textRight(right, writer.cursor(), (invoice.isCreditNote() ? InvoiceLabel.CREDIT_DRAFT : InvoiceLabel.DRAFT).in(language),
+                true, BODY);
         }
     }
 
@@ -151,11 +161,12 @@ final class InvoicePage {
         boolean exempt = Boolean.TRUE.equals(seller.getVatExempt());
         writer.ensureSpace(ROW * 4);
         float labelX = writer.left() + writer.width() * 0.6f;
-        total(labelX, InvoiceLabel.TOTAL_EXCLUDING.in(language), euros(totals.excludingVat()), false);
+        total(labelX, InvoiceLabel.TOTAL_EXCLUDING.in(language), signed(totals.excludingVat()), false);
         if (!exempt) {
-            total(labelX, InvoiceLabel.TOTAL_VAT.in(language), euros(totals.vat()), false);
+            total(labelX, InvoiceLabel.TOTAL_VAT.in(language), signed(totals.vat()), false);
         }
-        total(labelX, (exempt ? InvoiceLabel.TOTAL_EXEMPT : InvoiceLabel.TOTAL).in(language), euros(totals.total()), true);
+        total(labelX, (exempt && !invoice.isCreditNote() ? InvoiceLabel.TOTAL_EXEMPT : InvoiceLabel.TOTAL).in(language),
+            signed(totals.total()), true);
     }
 
     private void mentions() throws IOException {
@@ -163,16 +174,18 @@ final class InvoicePage {
         if (Boolean.TRUE.equals(seller.getVatExempt())) {
             mentions.add(InvoiceLabel.VAT_EXEMPT.in(language));
         }
-        if (invoice.getIssueDate() != null && invoice.getDueDate() != null) {
+        if (!invoice.isCreditNote() && invoice.getIssueDate() != null && invoice.getDueDate() != null) {
             mentions.add(InvoiceLabel.PAYMENT.format(language, ChronoUnit.DAYS.between(invoice.getIssueDate(), invoice.getDueDate()),
                 date(invoice.getDueDate())));
         }
-        if (seller.getIban() != null) {
+        if (seller.getIban() != null && !invoice.isCreditNote()) {
             mentions.add(InvoiceLabel.BANK.format(language, BillingText.groupIban(seller.getIban())) +
                 (seller.getBic() == null ? "" : "   " + InvoiceLabel.BIC.format(language, seller.getBic())));
         }
-        mentions.add(InvoiceLabel.DISCOUNT.in(language));
-        mentions.add(InvoiceLabel.PENALTIES.in(language));
+        if (!invoice.isCreditNote()) {
+            mentions.add(InvoiceLabel.DISCOUNT.in(language));
+            mentions.add(InvoiceLabel.PENALTIES.in(language));
+        }
         writer.moveDown(LINE * 2);
         for (String mention : mentions) {
             writer.ensureSpace(LINE * 2);
@@ -231,6 +244,11 @@ final class InvoicePage {
         NumberFormat format = NumberFormat.getCurrencyInstance(locale);
         format.setCurrency(Currency.getInstance("EUR"));
         return plainSpaces(format.format(amount));
+    }
+
+    /** A credit note's totals are owed back: written negative. */
+    private String signed(BigDecimal amount) {
+        return euros(invoice.isCreditNote() ? amount.negate() : amount);
     }
 
     private String number(BigDecimal value) {

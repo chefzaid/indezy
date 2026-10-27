@@ -118,13 +118,21 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.PUT, "/invoices/" + first + "/payment", new HashMap<>(), Map.class).getBody())
             .containsEntry("status", "ISSUED").containsEntry("paidOn", null);
 
+        // A partial credit lowers what the overdue alert says is due.
+        long note = idOf(call(alice, HttpMethod.POST, "/invoices/" + first + "/credit-note", null, Map.class));
+        call(alice, HttpMethod.PUT, "/invoices/" + note, Map.of("clientId", (int) esn, "lines", List.of(Map.of("description", "Correction",
+            "quantity", 1, "unitPrice", 600, "vatRate", 0))), Map.class);
+        call(alice, HttpMethod.POST, "/invoices/" + note + "/issue", null, Map.class);
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/projects/stats/dashboard/" + alice.freelanceId(), null,
+            Map.class).getBody().get("overdueInvoices")).singleElement().satisfies(alert -> assertThat(alert).containsEntry("total", 900.0));
+
         // Bob sees none of them; the mission's deletion leaves the issued invoice.
         assertThat(call(bob, HttpMethod.GET, "/invoices/" + first, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(bob, HttpMethod.GET, "/invoices/by-freelance/" + alice.freelanceId(), null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(call(bob, HttpMethod.GET, "/invoices/by-freelance/" + bob.freelanceId(), null, List.class).getBody()).isEmpty();
         call(alice, HttpMethod.DELETE, "/projects/" + project, null, String.class);
-        assertThat(call(alice, HttpMethod.GET, "/invoices/by-freelance/" + alice.freelanceId(), null, List.class).getBody()).hasSize(2);
+        assertThat(call(alice, HttpMethod.GET, "/invoices/by-freelance/" + alice.freelanceId(), null, List.class).getBody()).hasSize(3);
     }
 
     @Test
@@ -156,6 +164,60 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.DELETE, "/invoices/" + id, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(alice, HttpMethod.DELETE, "/invoices/" + id, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(call(alice, HttpMethod.GET, "/invoices/" + id, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void creditsAnIssuedInvoiceInPartThenInFull() throws IOException {
+        call(alice, HttpMethod.PUT, "/users/billing", Map.of("legalName", "Alice Martin", "legalForm", "EI", "siret", "55210055400012",
+            "vatExempt", true, "address", "Paris", "iban", "FR7630006000011234567890189"), Map.class);
+        Map<String, Object> client = call(alice, HttpMethod.GET, "/clients/" + aliceClientId, null, Map.class).getBody();
+        client.put("address", "1 place de la Bourse");
+        call(alice, HttpMethod.PUT, "/clients/" + aliceClientId, client, Map.class);
+        Map<String, Object> audit = Map.of("description", "Audit", "quantity", 1, "unitPrice", 1200.5, "vatRate", 0);
+        Map<String, Object> training = Map.of("description", "Formation", "quantity", 0.5, "unitPrice", 800, "vatRate", 0);
+        long invoice = idOf(call(alice, HttpMethod.POST, "/invoices", Map.of("clientId", aliceClientId, "lines", List.of(audit, training)),
+            Map.class));
+        assertThat(call(alice, HttpMethod.POST, "/invoices/" + invoice + "/credit-note", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+        String number = (String) call(alice, HttpMethod.POST, "/invoices/" + invoice + "/issue", null, Map.class).getBody().get("number");
+
+        // A partial credit: the copy reduced to the audit, numbered next, with no due date and not payable.
+        Map<String, Object> note = call(alice, HttpMethod.POST, "/invoices/" + invoice + "/credit-note", null, Map.class).getBody();
+        long first = ((Number) note.get("id")).longValue();
+        assertThat(note).containsEntry("kind", "CREDIT_NOTE").containsEntry("creditedInvoiceId", (int) invoice)
+            .containsEntry("creditedNumber", number).containsEntry("total", 1600.5);
+        Map<String, Object> reduced = new HashMap<>(Map.of("clientId", aliceClientId, "lines", List.of(audit)));
+        assertThat(call(alice, HttpMethod.PUT, "/invoices/" + first, Map.of("clientId", idOf(call(alice, HttpMethod.POST, "/clients",
+            Map.of("companyName", "Other", "city", "Lyon", "isFinal", true, "freelanceId", alice.freelanceId()), Map.class)),
+            "lines", List.of(audit)), String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        call(alice, HttpMethod.PUT, "/invoices/" + first, reduced, Map.class);
+        Map<String, Object> issued = call(alice, HttpMethod.POST, "/invoices/" + first + "/issue", null, Map.class).getBody();
+        assertThat(issued).containsEntry("status", "ISSUED").containsEntry("dueDate", null).containsEntry("overdue", false);
+        assertThat(issued.get("number")).isNotNull().isNotEqualTo(number);
+        assertThat(call(alice, HttpMethod.GET, "/invoices/" + invoice, null, Map.class).getBody()).containsEntry("status", "ISSUED");
+        assertThat(call(alice, HttpMethod.PUT, "/invoices/" + first + "/payment", Map.of("paidOn", LocalDate.now().toString()), String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(alice, HttpMethod.POST, "/invoices/" + first + "/credit-note", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+        assertThat(pdf(alice, first)).contains("Avoir", "Avoir sur la facture N° " + number, "-1 200,50 €", "Total TTC")
+            .doesNotContain("Échéance", "IBAN", "pénalités");
+
+        // The rest: more than what is left is refused; the remainder cancels the invoice.
+        long second = idOf(call(alice, HttpMethod.POST, "/invoices/" + invoice + "/credit-note", null, Map.class));
+        assertThat(call(alice, HttpMethod.POST, "/invoices/" + second + "/issue", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+        call(alice, HttpMethod.PUT, "/invoices/" + second, Map.of("clientId", aliceClientId, "lines", List.of(training)), Map.class);
+        call(alice, HttpMethod.POST, "/invoices/" + second + "/issue", null, Map.class);
+        assertThat(call(alice, HttpMethod.GET, "/invoices/" + invoice, null, Map.class).getBody()).containsEntry("status", "CREDITED")
+            .containsEntry("overdue", false);
+        assertThat(call(alice, HttpMethod.PUT, "/invoices/" + invoice + "/payment", Map.of("paidOn", LocalDate.now().toString()), String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(alice, HttpMethod.POST, "/invoices/" + invoice + "/credit-note", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+        assertThat(pdf(alice, invoice)).contains("Facture");
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/invoices/by-freelance/" + alice.freelanceId(), null, List.class)
+            .getBody()).extracting(item -> item.get("kind")).containsExactlyInAnyOrder("INVOICE", "CREDIT_NOTE", "CREDIT_NOTE");
     }
 
     private String pdf(Account account, long invoice) throws IOException {

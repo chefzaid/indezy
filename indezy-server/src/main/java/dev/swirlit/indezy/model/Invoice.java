@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.InvoiceKind;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -51,6 +52,21 @@ public class Invoice extends BaseEntity {
     @Column(name = "activity_report_id")
     private Long activityReportId;
 
+    /** An invoice, or a credit note; a null column, as invoices had before credit notes, reads as an invoice. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "kind", length = 20)
+    private InvoiceKind kind = InvoiceKind.INVOICE;
+
+    /** The invoice a credit note credits, and its number and issue date, as the credit note states them. */
+    @Column(name = "credited_invoice_id")
+    private Long creditedInvoiceId;
+
+    @Column(name = "credited_number", length = 30)
+    private String creditedNumber;
+
+    @Column(name = "credited_issue_date")
+    private LocalDate creditedIssueDate;
+
     /** Given when issued: prefix, year and a number that follows the last one with no gap ("F2026-0007"). */
     @Column(name = "number", length = 30)
     private String number;
@@ -98,5 +114,9 @@ public class Invoice extends BaseEntity {
 
     public void setLines(final List<InvoiceLine> lines) {
         this.lines = lines != null ? new ArrayList<>(lines) : new ArrayList<>();
+    }
+
+    public boolean isCreditNote() {
+        return kind == InvoiceKind.CREDIT_NOTE;
     }
 }

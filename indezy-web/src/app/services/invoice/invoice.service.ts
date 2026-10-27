@@ -25,6 +25,10 @@ export class InvoiceService {
     return this.http.post<Invoice>(`${this.API_URL}/from-report`, { projectId, year, month });
   }
 
+  creditNote(invoiceId: number): Observable<Invoice> {
+    return this.http.post<Invoice>(`${this.API_URL}/${invoiceId}/credit-note`, null);
+  }
+
   update(id: number, draft: InvoiceDraft): Observable<Invoice> {
     return this.http.put<Invoice>(`${this.API_URL}/${id}`, draft);
   }

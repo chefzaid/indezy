@@ -579,7 +579,9 @@ Purpose: a workspace's invoices to its clients, kept whatever happens to their m
 
 Fields: `freelanceId`, `clientId`, `projectId` and `activityReportId` (ids, not relations, so deleting a mission or a
 report leaves the invoice), `projectRole` (kept for the list), `number` (unique per workspace, set when issued),
-`status` (`DRAFT`, `ISSUED`, `PAID`; an issued invoice past its due date reads as overdue), `issueDate`, `dueDate`,
+`kind` (`INVOICE`, empty on older rows, or `CREDIT_NOTE`; a credit note keeps `creditedInvoiceId`, `creditedNumber`
+and `creditedIssueDate`, the invoice it credits), `status` (`DRAFT`, `ISSUED`, `PAID`, `CREDITED` once its issued
+credit notes cover it in full; an issued invoice past its due date reads as overdue), `issueDate`, `dueDate`,
 `periodStart`, `periodEnd`, `language` (`FR` or `EN`), `notes`, `paidOn`, the lines (`invoice_lines`: `description`,
 `quantity`, `unitPrice`, `vatRate`, in order) and, once issued, the seller (`seller_*`: name, legal form, SIRET, VAT
 number and exemption, share capital, registration, address, IBAN, BIC) and the buyer (`buyer_*`: name, address, SIREN,

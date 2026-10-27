@@ -181,7 +181,8 @@ Representative backend tests:
   complete billing identity and the client's address, never at a later date or before the last one; numbered without
   gaps; frozen against later identity changes, read back from its PDF in English and French; paid and unpaid, the dashboard's overdue alert until paid; out of
   Bob's reach; kept when the mission goes; a draft by hand with its mission and period, changed, refused for Bob's
-  client, unpayable and deleted), `InvoicePdfRendererTest` (a company's capital, registration and VAT in French with a
+  client, unpayable and deleted; credited in part then in full, never beyond what is left nor to another client, the
+  credited invoice no longer payable nor overdue, the credit note's PDF), `InvoicePdfRendererTest` (a company's capital, registration and VAT in French with a
   wrapped line and notes; a draft of an individual entrepreneur exempt from VAT) and `InvoiceTotalsTest` (each line and
   its VAT to the cent)
 - secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code (a bare `code` field included), backup code or API key, nor, in such a class or one nested in it, the email or a name)
@@ -236,8 +237,9 @@ Representative frontend specs:
   client's SIREN and VAT number typed in groups)
 - invoices: `invoices.component.spec.ts` (totals awaiting payment and overdue, filters, a draft written among the
   clients by name and changed, issued on a date and refused with the reason, paid and unpaid, deleted once confirmed, the
-  PDF named by number and language, failures), `invoice-draft-dialog.component.spec.ts` (totals counted as the server
-  does, the client's missions, a draft changed and trimmed, fifty lines at most), `invoice-date-dialog.component.spec.ts`,
+  PDF named by kind, number and language, a credit note drafted and counted off what is owed, failures),
+  `invoice-draft-dialog.component.spec.ts` (totals counted as the server does, the client's missions, a draft changed
+  and trimmed, a credit note's client kept, fifty lines at most), `invoice-date-dialog.component.spec.ts`,
   `invoice-errors.spec.ts` and `activity-report-card.component.spec.ts` (a validated month invoiced, or invoiced already)
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
@@ -428,7 +430,7 @@ Billing scenarios (`e2e/billing.spec.ts`, on a desktop and on a phone, audited w
 identity, a wrong IBAN refused, until the tab says invoices can be issued.
 
 Invoice scenarios (`e2e/invoices.spec.ts`, on a desktop and on a phone, the page and the draft dialog audited with
-axe-core) write a draft, issue it and mark an overdue invoice paid.
+axe-core) write a draft, issue it, mark an overdue invoice paid and credit part of it.
 
 Keyboard scenarios (`e2e/keyboard-navigation.spec.ts`) open a Kanban card with Enter (but not from its favourite
 button), a timeline step and an archived opportunity, then reach a client, one of its opportunities and one of its

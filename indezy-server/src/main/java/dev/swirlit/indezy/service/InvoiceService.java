@@ -15,6 +15,7 @@ import dev.swirlit.indezy.model.InvoiceSeller;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.ActivityReportStatus;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.InvoiceKind;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
 import dev.swirlit.indezy.pdf.InvoicePdfRenderer;
 import dev.swirlit.indezy.repository.ClientRepository;
@@ -71,13 +72,17 @@ public class InvoiceService {
         return toDto(invoice(freelanceId, id));
     }
 
-    /** The workspace's issued invoices past their due date, the oldest due first, for the dashboard and the weekly digest. */
+    /**
+     * The workspace's issued invoices past their due date, the oldest due first, for the dashboard and the weekly digest,
+     * each with what its issued credit notes leave due.
+     */
     @Transactional(readOnly = true)
     public List<DashboardStatsDto.OverdueInvoice> overdue(Long freelanceId) {
         LocalDate today = LocalDate.now(clock.withZone(PARIS));
         return invoices.findByFreelanceIdAndStatusAndDueDateBeforeOrderByDueDateAsc(freelanceId, InvoiceStatus.ISSUED, today).stream()
+            .filter(invoice -> !invoice.isCreditNote())
             .map(invoice -> new DashboardStatsDto.OverdueInvoice(invoice.getId(), invoice.getNumber(), invoice.getBuyer().getName(),
-                InvoiceTotals.of(invoice.getLines()).total(), invoice.getDueDate(), ChronoUnit.DAYS.between(invoice.getDueDate(), today)))
+                InvoiceTotals.of(invoice.getLines()).total().subtract(creditedTotal(invoice)), invoice.getDueDate(), ChronoUnit.DAYS.between(invoice.getDueDate(), today)))
             .toList();
     }
 
@@ -134,6 +139,32 @@ public class InvoiceService {
         return toDto(invoices.save(invoice));
     }
 
+    /**
+     * A draft credit note of an issued invoice: its client, mission, period, language and lines, to reduce for a partial
+     * credit. It is issued in the same numbering, and an invoice its issued credit notes cover in full reads as credited.
+     */
+    @Transactional
+    public InvoiceDtos.Invoice creditNote(Long freelanceId, Long invoiceId) {
+        Invoice original = invoice(freelanceId, invoiceId);
+        if (original.isCreditNote() || original.getStatus() == InvoiceStatus.DRAFT || original.getStatus() == InvoiceStatus.CREDITED) {
+            throw new InvalidStateException("Only an issued invoice not cancelled yet can be credited");
+        }
+        Invoice note = new Invoice();
+        note.setFreelanceId(freelanceId);
+        note.setKind(InvoiceKind.CREDIT_NOTE);
+        note.setCreditedInvoiceId(original.getId());
+        note.setCreditedNumber(original.getNumber());
+        note.setCreditedIssueDate(original.getIssueDate());
+        note.setClientId(original.getClientId());
+        note.setProjectId(original.getProjectId());
+        note.setProjectRole(original.getProjectRole());
+        note.setPeriodStart(original.getPeriodStart());
+        note.setPeriodEnd(original.getPeriodEnd());
+        note.setLanguage(original.getLanguage());
+        note.setLines(original.getLines());
+        return toDto(invoices.save(note));
+    }
+
     @Transactional
     public InvoiceDtos.Invoice update(Long freelanceId, Long id, InvoiceDtos.Draft draft) {
         Invoice invoice = draft(freelanceId, id);
@@ -172,12 +203,17 @@ public class InvoiceService {
         invoices.findLatestIssueDate(freelanceId).filter(issued::isBefore).ifPresent(latest -> {
             throw new InvalidStateException("An invoice cannot be dated before the last one issued, on " + latest);
         });
+        Invoice credited = invoice.isCreditNote() ? creditable(freelanceId, invoice) : null;
         invoice.setNumber(nextNumber(freelanceId, issued.getYear(), seller.invoicePrefix()));
         invoice.setIssueDate(issued);
-        invoice.setDueDate(issued.plusDays(seller.paymentTermDays()));
+        // A credit note is not paid: it has no due date.
+        invoice.setDueDate(invoice.isCreditNote() ? null : issued.plusDays(seller.paymentTermDays()));
         invoice.setSeller(seller(seller));
         invoice.setBuyer(buyer(client));
         invoice.setStatus(InvoiceStatus.ISSUED);
+        if (credited != null && creditedTotal(credited).compareTo(InvoiceTotals.of(credited.getLines()).total()) >= 0) {
+            credited.setStatus(InvoiceStatus.CREDITED);
+        }
         log.info("Workspace {} issued invoice {}", freelanceId, invoice.getId());
         return toDto(invoice);
     }
@@ -188,6 +224,9 @@ public class InvoiceService {
         Invoice invoice = invoice(freelanceId, id);
         if (invoice.getStatus() == InvoiceStatus.DRAFT) {
             throw new InvalidStateException("A draft cannot be paid: issue it first");
+        }
+        if (invoice.isCreditNote() || invoice.getStatus() == InvoiceStatus.CREDITED) {
+            throw new InvalidStateException("A credit note, or an invoice it cancelled, is not paid");
         }
         LocalDate paidOn = payment == null ? null : payment.paidOn();
         invoice.setPaidOn(paidOn);
@@ -204,10 +243,30 @@ public class InvoiceService {
             .orElseThrow(() -> new ResourceNotFoundException("Workspace not found")))) : invoice.getSeller();
         InvoiceBuyer buyer = draft ? clients.findById(invoice.getClientId()).map(InvoiceService::buyer).orElseGet(InvoiceBuyer::new) :
             invoice.getBuyer();
-        String name = invoice.getLanguage() == DocumentLanguage.EN ? "invoice" : "facture";
+        boolean english = invoice.getLanguage() == DocumentLanguage.EN;
+        String name = invoice.isCreditNote() ? (english ? "credit-note" : "avoir") : (english ? "invoice" : "facture");
         String fileName = name + "-" + (draft ? (invoice.getLanguage() == DocumentLanguage.EN ? "draft-" : "brouillon-") + invoice.getId() :
             invoice.getNumber()) + ".pdf";
         return new ActivityReportService.PdfFile(fileName, pdf.render(invoice, seller, buyer));
+    }
+
+    /** The invoice a credit note credits, refused when the note would credit more than what is left of it. */
+    private Invoice creditable(Long freelanceId, Invoice note) {
+        Invoice credited = invoice(freelanceId, note.getCreditedInvoiceId());
+        if (credited.getStatus() == InvoiceStatus.CREDITED) {
+            throw new InvalidStateException("The invoice is already cancelled by its credit notes");
+        }
+        BigDecimal left = InvoiceTotals.of(credited.getLines()).total().subtract(creditedTotal(credited));
+        if (InvoiceTotals.of(note.getLines()).total().compareTo(left) > 0) {
+            throw new InvalidStateException("A credit note cannot credit more than what is left of its invoice: " + left);
+        }
+        return credited;
+    }
+
+    /** What the issued credit notes of an invoice credit, in all. */
+    private BigDecimal creditedTotal(Invoice credited) {
+        return invoices.findByCreditedInvoiceIdAndNumberIsNotNull(credited.getId()).stream()
+            .map(note -> InvoiceTotals.of(note.getLines()).total()).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private String nextNumber(Long freelanceId, int year, String prefix) {
@@ -222,6 +281,9 @@ public class InvoiceService {
     }
 
     private void write(Invoice invoice, InvoiceDtos.Draft draft) {
+        if (invoice.isCreditNote() && !invoice.getClientId().equals(draft.clientId())) {
+            throw new InvalidStateException("A credit note goes to the client of its invoice");
+        }
         Client client = clients.findById(draft.clientId()).filter(found -> found.getFreelance() != null &&
                 invoice.getFreelanceId().equals(found.getFreelance().getId()))
             .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
@@ -288,9 +350,10 @@ public class InvoiceService {
         InvoiceTotals totals = InvoiceTotals.of(invoice.getLines());
         String clientName = invoice.getBuyer() != null && invoice.getBuyer().getName() != null ? invoice.getBuyer().getName() :
             clients.findById(invoice.getClientId()).map(Client::getCompanyName).orElse(null);
-        boolean overdue = invoice.getStatus() == InvoiceStatus.ISSUED && invoice.getDueDate() != null &&
+        boolean overdue = !invoice.isCreditNote() && invoice.getStatus() == InvoiceStatus.ISSUED && invoice.getDueDate() != null &&
             invoice.getDueDate().isBefore(LocalDate.now(clock.withZone(PARIS)));
-        return new InvoiceDtos.Invoice(invoice.getId(), invoice.getNumber(), invoice.getStatus(), overdue, invoice.getClientId(), clientName,
+        return new InvoiceDtos.Invoice(invoice.getId(), invoice.isCreditNote() ? InvoiceKind.CREDIT_NOTE : InvoiceKind.INVOICE,
+            invoice.getNumber(), invoice.getStatus(), overdue, invoice.getCreditedInvoiceId(), invoice.getCreditedNumber(), invoice.getClientId(), clientName,
             invoice.getProjectId(), invoice.getProjectRole(), invoice.getActivityReportId(), invoice.getIssueDate(), invoice.getDueDate(),
             invoice.getPeriodStart(), invoice.getPeriodEnd(), invoice.getLanguage(), invoice.getNotes(), invoice.getLines().stream()
             .map(line -> new InvoiceDtos.Line(line.getDescription(), line.getQuantity(), line.getUnitPrice(), line.getVatRate())).toList(),

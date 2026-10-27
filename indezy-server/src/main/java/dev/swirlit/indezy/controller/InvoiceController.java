@@ -59,6 +59,13 @@ public class InvoiceController {
         return invoices.fromReport(workspace(), request);
     }
 
+    @Operation(summary = "Draft a credit note of an issued invoice")
+    @PostMapping("/{id}/credit-note")
+    @ResponseStatus(HttpStatus.CREATED)
+    public InvoiceDtos.Invoice creditNote(@PathVariable Long id) {
+        return invoices.creditNote(workspace(), id);
+    }
+
     @Operation(summary = "Change a draft")
     @PutMapping("/{id}")
     public InvoiceDtos.Invoice update(@PathVariable Long id, @Valid @RequestBody InvoiceDtos.Draft draft) {

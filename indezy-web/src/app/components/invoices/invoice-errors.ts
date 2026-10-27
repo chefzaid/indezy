@@ -8,7 +8,9 @@ const REFUSALS: [RegExp, string][] = [
   [/^This activity report is already invoiced/, 'invoices.errors.alreadyInvoiced'],
   [/^Only a validated activity report can be invoiced/, 'invoices.errors.notValidated'],
   [/^An issued invoice can no longer change/, 'invoices.errors.frozen'],
-  [/^The invoice's client no longer exists/, 'invoices.errors.clientGone']
+  [/^The invoice's client no longer exists/, 'invoices.errors.clientGone'],
+  [/^A credit note cannot credit more than what is left/, 'invoices.errors.creditTooHigh'],
+  [/^A credit note goes to the client of its invoice/, 'invoices.errors.creditClient']
 ];
 
 /** The translation key telling why the server refused, or the given fallback. */

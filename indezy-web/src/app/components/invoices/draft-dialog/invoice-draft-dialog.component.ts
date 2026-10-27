@@ -69,6 +69,10 @@ export class InvoiceDraftDialogComponent implements OnInit {
         periodEnd: invoice.periodEnd ?? '', language: invoice.language, notes: invoice.notes ?? ''
       });
       invoice.lines.forEach(line => this.addLine(line));
+      if (invoice.kind === 'CREDIT_NOTE') {
+        // A credit note goes to the client of its invoice.
+        this.form.controls.clientId.disable();
+      }
     } else {
       this.addLine();
     }

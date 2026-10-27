@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.InvoiceKind;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
@@ -31,7 +32,7 @@ public final class InvoiceDtos {
     }
 
     public record Invoice(
-        Long id, String number, InvoiceStatus status, boolean overdue, Long clientId, String clientName, Long projectId,
+        Long id, InvoiceKind kind, String number, InvoiceStatus status, boolean overdue, Long creditedInvoiceId, String creditedNumber, Long clientId, String clientName, Long projectId,
         String projectRole, Long activityReportId, LocalDate issueDate, LocalDate dueDate, LocalDate periodStart, LocalDate periodEnd,
         DocumentLanguage language, String notes, List<Line> lines, BigDecimal totalExcludingVat, BigDecimal vat, BigDecimal total,
         LocalDate paidOn, LocalDateTime createdAt) {

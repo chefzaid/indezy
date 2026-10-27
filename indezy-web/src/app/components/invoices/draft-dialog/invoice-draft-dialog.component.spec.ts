@@ -63,6 +63,15 @@ describe('InvoiceDraftDialogComponent', () => {
       notes: null, lines: [{ description: 'Audit SI', quantity: 2, unitPrice: 700, vatRate: 0 }] });
   });
 
+  it('keeps a credit note\'s client', () => {
+    const note = { id: 6, kind: 'CREDIT_NOTE', clientId: 3, projectId: null, language: 'FR',
+      lines: [{ description: 'Audit', quantity: 1, unitPrice: 700, vatRate: 0 }] } as unknown as Invoice;
+    const component = create({ invoice: note });
+    expect(component.form.controls.clientId.disabled).toBeTrue();
+    component.save();
+    expect(close).toHaveBeenCalledWith(jasmine.objectContaining({ clientId: 3 }));
+  });
+
   it('keeps the dialog open while the draft is incomplete, and stops at fifty lines', () => {
     const component = create();
     component.save();

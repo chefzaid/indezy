@@ -19,6 +19,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     Optional<Invoice> findFirstByActivityReportId(Long activityReportId);
 
+    List<Invoice> findByCreditedInvoiceIdAndNumberIsNotNull(Long creditedInvoiceId);
+
     List<Invoice> findByFreelanceIdAndStatusAndDueDateBeforeOrderByDueDateAsc(Long freelanceId, InvoiceStatus status, LocalDate before);
 
     /** The date of the workspace's latest issued invoice. */

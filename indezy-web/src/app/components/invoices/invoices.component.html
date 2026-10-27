@@ -43,7 +43,15 @@
       @for (invoice of shown; track invoice.id) {
         <li class="invoice" [attr.data-invoice]="invoice.id">
           <div class="main">
-            <span class="number">{{ invoice.number ?? ('invoices.draft' | translate) }}</span>
+            <span class="number">
+              @if (invoice.kind === 'CREDIT_NOTE') {
+                <span class="kind">{{ 'invoices.creditNote' | translate }}</span>
+              }
+              {{ invoice.number ?? ('invoices.draft' | translate) }}
+              @if (invoice.creditedNumber) {
+                <span class="credits">{{ 'invoices.credits' | translate: { number: invoice.creditedNumber } }}</span>
+              }
+            </span>
             <span class="client">{{ invoice.clientName }}@if (invoice.projectRole) { · {{ invoice.projectRole }} }</span>
             <span class="meta">
               @if (invoice.periodStart && invoice.periodEnd) {
@@ -60,7 +68,7 @@
           <span class="badge" [class]="invoice.overdue ? 'OVERDUE' : invoice.status">
             {{ 'invoices.statuses.' + (invoice.overdue ? 'OVERDUE' : invoice.status) | translate }}
           </span>
-          <span class="amount">{{ invoice.total | number:'1.2-2' }} €</span>
+          <span class="amount">{{ (invoice.kind === 'CREDIT_NOTE' ? -invoice.total : invoice.total) | number:'1.2-2' }} €</span>
           <button mat-icon-button type="button" [matMenuTriggerFor]="actions"
             [attr.aria-label]="'invoices.actions' | translate: { name: invoice.number ?? ('invoices.draft' | translate) }">
             <mat-icon>more_vert</mat-icon>
@@ -70,11 +78,14 @@
               <button mat-menu-item type="button" (click)="write(invoice)"><mat-icon>edit</mat-icon>{{ 'invoices.edit' | translate }}</button>
               <button mat-menu-item type="button" (click)="issue(invoice)"><mat-icon>send</mat-icon>{{ 'invoices.issue' | translate }}</button>
             }
-            @if (invoice.status === 'ISSUED') {
+            @if (invoice.kind !== 'CREDIT_NOTE' && (invoice.status === 'ISSUED' || invoice.status === 'PAID')) {
+              <button mat-menu-item type="button" (click)="creditNote(invoice)"><mat-icon>undo</mat-icon>{{ 'invoices.createCreditNote' | translate }}</button>
+            }
+            @if (invoice.kind !== 'CREDIT_NOTE' && invoice.status === 'ISSUED') {
               <button mat-menu-item type="button" (click)="markPaid(invoice)"><mat-icon>paid</mat-icon>{{ 'invoices.markPaid' | translate }}</button>
             }
             @if (invoice.status === 'PAID') {
-              <button mat-menu-item type="button" (click)="markUnpaid(invoice)"><mat-icon>undo</mat-icon>{{ 'invoices.markUnpaid' | translate }}</button>
+              <button mat-menu-item type="button" (click)="markUnpaid(invoice)"><mat-icon>money_off</mat-icon>{{ 'invoices.markUnpaid' | translate }}</button>
             }
             <button mat-menu-item type="button" (click)="download(invoice)"><mat-icon>picture_as_pdf</mat-icon>{{ 'invoices.pdf' | translate }}</button>
             @if (invoice.status === 'DRAFT') {

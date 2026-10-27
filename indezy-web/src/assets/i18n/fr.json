@@ -2292,7 +2292,8 @@
       "DRAFT": "Brouillon",
       "ISSUED": "Émise",
       "PAID": "Payée",
-      "OVERDUE": "En retard"
+      "OVERDUE": "En retard",
+      "CREDITED": "Annulée par avoir"
     },
     "dueOn": "échéance le {{date}}",
     "paidOnDate": "payée le {{date}}",
@@ -2342,7 +2343,14 @@
       "alreadyInvoiced": "Ce mois est déjà facturé.",
       "notValidated": "Seul un mois validé par le client peut être facturé.",
       "frozen": "Une facture émise ne peut plus être modifiée.",
-      "clientGone": "Le client de la facture n'existe plus."
-    }
+      "clientGone": "Le client de la facture n'existe plus.",
+      "creditTooHigh": "Un avoir ne peut pas créditer plus que ce qui reste de sa facture.",
+      "creditClient": "Un avoir va au client de sa facture."
+    },
+    "creditNote": "Avoir",
+    "credits": "sur {{number}}",
+    "createCreditNote": "Créer un avoir",
+    "creditNoteCreated": "Avoir créé en brouillon : réduisez-le pour un avoir partiel, puis émettez-le",
+    "editCreditNote": "Modifier l'avoir"
   }
 }

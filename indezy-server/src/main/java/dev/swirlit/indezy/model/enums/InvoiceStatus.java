@@ -6,5 +6,7 @@ public enum InvoiceStatus {
     DRAFT,
     /** Numbered and sent: it can no longer change. */
     ISSUED,
-    PAID
+    PAID,
+    /** Cancelled by credit notes covering its whole amount: nothing is owed any more. */
+    CREDITED
 }

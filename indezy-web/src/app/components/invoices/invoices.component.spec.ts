@@ -24,7 +24,7 @@ describe('InvoicesComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   let user: { id: number } | null;
   const invoice = (id: number, changes: Partial<Invoice> = {}): Invoice => ({
-    id, number: null, status: 'DRAFT', overdue: false, clientId: 3, clientName: 'Acme', projectId: 8, projectRole: 'Java lead',
+    id, kind: 'INVOICE', creditedInvoiceId: null, creditedNumber: null, number: null, status: 'DRAFT', overdue: false, clientId: 3, clientName: 'Acme', projectId: 8, projectRole: 'Java lead',
     activityReportId: null, issueDate: null, dueDate: null, periodStart: '2026-10-01', periodEnd: '2026-10-31', language: 'FR',
     notes: null, lines: [], totalExcludingVat: 1000, vat: 0, total: 1000, paidOn: null, createdAt: '2026-10-27T10:00:00', ...changes
   });
@@ -36,7 +36,8 @@ describe('InvoicesComponent', () => {
   const closing = (result: unknown) => dialog.open.and.returnValue({ afterClosed: () => of(result) } as MatDialogRef<unknown>);
 
   function create(list = of([draft, issued, late, paid])): ComponentFixture<InvoicesComponent> {
-    invoiceService = jasmine.createSpyObj('InvoiceService', ['list', 'create', 'update', 'delete', 'issue', 'setPaid', 'downloadPdf']);
+    invoiceService = jasmine.createSpyObj('InvoiceService', ['list', 'create', 'update', 'delete', 'issue', 'setPaid', 'downloadPdf',
+      'creditNote']);
     invoiceService.list.and.returnValue(list);
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
@@ -152,6 +153,32 @@ describe('InvoicesComponent', () => {
     expect(invoiceService.setPaid).toHaveBeenCalledWith(4, null);
   });
 
+  it('drafts a credit note of an issued invoice and opens it, then counts it off what is owed', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const note = invoice(5, { kind: 'CREDIT_NOTE', creditedInvoiceId: 2, creditedNumber: 'F2026-0001', total: 300 });
+    invoiceService.creditNote.and.returnValue(of(note));
+    closing(undefined);
+
+    component.creditNote(issued);
+
+    expect(component.invoices[0]).toEqual(note);
+    expect(notifications.success).toHaveBeenCalledWith('invoices.creditNoteCreated');
+    expect(dialog.open).toHaveBeenCalled();
+    expect(component.outstanding).toBe(2500);
+    component.invoices = [{ ...note, status: 'ISSUED', number: 'F2026-0004' }, ...component.invoices.slice(1)];
+    expect(component.outstanding).toBe(2200);
+    component.invoices = [...component.invoices, invoice(9, { kind: 'CREDIT_NOTE', status: 'ISSUED', creditedInvoiceId: 3, total: 200 })];
+    expect(component.overdue).toBe(300);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-invoice="5"]')?.textContent).toContain('-300.00');
+
+    invoiceService.creditNote.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409,
+      error: { message: 'A credit note cannot credit more than what is left of its invoice: 0.00' } })));
+    component.creditNote(issued);
+    expect(notifications.error).toHaveBeenCalledWith('invoices.errors.creditTooHigh');
+  });
+
   it('deletes a draft once confirmed', () => {
     const component = create().componentInstance;
     confirm.confirm.and.returnValue(of(false));
@@ -178,6 +205,10 @@ describe('InvoicesComponent', () => {
     expect(link.download).toBe('invoice-F2026-0003.pdf');
     component.download(draft);
     expect(link.download).toBe('facture-draft-1.pdf');
+    component.download(invoice(6, { kind: 'CREDIT_NOTE', number: 'F2026-0005' }));
+    expect(link.download).toBe('avoir-F2026-0005.pdf');
+    component.download(invoice(7, { kind: 'CREDIT_NOTE', language: 'EN' }));
+    expect(link.download).toBe('credit-note-draft-7.pdf');
 
     invoiceService.downloadPdf.and.returnValue(throwError(() => new Error('500')));
     component.download(paid);
