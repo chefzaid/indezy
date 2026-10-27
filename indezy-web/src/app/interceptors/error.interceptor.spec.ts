@@ -301,6 +301,13 @@ describe('errorInterceptor', () => {
   });
 
   describe('error handling edge cases', () => {
+    it('says a request failed because the browser is offline', () => {
+      spyOnProperty(navigator, 'onLine').and.returnValue(false);
+      httpClient.post('/api/offline', {}).subscribe({ error: () => undefined });
+      httpMock.expectOne('/api/offline').error(new ProgressEvent('error'));
+      expect(notificationService.error).toHaveBeenCalledWith('errors.offline', 5000);
+    });
+
     it('should handle network errors', () => {
       const testUrl = '/api/network-error';
 

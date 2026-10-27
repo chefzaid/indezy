@@ -15,6 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from './services/auth/auth.service';
 import { LANGUAGE_STORAGE_KEY, getSavedLanguage } from './shared/locale/app-locale';
+import { ConnectivityService } from './shared/services/connectivity.service';
 import { ThemeService } from './shared/theme/theme.service';
 import { LogoComponent } from './shared/components/logo/logo.component';
 import { UserManagementService } from './services/user-management/user-management.service';
@@ -74,6 +75,7 @@ export class AppComponent implements OnInit {
   private readonly offerAlerts = inject(OfferAlertsService);
   private readonly capabilities = inject(CapabilitiesService);
   readonly themeService = inject(ThemeService);
+  readonly connectivity = inject(ConnectivityService);
   /** Account id whose saved theme preference has been applied. */
   private themeSyncedFor: number | null = null;
 

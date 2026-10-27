@@ -427,6 +427,14 @@ A shared link:
 
 At most 20 links are open at once per workspace.
 
+## Offline Copies
+
+The service worker keeps the latest answers of the main read endpoints in the browser's cache storage for seven days
+(`ngsw-config.json`, data group `workspace-reads`), so the app reads them offline. It keeps no download (PDF, export,
+file, compliance document), no session, API token or account export, nothing of the admin console or of the public
+pages, and no write. Signing out deletes that data group's caches (`clearOfflineData`), so another person on the same
+browser cannot read the workspace offline; a browser left signed in keeps them, like the pages it shows.
+
 ## Spreadsheet Exports
 
 CSV files meant for a spreadsheet (the accountant's project summary and the invoice register) write typed text through

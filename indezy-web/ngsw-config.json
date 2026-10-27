@@ -1,0 +1,75 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/**",
+          "/media/**",
+          "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "workspace-reads",
+      "urls": [
+        "/api/projects/by-freelance/**",
+        "/api/projects/kanban/**",
+        "/api/projects/stats/**",
+        "/api/projects/*",
+        "/api/projects/*/notes",
+        "/api/projects/*/activity-reports",
+        "/api/projects/*/activity-reports/*/*",
+        "/api/projects/*/attachments",
+        "/api/projects/*/purchase-orders",
+        "/api/interview-steps/**",
+        "/api/clients/**",
+        "/api/contacts/**",
+        "/api/sources/**",
+        "/api/seasons/**",
+        "/api/freelances/**",
+        "/api/pipeline-templates/**",
+        "/api/email-templates/**",
+        "/api/invoices/by-freelance/*",
+        "/api/invoices/*",
+        "/api/compliance-documents",
+        "/api/users/profile",
+        "/api/users/preferences",
+        "/api/users/billing"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 300,
+        "maxAge": "7d",
+        "timeout": "6s"
+      }
+    }
+  ],
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/**/*__*",
+    "!/**/*__*/**",
+    "!/api/**",
+    "!/oauth2/**"
+  ]
+}

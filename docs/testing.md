@@ -273,6 +273,11 @@ Representative frontend specs:
   no rate, none yet, adding, amending, changing, deleting once confirmed, failures), `purchase-order-dialog.component.spec.ts`
   (an order's start and ceiling, an end before the start, an amendment adding something) and
   `dashboard-reminders.component.spec.ts` (the orders near or over their ceiling, linking to their mission)
+- offline use: `connectivity.service.spec.ts`, `offline-data.spec.ts` (only the workspace answers' caches deleted),
+  `app.component.spec.ts` (the offline banner), `error.interceptor.spec.ts` (a request failing offline) and
+  `auth.service.spec.ts` (sign-out forgets the kept answers); `e2e/offline.spec.ts` shows the banner while the browser
+  is offline. The service worker itself runs only in a production build (`npx ng build --configuration production`
+  writes `ngsw.json`).
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy

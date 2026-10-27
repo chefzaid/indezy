@@ -1189,7 +1189,8 @@
       "vatNumber": "A VAT number starts with its country code, such as FR",
       "bic": "A BIC has 8 or 11 letters and digits",
       "iban": "This IBAN is not valid"
-    }
+    },
+    "offline": "You are offline: this needs a connection."
   },
   "steps": {
     "notesOptional": "Notes (optional)",
@@ -2509,5 +2510,8 @@
       "invalidTitle": "This link no longer works",
       "invalidMessage": "It expired, was revoked, or was copied incompletely. Ask for a new one."
     }
+  },
+  "offline": {
+    "banner": "You are offline: the pages show what was last loaded, and changes wait for the connection."
   }
 }

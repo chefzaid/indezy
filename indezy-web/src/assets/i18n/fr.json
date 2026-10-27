@@ -1189,7 +1189,8 @@
       "vatNumber": "Un numéro de TVA commence par le code du pays, comme FR",
       "bic": "Un BIC compte 8 ou 11 lettres et chiffres",
       "iban": "Cet IBAN n'est pas valide"
-    }
+    },
+    "offline": "Vous êtes hors ligne : cette action demande une connexion."
   },
   "steps": {
     "notesOptional": "Notes (optionnel)",
@@ -2509,5 +2510,8 @@
       "invalidTitle": "Ce lien ne fonctionne plus",
       "invalidMessage": "Il a expiré, a été révoqué ou a été copié incomplètement. Demandez-en un nouveau."
     }
+  },
+  "offline": {
+    "banner": "Vous êtes hors ligne : les pages montrent ce qui a été chargé en dernier, et les modifications attendent la connexion."
   }
 }

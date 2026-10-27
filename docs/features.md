@@ -909,6 +909,19 @@ API: `GET` and `POST /projects/{projectId}/purchase-orders` (an amendment names 
 `DELETE /purchase-orders/{id}`; each write answers with the order as it now stands, with its amendments and its usage.
 Another workspace's mission or order answers `404`; the dashboard statistics carry `purchaseOrderAlerts`.
 
+## Offline Use
+
+In production the app installs as a progressive web app (the browser's **Install** offer) and keeps working without a
+connection for what it already showed. A service worker (`ngsw-config.json`) keeps the app itself, and the latest
+answers of the workspace's main pages (opportunities and the board, a mission with its notes, activity reports, files
+list and purchase orders, interviews, clients, contacts, sources, seasons, invoices, documents list, profile and
+preferences) for seven days: online, each page asks the server first and falls back to the kept answer after six
+seconds; offline, it shows the kept answer. A banner says when the browser is offline, and a change attempted meanwhile
+says it needs a connection. Downloads (PDFs, exports, files and documents), the account's sessions, API tokens and data
+export, the admin console and the public pages are never kept. Signing out forgets the kept answers, so the next person
+on the browser cannot read them. The service worker and its manifest are always revalidated (`nginx.conf`), so a new
+release reaches the browser on its next visit.
+
 ## Compliance Documents
 
 **Documents** (`/documents`) keeps the papers ESNs ask for before and during a mission, and shares them through one link

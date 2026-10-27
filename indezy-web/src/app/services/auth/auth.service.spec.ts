@@ -163,6 +163,15 @@ describe('AuthService', () => {
       expect(localStorage.removeItem).toHaveBeenCalledWith('indezy_token');
     });
 
+    it('forgets the workspace answers kept for offline reading', async () => {
+      const keys = spyOn(caches, 'keys').and.resolveTo(['ngsw:/:1:data:workspace-reads:cache', 'other']);
+      const remove = spyOn(caches, 'delete').and.resolveTo(true);
+      service.logout();
+      await keys.calls.mostRecent().returnValue;
+      await Promise.resolve();
+      expect(remove).toHaveBeenCalledOnceWith('ngsw:/:1:data:workspace-reads:cache');
+    });
+
     it('signs out without a request when there is no token, or no fetch', () => {
       const fetchSpy = spyOn(window, 'fetch');
       service.logout();

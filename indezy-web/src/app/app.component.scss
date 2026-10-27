@@ -5,6 +5,21 @@
   height: 100dvh;
 }
 
+.offline-banner {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--app-info-bg);
+  color: var(--app-text);
+  font-size: 0.875rem;
+
+  mat-icon {
+    flex: none;
+  }
+}
+
 .app-toolbar {
   flex: 0 0 auto;
   position: relative;

@@ -53,6 +53,20 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
+  it('says when the browser is offline', () => {
+    mockAuthService.isAuthenticated.and.returnValue(true);
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-offline-banner]')).toBeNull();
+    window.dispatchEvent(new Event('offline'));
+    fixture.detectChanges();
+    expect(element.querySelector('[data-offline-banner]')!.getAttribute('role')).toBe('status');
+    window.dispatchEvent(new Event('online'));
+    fixture.detectChanges();
+    expect(element.querySelector('[data-offline-banner]')).toBeNull();
+  });
+
   it('should have title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;

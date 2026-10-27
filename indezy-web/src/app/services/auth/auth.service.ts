@@ -5,6 +5,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, LoginResponse, RegisterRequest, User } from '../../models/auth.models';
+import { clearOfflineData } from '../../shared/utils/offline-data';
 
 /**
  * Pages opened without an Indezy account: an ESN validating an activity report or opening shared documents, an email's
@@ -52,6 +53,7 @@ export class AuthService {
 
   logout(): void {
     this.endSession(this.getToken());
+    clearOfflineData().catch(() => undefined);
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSubject.next(null);

@@ -45,7 +45,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       } else if (error.status === 0) {
         // Keep the user on the current screen; the requesting component decides how to recover.
         console.error('Network error occurred:', error);
-        notify('errors.networkError');
+        // Offline, reads come from what the app kept; anything else waits for the connection.
+        notify(globalThis.navigator?.onLine === false ? 'errors.offline' : 'errors.networkError');
       } else if (error.status >= 500) {
         console.error('Server error occurred:', error);
         notify('errors.serverError');

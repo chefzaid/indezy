@@ -53,6 +53,12 @@
         </button>
       </mat-menu>
     </mat-toolbar>
+    @if (!connectivity.online()) {
+      <div class="offline-banner" role="status" data-offline-banner>
+        <mat-icon aria-hidden="true">cloud_off</mat-icon>
+        <span>{{ 'offline.banner' | translate }}</span>
+      </div>
+    }
     <!-- Sidenav Container -->
     <mat-sidenav-container class="app-sidenav-container">
       <mat-sidenav #sidenav
