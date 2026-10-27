@@ -63,3 +63,485 @@ Bugs, failing checks, security findings and code smells found while working on a
 - [x] Calendar day cells fail WCAG 2.5.3 (label in name) as soon as a day holds a step or a call (`indezy-web/src/app/components/calendar/calendar.component.html`): each cell's `aria-label` (`Thursday, October 29, 2026: 1 step(s)`) does not contain the previews it shows (`10:00 Technical test`, `+1`), so axe reports `label-content-name-mismatch`. The audits only ran on empty months. Reproduce: open `/calendar` on a month with a step and run axe on `.calendar-container`. Fixed: the cell takes its name from visually hidden text (the same date and count) instead of an `aria-label`, and its day number, previews and overflow count are hidden from assistive technology like the count badge, since the name gives the count and the day detail lists every item; `e2e/booking.spec.ts` audits a month with a booked call.
 - [x] A calendar day cell capped interview steps at three but listed every booked call below them, and its `+N` counted only steps (`calendar.component.html`). Reproduce: three steps and one call on a day show four previews and no `+1`. Fixed: calls fill the room the steps leave (`callsShown`), and the overflow counts steps and calls; `calendar.component.spec.ts` covers it.
 - [x] The booking link's per-address limit (`BookingService`) kept an entry for every address that ever tried to book, never removed, so a visitor cycling through addresses (IPv6 gives many) could grow the server's memory without end. Reproduce: post bookings from many `X-Forwarded-For` addresses behind the proxy; `recentByAddress` keeps them all. Fixed: `RecentAttempts` counts attempts per address over a sliding hour and, past 1,000 addresses, forgets those idle for the hour; `RecentAttemptsTest` covers it and `docs/security.md#booking-link` states it.
+
+## Needs Input
+
+Parts of tasks that cannot advance without the owner's decision or information. Only the part needing input is set aside here; the rest of the task keeps moving. Answer under the item, and the next agent run applies the answer and removes the entry.
+
+- [ ] **AI provider and costs** (AI & Automation: message polish, job description parsing, suggested rate, job fit, recommendations, CV adaptation, follow-up messages, project chat, semantic search, CV generator, status suggestions, local LLM; and the voice memo transcription). Options: (a) bring-your-own key only, each user pays their provider (which providers first: Anthropic, OpenAI, Mistral?); (b) an Indezy key in Vault with per-plan limits and a monthly spending cap; (c) a model run on the cluster (Ollama, whisper.cpp), which needs CPU/GPU budget. Bring-your-own-key support itself can be built once the providers are chosen.
+  - Answer:
+- [ ] **Google, Microsoft, Dropbox and LinkedIn accounts** (calendar two-way sync, Gmail/Outlook inbox sync, Drive/OneDrive/Dropbox backups, social login and Gmail/Outlook/LinkedIn sign-in through Keycloak): each needs an OAuth client registered under your accounts, and Gmail's restricted scopes need Google's security assessment. Which providers first, and will you register the clients (their ids and secrets go to Vault)?
+  - Answer:
+- [ ] **Email open and reply tracking** (Communications): emails leave from the user's own mail client today, so tracking means sending through Indezy (Resend) with a tracking pixel and reply detection, which the CNIL treats as needing the recipient's consent. Build it with a per-email opt-in and a notice in the email, or drop it?
+  - Answer:
+- [ ] **Malt connector and OpenClaw automation** (Job Board Integrations): Malt has no public API, and reading or posting through browser automation may break its terms and those of other sites. Do you have API or partnership access, or should both items be dropped?
+  - Answer:
+- [ ] **Publisher identity and legal texts** (Terms of Service, Privacy Policy, Contact and FAQ pages; the presentation page's legal notice and footer; the EU hosting statement, processor list and data processing agreement): the legal notice must name the publisher (company or person, address, registration number, publication director), the host and a contact address, and the texts need your approval or a lawyer's. Please provide these details; I can then draft the pages for review.
+  - Answer:
+- [ ] **Plans, prices and payment provider** (Subscription/freemium, Plans and entitlements, the presentation page's pricing section): what goes in each plan, the prices, the trial length, and the payment provider (Stripe, Paddle, Lemon Squeezy?) whose account you would open.
+  - Answer:
+- [ ] **Production sign-up** (presentation page call to action): the Keycloak realm has no self-registration and the OAuth2 Proxy admits only `platform-admins`. Open self-registration to the public at launch, keep invitations only, or run a waiting list?
+  - Answer:
+- [ ] **Paid compliance providers** (Electronic signature, French B2B e-invoicing, Payment reconciliation): which qualified trust provider (Yousign, Docusign, Universign?), which approved e-invoicing platform (PDP), and which bank account information provider (Bridge, Powens?) to integrate, with accounts you open. Also: Factur-X invoices of a seller under the VAT franchise give its SIREN as its tax registration (BT-32, schemeID FC), which the EN 16931 rules require for exempt lines; ask the platform whether it expects another identifier there.
+  - Answer:
+- [ ] **Mobile app technology** (Cross-platform mobile app, Push notifications): (a) the web app made installable (PWA) with web push, no store; (b) the Angular app wrapped with Capacitor and published in the stores, which needs Apple and Google developer accounts; (c) native apps. Web push also needs a VAPID key pair stored in Vault.
+  - Answer:
+- [ ] **Community features rules** (Freelancer network, Co-optation tracking, Community TJM and client reviews, Feature request board): who counts as a peer (invitation, organization, everyone), what a shared opportunity reveals, and how reviews of clients and ESNs are moderated (defamation risk). Please set these rules, or drop the items.
+  - Answer:
+- [ ] **Aggregated market data consent** (ADR — aggregated data, TJM benchmark by skill/seniority/region, ESN scorecard, quarterly market report): contributing a user's rates and processes needs their opt-in and a publication threshold. Confirm the rules in that ADR item (opt-in, minimum number of freelancers per figure, no client or contact identity) so the ADR can be written and the features built on it.
+  - Answer:
+- [ ] **Social contribution rates** (URSSAF/social contribution estimation per status, Declaration calendar, Expand reversion rate calculator customization): rates and ceilings change every January. Should Indezy keep an official table per year (whoever updates it each January), or ask each user for their own rates with the URSSAF simulator linked?
+  - Answer:
+- [ ] **Expense tracking** (Expense tracking): what should expenses change in the reversion calculator? In a micro-entreprise they are not deductible (flat allowance), in an EI au réel, EURL or SASU they lower the taxable profit, and in portage they are reimbursed as professional expenses. Options: (a) per status as just described; (b) only a record of expenses with monthly and yearly totals, without changing the net income.
+  - Answer:
+- [ ] **Dashboard period tagging** (Analytics & Reporting): job-hunting seasons already scope the dashboard to a named period. Should period tags (`YYYY-MM`) be something else (for instance monthly reports), or is this item covered by seasons and can be closed?
+  - Answer:
+- [ ] **Help center and status page** (Help center and support): which support channel and address, the response targets per plan, and which status page (a platform service such as Uptime Kuma, or a hosted one)?
+  - Answer:
+- [ ] **Network access for new job boards** (More sites): this coding environment cannot reach the job boards' sites (its proxy refuses them), so the new readers cannot be written and checked here. Allow these hosts for the coding sessions, or check the sites from your machine?
+  - Answer:
+- [ ] Create two pipeline schedules on `main` in GitLab (CI/CD → Schedules), which needs your GitLab access: a nightly one with `PLAYWRIGHT_SCHEDULE=true` (for instance `30 2 * * *`, Europe/Paris) for the E2E suite, and the weekly reader canary with `READER_CANARY=true` (`0 6 * * 1`) if it is not there yet (CI item, "scheduled e2e runs"; `docs/testing.md`).
+  - Answer:
+- [ ] Create Indezy's Resend sending key and store it in Vault before the next release (Offer feed, "Saved search emails", answered: Resend). The emails are built and send nothing without a key; the release that brings them adds the `indezy-mail` ExternalSecret, which needs the field `RESEND_API_KEY` at Vault KV v2 path `secret/apps/indezy/mail` to exist, even empty, or Argo CD reports the app degraded and the deploy job fails. Steps (`docs/deployment.md#saved-search-email-credentials`): in Resend, create a sending access key restricted to `swirlit.dev` (already verified for the website's `noreply@swirlit.dev`), then write it to that path, or write an empty value to release first and add the key later (restart `indezy-server` after the ExternalSecret refreshes). Options: (a) you write the key; (b) the agent writes an empty field now with your approval, and you add the key later. *(task: Offer feed › Saved search emails; asked by: Coding Agent)*
+  - Answer:
+- [ ] Should the nightly archiving of idle opportunities be on by default? It ships off: each account turns it on in Profile → Preferences, so nothing leaves anyone's board unannounced. Options: (a) keep it opt-in; (b) on for new accounts only; (c) on for every account, existing ones included, announced in the interface first. *(task: Pipeline & Kanban › Automatic archiving; asked by: Coding Agent)*
+  - Answer:
+
+- [ ] **Accounting tool connectors** (Invoicing and Compliance, "Direct connectors"): the FEC export already feeds any French accounting tool by import. Pushing entries straight into a tool needs a partner or developer account with it (Pennylane's API, Tiime, Indy…). Which tools do your users rely on, and do you have, or want to apply for, API access to them?
+  - Answer:
+
+- [ ] **Keycloak email flows** (Email validation and password reset): in production Indezy never sees a password, so both flows are the `swirlit` realm's (Realm settings → Login: **Verify email** and **Forgot password**, with the realm's SMTP settings under **Email**). The realm is shared with the platform, so turning them on changes every application's login. Should they be turned on, and which sender address should the realm use? Local accounts (development only) need neither.
+  - Answer:
+
+- [ ] **Late-payment interest rate** (Payment reconciliation: "statutory late-payment interest and the fixed recovery indemnity computed on overdue invoices"): the €40 indemnity is fixed, but the statutory interest is the ECB's main refinancing rate in force on 1 January or 1 July, plus 10 points (art. L441-10), and it changes every six months. Indezy cannot read it from here (the ECB site is out of this environment's reach). Should the server (a) fetch it from the ECB data API twice a year (needs that host allowed in production), (b) read it from a setting you update each semester, or (c) let each freelancer type the rate their terms state?
+  - Answer:
+
+- [ ] **Keycloak login theme** (Custom Keycloak login theme): Indezy signs in through the platform's `oauth2-proxy` client of the shared `swirlit` realm and has no Keycloak client of its own, so a login theme set on the realm changes the sign-in page of every platform application. Should the theme be a Swirlit one for the whole platform, or should Indezy get its own Keycloak client (and its own OAuth2 Proxy) so the theme applies to it alone? Either way the theme is installed on the platform's Keycloak, which this repository does not deploy.
+  - Answer:
+- [ ] **Exchange rates** (Multi-currency support): invoicing an international client in its currency needs, for each invoice, the euro amount at the issue date (the FEC export states euros, with the currency amount beside it) and euros for the dashboard's totals. Where should the rates come from: the ECB's daily reference rates fetched by the server (needs the ECB host allowed in production), or typed on each invoice? And which currencies (USD, GBP, CHF...)?
+  - Answer:
+
+- [ ] **Versioned migrations and backups** (Automated DB backups with point-in-time recovery; versioned migrations; connection pooling): (a) moving to Flyway means a baseline that matches the production schema exactly, then `ddl-auto: validate` everywhere and the startup fix-ups (`EnumCheckConstraints`, `ColumnLengths`, `OfferSearchIndex`, `ProjectStatusMigration`) turned into migrations. A baseline written from the entities could differ from what Hibernate's `update` built over time, and a mismatch stops the server at start. Can you provide `pg_dump --schema-only` of the production `indezy` database (no data), or confirm a copy can be restored to test the switch? (b) Point-in-time recovery belongs to the shared PostgreSQL of `swirl-cloud`: should it be set up there (WAL archiving to which object storage)? Connection pooling is already Spring Boot's HikariCP (10 connections per replica).
+  - Answer:
+
+- [ ] **Administrators**: who opens the admin console? Set their emails, comma-separated, as `INDEZY_ADMIN_EMAILS` in the `indezy-server-config` ConfigMap (`infra/k8s/server.yaml`, empty today so nobody is an administrator) and restart the server (see `docs/deployment.md#administrators`). The account must exist first.
+
+## Pipeline & Kanban
+
+Not all freelance jobs share the same recruitment process:
+
+Some have 3 steps, others 5, with different styles and ordering. For example, a technical test can happen before or after an interview.
+
+The board uses generic columns: Contact => Tests & Entretiens => Offre => Accepté => Perdu / Abandonné. Each Kanban item keeps the intermediate step it is in (interview steps) and the scheduled next step while staying in the same column.
+
+- [x] Interview step tracking per project
+- [x] Step scheduling with date/time and notes
+- [x] Step statuses: `TO_PLAN`, `PLANNED`, `CANCELED`, `WAITING_FEEDBACK`, `VALIDATED`, `FAILED`
+- [x] Kanban mode for moving opportunities across high-level statuses
+- [x] Five generic Kanban columns: Contact, Tests & Entretiens, Offre, Accepté, Perdu / Abandonné (existing opportunities migrated automatically)
+- [x] Drag-and-drop status changes from the Kanban board
+- [x] Customizable pipeline templates per client/ESN (save a recruitment process and reuse it): **Templates** on the project's steps card, see `docs/features.md#interview-steps`
+- [x] Bulk actions on Kanban cards (archive, change status, assign source): a checkbox per card and a selection bar, through `PATCH /projects/bulk`
+- [x] Card aging indicators (highlight opportunities with no activity for X days)
+- [x] Drag-and-drop reordering within a column (manual priority)
+- [x] Quick-add card directly from the Kanban board (minimal form, enrich later)
+- [x] Pinned/favorite opportunities (keep hot leads at the top, dedicated view)
+- [x] Lost/rejected reason tracking (rate too low, position filled, no response...) with stats
+- [x] Automatic stale-opportunity detection and suggested follow-up or archival
+- [x] Configurable inactivity period: the user sets in their preferences after how many days without activity an opportunity counts as stale (14 days by default, shared by backend reminders and the Kanban board)
+- [ ] Automatic archiving of opportunities with no contact for that period (instead of only flagging them), with an unarchive action from the archive view and the project page that puts the opportunity back in its pipeline column Done on 2026-10-26, all but the default (waiting in **Needs Input**): opt-in in Profile → Preferences, nightly at 03:30 Paris time, plus **Archive** / **Restore** on the opportunity's page and **Restore** in the archive view; archived opportunities keep their status (`docs/features.md#kanban-and-pipeline-view`).
+- [x] Duplicate opportunity detection (same client + same role posted on several job boards), flagged for manual deduplication
+
+## Opportunities & Projects
+
+- [x] Freelancer profile model with identity, availability, employment status, reversion rate, income tax rate, and CV path fields
+- [x] Freelance-owned workspace for projects, clients, contacts, and sources
+- [x] Project/opportunity management with role, status, description, tech stack, daily rate, work mode, dates, duration, notes, documents, link, rating, client, middleman, source, and freelance owner
+- [x] Opportunity statuses: `CONTACT`, `INTERVIEW`, `OFFER`, `WON`, `LOST`
+- [x] Work modes: `ONSITE`, `REMOTE`, `HYBRID`
+- [x] Project helper behavior for total revenue and work-mode checks
+- [x] Source management for opportunity origins
+- [x] Source types: `JOB_BOARD`, `SOCIAL_MEDIA`, `EMAIL`, `CALL`, `SMS`
+- [x] Source ratings for popularity and usefulness
+- [x] Commute-time sorting support using home address and job location
+- [x] Google Maps Distance Matrix API integration for driving and transit modes
+- [x] Graceful commute fallback when no Google Maps API key is configured
+- [x] Attachments per project (job description PDF, contract, technical test brief) with inline preview (image, PDF) instead of forcing downloads: stored in PostgreSQL ([ADR 0010](docs/adr/0010-attachments-in-postgresql.md)), 10 MB each, 20 per opportunity
+- [x] Notes/journal timeline per project (every call, email, decision logged chronologically), with Markdown support and live preview
+- [x] Note templates (call debrief, interview debrief, negotiation summary) selectable when adding a note
+- [ ] Voice memo after a call: record, transcribe, attach the transcript as a project note
+- [x] Skill tags on projects + match score against the freelancer's skill profile (with global tag rename across all projects)
+- [x] Richer skill profile: free-text skills (not only a fixed list), each with an optional level and years of experience, editable from the profile page. Done on 2026-10-26: the **Personal information** tab lists each skill with a level (or not said) and years (0 to 60); a skill is typed freely (Enter adds it) or picked from suggestions, up to 50 of 60 characters, once whatever its case; removing a skill drops its detail. Stored in `user_skill_details` and part of the account export (`docs/features.md#freelancer-profile`).
+- [x] Skill normalization: group equivalent spellings and aliases (e.g. "Spring Boot" / "SpringBoot" / "spring-boot", "JS" / "JavaScript") under one canonical skill, suggest merges when a similar skill is added, and apply the grouping to the profile, project tags, match score and skill trends. Done on 2026-10-26: about thirty known skills with their aliases, and spellings compared without case, accents, spaces, dots or dashes; the profile says when a skill is already listed under another spelling, suggests skills from their aliases and offers to merge duplicates, and the match score, skill trends, bulk tag and tag rename count spellings as one (`docs/features.md#skill-names`). The projects list's technology chips still compare text.
+- [x] Daily rate negotiation history (asked / offered / agreed) per project
+- [x] Project archive view with full-text search across past opportunities
+- [x] Contract milestones tracking (start date, renewal date, notice period alerts)
+- [x] Mission end-date reminders to restart prospection N weeks before the bench
+- [x] Job-hunting seasons (prospection campaigns): separate pipeline and dashboard per job-search period (e.g. "Autumn search 2026"), each with its own stats, objective and target rate, comparable against the global view
+- [ ] Commute-aware opportunity scoring: enhance existing home-to-job commute sorting (driving/transit modes, Maps API fallback handling, caching, remote/hybrid rules)
+
+## Clients, ESN & Contacts
+
+- [x] Client management for final clients and intermediaries/ESNs
+- [x] Client final/intermediary distinction through the `isFinal` flag
+- [x] Contact management linked to both client and freelancer
+- [x] Client rating and blacklist (payment delays, ghosting, bad process)
+- [x] ESN/intermediary margin tracking (rate paid by client vs rate received)
+- [x] Contact interaction history (last contacted, response rate, preferred channel). Done on 2026-10-26: a contact's page records its exchanges (day, channel, who started it, answered or not, summary) and reads its last contact, response rate and preferred channel from them; the contacts list shows the last contact, and a recent exchange keeps a contact out of the dashboard's dormant list (`docs/features.md#contact-interaction-history`).
+- [x] Org chart linking contacts to clients and ESNs (who works with whom). Done on 2026-10-26: a contact can report to another (no loops), contacts are linked to those they work with across companies with a note, the contact page shows its manager, team and links, and the client's Contacts tab draws the org chart with each person's links to other companies (`docs/features.md#contact-network-and-org-charts`).
+- [x] Reminder to nurture dormant contacts (no exchange in 6 months)
+- [x] "On this day last year": resurface contacts/opportunities from the same period to re-engage
+- [x] Import contacts from LinkedIn / vCard / CSV
+
+## Finance
+
+- [x] Reversion rate calculator for net daily, monthly, and yearly revenue
+- [x] Configurable income tax and max workable days with French public holidays
+- [x] Revenue forecast based on signed contracts and pipeline probability
+- [ ] TJM benchmark by skill/seniority/region (anonymized aggregated data from users)
+- [x] Target daily rate (TJM) as a profile setting, used as the default for new seasons and shown against obtained rates on the dashboard
+- [ ] Expense tracking (deductible expenses feeding the reversion calculator)
+- [ ] Expand existing reversion rate calculator customization (deductible expenses, social contributions, status-specific assumptions, custom tax settings)
+- [ ] URSSAF/social contribution estimation per status (micro-entreprise, EI, EURL, SASU, portage)
+- [x] Invoice generation from project data (rate x days worked, French mentions légales). Done on 2026-10-27: the billing identity (Profile → Billing) and the clients' SIREN and VAT number; **Invoices** (`/invoices`) drafts an invoice by hand or from a validated activity report (**Create the invoice** on the report), issues it with gapless yearly numbers and the seller and buyer frozen, and its PDF states the French mandatory mentions (VAT or its exemption, payment term, IBAN, no discount, late penalties and the €40 fee).
+- [x] Credit notes (avoirs) to correct or cancel an issued invoice, numbered in the same sequence and referring to it: an issued invoice can be neither changed nor deleted.
+- [x] Invoice status tracking (draft, sent, paid, overdue) with payment delay alerts. Done on 2026-10-27: drafts, issued, paid (on a date) and overdue past the due date, with the totals awaiting payment and overdue on the Invoices page, and the overdue invoices first among the dashboard's reminders and in the weekly digest.
+- [x] Yearly summary export for the accountant (CSV/Excel)
+- [ ] Multi-currency support for international clients (waits on Needs Input "Exchange rates")
+
+## Calendar & Scheduling
+
+- [x] In-app calendar with interview reminders (already in roadmap - implement): **Calendar** page and the dashboard's interviews of the week (`docs/features.md#calendar`)
+- [ ] Two-way sync with Google Calendar / Outlook Calendar and external notification systems
+- [x] Availability sharing link (let recruiters book a slot, Calendly-style): **Booking link** card under the calendar and the public `/book/<link>` page (`docs/features.md#booking-link`)
+- [x] Interview preparation checklist attached to each scheduled step (step dialog with suggested items, ticked from the project's timeline, see `docs/features.md#interview-steps`)
+- [x] Timeline view of all upcoming steps across all opportunities
+
+## Communications
+
+- [x] Email templates (follow-up, rate proposal, availability announcement) with variables: **Write an email** on an opportunity and Profile → **Emails** (`docs/features.md#emails-from-templates`)
+- [ ] AI polish of outgoing messages (grammar/tone fix before sending a follow-up or proposal)
+- [ ] Gmail/Outlook inbox sync: auto-link emails to the matching project/contact
+- [x] Follow-up sequences (auto-remind me to relance after N days without reply). Done on 2026-10-26: a contact whose latest exchange is a message sent and unanswered past the follow-up delay (5 days, set in Profile → Preferences) shows in the dashboard's **Follow-ups due**, linked to the contact (`docs/features.md#contact-interaction-history`).
+- [ ] Email open/reply tracking on sent follow-ups
+- [x] Centralized message history per opportunity (email + notes + LinkedIn exchanges). Done on 2026-10-26: an exchange with a contact can be about an opportunity, and the opportunity's journal shows its notes and those exchanges together, newest first, and records an exchange with a contact of the client or its ESN (`docs/features.md#project-journal`). Reading the emails themselves waits for the inbox sync item.
+
+## Job Board Integrations
+
+- [ ] Use OpenClaw to automate job posting for platforms without an API
+- [ ] Malt connector (Malt is not part of the offer feed below)
+- [x] One-click import of a job posting into the pipeline (URL paste -> parsed project). Done on 2026-10-21 through the offer link field: a link to a site the feed does not collect is read once for its schema.org `JobPosting` (else its title and summary) by `PostingReader`, on the public internet only (`PublicHosts`), and drafts the opportunity, saved with its client and source named (`POST /api/offers/postings/import`), once per link; a salaried posting is refused.
+- [ ] Chrome extension to capture postings from any site (already in roadmap - implement)
+
+### Freelance Offer Feed (added 2026-10-19)
+
+Indezy collects the freelance missions published on the French IT job boards and shows them in one feed, newest first, with filters on daily rate, location, remote work and everything a freelancer sorts missions by. Permanent (CDI) and fixed-term (CDD) jobs never enter the feed: CDD is salaried work, not freelance, and an offer is kept only when the site marks it as a freelance mission. Each offer keeps the site it came from, and importing one into the pipeline links the new opportunity to that site as its source (the workspace's `Source` named after the site, created as a `JOB_BOARD` on first import).
+
+Sites checked on 2026-10-19, and how each one is read:
+
+| Site | How Indezy reads it | Publication date | Notes |
+| --- | --- | --- | --- |
+| free-work.com | JSON API `GET /api/job_postings?contracts=contractor&page=&itemsPerPage=` | `publishedAt` | daily rate range, duration, remote mode, geocoded location, skills, expiry. Offers from Digistrat, Propulse IT and Omicrone are dropped (fake listings). |
+| collective.work | Next.js page data of `/jobs/fr?page=` (30 per page) | `publishedAt` | `contractTypes` = FREELANCE, rate given as free text ("TJM HT max 600 €"), also republishes other boards' offers |
+| cherry-pick.io | JSON API `POST /api/mission/search` with `mission_type` = `short` (25 per page) | `created_at` | `short` is the site's Freelance type; `permanent` holds its CDI and CDD jobs, which stay out (the "CDD" contract shown on freelance missions is a hidden form default). Rate range, start date, duration, city, remote level, skills, category |
+| lehibou.com | JSON API `POST api.lehibou.com/api/search/mission/list` | `createdAt` | daily rate, geocoded city, remote days, duration, start, skills; the API returns the 10 newest missions per call, so it is polled more often |
+| yeets.fr | Bubble Data API `GET /api/1.1/obj/mission` sorted by `Created Date` | `Created Date` | daily rate, geocoded location, technologies, start date, seniority, remote mode, duration, status |
+| workdispo.com (was freelance-dispo.fr) | `sitemap.xml` (6,000+ jobs with `lastmod`), then the schema.org `JobPosting` of new pages | `datePosted` | keeps only `CONTRACTOR` offers; daily rate; republishes other boards' missions |
+| nextmondays.com | `sitemap-jobs.xml`, then each page's `JobPosting` | `datePosted` | daily rate; keeps old jobs online, so the age limit below matters |
+| mindquest.io | `/fr/sitemap-missions.xml`, then each page's `JobPosting` | `datePosted` | keeps offers whose `employmentType` includes `CONTRACTOR` |
+| freelance-factory.fr | WordPress REST `GET /wp-json/wp/v2/poste` | `date` | details read from the mission page |
+| littlebigconnection.com | Next.js payload of the nine `/fr/rfp/<category>` pages | first seen | daily budget range, location, work mode, start date, skills |
+| silkhom.com (also upway.io, which redirects to it) | the single listing page `/nos-offres-demploi/` | card date | keeps cards with the `contrat-Freelance` class |
+| legratin.io (Nexoris's mission board) | the `/missions` page, which describes every mission | creation time encoded in the MongoDB id | daily rate, context, duration, city, remote days |
+| freelance-informatique.fr | server-rendered `/offres-freelance?page=` (50 a page) | the date encoded in the reference (`261015I001` = 2026-10-15) | skills, department and city, start, duration; some titles link through a Base64 `data-obf` attribute; no daily rate in the list |
+| espace-freelance.fr | `/missions-disponibles/page/<n>/` (nine a page) | card date | trade, agency, reference, start, daily rate; city in the title |
+| beyondskillsit.com | Webflow listing `/offres-disponibles` and the sitemap | sitemap `lastmod` | keeps cards labelled Freelance; place, work mode and daily rate on the card |
+| koino.fr | Webflow sitemap (`/missions/…`), then each page | sitemap `lastmod` | keeps missions whose application is open |
+| sixiemehomme.io | the missions shown on the home page, then their public pages | first seen | only the showcased missions are public; daily rate, location, remote, start, duration |
+
+Sites to check by hand for missions (a sign-in, a membership or a referral is needed, or the site is closed to crawlers), so Indezy does not read them:
+
+- hitechpros.com: missions are visible only to paying members (`freelance.hitechpros.com`); the public site shows counters only, and its HTTPS certificate chain is incomplete.
+- opteamis.com: freelance missions live inside `app.opteamis.com` after sign-up; the public site lists only Opteamis's own CDI vacancies.
+- lookingfortechs.fr (now sharebound.fr): every mission page requires a LinkedIn sign-in.
+- ouidesk.com: joining is by referral (cooptation), and applying needs an account. Its 152 mission pages are public in its sitemap, though, so it is also planned below.
+- fr.capgemini.talentnet.community (Capgemini's freelance network): 29 open freelance missions (type "Mission", the newest published on 2026-10-20) are shown without signing in, but the API they come from (`talentnet-api-v6.v6-prod-euc1.talentnet.community`) disallows every crawler except Googlebot and Bingbot in its `robots.txt`, and the site disallows `/jobs/search`.
+- hellowork.com: it lists freelance offers (379 developer offers with the Freelance contract on 2026-10-20, some with a daily rate), but its `robots.txt` disallows its search pages and every query string, and its sitemap answers 403 to anything but a browser.
+
+Matching services: they call you when a mission matches your profile, with no public list of missions:
+
+- malt.fr (see the Malt connector above), freelance.com, wheelofwork.com (its "missions" pages describe its trades, not missions), comet.co and amazing.dev.
+- cremedelacreme.io: its public mission pages (`/pages-mission/…`) stopped in December 2024 (missions starting in January 2024), so only its matching remains.
+- freelancerepublik.com and easypartner.fr match profiles too, and also publish missions publicly, which the feed reads (see More sites below).
+
+Sites left out for other reasons:
+
+- linkedin.com: `robots.txt` disallows every crawler (`Disallow: /`), its user agreement forbids scraping, and it answers this server with a CAPTCHA.
+- mon-consultant-independant.com: its list is drawn in the browser from Airtable with no public endpoint; its missions already reach the feed through Free-Work and Collective.work, which republish them.
+- nexoris.com: corporate site; its missions are LeGratin's (same group).
+- welcometothejungle.com: 100,000+ jobs of every contract in its sitemaps (10,000 per file, mostly salaried; the addresses that name a self-employed status are mostly estate and insurance agents), told apart only on each job page, and `robots.txt` disallows its filtered lists (`/*?`); its job search now opens a matching page.
+- urbanlinker.com: all 311 open jobs are CDI on 2026-10-20 (its API types each job).
+- bluecoders.com: its 16 open offers are CDI or unspecified on 2026-10-20; its page data flags freelance jobs (`jobType.freelance`), so it can be read if some appear.
+- unlck.fr: CDI jobs only.
+- konekt.fr: a recruitment firm with no public job list.
+- hiresweet.com: recruiting software (ATS, CRM and sourcing), not a job board.
+- None of the readable sites is dead: each published offers within the last three months (Next Mondays' newest is 2026-09-02, every other site published in October 2026). Espace Freelance is close to it: on 2026-10-19 its newest mission was from 2026-10-14 and the eight before it from September and October 2025.
+
+Rules for every increment:
+
+- Polite collection: one request at a time per site with a delay of at least 2 seconds, an `Indezy` user agent with a contact URL, `robots.txt` honoured, timeouts and a response size cap, a run budget per site, and incremental runs that stop at the first page of already-known offers (or the sitemap `lastmod` of the last run).
+- Only fixed, built-in site addresses are fetched (no user-supplied URL), redirects stay on the site's own domain, and XML is parsed with external entities disabled.
+- Scraped text is untrusted: descriptions are stored as plain text, links must be `http` or `https`, and no recruiter email or phone number is stored.
+- Every offer is normalized: title, company or intermediary, daily rate min/max in euros (parsed from text such as "450-550 €/j", "TJM max 600 €"; annual salaries are ignored), location (city, postal code, department, region, country, coordinates when the site gives them or from the department), remote mode (on site, hybrid with days per week, full remote), duration in months, start date or ASAP, seniority, skills, description, original link, publication date with its precision (exact, day, or first seen), expiry.
+- Offers older than 90 days, expired or gone from their site are removed unless the workspace saved or imported them.
+- Collection runs in the backend on a schedule (every 2 hours by default, configurable, off in tests), claims each site atomically so a second replica never runs it twice, and records each run (status, offers found, new, errors).
+
+Increments, implemented in order:
+
+- [x] Offer feed core: data model (site catalog, offers, per-workspace offer state), the collection engine and scheduler with the rules above, the Free-Work, Collective.work, Cherry Pick, LeHibou and Yeets readers, and an **Offers** page in the navigation. The page lists offers newest first with server-side pagination and filters: keywords (title, description, skills), daily rate min/max with "hide offers without a rate", location (region, department, city) and distance from the profile's city, remote mode and minimum remote days, duration, start before a date or ASAP, published within (24 h, 3 days, 7 days, 30 days), sites, seniority and skills; filters live in the URL so a search can be bookmarked. Each card shows the site, title, company, rate, location, remote mode, duration, start, relative publication date and skills, with actions to open the original, save, hide, mark as seen and import into the pipeline (a `CONTACT` opportunity with the role, rate, work mode, location, duration, start date, description, tech stack and original link, its source set to the site). Fully localized FR/EN.
+- [x] Structured-data sites: a generic sitemap and schema.org `JobPosting` reader used for WorkDispo, Next Mondays and Mindquest, the Freelance Factory WordPress reader and the Little Big Connection reader.
+- [x] HTML sites: Silkhom, LeGratin, Freelance-Informatique, Espace Freelance, Beyond Skills IT, Koïno and Sixième Homme readers, each tested on a sample shaped like the site's page.
+- [x] Cross-site duplicates: the same mission published on several sites (WorkDispo republishes Cherry Pick, Collective.work and Free-Work republish Mon Consultant Indépendant) shows as one card, with "Also on" links to each site and the earliest publication date.
+- [x] Saved searches and alerts: save the current filters under a name, see how many new offers match each saved search since it was last opened, and a badge on **Offers** in the navigation.
+- [x] Profile match: a match score from the profile's skills, target daily rate and city, shown on each card, as a sort option and as a "matches my profile" filter.
+- [x] Market snapshot for the current filters: offer count, median and quartile daily rates, a daily-rate histogram, the remote split, top skills, top intermediaries and offers published per day.
+- [x] Site health: a page listing each site with its status, last successful run, offers collected over 24 hours and 7 days, active offers and last error, plus the left-out sites and why; a per-workspace switch to exclude a site, and a manual refresh limited to one every 15 minutes.
+- [x] Workspace blocklist: hide offers from chosen companies or intermediaries everywhere in the feed, managed from the offer card and the profile.
+- [ ] More sites, checked on 2026-10-20, each keeping its freelance missions only (the **Job boards** page's left-out list gains the new left-out sites above):
+  - castor-network.com (Alten's freelance network): the public list `/fr/mission-freelance/?page=` (five missions a page, about eleven pages, all freelance), each card with "Publiée le dd/mm/yyyy" (newest 2026-10-12), title, role and description; details on `/fr/mission-freelance/<id>/<slug>`. Engineering (industry, aerospace, nuclear) as well as IT. Its `/robots.txt` answers a web page, so no rules apply. Done (`CastorNetworkReader`): the role is the offer's title and the headline opens its description.
+  - kicklox.com: `app.kicklox.com/sitemap-missions.xml` (2,737 missions, updated daily) and the public Algolia `Mission` index its pages load; its freelance missions (`contract_types` = `missions`, shown as "Prestation": 258 on 2026-10-20, the newest two days old) are kept and its CDI jobs left out. Engineering and tech. Checked again on 2026-10-21: its mission pages render with JavaScript only ("Merci d'activer Javascript"), from its GraphQL API on another domain (`prod-kicklox.kicklox.io`, with the app's access token) or from Algolia, while the collection's client keeps to the site's own domain; reading Kicklox needs that client to allow a site's API host as well. Done (`KickloxReader`) on 2026-10-23, the owner allowing a reader its site's own API domain (ADR 0009 amended): the sitemap's missions are read from that API, whose answers need no token, keeping `missions`; most of the sitemap carries the day its partners' salaried jobs were imported again, so those are read last, and its generic offers (`generic_offer`, standing ads kept published for a year or more to gather profiles: 35 of the 41 freelance ones among the 80 newest) are left out with its CDI jobs; read live: 14 freelance among the first 30 before generic offers were left out.
+  - katchme.fr: WordPress REST `GET /wp-json/wp/v2/offre`, freelance offers told by the `type-contrat-freelance` class (CDI ones carry `type-contrat-cdi`), with daily rates ("TJM 400-550€"); newest 2026-10-12. Done (`KatchMeReader`): the API gives no description, so each open freelance offer's page is read, and filled ones (`disponibilite-pourvu`) are left out.
+  - freelancerepublik.com: its sitemap's `/missions/…` pages (68), each with a schema.org `JobPosting` (`CONTRACTOR`, `datePosted`; newest updated 2026-10-02), through the structured-data reader. Done (`FreelanceRepublikReader`), leaving the matching services of the **Job boards** page.
+  - easypartner.fr: `job-sitemap.xml` (248 jobs), each page with a `JobPosting`; keep `CONTRACTOR` ones (half of the ten newest, up to 2026-09-30), leave `FULL_TIME` out. Done (`EasyPartnerReader`, the description read from the page, as the posting's only repeats the title), leaving the matching services of the **Job boards** page.
+  - welovedevs.com: its search API (`search.welovedevs.com`), keeping `contractTypes` = `freelance` (5 of 681 on 2026-10-20, against 236 CDI; most of the rest are spontaneous applications); no `robots.txt`. Left for last: five offers do not yet repay a reader.
+  - ouidesk.com: its sitemap's `/mission/…` pages (152, public without an account) give title, company, place, start, duration and description but no date, so offers are dated when first seen; its missions are "Régie" placements, to be confirmed as freelance on the first run. Done (`OuiDeskReader`) on 2026-10-21: each page's description calls it a "Mission freelance", the marker kept; it left the **Job boards** page's sites to visit, and the referral access with it.
+- [x] Offer link to tracked opportunity: paste the link of an offer from one of the feed's sites and get a tracked opportunity on the Kanban board, prefilled from the offer's details, with the website as its source.
+  - Where: a "From an offer link" entry next to the board's and the project list's add actions, and a link field at the top of the new-opportunity form. Any site the feed reads is accepted, including the URL of an "Also on" copy.
+  - Finding the offer: the link is matched to a collected offer of the same site (tracking parameters, fragments and trailing slashes ignored). An offer not collected yet is read on demand by that site's reader, through the same polite client (built-in domains only, `robots.txt`, delay), and stored in the feed like any other.
+  - Prefilled from the offer, with the feed's **Add to pipeline** mapping (`OfferImportService`): role (title), client (the publisher, matched by name or created as an ESN/intermediary; the site when the offer names none), daily rate (the highest stated, else the profile's target), work mode and remote days a month, start date, duration, description, skills as tech stack and the offer's link.
+  - Source: the workspace's source for that website (created as a job board with its home link when missing, see the next item).
+  - Also directly from an offer in the feed: the card's **Add to pipeline** converts it to a tracked opportunity in one action (already there today, at the Contact column), with the same prefill, source and once-per-mission rules, so a mission added from the feed or from its link is one opportunity.
+  - Review before saving: the form opens filled in, every field can be corrected, the board column is chosen (Contact by default), and nothing is created until it is saved.
+  - Once per mission: a link to an offer, or to one of its copies, already in the pipeline opens that opportunity instead of creating another, and the feed card shows **In the pipeline** for an opportunity created from a link.
+  - Refused with a clear message: links of sites the feed does not read (listing the supported ones), offers that are not freelance (CDI, CDD), and pages that no longer exist. Postings from any other site stay the "One-click import of a job posting" item of Job Board Integrations.
+  - Done: an offer not collected yet is read from its own page on Mindquest, WorkDispo, Koïno, Next Mondays and Sixième Homme (20 pages an hour per workspace); the other sites describe their offers in lists or APIs, so their link asks for a reading of the site (once every 15 minutes, as on **Job boards**), which finds the offers published since the last run, and the form says when it can be read again.
+- [x] Sites to visit yourself: the **Job boards** page, and a link from the feed's summary, list the sites Indezy does not read but where a freelancer finds missions independently, each linking to the site with what it takes. These are the sites to check by hand above (HiTechPros and its paid membership, Opteamis's and Sharebound's sign-ins, OuiDesk's referral, Capgemini TalentNet and HelloWork, open to people but not to crawlers) and the matching services where a profile is created once and the service calls back (Malt, Freelance.com, WheelOfWork, Comet, Amazing.dev, Crème de la Crème, FreelanceRepublik, EasyPartner). Each entry can be ticked as visited, per workspace, with the day it was last visited.
+- [x] Every website above as a source: each workspace's **Sources** list holds every site named in this section that is still online, with its home link, so any opportunity can name it, not only one imported from the feed. That means the sites the feed reads, the ones planned above, the ones to check by hand (HiTechPros, Opteamis, LookingForTechs/Sharebound, OuiDesk, Capgemini TalentNet, HelloWork), the matching services (Malt, Freelance.com, WheelOfWork, Comet, Amazing.dev, Crème de la Crème, FreelanceRepublik, EasyPartner) and the other boards and firms named (LinkedIn, Mon Consultant Indépendant, Nexoris, Welcome to the Jungle, Urban Linker, Bluecoders, UNLCK, Konekt), as job board sources, LinkedIn as social media; HireSweet is software, not a source. New workspaces get them at creation and existing ones once, without duplicating a source already named like the site (case aside). The feed import and offer links keep matching them by name.
+- [x] Collection health alerts: Prometheus metrics per site (runs, failures, offers found and new, run duration, last success age) exposed on the existing actuator endpoint, and alert rules for a site failing three runs in a row, a site that found no offer for 24 hours (its pages probably changed), and geocoding timeouts above a threshold. The **Job boards** page shows the same "no offer for 24 hours" warning next to the site. Done on 2026-10-20: the metrics and **Indezy Overview** panels here, the rules in `swirl-cloud` (group `applications.indezy`), live once both are deployed; the page's warning is for a successful reading that found no offer.
+- [x] Reader canaries: a scheduled CI job (weekly, never on push) reads one live page per site with its reader and fails, naming the site and the missing fields, when the page no longer yields a title, a link and a date, so a site redesign is caught before the feed quietly empties. Samples of the pages that broke are kept as artifacts to update the test fixtures. Done as `ReaderCanaryTest` and the `04-reader-canary` CI job; the weekly pipeline schedule itself (variable `READER_CANARY=true`) is to create in GitLab, as `docs/testing.md#reader-canaries` says.
+- [x] Richer descriptions: read the detail page of the sites whose list gives no description (Beyond Skills IT, and Yeets' `page-mission/…` pages when they serve text without JavaScript), within each run's page budget, so keyword search, skill matching and the card's details work for their offers too. Done for Beyond Skills IT, whose freelance offers are each read from their own page (description and skill tags as well), the new ones only. Yeets' pages render with JavaScript only (checked on 2026-10-21: the page holds its title alone) and its API has no description, so its offers keep their title, skills and facts.
+- [x] Remote policy from description text: when the site gives no work mode, `OfferText.remoteInText` reads it from the title and description (`Télétravail : 2 jours par semaine`, `présence sur site 3 jours/semaine`, `50% de télétravail`, `10 jours par mois`, `pas de télétravail`, `full remote`), leaving aside passing mentions (`cloud hybride`, `congés, télétravail`); offers stored before get theirs with the stored-offer passes. On production on 2026-10-20, 212 of the 629 offers without a work mode mentioned it.
+- [x] Rate versus market on each card: a chip comparing the offer's daily rate with the median of open offers sharing its main skill and region ("+12 % vs. Java in Île-de-France"), from a nightly aggregate, with the sample size in its tooltip and nothing shown under 10 comparable offers. Done with all of France as the market when the offer's region has fewer than ten comparable offers (the chip then says "in France"), and the main skill read as the first one the offer lists.
+- [x] Mission history: keep what changed on each offer (rate, description, start date) and how often a mission came back after expiring, shown on the card as "Rate raised from 500 € to 550 €" or "Republished 3 times in 60 days", a sign of a hard-to-fill mission and room to negotiate. Done for the sites Indezy reads again (lists and APIs; the sitemap sites read each offer once), counting the references a mission came under in 60 days, whether or not the earlier ones expired.
+- [x] Intermediary insights: a publisher page (from the card's publisher name) with its open offers, median daily rate, how long its offers stay open, how often it republishes, the sites it posts on and the client record it is in the CRM, with a link to block it; and, for a mission several intermediaries publish, the spread of their rates on the card ("3 intermediaries, 520–600 €"). Done with how long its open offers have been published (offers leaving their site are removed, so how long they stay open in all cannot be measured yet) and its missions published again under a new reference within 90 days.
+- [x] Applied tracking from the card: an **I applied** action records the day and the channel (site form, email, phone), turns the card's badge to "Applied 3 days ago", adds the opportunity to the pipeline (at the Contact stage, the pipeline having no separate Applied column, with an "Application sent" step waiting for feedback; kept where it is when already imported), and plans a follow-up step after a chosen number of days, listed in the Timeline; an **Applied** view lists them.
+- [x] Private notes on offers: a short note per offer and workspace (why it fits, who to call), shown on the card, searchable with the keywords filter, carried into the opportunity's notes when the offer is added to the pipeline, and part of the account data export; edited from the card's menu or with `n`, up to 2,000 characters, shared by every copy of the mission.
+- [x] Availability fit in the profile match: the profile's next availability date compared with the offer's start date (starts after availability, within two weeks, or before it), as a fourth part of the score and of the badge's details, with its weight shown in the docs' table. Done with 10 points (5 up to two weeks early or with no start stated); the availability date, which no screen edited, is now **Available from** on the profile, kept on the workspace.
+- [x] Saved search emails: each saved search can send its new offers by email, at once (grouped every 30 minutes) or as a daily digest at a chosen hour, in the workspace's language, with the offers' rate, place, remote policy and match score, a link to each offer in the feed, and a one-click unsubscribe; sending stops for a search that has had no click for 60 days, and says so. Done on 2026-10-23 through Resend (the owner's answer): the bell beside each saved search sets never / as they come / daily at an hour (Paris time) in the app's current language; up to 20 offers an email in the search's order with publisher, place, remote policy, rate, duration and match, each opening its page in the app (`?search=<id>&from=email`, which counts as opened once signed in: no tracking pixel or redirect, so link scanners count nothing); a visible **Stop these emails** link to a page that stops them on a button press, without an account, its token after `#`, and RFC 8058 one-click unsubscribe headers; "no click" counts from the first email sent since an offer was last opened, so a search without new offers is not stopped; a refused email gives its offers back to the next run, and claims are guarded by the row's version across replicas. Sending waits for the Resend key (Needs Input).
+- [x] Suggested searches from the profile: the feed proposes ready-made searches built from the profile (job title, skills, daily rate, place, availability), each with the number of open offers it finds, saved in one click as a saved search with its alerts, so a workspace gets useful saved searches without building filters.
+  - Where: a **Suggested for you** list in the feed's saved searches menu, the empty state of that menu, and a prompt on the profile after its job title, skills, daily rate or city change.
+  - Built from the profile: the job title as keywords ("Développeur Java", "Tech lead"); the main skills, alone and in pairs that offers often ask for together (Java + Spring Boot, Angular + TypeScript); the target daily rate as the minimum rate; the city with a 30 km radius, its region, or remote only and hybrid with at least 2 remote days; the availability date as "starts by".
+  - Built from the pipeline too: the skills, rates and places of the opportunities recently added, applied to or won, and the filters the workspace often applies in the feed without saving them.
+  - Each suggestion: a readable name ("Java · Spring Boot · 600 €/day or more · Lyon + 30 km"), its filters as chips, the open offers it finds and how many are new this week, **Preview** (applies the filters to the feed without saving), **Save** (the name can be edited first) and **Dismiss** (not proposed again).
+  - At most five suggestions, best first by the offers they find that score 60 or more against the profile; a suggestion finding no offer, or with the same filters as an existing saved search, is left out.
+  - Computed on the server from the workspace's own data, in the workspace's language, and updated when the profile changes; a profile with no job title, skills, city or daily rate gets a prompt naming the fields to fill, with a link to the profile.
+  - Done: suggestions sit with the saved searches above the feed (the feed has no saved searches menu), the profile's confirmation offers them after a change, and the "filters the workspace often applies without saving them" are left for later: the feed keeps no history of the filters a workspace applies.
+- [x] Keyboard navigation in the feed, consistent with the app's keyboard shortcuts: `j`/`k` move between cards, `o` opens the offer, `s` saves, `h` hides, `a` adds it to the pipeline and `d` shows its details, listed in the shortcuts help and active only while an offer has the focus (WCAG 2.1.4); selecting with `x` comes with the bulk actions.
+- [x] Bulk actions in the feed: select several offers (or every offer of the page, `x` selecting the focused one) to save, hide, mark seen or add to the pipeline at once, with one summary notification and an undo for hiding.
+- [x] Offer page and sharing: each offer gets its own address (`/offers/{id}`) with its full description, facts, copies, match and history, opened from alerts and emails; **Copy link** shares it with another workspace member, and the page explains when the offer has expired or was removed. Done without the offer's history (the Mission history item) and with no email yet to open it from (Saved search emails): the dashboard widget and the card's menu open it, and its link is shared with anyone who has an account, as workspaces have a single member.
+- [x] Suspicious offers: flag offers that look like fake or spam listings (no publisher and no description, a daily rate far outside the market, the same text posted by many publishers, or a publisher already dropped elsewhere such as Free-Work's Digistrat), shown with a warning on the card and a filter to hide them, the rules listed in the docs.
+- [x] Market trends: store the market snapshot's figures per skill and region every night, and show in the **Market** panel how the median daily rate and the number of offers moved over 30, 90 and 365 days, with the profile's skills preselected. Done from the nightly medians of the rate comparison (skills named first by ten open offers or more), in the one region the feed is narrowed to or in all of France.
+- [x] Feed widget on the dashboard: the five best matches published since the last visit, with their score, rate and place, and a link to the feed sorted by best match. Done as the five unseen offers ("since the last visit" is what the workspace has not seen), the newest when the profile names no skills.
+- [x] Search performance at scale: a trigram index (`pg_trgm`) on the offers' search text for the keyword filter, the per-site counts and skills facets served from a short cache, and a load test with 50,000 offers and 20 concurrent searches, its timings recorded in the docs (target under 300 ms at the 95th percentile). Done with the index serving the match score's skills rather than the keyword filter (typed words are mostly common ones, which no index narrows, so a keyword is read on each offer after the cheaper filters), with the shared workspace states and the excluded sites and blocked publishers asked once per query, and with planner settings for the application's role; the load test (`OfferSearchLoadTest`, on request, on PostgreSQL) took the 95th percentile from 88 s to 8.2 s with 20 searches at a time, and a search alone takes 393 ms on average. The 300 ms target is not met yet: see the next item.
+- [ ] Search under load: reach the 300 ms 95th percentile with 20 searches at a time (8.2 s on the two-core reference run of `OfferSearchLoadTest`): count a search's total once and keep it while its pages and sorts are read (about 100 ms of every request with 40,000 open offers), record which skills an offer names when it is collected so the match score and the "matches my profile" filter join an index instead of reading texts (best match 0.86 s alone, unread matching 1.15 s), and build the market panel (1.1 s alone) from the same. Progress on 2026-10-26: the feed sends the total its first page counted when it reads another page or sort of the same filters, and the server then reads the page without counting (`Page 21, total known`: 40 ms alone against 145 ms counted, four cores, PostgreSQL 16); the skills recorded at collection and the market panel remain.
+
+## AI & Automation
+
+- [ ] AI parsing of job descriptions (PDF/URL/email -> structured project: rate, stack, location, duration, suggested skill tags)
+- [ ] AI-suggested daily rate based on stack, seniority and market data
+- [ ] AI job-fit analysis: which job is more adapted to your profile, pros vs cons per opportunity, including soft criteria in decision making (management style, team spirit, ...)
+- [ ] Project recommendation engine combining peer-shared opportunities, skill match, market data, and soft criteria
+- [ ] Auto-adapt CV to postulate for each job with adapted tech stack and experiences
+- [ ] AI-generated personalized follow-up and application messages
+- [ ] AI chat scoped to a project: the opportunity (description, notes, history) becomes the conversation context — interview prep, negotiation angles, post-mortem; history stored per project
+- [ ] Semantic search across past opportunities and notes (by meaning, not just keywords)
+- [ ] CV/Dossier de compétences generator tailored to a specific opportunity
+- [ ] Automated status update suggestions from email content and user behavior (e.g. detect rejection, interview invite, or likely stale opportunity)
+- [x] Weekly digest: pipeline summary, actions due, market trends. Done on 2026-10-27: every Monday from 8:00 Paris time, an email in the account's language with the pipeline by stage, the next 7 days' interviews, follow-ups due, opportunities gone quiet, missions ending and the week's new offers matching the profile (nothing sent for an empty week), turned on in Profile → Notifications, sent once across replicas, with a one-click unsubscribe; it waits on the Resend key like the saved search emails.
+- [ ] Bring-your-own API key support with per-user preferred model; different models per task type to optimize token cost
+- [ ] Local LLM feature for more privacy
+
+## Analytics & Reporting
+
+- [x] Dashboard overview with total projects, average daily rate, estimated revenue, active projects, and recent projects
+- [x] Dashboard charts for projects by status, projects by work mode, and daily rate distribution
+- [x] Finer daily rate chart: plot the actual TJM values the freelancer negotiated (e.g. 550, 600, 650 €) instead of wide ranges (0-300, 300-500, ...), as one freelancer's rates vary within a narrow band
+- [x] Overview/Kanban display modes on the dashboard
+- [ ] Dashboard period tagging with `YYYY-MM` labels, sprint-style but flexible so reporting periods can exist only when needed instead of forcing every month
+- [x] Conversion funnel by source, client type and ESN (where do opportunities die?)
+- [x] Average process duration per client/ESN (time from contact to signature)
+- [x] Daily rate evolution over time (asked vs obtained)
+- [x] Extend existing dashboard graphs and stats (projects by status, work mode distribution, daily rate chart, trend comparisons). Done on 2026-10-27: the status, work mode and daily rate charts were there; the analytics now open with **Last 90 days**, comparing opportunities, interviews, missions won and the rate won with the 90 days before.
+- [x] Bench time tracking (gaps between missions, cost of bench)
+- [x] Source ROI ranking (which job board/contact yields signed contracts)
+- [x] Prospection activity heatmap (calendar view of applications/calls/interviews to spot active and quiet periods)
+- [x] Skill demand trends: which skills/stacks appear most in captured opportunities over time, and at what rates
+- [x] Personal yearly review (missions, revenue, top skills, network growth), exportable as a polished PDF report
+
+## User Experience
+
+- [x] Consistent inline filters on every list (search, type/status/season, sort), collapsible on small screens
+- [x] French and English translations with `@ngx-translate`
+- [x] Language switching and saved language preference loading
+- [x] Global search (projects, clients, contacts, notes) with keyboard shortcut and match highlighting in results. Done on 2026-10-26: `Alt+Shift+S` or the top bar's search button; accent- and case-insensitive, every word in one field, up to 8 hits of each kind with the words highlighted and the passage they were found in; arrow keys and Enter (`docs/features.md#keyboard-shortcuts`). The top bar was tightened on phones so its five buttons fit 360 px without scrolling sideways.
+- [x] Consistent error handling and user feedback (toasts instead of pop-ups, explicit loading and empty states)
+- [x] Composable filters (text + tags + status + date + archive) with state encoded in the URL for bookmarkable views. Done on 2026-10-26: the projects list gains an **Archive** filter and keeps all its filters and sort in its address, read on load and updated as they change (`docs/features.md#projects-and-opportunities`).
+- [x] Stable deep links to any project or Kanban card (?project=<id>) for sharing and reopening directly
+- [x] Multi-select mode on project/client/contact lists (bulk delete, tag, status change, archive). Done on 2026-10-26: the projects list picks cards (or a whole page) and shares the Kanban board's bar, which now also adds a tag and deletes; the clients and contacts lists pick rows and delete them at once, keeping clients still linked to missions (`docs/features.md#kanban-and-pipeline-view`).
+- [x] Internationalization hardening (French/English translation coverage, language switch persistence, missing-key checks)
+- [x] Dark mode (light, dark, or system theme from the profile preference and a toolbar toggle)
+- [x] Customizable dashboard widgets (drag, resize, show/hide). Done on 2026-10-27: **Customize** on the overview shows, hides and reorders its six blocks (key figures, charts, reminders, new offers, analytics, recent opportunities) by dragging or with arrows from the keyboard, saved with the account's preferences. Resizing is left out on purpose: each block takes the page's width and lays its own cards out for the screen. The dashboard's analytics became their own component on the way (`dashboard.component.scss` was 605 lines).
+- [x] Onboarding wizard for first-time setup (profile, rate, address, pipeline template)
+- [x] Keyboard shortcuts for power users (new project, move card, search)
+- [x] Offline-tolerant PWA mode for consulting data on the go. Done on 2026-10-27: in production a service worker keeps the app and the main pages' latest answers for seven days (network first, the kept answer offline), with an offline banner; downloads and account endpoints are never kept, and signing out forgets the kept answers.
+- [x] Accessibility pass (aria-labels, screen reader support, keyboard-only navigation). Done on 2026-10-27: an axe-core audit (WCAG 2.1 A and AA) of every main page, the Kanban board, the global search and the sign-in page, light theme on a desktop and dark theme on a phone, now passes and runs with the e2e suite (`docs/testing.md#playwright-e2e`). Fixed on the way: icon buttons and chip removers without a name (contacts, sources, Kanban refresh, reversion save), the account menu without a name on phones, 38 loading indicators without a label, text under 4.5:1 (Material's 54 % labels and tabs, red text buttons, dark-theme primary buttons, the project cards' client and net rate, the calendar's other-month days, Kanban empty columns, sign-in links) and status pills whose white text read under 4.5:1 (opportunity, interview step and activity report statuses).
+- [x] Keyboard-only walkthrough of every page: reach and operate each control without a mouse, with a visible focus and a sensible order (drag-and-drop on the Kanban board has the stage menu as its keyboard path); the automated audit checks names and contrast, not this
+
+## Data & Backup
+
+- [x] Data export/import (full account backup as JSON/CSV), with preview-first import: parsed items shown before commit, duplicates flagged, result reports imported/skipped. Done on 2026-10-27 with the JSON export (Profile → Account → **Import data**); CSV stays the contacts' import (CSV or vCard under a client) and the yearly summary's export.
+- [ ] Scheduled automatic backup to Google Drive / OneDrive / Dropbox (OAuth connect, skip upload when nothing changed, manual Sync Now)
+
+## Mobile
+
+- [x] Responsive polish of all pages (Kanban usable on phone)
+- [ ] Cross-platform mobile app (already in roadmap - implement)
+- [ ] Push notifications (interview reminder, follow-up due, new matching posting)
+
+## Social & Community
+
+- [ ] Freelancer network: share opportunities you decline with peers
+- [ ] Co-optation tracking (who referred whom, referral bonuses)
+- [ ] Community TJM and client reviews (anonymized)
+- [x] Public profile page (shareable mini-portfolio with availability status). Done on 2026-10-27: Profile → **Public profile** shows `/p/<address>` to anyone with the link (`docs/features.md#public-profile`).
+- [ ] Feature request / community board with upvoting (already in roadmap - implement)
+
+## Product & Website
+
+- [ ] Terms of Service, Privacy Policy, and Contact/Support pages with FAQ
+- [ ] Subscription/freemium model: premium features (AI, integrations) behind a paywall with free trial; billing management in profile
+- [x] Admin console (usage monitoring, user moderation, AI model/cost management, app settings). Done on 2026-10-27: `/admin`, for the accounts `INDEZY_ADMIN_EMAILS` names, shows the accounts, sign-ups and disabled accounts with each feature's adoption, finds accounts and disables or enables them (a disabled account's token stops working at once), and turns features off or on (app settings). AI model and cost management waits on **AI provider and costs** in Needs Input: there is no AI feature to manage yet.
+
+### Presentation Website (added 2026-10-23)
+
+Indezy has no presentation website: `https://indezy.swirlit.dev` redirects straight to `/dashboard` (`app.routes.ts`), and a signed-out visitor in production is sent to Keycloak. Thoughty's presentation page is the model. Once it is built, the root URL opens it instead of the dashboard.
+
+- [ ] Presentation page at `/` for every visitor, replacing the `'' → dashboard` redirect: signed-out visitors get **Sign up** and **Sign in**, signed-in users an **Open the dashboard** button. In production, `/` tries the silent Keycloak exchange (`AuthService.initializeSso`) to know whether the visitor is signed in but never sends them to Keycloak; sign-in and app routes keep the redirect, and the app's own pages and deep links (`/dashboard`, `?project=`, offers, activity report and unsubscribe links) are unchanged.
+- [ ] Hero with the one-line positioning from the product direction (find the mission, win it at the right rate, then run it), aimed at French IT freelancers, with a product scene of the Kanban board.
+- [ ] Feature sections for what ships today, from `docs/features.md`: the freelance offer feed (the French freelance sites it reads, suggested and saved searches, profile match, rate versus market, suspicious offers, adding an offer from its link), the pipeline Kanban with interview steps and job-hunting seasons, clients, ESNs, contacts and sources, monthly activity reports validated by the client or ESN through a link, and the dashboard (source ROI, skill demand trends, activity heatmap, commute-time sorting, reversion rate calculator). Planned features appear only once they ship.
+- [ ] Screenshots of the Kanban board, the offer feed, an activity report and the dashboard, taken from a demo workspace (no real client, contact or offer data), in light and dark themes and in French and English.
+- [ ] How it works in steps, following the core workflow: profile, clients and sources, opportunities captured or added from the feed, pipeline and interviews, activity reports after signature.
+- [ ] Trust section limited to what is true at release: where data is hosted, who can see it, and what can be exported.
+- [ ] Sign-up call to action that works in production: the Keycloak realm has no self-registration and the platform's OAuth2 Proxy admits only `platform-admins`, so either accounts open to the public before launch or, until they do, **Sign up** collects an early-access request (email, freelance status, main stack) that Indezy stores and acknowledges by email.
+- [ ] Pricing section with the plans of the subscription item above and of "Plans and entitlements" below.
+- [ ] FAQ: who Indezy is for, which sites the feed reads, data ownership and export, languages.
+- [ ] Footer linking the Terms, Privacy and Contact pages of the item above, plus a legal notice (mentions légales) naming the publisher and host.
+- [ ] French and English versions, chosen from the browser language with the existing language switch, each with its own URL.
+- [ ] Search and sharing: a title and meta description per language, canonical and `hreflang` links, an Open Graph and Twitter card image, schema.org `SoftwareApplication` data, and `robots.txt` and `sitemap.xml` listing only the public pages; `/` is prerendered so crawlers and link previews get the content without JavaScript.
+- [ ] Accessibility and performance: an Axe WCAG 2.2 AA scan of the page in both themes, keyboard and screen-reader access, and a phone layout without horizontal scrolling.
+- [ ] Tests: `app.routes.spec.ts` and a Playwright spec for `/` signed out and signed in (buttons, no Keycloak redirect, **Open the dashboard** opening `/dashboard`).
+- [ ] Main entry: once live, `https://indezy.swirlit.dev` opens the presentation page, so the platform Homepage tile (`gethomepage.dev/href` in `infra/k8s/ingress.yaml`), the GitLab environment link (`.gitlab-ci.yml`) and a production link added to the README all land on it; `docs/features.md` and `docs/security.md` (public routes) describe it.
+
+## Platform & Security
+
+- [x] Egress network policy for `indezy-server` (`infra/k8s/network-policy.yaml` restricts ingress only): allow DNS, the shared PostgreSQL, Keycloak, the geocoding API and the public internet, and refuse the private ranges (10/8, 172.16/12, 192.168/16, 100.64/10, 169.254/16), closing the DNS-rebinding gap of the pasted posting links that `PublicHosts` checks by name.
+- [x] User registration through `/api/auth/register`
+- [x] User login through `/api/auth/login`
+- [x] JWT creation on successful authentication
+- [x] Frontend route protection through `authGuard`
+- [x] Bearer token attachment through the Angular auth interceptor
+- [x] Profile surface for account, preferences, notifications, and security-related fields
+- [x] Harden backend security config (currently permissive for non-auth routes)
+- [ ] Authentication + Gmail / Outlook / LinkedIn authentication
+- [ ] Email validation and password reset flows (production passwords live in the shared Keycloak `swirlit` realm, which owns both flows; see Needs Input "Keycloak email flows")
+- [x] Two-factor authentication (TOTP) — currently stubbed (random UUID secret, placeholder QR, length-only code check); implement real secret generation, QR/URI, and code validation
+- [x] Replace hardcoded user/freelance IDs with the authenticated principal from `SecurityContext` (backend `UserController.CURRENT_USER_ID = 1`, and `freelanceId = 1` in the Angular contact service) once authentication is wired through
+- [x] Account deletion (soft-delete with confirmation) and GDPR data export (droit à la portabilité)
+- [x] Audit log of account activity and active session management. Done on 2026-10-27: **Profile → Security** lists where the account is signed in (browser and system, how and when, last use) with **Sign out** per session and **Sign out everywhere else**, and its activity (sign-ins, refused sign-ins, sign-outs, password, two-factor, export, import and administrator changes) kept a year; a token works only while its session is open, a new password ends the other sessions, and both are in the data export.
+- [x] Rate limiting and brute-force protection on auth endpoints
+- [x] API tokens for third-party integrations (read-only scopes). Done on 2026-10-27: **Profile → Security → API tokens** creates up to 10 named tokens (`idz_…`, lasting 30, 90 or 365 days or not expiring), shown once and stored as a SHA-256 hash, listed with their last use and revoked at once; a token only reads the workspace (`GET`), never writes or reaches the account, its tokens or the admin console.
+- [ ] Notification preferences per channel (email, push, in-app) and per event type. Partly done on 2026-10-27: Profile → Notifications sets the weekly digest (email) and the new offers count (in-app), each saved at once; saved searches set their own emails. Push waits on **Mobile app technology** in Needs Input.
+- [ ] Social login (Google, Microsoft, GitHub) through Keycloak identity providers in the `swirlit` realm, so the buttons appear on the Keycloak login page and accounts reach Indezy through the existing SSO exchange, with no login code in the app
+- [ ] Custom Keycloak login theme matching Indezy (logo, colors, typography, light/dark, French and English texts) instead of the default Keycloak look (waits on Needs Input "Keycloak login theme")
+
+## Technical Improvements
+
+- [x] Unit specs for the frontend pages no spec covers, now that the report counts them (frontend at 65.22% lines on 2026-10-21, under the 85% target): `project-detail`, `project-list`, `profile` and its personal info, `dashboard`, `season-picker`, the client, contact and source lists, details and forms, under 5% each, then `rename-tag-dialog`, `error-display`, `loading`, the error pages and the route files. Done on 2026-10-26: 322 specs for these pages, the frontend at 98.26% lines and 93.64% branches.
+- [x] Modernize codebase with latest Java and Angular versions/features
+- [x] Split the docs into dedicated files and enrich them (development, deployment, ADRs, features, etc.), reusing existing content
+- [x] Complete the deployment setup (Kubernetes manifests, GitLab CI pipeline, ...). Checked on 2026-10-27: the Kubernetes manifests (`infra/k8s`, with the HA overlay), the Argo CD Application, the GitLab pipeline (build, tests, package, E2E, quality, security, release, deploy) and the onboarding contract deploy the app (`docs/deployment.md`); what is left is tracked by the items below (backups and migrations, CI scheduling).
+- [x] Improve the devcontainer setup. Done on 2026-10-27: the container was built from the server's Alpine runtime image (no Node.js, Git or browser, no `vscode` user for VS Code to connect as, caches mounted in another user's home), its aliases defined `indezy-server` and `indezy-web` twice (the second, a `cd`, won) and called a `mask build-all` that does not exist, and the dev database ran PostgreSQL 15 against 18 in production. It now has its own Ubuntu image with Java 25 and Node.js 26 features, Chromium for the browser tests, working aliases written once, PostgreSQL 18 with the 18 volume layout, and a README that matches. Checked here by YAML and shell parsing only: this environment cannot run Docker.
+- [x] Measure and raise test coverage to at least 85% for both backend and frontend, with a focus on critical business logic and edge cases (measured on 2026-10-26: backend 95.81% lines and 86.20% branches, frontend 98.26% lines; see `docs/testing.md`)
+- [x] Playwright e2e tests for critical user flows (register, login, create project, move Kanban card, filter lists). Done on 2026-10-27: registration (`onboarding.spec.ts`), sign-in back to the page asked for (`project-links.spec.ts`), an opportunity created from the form and a Kanban card dragged to the next stage (`critical-flows.spec.ts`), stage moves from the keyboard and in bulk (`keyboard-shortcuts.spec.ts`, `kanban-bulk.spec.ts`), and filters kept in the address (`project-filters-url.spec.ts`).
+- [x] Add Spring Boot Actuator: K8s probes already reference /api/actuator/health but the actuator dependency is missing from pom.xml
+- [x] Richer database seeding for development (realistic projects, clients, pipeline states)
+- [x] Mask commands to reset/reseed the dev database with test data
+- [x] Caching of frequent requests (dashboard stats, job feed). Done on 2026-10-27, from measurements on PostgreSQL with 50,000 offers: the feed's site counts, skill suggestions and rate medians were already kept a minute or ten; the market panel (0.9 s alone, 7.4 s at the 95th percentile under load) is now kept a minute per workspace and filters (0.12 s at the 95th percentile). Feed pages stay uncached, since they show the workspace's states at once, and so does the dashboard: a busy workspace's takes 59 ms alone (`docs/architecture.md#offer-search-at-scale`).
+- [x] Lazy loading of routes/components for faster initial load (checked on 2026-10-26: every page and section loads on demand, the production build's initial bundle is the shell at 228 kB transferred, and `app.routes.spec.ts` fails if a route imports its page eagerly or a loader breaks)
+- [x] Feature flags to enable/disable features without redeploying. Done on 2026-10-27: the offer feed, public profiles, data import and yearly review can be turned off in **Admin → Features**; stored in `feature_flags`, read by every server within 30 seconds, their API answers `403` and the app hides their menu items, pages and profile sections (`GET /users/capabilities`).
+- [x] Structured JSON logging, request tracing, monitoring and alerting: Logstash JSON in the Kubernetes profile, a request id on each response and log line, the **Indezy Overview** Grafana dashboard and the platform's `applications.indezy` alert rules (`docs/operations.md#logs`)
+- [x] Alert on the API's error rate and latency (5xx share and 95th percentile of `http_server_requests_seconds`), as rules beside `applications.indezy` in swirl-cloud. Done on 2026-10-26: request durations publish buckets from 100 ms to 5 s, `IndezyApiErrors` (over 5 % of 5xx for 10 minutes) and `IndezyApiSlow` (95th percentile over a second for 15 minutes) with their runbooks in swirl-cloud, and the dashboard shows the 95th percentile, the slowest routes and the routes answering 5xx (`docs/operations.md#logs`). `promtool` could not be downloaded in this environment: swirl-cloud's validation (`scripts/validate-repository.sh`) checks the new rules where it is installed.
+- [x] Usage telemetry to learn which features are used and prioritize development. Done on 2026-10-27, without following anyone: workspaces using each feature and accounts with each setting on (`indezy_feature_workspaces`, `indezy_accounts`) and the most used routes over 7 days, on the **Indezy Overview** dashboard (`docs/operations.md`).
+- [ ] Automated DB backups with point-in-time recovery; versioned migrations; connection pooling (waits on Needs Input "Versioned migrations and backups"; pooling is HikariCP's)
+- [x] CI: tests on every PR, scheduled e2e runs, dependency vulnerability scanning, zero-downtime deployments. Done on 2026-10-27: merge requests run the build and tests (`01-build`, `02-test`), Trivy scans the dependencies (`03-security`), Deployments roll one new pod in before the old one goes (Kubernetes' default rolling update with readiness probes), and a pipeline with `PLAYWRIGHT_SCHEDULE=true` runs the E2E suite on its own (`docs/testing.md#scheduled-e2e-runs`); creating its nightly schedule in GitLab is in Needs Input.
+- [x] Keep OpenAPI docs complete with request/response examples. Done on 2026-10-27: every operation states its success status (34 handlers answering 201, 202 or 204 were documented as 200), the error answers it can give in the `ErrorResponse` shape, and the main schemas carry example bodies (`openapi/examples`); the description states the build's version and a server relative to its host instead of a made-up `api.indezy.com` and contact; `OpenApiDocumentationIntegrationTest` keeps it so.
+- [x] Ensure that all API endpoints are effectively used in the UI (either the app or the admin console). Implement the frontend that would use them if necessary, or remove the endpoints. Done on 2026-10-27: of the 150 endpoints, the lists of every record (`GET /clients`, `/contacts`, `/projects`, `/sources`, `/interview-steps`, `/freelances`, which fell back to every workspace's records when the caller had none, as in permit-all mode) and `GET /interview-steps/{id}` and `GET /seasons/{id}` were used by nothing and are removed with their service methods; the app reads each list per workspace (`/by-freelance/{id}`). The one-click unsubscribe (`POST /public/saved-search-emails/unsubscribe/{token}`) stays: mailboxes post to it (RFC 8058).
+
+## Product Direction (added 2026-10-04)
+
+Indezy tracks a French tech freelancer's mission search. Generic CRMs, job boards and invoicing tools each cover one piece; nothing covers the whole French freelance-IT cycle. The niche to own is **the operating system of French IT freelancers**: find the mission, win it at the right rate, then run it — monthly activity reports (CRA), the compliance documents ESNs require, invoices that meet the 2026–2027 e-invoicing rules, social contributions and taxes — with market data no single freelancer has. A Teams tier serves the organizations around freelancers: collectives, portage companies and boutique ESNs managing a pool of consultants.
+
+Differentiators, each covered below:
+
+1. French-specific end to end: ESN processes, TJM, CRA, vigilance certificates, Factur-X, URSSAF.
+2. Market intelligence from anonymized aggregates: rates, ESN process speed, payment delays.
+3. Freelancer-owned data, exportable at any time, hosted in the EU.
+4. A Teams tier with shared pipelines and consultant availability.
+
+### Mission Operations (after signature)
+
+- [x] Monthly activity report (CRA) per mission: calendar of full and half days, on-site or remote, public holidays and absences; validation by the client or ESN through a signed link; PDF in the ESN's template; validated days feed the invoice (the Factur-X item below builds invoices from them).
+- [x] Compliance document vault: URSSAF vigilance certificate (renewed every six months), company registration extract, professional liability insurance, bank details and ID, with expiry reminders and a one-link pack to send to an ESN. Done on 2026-10-27: **Documents** (`/documents`) stores them with their dates (an URSSAF certificate's end set six months after its issue), lists the ones to renew among the dashboard's reminders, and shares them through a revocable link of 7 to 30 days, opened without an account and counted.
+- [x] Purchase orders and amendments per mission (number, amount or day ceiling, period), consumption tracked against CRA days, with an alert before the ceiling. Done on 2026-10-27: **Purchase orders** on a won mission's page, amendments adding days, euros or a later end, usage from the activity reports' days at the daily rate, and an alert from 80 % on the card and among the dashboard's reminders.
+- [ ] Electronic signature of contracts, amendments and CRAs through an EU qualified trust provider.
+
+### Invoicing and Compliance
+
+- [x] Factur-X invoices (PDF/A-3 with embedded structured data) from validated CRA days and mission rates, with French mandatory mentions, VAT or VAT-exemption wording and gapless numbering (extends the invoice items above). Done on 2026-10-27: every issued invoice and credit note downloads as a Factur-X file, PDF/A-3B with its Cross Industry Invoice (EN 16931 profile) embedded as `factur-x.xml`; the four cases (with VAT, under the franchise, invoice and credit note) pass the Mustang validator's PDF/A, XSD and EN 16931 schematron checks. A franchise seller's SIREN fills its tax registration (BT-32): confirm it with the e-invoicing platform once chosen (Needs Input "Paid compliance providers").
+- [ ] French B2B e-invoicing: every company must receive electronic invoices from 2026-09-01, and SMEs and micro-enterprises must issue them from 2027-09-01. Connect through a registered partner platform (PDP), send and receive invoices, follow their lifecycle statuses and handle e-reporting where the status requires it.
+- [ ] Payment reconciliation through a regulated bank-account information provider or manual matching, with statutory late-payment interest and the fixed recovery indemnity computed on overdue invoices.
+- [x] Accounting exports and connectors for common French accounting tools. Done on 2026-10-27: **Export for the accountant** on the Invoices page downloads a year's journal entries as a FEC file (sales and bank journals, which every French accounting tool imports) or the invoice register as a spreadsheet in French or English.
+- [ ] Direct connectors pushing entries and invoice PDFs to accounting tools' APIs (Pennylane, Tiime, Indy…), beyond the FEC import above.
+- [ ] Declaration calendar per legal status (URSSAF declarations, VAT returns, CFE, income-tax instalments) with amounts estimated from invoices (builds on the URSSAF estimation item above).
+
+### Market Intelligence
+
+- [ ] **ADR — aggregated data:** opt-in contribution, publication only of aggregates over a minimum number of freelancers, no client or contact identities, GDPR legal basis and withdrawal. Feeds the TJM benchmark and community reviews above.
+- [ ] ESN scorecard: response time, process length, offer rate, payment delay and margin range per ESN from contributed data.
+- [ ] Quarterly public market report of rates by skill, region and seniority.
+
+### Teams Tier (collectives, portage companies, boutique ESNs)
+
+- [ ] **ADR — organizations:** organization accounts with members and roles (owner, manager, consultant) and explicit data boundaries: what a consultant shares with the organization (availability, CV, selected pipeline items) and what stays private.
+- [ ] Consultant availability board and shared opportunity pool: dispatch an opportunity to available members, see who is positioned where, and prevent two members being submitted to the same client.
+- [ ] Organization dashboards: occupancy, bench, margins, renewals due, CRA and invoice status across consultants.
+- [ ] Organization single sign-on through identity-provider brokering, with member provisioning and removal.
+- [ ] White-label option for portage companies: logo, colors and custom domain.
+
+### Commercial and Enterprise Foundation
+
+- [ ] Plans and entitlements enforced server-side: free (pipeline), Pro (CRA, invoicing, e-invoicing, AI, integrations), Teams per seat (completes the subscription item above).
+- [ ] GDPR for third-party data: recruiter and client contacts are personal data. Record the legal basis, provide a privacy notice usable in outgoing emails, anonymize contacts dormant beyond a retention period, and handle access and erasure requests from contacts.
+- [x] Public API and webhooks (opportunity, CRA and invoice events) with scoped tokens and a published OpenAPI description (extends the API tokens item above). Partly done on 2026-10-27: webhooks (Profile → Security → Webhooks) post the opportunity, activity report and invoice events, signed, retried and guarded against private addresses; the OpenAPI description is at `/api/swagger-ui.html`. Scoped tokens done the same day: a token reads the whole workspace or only the parts ticked (opportunities, missions, contacts, invoices, documents, offers).
+- [ ] EU hosting statement, processor list (AI, e-invoicing, banking, e-signature) and a data processing agreement for Teams customers.
+- [ ] Help center and support with response targets per plan; a status page for paid users.
