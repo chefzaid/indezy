@@ -217,7 +217,9 @@
       "idleForDays": "inactive depuis {{days}} jours",
       "upcomingInterviews": "Entretiens de la semaine",
       "followUpsDue": "Relances à faire",
-      "waitingSince": "{{channel}} envoyé il y a {{days}} jours, sans réponse"
+      "waitingSince": "{{channel}} envoyé il y a {{days}} jours, sans réponse",
+      "overdueInvoices": "Factures en retard de paiement",
+      "daysLate": "en retard de {{days}} jours"
     },
     "estimatedRevenueHint": "Valeur totale des missions acceptées et des opportunités en cours (hors perdues), sans pondération.",
     "forecastRevenueHint": "Valeur des missions pondérée par la probabilité de gain de chaque étape du pipeline.",

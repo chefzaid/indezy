@@ -179,7 +179,7 @@ Representative backend tests:
   number) and `BillingTextTest` (identifiers compacted, IBAN check digits and grouping)
 - invoices: `InvoiceIntegrationTest` (a validated month drafted for the ESN in English, once; issued only with a
   complete billing identity and the client's address, never at a later date or before the last one; numbered without
-  gaps; frozen against later identity changes, read back from its PDF in English and French; paid and unpaid; out of
+  gaps; frozen against later identity changes, read back from its PDF in English and French; paid and unpaid, the dashboard's overdue alert until paid; out of
   Bob's reach; kept when the mission goes; a draft by hand with its mission and period, changed, refused for Bob's
   client, unpayable and deleted), `InvoicePdfRendererTest` (a company's capital, registration and VAT in French with a
   wrapped line and notes; a draft of an individual entrepreneur exempt from VAT) and `InvoiceTotalsTest` (each line and

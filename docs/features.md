@@ -67,7 +67,8 @@ complete billing identity and the client's address; it takes the issue date (tod
 before the last invoice issued, so numbers follow the dates), gives the next number of that year with no gap
 (`<prefix><year>-0001`, the workspace's counter locked meanwhile), sets the due date from the payment term, and freezes
 the seller and the buyer as they are: changing the billing identity or the client later changes no issued invoice. An
-issued invoice can then only be marked paid (on a date) or unpaid; it reads as overdue past its due date. It cannot be
+issued invoice can then only be marked paid (on a date) or unpaid; it reads as overdue past its due date, which the dashboard's reminders
+(first, with how many days late) and the weekly digest point out until it is paid. It cannot be
 changed or deleted, and it stays when its mission or activity report is deleted (French law keeps invoices ten years).
 
 The PDF (A4, French or English) states the seller (legal name, followed by "EI" for an individual entrepreneur, address,
@@ -104,7 +105,7 @@ Every Monday from 8:00, Paris time, an account with the digest on gets one email
 week:
 
 - the pipeline: open opportunities by stage (first contact, interviewing, with an offer);
-- the interviews of the next 7 days, the follow-ups due, the opportunities gone quiet and the missions ending, five of
+- the overdue invoices, the interviews of the next 7 days, the follow-ups due, the opportunities gone quiet and the missions ending, five of
   each at most, as on the dashboard;
 - the offers Indezy found in the last 7 days that match the profile's skills, best match first, five with their facts
   and links, and how many more.

@@ -5,10 +5,12 @@ import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import org.springframework.stereotype.Component;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,7 @@ import static dev.swirlit.indezy.mail.SavedSearchEmailComposer.escape;
 
 /**
  * Writes the weekly digest, in HTML and plain text, in the account's language: where the pipeline stands, the week's
- * interviews, the follow-ups due, the opportunities gone quiet, the missions ending and the new offers matching the
+ * interviews, the overdue invoices, the follow-ups due, the opportunities gone quiet, the missions ending and the new offers matching the
  * profile. Sections with nothing to say are left out. It carries a one-click unsubscribe (RFC 8058) and no tracking.
  */
 @Component
@@ -37,7 +39,7 @@ public class WeeklyDigestComposer {
     /** What the dashboard says of the week, copied out of it. */
     public record Week(Map<String, Long> projectsByStatus, List<DashboardStatsDto.UpcomingInterview> interviews,
                        List<DashboardStatsDto.FollowUpDue> followUps, List<DashboardStatsDto.StaleOpportunity> stale,
-                       List<DashboardStatsDto.MissionEndingSoon> ending) {
+                       List<DashboardStatsDto.MissionEndingSoon> ending, List<DashboardStatsDto.OverdueInvoice> overdueInvoices) {
 
         public Week {
             projectsByStatus = Map.copyOf(projectsByStatus);
@@ -45,11 +47,13 @@ public class WeeklyDigestComposer {
             followUps = List.copyOf(followUps);
             stale = List.copyOf(stale);
             ending = List.copyOf(ending);
+            overdueInvoices = List.copyOf(overdueInvoices);
         }
 
         public static Week of(DashboardStatsDto stats) {
             return new Week(stats.getProjectsByStatus() == null ? Map.of() : stats.getProjectsByStatus(), orNone(stats.getUpcomingInterviews()),
-                orNone(stats.getFollowUpsDue()), orNone(stats.getStaleOpportunities()), orNone(stats.getMissionsEndingSoon()));
+                orNone(stats.getFollowUpsDue()), orNone(stats.getStaleOpportunities()), orNone(stats.getMissionsEndingSoon()),
+                orNone(stats.getOverdueInvoices()));
         }
 
         /** Opportunities in the pipeline: first contact, interviewing or with an offer. */
@@ -74,7 +78,7 @@ public class WeeklyDigestComposer {
         /** Whether it has anything to say: a digest of an empty week is not sent. */
         public boolean isEmpty() {
             return stats.interviews().isEmpty() && stats.followUps().isEmpty() && stats.stale().isEmpty() && stats.ending().isEmpty() &&
-                offersFound == 0 && stats.open() == 0;
+                stats.overdueInvoices().isEmpty() && offersFound == 0 && stats.open() == 0;
         }
 
         @Override
@@ -98,6 +102,11 @@ public class WeeklyDigestComposer {
             section(html, text, WeeklyDigestLabel.PIPELINE.in(language), List.of(WeeklyDigestLabel.PIPELINE_LINE.format(language, stats.open(),
                 status.getOrDefault("CONTACT", 0L), status.getOrDefault("INTERVIEW", 0L), status.getOrDefault("OFFER", 0L))), item -> null);
         }
+        NumberFormat euros = NumberFormat.getCurrencyInstance(WeeklyDigestLabel.locale(language));
+        euros.setCurrency(Currency.getInstance("EUR"));
+        section(html, text, WeeklyDigestLabel.OVERDUE.in(language), stats.overdueInvoices().stream().limit(ITEMS)
+            .map(invoice -> WeeklyDigestLabel.OVERDUE_LINE.format(language, invoice.getNumber(), invoice.getClientName(),
+                euros.format(invoice.getTotal()), invoice.getDaysLate())).toList(), line -> properties.appUrl() + "/invoices");
         section(html, text, WeeklyDigestLabel.INTERVIEWS.in(language), stats.interviews().stream().limit(ITEMS)
             .map(interview -> interview.getDate().format(moment) + " · " + interview.getTitle() + " · " + who(interview.getRole(),
                 interview.getClientName())).toList(), item -> null);

@@ -36,6 +36,9 @@ abstract class DashboardStatsTestSupport {
     @Mock
     ContactInteractionService contactInteractionService;
 
+    @Mock
+    InvoiceService invoiceService;
+
     @InjectMocks
     DashboardStatsService dashboardStatsService;
 

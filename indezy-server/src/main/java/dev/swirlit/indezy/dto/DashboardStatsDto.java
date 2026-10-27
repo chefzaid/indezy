@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -46,6 +47,8 @@ public class DashboardStatsDto {
     private List<DormantContact> dormantContacts;
     /** Contacts whose latest exchange is a message sent and unanswered for the follow-up period, longest waiting first. */
     private List<FollowUpDue> followUpsDue;
+    /** Issued invoices past their due date, the oldest due first. */
+    private List<OverdueInvoice> overdueInvoices;
     /** Interview steps planned in the next seven days, soonest first. */
     private List<UpcomingInterview> upcomingInterviews;
     private List<SkillTrend> skillTrends;
@@ -181,6 +184,19 @@ public class DashboardStatsDto {
     }
 
     /** A message sent to a contact that still waits for an answer, past the follow-up period. */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OverdueInvoice {
+        private Long invoiceId;
+        private String number;
+        private String clientName;
+        private BigDecimal total;
+        private LocalDate dueDate;
+        private long daysLate;
+    }
+
     @Data
     @Builder
     @NoArgsConstructor

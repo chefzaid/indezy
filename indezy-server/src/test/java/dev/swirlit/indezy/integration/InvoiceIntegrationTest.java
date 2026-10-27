@@ -76,6 +76,10 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
             Map.class).getBody();
         assertThat(issued).containsEntry("status", "ISSUED").containsEntry("number", "F2026-0001").containsEntry("issueDate", "2026-09-01")
             .containsEntry("dueDate", "2026-10-01").containsEntry("overdue", true);
+        List<Map<String, Object>> alerts = (List<Map<String, Object>>) call(alice, HttpMethod.GET, "/projects/stats/dashboard/" +
+            alice.freelanceId(), null, Map.class).getBody().get("overdueInvoices");
+        assertThat(alerts).singleElement().satisfies(alert -> assertThat(alert).containsEntry("number", "F2026-0001")
+            .containsEntry("clientName", "Capgemini").containsEntry("total", 1500.0));
 
         // Frozen: no change, no deletion, and later identity changes leave its PDF as it was.
         assertThat(call(alice, HttpMethod.DELETE, "/invoices/" + first, null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
@@ -109,6 +113,8 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
         // Paid, then not after all.
         assertThat(call(alice, HttpMethod.PUT, "/invoices/" + first + "/payment", Map.of("paidOn", "2027-01-05"), Map.class).getBody())
             .containsEntry("status", "PAID").containsEntry("paidOn", "2027-01-05").containsEntry("overdue", false);
+        assertThat((List<?>) call(alice, HttpMethod.GET, "/projects/stats/dashboard/" + alice.freelanceId(), null, Map.class).getBody()
+            .get("overdueInvoices")).isEmpty();
         assertThat(call(alice, HttpMethod.PUT, "/invoices/" + first + "/payment", new HashMap<>(), Map.class).getBody())
             .containsEntry("status", "ISSUED").containsEntry("paidOn", null);
 

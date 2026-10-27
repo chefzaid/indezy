@@ -172,4 +172,17 @@ describe('DashboardRemindersComponent', () => {
     expect(rows(card).map(row => row.getAttribute('href'))).toEqual(['/contacts/3', '/contacts/4']);
     expect(rows(card)[0].textContent).toContain('Bob Durand');
   });
+
+  it('lists the overdue invoices first, linking to the invoices', () => {
+    const element = render({
+      overdueInvoices: [{ invoiceId: 1, number: 'F2026-0001', clientName: 'Capgemini', total: 1500, dueDate: '2026-10-01', daysLate: 26 }]
+    });
+
+    expect(component.hasReminders()).toBe(true);
+    const card = section(element, 'accent-red');
+    expect(element.querySelector('.reminder-card')).toBe(card);
+    expect(card.textContent).toContain('F2026-0001');
+    expect(card.textContent).toContain('Capgemini');
+    expect(rows(card).map(row => row.getAttribute('href'))).toEqual(['/invoices']);
+  });
 });

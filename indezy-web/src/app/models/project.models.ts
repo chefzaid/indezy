@@ -151,6 +151,8 @@ export interface DashboardStatsDto {
   dormantContacts: DormantContact[];
   /** Contacts whose latest exchange is a message sent and unanswered for the follow-up period, longest waiting first. */
   followUpsDue?: FollowUpDue[];
+  /** Issued invoices past their due date, the oldest due first. */
+  overdueInvoices?: OverdueInvoice[];
   /** Interview steps planned in the next seven days, soonest first. */
   upcomingInterviews?: UpcomingInterview[];
   skillTrends: SkillTrend[];
@@ -228,6 +230,15 @@ export interface OnThisDayItem {
   subLabel: string;
   date: string;
   yearsAgo: number;
+}
+
+export interface OverdueInvoice {
+  invoiceId: number;
+  number: string;
+  clientName: string;
+  total: number;
+  dueDate: string;
+  daysLate: number;
 }
 
 export interface FollowUpDue {

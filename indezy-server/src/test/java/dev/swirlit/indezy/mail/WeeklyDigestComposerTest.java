@@ -5,6 +5,7 @@ import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +31,8 @@ class WeeklyDigestComposerTest {
             .staleOpportunities(List.of(DashboardStatsDto.StaleOpportunity.builder().role("Architecte").daysSinceActivity(21).build()))
             .missionsEndingSoon(List.of(DashboardStatsDto.MissionEndingSoon.builder().role("Dev Kotlin").clientName("Thales")
                 .endDate(LocalDate.of(2026, 11, 30)).build()))
+            .overdueInvoices(List.of(DashboardStatsDto.OverdueInvoice.builder().number("F2026-0003").clientName("Alten")
+                .total(new BigDecimal("4200.00")).daysLate(12).build()))
             .build();
     }
 
@@ -49,7 +52,8 @@ class WeeklyDigestComposerTest {
         assertThat(email.subject()).isEqualTo("Votre semaine Indezy du 26 octobre 2026");
         assertThat(email.text()).contains("Bonjour Zaid, voici votre semaine", "3 opportunités en cours : 2 premier contact, 1 entretiens, 0 offres",
             "jeu. 29 oct., 14h00 · Entretien <technique> · Lead Java (Acme)", "Léa Martin (Alten), sans réponse depuis 6 jours",
-            "Architecte, rien depuis 21 jours", "Dev Kotlin (Thales), fin le 30 novembre 2026", "8 nouvelles offres correspondent",
+            "Architecte, rien depuis 21 jours", "Factures en retard de paiement",
+            "F2026-0003, Alten, 4\u202F200,00\u00A0€, en retard de 12 jours", "Dev Kotlin (Thales), fin le 30 novembre 2026", "8 nouvelles offres correspondent",
             "https://indezy.example/offers/42", "Et 7 de plus");
         assertThat(email.html()).contains("Entretien &lt;technique&gt;").doesNotContain("<technique>");
         assertThat(email.headers()).containsEntry("List-Unsubscribe", "<https://indezy.example/api/public/weekly-digest/unsubscribe/tok>")

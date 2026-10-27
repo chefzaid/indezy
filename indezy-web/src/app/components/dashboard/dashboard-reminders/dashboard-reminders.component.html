@@ -4,6 +4,27 @@
     {{ 'dashboard.remindersTitle' | translate }}
   </h2>
   <div class="reminders-grid">
+    @if (getOverdueInvoices().length > 0) {
+      <section class="reminder-card accent-red" data-overdue-invoices>
+        <h3 class="reminder-title">
+          <mat-icon>receipt_long</mat-icon>
+          {{ 'dashboard.charts.overdueInvoices' | translate }}
+          <span class="count">{{ getOverdueInvoices().length }}</span>
+        </h3>
+        @for (invoice of visible(getOverdueInvoices(), 'invoices'); track invoice.invoiceId) {
+          <a class="reminder-row" routerLink="/invoices">
+            <span class="primary">{{ invoice.number }} · {{ invoice.total | number:'1.2-2' }} €</span>
+            <span class="secondary">{{ invoice.clientName }}</span>
+            <span class="meta">{{ 'dashboard.charts.daysLate' | translate:{ days: invoice.daysLate } }}</span>
+          </a>
+        }
+        @if (getOverdueInvoices().length > collapsedSize) {
+          <button type="button" class="toggle-btn" (click)="toggle('invoices')">
+            {{ isExpanded('invoices') ? ('dashboard.showLess' | translate) : ('dashboard.showAll' | translate:{ count: getOverdueInvoices().length }) }}
+          </button>
+        }
+      </section>
+    }
     @if (getUpcomingInterviews().length > 0) {
       <section class="reminder-card accent-teal">
         <h3 class="reminder-title">

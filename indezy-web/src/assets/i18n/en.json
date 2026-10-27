@@ -217,7 +217,9 @@
       "idleForDays": "idle for {{days}} days",
       "upcomingInterviews": "Interviews this week",
       "followUpsDue": "Follow-ups due",
-      "waitingSince": "{{channel}} sent {{days}} days ago, no answer"
+      "waitingSince": "{{channel}} sent {{days}} days ago, no answer",
+      "overdueInvoices": "Overdue invoices",
+      "daysLate": "{{days}} days late"
     },
     "estimatedRevenueHint": "Total value of accepted missions and open opportunities (lost ones excluded), unweighted.",
     "forecastRevenueHint": "Mission value weighted by the win probability of each pipeline stage.",

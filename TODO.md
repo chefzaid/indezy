@@ -179,7 +179,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [ ] URSSAF/social contribution estimation per status (micro-entreprise, EI, EURL, SASU, portage)
 - [x] Invoice generation from project data (rate x days worked, French mentions légales). Done on 2026-10-27: the billing identity (Profile → Billing) and the clients' SIREN and VAT number; **Invoices** (`/invoices`) drafts an invoice by hand or from a validated activity report (**Create the invoice** on the report), issues it with gapless yearly numbers and the seller and buyer frozen, and its PDF states the French mandatory mentions (VAT or its exemption, payment term, IBAN, no discount, late penalties and the €40 fee).
 - [ ] Credit notes (avoirs) to correct or cancel an issued invoice, numbered in the same sequence and referring to it: an issued invoice can be neither changed nor deleted.
-- [ ] Invoice status tracking (draft, sent, paid, overdue) with payment delay alerts. Partly done on 2026-10-27: drafts, issued, paid (on a date) and overdue past the due date, with the totals awaiting payment and overdue on the Invoices page; alerts (dashboard, weekly digest) remain.
+- [x] Invoice status tracking (draft, sent, paid, overdue) with payment delay alerts. Done on 2026-10-27: drafts, issued, paid (on a date) and overdue past the due date, with the totals awaiting payment and overdue on the Invoices page, and the overdue invoices first among the dashboard's reminders and in the weekly digest.
 - [x] Yearly summary export for the accountant (CSV/Excel)
 - [ ] Multi-currency support for international clients
 

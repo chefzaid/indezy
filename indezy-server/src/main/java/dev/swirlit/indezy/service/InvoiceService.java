@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.ActivityReportDto;
 import dev.swirlit.indezy.dto.BillingIdentityDto;
+import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.InvoiceDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -31,6 +32,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
@@ -67,6 +69,16 @@ public class InvoiceService {
     @Transactional(readOnly = true)
     public InvoiceDtos.Invoice get(Long freelanceId, Long id) {
         return toDto(invoice(freelanceId, id));
+    }
+
+    /** The workspace's issued invoices past their due date, the oldest due first, for the dashboard and the weekly digest. */
+    @Transactional(readOnly = true)
+    public List<DashboardStatsDto.OverdueInvoice> overdue(Long freelanceId) {
+        LocalDate today = LocalDate.now(clock.withZone(PARIS));
+        return invoices.findByFreelanceIdAndStatusAndDueDateBeforeOrderByDueDateAsc(freelanceId, InvoiceStatus.ISSUED, today).stream()
+            .map(invoice -> new DashboardStatsDto.OverdueInvoice(invoice.getId(), invoice.getNumber(), invoice.getBuyer().getName(),
+                InvoiceTotals.of(invoice.getLines()).total(), invoice.getDueDate(), ChronoUnit.DAYS.between(invoice.getDueDate(), today)))
+            .toList();
     }
 
     /** A draft written by hand, for one of the workspace's clients (and missions, when named). */

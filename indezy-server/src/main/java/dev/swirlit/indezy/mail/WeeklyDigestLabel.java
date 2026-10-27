@@ -11,6 +11,8 @@ enum WeeklyDigestLabel {
     PIPELINE("Pipeline", "Pipeline"),
     PIPELINE_LINE("%d opportunités en cours : %d premier contact, %d entretiens, %d offres",
         "%d open opportunities: %d first contact, %d interviewing, %d with an offer"),
+    OVERDUE("Factures en retard de paiement", "Overdue invoices"),
+    OVERDUE_LINE("%s, %s, %s, en retard de %d jours", "%s, %s, %s, %d days late"),
     INTERVIEWS("Entretiens des 7 prochains jours", "Interviews in the next 7 days"),
     FOLLOW_UPS("Relances à faire", "Follow-ups due"),
     FOLLOW_UP_LINE("%s, sans réponse depuis %d jours", "%s, no answer for %d days"),

@@ -4,12 +4,13 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import {
-  DashboardStatsDto, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, OnThisDayItem, DormantContact, FollowUpDue, UpcomingInterview
+  DashboardStatsDto, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, OnThisDayItem, DormantContact, FollowUpDue, OverdueInvoice,
+  UpcomingInterview
 } from '../../../models';
 
 /**
  * Renders the dashboard's time-based reminder lists (interviews of the week, missions ending, renewals, "on this day",
- * dormant contacts, stale opportunities) from the aggregated dashboard stats.
+ * dormant contacts, stale opportunities, overdue invoices) from the aggregated dashboard stats.
  */
 @Component({
   selector: 'app-dashboard-reminders',
@@ -46,7 +47,7 @@ export class DashboardRemindersComponent {
   hasReminders(): boolean {
     return this.getUpcomingInterviews().length + this.getMissionsEndingSoon().length + this.getUpcomingRenewals().length +
       this.getOnThisDay().length + this.getDormantContacts().length + this.getStaleOpportunities().length +
-      this.getFollowUpsDue().length > 0;
+      this.getFollowUpsDue().length + this.getOverdueInvoices().length > 0;
   }
 
   getUpcomingInterviews(): UpcomingInterview[] {
@@ -67,6 +68,10 @@ export class DashboardRemindersComponent {
 
   getFollowUpsDue(): FollowUpDue[] {
     return this.stats?.followUpsDue ?? [];
+  }
+
+  getOverdueInvoices(): OverdueInvoice[] {
+    return this.stats?.overdueInvoices ?? [];
   }
 
   getDormantContacts(): DormantContact[] {
