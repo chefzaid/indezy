@@ -75,9 +75,17 @@ Current backend rules:
 - a feature an administrator turned off answers `403` on its paths, public ones included (`FeatureFlagInterceptor`,
   see [Admin Console And Feature Flags](./features.md#admin-console-and-feature-flags))
 
-A JWT authenticates only while its account is active: `JwtAuthenticationFilter` checks on every request that the account
-is neither deleted nor disabled, so a token stops working at once when an administrator disables the account or it is
-deleted, instead of staying valid until it expires. Disabled accounts are also refused at password and Keycloak sign-in.
+A JWT authenticates only while its session is open and its account active. Each sign-in opens a session
+(`account_sessions`) named by the token's `sid` claim, and `JwtAuthenticationFilter` checks on every request that the
+session is neither ended nor expired and that the account is neither deleted nor disabled. A token therefore stops
+working at once when its owner signs out (the app ends the session with a keepalive request before redirecting), ends
+the session from **Profile → Security**, changes the password (every other session ends), or when an administrator
+disables the account (every session ends), instead of staying valid until it expires. The Keycloak exchange the app makes on every load
+(`GET /api/auth/sso`) continues the session of the token it sends, with a new token, instead of opening another one. Tokens issued before sessions
+were kept carry no `sid` and are refused: their owners sign in again once. Disabled accounts are also refused at
+password and Keycloak sign-in. Sign-ins, refused sign-ins of an existing account and security changes are recorded in
+the account's activity log (`account_events`, kept a year), which only its owner reads; neither table keeps an IP
+address or the full User-Agent.
 
 Workspace isolation: `AccessGuard` resolves the caller's freelance workspace from the JWT account
 (through `CurrentWorkspaceResolver`, once per request) and every controller checks ownership before

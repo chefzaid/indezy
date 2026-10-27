@@ -2,7 +2,10 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.admin.AdminService;
 import dev.swirlit.indezy.dto.*;
+import dev.swirlit.indezy.model.enums.AccountEventType;
 import dev.swirlit.indezy.service.AccessGuard;
+import dev.swirlit.indezy.service.AccountEventService;
+import dev.swirlit.indezy.service.AccountSessionService;
 import dev.swirlit.indezy.service.UserDataExportService;
 import dev.swirlit.indezy.service.FeatureFlagService;
 import dev.swirlit.indezy.service.PublicProfileService;
@@ -37,6 +40,8 @@ public class UserController {
     private final WorkspaceImportService workspaceImportService;
     private final PublicProfileService publicProfileService;
     private final AdminService adminService;
+    private final AccountEventService accountEvents;
+    private final AccountSessionService accountSessions;
     private final FeatureFlagService featureFlagService;
     private final AccessGuard accessGuard;
 
@@ -67,7 +72,14 @@ public class UserController {
         description = "400 when the new password is under 8 characters or over 72 bytes, the confirmation differs, or the current password is wrong")
     @PostMapping("/change-password")
     public boolean changePassword(@Valid @RequestBody PasswordChangeRequestDto request) {
-        return userService.changePassword(SecurityUtils.getCurrentUserId(), request);
+        Long userId = SecurityUtils.getCurrentUserId();
+        boolean changed = userService.changePassword(userId, request);
+        if (changed) {
+            // Whoever knew the old password is signed out everywhere else.
+            accountEvents.record(userId, AccountEventType.PASSWORD_CHANGED);
+            accountSessions.endOthers(userId, SecurityUtils.getCurrentSessionId());
+        }
+        return changed;
     }
 
     @Operation(summary = "Finish or skip the welcome steps of a new account")
@@ -138,13 +150,23 @@ public class UserController {
         description = "false when the code is wrong; 400 when it is missing")
     @PostMapping("/security/2fa/verify")
     public boolean verifyTwoFactor(@Valid @RequestBody TwoFactorCodeRequest request) {
-        return userService.verifyTwoFactor(SecurityUtils.getCurrentUserId(), request.getCode());
+        Long userId = SecurityUtils.getCurrentUserId();
+        boolean enabled = userService.verifyTwoFactor(userId, request.getCode());
+        if (enabled) {
+            accountEvents.record(userId, AccountEventType.TWO_FACTOR_ENABLED);
+        }
+        return enabled;
     }
 
     @Operation(summary = "Disable two-factor authentication", description = "400 when the code is missing or wrong")
     @PostMapping("/security/2fa/disable")
     public boolean disableTwoFactor(@Valid @RequestBody TwoFactorCodeRequest request) {
-        return userService.disableTwoFactor(SecurityUtils.getCurrentUserId(), request.getCode());
+        Long userId = SecurityUtils.getCurrentUserId();
+        boolean disabled = userService.disableTwoFactor(userId, request.getCode());
+        if (disabled) {
+            accountEvents.record(userId, AccountEventType.TWO_FACTOR_DISABLED);
+        }
+        return disabled;
     }
 
     @Operation(summary = "Preview the import of an account export into the workspace",
@@ -158,7 +180,9 @@ public class UserController {
         description = "Adds the new records and leaves those already there; the report says what was done")
     @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public WorkspaceImportReport importData(@RequestParam("file") MultipartFile file) throws IOException {
-        return workspaceImportService.apply(currentWorkspace(), file.getBytes());
+        WorkspaceImportReport report = workspaceImportService.apply(currentWorkspace(), file.getBytes());
+        accountEvents.record(SecurityUtils.getCurrentUserId(), AccountEventType.DATA_IMPORTED);
+        return report;
     }
 
     private Long currentWorkspace() {
@@ -173,6 +197,7 @@ public class UserController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDispositionFormData("attachment", "user-data.json");
+        accountEvents.record(userId, AccountEventType.DATA_EXPORTED);
         return ResponseEntity.ok()
             .headers(headers)
             .body(userDataExportService.exportUserData(userId, accessGuard.currentFreelanceId().orElse(userId)));

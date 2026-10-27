@@ -153,6 +153,13 @@ Representative backend tests:
   answering `403` on its private and public paths and on again) and `FeatureFlagServiceTest` (every feature on until
   turned off, states read again every 30 seconds, each feature's paths, administrators named by email case aside) and `FeatureFlagInterceptorTest` (a feature's paths refused however they
   are written: percent-encoded or with `;` parameters)
+- sessions and account activity: `AccountSecurityIntegrationTest` (Alice's sessions listed with the current one first
+  and its browser, one ended from another with its token refused at once, Bob unable to see or end them, a refused
+  sign-in recorded, the other sessions ended on request and by a new password, signing out, and the activity in order),
+  `AccountSessionServiceTest` (last activity noted every 5 minutes at most, tokens without an open session refused,
+  other sessions ended recorded only when there were any, old sessions and events forgotten), `RequestDeviceTest`
+  (browsers and systems named from common User-Agents) and `AuthServiceTest` (a session opened per sign-in, refused
+  sign-ins recorded)
 - secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code (a bare `code` field included), backup code or API key, nor, in such a class or one nested in it, the email or a name)
 
 Backend test data lives under `indezy-server/src/test/resources/`:
@@ -187,6 +194,9 @@ Representative frontend specs:
   switch put back on failure), `capabilities.service.spec.ts` (read once, every feature on before or without an answer,
   forgotten at sign-out), `capability.guards.spec.ts` and `app.component.spec.ts` (features turned off and the admin
   console left out of the menu)
+- sessions and account activity: `profile-sessions.component.spec.ts` (sessions with this browser marked, one signed
+  out, everywhere else once confirmed, the activity in words with more pages, failures) and `auth.service.spec.ts` (the
+  session ended on the server at sign-out with a keepalive request)
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy
@@ -361,6 +371,10 @@ Data import scenarios (`e2e/data-import.spec.ts`, on a desktop and on a phone) c
 Admin scenarios (`e2e/admin.spec.ts`, on a desktop and on a phone) read the overview, disable an account once
 confirmed and turn the offer feed off, which leaves the menu; an account that is not an administrator is sent from
 `/admin` to the dashboard, and features turned off leave the menu, their page and the profile.
+
+Session scenarios (`e2e/account-sessions.spec.ts`, on a desktop and on a phone) list the sessions and the account
+activity on the **Security** tab, audited with axe-core, sign one session out and then everywhere else; signing out
+from the menu ends the session on the server.
 
 Keyboard scenarios (`e2e/keyboard-navigation.spec.ts`) open a Kanban card with Enter (but not from its favourite
 button), a timeline step and an archived opportunity, then reach a client, one of its opportunities and one of its

@@ -971,6 +971,52 @@
       "hiddenNote": "The profile is hidden: its link shows nothing until you turn it on.",
       "loadError": "Could not load the public profile settings",
       "saveError": "Could not save the public profile settings"
+    },
+    "sessions": {
+      "title": "Where you're signed in",
+      "hint": "Each browser or app signed in to your account. Sign out the ones you don't recognize, then change your password.",
+      "current": "This browser",
+      "unknownDevice": "Unknown browser",
+      "methods": {
+        "PASSWORD": "Password",
+        "KEYCLOAK": "Swirlit single sign-on",
+        "REGISTRATION": "Account created"
+      },
+      "signedInOn": "signed in {{date}}",
+      "lastActive": "last active {{date}}",
+      "end": "Sign out",
+      "endNamed": "Sign out {{device}}",
+      "endOthers": "Sign out everywhere else",
+      "endOthersTitle": "Sign out everywhere else?",
+      "endOthersMessage": "Every other browser and app signed in to your account will have to sign in again. This one stays signed in.",
+      "ended": "Signed out of that session",
+      "endedOthers": "Signed out of {{count}} other sessions",
+      "endError": "The session could not be ended",
+      "loadError": "Your sessions and activity could not be loaded"
+    },
+    "activity": {
+      "title": "Account activity",
+      "hint": "Sign-ins and security changes of the last 12 months, newest first.",
+      "empty": "Nothing recorded yet.",
+      "more": "Show more",
+      "refused": {
+        "PASSWORD": "wrong password",
+        "TWO_FACTOR": "wrong authenticator code"
+      },
+      "types": {
+        "SIGNED_IN": "Signed in ({{method}})",
+        "SIGN_IN_REFUSED": "Sign-in refused: {{reason}}",
+        "SIGNED_OUT": "Signed out",
+        "SESSION_REVOKED": "Signed out {{device}} remotely",
+        "OTHER_SESSIONS_REVOKED": "Signed out of {{count}} other sessions",
+        "PASSWORD_CHANGED": "Password changed",
+        "TWO_FACTOR_ENABLED": "Two-factor authentication turned on",
+        "TWO_FACTOR_DISABLED": "Two-factor authentication turned off",
+        "DATA_EXPORTED": "Data exported",
+        "DATA_IMPORTED": "Data imported",
+        "ACCOUNT_DISABLED": "Account disabled by an administrator",
+        "ACCOUNT_ENABLED": "Account enabled again by an administrator"
+      }
     }
   },
   "errors": {

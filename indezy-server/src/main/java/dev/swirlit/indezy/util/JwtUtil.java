@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,8 @@ import java.util.function.Function;
 @Component
 @Slf4j
 public class JwtUtil {
+
+    private static final String SESSION_CLAIM = "sid";
 
     @Value("${jwt.secret}")
     private String secret;
@@ -55,10 +58,17 @@ public class JwtUtil {
         return extractExpiration(token).isBefore(Instant.now());
     }
 
-    public String generateToken(String username, Long userId) {
+    /** A token for the account's session {@code sessionKey}, which must stay open for the token to work. */
+    public String generateToken(String username, Long userId, String sessionKey) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
+        claims.put(SESSION_CLAIM, sessionKey);
         return createToken(claims, username);
+    }
+
+    /** How long a token lasts. */
+    public Duration lifetime() {
+        return Duration.ofMillis(expiration);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -81,5 +91,10 @@ public class JwtUtil {
     public Long extractUserId(String token) {
         Claims claims = extractAllClaims(token);
         return claims.get("userId", Long.class);
+    }
+
+    /** The session the token belongs to; null for a token issued before sessions were kept. */
+    public String extractSessionKey(String token) {
+        return extractAllClaims(token).get(SESSION_CLAIM, String.class);
     }
 }

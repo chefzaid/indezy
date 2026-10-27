@@ -29,6 +29,28 @@ Implemented account flows:
 - profile page for account details, avatar, preferences (language, theme, date format), notifications, password, two-factor authentication and a JSON export of every piece of account data
 - **Import data** (Profile → Account): an Indezy export brought into the workspace, preview first (see below)
 
+### Sessions And Account Activity
+
+**Profile → Security** also shows where the account is signed in and what happened to it.
+
+- **Where you're signed in**: every open session (each sign-in by password, Keycloak or registration opens one), with
+  its browser and system read from the User-Agent ("Firefox on Windows"; no address is kept), how it was opened, when,
+  and when it was last used (noted every 5 minutes at most). This browser is marked; any other is signed out with
+  **Sign out**, and **Sign out everywhere else** (after a confirmation) ends them all. A token stops working as soon as
+  its session ends.
+  In production the app exchanges the Keycloak sign-in on every load; that continues the browser's session rather than
+  opening a new one.
+- **Sign out** in the menu ends the browser's own session on the server too, so a copied token is useless afterwards.
+- A new password signs out every other session; an administrator disabling the account ends all of them.
+- **Account activity**: sign-ins, sign-ins refused for a wrong password or authenticator code, sign-outs, sessions
+  ended, password and two-factor changes, data exports and imports, and an administrator disabling or enabling the
+  account, newest first, 20 at a time, with the browser each came from. Events are kept a year and ended sessions 30
+  days (removed nightly at 04:05 Paris time); both are in the data export (`sessions`, `accountActivity`).
+
+The API is `GET /api/users/sessions`, `DELETE /api/users/sessions/{id}`, `DELETE /api/users/sessions/current` (sign
+out), `POST /api/users/sessions/end-others` and `GET /api/users/activity?page=`; another account's session answers
+`404`.
+
 ### Public Profile
 
 **Public profile** (a tab of the profile page) shows a page anyone with its link can read, at `/p/<address>`, without

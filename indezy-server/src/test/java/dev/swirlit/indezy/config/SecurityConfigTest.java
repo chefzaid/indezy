@@ -2,6 +2,8 @@ package dev.swirlit.indezy.config;
 
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.repository.UserRepository;
+import dev.swirlit.indezy.model.enums.SignInMethod;
+import dev.swirlit.indezy.service.AccountSessionService;
 import dev.swirlit.indezy.service.UserService;
 import dev.swirlit.indezy.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
@@ -44,11 +46,14 @@ class SecurityConfigTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AccountSessionService accountSessions;
+
     @MockitoBean
     private UserService userService;
 
-    /** A token authenticates only while its account exists and is active. */
-    private long activeAccount() {
+    /** A token authenticates only while its session is open and its account active. */
+    private User activeAccount() {
         return userRepository.findByEmail("security-config@example.com").orElseGet(() -> {
             User user = new User();
             user.setFirstName("Security");
@@ -56,7 +61,7 @@ class SecurityConfigTest {
             user.setEmail("security-config@example.com");
             user.setPasswordHash("not-a-real-hash");
             return userRepository.save(user);
-        }).getId();
+        });
     }
 
     @Test
@@ -70,20 +75,22 @@ class SecurityConfigTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"code\":\"123456\"}")
                 .session(session)
-                .cookie(new Cookie("access_token", jwtUtil.generateToken("user@example.com", 1L))))
+                .cookie(new Cookie("access_token", jwtUtil.generateToken("user@example.com", 1L, "no-session"))))
             .andExpect(status().isUnauthorized());
         verifyNoInteractions(userService);
     }
 
     @Test
     void bearerTokenAuthorizesWriteWithoutCsrfTokenOrSessionCookie() throws Exception {
-        long id = activeAccount();
+        User account = activeAccount();
+        long id = account.getId();
+        String token = accountSessions.open(account, SignInMethod.PASSWORD);
         when(userService.disableTwoFactor(id, "123456")).thenReturn(true);
 
         mockMvc.perform(post("/users/security/2fa/disable")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"code\":\"123456\"}")
-                .header("Authorization", "Bearer " + jwtUtil.generateToken("security-config@example.com", id)))
+                .header("Authorization", "Bearer " + token))
             .andExpect(status().isOk())
             .andExpect(content().string("true"))
             .andExpect(header().doesNotExist("Set-Cookie"));

@@ -1,0 +1,77 @@
+<mat-card class="form-section" data-sessions>
+  <mat-card-header>
+    <mat-card-title>{{ 'profile.sessions.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="hint">{{ 'profile.sessions.hint' | translate }}</p>
+    <ul class="sessions">
+      @for (session of sessions; track session.id) {
+        <li class="session" [attr.data-session]="session.id">
+          <mat-icon aria-hidden="true">{{ icon(session) }}</mat-icon>
+          <div class="text">
+            <span class="device">
+              {{ session.device ?? ('profile.sessions.unknownDevice' | translate) }}
+              @if (session.current) {
+                <span class="current">{{ 'profile.sessions.current' | translate }}</span>
+              }
+            </span>
+            <span class="meta">
+              {{ 'profile.sessions.methods.' + session.method | translate }} ·
+              {{ 'profile.sessions.signedInOn' | translate: { date: (session.createdAt | date: 'medium') } }}
+              @if (session.lastSeenAt) {
+                · {{ 'profile.sessions.lastActive' | translate: { date: (session.lastSeenAt | date: 'medium') } }}
+              }
+            </span>
+          </div>
+          @if (!session.current) {
+            <button mat-stroked-button type="button" (click)="end(session)"
+              [attr.aria-label]="'profile.sessions.endNamed' | translate: { device: session.device ?? ('profile.sessions.unknownDevice' | translate) }">
+              {{ 'profile.sessions.end' | translate }}
+            </button>
+          }
+        </li>
+      }
+    </ul>
+    @if (others > 0) {
+      <div class="form-actions">
+        <button mat-stroked-button color="warn" type="button" (click)="endOthers()" data-end-others>
+          <mat-icon>logout</mat-icon>
+          {{ 'profile.sessions.endOthers' | translate }}
+        </button>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="form-section" data-activity>
+  <mat-card-header>
+    <mat-card-title>{{ 'profile.activity.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="hint">{{ 'profile.activity.hint' | translate }}</p>
+    @if (events.length === 0) {
+      <p class="hint">{{ 'profile.activity.empty' | translate }}</p>
+    }
+    <ul class="events">
+      @for (event of events; track event.id) {
+        <li class="event" [class.warning]="event.type === 'SIGN_IN_REFUSED'" [attr.data-event]="event.type">
+          <mat-icon aria-hidden="true">{{ eventIcon(event) }}</mat-icon>
+          <div class="text">
+            <span>{{ describe(event) }}</span>
+            <span class="meta">
+              {{ event.occurredAt | date: 'medium' }}
+              @if (event.device) {
+                · {{ event.device }}
+              }
+            </span>
+          </div>
+        </li>
+      }
+    </ul>
+    @if (events.length < total) {
+      <button mat-button type="button" (click)="more()" [disabled]="loadingMore" data-more-activity>
+        {{ 'profile.activity.more' | translate }}
+      </button>
+    }
+  </mat-card-content>
+</mat-card>

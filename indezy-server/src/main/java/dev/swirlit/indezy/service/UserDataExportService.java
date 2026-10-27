@@ -42,6 +42,8 @@ public class UserDataExportService {
     private final SeasonService seasonService;
     private final FreelanceService freelanceService;
     private final PublicProfileService publicProfileService;
+    private final AccountSessionService accountSessionService;
+    private final AccountEventService accountEventService;
 
     // Self-contained mapper (the app does not expose an ObjectMapper bean); modules add date support, written as ISO-8601.
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules()
@@ -76,6 +78,8 @@ public class UserDataExportService {
         // The files themselves are downloaded from their opportunity's page.
         export.put("projectAttachments", projectAttachmentService.export(freelanceId));
         export.put("emailTemplates", emailTemplateService.list(freelanceId));
+        export.put("sessions", accountSessionService.list(userId, null));
+        export.put("accountActivity", accountEventService.export(userId));
 
         try {
             return objectMapper.writerWithDefaultPrettyPrinter()

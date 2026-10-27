@@ -151,6 +151,28 @@ describe('AuthService', () => {
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
     });
 
+    it('ends the token\'s session on the server with a request that outlives the page', () => {
+      const fetchSpy = spyOn(window, 'fetch').and.returnValue(Promise.reject(new Error('offline')));
+      localStorageSpy.and.callFake((key: string) => key === 'indezy_token' ? 'the-token' : null);
+
+      service.logout();
+
+      expect(fetchSpy).toHaveBeenCalledOnceWith(`${environment.apiUrl}/users/sessions/current`, {
+        method: 'DELETE', keepalive: true, headers: { Authorization: 'Bearer the-token' }
+      });
+      expect(localStorage.removeItem).toHaveBeenCalledWith('indezy_token');
+    });
+
+    it('signs out without a request when there is no token, or no fetch', () => {
+      const fetchSpy = spyOn(window, 'fetch');
+      service.logout();
+      expect(fetchSpy).not.toHaveBeenCalled();
+
+      localStorageSpy.and.callFake((key: string) => key === 'indezy_token' ? 'the-token' : null);
+      fetchSpy.and.throwError('fetch is not defined');
+      expect(() => service.logout()).not.toThrow();
+    });
+
     it('should update currentUser$ to null on logout', () => {
       // Set a user first
       service['currentUserSubject'].next({

@@ -17,9 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     Optional<User> findByEmail(String email);
 
-    /** Whether the account may use the app: neither deleted nor disabled. */
-    @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.id = :id AND u.deletedAt IS NULL AND u.disabledAt IS NULL")
-    boolean isActive(@Param("id") Long id);
 
     /** Accounts whose email or name holds the text, case aside, newest first. */
     @Query("SELECT u FROM User u WHERE LOWER(u.email) LIKE LOWER(CONCAT('%', :text, '%')) " +

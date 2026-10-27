@@ -17,6 +17,7 @@ import { ActivityReportService } from './activity-report/activity-report.service
 import { YearlyReviewService } from './review/yearly-review.service';
 import { PublicProfileService } from './public-profile/public-profile.service';
 import { AdminService } from './admin/admin.service';
+import { AccountSecurityService } from './account-security/account-security.service';
 import { ProjectStatus, StepStatus } from '../models';
 
 /** One HTTP wrapper call: what the service is asked, and the request it must send. */
@@ -64,6 +65,7 @@ describe('API services', () => {
   const review = (): YearlyReviewService => TestBed.inject(YearlyReviewService);
   const publicProfile = (): PublicProfileService => TestBed.inject(PublicProfileService);
   const admin = (): AdminService => TestBed.inject(AdminService);
+  const accountSecurity = (): AccountSecurityService => TestBed.inject(AccountSecurityService);
   const linkToken = { 'X-Report-Token': 'link-token' };
   const decision = { approved: false, validatorName: 'Jean Dupont', comment: 'Le 11 est férié' };
 
@@ -161,6 +163,11 @@ describe('API services', () => {
     { name: 'save public profile settings', call: () => publicProfile().save({ enabled: true, slug: 'alice' }), method: 'PUT', url: `${api}/users/public-profile`, body: { enabled: true, slug: 'alice' } },
     { name: 'public profile', call: () => publicProfile().view('alice martin'), method: 'GET', url: `${api}/public/profiles/alice%20martin` },
     { name: 'data import', call: () => users().importData(new Blob(['{}'])), method: 'POST', url: `${api}/users/import` },
+
+    { name: 'open sessions', call: () => accountSecurity().sessions(), method: 'GET', url: `${api}/users/sessions` },
+    { name: 'end a session', call: () => accountSecurity().end(9), method: 'DELETE', url: `${api}/users/sessions/9` },
+    { name: 'end the other sessions', call: () => accountSecurity().endOthers(), method: 'POST', url: `${api}/users/sessions/end-others` },
+    { name: 'account activity', call: () => accountSecurity().activity(1), method: 'GET', url: `${api}/users/activity`, params: { page: '1' } },
 
     { name: 'admin overview', call: () => admin().overview(), method: 'GET', url: `${api}/admin/overview` },
     { name: 'admin accounts', call: () => admin().accounts('ali', 2), method: 'GET', url: `${api}/admin/accounts`, params: { query: 'ali', page: '2' } },

@@ -39,14 +39,19 @@ class AdminIntegrationTest extends TwoAccountsIntegrationTest {
         long bobId = ((Number) accounts.stream().filter(account -> bobEmail.equals(account.get("email"))).findFirst()
             .orElseThrow().get("id")).longValue();
 
-        // Disabled, Bob's live token stops working and he cannot sign in again.
+        // Disabled, Bob's sessions end and he cannot sign in again; enabled, he signs in again.
         assertThat(call(chief, HttpMethod.POST, "/admin/accounts/" + bobId + "/disable", null, Map.class).getBody().get("disabledAt"))
             .isNotNull();
         assertThat(call(bob, HttpMethod.GET, "/users/profile", null, String.class).getStatusCode()).isIn(HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN);
         assertThat(login(bobEmail).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         call(chief, HttpMethod.POST, "/admin/accounts/" + bobId + "/enable", null, Map.class);
+        assertThat(call(bob, HttpMethod.GET, "/users/profile", null, String.class).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        ResponseEntity<Map> again = login(bobEmail);
+        assertThat(again.getStatusCode()).isEqualTo(HttpStatus.OK);
+        bob = new Account((String) again.getBody().get("token"), bob.freelanceId());
         assertThat(call(bob, HttpMethod.GET, "/users/profile", null, String.class).getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(login(bobEmail).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(bob, HttpMethod.GET, "/users/activity", null, String.class).getBody())
+            .contains("ACCOUNT_DISABLED", "ACCOUNT_ENABLED");
 
         long chiefId = ((Number) ((List<Map<String, Object>>) call(chief, HttpMethod.GET, "/admin/accounts?query=chief.admin", null,
             Map.class).getBody().get("accounts")).get(0).get("id")).longValue();

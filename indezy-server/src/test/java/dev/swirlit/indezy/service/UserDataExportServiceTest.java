@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.dto.AccountSecurityDtos;
 import dev.swirlit.indezy.dto.ActivityDayDto;
 import dev.swirlit.indezy.dto.ActivityReportDto;
 import dev.swirlit.indezy.dto.FreelanceDto;
@@ -16,6 +17,7 @@ import dev.swirlit.indezy.dto.SavedSearchEmailsDto;
 import dev.swirlit.indezy.dto.SeasonDto;
 import dev.swirlit.indezy.dto.UserDto;
 import dev.swirlit.indezy.model.OfferApplication;
+import dev.swirlit.indezy.model.enums.AccountEventType;
 import dev.swirlit.indezy.model.enums.ActivityDayType;
 import dev.swirlit.indezy.model.enums.ActivityReportStatus;
 import dev.swirlit.indezy.model.enums.ApplicationChannel;
@@ -97,6 +99,12 @@ class UserDataExportServiceTest {
     @Mock
     private PublicProfileService publicProfileService;
 
+    @Mock
+    private AccountSessionService accountSessionService;
+
+    @Mock
+    private AccountEventService accountEventService;
+
     @InjectMocks
     private UserDataExportService userDataExportService;
 
@@ -144,6 +152,8 @@ class UserDataExportServiceTest {
             Instant.parse("2026-10-18T07:00:00Z"), 0, new SavedSearchEmailsDto(SavedSearchEmails.DAILY, 8, DocumentLanguage.FR, null), true)));
         when(offerSiteHealthService.excludedSites(5L)).thenReturn(Set.of(OfferSite.YEETS));
         when(offerSiteHealthService.visits(5L)).thenReturn(List.of(new OfferBoardVisitDto(OfferLeftOutSite.MALT, Instant.parse("2026-10-20T08:00:00Z"))));
+        when(accountEventService.export(1L)).thenReturn(List.of(new AccountSecurityDtos.Event(3L, AccountEventType.PASSWORD_CHANGED, null,
+            "Firefox on Linux", LocalDateTime.of(2026, 10, 22, 8, 0))));
         when(offerPublisherBlockService.list(5L)).thenReturn(List.of(new OfferPublisherBlockDto(8L, "Exemple Conseil")));
 
         String json = new String(userDataExportService.exportUserData(1L, 5L), StandardCharsets.UTF_8);
@@ -157,6 +167,9 @@ class UserDataExportServiceTest {
             .contains("Backend Dev")
             .contains("\"freelance\"")
             .contains("\"publicProfile\"")
+            .contains("\"sessions\"")
+            .contains("\"accountActivity\"")
+            .contains("PASSWORD_CHANGED")
             .contains("alice-martin")
             .contains("\"noticePeriodInDays\" : 30")
             .contains("\"reversionRate\" : 0.55")

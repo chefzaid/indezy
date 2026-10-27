@@ -971,6 +971,52 @@
       "hiddenNote": "Le profil est masqué : son lien n'affiche rien tant que vous ne l'activez pas.",
       "loadError": "Impossible de charger les réglages du profil public",
       "saveError": "Impossible d'enregistrer les réglages du profil public"
+    },
+    "sessions": {
+      "title": "Où vous êtes connecté",
+      "hint": "Chaque navigateur ou application connecté à votre compte. Déconnectez ceux que vous ne reconnaissez pas, puis changez votre mot de passe.",
+      "current": "Ce navigateur",
+      "unknownDevice": "Navigateur inconnu",
+      "methods": {
+        "PASSWORD": "Mot de passe",
+        "KEYCLOAK": "Connexion unique Swirlit",
+        "REGISTRATION": "Création du compte"
+      },
+      "signedInOn": "connecté le {{date}}",
+      "lastActive": "actif le {{date}}",
+      "end": "Déconnecter",
+      "endNamed": "Déconnecter {{device}}",
+      "endOthers": "Déconnecter partout ailleurs",
+      "endOthersTitle": "Déconnecter partout ailleurs ?",
+      "endOthersMessage": "Tous les autres navigateurs et applications connectés à votre compte devront se reconnecter. Celui-ci reste connecté.",
+      "ended": "Session déconnectée",
+      "endedOthers": "{{count}} autres sessions déconnectées",
+      "endError": "La session n'a pas pu être fermée",
+      "loadError": "Vos sessions et votre activité n'ont pas pu être chargées"
+    },
+    "activity": {
+      "title": "Activité du compte",
+      "hint": "Connexions et changements de sécurité des 12 derniers mois, les plus récents d'abord.",
+      "empty": "Rien d'enregistré pour l'instant.",
+      "more": "Afficher plus",
+      "refused": {
+        "PASSWORD": "mauvais mot de passe",
+        "TWO_FACTOR": "mauvais code d'authentification"
+      },
+      "types": {
+        "SIGNED_IN": "Connexion ({{method}})",
+        "SIGN_IN_REFUSED": "Connexion refusée : {{reason}}",
+        "SIGNED_OUT": "Déconnexion",
+        "SESSION_REVOKED": "{{device}} déconnecté à distance",
+        "OTHER_SESSIONS_REVOKED": "{{count}} autres sessions déconnectées",
+        "PASSWORD_CHANGED": "Mot de passe changé",
+        "TWO_FACTOR_ENABLED": "Double authentification activée",
+        "TWO_FACTOR_DISABLED": "Double authentification désactivée",
+        "DATA_EXPORTED": "Données exportées",
+        "DATA_IMPORTED": "Données importées",
+        "ACCOUNT_DISABLED": "Compte désactivé par un administrateur",
+        "ACCOUNT_ENABLED": "Compte réactivé par un administrateur"
+      }
     }
   },
   "errors": {

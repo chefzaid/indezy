@@ -8,10 +8,11 @@ import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.exception.TwoFactorRequiredException;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
+import dev.swirlit.indezy.model.enums.AccountEventType;
+import dev.swirlit.indezy.model.enums.SignInMethod;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.UserRepository;
-import dev.swirlit.indezy.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +29,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,7 +46,10 @@ class AuthServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private JwtUtil jwtUtil;
+    private AccountSessionService sessions;
+
+    @Mock
+    private AccountEventService events;
 
     @Mock
     private JwtDecoder keycloakJwtDecoder;
@@ -93,7 +99,7 @@ class AuthServiceTest {
         // Given
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
-        when(jwtUtil.generateToken("test@example.com", 1L)).thenReturn("jwt-token");
+        when(sessions.open(any(User.class), any(SignInMethod.class))).thenReturn("jwt-token");
 
         // When
         LoginResponse response = authService.login(loginRequest);
@@ -106,6 +112,7 @@ class AuthServiceTest {
         assertThat(response.getUser().getEmail()).isEqualTo("test@example.com");
         assertThat(response.getUser().getFirstName()).isEqualTo("John");
         assertThat(response.getUser().getLastName()).isEqualTo("Doe");
+        verify(sessions).open(testUser, SignInMethod.PASSWORD);
     }
 
     @Test
@@ -122,11 +129,12 @@ class AuthServiceTest {
         loginRequest.setTotpCode("000000");
         when(totpService.validateCode("SECRET", "000000")).thenReturn(false);
         assertThatThrownBy(() -> authService.login(loginRequest)).isInstanceOf(ResourceNotFoundException.class);
+        verify(events).record(1L, AccountEventType.SIGN_IN_REFUSED, "TWO_FACTOR");
 
         // Valid code: signed in.
         loginRequest.setTotpCode(" 123456 ");
         when(totpService.validateCode("SECRET", "123456")).thenReturn(true);
-        when(jwtUtil.generateToken("test@example.com", 1L)).thenReturn("jwt-token");
+        when(sessions.open(any(User.class), any(SignInMethod.class))).thenReturn("jwt-token");
         assertThat(authService.login(loginRequest).getToken()).isEqualTo("jwt-token");
     }
 
@@ -164,6 +172,8 @@ class AuthServiceTest {
         assertThatThrownBy(() -> authService.login(loginRequest))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Invalid email or password");
+        verify(events).record(1L, AccountEventType.SIGN_IN_REFUSED, "PASSWORD");
+        verify(sessions, never()).open(any(), any());
     }
 
     @Test
@@ -172,7 +182,7 @@ class AuthServiceTest {
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
         when(passwordEncoder.encode("password123")).thenReturn("hashedPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
-        when(jwtUtil.generateToken("test@example.com", 1L)).thenReturn("jwt-token");
+        when(sessions.open(any(User.class), any(SignInMethod.class))).thenReturn("jwt-token");
 
         // When
         LoginResponse response = authService.register(registerRequest);
@@ -213,7 +223,7 @@ class AuthServiceTest {
                 .build();
         when(keycloakJwtDecoder.decode("keycloak-token")).thenReturn(identity);
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
-        when(jwtUtil.generateToken("test@example.com", 1L)).thenReturn("jwt-token");
+        when(sessions.resumeOrOpen(any(User.class), eq(SignInMethod.KEYCLOAK), isNull())).thenReturn("jwt-token");
 
         LoginResponse response = authService.loginWithKeycloak("keycloak-token");
 
@@ -246,7 +256,7 @@ class AuthServiceTest {
             saved.setId(8L);
             return saved;
         });
-        when(jwtUtil.generateToken("zaid@swirlit.dev", 7L)).thenReturn("jwt-token");
+        when(sessions.resumeOrOpen(any(User.class), eq(SignInMethod.KEYCLOAK), isNull())).thenReturn("jwt-token");
 
         LoginResponse response = authService.loginWithKeycloak("keycloak-token");
 

@@ -525,6 +525,29 @@ Important fields:
 - `steps` (`pipeline_template_steps`: `template_id`, `position`, `title`, `checklist`): each step's title and its
   preparation items, one per line (an embedded collection cannot hold another one, and an item is a single line)
 
+## AccountSession
+
+Table: `account_sessions`
+
+Purpose: the sessions opened by signing in; a token works only while its session is open.
+
+Fields: `userId` (`user_id`, indexed), `sessionKey` (`session_key`, unique UUID carried by the token's `sid` claim),
+`method` (`PASSWORD`, `KEYCLOAK`, `REGISTRATION`), `device` (browser and system named from the User-Agent, up to 80
+characters), `lastSeenAt` (written every 5 minutes at most), `expiresAt` (the token's expiry) and `revokedAt` (set when
+it is signed out or ended). Sessions ended or expired over 30 days ago are deleted nightly.
+
+## AccountEvent
+
+Table: `account_events`
+
+Purpose: the account's activity log, read by its owner on the profile page and included in the data export.
+
+Fields: `userId` (`user_id`), `type` (`SIGNED_IN`, `SIGN_IN_REFUSED`, `SIGNED_OUT`, `SESSION_REVOKED`,
+`OTHER_SESSIONS_REVOKED`, `PASSWORD_CHANGED`, `TWO_FACTOR_ENABLED`, `TWO_FACTOR_DISABLED`, `DATA_EXPORTED`,
+`DATA_IMPORTED`, `ACCOUNT_DISABLED`, `ACCOUNT_ENABLED`), `detail` (the sign-in method, the refusal reason, a count or
+the ended session's device) and `device`; `createdAt` is when it happened. Indexed on (`user_id`, `created_at`); events
+over a year old are deleted nightly.
+
 ## FeatureFlagState
 
 Table: `feature_flags`

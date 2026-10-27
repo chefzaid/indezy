@@ -1,7 +1,9 @@
 package dev.swirlit.indezy.integration;
 
 import dev.swirlit.indezy.dto.TwoFactorCodeRequest;
-import dev.swirlit.indezy.util.JwtUtil;
+import dev.swirlit.indezy.model.enums.SignInMethod;
+import dev.swirlit.indezy.repository.UserRepository;
+import dev.swirlit.indezy.service.AccountSessionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +46,10 @@ class UserManagementIntegrationTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private AccountSessionService accountSessions;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private dev.swirlit.indezy.service.TotpService totpService;
@@ -91,7 +96,7 @@ class UserManagementIntegrationTest {
      */
     @BeforeEach
     void authenticateAsSeededUser() {
-        String token = jwtUtil.generateToken("john.doe@example.com", 1L);
+        String token = accountSessions.open(userRepository.findById(1L).orElseThrow(), SignInMethod.PASSWORD);
         restTemplate.getRestTemplate().getInterceptors().clear();
         restTemplate.getRestTemplate().getInterceptors().add((request, body, execution) -> {
             request.getHeaders().setBearerAuth(token);

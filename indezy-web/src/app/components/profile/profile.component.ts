@@ -27,28 +27,15 @@ import { rejectedPasswordField } from './password-rejection';
 import { ProfileDataImportComponent } from './data-import/profile-data-import.component';
 import { ProfilePublicPageComponent } from './public-page/profile-public-page.component';
 import { CapabilitiesService } from '../../services/admin/capabilities.service';
+import { ProfileSessionsComponent } from './sessions/profile-sessions.component';
 
 @Component({
     selector: 'app-profile',
     imports: [
-    ProfileDataImportComponent,
-    ProfilePublicPageComponent,
-    ReactiveFormsModule,
-    FormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTabsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatSlideToggleModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    TranslateModule,
-    ProfilePersonalInfoComponent,
-    BlockedPublishersComponent,
-    EmailTemplatesSettingsComponent
+    ProfileDataImportComponent, ProfilePublicPageComponent, ProfileSessionsComponent, ProfilePersonalInfoComponent,
+    BlockedPublishersComponent, EmailTemplatesSettingsComponent, ReactiveFormsModule, FormsModule, TranslateModule,
+    MatCardModule, MatButtonModule, MatIconModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
+    MatSlideToggleModule, MatProgressSpinnerModule, MatDividerModule
 ],
     templateUrl: './profile.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,

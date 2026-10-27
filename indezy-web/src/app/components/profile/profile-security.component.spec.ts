@@ -7,6 +7,7 @@ import { of, throwError } from 'rxjs';
 import { UserNotificationSettings, UserPreferences, UserProfile } from '../../models/user-management.models';
 import { NotificationService } from '../../services/notification/notification.service';
 import { PublicProfileService } from '../../services/public-profile/public-profile.service';
+import { AccountSecurityService } from '../../services/account-security/account-security.service';
 import { TwoFactorSetup, UserManagementService } from '../../services/user-management/user-management.service';
 import { ThemeService } from '../../shared/theme/theme.service';
 import { ProfileComponent } from './profile.component';
@@ -51,7 +52,8 @@ describe('ProfileComponent security', () => {
         { provide: NotificationService, useValue: notifications },
         { provide: ThemeService, useValue: jasmine.createSpyObj('ThemeService', ['apply']) },
         // The public profile tab has its own spec; here it loads hidden settings.
-        { provide: PublicProfileService, useValue: { settings: () => of({ enabled: false, slug: null }) } }
+        { provide: PublicProfileService, useValue: { settings: () => of({ enabled: false, slug: null }) } },
+        { provide: AccountSecurityService, useValue: { sessions: () => of([]), activity: () => of({ events: [], total: 0, page: 0, size: 20 }) } }
       ]
     });
     fixture = TestBed.createComponent(ProfileComponent);

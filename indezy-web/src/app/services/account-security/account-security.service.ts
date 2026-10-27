@@ -1,0 +1,31 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { AccountEventPage, AccountSession } from '../../models';
+
+/** The signed-in account's open sessions and its activity log. */
+@Injectable({
+  providedIn: 'root'
+})
+export class AccountSecurityService {
+  private readonly API_URL = `${environment.apiUrl}/users`;
+
+  constructor(private readonly http: HttpClient) {}
+
+  sessions(): Observable<AccountSession[]> {
+    return this.http.get<AccountSession[]>(`${this.API_URL}/sessions`);
+  }
+
+  end(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/sessions/${id}`);
+  }
+
+  endOthers(): Observable<{ count: number }> {
+    return this.http.post<{ count: number }>(`${this.API_URL}/sessions/end-others`, null);
+  }
+
+  activity(page: number): Observable<AccountEventPage> {
+    return this.http.get<AccountEventPage>(`${this.API_URL}/activity`, { params: new HttpParams().set('page', page) });
+  }
+}

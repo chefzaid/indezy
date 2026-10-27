@@ -48,6 +48,7 @@ export class AuthService {
   }
 
   logout(): void {
+    this.endSession(this.getToken());
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSubject.next(null);
@@ -141,5 +142,22 @@ export class AuthService {
   private getUserFromStorage(): User | null {
     const userStr = localStorage.getItem(this.USER_KEY);
     return userStr ? JSON.parse(userStr) : null;
+  }
+
+  /**
+   * Ends the token's session on the server, so the token stops working even if copied. A keepalive request survives
+   * the redirect to Keycloak's sign-out that follows; a failure leaves the session to expire with its token.
+   */
+  private endSession(token: string | null): void {
+    if (!token) {
+      return;
+    }
+    try {
+      fetch(`${environment.apiUrl}/users/sessions/current`, {
+        method: 'DELETE', keepalive: true, headers: { Authorization: `Bearer ${token}` }
+      }).catch(() => undefined);
+    } catch {
+      // No fetch (an old browser): the session expires with its token.
+    }
   }
 }

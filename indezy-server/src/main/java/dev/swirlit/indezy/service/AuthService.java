@@ -8,10 +8,12 @@ import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.exception.TwoFactorRequiredException;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
+import dev.swirlit.indezy.model.enums.AccountEventType;
+import dev.swirlit.indezy.model.enums.SignInMethod;
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.UserRepository;
-import dev.swirlit.indezy.util.JwtUtil;
+import dev.swirlit.indezy.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,7 +35,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final FreelanceRepository freelanceRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final AccountSessionService sessions;
+    private final AccountEventService events;
     private final JwtDecoder keycloakJwtDecoder;
     private final TotpService totpService;
     private final JobBoardSources jobBoardSources;
@@ -50,12 +53,13 @@ public class AuthService {
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            events.record(user.getId(), AccountEventType.SIGN_IN_REFUSED, "PASSWORD");
             throw new ResourceNotFoundException("Invalid email or password");
         }
         requireTwoFactorCode(user, request.getTotpCode());
 
         Freelance freelance = ensureFreelanceProfile(user);
-        String token = jwtUtil.generateToken(user.getEmail(), user.getId());
+        String token = sessions.open(user, SignInMethod.PASSWORD);
         
         log.debug("Login successful for user ID: {}", user.getId());
         return toLoginResponse(user, freelance.getId(), token);
@@ -70,6 +74,7 @@ public class AuthService {
             throw new TwoFactorRequiredException();
         }
         if (!totpService.validateCode(user.getTwoFactorSecret(), code.trim())) {
+            events.record(user.getId(), AccountEventType.SIGN_IN_REFUSED, "TWO_FACTOR");
             throw new ResourceNotFoundException("Invalid email or password");
         }
     }
@@ -91,7 +96,7 @@ public class AuthService {
         user = userRepository.save(user);
 
         Freelance freelance = ensureFreelanceProfile(user);
-        String token = jwtUtil.generateToken(user.getEmail(), user.getId());
+        String token = sessions.open(user, SignInMethod.REGISTRATION);
         
         log.debug("Registration successful for user ID: {}", user.getId());
         return toLoginResponse(user, freelance.getId(), token);
@@ -128,7 +133,8 @@ public class AuthService {
         }
 
         Freelance freelance = ensureFreelanceProfile(user);
-        String token = jwtUtil.generateToken(user.getEmail(), user.getId());
+        // The app exchanges the Keycloak identity on every load: the session its token belongs to goes on.
+        String token = sessions.resumeOrOpen(user, SignInMethod.KEYCLOAK, SecurityUtils.getCurrentSessionId());
         return toLoginResponse(user, freelance.getId(), token);
     }
 

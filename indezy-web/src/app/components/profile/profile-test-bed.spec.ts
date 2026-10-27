@@ -9,6 +9,7 @@ import { SkillNames } from '../../shared/utils/skill-names';
 import { UserNotificationSettings, UserPreferences, UserProfile } from '../../models/user-management.models';
 import { NotificationService } from '../../services/notification/notification.service';
 import { PublicProfileService } from '../../services/public-profile/public-profile.service';
+import { AccountSecurityService } from '../../services/account-security/account-security.service';
 import { UserManagementService } from '../../services/user-management/user-management.service';
 import { LANGUAGE_STORAGE_KEY } from '../../shared/locale/app-locale';
 import { ThemeService } from '../../shared/theme/theme.service';
@@ -65,7 +66,8 @@ export function profileTestBed(): ProfileTestBed {
           { provide: NotificationService, useValue: bed.notifications },
           { provide: ThemeService, useValue: bed.theme },
           // The public profile tab has its own spec; here it loads hidden settings.
-          { provide: PublicProfileService, useValue: { settings: () => of({ enabled: false, slug: null }) } }
+          { provide: PublicProfileService, useValue: { settings: () => of({ enabled: false, slug: null }) } },
+          { provide: AccountSecurityService, useValue: { sessions: () => of([]), activity: () => of({ events: [], total: 0, page: 0, size: 20 }) } }
         ]
       });
       bed.navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);

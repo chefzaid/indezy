@@ -6,8 +6,11 @@ import dev.swirlit.indezy.dto.AdminDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.User;
+import dev.swirlit.indezy.model.enums.AccountEventType;
 import dev.swirlit.indezy.model.enums.FeatureFlag;
 import dev.swirlit.indezy.repository.UserRepository;
+import dev.swirlit.indezy.service.AccountEventService;
+import dev.swirlit.indezy.service.AccountSessionService;
 import dev.swirlit.indezy.service.FeatureFlagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +43,8 @@ public class AdminService {
     private final AdminProperties admins;
     private final FeatureAdoptionMetrics adoption;
     private final FeatureFlagService flags;
+    private final AccountSessionService sessions;
+    private final AccountEventService events;
     private final Clock clock;
 
     @Transactional(readOnly = true)
@@ -80,6 +85,10 @@ public class AdminService {
         }
         account.setDisabledAt(disabled ? LocalDateTime.now(clock) : null);
         users.save(account);
+        if (disabled) {
+            sessions.endAll(accountId);
+        }
+        events.record(accountId, disabled ? AccountEventType.ACCOUNT_DISABLED : AccountEventType.ACCOUNT_ENABLED);
         log.info("Administrator {} {} account {}", adminId, disabled ? "disabled" : "enabled", accountId);
         return toDto(account);
     }

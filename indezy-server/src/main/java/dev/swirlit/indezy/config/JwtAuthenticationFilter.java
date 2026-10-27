@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.config;
 
-import dev.swirlit.indezy.repository.UserRepository;
+import dev.swirlit.indezy.service.AccountSessionService;
+import dev.swirlit.indezy.util.SecurityUtils;
 import dev.swirlit.indezy.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Authenticates requests carrying a "Bearer" JWT in the Authorization header.
@@ -31,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
+    private final AccountSessionService sessions;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -45,8 +47,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 String username = jwtUtil.extractUsername(token);
                 Long userId = jwtUtil.extractUserId(token);
-                // A signed token outlives its account's deletion or disabling: such an account is not signed in.
-                if (Boolean.TRUE.equals(jwtUtil.validateToken(token, username)) && userId != null && userRepository.isActive(userId)) {
+                // A signed token outlives its session and its account: it works only while both are open and active.
+                Optional<Long> session = Boolean.TRUE.equals(jwtUtil.validateToken(token, username)) ?
+                    sessions.authenticate(jwtUtil.extractSessionKey(token), userId) : Optional.empty();
+                if (session.isPresent()) {
+                    request.setAttribute(SecurityUtils.SESSION_ATTRIBUTE, session.get());
                     UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userId, null, List.of());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

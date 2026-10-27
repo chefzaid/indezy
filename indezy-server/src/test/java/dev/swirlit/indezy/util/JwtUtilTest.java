@@ -24,7 +24,7 @@ class JwtUtilTest {
         Long userId = 1L;
 
         // When
-        String token = jwtUtil.generateToken(username, userId);
+        String token = jwtUtil.generateToken(username, userId, "session-key");
 
         // Then
         assertThat(token).isNotNull();
@@ -37,7 +37,7 @@ class JwtUtilTest {
         // Given
         String username = "test@example.com";
         Long userId = 1L;
-        String token = jwtUtil.generateToken(username, userId);
+        String token = jwtUtil.generateToken(username, userId, "session-key");
 
         // When
         String extractedUsername = jwtUtil.extractUsername(token);
@@ -51,10 +51,11 @@ class JwtUtilTest {
         // Given
         String username = "test@example.com";
         Long userId = 1L;
-        String token = jwtUtil.generateToken(username, userId);
+        String token = jwtUtil.generateToken(username, userId, "session-key");
 
         // When
         Long extractedUserId = jwtUtil.extractUserId(token);
+        assertThat(jwtUtil.extractSessionKey(token)).isEqualTo("session-key");
 
         // Then
         assertThat(extractedUserId).isEqualTo(userId);
@@ -65,7 +66,7 @@ class JwtUtilTest {
         // Given
         String username = "test@example.com";
         Long userId = 1L;
-        String token = jwtUtil.generateToken(username, userId);
+        String token = jwtUtil.generateToken(username, userId, "session-key");
 
         // When
         Boolean isValid = jwtUtil.validateToken(token, username);
@@ -80,7 +81,7 @@ class JwtUtilTest {
         String username = "test@example.com";
         String differentUsername = "different@example.com";
         Long userId = 1L;
-        String token = jwtUtil.generateToken(username, userId);
+        String token = jwtUtil.generateToken(username, userId, "session-key");
 
         // When
         Boolean isValid = jwtUtil.validateToken(token, differentUsername);
@@ -94,7 +95,7 @@ class JwtUtilTest {
         // Given
         String username = "test@example.com";
         Long userId = 1L;
-        String token = jwtUtil.generateToken(username, userId);
+        String token = jwtUtil.generateToken(username, userId, "session-key");
 
         // When
         var expiration = jwtUtil.extractExpiration(token);
