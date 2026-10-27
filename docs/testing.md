@@ -185,6 +185,11 @@ Representative backend tests:
   credited invoice no longer payable nor overdue, the credit note's PDF), `InvoicePdfRendererTest` (a company's capital, registration and VAT in French with a
   wrapped line and notes; a draft of an individual entrepreneur exempt from VAT) and `InvoiceTotalsTest` (each line and
   its VAT to the cent)
+- purchase orders: `PurchaseOrderIntegrationTest` (the days of the activity reports used against an order's ceiling over
+  its period, an absence and a day before the order left out; an amendment adding days and an end; a ceiling in euros at
+  the daily rate, over it; the dashboard's alert from 80 %; no start, no ceiling, an end before the start, an empty
+  amendment or another mission's order refused; Bob kept out; the data export; deleted with the order's amendments and
+  with the mission)
 - accounting export: `AccountingExportIntegrationTest` (the FEC entries of an invoice, its credit note and its payment net
   of the credit, line by line; the register in French and English with its totals and a formula-like client name kept as
   text; no draft, nothing in another year, none of Bob's; a year or format out of range refused) and `CsvTextTest`
@@ -245,6 +250,10 @@ Representative frontend specs:
   `invoice-draft-dialog.component.spec.ts` (totals counted as the server does, the client's missions, a draft changed
   and trimmed, a credit note's client kept, fifty lines at most), `invoice-date-dialog.component.spec.ts`,
   `invoice-errors.spec.ts` and `activity-report-card.component.spec.ts` (a validated month invoiced, or invoiced already)
+- purchase orders: `purchase-orders-card.component.spec.ts` (usage in days and euros, the alert, amendments, days over,
+  no rate, none yet, adding, amending, changing, deleting once confirmed, failures), `purchase-order-dialog.component.spec.ts`
+  (an order's start and ceiling, an end before the start, an amendment adding something) and
+  `dashboard-reminders.component.spec.ts` (the orders near or over their ceiling, linking to their mission)
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy
@@ -432,6 +441,10 @@ axe-core) hide the charts, move the recent opportunities up, and find the layout
 
 Billing scenarios (`e2e/billing.spec.ts`, on a desktop and on a phone, audited with axe-core) fill in the billing
 identity, a wrong IBAN refused, until the tab says invoices can be issued.
+
+Purchase order scenarios (`e2e/purchase-orders.spec.ts`, on a desktop and on a phone, the dialog and the card audited
+with axe-core) add an order to a won mission, refused without a ceiling, see its alert at 87 %, then add an amendment
+that clears it.
 
 Invoice scenarios (`e2e/invoices.spec.ts`, on a desktop and on a phone, the page and the draft dialog audited with
 axe-core) write a draft, issue it, mark an overdue invoice paid, credit part of it and download the year's FEC.

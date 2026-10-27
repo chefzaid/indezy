@@ -25,6 +25,29 @@
         }
       </section>
     }
+    @if (getPurchaseOrderAlerts().length > 0) {
+      <section class="reminder-card accent-orange" data-purchase-order-alerts>
+        <h3 class="reminder-title">
+          <mat-icon>assignment_late</mat-icon>
+          {{ 'dashboard.charts.purchaseOrderAlerts' | translate }}
+          <span class="count">{{ getPurchaseOrderAlerts().length }}</span>
+        </h3>
+        @for (alert of visible(getPurchaseOrderAlerts(), 'purchaseOrders'); track alert.orderId) {
+          <a class="reminder-row" [routerLink]="['/projects', alert.projectId]">
+            <span class="primary">{{ alert.number }} · {{ 'dashboard.charts.percentUsed' | translate:{ percent: alert.percentUsed } }}</span>
+            <span class="secondary">{{ alert.projectRole }}</span>
+            @if (alert.daysLeft !== null) {
+              <span class="meta">{{ (alert.exceeded ? 'purchaseOrders.daysOver' : 'purchaseOrders.daysLeft') | translate:{ days: (alert.daysLeft < 0 ? -alert.daysLeft : alert.daysLeft) } }}</span>
+            }
+          </a>
+        }
+        @if (getPurchaseOrderAlerts().length > collapsedSize) {
+          <button type="button" class="toggle-btn" (click)="toggle('purchaseOrders')">
+            {{ isExpanded('purchaseOrders') ? ('dashboard.showLess' | translate) : ('dashboard.showAll' | translate:{ count: getPurchaseOrderAlerts().length }) }}
+          </button>
+        }
+      </section>
+    }
     @if (getUpcomingInterviews().length > 0) {
       <section class="reminder-card accent-teal">
         <h3 class="reminder-title">

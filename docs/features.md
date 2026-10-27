@@ -871,6 +871,29 @@ every project resource. The validation link reaches `GET /public/activity-report
 and `POST /public/activity-reports/decision` with its token in the `X-Report-Token` header (see
 [Security](./security.md#activity-report-validation-links)). Validated days are what the planned invoices will bill.
 
+## Purchase Orders
+
+A won mission's page shows its **Purchase orders** under the activity reports: the client's orders (bons de commande)
+and their amendments (avenants), each order followed against the days of the mission's activity reports.
+
+- **Add a purchase order** asks its number, start, optional end (open-ended without one), a ceiling in days, in euros
+  before VAT, or both, and notes. **Add an amendment**, in the order's menu, asks the amendment's number and what it
+  adds: days, euros and a later end (at least one). An amendment adds its days and euros to its order's ceilings, and
+  the latest end of the order and its amendments is when the order ends. Orders and amendments can be changed and
+  deleted; deleting an order deletes its amendments.
+- **Usage** counts the days worked in the mission's activity reports (any status; half days count for 0.5, absences not
+  at all) between the order's start and its end, and their amount at the mission's daily rate. The card shows the days
+  and euros used against each ceiling with a progress bar of the closest one, and the days left (or over) before it;
+  without a daily rate, a ceiling in euros cannot be followed and the card says to set the rate.
+- **Alert**: from 80 % of a ceiling the order says it is time to ask for an amendment, and over 100 % that it no longer
+  covers the work. The dashboard's reminders list the running orders (started, not ended) at 80 % or more, the most
+  used first, with their mission and the days left, linking to the mission.
+- Purchase orders are part of the account data export and are deleted with their mission.
+
+API: `GET` and `POST /projects/{projectId}/purchase-orders` (an amendment names its order in `amendsId`), `PUT` and
+`DELETE /purchase-orders/{id}`; each write answers with the order as it now stands, with its amendments and its usage.
+Another workspace's mission or order answers `404`; the dashboard statistics carry `purchaseOrderAlerts`.
+
 ## Kanban And Pipeline View
 
 The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs. Cards can be pinned as favorites (`PATCH /projects/{id}/favorite`), which keeps hot leads at the top of their column. Within a column, cards can be dragged to set a manual priority, persisted through `PUT /projects/kanban/{freelanceId}/reorder` (favorites still pin above the manual order). Each card shows a card-aging indicator (days since last activity) and highlights opportunities after the account's configured inactivity period (14 days by default). A quick-add button on each column opens a minimal dialog (role, client, daily rate) that creates an opportunity directly in that column's status, to be enriched later. Moving a card into the LOST column prompts for a loss reason, which feeds a "why opportunities were lost" breakdown on the dashboard. Cards that share the same client and role (case-insensitive) as another opportunity are flagged as possible duplicates for manual deduplication.

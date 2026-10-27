@@ -1,5 +1,6 @@
 import { ProjectResourcesComponent } from './project-resources.component';
 import { ActivityReportCardComponent } from '../activity-report-card/activity-report-card.component';
+import { PurchaseOrdersCardComponent } from '../purchase-orders/purchase-orders-card.component';
 import { ProjectLinkComponent } from '../../../shared/components/project-link/project-link.component';
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, Injector, ViewChild, afterNextRender, inject } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
@@ -60,6 +61,7 @@ import { ProjectEmailButtonComponent } from '../project-email/project-email-butt
         ProjectLinkComponent,
         ProjectResourcesComponent,
         ActivityReportCardComponent,
+        PurchaseOrdersCardComponent,
         StepChecklistComponent,
         ProjectArchiveActionComponent,
         StepTemplatesComponent,

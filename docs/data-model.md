@@ -356,6 +356,20 @@ Behavior:
 - days and comment change only in `DRAFT` or `REJECTED`; submitting issues a new link and clears an earlier decision; reopening returns to `DRAFT` and clears the link and the decision
 - timestamps are `Instant` values, so the API returns them with their UTC offset
 
+## PurchaseOrder
+
+Table: `purchase_orders`
+
+Purpose: a client's purchase order for a mission, or an amendment to one, followed against the mission's activity
+reports.
+
+Fields: project (deleted with it), `amendsId` (the order an amendment adds to; empty for an order), `number`,
+`periodStart` (an order's start; empty for an amendment), `periodEnd` (empty for an open-ended order, or an amendment
+that keeps its order's end), `dayCeiling` and `amountCeiling` (days and euros before VAT, to the hundredth; an order has
+at least one, an amendment adds them) and `notes`. Usage is computed, not stored: the worked days of the mission's
+activity reports over the order's period, their amount at the mission's daily rate, and the share of the closest
+ceiling (`OK`, `NEAR` from 80 %, `EXCEEDED` over 100 %).
+
 ## JobOffer
 
 Tables: `job_offers`, `job_offer_skills`

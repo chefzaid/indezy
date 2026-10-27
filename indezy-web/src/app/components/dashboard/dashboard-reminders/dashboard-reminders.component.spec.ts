@@ -185,4 +185,22 @@ describe('DashboardRemindersComponent', () => {
     expect(card.textContent).toContain('Capgemini');
     expect(rows(card).map(row => row.getAttribute('href'))).toEqual(['/invoices']);
   });
+
+  it('lists the purchase orders near or over their ceiling, linking to their mission', () => {
+    const element = render({
+      purchaseOrderAlerts: [
+        { orderId: 1, projectId: 8, projectRole: 'Architecte', number: 'BC-118', percentUsed: 116, daysLeft: -0.5, exceeded: true },
+        { orderId: 2, projectId: 9, projectRole: 'Lead dev', number: 'BC-120', percentUsed: 85, daysLeft: 3, exceeded: false },
+        { orderId: 3, projectId: 9, projectRole: 'Lead dev', number: 'BC-121', percentUsed: 80, daysLeft: null, exceeded: false }
+      ]
+    });
+
+    expect(component.hasReminders()).toBe(true);
+    const card = element.querySelector<HTMLElement>('[data-purchase-order-alerts]')!;
+    expect(rows(card).map(row => row.getAttribute('href'))).toEqual(['/projects/8', '/projects/9', '/projects/9']);
+    expect(rows(card)[0].textContent).toContain('BC-118');
+    expect(rows(card)[0].textContent).toContain('purchaseOrders.daysOver');
+    expect(rows(card)[1].textContent).toContain('purchaseOrders.daysLeft');
+    expect(rows(card)[2].querySelector('.meta')).toBeNull();
+  });
 });

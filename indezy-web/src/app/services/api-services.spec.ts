@@ -20,6 +20,7 @@ import { AdminService } from './admin/admin.service';
 import { AccountSecurityService } from './account-security/account-security.service';
 import { BillingService } from './billing/billing.service';
 import { InvoiceService } from './invoice/invoice.service';
+import { PurchaseOrderService } from './purchase-order/purchase-order.service';
 import { ProjectStatus, StepStatus } from '../models';
 
 /** One HTTP wrapper call: what the service is asked, and the request it must send. */
@@ -70,6 +71,7 @@ describe('API services', () => {
   const accountSecurity = (): AccountSecurityService => TestBed.inject(AccountSecurityService);
   const billing = (): BillingService => TestBed.inject(BillingService);
   const invoices = (): InvoiceService => TestBed.inject(InvoiceService);
+  const purchaseOrders = (): PurchaseOrderService => TestBed.inject(PurchaseOrderService);
   const linkToken = { 'X-Report-Token': 'link-token' };
   const decision = { approved: false, validatorName: 'Jean Dupont', comment: 'Le 11 est férié' };
 
@@ -174,6 +176,12 @@ describe('API services', () => {
     { name: 'credit note of an invoice', call: () => invoices().creditNote(5), method: 'POST', url: `${api}/invoices/5/credit-note` },
     { name: 'accountant export', call: () => invoices().exportYear(2026, 'REGISTER', 'EN'), method: 'GET',
       url: `${api}/invoices/export/2026`, params: { format: 'REGISTER', language: 'EN' }, response: new Blob(['csv']) },
+    { name: 'purchase orders of a mission', call: () => purchaseOrders().list(2), method: 'GET', url: `${api}/projects/2/purchase-orders` },
+    { name: 'add a purchase order', call: () => purchaseOrders().create(2, { number: 'BC' } as never), method: 'POST',
+      url: `${api}/projects/2/purchase-orders`, body: { number: 'BC' } },
+    { name: 'change a purchase order', call: () => purchaseOrders().update(4, { number: 'BC' } as never), method: 'PUT',
+      url: `${api}/purchase-orders/4`, body: { number: 'BC' } },
+    { name: 'delete a purchase order', call: () => purchaseOrders().delete(4), method: 'DELETE', url: `${api}/purchase-orders/4` },
     { name: 'change a draft', call: () => invoices().update(5, { clientId: 3 } as never), method: 'PUT', url: `${api}/invoices/5`, body: { clientId: 3 } },
     { name: 'delete a draft', call: () => invoices().delete(5), method: 'DELETE', url: `${api}/invoices/5` },
     { name: 'issue an invoice', call: () => invoices().issue(5, '2026-10-27'), method: 'POST', url: `${api}/invoices/5/issue`, body: { issueDate: '2026-10-27' } },

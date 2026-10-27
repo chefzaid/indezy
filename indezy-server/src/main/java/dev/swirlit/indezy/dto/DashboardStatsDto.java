@@ -49,6 +49,8 @@ public class DashboardStatsDto {
     private List<FollowUpDue> followUpsDue;
     /** Issued invoices past their due date, the oldest due first. */
     private List<OverdueInvoice> overdueInvoices;
+    /** Purchase orders running today with 80 % of a ceiling used or more, the most used first. */
+    private List<PurchaseOrderAlert> purchaseOrderAlerts;
     /** Interview steps planned in the next seven days, soonest first. */
     private List<UpcomingInterview> upcomingInterviews;
     private List<SkillTrend> skillTrends;
@@ -195,6 +197,22 @@ public class DashboardStatsDto {
         private BigDecimal total;
         private LocalDate dueDate;
         private long daysLate;
+    }
+
+    /** A purchase order close to its ceiling, or over it. */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PurchaseOrderAlert {
+        private Long orderId;
+        private Long projectId;
+        private String projectRole;
+        private String number;
+        private int percentUsed;
+        /** Days left before the ceiling, negative once over it; empty when it cannot be told in days. */
+        private BigDecimal daysLeft;
+        private boolean exceeded;
     }
 
     @Data

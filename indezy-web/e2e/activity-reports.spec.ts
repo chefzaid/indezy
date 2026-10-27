@@ -45,6 +45,7 @@ async function mockMission(page: Page, language: string): Promise<{ saved: () =>
   } }));
   await page.route('**/api/projects/42/notes', route => route.fulfill({ json: [] }));
   await page.route('**/api/interview-steps/**', route => route.fulfill({ json: [] }));
+  await page.route('**/api/projects/42/purchase-orders', route => route.fulfill({ json: [] }));
   await page.route('**/api/projects/42/activity-reports', route =>
     route.fulfill({ json: savedDays.length ? [report(status, savedDays)] : [] }));
   await page.route('**/api/projects/42/activity-reports/2026/11', async route => {

@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>{{ titleKey | translate }}</h2>
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-dialog-content class="fields">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ (isAmendment ? 'purchaseOrders.amendmentNumber' : 'purchaseOrders.number') | translate }}</mat-label>
+      <input matInput formControlName="number" maxlength="60" required data-order-number>
+    </mat-form-field>
+    <div class="row">
+      @if (!isAmendment) {
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'purchaseOrders.periodStart' | translate }}</mat-label>
+          <input matInput type="date" formControlName="periodStart" required data-order-start>
+        </mat-form-field>
+      }
+      <mat-form-field appearance="outline">
+        <mat-label>{{ (isAmendment ? 'purchaseOrders.newEnd' : 'purchaseOrders.periodEnd') | translate }}</mat-label>
+        <input matInput type="date" formControlName="periodEnd" data-order-end>
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ (isAmendment ? 'purchaseOrders.addedDays' : 'purchaseOrders.dayCeiling') | translate }}</mat-label>
+        <input matInput type="number" min="0.5" step="0.5" formControlName="dayCeiling" data-order-days>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ (isAmendment ? 'purchaseOrders.addedAmount' : 'purchaseOrders.amountCeiling') | translate }}</mat-label>
+        <input matInput type="number" min="1" formControlName="amountCeiling" data-order-amount>
+      </mat-form-field>
+    </div>
+    @if (form.touched && form.errors) {
+      <p class="form-error" role="alert" data-order-error>
+        @if (form.hasError('endBeforeStart')) {
+          {{ 'purchaseOrders.endBeforeStart' | translate }}
+        } @else if (form.hasError('nothingAdded')) {
+          {{ 'purchaseOrders.nothingAdded' | translate }}
+        } @else {
+          {{ 'purchaseOrders.ceilingRequired' | translate }}
+        }
+      </p>
+    }
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'common.notes' | translate }}</mat-label>
+      <textarea matInput formControlName="notes" rows="2" maxlength="500"></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+    <button mat-raised-button color="primary" type="submit" data-save-order>{{ 'common.save' | translate }}</button>
+  </mat-dialog-actions>
+</form>

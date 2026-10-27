@@ -14,6 +14,7 @@ import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.repository.ActivityReportRepository;
+import dev.swirlit.indezy.repository.PurchaseOrderRepository;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.ContactInteractionRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
@@ -56,6 +57,7 @@ public class ProjectService {
     private final ProjectAttachmentRepository projectAttachmentRepository;
     private final ContactInteractionRepository contactInteractionRepository;
     private final ActivityReportRepository activityReportRepository;
+    private final PurchaseOrderRepository purchaseOrderRepository;
     private final JobOfferStateRepository jobOfferStateRepository;
     private final ProjectMapper projectMapper;
     private final SeasonService seasonService;
@@ -270,6 +272,7 @@ public class ProjectService {
         projectNoteRepository.deleteByProjectId(id);
         projectAttachmentRepository.deleteByProjectId(id);
         activityReportRepository.deleteByProjectId(id);
+        purchaseOrderRepository.deleteByProjectId(id);
         // An offer imported as this project can be imported again.
         jobOfferStateRepository.clearImportedProject(id);
         projectRepository.deleteById(id);

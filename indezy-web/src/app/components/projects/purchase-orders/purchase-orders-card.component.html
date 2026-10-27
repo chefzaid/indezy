@@ -1,0 +1,106 @@
+<mat-card class="orders-card" data-purchase-orders>
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>assignment</mat-icon>
+      {{ 'purchaseOrders.title' | translate }}
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (loading) {
+      <mat-spinner diameter="28" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
+    } @else {
+      @for (order of orders; track order.id) {
+        <section class="order" [attr.data-order]="order.id">
+          <div class="order-head">
+            <div class="order-title">
+              <h3 class="number">{{ order.number }}</h3>
+              <span class="period">
+                {{ order.periodStart | date:'mediumDate' }} →
+                {{ order.usage.periodEnd ? (order.usage.periodEnd | date:'mediumDate') : ('purchaseOrders.openEnded' | translate) }}
+              </span>
+            </div>
+            <button mat-icon-button type="button" [matMenuTriggerFor]="orderMenu"
+              [attr.aria-label]="'purchaseOrders.actions' | translate:{ number: order.number }">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #orderMenu="matMenu">
+              <button mat-menu-item type="button" (click)="edit(order)">
+                <mat-icon>edit</mat-icon><span>{{ 'common.edit' | translate }}</span>
+              </button>
+              <button mat-menu-item type="button" (click)="amend(order)">
+                <mat-icon>post_add</mat-icon><span>{{ 'purchaseOrders.amend' | translate }}</span>
+              </button>
+              <button mat-menu-item type="button" (click)="remove(order.id, order.number, order.amendments.length > 0)">
+                <mat-icon>delete</mat-icon><span>{{ 'common.delete' | translate }}</span>
+              </button>
+            </mat-menu>
+          </div>
+
+          @if (percent(order) !== null) {
+            <mat-progress-bar mode="determinate" [value]="percent(order)" [class.level-NEAR]="order.usage.level === 'NEAR'"
+              [class.level-EXCEEDED]="order.usage.level === 'EXCEEDED'"
+              [attr.aria-label]="'purchaseOrders.used' | translate:{ percent: percent(order) }"></mat-progress-bar>
+          }
+          <p class="usage" data-order-usage>
+            @if (order.usage.dayCeiling !== null) {
+              <span>{{ 'purchaseOrders.daysUsed' | translate:{ used: (order.usage.workedDays | number:'1.0-2'), ceiling: (order.usage.dayCeiling | number:'1.0-2') } }}</span>
+            }
+            @if (order.usage.amountCeiling !== null) {
+              @if (order.usage.amount !== null) {
+                <span>{{ 'purchaseOrders.amountUsed' | translate:{ used: (order.usage.amount | number:'1.0-2'), ceiling: (order.usage.amountCeiling | number:'1.0-2') } }}</span>
+              } @else {
+                <span>{{ 'purchaseOrders.noRate' | translate }}</span>
+              }
+            }
+            @if (order.usage.daysLeft !== null) {
+              <span class="left">{{ (order.usage.daysLeft < 0 ? 'purchaseOrders.daysOver' : 'purchaseOrders.daysLeft') | translate:{ days: (order.usage.daysLeft < 0 ? -order.usage.daysLeft : order.usage.daysLeft) | number:'1.0-2' } }}</span>
+            }
+          </p>
+          @if (order.usage.level !== 'OK') {
+            <p class="alert" [class.level-NEAR]="order.usage.level === 'NEAR'" [class.level-EXCEEDED]="order.usage.level === 'EXCEEDED'"
+              data-order-alert>
+              <mat-icon aria-hidden="true">warning</mat-icon>
+              {{ 'purchaseOrders.levels.' + order.usage.level | translate }}
+            </p>
+          }
+          @if (order.notes) {
+            <p class="notes">{{ order.notes }}</p>
+          }
+          @for (amendment of order.amendments; track amendment.id) {
+            <div class="amendment" [attr.data-amendment]="amendment.id">
+              <mat-icon aria-hidden="true">subdirectory_arrow_right</mat-icon>
+              <span class="amendment-text">
+                <strong>{{ amendment.number }}</strong>
+                @if (amendment.dayCeiling !== null) {
+                  · {{ 'purchaseOrders.plusDays' | translate:{ days: (amendment.dayCeiling | number:'1.0-2') } }}
+                }
+                @if (amendment.amountCeiling !== null) {
+                  · {{ 'purchaseOrders.plusAmount' | translate:{ amount: (amendment.amountCeiling | number:'1.0-2') } }}
+                }
+                @if (amendment.periodEnd) {
+                  · {{ 'purchaseOrders.until' | translate:{ date: (amendment.periodEnd | date:'mediumDate') } }}
+                }
+              </span>
+              <button mat-icon-button type="button" (click)="editAmendment(order, amendment)"
+                [attr.aria-label]="'purchaseOrders.editAmendment' | translate:{ number: amendment.number }">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button type="button" (click)="remove(amendment.id, amendment.number, false)"
+                [attr.aria-label]="'purchaseOrders.deleteAmendment' | translate:{ number: amendment.number }">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </section>
+      } @empty {
+        <p class="empty">{{ 'purchaseOrders.none' | translate }}</p>
+      }
+      <div>
+        <button mat-stroked-button type="button" (click)="add()" data-add-order>
+          <mat-icon>add</mat-icon>
+          {{ 'purchaseOrders.add' | translate }}
+        </button>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

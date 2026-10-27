@@ -18,6 +18,7 @@ import dev.swirlit.indezy.repository.ProjectNoteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import dev.swirlit.indezy.repository.ActivityReportRepository;
+import dev.swirlit.indezy.repository.PurchaseOrderRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -62,6 +63,9 @@ abstract class ProjectServiceTestSupport {
 
     @Mock
     ActivityReportRepository activityReportRepository;
+
+    @Mock
+    PurchaseOrderRepository purchaseOrderRepository;
 
     @Mock
     JobOfferStateRepository jobOfferStateRepository;

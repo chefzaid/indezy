@@ -86,6 +86,7 @@
       <div class="details-grid">
         @if (project.status === 'WON') {
           <app-activity-report-card [project]="project"></app-activity-report-card>
+          <app-purchase-orders-card [projectId]="project.id!"></app-purchase-orders-card>
         }
         <!-- Project Information -->
         <mat-card class="info-card">

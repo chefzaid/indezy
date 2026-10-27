@@ -1,3 +1,4 @@
+import { PurchaseOrderAlert } from './purchase-order.models';
 // Project related interfaces and types
 
 export enum ProjectStatus {
@@ -153,6 +154,8 @@ export interface DashboardStatsDto {
   followUpsDue?: FollowUpDue[];
   /** Issued invoices past their due date, the oldest due first. */
   overdueInvoices?: OverdueInvoice[];
+  /** Running purchase orders with 80 % of a ceiling used or more, the most used first. */
+  purchaseOrderAlerts?: PurchaseOrderAlert[];
   /** Interview steps planned in the next seven days, soonest first. */
   upcomingInterviews?: UpcomingInterview[];
   skillTrends: SkillTrend[];

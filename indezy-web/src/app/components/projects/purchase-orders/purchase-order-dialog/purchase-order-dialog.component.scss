@@ -1,0 +1,18 @@
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: min(520px, 100%);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0 12px;
+}
+
+.form-error {
+  margin: 0 0 12px;
+  color: var(--mat-sys-error, #b3261e);
+  font-size: 0.875rem;
+}

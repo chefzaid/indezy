@@ -1,0 +1,140 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+
+  mat-icon {
+    color: var(--app-link);
+  }
+}
+
+mat-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+}
+
+.order {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+}
+
+.order-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.order-title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  .number {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .period {
+    font-size: 0.85rem;
+    color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+  }
+}
+
+mat-progress-bar.level-NEAR {
+  --mdc-linear-progress-active-indicator-color: #e65100;
+  --mat-progress-bar-active-indicator-color: #e65100;
+}
+
+mat-progress-bar.level-EXCEEDED {
+  --mdc-linear-progress-active-indicator-color: #c62828;
+  --mat-progress-bar-active-indicator-color: #c62828;
+}
+
+.usage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 0.9rem;
+
+  .left {
+    font-weight: 600;
+  }
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &.level-NEAR {
+    color: #b23c00;
+  }
+
+  &.level-EXCEEDED {
+    color: #b71c1c;
+  }
+}
+
+:host-context(.dark-theme) .alert {
+  &.level-NEAR {
+    color: #ffb74d;
+  }
+
+  &.level-EXCEEDED {
+    color: #ef9a9a;
+  }
+}
+
+.notes {
+  margin: 0;
+  font-size: 0.875rem;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.amendment {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+
+  > mat-icon {
+    flex: none;
+    color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+  }
+
+  .amendment-text {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.empty {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
