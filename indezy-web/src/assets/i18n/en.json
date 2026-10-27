@@ -453,7 +453,16 @@
       "transit": "Transit",
       "byCar": "Sort by driving time",
       "byTransit": "Sort by public transport time",
-      "unavailable": "Route not available"
+      "remote": "Remote: no commute",
+      "perMonth": "{{hours}} h a month there and back ({{days}} days on site)",
+      "openProfile": "Open my profile",
+      "reasons": {
+        "NO_HOME_ADDRESS": "No commute time without your home address.",
+        "NO_CLIENT_ADDRESS": "The client has no address.",
+        "NO_API_KEY": "Commute times are not set up on this server.",
+        "NOT_FOUND": "No route found.",
+        "LOOKUP_FAILED": "Route not available right now."
+      }
     },
     "skills": {
       "matchScore": "Skill match",

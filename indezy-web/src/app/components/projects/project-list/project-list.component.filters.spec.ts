@@ -73,7 +73,8 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
   function commute(projectId: number, seconds?: number, overrides: Partial<CommuteInfoDto> = {}): CommuteInfoDto {
     return { projectId, projectRole: 'Mission', origin: 'Paris', destination: 'Lyon', travelMode: 'DRIVING',
       durationInSeconds: seconds, durationText: seconds ? `${seconds / 60} min` : undefined,
-      distanceText: seconds ? `${seconds / 60} km` : undefined, ...overrides };
+      distanceText: seconds ? `${seconds / 60} km` : undefined, remote: false, onsiteDaysPerMonth: 20,
+      monthlySeconds: seconds ? seconds * 40 : null, ...overrides };
   }
 
   describe('filters', () => {
@@ -182,8 +183,9 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
       const component = fixture.componentInstance;
       commuteService.getProjectsSortedByCommute.and.returnValue(of(results));
 
-      component.filterForm.patchValue({ sortBy: 'commuteTime', sortOrder: 'asc' });
+      component.filterForm.patchValue({ sortBy: 'commuteTime', sortOrder: 'desc' });
       component.onSortByChange('commuteTime');
+      expect(component.filterForm.value.sortOrder).toBe('asc');
 
       expect(commuteService.getProjectsSortedByCommute).toHaveBeenCalledWith(7, 'DRIVING');
       expect(component.isCommuteSortActive).toBeTrue();
@@ -203,13 +205,33 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
       expect(commuteService.getProjectsSortedByCommute).toHaveBeenCalledTimes(1);
     });
 
-    it('says when the commute of a project is unknown', () => {
+    it('says why the commute of a project is unknown', () => {
       const fixture = create();
-      commuteService.getProjectsSortedByCommute.and.returnValue(of([{ project: missions[0], commute: commute(1) }]));
+      commuteService.getProjectsSortedByCommute.and.returnValue(of([{ project: missions[0], commute: commute(1) },
+        { project: missions[1], commute: commute(2, undefined, { unavailable: 'NO_HOME_ADDRESS' }) }]));
 
       fixture.componentInstance.loadCommuteData();
 
-      expect(text(fixture)).toContain('projects.commute.unavailable');
+      expect(text(fixture)).toContain('projects.commute.reasons.LOOKUP_FAILED');
+      expect(text(fixture)).toContain('projects.commute.reasons.NO_HOME_ADDRESS');
+      expect(fixture.nativeElement.querySelector('[data-commute="2"] a[href="/profile"]')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('[data-commute="1"] a')).toBeNull();
+    });
+
+    it('gives a commute\'s hours a month, and none for a remote mission', () => {
+      const fixture = create();
+      commuteService.getProjectsSortedByCommute.and.returnValue(of([
+        { project: missions[0], commute: commute(1, 1800, { onsiteDaysPerMonth: 8, monthlySeconds: 28800 }) },
+        { project: missions[1], commute: commute(2, undefined, { remote: true, onsiteDaysPerMonth: 0, monthlySeconds: 0 }) }]));
+
+      fixture.componentInstance.loadCommuteData();
+
+      expect(text(fixture)).toContain('· projects.commute.perMonth');
+      expect(fixture.componentInstance.monthlyHours(commute(1, 1800, { monthlySeconds: 28800 }))).toBe(8);
+      expect(fixture.componentInstance.monthlyHours(commute(1, 1800, { monthlySeconds: 27000 }))).toBe(7.5);
+      expect(fixture.componentInstance.monthlyHours(commute(1, 1800, { monthlySeconds: null }))).toBe(0);
+      expect(fixture.nativeElement.querySelector('[data-commute="2"]').textContent).toContain('projects.commute.remote');
+      expect(fixture.nativeElement.querySelector('[data-commute="2"] .commute-month')).toBeNull();
     });
 
     it('reloads the times for another travel mode while sorting by commute', () => {

@@ -1194,17 +1194,22 @@ variables are buttons that insert their placeholder.
 
 ## Commute-Time Sorting
 
-Commute support exists through a dedicated commute service and API surface.
+**Sort by → Commute time** on the opportunities list orders the missions by what their commute costs a month, the
+cheapest first, by car or public transport:
 
-Implemented behavior:
+- one trip's time and distance from the profile's address to the client's, from Google's Distance Matrix;
+- the days on site a month: none for a remote mission (shown as "Remote: no commute", first, nothing looked up), the
+  mission's own days on site, else 20 less its remote days, else 20 on site and 10 hybrid;
+- the month's commute, there and back each day on site (`1 hour (60 km) · 16 h a month there and back (8 days on site)`);
+- a mission without a time says why, last: no home address (with a link to the profile), a client without an address,
+  no Google Maps key on the server, no route found, or Google not reachable right now.
 
-- home address and job location inputs
-- Google Maps Distance Matrix API integration
-- driving and transit modes
-- graceful fallback when no Google Maps API key is configured
-- commute DTOs for returning time and distance data to the frontend
+Destinations are asked 25 at a time, and each answer is kept a week per address and mode, so sorting again asks Google
+nothing; a failed lookup is not kept. Without `GOOGLE_MAPS_API_KEY` (`google.maps.api-key`) nothing is asked. See
+[Development](./development.md) and [Deployment](./deployment.md) for setup details.
 
-Configuration is handled through `GOOGLE_MAPS_API_KEY` and `google.maps.api-key`. See [Development](./development.md) and [Deployment](./deployment.md) for setup details.
+API: `GET /api/commute/projects/{freelanceId}?travelMode=DRIVING|TRANSIT` answers each mission with its `commute`
+(`durationInSeconds`, `distanceInMeters`, `remote`, `onsiteDaysPerMonth`, `monthlySeconds`, `unavailable`), sorted.
 
 ## Reversion Rate Calculator
 

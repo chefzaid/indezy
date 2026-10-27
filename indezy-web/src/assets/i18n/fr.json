@@ -453,7 +453,16 @@
       "transit": "Transport",
       "byCar": "Trier par temps en voiture",
       "byTransit": "Trier par temps en transport en commun",
-      "unavailable": "Itinéraire non disponible"
+      "remote": "Télétravail : pas de trajet",
+      "perMonth": "{{hours}} h par mois aller-retour ({{days}} jours sur site)",
+      "openProfile": "Ouvrir mon profil",
+      "reasons": {
+        "NO_HOME_ADDRESS": "Pas de temps de trajet sans votre adresse.",
+        "NO_CLIENT_ADDRESS": "Le client n'a pas d'adresse.",
+        "NO_API_KEY": "Les temps de trajet ne sont pas configurés sur ce serveur.",
+        "NOT_FOUND": "Aucun itinéraire trouvé.",
+        "LOOKUP_FAILED": "Itinéraire indisponible pour le moment."
+      }
     },
     "skills": {
       "matchScore": "Correspondance",

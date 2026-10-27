@@ -254,8 +254,9 @@ function sortByCommuteTime(
   commuteData: Map<number, CommuteInfoDto>
 ): ProjectDto[] {
   return projects.sort((a, b) => {
-    const durationA = (a.id ? commuteData.get(a.id)?.durationInSeconds : undefined) ?? Number.MAX_SAFE_INTEGER;
-    const durationB = (b.id ? commuteData.get(b.id)?.durationInSeconds : undefined) ?? Number.MAX_SAFE_INTEGER;
+    // What the commute costs a month: a remote mission nothing, one without a time sorted as the dearest.
+    const durationA = (a.id ? commuteData.get(a.id)?.monthlySeconds : undefined) ?? Number.MAX_SAFE_INTEGER;
+    const durationB = (b.id ? commuteData.get(b.id)?.monthlySeconds : undefined) ?? Number.MAX_SAFE_INTEGER;
     return compare(durationA, durationB, sortOrder);
   });
 }

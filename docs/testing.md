@@ -134,7 +134,7 @@ Representative backend tests:
 - controllers: `AuthControllerTest`, `ClientControllerTest`, `ProjectControllerTest`, `InterviewStepControllerTest`, ...
 - services: `ProjectServiceTest`, `DashboardStatsServiceTest`, `DashboardTrendsTest` (each window's first and last
   days, cancelled interviews left out, a mission won by its signature or its start, the change in percent, an empty
-  earlier period), `SeasonServiceTest`, `AuthServiceTest` (including two-factor login), `CommuteServiceTest`, `CurrentWorkspaceResolverTest` (the caller's workspace resolved once per request, the permit-all and missing-workspace cases), ...
+  earlier period), `SeasonServiceTest`, `AuthServiceTest` (including two-factor login), `CommuteServiceTest` (days on site by work mode, a remote mission first and not looked up, why a time is missing, the month's commute sorting, 25 destinations a request, answers kept a week and failures not, neither address nor key logged), `CurrentWorkspaceResolverTest` (the caller's workspace resolved once per request, the permit-all and missing-workspace cases), ...
 - repositories: `ClientRepositoryTest`, `ProjectRepositoryTest`, `SourceRepositoryTest`, `FreelanceRepositoryTest`
 - integration: `WorkspaceIsolationIntegrationTest` (two real accounts: isolation, seasons, deletion rules, no list of every record) and `WorkspacePreferencesIntegrationTest` (target rate, inactivity and follow-up preferences per account), both on `TwoAccountsIntegrationTest`, `FullStackIntegrationTest`, `ProjectIntegrationTest`, `UserManagementIntegrationTest` (including two-factor verify and disable, a missing code answered `400`, and the log of each request, at `DEBUG`, free of the code)
 - configuration and schema: `SecurityConfigTest`, `ProjectStatusMigrationTest`, `EnumCheckConstraintsTest`, `ColumnLengthsTest`, `SchemaMigrationTest`, `JwtUtilTest`
@@ -496,6 +496,9 @@ identity, a wrong IBAN refused, until the tab says invoices can be issued.
 Booking link scenarios (`e2e/booking.spec.ts`, on a desktop and on a phone, the dialog and the calendar with a call
 audited with axe-core) turn the link on, are told to open a day, copy the link and cancel a booked call, then book a
 call without an account in French and open a replaced link.
+
+Commute scenarios (`e2e/commute.spec.ts`, on a desktop and on a phone, audited with axe-core) sort the opportunities by
+commute: the remote mission first, then by the month's commute, and a mission whose client has no address last.
 
 Compliance scenarios (`e2e/compliance.spec.ts`, the dialog and the page audited with axe-core) store an URSSAF
 certificate and share it through a link copied to the clipboard, on a desktop and on a phone, then open the shared page

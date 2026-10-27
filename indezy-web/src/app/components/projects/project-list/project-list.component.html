@@ -392,16 +392,29 @@
                 </div>
               }
               @if (getCommuteInfo(project.id); as commute) {
-                <div class="detail-item commute-detail">
-                  <mat-icon>{{ getCommuteIcon(commute.travelMode) }}</mat-icon>
-                  @if (commute.durationText) {
-                    <span>{{ commute.durationText }}</span>
-                  }
-                  @if (commute.distanceText) {
-                    <span class="commute-distance">({{ commute.distanceText }})</span>
-                  }
-                  @if (!commute.durationText) {
-                    <span class="commute-unavailable">{{ 'projects.commute.unavailable' | translate }}</span>
+                <div class="detail-item commute-detail" [attr.data-commute]="project.id">
+                  @if (commute.remote) {
+                    <mat-icon aria-hidden="true">home_work</mat-icon>
+                    <span>{{ 'projects.commute.remote' | translate }}</span>
+                  } @else {
+                    <mat-icon aria-hidden="true">{{ getCommuteIcon(commute.travelMode) }}</mat-icon>
+                    @if (commute.durationText) {
+                      <span>{{ commute.durationText }}</span>
+                    }
+                    @if (commute.distanceText) {
+                      <span class="commute-distance">({{ commute.distanceText }})</span>
+                    }
+                    @if (commute.monthlySeconds) {
+                      <span class="commute-month">· {{ 'projects.commute.perMonth' | translate:{ hours: monthlyHours(commute), days: commute.onsiteDaysPerMonth } }}</span>
+                    }
+                    @if (!commute.durationText) {
+                      <span class="commute-unavailable">
+                        {{ 'projects.commute.reasons.' + (commute.unavailable ?? 'LOOKUP_FAILED') | translate }}
+                        @if (commute.unavailable === 'NO_HOME_ADDRESS') {
+                          <a routerLink="/profile">{{ 'projects.commute.openProfile' | translate }}</a>
+                        }
+                      </span>
+                    }
                   }
                 </div>
               }

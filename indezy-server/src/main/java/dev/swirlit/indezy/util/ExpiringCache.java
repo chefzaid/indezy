@@ -45,6 +45,12 @@ public final class ExpiringCache<K, V> {
         return reads.compute(key, (k, read) -> read != null && isFresh(read, now) ? read : new Read<>(reader.apply(k), now)).value();
     }
 
+    /** The key's value read less than the period before {@code now}, or null: nothing is read. */
+    public V peek(K key, Instant now) {
+        Read<V> current = reads.get(key);
+        return current != null && isFresh(current, now) ? current.value() : null;
+    }
+
     /** Has the next {@link #get} of the keys {@code which} accepts read them again. */
     public void forget(Predicate<K> which) {
         reads.keySet().removeIf(which);

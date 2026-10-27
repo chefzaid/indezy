@@ -109,8 +109,8 @@ describe('project filters', () => {
 
   it('sorts known commute durations before missing estimates', () => {
     const commutes = new Map<number, CommuteInfoDto>([
-      [1, { durationInSeconds: 3600 } as CommuteInfoDto],
-      [2, { durationInSeconds: 900 } as CommuteInfoDto]
+      [1, { durationInSeconds: 900, monthlySeconds: 36000 } as CommuteInfoDto],
+      [2, { durationInSeconds: 3600, monthlySeconds: 28800 } as CommuteInfoDto]
     ]);
     expect(sortProjects([...projects], 'commuteTime', 'asc', commutes).map(p => p.id)).toEqual([2, 1, 3]);
     expect(sortProjects([...projects], 'commuteTime', 'desc', commutes).map(p => p.id)).toEqual([3, 1, 2]);

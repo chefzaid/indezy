@@ -31,6 +31,15 @@ class ExpiringCacheTest {
     }
 
     @Test
+    void peeksWithoutReading() {
+        assertThat(cache.peek("a", NOW)).isNull();
+        cache.get("a", NOW, this::read);
+        assertThat(cache.peek("a", NOW.plusSeconds(59))).isEqualTo("A1");
+        assertThat(cache.peek("a", NOW.plusSeconds(60))).isNull();
+        assertThat(reads).containsExactly("a");
+    }
+
+    @Test
     void forgetsTheKeysAskedFor() {
         cache.get("a", NOW, this::read);
         cache.get("b", NOW, this::read);

@@ -362,8 +362,12 @@ export class ProjectListComponent implements OnInit {
 
   // Commute sorting methods
   onSortByChange(sortBy: string): void {
-    if (sortBy === 'commuteTime' && !this.isCommuteSortActive) {
-      this.loadCommuteData();
+    if (sortBy === 'commuteTime') {
+      // The shortest commute first: descending would open on the dearest and on those without a time.
+      this.filterForm.patchValue({ sortOrder: 'asc' });
+      if (!this.isCommuteSortActive) {
+        this.loadCommuteData();
+      }
     }
   }
 
@@ -405,6 +409,11 @@ export class ProjectListComponent implements OnInit {
       return undefined;
     }
     return this.commuteData.get(projectId);
+  }
+
+  /** The commute's hours a month, to the tenth. */
+  monthlyHours(commute: CommuteInfoDto): number {
+    return Math.round((commute.monthlySeconds ?? 0) / 360) / 10;
   }
 
   getCommuteIcon(mode: TravelMode): string {
