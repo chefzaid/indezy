@@ -1,6 +1,31 @@
 <div class="invoices-page">
   <div class="header">
     <h1>{{ 'invoices.title' | translate }}</h1>
+    @if (exportYears.length > 0) {
+      <button mat-stroked-button type="button" [matMenuTriggerFor]="exportMenu" data-export-invoices>
+        <mat-icon>download</mat-icon>
+        {{ 'invoices.export' | translate }}
+      </button>
+      <mat-menu #exportMenu="matMenu">
+        @for (year of exportYears; track year) {
+          <button mat-menu-item type="button" [matMenuTriggerFor]="exportFormats" [matMenuTriggerData]="{ year }" [attr.data-export-year]="year">
+            {{ year }}
+          </button>
+        }
+      </mat-menu>
+      <mat-menu #exportFormats="matMenu">
+        <ng-template matMenuContent let-year="year">
+          <button mat-menu-item type="button" (click)="exportYear(year, 'FEC')" data-export-fec>
+            <mat-icon>account_balance</mat-icon>
+            <span>{{ 'invoices.exportFec' | translate }}</span>
+          </button>
+          <button mat-menu-item type="button" (click)="exportYear(year, 'REGISTER')" data-export-register>
+            <mat-icon>table_view</mat-icon>
+            <span>{{ 'invoices.exportRegister' | translate }}</span>
+          </button>
+        </ng-template>
+      </mat-menu>
+    }
     <button mat-raised-button color="primary" type="button" (click)="write()" data-new-invoice>
       <mat-icon>add</mat-icon>
       {{ 'invoices.new' | translate }}

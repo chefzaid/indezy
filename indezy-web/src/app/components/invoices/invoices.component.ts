@@ -8,7 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 
@@ -16,7 +16,7 @@ import { BillingIdentity, ClientDto, Invoice, InvoiceDraft, ProjectDto } from '.
 import { AuthService } from '../../services/auth/auth.service';
 import { BillingService } from '../../services/billing/billing.service';
 import { ClientService } from '../../services/client/client.service';
-import { InvoiceService } from '../../services/invoice/invoice.service';
+import { AccountingExportFormat, InvoiceService } from '../../services/invoice/invoice.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ProjectService } from '../../services/project/project.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
@@ -45,6 +45,7 @@ export class InvoicesComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly confirm = inject(ConfirmDialogService);
   private readonly notifications = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   readonly filters: InvoiceFilter[] = ['ALL', 'DRAFT', 'ISSUED', 'OVERDUE', 'PAID'];
   filter: InvoiceFilter = 'ALL';
@@ -55,6 +56,13 @@ export class InvoicesComponent implements OnInit {
   get shown(): Invoice[] {
     return this.invoices.filter(invoice => this.filter === 'ALL' || (this.filter === 'OVERDUE' ? invoice.overdue :
       this.filter === 'ISSUED' ? invoice.status === 'ISSUED' && !invoice.overdue : invoice.status === this.filter));
+  }
+
+  /** The years with an issued invoice or credit note, the latest first: what the accountant's export can hold. */
+  get exportYears(): number[] {
+    const years = this.invoices.filter(invoice => invoice.number && invoice.issueDate)
+      .map(invoice => Number(invoice.issueDate!.slice(0, 4)));
+    return [...new Set(years)].sort((a, b) => b - a);
   }
 
   /** Issued invoices not paid yet, less what credit notes took back from them. */
@@ -159,6 +167,15 @@ export class InvoicesComponent implements OnInit {
     this.invoiceService.downloadPdf(invoice.id).subscribe({
       next: blob => saveBlob(blob, `${this.fileName(invoice)}-${invoice.number ?? 'draft-' + invoice.id}.pdf`),
       error: () => this.notifications.error('invoices.pdfError')
+    });
+  }
+
+  exportYear(year: number, format: AccountingExportFormat): void {
+    const english = this.translate.getCurrentLang() === 'en';
+    this.invoiceService.exportYear(year, format, english ? 'EN' : 'FR').subscribe({
+      next: blob => saveBlob(blob, format === 'FEC' ? `${this.billing?.siret?.slice(0, 9) ?? ''}FEC${year}1231.txt` :
+        `${english ? 'invoices' : 'factures'}-${year}.csv`),
+      error: () => this.notifications.error('invoices.exportError')
     });
   }
 

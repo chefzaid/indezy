@@ -12,7 +12,7 @@ for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, 'en');
     await mockWorkspaceData(page, 'en');
-    let invoices: Record<string, unknown>[] = [{ ...base, id: 1, number: 'F2026-0001', status: 'ISSUED', overdue: true, dueDate: '2026-10-01',
+    let invoices: Record<string, unknown>[] = [{ ...base, id: 1, number: 'F2026-0001', status: 'ISSUED', overdue: true, issueDate: '2026-09-01', dueDate: '2026-10-01',
       totalExcludingVat: 600, total: 600 }];
     const calls: unknown[] = [];
     await page.route('**/api/users/billing', route => route.fulfill({ json: { vatExempt: true, vatRate: 20, complete: true } }));
@@ -79,6 +79,17 @@ for (const width of [1280, 390]) {
     await dialog.locator('[data-save-draft]').click();
     await expect(page.locator('[data-invoice="3"]')).toContainText('Credit note');
     await expect(page.locator('[data-invoice="3"]')).toContainText('-200.00');
+
+    await page.route('**/api/invoices/export/2026?**', route => {
+      calls.push(new URL(route.request().url()).search);
+      return route.fulfill({ body: 'JournalCode\tJournalLib', contentType: 'text/plain' });
+    });
+    await page.locator('[data-export-invoices]').click();
+    await page.locator('[data-export-year="2026"]').click();
+    const download = page.waitForEvent('download');
+    await page.locator('[data-export-fec]').click();
+    expect((await download).suggestedFilename()).toBe('FEC20261231.txt');
+    expect(calls.at(-1)).toBe('?format=FEC&language=EN');
 
     expect(calls[0]).toEqual(expect.objectContaining({ clientId: 3, language: 'FR',
       lines: [{ description: 'Audit', quantity: 2, unitPrice: 650, vatRate: 0 }] }));

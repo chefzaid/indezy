@@ -4,6 +4,9 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Invoice, InvoiceDraft } from '../../models';
 
+/** An accountant's export: the FEC journal entries, or the register of invoices and credit notes as CSV. */
+export type AccountingExportFormat = 'FEC' | 'REGISTER';
+
 /** The workspace's invoices: drafts, issuing, payment and PDF. */
 @Injectable({
   providedIn: 'root'
@@ -43,6 +46,11 @@ export class InvoiceService {
 
   setPaid(id: number, paidOn: string | null): Observable<Invoice> {
     return this.http.put<Invoice>(`${this.API_URL}/${id}/payment`, { paidOn });
+  }
+
+  /** A year of issued invoices for the accountant; the register's headings and numbers follow the language. */
+  exportYear(year: number, format: AccountingExportFormat, language: 'FR' | 'EN'): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/export/${year}`, { params: { format, language }, responseType: 'blob' });
   }
 
   downloadPdf(id: number): Observable<Blob> {

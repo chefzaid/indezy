@@ -1,13 +1,20 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.InvoiceDtos;
+import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.service.AccessGuard;
+import dev.swirlit.indezy.service.AccountingExportService;
 import dev.swirlit.indezy.service.InvoiceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,6 +37,7 @@ import java.util.List;
 public class InvoiceController {
 
     private final InvoiceService invoices;
+    private final AccountingExportService accountingExport;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "The workspace's invoices, newest first")
@@ -95,6 +104,20 @@ public class InvoiceController {
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> pdf(@PathVariable Long id) {
         return PdfResponses.attachment(invoices.renderPdf(workspace(), id));
+    }
+
+    @Operation(summary = "A year of issued invoices for the accountant",
+        description = "FEC journal entries (sales and bank), or the register of invoices and credit notes as CSV")
+    @GetMapping("/export/{year}")
+    public ResponseEntity<byte[]> export(@PathVariable @Min(2000) @Max(2100) int year,
+                                         @RequestParam(defaultValue = "FEC") AccountingExportService.Format format,
+                                         @RequestParam(defaultValue = "FR") DocumentLanguage language) {
+        AccountingExportService.ExportFile file = accountingExport.export(workspace(), year, format, language);
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(file.fileName()).build().toString())
+            .header(HttpHeaders.CACHE_CONTROL, "no-store")
+            .contentType(MediaType.parseMediaType(file.contentType()))
+            .body(file.content());
     }
 
     private Long workspace() {

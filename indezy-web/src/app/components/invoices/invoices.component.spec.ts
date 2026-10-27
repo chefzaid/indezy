@@ -37,7 +37,7 @@ describe('InvoicesComponent', () => {
 
   function create(list = of([draft, issued, late, paid])): ComponentFixture<InvoicesComponent> {
     invoiceService = jasmine.createSpyObj('InvoiceService', ['list', 'create', 'update', 'delete', 'issue', 'setPaid', 'downloadPdf',
-      'creditNote']);
+      'creditNote', 'exportYear']);
     invoiceService.list.and.returnValue(list);
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
@@ -177,6 +177,46 @@ describe('InvoicesComponent', () => {
       error: { message: 'A credit note cannot credit more than what is left of its invoice: 0.00' } })));
     component.creditNote(issued);
     expect(notifications.error).toHaveBeenCalledWith('invoices.errors.creditTooHigh');
+  });
+
+  it('exports a year with an issued invoice for the accountant, in the interface language', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const link = document.createElement('a');
+    spyOn(document, 'createElement').and.returnValue(link);
+    spyOn(link, 'click');
+    const blob = new Blob(['x']);
+    invoiceService.exportYear.and.returnValue(of(blob));
+    component.invoices = [...component.invoices, invoice(8, { number: 'F2025-0009', status: 'PAID', issueDate: '2025-12-30' }),
+      { ...issued, id: 10, issueDate: '2026-01-05' }, invoice(11, { issueDate: '2024-03-01' })];
+    expect(component.exportYears).toEqual([2026, 2025]);
+
+    component.billing = { siret: '55210055400012' } as BillingIdentity;
+    component.exportYear(2026, 'FEC');
+    expect(invoiceService.exportYear).toHaveBeenCalledWith(2026, 'FEC', 'EN');
+    expect(link.download).toBe('552100554FEC20261231.txt');
+    component.billing = null;
+    component.exportYear(2025, 'FEC');
+    expect(link.download).toBe('FEC20251231.txt');
+    component.exportYear(2025, 'REGISTER');
+    expect(link.download).toBe('invoices-2025.csv');
+    TestBed.inject(TranslateService).use('fr');
+    component.exportYear(2025, 'REGISTER');
+    expect(invoiceService.exportYear).toHaveBeenCalledWith(2025, 'REGISTER', 'FR');
+    expect(link.download).toBe('factures-2025.csv');
+
+    invoiceService.exportYear.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    component.exportYear(2025, 'FEC');
+    expect(notifications.error).toHaveBeenCalledWith('invoices.exportError');
+  });
+
+  it('offers the export once an invoice is issued', () => {
+    const fixture = create(of([draft]));
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-export-invoices]')).toBeNull();
+    fixture.componentInstance.invoices = [draft, { ...issued, issueDate: '2026-10-02' }];
+    fixture.detectChanges();
+    expect(element.querySelector('[data-export-invoices]')).not.toBeNull();
   });
 
   it('deletes a draft once confirmed', () => {

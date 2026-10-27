@@ -93,6 +93,30 @@ hand), `POST /api/invoices/from-report` (`{ projectId, year, month }`), `PUT` an
 take it back) and `GET /api/invoices/{id}/pdf`; another workspace's invoice answers `404`. Invoices are part of the data
 export.
 
+### Accounting Export
+
+**Export for the accountant** on the Invoices page (shown once an invoice is issued) offers each year holding an issued
+invoice or credit note, in two forms; drafts are left out, since they are not accounting documents:
+
+- **Journal entries (FEC)**: the file French accounting tools import (Pennylane, Tiime, Indy, Sage, Cegid, EBP, ACD,
+  Quadra…), named `<SIREN>FEC<year>1231.txt` as the tax administration asks (without the SIREN until the billing
+  identity holds a SIRET). Tab-separated UTF-8 with the 18 columns of art. A47 A-1 du LPF, dates as `YYYYMMDD` and
+  amounts with a decimal comma. Each invoice is an entry of the sales journal (`VE`) on its issue date: the client
+  (`411000`, with the client's own account `C<id>` and name) debited with the total, the services (`706000`) and the
+  collected VAT (`445710`, left out when there is none) credited; a credit note is the same the other way round. Each
+  payment of the year is an entry of the bank journal (`BQ`) on its date: the bank (`512000`) debited and the client
+  credited with what was paid, the invoice less the credit notes issued by then. Entries are numbered in date order.
+- **Invoice register (spreadsheet)**: one row per invoice and credit note of the year by date, with its number, type,
+  date, client, SIREN, VAT number, mission, amounts before VAT, VAT and with VAT (negative for a credit note), due date,
+  payment date, status and the invoice a credit note credits, then the totals. In French it is `factures-<year>.csv`
+  with semicolons, decimal commas and `dd/mm/yyyy` dates, in English `invoices-<year>.csv` with commas and ISO dates,
+  following the interface language; it starts with a byte order mark so spreadsheets read its accents, and text that a
+  spreadsheet would run as a formula (starting with `=`, `+`, `-` or `@`) is prefixed with an apostrophe.
+
+The API: `GET /api/invoices/export/{year}?format=FEC|REGISTER&language=FR|EN` (a year from 2000 to 2100; FEC and French
+by default), for the signed-in workspace only. Pushing the entries straight into an accounting tool's API is not offered
+yet (TODO.md).
+
 ### Notifications
 
 **Profile → Notifications** holds the notifications the account can choose, each saved as soon as it is switched:

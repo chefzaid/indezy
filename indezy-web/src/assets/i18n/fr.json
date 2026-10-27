@@ -2351,6 +2351,10 @@
     "credits": "sur {{number}}",
     "createCreditNote": "Créer un avoir",
     "creditNoteCreated": "Avoir créé en brouillon : réduisez-le pour un avoir partiel, puis émettez-le",
-    "editCreditNote": "Modifier l'avoir"
+    "editCreditNote": "Modifier l'avoir",
+    "export": "Exporter pour le comptable",
+    "exportFec": "Écritures comptables (FEC)",
+    "exportRegister": "Registre des factures (tableur)",
+    "exportError": "L'export n'a pas pu être fait. Veuillez réessayer."
   }
 }

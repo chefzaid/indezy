@@ -2351,6 +2351,10 @@
     "credits": "for {{number}}",
     "createCreditNote": "Create a credit note",
     "creditNoteCreated": "Credit note drafted: reduce it for a partial credit, then issue it",
-    "editCreditNote": "Change the credit note"
+    "editCreditNote": "Change the credit note",
+    "export": "Export for the accountant",
+    "exportFec": "Journal entries (FEC)",
+    "exportRegister": "Invoice register (spreadsheet)",
+    "exportError": "The export could not be made. Please try again."
   }
 }

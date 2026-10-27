@@ -185,6 +185,9 @@ Representative backend tests:
   credited invoice no longer payable nor overdue, the credit note's PDF), `InvoicePdfRendererTest` (a company's capital, registration and VAT in French with a
   wrapped line and notes; a draft of an individual entrepreneur exempt from VAT) and `InvoiceTotalsTest` (each line and
   its VAT to the cent)
+- accounting export: `AccountingExportIntegrationTest` (the FEC entries of an invoice, its credit note and its payment net
+  of the credit, line by line; the register in French and English with its totals and a formula-like client name kept as
+  text; no draft, nothing in another year, none of Bob's; a year or format out of range refused) and `CsvTextTest`
 - secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code (a bare `code` field included), backup code or API key, nor, in such a class or one nested in it, the email or a name)
 
 Backend test data lives under `indezy-server/src/test/resources/`:
@@ -237,7 +240,8 @@ Representative frontend specs:
   client's SIREN and VAT number typed in groups)
 - invoices: `invoices.component.spec.ts` (totals awaiting payment and overdue, filters, a draft written among the
   clients by name and changed, issued on a date and refused with the reason, paid and unpaid, deleted once confirmed, the
-  PDF named by kind, number and language, a credit note drafted and counted off what is owed, failures),
+  PDF named by kind, number and language, a credit note drafted and counted off what is owed, the years offered to the
+  accountant's export and its files named by format and language, failures),
   `invoice-draft-dialog.component.spec.ts` (totals counted as the server does, the client's missions, a draft changed
   and trimmed, a credit note's client kept, fifty lines at most), `invoice-date-dialog.component.spec.ts`,
   `invoice-errors.spec.ts` and `activity-report-card.component.spec.ts` (a validated month invoiced, or invoiced already)
@@ -430,7 +434,7 @@ Billing scenarios (`e2e/billing.spec.ts`, on a desktop and on a phone, audited w
 identity, a wrong IBAN refused, until the tab says invoices can be issued.
 
 Invoice scenarios (`e2e/invoices.spec.ts`, on a desktop and on a phone, the page and the draft dialog audited with
-axe-core) write a draft, issue it, mark an overdue invoice paid and credit part of it.
+axe-core) write a draft, issue it, mark an overdue invoice paid, credit part of it and download the year's FEC.
 
 Keyboard scenarios (`e2e/keyboard-navigation.spec.ts`) open a Kanban card with Enter (but not from its favourite
 button), a timeline step and an archived opportunity, then reach a client, one of its opportunities and one of its
