@@ -25,6 +25,7 @@ import dev.swirlit.indezy.repository.ActivityReportRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.util.FrenchPublicHolidays;
 import lombok.extern.slf4j.Slf4j;
+import dev.swirlit.indezy.model.enums.WebhookEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +71,7 @@ public class ActivityReportService {
     private final ActivityReportPdfRenderer pdfRenderer;
     private final Clock clock;
     private final SecureRandom secureRandom = new SecureRandom();
+    private WebhookPublisher webhooks = WebhookPublisher.NONE;
 
     /** A rendered report: the file name to offer and the PDF bytes. */
     public record PdfFile(String fileName, byte[] content) {
@@ -95,6 +97,12 @@ public class ActivityReportService {
         this.projectRepository = projectRepository;
         this.pdfRenderer = pdfRenderer;
         this.clock = clock;
+    }
+
+    /** Tells the workspace's webhooks of the changes; none until Spring sets it (unit tests build the service by hand). */
+    @Autowired
+    void setWebhooks(WebhookPublisher webhooks) {
+        this.webhooks = webhooks;
     }
 
     /** A project's saved reports, latest month first. */
@@ -139,7 +147,9 @@ public class ActivityReportService {
         report.clearValidation();
         report.setStatus(ActivityReportStatus.SUBMITTED);
         report.setSubmittedAt(clock.instant());
-        return issueLink(project, report);
+        ActivityReportLinkDto link = issueLink(project, report);
+        webhooks.publish(workspaceOf(project), WebhookEvent.ACTIVITY_REPORT_SUBMITTED, WebhookPayloads.report(report));
+        return link;
     }
 
     /** Replaces the validation link of a submitted report, for instance when the first one was lost. */
@@ -197,6 +207,8 @@ public class ActivityReportService {
         report.setDecidedAt(clock.instant());
         report.setDecisionComment(comment);
         ActivityReport saved = activityReportRepository.save(report);
+        webhooks.publish(workspaceOf(saved.getProject()), approved ? WebhookEvent.ACTIVITY_REPORT_APPROVED : WebhookEvent.ACTIVITY_REPORT_REJECTED,
+            WebhookPayloads.report(saved));
         log.info("Activity report {} {} through its validation link", saved.getId(), saved.getStatus());
         return toPublicDto(saved);
     }
@@ -371,6 +383,10 @@ public class ActivityReportService {
 
     private static String trimToNull(String text) {
         return text == null || text.isBlank() ? null : text.trim();
+    }
+
+    private static Long workspaceOf(Project project) {
+        return project.getFreelance() == null ? null : project.getFreelance().getId();
     }
 
     static String hash(String token) {

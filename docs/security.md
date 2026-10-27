@@ -458,6 +458,22 @@ file, compliance document), no session, API token or account export, nothing of 
 pages, and no write. Signing out deletes that data group's caches (`clearOfflineData`), so another person on the same
 browser cannot read the workspace offline; a browser left signed in keeps them, like the pages it shows.
 
+## Webhooks
+
+A webhook makes the server post to an address the user typed, so it is guarded against server-side request forgery:
+
+- the address must be `https://`, without credentials or fragment; its host is resolved when the webhook is written
+  and again before every attempt, and refused when any of its addresses is loopback, private (RFC 1918), link-local
+  (cloud metadata included), carrier-grade NAT (`100.64.0.0/10`), unique-local IPv6, multicast, unspecified or `0.0.0.0/8`;
+- redirects are not followed, the connection times out after 5 seconds and the answer after 10; its body is not read;
+- tests lift the address check with `indezy.webhooks.allow-private-addresses=true` to reach a local receiver, never
+  in production.
+
+Each request is signed with HMAC-SHA256 over the timestamp and the body, so a receiver can check it comes from Indezy
+and refuse replays by the timestamp. The secret (32 random bytes, hex) is stored as is, since signing needs it, shown
+once when the webhook is added, and never listed nor exported. Webhooks are managed under `/users`, which API tokens
+cannot reach. Payloads carry ids and business fields, not contacts' details.
+
 ## Spreadsheet Exports
 
 CSV files meant for a spreadsheet (the accountant's project summary and the invoice register) write typed text through

@@ -1130,6 +1130,53 @@
       "saved": "Identité de facturation enregistrée",
       "saveError": "L'identité de facturation n'a pas pu être enregistrée",
       "loadError": "L'identité de facturation n'a pas pu être chargée"
+    },
+    "webhooks": {
+      "title": "Webhooks",
+      "hint": "Vos propres outils (Zapier, Make, n8n, un script) sont prévenus des événements de votre espace : un POST JSON signé vers une adresse HTTPS, réessayé cinq fois sur une quinzaine d'heures en cas d'échec.",
+      "createdTitle": "Webhook ajouté",
+      "createdHint": "Copiez son secret maintenant : il signe chaque requête (X-Indezy-Signature : HMAC sha256 de l'horodatage, d'un point et du corps) et n'est affiché qu'une fois.",
+      "copy": "Copier le secret",
+      "done": "Terminé",
+      "copied": "Secret copié",
+      "on": "Actif",
+      "off": "Désactivé",
+      "lastDelivery": "dernier envoi le {{date}} ({{status}})",
+      "failures": "{{count}} échec(s) d'affilée",
+      "ping": "Envoyer un test",
+      "pinged": "Test en file : il part dans la minute",
+      "deliveries": "Derniers envois",
+      "noDelivery": "Rien d'envoyé pour l'instant.",
+      "turnOff": "Désactiver",
+      "turnOn": "Activer",
+      "deleteNamed": "Supprimer le webhook {{url}}",
+      "deleteTitle": "Supprimer ce webhook ?",
+      "deleteMessage": "{{url}} ne sera plus prévenu de rien.",
+      "deleted": "Webhook supprimé",
+      "url": "Adresse HTTPS",
+      "urlInvalid": "Une adresse https://",
+      "eventsLegend": "Événements",
+      "noEvent": "Choisissez au moins un événement.",
+      "add": "Ajouter le webhook",
+      "refused": "Cette adresse a été refusée : elle doit être en HTTPS, sur un hôte public, sans nom d'utilisateur ni mot de passe.",
+      "saveError": "Le webhook n'a pas pu être enregistré. Veuillez réessayer.",
+      "loadError": "Les webhooks n'ont pas pu être chargés.",
+      "full": "Un espace a {{max}} webhooks au plus.",
+      "events": {
+        "OPPORTUNITY_CREATED": "Opportunité ajoutée",
+        "OPPORTUNITY_STATUS_CHANGED": "Opportunité déplacée",
+        "ACTIVITY_REPORT_SUBMITTED": "CRA envoyé",
+        "ACTIVITY_REPORT_APPROVED": "CRA validé",
+        "ACTIVITY_REPORT_REJECTED": "CRA refusé",
+        "INVOICE_ISSUED": "Facture émise",
+        "INVOICE_PAID": "Facture payée",
+        "PING": "Test"
+      },
+      "statuses": {
+        "PENDING": "À réessayer",
+        "DELIVERED": "Reçu",
+        "FAILED": "Échec"
+      }
     }
   },
   "errors": {

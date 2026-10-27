@@ -1,0 +1,97 @@
+<mat-card class="form-section" data-webhooks>
+  <mat-card-header>
+    <mat-card-title>{{ 'profile.webhooks.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="hint">{{ 'profile.webhooks.hint' | translate }}</p>
+
+    @if (created) {
+      <div class="created" role="status" data-created-webhook>
+        <p><strong>{{ 'profile.webhooks.createdTitle' | translate }}</strong></p>
+        <p>{{ 'profile.webhooks.createdHint' | translate }}</p>
+        <code class="secret" data-webhook-secret>{{ created.secret }}</code>
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="copy()">
+            <mat-icon>content_copy</mat-icon>{{ 'profile.webhooks.copy' | translate }}
+          </button>
+          <button mat-button type="button" (click)="done()">{{ 'profile.webhooks.done' | translate }}</button>
+        </div>
+      </div>
+    }
+
+    @for (webhook of list; track webhook.id) {
+      <section class="webhook" [attr.data-webhook]="webhook.id">
+        <div class="head">
+          <mat-icon aria-hidden="true">{{ webhook.active ? 'webhook' : 'pause_circle' }}</mat-icon>
+          <code class="url">{{ webhook.url }}</code>
+        </div>
+        <p class="meta">
+          {{ (webhook.active ? 'profile.webhooks.on' : 'profile.webhooks.off') | translate }}
+          @if (webhook.lastDeliveryAt) {
+            · {{ 'profile.webhooks.lastDelivery' | translate:{ date: (webhook.lastDeliveryAt | date:'medium'), status: webhook.lastStatus || '—' } }}
+          }
+          @if (webhook.consecutiveFailures > 0) {
+            · <span class="failures">{{ 'profile.webhooks.failures' | translate:{ count: webhook.consecutiveFailures } }}</span>
+          }
+        </p>
+        <p class="events">
+          @for (event of webhook.events; track event) {
+            <span class="event">{{ 'profile.webhooks.events.' + event | translate }}</span>
+          }
+        </p>
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="ping(webhook)" [disabled]="!webhook.active" data-ping>
+            {{ 'profile.webhooks.ping' | translate }}
+          </button>
+          <button mat-button type="button" (click)="showDeliveries(webhook)" [attr.aria-expanded]="deliveries.has(webhook.id)" data-show-deliveries>
+            {{ 'profile.webhooks.deliveries' | translate }}
+          </button>
+          <button mat-button type="button" (click)="setActive(webhook, !webhook.active)" data-toggle-webhook>
+            {{ (webhook.active ? 'profile.webhooks.turnOff' : 'profile.webhooks.turnOn') | translate }}
+          </button>
+          <button mat-button color="warn" type="button" (click)="remove(webhook)"
+            [attr.aria-label]="'profile.webhooks.deleteNamed' | translate:{ url: webhook.url }">{{ 'common.delete' | translate }}</button>
+        </div>
+        @if (deliveries.get(webhook.id); as shown) {
+          <ul class="deliveries" data-deliveries>
+            @for (delivery of shown; track delivery.id) {
+              <li [class]="'delivery-' + delivery.status">
+                <span>{{ 'profile.webhooks.events.' + delivery.event | translate }}</span>
+                <span>{{ 'profile.webhooks.statuses.' + delivery.status | translate }}{{ delivery.responseStatus ? ' (' + delivery.responseStatus + ')' : '' }}</span>
+                <span class="when">{{ (delivery.lastAttemptAt ?? delivery.createdAt) | date:'medium' }}</span>
+              </li>
+            } @empty {
+              <li>{{ 'profile.webhooks.noDelivery' | translate }}</li>
+            }
+          </ul>
+        }
+      </section>
+    }
+
+    @if (full) {
+      <p class="hint" data-webhooks-full>{{ 'profile.webhooks.full' | translate:{ max: 5 } }}</p>
+    } @else {
+      <form class="create" [formGroup]="form" (ngSubmit)="create()">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'profile.webhooks.url' | translate }}</mat-label>
+          <input matInput formControlName="url" maxlength="500" placeholder="https://" autocomplete="off" data-webhook-url>
+          @if (form.controls.url.invalid) {
+            <mat-error>{{ 'profile.webhooks.urlInvalid' | translate }}</mat-error>
+          }
+        </mat-form-field>
+        <fieldset class="choices">
+          <legend>{{ 'profile.webhooks.eventsLegend' | translate }}</legend>
+          @for (event of events; track event) {
+            <mat-checkbox [checked]="chosen.has(event)" (change)="toggle(event, $event.checked)" [attr.data-event]="event">
+              {{ 'profile.webhooks.events.' + event | translate }}
+            </mat-checkbox>
+          }
+        </fieldset>
+        @if (noEvent) {
+          <p class="form-error" role="alert">{{ 'profile.webhooks.noEvent' | translate }}</p>
+        }
+        <button mat-raised-button color="primary" type="submit" data-add-webhook>{{ 'profile.webhooks.add' | translate }}</button>
+      </form>
+    }
+  </mat-card-content>
+</mat-card>

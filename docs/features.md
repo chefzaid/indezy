@@ -204,6 +204,28 @@ only read workspace data". The API is described at `/api/swagger-ui.html`.
 The tokens are managed through `GET /api/users/api-tokens`, `POST /api/users/api-tokens` (`{ "name", "expiresInDays" }`,
 answered with the token this once) and `DELETE /api/users/api-tokens/{id}`, from a signed-in session only.
 
+
+### Webhooks
+
+**Profile → Security → Webhooks** tells the freelancer's own tools (Zapier, Make, n8n, a script) of the workspace's
+events, at most 5 webhooks per workspace. A webhook is an HTTPS address on a public host (no user name or password in
+it) and the events it listens to: an opportunity added or moved to another stage, an activity report sent, approved or
+rejected, an invoice (or credit note) issued or paid. Its secret is shown once, when it is added, with a copy button.
+
+Each event is written in the same transaction as the change it tells of, then posted within about twenty seconds:
+`POST` with a JSON body `{ id, event, createdAt, data }` and the headers `X-Indezy-Event`, `X-Indezy-Delivery` (the
+delivery's id), `X-Indezy-Timestamp` (seconds) and `X-Indezy-Signature: sha256=<hex HMAC-SHA256 of "<timestamp>.<body>"
+with the secret>`. `data` holds ids and the business fields: an opportunity's id, role, status and previous status,
+client and daily rate; a report's id, mission, month, days worked and status; an invoice's id, kind, number, status,
+client, dates, total and the invoice a credit note credits. A 2xx answer within ten seconds counts as received;
+otherwise it is tried again after 1, 5 and 30 minutes, 2 and 12 hours, then given up. Redirects are not followed. A
+webhook failing 20 times in a row turns itself off; **Turn on** brings it back with its failures forgotten. **Send a
+test** posts a `PING`; **Latest deliveries** lists the last 20 with their state and answer. Deliveries are forgotten 30
+days after they settle, and with their webhook.
+
+API: `GET` and `POST /api/users/webhooks` (`{ url, events }`, answering the secret once), `PUT` and `DELETE
+/api/users/webhooks/{id}` (`active` turns it off or on), `POST /api/users/webhooks/{id}/ping` and `GET
+/api/users/webhooks/{id}/deliveries`. Being under `/users`, they refuse API tokens.
 ### Public Profile
 
 **Public profile** (a tab of the profile page) shows a page anyone with its link can read, at `/p/<address>`, without

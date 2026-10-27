@@ -187,6 +187,11 @@ Representative backend tests:
   credited invoice no longer payable nor overdue, the credit note's PDF), `InvoicePdfRendererTest` (a company's capital, registration and VAT in French with a
   wrapped line and notes; a draft of an individual entrepreneur exempt from VAT) and `InvoiceTotalsTest` (each line and
   its VAT to the cent)
+- webhooks: `WebhookIntegrationTest` (a local receiver told of an opportunity added and moved, the signature checked
+  with the secret, a moved-but-unchanged stage not told, a failure kept for its retry with the webhook's failure count, a
+  test on demand, a webhook turned off told nothing, refused addresses and events, five at most, Bob kept out, deliveries
+  deleted with their webhook) and `WebhookAddressesTest` (https only, no credentials, loopback, private, link-local,
+  carrier-grade NAT, unique-local, multicast and unresolvable hosts refused; the signature against RFC 4231)
 - compliance documents: `ComplianceIntegrationTest` (documents stored with their dates, an URSSAF certificate's end set
   from its issue, a document without a name, a web page or an end before the issue refused, the types' order, the
   dashboard's documents to renew, the content's headers, Bob kept out; a link whose token is stored hashed, opened
@@ -278,6 +283,9 @@ Representative frontend specs:
   `auth.service.spec.ts` (sign-out forgets the kept answers); `e2e/offline.spec.ts` shows the banner while the browser
   is offline. The service worker itself runs only in a production build (`npx ng build --configuration production`
   writes `ngsw.json`).
+- webhooks: `profile-webhooks.component.spec.ts` (state and failures, an address and events chosen, the secret shown
+  once and copied, refusals, a test, turned off and on, the latest deliveries, deleted once confirmed, five at most) and
+  `e2e/webhooks.spec.ts` (added, secret shown then forgotten, a test sent; the card audited with axe-core)
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy

@@ -392,6 +392,18 @@ Fields: `freelanceId`, `recipient`, `tokenHash` (SHA-256 of the link's token, he
 stored), `expiresAt`, `revokedAt`, `openCount`, `lastOpenedAt`, and the documents' ids (`compliance_pack_documents`; a
 deleted document leaves them).
 
+## Webhook
+
+Tables: `webhooks`, `webhook_events`, `webhook_deliveries`
+
+Purpose: addresses told of a workspace's events, and each event to post to each of them.
+
+Webhook fields: `freelanceId`, `url`, `secret` (the HMAC key), the events (`webhook_events`), `active`,
+`consecutiveFailures` (20 turns it off), `lastDeliveryAt`, `lastStatus`. Delivery fields: `webhookId`, `event`,
+`payload` (the JSON body), `status` (`PENDING`, `DELIVERED`, `FAILED`), `attempts`, `nextAttemptAt` (also a two-minute
+lease while a replica sends it), `lastAttemptAt`, `responseStatus` (0 without an answer) and `error`. Settled deliveries
+are deleted after 30 days, and all of a webhook's with it.
+
 ## JobOffer
 
 Tables: `job_offers`, `job_offer_skills`

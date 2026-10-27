@@ -17,6 +17,7 @@ import dev.swirlit.indezy.model.enums.ActivityReportStatus;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.InvoiceKind;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
+import dev.swirlit.indezy.model.enums.WebhookEvent;
 import dev.swirlit.indezy.pdf.InvoicePdfRenderer;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
@@ -24,6 +25,7 @@ import dev.swirlit.indezy.repository.InvoiceCounterRepository;
 import dev.swirlit.indezy.repository.InvoiceRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,6 +63,13 @@ public class InvoiceService {
     private final ActivityReportService activityReports;
     private final InvoicePdfRenderer pdf;
     private final Clock clock;
+    private WebhookPublisher webhooks = WebhookPublisher.NONE;
+
+    /** Tells the workspace's webhooks of the changes; none until Spring sets it (unit tests build the service by hand). */
+    @Autowired
+    void setWebhooks(WebhookPublisher webhooks) {
+        this.webhooks = webhooks;
+    }
 
     @Transactional(readOnly = true)
     public List<InvoiceDtos.Invoice> list(Long freelanceId) {
@@ -215,6 +224,7 @@ public class InvoiceService {
             credited.setStatus(InvoiceStatus.CREDITED);
         }
         log.info("Workspace {} issued invoice {}", freelanceId, invoice.getId());
+        webhooks.publish(freelanceId, WebhookEvent.INVOICE_ISSUED, WebhookPayloads.invoice(invoice));
         return toDto(invoice);
     }
 
@@ -231,6 +241,9 @@ public class InvoiceService {
         LocalDate paidOn = payment == null ? null : payment.paidOn();
         invoice.setPaidOn(paidOn);
         invoice.setStatus(paidOn == null ? InvoiceStatus.ISSUED : InvoiceStatus.PAID);
+        if (paidOn != null) {
+            webhooks.publish(freelanceId, WebhookEvent.INVOICE_PAID, WebhookPayloads.invoice(invoice));
+        }
         return toDto(invoice);
     }
 

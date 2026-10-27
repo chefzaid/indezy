@@ -1,0 +1,124 @@
+.hint {
+  color: var(--app-text-muted);
+}
+
+.created {
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--app-info-bg);
+
+  p {
+    margin: 0 0 8px;
+  }
+}
+
+.secret,
+.url {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.secret {
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--app-subtle);
+}
+
+.webhook {
+  padding: 12px 0;
+  border-top: 1px solid var(--app-border);
+
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .meta,
+  .events {
+    margin: 6px 0;
+    font-size: 0.875rem;
+    color: var(--app-text-muted);
+  }
+
+  .failures {
+    color: var(--app-danger);
+  }
+
+  .events {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .event {
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: var(--app-subtle);
+    color: var(--app-text);
+  }
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.deliveries {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    padding: 4px 0;
+  }
+
+  .delivery-FAILED {
+    color: var(--app-danger);
+  }
+
+  .when {
+    color: var(--app-text-muted);
+  }
+}
+
+.create {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  button {
+    align-self: flex-start;
+  }
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+
+  legend {
+    padding: 0 4px;
+    font-size: 0.875rem;
+  }
+}
+
+.form-error {
+  margin: 0;
+  color: var(--app-danger);
+  font-size: 0.875rem;
+}

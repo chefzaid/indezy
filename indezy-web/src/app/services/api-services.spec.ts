@@ -22,6 +22,7 @@ import { BillingService } from './billing/billing.service';
 import { InvoiceService } from './invoice/invoice.service';
 import { PurchaseOrderService } from './purchase-order/purchase-order.service';
 import { ComplianceService } from './compliance/compliance.service';
+import { WebhookService } from './webhook/webhook.service';
 import { ProjectStatus, StepStatus } from '../models';
 
 /** One HTTP wrapper call: what the service is asked, and the request it must send. */
@@ -74,6 +75,7 @@ describe('API services', () => {
   const invoices = (): InvoiceService => TestBed.inject(InvoiceService);
   const purchaseOrders = (): PurchaseOrderService => TestBed.inject(PurchaseOrderService);
   const compliance = (): ComplianceService => TestBed.inject(ComplianceService);
+  const webhooks = (): WebhookService => TestBed.inject(WebhookService);
   const packToken = { 'X-Pack-Token': 'pack-token' };
   const linkToken = { 'X-Report-Token': 'link-token' };
   const decision = { approved: false, validatorName: 'Jean Dupont', comment: 'Le 11 est férié' };
@@ -201,6 +203,14 @@ describe('API services', () => {
       headers: packToken },
     { name: 'shared document', call: () => compliance().publicDocument('pack-token', 4), method: 'GET',
       url: `${api}/public/compliance-packs/documents/4`, headers: packToken, response: new Blob(['%PDF']) },
+    { name: 'webhooks', call: () => webhooks().list(), method: 'GET', url: `${api}/users/webhooks` },
+    { name: 'add a webhook', call: () => webhooks().create({ url: 'https://x', events: [] }), method: 'POST', url: `${api}/users/webhooks`,
+      body: { url: 'https://x', events: [] } },
+    { name: 'change a webhook', call: () => webhooks().update(3, { url: 'https://x', events: [] }), method: 'PUT',
+      url: `${api}/users/webhooks/3`, body: { url: 'https://x', events: [] } },
+    { name: 'delete a webhook', call: () => webhooks().delete(3), method: 'DELETE', url: `${api}/users/webhooks/3` },
+    { name: 'test a webhook', call: () => webhooks().ping(3), method: 'POST', url: `${api}/users/webhooks/3/ping`, body: null },
+    { name: 'webhook deliveries', call: () => webhooks().deliveries(3), method: 'GET', url: `${api}/users/webhooks/3/deliveries` },
     { name: 'change a draft', call: () => invoices().update(5, { clientId: 3 } as never), method: 'PUT', url: `${api}/invoices/5`, body: { clientId: 3 } },
     { name: 'delete a draft', call: () => invoices().delete(5), method: 'DELETE', url: `${api}/invoices/5` },
     { name: 'issue an invoice', call: () => invoices().issue(5, '2026-10-27'), method: 'POST', url: `${api}/invoices/5/issue`, body: { issueDate: '2026-10-27' } },

@@ -1130,6 +1130,53 @@
       "saved": "Billing identity saved",
       "saveError": "The billing identity could not be saved",
       "loadError": "The billing identity could not be loaded"
+    },
+    "webhooks": {
+      "title": "Webhooks",
+      "hint": "Your own tools (Zapier, Make, n8n, a script) are told of your workspace's events: a signed JSON POST to an HTTPS address, tried again five times over about fifteen hours when it fails.",
+      "createdTitle": "Webhook added",
+      "createdHint": "Copy its secret now: it signs each request (X-Indezy-Signature: sha256 HMAC of the timestamp, a dot and the body) and is shown only this once.",
+      "copy": "Copy the secret",
+      "done": "Done",
+      "copied": "Secret copied",
+      "on": "On",
+      "off": "Off",
+      "lastDelivery": "last sent {{date}} ({{status}})",
+      "failures": "{{count}} failure(s) in a row",
+      "ping": "Send a test",
+      "pinged": "Test queued: it is sent within a minute",
+      "deliveries": "Latest deliveries",
+      "noDelivery": "Nothing sent yet.",
+      "turnOff": "Turn off",
+      "turnOn": "Turn on",
+      "deleteNamed": "Delete the webhook {{url}}",
+      "deleteTitle": "Delete this webhook?",
+      "deleteMessage": "{{url}} will no longer be told of anything.",
+      "deleted": "Webhook deleted",
+      "url": "HTTPS address",
+      "urlInvalid": "An https:// address",
+      "eventsLegend": "Events",
+      "noEvent": "Choose at least one event.",
+      "add": "Add the webhook",
+      "refused": "This address was refused: it must be HTTPS, on a public host, without a user name or password.",
+      "saveError": "The webhook could not be saved. Please try again.",
+      "loadError": "The webhooks could not be loaded.",
+      "full": "A workspace has {{max}} webhooks at most.",
+      "events": {
+        "OPPORTUNITY_CREATED": "Opportunity added",
+        "OPPORTUNITY_STATUS_CHANGED": "Opportunity moved",
+        "ACTIVITY_REPORT_SUBMITTED": "Activity report sent",
+        "ACTIVITY_REPORT_APPROVED": "Activity report approved",
+        "ACTIVITY_REPORT_REJECTED": "Activity report rejected",
+        "INVOICE_ISSUED": "Invoice issued",
+        "INVOICE_PAID": "Invoice paid",
+        "PING": "Test"
+      },
+      "statuses": {
+        "PENDING": "To be tried again",
+        "DELIVERED": "Received",
+        "FAILED": "Failed"
+      }
     }
   },
   "errors": {

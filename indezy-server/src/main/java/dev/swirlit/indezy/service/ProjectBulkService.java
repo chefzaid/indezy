@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -74,8 +76,11 @@ public class ProjectBulkService {
             case TAG, DELETE -> throw new IllegalStateException(action + " is applied above");
         };
         List<Project> projects = projectRepository.findAllById(request.projectIds());
+        Map<Long, ProjectStatus> before = new HashMap<>();
+        projects.forEach(project -> before.put(project.getId(), project.getStatus()));
         projects.forEach(change);
         projectRepository.saveAll(projects);
+        projects.forEach(project -> projectService.publishStatusChange(project, before.get(project.getId())));
         log.info("Bulk {} on {} projects", action, projects.size());
         return projects.size();
     }

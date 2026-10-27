@@ -29,6 +29,7 @@ import { ProfilePublicPageComponent } from './public-page/profile-public-page.co
 import { CapabilitiesService } from '../../services/admin/capabilities.service';
 import { ProfileSessionsComponent } from './sessions/profile-sessions.component';
 import { ProfileApiTokensComponent } from './api-tokens/profile-api-tokens.component';
+import { ProfileWebhooksComponent } from './webhooks/profile-webhooks.component';
 import { ProfileNotificationsComponent } from './notifications/profile-notifications.component';
 import { ProfileBillingComponent } from './billing/profile-billing.component';
 
@@ -36,6 +37,7 @@ import { ProfileBillingComponent } from './billing/profile-billing.component';
     selector: 'app-profile',
     imports: [
     ProfileDataImportComponent, ProfilePublicPageComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
+    ProfileWebhooksComponent,
     ProfileNotificationsComponent, ProfileBillingComponent, ProfilePersonalInfoComponent,
     BlockedPublishersComponent, EmailTemplatesSettingsComponent, ReactiveFormsModule, FormsModule, TranslateModule,
     MatCardModule, MatButtonModule, MatIconModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatSelectModule,

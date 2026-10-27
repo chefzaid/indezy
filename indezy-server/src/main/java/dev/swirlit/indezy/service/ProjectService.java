@@ -15,6 +15,7 @@ import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.repository.ActivityReportRepository;
 import dev.swirlit.indezy.repository.PurchaseOrderRepository;
+import dev.swirlit.indezy.model.enums.WebhookEvent;
 import dev.swirlit.indezy.repository.ClientRepository;
 import dev.swirlit.indezy.repository.ContactInteractionRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
@@ -26,6 +27,7 @@ import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SourceRepository;
 import dev.swirlit.indezy.util.SkillNames;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,6 +63,14 @@ public class ProjectService {
     private final JobOfferStateRepository jobOfferStateRepository;
     private final ProjectMapper projectMapper;
     private final SeasonService seasonService;
+
+    private WebhookPublisher webhooks = WebhookPublisher.NONE;
+
+    /** Tells the workspace's webhooks of the changes; none until Spring sets it (unit tests build the service by hand). */
+    @Autowired
+    void setWebhooks(WebhookPublisher webhooks) {
+        this.webhooks = webhooks;
+    }
 
     private static final List<ProjectStatus> KANBAN_COLUMN_ORDER = Arrays.asList(
         ProjectStatus.CONTACT,
@@ -196,6 +206,7 @@ public class ProjectService {
         }
         
         Project savedProject = projectRepository.save(project);
+        webhooks.publish(freelanceId, WebhookEvent.OPPORTUNITY_CREATED, WebhookPayloads.project(savedProject, null));
         
         log.info("Created project with id: {}", savedProject.getId());
         return projectMapper.toDto(savedProject);
@@ -255,6 +266,7 @@ public class ProjectService {
         }
         
         Project updatedProject = projectRepository.save(existingProject);
+        publishStatusChange(updatedProject, previousStatus);
         
         log.info("Updated project with id: {}", updatedProject.getId());
         return projectMapper.toDto(updatedProject);
@@ -283,12 +295,21 @@ public class ProjectService {
         log.debug("Updating project status with id: {} to status: {}", id, status);
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
+        ProjectStatus previousStatus = project.getStatus();
         project.setStatus(status);
         // The lost reason only applies to lost opportunities; clear it otherwise.
         project.setLostReason(ProjectStatus.LOST.equals(status) ? lostReason : null);
         Project updatedProject = projectRepository.save(project);
+        publishStatusChange(updatedProject, previousStatus);
         log.info("Updated project status with id: {} to status: {}", id, status);
         return projectMapper.toDto(updatedProject);
+    }
+
+    /** Tells the webhooks an opportunity changed stage, when it did. */
+    void publishStatusChange(Project project, ProjectStatus previousStatus) {
+        if (project.getStatus() != previousStatus && project.getFreelance() != null) {
+            webhooks.publish(project.getFreelance().getId(), WebhookEvent.OPPORTUNITY_STATUS_CHANGED, WebhookPayloads.project(project, previousStatus));
+        }
     }
 
     /** Kanban board of a workspace, limited to one season's opportunities when a season is given. */
