@@ -66,6 +66,19 @@ class ProjectExportServiceTest {
         assertThat(lines[2]).isEqualTo("Total,,,,,,,,,0");
     }
 
+    @Test
+    void buildYearlySummaryCsv_ShouldKeepFormulaLikeTextAsText() {
+        // Given typed names a spreadsheet would run as formulas.
+        Project project = project("@SUM(A1)", ProjectStatus.WON, "=HYPERLINK(\"https://evil.example\",\"Open\")", "+33 Malt",
+            null, new MissionTerms(LocalDate.of(2025, 5, 1), null, 700, null));
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(project));
+
+        String[] lines = projectExportService.buildYearlySummaryCsv(1L, null).split("\r\n");
+
+        // Then each starts with an apostrophe, so the cell stays text, quoted where it holds a comma or quotes.
+        assertThat(lines[1]).isEqualTo("'@SUM(A1),WON,\"'=HYPERLINK(\"\"https://evil.example\"\",\"\"Open\"\")\",'+33 Malt,,2025-05-01,,700,,");
+    }
+
     /** Schedule and pricing of a test mission, the inputs of its estimated revenue. */
     private record MissionTerms(LocalDate startDate, Integer durationInMonths, Integer dailyRate, Integer daysPerYear) {
     }

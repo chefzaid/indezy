@@ -407,6 +407,14 @@ Opportunity files (`/api/projects/{id}/attachments`, see [ADR 0010](./adr/0010-a
 Files are not scanned for malware: only their owner can read them back, so a file harms no one but the account that
 uploaded it; a scanner is listed in the [Security Backlog](#security-backlog).
 
+## Spreadsheet Exports
+
+CSV files meant for a spreadsheet (the accountant's project summary and the invoice register) write typed text through
+`CsvText.text`: text starting with `=`, `+`, `-`, `@`, a tab or a carriage return gets an apostrophe first, so a client
+named `=HYPERLINK(...)` shows as text instead of running as a formula (OWASP CSV injection), and `CsvText.row` quotes
+fields holding the separator, a quote or a line break. Numbers and dates the server formats are written as they are.
+Exports are downloaded with `Cache-Control: no-store` and hold only the signed-in workspace's data.
+
 ## Software Supply Chain and Code Quality
 
 Required `01-build` and `03-package` are separate from optional `02-test`. Optional manual `01-e2e`, allowed-to-fail `02-quality`, and independent `03-security` are verify jobs; standard mode leaves quality/security manual and full mode runs them automatically. Trivy scans dependencies, IaC, and secrets, retains JSON/SARIF findings for seven days, and exits nonzero on high/critical findings without becoming a deployment gate. `01-release` depends only on the required build path.

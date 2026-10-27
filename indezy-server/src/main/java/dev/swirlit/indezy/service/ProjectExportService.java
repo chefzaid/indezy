@@ -2,15 +2,14 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.repository.ProjectRepository;
+import dev.swirlit.indezy.util.CsvText;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Builds an accountant-friendly CSV summary of a freelance's projects, optionally limited to a
@@ -65,10 +64,10 @@ public class ProjectExportService {
 
     private String projectRow(Project project, Integer revenue) {
         return csvRow(
-            project.getRole(),
+            CsvText.text(project.getRole()),
             project.getStatus() != null ? project.getStatus().name() : "",
-            project.getClient() != null ? project.getClient().getCompanyName() : "",
-            project.getSource() != null ? project.getSource().getName() : "",
+            project.getClient() != null ? CsvText.text(project.getClient().getCompanyName()) : "",
+            project.getSource() != null ? CsvText.text(project.getSource().getName()) : "",
             project.getWorkMode() != null ? project.getWorkMode().name() : "",
             project.getStartDate() != null ? project.getStartDate().toString() : "",
             asText(project.getDurationInMonths()),
@@ -83,17 +82,6 @@ public class ProjectExportService {
     }
 
     private String csvRow(String... fields) {
-        return Arrays.stream(fields).map(this::escape).collect(Collectors.joining(","));
-    }
-
-    /** Quotes a field when it contains a comma, quote or newline, doubling any embedded quotes. */
-    private String escape(String value) {
-        if (value == null) {
-            return "";
-        }
-        if (value.contains(",") || value.contains("\"") || value.contains("\n") || value.contains("\r")) {
-            return "\"" + value.replace("\"", "\"\"") + "\"";
-        }
-        return value;
+        return CsvText.row(",", fields);
     }
 }
