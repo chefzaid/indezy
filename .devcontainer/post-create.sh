@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 echo "🚀 Starting Indezy development environment setup..."
 
@@ -20,47 +20,42 @@ PGPASSWORD=indezy_password psql -h postgres -U indezy_user -d indezy -c "SELECT 
 }
 echo "✅ Database connection successful!"
 
-# Install indezy-web dependencies if package.json exists
 if [ -f "indezy-web/package.json" ]; then
   echo "📦 Installing indezy-web dependencies..."
-  cd indezy-web
-  npm ci --prefer-offline --no-audit
-  cd ..
+  (cd indezy-web && npm ci --prefer-offline --no-audit)
+  # Chromium for the unit tests (Karma's ChromeHeadlessCI) and the Playwright end-to-end tests, with its system libraries.
+  echo "🌐 Installing Chromium for the browser tests..."
+  (cd indezy-web && npx playwright install --with-deps chromium)
   echo "✅ Frontend dependencies installed!"
 fi
 
-# Install indezy-server dependencies and compile
 if [ -f "indezy-server/pom.xml" ]; then
   echo "📦 Installing indezy-server dependencies..."
-  cd indezy-server
-  ./mvnw dependency:go-offline -q
-  ./mvnw compile -q
-  cd ..
+  (cd indezy-server && ./mvnw -q dependency:go-offline && ./mvnw -q compile)
   echo "✅ Backend dependencies installed and compiled!"
 fi
 
-# Set up Git hooks directory
-mkdir -p .git/hooks
+# Shell setup, written once: rebuilding the container runs this script again.
+if ! grep -q "# Indezy development" ~/.bashrc; then
+  echo "🔧 Setting up development aliases..."
+  cat >> ~/.bashrc << 'ALIASES'
 
-# Create useful aliases
-echo "🔧 Setting up development aliases..."
-cat >> ~/.bashrc << 'EOF'
+# Indezy development
+# Karma finds the Chromium Playwright installed.
+CHROME_BIN="$(cd /workspace/indezy-web 2>/dev/null && node -e "console.log(require('playwright-core').chromium.executablePath())" 2>/dev/null)"
+export CHROME_BIN
 
-# Indezy Development Aliases
 alias indezy-server='cd /workspace/indezy-server && ./mvnw spring-boot:run'
 alias indezy-web='cd /workspace/indezy-web && npm start'
-alias indezy-test-indezy-server='cd /workspace/indezy-server && ./mvnw test'
-alias indezy-test-indezy-web='cd /workspace/indezy-web && npm test'
-alias indezy-build='cd /workspace && mask build-all'
+alias indezy-test-server='cd /workspace/indezy-server && ./mvnw verify'
+alias indezy-test-web='cd /workspace/indezy-web && npm run test:ci'
+alias indezy-e2e='cd /workspace/indezy-web && npm run test:e2e'
 alias indezy-db='PGPASSWORD=indezy_password psql -h postgres -U indezy_user -d indezy'
-alias indezy-logs='docker compose -f /workspace/infra/compose/compose.yaml logs -f'
-alias indezy-status='docker compose -f /workspace/infra/compose/compose.yaml ps'
-
-# Navigation aliases
-alias indezy-server='cd /workspace/indezy-server'
-alias indezy-web='cd /workspace/indezy-web'
+alias cd-server='cd /workspace/indezy-server'
+alias cd-web='cd /workspace/indezy-web'
 alias workspace='cd /workspace'
-EOF
+ALIASES
+fi
 
 echo "✅ Development environment setup complete!"
 echo ""
@@ -72,11 +67,13 @@ echo "  🔧 Backend (Spring Boot): http://localhost:8080"
 echo "  🗄️  Database (PostgreSQL): localhost:5432"
 echo "  🔍 pgAdmin: http://localhost:5050 (admin@indezy.com / admin)"
 echo ""
-echo "🚀 Quick start commands:"
-echo "  indezy-server    - Start the indezy-server server"
-echo "  indezy-web   - Start the indezy-web server"
-echo "  indezy-db         - Connect to the database"
-echo "  mask --help       - Show available mask commands"
+echo "🚀 Quick start commands (open a new terminal first):"
+echo "  indezy-server       - Start the backend"
+echo "  indezy-web          - Start the frontend"
+echo "  indezy-test-server  - Backend tests, Checkstyle and SpotBugs"
+echo "  indezy-test-web     - Frontend unit tests"
+echo "  indezy-e2e          - Playwright end-to-end tests"
+echo "  indezy-db           - Connect to the database"
 echo ""
 echo "📚 Database credentials:"
 echo "  Host: postgres (or localhost from host)"

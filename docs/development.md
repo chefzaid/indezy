@@ -132,11 +132,13 @@ The dev container is configured in `.devcontainer/devcontainer.json`.
 
 It provides:
 
-- Java 25 runtime configuration
-- Maven settings
+- its own image (`.devcontainer/Dockerfile`, Ubuntu 24.04) with Java 25 and Node.js 26 from devcontainer features,
+  `psql` and Git; the server's `Dockerfile` only builds the runtime image
+- Maven settings and Maven, npm, Playwright and VS Code extension caches kept across rebuilds
 - forwarded ports for backend, frontend, PostgreSQL, and pgAdmin
-- automatic `postgres` and `pgadmin` services
-- a post-create hook through `.devcontainer/post-create.sh`
+- automatic `postgres` (PostgreSQL 18, as in production) and `pgadmin` services
+- a post-create hook through `.devcontainer/post-create.sh`: dependencies, Chromium for the Karma and Playwright tests
+  (`CHROME_BIN` set), a first compile, and the aliases listed in `.devcontainer/README.md`
 
 Start it with VS Code's "Reopen in Container" command. The workspace folder inside the container is `/workspace`.
 

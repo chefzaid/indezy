@@ -1,203 +1,84 @@
 # Indezy Development Container
 
-This devcontainer provides a complete, standalone development environment for the Indezy application with all dependencies pre-configured. It uses the unified Docker setup with the indezy-server Dockerfile for the development container.
+A development environment for Indezy in VS Code (or any Dev Containers client): the tools to build and test both
+applications, next to a PostgreSQL database and pgAdmin, started from `infra/compose/compose.yaml`.
 
-## 🚀 Features
-
-- **Java 25** with Maven pre-configured
-- **Node.js 26** with Angular CLI
-- **PostgreSQL 15** database with sample data
-- **pgAdmin 4** for database management
-- **VS Code extensions** for Java, Angular, and database development
-- **Pre-configured environment** with all dependencies installed
-
-## 📋 What's Included
+## What's Included
 
 ### Services
-- **Development Container**: Uses `indezy-server/Dockerfile` in development mode with Java, Node.js, and development tools
-- **PostgreSQL Database**: Fully configured with the Indezy schema
-- **pgAdmin**: Web-based database administration tool
+- **Development container** (`devcontainer`): built from `.devcontainer/Dockerfile`, an Ubuntu 24.04 devcontainer
+  image. The server's own `indezy-server/Dockerfile` builds the runtime image and holds no build tools.
+- **PostgreSQL 18**: the major version production runs, with the extensions of `infra/database/init`; Hibernate
+  creates the schema, and `mask db-reset` loads the development sample data.
+- **pgAdmin 4**, with the database connection pre-configured.
 
-### Pre-installed Tools
-- Java 25 (OpenJDK)
-- Maven 3.9.9
-- Node.js 26
-- Angular CLI (latest)
-- PostgreSQL client
-- Git
-- Essential development utilities
+### Tools
+- Java 25 (Temurin) and Node.js 26, from the devcontainer features in `devcontainer.json`
+- The Maven wrapper (`indezy-server/mvnw`) and the Angular CLI of the project (`npx ng`)
+- Chromium with its system libraries, installed by Playwright, for the frontend unit tests (Karma) and end-to-end
+  tests (Playwright); `CHROME_BIN` points Karma at it
+- `psql` and `pg_isready`, Git
+- The VS Code extensions listed in `.devcontainer/extensions.json`
 
-### VS Code Extensions
-All necessary extensions are automatically installed from `.devcontainer/extensions.json`:
-- Java Extension Pack
-- Spring Boot Tools
-- Angular Language Service
-- TypeScript support
-- ESLint & Prettier
-- Tailwind CSS IntelliSense
-- PostgreSQL extension
-- Docker support
-- Git & Version Control tools
-- Code Quality & Testing tools
-- Productivity extensions
+## Quick Start
 
-## 🏃‍♂️ Quick Start
+1. Open the project in VS Code and choose **Reopen in Container**.
+2. Wait for the first build and `post-create.sh` (dependencies, Chromium, a first compile): about 5 to 10 minutes.
+3. Open a new terminal, so the aliases below are loaded, and start the applications.
 
-1. **Open in VS Code**: Open the project in VS Code and select "Reopen in Container" when prompted
-2. **Wait for setup**: The container will build and configure automatically (first time takes ~5-10 minutes)
-3. **Start development**: Use the simplified mask commands
+| Alias | Runs |
+|-------|------|
+| `indezy-server` | the backend (`./mvnw spring-boot:run`) |
+| `indezy-web` | the frontend (`npm start`) |
+| `indezy-test-server` | backend tests, Checkstyle and SpotBugs (`./mvnw verify`) |
+| `indezy-test-web` | frontend unit tests in headless Chromium (`npm run test:ci`) |
+| `indezy-e2e` | Playwright end-to-end tests (`npm run test:e2e`) |
+| `indezy-db` | `psql` on the development database |
+| `cd-server`, `cd-web`, `workspace` | go to a project folder |
 
-### Quick Commands
+The [maskfile](../maskfile.md) commands work too once `mask` is installed (`cargo install mask`, see
+[development](../docs/development.md)).
 
-```bash
-# Start indezy-server server
-indezy-server
-
-# Start indezy-web server  
-indezy-web
-
-# Connect to database
-indezy-db
-
-# Run tests
-indezy-test-indezy-server
-indezy-test-indezy-web
-
-# Build everything
-indezy-build
-```
-
-## 🌐 Access Points
+## Access Points
 
 | Service | URL | Credentials |
 |---------|-----|-------------|
 | Frontend | http://localhost:4200 | - |
 | Backend API | http://localhost:8080/api | - |
 | pgAdmin | http://localhost:5050 | admin@indezy.com / admin |
-| PostgreSQL | localhost:5432 | indezy_user / indezy_password |
+| PostgreSQL | localhost:5432 (`postgres:5432` inside the container) | indezy_user / indezy_password |
 
-## 🗄️ Database Configuration
+The backend runs with the `devcontainer` Spring profile (`SPRING_PROFILES_ACTIVE`), whose
+`application-devcontainer.yml` points it at the `postgres` service.
 
-The PostgreSQL database is automatically configured with:
-- **Database**: `indezy`
-- **Username**: `indezy_user`
-- **Password**: `indezy_password`
-- **Host**: `postgres` (within container) or `localhost` (from host)
-- **Port**: `5432`
+## Troubleshooting
 
-### Database Features
-- Automatic schema creation via JPA/Hibernate
-- Sample data initialization
-- pgAdmin pre-configured with connection
-- Persistent data storage
+Run these from the host: the container has no Docker CLI.
 
-## 🔧 Development Workflow
-
-### Backend Development
 ```bash
-cd indezy-server
-./mvnw spring-boot:run
-# or use alias: indezy-server
+# Services and database logs
+docker compose -f infra/compose/compose.yaml ps
+docker compose -f infra/compose/compose.yaml logs postgres
+
+# Reset the database. Needed once after moving from PostgreSQL 15: its data directory cannot be read by 18.
+docker compose -f infra/compose/compose.yaml down -v
+docker compose -f infra/compose/compose.yaml up -d postgres
 ```
 
-### Frontend Development
-```bash
-cd indezy-web
-npm start
-# or use alias: indezy-web
-```
+- **Ports in use**: 4200, 8080, 5432 and 5050 must be free on the host.
+- **Browser tests cannot find Chrome**: open a new terminal so `CHROME_BIN` is set, or run
+  `npx playwright install --with-deps chromium` in `indezy-web`.
 
-### Running Tests
-```bash
-# Backend tests
-cd indezy-server && ./mvnw test
+## Updating the Container
 
-# Frontend tests
-cd indezy-web && npm test
+Run **Dev Containers: Rebuild Container** from the VS Code command palette. The Maven, npm, Playwright and VS Code
+extension caches are volumes, kept across rebuilds; `post-create.sh` adds its aliases to `~/.bashrc` only once.
 
-# Or use aliases
-indezy-test-indezy-server
-indezy-test-indezy-web
-```
+## Security Notes
 
-## 📁 Project Structure
+The database and pgAdmin credentials are for local development only and must never be used elsewhere.
 
-```
-/workspace/
-├── indezy-server/           # Spring Boot application
-├── indezy-web/              # Angular application
-├── infra/                   # Compose, Kubernetes, Argo CD, database, and scripts
-├── .devcontainer/           # Container configuration
-└── docs/                    # Documentation
-```
+## Additional Resources
 
-## 🐛 Troubleshooting
-
-### Container Issues
-- **Slow startup**: First build takes time to download images and dependencies
-- **Port conflicts**: Ensure ports 4200, 8080, 5432, 5050 are available
-- **Database connection**: Wait for PostgreSQL to fully start before running applications
-
-### Database Issues
-```bash
-# Check database status
-docker compose -f /workspace/infra/compose/compose.yaml ps
-
-# View database logs
-docker compose -f /workspace/infra/compose/compose.yaml logs postgres
-
-# Reset database
-docker compose -f /workspace/infra/compose/compose.yaml down -v
-docker compose -f /workspace/infra/compose/compose.yaml up -d postgres
-```
-
-### Application Issues
-```bash
-# Check service status
-indezy-status
-
-# View logs
-indezy-logs
-
-# Restart services
-docker compose -f /workspace/infra/compose/compose.yaml restart
-```
-
-## 🔄 Updating the Container
-
-To update the development environment:
-
-1. Rebuild the container:
-   ```bash
-   # From VS Code Command Palette
-   Dev Containers: Rebuild Container
-   ```
-
-2. Or manually:
-   ```bash
-   docker compose -f /workspace/infra/compose/compose.yaml --profile devcontainer down
-   docker compose -f /workspace/infra/compose/compose.yaml --profile devcontainer build --no-cache
-   docker compose -f /workspace/infra/compose/compose.yaml --profile devcontainer up -d
-   ```
-
-## 📝 Environment Variables
-
-The container sets up these environment variables automatically:
-- `SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/indezy`
-- `SPRING_DATASOURCE_USERNAME=indezy_user`
-- `SPRING_DATASOURCE_PASSWORD=indezy_password`
-- `NODE_ENV=development`
-
-## 🔒 Security Notes
-
-- Database credentials are for development only
-- Change passwords for production environments
-- OAuth credentials need to be configured separately
-- JWT secret is set to a development-only value
-
-## 📚 Additional Resources
-
-- [VS Code Dev Containers Documentation](https://code.visualstudio.com/docs/remote/containers)
-- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
-- [Angular Documentation](https://angular.dev/)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [VS Code Dev Containers documentation](https://code.visualstudio.com/docs/devcontainers/containers)
+- [Development guide](../docs/development.md)

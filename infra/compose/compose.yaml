@@ -7,7 +7,8 @@
 services:
   # PostgreSQL Database (used in both dev and prod)
   postgres:
-    image: postgres:15-alpine
+    # The major version production runs (infra/k8s); a volume made by an older major version needs `down -v`.
+    image: postgres:18-alpine
     container_name: indezy-postgres
     restart: unless-stopped
     environment:
@@ -17,7 +18,8 @@ services:
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # PostgreSQL 18 images keep their data in a versioned folder under /var/lib/postgresql.
+      - postgres_data:/var/lib/postgresql
       - ../database/init:/docker-entrypoint-initdb.d:ro
     networks:
       - indezy-network
@@ -170,16 +172,16 @@ services:
   # DevContainer service (for VS Code development)
   devcontainer:
     build:
-      context: ../../indezy-server
+      context: ../../.devcontainer
       dockerfile: Dockerfile
-      args:
-        BUILD_ENV: development
     container_name: indezy-devcontainer
     volumes:
       - ../..:/workspace:cached
-      - maven-cache:/home/appuser/.m2
-      - node-cache:/home/appuser/.npm
-      - vscode-extensions:/home/appuser/.vscode-server/extensions
+      # Caches of the container's vscode user, kept across rebuilds.
+      - maven-cache:/home/vscode/.m2
+      - node-cache:/home/vscode/.npm
+      - playwright-cache:/home/vscode/.cache/ms-playwright
+      - vscode-extensions:/home/vscode/.vscode-server/extensions
     command: sleep infinity
     networks:
       - indezy-network
@@ -199,6 +201,8 @@ volumes:
   maven-cache:
     driver: local
   node-cache:
+    driver: local
+  playwright-cache:
     driver: local
   vscode-extensions:
     driver: local
