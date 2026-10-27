@@ -169,6 +169,7 @@ public class ProjectController {
         String filename = "indezy-summary-" + (year != null ? year : "all") + ".csv";
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+            .header(HttpHeaders.CACHE_CONTROL, "no-store")
             .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
             .body(projectExportService.buildYearlySummaryCsv(freelanceId, year));
     }

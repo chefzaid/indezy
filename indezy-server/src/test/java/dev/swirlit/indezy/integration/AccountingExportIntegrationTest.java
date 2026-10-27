@@ -16,7 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Alice hands her accountant a year of invoices, over HTTP: the FEC journal entries of an invoice, its credit note and
- * its payment, then the register as a spreadsheet in French and English, with none of Bob's and no draft.
+ * its payment, then the register as a spreadsheet in French and English, with none of Bob's and no draft; a formula-like
+ * client name stays text in the spreadsheets.
  */
 class AccountingExportIntegrationTest extends TwoAccountsIntegrationTest {
 
@@ -86,6 +87,13 @@ class AccountingExportIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(english.getHeaders().getContentDisposition().getFilename()).isEqualTo("invoices-" + year + ".csv");
         assertThat(new String(english.getBody(), StandardCharsets.UTF_8)).contains("Number,Type,Date,Client,SIREN,VAT number",
             ",Invoice," + today + ",", ",-100.00,-20.00,-120.00,", "Total,,,,,,,1100.00,220.00,1320.00,,,,");
+
+        // The projects summary keeps the client's name as text too, and is not cached either.
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Audit", "dailyRate", 600, "status", "WON", "clientId", aliceClientId,
+            "startDate", today.toString()), Map.class);
+        ResponseEntity<String> summary = call(alice, HttpMethod.GET, "/projects/export/csv/" + alice.freelanceId(), null, String.class);
+        assertThat(summary.getHeaders().getFirst(HttpHeaders.CACHE_CONTROL)).isEqualTo("no-store");
+        assertThat(summary.getBody()).contains("Audit,WON,\"'=HYPERLINK(\"\"https://evil.example\"\")\",");
 
         // Another year holds nothing; Bob's export holds none of Alice's; a year or format out of range is refused.
         assertThat(new String(call(alice, HttpMethod.GET, "/invoices/export/" + (year - 1), null, byte[].class).getBody(),
