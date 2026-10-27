@@ -229,6 +229,16 @@ describe('AuthService', () => {
       expect(startSsoLogin).not.toHaveBeenCalled();
     });
 
+    it('exchanges the session on the presentation page without ever sending the visitor to sign in', async () => {
+      const startSsoLogin = spyOn(service, 'startSsoLogin');
+      for (const path of ['/', '/en']) {
+        const initialization = service.initializeSso(true, path);
+        httpMock.expectOne('http://localhost:8080/api/auth/sso').flush({}, { status: 401, statusText: 'Unauthorized' });
+        await initialization;
+      }
+      expect(startSsoLogin).not.toHaveBeenCalled();
+    });
+
     it('still signs visitors in on pages that only start like a public one', async () => {
       const startSsoLogin = spyOn(service, 'startSsoLogin');
       const initialization = service.initializeSso(true, '/activity-reports-admin');

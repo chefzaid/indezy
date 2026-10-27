@@ -2692,5 +2692,107 @@
         "failed": "L'appel n'a pas pu être réservé. Veuillez réessayer."
       }
     }
+  },
+  "home": {
+    "brand": "Indezy, accueil",
+    "navLabel": "Compte et langue",
+    "signIn": "Se connecter",
+    "signUp": "Créer mon compte",
+    "openDashboard": "Ouvrir le tableau de bord",
+    "meta": {
+      "title": "Indezy · Trouvez la mission, décrochez-la au bon TJM, puis menez-la",
+      "description": "L'espace de travail des freelances IT en France : les missions des principaux sites freelance, votre pipeline du premier contact à la signature, puis CRA et factures Factur-X."
+    },
+    "hero": {
+      "eyebrow": "Pour les freelances IT en France",
+      "title": "Trouvez la mission, décrochez-la au bon TJM, puis menez-la.",
+      "lead": "Indezy rassemble les missions freelance des sites français, suit chaque opportunité du premier contact à la signature et, une fois la mission signée, rédige ses CRA et ses factures.",
+      "sceneLabel": "Un pipeline Indezy : des opportunités en cinq étapes, du premier contact à acceptée ou perdue, chacune avec son poste, son client et son TJM."
+    },
+    "features": {
+      "title": "Ce que fait Indezy aujourd'hui",
+      "feed": {
+        "title": "Toutes les missions freelance dans un seul flux",
+        "text": "Free-Work, Cherry Pick, LeHibou, Collective.work et une douzaine d'autres sites, lus pour vous. Recherches enregistrées et suggérées, l'adéquation de chaque offre à votre profil et au TJM du marché, les offres suspectes signalées, et toute annonce ajoutée depuis son lien."
+      },
+      "pipeline": {
+        "title": "Un pipeline fiable",
+        "text": "Un tableau Kanban du premier contact à la signature, les étapes d'entretien et leur checklist, un calendrier et un lien de réservation pour les recruteurs, et des saisons de recherche avec leurs propres chiffres."
+      },
+      "network": {
+        "title": "Clients, ESN et contacts",
+        "text": "Qui travaille où et avec qui, les organigrammes, les échanges avec chaque contact et les relances à faire, et les sources qui vous apportent des missions."
+      },
+      "reports": {
+        "title": "Des CRA validés par lien",
+        "text": "Le CRA de chaque mois rempli en quelques clics, envoyé au client ou à l'ESN, qui le valide par un lien sans compte, et imprimé en PDF à son modèle."
+      },
+      "invoices": {
+        "title": "Factures et documents",
+        "text": "Factures Factur-X et avoirs, l'export pour l'expert-comptable, les bons de commande suivis au jour près, et les documents de conformité demandés par les ESN, partagés par un seul lien."
+      },
+      "dashboard": {
+        "title": "Un tableau de bord pour décider",
+        "text": "Les sources qui rapportent, les compétences demandées, votre activité de l'année, les missions triées par leur trajet du mois, et ce qu'un TJM vous laisse une fois les cotisations payées."
+      }
+    },
+    "steps": {
+      "title": "Comment ça marche",
+      "profile": {
+        "title": "Votre profil",
+        "text": "Vos compétences, votre TJM cible, votre ville et votre disponibilité : les offres sont notées selon eux."
+      },
+      "network": {
+        "title": "Clients et sources",
+        "text": "Les ESN et clients avec qui vous travaillez, leurs contacts, et d'où viennent vos missions."
+      },
+      "opportunities": {
+        "title": "Opportunités",
+        "text": "Ajoutées à la main, depuis un lien, ou depuis le flux en un clic."
+      },
+      "pipeline": {
+        "title": "Pipeline et entretiens",
+        "text": "Chaque étape, chaque entretien et chaque relance, jusqu'à la signature."
+      },
+      "reports": {
+        "title": "Après la signature",
+        "text": "Les CRA chaque mois, puis les factures et leur paiement."
+      }
+    },
+    "trust": {
+      "title": "Vos données restent les vôtres",
+      "yours": {
+        "title": "Vous seul voyez votre espace",
+        "text": "Personne d'autre ne lit vos opportunités, vos clients ou vos tarifs, et rien n'est montré à des annonceurs."
+      },
+      "export": {
+        "title": "Tout s'exporte",
+        "text": "Téléchargez toutes vos données à tout moment, et reprenez vos opportunités et contacts depuis un fichier."
+      },
+      "links": {
+        "title": "Vous choisissez ce que vous partagez",
+        "text": "Un profil public, un lien de réservation ou un lien de documents ne montrent que ce que vous choisissez, et chacun se ferme aussitôt."
+      }
+    },
+    "faq": {
+      "title": "Questions",
+      "who": {
+        "q": "À qui s'adresse Indezy ?",
+        "a": "Aux freelances de la tech en France, développeurs, architectes, data, DevOps, chefs de projet et produit, qu'ils passent par des ESN, des plateformes ou directement par leurs clients."
+      },
+      "sites": {
+        "q": "Quels sites le flux lit-il ?",
+        "a": "Free-Work, Collective.work, Cherry Pick, LeHibou, Yeets, WorkDispo, Next Mondays, Mindquest, Freelance-Informatique et une dizaine d'autres sites français, missions freelance seulement. Toute autre annonce s'ajoute depuis son lien."
+      },
+      "data": {
+        "q": "À qui appartiennent mes données ?",
+        "a": "À vous. Votre espace n'appartient qu'à vous, et vous pouvez tout exporter à tout moment, dans un fichier que vous pouvez réimporter."
+      },
+      "languages": {
+        "q": "Quelles langues ?",
+        "a": "Indezy est en français et en anglais, tout comme ses CRA, ses factures et ses e-mails."
+      }
+    },
+    "footer": "L'espace de travail des freelances IT en France."
   }
 }

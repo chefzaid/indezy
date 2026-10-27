@@ -1,5 +1,5 @@
 <div class="app-container">
-  @if (authService.isAuthenticated()) {
+  @if (authService.isAuthenticated() && !onHomePage()) {
     <!-- Top Navigation -->
     <mat-toolbar color="primary" class="app-toolbar">
       <button mat-icon-button (click)="sidenav.toggle()" class="menu-button"

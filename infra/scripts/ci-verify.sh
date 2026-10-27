@@ -52,7 +52,7 @@ test_application() {
   npm ci
   npm run lint
   npm run test:ci
-  npm run test:extension
+  npm run test:node
   popd >/dev/null
 
   python3 infra/scripts/ci-coverage-check.py \

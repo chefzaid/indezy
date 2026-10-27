@@ -13,6 +13,9 @@ import { clearOfflineData } from '../../shared/utils/offline-data';
  */
 export const PUBLIC_PAGE_PATHS = ['/activity-report', '/book', '/documents-pack', '/emails/unsubscribe', '/p'];
 
+/** The presentation page's addresses: the session is exchanged there to know who is signed in, never asked for. */
+export const HOME_PAGE_PATHS = ['/', '/en'];
+
 @Injectable({
   providedIn: 'root'
 })
@@ -87,7 +90,7 @@ export class AuthService {
       )
     );
 
-    if (!sessionExchanged && sessionStorage.getItem(this.SSO_ATTEMPT_KEY) !== 'pending') {
+    if (!sessionExchanged && !HOME_PAGE_PATHS.includes(path) && sessionStorage.getItem(this.SSO_ATTEMPT_KEY) !== 'pending') {
       this.startSsoLogin();
     }
   }

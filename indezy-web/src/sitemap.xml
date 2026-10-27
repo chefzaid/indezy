@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://indezy.swirlit.dev/</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://indezy.swirlit.dev/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://indezy.swirlit.dev/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://indezy.swirlit.dev/"/>
+  </url>
+  <url>
+    <loc>https://indezy.swirlit.dev/en</loc>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://indezy.swirlit.dev/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://indezy.swirlit.dev/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://indezy.swirlit.dev/"/>
+  </url>
+</urlset>

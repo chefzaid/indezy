@@ -1,10 +1,10 @@
 import { Component, DestroyRef, OnInit, ChangeDetectionStrategy, HostListener, inject } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
-import { Observable } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Observable, filter, map } from 'rxjs';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 
-import { RouterOutlet, RouterModule } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,7 +13,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AuthService } from './services/auth/auth.service';
+import { AuthService, HOME_PAGE_PATHS } from './services/auth/auth.service';
 import { LANGUAGE_STORAGE_KEY, getSavedLanguage } from './shared/locale/app-locale';
 import { ConnectivityService } from './shared/services/connectivity.service';
 import { ThemeService } from './shared/theme/theme.service';
@@ -76,6 +76,12 @@ export class AppComponent implements OnInit {
   private readonly capabilities = inject(CapabilitiesService);
   readonly themeService = inject(ThemeService);
   readonly connectivity = inject(ConnectivityService);
+  private readonly router = inject(Router);
+  /** The presentation page shows without the app's menu, signed in or not. */
+  readonly onHomePage = toSignal(this.router.events.pipe(
+    filter(event => event instanceof NavigationEnd),
+    map(event => HOME_PAGE_PATHS.includes((event as NavigationEnd).urlAfterRedirects.split(/[?#]/)[0]))
+  ), { initialValue: false });
   /** Account id whose saved theme preference has been applied. */
   private themeSyncedFor: number | null = null;
 

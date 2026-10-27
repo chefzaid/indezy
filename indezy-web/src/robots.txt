@@ -1,0 +1,14 @@
+# Search engines index the presentation page only (in French at /, in English at /en). The app, its shared links
+# (activity reports, documents, booking links, public profiles) and the API stay out. The page's scripts, styles and
+# texts stay open so that it can be rendered.
+User-agent: *
+Allow: /$
+Allow: /en$
+Allow: /*.js$
+Allow: /*.css$
+Allow: /assets/
+Allow: /favicon.ico
+Allow: /manifest.webmanifest
+Disallow: /
+
+Sitemap: https://indezy.swirlit.dev/sitemap.xml

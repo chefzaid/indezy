@@ -1,0 +1,111 @@
+<div class="home">
+  <header class="top">
+    <a [routerLink]="language === 'en' ? '/en' : '/'" class="brand" [attr.aria-label]="'home.brand' | translate">
+      <app-logo [height]="36"></app-logo>
+    </a>
+    <nav class="top-actions" [attr.aria-label]="'home.navLabel' | translate">
+      <div class="languages" role="group" [attr.aria-label]="'language.switch' | translate">
+        <button mat-button type="button" lang="fr" [attr.aria-pressed]="language === 'fr'" (click)="switchLanguage('fr')">FR</button>
+        <button mat-button type="button" lang="en" [attr.aria-pressed]="language === 'en'" (click)="switchLanguage('en')">EN</button>
+      </div>
+      @if (auth.isAuthenticated()) {
+        <a mat-raised-button color="primary" routerLink="/dashboard" data-open-dashboard>{{ 'home.openDashboard' | translate }}</a>
+      } @else {
+        <button mat-stroked-button type="button" (click)="signIn()" data-sign-in>{{ 'home.signIn' | translate }}</button>
+      }
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-text">
+        <p class="eyebrow">{{ 'home.hero.eyebrow' | translate }}</p>
+        <h1 id="hero-title">{{ 'home.hero.title' | translate }}</h1>
+        <p class="lead">{{ 'home.hero.lead' | translate }}</p>
+        <div class="cta">
+          @if (auth.isAuthenticated()) {
+            <a mat-raised-button color="primary" routerLink="/dashboard">{{ 'home.openDashboard' | translate }}</a>
+          } @else {
+            @if (signUpOpen) {
+              <a mat-raised-button color="primary" routerLink="/register" data-sign-up>{{ 'home.signUp' | translate }}</a>
+            }
+            <button mat-stroked-button type="button" (click)="signIn()">{{ 'home.signIn' | translate }}</button>
+          }
+        </div>
+      </div>
+      <div class="scene" role="img" [attr.aria-label]="'home.hero.sceneLabel' | translate">
+        @for (lane of board; track lane.column) {
+          <div class="lane" aria-hidden="true">
+            <span class="lane-title">{{ 'projects.statuses.' + lane.column | translate }}</span>
+            @for (card of lane.cards; track card.role) {
+              <span class="card" [class.won]="lane.column === 'WON'" [class.lost]="lane.column === 'LOST'">
+                <strong>{{ card.role }}</strong>
+                <span>{{ card.client }}</span>
+                <span class="rate">{{ card.rate }} €/j</span>
+              </span>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="features" aria-labelledby="features-title">
+      <h2 id="features-title">{{ 'home.features.title' | translate }}</h2>
+      <div class="feature-grid">
+        @for (feature of features; track feature.key) {
+          <article class="feature" [attr.data-feature]="feature.key">
+            <mat-icon aria-hidden="true">{{ feature.icon }}</mat-icon>
+            <h3>{{ 'home.features.' + feature.key + '.title' | translate }}</h3>
+            <p>{{ 'home.features.' + feature.key + '.text' | translate }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="steps" aria-labelledby="steps-title">
+      <h2 id="steps-title">{{ 'home.steps.title' | translate }}</h2>
+      <ol>
+        @for (step of steps; track step) {
+          <li>
+            <h3>{{ 'home.steps.' + step + '.title' | translate }}</h3>
+            <p>{{ 'home.steps.' + step + '.text' | translate }}</p>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <section class="trust" aria-labelledby="trust-title">
+      <h2 id="trust-title">{{ 'home.trust.title' | translate }}</h2>
+      <ul>
+        @for (point of trust; track point) {
+          <li>
+            <mat-icon aria-hidden="true">verified_user</mat-icon>
+            <div>
+              <h3>{{ 'home.trust.' + point + '.title' | translate }}</h3>
+              <p>{{ 'home.trust.' + point + '.text' | translate }}</p>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">{{ 'home.faq.title' | translate }}</h2>
+      <mat-accordion>
+        @for (question of questions; track question) {
+          <mat-expansion-panel [attr.data-question]="question">
+            <mat-expansion-panel-header>
+              <mat-panel-title>{{ 'home.faq.' + question + '.q' | translate }}</mat-panel-title>
+            </mat-expansion-panel-header>
+            <p>{{ 'home.faq.' + question + '.a' | translate }}</p>
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+    </section>
+  </main>
+
+  <footer class="bottom">
+    <span>© {{ year }} Indezy</span>
+    <span>{{ 'home.footer' | translate }}</span>
+  </footer>
+</div>

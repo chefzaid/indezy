@@ -124,11 +124,21 @@ Protected routes use `authGuard`:
 
 Public routes:
 
+- `/` and `/en` (the presentation page: the session is exchanged there to know whether the visitor is signed in, but a
+  visitor without one is never sent to Keycloak; served as static HTML first, see
+  [Features](./features.md#presentation-page))
 - `/login`
 - `/register`
 - `/activity-report` (activity report validation by a client or ESN)
+- `/documents-pack` (shared compliance documents)
+- `/book/<link>` (booking a call)
+- `/p/<address>` (a public profile)
+- `/emails/unsubscribe` (a saved search email's unsubscribe link)
 - `/404`
 - `/error`
+
+`robots.txt` lets search engines index `/` and `/en` only (with the scripts, styles and assets that render them), and
+`sitemap.xml` lists those two; shared links, public profiles and the app stay out.
 
 `/admin` also needs `adminGuard`, and the pages of a feature that can be turned off (`/offers`, `/review`) need
 `featureGuard`: both read `GET /users/capabilities` and send anyone else to the dashboard.

@@ -2,13 +2,21 @@ import { Routes } from '@angular/router';
 import { routes } from './app.routes';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/capability.guards';
+import { projectLinkGuard } from './guards/project-link.guard';
 
 describe('application routes', () => {
-  it('lands an authenticated root session on the dashboard', () => {
+  it('opens the presentation page at the root in French and at /en in English, for every visitor', async () => {
     const root = routes.find((route) => route.path === '');
+    const english = routes.find((route) => route.path === 'en');
 
-    expect(root?.redirectTo).toBe('dashboard');
+    expect(root?.redirectTo).toBeUndefined();
     expect(root?.pathMatch).toBe('full');
+    expect(root?.data).toEqual({ language: 'fr' });
+    expect(root?.canActivate).toEqual([projectLinkGuard]);
+    expect(english?.data).toEqual({ language: 'en' });
+    expect(english?.canActivate).toBeUndefined();
+    expect(await root?.loadComponent?.()).toBeDefined();
+    expect(await english?.loadComponent?.()).toBeDefined();
   });
 
   it('opens activity report validation links without an account', () => {

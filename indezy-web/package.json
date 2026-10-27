@@ -6,11 +6,12 @@
     "ng": "ng",
     "start": "ng serve --host 0.0.0.0 --port 4200",
     "build": "ng build",
+    "postbuild": "node scripts/prerender-home.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI",
     "test:e2e": "playwright test",
-    "test:extension": "node --check extension/background.js && node --check extension/options.js && node --test extension/test/",
+    "test:node": "node --check extension/background.js && node --check extension/options.js && node --test extension/test/ scripts/test/",
     "lint": "ng lint && node scripts/coverage-sources.mjs --check",
     "coverage-sources": "node scripts/coverage-sources.mjs"
   },

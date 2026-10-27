@@ -2692,5 +2692,107 @@
         "failed": "The call could not be booked. Please try again."
       }
     }
+  },
+  "home": {
+    "brand": "Indezy, home",
+    "navLabel": "Account and language",
+    "signIn": "Sign in",
+    "signUp": "Create my account",
+    "openDashboard": "Open the dashboard",
+    "meta": {
+      "title": "Indezy · Find the mission, win it at the right rate, then run it",
+      "description": "The workspace of French IT freelancers: the missions of the main freelance job boards, your pipeline from first contact to signature, then activity reports and Factur-X invoices."
+    },
+    "hero": {
+      "eyebrow": "For IT freelancers in France",
+      "title": "Find the mission, win it at the right rate, then run it.",
+      "lead": "Indezy gathers the freelance missions of the French job boards, follows each opportunity from first contact to signature, and once the mission is signed, writes its activity reports and its invoices.",
+      "sceneLabel": "An Indezy pipeline: opportunities in five stages, from first contact to accepted or lost, each with its role, client and daily rate."
+    },
+    "features": {
+      "title": "What Indezy does today",
+      "feed": {
+        "title": "Every freelance mission in one feed",
+        "text": "Free-Work, Cherry Pick, LeHibou, Collective.work and a dozen more boards, read for you. Saved and suggested searches, how well each offer matches your profile and the market's rate, suspicious offers flagged, and any posting added from its link."
+      },
+      "pipeline": {
+        "title": "A pipeline you can trust",
+        "text": "A Kanban board from first contact to signature, interview steps with their checklist, a calendar and a booking link for recruiters, and job-hunting seasons with their own figures."
+      },
+      "network": {
+        "title": "Clients, ESNs and contacts",
+        "text": "Who works where and with whom, org charts, the exchanges with each contact and the follow-ups due, and the sources that bring you missions."
+      },
+      "reports": {
+        "title": "Activity reports, validated by link",
+        "text": "Each month's CRA filled in a few clicks, sent to the client or ESN, who approves it through a link without an account, and printed as PDF in their template."
+      },
+      "invoices": {
+        "title": "Invoices and documents",
+        "text": "Factur-X invoices and credit notes, the accountant's export, purchase orders followed day by day, and the compliance documents ESNs ask for, shared through one link."
+      },
+      "dashboard": {
+        "title": "A dashboard to decide",
+        "text": "Which sources pay off, the skills in demand, your activity over the year, missions sorted by their monthly commute, and what a daily rate leaves you once contributions are paid."
+      }
+    },
+    "steps": {
+      "title": "How it works",
+      "profile": {
+        "title": "Your profile",
+        "text": "Your skills, target daily rate, city and availability: offers are scored against them."
+      },
+      "network": {
+        "title": "Clients and sources",
+        "text": "The ESNs and clients you work with, their contacts, and where your missions come from."
+      },
+      "opportunities": {
+        "title": "Opportunities",
+        "text": "Added by hand, from a link, or from the feed in one click."
+      },
+      "pipeline": {
+        "title": "Pipeline and interviews",
+        "text": "Each stage, each interview and each follow-up, until the offer is signed."
+      },
+      "reports": {
+        "title": "After signature",
+        "text": "Activity reports every month, then invoices and their payment."
+      }
+    },
+    "trust": {
+      "title": "Your data stays yours",
+      "yours": {
+        "title": "Only you see your workspace",
+        "text": "No one else reads your opportunities, clients or rates, and nothing is shown to advertisers."
+      },
+      "export": {
+        "title": "Everything can be exported",
+        "text": "Download all your data at any time, and take your opportunities and contacts back from a file."
+      },
+      "links": {
+        "title": "You choose what you share",
+        "text": "A public profile, a booking link or a document link show only what you pick, and each can be closed at once."
+      }
+    },
+    "faq": {
+      "title": "Questions",
+      "who": {
+        "q": "Who is Indezy for?",
+        "a": "Freelancers in French tech, developers, architects, data, DevOps, project and product people, whether they work through ESNs, platforms or directly with clients."
+      },
+      "sites": {
+        "q": "Which sites does the feed read?",
+        "a": "Free-Work, Collective.work, Cherry Pick, LeHibou, Yeets, WorkDispo, Next Mondays, Mindquest, Freelance-Informatique and about ten more French boards, freelance missions only. Any other posting can be added from its link."
+      },
+      "data": {
+        "q": "Who owns my data?",
+        "a": "You do. Your workspace is yours alone, and you can export all of it at any time, as a file you can bring back."
+      },
+      "languages": {
+        "q": "Which languages?",
+        "a": "Indezy is in French and English, and so are its activity reports, invoices and emails."
+      }
+    },
+    "footer": "The workspace of IT freelancers in France."
   }
 }

@@ -5,7 +5,20 @@ import { onboardingGuard } from './guards/onboarding.guard';
 import { adminGuard, featureGuard } from './guards/capability.guards';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  {
+    // The presentation page, in French at the root and English under /en; an old shared ?project= link opens its mission.
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent),
+    canActivate: [projectLinkGuard],
+    data: { language: 'fr' }
+  },
+  {
+    path: 'en',
+    pathMatch: 'full',
+    loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent),
+    data: { language: 'en' }
+  },
   {
     path: 'login',
     loadComponent: () => import('./components/auth/login/login.component').then(m => m.LoginComponent)

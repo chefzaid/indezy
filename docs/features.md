@@ -14,6 +14,24 @@ The core workflow is:
 4. Track each opportunity through the pipeline and interview steps.
 5. Use dashboard and filtering views to decide what needs attention.
 
+## Presentation Page
+
+`https://indezy.swirlit.dev` opens the presentation page, in French at `/` and in English at `/en`: a first visit to
+`/` from an English browser goes to `/en`, and **FR** / **EN** keep the language chosen. It shows the positioning (find
+the mission, win it at the right rate, then run it) with a Kanban scene, what Indezy does today (the offer feed, the
+pipeline, clients and contacts, activity reports, invoices and documents, the dashboard), how it works in five steps,
+what is true of the data (only the account sees its workspace, everything can be exported, shared links show only what
+is chosen) and a few questions. Signed out, **Sign in** opens Keycloak (the sign-in page outside production, plus
+**Create my account** there: sign-up in production waits on the decision in TODO.md, Needs Input); signed in, **Open
+the dashboard**. The page never sends a visitor to sign in by itself, shows without the app's menu, and an old shared
+`/?project=<id>` link still opens its opportunity.
+
+For search engines and link previews, each language has its title and description, its canonical address and the
+other language's (`hreflang`), an Open Graph and Twitter card with `assets/brand/og-image.png`, and schema.org
+`SoftwareApplication` data. After the build, `scripts/prerender-home.mjs` writes `home-fr.html` and `home-en.html`: the
+built `index.html` with these tags and the page's text, which nginx serves for `/` and `/en`, so the content is there
+without JavaScript; the app replaces it once it starts. `robots.txt` and `sitemap.xml` list these two pages only.
+
 ## Authentication And Account Access
 
 Implemented account flows:

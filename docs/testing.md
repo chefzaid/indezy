@@ -501,10 +501,18 @@ axe-core) hide the charts, move the recent opportunities up, and find the layout
 Billing scenarios (`e2e/billing.spec.ts`, on a desktop and on a phone, audited with axe-core) fill in the billing
 identity, a wrong IBAN refused, until the tab says invoices can be issued.
 
+Presentation page scenarios (`e2e/home.spec.ts`) open `/` signed out in a French browser, in light and dark themes, on
+a desktop and on a phone, audited with axe-core against WCAG 2.2 AA, with no request to Keycloak, then switch to
+English; take a first visit from an English browser to `/en` and keep a language chosen; open the dashboard from the
+page signed in, without the app's menu; still open an opportunity from `/?project=`; and read `robots.txt` and
+`sitemap.xml`. `home.component.spec.ts` covers the texts, the head tags (the static page's replaced) and the buttons,
+`app.routes.spec.ts` the routes, `auth.service.spec.ts` the session exchanged at `/` without a redirect, and
+`scripts/test/prerender-home.test.mjs` (in `npm run test:node`) the static pages written after the build.
+
 Extension scenarios (`e2e/extension.spec.ts`) load the browser extension into Chromium: its options refuse an address
 over HTTP or with a path (audited with axe-core) and keep an HTTPS one, then it opens the new opportunity form for a
 page's address at the address set, and ignores the browser's own pages. Its helpers are unit-tested with Node
-(`npm run test:extension`: the address kept, web pages only, the form's address), and the offer link field's
+(`npm run test:node`: the address kept, web pages only, the form's address), and the offer link field's
 `offer-link-field.component.spec.ts` and `project-form.component.spec.ts` cover the link handed with the page.
 
 Contact privacy scenarios (`e2e/contact-privacy.spec.ts`, on a desktop and on a phone, the card audited with axe-core)
