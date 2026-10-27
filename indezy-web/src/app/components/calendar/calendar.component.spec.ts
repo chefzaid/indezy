@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { BehaviorSubject, of, throwError } from 'rxjs';
-import { InterviewStepDto, StepStatus } from '../../models';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { Booking, InterviewStepDto, StepStatus } from '../../models';
 import { AuthService } from '../../services/auth/auth.service';
 import { InterviewStepService } from '../../services/interview-step/interview-step.service';
+import { BookingService } from '../../services/booking/booking.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { CalendarComponent } from './calendar.component';
 import en from '../../../assets/i18n/en.json';
@@ -14,6 +15,7 @@ describe('CalendarComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   let params: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let navigate: jasmine.Spy;
+  let bookings: jasmine.SpyObj<BookingService>;
   const planned: InterviewStepDto[] = [
     { id: 1, title: 'Technical test', status: StepStatus.PLANNED, date: '2026-10-20T14:00:00', projectId: 4, projectRole: 'Java developer' },
     { id: 2, title: 'Call', status: StepStatus.VALIDATED, date: '2026-10-20T09:30:00', projectId: 5, projectRole: 'Ops' },
@@ -23,7 +25,11 @@ describe('CalendarComponent', () => {
   ];
 
   function create(month: string | null = '2026-10', user: { id: number } | null = { id: 7 },
-                  list = of(planned)): ComponentFixture<CalendarComponent> {
+                  list = of(planned), calls: Observable<Booking[]> = of([])): ComponentFixture<CalendarComponent> {
+    bookings = jasmine.createSpyObj('BookingService', ['page', 'list']);
+    bookings.page.and.returnValue(of({ slug: null, settings: { enabled: false, title: '', durationMinutes: 30, bufferMinutes: 15,
+      minNoticeHours: 24, maxDaysAhead: 21, windows: [] } }));
+    bookings.list.and.returnValue(calls);
     steps = jasmine.createSpyObj('InterviewStepService', ['getByFreelanceIdAndStatus']);
     steps.getByFreelanceIdAndStatus.and.returnValue(list);
     notifications = jasmine.createSpyObj('NotificationService', ['error']);
@@ -34,6 +40,7 @@ describe('CalendarComponent', () => {
         provideRouter([]),
         { provide: ActivatedRoute, useValue: { queryParamMap: params.asObservable() } },
         { provide: InterviewStepService, useValue: steps },
+        { provide: BookingService, useValue: bookings },
         { provide: AuthService, useValue: { getUser: () => user } },
         { provide: NotificationService, useValue: notifications }
       ]
@@ -58,8 +65,8 @@ describe('CalendarComponent', () => {
     expect(steps.getByFreelanceIdAndStatus).toHaveBeenCalledWith(7);
     expect(text(element.querySelector('.month-name')!)).toBe('October 2026');
     expect(element.querySelectorAll('.week').length).toBe(5);
-    const day = Array.from(element.querySelectorAll('.day')).find(cell => cell.getAttribute('aria-label')!.startsWith('Tuesday, October 20, 2026'))!;
-    expect(day.getAttribute('aria-label')).toContain('4 step(s)');
+    const day = element.querySelector('[data-calendar-day="2026-10-20"]')!;
+    expect(day.querySelector('.cdk-visually-hidden')!.textContent).toBe('Tuesday, October 20, 2026: 4 step(s)');
     expect(Array.from(day.querySelectorAll('.day-step')).map(text)).toEqual(['09:30 Call', '14:00 Technical test', '16:00 Client']);
     expect(text(day.querySelector('.day-more')!)).toBe('+1');
     expect(element.querySelectorAll('.day.out').length).toBe(4);
@@ -114,6 +121,34 @@ describe('CalendarComponent', () => {
 
     TestBed.resetTestingModule();
     create('2026-10', { id: 7 }, throwError(() => new Error('down')));
+    expect(notifications.error).toHaveBeenCalledWith('calendar.loadError');
+  });
+
+  it('shows the calls booked through the link with the steps, counting them in the day', () => {
+    const call = (id: number, hour: number, cancelledAt: string | null = null): Booking => ({ id, name: `Recruiter ${id}`,
+      startsAt: new Date(2026, 9, 20, hour).toISOString(), endsAt: new Date(2026, 9, 20, hour, 30).toISOString(),
+      email: 'r@esn.example', company: id === 8 ? 'ESN' : null, message: null, cancelledAt });
+    const fixture = create('2026-10', { id: 7 }, of(planned), of([call(8, 11), call(9, 12), call(10, 13, '2026-10-19T08:00:00Z')]));
+    const element = fixture.nativeElement as HTMLElement;
+    const day = element.querySelector('[data-calendar-day="2026-10-20"]')!;
+
+    expect(day.querySelectorAll('.day-booking').length).toBe(0);
+    expect(text(day.querySelector('.day-more')!)).toBe('+3');
+    fixture.componentInstance.select(fixture.componentInstance.weeks.flat().find(item => item.key === '2026-10-20')!);
+    fixture.detectChanges();
+    expect(text(element.querySelector('[data-calendar-booking="8"]')!)).toContain('Call with Recruiter 8ESN');
+    expect(element.querySelector('[data-calendar-booking="9"]')!.textContent).toContain('r@esn.example');
+    expect(element.querySelector('[data-calendar-booking="10"]')).toBeNull();
+  });
+
+  it('shows a call in a day with room left, and says when the calls cannot be loaded', () => {
+    const lone: Booking = { id: 4, name: 'Bob', startsAt: new Date(2026, 9, 6, 10).toISOString(), endsAt: new Date(2026, 9, 6, 10, 30).toISOString(),
+      email: 'bob@esn.example', company: null, message: null, cancelledAt: null };
+    const element = create('2026-10', { id: 7 }, of(planned), of([lone])).nativeElement as HTMLElement;
+    expect(text(element.querySelector('[data-calendar-day="2026-10-06"] .day-booking')!)).toBe('10:00 Bob');
+
+    TestBed.resetTestingModule();
+    create('2026-10', { id: 7 }, of(planned), throwError(() => new Error('down')));
     expect(notifications.error).toHaveBeenCalledWith('calendar.loadError');
   });
 });

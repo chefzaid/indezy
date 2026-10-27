@@ -430,6 +430,23 @@ A shared link:
 
 At most 20 links are open at once per workspace.
 
+## Booking Link
+
+The public booking page (`/api/public/booking/{link}`) needs no account, so:
+
+- its address is 16 random letters and digits (about 80 bits) from `SecureRandom`, replaced on demand; a link off,
+  replaced or unknown answers `404`, whatever the reason;
+- it shows only the freelancer's name, the page's title, a call's length and the free times, never what keeps a time
+  busy;
+- a booking is checked again under a lock on the page (`SELECT ... FOR UPDATE`), so two visitors never get the same
+  time (`409` for the second);
+- a link takes at most 20 bookings a day, and one address at most 5 an hour (`429` with `Retry-After`). The address is
+  the connection's, or the last `X-Forwarded-For` entry when the connection comes from a private address (the reverse
+  proxy), so a visitor cannot choose it (`ClientAddress`); the per-address counts are kept in memory and the addresses
+  idle for an hour are forgotten past 1,000 (`RecentAttempts`);
+- names, emails, companies and messages are stored as typed and only ever rendered as text; no email is sent to the
+  address given.
+
 ## Web Server Headers
 
 The web image's nginx (`indezy-web/nginx.conf`) sends on every response, files included: `X-Frame-Options:

@@ -8,10 +8,10 @@ import { LoginRequest, LoginResponse, RegisterRequest, User } from '../../models
 import { clearOfflineData } from '../../shared/utils/offline-data';
 
 /**
- * Pages opened without an Indezy account: an ESN validating an activity report or opening shared documents, an email's
- * unsubscribe link, a public profile.
+ * Pages opened without an Indezy account: an ESN validating an activity report, opening shared documents or booking a
+ * call, an email's unsubscribe link, a public profile.
  */
-export const PUBLIC_PAGE_PATHS = ['/activity-report', '/documents-pack', '/emails/unsubscribe', '/p'];
+export const PUBLIC_PAGE_PATHS = ['/activity-report', '/book', '/documents-pack', '/emails/unsubscribe', '/p'];
 
 @Injectable({
   providedIn: 'root'

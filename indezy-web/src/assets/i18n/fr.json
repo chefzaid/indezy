@@ -2571,5 +2571,77 @@
   },
   "offline": {
     "banner": "Vous êtes hors ligne : les pages montrent ce qui a été chargé en dernier, et les modifications attendent la connexion."
+  },
+  "booking": {
+    "title": "Lien de réservation",
+    "hint": "Les recruteurs réservent un appel dans les heures que vous ouvrez, sans compte : partagez le lien au lieu d'échanger des e-mails. Les appels réservés et les entretiens prévus gardent leur créneau occupé.",
+    "setUp": "Créer le lien",
+    "settings": "Réglages",
+    "copy": "Copier le lien",
+    "copied": "Lien copié",
+    "renew": "Nouveau lien",
+    "renewTitle": "Donner une nouvelle adresse au lien ?",
+    "renewMessage": "Le lien actuel cesse de fonctionner aussitôt.",
+    "renewed": "Nouveau lien prêt",
+    "off": "Le lien est désactivé : personne ne peut réserver d'appel.",
+    "summary": "Appels de {{minutes}} minutes, {{days}} jour(s) par semaine.",
+    "saved": "Enregistré",
+    "saveError": "Le lien de réservation n'a pas pu être enregistré. Veuillez réessayer.",
+    "loadError": "Le lien de réservation n'a pas pu être chargé.",
+    "upcoming": "Appels réservés",
+    "noCall": "Aucun appel réservé.",
+    "callWith": "Appel avec {{name}}",
+    "cancelCall": "Annuler l'appel",
+    "cancelNamed": "Annuler l'appel avec {{name}}",
+    "cancelTitle": "Annuler cet appel ?",
+    "cancelMessage": "Prévenez {{name}} vous-même : Indezy n'envoie pas d'e-mail.",
+    "cancelled": "Appel annulé",
+    "settingsTitle": "Lien de réservation",
+    "enabled": "Les recruteurs peuvent réserver par le lien",
+    "titleLabel": "Titre de la page",
+    "duration": "Durée d'un appel",
+    "buffer": "Marge autour de chaque appel",
+    "notice": "Délai minimum",
+    "ahead": "Réservable jusqu'à",
+    "minutes": "{{minutes}} min",
+    "hours": "{{hours}} h",
+    "days": "{{days}} jours à l'avance",
+    "hoursLegend": "Heures ouvertes",
+    "from": "{{day}} de",
+    "to": "{{day}} jusqu'à",
+    "parisTime": "Heures de Paris ; les jours fériés français sont exclus.",
+    "hoursErrors": {
+      "order": "Les heures d'un jour finissent après leur début.",
+      "none": "Ouvrez au moins un jour."
+    },
+    "weekdays": {
+      "MONDAY": "Lundi",
+      "TUESDAY": "Mardi",
+      "WEDNESDAY": "Mercredi",
+      "THURSDAY": "Jeudi",
+      "FRIDAY": "Vendredi",
+      "SATURDAY": "Samedi",
+      "SUNDAY": "Dimanche"
+    },
+    "public": {
+      "intro": "Réservez un appel de {{minutes}} minutes avec {{freelancer}}.",
+      "zone": "Les heures sont dans votre fuseau horaire ({{zone}}).",
+      "none": "Aucun créneau libre dans les prochains jours.",
+      "chosen": "{{date}} à {{time}}",
+      "name": "Votre nom",
+      "email": "Votre e-mail",
+      "company": "Société",
+      "message": "À quel sujet ? (facultatif)",
+      "book": "Réserver cet appel",
+      "confirmedTitle": "Appel réservé",
+      "confirmed": "{{freelancer}} attend votre appel le {{date}} à {{time}}.",
+      "invalidTitle": "Ce lien ne fonctionne pas",
+      "invalidMessage": "Il a peut-être été désactivé ou remplacé. Demandez-en un nouveau.",
+      "errors": {
+        "taken": "Ce créneau vient d'être pris : choisissez-en un autre.",
+        "tooMany": "Trop de réservations depuis cet endroit : réessayez plus tard.",
+        "failed": "L'appel n'a pas pu être réservé. Veuillez réessayer."
+      }
+    }
   }
 }

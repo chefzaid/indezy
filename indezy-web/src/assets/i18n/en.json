@@ -2571,5 +2571,77 @@
   },
   "offline": {
     "banner": "You are offline: the pages show what was last loaded, and changes wait for the connection."
+  },
+  "booking": {
+    "title": "Booking link",
+    "hint": "Recruiters book a call in the hours you open, without an account: share the link instead of trading emails. Booked calls and planned interviews keep their time busy.",
+    "setUp": "Set up the link",
+    "settings": "Settings",
+    "copy": "Copy the link",
+    "copied": "Link copied",
+    "renew": "New link",
+    "renewTitle": "Give the link a new address?",
+    "renewMessage": "The current link stops working at once.",
+    "renewed": "New link ready",
+    "off": "The link is off: nobody can book a call.",
+    "summary": "{{minutes}}-minute calls, {{days}} day(s) a week.",
+    "saved": "Saved",
+    "saveError": "The booking link could not be saved. Please try again.",
+    "loadError": "The booking link could not be loaded.",
+    "upcoming": "Calls booked",
+    "noCall": "No call booked yet.",
+    "callWith": "Call with {{name}}",
+    "cancelCall": "Cancel the call",
+    "cancelNamed": "Cancel the call with {{name}}",
+    "cancelTitle": "Cancel this call?",
+    "cancelMessage": "Tell {{name}} yourself: Indezy sends no email.",
+    "cancelled": "Call cancelled",
+    "settingsTitle": "Booking link",
+    "enabled": "Recruiters can book through the link",
+    "titleLabel": "Title of the page",
+    "duration": "Call length",
+    "buffer": "Gap around each call",
+    "notice": "Minimum notice",
+    "ahead": "Booked up to",
+    "minutes": "{{minutes}} min",
+    "hours": "{{hours}} h",
+    "days": "{{days}} days ahead",
+    "hoursLegend": "Hours you open",
+    "from": "{{day}} from",
+    "to": "{{day}} until",
+    "parisTime": "Hours are in Paris time; French public holidays are left out.",
+    "hoursErrors": {
+      "order": "Each day's hours end after they start.",
+      "none": "Open at least one day."
+    },
+    "weekdays": {
+      "MONDAY": "Monday",
+      "TUESDAY": "Tuesday",
+      "WEDNESDAY": "Wednesday",
+      "THURSDAY": "Thursday",
+      "FRIDAY": "Friday",
+      "SATURDAY": "Saturday",
+      "SUNDAY": "Sunday"
+    },
+    "public": {
+      "intro": "Book a {{minutes}}-minute call with {{freelancer}}.",
+      "zone": "Times are in your time zone ({{zone}}).",
+      "none": "No free time in the coming days.",
+      "chosen": "{{date}} at {{time}}",
+      "name": "Your name",
+      "email": "Your email",
+      "company": "Company",
+      "message": "What about? (optional)",
+      "book": "Book this call",
+      "confirmedTitle": "Call booked",
+      "confirmed": "{{freelancer}} expects your call on {{date}} at {{time}}.",
+      "invalidTitle": "This link does not work",
+      "invalidMessage": "It may have been turned off or replaced. Ask for a new one.",
+      "errors": {
+        "taken": "This time was just taken: choose another one.",
+        "tooMany": "Too many bookings from here: try again later.",
+        "failed": "The call could not be booked. Please try again."
+      }
+    }
   }
 }

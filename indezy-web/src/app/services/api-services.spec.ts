@@ -23,6 +23,7 @@ import { InvoiceService } from './invoice/invoice.service';
 import { PurchaseOrderService } from './purchase-order/purchase-order.service';
 import { ComplianceService } from './compliance/compliance.service';
 import { WebhookService } from './webhook/webhook.service';
+import { BookingService } from './booking/booking.service';
 import { ProjectStatus, StepStatus } from '../models';
 
 /** One HTTP wrapper call: what the service is asked, and the request it must send. */
@@ -58,6 +59,7 @@ describe('API services', () => {
   afterEach(() => http.verify());
 
   const client = (): ClientService => TestBed.inject(ClientService);
+  const booking = (): BookingService => TestBed.inject(BookingService);
   const contact = (): ContactService => TestBed.inject(ContactService);
   const globalSearch = (): GlobalSearchService => TestBed.inject(GlobalSearchService);
   const freelance = (): FreelanceService => TestBed.inject(FreelanceService);
@@ -211,6 +213,15 @@ describe('API services', () => {
     { name: 'delete a webhook', call: () => webhooks().delete(3), method: 'DELETE', url: `${api}/users/webhooks/3` },
     { name: 'test a webhook', call: () => webhooks().ping(3), method: 'POST', url: `${api}/users/webhooks/3/ping`, body: null },
     { name: 'webhook deliveries', call: () => webhooks().deliveries(3), method: 'GET', url: `${api}/users/webhooks/3/deliveries` },
+    { name: 'booking page', call: () => booking().page(), method: 'GET', url: `${api}/users/booking-page` },
+    { name: 'save the booking page', call: () => booking().save({ enabled: false } as never), method: 'PUT', url: `${api}/users/booking-page`,
+      body: { enabled: false } },
+    { name: 'new booking link', call: () => booking().renewLink(), method: 'POST', url: `${api}/users/booking-page/new-link`, body: null },
+    { name: 'booked calls', call: () => booking().list(), method: 'GET', url: `${api}/bookings` },
+    { name: 'cancel a call', call: () => booking().cancel(6), method: 'POST', url: `${api}/bookings/6/cancel`, body: null },
+    { name: 'public booking page', call: () => booking().publicPage('a/b'), method: 'GET', url: `${api}/public/booking/a%2Fb` },
+    { name: 'book a call', call: () => booking().book('abc', { start: 'x' } as never), method: 'POST', url: `${api}/public/booking/abc`,
+      body: { start: 'x' } },
     { name: 'change a draft', call: () => invoices().update(5, { clientId: 3 } as never), method: 'PUT', url: `${api}/invoices/5`, body: { clientId: 3 } },
     { name: 'delete a draft', call: () => invoices().delete(5), method: 'DELETE', url: `${api}/invoices/5` },
     { name: 'issue an invoice', call: () => invoices().issue(5, '2026-10-27'), method: 'POST', url: `${api}/invoices/5/issue`, body: { issueDate: '2026-10-27' } },

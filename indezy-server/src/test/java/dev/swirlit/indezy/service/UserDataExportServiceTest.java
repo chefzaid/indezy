@@ -120,6 +120,9 @@ class UserDataExportServiceTest {
     @Mock
     private CompliancePackService compliancePackService;
 
+    @Mock
+    private BookingService bookingService;
+
     @InjectMocks
     private UserDataExportService userDataExportService;
 

@@ -17,6 +17,9 @@ for (const width of [1280, 390]) {
     await page.route('**/api/projects/42', route => route.fulfill({ json: { id: 42, role: 'Java developer', status: 'INTERVIEW', dailyRate: 650 } }));
     await page.route('**/api/projects/42/**', route => route.fulfill({ json: [] }));
     await page.route('**/api/interview-steps/by-project/**', route => route.fulfill({ json: [] }));
+    await page.route('**/api/bookings', route => route.fulfill({ json: [] }));
+    await page.route('**/api/users/booking-page', route => route.fulfill({ json: { slug: null, settings: { enabled: false, title: '',
+      durationMinutes: 30, bufferMinutes: 15, minNoticeHours: 24, maxDaysAhead: 21, windows: [] } } }));
 
     await page.goto('/calendar?month=2026-10');
     await expect(page.getByText('October 2026')).toBeVisible();

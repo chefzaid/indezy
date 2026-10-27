@@ -53,6 +53,8 @@ export async function mockWorkspaceData(page: Page, language: string): Promise<v
     [/\/api\/public\/profiles\/workspace-test$/, { firstName: 'Workspace', lastName: 'Test', position: 'Java developer',
       city: 'Lyon', bio: 'Java and Kafka.', skills: [{ name: 'Java', level: 'EXPERT', years: 8 }], languages: ['French'],
       website: 'https://workspace.example', availableNow: true }],
+    [/\/api\/users\/booking-page$/, { slug: null, settings: { enabled: false, title: '', durationMinutes: 30, bufferMinutes: 15,
+      minNoticeHours: 24, maxDaysAhead: 21, windows: [] } }],
     [/\/api\/projects\/review\/1$/, { year: 2026, name: 'Workspace Test', missions: [{ projectId: 42, role: 'Java developer',
       clientName: 'Acme', dailyRate: 650, start: '2026-01-05', days: 120, reported: false, revenue: 78000 }],
       totals: { revenue: 78000, days: 120, averageDailyRate: 650, missions: 1 },

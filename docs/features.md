@@ -859,7 +859,30 @@ Indezy.
 each day lists up to three steps by time, coloured by status, then how many more, and the picked day (today at first)
 lists all of them below the grid with their opportunity, which they open. The arrows and **Today** change the month,
 kept in the address (`/calendar?month=2026-10`). On a phone, days show how many steps they hold and the list below
-gives them.
+gives them. Calls booked through the booking link show among the steps (in teal), in the day's list as "Call with
+<name>" with the company or email.
+
+## Booking Link
+
+The **Booking link** card under the calendar lets recruiters book a call without trading emails, Calendly-style.
+
+- **Settings**: on or off, the page's title, a call's length (15 to 60 minutes), the gap kept around each call (0 to
+  30 minutes), the minimum notice (none to 48 hours), how far ahead calls can be booked (7 to 60 days), and one range
+  of hours per weekday, in Paris time. The first save gives the link its address (`/book/<16 letters and digits>`);
+  **New link** gives it another one, and the old address stops working at once.
+- **Free times**: each start a call's length apart within the open hours, from the minimum notice to the last day
+  ahead, leaving out French public holidays and any time that would overlap, with the gap, a call already booked or a
+  planned interview step (taken as one hour; cancelled and failed steps leave their time free).
+- **The public page**, opened without an account, gives the free times day by day in the visitor's time zone; the
+  visitor picks one and gives a name, an email, and optionally a company and a message. A time taken meanwhile is
+  refused and the times shown again; a link off or replaced says it does not work.
+- **Calls booked**: the card lists the calls to come with their details, each cancellable (Indezy sends no email: the
+  freelancer tells the recruiter). The calendar shows them on their day.
+- The page's settings and the calls are part of the account data export.
+
+API: `GET` and `PUT /api/users/booking-page`, `POST /api/users/booking-page/new-link`, `GET /api/bookings` (from 30 days
+ago), `POST /api/bookings/{id}/cancel`; without an account, `GET` and `POST /api/public/booking/{link}` (see
+[Security](./security.md#booking-link)).
 
 ## Project Journal
 

@@ -24,6 +24,17 @@ describe('calendar month', () => {
     expect(weeks.flat().reduce((count, candidate) => count + candidate.steps.length, 0)).toBe(2);
   });
 
+  it('puts each call booked on the day it starts, leaving cancelled ones out', () => {
+    const call = (id: number, startsAt: string, cancelledAt: string | null = null) => ({ id, startsAt, endsAt: startsAt, name: 'Bob',
+      email: 'bob@esn.example', company: null, message: null, cancelledAt });
+    const weeks = monthGrid(new Date(2026, 9, 1), [], [call(1, new Date(2026, 9, 20, 15).toISOString()),
+      call(2, new Date(2026, 9, 20, 10).toISOString()), call(3, new Date(2026, 9, 21, 10).toISOString(), '2026-10-19T08:00:00Z')]);
+    const day = weeks.flat().find(candidate => candidate.key === '2026-10-20')!;
+
+    expect(day.bookings.map(item => item.id)).toEqual([2, 1]);
+    expect(weeks.flat().find(candidate => candidate.key === '2026-10-21')!.bookings).toEqual([]);
+  });
+
   it('reads and writes a month in the page address', () => {
     expect(monthKey(monthOf('2026-03'))).toBe('2026-03');
     expect(monthKey(monthOf('march', new Date(2026, 9, 26)))).toBe('2026-10');

@@ -1,0 +1,64 @@
+<main class="book-page">
+  <app-public-page-header></app-public-page-header>
+  <mat-card class="book-card">
+    <mat-card-content>
+      @if (loading) {
+        <div class="state"><mat-spinner diameter="40" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+      } @else if (!page) {
+        <div class="state" data-book-invalid>
+          <mat-icon class="state-icon" aria-hidden="true">event_busy</mat-icon>
+          <h1>{{ 'booking.public.invalidTitle' | translate }}</h1>
+          <p>{{ 'booking.public.invalidMessage' | translate }}</p>
+        </div>
+      } @else if (confirmation) {
+        <div class="state" role="status" data-book-confirmed>
+          <mat-icon class="state-icon done" aria-hidden="true">event_available</mat-icon>
+          <h1>{{ 'booking.public.confirmedTitle' | translate }}</h1>
+          <p>{{ 'booking.public.confirmed' | translate:{ freelancer: confirmation.freelancer, date: (confirmation.startsAt | date:'fullDate'), time: (confirmation.startsAt | date:'HH:mm') } }}</p>
+        </div>
+      } @else {
+        <h1>{{ page.title }}</h1>
+        <p class="intro">{{ 'booking.public.intro' | translate:{ freelancer: page.freelancer, minutes: page.durationMinutes } }}</p>
+        <p class="zone">{{ 'booking.public.zone' | translate:{ zone: timeZone } }}</p>
+        @if (error) {
+          <p class="form-error" role="alert" data-book-error>{{ 'booking.public.errors.' + error | translate }}</p>
+        }
+        @for (day of page.days; track day.date) {
+          <section class="day" [attr.data-book-day]="day.date">
+            <h2>{{ day.date | date:'EEEE d MMMM' }}</h2>
+            <div class="starts">
+              @for (start of day.starts; track start) {
+                <button mat-stroked-button type="button" [class.chosen]="start === chosen" [attr.aria-pressed]="start === chosen"
+                  (click)="choose(start)" [attr.data-book-start]="start">{{ start | date:'HH:mm' }}</button>
+              }
+            </div>
+          </section>
+        } @empty {
+          <p class="empty">{{ 'booking.public.none' | translate }}</p>
+        }
+        @if (chosen) {
+          <form class="details" [formGroup]="form" (ngSubmit)="book()" data-book-form>
+            <h2>{{ 'booking.public.chosen' | translate:{ date: (chosen | date:'fullDate'), time: (chosen | date:'HH:mm') } }}</h2>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'booking.public.name' | translate }}</mat-label>
+              <input matInput formControlName="name" maxlength="100" required autocomplete="name">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'booking.public.email' | translate }}</mat-label>
+              <input matInput type="email" formControlName="email" maxlength="200" required autocomplete="email">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'booking.public.company' | translate }}</mat-label>
+              <input matInput formControlName="company" maxlength="100" autocomplete="organization">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'booking.public.message' | translate }}</mat-label>
+              <textarea matInput formControlName="message" rows="3" maxlength="500"></textarea>
+            </mat-form-field>
+            <button mat-raised-button color="primary" type="submit" [disabled]="sending" data-book-submit>{{ 'booking.public.book' | translate }}</button>
+          </form>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+</main>

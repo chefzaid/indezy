@@ -1,19 +1,20 @@
-import { InterviewStepDto } from '../../models';
+import { Booking, InterviewStepDto } from '../../models';
 import { fromIsoDate, toIsoDate } from '../../shared/locale/app-locale';
 
-/** One day of the month grid: its date, whether it belongs to the shown month, and its dated steps by time. */
+/** One day of the month grid: its date, whether it belongs to the shown month, its dated steps and booked calls by time. */
 export interface CalendarDay {
   date: Date;
   key: string;
   inMonth: boolean;
   steps: InterviewStepDto[];
+  bookings: Booking[];
 }
 
 /**
  * The weeks, Monday first, that show the month of {@code month} (any day of it), each step placed on the day of its
  * local date and time.
  */
-export function monthGrid(month: Date, steps: InterviewStepDto[]): CalendarDay[][] {
+export function monthGrid(month: Date, steps: InterviewStepDto[], bookings: Booking[] = []): CalendarDay[][] {
   const first = new Date(month.getFullYear(), month.getMonth(), 1);
   const start = new Date(first);
   start.setDate(first.getDate() - ((first.getDay() + 6) % 7));
@@ -22,13 +23,20 @@ export function monthGrid(month: Date, steps: InterviewStepDto[]): CalendarDay[]
     const key = step.date!.substring(0, 10);
     byDay.set(key, [...(byDay.get(key) ?? []), step]);
   }
+  // A call is on the day of its start in the browser's time zone; a cancelled one is gone from the calendar.
+  const callsByDay = new Map<string, Booking[]>();
+  for (const booking of bookings.filter(item => !item.cancelledAt).sort((a, b) => a.startsAt.localeCompare(b.startsAt))) {
+    const key = toIsoDate(new Date(booking.startsAt))!;
+    callsByDay.set(key, [...(callsByDay.get(key) ?? []), booking]);
+  }
   const weeks: CalendarDay[][] = [];
   const day = new Date(start);
   do {
     const week: CalendarDay[] = [];
     for (let i = 0; i < 7; i++) {
       const key = toIsoDate(day)!;
-      week.push({ date: new Date(day), key, inMonth: day.getMonth() === first.getMonth(), steps: byDay.get(key) ?? [] });
+      week.push({ date: new Date(day), key, inMonth: day.getMonth() === first.getMonth(), steps: byDay.get(key) ?? [],
+        bookings: callsByDay.get(key) ?? [] });
       day.setDate(day.getDate() + 1);
     }
     weeks.push(week);

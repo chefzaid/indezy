@@ -31,6 +31,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/compliance-pack/compliance-pack.component').then(m => m.CompliancePackComponent)
   },
   {
+    // A freelancer's booking link, opened by recruiters without an account.
+    path: 'book/:slug',
+    loadComponent: () => import('./components/book/book.component').then(m => m.BookComponent)
+  },
+  {
     // A freelancer's public profile, opened from its link without an account.
     path: 'p/:slug',
     loadComponent: () => import('./components/public-profile/public-profile.component').then(m => m.PublicProfileComponent)

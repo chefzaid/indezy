@@ -195,6 +195,11 @@ Representative backend tests:
   test on demand, a webhook turned off told nothing, refused addresses and events, five at most, Bob kept out, deliveries
   deleted with their webhook) and `WebhookAddressesTest` (https only, no credentials, loopback, private, link-local,
   carrier-grade NAT, unique-local, multicast and unresolvable hosts refused; the signature against RFC 4231)
+- booking link: `BookingIntegrationTest` (no link until the first save, the free times shown without an account, a call
+  booked once and refused the second time, listed and cancelled by Alice only, a planned interview keeping its time
+  busy, wrong hours refused, a new link closing the old one, a link turned off), `BookingSlotsTest` (starts within the
+  hours a call's length apart, the notice, the last day, holidays, the gap around busy times, summer and winter time)
+  and `RecentAttemptsTest` (attempts per address in a sliding hour, idle addresses forgotten past the limit)
 - compliance documents: `ComplianceIntegrationTest` (documents stored with their dates, an URSSAF certificate's end set
   from its issue, a document without a name, a web page or an end before the issue refused, the types' order, the
   dashboard's documents to renew, the content's headers, Bob kept out; a link whose token is stored hashed, opened
@@ -271,6 +276,12 @@ Representative frontend specs:
   `invoice-draft-dialog.component.spec.ts` (totals counted as the server does, the client's missions, a draft changed
   and trimmed, a credit note's client kept, fifty lines at most), `invoice-date-dialog.component.spec.ts`,
   `invoice-errors.spec.ts` and `activity-report-card.component.spec.ts` (a validated month invoiced, or invoiced already)
+- booking link: `booking-link.component.spec.ts` (the link to copy, the calls to come, settings saved from the dialog, a
+  new link once confirmed, a call cancelled once confirmed telling the calendar, failures),
+  `booking-settings-dialog.component.spec.ts` (the saved hours, the open days given back, hours in the wrong order, no
+  open day, no title), `book.component.spec.ts` (the public page: a time chosen and booked, a time just taken, too many
+  bookings, a dead link, no free time), and `calendar-month.spec.ts` and `calendar.component.spec.ts` (calls on their
+  day, cancelled ones left out, the day's previews capped with steps first)
 - compliance documents: `compliance.component.spec.ts` (documents and links listed, adding in the types' order and the
   reasons for a refusal, changing, downloading, deleting once confirmed, a link shown once to copy or email, revoking,
   failures), `compliance-document-dialog.component.spec.ts` (the file's type and size, another document's name, an end
@@ -476,6 +487,10 @@ axe-core) hide the charts, move the recent opportunities up, and find the layout
 
 Billing scenarios (`e2e/billing.spec.ts`, on a desktop and on a phone, audited with axe-core) fill in the billing
 identity, a wrong IBAN refused, until the tab says invoices can be issued.
+
+Booking link scenarios (`e2e/booking.spec.ts`, on a desktop and on a phone, the dialog and the calendar with a call
+audited with axe-core) turn the link on, are told to open a day, copy the link and cancel a booked call, then book a
+call without an account in French and open a replaced link.
 
 Compliance scenarios (`e2e/compliance.spec.ts`, the dialog and the page audited with axe-core) store an URSSAF
 certificate and share it through a link copied to the clipboard, on a desktop and on a phone, then open the shared page

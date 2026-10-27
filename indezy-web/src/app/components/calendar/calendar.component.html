@@ -24,20 +24,24 @@
     @for (week of weeks; track week[0].key) {
       <div class="week" role="row">
         @for (day of week; track day.key) {
-          <button type="button" role="gridcell" class="day" [class.out]="!day.inMonth" [class.today]="day.key === todayKey"
-            [class.selected]="day.key === selected?.key" (click)="select(day)"
-            [attr.aria-label]="'calendar.dayLabel' | translate:{ date: (day.date | date:'fullDate'), count: day.steps.length }">
-            <span class="day-number">{{ day.date | date:'d' }}</span>
+          <button type="button" role="gridcell" class="day" [attr.data-calendar-day]="day.key" [class.out]="!day.inMonth" [class.today]="day.key === todayKey"
+            [class.selected]="day.key === selected?.key" (click)="select(day)">
+            <!-- The name is this text: the previews only repeat it in short, so none is read on its own. -->
+            <span class="cdk-visually-hidden">{{ 'calendar.dayLabel' | translate:{ date: (day.date | date:'fullDate'), count: day.steps.length + day.bookings.length } }}</span>
+            <span class="day-number" aria-hidden="true">{{ day.date | date:'d' }}</span>
             @for (step of day.steps.slice(0, perDay); track step.id) {
-              <span class="day-step" [style.--status-color]="statusColors[step.status]">
+              <span class="day-step" aria-hidden="true" [style.--status-color]="statusColors[step.status]">
                 {{ step.date | date:'HH:mm' }} {{ step.title }}
               </span>
             }
-            @if (day.steps.length > perDay) {
-              <span class="day-more">{{ 'calendar.more' | translate:{ count: day.steps.length - perDay } }}</span>
+            @for (booking of callsShown(day); track booking.id) {
+              <span class="day-step day-booking" aria-hidden="true">{{ booking.startsAt | date:'HH:mm' }} {{ booking.name }}</span>
             }
-            @if (day.steps.length) {
-              <span class="day-count" aria-hidden="true">{{ day.steps.length }}</span>
+            @if (day.steps.length + day.bookings.length > perDay) {
+              <span class="day-more" aria-hidden="true">{{ 'calendar.more' | translate:{ count: day.steps.length + day.bookings.length - perDay } }}</span>
+            }
+            @if (day.steps.length + day.bookings.length) {
+              <span class="day-count" aria-hidden="true">{{ day.steps.length + day.bookings.length }}</span>
             }
           </button>
         }
@@ -56,9 +60,21 @@
             <span class="detail-meta">{{ step.projectRole }} · {{ 'steps.statuses.' + step.status | translate }}</span>
           </span>
         </a>
-      } @empty {
+      }
+      @for (booking of selected.bookings; track booking.id) {
+        <div class="detail-step detail-booking" [attr.data-calendar-booking]="booking.id">
+          <span class="detail-time">{{ booking.startsAt | date:'HH:mm' }}</span>
+          <span class="detail-text">
+            <span class="detail-title">{{ 'booking.callWith' | translate:{ name: booking.name } }}</span>
+            <span class="detail-meta">{{ booking.company ?? booking.email }}</span>
+          </span>
+        </div>
+      }
+      @if (selected.steps.length === 0 && selected.bookings.length === 0) {
         <p class="nothing">{{ 'calendar.nothing' | translate }}</p>
       }
     </section>
   }
+
+  <app-booking-link (changed)="loadBookings()"></app-booking-link>
 </div>

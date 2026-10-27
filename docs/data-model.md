@@ -392,6 +392,24 @@ Fields: `freelanceId`, `recipient`, `tokenHash` (SHA-256 of the link's token, he
 stored), `expiresAt`, `revokedAt`, `openCount`, `lastOpenedAt`, and the documents' ids (`compliance_pack_documents`; a
 deleted document leaves them).
 
+## BookingPage
+
+Tables: `booking_pages`, `booking_windows`
+
+Purpose: a workspace's booking link (one per workspace).
+
+Fields: `freelanceId` (unique), `slug` (16 letters and digits, unique, set at the first save), `enabled`, `title`,
+`durationMinutes`, `bufferMinutes`, `minNoticeHours`, `maxDaysAhead`, and the weekly hours (`booking_windows`:
+`dayOfWeek`, `start`, `end`, in Paris time, one range per day).
+
+## Booking
+
+Table: `bookings`
+
+Purpose: a call a recruiter booked through the link.
+
+Fields: `freelanceId`, `startsAt` and `endsAt` (instants), `name`, `email`, `company`, `message`, `cancelledAt`.
+
 ## Webhook
 
 Tables: `webhooks`, `webhook_events`, `webhook_deliveries`

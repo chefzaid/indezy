@@ -7,7 +7,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { InterviewStepDto, STEP_STATUS_COLORS } from '../../models';
+import { Booking, InterviewStepDto, STEP_STATUS_COLORS } from '../../models';
+import { BookingService } from '../../services/booking/booking.service';
+import { BookingLinkComponent } from './booking-link/booking-link.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { InterviewStepService } from '../../services/interview-step/interview-step.service';
 import { NotificationService } from '../../services/notification/notification.service';
@@ -20,7 +22,7 @@ import { CalendarDay, monthGrid, monthKey, monthOf } from './calendar-month';
  */
 @Component({
   selector: 'app-calendar',
-  imports: [DatePipe, RouterModule, MatButtonModule, MatIconModule, MatTooltipModule, TranslateModule],
+  imports: [DatePipe, RouterModule, MatButtonModule, MatIconModule, MatTooltipModule, TranslateModule, BookingLinkComponent],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -34,8 +36,10 @@ export class CalendarComponent implements OnInit {
   selected: CalendarDay | null = null;
   readonly todayKey = toIsoDate(new Date())!;
   private steps: InterviewStepDto[] = [];
+  private bookings: Booking[] = [];
 
   private readonly stepService = inject(InterviewStepService);
+  private readonly bookingService = inject(BookingService);
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
@@ -59,6 +63,18 @@ export class CalendarComponent implements OnInit {
       },
       error: () => this.notificationService.error('calendar.loadError')
     });
+    this.loadBookings();
+  }
+
+  /** The calls booked through the link, shown with the steps; read again when one is cancelled. */
+  loadBookings(): void {
+    this.bookingService.list().subscribe({
+      next: bookings => {
+        this.bookings = bookings;
+        this.layout();
+      },
+      error: () => this.notificationService.error('calendar.loadError')
+    });
   }
 
   /** Shows the month {@code offset} months away from the shown one, or the current month without offset. */
@@ -67,12 +83,17 @@ export class CalendarComponent implements OnInit {
     this.router.navigate([], { relativeTo: this.route, queryParams: { month: monthKey(month) } });
   }
 
+  /** The calls that fit in a day's cell after its steps, which come first. */
+  callsShown(day: CalendarDay): Booking[] {
+    return day.bookings.slice(0, Math.max(0, this.perDay - day.steps.length));
+  }
+
   select(day: CalendarDay): void {
     this.selected = day;
   }
 
   private layout(): void {
-    this.weeks = monthGrid(this.month, this.steps);
+    this.weeks = monthGrid(this.month, this.steps, this.bookings);
     const days = this.weeks.flat();
     const kept = this.selected && days.find(day => day.key === this.selected!.key && day.inMonth);
     this.selected = kept ?? days.find(day => day.key === this.todayKey && day.inMonth) ?? days.find(day => day.inMonth) ?? null;

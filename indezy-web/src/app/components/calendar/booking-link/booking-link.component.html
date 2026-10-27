@@ -1,0 +1,45 @@
+<mat-card class="booking-card" data-booking-link>
+  <mat-card-header>
+    <mat-card-title><mat-icon aria-hidden="true">event_available</mat-icon>{{ 'booking.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="hint">{{ 'booking.hint' | translate }}</p>
+    @if (page) {
+      @if (page.settings.enabled && url) {
+        <code class="url" data-booking-url>{{ url }}</code>
+        <p class="summary">
+          {{ 'booking.summary' | translate:{ minutes: page.settings.durationMinutes, days: page.settings.windows.length } }}
+        </p>
+      } @else {
+        <p class="summary" data-booking-off>{{ 'booking.off' | translate }}</p>
+      }
+      <div class="actions">
+        <button mat-raised-button color="primary" type="button" (click)="edit()" data-booking-settings>
+          <mat-icon>tune</mat-icon>{{ (page.slug ? 'booking.settings' : 'booking.setUp') | translate }}
+        </button>
+        @if (page.settings.enabled && url) {
+          <button mat-stroked-button type="button" (click)="copy()" data-copy-booking-link>
+            <mat-icon>content_copy</mat-icon>{{ 'booking.copy' | translate }}
+          </button>
+          <button mat-button type="button" (click)="renew()" data-renew-booking-link>{{ 'booking.renew' | translate }}</button>
+        }
+      </div>
+    }
+    <h3>{{ 'booking.upcoming' | translate }}</h3>
+    @for (call of upcoming; track call.id) {
+      <div class="call" [attr.data-booking]="call.id">
+        <div class="text">
+          <strong>{{ call.startsAt | date:'EEE d MMM, HH:mm' }} · {{ call.name }}</strong>
+          <span>{{ call.company ? call.company + ' · ' : '' }}<a [href]="'mailto:' + call.email">{{ call.email }}</a></span>
+          @if (call.message) {
+            <span class="message">{{ call.message }}</span>
+          }
+        </div>
+        <button mat-button color="warn" type="button" (click)="cancel(call)"
+          [attr.aria-label]="'booking.cancelNamed' | translate:{ name: call.name }">{{ 'booking.cancelCall' | translate }}</button>
+      </div>
+    } @empty {
+      <p class="hint">{{ 'booking.noCall' | translate }}</p>
+    }
+  </mat-card-content>
+</mat-card>
