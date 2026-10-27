@@ -114,6 +114,8 @@ Parts of tasks that cannot advance without the owner's decision or information. 
   - Answer:
 - [ ] **Publishing the browser extension** (Chrome extension to capture postings): it is built (`indezy-web/extension`) and can be loaded unpacked. Publishing it in the Chrome Web Store needs a developer account (a one-time fee, under whose name?), a privacy policy URL (see **Publisher identity and legal texts**) and the store listing's screenshots; Firefox would need its own add-on account. Publish it, and where?
   - Answer:
+- [ ] **Teams tier: organizations** (Teams Tier, all items): `docs/adr/0011-organizations-for-the-teams-tier.md` proposes the organization model and its data boundary (private by default; availability, skills and dispatched work shared on joining; anything else per item). Accept it as written or change it, and answer its three questions (the boundary, the first kind of organization, several organizations per consultant). The tier also waits on **Plans, prices and payment provider**.
+  - Answer:
 
 - [ ] **Accounting tool connectors** (Invoicing and Compliance, "Direct connectors"): the FEC export already feeds any French accounting tool by import. Pushing entries straight into a tool needs a partner or developer account with it (Pennylane's API, Tiime, Indy…). Which tools do your users rely on, and do you have, or want to apply for, API access to them?
   - Answer:
@@ -540,7 +542,7 @@ Differentiators, each covered below:
 
 ### Teams Tier (collectives, portage companies, boutique ESNs)
 
-- [ ] **ADR — organizations:** organization accounts with members and roles (owner, manager, consultant) and explicit data boundaries: what a consultant shares with the organization (availability, CV, selected pipeline items) and what stays private.
+- [ ] **ADR — organizations:** (proposed in `docs/adr/0011-organizations-for-the-teams-tier.md`, waiting in **Needs Input**) organization accounts with members and roles (owner, manager, consultant) and explicit data boundaries: what a consultant shares with the organization (availability, CV, selected pipeline items) and what stays private.
 - [ ] Consultant availability board and shared opportunity pool: dispatch an opportunity to available members, see who is positioned where, and prevent two members being submitted to the same client.
 - [ ] Organization dashboards: occupancy, bench, margins, renewals due, CRA and invoice status across consultants.
 - [ ] Organization single sign-on through identity-provider brokering, with member provisioning and removal.
