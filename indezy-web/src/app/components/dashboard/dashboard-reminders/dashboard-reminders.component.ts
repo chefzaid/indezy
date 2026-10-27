@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   DashboardStatsDto, MissionEndingSoon, StaleOpportunity, UpcomingRenewal, OnThisDayItem, DormantContact, FollowUpDue, OverdueInvoice,
-  PurchaseOrderAlert,
+  PurchaseOrderAlert, ExpiringDocument,
   UpcomingInterview
 } from '../../../models';
 
@@ -48,7 +48,8 @@ export class DashboardRemindersComponent {
   hasReminders(): boolean {
     return this.getUpcomingInterviews().length + this.getMissionsEndingSoon().length + this.getUpcomingRenewals().length +
       this.getOnThisDay().length + this.getDormantContacts().length + this.getStaleOpportunities().length +
-      this.getFollowUpsDue().length + this.getOverdueInvoices().length + this.getPurchaseOrderAlerts().length > 0;
+      this.getFollowUpsDue().length + this.getOverdueInvoices().length + this.getPurchaseOrderAlerts().length +
+      this.getExpiringDocuments().length > 0;
   }
 
   getUpcomingInterviews(): UpcomingInterview[] {
@@ -77,6 +78,10 @@ export class DashboardRemindersComponent {
 
   getPurchaseOrderAlerts(): PurchaseOrderAlert[] {
     return this.stats?.purchaseOrderAlerts ?? [];
+  }
+
+  getExpiringDocuments(): ExpiringDocument[] {
+    return this.stats?.expiringDocuments ?? [];
   }
 
   getDormantContacts(): DormantContact[] {

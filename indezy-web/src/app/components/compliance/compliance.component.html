@@ -1,0 +1,98 @@
+<div class="compliance-page">
+  <div class="header">
+    <h1>{{ 'compliance.title' | translate }}</h1>
+    @if (documents.length > 0) {
+      <button mat-stroked-button type="button" (click)="share()" data-share-documents>
+        <mat-icon>share</mat-icon>
+        {{ 'compliance.share' | translate }}
+      </button>
+    }
+    <button mat-raised-button color="primary" type="button" (click)="add()" data-add-document>
+      <mat-icon>upload_file</mat-icon>
+      {{ 'compliance.add' | translate }}
+    </button>
+  </div>
+  <p class="intro">{{ 'compliance.intro' | translate }}</p>
+
+  @if (sharedLink) {
+    <mat-card class="shared-link" data-shared-link>
+      <mat-card-content>
+        <p><strong>{{ 'compliance.linkFor' | translate:{ recipient: sharedLink.recipient } }}</strong></p>
+        <p class="hint">{{ 'compliance.linkOnce' | translate }}</p>
+        <code class="url">{{ sharedLink.url }}</code>
+        <div class="actions">
+          <button mat-stroked-button type="button" (click)="copy(sharedLink)" data-copy-link>
+            <mat-icon>content_copy</mat-icon>{{ 'compliance.copy' | translate }}
+          </button>
+          <a mat-stroked-button [href]="mailto(sharedLink)"><mat-icon>mail</mat-icon>{{ 'compliance.email' | translate }}</a>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (loading) {
+    <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+  } @else {
+    <section aria-labelledby="documents-title">
+      <h2 id="documents-title">{{ 'compliance.documents' | translate }}</h2>
+      @for (document of documents; track document.id) {
+        <mat-card class="document" [attr.data-document]="document.id">
+          <mat-icon class="kind" aria-hidden="true">{{ document.contentType === 'application/pdf' ? 'picture_as_pdf' : 'image' }}</mat-icon>
+          <div class="text">
+            <h3>{{ 'compliance.types.' + document.type | translate }}{{ document.label ? ' · ' + document.label : '' }}</h3>
+            <span class="file">{{ document.fileName }}</span>
+            <span class="dates">
+              @if (document.issuedOn) {
+                {{ 'compliance.issued' | translate:{ date: (document.issuedOn | date:'mediumDate') } }}
+              }
+              @if (document.expiresOn) {
+                · {{ 'compliance.expires' | translate:{ date: (document.expiresOn | date:'mediumDate') } }}
+              }
+            </span>
+          </div>
+          <span class="validity" [class]="'validity validity-' + document.validity" data-document-validity>
+            {{ 'compliance.validity.' + document.validity | translate }}
+          </span>
+          <button mat-icon-button type="button" [matMenuTriggerFor]="menu"
+            [attr.aria-label]="'compliance.actions' | translate:{ name: document.fileName }">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item type="button" (click)="download(document)"><mat-icon>download</mat-icon><span>{{ 'compliance.download' | translate }}</span></button>
+            <button mat-menu-item type="button" (click)="edit(document)"><mat-icon>edit</mat-icon><span>{{ 'common.edit' | translate }}</span></button>
+            <button mat-menu-item type="button" (click)="remove(document)"><mat-icon>delete</mat-icon><span>{{ 'common.delete' | translate }}</span></button>
+          </mat-menu>
+        </mat-card>
+      } @empty {
+        <p class="empty">{{ 'compliance.none' | translate }}</p>
+      }
+    </section>
+
+    @if (packs.length > 0) {
+      <section aria-labelledby="links-title">
+        <h2 id="links-title">{{ 'compliance.links' | translate }}</h2>
+        @for (pack of packs; track pack.id) {
+          <mat-card class="pack" [attr.data-pack]="pack.id">
+            <div class="text">
+              <h3>{{ pack.recipient }}</h3>
+              <span class="file">{{ 'compliance.linkDocuments' | translate:{ count: packDocuments(pack).length } }}</span>
+              <span class="dates">
+                @if (pack.revokedAt) {
+                  {{ 'compliance.revokedOn' | translate:{ date: (pack.revokedAt | date:'mediumDate') } }}
+                } @else if (pack.active) {
+                  {{ 'compliance.openUntil' | translate:{ date: (pack.expiresAt | date:'mediumDate') } }}
+                } @else {
+                  {{ 'compliance.expiredOn' | translate:{ date: (pack.expiresAt | date:'mediumDate') } }}
+                }
+                · {{ 'compliance.opened' | translate:{ count: pack.openCount } }}
+              </span>
+            </div>
+            @if (pack.active) {
+              <button mat-stroked-button color="warn" type="button" (click)="revoke(pack)" data-revoke>{{ 'compliance.revoke' | translate }}</button>
+            }
+          </mat-card>
+        }
+      </section>
+    }
+  }
+</div>

@@ -114,6 +114,12 @@ class UserDataExportServiceTest {
     @Mock
     private PurchaseOrderService purchaseOrderService;
 
+    @Mock
+    private ComplianceDocumentService complianceDocumentService;
+
+    @Mock
+    private CompliancePackService compliancePackService;
+
     @InjectMocks
     private UserDataExportService userDataExportService;
 

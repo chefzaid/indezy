@@ -203,4 +203,21 @@ describe('DashboardRemindersComponent', () => {
     expect(rows(card)[1].textContent).toContain('purchaseOrders.daysLeft');
     expect(rows(card)[2].querySelector('.meta')).toBeNull();
   });
+
+  it('lists the compliance documents to renew, linking to the vault', () => {
+    const element = render({
+      expiringDocuments: [
+        { documentId: 1, type: 'PROFESSIONAL_INSURANCE', label: 'RC Pro', expiresOn: '2026-10-25', daysLeft: -2 },
+        { documentId: 2, type: 'URSSAF_VIGILANCE', label: null, expiresOn: '2026-11-16', daysLeft: 20 }
+      ]
+    });
+
+    expect(component.hasReminders()).toBe(true);
+    const card = element.querySelector<HTMLElement>('[data-expiring-documents]')!;
+    expect(rows(card).map(row => row.getAttribute('href'))).toEqual(['/documents', '/documents']);
+    expect(rows(card)[0].textContent).toContain('RC Pro');
+    expect(rows(card)[0].textContent).toContain('dashboard.charts.expiredDaysAgo');
+    expect(rows(card)[1].textContent).toContain('dashboard.charts.expiresInDays');
+    expect(rows(card)[1].querySelector('.secondary')).toBeNull();
+  });
 });

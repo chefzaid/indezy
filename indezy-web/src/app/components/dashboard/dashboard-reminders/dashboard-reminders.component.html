@@ -25,6 +25,29 @@
         }
       </section>
     }
+    @if (getExpiringDocuments().length > 0) {
+      <section class="reminder-card accent-brown" data-expiring-documents>
+        <h3 class="reminder-title">
+          <mat-icon>folder_shared</mat-icon>
+          {{ 'dashboard.charts.expiringDocuments' | translate }}
+          <span class="count">{{ getExpiringDocuments().length }}</span>
+        </h3>
+        @for (document of visible(getExpiringDocuments(), 'documents'); track document.documentId) {
+          <a class="reminder-row" routerLink="/documents">
+            <span class="primary">{{ 'compliance.types.' + document.type | translate }}</span>
+            @if (document.label) {
+              <span class="secondary">{{ document.label }}</span>
+            }
+            <span class="meta">{{ (document.daysLeft < 0 ? 'dashboard.charts.expiredDaysAgo' : 'dashboard.charts.expiresInDays') | translate:{ days: (document.daysLeft < 0 ? -document.daysLeft : document.daysLeft) } }}</span>
+          </a>
+        }
+        @if (getExpiringDocuments().length > collapsedSize) {
+          <button type="button" class="toggle-btn" (click)="toggle('documents')">
+            {{ isExpanded('documents') ? ('dashboard.showLess' | translate) : ('dashboard.showAll' | translate:{ count: getExpiringDocuments().length }) }}
+          </button>
+        }
+      </section>
+    }
     @if (getPurchaseOrderAlerts().length > 0) {
       <section class="reminder-card accent-orange" data-purchase-order-alerts>
         <h3 class="reminder-title">

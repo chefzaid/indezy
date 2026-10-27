@@ -1,0 +1,43 @@
+<main class="pack-page">
+  <app-public-page-header></app-public-page-header>
+  <mat-card class="pack-card">
+    <mat-card-content>
+      @if (loading) {
+        <div class="state">
+          <mat-spinner diameter="40" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
+        </div>
+      } @else if (!pack) {
+        <div class="state" data-pack-invalid>
+          <mat-icon class="state-icon" aria-hidden="true">link_off</mat-icon>
+          <h1>{{ 'compliance.pack.invalidTitle' | translate }}</h1>
+          <p>{{ 'compliance.pack.invalidMessage' | translate }}</p>
+        </div>
+      } @else {
+        <h1>{{ 'compliance.pack.title' | translate }}</h1>
+        <p class="intro">{{ 'compliance.pack.intro' | translate:{ sharedBy: pack.sharedBy, recipient: pack.recipient } }}</p>
+        <p class="until">{{ 'compliance.pack.until' | translate:{ date: (pack.expiresAt | date:'medium') } }}</p>
+        <ul class="documents">
+          @for (document of pack.documents; track document.id) {
+            <li [attr.data-pack-document]="document.id">
+              <div class="text">
+                <strong>{{ 'compliance.types.' + document.type | translate }}{{ document.label ? ' · ' + document.label : '' }}</strong>
+                <span>
+                  {{ document.fileName }}
+                  @if (document.expiresOn) {
+                    · {{ 'compliance.expires' | translate:{ date: (document.expiresOn | date:'mediumDate') } }}
+                  }
+                </span>
+              </div>
+              <button mat-stroked-button type="button" (click)="download(document)"
+                [attr.aria-label]="'compliance.pack.downloadNamed' | translate:{ name: document.fileName }">
+                <mat-icon>download</mat-icon>{{ 'compliance.download' | translate }}
+              </button>
+            </li>
+          } @empty {
+            <li class="empty">{{ 'compliance.pack.none' | translate }}</li>
+          }
+        </ul>
+      }
+    </mat-card-content>
+  </mat-card>
+</main>

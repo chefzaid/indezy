@@ -51,6 +51,8 @@ public class DashboardStatsDto {
     private List<OverdueInvoice> overdueInvoices;
     /** The last 90 days against the 90 before: opportunities, interviews, missions won and their daily rate. */
     private List<Trend> trends;
+    /** Compliance documents expired or expiring within 30 days, the soonest first. */
+    private List<ExpiringDocument> expiringDocuments;
     /** Purchase orders running today with 80 % of a ceiling used or more, the most used first. */
     private List<PurchaseOrderAlert> purchaseOrderAlerts;
     /** Interview steps planned in the next seven days, soonest first. */
@@ -215,6 +217,19 @@ public class DashboardStatsDto {
         private Double current;
         private Double previous;
         private Integer change;
+    }
+
+    /** A compliance document to renew: days left before it expires, negative once expired. */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ExpiringDocument {
+        private Long documentId;
+        private String type;
+        private String label;
+        private LocalDate expiresOn;
+        private long daysLeft;
     }
 
     /** A purchase order close to its ceiling, or over it. */

@@ -187,6 +187,11 @@ Representative backend tests:
   credited invoice no longer payable nor overdue, the credit note's PDF), `InvoicePdfRendererTest` (a company's capital, registration and VAT in French with a
   wrapped line and notes; a draft of an individual entrepreneur exempt from VAT) and `InvoiceTotalsTest` (each line and
   its VAT to the cent)
+- compliance documents: `ComplianceIntegrationTest` (documents stored with their dates, an URSSAF certificate's end set
+  from its issue, a document without a name, a web page or an end before the issue refused, the types' order, the
+  dashboard's documents to renew, the content's headers, Bob kept out; a link whose token is stored hashed, opened
+  without an account and counted, serving only its documents as downloads, a deleted document leaving it, revoked; the
+  data export without the token)
 - purchase orders: `PurchaseOrderIntegrationTest` (the days of the activity reports used against an order's ceiling over
   its period, an absence and a day before the order left out; an amendment adding days and an end; a ceiling in euros at
   the daily rate, over it; the dashboard's alert from 80 %; no start, no ceiling, an end before the start, an empty
@@ -252,6 +257,12 @@ Representative frontend specs:
   `invoice-draft-dialog.component.spec.ts` (totals counted as the server does, the client's missions, a draft changed
   and trimmed, a credit note's client kept, fifty lines at most), `invoice-date-dialog.component.spec.ts`,
   `invoice-errors.spec.ts` and `activity-report-card.component.spec.ts` (a validated month invoiced, or invoiced already)
+- compliance documents: `compliance.component.spec.ts` (documents and links listed, adding in the types' order and the
+  reasons for a refusal, changing, downloading, deleting once confirmed, a link shown once to copy or email, revoking,
+  failures), `compliance-document-dialog.component.spec.ts` (the file's type and size, another document's name, an end
+  after the issue, a stored document changed without its file), `compliance-share-dialog.component.spec.ts` (expired
+  documents unticked, at least one document) and `compliance-pack.component.spec.ts` (the shared page with the link's
+  token, a missing or dead link, nothing shared any more)
 - purchase orders: `purchase-orders-card.component.spec.ts` (usage in days and euros, the alert, amendments, days over,
   no rate, none yet, adding, amending, changing, deleting once confirmed, failures), `purchase-order-dialog.component.spec.ts`
   (an order's start and ceiling, an end before the start, an amendment adding something) and
@@ -443,6 +454,10 @@ axe-core) hide the charts, move the recent opportunities up, and find the layout
 
 Billing scenarios (`e2e/billing.spec.ts`, on a desktop and on a phone, audited with axe-core) fill in the billing
 identity, a wrong IBAN refused, until the tab says invoices can be issued.
+
+Compliance scenarios (`e2e/compliance.spec.ts`, the dialog and the page audited with axe-core) store an URSSAF
+certificate and share it through a link copied to the clipboard, on a desktop and on a phone, then open the shared page
+without an account in French, download the document, switch to English, and open a dead link.
 
 Purchase order scenarios (`e2e/purchase-orders.spec.ts`, on a desktop and on a phone, the dialog and the card audited
 with axe-core) add an order to a won mission, refused without a ceiling, see its alert at 87 %, then add an amendment

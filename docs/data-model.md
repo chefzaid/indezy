@@ -370,6 +370,28 @@ at least one, an amendment adds them) and `notes`. Usage is computed, not stored
 activity reports over the order's period, their amount at the mission's daily rate, and the share of the closest
 ceiling (`OK`, `NEAR` from 80 %, `EXCEEDED` over 100 %).
 
+## ComplianceDocument
+
+Table: `compliance_documents`
+
+Purpose: a paper an ESN asks of the freelancer (URSSAF vigilance certificate, company registration extract, professional
+insurance, bank details, identity, other).
+
+Fields: `freelanceId`, `type` (`document_type`), `label` (required for `OTHER`), `fileName`, `contentType` (read from the
+content: PDF, PNG or JPEG), `sizeBytes`, `content` (10 MB at most, read only to serve it), `issuedOn` and `expiresOn`
+(set from the issue date, six months for an URSSAF certificate and three for a registration extract, when not given).
+Validity is computed, not stored.
+
+## CompliancePack
+
+Tables: `compliance_packs`, `compliance_pack_documents`
+
+Purpose: documents shared through one link.
+
+Fields: `freelanceId`, `recipient`, `tokenHash` (SHA-256 of the link's token, hex, unique; the token itself is never
+stored), `expiresAt`, `revokedAt`, `openCount`, `lastOpenedAt`, and the documents' ids (`compliance_pack_documents`; a
+deleted document leaves them).
+
 ## JobOffer
 
 Tables: `job_offers`, `job_offer_skills`

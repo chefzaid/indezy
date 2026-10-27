@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>{{ (data.document ? 'compliance.editTitle' : 'compliance.addTitle') | translate }}</h2>
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-dialog-content class="fields">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'compliance.type' | translate }}</mat-label>
+      <mat-select formControlName="type" data-document-type>
+        @for (type of types; track type) {
+          <mat-option [value]="type">{{ 'compliance.types.' + type | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'compliance.label' | translate }}</mat-label>
+      <input matInput formControlName="label" maxlength="100" [required]="form.controls.type.value === 'OTHER'">
+    </mat-form-field>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'compliance.issuedOn' | translate }}</mat-label>
+        <input matInput type="date" formControlName="issuedOn" data-document-issued>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'compliance.expiresOn' | translate }}</mat-label>
+        <input matInput type="date" formControlName="expiresOn" data-document-expires>
+        @if (validityMonths) {
+          <mat-hint>{{ 'compliance.validityHint' | translate:{ months: validityMonths } }}</mat-hint>
+        }
+      </mat-form-field>
+    </div>
+    @if (!data.document) {
+      <label class="file">
+        <span>{{ 'compliance.file' | translate }}</span>
+        <input type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" (change)="pick($event)" data-document-file>
+      </label>
+    }
+    @if (fileError || (form.touched && form.errors)) {
+      <p class="form-error" role="alert" data-document-error>
+        @if (fileError) {
+          {{ 'compliance.fileErrors.' + fileError | translate }}
+        } @else if (form.hasError('labelRequired')) {
+          {{ 'compliance.labelRequired' | translate }}
+        } @else {
+          {{ 'compliance.expiresBeforeIssue' | translate }}
+        }
+      </p>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+    <button mat-raised-button color="primary" type="submit" data-save-document>{{ 'common.save' | translate }}</button>
+  </mat-dialog-actions>
+</form>

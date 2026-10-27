@@ -26,6 +26,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/emails-unsubscribe/emails-unsubscribe.component').then(m => m.EmailsUnsubscribeComponent)
   },
   {
+    // Documents a freelancer shares with an ESN, opened from the link without an account.
+    path: 'documents-pack',
+    loadComponent: () => import('./components/compliance-pack/compliance-pack.component').then(m => m.CompliancePackComponent)
+  },
+  {
     // A freelancer's public profile, opened from its link without an account.
     path: 'p/:slug',
     loadComponent: () => import('./components/public-profile/public-profile.component').then(m => m.PublicProfileComponent)
@@ -85,6 +90,11 @@ export const routes: Routes = [
     path: 'review',
     loadComponent: () => import('./components/review/yearly-review.component').then(m => m.YearlyReviewComponent),
     canActivate: [authGuard, featureGuard('YEARLY_REVIEW')]
+  },
+  {
+    path: 'documents',
+    loadComponent: () => import('./components/compliance/compliance.component').then(m => m.ComplianceComponent),
+    canActivate: [authGuard]
   },
   {
     path: 'invoices',

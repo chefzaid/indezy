@@ -407,6 +407,26 @@ Opportunity files (`/api/projects/{id}/attachments`, see [ADR 0010](./adr/0010-a
 Files are not scanned for malware: only their owner can read them back, so a file harms no one but the account that
 uploaded it; a scanner is listed in the [Security Backlog](#security-backlog).
 
+## Shared Compliance Documents
+
+The compliance vault holds sensitive papers (identity, bank details), stored in PostgreSQL like opportunity files: PDF,
+PNG or JPEG recognised from their first bytes, 10 MB at most, read and changed only by their workspace (`404` to
+another), served with `X-Content-Type-Options: nosniff`, `Content-Security-Policy: sandbox; default-src 'none'` and
+`Cache-Control: no-store, private`.
+
+A shared link:
+
+- carries a token of 32 random bytes (base64url) after the `#` of its address, so it never reaches a server, proxy or
+  referrer log; the page sends it in the `X-Pack-Token` header, never in the path or query;
+- is stored as the SHA-256 of its token only; the token is answered once, when the link is created, and is part of no
+  listing or export;
+- works for 1 to 30 days and until revoked; an unknown, expired or revoked token answers `404`, whatever the reason;
+- serves only the documents it names that are still in the vault, always as downloads (`Content-Disposition:
+  attachment`), with the headers above;
+- counts each opening (count and last time), shown to its owner.
+
+At most 20 links are open at once per workspace.
+
 ## Spreadsheet Exports
 
 CSV files meant for a spreadsheet (the accountant's project summary and the invoice register) write typed text through

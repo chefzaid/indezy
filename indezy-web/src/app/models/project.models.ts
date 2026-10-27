@@ -1,4 +1,5 @@
 import { PurchaseOrderAlert } from './purchase-order.models';
+import { ExpiringDocument } from './compliance.models';
 // Project related interfaces and types
 
 export enum ProjectStatus {
@@ -156,6 +157,8 @@ export interface DashboardStatsDto {
   overdueInvoices?: OverdueInvoice[];
   /** The last 90 days against the 90 before: opportunities, interviews, missions won and their daily rate. */
   trends?: Trend[];
+  /** Compliance documents expired or expiring within 30 days, the soonest first. */
+  expiringDocuments?: ExpiringDocument[];
   /** Running purchase orders with 80 % of a ceiling used or more, the most used first. */
   purchaseOrderAlerts?: PurchaseOrderAlert[];
   /** Interview steps planned in the next seven days, soonest first. */

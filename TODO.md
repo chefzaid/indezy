@@ -104,6 +104,9 @@ Parts of tasks that cannot advance without the owner's decision or information. 
 - [ ] **Accounting tool connectors** (Invoicing and Compliance, "Direct connectors"): the FEC export already feeds any French accounting tool by import. Pushing entries straight into a tool needs a partner or developer account with it (Pennylane's API, Tiime, Indy…). Which tools do your users rely on, and do you have, or want to apply for, API access to them?
   - Answer:
 
+- [ ] **Keycloak email flows** (Email validation and password reset): in production Indezy never sees a password, so both flows are the `swirlit` realm's (Realm settings → Login: **Verify email** and **Forgot password**, with the realm's SMTP settings under **Email**). The realm is shared with the platform, so turning them on changes every application's login. Should they be turned on, and which sender address should the realm use? Local accounts (development only) need neither.
+  - Answer:
+
 - [ ] **Administrators**: who opens the admin console? Set their emails, comma-separated, as `INDEZY_ADMIN_EMAILS` in the `indezy-server-config` ConfigMap (`infra/k8s/server.yaml`, empty today so nobody is an administrator) and restart the server (see `docs/deployment.md#administrators`). The account must exist first.
 
 ## Pipeline & Kanban
@@ -443,7 +446,7 @@ Indezy has no presentation website: `https://indezy.swirlit.dev` redirects strai
 - [x] Profile surface for account, preferences, notifications, and security-related fields
 - [x] Harden backend security config (currently permissive for non-auth routes)
 - [ ] Authentication + Gmail / Outlook / LinkedIn authentication
-- [ ] Email validation and password reset flows
+- [ ] Email validation and password reset flows (production passwords live in the shared Keycloak `swirlit` realm, which owns both flows; see Needs Input "Keycloak email flows")
 - [x] Two-factor authentication (TOTP) — currently stubbed (random UUID secret, placeholder QR, length-only code check); implement real secret generation, QR/URI, and code validation
 - [x] Replace hardcoded user/freelance IDs with the authenticated principal from `SecurityContext` (backend `UserController.CURRENT_USER_ID = 1`, and `freelanceId = 1` in the Angular contact service) once authentication is wired through
 - [x] Account deletion (soft-delete with confirmation) and GDPR data export (droit à la portabilité)
@@ -491,7 +494,7 @@ Differentiators, each covered below:
 ### Mission Operations (after signature)
 
 - [x] Monthly activity report (CRA) per mission: calendar of full and half days, on-site or remote, public holidays and absences; validation by the client or ESN through a signed link; PDF in the ESN's template; validated days feed the invoice (the Factur-X item below builds invoices from them).
-- [ ] Compliance document vault: URSSAF vigilance certificate (renewed every six months), company registration extract, professional liability insurance, bank details and ID, with expiry reminders and a one-link pack to send to an ESN.
+- [x] Compliance document vault: URSSAF vigilance certificate (renewed every six months), company registration extract, professional liability insurance, bank details and ID, with expiry reminders and a one-link pack to send to an ESN. Done on 2026-10-27: **Documents** (`/documents`) stores them with their dates (an URSSAF certificate's end set six months after its issue), lists the ones to renew among the dashboard's reminders, and shares them through a revocable link of 7 to 30 days, opened without an account and counted.
 - [x] Purchase orders and amendments per mission (number, amount or day ceiling, period), consumption tracked against CRA days, with an alert before the ceiling. Done on 2026-10-27: **Purchase orders** on a won mission's page, amendments adding days, euros or a later end, usage from the activity reports' days at the daily rate, and an alert from 80 % on the card and among the dashboard's reminders.
 - [ ] Electronic signature of contracts, amendments and CRAs through an EU qualified trust provider.
 

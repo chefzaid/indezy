@@ -47,6 +47,7 @@ public class DashboardStatsService {
     private final ContactInteractionService contactInteractionService;
     private final InvoiceService invoiceService;
     private final PurchaseOrderService purchaseOrderService;
+    private final ComplianceDocumentService complianceDocumentService;
 
     /** Notice period applied when the freelance has not configured one. */
     private static final int DEFAULT_NOTICE_PERIOD_DAYS = 30;
@@ -166,6 +167,7 @@ public class DashboardStatsService {
             .followUpsDue(contactInteractionService.followUpsDue(freelanceId, followUpDays, today))
             .overdueInvoices(invoiceService.overdue(freelanceId))
             .purchaseOrderAlerts(purchaseOrderService.alerts(freelanceId))
+            .expiringDocuments(complianceDocumentService.expiring(freelanceId))
             .skillTrends(DashboardAnalytics.buildSkillTrends(projects))
             .processDurations(DashboardAnalytics.buildProcessDurations(projects, signatures))
             .trends(DashboardTrends.build(projects, heatmapSteps, signatures, today))

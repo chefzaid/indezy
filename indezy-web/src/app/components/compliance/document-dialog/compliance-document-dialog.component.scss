@@ -1,0 +1,29 @@
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: min(520px, 100%);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0 12px;
+}
+
+.file {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 12px;
+
+  input {
+    max-width: 100%;
+  }
+}
+
+.form-error {
+  margin: 0 0 12px;
+  color: var(--app-danger);
+  font-size: 0.875rem;
+}

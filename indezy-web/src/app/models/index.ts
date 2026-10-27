@@ -27,3 +27,4 @@ export * from './account-security.models';
 export * from './billing.models';
 export * from './invoice.models';
 export * from './purchase-order.models';
+export * from './compliance.models';

@@ -1,0 +1,78 @@
+.pack-page {
+  min-height: 100vh;
+  background: var(--app-bg);
+}
+
+.pack-card {
+  max-width: 720px;
+  margin: 24px auto;
+
+  h1 {
+    margin: 0 0 8px;
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 759px) {
+  .pack-card {
+    margin: 16px;
+  }
+}
+
+.intro {
+  margin: 0 0 4px;
+}
+
+.until {
+  margin: 0 0 16px;
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+}
+
+.documents {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+    padding: 12px 0;
+    border-top: 1px solid var(--app-border);
+  }
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    span {
+      font-size: 0.85rem;
+      color: var(--app-text-muted);
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .empty {
+    color: var(--app-text-muted);
+  }
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 0;
+  text-align: center;
+
+  .state-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    color: var(--app-text-muted);
+  }
+}

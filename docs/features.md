@@ -894,6 +894,35 @@ API: `GET` and `POST /projects/{projectId}/purchase-orders` (an amendment names 
 `DELETE /purchase-orders/{id}`; each write answers with the order as it now stands, with its amendments and its usage.
 Another workspace's mission or order answers `404`; the dashboard statistics carry `purchaseOrderAlerts`.
 
+## Compliance Documents
+
+**Documents** (`/documents`) keeps the papers ESNs ask for before and during a mission, and shares them through one link
+instead of email attachments.
+
+- **Add a document**: its type (URSSAF vigilance certificate, company registration extract (Kbis), professional
+  liability insurance, bank details (RIB), identity document, or another document, which needs a label), an optional
+  label, the issue and expiry dates, and a PDF, PNG or JPEG file of 10 MB at most (the type is read from the content;
+  a web page renamed `.pdf` is refused). Without an expiry date, an URSSAF certificate expires six months after its
+  issue and a registration extract three months after. Up to 30 documents; each can be downloaded, changed (not its
+  file) and deleted.
+- **Validity**: valid, expires soon (within 30 days), expired, or without expiry (bank details). The documents expired
+  or expiring within 30 days are among the dashboard's reminders (**Documents to renew**, the soonest first), linking
+  to the page.
+- **Share**: who the link is for (an ESN, a recruiter), the documents (the expired ones unticked at first) and how long
+  it works (7, 14 or 30 days). The link (`/documents-pack#<token>`) is shown once, to copy or send by email; the page
+  lists each link with its documents, until when it works, and how many times it was opened, and **Revoke** closes it
+  for good. Deleting a document takes it out of the links that share it.
+- **The shared page**, opened without an account, says who shares the documents with whom and until when, and offers
+  each document to download. An unknown, expired or revoked link says it no longer works.
+- Documents (without their content) and links (without their token) are part of the account data export.
+
+API: `GET` and `POST /api/compliance-documents` (multipart: `file`, `type`, `label`, `issuedOn`, `expiresOn`), `PUT` and
+`DELETE /api/compliance-documents/{id}`, `GET /api/compliance-documents/{id}/content`, `GET` and `POST
+/api/compliance-packs` (`{ recipient, documentIds, days }`, answering the token once), `POST
+/api/compliance-packs/{id}/revoke`; without an account, `GET /api/public/compliance-packs` and `GET
+/api/public/compliance-packs/documents/{id}` with the token in the `X-Pack-Token` header (see
+[Security](./security.md#shared-compliance-documents)). The dashboard statistics carry `expiringDocuments`.
+
 ## Kanban And Pipeline View
 
 The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs. Cards can be pinned as favorites (`PATCH /projects/{id}/favorite`), which keeps hot leads at the top of their column. Within a column, cards can be dragged to set a manual priority, persisted through `PUT /projects/kanban/{freelanceId}/reorder` (favorites still pin above the manual order). Each card shows a card-aging indicator (days since last activity) and highlights opportunities after the account's configured inactivity period (14 days by default). A quick-add button on each column opens a minimal dialog (role, client, daily rate) that creates an opportunity directly in that column's status, to be enriched later. Moving a card into the LOST column prompts for a loss reason, which feeds a "why opportunities were lost" breakdown on the dashboard. Cards that share the same client and role (case-insensitive) as another opportunity are flagged as possible duplicates for manual deduplication.

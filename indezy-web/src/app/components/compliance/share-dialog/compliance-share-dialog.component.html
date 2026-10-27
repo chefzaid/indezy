@@ -1,0 +1,37 @@
+<h2 mat-dialog-title>{{ 'compliance.shareTitle' | translate }}</h2>
+<form [formGroup]="form" (ngSubmit)="share()">
+  <mat-dialog-content class="fields">
+    <p class="intro">{{ 'compliance.shareIntro' | translate }}</p>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'compliance.recipient' | translate }}</mat-label>
+      <input matInput formControlName="recipient" maxlength="120" required data-share-recipient>
+    </mat-form-field>
+    <fieldset class="documents">
+      <legend>{{ 'compliance.shareDocuments' | translate }}</legend>
+      @for (document of data.documents; track document.id) {
+        <mat-checkbox [checked]="selected.has(document.id)" (change)="toggle(document.id, $event.checked)"
+          [attr.data-share-document]="document.id">
+          {{ 'compliance.types.' + document.type | translate }}{{ document.label ? ' · ' + document.label : '' }}
+          @if (document.validity === 'EXPIRED') {
+            <span class="expired">({{ 'compliance.validity.EXPIRED' | translate }})</span>
+          }
+        </mat-checkbox>
+      }
+    </fieldset>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'compliance.duration' | translate }}</mat-label>
+      <mat-select formControlName="days">
+        @for (days of durations; track days) {
+          <mat-option [value]="days">{{ 'compliance.days' | translate:{ days } }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    @if (noneChosen) {
+      <p class="form-error" role="alert">{{ 'compliance.noneChosen' | translate }}</p>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+    <button mat-raised-button color="primary" type="submit" data-create-link>{{ 'compliance.createLink' | translate }}</button>
+  </mat-dialog-actions>
+</form>

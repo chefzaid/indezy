@@ -21,6 +21,7 @@ import { AccountSecurityService } from './account-security/account-security.serv
 import { BillingService } from './billing/billing.service';
 import { InvoiceService } from './invoice/invoice.service';
 import { PurchaseOrderService } from './purchase-order/purchase-order.service';
+import { ComplianceService } from './compliance/compliance.service';
 import { ProjectStatus, StepStatus } from '../models';
 
 /** One HTTP wrapper call: what the service is asked, and the request it must send. */
@@ -72,6 +73,8 @@ describe('API services', () => {
   const billing = (): BillingService => TestBed.inject(BillingService);
   const invoices = (): InvoiceService => TestBed.inject(InvoiceService);
   const purchaseOrders = (): PurchaseOrderService => TestBed.inject(PurchaseOrderService);
+  const compliance = (): ComplianceService => TestBed.inject(ComplianceService);
+  const packToken = { 'X-Pack-Token': 'pack-token' };
   const linkToken = { 'X-Report-Token': 'link-token' };
   const decision = { approved: false, validatorName: 'Jean Dupont', comment: 'Le 11 est férié' };
 
@@ -182,6 +185,22 @@ describe('API services', () => {
     { name: 'change a purchase order', call: () => purchaseOrders().update(4, { number: 'BC' } as never), method: 'PUT',
       url: `${api}/purchase-orders/4`, body: { number: 'BC' } },
     { name: 'delete a purchase order', call: () => purchaseOrders().delete(4), method: 'DELETE', url: `${api}/purchase-orders/4` },
+    { name: 'compliance documents', call: () => compliance().list(), method: 'GET', url: `${api}/compliance-documents` },
+    { name: 'store a compliance document', call: () => compliance().upload(new File(['%PDF'], 'a.pdf'), { type: 'OTHER', label: 'Diploma',
+      issuedOn: null, expiresOn: '2027-01-01' }), method: 'POST', url: `${api}/compliance-documents` },
+    { name: 'change a compliance document', call: () => compliance().update(4, { type: 'IDENTITY' } as never), method: 'PUT',
+      url: `${api}/compliance-documents/4`, body: { type: 'IDENTITY' } },
+    { name: 'delete a compliance document', call: () => compliance().delete(4), method: 'DELETE', url: `${api}/compliance-documents/4` },
+    { name: 'compliance document content', call: () => compliance().content(4), method: 'GET', url: `${api}/compliance-documents/4/content`,
+      response: new Blob(['%PDF']) },
+    { name: 'shared links', call: () => compliance().packs(), method: 'GET', url: `${api}/compliance-packs` },
+    { name: 'share documents', call: () => compliance().share({ recipient: 'ESN' } as never), method: 'POST', url: `${api}/compliance-packs`,
+      body: { recipient: 'ESN' } },
+    { name: 'revoke a link', call: () => compliance().revoke(5), method: 'POST', url: `${api}/compliance-packs/5/revoke`, body: null },
+    { name: 'shared documents', call: () => compliance().publicPack('pack-token'), method: 'GET', url: `${api}/public/compliance-packs`,
+      headers: packToken },
+    { name: 'shared document', call: () => compliance().publicDocument('pack-token', 4), method: 'GET',
+      url: `${api}/public/compliance-packs/documents/4`, headers: packToken, response: new Blob(['%PDF']) },
     { name: 'change a draft', call: () => invoices().update(5, { clientId: 3 } as never), method: 'PUT', url: `${api}/invoices/5`, body: { clientId: 3 } },
     { name: 'delete a draft', call: () => invoices().delete(5), method: 'DELETE', url: `${api}/invoices/5` },
     { name: 'issue an invoice', call: () => invoices().issue(5, '2026-10-27'), method: 'POST', url: `${api}/invoices/5/issue`, body: { issueDate: '2026-10-27' } },

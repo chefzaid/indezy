@@ -1,0 +1,34 @@
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: min(480px, 100%);
+}
+
+.intro {
+  margin: 0 0 12px;
+}
+
+.documents {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 16px;
+  padding: 8px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+
+  legend {
+    padding: 0 4px;
+    font-size: 0.875rem;
+  }
+
+  .expired {
+    color: var(--app-danger);
+  }
+}
+
+.form-error {
+  margin: 0 0 12px;
+  color: var(--app-danger);
+  font-size: 0.875rem;
+}
