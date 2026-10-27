@@ -21,7 +21,9 @@ The core workflow is:
 the mission, win it at the right rate, then run it) with a Kanban scene, what Indezy does today (the offer feed, the
 pipeline, clients and contacts, activity reports, invoices and documents, the dashboard), how it works in five steps,
 what is true of the data (only the account sees its workspace, everything can be exported, shared links show only what
-is chosen) and a few questions. Signed out, **Sign in** opens Keycloak (the sign-in page outside production, plus
+is chosen), screens of the Kanban board, the offer feed, an activity report and the dashboard (in the page's language
+and the visitor's light or dark theme, taken from a demo workspace whose people and offers are invented) and a few
+questions. Signed out, **Sign in** opens Keycloak (the sign-in page outside production, plus
 **Create my account** there: sign-up in production waits on the decision in TODO.md, Needs Input); signed in, **Open
 the dashboard**. The page never sends a visitor to sign in by itself, shows without the app's menu, and an old shared
 `/?project=<id>` link still opens its opportunity.
@@ -31,6 +33,8 @@ other language's (`hreflang`), an Open Graph and Twitter card with `assets/brand
 `SoftwareApplication` data. After the build, `scripts/prerender-home.mjs` writes `home-fr.html` and `home-en.html`: the
 built `index.html` with these tags and the page's text, which nginx serves for `/` and `/en`, so the content is there
 without JavaScript; the app replaces it once it starts. `robots.txt` and `sitemap.xml` list these two pages only.
+The screens are taken again with `npx playwright test -c pw.screenshots.config.ts` (in `indezy-web`): it opens the app
+on the demo workspace of `scripts/screenshots/demo-workspace.ts` and writes `src/assets/screens/<screen>-<language>-<theme>.jpg`.
 
 ## Authentication And Account Access
 

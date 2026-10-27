@@ -2793,6 +2793,26 @@
         "a": "Indezy est en français et en anglais, tout comme ses CRA, ses factures et ses e-mails."
       }
     },
-    "footer": "L'espace de travail des freelances IT en France."
+    "footer": "L'espace de travail des freelances IT en France.",
+    "screens": {
+      "title": "Un aperçu",
+      "note": "Écrans d'un espace de démonstration : la freelance, les clients et les offres sont inventés.",
+      "kanban": {
+        "caption": "Le pipeline, du premier contact à la signature.",
+        "alt": "Le tableau Kanban d'Indezy : des opportunités en cinq colonnes, chaque carte avec son poste, son client, son TJM et son mode de travail."
+      },
+      "offers": {
+        "caption": "Le flux d'offres, avec l'adéquation de chacune à votre profil.",
+        "alt": "Le flux d'offres d'Indezy : des missions freelance de plusieurs sites avec leur TJM, leur lieu, leur mode de travail et leurs compétences."
+      },
+      "report": {
+        "caption": "Un CRA, validé par le client depuis un lien.",
+        "alt": "Un compte rendu d'activité en attente de validation : les jours du mois sur site, en télétravail et d'absence, avec les totaux."
+      },
+      "dashboard": {
+        "caption": "Le tableau de bord : chiffres, rappels et graphiques.",
+        "alt": "Le tableau de bord d'Indezy : opportunités, TJM moyen, revenus estimés et prévus, et graphiques par étape et mode de travail."
+      }
+    }
   }
 }

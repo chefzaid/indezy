@@ -127,6 +127,7 @@ h2 {
 }
 
 .features,
+.screens,
 .steps,
 .trust,
 .faq {
@@ -240,7 +241,41 @@ h2 {
   font-size: 0.875rem;
 }
 
+.screen-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+
+  figure {
+    margin: 0;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--app-border);
+    border-radius: 8px;
+  }
+
+  figcaption {
+    margin-top: 8px;
+    color: var(--app-text-muted);
+    font-size: 0.9rem;
+  }
+}
+
+.screens-note {
+  margin: 16px 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.8rem;
+}
+
 @media (max-width: 899px) {
+  .screen-grid {
+    grid-template-columns: 1fr;
+  }
+
   .hero {
     grid-template-columns: 1fr;
 

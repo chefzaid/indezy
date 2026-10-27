@@ -23,6 +23,10 @@ for (const theme of ['light', 'dark'] as const) {
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Trouvez la mission, décrochez-la au bon TJM, puis menez-la.');
       await expect(page).toHaveTitle(/Trouvez la mission/);
       await expect(page.locator('[data-feature]')).toHaveCount(6);
+      // The screenshot of the visitor's theme loads.
+      const screen = page.locator('[data-screen="kanban"] img');
+      await screen.scrollIntoViewIfNeeded();
+      await expect.poll(() => screen.evaluate(image => (image as HTMLImageElement).currentSrc)).toContain(`kanban-fr-${theme}.jpg`);
       await expect(page.getByRole('button', { name: 'Se connecter' }).first()).toBeVisible();
       await page.locator('[data-question="sites"]').click();
       await expect(page.locator('[data-question="sites"]')).toContainText('Free-Work');

@@ -18,7 +18,6 @@ export async function mockWorkspaceData(page: Page, language: string): Promise<v
     [/\/api\/users\/preferences$/, { theme: 'light', language, inactivityDays: 14, followUpDays: 5 }],
     [/\/api\/users\/profile$/, { id: 1, firstName: 'Workspace', lastName: 'Test', email: 'workspace@example.test', skills: ['Java'] }],
     [/\/api\/users\/security$/, { twoFactorEnabled: false }],
-    [/\/api\/users\/notifications$/, {}],
     [/\/api\/freelances\/1$/, { id: 1, firstName: 'Workspace', lastName: 'Test' }],
     [/\/api\/projects\/stats\/dashboard\/1/, { ...emptyDashboardStats, totalProjects: 2, activeProjects: 1, averageDailyRate: 650 }],
     [/\/api\/projects\/kanban\/1/, { inactivityDays: 14, columnOrder: ['CONTACT', 'INTERVIEW', 'OFFER', 'WON', 'LOST'], columns: {

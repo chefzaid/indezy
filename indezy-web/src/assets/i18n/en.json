@@ -2793,6 +2793,26 @@
         "a": "Indezy is in French and English, and so are its activity reports, invoices and emails."
       }
     },
-    "footer": "The workspace of IT freelancers in France."
+    "footer": "The workspace of IT freelancers in France.",
+    "screens": {
+      "title": "A look inside",
+      "note": "Screens of a demo workspace: the freelancer, clients and offers are invented.",
+      "kanban": {
+        "caption": "The pipeline, from first contact to signature.",
+        "alt": "Indezy's Kanban board: opportunities in five columns, each card with its role, client, daily rate and work mode."
+      },
+      "offers": {
+        "caption": "The offer feed, with each offer's match to your profile.",
+        "alt": "Indezy's offer feed: freelance missions from several job boards with their daily rate, place, work mode and skills."
+      },
+      "report": {
+        "caption": "An activity report, approved by the client through a link.",
+        "alt": "An activity report awaiting approval: the month's days on site, remote and off, with the totals."
+      },
+      "dashboard": {
+        "caption": "The dashboard: figures, reminders and charts.",
+        "alt": "Indezy's dashboard: opportunities, average daily rate, estimated and forecast revenue, and charts by stage and work mode."
+      }
+    }
   }
 }

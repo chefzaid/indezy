@@ -51,6 +51,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     { key: 'invoices', icon: 'receipt_long' },
     { key: 'dashboard', icon: 'insights' }
   ];
+  /** The screenshots, taken from a demo workspace (scripts/screenshots), in the page's language and the visitor's theme. */
+  readonly screens = ['kanban', 'offers', 'report', 'dashboard'];
   readonly steps = ['profile', 'network', 'opportunities', 'pipeline', 'reports'];
   readonly trust = ['yours', 'export', 'links'];
   readonly questions = ['who', 'sites', 'data', 'languages'];

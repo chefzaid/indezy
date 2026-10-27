@@ -62,6 +62,23 @@
       </div>
     </section>
 
+    <section class="screens" aria-labelledby="screens-title">
+      <h2 id="screens-title">{{ 'home.screens.title' | translate }}</h2>
+      <div class="screen-grid">
+        @for (screen of screens; track screen) {
+          <figure [attr.data-screen]="screen">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" [attr.srcset]="'assets/screens/' + screen + '-' + language + '-dark.jpg'">
+              <img [src]="'assets/screens/' + screen + '-' + language + '-light.jpg'" width="1280" height="800" loading="lazy"
+                [alt]="'home.screens.' + screen + '.alt' | translate">
+            </picture>
+            <figcaption>{{ 'home.screens.' + screen + '.caption' | translate }}</figcaption>
+          </figure>
+        }
+      </div>
+      <p class="screens-note">{{ 'home.screens.note' | translate }}</p>
+    </section>
+
     <section class="steps" aria-labelledby="steps-title">
       <h2 id="steps-title">{{ 'home.steps.title' | translate }}</h2>
       <ol>
