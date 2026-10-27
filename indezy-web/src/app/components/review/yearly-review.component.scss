@@ -1,0 +1,221 @@
+.review-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.review-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+}
+
+.review-subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.review-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  mat-spinner {
+    display: inline-block;
+    margin-right: 6px;
+  }
+}
+
+.year-picker {
+  display: flex;
+  align-items: center;
+
+  .year-value {
+    min-width: 3.5em;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+}
+
+.review-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+}
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+
+  .figure-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+
+  .figure-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+  }
+
+  .figure-note {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+
+    &.up {
+      color: var(--app-positive);
+    }
+
+    &.down {
+      color: var(--app-danger);
+    }
+  }
+}
+
+.review-section {
+  padding: 16px;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0 0 12px;
+    font-size: 1.125rem;
+  }
+
+  h3 {
+    margin: 16px 0 8px;
+    font-size: 0.9375rem;
+  }
+}
+
+.review-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+
+  .review-section {
+    margin-bottom: 0;
+  }
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.missions-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--app-border);
+    vertical-align: top;
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+  }
+
+  .numeric {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .client {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+  }
+
+  a {
+    color: var(--app-link);
+  }
+}
+
+.estimate {
+  margin-left: 2px;
+}
+
+.muted {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.footnote {
+  margin-top: 8px;
+  font-size: 0.8125rem;
+}
+
+.counts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 0;
+
+  dt {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+  }
+
+  dd {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 600;
+  }
+}
+
+.reasons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+}
+
+.chip-count {
+  margin-left: 6px;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .review-container {
+    padding: 16px 0;
+  }
+
+  .figure .figure-value {
+    font-size: 1.375rem;
+  }
+
+  // The period goes on phones, where the table would otherwise scroll sideways.
+  .missions-table .period {
+    display: none;
+  }
+}

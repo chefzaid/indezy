@@ -44,6 +44,8 @@ Bugs, failing checks, security findings and code smells found while working on a
 - [x] Saving the profile never changed its skills or languages, and saving an opportunity never changed its documents: `UserMapper.updateEntity` and `ProjectMapper.updateEntity` cleared and refilled the collections through their getters, which return copies, so the change was lost and the old values kept. Reproduce: `PUT /api/users/profile` with other `skills`, then `GET /api/users/profile` shows the previous ones (same for `documents` with `PUT /api/projects/{id}`). Fixed: both mappers ignore those fields and set them whole after mapping (`@AfterMapping`); `UserManagementIntegrationTest.updatingTheProfileKeepsItsSkillsAndTheirLevels` and `ProjectIntegrationTest.updateProject_ShouldReplaceItsDocuments` cover it.
 - [x] An opportunity's tech stack longer than 255 characters fails as a database error: `ProjectDto.techStack` has no size limit while `projects.tech_stack` is a `VARCHAR(255)`, so `POST` or `PUT /api/projects` with a 256-character `techStack` answers `409` with the generic data-integrity message instead of a validation error, and the form lets it be typed. Fixed: `ProjectDto.techStack` has `@Size(max = 255)` (`Project.TECH_STACK_MAX`, also the column's declared length), so the API answers `400` with a validation error on `techStack`, and the form's field stops at 255 characters; `ProjectIntegrationTest.createProject_ShouldRefuseATechStackLongerThanItsColumn` failed with `409` before the fix. The bulk **Add a tag** leaves a tech stack that would pass the limit as it is.
 
+- [x] The days a year assumed for a mission that states none differ between screens: `project-detail.component.ts` `calculateTotalRevenue()` falls back to 220 while the project form's default and the projects list's monthly and yearly revenue use 218, so the same opportunity shows a different revenue on its page and in the list. Reproduce: open an opportunity at 650 €/day for 12 months saved without days per year; its page shows 143,000 € and the list 141,700 €. *(found by: Coding Agent, yearly review)* Fixed on 2026-10-27: `DEFAULT_DAYS_PER_YEAR` (218) in `project.models.ts` is shared by the detail page, the list and the form, and the server's yearly review uses the same value.
+
 ## Needs Input
 
 Parts of tasks that cannot advance without the owner's decision or information. Only the part needing input is set aside here; the rest of the task keeps moving. Answer under the item, and the next agent run applies the answer and removes the entry.
@@ -312,7 +314,7 @@ Increments, implemented in order:
 - [x] Source ROI ranking (which job board/contact yields signed contracts)
 - [x] Prospection activity heatmap (calendar view of applications/calls/interviews to spot active and quiet periods)
 - [x] Skill demand trends: which skills/stacks appear most in captured opportunities over time, and at what rates
-- [ ] Personal yearly review (missions, revenue, top skills, network growth), exportable as a polished PDF report
+- [x] Personal yearly review (missions, revenue, top skills, network growth), exportable as a polished PDF report
 
 ## User Experience
 

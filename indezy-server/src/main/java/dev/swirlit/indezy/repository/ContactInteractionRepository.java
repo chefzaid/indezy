@@ -37,6 +37,8 @@ public interface ContactInteractionRepository extends JpaRepository<ContactInter
 
     long countByContactId(Long contactId);
 
+    long countByContactFreelanceIdAndOccurredOnBetween(Long freelanceId, LocalDate from, LocalDate to);
+
     @Query("SELECT i.contact.id AS contactId, MAX(i.occurredOn) AS lastOn FROM ContactInteraction i " +
         "WHERE i.contact.id IN :contactIds GROUP BY i.contact.id")
     List<LastInteraction> findLastByContactIds(@Param("contactIds") Collection<Long> contactIds);

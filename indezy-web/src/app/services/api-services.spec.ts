@@ -14,6 +14,7 @@ import { ProjectService } from './project/project.service';
 import { SourceService } from './source/source.service';
 import { UserManagementService } from './user-management/user-management.service';
 import { ActivityReportService } from './activity-report/activity-report.service';
+import { YearlyReviewService } from './review/yearly-review.service';
 import { ProjectStatus, StepStatus } from '../models';
 
 /** One HTTP wrapper call: what the service is asked, and the request it must send. */
@@ -58,6 +59,7 @@ describe('API services', () => {
   const users = (): UserManagementService => TestBed.inject(UserManagementService);
   const reports = (): ActivityReportService => TestBed.inject(ActivityReportService);
   const reportsOf2 = `${api}/projects/2/activity-reports`;
+  const review = (): YearlyReviewService => TestBed.inject(YearlyReviewService);
   const linkToken = { 'X-Report-Token': 'link-token' };
   const decision = { approved: false, validatorName: 'Jean Dupont', comment: 'Le 11 est férié' };
 
@@ -114,6 +116,8 @@ describe('API services', () => {
     { name: 'dashboard stats', call: () => project().getDashboardStats(7), method: 'GET', url: `${api}/projects/stats/dashboard/7` },
     { name: 'season dashboard stats', call: () => project().getDashboardStats(7, 9), method: 'GET', url: `${api}/projects/stats/dashboard/7`, params: { seasonId: '9' } },
     { name: 'yearly CSV', call: () => project().downloadYearlySummary(7, 2026), method: 'GET', url: `${api}/projects/export/csv/7`, params: { year: '2026' }, response: new Blob(['csv']) },
+    { name: 'yearly review', call: () => review().get(7, 2026), method: 'GET', url: `${api}/projects/review/7`, params: { year: '2026' } },
+    { name: 'yearly review PDF', call: () => review().downloadPdf(7, 2026, 'EN'), method: 'GET', url: `${api}/projects/review/7/pdf`, params: { year: '2026', language: 'EN' }, response: new Blob(['%PDF']) },
     { name: 'project notes', call: () => project().getProjectNotes(2), method: 'GET', url: `${api}/projects/2/notes` },
     { name: 'add note', call: () => project().addProjectNote(2, 'Called'), method: 'POST', url: `${api}/projects/2/notes`, body: { content: 'Called' } },
     { name: 'delete note', call: () => project().deleteProjectNote(2, 8), method: 'DELETE', url: `${api}/projects/2/notes/8` },

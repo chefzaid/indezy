@@ -1,0 +1,174 @@
+<div class="review-container">
+  <div class="review-header">
+    <div>
+      <h1 class="review-title">
+        <mat-icon>auto_graph</mat-icon>
+        {{ 'review.title' | translate }}
+      </h1>
+      <p class="review-subtitle">{{ 'review.subtitle' | translate }}</p>
+    </div>
+    <div class="review-actions">
+      <div class="year-picker" role="group" [attr.aria-label]="'review.year' | translate">
+        <button mat-icon-button type="button" data-year-previous (click)="changeYear(-1)"
+                [disabled]="year <= firstYear" [attr.aria-label]="'review.previousYear' | translate">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="year-value" aria-live="polite" data-year>{{ year }}</span>
+        <button mat-icon-button type="button" data-year-next (click)="changeYear(1)"
+                [disabled]="year >= currentYear" [attr.aria-label]="'review.nextYear' | translate">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+      <button mat-flat-button type="button" data-review-pdf (click)="downloadPdf()" [disabled]="!review || isDownloading">
+        @if (isDownloading) {
+          <mat-spinner diameter="18" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
+        } @else {
+          <mat-icon>picture_as_pdf</mat-icon>
+        }
+        {{ 'review.downloadPdf' | translate }}
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading && !review) {
+    <app-loading [message]="'common.loading' | translate" [showLogo]="false"></app-loading>
+  } @else if (review) {
+    @if (isEmpty) {
+      <div class="review-empty" data-review-empty>
+        <mat-icon>hourglass_empty</mat-icon>
+        <p>{{ 'review.empty' | translate:{ year: review.year } }}</p>
+      </div>
+    }
+
+    <section class="figures" [attr.aria-label]="'review.figures' | translate">
+      <mat-card class="figure">
+        <span class="figure-label">{{ 'review.revenue' | translate }}</span>
+        <span class="figure-value" data-figure-revenue>{{ review.totals.revenue | number:'1.0-0' }} €</span>
+        <span class="figure-note" [class.up]="(revenueChange ?? 0) > 0" [class.down]="(revenueChange ?? 0) < 0">
+          @if (revenueChange !== undefined) {
+            {{ 'review.versus' | translate:{ change: (revenueChange > 0 ? '+' : '') + revenueChange, year: review.year - 1 } }}
+          } @else {
+            {{ 'review.noComparison' | translate:{ year: review.year - 1 } }}
+          }
+        </span>
+      </mat-card>
+      <mat-card class="figure">
+        <span class="figure-label">{{ 'review.daysWorked' | translate }}</span>
+        <span class="figure-value" data-figure-days>{{ review.totals.days | number:'1.0-1' }}</span>
+      </mat-card>
+      <mat-card class="figure">
+        <span class="figure-label">{{ 'review.averageRate' | translate }}</span>
+        <span class="figure-value">
+          @if (review.totals.averageDailyRate !== undefined && review.totals.averageDailyRate !== null) {
+            {{ review.totals.averageDailyRate | number:'1.0-0' }} €
+          } @else {
+            —
+          }
+        </span>
+      </mat-card>
+      <mat-card class="figure">
+        <span class="figure-label">{{ 'review.missions' | translate }}</span>
+        <span class="figure-value">{{ review.totals.missions }}</span>
+      </mat-card>
+    </section>
+
+    <mat-card class="review-section">
+      <h2>{{ 'review.missionsTitle' | translate }}</h2>
+      @if (review.missions.length === 0) {
+        <p class="muted">{{ 'review.noMissions' | translate }}</p>
+      } @else {
+        <div class="table-scroll">
+          <table class="missions-table" data-missions>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'review.mission' | translate }}</th>
+                <th scope="col" class="period">{{ 'review.period' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'review.days' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'review.rate' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'review.revenue' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (mission of review.missions; track mission.projectId) {
+                <tr>
+                  <td>
+                    <a [routerLink]="['/projects', mission.projectId]">{{ mission.role }}</a>
+                    @if (mission.clientName) {
+                      <span class="client">{{ mission.clientName }}</span>
+                    }
+                  </td>
+                  <td class="period">
+                    {{ mission.start | date:'mediumDate' }} –
+                    @if (mission.end) {
+                      {{ mission.end | date:'mediumDate' }}
+                    } @else {
+                      {{ 'review.ongoing' | translate }}
+                    }
+                  </td>
+                  <td class="numeric">
+                    {{ mission.days | number:'1.0-1' }}@if (!mission.reported) {<span class="estimate" [attr.title]="'review.estimated' | translate">*</span>}
+                  </td>
+                  <td class="numeric">
+                    @if (mission.dailyRate) { {{ mission.dailyRate | number:'1.0-0' }} € } @else { — }
+                  </td>
+                  <td class="numeric">
+                    @if (mission.revenue !== undefined && mission.revenue !== null) { {{ mission.revenue | number:'1.0-0' }} € } @else { — }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (hasEstimates) {
+          <p class="muted footnote" data-estimate-note>* {{ 'review.estimated' | translate }}</p>
+        }
+      }
+    </mat-card>
+
+    <div class="review-columns">
+      <mat-card class="review-section">
+        <h2>{{ 'review.pipelineTitle' | translate }}</h2>
+        <dl class="counts" data-pipeline>
+          <div><dt>{{ 'review.opened' | translate }}</dt><dd>{{ review.pipeline.opened }}</dd></div>
+          <div><dt>{{ 'review.won' | translate }}</dt><dd>{{ review.pipeline.won }}</dd></div>
+          <div><dt>{{ 'review.lost' | translate }}</dt><dd>{{ review.pipeline.lost }}</dd></div>
+          <div>
+            <dt>{{ 'review.conversion' | translate }}</dt>
+            <dd>{{ review.pipeline.conversionRate !== undefined && review.pipeline.conversionRate !== null ? review.pipeline.conversionRate + ' %' : '—' }}</dd>
+          </div>
+        </dl>
+        @if (review.pipeline.lostReasons.length) {
+          <h3>{{ 'review.lostReasons' | translate }}</h3>
+          <ul class="reasons">
+            @for (reason of review.pipeline.lostReasons; track reason.reason) {
+              <li><span>{{ 'projects.lostReason.' + reason.reason | translate }}</span><span>{{ reason.count }}</span></li>
+            }
+          </ul>
+        }
+      </mat-card>
+
+      <mat-card class="review-section">
+        <h2>{{ 'review.skillsTitle' | translate }}</h2>
+        @if (review.topSkills.length === 0) {
+          <p class="muted">{{ 'review.noSkills' | translate }}</p>
+        } @else {
+          <mat-chip-set [attr.aria-label]="'review.skillsTitle' | translate" data-skills>
+            @for (skill of review.topSkills; track skill.skill) {
+              <mat-chip>{{ skill.skill }} <span class="chip-count">{{ skill.count }}</span></mat-chip>
+            }
+          </mat-chip-set>
+        }
+      </mat-card>
+
+      <mat-card class="review-section">
+        <h2>{{ 'review.networkTitle' | translate }}</h2>
+        <dl class="counts" data-network>
+          <div><dt>{{ 'review.clients' | translate }}</dt><dd>{{ review.network.clients }}</dd></div>
+          <div><dt>{{ 'review.esns' | translate }}</dt><dd>{{ review.network.esns }}</dd></div>
+          <div><dt>{{ 'review.contacts' | translate }}</dt><dd>{{ review.network.contacts }}</dd></div>
+          <div><dt>{{ 'review.exchanges' | translate }}</dt><dd>{{ review.network.exchanges }}</dd></div>
+        </dl>
+      </mat-card>
+    </div>
+  }
+</div>

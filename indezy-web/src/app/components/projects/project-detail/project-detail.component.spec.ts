@@ -368,6 +368,6 @@ describe('ProjectDetailComponent', () => {
     expect(component.formatDate('2026-03-15')).toBe('Mar 15, 2026');
     expect(component.formatDate(undefined)).toBe('common.notSpecified');
     component.project = { ...mission, daysPerYear: undefined, durationInMonths: 12 };
-    expect(component.calculateTotalRevenue()).toBe(650 * 220);
+    expect(component.calculateTotalRevenue()).toBe(650 * 218);
   });
 });

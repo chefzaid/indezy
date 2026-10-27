@@ -748,6 +748,33 @@ Profile → Personal information includes an optional target daily rate in whole
 It must be positive when set and can be cleared. Changing it affects the dashboard comparison
 and defaults for future seasons; it never rewrites targets already saved on existing seasons.
 
+## Yearly Review
+
+**Year in review** (in the navigation, `/review`) sums up one calendar year of the workspace, the current one first;
+the arrows move to the years before, back to 2000 and never past the current year.
+
+- **Key figures**: revenue, days worked, the average daily rate they make (revenue over the days of missions with a
+  rate) and the number of missions, with the revenue change on the year before (or "Nothing in" that year).
+- **Missions of the year**: each opportunity won whose start date falls before the year's end and whose end (start plus
+  its duration, open-ended without one) falls after its start, earliest first, with its client, period, days, daily
+  rate and revenue. Days come from the mission's activity reports of that year when it has any; otherwise they are
+  estimated from the calendar days it covers in the year, as a share of the year's length, times its days per year
+  (218 when it states none), rounded to half days, and marked with an asterisk. Phones leave out the period column.
+- **Opportunities**: those added during the year, how many of them were won and lost, the won share of the decided
+  ones, and why the lost ones were lost, most frequent reason first.
+- **Skills most asked for**: the five skills listed most often by the opportunities added during the year, with
+  aliases merged as in [Skill Names](#skill-names).
+- **Network**: final clients, ESNs and contacts added during the year, and the exchanges recorded in it
+  (see [Contact Interaction History](#contact-interaction-history)).
+
+**Download PDF** exports the same review as a one-page A4 report in the interface language
+(`indezy-year-in-review-YYYY.pdf` in English, `indezy-bilan-YYYY.pdf` in French), with the freelancer's name, the
+figures, the missions table and its estimate footnote, the opportunities, the skills and the network.
+
+The review is served by `GET /api/projects/review/{freelanceId}?year=` and its PDF by
+`GET /api/projects/review/{freelanceId}/pdf?year=&language=FR|EN`; both answer `403` for another workspace and `400`
+for a year outside 2000–2100.
+
 ## Filtering And Search Surfaces
 
 Every list uses the same kind of inline filters, applied in the browser as you type:

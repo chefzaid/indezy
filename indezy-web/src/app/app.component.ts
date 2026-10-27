@@ -79,6 +79,7 @@ export class AppComponent implements OnInit {
     { labelKey: 'nav.clients', route: '/clients', icon: 'business' },
     { labelKey: 'nav.contacts', route: '/contacts', icon: 'contacts' },
     { labelKey: 'nav.sources', route: '/sources', icon: 'source' },
+    { labelKey: 'nav.review', route: '/review', icon: 'auto_graph' },
     { labelKey: 'nav.archive', route: '/archive', icon: 'inventory_2' }
   ];
 

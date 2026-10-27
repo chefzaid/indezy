@@ -80,7 +80,8 @@
     "logout": "Sign out",
     "toggleMenu": "Toggle navigation menu",
     "calendar": "Calendar",
-    "accountMenu": "{{name}} – account menu"
+    "accountMenu": "{{name}} – account menu",
+    "review": "Year in review"
   },
   "timeline": {
     "title": "Timeline",
@@ -1877,5 +1878,44 @@
       "contacts": "Contacts",
       "notes": "Notes"
     }
+  },
+  "review": {
+    "title": "Year in review",
+    "subtitle": "Your missions, revenue, opportunities, skills and network over a year",
+    "year": "Year",
+    "previousYear": "Previous year",
+    "nextYear": "Next year",
+    "downloadPdf": "Download PDF",
+    "pdfError": "Could not create the PDF report",
+    "loadError": "Could not load the year in review",
+    "empty": "Nothing recorded in {{year}} yet.",
+    "figures": "Key figures",
+    "revenue": "Revenue",
+    "versus": "{{change}}% on {{year}}",
+    "noComparison": "Nothing in {{year}}",
+    "daysWorked": "Days worked",
+    "averageRate": "Average daily rate",
+    "missions": "Missions",
+    "missionsTitle": "Missions of the year",
+    "noMissions": "No mission won covers this year.",
+    "mission": "Mission",
+    "period": "Period",
+    "days": "Days",
+    "rate": "Daily rate",
+    "ongoing": "ongoing",
+    "estimated": "Days estimated from the mission's days per year, as no activity report covers them",
+    "pipelineTitle": "Opportunities",
+    "opened": "Added",
+    "won": "Won",
+    "lost": "Lost",
+    "conversion": "Won out of decided",
+    "lostReasons": "Why they were lost",
+    "skillsTitle": "Skills most asked for",
+    "noSkills": "No opportunity added this year listed skills.",
+    "networkTitle": "Network",
+    "clients": "New final clients",
+    "esns": "New ESNs",
+    "contacts": "New contacts",
+    "exchanges": "Exchanges recorded"
   }
 }

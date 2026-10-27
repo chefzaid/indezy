@@ -23,6 +23,7 @@ import { ProjectService } from '../../../services/project/project.service';
 import {
   InterviewStepDto,
   LostReason,
+  DEFAULT_DAYS_PER_YEAR,
   PROJECT_STATUS_COLORS,
   PROJECT_STATUS_ICONS,
   ProjectDto,
@@ -394,7 +395,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
   calculateTotalRevenue(): number {
     if (!this.project?.dailyRate || !this.project?.durationInMonths) { return 0; }
-    const daysPerMonth = (this.project.daysPerYear ?? 220) / 12;
+    const daysPerMonth = (this.project.daysPerYear ?? DEFAULT_DAYS_PER_YEAR) / 12;
     return this.project.dailyRate * daysPerMonth * this.project.durationInMonths;
   }
 

@@ -46,7 +46,13 @@ export async function mockWorkspaceData(page: Page, language: string): Promise<v
     [/\/api\/offers$/, { content: [offer(1)], page: 0, size: 20, totalElements: 1, totalPages: 1, distanceAvailable: false,
       matchAvailable: false }],
     [/\/api\/offers\/searches\/alerts$/, { newOffers: 0 }],
-    [/\/api\/offers\/searches\/suggestions$/, { suggestions: [], missing: [] }]
+    [/\/api\/offers\/searches\/suggestions$/, { suggestions: [], missing: [] }],
+    [/\/api\/projects\/review\/1$/, { year: 2026, name: 'Workspace Test', missions: [{ projectId: 42, role: 'Java developer',
+      clientName: 'Acme', dailyRate: 650, start: '2026-01-05', days: 120, reported: false, revenue: 78000 }],
+      totals: { revenue: 78000, days: 120, averageDailyRate: 650, missions: 1 },
+      previousYear: { revenue: 60000, days: 100, averageDailyRate: 600, missions: 1 },
+      pipeline: { opened: 4, won: 1, lost: 1, conversionRate: 50, lostReasons: [{ reason: 'RATE_TOO_LOW', count: 1 }] },
+      topSkills: [{ skill: 'Java', count: 3 }], network: { clients: 1, esns: 0, contacts: 2, exchanges: 4 } }]
   ];
   await page.route('**/api/**', route => {
     const url = new URL(route.request().url()).pathname;

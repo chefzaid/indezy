@@ -36,7 +36,7 @@ import {
   getProjectStatus,
   sortProjects
 } from '../../../services/project/project-filter.util';
-import { ProjectDto, User, FreelanceDto, ProjectStatus, PROJECT_STATUS_COLORS } from '../../../models';
+import { ProjectDto, User, FreelanceDto, ProjectStatus, PROJECT_STATUS_COLORS, DEFAULT_DAYS_PER_YEAR } from '../../../models';
 import { TravelMode, ProjectCommuteDto, CommuteInfoDto } from '../../../models/commute.models';
 import { KeyboardShortcutsService } from '../../../shared/shortcuts/keyboard-shortcuts.service';
 import { saveBlob } from '../../../shared/utils/download-file';
@@ -108,7 +108,7 @@ export class ProjectListComponent implements OnInit {
   reversionRate = 45;
   incomeTaxRate = 5;
   useCustomRate = false;
-  readonly DEFAULT_DAYS_PER_YEAR = 218;
+  readonly DEFAULT_DAYS_PER_YEAR = DEFAULT_DAYS_PER_YEAR;
   /** Social charges applied on top of the income tax when deriving the reversion rate. */
   static readonly SOCIAL_CHARGES_RATE = 40;
 

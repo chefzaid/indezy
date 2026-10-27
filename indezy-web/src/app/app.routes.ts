@@ -65,6 +65,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'review',
+    loadComponent: () => import('./components/review/yearly-review.component').then(m => m.YearlyReviewComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'archive',
     loadComponent: () => import('./components/archive/archive.component').then(m => m.ArchiveComponent),
     canActivate: [authGuard]

@@ -23,7 +23,7 @@ import { SourceService } from '../../../services/source/source.service';
 import { SeasonService } from '../../../services/season/season.service';
 import { Season } from '../../../models/season.models';
 import { AuthService } from '../../../services/auth/auth.service';
-import { ProjectDto, ClientDto, SourceDto, User, ProjectStatus, LOST_REASONS, PROJECT_STATUS_COLORS, OfferLink } from '../../../models';
+import { ProjectDto, ClientDto, SourceDto, User, ProjectStatus, LOST_REASONS, PROJECT_STATUS_COLORS, OfferLink, DEFAULT_DAYS_PER_YEAR } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { fromIsoDate, toIsoDate } from '../../../shared/locale/app-locale';
 import { blankToNull } from '../../../shared/utils/form-payload';
@@ -163,7 +163,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       startDate: [''],
       durationInMonths: ['', [Validators.min(1)]],
       orderRenewalInMonths: [''],
-      daysPerYear: [218, [Validators.min(1), Validators.max(365)]],
+      daysPerYear: [DEFAULT_DAYS_PER_YEAR, [Validators.min(1), Validators.max(365)]],
       link: [''],
       personalRating: [''],
       notes: [''],

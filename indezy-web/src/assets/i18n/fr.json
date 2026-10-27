@@ -80,7 +80,8 @@
     "logout": "Déconnexion",
     "toggleMenu": "Afficher ou masquer le menu",
     "calendar": "Calendrier",
-    "accountMenu": "{{name}} – menu du compte"
+    "accountMenu": "{{name}} – menu du compte",
+    "review": "Bilan annuel"
   },
   "timeline": {
     "title": "Planning",
@@ -1877,5 +1878,44 @@
       "contacts": "Contacts",
       "notes": "Notes"
     }
+  },
+  "review": {
+    "title": "Bilan annuel",
+    "subtitle": "Vos missions, revenus, opportunités, compétences et réseau sur une année",
+    "year": "Année",
+    "previousYear": "Année précédente",
+    "nextYear": "Année suivante",
+    "downloadPdf": "Télécharger le PDF",
+    "pdfError": "Impossible de créer le bilan PDF",
+    "loadError": "Impossible de charger le bilan annuel",
+    "empty": "Rien d'enregistré en {{year}} pour l'instant.",
+    "figures": "Chiffres clés",
+    "revenue": "Chiffre d'affaires",
+    "versus": "{{change}} % par rapport à {{year}}",
+    "noComparison": "Pas de chiffre en {{year}}",
+    "daysWorked": "Jours travaillés",
+    "averageRate": "TJM moyen",
+    "missions": "Missions",
+    "missionsTitle": "Missions de l'année",
+    "noMissions": "Aucune mission gagnée ne couvre cette année.",
+    "mission": "Mission",
+    "period": "Période",
+    "days": "Jours",
+    "rate": "TJM",
+    "ongoing": "en cours",
+    "estimated": "Jours estimés d'après les jours par an de la mission, faute de compte rendu d'activité",
+    "pipelineTitle": "Opportunités",
+    "opened": "Ajoutées",
+    "won": "Gagnées",
+    "lost": "Perdues",
+    "conversion": "Gagnées sur décidées",
+    "lostReasons": "Pourquoi elles ont été perdues",
+    "skillsTitle": "Compétences les plus demandées",
+    "noSkills": "Aucune opportunité ajoutée cette année ne liste de compétences.",
+    "networkTitle": "Réseau",
+    "clients": "Nouveaux clients finaux",
+    "esns": "Nouvelles ESN",
+    "contacts": "Nouveaux contacts",
+    "exchanges": "Échanges enregistrés"
   }
 }

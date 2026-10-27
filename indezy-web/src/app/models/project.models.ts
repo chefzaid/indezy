@@ -65,6 +65,9 @@ export type LostReason =
   | 'ACCEPTED_OTHER_OFFER'
   | 'OTHER';
 
+/** Working days a year assumed for a mission that states none, as the server's yearly review does. */
+export const DEFAULT_DAYS_PER_YEAR = 218;
+
 export const LOST_REASONS: LostReason[] = [
   'RATE_TOO_LOW',
   'POSITION_FILLED',

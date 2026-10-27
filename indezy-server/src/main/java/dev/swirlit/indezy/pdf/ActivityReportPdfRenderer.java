@@ -6,13 +6,11 @@ import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 
 /**
@@ -24,8 +22,8 @@ public final class ActivityReportPdfRenderer {
 
     private static final PDRectangle LANDSCAPE = new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth());
 
-    private final byte[] regularFont = readFont("fonts/LiberationSans-Regular.ttf");
-    private final byte[] boldFont = readFont("fonts/LiberationSans-Bold.ttf");
+    private final byte[] regularFont = PdfFonts.read(PdfFonts.REGULAR);
+    private final byte[] boldFont = PdfFonts.read(PdfFonts.BOLD);
 
     public byte[] render(ActivityReportDocument report) {
         boolean grid = report.template().layout() == ActivityReportLayout.CALENDAR_GRID;
@@ -46,14 +44,6 @@ public final class ActivityReportPdfRenderer {
             return output.toByteArray();
         } catch (IOException e) {
             throw new UncheckedIOException("Could not render the activity report", e);
-        }
-    }
-
-    private static byte[] readFont(String path) {
-        try (InputStream input = new ClassPathResource(path).getInputStream()) {
-            return input.readAllBytes();
-        } catch (IOException e) {
-            throw new UncheckedIOException("Missing PDF font " + path, e);
         }
     }
 }
