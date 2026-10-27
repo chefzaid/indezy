@@ -2,13 +2,13 @@ package dev.swirlit.indezy.dto;
 
 import lombok.Data;
 
+/** Which notifications the account gets, by event and channel (see docs/features.md#notifications). */
 @Data
 public class UserNotificationSettingsDto {
-    private Boolean emailNotifications;
-    private Boolean pushNotifications;
-    private Boolean projectUpdates;
-    private Boolean clientMessages;
-    private Boolean systemAlerts;
+    /** The weekly digest, by email on Mondays. */
     private Boolean weeklyReports;
-    private Boolean marketingEmails;
+    /** The count of the saved searches' new offers next to Offers in the menu. */
+    private Boolean newOffersBadge;
+    /** Whether this deployment can send emails at all; read-only. */
+    private boolean emailsAvailable;
 }

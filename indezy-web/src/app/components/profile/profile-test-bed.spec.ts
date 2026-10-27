@@ -27,10 +27,7 @@ export const preferences = {
   defaultView: 'projects', itemsPerPage: '50', autoSave: false, inactivityDays: 30
 } as unknown as UserPreferences;
 
-export const notificationSettings: UserNotificationSettings = {
-  emailNotifications: false, pushNotifications: true, projectUpdates: true, clientMessages: false, systemAlerts: true,
-  weeklyReports: true, marketingEmails: false
-};
+export const notificationSettings: UserNotificationSettings = { weeklyReports: true, newOffersBadge: true, emailsAvailable: true };
 
 export interface ProfileTestBed {
   users: jasmine.SpyObj<UserManagementService>;

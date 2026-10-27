@@ -61,6 +61,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/profile/blocked-publishers/blocked-publishers.component',
   'components/profile/data-import/profile-data-import.component',
   'components/profile/email-templates-settings/email-templates-settings.component',
+  'components/profile/notifications/profile-notifications.component',
   'components/profile/password-rejection',
   'components/profile/personal-info/profile-personal-info.component',
   'components/profile/profile.component',

@@ -177,14 +177,14 @@ public class SavedSearchEmailComposer {
         return headers;
     }
 
-    private static String page(StringBuilder body) {
+    static String page(StringBuilder body) {
         return "<!doctype html><html><body style=\"margin:0;padding:24px;background:#F9FAFB\">" +
             "<div style=\"max-width:600px;margin:0 auto;background:#FFFFFF;border-radius:8px;padding:24px;" +
             "font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111827;line-height:1.5\">" +
             body + "</div></body></html>";
     }
 
-    private static String escape(String value) {
+    static String escape(String value) {
         return HtmlUtils.htmlEscape(value, "UTF-8");
     }
 }

@@ -83,7 +83,11 @@ Important fields:
   (`users.public_profile_enabled`, a null column reads as off): the address of the public profile and whether it is shown.
 - `onboardingPending` (`users.onboarding_pending`): set on accounts created by registration or a first Keycloak sign-in
   until their welcome steps are finished or skipped; a null column, as accounts created before it have, reads as done.
-- notification preferences
+- notification preferences: `weeklyReports` (`users.weekly_reports`, the weekly digest, off by default),
+  `weeklyDigestToken` (its one-click unsubscribe token, set when first turned on), `weeklyDigestSentOn` (the Monday of the
+  last digest sent) and `newOffersBadge` (`users.new_offers_badge`, the new offers count in the menu; a null column reads
+  as on). The six switches the profile showed before (email, push, project updates, client messages, system alerts,
+  marketing) changed nothing and were removed; their columns stay in existing databases, unused.
 - two-factor fields (`twoFactorEnabled`, `twoFactorSecret`), enforced at local password login
 - `deletedAt` (a soft-deleted account can no longer sign in)
 - `disabledAt` (`users.disabled_at`): set while an administrator has disabled the account; it can neither sign in nor

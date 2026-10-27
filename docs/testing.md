@@ -165,6 +165,12 @@ Representative backend tests:
   not by Bob, a lifetime other than 30, 90 or 365 days, a blank name and an eleventh token refused),
   `ApiTokenServiceTest` (other bearer tokens left alone, last use noted every 5 minutes at most, a token without expiry)
   and `ApiTokenScopeInterceptorTest` (reads allowed, writes and account paths refused however written, sessions left alone)
+- weekly digest and notifications: `WeeklyDigestIntegrationTest` (Alice's digest turned on from her notifications,
+  refused by Resend then sent once in English with her interview and the new offer matching her profile, never to Bob,
+  and stopped by the one-click unsubscribe), `WeeklyDigestComposerTest` (every section in French with escaped HTML,
+  empty sections left out, an empty week), `WeeklyDigestServiceTest` (due from Monday 8:00 Paris time in winter and
+  summer, the unsubscribe token given once), `UserServiceTest` and `UserManagementIntegrationTest` (the switches, a `PUT`
+  changing only those it names)
 - secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code (a bare `code` field included), backup code or API key, nor, in such a class or one nested in it, the email or a name)
 
 Backend test data lives under `indezy-server/src/test/resources/`:
@@ -204,6 +210,9 @@ Representative frontend specs:
   session ended on the server at sign-out with a keepalive request)
 - API tokens: `profile-api-tokens.component.spec.ts` (tokens listed with their use and expiry, one created and shown
   once with an example and copied, a failure, the limit of ten, revoked once confirmed)
+- notifications: `profile-notifications.component.spec.ts` (the two switches, emails unavailable, the digest turned on,
+  the badge taken off the menu and put back, a switch put back on failure) and `app.component.spec.ts` (the badge left
+  off after sign-in when turned off, on when the settings cannot be read)
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy
@@ -382,6 +391,9 @@ confirmed and turn the offer feed off, which leaves the menu; an account that is
 Session scenarios (`e2e/account-sessions.spec.ts`, on a desktop and on a phone) list the sessions and the account
 activity on the **Security** tab, audited with axe-core, sign one session out and then everywhere else; signing out
 from the menu ends the session on the server, and an API token is created, shown once, copied and revoked.
+
+Notification scenarios (`e2e/notifications.spec.ts`, on a desktop and on a phone, the tab audited with axe-core) turn
+the weekly digest on and the new offers badge off, which leaves the menu, and keep the badge off at the next sign-in.
 
 Keyboard scenarios (`e2e/keyboard-navigation.spec.ts`) open a Kanban card with Enter (but not from its favourite
 button), a timeline step and an archived opportunity, then reach a client, one of its opportunities and one of its

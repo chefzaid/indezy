@@ -1,7 +1,7 @@
 import { fakeAsync, tick } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { LANGUAGE_STORAGE_KEY } from '../../shared/locale/app-locale';
-import { profileTestBed, preferences, notificationSettings } from './profile-test-bed.spec';
+import { profileTestBed, preferences } from './profile-test-bed.spec';
 
 describe('ProfileComponent settings', () => {
   const bed = profileTestBed();
@@ -80,39 +80,6 @@ describe('ProfileComponent settings', () => {
       expect(bed.notifications.error).toHaveBeenCalledWith('profile.errors.updatingPreferences');
       expect(bed.theme.apply).not.toHaveBeenCalled();
       expect(component.isUpdating).toBeFalse();
-    });
-  });
-
-  describe('notifications', () => {
-    it('saves the notification settings', () => {
-      const component = bed.create().componentInstance;
-      bed.users.updateNotificationSettings.and.returnValue(of(notificationSettings));
-      component.notificationForm.patchValue({ marketingEmails: true });
-
-      component.onUpdateNotifications();
-
-      expect(bed.users.updateNotificationSettings).toHaveBeenCalledWith({ ...notificationSettings, marketingEmails: true });
-      expect(bed.notifications.success).toHaveBeenCalledWith('profile.notificationsUpdated');
-      expect(component.isUpdating).toBeFalse();
-    });
-
-    it('reports notification settings that cannot be saved', () => {
-      const component = bed.create().componentInstance;
-      bed.users.updateNotificationSettings.and.returnValue(throwError(() => new Error('offline')));
-
-      component.onUpdateNotifications();
-
-      expect(bed.notifications.error).toHaveBeenCalledWith('profile.errors.updatingNotifications');
-      expect(component.isUpdating).toBeFalse();
-    });
-
-    it('does not save when the form is invalid', () => {
-      const component = bed.create().componentInstance;
-      component.notificationForm.setErrors({ invalid: true });
-
-      component.onUpdateNotifications();
-
-      expect(bed.users.updateNotificationSettings).not.toHaveBeenCalled();
     });
   });
 

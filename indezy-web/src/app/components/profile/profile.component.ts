@@ -13,7 +13,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { UserManagementService, TwoFactorSetup } from '../../services/user-management/user-management.service';
-import { UserProfile, UserPreferences, UserNotificationSettings, PasswordChangeRequest } from '../../models/user-management.models';
+import { UserProfile, UserPreferences, PasswordChangeRequest } from '../../models/user-management.models';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ProfilePersonalInfoComponent } from './personal-info/profile-personal-info.component';
@@ -29,12 +29,13 @@ import { ProfilePublicPageComponent } from './public-page/profile-public-page.co
 import { CapabilitiesService } from '../../services/admin/capabilities.service';
 import { ProfileSessionsComponent } from './sessions/profile-sessions.component';
 import { ProfileApiTokensComponent } from './api-tokens/profile-api-tokens.component';
+import { ProfileNotificationsComponent } from './notifications/profile-notifications.component';
 
 @Component({
     selector: 'app-profile',
     imports: [
     ProfileDataImportComponent, ProfilePublicPageComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
-    ProfilePersonalInfoComponent,
+    ProfileNotificationsComponent, ProfilePersonalInfoComponent,
     BlockedPublishersComponent, EmailTemplatesSettingsComponent, ReactiveFormsModule, FormsModule, TranslateModule,
     MatCardModule, MatButtonModule, MatIconModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     MatSlideToggleModule, MatProgressSpinnerModule, MatDividerModule
@@ -55,7 +56,6 @@ export class ProfileComponent implements OnInit {
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
   preferencesForm!: FormGroup;
-  notificationForm!: FormGroup;
 
   isLoading = false;
   isUpdating = false;
@@ -196,16 +196,6 @@ export class ProfileComponent implements OnInit {
       inactivityDays: [null, [Validators.required, Validators.min(1), Validators.max(365), Validators.pattern('^[0-9]+$')]],
       followUpDays: [5, [Validators.required, Validators.min(1), Validators.max(60), Validators.pattern('^[0-9]+$')]]
     });
-
-    this.notificationForm = this.fb.group({
-      emailNotifications: [true],
-      pushNotifications: [true],
-      projectUpdates: [true],
-      clientMessages: [true],
-      systemAlerts: [true],
-      weeklyReports: [false],
-      marketingEmails: [false]
-    });
   }
 
   private passwordMatchValidator(group: FormGroup): { passwordMismatch: boolean } | null {
@@ -275,11 +265,6 @@ export class ProfileComponent implements OnInit {
         dateFormat: preferences.dateFormat?.toUpperCase() ?? 'DD/MM/YYYY',
         itemsPerPage: preferences.itemsPerPage !== undefined && preferences.itemsPerPage !== null ? Number(preferences.itemsPerPage) : 25
       });
-    });
-
-    // Load notification settings
-    this.userManagementService.getNotificationSettings().subscribe((settings: UserNotificationSettings) => {
-      this.notificationForm.patchValue(settings);
     });
   }
 
@@ -373,25 +358,6 @@ export class ProfileComponent implements OnInit {
   /** Separated so tests can stub the full page reload. */
   reloadPage(): void {
     window.location.reload();
-  }
-
-  onUpdateNotifications(): void {
-    if (this.notificationForm.valid) {
-      this.isUpdating = true;
-      const settings: Partial<UserNotificationSettings> = this.notificationForm.value;
-
-      this.userManagementService.updateNotificationSettings(settings).subscribe({
-        next: () => {
-          this.isUpdating = false;
-          this.notificationService.success('profile.notificationsUpdated');
-        },
-        error: (error: unknown) => {
-          console.error('Error updating notifications:', error);
-          this.isUpdating = false;
-          this.notificationService.error('profile.errors.updatingNotifications');
-        }
-      });
-    }
   }
 
   onAvatarUpload(event: Event): void {

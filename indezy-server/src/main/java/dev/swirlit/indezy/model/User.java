@@ -185,26 +185,20 @@ public class User extends BaseEntity {
     }
 
     // Notification Settings
-    @Column(name = "email_notifications")
-    private Boolean emailNotifications = true;
-
-    @Column(name = "push_notifications")
-    private Boolean pushNotifications = false;
-
-    @Column(name = "project_updates")
-    private Boolean projectUpdates = true;
-
-    @Column(name = "client_messages")
-    private Boolean clientMessages = true;
-
-    @Column(name = "system_alerts")
-    private Boolean systemAlerts = true;
-
     @Column(name = "weekly_reports")
     private Boolean weeklyReports = false;
 
-    @Column(name = "marketing_emails")
-    private Boolean marketingEmails = false;
+    /** The weekly digest's one-click unsubscribe token, set when it is first turned on. */
+    @Column(name = "weekly_digest_token", unique = true, length = 64)
+    private String weeklyDigestToken;
+
+    /** The Monday of the last week whose digest was sent. */
+    @Column(name = "weekly_digest_sent_on")
+    private LocalDate weeklyDigestSentOn;
+
+    /** Whether the menu counts the new offers of the saved searches (in-app); a null column reads as on. */
+    @Column(name = "new_offers_badge")
+    private Boolean newOffersBadge = true;
 
     // Security Settings
     @Column(name = "two_factor_enabled")

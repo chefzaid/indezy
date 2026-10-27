@@ -49,6 +49,7 @@ export async function mockWorkspaceData(page: Page, language: string): Promise<v
     [/\/api\/offers\/searches\/suggestions$/, { suggestions: [], missing: [] }],
     [/\/api\/users\/public-profile$/, { enabled: true, slug: 'workspace-test' }],
     [/\/api\/users\/activity$/, { events: [], total: 0, page: 0, size: 20 }],
+    [/\/api\/users\/notifications$/, { weeklyReports: false, newOffersBadge: true, emailsAvailable: true }],
     [/\/api\/public\/profiles\/workspace-test$/, { firstName: 'Workspace', lastName: 'Test', position: 'Java developer',
       city: 'Lyon', bio: 'Java and Kafka.', skills: [{ name: 'Java', level: 'EXPERT', years: 8 }], languages: ['French'],
       website: 'https://workspace.example', availableNow: true }],

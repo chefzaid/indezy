@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.PasswordChangeRequestDto;
 import dev.swirlit.indezy.dto.TwoFactorSetupDto;
 import dev.swirlit.indezy.dto.UserDto;
 import dev.swirlit.indezy.dto.UserNotificationSettingsDto;
+import dev.swirlit.indezy.mail.ResendMailer;
 import dev.swirlit.indezy.dto.UserPreferencesDto;
 import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -50,6 +51,9 @@ class UserServiceTest {
 
     @Mock
     private FreelanceRepository freelances;
+
+    @Mock
+    private ResendMailer mailer;
 
     @InjectMocks
     private UserService userService;
@@ -197,7 +201,9 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(userMapper.toNotificationSettingsDto(testUser)).thenReturn(settings);
 
+        when(mailer.configured()).thenReturn(true);
         assertThat(userService.getNotificationSettings(1L)).isSameAs(settings);
+        assertThat(settings.isEmailsAvailable()).isTrue();
     }
 
     @Test
@@ -207,7 +213,10 @@ class UserServiceTest {
         when(userRepository.save(testUser)).thenReturn(testUser);
         when(userMapper.toNotificationSettingsDto(testUser)).thenReturn(settings);
 
+        settings.setWeeklyReports(true);
+        testUser.setWeeklyReports(true);
         assertThat(userService.updateNotificationSettings(1L, settings)).isSameAs(settings);
+        assertThat(testUser.getWeeklyDigestToken()).isNotNull();
         verify(userMapper).updateNotificationSettings(settings, testUser);
     }
 

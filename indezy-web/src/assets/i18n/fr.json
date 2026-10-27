@@ -860,20 +860,17 @@
       "h12": "12 heures"
     },
     "notifications": {
-      "email": "Notifications par email",
-      "emailDesc": "Recevez des notifications par email pour les mises à jour importantes.",
-      "push": "Notifications push",
-      "pushDesc": "Recevez des notifications push dans votre navigateur.",
-      "projectUpdates": "Mises à jour des missions",
-      "projectUpdatesDesc": "Soyez informé des changements de statut de vos missions.",
-      "clientMessages": "Messages clients",
-      "clientMessagesDesc": "Recevez les messages de vos clients et contacts.",
-      "systemAlerts": "Alertes système",
-      "systemAlertsDesc": "Notifications de maintenance et mises à jour de la plateforme.",
-      "weeklyReports": "Rapports hebdomadaires",
-      "weeklyReportsDesc": "Recevez un résumé hebdomadaire de votre activité.",
-      "marketing": "Communications marketing",
-      "marketingDesc": "Recevez des offres et actualités d'Indezy."
+      "digestTitle": "Résumé hebdomadaire",
+      "digest": "M'envoyer un résumé chaque semaine",
+      "digestDesc": "Chaque lundi matin : où en est votre pipeline, les entretiens de la semaine, les relances à faire, les opportunités sans nouvelles, les missions qui se terminent et les nouvelles offres correspondant à votre profil. Une semaine sans rien à dire n'envoie rien.",
+      "emailsUnavailable": "Ce serveur ne peut pas encore envoyer d'emails : le résumé commencera dès qu'il le pourra.",
+      "offersTitle": "Nouvelles offres",
+      "badge": "Compter les nouvelles offres à côté d'Offres dans le menu",
+      "badgeDesc": "Les offres trouvées par vos recherches enregistrées depuis votre dernière visite, recomptées toutes les quelques minutes.",
+      "searchEmails": "Chaque recherche enregistrée peut aussi envoyer ses nouvelles offres par email, aussitôt ou chaque jour :",
+      "searchEmailsLink": "à régler sur la recherche",
+      "remindersTitle": "Rappels",
+      "remindersDesc": "Les entretiens à venir, les relances à faire et les opportunités sans nouvelles s'affichent toujours sur votre tableau de bord."
     },
     "errors": {
       "loadingProfile": "Erreur lors du chargement du profil",
@@ -893,7 +890,8 @@
       "newPasswordRequired": "Le nouveau mot de passe est requis",
       "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères",
       "confirmRequired": "La confirmation du mot de passe est requise",
-      "passwordMismatch": "Les mots de passe ne correspondent pas"
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "loadingNotifications": "Vos réglages de notifications n'ont pas pu être chargés"
     },
     "blockedPublishers": {
       "title": "Éditeurs masqués",

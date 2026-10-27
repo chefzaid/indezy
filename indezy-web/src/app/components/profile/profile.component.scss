@@ -201,27 +201,6 @@
   }
 }
 
-.notification-settings {
-  .notification-item {
-    padding: 16px 0;
-
-    mat-slide-toggle {
-      margin-bottom: 8px;
-    }
-
-    .notification-description {
-      margin: 0;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
-  }
-
-  mat-divider {
-    margin: 8px 0;
-  }
-}
-
 .account-actions {
   .action-item {
     display: flex;

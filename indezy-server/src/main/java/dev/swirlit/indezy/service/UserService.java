@@ -4,6 +4,7 @@ import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.*;
 import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.mail.ResendMailer;
 import dev.swirlit.indezy.mapper.UserMapper;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
@@ -34,6 +35,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final TotpService totpService;
     private final FreelanceRepository freelances;
+    private final ResendMailer mailer;
 
     private static final String TWO_FACTOR_ISSUER = "Indezy";
 
@@ -166,7 +168,7 @@ public class UserService {
         log.debug("Getting notification settings for user ID: {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
-        return userMapper.toNotificationSettingsDto(user);
+        return withAvailability(userMapper.toNotificationSettingsDto(user));
     }
 
     /**
@@ -178,8 +180,14 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
         
         userMapper.updateNotificationSettings(settingsDto, user);
+        WeeklyDigestService.prepare(user);
         User savedUser = userRepository.save(user);
-        return userMapper.toNotificationSettingsDto(savedUser);
+        return withAvailability(userMapper.toNotificationSettingsDto(savedUser));
+    }
+
+    private UserNotificationSettingsDto withAvailability(UserNotificationSettingsDto settings) {
+        settings.setEmailsAvailable(mailer.configured());
+        return settings;
     }
 
     /**

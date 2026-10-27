@@ -263,9 +263,9 @@ class UserManagementIntegrationTest {
         assertNotNull(response.getBody());
         
         // Verify response contains expected notification fields
-        assertTrue(response.getBody().contains("emailNotifications"));
-        assertTrue(response.getBody().contains("pushNotifications"));
-        assertTrue(response.getBody().contains("projectUpdates"));
+        assertTrue(response.getBody().contains("\"weeklyReports\":false"));
+        assertTrue(response.getBody().contains("\"newOffersBadge\":true"));
+        assertTrue(response.getBody().contains("\"emailsAvailable\":false"));
     }
 
     @Test
@@ -274,10 +274,7 @@ class UserManagementIntegrationTest {
         
         String notificationRequest = """
             {
-                "emailNotifications": false,
-                "pushNotifications": true,
-                "projectUpdates": true,
-                "clientMessages": false
+                "newOffersBadge": false
             }
             """;
 
@@ -290,8 +287,9 @@ class UserManagementIntegrationTest {
         assertNotNull(response.getBody());
         
         // Verify updated settings in response
-        assertTrue(response.getBody().contains("\"emailNotifications\":false"));
-        assertTrue(response.getBody().contains("\"pushNotifications\":true"));
+        // Only the switch the request names changes.
+        assertTrue(response.getBody().contains("\"newOffersBadge\":false"));
+        assertTrue(response.getBody().contains("\"weeklyReports\":false"));
     }
 
     @Test

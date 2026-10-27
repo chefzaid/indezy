@@ -30,6 +30,8 @@ public interface UserMapper {
     @Mapping(target = "publicProfileSlug", ignore = true)
     @Mapping(target = "publicProfileEnabled", ignore = true)
     @Mapping(target = "disabledAt", ignore = true)
+    @Mapping(target = "weeklyDigestToken", ignore = true)
+    @Mapping(target = "weeklyDigestSentOn", ignore = true)
     User toEntity(UserDto dto);
 
     @Mapping(target = "id", ignore = true)
@@ -49,6 +51,8 @@ public interface UserMapper {
     @Mapping(target = "publicProfileSlug", ignore = true)
     @Mapping(target = "publicProfileEnabled", ignore = true)
     @Mapping(target = "disabledAt", ignore = true)
+    @Mapping(target = "weeklyDigestToken", ignore = true)
+    @Mapping(target = "weeklyDigestSentOn", ignore = true)
     void updateEntity(UserDto dto, @MappingTarget User user);
 
     /**
@@ -71,15 +75,13 @@ public interface UserMapper {
     }
 
     // Notification settings mapping
-    @Mapping(target = "emailNotifications", source = "emailNotifications")
-    @Mapping(target = "pushNotifications", source = "pushNotifications")
-    @Mapping(target = "projectUpdates", source = "projectUpdates")
-    @Mapping(target = "clientMessages", source = "clientMessages")
-    @Mapping(target = "systemAlerts", source = "systemAlerts")
-    @Mapping(target = "weeklyReports", source = "weeklyReports")
-    @Mapping(target = "marketingEmails", source = "marketingEmails")
+    @Mapping(target = "weeklyReports", expression = "java(Boolean.TRUE.equals(user.getWeeklyReports()))")
+    @Mapping(target = "newOffersBadge", expression = "java(!Boolean.FALSE.equals(user.getNewOffersBadge()))")
+    @Mapping(target = "emailsAvailable", ignore = true)
     UserNotificationSettingsDto toNotificationSettingsDto(User user);
 
+    /** Sets the switches the request names, leaving the others as they are. */
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, ignoreUnmappedSourceProperties = "emailsAvailable")
     void updateNotificationSettings(UserNotificationSettingsDto dto, @MappingTarget User user);
 
     // Preferences mapping
@@ -102,6 +104,8 @@ public interface UserMapper {
     @Mapping(target = "publicProfileSlug", ignore = true)
     @Mapping(target = "publicProfileEnabled", ignore = true)
     @Mapping(target = "disabledAt", ignore = true)
+    @Mapping(target = "weeklyDigestToken", ignore = true)
+    @Mapping(target = "weeklyDigestSentOn", ignore = true)
     void updatePreferences(UserPreferencesDto dto, @MappingTarget User user);
 
     // Security settings mapping

@@ -1,13 +1,13 @@
 import { Subject, of, throwError } from 'rxjs';
 import { UserPreferences, UserProfile } from '../../models/user-management.models';
 import { ProfileComponent } from './profile.component';
-import { profileTestBed, profile, notificationSettings } from './profile-test-bed.spec';
+import { profileTestBed, profile } from './profile-test-bed.spec';
 
 describe('ProfileComponent', () => {
   const bed = profileTestBed();
 
   describe('loading', () => {
-    it('fills every form from the profile, its preferences and its notification settings', () => {
+    it('fills every form from the profile and its preferences', () => {
       const component = bed.create().componentInstance;
 
       expect(component.userProfile).toEqual(profile);
@@ -20,7 +20,6 @@ describe('ProfileComponent', () => {
       expect(component.preferencesForm.value).toEqual(jasmine.objectContaining({
         theme: 'dark', dateFormat: 'DD/MM/YYYY', itemsPerPage: 50, defaultView: 'projects', autoSave: false, inactivityDays: 30
       }));
-      expect(component.notificationForm.value).toEqual(notificationSettings);
       expect(component.isLoading).toBeFalse();
     });
 

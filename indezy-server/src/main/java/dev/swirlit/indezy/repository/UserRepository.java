@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -34,4 +36,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * Check if user exists by email
      */
     boolean existsByEmail(String email);
+
+    /** The active accounts with the weekly digest on that were not sent the digest of {@code week} yet. */
+    @Query("SELECT u.id FROM User u WHERE u.weeklyReports = TRUE AND u.deletedAt IS NULL AND u.disabledAt IS NULL " +
+        "AND (u.weeklyDigestSentOn IS NULL OR u.weeklyDigestSentOn < :week)")
+    List<Long> findIdsDueForWeeklyDigest(@Param("week") LocalDate week);
+
+    Optional<User> findByWeeklyDigestToken(String token);
 }

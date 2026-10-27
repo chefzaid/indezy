@@ -29,6 +29,39 @@ Implemented account flows:
 - profile page for account details, avatar, preferences (language, theme, date format), notifications, password, two-factor authentication and a JSON export of every piece of account data
 - **Import data** (Profile → Account): an Indezy export brought into the workspace, preview first (see below)
 
+### Notifications
+
+**Profile → Notifications** holds the notifications the account can choose, each saved as soon as it is switched:
+
+- **Weekly digest** (email, off by default): see below. When the server has no email key, the tab says the digest
+  starts once it can send.
+- **New offers** (in the app, on by default): the count of the saved searches' new offers next to **Offers** in the
+  menu; turned off, the menu shows none and stops counting. Each saved search's own emails are set on the search.
+- **Reminders**: interviews coming up, follow-ups due and opportunities gone quiet always show on the dashboard.
+
+Push notifications wait on the choice of a mobile technology (TODO.md, Needs Input). The settings are read and changed
+through `GET` and `PUT /api/users/notifications` (`weeklyReports`, `newOffersBadge`, and the read-only
+`emailsAvailable`); a `PUT` changes only the switches it names.
+
+### Weekly Digest
+
+Every Monday from 8:00, Paris time, an account with the digest on gets one email, in its interface language, about its
+week:
+
+- the pipeline: open opportunities by stage (first contact, interviewing, with an offer);
+- the interviews of the next 7 days, the follow-ups due, the opportunities gone quiet and the missions ending, five of
+  each at most, as on the dashboard;
+- the offers Indezy found in the last 7 days that match the profile's skills, best match first, five with their facts
+  and links, and how many more.
+
+Sections with nothing to say are left out, and a week with nothing at all sends nothing. Each digest is claimed before
+it is sent (the account's `weeklyDigestSentOn` moves to the week in a transaction its version guards), so two replicas
+never send it twice, given back when Resend refuses it, and sent with the idempotency key `weekly-digest/<account>/<week>`;
+a replica started later on Monday, or during the week, sends what is still due (checked every 15 minutes). It carries a
+one-click unsubscribe (`List-Unsubscribe`, RFC 8058, posting to `/api/public/weekly-digest/unsubscribe/<token>`) and a
+link to the notification settings, and no tracking. Nothing is sent while no Resend key is set
+([Deployment](./deployment.md#saved-search-email-credentials)).
+
 ### Sessions And Account Activity
 
 **Profile → Security** also shows where the account is signed in and what happened to it.

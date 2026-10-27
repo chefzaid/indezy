@@ -37,14 +37,14 @@ export interface UserProfile {
   preferences?: UserPreferences;
 }
 
+/** Which notifications the account gets, by event and channel. */
 export interface UserNotificationSettings {
-  emailNotifications: boolean;
-  pushNotifications: boolean;
-  projectUpdates: boolean;
-  clientMessages: boolean;
-  systemAlerts: boolean;
+  /** The weekly digest, by email on Mondays. */
   weeklyReports: boolean;
-  marketingEmails: boolean;
+  /** The count of the saved searches' new offers next to Offers in the menu. */
+  newOffersBadge: boolean;
+  /** Whether this deployment can send emails at all; read-only. */
+  emailsAvailable: boolean;
 }
 
 export interface UserPreferences {

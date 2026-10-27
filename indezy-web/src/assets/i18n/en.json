@@ -860,20 +860,17 @@
       "h12": "12 hours"
     },
     "notifications": {
-      "email": "Email notifications",
-      "emailDesc": "Receive email notifications for important updates.",
-      "push": "Push notifications",
-      "pushDesc": "Receive push notifications in your browser.",
-      "projectUpdates": "Project updates",
-      "projectUpdatesDesc": "Be notified of status changes in your projects.",
-      "clientMessages": "Client messages",
-      "clientMessagesDesc": "Receive messages from your clients and contacts.",
-      "systemAlerts": "System alerts",
-      "systemAlertsDesc": "Platform maintenance and update notifications.",
-      "weeklyReports": "Weekly reports",
-      "weeklyReportsDesc": "Receive a weekly summary of your activity.",
-      "marketing": "Marketing communications",
-      "marketingDesc": "Receive offers and news from Indezy."
+      "digestTitle": "Weekly digest",
+      "digest": "Email me a weekly digest",
+      "digestDesc": "Every Monday morning: where your pipeline stands, the week's interviews, follow-ups due, opportunities gone quiet, missions ending and the new offers matching your profile. A week with nothing to say sends nothing.",
+      "emailsUnavailable": "This server cannot send emails yet: the digest starts once it can.",
+      "offersTitle": "New offers",
+      "badge": "Count new offers next to Offers in the menu",
+      "badgeDesc": "The offers your saved searches found since you last looked, counted every few minutes.",
+      "searchEmails": "Each saved search can also email its new offers, at once or daily:",
+      "searchEmailsLink": "set it on the search",
+      "remindersTitle": "Reminders",
+      "remindersDesc": "Interviews coming up, follow-ups due and opportunities gone quiet are always shown on your dashboard."
     },
     "errors": {
       "loadingProfile": "Error loading profile",
@@ -893,7 +890,8 @@
       "newPasswordRequired": "New password is required",
       "passwordMinLength": "Password must be at least 8 characters",
       "confirmRequired": "Password confirmation is required",
-      "passwordMismatch": "Passwords do not match"
+      "passwordMismatch": "Passwords do not match",
+      "loadingNotifications": "Your notification settings could not be loaded"
     },
     "blockedPublishers": {
       "title": "Hidden publishers",

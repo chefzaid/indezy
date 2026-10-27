@@ -106,6 +106,18 @@ export class AppComponent implements OnInit {
     this.translate.use(this.currentLang);
   }
 
+  /** Counts new offers in the menu unless the account turned the badge off; on when its settings cannot be read. */
+  private startOfferAlertsIfWanted(): void {
+    this.userManagementService.getNotificationSettings().subscribe({
+      next: settings => {
+        if (settings.newOffersBadge !== false) {
+          this.offerAlerts.start();
+        }
+      },
+      error: () => this.offerAlerts.start()
+    });
+  }
+
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
@@ -113,7 +125,7 @@ export class AppComponent implements OnInit {
       if (user && this.authService.isAuthenticated()) {
         this.capabilities.refresh().subscribe(capabilities => {
           if (capabilities.features.OFFER_FEED !== false) {
-            this.offerAlerts.start();
+            this.startOfferAlertsIfWanted();
           }
         });
       } else {

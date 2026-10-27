@@ -12,7 +12,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
+import { UserManagementService } from './services/user-management/user-management.service';
 import { OfferAlertsService } from './services/offer/offer-alerts.service';
 import { CapabilitiesService, DEFAULT_CAPABILITIES } from './services/admin/capabilities.service';
 import { Capabilities } from './models';
@@ -65,6 +66,7 @@ describe('AppComponent offer alerts', () => {
   let alerts: jasmine.SpyObj<OfferAlertsService>;
   let capabilities: Capabilities;
   let read: Capabilities | null;
+  let badge: boolean | 'error';
   const capabilitiesService = {
     refresh: () => {
       read = capabilities;
@@ -77,6 +79,7 @@ describe('AppComponent offer alerts', () => {
   beforeEach(async () => {
     capabilities = DEFAULT_CAPABILITIES;
     read = null;
+    badge = true;
     user$ = new BehaviorSubject<{ id: number; email: string; firstName: string; lastName: string } | null>(null);
     count$ = new BehaviorSubject(0);
     alerts = jasmine.createSpyObj('OfferAlertsService', ['start', 'stop', 'refresh'], { newOffers$: count$.asObservable() });
@@ -88,6 +91,11 @@ describe('AppComponent offer alerts', () => {
         { provide: AuthService, useValue: auth },
         { provide: OfferAlertsService, useValue: alerts },
         { provide: CapabilitiesService, useValue: capabilitiesService },
+        { provide: UserManagementService, useValue: {
+          getNotificationSettings: () => badge === 'error' ? throwError(() => new Error('offline')) :
+            of({ weeklyReports: false, newOffersBadge: badge, emailsAvailable: true }),
+          getUserPreferences: () => of({})
+        } },
         provideHttpClient(),
         provideHttpClientTesting()
       ]
@@ -136,5 +144,17 @@ describe('AppComponent offer alerts', () => {
     user$.next(null);
     fixture.detectChanges();
     expect(read).toBeNull();
+  });
+
+  it('leaves the badge off when the account turned it off, and on when its settings cannot be read', () => {
+    badge = false;
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    user$.next({ id: 1, email: 'john@example.com', firstName: 'John', lastName: 'Doe' });
+    expect(alerts.start).not.toHaveBeenCalled();
+
+    badge = 'error';
+    user$.next({ id: 2, email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' });
+    expect(alerts.start).toHaveBeenCalled();
   });
 });

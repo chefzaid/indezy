@@ -1,0 +1,36 @@
+<mat-card class="form-section" data-notifications>
+  <mat-card-header>
+    <mat-card-title>{{ 'profile.notificationSettings' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (settings) {
+      <div class="notification-item">
+        <h3><mat-icon aria-hidden="true">mail</mat-icon>{{ 'profile.notifications.digestTitle' | translate }}</h3>
+        <mat-slide-toggle [checked]="settings.weeklyReports" (change)="changed('weeklyReports', $event)" data-switch="weeklyReports">
+          {{ 'profile.notifications.digest' | translate }}
+        </mat-slide-toggle>
+        <p class="notification-description">{{ 'profile.notifications.digestDesc' | translate }}</p>
+        @if (!settings.emailsAvailable) {
+          <p class="notification-description warning" data-emails-unavailable>{{ 'profile.notifications.emailsUnavailable' | translate }}</p>
+        }
+      </div>
+      <mat-divider></mat-divider>
+      <div class="notification-item">
+        <h3><mat-icon aria-hidden="true">travel_explore</mat-icon>{{ 'profile.notifications.offersTitle' | translate }}</h3>
+        <mat-slide-toggle [checked]="settings.newOffersBadge" (change)="changed('newOffersBadge', $event)" data-switch="newOffersBadge">
+          {{ 'profile.notifications.badge' | translate }}
+        </mat-slide-toggle>
+        <p class="notification-description">{{ 'profile.notifications.badgeDesc' | translate }}</p>
+        <p class="notification-description">
+          {{ 'profile.notifications.searchEmails' | translate }}
+          <a routerLink="/offers">{{ 'profile.notifications.searchEmailsLink' | translate }}</a>
+        </p>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="notification-item">
+        <h3><mat-icon aria-hidden="true">event</mat-icon>{{ 'profile.notifications.remindersTitle' | translate }}</h3>
+        <p class="notification-description">{{ 'profile.notifications.remindersDesc' | translate }}</p>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

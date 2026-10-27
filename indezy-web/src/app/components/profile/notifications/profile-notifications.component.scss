@@ -1,0 +1,35 @@
+.notification-item {
+  padding: 16px 0;
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-size: 1rem;
+    font-weight: 500;
+
+    mat-icon {
+      color: var(--text-secondary);
+    }
+  }
+
+  mat-slide-toggle {
+    margin-bottom: 8px;
+  }
+
+  .notification-description {
+    margin: 4px 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+
+    &.warning {
+      color: var(--mat-sys-error, #b3261e);
+    }
+  }
+}
+
+mat-divider {
+  margin: 8px 0;
+}
