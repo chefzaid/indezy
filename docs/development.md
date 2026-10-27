@@ -118,7 +118,8 @@ jdbc:postgresql://postgres:5432/indezy
 Examples:
 
 ```bash
-docker compose -f infra/compose/compose.yaml --profile dev up
+# The dev backend runs the jar its image builds: --build picks up a change to the sources
+docker compose -f infra/compose/compose.yaml --profile dev up --build
 docker compose -f infra/compose/compose.yaml --profile prod up
 docker compose -f infra/compose/compose.yaml --profile admin up -d pgadmin
 docker compose -f infra/compose/compose.yaml down

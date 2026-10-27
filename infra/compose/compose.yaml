@@ -30,7 +30,7 @@ services:
       retries: 5
       start_period: 30s
 
-  # Development Backend (for devcontainer and local development)
+  # Development backend: the jar its image builds from the sources (`--build` after a change)
   indezy-server-dev:
     build:
       context: ../../indezy-server
@@ -47,8 +47,6 @@ services:
       SERVER_PORT: 8080
     ports:
       - "${BACKEND_PORT:-8080}:8080"
-    volumes:
-      - ../../indezy-server:/app:cached  # Mount source for development
     depends_on:
       postgres:
         condition: service_healthy
