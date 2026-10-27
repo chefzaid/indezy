@@ -4,6 +4,7 @@ import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.InterviewStepDto;
 import dev.swirlit.indezy.dto.PipelineTemplateDto;
 import dev.swirlit.indezy.dto.PipelineTemplateRequest;
+import dev.swirlit.indezy.dto.PipelineTemplateStepsRequest;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.InterviewStepMapper;
@@ -13,7 +14,9 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.StepChecklistItem;
 import dev.swirlit.indezy.model.TemplateStep;
 import dev.swirlit.indezy.model.enums.StepStatus;
+import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.repository.ClientRepository;
+import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
 import dev.swirlit.indezy.repository.PipelineTemplateRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
@@ -41,6 +44,7 @@ public class PipelineTemplateService {
     private final ClientRepository clients;
     private final InterviewStepRepository steps;
     private final InterviewStepMapper stepMapper;
+    private final FreelanceRepository freelances;
 
     @Transactional(readOnly = true)
     public List<PipelineTemplateDto> list(Long freelanceId) {
@@ -51,14 +55,8 @@ public class PipelineTemplateService {
     public PipelineTemplateDto createFromProject(PipelineTemplateRequest request) {
         Project project = projects.findById(request.projectId()).orElseThrow(() ->
             new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, request.projectId())));
-        Long freelanceId = project.getFreelance().getId();
         String name = request.name().strip();
-        if (templates.countByFreelanceId(freelanceId) >= MAX_TEMPLATES) {
-            throw new InvalidStateException(String.format(ErrorMessages.PIPELINE_TEMPLATES_LIMIT, MAX_TEMPLATES));
-        }
-        if (templates.existsByFreelanceIdAndNameIgnoreCase(freelanceId, name)) {
-            throw new InvalidStateException(String.format(ErrorMessages.PIPELINE_TEMPLATE_NAME_TAKEN, name));
-        }
+        checkRoomFor(project.getFreelance().getId(), name);
         List<TemplateStep> templateSteps = steps.findByProjectId(project.getId()).stream()
             .sorted(Comparator.comparing(InterviewStep::getDate, Comparator.nullsLast(Comparator.<LocalDateTime>naturalOrder()))
                 .thenComparing(InterviewStep::getId))
@@ -73,6 +71,19 @@ public class PipelineTemplateService {
         template.setClient(request.clientId() == null ? null : clients.findById(request.clientId()).orElseThrow(() ->
             new ResourceNotFoundException(String.format(ErrorMessages.CLIENT_NOT_FOUND, request.clientId()))));
         template.getSteps().addAll(templateSteps);
+        return toDto(templates.save(template));
+    }
+
+    /** Saves steps written out one by one, for anyone, as a template of the workspace. */
+    public PipelineTemplateDto createFromSteps(Long freelanceId, PipelineTemplateStepsRequest request) {
+        Freelance freelance = freelances.findById(freelanceId).orElseThrow(() ->
+            new ResourceNotFoundException(String.format(ErrorMessages.FREELANCE_NOT_FOUND, freelanceId)));
+        String name = request.name().strip();
+        checkRoomFor(freelanceId, name);
+        PipelineTemplate template = new PipelineTemplate();
+        template.setName(name);
+        template.setFreelance(freelance);
+        request.steps().forEach(step -> template.getSteps().add(new TemplateStep(step.title().strip(), checklist(step))));
         return toDto(templates.save(template));
     }
 
@@ -94,6 +105,20 @@ public class PipelineTemplateService {
 
     public void delete(Long id) {
         templates.delete(find(id));
+    }
+
+    /** The step's items on one line each, as the template stores them one per line. */
+    private static List<String> checklist(PipelineTemplateStepsRequest.Step step) {
+        return step.checklist() == null ? List.of() : step.checklist().stream().map(label -> label.replaceAll("\\s+", " ").strip()).toList();
+    }
+
+    private void checkRoomFor(Long freelanceId, String name) {
+        if (templates.countByFreelanceId(freelanceId) >= MAX_TEMPLATES) {
+            throw new InvalidStateException(String.format(ErrorMessages.PIPELINE_TEMPLATES_LIMIT, MAX_TEMPLATES));
+        }
+        if (templates.existsByFreelanceIdAndNameIgnoreCase(freelanceId, name)) {
+            throw new InvalidStateException(String.format(ErrorMessages.PIPELINE_TEMPLATE_NAME_TAKEN, name));
+        }
     }
 
     private PipelineTemplate find(Long id) {

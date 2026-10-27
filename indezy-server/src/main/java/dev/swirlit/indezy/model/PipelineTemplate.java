@@ -26,6 +26,9 @@ import java.util.List;
 public class PipelineTemplate extends BaseEntity {
 
     public static final int NAME_MAX = 100;
+    public static final int STEPS_MAX = 20;
+    public static final int STEP_TITLE_MAX = 255;
+    public static final int CHECKLIST_MAX = 20;
 
     @Column(name = "name", nullable = false, length = NAME_MAX)
     private String name;

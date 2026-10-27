@@ -86,6 +86,7 @@ public class AuthService {
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        user.setOnboardingPending(true);
 
         user = userRepository.save(user);
 
@@ -119,6 +120,7 @@ public class AuthService {
             created.setLastName(valueOrFallback(familyName, "User"));
             created.setEmail(normalizedEmail);
             created.setPasswordHash(passwordEncoder.encode(UUID.randomUUID().toString()));
+            created.setOnboardingPending(true);
             return userRepository.save(created);
         });
         if (user.getDeletedAt() != null) {
@@ -160,6 +162,7 @@ public class AuthService {
         userInfo.setEmail(user.getEmail());
         userInfo.setFirstName(user.getFirstName());
         userInfo.setLastName(user.getLastName());
+        userInfo.setOnboardingPending(user.getOnboardingPending());
         response.setUser(userInfo);
         return response;
     }

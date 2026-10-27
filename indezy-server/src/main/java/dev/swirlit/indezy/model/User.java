@@ -143,6 +143,15 @@ public class User extends BaseEntity {
         return followUpDays != null ? followUpDays : UserPreferenceDefaults.FOLLOW_UP_DAYS;
     }
 
+    /** Set on accounts created since the welcome steps exist, until their owner finishes or skips them. */
+    @Column(name = "onboarding_pending")
+    private Boolean onboardingPending = false;
+
+    /** Accounts older than the welcome steps have a null column once Hibernate adds it: nothing pending. */
+    public Boolean getOnboardingPending() {
+        return Boolean.TRUE.equals(onboardingPending);
+    }
+
     /** Archive the workspace's opportunities left idle for the inactivity period, every night. */
     @Column(name = "auto_archive")
     private Boolean autoArchive = false;

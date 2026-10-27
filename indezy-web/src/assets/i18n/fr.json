@@ -1917,5 +1917,73 @@
     "esns": "Nouvelles ESN",
     "contacts": "Nouveaux contacts",
     "exchanges": "Échanges enregistrés"
+  },
+  "onboarding": {
+    "title": "Bienvenue sur Indezy, {{name}}",
+    "subtitle": "Trois étapes rapides pour préparer votre espace. Tout reste modifiable ensuite dans votre profil.",
+    "skip": "Passer la configuration",
+    "next": "Suivant",
+    "back": "Retour",
+    "required": "Obligatoire",
+    "loadError": "Impossible de charger votre profil",
+    "saveError": "Impossible d'enregistrer votre profil",
+    "processError": "Impossible d'enregistrer le processus de recrutement",
+    "finishError": "Impossible de terminer la configuration, réessayez",
+    "about": {
+      "label": "Vous",
+      "intro": "Votre nom, votre métier et vos compétences, pour rapprocher les offres de votre profil.",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "position": "Intitulé",
+      "positionPlaceholder": "ex. Développeur Java senior",
+      "skills": "Compétences",
+      "skillsPlaceholder": "Ajoutez une compétence, puis Entrée",
+      "skillsHint": "Niveaux et années s'ajoutent dans votre profil",
+      "removeSkill": "Retirer {{skill}}",
+      "address": "Adresse",
+      "addressHint": "Sert à calculer les temps de trajet vers les missions sur site",
+      "city": "Ville"
+    },
+    "rate": {
+      "label": "TJM et disponibilité",
+      "intro": "Le TJM visé et la date à laquelle vous êtes libre, comparés aux offres et à vos missions.",
+      "target": "TJM visé",
+      "targetError": "Un nombre entier d'euros, supérieur à zéro",
+      "availability": "Disponible à partir du",
+      "availabilityHint": "Les offres qui démarrent bien plus tôt sont signalées"
+    },
+    "process": {
+      "label": "Processus de recrutement",
+      "intro": "Partez des étapes habituelles d'un recrutement, enregistrées comme modèle à appliquer à n'importe quelle opportunité.",
+      "esn": "Via une ESN",
+      "esnHint": "Appel avec l'ESN, test technique, entretien client, puis la proposition",
+      "direct": "Client direct",
+      "directHint": "Appel découverte, entretien client, puis la proposition",
+      "none": "Plus tard",
+      "noneHint": "Un modèle peut aussi être enregistré plus tard depuis les étapes d'une opportunité",
+      "steps": {
+        "esnCall": "Appel avec l'ESN",
+        "technical": "Test technique",
+        "clientInterview": "Entretien client",
+        "offer": "Proposition et contrat",
+        "discovery": "Appel découverte",
+        "proposal": "Proposition"
+      },
+      "checklist": {
+        "rate": "TJM annoncé",
+        "availability": "Date de démarrage confirmée",
+        "stack": "Stack et contexte revus",
+        "references": "Références prêtes",
+        "terms": "TJM, durée et démarrage convenus"
+      }
+    },
+    "done": {
+      "label": "Prêt",
+      "title": "Votre espace est prêt",
+      "intro": "Par quoi voulez-vous commencer ?",
+      "addOpportunity": "Ajouter une opportunité",
+      "offers": "Parcourir les missions freelance",
+      "dashboard": "Ouvrir le tableau de bord"
+    }
   }
 }

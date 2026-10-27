@@ -2,7 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
-import { LoginRequest, LoginResponse, RegisterRequest } from '../../models';
+import { LoginRequest, LoginResponse, RegisterRequest, User } from '../../models';
+import { environment } from '../../../environments/environment';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -243,6 +244,30 @@ describe('AuthService', () => {
       const token = service.getToken();
       
       expect(token).toBeNull();
+    });
+  });
+
+  describe('completeOnboarding', () => {
+    it('ends the welcome steps and keeps the stored user in step', () => {
+      localStorageSpy.and.returnValue(JSON.stringify({ ...mockLoginResponse.user, onboardingPending: true }));
+      const users: (User | null)[] = [];
+      service.currentUser$.subscribe(user => users.push(user));
+
+      service.completeOnboarding().subscribe();
+      const request = httpMock.expectOne(`${environment.apiUrl}/users/onboarding/complete`);
+      expect(request.request.method).toBe('POST');
+      request.flush(null);
+
+      expect(localStorage.setItem).toHaveBeenCalledWith('indezy_user',
+        JSON.stringify({ ...mockLoginResponse.user, onboardingPending: false }));
+      expect(users[users.length - 1]?.onboardingPending).toBeFalse();
+    });
+
+    it('stores nothing when no user is signed in', () => {
+      service.completeOnboarding().subscribe();
+      httpMock.expectOne(`${environment.apiUrl}/users/onboarding/complete`).flush(null);
+
+      expect(localStorage.setItem).not.toHaveBeenCalled();
     });
   });
 

@@ -219,6 +219,7 @@ class AuthServiceTest {
 
         assertThat(response.getToken()).isEqualTo("jwt-token");
         assertThat(response.getUser().getEmail()).isEqualTo("test@example.com");
+        assertThat(response.getUser().isOnboardingPending()).isFalse();
         verify(keycloakJwtDecoder).decode("keycloak-token");
     }
 
@@ -254,6 +255,8 @@ class AuthServiceTest {
         assertThat(response.getUser().getEmail()).isEqualTo("zaid@swirlit.dev");
         assertThat(response.getUser().getId()).isEqualTo(8L);
         assertThat(response.getUser().getAccountId()).isEqualTo(7L);
+        // A first sign-in through Keycloak is welcomed like a registration.
+        assertThat(response.getUser().isOnboardingPending()).isTrue();
         verify(userRepository).save(argThat(user ->
                 "unusable-random-hash".equals(user.getPasswordHash())));
         verify(freelanceRepository).save(argThat(freelance ->

@@ -132,6 +132,32 @@ class PipelineTemplateIntegrationTest {
     }
 
     @Test
+    void savesAStarterProcessWrittenOutStepByStep() throws Exception {
+        mockMvc.perform(post("/pipeline-templates/steps").contentType(MediaType.APPLICATION_JSON).content("""
+                {"name": " Through an ESN ", "freelanceId": 100, "steps": [
+                  {"title": " Call with the ESN ", "checklist": ["Rate\\n  asked", "Availability"]},
+                  {"title": "Client interview"}]}"""))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.name").value("Through an ESN"))
+            .andExpect(jsonPath("$.clientId").value(nullValue()))
+            .andExpect(jsonPath("$.steps[0].title").value("Call with the ESN"))
+            .andExpect(jsonPath("$.steps[0].checklist", contains("Rate asked", "Availability")))
+            .andExpect(jsonPath("$.steps[1].checklist", hasSize(0)));
+
+        mockMvc.perform(post("/pipeline-templates/steps").contentType(MediaType.APPLICATION_JSON).content("""
+            {"name": "through an esn", "freelanceId": 100, "steps": [{"title": "Call"}]}""")).andExpect(status().isConflict());
+        mockMvc.perform(post("/pipeline-templates/steps").contentType(MediaType.APPLICATION_JSON).content("""
+            {"name": "No steps", "freelanceId": 100, "steps": []}""")).andExpect(status().isBadRequest());
+        mockMvc.perform(post("/pipeline-templates/steps").contentType(MediaType.APPLICATION_JSON).content("""
+            {"name": "Blank step", "freelanceId": 100, "steps": [{"title": " "}]}""")).andExpect(status().isBadRequest());
+        mockMvc.perform(post("/pipeline-templates/steps").contentType(MediaType.APPLICATION_JSON).content(
+                objectMapper.writeValueAsString(java.util.Map.of("name", "Too long", "freelanceId", 100,
+                    "steps", java.util.Collections.nCopies(21, java.util.Map.of("title", "Call"))))))
+            .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/pipeline-templates").param("freelanceId", "100")).andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
     void keepsATemplateForAnyoneWhenItsClientIsDeleted() throws Exception {
         jdbc.update("""
             insert into clients (id, company_name, city, is_final, freelance_id, created_at, updated_at, version)

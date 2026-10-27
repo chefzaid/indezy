@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { projectLinkGuard } from './guards/project-link.guard';
+import { onboardingGuard } from './guards/onboarding.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -26,7 +27,7 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [authGuard, projectLinkGuard],
+    canActivate: [authGuard, onboardingGuard, projectLinkGuard],
     runGuardsAndResolvers: 'paramsOrQueryParamsChange'
   },
   {
@@ -62,6 +63,11 @@ export const routes: Routes = [
   {
     path: 'calendar',
     loadComponent: () => import('./components/calendar/calendar.component').then(m => m.CalendarComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'welcome',
+    loadComponent: () => import('./components/onboarding/onboarding.component').then(m => m.OnboardingComponent),
     canActivate: [authGuard]
   },
   {

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { InterviewStepDto, PipelineTemplate } from '../../models';
+import { InterviewStepDto, PipelineTemplate, PipelineTemplateStep } from '../../models';
 
 /** Recruitment processes saved from an opportunity's steps and applied to another one. */
 @Injectable({
@@ -21,6 +21,11 @@ export class PipelineTemplateService {
   /** Saves the opportunity's steps under {@code name}, for a client or ESN or, without one, for anyone. */
   create(name: string, projectId: number, clientId?: number): Observable<PipelineTemplate> {
     return this.http.post<PipelineTemplate>(this.API_URL, { name, projectId, clientId });
+  }
+
+  /** Saves steps written out one by one, for anyone, such as a starter process. */
+  createFromSteps(name: string, steps: PipelineTemplateStep[]): Observable<PipelineTemplate> {
+    return this.http.post<PipelineTemplate>(`${this.API_URL}/steps`, { name, steps });
   }
 
   /** Adds the template's steps to the opportunity, to plan; answers the steps added. */

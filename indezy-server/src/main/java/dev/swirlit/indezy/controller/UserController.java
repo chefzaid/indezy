@@ -60,6 +60,13 @@ public class UserController {
         return userService.changePassword(SecurityUtils.getCurrentUserId(), request);
     }
 
+    @Operation(summary = "Finish or skip the welcome steps of a new account")
+    @PostMapping("/onboarding/complete")
+    public ResponseEntity<Void> completeOnboarding() {
+        userService.completeOnboarding(SecurityUtils.getCurrentUserId());
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Get the preferences")
     @GetMapping("/preferences")
     public UserPreferencesDto getUserPreferences() {

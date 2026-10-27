@@ -1,0 +1,147 @@
+<div class="onboarding-container">
+  <div class="onboarding-header">
+    <div>
+      <h1>{{ 'onboarding.title' | translate:{ name: firstName } }}</h1>
+      <p class="subtitle">{{ 'onboarding.subtitle' | translate }}</p>
+    </div>
+    <button mat-button type="button" data-skip (click)="finish('/dashboard')" [disabled]="isSaving">
+      {{ 'onboarding.skip' | translate }}
+    </button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading"><mat-spinner diameter="40" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+  } @else {
+    <mat-stepper #stepper linear [orientation]="(vertical$ | async) ? 'vertical' : 'horizontal'" class="onboarding-stepper">
+      <mat-step [stepControl]="aboutForm" [label]="'onboarding.about.label' | translate">
+        <form [formGroup]="aboutForm" class="step-form">
+          <p class="step-intro">{{ 'onboarding.about.intro' | translate }}</p>
+          <div class="row">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'onboarding.about.firstName' | translate }}</mat-label>
+              <input matInput formControlName="firstName" autocomplete="given-name" required>
+              @if (aboutForm.controls.firstName.hasError('required')) {
+                <mat-error>{{ 'onboarding.required' | translate }}</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'onboarding.about.lastName' | translate }}</mat-label>
+              <input matInput formControlName="lastName" autocomplete="family-name" required>
+              @if (aboutForm.controls.lastName.hasError('required')) {
+                <mat-error>{{ 'onboarding.required' | translate }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'onboarding.about.position' | translate }}</mat-label>
+            <input matInput formControlName="position" [placeholder]="'onboarding.about.positionPlaceholder' | translate">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'onboarding.about.skills' | translate }}</mat-label>
+            <input matInput #skillInput data-skill-input maxlength="60" [placeholder]="'onboarding.about.skillsPlaceholder' | translate"
+                   (keydown.enter)="addSkill(skillInput, $event)" (keydown)="$event.key === ',' && addSkill(skillInput, $event)">
+            <mat-hint>{{ 'onboarding.about.skillsHint' | translate }}</mat-hint>
+          </mat-form-field>
+          @if (skills.length) {
+            <mat-chip-set class="skill-chips" [attr.aria-label]="'onboarding.about.skills' | translate" data-skills>
+              @for (skill of skills; track skill) {
+                <mat-chip (removed)="removeSkill(skill)">
+                  {{ skill }}
+                  <button matChipRemove type="button" [attr.aria-label]="'onboarding.about.removeSkill' | translate:{ skill: skill }">
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip>
+              }
+            </mat-chip-set>
+          }
+          <div class="row">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'onboarding.about.address' | translate }}</mat-label>
+              <input matInput formControlName="address" autocomplete="street-address">
+              <mat-hint>{{ 'onboarding.about.addressHint' | translate }}</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'onboarding.about.city' | translate }}</mat-label>
+              <input matInput formControlName="city" autocomplete="address-level2">
+            </mat-form-field>
+          </div>
+          <div class="actions">
+            <button mat-flat-button type="button" data-about-next matStepperNext (click)="aboutForm.markAllAsTouched()">{{ 'onboarding.next' | translate }}</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <mat-step [stepControl]="rateForm" [label]="'onboarding.rate.label' | translate">
+        <form [formGroup]="rateForm" class="step-form">
+          <p class="step-intro">{{ 'onboarding.rate.intro' | translate }}</p>
+          <div class="row">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'onboarding.rate.target' | translate }}</mat-label>
+              <input matInput type="number" min="1" step="1" formControlName="targetDailyRate" inputmode="numeric">
+              <span matTextSuffix>€</span>
+              @if (rateForm.controls.targetDailyRate.invalid) {
+                <mat-error>{{ 'onboarding.rate.targetError' | translate }}</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'onboarding.rate.availability' | translate }}</mat-label>
+              <input matInput type="date" formControlName="availabilityDate">
+              <mat-hint>{{ 'onboarding.rate.availabilityHint' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
+          <div class="actions">
+            <button mat-button type="button" matStepperPrevious>{{ 'onboarding.back' | translate }}</button>
+            <button mat-flat-button type="button" data-save-profile (click)="saveProfile(stepper)" [disabled]="isSaving">
+              {{ 'onboarding.next' | translate }}
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <mat-step [label]="'onboarding.process.label' | translate">
+        <form [formGroup]="processForm" class="step-form">
+          <p class="step-intro">{{ 'onboarding.process.intro' | translate }}</p>
+          <mat-radio-group formControlName="process" class="processes" [attr.aria-label]="'onboarding.process.label' | translate">
+            @for (process of processes; track process.id) {
+              <mat-radio-button [value]="process.id">
+                <span class="process-name">{{ process.nameKey | translate }}</span>
+                <span class="process-hint">{{ process.hintKey | translate }}</span>
+              </mat-radio-button>
+            }
+            <mat-radio-button value="NONE">
+              <span class="process-name">{{ 'onboarding.process.none' | translate }}</span>
+              <span class="process-hint">{{ 'onboarding.process.noneHint' | translate }}</span>
+            </mat-radio-button>
+          </mat-radio-group>
+          <div class="actions">
+            <button mat-button type="button" matStepperPrevious>{{ 'onboarding.back' | translate }}</button>
+            <button mat-flat-button type="button" data-save-process (click)="saveProcess(stepper)" [disabled]="isSaving">
+              {{ 'onboarding.next' | translate }}
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <mat-step [label]="'onboarding.done.label' | translate">
+        <div class="step-form">
+          <h2>{{ 'onboarding.done.title' | translate }}</h2>
+          <p class="step-intro">{{ 'onboarding.done.intro' | translate }}</p>
+          <div class="first-actions">
+            <button mat-stroked-button type="button" (click)="finish('/projects/new')" [disabled]="isSaving">
+              <mat-icon>add_circle</mat-icon>
+              {{ 'onboarding.done.addOpportunity' | translate }}
+            </button>
+            <button mat-stroked-button type="button" (click)="finish('/offers')" [disabled]="isSaving">
+              <mat-icon>travel_explore</mat-icon>
+              {{ 'onboarding.done.offers' | translate }}
+            </button>
+            <button mat-flat-button type="button" data-finish (click)="finish('/dashboard')" [disabled]="isSaving">
+              <mat-icon>dashboard</mat-icon>
+              {{ 'onboarding.done.dashboard' | translate }}
+            </button>
+          </div>
+        </div>
+      </mat-step>
+    </mat-stepper>
+  }
+</div>

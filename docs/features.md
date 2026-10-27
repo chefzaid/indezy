@@ -28,6 +28,25 @@ Implemented account flows:
 - optional TOTP two-factor authentication for local accounts, asked at login once enabled
 - profile page for account details, avatar, preferences (language, theme, date format), notifications, password, two-factor authentication and a JSON export of every piece of account data
 
+### Welcome Steps
+
+A new account, registered or signed in through Keycloak for the first time, opens on **Welcome to Indezy** (`/welcome`)
+instead of the dashboard, which leads back to it until it is finished or skipped:
+
+1. **About you**: first and last name, title, skills (added with Enter or a comma, once whatever their spelling, up to
+   30 here), address and city, filled in from the profile.
+2. **Rate and availability**: the target daily rate (a whole number of euros above zero) and the **Available from**
+   date; leaving this step saves both steps to the profile, keeping everything else it holds.
+3. **Recruitment process**: a starter template to apply to opportunities, **Through an ESN** (call with the ESN,
+   technical test, client interview, offer and contract) or **Direct client** (discovery call, client interview,
+   proposal), each step with its preparation checklist, saved in the interface language
+   (`POST /api/pipeline-templates/steps`), or **Not now**. Coming back to the step does not save it twice.
+4. **Ready**: **Add an opportunity**, **Browse freelance missions** or **Open the dashboard**.
+
+**Skip the setup**, at any step, and the last step's buttons end the welcome steps for good
+(`POST /api/users/onboarding/complete`); signing in reports whether they are pending (`onboardingPending` in the login
+response). Accounts created before the welcome steps never see them.
+
 The backend stores a few account fields the UI does not use yet (timezone, currency, default view, items per page, notification flags without delivery). Verify the full user journey before presenting such a field as product-complete.
 
 ## Freelancer Profile
@@ -575,7 +594,8 @@ first, each with how many steps it holds; picking one adds its steps to the oppo
 plan, without dates, their checklists unticked, after the steps it already has. A template is
 deleted from the menu after a confirmation; the steps it added stay. A workspace keeps up to
 50 templates with distinct names (case aside), deleting a client keeps its templates for any
-client, and the GDPR export includes them (`/pipeline-templates`). The backend exposes interview-step endpoints for creation, updates, transitions, and project-level retrieval.
+client, and the GDPR export includes them (`/pipeline-templates`). A template can also be written out step by step
+(`POST /pipeline-templates/steps`, up to 20 steps of 20 checklist items), as the welcome steps' starter processes are. The backend exposes interview-step endpoints for creation, updates, transitions, and project-level retrieval.
 
 ## Emails From Templates
 

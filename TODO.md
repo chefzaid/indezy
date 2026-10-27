@@ -329,7 +329,7 @@ Increments, implemented in order:
 - [x] Internationalization hardening (French/English translation coverage, language switch persistence, missing-key checks)
 - [x] Dark mode (light, dark, or system theme from the profile preference and a toolbar toggle)
 - [ ] Customizable dashboard widgets (drag, resize, show/hide)
-- [ ] Onboarding wizard for first-time setup (profile, rate, address, pipeline template)
+- [x] Onboarding wizard for first-time setup (profile, rate, address, pipeline template)
 - [x] Keyboard shortcuts for power users (new project, move card, search)
 - [ ] Offline-tolerant PWA mode for consulting data on the go
 - [x] Accessibility pass (aria-labels, screen reader support, keyboard-only navigation). Done on 2026-10-27: an axe-core audit (WCAG 2.1 A and AA) of every main page, the Kanban board, the global search and the sign-in page, light theme on a desktop and dark theme on a phone, now passes and runs with the e2e suite (`docs/testing.md#playwright-e2e`). Fixed on the way: icon buttons and chip removers without a name (contacts, sources, Kanban refresh, reversion save), the account menu without a name on phones, 38 loading indicators without a label, text under 4.5:1 (Material's 54 % labels and tabs, red text buttons, dark-theme primary buttons, the project cards' client and net rate, the calendar's other-month days, Kanban empty columns, sign-in links) and status pills whose white text read under 4.5:1 (opportunity, interview step and activity report statuses).

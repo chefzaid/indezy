@@ -92,6 +92,20 @@ export class AuthService {
     window.location.assign(loginUrl);
   }
 
+  /** Ends the welcome steps, finished or skipped, so the dashboard no longer leads to them. */
+  completeOnboarding(): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/users/onboarding/complete`, null).pipe(
+      tap(() => {
+        const user = this.getUserFromStorage();
+        if (user) {
+          const welcomed = { ...user, onboardingPending: false };
+          this.setUser(welcomed);
+          this.currentUserSubject.next(welcomed);
+        }
+      })
+    );
+  }
+
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }

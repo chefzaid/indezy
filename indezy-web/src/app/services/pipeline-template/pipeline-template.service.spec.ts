@@ -30,4 +30,13 @@ describe('PipelineTemplateService', () => {
     http.expectOne({ method: 'POST', url: `${api}/1/apply/8` }).flush([]);
     http.expectOne({ method: 'DELETE', url: `${api}/1` }).flush(null);
   });
+
+  it('saves steps written out one by one', () => {
+    const steps = [{ title: 'Call', checklist: ['Rate stated'] }];
+    service.createFromSteps('Through an ESN', steps).subscribe();
+
+    const create = http.expectOne({ method: 'POST', url: `${api}/steps` });
+    expect(create.request.body).toEqual({ name: 'Through an ESN', steps });
+    create.flush({});
+  });
 });

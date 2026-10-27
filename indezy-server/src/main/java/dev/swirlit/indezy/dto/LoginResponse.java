@@ -22,5 +22,7 @@ public class LoginResponse {
         private String firstName;
         @ToString.Exclude
         private String lastName;
+        /** A new account that has not finished or skipped its welcome steps yet. */
+        private boolean onboardingPending;
     }
 }

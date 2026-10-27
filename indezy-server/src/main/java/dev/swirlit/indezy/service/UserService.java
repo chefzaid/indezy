@@ -70,6 +70,14 @@ public class UserService {
         return profile;
     }
 
+    /** Ends the welcome steps of a new account, finished or skipped; signing in no longer leads to them. */
+    public void completeOnboarding(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
+        user.setOnboardingPending(false);
+        userRepository.save(user);
+    }
+
     /** Largest accepted avatar image; the web app downscales photos to 256px before uploading. */
     static final long MAX_AVATAR_BYTES = 512L * 1024;
     private static final Set<String> AVATAR_TYPES = Set.of("image/png", "image/jpeg", "image/webp", "image/gif");

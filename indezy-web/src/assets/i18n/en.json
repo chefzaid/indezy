@@ -1917,5 +1917,73 @@
     "esns": "New ESNs",
     "contacts": "New contacts",
     "exchanges": "Exchanges recorded"
+  },
+  "onboarding": {
+    "title": "Welcome to Indezy, {{name}}",
+    "subtitle": "Three short steps to set up your workspace. You can change all of it later in your profile.",
+    "skip": "Skip the setup",
+    "next": "Next",
+    "back": "Back",
+    "required": "Required",
+    "loadError": "Could not load your profile",
+    "saveError": "Could not save your profile",
+    "processError": "Could not save the recruitment process",
+    "finishError": "Could not finish the setup, try again",
+    "about": {
+      "label": "About you",
+      "intro": "Your name, what you do and your skills, so offers can be matched to your profile.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "position": "Title",
+      "positionPlaceholder": "e.g. Senior Java developer",
+      "skills": "Skills",
+      "skillsPlaceholder": "Add a skill, then Enter",
+      "skillsHint": "Levels and years can be added in your profile",
+      "removeSkill": "Remove {{skill}}",
+      "address": "Address",
+      "addressHint": "Used to work out commute times to on-site missions",
+      "city": "City"
+    },
+    "rate": {
+      "label": "Rate and availability",
+      "intro": "The daily rate you aim for and when you are free to start, compared with offers and your missions.",
+      "target": "Target daily rate",
+      "targetError": "A whole number of euros, above zero",
+      "availability": "Available from",
+      "availabilityHint": "Offers starting much earlier are pointed out"
+    },
+    "process": {
+      "label": "Recruitment process",
+      "intro": "Start with the usual steps of a recruitment, saved as a template to apply to any opportunity.",
+      "esn": "Through an ESN",
+      "esnHint": "Call with the ESN, technical test, client interview, then the offer",
+      "direct": "Direct client",
+      "directHint": "Discovery call, client interview, then the proposal",
+      "none": "Not now",
+      "noneHint": "Templates can also be saved later from any opportunity's steps",
+      "steps": {
+        "esnCall": "Call with the ESN",
+        "technical": "Technical test",
+        "clientInterview": "Client interview",
+        "offer": "Offer and contract",
+        "discovery": "Discovery call",
+        "proposal": "Proposal"
+      },
+      "checklist": {
+        "rate": "Daily rate stated",
+        "availability": "Start date confirmed",
+        "stack": "Stack and context reviewed",
+        "references": "References ready",
+        "terms": "Rate, duration and start agreed"
+      }
+    },
+    "done": {
+      "label": "Ready",
+      "title": "Your workspace is ready",
+      "intro": "Where would you like to start?",
+      "addOpportunity": "Add an opportunity",
+      "offers": "Browse freelance missions",
+      "dashboard": "Open the dashboard"
+    }
   }
 }

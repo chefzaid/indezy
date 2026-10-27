@@ -15,6 +15,7 @@ export interface LoginResponse {
     email: string;
     firstName: string;
     lastName: string;
+    onboardingPending?: boolean;
   };
 }
 
@@ -32,4 +33,6 @@ export interface User {
   firstName: string;
   lastName: string;
   role?: string;
+  /** A new account that has not finished or skipped its welcome steps yet. */
+  onboardingPending?: boolean;
 }

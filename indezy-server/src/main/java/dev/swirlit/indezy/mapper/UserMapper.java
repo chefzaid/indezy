@@ -26,6 +26,7 @@ public interface UserMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "avatarImage", ignore = true)
+    @Mapping(target = "onboardingPending", ignore = true)
     User toEntity(UserDto dto);
 
     @Mapping(target = "id", ignore = true)
@@ -41,6 +42,7 @@ public interface UserMapper {
     @Mapping(target = "skills", ignore = true)
     @Mapping(target = "skillDetails", ignore = true)
     @Mapping(target = "languages", ignore = true)
+    @Mapping(target = "onboardingPending", ignore = true)
     void updateEntity(UserDto dto, @MappingTarget User user);
 
     /**
@@ -90,6 +92,7 @@ public interface UserMapper {
     @Mapping(target = "inactivityDays", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "autoArchive", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "followUpDays", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "onboardingPending", ignore = true)
     void updatePreferences(UserPreferencesDto dto, @MappingTarget User user);
 
     // Security settings mapping

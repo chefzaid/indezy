@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.InterviewStepDto;
 import dev.swirlit.indezy.dto.PipelineTemplateDto;
 import dev.swirlit.indezy.dto.PipelineTemplateRequest;
+import dev.swirlit.indezy.dto.PipelineTemplateStepsRequest;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.PipelineTemplateService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,6 +44,13 @@ public class PipelineTemplateController {
         accessGuard.requireProject(request.projectId());
         accessGuard.requireClientIfPresent(request.clientId());
         return ResponseEntity.status(HttpStatus.CREATED).body(templateService.createFromProject(request));
+    }
+
+    @Operation(summary = "Save steps written out one by one as a template for anyone, such as a starter process")
+    @PostMapping("/steps")
+    public ResponseEntity<PipelineTemplateDto> createFromSteps(@Valid @RequestBody PipelineTemplateStepsRequest request) {
+        Long freelanceId = accessGuard.requireWorkspace(request.freelanceId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(templateService.createFromSteps(freelanceId, request));
     }
 
     @Operation(summary = "Add a template's steps to an opportunity, to plan")

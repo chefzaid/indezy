@@ -5,7 +5,7 @@ import { mockWorkspaceData } from './helpers/workspace-data';
 
 /** The app's main pages, each audited once its content is shown. */
 const PAGES = ['/dashboard', '/projects', '/projects/42', '/projects/new', '/clients', '/clients/3', '/contacts', '/contacts/2',
-  '/sources', '/calendar', '/archive', '/review', '/profile', '/offers'];
+  '/sources', '/calendar', '/archive', '/review', '/profile', '/offers', '/welcome'];
 
 /** The WCAG 2.1 A and AA rules a page breaks, one line each, empty when it breaks none. */
 async function violations(page: Page): Promise<string[]> {
