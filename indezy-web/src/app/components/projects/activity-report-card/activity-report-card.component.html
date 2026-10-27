@@ -41,7 +41,7 @@
     }
 
     @if (isLoading) {
-      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <mat-progress-bar [attr.aria-label]="'common.loading' | translate" mode="indeterminate"></mat-progress-bar>
     } @else if (report) {
       @if (report.status === 'REJECTED' && report.validatorName) {
         <div class="banner rejected" role="status">

@@ -1,7 +1,7 @@
 <div class="client-detail-container">
   @if (isLoading) {
     <div class="loading-container">
-      <mat-spinner diameter="48"></mat-spinner>
+      <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="48"></mat-spinner>
       <p>{{ 'clients.loadingDetails' | translate }}</p>
     </div>
   }
@@ -191,7 +191,7 @@
           </div>
           @if (isLoadingContacts) {
             <div class="loading-container">
-              <mat-spinner diameter="36"></mat-spinner>
+              <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="36"></mat-spinner>
             </div>
           } @else if (contacts.length === 0) {
             <div class="empty-state">

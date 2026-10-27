@@ -3,7 +3,7 @@
 
   @if (loading) {
     <div class="state" role="status">
-      <mat-spinner diameter="32"></mat-spinner>
+      <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="32"></mat-spinner>
       <span class="cdk-visually-hidden">{{ 'offers.publisher.loading' | translate }}</span>
     </div>
   } @else if (missing) {

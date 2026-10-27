@@ -12,10 +12,10 @@ export type PublicHolidayName =
   | 'NEW_YEAR' | 'EASTER_MONDAY' | 'LABOUR_DAY' | 'VICTORY_DAY' | 'ASCENSION' | 'WHIT_MONDAY'
   | 'BASTILLE_DAY' | 'ASSUMPTION' | 'ALL_SAINTS' | 'ARMISTICE' | 'CHRISTMAS';
 
-/** Status pill colors, dark enough to carry white text. */
+/** Status pill colors, dark enough to carry white text (4.5:1 contrast at least). */
 export const ACTIVITY_REPORT_STATUS_COLORS: Record<ActivityReportStatus, string> = {
   DRAFT: '#546e7a',
-  SUBMITTED: '#ef6c00',
+  SUBMITTED: '#b85600',
   VALIDATED: '#2e7d32',
   REJECTED: '#d32f2f'
 };

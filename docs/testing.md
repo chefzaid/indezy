@@ -326,6 +326,16 @@ in with the new ESN offered as client, correct the role and save through the imp
 list, the link of a mission already in the pipeline and open its opportunity. In English, a posting of a site the
 feed does not collect fills the form in, names its publisher as the new ESN and is saved through the posting import.
 
+Accessibility scenarios (`e2e/accessibility.spec.ts`) run axe-core (`@axe-core/playwright`) with the WCAG 2.1 A and
+AA rules on every main page (dashboard, projects list, an opportunity with steps of every status and its journal, the
+project form, clients, a client, contacts, a contact, sources, calendar, archive, profile, offers), the Kanban board,
+the global search dialog and the sign-in page, in English with the light theme on a desktop and in French with the
+dark theme on a phone, and expect no violation. The pages are served by `e2e/helpers/workspace-data.ts`, a small
+workspace behind every API call (calls it does not list answer an empty list). A violation is reported with its rule
+and the element's selector; colours come from the `styles.scss` tokens (`--app-text-muted`, `--app-link`,
+`--app-positive`, `--app-danger`), which keep 4.5:1 on the light and dark backgrounds, and status pills carrying white
+text use colours of 4.5:1 or more.
+
 Extend the suite with registration, project creation, Kanban movement, filtering,
 and interview scheduling as those workflows stabilize.
 

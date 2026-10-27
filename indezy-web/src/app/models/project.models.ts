@@ -8,10 +8,10 @@ export enum ProjectStatus {
   LOST = 'LOST'
 }
 
-/** Pipeline stage colors, dark enough to carry white text in status pills. */
+/** Pipeline stage colors, dark enough to carry white text in status pills (4.5:1 contrast at least). */
 export const PROJECT_STATUS_COLORS: { [key in ProjectStatus]: string } = {
-  [ProjectStatus.CONTACT]: '#1e88e5',
-  [ProjectStatus.INTERVIEW]: '#ef6c00',
+  [ProjectStatus.CONTACT]: '#1565c0',
+  [ProjectStatus.INTERVIEW]: '#b85600',
   [ProjectStatus.OFFER]: '#8e24aa',
   [ProjectStatus.WON]: '#2e7d32',
   [ProjectStatus.LOST]: '#d32f2f'

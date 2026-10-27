@@ -19,7 +19,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   --background-color: #fafafa;
   --surface-color: #ffffff;
   --text-primary: rgba(0, 0, 0, 0.87);
-  --text-secondary: rgba(0, 0, 0, 0.54);
+  // 60 % black: the 54 % of Material's light theme reads at 4.47:1 on the page's grey, under WCAG AA's 4.5:1.
+  --text-secondary: rgba(0, 0, 0, 0.6);
 
   --app-bg: #f5f5f5;
   --app-surface: #ffffff;
@@ -30,6 +31,28 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   --app-text-faint: rgba(0, 0, 0, 0.38);
   --app-border: rgba(0, 0, 0, 0.12);
   --app-link: #1565c0;
+  /* Text that reads as good or bad news (a net rate, a delete action), 4.5:1 at least on surfaces and the page. */
+  --app-positive: #2e7d32;
+  --app-danger: #c62828;
+  --app-info-bg: #e3f2fd;
+}
+
+/* Material's indigo-pink theme draws a few texts under the 4.5:1 contrast WCAG AA asks for on this app's light
+   backgrounds: 54 % black labels and tabs on the page's grey (4.47:1), and red button text (#f44336, 3.7:1). */
+html:not(.dark-theme) {
+  --mat-form-field-outlined-label-text-color: rgba(0, 0, 0, 0.6);
+  --mat-form-field-filled-label-text-color: rgba(0, 0, 0, 0.6);
+
+  .mat-mdc-tab-group,
+  .mat-mdc-tab-nav-bar {
+    --mat-tab-inactive-label-text-color: rgba(0, 0, 0, 0.6);
+  }
+
+  .mat-mdc-button.mat-warn,
+  .mat-mdc-outlined-button.mat-warn {
+    --mat-button-text-label-text-color: var(--app-danger);
+    --mat-button-outlined-label-text-color: var(--app-danger);
+  }
 }
 
 /* Dark theme: Material component colors plus the application tokens. */
@@ -60,7 +83,29 @@ html.dark-theme {
   --app-text-faint: rgba(255, 255, 255, 0.4);
   --app-border: rgba(255, 255, 255, 0.14);
   --app-link: #90caf9;
+  --app-positive: #81c784;
+  --app-danger: #ef9a9a;
+  --app-info-bg: #1e3a5f;
   --heatmap-l0: #2d333b;
+
+  /* The dark palette's indigo 300 carries dark text (6:1), not white (3.45:1); text buttons use lighter tones. */
+  .mat-mdc-raised-button.mat-primary,
+  .mat-mdc-unelevated-button.mat-primary {
+    --mat-button-protected-label-text-color: rgba(0, 0, 0, 0.87);
+    --mat-button-filled-label-text-color: rgba(0, 0, 0, 0.87);
+  }
+
+  .mat-mdc-button.mat-primary,
+  .mat-mdc-outlined-button.mat-primary {
+    --mat-button-text-label-text-color: var(--app-link);
+    --mat-button-outlined-label-text-color: var(--app-link);
+  }
+
+  .mat-mdc-button.mat-warn,
+  .mat-mdc-outlined-button.mat-warn {
+    --mat-button-text-label-text-color: var(--app-danger);
+    --mat-button-outlined-label-text-color: var(--app-danger);
+  }
 }
 
 body {

@@ -12,7 +12,7 @@
   </mat-form-field>
   <button mat-stroked-button color="primary" type="button" class="fill-button" (click)="fill()" [disabled]="busy" data-fill-from-link>
     @if (busy) {
-      <mat-spinner diameter="18" aria-hidden="true"></mat-spinner>
+      <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="18" aria-hidden="true"></mat-spinner>
     } @else {
       <mat-icon>auto_fix_high</mat-icon>
     }

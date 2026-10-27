@@ -83,7 +83,7 @@
       }
       @if (loading) {
         <div class="state">
-          <mat-spinner diameter="40"></mat-spinner>
+          <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="40"></mat-spinner>
           <p>{{ 'offers.loading' | translate }}</p>
         </div>
       } @else if (failed) {

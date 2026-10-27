@@ -109,7 +109,7 @@
             class="register-button full-width"
             [disabled]="registerForm.invalid || isLoading">
             @if (isLoading) {
-              <mat-spinner diameter="20" class="register-spinner"></mat-spinner>
+              <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="20" class="register-spinner"></mat-spinner>
             }
             @if (!isLoading) {
               <span>{{ 'auth.register' | translate }}</span>

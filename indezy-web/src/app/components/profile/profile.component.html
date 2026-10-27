@@ -9,7 +9,7 @@
 
   @if (isLoading) {
     <div class="loading-container">
-      <mat-spinner></mat-spinner>
+      <mat-spinner [attr.aria-label]="'common.loading' | translate"></mat-spinner>
       <p>{{ 'profile.loading' | translate }}</p>
     </div>
   }
@@ -90,7 +90,7 @@
                       type="submit"
                       [disabled]="passwordForm.invalid || isUpdating">
                       @if (isUpdating) {
-                        <mat-spinner diameter="20"></mat-spinner>
+                        <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="20"></mat-spinner>
                       }
                       @if (!isUpdating) {
                         <span>{{ 'profile.changePassword' | translate }}</span>
@@ -249,7 +249,7 @@
                   type="submit"
                   [disabled]="preferencesForm.invalid || isUpdating">
                   @if (isUpdating) {
-                    <mat-spinner diameter="20"></mat-spinner>
+                    <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="20"></mat-spinner>
                   }
                   @if (!isUpdating) {
                     <span>{{ 'common.save' | translate }}</span>
@@ -343,7 +343,7 @@
                   type="submit"
                   [disabled]="notificationForm.invalid || isUpdating">
                   @if (isUpdating) {
-                    <mat-spinner diameter="20"></mat-spinner>
+                    <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="20"></mat-spinner>
                   }
                   @if (!isUpdating) {
                     <span>{{ 'common.save' | translate }}</span>

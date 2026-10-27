@@ -62,7 +62,9 @@
       "clear": "Clear the selection",
       "selectAll": "Select all",
       "select": "Select {{name}}"
-    }
+    },
+    "loading": "Loading",
+    "removeItem": "Remove {{item}}"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -77,7 +79,8 @@
     "profile": "Profile",
     "logout": "Sign out",
     "toggleMenu": "Toggle navigation menu",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "accountMenu": "{{name}} – account menu"
   },
   "timeline": {
     "title": "Timeline",

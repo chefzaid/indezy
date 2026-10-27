@@ -254,7 +254,7 @@
 
 .mat-mdc-button {
   &.mat-warn {
-    color: #b71c1c;
+    color: var(--app-danger);
     
     &:hover {
       background-color: rgba(211, 47, 47, 0.04);

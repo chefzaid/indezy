@@ -8,7 +8,7 @@
     </button>
   </div>
   @if (uploading) {
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <mat-progress-bar [attr.aria-label]="'common.loading' | translate" mode="indeterminate"></mat-progress-bar>
   }
   @for (attachment of attachments; track attachment.id) {
     <div class="attachment">

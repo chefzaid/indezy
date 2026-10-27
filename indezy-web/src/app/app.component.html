@@ -32,7 +32,8 @@
           <span>{{ 'language.en' | translate }}</span>
         </button>
       </mat-menu>
-      <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
+      <button mat-button [matMenuTriggerFor]="userMenu" class="user-button"
+        [attr.aria-label]="'nav.accountMenu' | translate:{ name: ((currentUser?.firstName ?? '') + ' ' + (currentUser?.lastName ?? '')).trim() }">
         <mat-icon>account_circle</mat-icon>
         <span class="user-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</span>
         <mat-icon iconPositionEnd>arrow_drop_down</mat-icon>

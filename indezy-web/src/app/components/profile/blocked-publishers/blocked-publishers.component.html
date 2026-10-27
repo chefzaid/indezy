@@ -16,7 +16,7 @@
     </form>
 
     @if (loading) {
-      <mat-spinner diameter="28"></mat-spinner>
+      <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="28"></mat-spinner>
     } @else if (failed) {
       <p class="muted" role="alert">{{ 'profile.blockedPublishers.loadError' | translate }}</p>
     } @else {

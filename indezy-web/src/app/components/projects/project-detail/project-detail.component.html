@@ -1,7 +1,7 @@
 <div class="project-detail-container">
   @if (isLoading) {
     <div class="loading-container">
-      <mat-spinner></mat-spinner>
+      <mat-spinner [attr.aria-label]="'common.loading' | translate"></mat-spinner>
       <p>{{ 'projects.detail.loading' | translate }}</p>
     </div>
   }

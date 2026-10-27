@@ -13,7 +13,7 @@
     <mat-card-content>
       @if (isLoading) {
         <div class="loading-container">
-          <mat-spinner></mat-spinner>
+          <mat-spinner [attr.aria-label]="'common.loading' | translate"></mat-spinner>
           <p>{{ 'common.loadingInfo' | translate }}</p>
         </div>
       }
@@ -90,7 +90,7 @@
             </button>
             <button mat-raised-button color="primary" type="submit" [disabled]="isSubmitting">
               @if (isSubmitting) {
-                <mat-spinner diameter="20"></mat-spinner>
+                <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="20"></mat-spinner>
               }
               @if (!isSubmitting) {
                 <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>

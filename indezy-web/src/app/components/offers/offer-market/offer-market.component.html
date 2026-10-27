@@ -12,7 +12,7 @@
 
   @if (loading && !view) {
     <div class="market-state">
-      <mat-spinner diameter="32"></mat-spinner>
+      <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="32"></mat-spinner>
     </div>
   } @else if (failed) {
     <div class="market-state" role="alert">

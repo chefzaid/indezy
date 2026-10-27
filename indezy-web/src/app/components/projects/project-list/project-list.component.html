@@ -166,7 +166,7 @@
                   </mat-button-toggle>
                 </mat-button-toggle-group>
                 @if (isCommuteLoading) {
-                  <mat-spinner diameter="24" class="commute-spinner"></mat-spinner>
+                  <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="24" class="commute-spinner"></mat-spinner>
                 }
               </div>
             </div>
@@ -242,7 +242,7 @@
                         <mat-chip
                           (removed)="removeTechStack(tech)">
                           {{ tech }}
-                          <button matChipRemove>
+                          <button matChipRemove [attr.aria-label]="'common.removeItem' | translate:{ item: tech }">
                             <mat-icon>cancel</mat-icon>
                           </button>
                         </mat-chip>
@@ -281,7 +281,7 @@
   <!-- Loading -->
   @if (isLoading) {
     <div class="loading-container">
-      <mat-spinner></mat-spinner>
+      <mat-spinner [attr.aria-label]="'common.loading' | translate"></mat-spinner>
       <p>{{ 'projects.loading' | translate }}</p>
     </div>
   }
@@ -308,7 +308,7 @@
             <span matTextSuffix>%</span>
           </mat-form-field>
           <button mat-stroked-button color="primary" (click)="saveReversionRate()"
-            [matTooltip]="'projects.reversion.saveTooltip' | translate">
+            [matTooltip]="'projects.reversion.saveTooltip' | translate" [attr.aria-label]="'projects.reversion.saveTooltip' | translate">
             <mat-icon>save</mat-icon>
           </button>
         </div>

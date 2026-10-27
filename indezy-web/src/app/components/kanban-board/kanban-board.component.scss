@@ -227,7 +227,7 @@
 
     &.rate {
       font-weight: 600;
-      color: #2e7d32;
+      color: var(--app-positive);
     }
   }
 }
@@ -327,7 +327,7 @@
   flex-direction: column;
   align-items: center;
   padding: 24px 12px;
-  color: var(--app-text-faint);
+  color: var(--app-text-muted);
   text-align: center;
 
   mat-icon {

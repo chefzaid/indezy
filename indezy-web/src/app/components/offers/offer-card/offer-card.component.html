@@ -156,7 +156,7 @@
       <button mat-button type="button" class="details-button" (click)="toggleDetails.emit(offer)" [attr.aria-expanded]="expanded"
         [disabled]="loadingDetails">
         @if (loadingDetails) {
-          <mat-spinner diameter="16" aria-hidden="true"></mat-spinner>
+          <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="16" aria-hidden="true"></mat-spinner>
         } @else {
           <mat-icon>{{ expanded ? 'expand_less' : 'expand_more' }}</mat-icon>
         }

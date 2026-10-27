@@ -11,7 +11,7 @@
 
       @if (isLoading) {
         <div class="loading-container">
-          <mat-spinner diameter="48"></mat-spinner>
+          <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="48"></mat-spinner>
           <p>{{ 'common.loadingData' | translate }}</p>
         </div>
       } @else {
@@ -148,7 +148,7 @@
             </button>
             <button type="submit" mat-raised-button color="primary" [disabled]="isSaving">
               @if (isSaving) {
-                <mat-spinner diameter="18"></mat-spinner>
+                <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="18"></mat-spinner>
               } @else {
                 <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
               }

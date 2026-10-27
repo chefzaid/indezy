@@ -25,7 +25,7 @@
   </header>
 
   @if (loading && !health) {
-    <div class="state"><mat-spinner diameter="40"></mat-spinner></div>
+    <div class="state"><mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="40"></mat-spinner></div>
   } @else if (failed) {
     <div class="state" role="alert">
       <mat-icon>cloud_off</mat-icon>

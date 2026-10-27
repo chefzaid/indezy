@@ -43,7 +43,7 @@
 
 // Net rate / revenue on project cards
 .net-rate {
-  color: #43a047;
+  color: var(--app-positive);
   font-size: 13px;
   font-weight: 500;
   margin-left: 4px;
@@ -51,7 +51,7 @@
 
 .revenue-item {
   .net-revenue {
-    color: #43a047;
+    color: var(--app-positive);
     font-weight: 500;
     font-size: 13px;
   }
@@ -88,7 +88,7 @@
 
 // Commute detail on project cards
 .commute-detail {
-  color: #667eea !important;
+  color: var(--app-link) !important;
   font-weight: 500;
 
   mat-icon {

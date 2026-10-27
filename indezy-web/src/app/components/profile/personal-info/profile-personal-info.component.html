@@ -174,7 +174,7 @@
                 <mat-chip
                   (removed)="removeLanguage(language)">
                   {{ language }}
-                  <button matChipRemove>
+                  <button matChipRemove [attr.aria-label]="'common.removeItem' | translate:{ item: language }">
                     <mat-icon>cancel</mat-icon>
                   </button>
                 </mat-chip>
@@ -235,7 +235,7 @@
         type="submit"
         [disabled]="form.invalid || isUpdating">
         @if (isUpdating) {
-          <mat-spinner diameter="20"></mat-spinner>
+          <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="20"></mat-spinner>
         }
         @if (!isUpdating) {
           <span>{{ 'common.save' | translate }}</span>

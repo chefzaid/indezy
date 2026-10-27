@@ -68,8 +68,13 @@
   cursor: pointer;
   min-width: 0;
 
+  // Days of the next or previous month: set apart by their background, still readable (no fading).
   &.out {
-    opacity: 0.45;
+    background: var(--app-subtle);
+
+    .day-number {
+      color: var(--app-text-muted);
+    }
   }
 
   &.today .day-number {
