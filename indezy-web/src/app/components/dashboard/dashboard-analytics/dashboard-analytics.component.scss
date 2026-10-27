@@ -144,3 +144,55 @@
     mat-icon, .summary-value { color: var(--app-link); }
   }
 }
+
+.trends {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.trend {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--app-subtle);
+
+  .trend-label {
+    font-size: 0.85rem;
+    color: var(--app-text-muted);
+  }
+
+  .trend-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .trend-change {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.85rem;
+    font-weight: 500;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    &.up {
+      color: var(--app-positive);
+    }
+
+    &.down {
+      color: var(--app-danger);
+    }
+  }
+
+  .trend-previous {
+    font-size: 0.8rem;
+    color: var(--app-text-muted);
+  }
+}

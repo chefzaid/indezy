@@ -49,6 +49,8 @@ public class DashboardStatsDto {
     private List<FollowUpDue> followUpsDue;
     /** Issued invoices past their due date, the oldest due first. */
     private List<OverdueInvoice> overdueInvoices;
+    /** The last 90 days against the 90 before: opportunities, interviews, missions won and their daily rate. */
+    private List<Trend> trends;
     /** Purchase orders running today with 80 % of a ceiling used or more, the most used first. */
     private List<PurchaseOrderAlert> purchaseOrderAlerts;
     /** Interview steps planned in the next seven days, soonest first. */
@@ -197,6 +199,22 @@ public class DashboardStatsDto {
         private BigDecimal total;
         private LocalDate dueDate;
         private long daysLate;
+    }
+
+    /**
+     * One metric over the last 90 days ({@code current}) and the 90 before ({@code previous}), with the change in
+     * percent; either value is empty when there is none (no mission won, so no rate), and the change when there is
+     * nothing to compare with.
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Trend {
+        private String metric;
+        private Double current;
+        private Double previous;
+        private Integer change;
     }
 
     /** A purchase order close to its ceiling, or over it. */

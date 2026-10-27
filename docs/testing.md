@@ -132,7 +132,9 @@ npm test
 Representative backend tests:
 
 - controllers: `AuthControllerTest`, `ClientControllerTest`, `ProjectControllerTest`, `InterviewStepControllerTest`, ...
-- services: `ProjectServiceTest`, `DashboardStatsServiceTest`, `SeasonServiceTest`, `AuthServiceTest` (including two-factor login), `CommuteServiceTest`, `CurrentWorkspaceResolverTest` (the caller's workspace resolved once per request, the permit-all and missing-workspace cases), ...
+- services: `ProjectServiceTest`, `DashboardStatsServiceTest`, `DashboardTrendsTest` (each window's first and last
+  days, cancelled interviews left out, a mission won by its signature or its start, the change in percent, an empty
+  earlier period), `SeasonServiceTest`, `AuthServiceTest` (including two-factor login), `CommuteServiceTest`, `CurrentWorkspaceResolverTest` (the caller's workspace resolved once per request, the permit-all and missing-workspace cases), ...
 - repositories: `ClientRepositoryTest`, `ProjectRepositoryTest`, `SourceRepositoryTest`, `FreelanceRepositoryTest`
 - integration: `WorkspaceIsolationIntegrationTest` (two real accounts: isolation, seasons, deletion rules, no list of every record) and `WorkspacePreferencesIntegrationTest` (target rate, inactivity and follow-up preferences per account), both on `TwoAccountsIntegrationTest`, `FullStackIntegrationTest`, `ProjectIntegrationTest`, `UserManagementIntegrationTest` (including two-factor verify and disable, a missing code answered `400`, and the log of each request, at `DEBUG`, free of the code)
 - configuration and schema: `SecurityConfigTest`, `ProjectStatusMigrationTest`, `EnumCheckConstraintsTest`, `ColumnLengthsTest`, `SchemaMigrationTest`, `JwtUtilTest`
@@ -239,7 +241,7 @@ Representative frontend specs:
   dragging or arrows, shown and hidden, the usual layout), `dashboard.component.spec.ts` (the usual order until arranged,
   hidden blocks left out, a layout saved with the other preferences and put back on failure, nothing saved when
   cancelled) and `dashboard-analytics.component.spec.ts` (every insight the statistics contain, lost reasons most
-  frequent first, the insights the statistics lack)
+  frequent first, the insights the statistics lack, the 90-day trends up, down or with nothing to compare)
 - billing: `profile-billing.component.spec.ts` (what the identity lacks, a company's and a VAT payer's fields, portage,
   saved compacted, a malformed IBAN, failures), `billing-validators.spec.ts` and `client-form.component.spec.ts` (a
   client's SIREN and VAT number typed in groups)

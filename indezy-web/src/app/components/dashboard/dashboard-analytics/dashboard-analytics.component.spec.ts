@@ -134,4 +134,32 @@ describe('DashboardAnalyticsComponent', () => {
     expect(component.getActivityHeatmap()).toEqual([]);
     expect(component.funnelConversion({ group: 'none', stages: [] })).toBe(0);
   });
+
+  it('compares the last 90 days with the 90 before, up, down or with nothing to compare', () => {
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', en);
+    translate.use('en');
+    expect(render(stats()).querySelector('[data-trends]')).toBeNull();
+
+    const element = render(stats({ trends: [
+      { metric: 'OPPORTUNITIES', current: 3, previous: 2, change: 50 },
+      { metric: 'INTERVIEWS', current: 1, previous: 3, change: -67 },
+      { metric: 'WON', current: 2, previous: 2, change: 0 },
+      { metric: 'OBTAINED_RATE', current: 650, previous: null, change: null }
+    ] }));
+
+    const trend = (metric: string): string => element.querySelector(`[data-trend="${metric}"]`)!.textContent!.replace(/\s+/g, ' ');
+    const value = (metric: string): string => element.querySelector(`[data-trend="${metric}"] .trend-value`)!.textContent!.trim();
+    expect(value('OPPORTUNITIES')).toBe('3');
+    expect(trend('OPPORTUNITIES')).toContain('+50 % vs the 90 days before');
+    expect(element.querySelector('[data-trend="OPPORTUNITIES"] .trend-change')!.classList).toContain('up');
+    expect(trend('INTERVIEWS')).toContain('-67 %');
+    expect(element.querySelector('[data-trend="INTERVIEWS"] .trend-change')!.classList).toContain('down');
+    expect(trend('WON')).toContain('trending_flat');
+    expect(value('OBTAINED_RATE')).toBe('650 €');
+    expect(trend('OBTAINED_RATE')).toContain('Nothing to compare with');
+    expect(trend('OBTAINED_RATE')).toContain('Before: —');
+    render(stats({ trends: [{ metric: 'OBTAINED_RATE', current: null, previous: 500, change: null }] }));
+    expect(value('OBTAINED_RATE')).toBe('—');
+  });
 });

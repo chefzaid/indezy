@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import {
-  DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, SkillTrend, ProcessDuration, ActivityDay
+  DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, SkillTrend, ProcessDuration, ActivityDay, Trend
 } from '../../../models';
 import { ActivityHeatmapComponent } from '../../../shared/components/activity-heatmap/activity-heatmap.component';
 import { RateTargetComponent } from '../rate-target/rate-target.component';
@@ -22,6 +22,10 @@ import { RateTargetComponent } from '../rate-target/rate-target.component';
 export class DashboardAnalyticsComponent implements OnChanges {
   static readonly TOP_SKILLS = 8;
   @Input() stats: DashboardStatsDto | null = null;
+
+  get trends(): Trend[] {
+    return this.stats?.trends ?? [];
+  }
   /** Lost reasons that actually occurred, sorted by frequency (computed once per stats change). */
   lostReasons: { reason: string; count: number }[] = [];
 

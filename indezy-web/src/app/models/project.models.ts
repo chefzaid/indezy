@@ -154,6 +154,8 @@ export interface DashboardStatsDto {
   followUpsDue?: FollowUpDue[];
   /** Issued invoices past their due date, the oldest due first. */
   overdueInvoices?: OverdueInvoice[];
+  /** The last 90 days against the 90 before: opportunities, interviews, missions won and their daily rate. */
+  trends?: Trend[];
   /** Running purchase orders with 80 % of a ceiling used or more, the most used first. */
   purchaseOrderAlerts?: PurchaseOrderAlert[];
   /** Interview steps planned in the next seven days, soonest first. */
@@ -233,6 +235,16 @@ export interface OnThisDayItem {
   subLabel: string;
   date: string;
   yearsAgo: number;
+}
+
+export type TrendMetric = 'OPPORTUNITIES' | 'INTERVIEWS' | 'WON' | 'OBTAINED_RATE';
+
+/** One metric over the last 90 days and the 90 before, with the change in percent when there is something to compare. */
+export interface Trend {
+  metric: TrendMetric;
+  current: number | null;
+  previous: number | null;
+  change: number | null;
 }
 
 export interface OverdueInvoice {

@@ -255,6 +255,18 @@
         "ANALYTICS": "Analyses",
         "RECENT": "Opportunités récentes"
       }
+    },
+    "trends": {
+      "title": "90 derniers jours",
+      "metrics": {
+        "OPPORTUNITIES": "Opportunités ajoutées",
+        "INTERVIEWS": "Entretiens",
+        "WON": "Missions gagnées",
+        "OBTAINED_RATE": "TJM obtenu"
+      },
+      "change": "{{change}} % par rapport aux 90 jours précédents",
+      "noComparison": "Rien à comparer",
+      "previous": "Avant : {{value}}"
     }
   },
   "projects": {

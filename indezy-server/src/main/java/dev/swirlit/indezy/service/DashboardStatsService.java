@@ -119,6 +119,7 @@ public class DashboardStatsService {
         LocalDate today = LocalDate.now(ZoneId.systemDefault());
         List<InterviewStep> validatedSteps = inSeason(
             interviewStepRepository.findByFreelanceIdAndStatus(freelanceId, StepStatus.VALIDATED), seasonId);
+        Map<Long, LocalDateTime> signatures = DashboardAnalytics.signatureDates(validatedSteps);
         List<InterviewStep> heatmapSteps = inSeason(interviewStepRepository.findByFreelanceIdAndDateBetween(
             freelanceId,
             today.minusDays(DashboardAnalytics.HEATMAP_WINDOW_DAYS).atStartOfDay(),
@@ -166,8 +167,8 @@ public class DashboardStatsService {
             .overdueInvoices(invoiceService.overdue(freelanceId))
             .purchaseOrderAlerts(purchaseOrderService.alerts(freelanceId))
             .skillTrends(DashboardAnalytics.buildSkillTrends(projects))
-            .processDurations(DashboardAnalytics.buildProcessDurations(
-                projects, DashboardAnalytics.signatureDates(validatedSteps)))
+            .processDurations(DashboardAnalytics.buildProcessDurations(projects, signatures))
+            .trends(DashboardTrends.build(projects, heatmapSteps, signatures, today))
             .activityHeatmap(DashboardAnalytics.buildActivityHeatmap(projects, heatmapSteps, today))
             .build();
     }

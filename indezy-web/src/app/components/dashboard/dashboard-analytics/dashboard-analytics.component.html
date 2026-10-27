@@ -8,6 +8,28 @@
       <app-rate-target class="insight-card" [target]="target"
         [obtained]="stats.averageObtainedDailyRate"></app-rate-target>
     }
+    @if (trends.length > 0) {
+      <section class="insight-card wide" data-trends>
+        <h3 class="insight-title"><mat-icon>compare_arrows</mat-icon>{{ 'dashboard.trends.title' | translate }}</h3>
+        <div class="trends">
+          @for (trend of trends; track trend.metric) {
+            <div class="trend" [attr.data-trend]="trend.metric">
+              <span class="trend-label">{{ 'dashboard.trends.metrics.' + trend.metric | translate }}</span>
+              <span class="trend-value">{{ trend.current === null ? '—' : (trend.current | number:'1.0-0') }}{{ trend.metric === 'OBTAINED_RATE' && trend.current !== null ? ' €' : '' }}</span>
+              @if (trend.change !== null) {
+                <span class="trend-change" [class.up]="trend.change > 0" [class.down]="trend.change < 0">
+                  <mat-icon aria-hidden="true">{{ trend.change > 0 ? 'arrow_upward' : trend.change < 0 ? 'arrow_downward' : 'trending_flat' }}</mat-icon>
+                  {{ 'dashboard.trends.change' | translate:{ change: (trend.change > 0 ? '+' : '') + trend.change } }}
+                </span>
+              } @else {
+                <span class="trend-change">{{ 'dashboard.trends.noComparison' | translate }}</span>
+              }
+              <span class="trend-previous">{{ 'dashboard.trends.previous' | translate:{ value: trend.previous === null ? '—' : (trend.previous | number:'1.0-0') } }}</span>
+            </div>
+          }
+        </div>
+      </section>
+    }
     <!-- Outcomes -->
     <section class="insight-card">
       <h3 class="insight-title"><mat-icon>flag</mat-icon>{{ 'dashboard.outcomesTitle' | translate }}</h3>

@@ -972,6 +972,11 @@ The dashboard provides an overview of the opportunity workspace with:
 - daily rate distribution by exact negotiated euro amount (for example 550, 600 and 650),
   sorted numerically with one count per opportunity; missing rates are omitted. The chart
   follows the selected season and provides localized labels and a screen-reader summary.
+- trends (**Last 90 days**, first among the analytics): opportunities added, interviews held (cancelled ones left out),
+  missions won (on their latest validated interview step, or else their start) and the average daily rate they were
+  won at, each over the last 90 days against the 90 days before, with the change in percent (up in green, down in red;
+  "nothing to compare with" when the earlier period has none) and the earlier value. They follow the selected season
+  (`trends` in the dashboard statistics).
 - profile target daily rate compared with the average recorded rate of accepted missions
   in the selected season or global view; unknown accepted rates are omitted from the average,
   and a dash is shown when no accepted rate is known
