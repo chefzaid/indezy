@@ -56,6 +56,38 @@ Bugs, failing checks, security findings and code smells found while working on a
 
 Parts of tasks that cannot advance without the owner's decision or information. Only the part needing input is set aside here; the rest of the task keeps moving. Answer under the item, and the next agent run applies the answer and removes the entry.
 
+- [ ] **AI provider and costs** (AI & Automation: message polish, job description parsing, suggested rate, job fit, recommendations, CV adaptation, follow-up messages, project chat, semantic search, CV generator, status suggestions, local LLM; and the voice memo transcription). Options: (a) bring-your-own key only, each user pays their provider (which providers first: Anthropic, OpenAI, Mistral?); (b) an Indezy key in Vault with per-plan limits and a monthly spending cap; (c) a model run on the cluster (Ollama, whisper.cpp), which needs CPU/GPU budget. Bring-your-own-key support itself can be built once the providers are chosen.
+  - Answer:
+- [ ] **Google, Microsoft, Dropbox and LinkedIn accounts** (calendar two-way sync, Gmail/Outlook inbox sync, Drive/OneDrive/Dropbox backups, social login and Gmail/Outlook/LinkedIn sign-in through Keycloak): each needs an OAuth client registered under your accounts, and Gmail's restricted scopes need Google's security assessment. Which providers first, and will you register the clients (their ids and secrets go to Vault)?
+  - Answer:
+- [ ] **Email open and reply tracking** (Communications): emails leave from the user's own mail client today, so tracking means sending through Indezy (Resend) with a tracking pixel and reply detection, which the CNIL treats as needing the recipient's consent. Build it with a per-email opt-in and a notice in the email, or drop it?
+  - Answer:
+- [ ] **Malt connector and OpenClaw automation** (Job Board Integrations): Malt has no public API, and reading or posting through browser automation may break its terms and those of other sites. Do you have API or partnership access, or should both items be dropped?
+  - Answer:
+- [ ] **Publisher identity and legal texts** (Terms of Service, Privacy Policy, Contact and FAQ pages; the presentation page's legal notice and footer; the EU hosting statement, processor list and data processing agreement): the legal notice must name the publisher (company or person, address, registration number, publication director), the host and a contact address, and the texts need your approval or a lawyer's. Please provide these details; I can then draft the pages for review.
+  - Answer:
+- [ ] **Plans, prices and payment provider** (Subscription/freemium, Plans and entitlements, the presentation page's pricing section): what goes in each plan, the prices, the trial length, and the payment provider (Stripe, Paddle, Lemon Squeezy?) whose account you would open.
+  - Answer:
+- [ ] **Production sign-up** (presentation page call to action): the Keycloak realm has no self-registration and the OAuth2 Proxy admits only `platform-admins`. Open self-registration to the public at launch, keep invitations only, or run a waiting list?
+  - Answer:
+- [ ] **Paid compliance providers** (Electronic signature, French B2B e-invoicing, Payment reconciliation): which qualified trust provider (Yousign, Docusign, Universign?), which approved e-invoicing platform (PDP), and which bank account information provider (Bridge, Powens?) to integrate, with accounts you open.
+  - Answer:
+- [ ] **Mobile app technology** (Cross-platform mobile app, Push notifications): (a) the web app made installable (PWA) with web push, no store; (b) the Angular app wrapped with Capacitor and published in the stores, which needs Apple and Google developer accounts; (c) native apps. Web push also needs a VAPID key pair stored in Vault.
+  - Answer:
+- [ ] **Community features rules** (Freelancer network, Co-optation tracking, Community TJM and client reviews, Feature request board): who counts as a peer (invitation, organization, everyone), what a shared opportunity reveals, and how reviews of clients and ESNs are moderated (defamation risk). Please set these rules, or drop the items.
+  - Answer:
+- [ ] **Aggregated market data consent** (ADR — aggregated data, TJM benchmark by skill/seniority/region, ESN scorecard, quarterly market report): contributing a user's rates and processes needs their opt-in and a publication threshold. Confirm the rules in that ADR item (opt-in, minimum number of freelancers per figure, no client or contact identity) so the ADR can be written and the features built on it.
+  - Answer:
+- [ ] **Social contribution rates** (URSSAF/social contribution estimation per status, Declaration calendar, Expand reversion rate calculator customization): rates and ceilings change every January. Should Indezy keep an official table per year (whoever updates it each January), or ask each user for their own rates with the URSSAF simulator linked?
+  - Answer:
+- [ ] **Expense tracking** (Expense tracking): what should expenses change in the reversion calculator? In a micro-entreprise they are not deductible (flat allowance), in an EI au réel, EURL or SASU they lower the taxable profit, and in portage they are reimbursed as professional expenses. Options: (a) per status as just described; (b) only a record of expenses with monthly and yearly totals, without changing the net income.
+  - Answer:
+- [ ] **Dashboard period tagging** (Analytics & Reporting): job-hunting seasons already scope the dashboard to a named period. Should period tags (`YYYY-MM`) be something else (for instance monthly reports), or is this item covered by seasons and can be closed?
+  - Answer:
+- [ ] **Help center and status page** (Help center and support): which support channel and address, the response targets per plan, and which status page (a platform service such as Uptime Kuma, or a hosted one)?
+  - Answer:
+- [ ] **Network access for new job boards** (More sites): this coding environment cannot reach the job boards' sites (its proxy refuses them), so the new readers cannot be written and checked here. Allow these hosts for the coding sessions, or check the sites from your machine?
+  - Answer:
 - [ ] Create two pipeline schedules on `main` in GitLab (CI/CD → Schedules), which needs your GitLab access: a nightly one with `PLAYWRIGHT_SCHEDULE=true` (for instance `30 2 * * *`, Europe/Paris) for the E2E suite, and the weekly reader canary with `READER_CANARY=true` (`0 6 * * 1`) if it is not there yet (CI item, "scheduled e2e runs"; `docs/testing.md`).
   - Answer:
 - [ ] Create Indezy's Resend sending key and store it in Vault before the next release (Offer feed, "Saved search emails", answered: Resend). The emails are built and send nothing without a key; the release that brings them adds the `indezy-mail` ExternalSecret, which needs the field `RESEND_API_KEY` at Vault KV v2 path `secret/apps/indezy/mail` to exist, even empty, or Argo CD reports the app degraded and the deploy job fails. Steps (`docs/deployment.md#saved-search-email-credentials`): in Resend, create a sending access key restricted to `swirlit.dev` (already verified for the website's `noreply@swirlit.dev`), then write it to that path, or write an empty value to release first and add the key later (restart `indezy-server` after the ExternalSecret refreshes). Options: (a) you write the key; (b) the agent writes an empty field now with your approval, and you add the key later. *(task: Offer feed › Saved search emails; asked by: Coding Agent)*
