@@ -300,7 +300,7 @@
           <div class="tab-content">
             <mat-card class="form-section">
               <mat-card-content>
-                <app-profile-public-page [name]="(userProfile?.firstName ?? '') + ' ' + (userProfile?.lastName ?? '')"></app-profile-public-page>
+                <app-profile-public-page [name]="userProfile.firstName + ' ' + userProfile.lastName"></app-profile-public-page>
               </mat-card-content>
             </mat-card>
           </div>
