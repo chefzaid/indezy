@@ -759,6 +759,24 @@
       "unlinkError": "Le lien n'a pas pu être supprimé",
       "loadError": "Le réseau n'a pas pu être chargé",
       "managerLoop": "Ce contact manage déjà, directement ou non, le manager choisi"
+    },
+    "privacy": {
+      "title": "Ses données",
+      "legalBasis": "Pourquoi vous gardez ses coordonnées",
+      "legalBasisHint": "Vous conservez les données des personnes avec qui vous travaillez : indiquez sur quelle base (RGPD). L'intérêt légitime convient aux contacts professionnels.",
+      "bases": {
+        "LEGITIMATE_INTEREST": "Intérêt légitime",
+        "CONSENT": "Consentement",
+        "CONTRACT": "Contrat"
+      },
+      "hint": "Quand cette personne le demande, remettez-lui ce que vous détenez sur elle, ou effacez-le. Les deux sont gardés dans l'activité de votre compte, par numéro seulement.",
+      "download": "Télécharger ses données",
+      "dataError": "Ses données n'ont pas pu être téléchargées.",
+      "erase": "Effacer à sa demande",
+      "eraseTitle": "Effacer ce contact ?",
+      "eraseMessage": "{{name}}, ses échanges et ses liens sont effacés définitivement. L'activité de votre compte garde qu'un contact a été effacé, pas lequel.",
+      "erased": "Contact effacé",
+      "eraseError": "Le contact n'a pas pu être effacé."
     }
   },
   "sources": {
@@ -2147,7 +2165,8 @@
       "deleteError": "Le modèle n'a pas pu être supprimé",
       "loadError": "Les modèles n'ont pas pu être chargés",
       "insertVariable": "Insérer {{variable}} dans le message"
-    }
+    },
+    "privacyNotice": "Vos coordonnées professionnelles sont conservées par {{name}} pour le suivi de nos échanges ({{basis}}). Vous pouvez à tout moment demander à les consulter, les rectifier ou les effacer en répondant à cet e-mail."
   },
   "calendar": {
     "title": "Calendrier",

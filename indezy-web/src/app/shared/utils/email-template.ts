@@ -1,5 +1,6 @@
 /** The variables a message template can name, written {{firstName}} and so on. */
-export const EMAIL_VARIABLES = ['firstName', 'lastName', 'company', 'role', 'rate', 'availability', 'myName', 'myPhone'] as const;
+export const EMAIL_VARIABLES = ['firstName', 'lastName', 'company', 'role', 'rate', 'availability', 'myName', 'myPhone',
+  'privacyNotice'] as const;
 export type EmailVariable = typeof EMAIL_VARIABLES[number];
 export type EmailValues = Partial<Record<EmailVariable, string | null | undefined>>;
 
@@ -10,7 +11,7 @@ export function fillTemplate(text: string, values: EmailValues): string {
 }
 
 /** A mailto: address opening the mail app with the recipient (when it is an address), subject and body. */
-export function mailtoLink(to: string | undefined, subject: string, body: string): string {
+export function mailtoLink(to: string | null | undefined, subject: string, body: string): string {
   const recipient = to && /^[^\s@?&#]+@[^\s@?&#]+$/.test(to) ? to : '';
   return `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

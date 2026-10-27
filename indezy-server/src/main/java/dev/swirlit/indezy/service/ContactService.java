@@ -105,6 +105,11 @@ public class ContactService {
         }
 
         contactMapper.updateEntity(contactDto, existingContact);
+        // The form sends every field: one emptied clears it, which the mapping, ignoring what is missing, would not.
+        existingContact.setLastName(contactDto.getLastName());
+        existingContact.setEmail(contactDto.getEmail());
+        existingContact.setPhone(contactDto.getPhone());
+        existingContact.setNotes(contactDto.getNotes());
         // The form always sends whom the contact reports to: none clears it.
         existingContact.setManager(manager(existingContact, contactDto.getManagerId()));
         Contact updatedContact = contactRepository.save(existingContact);

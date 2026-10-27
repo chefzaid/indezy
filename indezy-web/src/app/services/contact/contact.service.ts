@@ -53,6 +53,16 @@ export class ContactService {
     return this.http.delete<void>(`${this.API_URL}/${id}`);
   }
 
+  /** What the workspace holds about the contact, as a JSON file to hand them on request. */
+  personalData(id: number): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/${id}/personal-data`, { responseType: 'blob' });
+  }
+
+  /** Erases the contact on their request, with their exchanges; the request is kept in the account's activity. */
+  erase(id: number): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/${id}/erase`, null);
+  }
+
   /** Deletes the picked contacts, with their exchanges. */
   deleteAll(ids: number[]): Observable<BulkDeleteResult> {
     return this.http.post<BulkDeleteResult>(`${this.API_URL}/bulk-delete`, { ids });

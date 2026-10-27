@@ -140,7 +140,10 @@ export class ProjectEmailDialogComponent implements OnInit {
       rate: this.project.dailyRate ? `${formatNumber(this.project.dailyRate, this.locale, '1.0-0')} €` : undefined,
       availability: profile?.availabilityDate ? formatDate(profile.availabilityDate, 'longDate', this.locale) : undefined,
       myName: profile ? `${profile.firstName ?? ''} ${profile.lastName ?? ''}` : undefined,
-      myPhone: profile?.phone
+      myPhone: profile?.phone,
+      // Who keeps the recipient's details, why, and how to see or erase them (GDPR article 14).
+      privacyNotice: profile ? this.translate.instant('emails.privacyNotice', { name: `${profile.firstName ?? ''} ${profile.lastName ?? ''}`.trim(),
+        basis: this.translate.instant(`contacts.privacy.bases.${contact?.legalBasis ?? 'LEGITIMATE_INTEREST'}`).toLowerCase() }) : undefined
     };
   }
 }

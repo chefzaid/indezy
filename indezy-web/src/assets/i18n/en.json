@@ -759,6 +759,24 @@
       "unlinkError": "The link could not be removed",
       "loadError": "The network could not be loaded",
       "managerLoop": "This contact already manages, directly or not, the chosen manager"
+    },
+    "privacy": {
+      "title": "Their data",
+      "legalBasis": "Why you keep their details",
+      "legalBasisHint": "You keep the data of the people you work with: say on what ground (GDPR). Legitimate interest fits business contacts.",
+      "bases": {
+        "LEGITIMATE_INTEREST": "Legitimate interest",
+        "CONSENT": "Consent",
+        "CONTRACT": "Contract"
+      },
+      "hint": "When this person asks, hand them what you hold about them, or erase it. Both are kept in your account activity, by number only.",
+      "download": "Download their data",
+      "dataError": "Their data could not be downloaded.",
+      "erase": "Erase on their request",
+      "eraseTitle": "Erase this contact?",
+      "eraseMessage": "{{name}}, their exchanges and links are erased for good. Your account activity keeps that a contact was erased, not who.",
+      "erased": "Contact erased",
+      "eraseError": "The contact could not be erased."
     }
   },
   "sources": {
@@ -2147,7 +2165,8 @@
       "deleteError": "The template could not be deleted",
       "loadError": "The templates could not be loaded",
       "insertVariable": "Insert {{variable}} in the body"
-    }
+    },
+    "privacyNotice": "Your professional details are kept by {{name}} to follow up our exchanges ({{basis}}). You can ask to see, correct or erase them at any time by replying to this email."
   },
   "calendar": {
     "title": "Calendar",

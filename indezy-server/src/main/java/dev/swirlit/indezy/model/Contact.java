@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.model;
 
+import dev.swirlit.indezy.model.enums.ContactLegalBasis;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -31,6 +32,11 @@ public class Contact extends BaseEntity {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
+    /** Why the freelancer keeps the contact's data; a null column reads as legitimate interest. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "legal_basis", length = 30)
+    private ContactLegalBasis legalBasis = ContactLegalBasis.LEGITIMATE_INTEREST;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
@@ -51,5 +57,9 @@ public class Contact extends BaseEntity {
             return firstName + " " + lastName;
         }
         return firstName;
+    }
+
+    public ContactLegalBasis getLegalBasis() {
+        return legalBasis == null ? ContactLegalBasis.LEGITIMATE_INTEREST : legalBasis;
     }
 }

@@ -244,6 +244,7 @@ Important fields:
 - email
 - phone
 - notes
+- legal basis (`legal_basis`: `LEGITIMATE_INTEREST`, `CONSENT` or `CONTRACT`; a null column reads as legitimate interest)
 - client
 - freelance owner
 - manager (`manager_id`): whom the contact reports to, in the same workspace; `ON DELETE SET NULL`, and the

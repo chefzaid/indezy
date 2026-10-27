@@ -5,13 +5,18 @@ import dev.swirlit.indezy.dto.BulkDeleteResult;
 import dev.swirlit.indezy.dto.ContactDto;
 import dev.swirlit.indezy.dto.ContactImportRequest;
 import dev.swirlit.indezy.dto.ContactImportResultDto;
+import dev.swirlit.indezy.dto.ContactPersonalDataDto;
+import dev.swirlit.indezy.util.SecurityUtils;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.ContactImportService;
+import dev.swirlit.indezy.service.ContactPrivacyService;
 import dev.swirlit.indezy.service.ContactService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +31,7 @@ public class ContactController {
 
     private final ContactService contactService;
     private final ContactImportService contactImportService;
+    private final ContactPrivacyService contactPrivacyService;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "List the contacts of a workspace")
@@ -92,5 +98,23 @@ public class ContactController {
     public BulkDeleteResult deleteAll(@Valid @RequestBody BulkDeleteRequest request) {
         request.ids().forEach(accessGuard::requireContact);
         return contactService.deleteAll(request.ids());
+    }
+
+    @Operation(summary = "What the workspace holds about a contact, to hand them on request (GDPR access)")
+    @GetMapping("/{id}/personal-data")
+    public ResponseEntity<ContactPersonalDataDto> personalData(@PathVariable Long id) {
+        accessGuard.requireContact(id);
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename("contact-" + id + ".json").build().toString())
+            .header(HttpHeaders.CACHE_CONTROL, "no-store")
+            .body(contactPrivacyService.personalData(id, SecurityUtils.getCurrentUserId()));
+    }
+
+    @Operation(summary = "Erase a contact on their request (GDPR erasure), recorded in the account's activity")
+    @PostMapping("/{id}/erase")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void erase(@PathVariable Long id) {
+        accessGuard.requireContact(id);
+        contactPrivacyService.erase(id, SecurityUtils.getCurrentUserId());
     }
 }

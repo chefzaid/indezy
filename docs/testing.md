@@ -199,6 +199,9 @@ Representative backend tests:
   test on demand, a webhook turned off told nothing, refused addresses and events, five at most, Bob kept out, deliveries
   deleted with their webhook) and `WebhookAddressesTest` (https only, no credentials, loopback, private, link-local,
   carrier-grade NAT, unique-local, multicast and unresolvable hosts refused; the signature against RFC 4231)
+- contact privacy: `ContactPrivacyIntegrationTest` (a contact's legal basis set, kept when a change names none, an
+  emptied field cleared; their data handed out without the others' names, then erased with their exchanges and links;
+  both requests in the account's activity by number only; Bob kept out)
 - booking link: `BookingIntegrationTest` (no link until the first save, the free times shown without an account, a call
   booked once and refused the second time, listed and cancelled by Alice only, a planned interview keeping its time
   busy, wrong hours refused, a new link closing the old one, a link turned off), `BookingSlotsTest` (starts within the
@@ -281,6 +284,9 @@ Representative frontend specs:
   `invoice-draft-dialog.component.spec.ts` (totals counted as the server does, the client's missions, a draft changed
   and trimmed, a credit note's client kept, fifty lines at most), `invoice-date-dialog.component.spec.ts`,
   `invoice-errors.spec.ts` and `activity-report-card.component.spec.ts` (a validated month invoiced, or invoiced already)
+- contact privacy: `contact-detail.component.spec.ts` (the legal basis shown, their data downloaded, erased once
+  confirmed, failures), `contact-form.component.spec.ts` (the legal basis saved, an emptied field sent as null) and
+  `project-email-dialog.component.spec.ts` (the privacy notice with the sender and the recipient's legal basis)
 - booking link: `booking-link.component.spec.ts` (the link to copy, the calls to come, settings saved from the dialog, a
   new link once confirmed, a call cancelled once confirmed telling the calendar, failures),
   `booking-settings-dialog.component.spec.ts` (the saved hours, the open days given back, hours in the wrong order, no
@@ -492,6 +498,9 @@ axe-core) hide the charts, move the recent opportunities up, and find the layout
 
 Billing scenarios (`e2e/billing.spec.ts`, on a desktop and on a phone, audited with axe-core) fill in the billing
 identity, a wrong IBAN refused, until the tab says invoices can be issued.
+
+Contact privacy scenarios (`e2e/contact-privacy.spec.ts`, on a desktop and on a phone, the card audited with axe-core)
+download a contact's data and erase the contact once confirmed.
 
 Booking link scenarios (`e2e/booking.spec.ts`, on a desktop and on a phone, the dialog and the calendar with a call
 audited with axe-core) turn the link on, are told to open a day, copy the link and cancel a booked call, then book a

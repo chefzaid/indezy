@@ -15,7 +15,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ContactService } from '../../../services/contact/contact.service';
 import { ClientService } from '../../../services/client/client.service';
 import { AuthService } from '../../../services/auth/auth.service';
-import { ClientDto, ContactDto } from '../../../models';
+import { ClientDto, ContactDto, CONTACT_LEGAL_BASES } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { fieldError } from '../../../shared/utils/form-errors';
 import { trimmedEmail } from '../../../shared/utils/trimmed-email';
@@ -46,6 +46,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
   isLoading = false;
   isSubmitting = false;
   isEditMode = false;
+  readonly legalBases = CONTACT_LEGAL_BASES;
   contactId?: number;
   /** Set when the form is opened from a client's page (/clients/:id/contacts/...). */
   parentClientId?: number;
@@ -103,7 +104,8 @@ export class ContactFormComponent implements OnInit, OnDestroy {
       phone: [''],
       clientId: [null, [Validators.required]],
       managerId: [null],
-      notes: ['']
+      notes: [''],
+      legalBasis: ['LEGITIMATE_INTEREST']
     });
   }
 
@@ -157,7 +159,8 @@ export class ContactFormComponent implements OnInit, OnDestroy {
               phone: contact.phone,
               clientId: contact.clientId,
               managerId: contact.managerId ?? null,
-              notes: contact.notes
+              notes: contact.notes,
+              legalBasis: contact.legalBasis ?? 'LEGITIMATE_INTEREST'
             });
           } else {
             this.notificationService.error('errors.contactNotFound');
@@ -183,9 +186,11 @@ export class ContactFormComponent implements OnInit, OnDestroy {
         ...(this.loadedContact ?? {}),
         firstName: formValue.firstName.trim(),
         lastName: formValue.lastName?.trim() ?? '',
-        email: formValue.email?.trim() || undefined,
-        phone: formValue.phone?.trim() || undefined,
-        notes: formValue.notes?.trim() || undefined,
+        // Null, not undefined: a field emptied is sent, and cleared.
+        email: formValue.email?.trim() || null,
+        phone: formValue.phone?.trim() || null,
+        notes: formValue.notes?.trim() || null,
+        legalBasis: formValue.legalBasis,
         clientId: formValue.clientId,
         managerId: formValue.managerId ?? null,
         freelanceId: this.loadedContact?.freelanceId ?? this.authService.getUser()?.id

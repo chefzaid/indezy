@@ -81,8 +81,8 @@ describe('ContactFormComponent', () => {
       (fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement).click();
 
       expect(contacts.create).toHaveBeenCalledWith({
-        firstName: 'Bob', lastName: 'Durand', email: 'bob@acme.fr', phone: undefined, notes: undefined, clientId: 1,
-        managerId: null, freelanceId: 7
+        firstName: 'Bob', lastName: 'Durand', email: 'bob@acme.fr', phone: null, notes: null, legalBasis: 'LEGITIMATE_INTEREST',
+        clientId: 1, managerId: null, freelanceId: 7
       });
       expect(notifications.success).toHaveBeenCalledWith('contacts.createSuccess');
       expect(navigate).toHaveBeenCalledWith(['/contacts', 12]);
@@ -215,17 +215,19 @@ describe('ContactFormComponent', () => {
       expect(component.isEditMode).toBeTrue();
       expect(component.isLoading).toBeFalse();
       expect(component.contactForm.value).toEqual({
-        firstName: 'Alice', lastName: 'Martin', email: 'alice@acme.fr', phone: '0601', clientId: 1, managerId: null, notes: 'CTO'
+        firstName: 'Alice', lastName: 'Martin', email: 'alice@acme.fr', phone: '0601', clientId: 1, managerId: null, notes: 'CTO',
+        legalBasis: 'LEGITIMATE_INTEREST'
       });
       expect(component.pageTitle).toBe('contacts.editContact');
       expect(component.submitButtonText).toBe('common.edit');
       expect(text(fixture)).toContain('contacts.editSubtitle');
 
-      component.contactForm.patchValue({ lastName: ' Martin-Durand ', phone: ' 0700 ' });
+      // An emptied field is sent as null, so it is cleared.
+      component.contactForm.patchValue({ lastName: ' Martin-Durand ', phone: ' 0700 ', notes: ' ', legalBasis: 'CONSENT' });
       component.onSubmit();
 
       expect(contacts.update).toHaveBeenCalledWith(3, {
-        ...loaded, lastName: 'Martin-Durand', phone: '0700', managerId: null, freelanceId: 42
+        ...loaded, lastName: 'Martin-Durand', phone: '0700', notes: null, legalBasis: 'CONSENT', managerId: null, freelanceId: 42
       });
       expect(notifications.success).toHaveBeenCalledWith('contacts.updateSuccess');
       expect(navigate).toHaveBeenCalledWith(['/contacts', 3]);

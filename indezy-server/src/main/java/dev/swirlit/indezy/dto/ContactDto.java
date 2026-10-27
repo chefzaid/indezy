@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.dto;
 
+import dev.swirlit.indezy.model.enums.ContactLegalBasis;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -24,6 +25,8 @@ public class ContactDto {
 
     private String phone;
     private String notes;
+    /** Why the freelancer keeps the contact's data; omitted, legitimate interest (or unchanged). */
+    private ContactLegalBasis legalBasis;
 
     // Related entities
     private Long clientId;

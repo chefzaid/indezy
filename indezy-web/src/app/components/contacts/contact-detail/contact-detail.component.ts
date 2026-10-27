@@ -16,6 +16,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 import { ContactDto } from '../../../models';
 import { ContactInteractionsComponent } from '../contact-interactions/contact-interactions.component';
 import { ContactNetworkComponent } from '../contact-network/contact-network.component';
+import { saveBlob } from '../../../shared/utils/download-file';
 
 @Component({
     selector: 'app-contact-detail',
@@ -124,6 +125,38 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
             this.notificationService.error('errors.deletingContact');
           }
         });
+    });
+  }
+
+  /** Downloads what the workspace holds about the contact, to hand them on request. */
+  onPersonalData(): void {
+    const contactId = this.contact!.id!;
+    this.contactService.personalData(contactId).pipe(takeUntil(this.destroy$)).subscribe({
+      next: blob => saveBlob(blob, `contact-${contactId}.json`),
+      error: () => this.notificationService.error('contacts.privacy.dataError')
+    });
+  }
+
+  /** Erases the contact on their request, once confirmed; the request is kept in the account's activity. */
+  onErase(): void {
+    const contactId = this.contact!.id!;
+    this.confirmDialog.confirm({
+      titleKey: 'contacts.privacy.eraseTitle',
+      messageKey: 'contacts.privacy.eraseMessage',
+      messageParams: { name: this.getFullName() },
+      confirmKey: 'contacts.privacy.erase',
+      danger: true
+    }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+      this.contactService.erase(contactId).pipe(takeUntil(this.destroy$)).subscribe({
+        next: () => {
+          this.notificationService.success('contacts.privacy.erased');
+          this.router.navigate(['/contacts']);
+        },
+        error: () => this.notificationService.error('contacts.privacy.eraseError')
+      });
     });
   }
 

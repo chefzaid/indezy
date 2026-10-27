@@ -23,13 +23,16 @@ describe('ProjectEmailDialogComponent', () => {
   const lea = { id: 11, firstName: 'Léa', lastName: 'Martin', email: 'lea@alten.fr', clientName: 'Alten' } as ContactDto;
   const paul = { id: 12, firstName: 'Paul', lastName: 'Durand', email: 'paul@airbus.fr', clientName: 'Airbus' } as ContactDto;
   const silent = { id: 13, firstName: 'Sans', lastName: 'Email', clientName: 'Airbus' } as ContactDto;
+  let contactsWithBasis = false;
 
   function create(setup: () => void = () => undefined): ComponentFixture<ProjectEmailDialogComponent> {
     registerLocaleData(localeFr);
     contacts = jasmine.createSpyObj('ContactService', ['getByClientId']);
-    contacts.getByClientId.and.callFake(id => of(id === 5 ? [lea] : [paul, silent]));
+    contacts.getByClientId.and.callFake(id => of(id === 5 ? [contactsWithBasis ? { ...lea, legalBasis: 'CONSENT' } as ContactDto : lea] :
+      [paul, silent]));
     templates = jasmine.createSpyObj('EmailTemplateService', ['list']);
-    templates.list.and.returnValue(of([{ id: 4, name: 'Relance ESN', subject: 'Point {{role}}', body: 'Salut {{firstName}}, {{unknown}}' }]));
+    templates.list.and.returnValue(of([{ id: 4, name: 'Relance ESN', subject: 'Point {{role}}', body: 'Salut {{firstName}}, {{unknown}}' },
+      { id: 5, name: 'Premier contact', subject: 'Bonjour', body: 'Bonjour {{firstName}}\n\n{{privacyNotice}}' }]));
     users = jasmine.createSpyObj('UserManagementService', ['getUserProfile']);
     users.getUserProfile.and.returnValue(of({ firstName: 'Ada', lastName: 'Lovelace', phone: '0600000000', availabilityDate: '2026-12-01' } as UserProfile));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -57,7 +60,8 @@ describe('ProjectEmailDialogComponent', () => {
     const component = create().componentInstance;
 
     expect(component.contacts.map(contact => contact.id)).toEqual([11, 12]);
-    expect(component.templates.map(template => template.name)).toEqual(['Relance', 'Proposition de TJM', 'Annonce de disponibilité', 'Relance ESN']);
+    expect(component.templates.map(template => template.name)).toEqual(['Relance', 'Proposition de TJM', 'Annonce de disponibilité', 'Relance ESN',
+      'Premier contact']);
     expect(component.form.value.recipient).toBe(11);
     expect(component.form.value.subject).toBe('Suite à notre échange sur la mission Développeur Java');
     expect(component.form.value.body).toContain('Bonjour Léa,');
@@ -84,6 +88,20 @@ describe('ProjectEmailDialogComponent', () => {
     expect(component.form.value.body).toBe('Salut {{firstName}}, {{unknown}}');
     expect(component.missing).toBeTrue();
     expect(component.mailto).toMatch(/^mailto:\?subject=/);
+  });
+
+  it('adds a privacy notice naming the sender and why the recipient\'s details are kept', () => {
+    contactsWithBasis = true;
+    const component = create().componentInstance;
+
+    component.form.patchValue({ template: 'own-5', recipient: 11 });
+    component.fill();
+    expect(component.form.value.body).toBe('Bonjour Léa\n\nVos coordonnées professionnelles sont conservées par Ada Lovelace pour le suivi de ' +
+      'nos échanges (consentement). Vous pouvez à tout moment demander à les consulter, les rectifier ou les effacer en répondant à cet e-mail.');
+    component.form.patchValue({ recipient: 12 });
+    component.fill();
+    expect(component.form.value.body).toContain('(intérêt légitime)');
+    contactsWithBasis = false;
   });
 
   it('copies the subject and the message, and says when the browser refuses', async () => {

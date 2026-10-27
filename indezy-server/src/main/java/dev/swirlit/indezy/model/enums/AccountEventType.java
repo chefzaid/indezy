@@ -16,5 +16,9 @@ public enum AccountEventType {
     ACCOUNT_DISABLED,
     ACCOUNT_ENABLED,
     API_TOKEN_CREATED,
-    API_TOKEN_REVOKED
+    API_TOKEN_REVOKED,
+    /** A contact's data handed out on their request; the detail names the contact by id only. */
+    CONTACT_DATA_EXPORTED,
+    /** A contact erased on their request; the detail names the contact by id only. */
+    CONTACT_ERASED
 }

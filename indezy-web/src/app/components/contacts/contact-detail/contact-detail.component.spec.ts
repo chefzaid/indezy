@@ -19,7 +19,8 @@ describe('ContactDetailComponent', () => {
     clientName: 'Acme', notes: 'Prefers calls' };
 
   function create(contact: Observable<ContactDto | null> = of(alice), id = 3): ComponentFixture<ContactDetailComponent> {
-    contacts = jasmine.createSpyObj('ContactService', ['getById', 'delete', 'getInteractions', 'getForCurrentFreelance', 'getRelations']);
+    contacts = jasmine.createSpyObj('ContactService', ['getById', 'delete', 'getInteractions', 'getForCurrentFreelance', 'getRelations',
+      'personalData', 'erase']);
     contacts.getForCurrentFreelance.and.returnValue(of([]));
     contacts.getRelations.and.returnValue(of([]));
     contacts.getInteractions.and.returnValue(of({ interactions: [], asked: 0, answered: 0 }));
@@ -145,6 +146,47 @@ describe('ContactDetailComponent', () => {
 
       expect(notifications.error).toHaveBeenCalledWith('errors.deletingContact');
       expect(navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('their data', () => {
+    it('shows why their data is kept and downloads it', () => {
+      const fixture = create(of({ ...alice, legalBasis: 'CONSENT' }));
+      expect(fixture.nativeElement.querySelector('[data-legal-basis]').textContent).toContain('contacts.privacy.bases.CONSENT');
+      const link = document.createElement('a');
+      spyOn(document, 'createElement').and.returnValue(link);
+      spyOn(link, 'click');
+      contacts.personalData.and.returnValue(of(new Blob(['{}'])));
+
+      (fixture.nativeElement.querySelector('[data-personal-data]') as HTMLButtonElement).click();
+
+      expect(contacts.personalData).toHaveBeenCalledWith(3);
+      expect(link.download).toBe('contact-3.json');
+      contacts.personalData.and.returnValue(throwError(() => new Error('500')));
+      fixture.componentInstance.onPersonalData();
+      expect(notifications.error).toHaveBeenCalledWith('contacts.privacy.dataError');
+    });
+
+    it('reads legitimate interest when no basis is given', () => {
+      expect(create().nativeElement.querySelector('[data-legal-basis]').textContent).toContain('contacts.privacy.bases.LEGITIMATE_INTEREST');
+    });
+
+    it('erases the contact once confirmed, and says when it cannot', () => {
+      const fixture = create();
+      confirm.confirm.and.returnValue(of(false));
+      (fixture.nativeElement.querySelector('[data-erase-contact]') as HTMLButtonElement).click();
+      expect(contacts.erase).not.toHaveBeenCalled();
+      expect(confirm.confirm).toHaveBeenCalledWith(jasmine.objectContaining({ messageParams: { name: 'Alice Martin' }, danger: true }));
+
+      confirm.confirm.and.returnValue(of(true));
+      contacts.erase.and.returnValue(throwError(() => new Error('500')));
+      fixture.componentInstance.onErase();
+      expect(notifications.error).toHaveBeenCalledWith('contacts.privacy.eraseError');
+      contacts.erase.and.returnValue(of(undefined));
+      fixture.componentInstance.onErase();
+      expect(contacts.erase).toHaveBeenCalledWith(3);
+      expect(notifications.success).toHaveBeenCalledWith('contacts.privacy.erased');
+      expect(navigate).toHaveBeenCalledWith(['/contacts']);
     });
   });
 });

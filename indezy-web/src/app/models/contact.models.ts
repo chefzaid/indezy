@@ -1,11 +1,16 @@
 // Contact related interfaces and types
 
+/** Why the freelancer may keep a contact's data (GDPR article 6). */
+export type ContactLegalBasis = 'LEGITIMATE_INTEREST' | 'CONSENT' | 'CONTRACT';
+export const CONTACT_LEGAL_BASES: ContactLegalBasis[] = ['LEGITIMATE_INTEREST', 'CONSENT', 'CONTRACT'];
+
 export interface ContactDto {
   id?: number;
   firstName: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
+  /** Null clears a field emptied in the form. */
+  lastName?: string | null;
+  email?: string | null;
+  phone?: string | null;
   clientId: number;
   clientName?: string;
   freelanceId?: number;
@@ -13,7 +18,9 @@ export interface ContactDto {
   managerId?: number | null;
   managerName?: string;
   fullName?: string;
-  notes?: string;
+  notes?: string | null;
+  /** Why the freelancer keeps the contact's data; omitted, legitimate interest (or unchanged). */
+  legalBasis?: ContactLegalBasis;
   /** The day (yyyy-MM-dd) of the latest recorded exchange; read-only. */
   lastContactedOn?: string;
   createdAt?: Date;

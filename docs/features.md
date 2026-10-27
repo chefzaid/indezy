@@ -405,8 +405,27 @@ Contacts belong to both a client and a freelancer. A contact can store:
 - email
 - phone
 - notes
+- why their details are kept (legal basis): legitimate interest (the default), consent or contract
 
 These relationships make it possible to track who is attached to a client or ESN and which opportunities depend on that relationship.
+Emptying a field in the form clears it.
+
+### Contact Privacy
+
+The people a freelancer works with are personal data, and the freelancer is their controller (Indezy keeps them on the
+freelancer's behalf). A contact's page has a **Their data** card:
+
+- **Why you keep their details**: the legal basis chosen in the form, legitimate interest unless set otherwise;
+- **Download their data**: a JSON file of what the workspace holds about them (details, legal basis, since when and last
+  changed, exchanges, and the companies and notes of whom they work with, without those people's names), to hand them
+  on request (GDPR article 15);
+- **Erase on their request**: once confirmed, the contact goes with their exchanges and links (GDPR article 17).
+
+Both requests are kept in the account's activity (Profile → Security) as `CONTACT_DATA_EXPORTED` and `CONTACT_ERASED`
+with the contact's number only, so the freelancer can show a request was handled without keeping who made it. The email
+templates' `{{privacyNotice}}` variable writes, in the interface language, who keeps the recipient's details, why, and
+how to see, correct or erase them (GDPR article 14), for a first message. API: `GET /api/contacts/{id}/personal-data`
+(an attachment, `Cache-Control: no-store`) and `POST /api/contacts/{id}/erase`; contacts carry `legalBasis`.
 
 ### Contact Network And Org Charts
 
@@ -856,7 +875,8 @@ their variables inserted by clicking them.
 
 Variables, written `{{name}}`: `firstName`, `lastName` (the recipient), `company` (the recipient's client or ESN),
 `role` and `rate` (the opportunity's daily rate), `availability` (the profile's availability date), `myName` and
-`myPhone` (the profile). A variable without a value stays as written, and the composer says the message still has some
+`myPhone` (the profile), `privacyNotice` (who keeps the recipient's details and why, see
+[Contact Privacy](#contact-privacy)). A variable without a value stays as written, and the composer says the message still has some
 to complete. Templates are stored per workspace (`/email-templates`) and included in the GDPR export; nothing is sent by
 Indezy.
 
