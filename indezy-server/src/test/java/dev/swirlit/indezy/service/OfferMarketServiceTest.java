@@ -25,6 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class OfferMarketServiceTest {
@@ -118,6 +120,29 @@ class OfferMarketServiceTest {
         assertThat(market.skills()).containsExactly(new OfferFacetDto("Java", 2));
         assertThat(market.intermediaries()).containsExactly(new OfferFacetDto("Exemple Conseil", 1));
         assertThat(market.perDay().getLast().offers()).isEqualTo(1);
+    }
+
+    @Test
+    void readsAWorkspacesFiltersOnceAMinuteWhateverTheirSortOrPage() {
+        when(search.profileFor(any(), any())).thenReturn(new OfferMatch.Profile(List.of(), null, null));
+        when(queries.figures(any())).thenReturn(List.of());
+        OfferSearchRequest java = new OfferSearchRequest();
+        java.setQ("java");
+        OfferSearchRequest javaByRate = new OfferSearchRequest();
+        javaByRate.setQ("java");
+        javaByRate.setSort(OfferSearchRequest.Sort.RATE);
+        javaByRate.setPage(3);
+        javaByRate.setTotal(400L);
+        OfferSearchRequest kafka = new OfferSearchRequest();
+        kafka.setQ("kafka");
+
+        service.snapshot(3L, java);
+        service.snapshot(3L, javaByRate);
+        verify(queries, times(1)).figures(any());
+        service.snapshot(4L, java);
+        service.snapshot(3L, kafka);
+        verify(queries, times(3)).figures(any());
+        assertThat(javaByRate.getSort()).isEqualTo(OfferSearchRequest.Sort.RATE);
     }
 
     private static Figures rated(Integer rateMin, Integer rateMax) {

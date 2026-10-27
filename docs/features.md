@@ -441,7 +441,9 @@ marked **New**.
   an open band below and one above). It also shows the split between full remote, hybrid (with their remote days a
   week on average), on site and not stated, the ten skills the offers name most (case aside; a click adds one to the
   filters), the ten publishers naming the most offers (intermediaries or clients, spellings that differ only by case,
-  accents or punctuation counting as one) and the offers published each of the last 30 days, Paris time.
+  accents or punctuation counting as one) and the offers published each of the last 30 days, Paris time. A workspace's
+  snapshot of given filters is computed once a minute at most (about a second with 40,000 open offers), so an offer
+  saved or hidden, or a target rate changed, shows in it up to a minute later.
 
 API: `GET /offers` (filters, `matchesProfile`, `view` = `FEED`, `SAVED`, `APPLIED` or `HIDDEN`, `sort` = `NEWEST`, `RATE`, `DISTANCE` or `MATCH`, `page`,
 `size`), `GET /offers/market` (the same filters and view), `GET /offers/{id}`, `PUT /offers/{id}/state`, `POST /offers/{id}/import`

@@ -13,12 +13,15 @@ import dev.swirlit.indezy.repository.JobOfferSpecifications;
 import dev.swirlit.indezy.repository.OfferMarketQueries;
 import dev.swirlit.indezy.repository.OfferMarketQueries.Figures;
 import dev.swirlit.indezy.repository.OfferMatch;
+import dev.swirlit.indezy.util.ExpiringCache;
 import dev.swirlit.indezy.util.TextFolding;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -51,9 +54,18 @@ public class OfferMarketService {
     /** The job boards are French: days start in Paris. */
     static final ZoneId ZONE = ZoneId.of("Europe/Paris");
 
+    /** How long a snapshot is kept: an offer saved or hidden shows in the panel at most this late. */
+    static final Duration KEEP_FOR = Duration.ofMinutes(1);
+    static final int MAX_SNAPSHOTS = 500;
+
+    /** A workspace's filters, with the sort, page and total left aside: they change the list, not the snapshot. */
+    record Key(Long freelanceId, OfferSearchRequest filters) {
+    }
+
     private final OfferMarketQueries queries;
     private final OfferSearchService search;
     private final Clock clock;
+    private final ExpiringCache<Key, OfferMarketDto> snapshots = new ExpiringCache<>(KEEP_FOR, MAX_SNAPSHOTS);
 
     @Autowired
     public OfferMarketService(OfferMarketQueries queries, OfferSearchService search) {
@@ -69,6 +81,22 @@ public class OfferMarketService {
     /** The snapshot of the offers {@code request} finds for {@code freelanceId}'s workspace (or none); its sort and page are left aside. */
     public OfferMarketDto snapshot(Long freelanceId, OfferSearchRequest request) {
         Instant now = clock.instant();
+        // About a second with 40,000 open offers: the panel reads each workspace's filters once a minute at most.
+        return snapshots.get(new Key(freelanceId, filtersOf(request)), now, key -> compute(freelanceId, request, now));
+    }
+
+    static OfferSearchRequest filtersOf(OfferSearchRequest request) {
+        // The request is read once and dropped with its HTTP request, so sharing its lists is safe.
+        OfferSearchRequest filters = new OfferSearchRequest();
+        BeanUtils.copyProperties(request, filters);
+        filters.setSort(OfferSearchRequest.Sort.NEWEST);
+        filters.setPage(0);
+        filters.setSize(20);
+        filters.setTotal(null);
+        return filters;
+    }
+
+    private OfferMarketDto compute(Long freelanceId, OfferSearchRequest request, Instant now) {
         OfferMatch.Profile profile = search.profileFor(freelanceId, request);
         Specification<JobOffer> found = JobOfferSpecifications.matching(request, freelanceId, profile, now);
         List<Figures> figures = queries.figures(found);
