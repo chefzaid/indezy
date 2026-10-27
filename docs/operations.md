@@ -71,6 +71,13 @@ Errors by Route** the routes answering 5xx. Two more rules watch the API, the ac
 requests in 10 minutes at least: over 5 % of 5xx answers for 10 minutes (`IndezyApiErrors`), and a 95th percentile
 over a second for 15 minutes, attachments left out (`IndezyApiSlow`).
 
+Feature usage is read without following anyone. `indezy_accounts` counts the accounts, and
+`indezy_feature_workspaces{feature}` how many workspaces use each feature (opportunities, journal notes, attachments,
+activity reports, seasons, pipeline and email templates, contact exchanges, the offer feed, saved searches) or how many
+accounts turned a setting on (public profile, nightly archiving, two-factor authentication): counts read from the
+database at most once an hour when Prometheus scrapes (`FeatureAdoptionMetrics`). The dashboard's **Feature Adoption**
+shows them against the accounts, and **Most Used Routes** the twenty routes called most over 7 days.
+
 The API's exception handler logs rejected requests (4xx) at `WARN`, naming only
 the fields, parameters or database constraint involved (or, for another request
 error such as an unsupported `Content-Type`, only the exception type and
