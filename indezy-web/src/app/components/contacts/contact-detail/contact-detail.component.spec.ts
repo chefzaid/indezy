@@ -167,6 +167,12 @@ describe('ContactDetailComponent', () => {
       expect(notifications.error).toHaveBeenCalledWith('contacts.privacy.dataError');
     });
 
+    it('says when the contact was anonymized, under a neutral name', () => {
+      const fixture = create(of({ ...alice, firstName: 'Anonymized', lastName: null, anonymizedAt: '2026-10-27T03:45:00' }));
+      expect(fixture.componentInstance.getFullName()).toBe('contacts.privacy.anonymized');
+      expect(fixture.nativeElement.querySelector('[data-anonymized]').textContent).toContain('contacts.privacy.anonymizedOn');
+    });
+
     it('reads legitimate interest when no basis is given', () => {
       expect(create().nativeElement.querySelector('[data-legal-basis]').textContent).toContain('contacts.privacy.bases.LEGITIMATE_INTEREST');
     });

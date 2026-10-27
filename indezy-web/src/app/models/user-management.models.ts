@@ -73,6 +73,8 @@ export interface UserPreferences {
   followUpDays?: number;
   /** Archive opportunities idle for the inactivity period, every night. */
   autoArchive?: boolean;
+  /** Years without exchange after which contacts are anonymized every night; 0 for never. */
+  contactRetentionYears?: number;
   /** The dashboard's blocks in the account's order, shown or hidden. */
   dashboardWidgets?: DashboardWidget[];
 }

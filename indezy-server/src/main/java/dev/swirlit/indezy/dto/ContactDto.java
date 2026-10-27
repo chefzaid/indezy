@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 // Spring MVC logs bodies through toString at DEBUG: the id alone, never the person (see docs/security.md).
 @Data
@@ -38,6 +39,8 @@ public class ContactDto {
 
     // Computed fields
     private String fullName;
+    /** When the contact was anonymized after the retention period; read-only. */
+    private LocalDateTime anonymizedAt;
     /** The day of the latest recorded exchange; read-only. */
     private LocalDate lastContactedOn;
 }

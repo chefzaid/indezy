@@ -102,12 +102,14 @@ public interface UserMapper {
     @Mapping(target = "itemsPerPage", source = "itemsPerPage")
     @Mapping(target = "autoSave", source = "autoSave")
     @Mapping(target = "dashboardWidgets", expression = "java(dev.swirlit.indezy.util.DashboardLayout.read(user.getDashboardLayout()))")
+    @Mapping(target = "contactRetentionYears", expression = "java(user.getContactRetentionYears() == null ? 0 : user.getContactRetentionYears())")
     UserPreferencesDto toPreferencesDto(User user);
 
     @Mapping(target = "languagePreference", source = "language")
     @Mapping(target = "inactivityDays", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "autoArchive", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "followUpDays", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "contactRetentionYears", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "onboardingPending", ignore = true)
     @Mapping(target = "publicProfileSlug", ignore = true)
     @Mapping(target = "publicProfileEnabled", ignore = true)

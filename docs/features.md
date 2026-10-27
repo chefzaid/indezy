@@ -424,8 +424,18 @@ freelancer's behalf). A contact's page has a **Their data** card:
 Both requests are kept in the account's activity (Profile → Security) as `CONTACT_DATA_EXPORTED` and `CONTACT_ERASED`
 with the contact's number only, so the freelancer can show a request was handled without keeping who made it. The email
 templates' `{{privacyNotice}}` variable writes, in the interface language, who keeps the recipient's details, why, and
-how to see, correct or erase them (GDPR article 14), for a first message. API: `GET /api/contacts/{id}/personal-data`
-(an attachment, `Cache-Control: no-store`) and `POST /api/contacts/{id}/erase`; contacts carry `legalBasis`.
+how to see, correct or erase them (GDPR article 14), for a first message.
+
+**Profile → Preferences → Anonymize contacts without exchange for** sets a retention period: never (the default), 1, 2,
+3 or 5 years (the CNIL advises 3 for prospects). Every night at 03:45 Paris time, a contact with no exchange, no change
+and no opportunity with their company changed for that long loses their name (shown as "Anonymized contact"), email,
+phone and notes, their exchanges' summaries and their links' notes; the contact stays, with the dates and channels of
+its exchanges, so the counts and org charts keep their shape, and its page says when it was anonymized. The account's
+activity records how many were (`CONTACTS_ANONYMIZED`). `INDEZY_CONTACTS_RETENTION_ENABLED=false` stops the nightly run.
+
+API: `GET /api/contacts/{id}/personal-data` (an attachment, `Cache-Control: no-store`) and `POST
+/api/contacts/{id}/erase`; contacts carry `legalBasis` and `anonymizedAt`; the preferences carry `contactRetentionYears`
+(0 for never).
 
 ### Contact Network And Org Charts
 

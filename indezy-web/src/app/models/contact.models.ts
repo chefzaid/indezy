@@ -21,6 +21,8 @@ export interface ContactDto {
   notes?: string | null;
   /** Why the freelancer keeps the contact's data; omitted, legitimate interest (or unchanged). */
   legalBasis?: ContactLegalBasis;
+  /** When the contact was anonymized after the retention period; read-only. */
+  anonymizedAt?: string | null;
   /** The day (yyyy-MM-dd) of the latest recorded exchange; read-only. */
   lastContactedOn?: string;
   createdAt?: Date;

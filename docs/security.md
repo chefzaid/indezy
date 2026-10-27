@@ -437,7 +437,8 @@ At most 20 links are open at once per workspace.
 Contacts are other people's personal data, kept by the freelancer as controller. Each records its legal basis; on a
 contact's request the freelancer downloads what is held about them (served as an attachment with `Cache-Control:
 no-store`, without the names of the people they work with) or erases them with their exchanges and links. Both are
-recorded in the account's activity by the contact's number only. Contact DTOs keep their `toString` to the id, so
+recorded in the account's activity by the contact's number only. An account may set a retention period after which
+dormant contacts are anonymized every night (their identity, notes, exchange summaries and link notes cleared). Contact DTOs keep their `toString` to the id, so
 request logs never carry a person.
 
 ## Booking Link

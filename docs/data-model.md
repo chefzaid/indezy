@@ -85,6 +85,8 @@ Important fields:
   until their welcome steps are finished or skipped; a null column, as accounts created before it have, reads as done.
 - `dashboardLayout` (`users.dashboard_layout`): the dashboard's blocks in the account's order, a hidden one after
   `!` (`OFFERS,!STATS,...`); null until arranged, read as every block shown in the usual order
+- `contactRetentionYears` (`users.contact_retention_years`): years without exchange after which contacts are
+  anonymized every night; null or 0 for never
 - notification preferences: `weeklyReports` (`users.weekly_reports`, the weekly digest, off by default),
   `weeklyDigestToken` (its one-click unsubscribe token, set when first turned on), `weeklyDigestSentOn` (the Monday of the
   last digest sent), `weeklyDigestSkipped` (`users.weekly_digest_skipped`, the digest's sections left out,
@@ -245,6 +247,8 @@ Important fields:
 - phone
 - notes
 - legal basis (`legal_basis`: `LEGITIMATE_INTEREST`, `CONSENT` or `CONTRACT`; a null column reads as legitimate interest)
+- `anonymized_at`: when the contact was anonymized after its account's retention period (its name then reads
+  `Anonymized`, its email, phone and notes are empty)
 - client
 - freelance owner
 - manager (`manager_id`): whom the contact reports to, in the same workspace; `ON DELETE SET NULL`, and the

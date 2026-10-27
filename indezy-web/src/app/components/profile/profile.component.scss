@@ -182,6 +182,12 @@
     font-size: 0.8125rem;
     color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
   }
+
+  .retention-field {
+    display: block;
+    max-width: 420px;
+    margin-bottom: 24px;
+  }
 }
 
 .form-actions {

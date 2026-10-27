@@ -20,5 +20,7 @@ public enum AccountEventType {
     /** A contact's data handed out on their request; the detail names the contact by id only. */
     CONTACT_DATA_EXPORTED,
     /** A contact erased on their request; the detail names the contact by id only. */
-    CONTACT_ERASED
+    CONTACT_ERASED,
+    /** Contacts anonymized after the retention period; the detail gives how many. */
+    CONTACTS_ANONYMIZED
 }

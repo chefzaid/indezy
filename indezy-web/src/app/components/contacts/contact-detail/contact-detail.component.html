@@ -109,6 +109,9 @@
               <div class="info-label">{{ 'contacts.privacy.legalBasis' | translate }}</div>
               <div class="info-value" data-legal-basis>{{ 'contacts.privacy.bases.' + (contact.legalBasis ?? 'LEGITIMATE_INTEREST') | translate }}</div>
             </div>
+            @if (contact.anonymizedAt) {
+              <p class="privacy-hint" data-anonymized>{{ 'contacts.privacy.anonymizedOn' | translate:{ date: (contact.anonymizedAt | date:'longDate') } }}</p>
+            }
             <p class="privacy-hint">{{ 'contacts.privacy.hint' | translate }}</p>
           </mat-card-content>
           <mat-card-actions>

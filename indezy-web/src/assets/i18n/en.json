@@ -776,7 +776,9 @@
       "eraseTitle": "Erase this contact?",
       "eraseMessage": "{{name}}, their exchanges and links are erased for good. Your account activity keeps that a contact was erased, not who.",
       "erased": "Contact erased",
-      "eraseError": "The contact could not be erased."
+      "eraseError": "The contact could not be erased.",
+      "anonymized": "Anonymized contact",
+      "anonymizedOn": "Anonymized on {{date}}, after the retention period."
     }
   },
   "sources": {
@@ -1230,7 +1232,11 @@
         "DELIVERED": "Received",
         "FAILED": "Failed"
       }
-    }
+    },
+    "contactRetention": "Anonymize contacts without exchange for",
+    "retentionNever": "Never",
+    "retentionYears": "{{years}} year(s)",
+    "contactRetentionHint": "Every night, contacts with no exchange, no change and no opportunity with their company for that long lose their name, email, phone and notes. The CNIL advises 3 years for prospects."
   },
   "errors": {
     "notFoundTitle": "404 - Page not found",

@@ -27,6 +27,10 @@ public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
     @Query("SELECT f.id, u.inactivityDays FROM User u, Freelance f WHERE u.email = f.email AND u.autoArchive = true")
     List<Object[]> findAutoArchivingWorkspaces();
 
+    /** The workspaces whose account anonymizes dormant contacts: workspace, account and retention years. */
+    @Query("SELECT f.id, u.id, u.contactRetentionYears FROM User u, Freelance f WHERE u.email = f.email AND u.contactRetentionYears > 0")
+    List<Object[]> findContactRetentionWorkspaces();
+
     @Query("SELECT u.targetDailyRate FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     Optional<Integer> findTargetDailyRate(@Param("freelanceId") Long freelanceId);
 

@@ -241,6 +241,15 @@
                       {{ 'profile.autoArchive' | translate }}
                     </mat-slide-toggle>
                     <p class="toggle-hint">{{ 'profile.autoArchiveHint' | translate }}</p>
+                    <mat-form-field appearance="outline" class="retention-field">
+                      <mat-label>{{ 'profile.contactRetention' | translate }}</mat-label>
+                      <mat-select formControlName="contactRetentionYears" data-contact-retention>
+                        @for (years of retentionYears; track years) {
+                          <mat-option [value]="years">{{ (years ? 'profile.retentionYears' : 'profile.retentionNever') | translate:{ years } }}</mat-option>
+                        }
+                      </mat-select>
+                      <mat-hint>{{ 'profile.contactRetentionHint' | translate }}</mat-hint>
+                    </mat-form-field>
                     <mat-slide-toggle formControlName="autoSave">
                       {{ 'profile.autoSave' | translate }}
                     </mat-slide-toggle>

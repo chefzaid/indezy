@@ -9,6 +9,8 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "contacts")
 @Getter
@@ -31,6 +33,10 @@ public class Contact extends BaseEntity {
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
+
+    /** When the contact was anonymized after the retention period; null while it is not. */
+    @Column(name = "anonymized_at")
+    private LocalDateTime anonymizedAt;
 
     /** Why the freelancer keeps the contact's data; a null column reads as legitimate interest. */
     @Enumerated(EnumType.STRING)

@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
+import { DatePipe } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,6 +22,7 @@ import { saveBlob } from '../../../shared/utils/download-file';
 @Component({
     selector: 'app-contact-detail',
     imports: [
+    DatePipe,
     RouterModule,
     MatCardModule,
     MatButtonModule,
@@ -166,6 +168,9 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
 
   getFullName(): string {
     if (!this.contact) { return ''; }
+    if (this.contact.anonymizedAt) {
+      return this.translate.instant('contacts.privacy.anonymized');
+    }
     return [this.contact.firstName, this.contact.lastName].filter(Boolean).join(' ');
   }
 }

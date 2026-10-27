@@ -57,6 +57,12 @@ describe('ContactListComponent', () => {
     return component.filteredContacts.map(contact => component.getFullName(contact));
   }
 
+  it('names an anonymized contact as such', () => {
+    const component = create().componentInstance;
+    expect(component.getFullName({ ...alice, firstName: 'Anonymized', lastName: null, anonymizedAt: '2026-10-27T03:45:00' }))
+      .toBe('contacts.privacy.anonymized');
+  });
+
   it('says how long ago each contact was last contacted', () => {
     const day = new Date();
     day.setDate(day.getDate() - 14);

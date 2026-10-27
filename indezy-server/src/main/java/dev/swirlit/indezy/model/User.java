@@ -189,6 +189,10 @@ public class User extends BaseEntity {
         return Boolean.TRUE.equals(autoArchive);
     }
 
+    /** Years without exchange after which a contact is anonymized every night; null or 0 for never. */
+    @Column(name = "contact_retention_years")
+    private Integer contactRetentionYears;
+
     // Notification Settings
     @Column(name = "weekly_reports")
     private Boolean weeklyReports = false;

@@ -23,6 +23,7 @@ public interface ContactMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "manager", ignore = true)
+    @Mapping(target = "anonymizedAt", ignore = true)
     Contact toEntity(ContactDto contactDto);
 
     @Mapping(target = "id", ignore = true)
@@ -32,6 +33,7 @@ public interface ContactMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "manager", ignore = true)
+    @Mapping(target = "anonymizedAt", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(ContactDto contactDto, @MappingTarget Contact contact);
 }

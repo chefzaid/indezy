@@ -13,6 +13,9 @@ spring:
         "[hbm2ddl.halt_on_error]": true
 
 indezy:
+  contacts:
+    # A one-off run: never anonymize contacts.
+    retention-enabled: false
   projects:
     # A one-off run: never archive opportunities.
     archiving-enabled: false

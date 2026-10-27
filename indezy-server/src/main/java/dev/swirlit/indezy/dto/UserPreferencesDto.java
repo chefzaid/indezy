@@ -30,6 +30,11 @@ public class UserPreferencesDto {
     @Max(60)
     @JsonDeserialize(using = WholeNumberDeserializer.class)
     private Integer followUpDays;
+    /** Years without exchange after which contacts are anonymized every night; 0 for never. */
+    @Min(0)
+    @Max(10)
+    @JsonDeserialize(using = WholeNumberDeserializer.class)
+    private Integer contactRetentionYears;
     /** Archive opportunities idle for {@code inactivityDays}, every night. */
     private Boolean autoArchive;
     /** The dashboard's blocks in the account's order, shown or hidden; left as they are when absent. */

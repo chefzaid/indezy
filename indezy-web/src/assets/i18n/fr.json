@@ -776,7 +776,9 @@
       "eraseTitle": "Effacer ce contact ?",
       "eraseMessage": "{{name}}, ses échanges et ses liens sont effacés définitivement. L'activité de votre compte garde qu'un contact a été effacé, pas lequel.",
       "erased": "Contact effacé",
-      "eraseError": "Le contact n'a pas pu être effacé."
+      "eraseError": "Le contact n'a pas pu être effacé.",
+      "anonymized": "Contact anonymisé",
+      "anonymizedOn": "Anonymisé le {{date}}, après la durée de conservation."
     }
   },
   "sources": {
@@ -1230,7 +1232,11 @@
         "DELIVERED": "Reçu",
         "FAILED": "Échec"
       }
-    }
+    },
+    "contactRetention": "Anonymiser les contacts sans échange depuis",
+    "retentionNever": "Jamais",
+    "retentionYears": "{{years}} an(s)",
+    "contactRetentionHint": "Chaque nuit, les contacts sans échange, sans modification et sans opportunité avec leur société depuis ce délai perdent leur nom, e-mail, téléphone et notes. La CNIL recommande 3 ans pour les prospects."
   },
   "errors": {
     "notFoundTitle": "404 - Page non trouvée",

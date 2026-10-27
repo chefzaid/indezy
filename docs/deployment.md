@@ -70,7 +70,8 @@ runs inside the server, one site at a time; each site is claimed in the database
 site twice. `INDEZY_OFFERS_COLLECTION_ENABLED=false` stops it and `INDEZY_OFFERS_GEOCODING_ENABLED=false` stops the
 geocoding calls (offers are then placed by postal code or department name only), without a redeploy of the image.
 The server also archives, every night at 03:30 Paris time, the idle opportunities of the accounts that turned it on;
-`INDEZY_PROJECTS_ARCHIVING_ENABLED=false` stops it.
+`INDEZY_PROJECTS_ARCHIVING_ENABLED=false` stops it. At 03:45 it anonymizes the dormant contacts of the accounts that set a
+retention period; `INDEZY_CONTACTS_RETENTION_ENABLED=false` stops it.
 
 The backend connects to `postgres.swirlit.internal:5432/indezy` as `indezy_user`. An Argo CD sync hook creates or updates that role and database before the Deployments roll out. The public ingress uses the cluster's `swirlit-dev-tls` Secret.
 

@@ -41,6 +41,9 @@ google:
     api-key: ${GOOGLE_MAPS_API_KEY:}
 
 indezy:
+  contacts:
+    # Anonymizes every night the dormant contacts of the accounts that set a retention period (see docs/features.md#contact-privacy).
+    retention-enabled: ${INDEZY_CONTACTS_RETENTION_ENABLED:true}
   projects:
     # Archives every night the idle opportunities of the accounts that asked for it (see docs/features.md#kanban-and-pipeline-view).
     archiving-enabled: ${INDEZY_PROJECTS_ARCHIVING_ENABLED:true}

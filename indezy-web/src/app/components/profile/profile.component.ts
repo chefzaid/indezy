@@ -48,6 +48,8 @@ import { ProfileBillingComponent } from './billing/profile-billing.component';
     styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
+  /** The retention periods offered for contacts, in years; 0 for never. */
+  readonly retentionYears = [0, 1, 2, 3, 5];
   /** Avatars are stored inline, so photos are cropped to a small square before upload. */
   static readonly AVATAR_SIZE = 256;
 
@@ -196,6 +198,7 @@ export class ProfileComponent implements OnInit {
       itemsPerPage: [25],
       autoSave: [true],
       autoArchive: [false],
+      contactRetentionYears: [0],
       inactivityDays: [null, [Validators.required, Validators.min(1), Validators.max(365), Validators.pattern('^[0-9]+$')]],
       followUpDays: [5, [Validators.required, Validators.min(1), Validators.max(60), Validators.pattern('^[0-9]+$')]]
     });

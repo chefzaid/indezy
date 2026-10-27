@@ -19,6 +19,9 @@ spring:
       continue-on-error: false
 
 indezy:
+  contacts:
+    # A one-off run: never anonymize contacts.
+    retention-enabled: false
   projects:
     # A one-off run: never archive opportunities.
     archiving-enabled: false

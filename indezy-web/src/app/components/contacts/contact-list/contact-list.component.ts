@@ -204,6 +204,9 @@ export class ContactListComponent implements OnInit, OnDestroy {
   }
 
   getFullName(contact: ContactDto): string {
+    if (contact.anonymizedAt) {
+      return this.translate.instant('contacts.privacy.anonymized');
+    }
     return [contact.firstName, contact.lastName].filter(Boolean).join(' ');
   }
 
