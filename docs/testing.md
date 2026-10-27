@@ -147,6 +147,12 @@ Representative backend tests:
 - account export: `UserDataExportServiceTest` (every section) and `UserDataExportIntegrationTest` (two real accounts: journal notes, seasons and the freelance record exported, none of another workspace's)
 - welcome steps: `OnboardingIntegrationTest` (a registered account pending until it finishes, a starter process saved in its own workspace only, an account older than the welcome steps never sent to them), `PipelineTemplateIntegrationTest` (a template written out step by step, its checklist items on one line each, a taken name and invalid steps refused) and `AuthServiceTest` (a first Keycloak sign-in welcomed)
 - yearly review: `YearlyReviewServiceTest` (missions won that the year covers with their days estimated or taken from the activity reports of that year, totals and the average rate over paid days, opportunities won, lost and why) `YearlyReviewPdfRendererTest` (the PDF read back in French and English: the comparison, estimates, every lost reason wrapped onto more lines, an empty year, a long year continued on a second page) and `YearlyReviewIntegrationTest` (two real accounts: the review's figures, its PDF in English and French read back with PDFBox, a year out of range, another workspace refused)
+- admin console and feature flags: `AdminIntegrationTest` (a real administrator named by `indezy.admin.emails` and
+  Bob: the console and its changes refused to Bob, the overview, accounts found by email, Bob disabled with his live
+  token refused and his sign-in too, then enabled again, an administrator that cannot be disabled, a feature turned off
+  answering `403` on its private and public paths and on again) and `FeatureFlagServiceTest` (every feature on until
+  turned off, states read again every 30 seconds, each feature's paths, administrators named by email case aside) and `FeatureFlagInterceptorTest` (a feature's paths refused however they
+  are written: percent-encoded or with `;` parameters)
 - secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code (a bare `code` field included), backup code or API key, nor, in such a class or one nested in it, the email or a name)
 
 Backend test data lives under `indezy-server/src/test/resources/`:
@@ -175,6 +181,12 @@ Representative frontend specs:
 - keyboard access: `enter-opens.directive.spec.ts` (Enter opens a focused card, not from a control inside it)
 - welcome steps: `onboarding.component.spec.ts` (the steps filled in from the profile, skills once and up to the limit, the profile saved with what it had, a starter process saved in the interface language once or found already there, skipping and finishing, failures), `onboarding.guard.spec.ts` and `auth.service.spec.ts` (the stored user kept in step)
 - yearly review: `yearly-review.component.spec.ts` (figures, missions with their estimates, pipeline, skills and network; moving between years up to the current one; a late answer for an earlier year ignored; an empty year; failures; the PDF in the interface language, one at a time)
+- admin console: `admin.component.spec.ts` (figures and features by use), `admin-accounts.component.spec.ts` (search
+  after a pause and pages, no action on an administrator, disabling and enabling once confirmed, cancelled or failed),
+  `admin-features.component.spec.ts` (a feature turned off and on with the account's capabilities read again, the
+  switch put back on failure), `capabilities.service.spec.ts` (read once, every feature on before or without an answer,
+  forgotten at sign-out), `capability.guards.spec.ts` and `app.component.spec.ts` (features turned off and the admin
+  console left out of the menu)
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy
@@ -346,6 +358,10 @@ then read it without an account in English on a desktop and in French on a phone
 Data import scenarios (`e2e/data-import.spec.ts`, on a desktop and on a phone) choose an export file on the profile's
 **Account** tab, read its preview with a record left out and why, then import it and read what was added.
 
+Admin scenarios (`e2e/admin.spec.ts`, on a desktop and on a phone) read the overview, disable an account once
+confirmed and turn the offer feed off, which leaves the menu; an account that is not an administrator is sent from
+`/admin` to the dashboard, and features turned off leave the menu, their page and the profile.
+
 Keyboard scenarios (`e2e/keyboard-navigation.spec.ts`) open a Kanban card with Enter (but not from its favourite
 button), a timeline step and an archived opportunity, then reach a client, one of its opportunities and one of its
 contacts through the links of their table rows.
@@ -361,7 +377,7 @@ move to an empty year before and back, and open a mission.
 
 Accessibility scenarios (`e2e/accessibility.spec.ts`) run axe-core (`@axe-core/playwright`) with the WCAG 2.1 A and
 AA rules on every main page (dashboard, projects list, an opportunity with steps of every status and its journal, the
-project form, clients, a client, contacts, a contact, sources, calendar, archive, yearly review, profile, offers, welcome steps, public profile), the Kanban board,
+project form, clients, a client, contacts, a contact, sources, calendar, archive, yearly review, profile, offers, welcome steps, public profile, admin console with its accounts and features tabs), the Kanban board,
 the global search dialog and the sign-in page, in English with the light theme on a desktop and in French with the
 dark theme on a phone, and expect no violation. The pages are served by `e2e/helpers/workspace-data.ts`, a small
 workspace behind every API call (calls it does not list answer an empty list). A violation is reported with its rule

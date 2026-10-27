@@ -1,6 +1,7 @@
 package dev.swirlit.indezy;
 
 import dev.swirlit.indezy.dto.ActivityReportLinkDto;
+import dev.swirlit.indezy.dto.AdminDtos;
 import dev.swirlit.indezy.dto.ContactDto;
 import dev.swirlit.indezy.dto.FreelanceDto;
 import dev.swirlit.indezy.dto.LoginRequest;
@@ -19,9 +20,12 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -50,19 +54,20 @@ class SensitiveToStringTest {
         assertThat(sensitiveClasses()).contains(LoginRequest.class, RegisterRequest.class, PasswordChangeRequestDto.class,
             TwoFactorSetupDto.class, TwoFactorCodeRequest.class, LoginResponse.class, LoginResponse.UserInfo.class, User.class,
             Freelance.class, ActivityReportLinkDto.class, ActivityReport.class, ContactDto.class, FreelanceDto.class, UserDto.class,
-            Contact.class);
+            Contact.class, AdminDtos.Account.class);
     }
 
     @Test
     void toString_ShouldPrintNeitherTheSecretsNorTheIdentity() throws ReflectiveOperationException {
         List<String> leaks = new ArrayList<>();
         for (Class<?> type : sensitiveClasses()) {
-            Object instance = ReflectionUtils.accessibleConstructor(type).newInstance();
             List<Field> fields = protectedFields(type);
-            for (Field field : fields) {
-                ReflectionUtils.makeAccessible(field);
-                String value = sampleValue(field);
-                field.set(instance, field.getType() == String.class ? value : new ArrayList<>(List.of(value)));
+            Object instance = type.isRecord() ? sampleRecord(type, fields) : ReflectionUtils.accessibleConstructor(type).newInstance();
+            if (!type.isRecord()) {
+                for (Field field : fields) {
+                    ReflectionUtils.makeAccessible(field);
+                    field.set(instance, sample(field));
+                }
             }
             String printed = instance.toString();
             List<String> printedFields = fields.stream().filter(field -> printed.contains(sampleValue(field))).map(Field::getName).toList();
@@ -109,6 +114,24 @@ class SensitiveToStringTest {
         ReflectionUtils.doWithFields(type, fields::add, field -> !Modifier.isStatic(field.getModifiers()) &&
             (field.getType() == String.class || field.getType().isAssignableFrom(ArrayList.class)));
         return fields;
+    }
+
+    /** A record built with the sample values of its protected components, and nothing (zero, false) in the others. */
+    private static Object sampleRecord(Class<?> type, List<Field> fields) throws ReflectiveOperationException {
+        RecordComponent[] components = type.getRecordComponents();
+        Class<?>[] types = Arrays.stream(components).map(RecordComponent::getType).toArray(Class<?>[]::new);
+        Object[] values = new Object[components.length];
+        for (int i = 0; i < components.length; i++) {
+            String name = components[i].getName();
+            Field field = fields.stream().filter(candidate -> candidate.getName().equals(name)).findFirst().orElse(null);
+            values[i] = field != null ? sample(field) : types[i].isPrimitive() ? Array.get(Array.newInstance(types[i], 1), 0) : null;
+        }
+        return ReflectionUtils.accessibleConstructor(type, types).newInstance(values);
+    }
+
+    private static Object sample(Field field) {
+        String value = sampleValue(field);
+        return field.getType() == String.class ? value : new ArrayList<>(List.of(value));
     }
 
     private static String sampleValue(Field field) {

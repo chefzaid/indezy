@@ -60,7 +60,7 @@
         [mode]="isCompactLayout ? 'over' : 'side'"
         [opened]="!isCompactLayout">
         <mat-nav-list>
-          @for (item of menuItems; track item.route) {
+          @for (item of visibleMenuItems; track item.route) {
             <a mat-list-item
               [routerLink]="item.route"
               routerLinkActive="active-nav-item"

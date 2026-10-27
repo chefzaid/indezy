@@ -1,0 +1,57 @@
+<div class="accounts">
+  <mat-form-field appearance="outline" class="search">
+    <mat-label>{{ 'admin.search' | translate }}</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput type="search" [(ngModel)]="query" (ngModelChange)="search(0)" autocomplete="off" maxlength="120">
+  </mat-form-field>
+
+  @if (result) {
+    @if (result.accounts.length === 0) {
+      <p class="empty">{{ 'admin.noAccounts' | translate }}</p>
+    } @else {
+      <table class="accounts-table" data-admin-accounts>
+        <thead>
+          <tr>
+            <th scope="col">{{ 'admin.name' | translate }}</th>
+            <th scope="col">{{ 'admin.email' | translate }}</th>
+            <th scope="col">{{ 'admin.createdAt' | translate }}</th>
+            <th scope="col">{{ 'admin.state' | translate }}</th>
+            <th scope="col"><span class="cdk-visually-hidden">{{ 'admin.actions' | translate }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (account of result.accounts; track account.id) {
+            <tr [attr.data-account]="account.id">
+              <td>
+                {{ account.firstName }} {{ account.lastName }}
+                @if (account.admin) {
+                  <span class="badge admin">{{ 'admin.adminBadge' | translate }}</span>
+                }
+              </td>
+              <td class="email">{{ account.email }}</td>
+              <td>{{ account.createdAt | date:'mediumDate' }}</td>
+              <td>
+                @if (account.deleted) {
+                  <span class="badge deleted">{{ 'admin.deleted' | translate }}</span>
+                } @else if (account.disabledAt) {
+                  <span class="badge disabled">{{ 'admin.disabledSince' | translate:{ date: (account.disabledAt | date:'mediumDate') } }}</span>
+                } @else {
+                  <span class="badge active">{{ 'admin.active' | translate }}</span>
+                }
+              </td>
+              <td class="actions">
+                @if (!account.admin && !account.deleted) {
+                  <button mat-stroked-button type="button" [color]="account.disabledAt ? 'primary' : 'warn'" (click)="toggle(account)">
+                    {{ (account.disabledAt ? 'admin.enable' : 'admin.disable') | translate }}
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <mat-paginator [length]="result.total" [pageIndex]="result.page" [pageSize]="result.size" [hidePageSize]="true"
+        (page)="pageChanged($event)" [attr.aria-label]="'admin.pages' | translate"></mat-paginator>
+    }
+  }
+</div>

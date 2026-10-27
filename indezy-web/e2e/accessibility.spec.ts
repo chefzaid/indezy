@@ -5,7 +5,7 @@ import { mockWorkspaceData } from './helpers/workspace-data';
 
 /** The app's main pages, each audited once its content is shown. */
 const PAGES = ['/dashboard', '/projects', '/projects/42', '/projects/new', '/clients', '/clients/3', '/contacts', '/contacts/2',
-  '/sources', '/calendar', '/archive', '/review', '/profile', '/offers', '/welcome', '/p/workspace-test'];
+  '/sources', '/calendar', '/archive', '/review', '/profile', '/offers', '/welcome', '/p/workspace-test', '/admin'];
 
 /** The WCAG 2.1 A and AA rules a page breaks, one line each, empty when it breaks none. */
 async function violations(page: Page): Promise<string[]> {
@@ -33,11 +33,29 @@ for (const { language, theme, phone } of [
     await page.route('**/api/users/preferences', route => route.fulfill({ json: {
       theme, language, inactivityDays: 14, followUpDays: 5
     } }));
+    await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: true, features: {} } }));
+    await page.route('**/api/admin/overview', route => route.fulfill({ json: { accounts: 40, disabledAccounts: 2,
+      signupsLast30Days: 5, featureWorkspaces: { opportunities: 30, offer_feed: 12 } } }));
+    await page.route('**/api/admin/accounts?*', route => route.fulfill({ json: { accounts: [
+      { id: 5, email: 'alice@example.com', firstName: 'Alice', lastName: 'Martin', createdAt: '2026-09-01T10:00:00Z',
+        disabledAt: '2026-10-01T10:00:00Z', deleted: false, admin: false },
+      { id: 1, email: 'workspace@example.test', firstName: 'Workspace', lastName: 'Test', createdAt: '2026-01-01T10:00:00Z',
+        disabledAt: null, deleted: false, admin: true }], total: 2, page: 0, size: 20 } }));
+    await page.route('**/api/admin/features', route => route.fulfill({ json: [
+      { flag: 'OFFER_FEED', enabled: true }, { flag: 'DATA_IMPORT', enabled: false }] }));
 
     for (const path of PAGES) {
       await page.goto(path);
       await settled(page);
       expect(await violations(page), path).toEqual([]);
+    }
+
+    for (const tab of language === 'en' ? ['Accounts', 'Features'] : ['Comptes', 'Fonctionnalités']) {
+      await page.goto('/admin');
+      await page.getByRole('tab', { name: tab }).click();
+      await settled(page);
+      await expect(page.locator('[data-account], [data-feature]').first()).toBeVisible();
+      expect(await violations(page), `admin ${tab}`).toEqual([]);
     }
 
     await page.goto('/dashboard');

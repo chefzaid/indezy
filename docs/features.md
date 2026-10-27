@@ -905,6 +905,35 @@ The projects list also offers an accountant CSV export (`GET /projects/export/cs
 
 The next finance work should extend this with deductible expenses, social contributions, status-specific assumptions, and invoice support.
 
+## Admin Console And Feature Flags
+
+**Admin** (in the navigation of administrators only, `/admin`) is opened by the accounts the deployment names in
+`INDEZY_ADMIN_EMAILS` (comma-separated emails, case aside; none by default, so nobody is an administrator until one is
+named). Every other account is sent back to the dashboard, and the API answers `403`.
+
+- **Overview**: the accounts, the sign-ups of the last 30 days, the disabled accounts, and how many workspaces use each
+  feature (or how many accounts turned each setting on) with their share of the accounts, most used first: the counts
+  behind the Grafana **Feature Adoption** panel, read at most once an hour.
+- **Accounts**: every account, newest first, 20 a page, found by email, first or last name. **Disable** (after a
+  confirmation) signs the account out at its next request and refuses its password and Keycloak sign-ins until
+  **Enable**; its data is kept. An administrator's account cannot be disabled, and a deleted account shows as such.
+- **Features**: turns a feature off or on again for every account, without a redeploy. A feature turned off leaves the
+  menu and its pages (opening one goes to the dashboard), and its API answers `403` "This feature is turned off":
+  - **Offer feed**: the offers, saved searches and their alerts (`/offers/**`);
+  - **Public profiles**: the public page and its profile tab (`/public/profiles/**`, `/users/public-profile`);
+  - **Data import**: the import on the profile's **Account** tab (`/users/import/**`);
+  - **Yearly review**: `/review` and its PDF (`/projects/review/**`).
+
+  Every feature is on until turned off. The states are stored in the database and read again by each server at most
+  every 30 seconds, so a change reaches every replica within that time. Each account reads what it may open from
+  `GET /api/users/capabilities` (`{ admin, features }`) when it signs in.
+
+The console's API is `GET /api/admin/overview`, `GET /api/admin/accounts?query=&page=`,
+`POST /api/admin/accounts/{id}/disable|enable`, `GET /api/admin/features` and `PUT /api/admin/features/{flag}`
+(`{ "enabled": false }`). Each change is logged with the administrator's and the account's ids, never their emails.
+
+AI model and cost management waits on the choice of an AI provider (see TODO.md, Needs Input).
+
 ## Internationalization
 
 The Angular app uses `@ngx-translate` with translation files in:

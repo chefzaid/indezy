@@ -1,5 +1,7 @@
 package dev.swirlit.indezy.config;
 
+import dev.swirlit.indezy.model.User;
+import dev.swirlit.indezy.repository.UserRepository;
 import dev.swirlit.indezy.service.UserService;
 import dev.swirlit.indezy.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
@@ -39,8 +41,23 @@ class SecurityConfigTest {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @MockitoBean
     private UserService userService;
+
+    /** A token authenticates only while its account exists and is active. */
+    private long activeAccount() {
+        return userRepository.findByEmail("security-config@example.com").orElseGet(() -> {
+            User user = new User();
+            user.setFirstName("Security");
+            user.setLastName("Config");
+            user.setEmail("security-config@example.com");
+            user.setPasswordHash("not-a-real-hash");
+            return userRepository.save(user);
+        }).getId();
+    }
 
     @Test
     void cookiesAndExistingSessionsCannotAuthorizeWrites() throws Exception {
@@ -60,16 +77,17 @@ class SecurityConfigTest {
 
     @Test
     void bearerTokenAuthorizesWriteWithoutCsrfTokenOrSessionCookie() throws Exception {
-        when(userService.disableTwoFactor(1L, "123456")).thenReturn(true);
+        long id = activeAccount();
+        when(userService.disableTwoFactor(id, "123456")).thenReturn(true);
 
         mockMvc.perform(post("/users/security/2fa/disable")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"code\":\"123456\"}")
-                .header("Authorization", "Bearer " + jwtUtil.generateToken("user@example.com", 1L)))
+                .header("Authorization", "Bearer " + jwtUtil.generateToken("security-config@example.com", id)))
             .andExpect(status().isOk())
             .andExpect(content().string("true"))
             .andExpect(header().doesNotExist("Set-Cookie"));
-        verify(userService).disableTwoFactor(1L, "123456");
+        verify(userService).disableTwoFactor(id, "123456");
     }
 
     @Test

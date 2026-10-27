@@ -86,6 +86,8 @@ Important fields:
 - notification preferences
 - two-factor fields (`twoFactorEnabled`, `twoFactorSecret`), enforced at local password login
 - `deletedAt` (a soft-deleted account can no longer sign in)
+- `disabledAt` (`users.disabled_at`): set while an administrator has disabled the account; it can neither sign in nor
+  use a token issued before, and its data is kept. A null column, as every account had before it, reads as active.
 - `avatarImage` (the uploaded avatar as a data URL)
 
 ## Freelance
@@ -522,6 +524,15 @@ Important fields:
 - optional client (`client_id`): the client or ESN whose process it is; cleared when that client is deleted
 - `steps` (`pipeline_template_steps`: `template_id`, `position`, `title`, `checklist`): each step's title and its
   preparation items, one per line (an embedded collection cannot hold another one, and an item is a single line)
+
+## FeatureFlagState
+
+Table: `feature_flags`
+
+Purpose: the features an administrator turned off or on again from the admin console.
+
+Fields: `flag` (unique, the `FeatureFlag` name: `OFFER_FEED`, `PUBLIC_PROFILES`, `DATA_IMPORT`, `YEARLY_REVIEW`) and
+`enabled`. A feature without a row is on, so the table starts empty and holds only the features ever switched.
 
 ## Element Collections
 

@@ -29,6 +29,7 @@ public interface UserMapper {
     @Mapping(target = "onboardingPending", ignore = true)
     @Mapping(target = "publicProfileSlug", ignore = true)
     @Mapping(target = "publicProfileEnabled", ignore = true)
+    @Mapping(target = "disabledAt", ignore = true)
     User toEntity(UserDto dto);
 
     @Mapping(target = "id", ignore = true)
@@ -47,6 +48,7 @@ public interface UserMapper {
     @Mapping(target = "onboardingPending", ignore = true)
     @Mapping(target = "publicProfileSlug", ignore = true)
     @Mapping(target = "publicProfileEnabled", ignore = true)
+    @Mapping(target = "disabledAt", ignore = true)
     void updateEntity(UserDto dto, @MappingTarget User user);
 
     /**
@@ -99,6 +101,7 @@ public interface UserMapper {
     @Mapping(target = "onboardingPending", ignore = true)
     @Mapping(target = "publicProfileSlug", ignore = true)
     @Mapping(target = "publicProfileEnabled", ignore = true)
+    @Mapping(target = "disabledAt", ignore = true)
     void updatePreferences(UserPreferencesDto dto, @MappingTarget User user);
 
     // Security settings mapping

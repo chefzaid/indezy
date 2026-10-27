@@ -158,6 +158,12 @@ public class GlobalExceptionHandler {
             "The operation conflicts with existing data (missing or still-referenced record)");
     }
 
+    @ExceptionHandler(FeatureDisabledException.class)
+    public ResponseEntity<ErrorResponse> handleFeatureDisabled(FeatureDisabledException ex) {
+        log.warn("Feature turned off: {}", ex.getFlag());
+        return buildResponse(HttpStatus.FORBIDDEN, "Forbidden", "This feature is turned off");
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
         log.warn("Access denied: {}", ex.getMessage());

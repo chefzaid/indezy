@@ -81,7 +81,8 @@
     "toggleMenu": "Toggle navigation menu",
     "calendar": "Calendar",
     "accountMenu": "{{name}} – account menu",
-    "review": "Year in review"
+    "review": "Year in review",
+    "admin": "Admin"
   },
   "timeline": {
     "title": "Timeline",
@@ -2041,5 +2042,79 @@
     "languages": "Languages",
     "links": "Links",
     "website": "Website"
+  },
+  "admin": {
+    "title": "Admin console",
+    "tabs": {
+      "overview": "Overview",
+      "accounts": "Accounts",
+      "features": "Features"
+    },
+    "accounts": "Accounts",
+    "signups": "Sign-ups in the last 30 days",
+    "disabled": "Disabled accounts",
+    "adoption": "Feature adoption",
+    "adoptionHint": "Workspaces using each feature, or accounts with each setting on. Counts are refreshed at most once an hour.",
+    "feature": "Feature",
+    "workspaces": "Workspaces",
+    "share": "Share of accounts",
+    "features": {
+      "opportunities": "Opportunities",
+      "journal_notes": "Journal notes",
+      "attachments": "Attachments",
+      "activity_reports": "Activity reports",
+      "seasons": "Seasons",
+      "pipeline_templates": "Pipeline templates",
+      "email_templates": "Email templates",
+      "contact_exchanges": "Contact exchanges",
+      "offer_feed": "Offer feed",
+      "saved_searches": "Saved searches",
+      "public_profile": "Public profile",
+      "auto_archive": "Nightly archiving",
+      "two_factor": "Two-factor authentication"
+    },
+    "search": "Search by email or name",
+    "noAccounts": "No account matches this search.",
+    "name": "Name",
+    "email": "Email",
+    "createdAt": "Created",
+    "state": "State",
+    "actions": "Actions",
+    "adminBadge": "Admin",
+    "deleted": "Deleted",
+    "disabledSince": "Disabled since {{date}}",
+    "active": "Active",
+    "disable": "Disable",
+    "enable": "Enable",
+    "pages": "Account pages",
+    "disableTitle": "Disable this account?",
+    "disableMessage": "{{name}} will be signed out and won't be able to sign in until the account is enabled again. Their data is kept.",
+    "enableTitle": "Enable this account again?",
+    "enableMessage": "{{name}} will be able to sign in again.",
+    "disabledDone": "Account disabled",
+    "enabledDone": "Account enabled",
+    "featuresHint": "A feature turned off disappears from every account's menu and its API answers 403, without a redeploy. Changes reach every server within 30 seconds.",
+    "flags": {
+      "OFFER_FEED": {
+        "name": "Offer feed",
+        "description": "Freelance offers collected from job boards, saved searches and their alerts."
+      },
+      "PUBLIC_PROFILES": {
+        "name": "Public profiles",
+        "description": "The public page a freelancer can share, and its settings."
+      },
+      "DATA_IMPORT": {
+        "name": "Data import",
+        "description": "Importing a workspace from an Indezy export file."
+      },
+      "YEARLY_REVIEW": {
+        "name": "Yearly review",
+        "description": "The year's summary of missions, revenue and days worked, and its PDF."
+      }
+    },
+    "featureOn": "Feature turned on",
+    "featureOff": "Feature turned off",
+    "loadError": "The admin console could not be loaded",
+    "saveError": "The change could not be saved"
   }
 }

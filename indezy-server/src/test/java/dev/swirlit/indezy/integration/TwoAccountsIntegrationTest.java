@@ -41,8 +41,12 @@ abstract class TwoAccountsIntegrationTest {
     @Autowired
     protected JdbcTemplate jdbcTemplate;
 
+    protected static final String PASSWORD = "Password123!";
+
     protected Account alice;
     protected Account bob;
+    protected String aliceEmail;
+    protected String bobEmail;
     protected Long aliceClientId;
 
     protected record Account(String token, Long freelanceId) {
@@ -50,8 +54,10 @@ abstract class TwoAccountsIntegrationTest {
 
     @BeforeEach
     void registerAccountsAndAliceData() {
-        alice = register("alice");
-        bob = register("bob");
+        aliceEmail = "alice." + UUID.randomUUID() + "@example.com";
+        bobEmail = "bob." + UUID.randomUUID() + "@example.com";
+        alice = registerAs(aliceEmail);
+        bob = registerAs(bobEmail);
         ResponseEntity<Map> created = call(alice, HttpMethod.POST, "/clients",
             Map.of("companyName", "Alice Corp", "city", "Paris", "isFinal", true, "freelanceId", alice.freelanceId()),
             Map.class);
@@ -66,12 +72,17 @@ abstract class TwoAccountsIntegrationTest {
 
     /** Posts the DTO rather than a map, whose {@code toString} the test client would log at DEBUG with the password. */
     protected Account register(String name) {
+        return registerAs(name + "." + UUID.randomUUID() + "@example.com");
+    }
+
+    /** Registers an account whose first name is the email's first part. */
+    protected Account registerAs(String email) {
         RegisterRequest request = new RegisterRequest();
-        request.setFirstName(name);
+        request.setFirstName(email.substring(0, email.indexOf('.') > 0 ? email.indexOf('.') : email.indexOf('@')));
         request.setLastName("Test");
-        request.setEmail(name + "." + UUID.randomUUID() + "@example.com");
-        request.setPassword("Password123!");
-        ResponseEntity<Map> response = restTemplate.postForEntity(url("/auth/register"), request, Map.class);
+        request.setEmail(email);
+        request.setPassword(PASSWORD);
+        ResponseEntity<Map> response = post("/auth/register", request);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Map<?, ?> user = (Map<?, ?>) response.getBody().get("user");
         return new Account((String) response.getBody().get("token"), ((Number) user.get("id")).longValue());
@@ -86,6 +97,11 @@ abstract class TwoAccountsIntegrationTest {
 
     protected <T> ResponseEntity<T> exchange(String path, HttpMethod method, HttpEntity<?> request, Class<T> type) {
         return restTemplate.exchange(url(path), method, request, type);
+    }
+
+    /** Posts without a token. */
+    protected ResponseEntity<Map> post(String path, Object body) {
+        return restTemplate.postForEntity(url(path), body, Map.class);
     }
 
     protected String url(String path) {

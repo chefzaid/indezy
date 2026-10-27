@@ -51,6 +51,7 @@ Bugs, failing checks, security findings and code smells found while working on a
 - [x] `infra/compose/compose.yaml` service `indezy-server-dev` (profile `dev`) cannot start: it runs the server image's `java -jar app.jar` from `/app`, but mounts `../../indezy-server` over `/app`, which hides the `app.jar` the image copied there. Reproduce: `docker compose -f infra/compose/compose.yaml --profile dev up indezy-server-dev` exits with `Unable to access jarfile app.jar` (unless a jar happens to sit at `indezy-server/app.jar`). Either drop the mount or run the sources with `./mvnw spring-boot:run` in a JDK image. *(found by: Coding Agent, devcontainer)* Fixed on 2026-10-27: the mount is gone, so the service runs the jar its image builds from the sources; `docker compose ... --profile dev up --build` picks up a change (`docs/development.md`).
 
 - [x] `indezy-server/pom.xml` pins `springdoc-openapi-starter-webmvc-ui` 2.8.9, the line made for Spring Boot 3, while the server runs Spring Boot 4.1. It serves the description today (`OpenApiDocumentationIntegrationTest`), but the 2.x line is not built or tested against Boot 4 and Spring Framework 7; move to the springdoc release line for Boot 4 and rerun that test and the Swagger UI. Reproduce: `grep -A2 springdoc-openapi indezy-server/pom.xml`. *(found by: Coding Agent, OpenAPI examples)* Fixed on 2026-10-27: springdoc 3.1.1 (the Boot 4 line, September 2026); the description test passes unchanged and now also loads the Swagger UI page.
+- [x] `JwtAuthenticationFilter` authenticated any well-signed, unexpired JWT without looking at its account, so a deleted account kept using the API with its last token for up to 24 hours (the token's lifetime), and an account an administrator disables would have too. Reproduce: sign in, delete the account (or set `users.disabled_at`), then call `GET /api/users/profile` with the old token: `200`. Fixed on 2026-10-27: the filter authenticates a token only while its account is neither deleted nor disabled (`UserRepository.isActive`), and password and Keycloak sign-in refuse a disabled account; `AdminIntegrationTest` checks a disabled account's live token and its sign-in are refused, then work again once enabled.
 
 ## Needs Input
 
@@ -94,6 +95,8 @@ Parts of tasks that cannot advance without the owner's decision or information. 
   - Answer:
 - [ ] Should the nightly archiving of idle opportunities be on by default? It ships off: each account turns it on in Profile → Preferences, so nothing leaves anyone's board unannounced. Options: (a) keep it opt-in; (b) on for new accounts only; (c) on for every account, existing ones included, announced in the interface first. *(task: Pipeline & Kanban › Automatic archiving; asked by: Coding Agent)*
   - Answer:
+
+- [ ] **Administrators**: who opens the admin console? Set their emails, comma-separated, as `INDEZY_ADMIN_EMAILS` in the `indezy-server-config` ConfigMap (`infra/k8s/server.yaml`, empty today so nobody is an administrator) and restart the server (see `docs/deployment.md#administrators`). The account must exist first.
 
 ## Pipeline & Kanban
 
@@ -398,7 +401,7 @@ Increments, implemented in order:
 
 - [ ] Terms of Service, Privacy Policy, and Contact/Support pages with FAQ
 - [ ] Subscription/freemium model: premium features (AI, integrations) behind a paywall with free trial; billing management in profile
-- [ ] Admin console (usage monitoring, user moderation, AI model/cost management, app settings)
+- [x] Admin console (usage monitoring, user moderation, AI model/cost management, app settings). Done on 2026-10-27: `/admin`, for the accounts `INDEZY_ADMIN_EMAILS` names, shows the accounts, sign-ups and disabled accounts with each feature's adoption, finds accounts and disables or enables them (a disabled account's token stops working at once), and turns features off or on (app settings). AI model and cost management waits on **AI provider and costs** in Needs Input: there is no AI feature to manage yet.
 
 ### Presentation Website (added 2026-10-23)
 
@@ -456,7 +459,7 @@ Indezy has no presentation website: `https://indezy.swirlit.dev` redirects strai
 - [x] Mask commands to reset/reseed the dev database with test data
 - [ ] Caching of frequent requests (dashboard stats, job feed)
 - [x] Lazy loading of routes/components for faster initial load (checked on 2026-10-26: every page and section loads on demand, the production build's initial bundle is the shell at 228 kB transferred, and `app.routes.spec.ts` fails if a route imports its page eagerly or a loader breaks)
-- [ ] Feature flags to enable/disable features without redeploying
+- [x] Feature flags to enable/disable features without redeploying. Done on 2026-10-27: the offer feed, public profiles, data import and yearly review can be turned off in **Admin → Features**; stored in `feature_flags`, read by every server within 30 seconds, their API answers `403` and the app hides their menu items, pages and profile sections (`GET /users/capabilities`).
 - [x] Structured JSON logging, request tracing, monitoring and alerting: Logstash JSON in the Kubernetes profile, a request id on each response and log line, the **Indezy Overview** Grafana dashboard and the platform's `applications.indezy` alert rules (`docs/operations.md#logs`)
 - [x] Alert on the API's error rate and latency (5xx share and 95th percentile of `http_server_requests_seconds`), as rules beside `applications.indezy` in swirl-cloud. Done on 2026-10-26: request durations publish buckets from 100 ms to 5 s, `IndezyApiErrors` (over 5 % of 5xx for 10 minutes) and `IndezyApiSlow` (95th percentile over a second for 15 minutes) with their runbooks in swirl-cloud, and the dashboard shows the 95th percentile, the slowest routes and the routes answering 5xx (`docs/operations.md#logs`). `promtool` could not be downloaded in this environment: swirl-cloud's validation (`scripts/validate-repository.sh`) checks the new rules where it is installed.
 - [x] Usage telemetry to learn which features are used and prioritize development. Done on 2026-10-27, without following anyone: workspaces using each feature and accounts with each setting on (`indezy_feature_workspaces`, `indezy_accounts`) and the most used routes over 7 days, on the **Indezy Overview** dashboard (`docs/operations.md`).

@@ -1,0 +1,14 @@
+<div class="features">
+  <p class="hint">{{ 'admin.featuresHint' | translate }}</p>
+  @for (feature of features; track feature.flag) {
+    <mat-card class="feature" [attr.data-feature]="feature.flag">
+      <div class="text">
+        <h3>{{ 'admin.flags.' + feature.flag + '.name' | translate }}</h3>
+        <p>{{ 'admin.flags.' + feature.flag + '.description' | translate }}</p>
+      </div>
+      <mat-slide-toggle [checked]="feature.enabled" (change)="changed(feature, $event)"
+        [aria-label]="'admin.flags.' + feature.flag + '.name' | translate">
+      </mat-slide-toggle>
+    </mat-card>
+  }
+</div>

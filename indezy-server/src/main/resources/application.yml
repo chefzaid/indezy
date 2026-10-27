@@ -49,6 +49,9 @@ indezy:
     collection-enabled: ${INDEZY_OFFERS_COLLECTION_ENABLED:true}
     # Locates offer cities through geo.api.gouv.fr (French government, no key).
     geocoding-enabled: ${INDEZY_OFFERS_GEOCODING_ENABLED:true}
+  admin:
+    # Accounts that open the admin console, by email (comma-separated); none by default.
+    emails: ${INDEZY_ADMIN_EMAILS:}
   mail:
     # Saved search emails go through Resend (see docs/deployment.md#saved-search-email-credentials); without a key
     # nothing is sent and the app says so.

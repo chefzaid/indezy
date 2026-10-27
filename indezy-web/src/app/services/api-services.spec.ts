@@ -16,6 +16,7 @@ import { UserManagementService } from './user-management/user-management.service
 import { ActivityReportService } from './activity-report/activity-report.service';
 import { YearlyReviewService } from './review/yearly-review.service';
 import { PublicProfileService } from './public-profile/public-profile.service';
+import { AdminService } from './admin/admin.service';
 import { ProjectStatus, StepStatus } from '../models';
 
 /** One HTTP wrapper call: what the service is asked, and the request it must send. */
@@ -62,6 +63,7 @@ describe('API services', () => {
   const reportsOf2 = `${api}/projects/2/activity-reports`;
   const review = (): YearlyReviewService => TestBed.inject(YearlyReviewService);
   const publicProfile = (): PublicProfileService => TestBed.inject(PublicProfileService);
+  const admin = (): AdminService => TestBed.inject(AdminService);
   const linkToken = { 'X-Report-Token': 'link-token' };
   const decision = { approved: false, validatorName: 'Jean Dupont', comment: 'Le 11 est férié' };
 
@@ -158,7 +160,14 @@ describe('API services', () => {
     { name: 'public profile settings', call: () => publicProfile().settings(), method: 'GET', url: `${api}/users/public-profile` },
     { name: 'save public profile settings', call: () => publicProfile().save({ enabled: true, slug: 'alice' }), method: 'PUT', url: `${api}/users/public-profile`, body: { enabled: true, slug: 'alice' } },
     { name: 'public profile', call: () => publicProfile().view('alice martin'), method: 'GET', url: `${api}/public/profiles/alice%20martin` },
-    { name: 'data import', call: () => users().importData(new Blob(['{}'])), method: 'POST', url: `${api}/users/import` }
+    { name: 'data import', call: () => users().importData(new Blob(['{}'])), method: 'POST', url: `${api}/users/import` },
+
+    { name: 'admin overview', call: () => admin().overview(), method: 'GET', url: `${api}/admin/overview` },
+    { name: 'admin accounts', call: () => admin().accounts('ali', 2), method: 'GET', url: `${api}/admin/accounts`, params: { query: 'ali', page: '2' } },
+    { name: 'disable account', call: () => admin().setDisabled(4, true), method: 'POST', url: `${api}/admin/accounts/4/disable` },
+    { name: 'enable account', call: () => admin().setDisabled(4, false), method: 'POST', url: `${api}/admin/accounts/4/enable` },
+    { name: 'feature flags', call: () => admin().features(), method: 'GET', url: `${api}/admin/features` },
+    { name: 'turn a feature off', call: () => admin().setFeature('OFFER_FEED', false), method: 'PUT', url: `${api}/admin/features/OFFER_FEED`, body: { enabled: false } }
   ];
 
   for (const apiCase of cases) {

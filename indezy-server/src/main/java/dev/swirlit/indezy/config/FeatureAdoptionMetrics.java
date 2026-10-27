@@ -52,6 +52,12 @@ public class FeatureAdoptionMetrics {
         return value == null ? Double.NaN : value;
     }
 
+    /** Every count, read again when older than an hour; the accounts under {@code accounts}. */
+    public Map<String, Long> counts() {
+        count("accounts");
+        return counts;
+    }
+
     private synchronized void refresh() {
         if (Duration.between(countedAt, clock.instant()).compareTo(REFRESH) < 0) {
             return;

@@ -87,6 +87,13 @@ External Secrets projects these Vault contracts into `apps`:
 
 The app bootstrap generates strong runtime values when `apps/indezy/runtime` does not exist. Do not commit plaintext or base64-encoded secret values. An optional Google Maps server key should likewise be added to the external secret contract before the feature is enabled.
 
+## Administrators
+
+The admin console (`/admin`) opens to the accounts whose emails `INDEZY_ADMIN_EMAILS` lists, comma-separated; the
+server reads it from the `indezy-server-config` ConfigMap (`infra/k8s/server.yaml`) at startup. It is empty by default,
+so nobody is an administrator: set it in Git, let Argo CD sync and restart the server Deployment. The account must
+exist (register or sign in through Keycloak once with that email).
+
 ## Saved search email credentials
 
 Saved search emails go through Resend, from `Indezy <noreply@swirlit.dev>` (`INDEZY_MAIL_FROM`), with links to

@@ -12,8 +12,10 @@ import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { OfferAlertsService } from './services/offer/offer-alerts.service';
+import { CapabilitiesService, DEFAULT_CAPABILITIES } from './services/admin/capabilities.service';
+import { Capabilities } from './models';
 
 describe('AppComponent', () => {
   let mockAuthService: jasmine.SpyObj<AuthService>;
@@ -61,8 +63,20 @@ describe('AppComponent offer alerts', () => {
   let user$: BehaviorSubject<{ id: number; email: string; firstName: string; lastName: string } | null>;
   let count$: BehaviorSubject<number>;
   let alerts: jasmine.SpyObj<OfferAlertsService>;
+  let capabilities: Capabilities;
+  let read: Capabilities | null;
+  const capabilitiesService = {
+    refresh: () => {
+      read = capabilities;
+      return of(capabilities);
+    },
+    clear: () => read = null,
+    snapshot: () => read ?? DEFAULT_CAPABILITIES
+  };
 
   beforeEach(async () => {
+    capabilities = DEFAULT_CAPABILITIES;
+    read = null;
     user$ = new BehaviorSubject<{ id: number; email: string; firstName: string; lastName: string } | null>(null);
     count$ = new BehaviorSubject(0);
     alerts = jasmine.createSpyObj('OfferAlertsService', ['start', 'stop', 'refresh'], { newOffers$: count$.asObservable() });
@@ -73,6 +87,7 @@ describe('AppComponent offer alerts', () => {
       providers: [
         { provide: AuthService, useValue: auth },
         { provide: OfferAlertsService, useValue: alerts },
+        { provide: CapabilitiesService, useValue: capabilitiesService },
         provideHttpClient(),
         provideHttpClientTesting()
       ]
@@ -95,5 +110,31 @@ describe('AppComponent offer alerts', () => {
     count$.next(240);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('[data-nav-badge]').textContent.trim()).toBe('99+');
+  });
+
+  function menuRoutes(fixture: { nativeElement: HTMLElement }): (string | null)[] {
+    return Array.from(fixture.nativeElement.querySelectorAll('mat-sidenav a[href]')).map(link => link.getAttribute('href'));
+  }
+
+  it('hides the features turned off, and shows the admin console to administrators only', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    user$.next({ id: 1, email: 'john@example.com', firstName: 'John', lastName: 'Doe' });
+    fixture.detectChanges();
+    expect(menuRoutes(fixture)).toContain('/offers');
+    expect(menuRoutes(fixture)).not.toContain('/admin');
+
+    capabilities = { admin: true, features: { ...DEFAULT_CAPABILITIES.features, OFFER_FEED: false, YEARLY_REVIEW: false } };
+    alerts.start.calls.reset();
+    user$.next({ id: 2, email: 'chief@example.com', firstName: 'Chief', lastName: 'Admin' });
+    fixture.detectChanges();
+    expect(alerts.start).not.toHaveBeenCalled();
+    expect(menuRoutes(fixture)).toContain('/admin');
+    expect(menuRoutes(fixture)).not.toContain('/offers');
+    expect(menuRoutes(fixture)).not.toContain('/review');
+
+    user$.next(null);
+    fixture.detectChanges();
+    expect(read).toBeNull();
   });
 });

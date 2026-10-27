@@ -22,3 +22,4 @@ export * from './bulk.models';
 export * from './search.models';
 export * from './review.models';
 export * from './public-profile.models';
+export * from './admin.models';

@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.config;
 
+import dev.swirlit.indezy.repository.UserRepository;
 import dev.swirlit.indezy.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,6 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -43,7 +45,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 String username = jwtUtil.extractUsername(token);
                 Long userId = jwtUtil.extractUserId(token);
-                if (Boolean.TRUE.equals(jwtUtil.validateToken(token, username)) && userId != null) {
+                // A signed token outlives its account's deletion or disabling: such an account is not signed in.
+                if (Boolean.TRUE.equals(jwtUtil.validateToken(token, username)) && userId != null && userRepository.isActive(userId)) {
                     UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userId, null, List.of());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

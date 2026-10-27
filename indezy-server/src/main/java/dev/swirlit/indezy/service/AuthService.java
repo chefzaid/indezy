@@ -44,8 +44,8 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid email or password"));
 
-        // Soft-deleted accounts cannot log in; report the same generic error to avoid leaking state.
-        if (user.getDeletedAt() != null) {
+        // Deleted and disabled accounts cannot log in; report the same generic error to avoid leaking state.
+        if (!user.isActive()) {
             throw new ResourceNotFoundException("Invalid email or password");
         }
 
@@ -123,7 +123,7 @@ public class AuthService {
             created.setOnboardingPending(true);
             return userRepository.save(created);
         });
-        if (user.getDeletedAt() != null) {
+        if (!user.isActive()) {
             throw new BadCredentialsException("Invalid account");
         }
 

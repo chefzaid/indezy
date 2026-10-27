@@ -12,6 +12,8 @@ data:
   INDEZY_SECURITY_KEYCLOAK_ISSUER: https://keycloak.swirlit.dev/auth/realms/swirlit
   INDEZY_SECURITY_KEYCLOAK_JWK_SET_URI: http://keycloak.swirlit.internal:8080/auth/realms/swirlit/protocol/openid-connect/certs
   INDEZY_SECURITY_KEYCLOAK_AUDIENCE: oauth2-proxy
+  # Emails of the accounts that open the admin console, comma-separated; empty names no administrator.
+  INDEZY_ADMIN_EMAILS: ""
 
 ---
 apiVersion: apps/v1
@@ -118,6 +120,11 @@ spec:
                 configMapKeyRef:
                   name: indezy-server-config
                   key: INDEZY_SECURITY_KEYCLOAK_AUDIENCE
+            - name: INDEZY_ADMIN_EMAILS
+              valueFrom:
+                configMapKeyRef:
+                  name: indezy-server-config
+                  key: INDEZY_ADMIN_EMAILS
             # Saved search emails: without the key nothing is sent, and the app keeps serving.
             - name: RESEND_API_KEY
               valueFrom:

@@ -1,8 +1,10 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.admin.AdminService;
 import dev.swirlit.indezy.dto.*;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.UserDataExportService;
+import dev.swirlit.indezy.service.FeatureFlagService;
 import dev.swirlit.indezy.service.PublicProfileService;
 import dev.swirlit.indezy.service.UserService;
 import dev.swirlit.indezy.service.WorkspaceImportService;
@@ -34,6 +36,8 @@ public class UserController {
     private final UserDataExportService userDataExportService;
     private final WorkspaceImportService workspaceImportService;
     private final PublicProfileService publicProfileService;
+    private final AdminService adminService;
+    private final FeatureFlagService featureFlagService;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "Get the profile")
@@ -72,6 +76,12 @@ public class UserController {
     public ResponseEntity<Void> completeOnboarding() {
         userService.completeOnboarding(SecurityUtils.getCurrentUserId());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "What the account may open: the admin console, and which features are on")
+    @GetMapping("/capabilities")
+    public AdminDtos.Capabilities capabilities() {
+        return new AdminDtos.Capabilities(adminService.isAdmin(SecurityUtils.getCurrentUserId()), featureFlagService.all());
     }
 
     @Operation(summary = "Whether the public profile is shown, and its address name")

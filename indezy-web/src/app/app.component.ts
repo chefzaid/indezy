@@ -20,6 +20,8 @@ import { LogoComponent } from './shared/components/logo/logo.component';
 import { UserManagementService } from './services/user-management/user-management.service';
 import { KeyboardShortcutsService } from './shared/shortcuts/keyboard-shortcuts.service';
 import { OfferAlertsService } from './services/offer/offer-alerts.service';
+import { CapabilitiesService } from './services/admin/capabilities.service';
+import { FeatureFlag } from './models';
 
 interface MenuItem {
   labelKey: string;
@@ -27,6 +29,10 @@ interface MenuItem {
   icon: string;
   /** A count shown next to the item when not zero. */
   badge$?: Observable<number>;
+  /** Shown while this feature is on. */
+  feature?: FeatureFlag;
+  /** Shown to administrators only. */
+  admin?: boolean;
 }
 
 @Component({
@@ -66,22 +72,31 @@ export class AppComponent implements OnInit {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly userManagementService = inject(UserManagementService);
   private readonly offerAlerts = inject(OfferAlertsService);
+  private readonly capabilities = inject(CapabilitiesService);
   readonly themeService = inject(ThemeService);
   /** Account id whose saved theme preference has been applied. */
   private themeSyncedFor: number | null = null;
 
   menuItems: MenuItem[] = [
     { labelKey: 'nav.dashboard', route: '/dashboard', icon: 'dashboard' },
-    { labelKey: 'nav.offers', route: '/offers', icon: 'travel_explore', badge$: this.offerAlerts.newOffers$ },
+    { labelKey: 'nav.offers', route: '/offers', icon: 'travel_explore', badge$: this.offerAlerts.newOffers$, feature: 'OFFER_FEED' },
     { labelKey: 'nav.timeline', route: '/timeline', icon: 'event' },
     { labelKey: 'nav.calendar', route: '/calendar', icon: 'calendar_month' },
     { labelKey: 'nav.projects', route: '/projects', icon: 'work' },
     { labelKey: 'nav.clients', route: '/clients', icon: 'business' },
     { labelKey: 'nav.contacts', route: '/contacts', icon: 'contacts' },
     { labelKey: 'nav.sources', route: '/sources', icon: 'source' },
-    { labelKey: 'nav.review', route: '/review', icon: 'auto_graph' },
-    { labelKey: 'nav.archive', route: '/archive', icon: 'inventory_2' }
+    { labelKey: 'nav.review', route: '/review', icon: 'auto_graph', feature: 'YEARLY_REVIEW' },
+    { labelKey: 'nav.archive', route: '/archive', icon: 'inventory_2' },
+    { labelKey: 'nav.admin', route: '/admin', icon: 'admin_panel_settings', admin: true }
   ];
+
+  /** The items the account may open: features left on, and the admin console for administrators. */
+  get visibleMenuItems(): MenuItem[] {
+    const capabilities = this.capabilities.snapshot();
+    return this.menuItems.filter(item => (!item.feature || capabilities.features[item.feature] !== false) &&
+      (!item.admin || capabilities.admin));
+  }
 
   constructor(
     public authService: AuthService,
@@ -96,8 +111,13 @@ export class AppComponent implements OnInit {
       this.currentUser = user;
       this.syncThemeFromAccount();
       if (user && this.authService.isAuthenticated()) {
-        this.offerAlerts.start();
+        this.capabilities.refresh().subscribe(capabilities => {
+          if (capabilities.features.OFFER_FEED !== false) {
+            this.offerAlerts.start();
+          }
+        });
       } else {
+        this.capabilities.clear();
         this.offerAlerts.stop();
       }
     });

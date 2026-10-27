@@ -1,0 +1,58 @@
+<div class="admin-container">
+  <h1 class="admin-title"><mat-icon>admin_panel_settings</mat-icon>{{ 'admin.title' | translate }}</h1>
+
+  <mat-tab-group animationDuration="0ms">
+    <mat-tab [label]="'admin.tabs.overview' | translate">
+      @if (!overview) {
+        <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+      } @else {
+        <div class="figures" data-admin-figures>
+          <mat-card class="figure">
+            <span class="label">{{ 'admin.accounts' | translate }}</span>
+            <span class="value">{{ overview.accounts }}</span>
+          </mat-card>
+          <mat-card class="figure">
+            <span class="label">{{ 'admin.signups' | translate }}</span>
+            <span class="value">{{ overview.signupsLast30Days }}</span>
+          </mat-card>
+          <mat-card class="figure">
+            <span class="label">{{ 'admin.disabled' | translate }}</span>
+            <span class="value">{{ overview.disabledAccounts }}</span>
+          </mat-card>
+        </div>
+        <mat-card class="section">
+          <h2>{{ 'admin.adoption' | translate }}</h2>
+          <p class="hint">{{ 'admin.adoptionHint' | translate }}</p>
+          <table class="adoption" data-admin-adoption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'admin.feature' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'admin.workspaces' | translate }}</th>
+                <th scope="col" class="numeric">{{ 'admin.share' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (feature of features; track feature.name) {
+                <tr>
+                  <td>{{ 'admin.features.' + feature.name | translate }}</td>
+                  <td class="numeric">{{ feature.count }}</td>
+                  <td class="numeric">{{ share(feature.count) }} %</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </mat-card>
+      }
+    </mat-tab>
+    <mat-tab [label]="'admin.tabs.accounts' | translate">
+      <ng-template matTabContent>
+        <app-admin-accounts></app-admin-accounts>
+      </ng-template>
+    </mat-tab>
+    <mat-tab [label]="'admin.tabs.features' | translate">
+      <ng-template matTabContent>
+        <app-admin-features></app-admin-features>
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+</div>

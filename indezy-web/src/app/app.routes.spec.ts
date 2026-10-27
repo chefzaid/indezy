@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { routes } from './app.routes';
 import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/capability.guards';
 
 describe('application routes', () => {
   it('lands an authenticated root session on the dashboard', () => {
@@ -20,9 +21,16 @@ describe('application routes', () => {
   it('keeps the offer feed for signed-in accounts and loads it lazily', async () => {
     const offers = routes.find((route) => route.path === 'offers');
 
-    expect(offers?.canActivate).toEqual([authGuard]);
+    expect(offers?.canActivate?.[0]).toBe(authGuard);
+    expect(offers?.canActivate?.length).toBe(2);
     const component = await offers?.loadComponent?.();
     expect(component).toBeDefined();
+  });
+
+  it('opens the admin console to signed-in administrators only', () => {
+    const admin = routes.find((route) => route.path === 'admin');
+
+    expect(admin?.canActivate).toEqual([authGuard, adminGuard]);
   });
 });
 

@@ -145,6 +145,15 @@ public class User extends BaseEntity {
         return followUpDays != null ? followUpDays : UserPreferenceDefaults.FOLLOW_UP_DAYS;
     }
 
+    /** When an administrator disabled the account: it can no longer sign in, and its tokens stop working. */
+    @Column(name = "disabled_at")
+    private LocalDateTime disabledAt;
+
+    /** Whether the account may use the app: neither deleted nor disabled. */
+    public boolean isActive() {
+        return deletedAt == null && disabledAt == null;
+    }
+
     /** Address name of the public profile, at /p/{slug}: lower-case letters, digits and dashes, one account each. */
     @Column(name = "public_profile_slug", length = PUBLIC_PROFILE_SLUG_MAX, unique = true)
     private String publicProfileSlug;

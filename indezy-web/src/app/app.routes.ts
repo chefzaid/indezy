@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { projectLinkGuard } from './guards/project-link.guard';
 import { onboardingGuard } from './guards/onboarding.guard';
+import { adminGuard, featureGuard } from './guards/capability.guards';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -38,22 +39,22 @@ export const routes: Routes = [
   {
     path: 'offers',
     loadComponent: () => import('./components/offers/offer-feed/offer-feed.component').then(m => m.OfferFeedComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, featureGuard('OFFER_FEED')]
   },
   {
     path: 'offers/sites',
     loadComponent: () => import('./components/offers/offer-sites/offer-sites.component').then(m => m.OfferSitesComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, featureGuard('OFFER_FEED')]
   },
   {
     path: 'offers/publishers/:name',
     loadComponent: () => import('./components/offers/offer-publisher/offer-publisher.component').then(m => m.OfferPublisherComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, featureGuard('OFFER_FEED')]
   },
   {
     path: 'offers/:id',
     loadComponent: () => import('./components/offers/offer-page/offer-page.component').then(m => m.OfferPageComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, featureGuard('OFFER_FEED')]
   },
   {
     path: 'profile',
@@ -76,9 +77,14 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'admin',
+    loadComponent: () => import('./components/admin/admin.component').then(m => m.AdminComponent),
+    canActivate: [authGuard, adminGuard]
+  },
+  {
     path: 'review',
     loadComponent: () => import('./components/review/yearly-review.component').then(m => m.YearlyReviewComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, featureGuard('YEARLY_REVIEW')]
   },
   {
     path: 'archive',

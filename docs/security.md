@@ -70,6 +70,14 @@ Current backend rules:
 - `/swagger-ui/**` is public
 - `/swagger-ui.html` is public
 - all other requests require a valid JWT (`anyRequest().authenticated()`); unauthenticated requests receive `401`
+- `/admin/**` also requires an administrator, an account whose email `INDEZY_ADMIN_EMAILS` names (`AdminService`);
+  anyone else receives `403`
+- a feature an administrator turned off answers `403` on its paths, public ones included (`FeatureFlagInterceptor`,
+  see [Admin Console And Feature Flags](./features.md#admin-console-and-feature-flags))
+
+A JWT authenticates only while its account is active: `JwtAuthenticationFilter` checks on every request that the account
+is neither deleted nor disabled, so a token stops working at once when an administrator disables the account or it is
+deleted, instead of staying valid until it expires. Disabled accounts are also refused at password and Keycloak sign-in.
 
 Workspace isolation: `AccessGuard` resolves the caller's freelance workspace from the JWT account
 (through `CurrentWorkspaceResolver`, once per request) and every controller checks ownership before
@@ -102,6 +110,9 @@ Public routes:
 - `/activity-report` (activity report validation by a client or ESN)
 - `/404`
 - `/error`
+
+`/admin` also needs `adminGuard`, and the pages of a feature that can be turned off (`/offers`, `/review`) need
+`featureGuard`: both read `GET /users/capabilities` and send anyone else to the dashboard.
 
 Frontend route guards improve user experience but are not a security boundary. The backend must enforce access control.
 

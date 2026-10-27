@@ -143,6 +143,13 @@ Confirm the `/api` ingress route, ready backend endpoints, and the backend `/api
 
 Check the `01-release` job, the `deploy: ... [skip ci]` commit, and Argo CD's revision and conditions. CI intentionally fails when `main` advanced during a pipeline instead of overwriting newer desired state.
 
+### A feature misbehaves in production
+
+An administrator turns it off in **Admin → Features** (see
+[Admin Console And Feature Flags](./features.md#admin-console-and-feature-flags)): every replica stops serving it within
+30 seconds, without a redeploy, and it is turned on again the same way once fixed. An abusive account is disabled in
+**Admin → Accounts**: its next request is refused and its data is kept.
+
 ### Argo CD reverts a manual change
 
 This is expected with self-healing. Make the desired change in Git and let Argo CD reconcile it.

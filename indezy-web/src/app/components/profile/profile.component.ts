@@ -26,6 +26,7 @@ import { saveBlob } from '../../shared/utils/download-file';
 import { rejectedPasswordField } from './password-rejection';
 import { ProfileDataImportComponent } from './data-import/profile-data-import.component';
 import { ProfilePublicPageComponent } from './public-page/profile-public-page.component';
+import { CapabilitiesService } from '../../services/admin/capabilities.service';
 
 @Component({
     selector: 'app-profile',
@@ -59,6 +60,7 @@ export class ProfileComponent implements OnInit {
 
   private readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
+  readonly capabilities = inject(CapabilitiesService);
 
   userProfile: UserProfile | null = null;
   profileForm!: FormGroup;

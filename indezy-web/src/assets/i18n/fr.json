@@ -81,7 +81,8 @@
     "toggleMenu": "Afficher ou masquer le menu",
     "calendar": "Calendrier",
     "accountMenu": "{{name}} – menu du compte",
-    "review": "Bilan annuel"
+    "review": "Bilan annuel",
+    "admin": "Administration"
   },
   "timeline": {
     "title": "Planning",
@@ -2041,5 +2042,79 @@
     "languages": "Langues",
     "links": "Liens",
     "website": "Site web"
+  },
+  "admin": {
+    "title": "Console d'administration",
+    "tabs": {
+      "overview": "Vue d'ensemble",
+      "accounts": "Comptes",
+      "features": "Fonctionnalités"
+    },
+    "accounts": "Comptes",
+    "signups": "Inscriptions sur 30 jours",
+    "disabled": "Comptes désactivés",
+    "adoption": "Adoption des fonctionnalités",
+    "adoptionHint": "Espaces utilisant chaque fonctionnalité, ou comptes ayant activé chaque réglage. Les chiffres sont actualisés au plus une fois par heure.",
+    "feature": "Fonctionnalité",
+    "workspaces": "Espaces",
+    "share": "Part des comptes",
+    "features": {
+      "opportunities": "Opportunités",
+      "journal_notes": "Notes de suivi",
+      "attachments": "Pièces jointes",
+      "activity_reports": "Comptes rendus d'activité",
+      "seasons": "Saisons",
+      "pipeline_templates": "Modèles de pipeline",
+      "email_templates": "Modèles d'e-mail",
+      "contact_exchanges": "Échanges avec les contacts",
+      "offer_feed": "Flux d'offres",
+      "saved_searches": "Recherches enregistrées",
+      "public_profile": "Profil public",
+      "auto_archive": "Archivage nocturne",
+      "two_factor": "Double authentification"
+    },
+    "search": "Rechercher par e-mail ou nom",
+    "noAccounts": "Aucun compte ne correspond à cette recherche.",
+    "name": "Nom",
+    "email": "E-mail",
+    "createdAt": "Création",
+    "state": "État",
+    "actions": "Actions",
+    "adminBadge": "Admin",
+    "deleted": "Supprimé",
+    "disabledSince": "Désactivé depuis le {{date}}",
+    "active": "Actif",
+    "disable": "Désactiver",
+    "enable": "Réactiver",
+    "pages": "Pages de comptes",
+    "disableTitle": "Désactiver ce compte ?",
+    "disableMessage": "{{name}} sera déconnecté et ne pourra plus se connecter tant que le compte n'est pas réactivé. Ses données sont conservées.",
+    "enableTitle": "Réactiver ce compte ?",
+    "enableMessage": "{{name}} pourra de nouveau se connecter.",
+    "disabledDone": "Compte désactivé",
+    "enabledDone": "Compte réactivé",
+    "featuresHint": "Une fonctionnalité désactivée disparaît du menu de tous les comptes et son API répond 403, sans redéploiement. Le changement atteint tous les serveurs en 30 secondes.",
+    "flags": {
+      "OFFER_FEED": {
+        "name": "Flux d'offres",
+        "description": "Les offres freelance collectées sur les sites d'emploi, les recherches enregistrées et leurs alertes."
+      },
+      "PUBLIC_PROFILES": {
+        "name": "Profils publics",
+        "description": "La page publique qu'un freelance peut partager, et ses réglages."
+      },
+      "DATA_IMPORT": {
+        "name": "Import de données",
+        "description": "L'import d'un espace depuis un fichier d'export Indezy."
+      },
+      "YEARLY_REVIEW": {
+        "name": "Bilan annuel",
+        "description": "Le résumé de l'année : missions, chiffre d'affaires, jours travaillés, et son PDF."
+      }
+    },
+    "featureOn": "Fonctionnalité activée",
+    "featureOff": "Fonctionnalité désactivée",
+    "loadError": "La console d'administration n'a pas pu être chargée",
+    "saveError": "Le changement n'a pas pu être enregistré"
   }
 }

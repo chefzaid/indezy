@@ -373,6 +373,7 @@
           </ng-template>
         </mat-tab>
         <!-- Account Tab -->
+        @if (capabilities.snapshot().features.PUBLIC_PROFILES) {
         <mat-tab [label]="'profile.tabs.publicPage' | translate">
           <div class="tab-content">
             <mat-card class="form-section">
@@ -382,6 +383,7 @@
             </mat-card>
           </div>
         </mat-tab>
+        }
         <mat-tab [label]="'profile.tabs.account' | translate">
           <div class="tab-content">
             <mat-card class="form-section">
@@ -400,7 +402,9 @@
                       {{ 'common.export' | translate }}
                     </button>
                   </div>
-                  <app-profile-data-import></app-profile-data-import>
+                  @if (capabilities.snapshot().features.DATA_IMPORT) {
+                    <app-profile-data-import></app-profile-data-import>
+                  }
                 </div>
               </mat-card-content>
             </mat-card>
