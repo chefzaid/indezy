@@ -45,6 +45,11 @@ class OpenApiDocumentationIntegrationTest {
     }
 
     @Test
+    void servesTheSwaggerUi() throws Exception {
+        assertThat(mockMvc.perform(get("/swagger-ui/index.html")).andReturn().getResponse().getStatus()).isEqualTo(200);
+    }
+
+    @Test
     void everyOperationHasASummaryAndTheErrorsItCanAnswer() {
         List<String> missing = new ArrayList<>();
         for (Iterator<Map.Entry<String, JsonNode>> paths = docs.get("paths").fields(); paths.hasNext();) {
