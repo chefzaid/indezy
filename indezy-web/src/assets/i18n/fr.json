@@ -82,7 +82,8 @@
     "calendar": "Calendrier",
     "accountMenu": "{{name}} – menu du compte",
     "review": "Bilan annuel",
-    "admin": "Administration"
+    "admin": "Administration",
+    "invoices": "Factures"
   },
   "timeline": {
     "title": "Planning",
@@ -1453,7 +1454,10 @@
       "alreadyDecided": "Ce compte rendu a déjà reçu une réponse.",
       "decisionError": "Impossible d'enregistrer votre réponse. Réessayez.",
       "poweredBy": "Compte rendu d'activité géré avec Indezy"
-    }
+    },
+    "invoice": "Créer la facture",
+    "invoiced": "Facture créée en brouillon",
+    "invoiceError": "La facture n'a pas pu être créée"
   },
   "offers": {
     "title": "Missions freelance",
@@ -2261,5 +2265,82 @@
     "featureOff": "Fonctionnalité désactivée",
     "loadError": "La console d'administration n'a pas pu être chargée",
     "saveError": "Le changement n'a pas pu être enregistré"
+  },
+  "invoices": {
+    "title": "Factures",
+    "new": "Nouvelle facture",
+    "newTitle": "Nouvelle facture",
+    "editTitle": "Modifier le brouillon",
+    "billingIncomplete": "Votre identité de facturation est incomplète : vous pouvez écrire des brouillons, pas encore les émettre.",
+    "completeBilling": "La compléter dans Profil → Facturation",
+    "outstanding": "En attente de paiement",
+    "overdueTotal": "En retard",
+    "filter": "Afficher",
+    "filters": {
+      "ALL": "Toutes",
+      "DRAFT": "Brouillons",
+      "ISSUED": "En attente de paiement",
+      "OVERDUE": "En retard",
+      "PAID": "Payées"
+    },
+    "none": "Aucune facture pour l'instant. Créez-en une, ou facturez un compte rendu d'activité validé depuis la page de sa mission.",
+    "noneForFilter": "Aucune facture ici.",
+    "draft": "Brouillon",
+    "statuses": {
+      "DRAFT": "Brouillon",
+      "ISSUED": "Émise",
+      "PAID": "Payée",
+      "OVERDUE": "En retard"
+    },
+    "dueOn": "échéance le {{date}}",
+    "paidOnDate": "payée le {{date}}",
+    "actions": "Actions pour {{name}}",
+    "edit": "Modifier",
+    "issue": "Émettre",
+    "markPaid": "Marquer payée",
+    "markUnpaid": "Marquer non payée",
+    "pdf": "Télécharger le PDF",
+    "issueTitle": "Émettre cette facture ?",
+    "issueMessage": "Elle reçoit le numéro suivant de l'année et ne pourra plus être modifiée ni supprimée.",
+    "issueDate": "Date d'émission",
+    "paidTitle": "Paiement reçu",
+    "paidMessage": "Quand {{number}} a-t-elle été payée ?",
+    "paidOn": "Payée le",
+    "client": "Client",
+    "mission": "Mission",
+    "noMission": "Aucune mission",
+    "periodStart": "Prestation du",
+    "periodEnd": "Prestation au",
+    "language": "Langue",
+    "lines": "Lignes",
+    "description": "Désignation",
+    "quantity": "Quantité",
+    "unitPrice": "Prix unitaire",
+    "vatRate": "TVA",
+    "addLine": "Ajouter une ligne",
+    "removeLine": "Retirer la ligne {{number}}",
+    "totalExcludingVat": "Total HT",
+    "vat": "TVA",
+    "total": "Total",
+    "notes": "Notes (imprimées sur la facture)",
+    "created": "Brouillon créé",
+    "saved": "Brouillon enregistré",
+    "issued": "Facture émise",
+    "paidDone": "Paiement enregistré",
+    "unpaidDone": "Marquée non payée",
+    "deleted": "Brouillon supprimé",
+    "deleteConfirm": "Supprimer ce brouillon ?",
+    "loadError": "Les factures n'ont pas pu être chargées",
+    "saveError": "La facture n'a pas pu être enregistrée",
+    "pdfError": "Le PDF n'a pas pu être téléchargé",
+    "errors": {
+      "billing": "Complétez votre identité de facturation (Profil → Facturation) avant d'émettre une facture.",
+      "clientAddress": "Ajoutez l'adresse du client avant de le facturer.",
+      "dateBeforeLast": "Une facture ne peut pas être datée d'avant la dernière émise.",
+      "alreadyInvoiced": "Ce mois est déjà facturé.",
+      "notValidated": "Seul un mois validé par le client peut être facturé.",
+      "frozen": "Une facture émise ne peut plus être modifiée.",
+      "clientGone": "Le client de la facture n'existe plus."
+    }
   }
 }

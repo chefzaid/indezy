@@ -53,6 +53,15 @@ A workspace invoices its clients from drafts:
   or English), notes and up to 50 lines, each a description, a quantity (days, to the hundredth), a unit price before VAT
   and a VAT rate.
 
+**Invoices** (in the navigation, `/invoices`) lists them newest first with their number (or "Draft"), client, mission,
+period, due or payment date, status and total, filtered by drafts, awaiting payment, overdue and paid, above the totals
+awaiting payment and overdue; it says when the billing identity is incomplete. **New invoice** writes a draft in a
+dialog (client, mission among the client's, period, language, lines with live totals, notes); each invoice's menu
+edits, issues (asking the issue date, today or earlier), marks paid (asking the date) or unpaid, downloads the PDF or
+deletes a draft. On a mission's page, a validated month's activity report offers **Create the invoice**, which drafts
+it and opens the invoices. The server's refusals (incomplete billing identity, client without address, a date before
+the last invoice, a month invoiced already) are told in the interface language.
+
 A draft changes freely, can be deleted, and its PDF says in capitals that it is not an invoice. **Issuing** needs a
 complete billing identity and the client's address; it takes the issue date (today by default, never later, and never
 before the last invoice issued, so numbers follow the dates), gives the next number of that year with no gap

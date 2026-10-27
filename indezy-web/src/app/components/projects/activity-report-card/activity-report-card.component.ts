@@ -21,6 +21,10 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, Subject, of, switchMap, takeUntil } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { InvoiceService } from '../../../services/invoice/invoice.service';
+import { invoiceErrorKey } from '../../invoices/invoice-errors';
 
 import {
   ACTIVITY_REPORT_STATUS_COLORS,
@@ -80,6 +84,8 @@ export class ActivityReportCardComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) project!: ProjectDto;
 
   private readonly reports = inject(ActivityReportService);
+  private readonly invoices = inject(InvoiceService);
+  private readonly router = inject(Router);
   private readonly notifications = inject(NotificationService);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly translate = inject(TranslateService);
@@ -275,6 +281,26 @@ export class ActivityReportCardComponent implements OnChanges, OnDestroy {
         },
         error: () => this.fail('activityReports.reopenError')
       });
+    });
+  }
+
+  /** Drafts the invoice of the validated month, then opens the invoices; a month invoiced already opens them too. */
+  invoice(): void {
+    this.isBusy = true;
+    this.invoices.fromReport(this.project.id!, this.year, this.month).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.isBusy = false;
+        this.notifications.success('activityReports.invoiced');
+        this.router.navigate(['/invoices']);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isBusy = false;
+        const key = invoiceErrorKey(error, 'activityReports.invoiceError');
+        this.notifications.error(key);
+        if (key === 'invoices.errors.alreadyInvoiced') {
+          this.router.navigate(['/invoices']);
+        }
+      }
     });
   }
 

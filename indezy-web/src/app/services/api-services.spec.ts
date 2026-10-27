@@ -19,6 +19,7 @@ import { PublicProfileService } from './public-profile/public-profile.service';
 import { AdminService } from './admin/admin.service';
 import { AccountSecurityService } from './account-security/account-security.service';
 import { BillingService } from './billing/billing.service';
+import { InvoiceService } from './invoice/invoice.service';
 import { ProjectStatus, StepStatus } from '../models';
 
 /** One HTTP wrapper call: what the service is asked, and the request it must send. */
@@ -68,6 +69,7 @@ describe('API services', () => {
   const admin = (): AdminService => TestBed.inject(AdminService);
   const accountSecurity = (): AccountSecurityService => TestBed.inject(AccountSecurityService);
   const billing = (): BillingService => TestBed.inject(BillingService);
+  const invoices = (): InvoiceService => TestBed.inject(InvoiceService);
   const linkToken = { 'X-Report-Token': 'link-token' };
   const decision = { approved: false, validatorName: 'Jean Dupont', comment: 'Le 11 est férié' };
 
@@ -166,6 +168,14 @@ describe('API services', () => {
     { name: 'public profile', call: () => publicProfile().view('alice martin'), method: 'GET', url: `${api}/public/profiles/alice%20martin` },
     { name: 'data import', call: () => users().importData(new Blob(['{}'])), method: 'POST', url: `${api}/users/import` },
 
+    { name: 'invoices', call: () => invoices().list(7), method: 'GET', url: `${api}/invoices/by-freelance/7` },
+    { name: 'invoice by hand', call: () => invoices().create({ clientId: 3 } as never), method: 'POST', url: `${api}/invoices`, body: { clientId: 3 } },
+    { name: 'invoice of a report', call: () => invoices().fromReport(2, 2026, 11), method: 'POST', url: `${api}/invoices/from-report`, body: { projectId: 2, year: 2026, month: 11 } },
+    { name: 'change a draft', call: () => invoices().update(5, { clientId: 3 } as never), method: 'PUT', url: `${api}/invoices/5`, body: { clientId: 3 } },
+    { name: 'delete a draft', call: () => invoices().delete(5), method: 'DELETE', url: `${api}/invoices/5` },
+    { name: 'issue an invoice', call: () => invoices().issue(5, '2026-10-27'), method: 'POST', url: `${api}/invoices/5/issue`, body: { issueDate: '2026-10-27' } },
+    { name: 'invoice paid', call: () => invoices().setPaid(5, '2026-11-02'), method: 'PUT', url: `${api}/invoices/5/payment`, body: { paidOn: '2026-11-02' } },
+    { name: 'invoice PDF', call: () => invoices().downloadPdf(5), method: 'GET', url: `${api}/invoices/5/pdf`, response: new Blob(['%PDF']) },
     { name: 'billing identity', call: () => billing().identity(), method: 'GET', url: `${api}/users/billing` },
     { name: 'save billing identity', call: () => billing().saveIdentity({ legalName: 'Alice' } as never), method: 'PUT', url: `${api}/users/billing`, body: { legalName: 'Alice' } },
     { name: 'open sessions', call: () => accountSecurity().sessions(), method: 'GET', url: `${api}/users/sessions` },

@@ -234,6 +234,11 @@ Representative frontend specs:
 - billing: `profile-billing.component.spec.ts` (what the identity lacks, a company's and a VAT payer's fields, portage,
   saved compacted, a malformed IBAN, failures), `billing-validators.spec.ts` and `client-form.component.spec.ts` (a
   client's SIREN and VAT number typed in groups)
+- invoices: `invoices.component.spec.ts` (totals awaiting payment and overdue, filters, a draft written among the
+  clients by name and changed, issued on a date and refused with the reason, paid and unpaid, deleted once confirmed, the
+  PDF named by number and language, failures), `invoice-draft-dialog.component.spec.ts` (totals counted as the server
+  does, the client's missions, a draft changed and trimmed, fifty lines at most), `invoice-date-dialog.component.spec.ts`,
+  `invoice-errors.spec.ts` and `activity-report-card.component.spec.ts` (a validated month invoiced, or invoiced already)
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy
@@ -422,6 +427,9 @@ axe-core) hide the charts, move the recent opportunities up, and find the layout
 Billing scenarios (`e2e/billing.spec.ts`, on a desktop and on a phone, audited with axe-core) fill in the billing
 identity, a wrong IBAN refused, until the tab says invoices can be issued.
 
+Invoice scenarios (`e2e/invoices.spec.ts`, on a desktop and on a phone, the page and the draft dialog audited with
+axe-core) write a draft, issue it and mark an overdue invoice paid.
+
 Keyboard scenarios (`e2e/keyboard-navigation.spec.ts`) open a Kanban card with Enter (but not from its favourite
 button), a timeline step and an archived opportunity, then reach a client, one of its opportunities and one of its
 contacts through the links of their table rows.
@@ -437,7 +445,7 @@ move to an empty year before and back, and open a mission.
 
 Accessibility scenarios (`e2e/accessibility.spec.ts`) run axe-core (`@axe-core/playwright`) with the WCAG 2.1 A and
 AA rules on every main page (dashboard, projects list, an opportunity with steps of every status and its journal, the
-project form, clients, a client, contacts, a contact, sources, calendar, archive, yearly review, profile, offers, welcome steps, public profile, admin console with its accounts and features tabs), the Kanban board,
+project form, clients, a client, contacts, a contact, sources, calendar, archive, yearly review, profile, offers, welcome steps, public profile, admin console with its accounts and features tabs, invoices), the Kanban board,
 the global search dialog and the sign-in page, in English with the light theme on a desktop and in French with the
 dark theme on a phone, and expect no violation. The pages are served by `e2e/helpers/workspace-data.ts`, a small
 workspace behind every API call (calls it does not list answer an empty list). A violation is reported with its rule

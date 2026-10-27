@@ -87,6 +87,11 @@ export const routes: Routes = [
     canActivate: [authGuard, featureGuard('YEARLY_REVIEW')]
   },
   {
+    path: 'invoices',
+    loadComponent: () => import('./components/invoices/invoices.component').then(m => m.InvoicesComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'archive',
     loadComponent: () => import('./components/archive/archive.component').then(m => m.ArchiveComponent),
     canActivate: [authGuard]

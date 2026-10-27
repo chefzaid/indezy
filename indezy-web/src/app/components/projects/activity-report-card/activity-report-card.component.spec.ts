@@ -1,4 +1,7 @@
 import { LOCALE_ID } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Router, provideRouter } from '@angular/router';
+import { InvoiceService } from '../../../services/invoice/invoice.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
@@ -6,7 +9,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import fr from '../../../../assets/i18n/fr.json';
-import { ActivityReport, ActivityReportLink, ProjectDto, ProjectStatus } from '../../../models';
+import { ActivityReport, ActivityReportLink, Invoice, ProjectDto, ProjectStatus } from '../../../models';
 import { ActivityReportService } from '../../../services/activity-report/activity-report.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -17,6 +20,8 @@ describe('ActivityReportCardComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   let confirmDialog: jasmine.SpyObj<ConfirmDialogService>;
   let clipboard: jasmine.SpyObj<Clipboard>;
+  let invoices: jasmine.SpyObj<InvoiceService>;
+  let navigate: jasmine.Spy;
 
   const mission: ProjectDto = {
     id: 42, role: 'Développeur Java', status: ProjectStatus.WON, dailyRate: 600, workMode: 'HYBRID',
@@ -39,6 +44,7 @@ describe('ActivityReportCardComponent', () => {
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirmDialog = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
+    invoices = jasmine.createSpyObj('InvoiceService', ['fromReport']);
     service.getReports.and.returnValue(of([]));
     service.getReport.and.returnValue(of(current));
     confirmDialog.confirm.and.returnValue(of(true));
@@ -49,9 +55,12 @@ describe('ActivityReportCardComponent', () => {
         { provide: ActivityReportService, useValue: service },
         { provide: NotificationService, useValue: notifications },
         { provide: ConfirmDialogService, useValue: confirmDialog },
-        { provide: Clipboard, useValue: clipboard }
+        { provide: Clipboard, useValue: clipboard },
+        { provide: InvoiceService, useValue: invoices },
+        provideRouter([])
       ]
     });
+    navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('fr', fr);
     translate.use('fr');
@@ -220,6 +229,30 @@ describe('ActivityReportCardComponent', () => {
     clipboard.copy.and.returnValue(false);
     fixture.componentInstance.copyLink();
     expect(notifications.error).toHaveBeenCalledWith('activityReports.link.copyFailed');
+  });
+
+  it('drafts the invoice of a validated month and opens the invoices, or says it is invoiced already', () => {
+    jasmine.clock().mockDate(new Date(2026, 10, 15));
+    const fixture = create(mission, report({ id: 7, status: 'VALIDATED', validatorName: 'Jean Dupont', decidedAt: '2026-12-01T09:42:00Z' }));
+    invoices.fromReport.and.returnValue(of({ id: 1 } as Invoice));
+    button(fixture, 'Créer la facture').click();
+    expect(invoices.fromReport).toHaveBeenCalledWith(42, 2026, 11);
+    expect(notifications.success).toHaveBeenCalledWith('activityReports.invoiced');
+    expect(navigate).toHaveBeenCalledWith(['/invoices']);
+
+    navigate.calls.reset();
+    invoices.fromReport.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409,
+      error: { message: 'This activity report is already invoiced' } })));
+    fixture.componentInstance.invoice();
+    expect(notifications.error).toHaveBeenCalledWith('invoices.errors.alreadyInvoiced');
+    expect(navigate).toHaveBeenCalledWith(['/invoices']);
+
+    navigate.calls.reset();
+    invoices.fromReport.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    fixture.componentInstance.invoice();
+    expect(notifications.error).toHaveBeenCalledWith('activityReports.invoiceError');
+    expect(navigate).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.isBusy).toBeFalse();
   });
 
   it('shows who approved a month, keeps it read-only, and reopens it after a warning', () => {

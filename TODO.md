@@ -177,9 +177,9 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [ ] Expense tracking (deductible expenses feeding the reversion calculator)
 - [ ] Expand existing reversion rate calculator customization (deductible expenses, social contributions, status-specific assumptions, custom tax settings)
 - [ ] URSSAF/social contribution estimation per status (micro-entreprise, EI, EURL, SASU, portage)
-- [ ] Invoice generation from project data (rate x days worked, French mentions légales). Progress on 2026-10-27: the billing identity (Profile → Billing) and the clients' SIREN and VAT number; invoices drafted from a validated activity report or by hand, issued with gapless yearly numbers and the seller and buyer frozen, paid, and their PDF with the French mandatory mentions (`/api/invoices`). The app's invoice pages come next.
+- [x] Invoice generation from project data (rate x days worked, French mentions légales). Done on 2026-10-27: the billing identity (Profile → Billing) and the clients' SIREN and VAT number; **Invoices** (`/invoices`) drafts an invoice by hand or from a validated activity report (**Create the invoice** on the report), issues it with gapless yearly numbers and the seller and buyer frozen, and its PDF states the French mandatory mentions (VAT or its exemption, payment term, IBAN, no discount, late penalties and the €40 fee).
 - [ ] Credit notes (avoirs) to correct or cancel an issued invoice, numbered in the same sequence and referring to it: an issued invoice can be neither changed nor deleted.
-- [ ] Invoice status tracking (draft, sent, paid, overdue) with payment delay alerts
+- [ ] Invoice status tracking (draft, sent, paid, overdue) with payment delay alerts. Partly done on 2026-10-27: drafts, issued, paid (on a date) and overdue past the due date, with the totals awaiting payment and overdue on the Invoices page; alerts (dashboard, weekly digest) remain.
 - [x] Yearly summary export for the accountant (CSV/Excel)
 - [ ] Multi-currency support for international clients
 

@@ -182,6 +182,12 @@
             {{ 'activityReports.downloadPdf' | translate }}
           </button>
         }
+        @if (report.status === 'VALIDATED') {
+          <button mat-button type="button" (click)="invoice()" [disabled]="isBusy" data-invoice-report>
+            <mat-icon>receipt_long</mat-icon>
+            {{ 'activityReports.invoice' | translate }}
+          </button>
+        }
         @if (!editable) {
           <button mat-button type="button" (click)="reopen()" [disabled]="isBusy">
             <mat-icon>lock_open</mat-icon>

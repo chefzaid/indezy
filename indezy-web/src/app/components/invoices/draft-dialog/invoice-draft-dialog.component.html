@@ -1,0 +1,92 @@
+<h2 mat-dialog-title>{{ (data.invoice ? 'invoices.editTitle' : 'invoices.newTitle') | translate }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" id="invoice-draft-form" (ngSubmit)="save()">
+    <div class="row">
+      <mat-form-field appearance="outline" class="grow">
+        <mat-label>{{ 'invoices.client' | translate }}</mat-label>
+        <mat-select formControlName="clientId" (selectionChange)="clientChanged()" required>
+          @for (client of data.clients; track client.id) {
+            <mat-option [value]="client.id">{{ client.companyName }}</mat-option>
+          }
+        </mat-select>
+        <mat-error>{{ 'errors.fieldRequired' | translate }}</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="grow">
+        <mat-label>{{ 'invoices.mission' | translate }}</mat-label>
+        <mat-select formControlName="projectId">
+          <mat-option [value]="null">{{ 'invoices.noMission' | translate }}</mat-option>
+          @for (project of projects; track project.id) {
+            <mat-option [value]="project.id">{{ project.role }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field appearance="outline" class="grow">
+        <mat-label>{{ 'invoices.periodStart' | translate }}</mat-label>
+        <input matInput type="date" formControlName="periodStart">
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="grow">
+        <mat-label>{{ 'invoices.periodEnd' | translate }}</mat-label>
+        <input matInput type="date" formControlName="periodEnd">
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="grow">
+        <mat-label>{{ 'invoices.language' | translate }}</mat-label>
+        <mat-select formControlName="language">
+          @for (language of languages; track language) {
+            <mat-option [value]="language">{{ 'clients.form.activityReport.languages.' + language | translate }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <h3 class="lines-title">{{ 'invoices.lines' | translate }}</h3>
+    <div formArrayName="lines">
+      @for (line of lines.controls; track line; let index = $index) {
+        <div class="line" [formGroupName]="index" [attr.data-line]="index">
+          <mat-form-field appearance="outline" class="description">
+            <mat-label>{{ 'invoices.description' | translate }}</mat-label>
+            <input matInput formControlName="description" maxlength="300" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="number">
+            <mat-label>{{ 'invoices.quantity' | translate }}</mat-label>
+            <input matInput type="number" formControlName="quantity" min="0.01" step="0.5" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="number">
+            <mat-label>{{ 'invoices.unitPrice' | translate }}</mat-label>
+            <input matInput type="number" formControlName="unitPrice" min="0" required>
+            <span matTextSuffix>€</span>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="number small">
+            <mat-label>{{ 'invoices.vatRate' | translate }}</mat-label>
+            <input matInput type="number" formControlName="vatRate" min="0" max="30" required>
+            <span matTextSuffix>%</span>
+          </mat-form-field>
+          <button mat-icon-button type="button" (click)="removeLine(index)" [disabled]="lines.length === 1"
+            [attr.aria-label]="'invoices.removeLine' | translate: { number: index + 1 }">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+    <button mat-button type="button" (click)="addLine()" [disabled]="!canAddLine" data-add-line>
+      <mat-icon>add</mat-icon>
+      {{ 'invoices.addLine' | translate }}
+    </button>
+
+    <dl class="totals" data-draft-totals>
+      <div><dt>{{ 'invoices.totalExcludingVat' | translate }}</dt><dd>{{ totals.excludingVat | number:'1.2-2' }} €</dd></div>
+      <div><dt>{{ 'invoices.vat' | translate }}</dt><dd>{{ totals.vat | number:'1.2-2' }} €</dd></div>
+      <div class="total"><dt>{{ 'invoices.total' | translate }}</dt><dd>{{ totals.total | number:'1.2-2' }} €</dd></div>
+    </dl>
+
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>{{ 'invoices.notes' | translate }}</mat-label>
+      <textarea matInput formControlName="notes" rows="2" maxlength="1000"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button mat-raised-button color="primary" type="submit" form="invoice-draft-form" data-save-draft>{{ 'common.save' | translate }}</button>
+</mat-dialog-actions>

@@ -82,7 +82,8 @@
     "calendar": "Calendar",
     "accountMenu": "{{name}} – account menu",
     "review": "Year in review",
-    "admin": "Admin"
+    "admin": "Admin",
+    "invoices": "Invoices"
   },
   "timeline": {
     "title": "Timeline",
@@ -1453,7 +1454,10 @@
       "alreadyDecided": "This activity report has already been answered.",
       "decisionError": "Could not record your answer. Please try again.",
       "poweredBy": "Activity report managed with Indezy"
-    }
+    },
+    "invoice": "Create the invoice",
+    "invoiced": "Invoice drafted",
+    "invoiceError": "The invoice could not be drafted"
   },
   "offers": {
     "title": "Freelance missions",
@@ -2261,5 +2265,82 @@
     "featureOff": "Feature turned off",
     "loadError": "The admin console could not be loaded",
     "saveError": "The change could not be saved"
+  },
+  "invoices": {
+    "title": "Invoices",
+    "new": "New invoice",
+    "newTitle": "New invoice",
+    "editTitle": "Change the draft",
+    "billingIncomplete": "Your billing identity is incomplete: you can write drafts, but not issue them yet.",
+    "completeBilling": "Complete it in Profile → Billing",
+    "outstanding": "Awaiting payment",
+    "overdueTotal": "Overdue",
+    "filter": "Show",
+    "filters": {
+      "ALL": "All",
+      "DRAFT": "Drafts",
+      "ISSUED": "Awaiting payment",
+      "OVERDUE": "Overdue",
+      "PAID": "Paid"
+    },
+    "none": "No invoice yet. Create one, or invoice a validated activity report from its mission's page.",
+    "noneForFilter": "No invoice here.",
+    "draft": "Draft",
+    "statuses": {
+      "DRAFT": "Draft",
+      "ISSUED": "Issued",
+      "PAID": "Paid",
+      "OVERDUE": "Overdue"
+    },
+    "dueOn": "due {{date}}",
+    "paidOnDate": "paid {{date}}",
+    "actions": "Actions for {{name}}",
+    "edit": "Edit",
+    "issue": "Issue",
+    "markPaid": "Mark as paid",
+    "markUnpaid": "Mark as unpaid",
+    "pdf": "Download PDF",
+    "issueTitle": "Issue this invoice?",
+    "issueMessage": "It gets the next number of the year and can no longer change or be deleted.",
+    "issueDate": "Issue date",
+    "paidTitle": "Payment received",
+    "paidMessage": "When was {{number}} paid?",
+    "paidOn": "Paid on",
+    "client": "Client",
+    "mission": "Mission",
+    "noMission": "No mission",
+    "periodStart": "Service from",
+    "periodEnd": "Service to",
+    "language": "Language",
+    "lines": "Lines",
+    "description": "Description",
+    "quantity": "Quantity",
+    "unitPrice": "Unit price",
+    "vatRate": "VAT",
+    "addLine": "Add a line",
+    "removeLine": "Remove line {{number}}",
+    "totalExcludingVat": "Total before VAT",
+    "vat": "VAT",
+    "total": "Total",
+    "notes": "Notes (printed on the invoice)",
+    "created": "Draft created",
+    "saved": "Draft saved",
+    "issued": "Invoice issued",
+    "paidDone": "Payment recorded",
+    "unpaidDone": "Marked as unpaid",
+    "deleted": "Draft deleted",
+    "deleteConfirm": "Delete this draft?",
+    "loadError": "The invoices could not be loaded",
+    "saveError": "The invoice could not be saved",
+    "pdfError": "The PDF could not be downloaded",
+    "errors": {
+      "billing": "Complete your billing identity (Profile → Billing) before issuing an invoice.",
+      "clientAddress": "Add the client's address before invoicing it.",
+      "dateBeforeLast": "An invoice cannot be dated before the last one issued.",
+      "alreadyInvoiced": "This month is already invoiced.",
+      "notValidated": "Only a month the client validated can be invoiced.",
+      "frozen": "An issued invoice can no longer change.",
+      "clientGone": "The invoice's client no longer exists."
+    }
   }
 }

@@ -1,0 +1,177 @@
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslateModule } from '@ngx-translate/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Observable, forkJoin } from 'rxjs';
+
+import { BillingIdentity, ClientDto, Invoice, InvoiceDraft, ProjectDto } from '../../models';
+import { AuthService } from '../../services/auth/auth.service';
+import { BillingService } from '../../services/billing/billing.service';
+import { ClientService } from '../../services/client/client.service';
+import { InvoiceService } from '../../services/invoice/invoice.service';
+import { NotificationService } from '../../services/notification/notification.service';
+import { ProjectService } from '../../services/project/project.service';
+import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
+import { saveBlob } from '../../shared/utils/download-file';
+import { invoiceErrorKey } from './invoice-errors';
+import { InvoiceDateDialogComponent, InvoiceDateDialogData } from './date-dialog/invoice-date-dialog.component';
+import { InvoiceDraftDialogComponent, InvoiceDraftDialogData } from './draft-dialog/invoice-draft-dialog.component';
+
+export type InvoiceFilter = 'ALL' | 'DRAFT' | 'ISSUED' | 'OVERDUE' | 'PAID';
+
+/** The workspace's invoices: drafts to write and issue, issued ones to settle, and what is still owed. */
+@Component({
+  selector: 'app-invoices',
+  imports: [DatePipe, DecimalPipe, RouterLink, MatButtonModule, MatButtonToggleModule, MatCardModule, MatIconModule, MatMenuModule,
+    MatProgressSpinnerModule, TranslateModule],
+  templateUrl: './invoices.component.html',
+  styleUrls: ['./invoices.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager
+})
+export class InvoicesComponent implements OnInit {
+  private readonly invoiceService = inject(InvoiceService);
+  private readonly billingService = inject(BillingService);
+  private readonly clientService = inject(ClientService);
+  private readonly projectService = inject(ProjectService);
+  private readonly auth = inject(AuthService);
+  private readonly dialog = inject(MatDialog);
+  private readonly confirm = inject(ConfirmDialogService);
+  private readonly notifications = inject(NotificationService);
+
+  readonly filters: InvoiceFilter[] = ['ALL', 'DRAFT', 'ISSUED', 'OVERDUE', 'PAID'];
+  filter: InvoiceFilter = 'ALL';
+  invoices: Invoice[] = [];
+  billing: BillingIdentity | null = null;
+  loading = true;
+
+  get shown(): Invoice[] {
+    return this.invoices.filter(invoice => this.filter === 'ALL' || (this.filter === 'OVERDUE' ? invoice.overdue :
+      this.filter === 'ISSUED' ? invoice.status === 'ISSUED' && !invoice.overdue : invoice.status === this.filter));
+  }
+
+  /** Issued and not paid yet. */
+  get outstanding(): number {
+    return this.invoices.filter(invoice => invoice.status === 'ISSUED').reduce((sum, invoice) => sum + invoice.total, 0);
+  }
+
+  get overdue(): number {
+    return this.invoices.filter(invoice => invoice.overdue).reduce((sum, invoice) => sum + invoice.total, 0);
+  }
+
+  ngOnInit(): void {
+    const freelanceId = this.auth.getUser()?.id;
+    if (!freelanceId) {
+      this.loading = false;
+      return;
+    }
+    forkJoin({ invoices: this.invoiceService.list(freelanceId), billing: this.billingService.identity() }).subscribe({
+      next: ({ invoices, billing }) => {
+        this.invoices = invoices;
+        this.billing = billing;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.notifications.error('invoices.loadError');
+      }
+    });
+  }
+
+  /** Writes a new draft, or changes one, among the workspace's clients and missions. */
+  write(invoice?: Invoice): void {
+    forkJoin({ clients: this.clientService.getForCurrentFreelance(), projects: this.projects() }).subscribe({
+      next: ({ clients, projects }) => {
+        const data: InvoiceDraftDialogData = { clients: this.sorted(clients), projects, invoice,
+          vatRate: this.billing?.vatExempt === false ? this.billing.vatRate ?? 20 : 0 };
+        this.dialog.open(InvoiceDraftDialogComponent, { data, width: '760px', maxWidth: '96vw', autoFocus: false })
+          .afterClosed().subscribe((draft?: InvoiceDraft) => {
+            if (draft) {
+              this.saveDraft(invoice, draft);
+            }
+          });
+      },
+      error: () => this.notifications.error('invoices.loadError')
+    });
+  }
+
+  issue(invoice: Invoice): void {
+    const today = new Date().toLocaleDateString('sv');
+    const data: InvoiceDateDialogData = { titleKey: 'invoices.issueTitle', messageKey: 'invoices.issueMessage', labelKey: 'invoices.issueDate',
+      confirmKey: 'invoices.issue', date: today, max: today };
+    this.dialog.open(InvoiceDateDialogComponent, { data, width: '420px' }).afterClosed().subscribe((date?: string) => {
+      if (date) {
+        this.apply(this.invoiceService.issue(invoice.id, date), 'invoices.issued');
+      }
+    });
+  }
+
+  markPaid(invoice: Invoice): void {
+    const today = new Date().toLocaleDateString('sv');
+    const data: InvoiceDateDialogData = { titleKey: 'invoices.paidTitle', messageKey: 'invoices.paidMessage',
+      messageParams: { number: invoice.number }, labelKey: 'invoices.paidOn', confirmKey: 'invoices.markPaid', date: today, max: today };
+    this.dialog.open(InvoiceDateDialogComponent, { data, width: '420px' }).afterClosed().subscribe((date?: string) => {
+      if (date) {
+        this.apply(this.invoiceService.setPaid(invoice.id, date), 'invoices.paidDone');
+      }
+    });
+  }
+
+  markUnpaid(invoice: Invoice): void {
+    this.apply(this.invoiceService.setPaid(invoice.id, null), 'invoices.unpaidDone');
+  }
+
+  remove(invoice: Invoice): void {
+    this.confirm.confirm({ messageKey: 'invoices.deleteConfirm', confirmKey: 'common.delete', danger: true }).subscribe(confirmed => {
+      if (!confirmed) {
+        return;
+      }
+      this.invoiceService.delete(invoice.id).subscribe({
+        next: () => {
+          this.invoices = this.invoices.filter(item => item.id !== invoice.id);
+          this.notifications.success('invoices.deleted');
+        },
+        error: () => this.notifications.error('invoices.saveError')
+      });
+    });
+  }
+
+  download(invoice: Invoice): void {
+    this.invoiceService.downloadPdf(invoice.id).subscribe({
+      next: blob => saveBlob(blob, `${invoice.language === 'EN' ? 'invoice' : 'facture'}-${invoice.number ?? 'draft-' + invoice.id}.pdf`),
+      error: () => this.notifications.error('invoices.pdfError')
+    });
+  }
+
+  private saveDraft(invoice: Invoice | undefined, draft: InvoiceDraft): void {
+    const request = invoice ? this.invoiceService.update(invoice.id, draft) : this.invoiceService.create(draft);
+    this.apply(request, invoice ? 'invoices.saved' : 'invoices.created');
+  }
+
+  /** Shows the invoice as the server answered, first in the list when new; a refusal says why when the server does. */
+  private apply(request: Observable<Invoice>, successKey: string): void {
+    request.subscribe({
+      next: saved => {
+        const known = this.invoices.some(item => item.id === saved.id);
+        this.invoices = known ? this.invoices.map(item => item.id === saved.id ? saved : item) : [saved, ...this.invoices];
+        this.notifications.success(successKey);
+      },
+      error: (error: HttpErrorResponse) => this.notifications.error(invoiceErrorKey(error, 'invoices.saveError'))
+    });
+  }
+
+  private projects(): Observable<ProjectDto[]> {
+    return this.projectService.getByFreelanceId(this.auth.getUser()!.id);
+  }
+
+  private sorted(clients: ClientDto[]): ClientDto[] {
+    return [...clients].sort((a, b) => a.companyName.localeCompare(b.companyName));
+  }
+}

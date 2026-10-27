@@ -1,0 +1,88 @@
+<div class="invoices-page">
+  <div class="header">
+    <h1>{{ 'invoices.title' | translate }}</h1>
+    <button mat-raised-button color="primary" type="button" (click)="write()" data-new-invoice>
+      <mat-icon>add</mat-icon>
+      {{ 'invoices.new' | translate }}
+    </button>
+  </div>
+
+  @if (billing && !billing.complete) {
+    <mat-card class="notice" data-billing-incomplete>
+      <mat-card-content>
+        <mat-icon aria-hidden="true">info</mat-icon>
+        <span>{{ 'invoices.billingIncomplete' | translate }}</span>
+        <a mat-button routerLink="/profile">{{ 'invoices.completeBilling' | translate }}</a>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <div class="figures" data-invoice-figures>
+    <mat-card class="figure">
+      <span class="label">{{ 'invoices.outstanding' | translate }}</span>
+      <span class="value">{{ outstanding | number:'1.2-2' }} €</span>
+    </mat-card>
+    <mat-card class="figure" [class.alert]="overdue > 0">
+      <span class="label">{{ 'invoices.overdueTotal' | translate }}</span>
+      <span class="value">{{ overdue | number:'1.2-2' }} €</span>
+    </mat-card>
+  </div>
+
+  <mat-button-toggle-group [value]="filter" (change)="filter = $event.value" [attr.aria-label]="'invoices.filter' | translate">
+    @for (option of filters; track option) {
+      <mat-button-toggle [value]="option">{{ 'invoices.filters.' + option | translate }}</mat-button-toggle>
+    }
+  </mat-button-toggle-group>
+
+  @if (loading) {
+    <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+  } @else if (shown.length === 0) {
+    <p class="empty">{{ (invoices.length === 0 ? 'invoices.none' : 'invoices.noneForFilter') | translate }}</p>
+  } @else {
+    <ul class="list">
+      @for (invoice of shown; track invoice.id) {
+        <li class="invoice" [attr.data-invoice]="invoice.id">
+          <div class="main">
+            <span class="number">{{ invoice.number ?? ('invoices.draft' | translate) }}</span>
+            <span class="client">{{ invoice.clientName }}@if (invoice.projectRole) { · {{ invoice.projectRole }} }</span>
+            <span class="meta">
+              @if (invoice.periodStart && invoice.periodEnd) {
+                {{ invoice.periodStart | date:'mediumDate' }} – {{ invoice.periodEnd | date:'mediumDate' }}
+              }
+              @if (invoice.dueDate && invoice.status === 'ISSUED') {
+                · {{ 'invoices.dueOn' | translate: { date: (invoice.dueDate | date:'mediumDate') } }}
+              }
+              @if (invoice.paidOn) {
+                · {{ 'invoices.paidOnDate' | translate: { date: (invoice.paidOn | date:'mediumDate') } }}
+              }
+            </span>
+          </div>
+          <span class="badge" [class]="invoice.overdue ? 'OVERDUE' : invoice.status">
+            {{ 'invoices.statuses.' + (invoice.overdue ? 'OVERDUE' : invoice.status) | translate }}
+          </span>
+          <span class="amount">{{ invoice.total | number:'1.2-2' }} €</span>
+          <button mat-icon-button type="button" [matMenuTriggerFor]="actions"
+            [attr.aria-label]="'invoices.actions' | translate: { name: invoice.number ?? ('invoices.draft' | translate) }">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #actions="matMenu">
+            @if (invoice.status === 'DRAFT') {
+              <button mat-menu-item type="button" (click)="write(invoice)"><mat-icon>edit</mat-icon>{{ 'invoices.edit' | translate }}</button>
+              <button mat-menu-item type="button" (click)="issue(invoice)"><mat-icon>send</mat-icon>{{ 'invoices.issue' | translate }}</button>
+            }
+            @if (invoice.status === 'ISSUED') {
+              <button mat-menu-item type="button" (click)="markPaid(invoice)"><mat-icon>paid</mat-icon>{{ 'invoices.markPaid' | translate }}</button>
+            }
+            @if (invoice.status === 'PAID') {
+              <button mat-menu-item type="button" (click)="markUnpaid(invoice)"><mat-icon>undo</mat-icon>{{ 'invoices.markUnpaid' | translate }}</button>
+            }
+            <button mat-menu-item type="button" (click)="download(invoice)"><mat-icon>picture_as_pdf</mat-icon>{{ 'invoices.pdf' | translate }}</button>
+            @if (invoice.status === 'DRAFT') {
+              <button mat-menu-item type="button" (click)="remove(invoice)"><mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}</button>
+            }
+          </mat-menu>
+        </li>
+      }
+    </ul>
+  }
+</div>

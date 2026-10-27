@@ -1,0 +1,63 @@
+.row,
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.row .grow {
+  flex: 1 1 160px;
+}
+
+.line {
+  align-items: flex-start;
+
+  .description {
+    flex: 3 1 220px;
+  }
+
+  .number {
+    flex: 1 1 90px;
+  }
+
+  .small {
+    flex: 0 1 80px;
+  }
+
+  button {
+    margin-top: 8px;
+  }
+}
+
+.lines-title {
+  margin: 8px 0;
+  font-size: 1rem;
+}
+
+.totals {
+  margin: 12px 0;
+
+  div {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+  }
+
+  dt {
+    color: var(--text-secondary);
+  }
+
+  dd {
+    min-width: 110px;
+    margin: 0;
+    text-align: right;
+  }
+
+  .total {
+    font-weight: 600;
+  }
+}
+
+.full {
+  width: 100%;
+}
