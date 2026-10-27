@@ -22,7 +22,7 @@
   } @else {
     <div class="archive-grid">
       @for (project of filteredProjects; track project.id) {
-        <mat-card class="archive-card" [routerLink]="['/projects', project.id]">
+        <mat-card class="archive-card" [routerLink]="['/projects', project.id]" appEnterOpens>
           <mat-card-content>
             <div class="archive-card-header">
               <span class="archive-role">{{ project.role }}</span>

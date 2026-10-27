@@ -15,7 +15,7 @@
   } @else {
     <mat-card class="timeline-card">
       @for (step of upcomingSteps; track step.id) {
-        <div class="timeline-row" [routerLink]="['/projects', step.projectId]">
+        <div class="timeline-row" [routerLink]="['/projects', step.projectId]" appEnterOpens>
           <div class="timeline-date">{{ step.date | date:'EEE d MMM yyyy, HH:mm' }}</div>
           <div class="timeline-info">
             <span class="timeline-step-title">{{ step.title }}</span>

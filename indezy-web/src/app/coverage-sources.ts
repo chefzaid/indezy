@@ -146,6 +146,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'shared/components/loading/loading.component',
   'shared/components/logo/logo.component',
   'shared/components/project-link/project-link.component',
+  'shared/directives/enter-opens.directive',
   'shared/i18n/translated-paginator-intl',
   'shared/locale/app-locale',
   'shared/services/confirm-dialog.service',

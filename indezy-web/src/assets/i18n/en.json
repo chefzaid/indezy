@@ -1851,7 +1851,8 @@
       "limit": "The workspace keeps at most 50 email templates",
       "saveError": "The template could not be saved",
       "deleteError": "The template could not be deleted",
-      "loadError": "The templates could not be loaded"
+      "loadError": "The templates could not be loaded",
+      "insertVariable": "Insert {{variable}} in the body"
     }
   },
   "calendar": {

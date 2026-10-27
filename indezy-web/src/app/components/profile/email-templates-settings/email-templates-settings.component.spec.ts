@@ -58,7 +58,7 @@ describe('EmailTemplatesSettingsComponent', () => {
     component.add();
     fixture.detectChanges();
     component.form.patchValue({ name: 'Proposition', subject: 'TJM', body: 'Mon TJM : ' });
-    (fixture.nativeElement.querySelectorAll('mat-chip')[4] as HTMLElement).click();
+    (fixture.nativeElement.querySelectorAll('button.variable')[4] as HTMLElement).click();
     expect(component.form.value.body).toBe('Mon TJM : {{rate}}');
     component.save();
 

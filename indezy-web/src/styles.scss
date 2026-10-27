@@ -178,6 +178,23 @@ body {
   }
 }
 
+/* A table row's name, which opens what the row stands for: the keyboard path of rows opened by a click. */
+a.row-link {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
 /* A status pill that opens a menu to change the status. */
 .status-pill.status-trigger {
   border: none;

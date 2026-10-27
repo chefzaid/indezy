@@ -37,7 +37,7 @@ test('writes a rate proposal to the ESN\'s contact from a template, and keeps an
   await page.getByRole('button', { name: 'Nouveau modèle' }).click();
   await page.getByLabel('Nom').fill('Relance ESN');
   await page.getByLabel('Objet').fill('Point sur {{role}}');
-  await page.getByLabel('Message').fill('Bonjour ');
+  await page.getByLabel('Message', { exact: true }).fill('Bonjour ');
   await page.getByText('{{firstName}}', { exact: true }).click();
   await page.getByRole('button', { name: 'Enregistrer' }).click();
   await expect(page.getByText('Modèle enregistré')).toBeVisible();
@@ -49,14 +49,14 @@ test('writes a rate proposal to the ESN\'s contact from a template, and keeps an
   await expect(dialog.getByLabel('Objet')).toHaveValue('Suite à notre échange sur la mission Développeur Java');
   await dialog.getByRole('combobox', { name: 'Modèle' }).click();
   await page.getByRole('option', { name: 'Proposition de TJM' }).click();
-  await expect(dialog.getByLabel('Message')).toHaveValue(/Bonjour Léa,[\s\S]*chez Alten, mon TJM est de 650 € HT/);
+  await expect(dialog.getByLabel('Message', { exact: true })).toHaveValue(/Bonjour Léa,[\s\S]*chez Alten, mon TJM est de 650 € HT/);
   await expect(dialog.getByRole('link', { name: 'Ouvrir dans ma messagerie' }))
     .toHaveAttribute('href', /^mailto:lea@alten\.fr\?subject=Mon%20TJM%20pour%20la%20mission%20D%C3%A9veloppeur%20Java&body=Bonjour%20L%C3%A9a/);
 
   await expect(page.getByRole('listbox')).toBeHidden();
   await dialog.getByRole('combobox', { name: 'Modèle' }).click();
   await page.getByRole('option', { name: 'Relance ESN' }).click();
-  await expect(dialog.getByLabel('Message')).toHaveValue('Bonjour Léa');
+  await expect(dialog.getByLabel('Message', { exact: true })).toHaveValue('Bonjour Léa');
   await dialog.getByRole('button', { name: 'Copier' }).click();
   await expect(page.getByText('Message copié')).toBeVisible();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('Point sur Développeur Java\n\nBonjour Léa');

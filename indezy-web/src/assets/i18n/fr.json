@@ -1851,7 +1851,8 @@
       "limit": "Un espace garde au plus 50 modèles d'e-mails",
       "saveError": "Le modèle n'a pas pu être enregistré",
       "deleteError": "Le modèle n'a pas pu être supprimé",
-      "loadError": "Les modèles n'ont pas pu être chargés"
+      "loadError": "Les modèles n'ont pas pu être chargés",
+      "insertVariable": "Insérer {{variable}} dans le message"
     }
   },
   "calendar": {

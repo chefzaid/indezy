@@ -36,13 +36,14 @@
         <mat-label>{{ 'emails.body' | translate }}</mat-label>
         <textarea matInput formControlName="body" rows="8" maxlength="5000"></textarea>
       </mat-form-field>
-      <div class="variables" [attr.aria-label]="'emails.settings.variables' | translate">
-        <span>{{ 'emails.settings.variables' | translate }}</span>
-        <mat-chip-set>
-          @for (variable of variables; track variable) {
-            <mat-chip (click)="insert(variable)">{{ placeholder(variable) }}</mat-chip>
-          }
-        </mat-chip-set>
+      <div class="variables" role="group" [attr.aria-label]="'emails.settings.variables' | translate">
+        <span aria-hidden="true">{{ 'emails.settings.variables' | translate }}</span>
+        @for (variable of variables; track variable) {
+          <button mat-stroked-button type="button" class="variable" (click)="insert(variable)"
+                  [attr.aria-label]="'emails.settings.insertVariable' | translate:{ variable: placeholder(variable) }">
+            {{ placeholder(variable) }}
+          </button>
+        }
       </div>
       <div class="actions">
         <button mat-button type="button" (click)="cancel()">{{ 'emails.settings.cancel' | translate }}</button>

@@ -143,7 +143,7 @@
                 <ng-container matColumnDef="role">
                   <th mat-header-cell *matHeaderCellDef>{{ 'projects.form.role' | translate }}</th>
                   <td mat-cell *matCellDef="let project">
-                    <strong>{{ project.role }}</strong>
+                    <a class="row-link" [routerLink]="['/projects', project.id]" (click)="$event.stopPropagation()"><strong>{{ project.role }}</strong></a>
                     @if (isIntermediaryFor(project)) {
                       <span class="via-client">{{ 'clients.detail.forClient' | translate:{ name: project.clientName } }}</span>
                     }
@@ -203,7 +203,9 @@
               <table mat-table [dataSource]="contacts" class="data-table">
                 <ng-container matColumnDef="name">
                   <th mat-header-cell *matHeaderCellDef>{{ 'clients.name' | translate }}</th>
-                  <td mat-cell *matCellDef="let contact"><strong>{{ getContactName(contact) }}</strong></td>
+                  <td mat-cell *matCellDef="let contact">
+                    <a class="row-link" [routerLink]="['/contacts', contact.id]" (click)="$event.stopPropagation()"><strong>{{ getContactName(contact) }}</strong></a>
+                  </td>
                 </ng-container>
                 <ng-container matColumnDef="email">
                   <th mat-header-cell *matHeaderCellDef>{{ 'common.email' | translate }}</th>

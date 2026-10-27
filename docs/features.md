@@ -834,6 +834,14 @@ Shortcuts do not run inside editable fields, open menus, selection panels or dia
 or during composition and repeated key presses. They are available in both
 French and English, and leave ordinary browser shortcuts unchanged.
 
+Every page works from the keyboard alone, with a visible focus in the order the page reads. Cards and rows opened by a
+click open with Enter once focused (Kanban cards, timeline steps, archived opportunities); Enter on a control inside
+them, such as a card's favourite star, stays with that control. Table rows opened by a click (clients, a client's
+opportunities and contacts) carry their name as a link to tab to. On the Kanban board, where cards are dragged between
+stages with the mouse, a focused card's stage menu (`Alt+Shift+M`) or its checkbox and the selection bar move it. The
+calendar's focused day has its own double ring, distinct from the selected day's outline, and the email templates'
+variables are buttons that insert their placeholder.
+
 ## Commute-Time Sorting
 
 Commute support exists through a dedicated commute service and API surface.

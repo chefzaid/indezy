@@ -51,7 +51,7 @@
             @for (card of getCardsForColumn(status); track card.projectId) {
               <div class="project-card" cdkDrag [attr.data-project-id]="card.projectId"
                 [class.selected]="selectedIds.includes(card.projectId)">
-                <mat-card class="card-content" [routerLink]="['/projects', card.projectId]" style="cursor: pointer;">
+                <mat-card class="card-content" [routerLink]="['/projects', card.projectId]" appEnterOpens style="cursor: pointer;">
                   <mat-card-header>
                     <mat-card-title class="card-role">{{ card.role }}</mat-card-title>
                     @if (card.clientName) {

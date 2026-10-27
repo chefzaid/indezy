@@ -35,11 +35,13 @@ import {
   PROJECT_STATUS_COLORS,
   PROJECT_STATUS_ICONS
 } from '../../models/project.models';
+import { EnterOpensDirective } from '../../shared/directives/enter-opens.directive';
 
 @Component({
   selector: 'app-kanban-board',
   imports: [
         ProjectLinkComponent,
+    EnterOpensDirective,
     RouterModule,
     MatCardModule,
     MatIconModule,

@@ -86,6 +86,13 @@
     outline: 2px solid var(--mat-sys-primary, #3f51b5);
     outline-offset: -2px;
   }
+
+  // The keyboard focus, set apart from the selected day's outline, which the browser's own ring would match.
+  &:focus-visible {
+    outline: 3px solid var(--app-link);
+    outline-offset: -3px;
+    box-shadow: inset 0 0 0 6px var(--app-surface, #fff), inset 0 0 0 8px var(--app-link);
+  }
 }
 
 .week .day:first-child {

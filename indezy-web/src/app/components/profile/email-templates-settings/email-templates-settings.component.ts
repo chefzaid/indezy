@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -17,7 +16,7 @@ import { EMAIL_VARIABLES } from '../../../shared/utils/email-template';
 /** Profile → Emails: the workspace's own email templates, written with variables, added, changed and deleted. */
 @Component({
   selector: 'app-email-templates-settings',
-  imports: [ReactiveFormsModule, MatButtonModule, MatChipsModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslateModule],
+  imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslateModule],
   templateUrl: './email-templates-settings.component.html',
   styleUrls: ['./email-templates-settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

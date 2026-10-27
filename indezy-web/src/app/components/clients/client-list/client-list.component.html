@@ -125,7 +125,8 @@
               <th mat-header-cell *matHeaderCellDef>{{ 'clients.name' | translate }}</th>
               <td mat-cell *matCellDef="let client">
                 <div class="client-name">
-                  <strong>{{ client.companyName }}</strong>
+                  <!-- The row opens the client on a click; the name is its keyboard path. -->
+                  <a class="row-link" [routerLink]="['/clients', client.id]" (click)="$event.stopPropagation()"><strong>{{ client.companyName }}</strong></a>
                   @if (client.isBlacklisted) {
                     <mat-icon class="blacklist-icon"
                       [matTooltip]="client.blacklistReason || ('clients.blacklisted' | translate)">block</mat-icon>

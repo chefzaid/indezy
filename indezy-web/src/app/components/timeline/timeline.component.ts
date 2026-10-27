@@ -9,6 +9,7 @@ import { InterviewStepService } from '../../services/interview-step/interview-st
 import { AuthService } from '../../services/auth/auth.service';
 import { InterviewStepDto, StepStatus } from '../../models';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
+import { EnterOpensDirective } from '../../shared/directives/enter-opens.directive';
 
 /**
  * Chronological view of every scheduled (PLANNED) interview step across all of the
@@ -16,7 +17,7 @@ import { LoadingComponent } from '../../shared/components/loading/loading.compon
  */
 @Component({
   selector: 'app-timeline',
-  imports: [CommonModule, RouterModule, MatCardModule, MatIconModule, TranslateModule, LoadingComponent],
+  imports: [EnterOpensDirective, CommonModule, RouterModule, MatCardModule, MatIconModule, TranslateModule, LoadingComponent],
   templateUrl: './timeline.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./timeline.component.scss']
