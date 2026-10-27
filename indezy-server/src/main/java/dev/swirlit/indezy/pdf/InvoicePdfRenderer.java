@@ -14,10 +14,17 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
-/** Renders an invoice as an A4 PDF with Apache PDFBox and the embedded Liberation Sans fonts (ADR 0008). */
+/**
+ * Renders an invoice as an A4 PDF with Apache PDFBox and the embedded Liberation Sans fonts (ADR 0008); an issued invoice
+ * or credit note as a Factur-X file (PDF/A-3 with its Cross Industry Invoice, see {@link FacturXPdf}).
+ */
 @Component
 public final class InvoicePdfRenderer {
+
+    private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
 
     private final byte[] regularFont = PdfFonts.read(PdfFonts.REGULAR);
     private final byte[] boldFont = PdfFonts.read(PdfFonts.BOLD);
@@ -32,10 +39,16 @@ public final class InvoicePdfRenderer {
                 page = new InvoicePage(writer, invoice, seller, buyer);
                 page.write();
             }
-            PDDocumentInformation information = document.getDocumentInformation();
-            information.setTitle(page.title());
-            information.setAuthor(seller.getName());
-            information.setCreator("Indezy");
+            if (invoice.getNumber() == null) {
+                PDDocumentInformation information = document.getDocumentInformation();
+                information.setTitle(page.title());
+                information.setAuthor(seller.getName());
+                information.setCreator("Indezy");
+            } else {
+                // Issued: a Factur-X file, the printed invoice with its structured data.
+                FacturXPdf.apply(document, page.title(), seller.getName() == null ? "" : seller.getName(),
+                    FacturXml.of(invoice, seller, buyer), ZonedDateTime.now(PARIS));
+            }
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             document.save(output);
             return output.toByteArray();

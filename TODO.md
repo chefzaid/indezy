@@ -76,7 +76,7 @@ Parts of tasks that cannot advance without the owner's decision or information. 
   - Answer:
 - [ ] **Production sign-up** (presentation page call to action): the Keycloak realm has no self-registration and the OAuth2 Proxy admits only `platform-admins`. Open self-registration to the public at launch, keep invitations only, or run a waiting list?
   - Answer:
-- [ ] **Paid compliance providers** (Electronic signature, French B2B e-invoicing, Payment reconciliation): which qualified trust provider (Yousign, Docusign, Universign?), which approved e-invoicing platform (PDP), and which bank account information provider (Bridge, Powens?) to integrate, with accounts you open.
+- [ ] **Paid compliance providers** (Electronic signature, French B2B e-invoicing, Payment reconciliation): which qualified trust provider (Yousign, Docusign, Universign?), which approved e-invoicing platform (PDP), and which bank account information provider (Bridge, Powens?) to integrate, with accounts you open. Also: Factur-X invoices of a seller under the VAT franchise give its SIREN as its tax registration (BT-32, schemeID FC), which the EN 16931 rules require for exempt lines; ask the platform whether it expects another identifier there.
   - Answer:
 - [ ] **Mobile app technology** (Cross-platform mobile app, Push notifications): (a) the web app made installable (PWA) with web push, no store; (b) the Angular app wrapped with Capacitor and published in the stores, which needs Apple and Google developer accounts; (c) native apps. Web push also needs a VAPID key pair stored in Vault.
   - Answer:
@@ -500,7 +500,7 @@ Differentiators, each covered below:
 
 ### Invoicing and Compliance
 
-- [ ] Factur-X invoices (PDF/A-3 with embedded structured data) from validated CRA days and mission rates, with French mandatory mentions, VAT or VAT-exemption wording and gapless numbering (extends the invoice items above).
+- [x] Factur-X invoices (PDF/A-3 with embedded structured data) from validated CRA days and mission rates, with French mandatory mentions, VAT or VAT-exemption wording and gapless numbering (extends the invoice items above). Done on 2026-10-27: every issued invoice and credit note downloads as a Factur-X file, PDF/A-3B with its Cross Industry Invoice (EN 16931 profile) embedded as `factur-x.xml`; the four cases (with VAT, under the franchise, invoice and credit note) pass the Mustang validator's PDF/A, XSD and EN 16931 schematron checks. A franchise seller's SIREN fills its tax registration (BT-32): confirm it with the e-invoicing platform once chosen (Needs Input "Paid compliance providers").
 - [ ] French B2B e-invoicing: every company must receive electronic invoices from 2026-09-01, and SMEs and micro-enterprises must issue them from 2027-09-01. Connect through a registered partner platform (PDP), send and receive invoices, follow their lifecycle statuses and handle e-reporting where the status requires it.
 - [ ] Payment reconciliation through a regulated bank-account information provider or manual matching, with statutory late-payment interest and the fixed recovery indemnity computed on overdue invoices.
 - [x] Accounting exports and connectors for common French accounting tools. Done on 2026-10-27: **Export for the accountant** on the Invoices page downloads a year's journal entries as a FEC file (sales and bank journals, which every French accounting tool imports) or the invoice register as a spreadsheet in French or English.

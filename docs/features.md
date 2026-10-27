@@ -93,6 +93,21 @@ hand), `POST /api/invoices/from-report` (`{ projectId, year, month }`), `PUT` an
 take it back) and `GET /api/invoices/{id}/pdf`; another workspace's invoice answers `404`. Invoices are part of the data
 export.
 
+### Factur-X
+
+Every issued invoice and credit note downloads as a **Factur-X** file: a PDF/A-3B (fonts embedded, sRGB output intent,
+XMP metadata) that prints as before and carries its structured data as an attached `factur-x.xml`, a Cross Industry
+Invoice (UN/CEFACT D16B) of the EN 16931 profile, related to the PDF as its alternative. The XML states the number, the
+type (380 for an invoice, 381 for a credit note, which also names the invoice it credits and its date), the issue date,
+the notes, each line (description, days billed as `DAY`, unit price, VAT category and rate, amount), the seller (name,
+SIRET, address split into postcode and city when its last line reads `75002 Paris`, VAT number, or else its SIREN as tax
+registration under the franchise) and the buyer (name, SIREN, address, VAT number), the VAT per rate (`S` with its rate,
+or `E` with the reason: "TVA non applicable, art. 293 B du CGI" and code `VATEX-FR-FRANCHISE` under the franchise), the
+service period, the due date and terms, the IBAN and BIC (SEPA transfer, code 58; not on a credit note) and the totals,
+the same as the PDF prints. A draft stays a plain PDF, since it is not an invoice. The four cases (with VAT, under the
+franchise, invoice and credit note) were checked with the Mustang validator (PDF/A-3, Factur-X XSD and EN 16931
+schematron). Sending them through an approved e-invoicing platform is the e-invoicing item of TODO.md.
+
 ### Accounting Export
 
 **Export for the accountant** on the Invoices page (shown once an invoice is issued) offers each year holding an issued

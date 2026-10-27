@@ -197,6 +197,12 @@ Representative backend tests:
   the daily rate, over it; the dashboard's alert from 80 %; no start, no ceiling, an end before the start, an empty
   amendment or another mission's order refused; Bob kept out; the data export; deleted with the order's amendments and
   with the mission)
+- Factur-X: `FacturXTest` (an issued invoice as PDF/A-3: version, output intent, XMP with the PDF/A and Factur-X
+  schemas, the XML attached as the alternative; the XML read back with XPath: profile, number, type, lines, parties and
+  addresses, VAT per rate with an exempt line, period, due date, totals; a franchise seller's credit note with the
+  invoice it credits, its tax registration and no payment means; a draft left plain; XML escaping). The files were also
+  checked with the Mustang validator 2.15.2 (`org.mustangproject:validator`, PDF/A-3, XSD and EN 16931 schematron) on
+  2026-10-27; to check again, render the four cases and run `new ZUGFeRDValidator().validate(path)` on each.
 - accounting export: `AccountingExportIntegrationTest` (the FEC entries of an invoice, its credit note and its payment net
   of the credit, line by line; the register in French and English with its totals and a formula-like client name kept as
   text; no draft, nothing in another year, none of Bob's; a year or format out of range refused) and `CsvTextTest`
