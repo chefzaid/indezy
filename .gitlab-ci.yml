@@ -26,6 +26,9 @@ variables:
   READER_CANARY:
     value: "false"
     description: "true in the weekly schedule that reads one live page per job board (see docs/testing.md#reader-canaries); nothing else runs."
+  PLAYWRIGHT_SCHEDULE:
+    value: "false"
+    description: "true in the nightly schedule that builds, tests and runs the Playwright E2E suite on its own (see docs/testing.md#scheduled-e2e-runs); no report, release or deploy."
   PIPELINE_MODE:
     value: "standard"
     options:
@@ -190,6 +193,8 @@ variables:
   rules:
     - if: '$READER_CANARY == "true"'
       when: never
+    - if: '$PLAYWRIGHT_SCHEDULE == "true" && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+      allow_failure: false
     - if: '$SONAR_SCAN_ONLY == "true"'
       when: never
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -236,6 +241,8 @@ variables:
   rules:
     - if: '$READER_CANARY == "true"'
       when: never
+    - if: '$PLAYWRIGHT_SCHEDULE == "true"'
+      when: never
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     - if: '$PIPELINE_MODE == "full" && $CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$PIPELINE_MODE == "full" && $CI_COMMIT_BRANCH'
@@ -275,6 +282,8 @@ variables:
       - security-reports/
   rules:
     - if: '$READER_CANARY == "true"'
+      when: never
+    - if: '$PLAYWRIGHT_SCHEDULE == "true"'
       when: never
     - if: '$SONAR_SCAN_ONLY == "true"'
       when: never
@@ -327,6 +336,8 @@ variables:
   rules:
     - if: '$READER_CANARY == "true"'
       when: never
+    - if: '$PLAYWRIGHT_SCHEDULE == "true"'
+      when: never
     - if: '$SONAR_SCAN_ONLY == "true"'
       when: never
     - if: '$CI_PIPELINE_SOURCE == "api" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $APP_ONBOARDING == "true"'
@@ -359,6 +370,8 @@ variables:
   rules:
     - if: '$READER_CANARY == "true"'
       when: never
+    - if: '$PLAYWRIGHT_SCHEDULE == "true"'
+      when: never
     - if: '$SONAR_SCAN_ONLY == "true"'
       when: never
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
@@ -379,6 +392,8 @@ set-major-version:
   manual_confirmation: "Set the next Indezy major version from NEW_MAJOR_VERSION?"
   rules:
     - if: '$READER_CANARY == "true"'
+      when: never
+    - if: '$PLAYWRIGHT_SCHEDULE == "true"'
       when: never
     - if: '$SONAR_SCAN_ONLY == "true"'
       when: never

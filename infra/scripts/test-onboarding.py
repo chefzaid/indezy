@@ -219,6 +219,8 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(release_rule(dict(defaults, CI_PIPELINE_SOURCE="push")), "manual")
         self.assertEqual(release_rule(dict(defaults, CI_PIPELINE_SOURCE="web", PIPELINE_MODE="full")), "on_success")
         self.assertEqual(release_rule(dict(defaults, SONAR_SCAN_ONLY="true")), "never")
+        # The nightly Playwright schedule never releases.
+        self.assertEqual(release_rule(dict(defaults, PLAYWRIGHT_SCHEDULE="true")), "never")
         self.assertEqual(release_rule(dict(defaults, CI_COMMIT_BRANCH="feature")), "absent")
 
     def test_revision_guard_rejects_stale_source_before_publication_and_accepts_release_descendant(self):

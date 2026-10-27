@@ -413,6 +413,14 @@ by hand from the GitLab interface; every other job skips such a pipeline, so it 
 JUnit report and samples are kept 30 days. To set the weekly run up, create a pipeline schedule on `main` (CI/CD →
 Schedules, for instance `0 6 * * 1` in `Europe/Paris`) with the variable `READER_CANARY` set to `true`.
 
+## Scheduled E2E Runs
+
+On a push or merge request the Playwright suite (`01-e2e`) waits to be started by hand. A pipeline whose
+`PLAYWRIGHT_SCHEDULE` variable is `true`, started by a schedule or by hand, builds, tests and packages, then runs the
+suite on its own and fails when it fails; the quality and security reports, the release and the deploy skip such a
+pipeline. To run it every night, create a pipeline schedule on `main` (CI/CD → Schedules, for instance `30 2 * * *` in
+`Europe/Paris`) with the variable `PLAYWRIGHT_SCHEDULE` set to `true`. Its report is kept 7 days, as on any pipeline.
+
 ## Search Load Test
 
 `OfferSearchLoadTest` checks the offer feed stays fast with a production-sized catalogue. It collects 50,000 offers
