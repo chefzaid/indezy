@@ -726,6 +726,18 @@ other job site:
   reached (its `robots.txt` included, or an address off the public internet), or an address that is not a web page.
   Collection off on the server finds collected offers only.
 
+### Browser Extension
+
+The **Indezy: add this offer** extension for Chrome and the browsers built on Chromium (`indezy-web/extension`) adds the
+offer being read, on any site, to the pipeline: its toolbar button opens Indezy's new opportunity form with the page's
+address in the **Offer link** field, looked up at once as above (`/projects/new?from=link&url=<address>`), and a
+right-click on a link offers **Add this link to Indezy** for the linked page. The form opens in the browser's own
+Indezy session, so nothing is created before **Create** and the extension holds no password or token. Its options set
+the Indezy address (`https://indezy.swirlit.dev` by default; another HTTPS address, or `http://localhost` in
+development). It reads nothing on the pages visited: its permissions are the active tab (the address of the page whose
+button was clicked), the context menu and its own storage. The browser's own pages and local files are ignored. In
+English and French, following the browser.
+
 ### Profile Match
 
 Once the profile names skills, every offer is scored out of 100 against the profile's skills, target daily rate, city

@@ -316,6 +316,13 @@ npm test -- --watch=false --browsers=ChromeHeadless
 npm run lint
 ```
 
+## Browser Extension
+
+The extension lives in `indezy-web/extension` (Manifest V3, no build step). To try it, open `chrome://extensions`,
+turn on **Developer mode**, **Load unpacked** the folder, then set its address to `http://localhost:4200` in its options.
+`npm run test:extension` (in `indezy-web`) checks its scripts and runs its unit tests; `e2e/extension.spec.ts` loads it
+into Chromium. To package it for a store, zip the folder's contents (`cd extension && zip -r ../indezy-extension.zip .`).
+
 ## Google Maps API Key
 
 Commute-time sorting uses the Google Maps Distance Matrix API.

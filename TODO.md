@@ -112,6 +112,8 @@ Parts of tasks that cannot advance without the owner's decision or information. 
   - Answer:
 - [ ] Should contacts be anonymized after a retention period by default? It ships off: each account picks a period (1, 2, 3 or 5 years without exchange) in Profile → Preferences, so no one's contacts are cleared unannounced. The CNIL advises 3 years after the last contact for prospects. Options: (a) keep it opt-in; (b) 3 years for new accounts only; (c) 3 years for every account, existing ones included, announced in the interface first. *(task: Compliance & Trust › GDPR for third-party data; asked by: Coding Agent)*
   - Answer:
+- [ ] **Publishing the browser extension** (Chrome extension to capture postings): it is built (`indezy-web/extension`) and can be loaded unpacked. Publishing it in the Chrome Web Store needs a developer account (a one-time fee, under whose name?), a privacy policy URL (see **Publisher identity and legal texts**) and the store listing's screenshots; Firefox would need its own add-on account. Publish it, and where?
+  - Answer:
 
 - [ ] **Accounting tool connectors** (Invoicing and Compliance, "Direct connectors"): the FEC export already feeds any French accounting tool by import. Pushing entries straight into a tool needs a partner or developer account with it (Pennylane's API, Tiime, Indy…). Which tools do your users rely on, and do you have, or want to apply for, API access to them?
   - Answer:
@@ -237,7 +239,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [ ] Use OpenClaw to automate job posting for platforms without an API
 - [ ] Malt connector (Malt is not part of the offer feed below)
 - [x] One-click import of a job posting into the pipeline (URL paste -> parsed project). Done on 2026-10-21 through the offer link field: a link to a site the feed does not collect is read once for its schema.org `JobPosting` (else its title and summary) by `PostingReader`, on the public internet only (`PublicHosts`), and drafts the opportunity, saved with its client and source named (`POST /api/offers/postings/import`), once per link; a salaried posting is refused.
-- [ ] Chrome extension to capture postings from any site (already in roadmap - implement)
+- [x] Chrome extension to capture postings from any site (already in roadmap - implement): `indezy-web/extension` opens the new opportunity form for the page or link chosen, looked up at once (`docs/features.md#browser-extension`); publishing it waits in **Needs Input**
 
 ### Freelance Offer Feed (added 2026-10-19)
 

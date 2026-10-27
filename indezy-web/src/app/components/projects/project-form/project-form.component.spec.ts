@@ -102,7 +102,20 @@ describe('ProjectFormComponent', () => {
       const fresh = create(undefined, { from: 'link' });
       fresh.detectChanges();
       expect(fresh.componentInstance.startFromLink).toBeTrue();
+      expect(fresh.componentInstance.initialLink).toBeNull();
       expect(fresh.nativeElement.querySelector('app-offer-link-field')).not.toBeNull();
+
+      // The browser extension hands the offer's address with the page; without "from=link" it is ignored.
+      TestBed.resetTestingModule();
+      const handed = create(undefined, { from: 'link', url: 'https://jobs.example/7' });
+      offers.resolveLink.and.returnValue(of({ status: 'GONE', siteName: 'jobs.example' } as OfferLink));
+      handed.detectChanges();
+      expect(handed.componentInstance.initialLink).toBe('https://jobs.example/7');
+      expect(offers.resolveLink).toHaveBeenCalledWith('https://jobs.example/7');
+      TestBed.resetTestingModule();
+      const plain = create(undefined, { url: 'https://jobs.example/7' });
+      plain.detectChanges();
+      expect(plain.componentInstance.initialLink).toBeNull();
 
       TestBed.resetTestingModule();
       const editing = create(40);

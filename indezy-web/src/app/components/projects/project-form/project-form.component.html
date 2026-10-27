@@ -18,7 +18,7 @@
       }
 
       @if (!isLoading && !isEditMode) {
-        <app-offer-link-field [autofocus]="startFromLink" (found)="fillFromOffer($event)"></app-offer-link-field>
+        <app-offer-link-field [autofocus]="startFromLink" [initialLink]="initialLink" (found)="fillFromOffer($event)"></app-offer-link-field>
       }
       @if (offerLink; as link) {
         <div class="from-offer" data-from-offer>

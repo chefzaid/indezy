@@ -432,6 +432,14 @@ A shared link:
 
 At most 20 links are open at once per workspace.
 
+## Browser Extension
+
+The extension asks for no host permission: `activeTab` gives it the address of the tab whose button was clicked, the
+context menu the address of the link right-clicked, and `storage` its Indezy address (HTTPS only, or a local server). It
+opens Indezy's form in the browser's session, so it holds no credential and Indezy accepts nothing from it but an
+address. A page opened with `?from=link&url=` looks that address up at once, which reads at most the page asked (same
+SSRF guard and hourly limit as a pasted link) and creates nothing.
+
 ## Contacts' Data
 
 Contacts are other people's personal data, kept by the freelancer as controller. Each records its legal basis; on a

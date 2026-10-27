@@ -1,5 +1,5 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, EventEmitter, Input, Output, ViewChild,
-  inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, EventEmitter, Input, OnInit, Output,
+  ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
@@ -45,9 +45,11 @@ export interface OfferLinkMessage {
   styleUrls: ['./offer-link-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class OfferLinkFieldComponent implements AfterViewInit {
+export class OfferLinkFieldComponent implements OnInit, AfterViewInit {
   /** Puts the cursor in the field, as when the page was opened to start from a link. */
   @Input() autofocus = false;
+  /** A link handed with the page (by the browser extension): written in the field and looked up at once. */
+  @Input() initialLink?: string | null;
   /** An offer found, or a posting read from another site, not in the pipeline yet: its draft fills the form in. */
   @Output() readonly found = new EventEmitter<OfferLink>();
   @ViewChild('linkInput') private linkInput?: ElementRef<HTMLInputElement>;
@@ -65,8 +67,15 @@ export class OfferLinkFieldComponent implements AfterViewInit {
   private lookup?: Subscription;
   private last?: OfferLink;
 
+  ngOnInit(): void {
+    if (this.initialLink?.trim()) {
+      this.link.setValue(this.initialLink.trim());
+      this.fill();
+    }
+  }
+
   ngAfterViewInit(): void {
-    if (this.autofocus) {
+    if (this.autofocus && !this.initialLink?.trim()) {
       this.linkInput?.nativeElement.focus();
     }
   }

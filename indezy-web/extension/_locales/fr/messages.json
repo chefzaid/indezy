@@ -1,0 +1,32 @@
+{
+  "name": {
+    "message": "Indezy : ajouter cette offre"
+  },
+  "description": {
+    "message": "Ajoute l'offre que vous lisez, sur n'importe quel site, à votre pipeline Indezy."
+  },
+  "action": {
+    "message": "Ajouter cette offre à Indezy"
+  },
+  "menuLink": {
+    "message": "Ajouter ce lien à Indezy"
+  },
+  "optionsTitle": {
+    "message": "Indezy : ajouter cette offre"
+  },
+  "optionsBase": {
+    "message": "Votre adresse Indezy"
+  },
+  "optionsHint": {
+    "message": "L'adresse où vous ouvrez Indezy, comme https://indezy.swirlit.dev. L'extension ne lit rien des pages que vous visitez : elle transmet à Indezy l'adresse de la page ou du lien que vous choisissez."
+  },
+  "optionsSave": {
+    "message": "Enregistrer"
+  },
+  "optionsSaved": {
+    "message": "Enregistré."
+  },
+  "optionsInvalid": {
+    "message": "Saisissez une adresse https:// sans chemin."
+  }
+}

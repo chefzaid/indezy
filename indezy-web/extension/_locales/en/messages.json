@@ -1,0 +1,32 @@
+{
+  "name": {
+    "message": "Indezy: add this offer"
+  },
+  "description": {
+    "message": "Adds the job offer you are reading, on any site, to your Indezy pipeline."
+  },
+  "action": {
+    "message": "Add this offer to Indezy"
+  },
+  "menuLink": {
+    "message": "Add this link to Indezy"
+  },
+  "optionsTitle": {
+    "message": "Indezy: add this offer"
+  },
+  "optionsBase": {
+    "message": "Your Indezy address"
+  },
+  "optionsHint": {
+    "message": "The address you open Indezy at, such as https://indezy.swirlit.dev. The extension reads nothing on the pages you visit: it hands Indezy the address of the page or link you choose."
+  },
+  "optionsSave": {
+    "message": "Save"
+  },
+  "optionsSaved": {
+    "message": "Saved."
+  },
+  "optionsInvalid": {
+    "message": "Enter an https:// address without a path."
+  }
+}

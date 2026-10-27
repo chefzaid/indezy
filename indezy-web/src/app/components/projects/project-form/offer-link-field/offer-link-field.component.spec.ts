@@ -159,6 +159,21 @@ describe('OfferLinkFieldComponent', () => {
     tick(READING_FOR_MS + LOOK_AGAIN_MS);
   }));
 
+  it('looks up a link handed with the page at once, without taking the cursor', () => {
+    offers.resolveLink.and.returnValue(of(found));
+    const handed = TestBed.createComponent(OfferLinkFieldComponent);
+    handed.componentInstance.initialLink = ' https://www.free-work.com/fr/mission/7 ';
+    handed.componentInstance.autofocus = true;
+    const received: OfferLink[] = [];
+    handed.componentInstance.found.subscribe(link => received.push(link));
+    handed.detectChanges();
+
+    expect(handed.componentInstance.link.value).toBe('https://www.free-work.com/fr/mission/7');
+    expect(offers.resolveLink).toHaveBeenCalledWith('https://www.free-work.com/fr/mission/7');
+    expect(received).toEqual([found]);
+    expect(document.activeElement).not.toBe(handed.nativeElement.querySelector('input'));
+  });
+
   it('puts the cursor in the field when asked', () => {
     const focused = TestBed.createComponent(OfferLinkFieldComponent);
     focused.componentInstance.autofocus = true;

@@ -77,6 +77,8 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   newSourceName?: string;
   /** The page was opened to start from an offer's link. */
   startFromLink = false;
+  /** The offer's address handed with the page (`?from=link&url=`), as the browser extension does. */
+  initialLink: string | null = null;
   readonly NEW_RECORD = NEW_RECORD;
 
   readonly statusOptions = Object.values(ProjectStatus);
@@ -120,6 +122,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     this.loadReferenceData();
 
     this.startFromLink = this.route.snapshot.queryParamMap.get('from') === 'link';
+    this.initialLink = this.startFromLink ? this.route.snapshot.queryParamMap.get('url') : null;
     const requestedStatus = this.route.snapshot.queryParamMap.get('status');
     if (requestedStatus && this.statusOptions.includes(requestedStatus as ProjectStatus)) {
       this.projectForm.patchValue({ status: requestedStatus });

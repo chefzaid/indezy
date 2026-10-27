@@ -501,6 +501,12 @@ axe-core) hide the charts, move the recent opportunities up, and find the layout
 Billing scenarios (`e2e/billing.spec.ts`, on a desktop and on a phone, audited with axe-core) fill in the billing
 identity, a wrong IBAN refused, until the tab says invoices can be issued.
 
+Extension scenarios (`e2e/extension.spec.ts`) load the browser extension into Chromium: its options refuse an address
+over HTTP or with a path (audited with axe-core) and keep an HTTPS one, then it opens the new opportunity form for a
+page's address at the address set, and ignores the browser's own pages. Its helpers are unit-tested with Node
+(`npm run test:extension`: the address kept, web pages only, the form's address), and the offer link field's
+`offer-link-field.component.spec.ts` and `project-form.component.spec.ts` cover the link handed with the page.
+
 Contact privacy scenarios (`e2e/contact-privacy.spec.ts`, on a desktop and on a phone, the card audited with axe-core)
 download a contact's data and erase the contact once confirmed.
 
