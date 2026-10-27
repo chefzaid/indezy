@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A freelance mission published on a job board, normalized by the offer collection
@@ -152,6 +153,14 @@ public class JobOffer extends BaseEntity {
     @Column(name = "search_text", columnDefinition = "TEXT")
     private String searchText;
 
+    /**
+     * When the profile terms the offer mentions were recorded ({@code OfferMentionIndexer}); null while they are not,
+     * as for a new offer or once its text or skills change, and the offer is then matched on its text.
+     */
+    @Column(name = "mentions_indexed_at")
+    @Setter(AccessLevel.NONE)
+    private Instant mentionsIndexedAt;
+
     /** Title and publisher, hashed: one of the two keys that tell copies on other sites (see OfferFingerprint). */
     @Column(name = "publisher_key", length = 64)
     private String publisherKey;
@@ -168,6 +177,14 @@ public class JobOffer extends BaseEntity {
      * Takes what a new reading of the offer says. When Indezy first saw it is kept, and so is the
      * publication date when the site gives none (a first-seen date never moves).
      */
+    /** The search text; a new one has the offer's mentions recorded again. */
+    public void setSearchText(String searchText) {
+        if (!Objects.equals(this.searchText, searchText)) {
+            mentionsIndexedAt = null;
+        }
+        this.searchText = searchText;
+    }
+
     public void updateFrom(JobOffer collected) {
         url = collected.url;
         title = collected.title;
@@ -195,9 +212,10 @@ public class JobOffer extends BaseEntity {
         if (!skills.equals(collected.skills)) {
             skills.clear();
             skills.addAll(collected.skills);
+            mentionsIndexedAt = null;
         }
         expiresAt = collected.expiresAt;
-        searchText = collected.searchText;
+        setSearchText(collected.searchText);
         publisherKey = collected.publisherKey;
         openingKey = collected.openingKey;
         lastSeenAt = collected.lastSeenAt;
@@ -222,7 +240,12 @@ public class JobOffer extends BaseEntity {
         return skills != null ? new ArrayList<>(skills) : new ArrayList<>();
     }
 
+    /** The skill list; a new one has the offer's mentions recorded again. */
     public void setSkills(List<String> skills) {
-        this.skills = skills != null ? new ArrayList<>(skills) : new ArrayList<>();
+        List<String> copy = skills != null ? new ArrayList<>(skills) : new ArrayList<>();
+        if (!copy.equals(this.skills)) {
+            mentionsIndexedAt = null;
+        }
+        this.skills = copy;
     }
 }

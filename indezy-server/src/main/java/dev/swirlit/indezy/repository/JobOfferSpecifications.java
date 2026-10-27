@@ -311,7 +311,7 @@ public final class JobOfferSpecifications {
         return Long.class.equals(query.getResultType()) || long.class.equals(query.getResultType());
     }
 
-    static String escapeLike(String term) {
+    public static String escapeLike(String term) {
         return term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 }

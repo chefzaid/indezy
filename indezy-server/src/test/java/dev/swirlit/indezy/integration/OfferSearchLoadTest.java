@@ -10,6 +10,8 @@ import dev.swirlit.indezy.repository.GeoPlaceRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import dev.swirlit.indezy.scraping.OfferNormalizer;
 import dev.swirlit.indezy.scraping.OfferStore;
+import dev.swirlit.indezy.repository.OfferMatch;
+import dev.swirlit.indezy.service.OfferMentionIndexer;
 import dev.swirlit.indezy.service.OfferRateBenchmarkService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -152,10 +154,14 @@ class OfferSearchLoadTest {
     @Autowired
     private JdbcTemplate jdbc;
 
+    @Autowired
+    private OfferMentionIndexer mentions;
+
     @Test
     void searchesStayFastWithFiftyThousandOffers() throws Exception {
         Duration seeding = seed();
         Account account = workspace();
+        Duration recording = record();
         // Warm the server and the database cache, as an hour of real use would.
         SEARCHES.forEach(scenario -> time(account, scenario));
         List<Sample> alone = new ArrayList<>();
@@ -165,7 +171,7 @@ class OfferSearchLoadTest {
         List<Sample> searches = underLoad(account, SEARCHES);
         List<Sample> panels = underLoad(account, PANELS);
 
-        String report = report(seeding, alone, searches, panels);
+        String report = report(seeding, recording, alone, searches, panels);
         Files.createDirectories(REPORT.getParent());
         Files.writeString(REPORT, report);
         LOG.info("Search load test\n{}", report);
@@ -285,7 +291,16 @@ class OfferSearchLoadTest {
         return samples.stream().filter(sample -> !sample.answered()).count();
     }
 
-    private String report(Duration seeding, List<Sample> alone, List<Sample> searches, List<Sample> panels) {
+    /** Records the profile's terms in every offer, as the scheduler does once a minute; how long it took. */
+    private Duration record() {
+        long start = System.nanoTime();
+        mentions.indexed(new OfferMatch.Profile(List.of("Java", "Spring Boot", "Kubernetes"), null, null).terms());
+        mentions.indexPending(Integer.MAX_VALUE);
+        jdbc.execute("ANALYZE");
+        return Duration.ofNanos(System.nanoTime() - start);
+    }
+
+    private String report(Duration seeding, Duration recording, List<Sample> alone, List<Sample> searches, List<Sample> panels) {
         StringBuilder report = new StringBuilder();
         report.append("| | |\n|---|---|\n")
             .append("| Database | ").append(jdbc.queryForObject("show server_version", String.class)).append(" |\n")
@@ -296,6 +311,7 @@ class OfferSearchLoadTest {
                 "yes" : "no").append(" |\n")
             .append("| Server processors | ").append(Runtime.getRuntime().availableProcessors()).append(" |\n")
             .append("| Seeding or reuse | ").append(seeding.toSeconds()).append(" s |\n")
+            .append("| Mentions recorded (offers left to record, profile terms) | ").append(recording.toSeconds()).append(" s |\n")
             .append("| Searches | ").append(searches.size()).append(", ").append(CONCURRENCY).append(" at a time: p50 ")
             .append(percentile(searches, 50)).append(" ms, p95 ").append(percentile(searches, 95)).append(" ms, max ")
             .append(percentile(searches, 100)).append(" ms, ").append(failed(searches)).append(" not answered |\n\n");

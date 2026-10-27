@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.JobOfferState;
 import dev.swirlit.indezy.model.OfferApplication;
+import dev.swirlit.indezy.model.OfferMention;
 import dev.swirlit.indezy.model.OfferPublisherBlock;
 import dev.swirlit.indezy.model.OfferSiteExclusion;
 import dev.swirlit.indezy.model.enums.ApplicationChannel;
@@ -32,6 +33,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -367,6 +369,46 @@ class JobOfferSpecificationsTest {
                 .containsExactlyInAnyOrderElementsOf(scores.entrySet().stream()
                     .filter(entry -> entry.getValue() >= OfferMatch.GOOD_MATCH).map(Map.Entry::getKey).toList());
         }
+    }
+
+    @Test
+    void scoresOffersFromTheirRecordedMentionsAsFromTheirText() {
+        List<OfferMatch.Profile> profiles = List.of(
+            new OfferMatch.Profile(List.of("Java", "Spring", "AWS"), 600, PARIS),
+            new OfferMatch.Profile(List.of("Kubernetes", "Spark", "Cloud"), null, null),
+            new OfferMatch.Profile(List.of("JS", "Node.js", "Java"), 700, null));
+        // Every offer's mentions recorded as the indexer does, but Lyon's, matched on its text as a new offer is.
+        List<String> terms = profiles.stream().flatMap(profile -> profile.terms().stream()).distinct().toList();
+        for (JobOffer offer : repository.findAll()) {
+            if (offer.getExternalId().equals("lyon")) {
+                continue;
+            }
+            terms.stream().filter(term -> OfferMatch.mentions(offer.getSearchText(), offer.getSkills(), term))
+                .forEach(term -> entityManager.persist(new OfferMention(offer.getId(), term)));
+            entityManager.getEntityManager().createNativeQuery("UPDATE job_offers SET mentions_indexed_at = CURRENT_TIMESTAMP WHERE id = ?")
+                .setParameter(1, offer.getId()).executeUpdate();
+        }
+        entityManager.flush();
+        entityManager.clear();
+
+        for (OfferMatch.Profile plain : profiles) {
+            OfferMatch.Profile profile = plain.recording(Set.copyOf(terms));
+            List<JobOffer> open = repository.findAll().stream().filter(offer -> offer.getExpiresAt() == null).toList();
+            Map<String, Integer> scores = new HashMap<>();
+            open.forEach(offer -> scores.put(offer.getExternalId(), OfferMatch.score(offer, offer.getSkills(), profile).score()));
+            List<String> byScore = open.stream()
+                .sorted(Comparator.comparing((JobOffer offer) -> scores.get(offer.getExternalId())).reversed()
+                    .thenComparing(JobOffer::getPublishedAt, Comparator.reverseOrder()))
+                .map(JobOffer::getExternalId)
+                .toList();
+
+            assertThat(search(request(r -> r.setSort(OfferSearchRequest.Sort.MATCH)), profile)).as("%s", profile).isEqualTo(byScore);
+            assertThat(search(request(r -> r.setMatchesProfile(true)), profile)).as("%s", profile)
+                .containsExactlyInAnyOrderElementsOf(scores.entrySet().stream()
+                    .filter(entry -> entry.getValue() >= OfferMatch.GOOD_MATCH).map(Map.Entry::getKey).toList());
+        }
+        assertThat(repository.findAll()).filteredOn(offer -> offer.getMentionsIndexedAt() == null).extracting(JobOffer::getExternalId)
+            .containsExactly("lyon");
     }
 
     @Test

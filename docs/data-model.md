@@ -455,6 +455,8 @@ Important fields:
 - `publishedAt` with `datePrecision` (`EXACT`, `DAY`, or `FIRST_SEEN` when the site gives no date and the offer is
   dated when first collected), `firstSeenAt`, `lastSeenAt`, `expiresAt`
 - `searchText`: folded title, company, place, skills and description beginning, for keyword search
+- `mentionsIndexedAt`: when the profile terms the offer mentions were recorded (`offer_mentions`); null for a new offer
+  and whenever its search text or skills change, the offer then being matched on its text
 - `publisherKey` and `openingKey`: SHA-256 of the folded title with the publisher (the company, or the site when it
   publishes its own missions), and with the first 60 characters of the text (`null` when shorter); `copyGroup`:
   shared by the copies of one mission on several sites, named after the smallest offer id of the group (`null` for
@@ -465,6 +467,17 @@ Important fields:
 Indexes: `published_at` (the feed's order), `department_code`, `publisher_key`, `opening_key` and `copy_group`; on
 PostgreSQL, a trigram index of `search_text` (`idx_job_offers_search_text_trgm`, built at startup by `OfferSearchIndex`,
 see [Architecture](./architecture.md#offer-search-at-scale)).
+
+## OfferTerm And OfferMention
+
+Tables: `offer_terms`, `offer_mentions`
+
+Purpose: which profile terms each offer mentions, so profile matching joins rows instead of reading texts (see
+[Architecture](./architecture.md#offer-search-at-scale)).
+
+- `offer_terms`: `term` (a folded spelling of a profile's skill, primary key), `indexed` (every offer recorded so far
+  has its mentions of it), `createdAt`; the row `#lock` is held while offers or terms are recorded.
+- `offer_mentions`: `offer_id` (deleted with its offer) and `term`, primary key together, indexed by term then offer.
 
 ## JobOfferState
 

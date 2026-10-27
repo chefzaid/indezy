@@ -5,6 +5,7 @@ import dev.swirlit.indezy.dto.OfferMatchDto.AvailabilityFit;
 import dev.swirlit.indezy.dto.OfferMatchDto.PlaceFit;
 import dev.swirlit.indezy.dto.OfferMatchDto.RateFit;
 import dev.swirlit.indezy.model.JobOffer;
+import dev.swirlit.indezy.model.OfferMention;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.JobOfferSpecifications.Origin;
 import dev.swirlit.indezy.util.SkillNames;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -48,7 +50,7 @@ public final class OfferMatch {
     /** Profile skills an offer is measured against at most. */
     static final int MAX_SKILLS = 20;
     /** Shorter skills ("Go", "R", "C#") are looked for in the offer's skill list only: in a text they are common words. */
-    static final int MIN_TEXT_SKILL_LENGTH = 3;
+    public static final int MIN_TEXT_SKILL_LENGTH = 3;
     static final int NEAR_KM = 30;
     static final int REACHABLE_KM = 80;
     /** Remote days a week that make a far hybrid mission workable. */
@@ -66,12 +68,27 @@ public final class OfferMatch {
      * target daily rate, where it lives and the day it is available from (today when that day has passed, as
      * {@code today} says), each optional.
      */
-    public record Profile(List<String> skills, Integer targetRate, Origin origin, LocalDate availableFrom, LocalDate today) {
+    public record Profile(List<String> skills, Integer targetRate, Origin origin, LocalDate availableFrom, LocalDate today,
+                          Set<String> recordedTerms) {
 
         public static final Profile NONE = new Profile(List.of(), null, null);
 
         public Profile(List<String> skills, Integer targetRate, Origin origin) {
             this(skills, targetRate, origin, null, null);
+        }
+
+        public Profile(List<String> skills, Integer targetRate, Origin origin, LocalDate availableFrom, LocalDate today) {
+            this(skills, targetRate, origin, availableFrom, today, Set.of());
+        }
+
+        /** The same profile, the given terms' mentions being recorded ({@code OfferMentionIndexer}). */
+        public Profile recording(Set<String> terms) {
+            return new Profile(skills, targetRate, origin, availableFrom, today, terms);
+        }
+
+        /** The terms a profile's skills are matched by: every spelling of each. */
+        public List<String> terms() {
+            return skills.stream().flatMap(skill -> SkillNames.variants(skill).stream()).distinct().toList();
         }
 
         public Profile {
@@ -84,6 +101,7 @@ public final class OfferMatch {
                 }
             }
             skills = List.copyOf(byKey.values());
+            recordedTerms = recordedTerms == null ? Set.of() : Set.copyOf(recordedTerms);
             targetRate = targetRate != null && targetRate > 0 ? targetRate : null;
             if (availableFrom == null || today == null) {
                 availableFrom = null;
@@ -139,7 +157,7 @@ public final class OfferMatch {
     }
 
     /** A folded skill in the offer's search text, as a whole word, or (when short) in its skill list. */
-    static boolean mentions(String searchText, List<String> skills, String skill) {
+    public static boolean mentions(String searchText, List<String> skills, String skill) {
         if (skill.length() < MIN_TEXT_SKILL_LENGTH) {
             return skills.stream().anyMatch(listed -> listed.toLowerCase(Locale.ROOT).equals(skill));
         }
@@ -205,7 +223,8 @@ public final class OfferMatch {
     static Expression<Integer> points(Profile profile, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
         Expression<Integer> mentioned = cb.literal(0);
         for (String skill : profile.skills()) {
-            mentioned = cb.sum(mentioned, cb.<Integer>selectCase().when(mentions(SkillNames.variants(skill), root, query, cb), 1).otherwise(0));
+            mentioned = cb.sum(mentioned, cb.<Integer>selectCase().when(mentions(SkillNames.variants(skill), profile, root, query, cb), 1)
+                .otherwise(0));
         }
         int full = profile.skillsForFull();
         // least() names the skills once: each mention is a subquery the database would otherwise run twice.
@@ -227,8 +246,29 @@ public final class OfferMatch {
         return cb.ge(cb.prod(points(profile, root, query, cb), 200), (2 * GOOD_MATCH - 1) * profile.available());
     }
 
-    /** Whether the offer names one of a skill's spellings: the short ones in its skill list, the others in its text. */
-    private static Predicate mentions(List<String> variants, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb) {
+    /**
+     * Whether the offer names one of a skill's spellings. When every spelling's mentions are recorded, a recorded offer
+     * is looked up in {@code offer_mentions}, and one not recorded yet is read as below, on its own text.
+     */
+    private static Predicate mentions(List<String> variants, Profile profile, Root<JobOffer> root, CommonAbstractCriteria query,
+                                      CriteriaBuilder cb) {
+        if (!profile.recordedTerms().containsAll(variants)) {
+            return mentions(variants, root, query, cb, false);
+        }
+        Subquery<String> recorded = query.subquery(String.class);
+        Root<OfferMention> mention = recorded.from(OfferMention.class);
+        recorded.select(mention.get("id").get("term")).where(cb.equal(mention.get("id").get("offerId"), root.get("id")),
+            mention.get("id").get("term").in(variants));
+        return cb.or(cb.and(cb.isNotNull(root.get("mentionsIndexedAt")), cb.exists(recorded)),
+            cb.and(cb.isNull(root.get("mentionsIndexedAt")), mentions(variants, root, query, cb, true)));
+    }
+
+    /**
+     * Whether the offer names one of a skill's spellings: the short ones in its skill list, the others in its text;
+     * {@code direct} reads the offer's own text rather than the trigram index, for the few offers not recorded yet.
+     */
+    private static Predicate mentions(List<String> variants, Root<JobOffer> root, CommonAbstractCriteria query, CriteriaBuilder cb,
+                                      boolean direct) {
         List<String> shortOnes = variants.stream().filter(variant -> variant.length() < MIN_TEXT_SKILL_LENGTH).toList();
         List<String> words = variants.stream().filter(variant -> variant.length() >= MIN_TEXT_SKILL_LENGTH)
             .map(JobOfferSpecifications::escapeLike).toList();
@@ -250,7 +290,7 @@ public final class OfferMatch {
             };
             // A subquery reads the copies of one mission (see JobOfferSpecifications#earlierCopy): their few texts are
             // read directly. The feed's offers come from the trigram index, which only their texts are read on.
-            found.add(query instanceof Subquery<?> ? wholeWord.apply(root.get("searchText")) :
+            found.add(direct || query instanceof Subquery<?> ? wholeWord.apply(root.get("searchText")) :
                 root.get("id").in(JobOfferSpecifications.textMatching(query, cb, wholeWord)));
         }
         return cb.or(found.toArray(Predicate[]::new));

@@ -32,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -80,6 +81,8 @@ public class OfferSearchService {
     private final OfferRateBenchmarkService benchmarks;
     private final OfferHistoryService history;
     private final Clock clock;
+    /** Records the profile's terms in the offers; none until Spring sets it (unit tests build the service by hand). */
+    private OfferMentionIndexer mentions;
     private final ExpiringValue<Map<OfferSite, Long>> openBySite = new ExpiringValue<>(FACETS_KEEP_FOR, this::countOpenBySite);
     private final ExpiringValue<List<SkillCount>> openSkills = new ExpiringValue<>(FACETS_KEEP_FOR, this::countOpenSkills);
 
@@ -198,8 +201,15 @@ public class OfferSearchService {
 
     /** What the workspace's offers are measured against: the profile's skills, target daily rate, city and availability. */
     public OfferMatch.Profile profile(Long freelanceId) {
-        return new OfferMatch.Profile(freelances.findProfileSkills(freelanceId), freelances.findTargetDailyRate(freelanceId).orElse(null),
-            origin(freelanceId).orElse(null), freelances.findAvailabilityDate(freelanceId).orElse(null), LocalDate.now(clock.withZone(PARIS)));
+        OfferMatch.Profile profile = new OfferMatch.Profile(freelances.findProfileSkills(freelanceId),
+            freelances.findTargetDailyRate(freelanceId).orElse(null), origin(freelanceId).orElse(null),
+            freelances.findAvailabilityDate(freelanceId).orElse(null), LocalDate.now(clock.withZone(PARIS)));
+        return profile.canMatch() && mentions != null ? profile.recording(mentions.indexed(profile.terms())) : profile;
+    }
+
+    @Autowired
+    void setMentions(OfferMentionIndexer mentions) {
+        this.mentions = mentions;
     }
 
     /** Where distances are measured from: the profile's city, or the workspace's. */
