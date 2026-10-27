@@ -917,7 +917,21 @@
       "searchEmails": "Each saved search can also email its new offers, at once or daily:",
       "searchEmailsLink": "set it on the search",
       "remindersTitle": "Reminders",
-      "remindersDesc": "Interviews coming up, follow-ups due and opportunities gone quiet are always shown on your dashboard."
+      "remindersDesc": "Interviews coming up, follow-ups due and opportunities gone quiet are always shown on your dashboard.",
+      "sectionsLegend": "What the digest gives",
+      "sections": {
+        "PIPELINE": "Where the pipeline stands",
+        "OVERDUE_INVOICES": "Overdue invoices",
+        "INTERVIEWS": "The week's interviews",
+        "FOLLOW_UPS": "Follow-ups due",
+        "QUIET_OPPORTUNITIES": "Opportunities gone quiet",
+        "MISSIONS_ENDING": "Missions ending",
+        "OFFERS": "New offers matching your profile"
+      },
+      "bookingTitle": "Booked calls",
+      "booking": "Email me each call booked",
+      "bookingDesc": "As soon as a recruiter books a call through your booking link, with their details and message. The link is set up under the",
+      "bookingLink": "calendar"
     },
     "errors": {
       "loadingProfile": "Error loading profile",
@@ -1181,6 +1195,7 @@
         "ACTIVITY_REPORT_REJECTED": "Activity report rejected",
         "INVOICE_ISSUED": "Invoice issued",
         "INVOICE_PAID": "Invoice paid",
+        "CALL_BOOKED": "Call booked",
         "PING": "Test"
       },
       "statuses": {

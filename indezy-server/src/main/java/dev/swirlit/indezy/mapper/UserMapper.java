@@ -79,11 +79,16 @@ public interface UserMapper {
     // Notification settings mapping
     @Mapping(target = "weeklyReports", expression = "java(Boolean.TRUE.equals(user.getWeeklyReports()))")
     @Mapping(target = "newOffersBadge", expression = "java(!Boolean.FALSE.equals(user.getNewOffersBadge()))")
+    @Mapping(target = "bookingEmails", expression = "java(!Boolean.FALSE.equals(user.getBookingEmails()))")
     @Mapping(target = "emailsAvailable", ignore = true)
     UserNotificationSettingsDto toNotificationSettingsDto(User user);
 
-    /** Sets the switches the request names, leaving the others as they are. */
+    /**
+     * Sets the switches the request names, leaving the others as they are. The digest's sections are set by the service:
+     * mapped, they would be added to the copy the account's getter returns.
+     */
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, ignoreUnmappedSourceProperties = "emailsAvailable")
+    @Mapping(target = "weeklyDigestSections", ignore = true)
     void updateNotificationSettings(UserNotificationSettingsDto dto, @MappingTarget User user);
 
     // Preferences mapping

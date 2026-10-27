@@ -9,6 +9,7 @@ import dev.swirlit.indezy.mail.ResendMailer;
 import dev.swirlit.indezy.mail.WeeklyDigestComposer;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
+import dev.swirlit.indezy.model.enums.DigestSection;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.UserRepository;
@@ -30,6 +31,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Base64;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The weekly digest (see docs/features.md#weekly-digest): every Monday from 8:00, Paris time, each account that turned
@@ -50,6 +52,7 @@ public class WeeklyDigestService {
     private static final int TOKEN_BYTES = 32;
     private static final int MAX_TOKEN_LENGTH = 64;
     private static final SecureRandom RANDOM = new SecureRandom();
+    private static final OfferPageDto NO_OFFERS = new OfferPageDto(List.of(), 0, 0, 0, 0, false, false);
 
     /** A digest claimed for sending, and the week the account was sent before. */
     private record Claim(Email email, LocalDate previous) {
@@ -149,17 +152,19 @@ public class WeeklyDigestService {
             return null;
         }
         Instant now = clock.instant();
-        OfferPageDto found = matchingOffers(freelance.getId(), now);
+        Set<DigestSection> kept = user.getWeeklyDigestSections();
+        OfferPageDto found = kept.contains(DigestSection.OFFERS) ? matchingOffers(freelance.getId(), now) : NO_OFFERS;
         WeeklyDigestComposer.Digest digest = new WeeklyDigestComposer.Digest(user.getId(), user.getFirstName(), user.getEmail(),
             "en".equalsIgnoreCase(user.getLanguagePreference()) ? DocumentLanguage.EN : DocumentLanguage.FR, user.getWeeklyDigestToken(),
-            week, WeeklyDigestComposer.Week.of(dashboard.getDashboardStats(freelance.getId(), null)), found.content(), found.totalElements());
+            week, WeeklyDigestComposer.Week.of(dashboard.getDashboardStats(freelance.getId(), null)).only(kept), found.content(),
+            found.totalElements());
         return digest.isEmpty() ? null : new Claim(composer.compose(digest), previous);
     }
 
     /** The offers found in the last 7 days that match the profile, best match first; none without profile skills. */
     private OfferPageDto matchingOffers(Long freelanceId, Instant now) {
         if (offers.profile(freelanceId).skills().isEmpty()) {
-            return new OfferPageDto(List.of(), 0, 0, 0, 0, false, false);
+            return NO_OFFERS;
         }
         OfferSearchRequest request = new OfferSearchRequest();
         request.setMatchesProfile(true);

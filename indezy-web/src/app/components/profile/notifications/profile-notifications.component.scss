@@ -18,6 +18,22 @@
     margin-bottom: 8px;
   }
 
+  .sections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 16px;
+    margin: 8px 0 0;
+    padding: 4px 8px 8px;
+    border: 1px solid var(--app-border);
+    border-radius: 4px;
+
+    legend {
+      padding: 0 4px;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+  }
+
   .notification-description {
     margin: 4px 0 0;
     color: var(--text-secondary);

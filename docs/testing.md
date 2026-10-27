@@ -169,7 +169,11 @@ Representative backend tests:
   and `ApiTokenScopeInterceptorTest` (reads allowed, writes and account paths refused however written, sessions left alone)
 - weekly digest and notifications: `WeeklyDigestIntegrationTest` (Alice's digest turned on from her notifications,
   refused by Resend then sent once in English with her interview and the new offer matching her profile, never to Bob,
-  and stopped by the one-click unsubscribe), `WeeklyDigestComposerTest` (every section in French with escaped HTML,
+  and stopped by the one-click unsubscribe; the sections she left out missing from it, kept when another switch changes),
+  `BookingNoticeIntegrationTest` (an email for a call booked, refused by Resend then sent once, none for a call cancelled
+  before it was told or once turned off; her webhook told of the call without the recruiter's name or email),
+  `BookingEmailComposerTest` (the call in French and English, Paris time, without or with company and message, escaped
+  HTML), `WeeklyDigestComposerTest` (every section in French with escaped HTML,
   empty sections left out, an empty week), `WeeklyDigestServiceTest` (due from Monday 8:00 Paris time in winter and
   summer, the unsubscribe token given once), `UserServiceTest` and `UserManagementIntegrationTest` (the switches, a `PUT`
   changing only those it names)
@@ -258,7 +262,8 @@ Representative frontend specs:
   session ended on the server at sign-out with a keepalive request)
 - API tokens: `profile-api-tokens.component.spec.ts` (tokens listed with their use and expiry, one created and shown
   once with an example and copied, a failure, the limit of ten, revoked once confirmed)
-- notifications: `profile-notifications.component.spec.ts` (the two switches, emails unavailable, the digest turned on,
+- notifications: `profile-notifications.component.spec.ts` (the three switches, emails unavailable, the digest turned on
+  and its sections kept or left out with the last one staying,
   the badge taken off the menu and put back, a switch put back on failure) and `app.component.spec.ts` (the badge left
   off after sign-in when turned off, on when the settings cannot be read)
 - dashboard layout: `dashboard-customize-dialog.component.spec.ts` (blocks in the account's order, reordered by

@@ -39,6 +39,10 @@ public class Booking extends BaseEntity {
     @Column(name = "cancelled_at")
     private Instant cancelledAt;
 
+    /** When the freelancer's email about the call was claimed for sending (or skipped); null until then. */
+    @Column(name = "notice_sent_at")
+    private Instant noticeSentAt;
+
     @Override
     public String toString() {
         return "Booking[" + getId() + "]";

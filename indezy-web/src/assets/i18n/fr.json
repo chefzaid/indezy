@@ -917,7 +917,21 @@
       "searchEmails": "Chaque recherche enregistrée peut aussi envoyer ses nouvelles offres par email, aussitôt ou chaque jour :",
       "searchEmailsLink": "à régler sur la recherche",
       "remindersTitle": "Rappels",
-      "remindersDesc": "Les entretiens à venir, les relances à faire et les opportunités sans nouvelles s'affichent toujours sur votre tableau de bord."
+      "remindersDesc": "Les entretiens à venir, les relances à faire et les opportunités sans nouvelles s'affichent toujours sur votre tableau de bord.",
+      "sectionsLegend": "Ce que donne le résumé",
+      "sections": {
+        "PIPELINE": "Où en est le pipeline",
+        "OVERDUE_INVOICES": "Factures en retard",
+        "INTERVIEWS": "Les entretiens de la semaine",
+        "FOLLOW_UPS": "Relances à faire",
+        "QUIET_OPPORTUNITIES": "Opportunités sans nouvelles",
+        "MISSIONS_ENDING": "Missions qui se terminent",
+        "OFFERS": "Nouvelles offres correspondant à votre profil"
+      },
+      "bookingTitle": "Appels réservés",
+      "booking": "M'envoyer chaque appel réservé par e-mail",
+      "bookingDesc": "Dès qu'un recruteur réserve un appel par votre lien de réservation, avec ses coordonnées et son message. Le lien se règle sous le",
+      "bookingLink": "calendrier"
     },
     "errors": {
       "loadingProfile": "Erreur lors du chargement du profil",
@@ -1181,6 +1195,7 @@
         "ACTIVITY_REPORT_REJECTED": "CRA refusé",
         "INVOICE_ISSUED": "Facture émise",
         "INVOICE_PAID": "Facture payée",
+        "CALL_BOOKED": "Appel réservé",
         "PING": "Test"
       },
       "statuses": {

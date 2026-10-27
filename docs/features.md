@@ -136,15 +136,20 @@ yet (TODO.md).
 
 **Profile → Notifications** holds the notifications the account can choose, each saved as soon as it is switched:
 
-- **Weekly digest** (email, off by default): see below. When the server has no email key, the tab says the digest
+- **Weekly digest** (email, off by default): see below. Turned on, it lists its sections (the pipeline, overdue
+  invoices, the week's interviews, follow-ups due, opportunities gone quiet, missions ending, new offers matching the
+  profile), each kept or left out, at least one staying. When the server has no email key, the tab says the digest
   starts once it can send.
+- **Booked calls** (email, on by default): an email as soon as a recruiter books a call through the
+  [booking link](#booking-link), with when (Paris time), the recruiter's name, company, email and message, and a link to
+  the calendar.
 - **New offers** (in the app, on by default): the count of the saved searches' new offers next to **Offers** in the
   menu; turned off, the menu shows none and stops counting. Each saved search's own emails are set on the search.
 - **Reminders**: interviews coming up, follow-ups due and opportunities gone quiet always show on the dashboard.
 
 Push notifications wait on the choice of a mobile technology (TODO.md, Needs Input). The settings are read and changed
-through `GET` and `PUT /api/users/notifications` (`weeklyReports`, `newOffersBadge`, and the read-only
-`emailsAvailable`); a `PUT` changes only the switches it names.
+through `GET` and `PUT /api/users/notifications` (`weeklyReports`, `weeklyDigestSections`, `bookingEmails`,
+`newOffersBadge`, and the read-only `emailsAvailable`); a `PUT` changes only the settings it names.
 
 ### Weekly Digest
 
@@ -157,7 +162,8 @@ week:
 - the offers Indezy found in the last 7 days that match the profile's skills, best match first, five with their facts
   and links, and how many more.
 
-Sections with nothing to say are left out, and a week with nothing at all sends nothing. Each digest is claimed before
+Sections with nothing to say, or left out in **Profile → Notifications**, are left out, and a week with nothing at all
+sends nothing. Each digest is claimed before
 it is sent (the account's `weeklyDigestSentOn` moves to the week in a transaction its version guards), so two replicas
 never send it twice, given back when Resend refuses it, and sent with the idempotency key `weekly-digest/<account>/<week>`;
 a replica started later on Monday, or during the week, sends what is still due (checked every 15 minutes). It carries a
@@ -217,14 +223,15 @@ answered with the token this once) and `DELETE /api/users/api-tokens/{id}`, from
 **Profile → Security → Webhooks** tells the freelancer's own tools (Zapier, Make, n8n, a script) of the workspace's
 events, at most 5 webhooks per workspace. A webhook is an HTTPS address on a public host (no user name or password in
 it) and the events it listens to: an opportunity added or moved to another stage, an activity report sent, approved or
-rejected, an invoice (or credit note) issued or paid. Its secret is shown once, when it is added, with a copy button.
+rejected, an invoice (or credit note) issued or paid, a call booked through the booking link. Its secret is shown once, when it is added, with a copy button.
 
 Each event is written in the same transaction as the change it tells of, then posted within about twenty seconds:
 `POST` with a JSON body `{ id, event, createdAt, data }` and the headers `X-Indezy-Event`, `X-Indezy-Delivery` (the
 delivery's id), `X-Indezy-Timestamp` (seconds) and `X-Indezy-Signature: sha256=<hex HMAC-SHA256 of "<timestamp>.<body>"
 with the secret>`. `data` holds ids and the business fields: an opportunity's id, role, status and previous status,
 client and daily rate; a report's id, mission, month, days worked and status; an invoice's id, kind, number, status,
-client, dates, total and the invoice a credit note credits. A 2xx answer within ten seconds counts as received;
+client, dates, total and the invoice a credit note credits; a booked call's id, start, end and company (not the
+recruiter's name or email). A 2xx answer within ten seconds counts as received;
 otherwise it is tried again after 1, 5 and 30 minutes, 2 and 12 hours, then given up. Redirects are not followed. A
 webhook failing 20 times in a row turns itself off; **Turn on** brings it back with its failures forgotten. **Send a
 test** posts a `PING`; **Latest deliveries** lists the last 20 with their state and answer. Deliveries are forgotten 30
@@ -876,8 +883,10 @@ The **Booking link** card under the calendar lets recruiters book a call without
 - **The public page**, opened without an account, gives the free times day by day in the visitor's time zone; the
   visitor picks one and gives a name, an email, and optionally a company and a message. A time taken meanwhile is
   refused and the times shown again; a link off or replaced says it does not work.
-- **Calls booked**: the card lists the calls to come with their details, each cancellable (Indezy sends no email: the
-  freelancer tells the recruiter). The calendar shows them on their day.
+- **Calls booked**: the freelancer gets an email for each, within about a minute (unless turned off in **Profile →
+  Notifications**), and webhooks listening to `CALL_BOOKED` are told. The card lists the calls to come with their
+  details, each cancellable (Indezy sends the recruiter no email: the freelancer tells them). The calendar shows them on
+  their day.
 - The page's settings and the calls are part of the account data export.
 
 API: `GET` and `PUT /api/users/booking-page`, `POST /api/users/booking-page/new-link`, `GET /api/bookings` (from 30 days

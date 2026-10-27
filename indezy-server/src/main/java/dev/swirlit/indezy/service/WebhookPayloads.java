@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.model.ActivityDay;
 import dev.swirlit.indezy.model.ActivityReport;
+import dev.swirlit.indezy.model.Booking;
 import dev.swirlit.indezy.model.Invoice;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
@@ -23,6 +24,16 @@ final class WebhookPayloads {
         data.put("previousStatus", previous);
         data.put("clientName", project.getClient() == null ? null : project.getClient().getCompanyName());
         data.put("dailyRate", project.getDailyRate());
+        return data;
+    }
+
+    /** A booked call: when, and the company, without the recruiter's name or email. */
+    static Map<String, Object> booking(Booking booking) {
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("bookingId", booking.getId());
+        data.put("startsAt", booking.getStartsAt().toString());
+        data.put("endsAt", booking.getEndsAt().toString());
+        data.put("company", booking.getCompany());
         return data;
     }
 

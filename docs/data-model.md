@@ -87,8 +87,10 @@ Important fields:
   `!` (`OFFERS,!STATS,...`); null until arranged, read as every block shown in the usual order
 - notification preferences: `weeklyReports` (`users.weekly_reports`, the weekly digest, off by default),
   `weeklyDigestToken` (its one-click unsubscribe token, set when first turned on), `weeklyDigestSentOn` (the Monday of the
-  last digest sent) and `newOffersBadge` (`users.new_offers_badge`, the new offers count in the menu; a null column reads
-  as on). The six switches the profile showed before (email, push, project updates, client messages, system alerts,
+  last digest sent), `weeklyDigestSkipped` (`users.weekly_digest_skipped`, the digest's sections left out,
+  comma-separated; a new section is kept at first), `bookingEmails` (`users.booking_emails`, an email for each call
+  booked through the booking link; a null column reads as on) and `newOffersBadge` (`users.new_offers_badge`, the new
+  offers count in the menu; a null column reads as on). The six switches the profile showed before (email, push, project updates, client messages, system alerts,
   marketing) changed nothing and were removed; their columns stay in existing databases, unused.
 - two-factor fields (`twoFactorEnabled`, `twoFactorSecret`), enforced at local password login
 - `deletedAt` (a soft-deleted account can no longer sign in)
@@ -408,7 +410,8 @@ Table: `bookings`
 
 Purpose: a call a recruiter booked through the link.
 
-Fields: `freelanceId`, `startsAt` and `endsAt` (instants), `name`, `email`, `company`, `message`, `cancelledAt`.
+Fields: `freelanceId`, `startsAt` and `endsAt` (instants), `name`, `email`, `company`, `message`, `cancelledAt`,
+`noticeSentAt` (when the freelancer's email was claimed for sending, or skipped).
 
 ## Webhook
 

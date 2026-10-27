@@ -2,6 +2,7 @@ package dev.swirlit.indezy.mail;
 
 import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.OfferDto;
+import dev.swirlit.indezy.model.enums.DigestSection;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.util.Currency;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import static dev.swirlit.indezy.mail.SavedSearchEmailComposer.escape;
@@ -54,6 +56,16 @@ public class WeeklyDigestComposer {
             return new Week(stats.getProjectsByStatus() == null ? Map.of() : stats.getProjectsByStatus(), orNone(stats.getUpcomingInterviews()),
                 orNone(stats.getFollowUpsDue()), orNone(stats.getStaleOpportunities()), orNone(stats.getMissionsEndingSoon()),
                 orNone(stats.getOverdueInvoices()));
+        }
+
+        /** This week with only the sections kept; the offers are chosen apart, as they are searched for. */
+        public Week only(Set<DigestSection> kept) {
+            return new Week(kept.contains(DigestSection.PIPELINE) ? projectsByStatus : Map.of(),
+                kept.contains(DigestSection.INTERVIEWS) ? interviews : List.of(),
+                kept.contains(DigestSection.FOLLOW_UPS) ? followUps : List.of(),
+                kept.contains(DigestSection.QUIET_OPPORTUNITIES) ? stale : List.of(),
+                kept.contains(DigestSection.MISSIONS_ENDING) ? ending : List.of(),
+                kept.contains(DigestSection.OVERDUE_INVOICES) ? overdueInvoices : List.of());
         }
 
         /** Opportunities in the pipeline: first contact, interviewing or with an offer. */

@@ -10,12 +10,14 @@ import dev.swirlit.indezy.model.BookingPage;
 import dev.swirlit.indezy.model.BookingWindow;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.enums.StepStatus;
+import dev.swirlit.indezy.model.enums.WebhookEvent;
 import dev.swirlit.indezy.repository.BookingPageRepository;
 import dev.swirlit.indezy.repository.BookingRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.InterviewStepRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +27,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -58,7 +60,14 @@ public class BookingService {
     private final FreelanceRepository freelances;
     private final Clock clock;
     private final SecureRandom random = new SecureRandom();
+    private WebhookPublisher webhooks = WebhookPublisher.NONE;
     private final RecentAttempts byAddress = new RecentAttempts(PER_ADDRESS_PER_HOUR, Duration.ofHours(1), 1_000);
+
+    /** Tells the workspace's webhooks of the calls booked; none until Spring sets it (unit tests build the service by hand). */
+    @Autowired
+    void setWebhooks(WebhookPublisher webhooks) {
+        this.webhooks = webhooks;
+    }
 
     @Transactional(readOnly = true)
     public BookingDtos.Page page(Long freelanceId) {
@@ -149,6 +158,7 @@ public class BookingService {
         booking.setMessage(blankToNull(request.message()));
         Booking saved = bookings.save(booking);
         log.info("Booking {} made through the link of workspace {}", saved.getId(), page.getFreelanceId());
+        webhooks.publish(page.getFreelanceId(), WebhookEvent.CALL_BOOKED, WebhookPayloads.booking(saved));
         return new BookingDtos.Confirmation(saved.getStartsAt(), saved.getEndsAt(), freelancer(page.getFreelanceId()));
     }
 
@@ -173,7 +183,8 @@ public class BookingService {
     /** Five bookings an hour from one address, twenty a day for the workspace. */
     private void limit(Long freelanceId, String address) {
         Instant now = clock.instant();
-        LocalDateTime dayAgo = LocalDateTime.ofInstant(now.minus(Duration.ofDays(1)), ZoneOffset.UTC);
+        // Creation times are written in the server's zone.
+        LocalDateTime dayAgo = LocalDateTime.ofInstant(now.minus(Duration.ofDays(1)), ZoneId.systemDefault());
         if (bookings.countByFreelanceIdAndCreatedAtAfter(freelanceId, dayAgo) >= PER_DAY) {
             throw new TooManyRequestsException("This link takes no more bookings today", Duration.ofHours(1));
         }

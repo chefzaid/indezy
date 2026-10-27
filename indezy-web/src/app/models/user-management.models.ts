@@ -37,10 +37,21 @@ export interface UserProfile {
   preferences?: UserPreferences;
 }
 
+/** A section of the weekly digest, which the account can leave out. */
+export type DigestSection = 'PIPELINE' | 'OVERDUE_INVOICES' | 'INTERVIEWS' | 'FOLLOW_UPS' | 'QUIET_OPPORTUNITIES' | 'MISSIONS_ENDING' | 'OFFERS';
+
+/** The digest's sections in the order the email gives them. */
+export const DIGEST_SECTIONS: DigestSection[] = ['PIPELINE', 'OVERDUE_INVOICES', 'INTERVIEWS', 'FOLLOW_UPS', 'QUIET_OPPORTUNITIES',
+  'MISSIONS_ENDING', 'OFFERS'];
+
 /** Which notifications the account gets, by event and channel. */
 export interface UserNotificationSettings {
   /** The weekly digest, by email on Mondays. */
   weeklyReports: boolean;
+  /** The digest's sections kept; the others are left out. */
+  weeklyDigestSections: DigestSection[];
+  /** An email for each call a recruiter books through the booking link. */
+  bookingEmails: boolean;
   /** The count of the saved searches' new offers next to Offers in the menu. */
   newOffersBadge: boolean;
   /** Whether this deployment can send emails at all; read-only. */

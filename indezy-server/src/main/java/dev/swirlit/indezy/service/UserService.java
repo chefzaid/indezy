@@ -184,6 +184,9 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
         
         userMapper.updateNotificationSettings(settingsDto, user);
+        if (settingsDto.getWeeklyDigestSections() != null) {
+            user.setWeeklyDigestSections(settingsDto.getWeeklyDigestSections());
+        }
         WeeklyDigestService.prepare(user);
         User savedUser = userRepository.save(user);
         return withAvailability(userMapper.toNotificationSettingsDto(savedUser));

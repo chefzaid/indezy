@@ -38,9 +38,11 @@ public class FeatureAdoptionMetrics {
     FeatureAdoptionMetrics(MeterRegistry registry, JdbcTemplate jdbc, Clock clock) {
         this.jdbc = jdbc;
         this.clock = clock;
-        Gauge.builder("indezy.accounts", this, metrics -> metrics.count("accounts")).register(registry);
+        // Held strongly: a gauge's object held weakly reads NaN once collected.
+        Gauge.builder("indezy.accounts", this, metrics -> metrics.count("accounts")).strongReference(true).register(registry);
         FEATURES.keySet().stream().filter(feature -> !"accounts".equals(feature)).forEach(feature ->
-            Gauge.builder("indezy.feature.workspaces", this, metrics -> metrics.count(feature)).tag("feature", feature).register(registry));
+            Gauge.builder("indezy.feature.workspaces", this, metrics -> metrics.count(feature)).tag("feature", feature).strongReference(true)
+                .register(registry));
     }
 
     /** The feature's count, the counts being read again once they are older than an hour. */

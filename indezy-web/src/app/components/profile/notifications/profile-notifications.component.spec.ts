@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { UserNotificationSettings } from '../../../models/user-management.models';
+import { DIGEST_SECTIONS, UserNotificationSettings } from '../../../models/user-management.models';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { OfferAlertsService } from '../../../services/offer/offer-alerts.service';
@@ -15,7 +16,8 @@ describe('ProfileNotificationsComponent', () => {
   let users: jasmine.SpyObj<UserManagementService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let alerts: jasmine.SpyObj<OfferAlertsService>;
-  const settings: UserNotificationSettings = { weeklyReports: false, newOffersBadge: true, emailsAvailable: true };
+  const settings: UserNotificationSettings = { weeklyReports: false, weeklyDigestSections: [...DIGEST_SECTIONS], bookingEmails: true,
+    newOffersBadge: true, emailsAvailable: true };
 
   function create(read = of(settings)): ComponentFixture<ProfileNotificationsComponent> {
     users.getNotificationSettings.and.returnValue(read);
@@ -48,7 +50,9 @@ describe('ProfileNotificationsComponent', () => {
     const fixture = create(of({ ...settings, emailsAvailable: false }));
     const element: HTMLElement = fixture.nativeElement;
 
-    expect(element.querySelectorAll('[data-switch]').length).toBe(2);
+    expect(element.querySelectorAll('[data-switch]').length).toBe(3);
+    expect(element.querySelector('[data-digest-sections]')).toBeNull();
+    expect(element.querySelector('a[href="/calendar"]')).not.toBeNull();
     expect(element.textContent).toContain('Email me a weekly digest');
     expect(element.querySelector('[data-emails-unavailable]')).not.toBeNull();
     expect(element.querySelector('a[href="/offers"]')).not.toBeNull();
@@ -92,5 +96,37 @@ describe('ProfileNotificationsComponent', () => {
     TestBed.resetTestingModule();
     create(throwError(() => new Error('500')));
     expect(notifications.error).toHaveBeenCalledWith('profile.errors.loadingNotifications');
+  });
+
+  it('keeps or leaves out the digest\'s sections, the last one staying', () => {
+    const fixture = create(of({ ...settings, weeklyReports: true, weeklyDigestSections: ['PIPELINE', 'OFFERS'] }));
+    const element: HTMLElement = fixture.nativeElement;
+    const box = (section: string): HTMLInputElement => element.querySelector(`[data-digest-section="${section}"] input`) as HTMLInputElement;
+    expect(element.querySelectorAll('[data-digest-section]').length).toBe(7);
+    expect(box('PIPELINE').checked).toBeTrue();
+    expect(box('INTERVIEWS').checked).toBeFalse();
+    expect(box('OFFERS').disabled).toBeFalse();
+
+    const checkbox = (checked: boolean): MatCheckboxChange => ({ checked, source: { checked } as MatCheckbox });
+    users.updateNotificationSettings.and.returnValue(of({ ...settings, weeklyReports: true, weeklyDigestSections: ['OFFERS'] }));
+    fixture.componentInstance.sectionChanged('PIPELINE', checkbox(false));
+    fixture.detectChanges();
+    expect(users.updateNotificationSettings).toHaveBeenCalledWith({ weeklyDigestSections: ['OFFERS'] });
+    expect(box('OFFERS').disabled).toBeTrue();
+
+    users.updateNotificationSettings.and.returnValue(throwError(() => new Error('500')));
+    const failed = checkbox(true);
+    fixture.componentInstance.sectionChanged('INTERVIEWS', failed);
+    expect(users.updateNotificationSettings).toHaveBeenCalledWith({ weeklyDigestSections: ['INTERVIEWS', 'OFFERS'] });
+    expect(failed.source.checked).toBeFalse();
+    expect(fixture.componentInstance.settings!.weeklyDigestSections).toEqual(['OFFERS']);
+  });
+
+  it('turns the emails of booked calls off', () => {
+    const component = create().componentInstance;
+    users.updateNotificationSettings.and.returnValue(of({ ...settings, bookingEmails: false }));
+    component.changed('bookingEmails', change(false));
+    expect(users.updateNotificationSettings).toHaveBeenCalledWith({ bookingEmails: false });
+    expect(component.settings?.bookingEmails).toBeFalse();
   });
 });

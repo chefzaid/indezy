@@ -89,4 +89,43 @@ class WeeklyDigestIntegrationTest extends OfferIntegrationTestSupport {
         assertThat(digests.send(week.plusWeeks(1))).isZero();
         verify(mailer, never()).send(any());
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void leavesOutTheSectionsAliceDoesNotWant() throws Exception {
+        when(mailer.configured()).thenReturn(true);
+        when(mailer.send(any())).thenReturn("49a3999c");
+        users.findByEmail(alice.email()).ifPresent(user -> {
+            user.setSkills(List.of("Java"));
+            user.setLanguagePreference("en");
+            users.save(user);
+        });
+        Map<String, Object> settings = new HashMap<>(call(alice, HttpMethod.GET, "/users/notifications", null).getBody());
+        assertThat((List<String>) settings.get("weeklyDigestSections")).hasSize(7);
+        settings.put("weeklyReports", true);
+        settings.put("weeklyDigestSections", List.of("PIPELINE", "MISSIONS_ENDING"));
+        assertThat((List<String>) call(alice, HttpMethod.PUT, "/users/notifications", settings).getBody().get("weeklyDigestSections"))
+            .containsExactlyInAnyOrder("PIPELINE", "MISSIONS_ENDING");
+        // A change naming only another switch keeps the sections.
+        assertThat((List<String>) call(alice, HttpMethod.PUT, "/users/notifications", Map.of("newOffersBadge", true)).getBody()
+            .get("weeklyDigestSections")).containsExactlyInAnyOrder("PIPELINE", "MISSIONS_ENDING");
+        long clientId = ((Number) call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Acme", "city", "Lyon", "isFinal", true,
+            "freelanceId", alice.freelanceId())).getBody().get("id")).longValue();
+        long projectId = ((Number) call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650,
+            "freelanceId", alice.freelanceId(), "clientId", clientId, "status", "INTERVIEW")).getBody().get("id")).longValue();
+        call(alice, HttpMethod.POST, "/interview-steps", Map.of("title", "Technical interview", "projectId", projectId,
+            "status", "PLANNED", "date", LocalDateTime.now().plusDays(2).withNano(0).toString()));
+
+        assertThat(digests.send(LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)))).isEqualTo(1);
+        ArgumentCaptor<Email> sent = ArgumentCaptor.forClass(Email.class);
+        verify(mailer).send(sent.capture());
+        assertThat(sent.getValue().text()).contains("1 open opportunities").doesNotContain("Technical interview", "new offer");
+
+        // Only the offers kept, the next week: the new offer and nothing else.
+        clearInvocations(mailer);
+        call(alice, HttpMethod.PUT, "/users/notifications", Map.of("weeklyDigestSections", List.of("OFFERS")));
+        assertThat(digests.send(LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).plusWeeks(1))).isEqualTo(1);
+        verify(mailer).send(sent.capture());
+        assertThat(sent.getValue().text()).contains("new offer").doesNotContain("open opportunities", "Technical interview");
+    }
 }

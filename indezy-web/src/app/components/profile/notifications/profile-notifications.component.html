@@ -10,9 +10,31 @@
           {{ 'profile.notifications.digest' | translate }}
         </mat-slide-toggle>
         <p class="notification-description">{{ 'profile.notifications.digestDesc' | translate }}</p>
+        @if (settings.weeklyReports) {
+          <fieldset class="sections" data-digest-sections>
+            <legend>{{ 'profile.notifications.sectionsLegend' | translate }}</legend>
+            @for (section of sections; track section) {
+              <mat-checkbox [checked]="kept(section)" [disabled]="kept(section) && settings.weeklyDigestSections.length === 1"
+                (change)="sectionChanged(section, $event)" [attr.data-digest-section]="section">
+                {{ 'profile.notifications.sections.' + section | translate }}
+              </mat-checkbox>
+            }
+          </fieldset>
+        }
         @if (!settings.emailsAvailable) {
           <p class="notification-description warning" data-emails-unavailable>{{ 'profile.notifications.emailsUnavailable' | translate }}</p>
         }
+      </div>
+      <mat-divider></mat-divider>
+      <div class="notification-item">
+        <h3><mat-icon aria-hidden="true">event_available</mat-icon>{{ 'profile.notifications.bookingTitle' | translate }}</h3>
+        <mat-slide-toggle [checked]="settings.bookingEmails" (change)="changed('bookingEmails', $event)" data-switch="bookingEmails">
+          {{ 'profile.notifications.booking' | translate }}
+        </mat-slide-toggle>
+        <p class="notification-description">
+          {{ 'profile.notifications.bookingDesc' | translate }}
+          <a routerLink="/calendar">{{ 'profile.notifications.bookingLink' | translate }}</a>
+        </p>
       </div>
       <mat-divider></mat-divider>
       <div class="notification-item">

@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.constants.UserPreferenceDefaults;
+import dev.swirlit.indezy.model.enums.DigestSection;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,9 +11,13 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -196,6 +201,14 @@ public class User extends BaseEntity {
     @Column(name = "weekly_digest_sent_on")
     private LocalDate weeklyDigestSentOn;
 
+    /** The weekly digest's sections the account left out, comma-separated ({@link DigestSection}); null for none. */
+    @Column(name = "weekly_digest_skipped", length = 200)
+    private String weeklyDigestSkipped;
+
+    /** Whether a call booked through the booking link is emailed to the account; a null column reads as on. */
+    @Column(name = "booking_emails")
+    private Boolean bookingEmails = true;
+
     /** Whether the menu counts the new offers of the saved searches (in-app); a null column reads as on. */
     @Column(name = "new_offers_badge")
     private Boolean newOffersBadge = true;
@@ -210,6 +223,22 @@ public class User extends BaseEntity {
 
     @Column(name = "two_factor_secret")
     private String twoFactorSecret;
+
+    /** The weekly digest's sections the account keeps: all but those it left out, so a new section is in at first. */
+    public Set<DigestSection> getWeeklyDigestSections() {
+        Set<DigestSection> sections = EnumSet.allOf(DigestSection.class);
+        if (weeklyDigestSkipped != null && !weeklyDigestSkipped.isBlank()) {
+            for (String name : weeklyDigestSkipped.split(",")) {
+                Arrays.stream(DigestSection.values()).filter(section -> section.name().equals(name)).findFirst().ifPresent(sections::remove);
+            }
+        }
+        return sections;
+    }
+
+    public void setWeeklyDigestSections(Set<DigestSection> sections) {
+        weeklyDigestSkipped = EnumSet.complementOf(sections.isEmpty() ? EnumSet.noneOf(DigestSection.class) : EnumSet.copyOf(sections))
+            .stream().map(Enum::name).collect(Collectors.joining(","));
+    }
 
     // Helper methods
     public String getFullName() {
