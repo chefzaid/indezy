@@ -1093,7 +1093,18 @@
       "full": "Vous avez {{max}} jetons, le maximum par compte : révoquez-en un pour en créer un autre.",
       "loadError": "Vos jetons d'API n'ont pas pu être chargés",
       "createError": "Le jeton n'a pas pu être créé",
-      "revokeError": "Le jeton n'a pas pu être révoqué"
+      "revokeError": "Le jeton n'a pas pu être révoqué",
+      "reads": "Il lit",
+      "everything": "Tout l'espace",
+      "noScope": "Choisissez ce que le jeton lit.",
+      "scopes": {
+        "OPPORTUNITIES": "Opportunités et entretiens",
+        "MISSIONS": "CRA et bons de commande",
+        "CONTACTS": "Clients, contacts et sources",
+        "INVOICES": "Factures",
+        "DOCUMENTS": "Documents de conformité",
+        "OFFERS": "Offres"
+      }
     },
     "billing": {
       "title": "Identité de facturation",

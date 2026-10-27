@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AccountEventPage, AccountSession, ApiToken, CreatedApiToken } from '../../models';
+import { AccountEventPage, AccountSession, ApiToken, ApiTokenScope, CreatedApiToken } from '../../models';
 
 /** The signed-in account's open sessions, its activity log and its personal API tokens. */
 @Injectable({
@@ -33,8 +33,9 @@ export class AccountSecurityService {
     return this.http.get<ApiToken[]>(`${this.API_URL}/api-tokens`);
   }
 
-  createApiToken(name: string, expiresInDays: number | null): Observable<CreatedApiToken> {
-    return this.http.post<CreatedApiToken>(`${this.API_URL}/api-tokens`, { name, expiresInDays });
+  /** A token reading the given parts of the workspace, or all of it when none is given. */
+  createApiToken(name: string, expiresInDays: number | null, scopes: ApiTokenScope[] = []): Observable<CreatedApiToken> {
+    return this.http.post<CreatedApiToken>(`${this.API_URL}/api-tokens`, { name, expiresInDays, scopes });
   }
 
   revokeApiToken(id: number): Observable<void> {

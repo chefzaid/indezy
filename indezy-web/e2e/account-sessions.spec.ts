@@ -72,7 +72,7 @@ test('creates an API token shown once, then revokes it', async ({ page, context 
   await mockWorkspaceSession(page, 'en');
   await mockWorkspaceData(page, 'en');
   const token = { id: 4, name: 'Zapier', tokenStart: 'idz_AbCdEfGh', createdAt: '2026-10-27T09:00:00', lastUsedAt: null,
-    expiresAt: '2027-01-25T09:00:00' };
+    expiresAt: '2027-01-25T09:00:00', scopes: [] };
   const requests: unknown[] = [];
   await page.route('**/api/users/api-tokens', route => {
     if (route.request().method() === 'POST') {
@@ -102,5 +102,5 @@ test('creates an API token shown once, then revokes it', async ({ page, context 
   await card.getByRole('button', { name: 'Revoke Zapier' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Revoke' }).click();
   await expect(card.locator('[data-token]')).toHaveCount(0);
-  expect(requests).toEqual([{ name: 'Zapier', expiresInDays: 90 }, 'DELETE']);
+  expect(requests).toEqual([{ name: 'Zapier', expiresInDays: 90, scopes: [] }, 'DELETE']);
 });

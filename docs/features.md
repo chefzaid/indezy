@@ -201,6 +201,13 @@ steps, seasons, activity reports, offers...), with the same workspace checks as 
 path under `/users` (the account, its sessions and tokens, the export), `/admin` and `/auth`, answer `403` "API tokens
 only read workspace data". The API is described at `/api/swagger-ui.html`.
 
+A token reads the whole workspace, or only the parts ticked when it is created (**It reads**): opportunities and
+interviews (`/projects`, `/interview-steps`, `/seasons`, `/pipeline-templates`), activity reports and purchase orders
+(`/projects/{id}/activity-reports`, `/projects/{id}/purchase-orders`, `/purchase-orders`), clients, contacts and
+sources, invoices, compliance documents, or offers. A path outside its parts answers `403`, and so does a path of no
+part (the global search, the profile) for a token limited to some. The list shows what each token reads; tokens made
+before scopes read everything.
+
 The tokens are managed through `GET /api/users/api-tokens`, `POST /api/users/api-tokens` (`{ "name", "expiresInDays" }`,
 answered with the token this once) and `DELETE /api/users/api-tokens/{id}`, from a signed-in session only.
 

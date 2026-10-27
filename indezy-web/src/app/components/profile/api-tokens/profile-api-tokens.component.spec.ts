@@ -17,7 +17,7 @@ describe('ProfileApiTokensComponent', () => {
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
   let clipboard: jasmine.SpyObj<Clipboard>;
   const zapier: ApiToken = { id: 1, name: 'Zapier', tokenStart: 'idz_AbCdEfGh', createdAt: '2026-10-01T08:00:00',
-    lastUsedAt: '2026-10-26T08:00:00', expiresAt: '2026-12-30T08:00:00' };
+    lastUsedAt: '2026-10-26T08:00:00', expiresAt: '2026-12-30T08:00:00', scopes: [] };
   const script: ApiToken = { ...zapier, id: 2, name: 'Backup script', lastUsedAt: null, expiresAt: null };
 
   function create(tokens: ApiToken[] = [zapier]): ComponentFixture<ProfileApiTokensComponent> {
@@ -74,7 +74,7 @@ describe('ProfileApiTokensComponent', () => {
     component.form.setValue({ name: ' Backup script ', expiresInDays: 0 });
     component.create();
 
-    expect(security.createApiToken).toHaveBeenCalledWith('Backup script', null);
+    expect(security.createApiToken).toHaveBeenCalledWith('Backup script', null, []);
     expect(text(fixture, '[data-token-secret]')).toBe('idz_secret-value');
     expect(text(fixture, '[data-created-token]')).toContain('curl -H "Authorization: Bearer idz_AbCdEfGh…"');
     expect(component.form.getRawValue()).toEqual({ name: '', expiresInDays: 90 });
@@ -95,12 +95,32 @@ describe('ProfileApiTokensComponent', () => {
     security.createApiToken.and.returnValue(throwError(() => new Error('409')));
     fixture.componentInstance.form.setValue({ name: 'Zapier', expiresInDays: 30 });
     fixture.componentInstance.create();
-    expect(security.createApiToken).toHaveBeenCalledWith('Zapier', 30);
+    expect(security.createApiToken).toHaveBeenCalledWith('Zapier', 30, []);
     expect(fixture.componentInstance.creating).toBeFalse();
     expect(notifications.error).toHaveBeenCalledWith('profile.apiTokens.createError');
 
     fixture.componentInstance.tokens = Array.from({ length: 10 }, (_, id) => ({ ...zapier, id }));
     expect(text(fixture, '[data-tokens-full]')).toContain('You have 10 tokens');
+  });
+
+  it('creates a token that reads only the parts of the workspace chosen', () => {
+    const fixture = create([]);
+    const component = fixture.componentInstance;
+    security.createApiToken.and.returnValue(of({ token: { ...script, scopes: ['MISSIONS', 'INVOICES'] }, secret: 'idz_secret-value' }));
+    component.form.setValue({ name: 'Accounting', expiresInDays: 90 });
+    component.setEverything(false);
+    component.create();
+    expect(component.noScope).toBeTrue();
+    expect(security.createApiToken).not.toHaveBeenCalled();
+
+    component.toggleScope('INVOICES', true);
+    component.toggleScope('MISSIONS', true);
+    component.toggleScope('OFFERS', true);
+    component.toggleScope('OFFERS', false);
+    component.create();
+    expect(security.createApiToken).toHaveBeenCalledWith('Accounting', 90, ['MISSIONS', 'INVOICES']);
+    expect(component.everything).toBeTrue();
+    expect(text(fixture, '[data-token-scopes]')).toContain('Activity reports and purchase orders, Invoices');
   });
 
   it('revokes a token once confirmed', () => {

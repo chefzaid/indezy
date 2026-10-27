@@ -187,6 +187,9 @@ Representative backend tests:
   credited invoice no longer payable nor overdue, the credit note's PDF), `InvoicePdfRendererTest` (a company's capital, registration and VAT in French with a
   wrapped line and notes; a draft of an individual entrepreneur exempt from VAT) and `InvoiceTotalsTest` (each line and
   its VAT to the cent)
+- scoped API tokens: `ApiTokenIntegrationTest` (a token for invoices and missions reads them but not an opportunity, a
+  client or the search; a token without scopes reads all; an unknown scope refused) and `ApiTokenScopeTest` (each path's
+  part, missions before opportunities)
 - webhooks: `WebhookIntegrationTest` (a local receiver told of an opportunity added and moved, the signature checked
   with the secret, a moved-but-unchanged stage not told, a failure kept for its retry with the webhook's failure count, a
   test on demand, a webhook turned off told nothing, refused addresses and events, five at most, Bob kept out, deliveries

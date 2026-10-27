@@ -222,7 +222,7 @@ describe('API services', () => {
     { name: 'end a session', call: () => accountSecurity().end(9), method: 'DELETE', url: `${api}/users/sessions/9` },
     { name: 'end the other sessions', call: () => accountSecurity().endOthers(), method: 'POST', url: `${api}/users/sessions/end-others` },
     { name: 'API tokens', call: () => accountSecurity().apiTokens(), method: 'GET', url: `${api}/users/api-tokens` },
-    { name: 'create an API token', call: () => accountSecurity().createApiToken('Zapier', 90), method: 'POST', url: `${api}/users/api-tokens`, body: { name: 'Zapier', expiresInDays: 90 } },
+    { name: 'create an API token', call: () => accountSecurity().createApiToken('Zapier', 90), method: 'POST', url: `${api}/users/api-tokens`, body: { name: 'Zapier', expiresInDays: 90, scopes: [] } },
     { name: 'revoke an API token', call: () => accountSecurity().revokeApiToken(4), method: 'DELETE', url: `${api}/users/api-tokens/4` },
     { name: 'account activity', call: () => accountSecurity().activity(1), method: 'GET', url: `${api}/users/activity`, params: { page: '1' } },
 

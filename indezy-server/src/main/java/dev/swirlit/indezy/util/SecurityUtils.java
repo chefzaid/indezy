@@ -1,10 +1,13 @@
 package dev.swirlit.indezy.util;
 
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Helper for reading the authenticated principal from the Spring Security context.
@@ -17,6 +20,8 @@ public final class SecurityUtils {
     public static final String SESSION_ATTRIBUTE = "indezy.sessionId";
     /** The authority of a request authenticated by a personal API token rather than a signed-in session. */
     public static final String API_TOKEN_AUTHORITY = "API_TOKEN";
+    /** Prefix of an API token's scopes among its authorities; a token without any reads the whole workspace. */
+    public static final String API_SCOPE_PREFIX = "API_SCOPE_";
 
     private SecurityUtils() {
     }
@@ -46,6 +51,17 @@ public final class SecurityUtils {
     }
 
     /** Whether the current request was authenticated by a personal API token. */
+    /** The scopes of the API token signing the request in, by name; empty when it has none (all of the workspace). */
+    public static Set<String> apiTokenScopes() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return Set.of();
+        }
+        return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+            .filter(name -> name != null && name.startsWith(API_SCOPE_PREFIX)).map(name -> name.substring(API_SCOPE_PREFIX.length()))
+            .collect(Collectors.toUnmodifiableSet());
+    }
+
     public static boolean isApiTokenRequest() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null && authentication.getAuthorities().stream()

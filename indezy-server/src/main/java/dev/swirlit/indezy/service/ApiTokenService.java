@@ -67,6 +67,7 @@ public class ApiTokenService {
         token.setTokenHash(hash(secret));
         token.setTokenStart(secret.substring(0, TOKEN_START_LENGTH));
         token.setExpiresAt(days == null ? null : LocalDateTime.now(clock).plusDays(days));
+        token.setScopes(request.scopes());
         tokens.save(token);
         events.record(userId, AccountEventType.API_TOKEN_CREATED, token.getName());
         log.info("Account {} created API token {}", userId, token.getId());
@@ -84,7 +85,7 @@ public class ApiTokenService {
 
     /** The account a usable token belongs to, its last use noted every 5 minutes at most. */
     @Transactional
-    public Optional<Long> authenticate(String secret) {
+    public Optional<ApiTokenDtos.Authenticated> authenticate(String secret) {
         if (secret == null || !secret.startsWith(PREFIX)) {
             return Optional.empty();
         }
@@ -93,7 +94,7 @@ public class ApiTokenService {
             if (token.getLastUsedAt() == null || token.getLastUsedAt().isBefore(now.minus(USED_EVERY))) {
                 tokens.touch(token.getId(), now);
             }
-            return token.getUserId();
+            return new ApiTokenDtos.Authenticated(token.getUserId(), token.getScopes());
         });
     }
 
@@ -107,6 +108,6 @@ public class ApiTokenService {
 
     private static ApiTokenDtos.Token toDto(ApiToken token) {
         return new ApiTokenDtos.Token(token.getId(), token.getName(), token.getTokenStart(), token.getCreatedAt(),
-            token.getLastUsedAt(), token.getExpiresAt());
+            token.getLastUsedAt(), token.getExpiresAt(), token.getScopes().stream().sorted().toList());
     }
 }

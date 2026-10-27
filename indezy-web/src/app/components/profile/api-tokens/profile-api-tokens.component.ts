@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 
-import { ApiToken, CreatedApiToken } from '../../../models';
+import { API_TOKEN_SCOPES, ApiToken, ApiTokenScope, CreatedApiToken } from '../../../models';
 import { environment } from '../../../../environments/environment';
 import { AccountSecurityService } from '../../../services/account-security/account-security.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -20,7 +21,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 /** Read-only tokens for another tool, each shown once when created and revoked on request. */
 @Component({
   selector: 'app-profile-api-tokens',
-  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatCardModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatSelectModule, TranslateModule],
   templateUrl: './profile-api-tokens.component.html',
   styleUrls: ['./profile-api-tokens.component.scss'],
@@ -43,6 +44,11 @@ export class ProfileApiTokensComponent implements OnInit, OnDestroy {
     name: ['', [Validators.required, Validators.maxLength(60)]],
     expiresInDays: [90]
   });
+  readonly scopes = API_TOKEN_SCOPES;
+  /** The whole workspace, or only the parts chosen. */
+  everything = true;
+  readonly chosen = new Set<ApiTokenScope>();
+  noScope = false;
   tokens: ApiToken[] = [];
   created?: CreatedApiToken;
   creating = false;
@@ -63,18 +69,36 @@ export class ProfileApiTokensComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  setEverything(everything: boolean): void {
+    this.everything = everything;
+    this.noScope = false;
+  }
+
+  toggleScope(scope: ApiTokenScope, checked: boolean): void {
+    if (checked) {
+      this.chosen.add(scope);
+    } else {
+      this.chosen.delete(scope);
+    }
+    this.noScope = !this.everything && this.chosen.size === 0;
+  }
+
   create(): void {
     const name = this.form.controls.name.value.trim();
-    if (!name || this.form.invalid || this.creating) {
+    this.noScope = !this.everything && this.chosen.size === 0;
+    if (!name || this.form.invalid || this.creating || this.noScope) {
       this.form.markAllAsTouched();
       return;
     }
     this.creating = true;
-    this.security.createApiToken(name, this.form.controls.expiresInDays.value || null).pipe(takeUntil(this.destroy$)).subscribe({
+    const scopes = this.everything ? [] : API_TOKEN_SCOPES.filter(scope => this.chosen.has(scope));
+    this.security.createApiToken(name, this.form.controls.expiresInDays.value || null, scopes).pipe(takeUntil(this.destroy$)).subscribe({
       next: created => {
         this.created = created;
         this.tokens = [created.token, ...this.tokens];
         this.form.reset({ name: '', expiresInDays: 90 });
+        this.everything = true;
+        this.chosen.clear();
         this.creating = false;
       },
       error: () => {

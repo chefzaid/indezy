@@ -86,3 +86,28 @@
     margin-top: 8px;
   }
 }
+
+.scopes {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+
+  legend {
+    padding: 0 4px;
+    font-size: 0.875rem;
+  }
+
+  .scope {
+    margin-left: 24px;
+  }
+}
+
+.form-error {
+  margin: 0 0 8px;
+  color: var(--app-danger);
+  font-size: 0.875rem;
+}

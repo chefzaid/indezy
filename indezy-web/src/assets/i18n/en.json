@@ -1093,7 +1093,18 @@
       "full": "You have {{max}} tokens, the most an account holds: revoke one to create another.",
       "loadError": "Your API tokens could not be loaded",
       "createError": "The token could not be created",
-      "revokeError": "The token could not be revoked"
+      "revokeError": "The token could not be revoked",
+      "reads": "It reads",
+      "everything": "The whole workspace",
+      "noScope": "Choose what the token reads.",
+      "scopes": {
+        "OPPORTUNITIES": "Opportunities and interviews",
+        "MISSIONS": "Activity reports and purchase orders",
+        "CONTACTS": "Clients, contacts and sources",
+        "INVOICES": "Invoices",
+        "DOCUMENTS": "Compliance documents",
+        "OFFERS": "Offers"
+      }
     },
     "billing": {
       "title": "Billing identity",

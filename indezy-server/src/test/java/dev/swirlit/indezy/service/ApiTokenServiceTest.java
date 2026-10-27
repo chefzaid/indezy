@@ -37,17 +37,17 @@ class ApiTokenServiceTest {
         token.setUserId(7L);
         token.setLastUsedAt(NOW.minusMinutes(1));
         when(tokens.findUsable(ApiTokenService.hash("idz_abc"), NOW)).thenReturn(Optional.of(token));
-        assertThat(service.authenticate("idz_abc")).contains(7L);
+        assertThat(service.authenticate("idz_abc")).map(ApiTokenDtos.Authenticated::userId).contains(7L);
         verify(tokens, never()).touch(anyLong(), any());
 
         token.setLastUsedAt(null);
-        assertThat(service.authenticate("idz_abc")).contains(7L);
+        assertThat(service.authenticate("idz_abc")).map(ApiTokenDtos.Authenticated::userId).contains(7L);
         verify(tokens).touch(3L, NOW);
     }
 
     @Test
     void createsATokenThatDoesNotExpireWhenAskedSo() {
-        ApiTokenDtos.Created created = service.create(7L, new ApiTokenDtos.Create("Backup script", null));
+        ApiTokenDtos.Created created = service.create(7L, new ApiTokenDtos.Create("Backup script", null, null));
 
         assertThat(created.secret()).startsWith("idz_");
         assertThat(created.token().expiresAt()).isNull();

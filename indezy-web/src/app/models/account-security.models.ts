@@ -34,6 +34,11 @@ export interface AccountEventPage {
 }
 
 /** A personal API token, as listed: the token itself is shown only when created. */
+/** A part of the workspace a token may read; a token without any reads all of it. */
+export type ApiTokenScope = 'OPPORTUNITIES' | 'MISSIONS' | 'CONTACTS' | 'INVOICES' | 'DOCUMENTS' | 'OFFERS';
+
+export const API_TOKEN_SCOPES: ApiTokenScope[] = ['OPPORTUNITIES', 'MISSIONS', 'CONTACTS', 'INVOICES', 'DOCUMENTS', 'OFFERS'];
+
 export interface ApiToken {
   id: number;
   name: string;
@@ -42,6 +47,8 @@ export interface ApiToken {
   createdAt: string;
   lastUsedAt: string | null;
   expiresAt: string | null;
+  /** Empty: the whole workspace. */
+  scopes: ApiTokenScope[];
 }
 
 export interface CreatedApiToken {

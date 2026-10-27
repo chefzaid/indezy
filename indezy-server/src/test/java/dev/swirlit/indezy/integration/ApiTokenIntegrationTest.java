@@ -66,6 +66,31 @@ class ApiTokenIntegrationTest extends TwoAccountsIntegrationTest {
             .isEqualTo(HttpStatus.CONFLICT);
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    void readsOnlyTheScopesItWasGiven() {
+        Map<String, Object> created = call(alice, HttpMethod.POST, "/users/api-tokens", Map.of("name", "Accounting", "expiresInDays", 30,
+            "scopes", List.of("INVOICES", "MISSIONS")), Map.class).getBody();
+        String secret = (String) created.get("secret");
+        assertThat((List<String>) ((Map<String, Object>) created.get("token")).get("scopes")).containsExactly("MISSIONS", "INVOICES");
+        long project = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Architecte", "dailyRate", 650, "status", "WON",
+            "clientId", aliceClientId, "freelanceId", alice.freelanceId()), Map.class));
+
+        assertThat(withToken(secret, HttpMethod.GET, "/invoices/by-freelance/" + alice.freelanceId()).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(withToken(secret, HttpMethod.GET, "/projects/" + project + "/activity-reports").getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(withToken(secret, HttpMethod.GET, "/projects/" + project + "/purchase-orders").getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(withToken(secret, HttpMethod.GET, "/projects/" + project).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(withToken(secret, HttpMethod.GET, "/clients/" + aliceClientId).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(withToken(secret, HttpMethod.GET, "/search?q=arch").getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+
+        // Without scopes, it reads the whole workspace, the search included.
+        String full = (String) call(alice, HttpMethod.POST, "/users/api-tokens", Map.of("name", "Everything"), Map.class).getBody().get("secret");
+        assertThat(withToken(full, HttpMethod.GET, "/search?q=arch").getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(withToken(full, HttpMethod.GET, "/projects/" + project).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(alice, HttpMethod.POST, "/users/api-tokens", Map.of("name", "Odd", "scopes", List.of("NOT_A_SCOPE")), String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
     private ResponseEntity<String> withToken(String secret, HttpMethod method, String path) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(secret);

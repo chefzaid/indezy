@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,9 +49,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().getAuthentication() == null) {
             String token = authHeader.substring(BEARER_PREFIX.length());
             if (token.startsWith(ApiTokenService.PREFIX)) {
-                // A personal API token: read-only, enforced by ApiTokenScopeInterceptor.
-                apiTokens.authenticate(token).ifPresent(userId ->
-                    signIn(request, userId, List.of(new SimpleGrantedAuthority(SecurityUtils.API_TOKEN_AUTHORITY))));
+                // A personal API token: read-only, and only its scopes, enforced by ApiTokenScopeInterceptor.
+                apiTokens.authenticate(token).ifPresent(authenticated -> {
+                    List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                    authorities.add(new SimpleGrantedAuthority(SecurityUtils.API_TOKEN_AUTHORITY));
+                    authenticated.scopes().forEach(scope ->
+                        authorities.add(new SimpleGrantedAuthority(SecurityUtils.API_SCOPE_PREFIX + scope.name())));
+                    signIn(request, authenticated.userId(), authorities);
+                });
             } else {
                 try {
                     String username = jwtUtil.extractUsername(token);

@@ -93,7 +93,10 @@ display, so a copy of the database cannot call the API; the token is returned on
 accepts a token while it is neither revoked nor expired and its account is active, and grants it the `API_TOKEN`
 authority; `ApiTokenScopeInterceptor` then refuses (`403`) any method but `GET` and `HEAD`, and every path under
 `/users`, `/admin` and `/auth` (decoded as Spring MVC matches it), so a token can neither write nor manage the account,
-its sessions or other tokens. Workspace checks apply as for a session. An account holds 10 tokens at most.
+its sessions or other tokens. A token created with scopes also gets one `API_SCOPE_<NAME>` authority each, and the
+interceptor refuses (`403`) a path outside them (`ApiTokenScope` maps each path to its part, missions before
+opportunities) and every path of no part, so a token for an accountant's tool cannot read the pipeline or the global
+search. Workspace checks apply as for a session. An account holds 10 tokens at most.
 
 Workspace isolation: `AccessGuard` resolves the caller's freelance workspace from the JWT account
 (through `CurrentWorkspaceResolver`, once per request) and every controller checks ownership before
