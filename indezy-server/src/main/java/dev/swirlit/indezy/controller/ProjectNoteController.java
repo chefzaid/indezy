@@ -34,6 +34,7 @@ public class ProjectNoteController {
 
     @Operation(summary = "Add project note", description = "Append a note to the project's journal")
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ProjectNoteDto> addNote(
             @PathVariable Long projectId,
             @Valid @RequestBody ProjectNoteDto request) {
@@ -45,6 +46,7 @@ public class ProjectNoteController {
 
     @Operation(summary = "Delete project note", description = "Remove a note from the project's journal")
     @DeleteMapping("/{noteId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteNote(@PathVariable Long projectId, @PathVariable Long noteId) {
         log.debug("DELETE /projects/{}/notes/{} - Deleting note", projectId, noteId);
         accessGuard.requireProject(projectId);

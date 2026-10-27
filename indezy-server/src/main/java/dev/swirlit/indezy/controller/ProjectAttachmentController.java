@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,6 +46,7 @@ public class ProjectAttachmentController {
 
     @Operation(summary = "Attach a PDF, image, Word, OpenDocument or text file of up to 10 MB to an opportunity")
     @PostMapping(value = "/{projectId}/attachments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ProjectAttachmentDto> upload(@PathVariable Long projectId, @RequestParam("file") MultipartFile file)
         throws IOException {
         accessGuard.requireProject(projectId);
@@ -74,6 +76,7 @@ public class ProjectAttachmentController {
 
     @Operation(summary = "Delete a file of an opportunity")
     @DeleteMapping("/attachments/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         accessGuard.requireProjectAttachment(id);
         attachmentService.delete(id);

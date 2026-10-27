@@ -38,6 +38,7 @@ public class SourceController {
 
     @Operation(summary = "Create a source")
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<SourceDto> createSource(@Valid @RequestBody SourceDto sourceDto) {
         sourceDto.setFreelanceId(accessGuard.resolveFreelanceId(sourceDto.getFreelanceId()));
         return new ResponseEntity<>(sourceService.create(sourceDto), HttpStatus.CREATED);
@@ -53,6 +54,7 @@ public class SourceController {
 
     @Operation(summary = "Delete a source", description = "Its opportunities are kept, without a source")
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteSource(@PathVariable Long id) {
         accessGuard.requireSource(id);
         sourceService.delete(id);

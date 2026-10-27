@@ -51,6 +51,7 @@ public class ContactController {
 
     @Operation(summary = "Create a contact")
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ContactDto> createContact(@Valid @RequestBody ContactDto contactDto) {
         contactDto.setFreelanceId(accessGuard.resolveFreelanceId(contactDto.getFreelanceId()));
         accessGuard.requireClient(contactDto.getClientId());
@@ -70,6 +71,7 @@ public class ContactController {
 
     @Operation(summary = "Delete a contact")
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteContact(@PathVariable Long id) {
         accessGuard.requireContact(id);
         contactService.delete(id);

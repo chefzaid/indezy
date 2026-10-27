@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-10-27T09:30:00",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Validation failed",
+  "path": "/api/projects",
+  "validationErrors": {
+    "dailyRate": "Daily rate is required"
+  }
+}

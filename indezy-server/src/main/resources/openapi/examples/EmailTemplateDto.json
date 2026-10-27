@@ -1,0 +1,6 @@
+{
+  "id": 1,
+  "name": "Follow-up",
+  "subject": "Point sur {{role}}",
+  "body": "Bonjour {{firstName}},\n\nAvez-vous des nouvelles pour la mission {{role}} ?"
+}

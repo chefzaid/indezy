@@ -35,6 +35,7 @@ public class SeasonController {
     @Operation(summary = "Create season",
         description = "Create a season; unassigned opportunities created within its dates join it")
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<SeasonDto> createSeason(@Valid @RequestBody SeasonDto seasonDto) {
         log.debug("POST /seasons - {}", seasonDto.getName());
         seasonDto.setFreelanceId(accessGuard.resolveFreelanceId(seasonDto.getFreelanceId()));
@@ -51,6 +52,7 @@ public class SeasonController {
 
     @Operation(summary = "Delete season", description = "Delete a season; its opportunities are kept")
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteSeason(@PathVariable Long id) {
         log.debug("DELETE /seasons/{}", id);
         accessGuard.requireSeason(id);

@@ -84,7 +84,12 @@ Local URLs:
 
 - frontend: `http://localhost:4200`
 - backend API: `http://localhost:8080/api`
-- Swagger UI: `http://localhost:8080/api/swagger-ui.html`
+- Swagger UI: `http://localhost:8080/api/swagger-ui.html`, from the OpenAPI description at `/api/v3/api-docs`: each
+  operation's summary, its success status (`@ResponseStatus` on handlers answering 201, 202 or 204), the error answers it
+  can give (400, 401, 403, 404, 409, in the `ErrorResponse` shape, added by `OpenApiDocumentation`), and example bodies
+  for the main schemas from `indezy-server/src/main/resources/openapi/examples/<Schema>.json`. Add an example there for a
+  new main schema; `OpenApiDocumentationIntegrationTest` fails when an example names a property its schema lacks or
+  misses a required one, and when an operation has no summary or error answers.
 
 ## Running One Application Component
 

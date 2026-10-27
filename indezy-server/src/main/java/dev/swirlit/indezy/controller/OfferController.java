@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -141,6 +142,7 @@ public class OfferController {
         description = "As the offer says, or as the body (the opportunity corrected in the project form) says: " +
             "no client is the publisher and no source the site, created when missing")
     @PostMapping("/{id}/import")
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ProjectDto> importOffer(@PathVariable Long id, @Valid @RequestBody(required = false) ProjectDto project,
                                                   @RequestParam(required = false) Long freelanceId) {
         Long workspace = accessGuard.requireWorkspace(freelanceId);
@@ -157,6 +159,7 @@ public class OfferController {
         description = "As the body (the draft of its link, corrected in the project form) says: no client or source is the one " +
             "named, created when missing; 409 when its link is in the pipeline already")
     @PostMapping("/postings/import")
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ProjectDto> importPosting(@Valid @RequestBody PostingImportRequest request,
                                                     @RequestParam(required = false) Long freelanceId) {
         Long workspace = accessGuard.requireWorkspace(freelanceId);

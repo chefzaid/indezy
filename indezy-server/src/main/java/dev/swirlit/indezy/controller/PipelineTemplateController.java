@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,6 +41,7 @@ public class PipelineTemplateController {
 
     @Operation(summary = "Save an opportunity's steps as a template, for a client or ESN or for anyone")
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<PipelineTemplateDto> create(@Valid @RequestBody PipelineTemplateRequest request) {
         accessGuard.requireProject(request.projectId());
         accessGuard.requireClientIfPresent(request.clientId());
@@ -48,6 +50,7 @@ public class PipelineTemplateController {
 
     @Operation(summary = "Save steps written out one by one as a template for anyone, such as a starter process")
     @PostMapping("/steps")
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<PipelineTemplateDto> createFromSteps(@Valid @RequestBody PipelineTemplateStepsRequest request) {
         Long freelanceId = accessGuard.requireWorkspace(request.freelanceId());
         return ResponseEntity.status(HttpStatus.CREATED).body(templateService.createFromSteps(freelanceId, request));
@@ -63,6 +66,7 @@ public class PipelineTemplateController {
 
     @Operation(summary = "Delete a template; the steps it created stay")
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         accessGuard.requirePipelineTemplate(id);
         templateService.delete(id);

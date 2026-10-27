@@ -1,0 +1,12 @@
+{
+  "id": 30,
+  "contactId": 2,
+  "contactName": "Léa Martin",
+  "occurredOn": "2026-10-20",
+  "channel": "EMAIL",
+  "direction": "OUTGOING",
+  "replied": true,
+  "summary": "Sent my CV for the Java lead mission",
+  "projectId": 42,
+  "projectRole": "Lead développeur Java"
+}

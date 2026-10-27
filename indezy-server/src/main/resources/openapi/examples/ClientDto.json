@@ -1,0 +1,20 @@
+{
+  "id": 3,
+  "companyName": "Acme",
+  "address": "10 rue de Rivoli",
+  "city": "Paris",
+  "domain": "Banking",
+  "isFinal": true,
+  "notes": "Final client of the Java lead mission",
+  "rating": 4,
+  "isBlacklisted": false,
+  "activityReportLayout": "DAILY_TABLE",
+  "activityReportShowsLocation": true,
+  "activityReportLanguage": "FR",
+  "freelanceId": 7,
+  "totalProjects": 2,
+  "totalContacts": 1,
+  "averageDailyRate": 650.0,
+  "createdAt": "2026-09-01T10:00:00",
+  "updatedAt": "2026-10-20T16:30:00"
+}

@@ -60,6 +60,7 @@ public class ProjectController {
     @Operation(summary = "Create a project",
         description = "Without a season, the project joins the season running today (if any)")
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody ProjectDto projectDto) {
         projectDto.setFreelanceId(accessGuard.resolveFreelanceId(projectDto.getFreelanceId()));
         accessGuard.requireClient(projectDto.getClientId());
@@ -78,6 +79,7 @@ public class ProjectController {
 
     @Operation(summary = "Delete a project", description = "Its interview steps and journal notes go with it")
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         accessGuard.requireProject(id);
         projectService.delete(id);
@@ -142,6 +144,7 @@ public class ProjectController {
 
     @Operation(summary = "Persist the manual order of a Kanban column")
     @PutMapping("/kanban/{freelanceId}/reorder")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> reorderKanbanColumn(@PathVariable Long freelanceId,
                                                     @RequestBody List<Long> orderedProjectIds) {
         accessGuard.requireFreelance(freelanceId);

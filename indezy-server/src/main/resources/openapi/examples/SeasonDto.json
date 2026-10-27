@@ -1,0 +1,13 @@
+{
+  "id": 9,
+  "name": "Autumn 2026",
+  "startDate": "2026-09-01",
+  "endDate": "2026-12-31",
+  "objective": "Sign a Java lead mission in Paris",
+  "targetDailyRate": 650,
+  "freelanceId": 7,
+  "active": true,
+  "projectCount": 5,
+  "createdAt": "2026-09-01T10:00:00",
+  "updatedAt": "2026-09-01T10:00:00"
+}

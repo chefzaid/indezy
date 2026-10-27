@@ -1,0 +1,15 @@
+{
+  "id": 2,
+  "name": "Free-Work",
+  "type": "JOB_BOARD",
+  "link": "https://www.free-work.com",
+  "isListing": true,
+  "popularityRating": 4,
+  "usefulnessRating": 5,
+  "notes": "Most Java missions",
+  "freelanceId": 7,
+  "totalProjects": 3,
+  "averageDailyRate": 620.0,
+  "createdAt": "2026-09-01T10:00:00",
+  "updatedAt": "2026-09-01T10:00:00"
+}

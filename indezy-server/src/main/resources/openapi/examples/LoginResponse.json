@@ -1,0 +1,11 @@
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGljZUBleGFtcGxlLmNvbSJ9.signature",
+  "user": {
+    "id": 7,
+    "accountId": 12,
+    "email": "alice@example.com",
+    "firstName": "Alice",
+    "lastName": "Martin",
+    "onboardingPending": false
+  }
+}

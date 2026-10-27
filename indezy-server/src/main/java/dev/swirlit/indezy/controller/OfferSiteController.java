@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -67,6 +68,7 @@ public class OfferSiteController {
 
     @Operation(summary = "Read a job board now; at most once every 15 minutes, whoever asks")
     @PostMapping("/{site}/refresh")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<OfferSiteRefreshDto> refresh(@PathVariable OfferSite site, @RequestParam(required = false) Long freelanceId) {
         accessGuard.requireWorkspace(freelanceId);
         return new ResponseEntity<>(new OfferSiteRefreshDto(site, refresher.refresh(site)), HttpStatus.ACCEPTED);

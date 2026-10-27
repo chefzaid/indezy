@@ -41,6 +41,7 @@ public class InterviewStepController {
 
     @Operation(summary = "Create an interview step")
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<InterviewStepDto> createInterviewStep(@Valid @RequestBody InterviewStepDto interviewStepDto) {
         accessGuard.requireProject(interviewStepDto.getProjectId());
         return new ResponseEntity<>(interviewStepService.create(interviewStepDto), HttpStatus.CREATED);
@@ -63,6 +64,7 @@ public class InterviewStepController {
 
     @Operation(summary = "Delete an interview step")
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteInterviewStep(@PathVariable Long id) {
         accessGuard.requireInterviewStep(id);
         interviewStepService.delete(id);

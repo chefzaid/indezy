@@ -1,0 +1,19 @@
+{
+  "id": 11,
+  "title": "Client interview",
+  "date": "2026-10-30T10:00:00",
+  "status": "PLANNED",
+  "notes": "With the CTO",
+  "checklist": [
+    {
+      "label": "References ready",
+      "done": true
+    },
+    {
+      "label": "Stack and context reviewed",
+      "done": false
+    }
+  ],
+  "projectId": 42,
+  "projectRole": "Lead développeur Java"
+}

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,6 +39,7 @@ public class EmailTemplateController {
 
     @Operation(summary = "Save an email template")
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<EmailTemplateDto> create(@Valid @RequestBody EmailTemplateDto request,
                                                    @RequestParam(required = false) Long freelanceId) {
         return ResponseEntity.status(HttpStatus.CREATED).body(templateService.create(accessGuard.requireWorkspace(freelanceId), request));
@@ -52,6 +54,7 @@ public class EmailTemplateController {
 
     @Operation(summary = "Delete an email template")
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> delete(@PathVariable Long id, @RequestParam(required = false) Long freelanceId) {
         templateService.delete(accessGuard.requireWorkspace(freelanceId), id);
         return ResponseEntity.noContent().build();

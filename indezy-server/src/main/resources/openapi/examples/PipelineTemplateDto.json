@@ -1,0 +1,20 @@
+{
+  "id": 4,
+  "name": "Through an ESN",
+  "clientId": 5,
+  "clientName": "Exemple Conseil",
+  "steps": [
+    {
+      "title": "Call with the ESN",
+      "checklist": [
+        "Daily rate stated"
+      ]
+    },
+    {
+      "title": "Client interview",
+      "checklist": [
+        "References ready"
+      ]
+    }
+  ]
+}

@@ -40,6 +40,7 @@ public class ClientController {
 
     @Operation(summary = "Create a client")
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ClientDto> createClient(@Valid @RequestBody ClientDto clientDto) {
         clientDto.setFreelanceId(accessGuard.resolveFreelanceId(clientDto.getFreelanceId()));
         return new ResponseEntity<>(clientService.create(clientDto), HttpStatus.CREATED);
@@ -55,6 +56,7 @@ public class ClientController {
 
     @Operation(summary = "Delete a client", description = "Refused (409) while projects still reference it")
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
         accessGuard.requireClient(id);
         clientService.delete(id);

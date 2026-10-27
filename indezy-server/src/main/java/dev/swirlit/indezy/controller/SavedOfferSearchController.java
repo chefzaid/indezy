@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,6 +52,7 @@ public class SavedOfferSearchController {
 
     @Operation(summary = "Save the feed's filters under a name")
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<SavedOfferSearchDto> create(@Valid @RequestBody SavedOfferSearchRequest request,
                                                       @RequestParam(required = false) Long freelanceId) {
         return new ResponseEntity<>(savedSearches.create(accessGuard.requireWorkspace(freelanceId), request), HttpStatus.CREATED);
@@ -73,6 +75,7 @@ public class SavedOfferSearchController {
     @Operation(summary = "Tell that an offer was opened from a saved search's email",
         description = "The emails are read: sending goes on for 60 more days of unopened emails")
     @PostMapping("/{id}/emails/opened")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> emailOpened(@PathVariable Long id, @RequestParam(required = false) Long freelanceId) {
         emails.opened(accessGuard.requireWorkspace(freelanceId), id);
         return ResponseEntity.noContent().build();
@@ -80,6 +83,7 @@ public class SavedOfferSearchController {
 
     @Operation(summary = "Delete a saved search")
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> delete(@PathVariable Long id, @RequestParam(required = false) Long freelanceId) {
         savedSearches.delete(accessGuard.requireWorkspace(freelanceId), id);
         return ResponseEntity.noContent().build();
@@ -94,6 +98,7 @@ public class SavedOfferSearchController {
 
     @Operation(summary = "Dismiss a suggested search: the same filters are not suggested again")
     @PostMapping("/suggestions/dismissals")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> dismiss(@Valid @RequestBody OfferSearchRequest filters, @RequestParam(required = false) Long freelanceId) {
         suggestions.dismiss(accessGuard.requireWorkspace(freelanceId), filters);
         return ResponseEntity.noContent().build();

@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -65,6 +66,7 @@ public class UserController {
 
     @Operation(summary = "Finish or skip the welcome steps of a new account")
     @PostMapping("/onboarding/complete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> completeOnboarding() {
         userService.completeOnboarding(SecurityUtils.getCurrentUserId());
         return ResponseEntity.noContent().build();
