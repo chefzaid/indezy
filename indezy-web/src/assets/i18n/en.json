@@ -231,6 +231,25 @@
       "openFeed": "Open the feed",
       "completeProfile": "Add your skills to your profile to see the missions that match you best.",
       "empty": "No new mission since you last looked at the feed."
+    },
+    "widgets": {
+      "customize": "Customize",
+      "customizeTitle": "Customize the dashboard",
+      "customizeHint": "Show, hide and reorder the blocks of your dashboard. Drag a block by its handle, or use the arrows.",
+      "moveUp": "Move {{name}} up",
+      "moveDown": "Move {{name}} down",
+      "drag": "Drag {{name}}",
+      "reset": "Usual layout",
+      "saved": "Dashboard layout saved",
+      "saveError": "The dashboard layout could not be saved",
+      "names": {
+        "STATS": "Key figures",
+        "CHARTS": "Charts",
+        "REMINDERS": "Reminders",
+        "OFFERS": "New offers",
+        "ANALYTICS": "Analytics",
+        "RECENT": "Recent opportunities"
+      }
     }
   },
   "projects": {

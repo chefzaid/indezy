@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, OnDestroy, ChangeDetectionStrategy, NgZone } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, OnDestroy, ChangeDetectionStrategy, NgZone, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,15 +6,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth/auth.service';
 import { ProjectService } from '../../services/project/project.service';
-import { User, ProjectDto, DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, SkillTrend, ProcessDuration, ActivityDay, PROJECT_STATUS_COLORS } from '../../models';
-import { ActivityHeatmapComponent } from '../../shared/components/activity-heatmap/activity-heatmap.component';
+import { User, ProjectDto, DashboardStatsDto, PROJECT_STATUS_COLORS } from '../../models';
 import { DashboardRemindersComponent } from './dashboard-reminders/dashboard-reminders.component';
 import { DailyRateChartComponent } from './daily-rate-chart/daily-rate-chart.component';
 import { DashboardOffersComponent } from './dashboard-offers/dashboard-offers.component';
-import { RateTargetComponent } from './rate-target/rate-target.component';
+import { DashboardAnalyticsComponent } from './dashboard-analytics/dashboard-analytics.component';
+import { DashboardCustomizeDialogComponent, USUAL_LAYOUT } from './customize-dialog/dashboard-customize-dialog.component';
+import { DashboardWidget, UserPreferences } from '../../models/user-management.models';
+import { UserManagementService } from '../../services/user-management/user-management.service';
+import { NotificationService } from '../../services/notification/notification.service';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { SeasonPickerComponent } from '../seasons/season-picker/season-picker.component';
 import { Season } from '../../models/season.models';
@@ -38,11 +42,10 @@ type ViewMode = 'overview' | 'kanban';
         TranslateModule,
         KanbanBoardComponent,
         SeasonPickerComponent,
-        ActivityHeatmapComponent,
         DashboardRemindersComponent,
         DailyRateChartComponent,
         DashboardOffersComponent,
-        RateTargetComponent
+        DashboardAnalyticsComponent
     ],
     templateUrl: './dashboard.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -51,13 +54,10 @@ type ViewMode = 'overview' | 'kanban';
 export class DashboardComponent implements OnInit, OnDestroy {
   /** Remembers whether the user last looked at the overview or the pipeline board. */
   static readonly VIEW_MODE_KEY = 'indezy-dashboard-view';
-  static readonly TOP_SKILLS = 8;
   currentUser: User | null = null;
   recentProjects: ProjectDto[] = [];
   viewMode: ViewMode = 'overview';
   dashboardStats: DashboardStatsDto | null = null;
-  /** Lost reasons that actually occurred, sorted by frequency (computed once per stats load). */
-  lostReasons: { reason: string; count: number }[] = [];
 
   /** Season whose dashboard is shown; null shows every opportunity. */
   selectedSeason: Season | null = null;
@@ -80,6 +80,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private statusChart: Chart | null = null;
   private workModeChart: Chart | null = null;
+  private readonly users = inject(UserManagementService);
+  private readonly dialog = inject(MatDialog);
+  private readonly notifications = inject(NotificationService);
+  /** The overview's blocks in the account's order, shown or hidden. */
+  widgets: DashboardWidget[] = USUAL_LAYOUT;
+  private preferences: UserPreferences | null = null;
   private chartSurface = '#fff';
   constructor(
     private readonly authService: AuthService,
@@ -92,6 +98,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentUser = this.authService.getUser();
     this.viewMode = DashboardComponent.readSavedViewMode();
+    this.users.getUserPreferences().subscribe({
+      next: preferences => {
+        this.preferences = preferences;
+        this.widgets = preferences.dashboardWidgets?.length ? preferences.dashboardWidgets : USUAL_LAYOUT;
+      },
+      // The usual layout until the preferences can be read.
+      error: () => this.preferences = null
+    });
     if (!this.currentUser?.id) {
       // Nothing to pick a season for; keep the page usable.
       this.seasonResolved = true;
@@ -133,7 +147,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       next: ({ stats, global }) => {
         this.dashboardStats = stats;
         this.globalStats = global;
-        this.lostReasons = this.buildLostReasons(stats);
         this.stats = {
           totalProjects: stats.totalProjects,
           averageDailyRate: stats.averageDailyRate,
@@ -217,72 +230,37 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  get visibleWidgets(): DashboardWidget[] {
+    return this.widgets.filter(widget => widget.visible);
+  }
+
+  /** Lets the account arrange the overview's blocks, then saves the layout with its other preferences. */
+  customize(): void {
+    this.dialog.open(DashboardCustomizeDialogComponent, { data: this.widgets, width: '480px', autoFocus: false })
+      .afterClosed().subscribe((arranged: DashboardWidget[] | undefined) => {
+        if (!arranged || !this.preferences) {
+          return;
+        }
+        const before = this.widgets;
+        this.widgets = arranged;
+        this.users.updateUserPreferences({ ...this.preferences, dashboardWidgets: arranged }).subscribe({
+          next: saved => {
+            this.preferences = saved;
+            this.notifications.success('dashboard.widgets.saved');
+          },
+          error: () => {
+            this.widgets = before;
+            this.notifications.error('dashboard.widgets.saveError');
+          }
+        });
+        // The charts' canvases may have moved or come back.
+        this.cdr.detectChanges();
+        setTimeout(() => this.buildCharts());
+      });
+  }
+
   isOverviewMode(): boolean {
     return this.viewMode === 'overview';
-  }
-
-  private buildLostReasons(stats: DashboardStatsDto): { reason: string; count: number }[] {
-    return Object.entries(stats.lostReasonsBreakdown ?? {})
-      .filter(([, count]) => count > 0)
-      .map(([reason, count]) => ({ reason, count }))
-      .sort((a, b) => b.count - a.count);
-  }
-
-  /** Per-source ROI ranking, already sorted by signed contracts from the backend. */
-  getSourceRoi(): SourceRoi[] {
-    return this.dashboardStats?.sourceRoi ?? [];
-  }
-
-  /** Asked vs obtained daily rate per year, already ordered chronologically by the backend. */
-  getDailyRateEvolution(): DailyRateEvolution[] {
-    return this.dashboardStats?.dailyRateEvolution ?? [];
-  }
-
-  /** Pipeline conversion funnel stages, already ordered from first to last stage by the backend. */
-  getConversionFunnel(): ConversionFunnelStage[] {
-    return this.dashboardStats?.conversionFunnel ?? [];
-  }
-
-  /** Per-source conversion funnels, ordered by source name by the backend. */
-  getFunnelBySource(): FunnelBreakdown[] {
-    return this.dashboardStats?.funnelBySource ?? [];
-  }
-
-  /** Conversion funnels split by direct vs intermediated (ESN) deals. */
-  getFunnelByClientType(): FunnelBreakdown[] {
-    return this.dashboardStats?.funnelByClientType ?? [];
-  }
-
-  /** Per-ESN conversion funnels, ordered by ESN name by the backend. */
-  getFunnelByEsn(): FunnelBreakdown[] {
-    return this.dashboardStats?.funnelByEsn ?? [];
-  }
-
-  getSkillTrends(): SkillTrend[] {
-    return this.dashboardStats?.skillTrends ?? [];
-  }
-
-  /** The most requested skills (the backend already sorts them by demand). */
-  getTopSkillTrends(): SkillTrend[] {
-    return this.getSkillTrends().slice(0, DashboardComponent.TOP_SKILLS);
-  }
-
-  getProcessDurations(): ProcessDuration[] {
-    return this.dashboardStats?.processDurations ?? [];
-  }
-
-  getActivityHeatmap(): ActivityDay[] {
-    return this.dashboardStats?.activityHeatmap ?? [];
-  }
-
-  /** Compact stage counts for a funnel group, e.g. "6 → 4 → 3 → 2 → 1". */
-  funnelCounts(group: FunnelBreakdown): string {
-    return group.stages.map(s => s.count).join(' → ');
-  }
-
-  /** Overall conversion rate of a funnel group (its last stage relative to the first). */
-  funnelConversion(group: FunnelBreakdown): number {
-    return group.stages.at(-1)?.conversionRate ?? 0;
   }
 
   getGreeting(): string {

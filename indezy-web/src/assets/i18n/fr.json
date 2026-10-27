@@ -231,6 +231,25 @@
       "openFeed": "Ouvrir le fil",
       "completeProfile": "Ajoutez vos compétences à votre profil pour voir les missions qui vous correspondent le mieux.",
       "empty": "Aucune nouvelle mission depuis votre dernier passage dans le fil."
+    },
+    "widgets": {
+      "customize": "Personnaliser",
+      "customizeTitle": "Personnaliser le tableau de bord",
+      "customizeHint": "Affichez, masquez et réordonnez les blocs de votre tableau de bord. Faites glisser un bloc par sa poignée, ou utilisez les flèches.",
+      "moveUp": "Monter {{name}}",
+      "moveDown": "Descendre {{name}}",
+      "drag": "Déplacer {{name}}",
+      "reset": "Disposition habituelle",
+      "saved": "Disposition du tableau de bord enregistrée",
+      "saveError": "La disposition du tableau de bord n'a pas pu être enregistrée",
+      "names": {
+        "STATS": "Chiffres clés",
+        "CHARTS": "Graphiques",
+        "REMINDERS": "Rappels",
+        "OFFERS": "Nouvelles offres",
+        "ANALYTICS": "Analyses",
+        "RECENT": "Opportunités récentes"
+      }
     }
   },
   "projects": {

@@ -1,0 +1,206 @@
+@if (stats) {
+  <h2 class="section-title">
+    <mat-icon>analytics</mat-icon>
+    {{ 'dashboard.analyticsTitle' | translate }}
+  </h2>
+  <div class="insights-grid">
+    @if (stats.targetDailyRate; as target) {
+      <app-rate-target class="insight-card" [target]="target"
+        [obtained]="stats.averageObtainedDailyRate"></app-rate-target>
+    }
+    <!-- Outcomes -->
+    <section class="insight-card">
+      <h3 class="insight-title"><mat-icon>flag</mat-icon>{{ 'dashboard.outcomesTitle' | translate }}</h3>
+      <div class="stats-summary">
+        <div class="summary-item won">
+          <mat-icon>emoji_events</mat-icon>
+          <span class="summary-value">{{ stats.wonProjects }}</span>
+          <span class="summary-label">{{ 'dashboard.charts.won' | translate }}</span>
+        </div>
+        <div class="summary-item lost">
+          <mat-icon>thumb_down</mat-icon>
+          <span class="summary-value">{{ stats.lostProjects }}</span>
+          <span class="summary-label">{{ 'dashboard.charts.lost' | translate }}</span>
+        </div>
+        <div class="summary-item active">
+          <mat-icon>trending_up</mat-icon>
+          <span class="summary-value">{{ stats.activeProjects }}</span>
+          <span class="summary-label">{{ 'dashboard.charts.active' | translate }}</span>
+        </div>
+      </div>
+      @if (lostReasons.length > 0) {
+        <h4 class="insight-subtitle">{{ 'dashboard.charts.lostReasons' | translate }}</h4>
+        @for (entry of lostReasons; track entry.reason) {
+          <div class="data-row">
+            <span class="label">{{ 'projects.lostReason.' + entry.reason | translate }}</span>
+            <span class="value">{{ entry.count }}</span>
+          </div>
+        }
+      }
+    </section>
+
+    <!-- Conversion funnel -->
+    @if (getConversionFunnel().length > 0) {
+      <section class="insight-card">
+        <h3 class="insight-title"><mat-icon>filter_alt</mat-icon>{{ 'dashboard.charts.conversionFunnel' | translate }}</h3>
+        <div class="data-row header">
+          <span class="label">{{ 'dashboard.charts.funnelStage' | translate }}</span>
+          <span class="value">{{ 'dashboard.charts.funnelCount' | translate }}</span>
+          <span class="value">{{ 'dashboard.charts.funnelRate' | translate }}</span>
+        </div>
+        @for (entry of getConversionFunnel(); track entry.stage) {
+          <div class="data-row">
+            <span class="label">{{ 'projects.statuses.' + entry.stage | translate }}</span>
+            <span class="value">{{ entry.count }}</span>
+            <span class="value">{{ entry.conversionRate | number:'1.0-1' }} %</span>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Source ROI -->
+    @if (getSourceRoi().length > 0) {
+      <section class="insight-card">
+        <h3 class="insight-title"><mat-icon>leaderboard</mat-icon>{{ 'dashboard.charts.sourceRoi' | translate }}</h3>
+        <div class="data-row header">
+          <span class="label">{{ 'dashboard.charts.sourceRoiSource' | translate }}</span>
+          <span class="value">{{ 'dashboard.charts.sourceRoiWon' | translate }}</span>
+          <span class="value">{{ 'dashboard.charts.sourceRoiRate' | translate }}</span>
+        </div>
+        @for (entry of getSourceRoi(); track entry.sourceName) {
+          <div class="data-row">
+            <span class="label">{{ entry.sourceName }}</span>
+            <span class="value">{{ entry.wonProjects }}/{{ entry.totalProjects }}</span>
+            <span class="value">{{ entry.conversionRate | number:'1.0-1' }} %</span>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Skill demand -->
+    @if (getSkillTrends().length > 0) {
+      <section class="insight-card">
+        <h3 class="insight-title"><mat-icon>insights</mat-icon>{{ 'dashboard.charts.skillTrends' | translate }}</h3>
+        <div class="data-row header">
+          <span class="label">{{ 'dashboard.charts.skillTrendsSkill' | translate }}</span>
+          <span class="value">{{ 'dashboard.charts.skillTrendsCount' | translate }}</span>
+          <span class="value">{{ 'dashboard.charts.skillTrendsRate' | translate }}</span>
+        </div>
+        @for (trend of getTopSkillTrends(); track trend.skill) {
+          <div class="data-row">
+            <span class="label">{{ trend.skill }}</span>
+            <span class="value">{{ trend.count }}</span>
+            <span class="value">{{ trend.averageDailyRate | number:'1.0-0' }} €</span>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Daily rate evolution -->
+    @if (getDailyRateEvolution().length > 0) {
+      <section class="insight-card">
+        <h3 class="insight-title"><mat-icon>trending_up</mat-icon>{{ 'dashboard.charts.rateEvolution' | translate }}</h3>
+        <div class="data-row header">
+          <span class="label">{{ 'dashboard.charts.rateEvolutionPeriod' | translate }}</span>
+          <span class="value">{{ 'dashboard.charts.rateEvolutionAsked' | translate }}</span>
+          <span class="value">{{ 'dashboard.charts.rateEvolutionObtained' | translate }}</span>
+        </div>
+        @for (entry of getDailyRateEvolution(); track entry.period) {
+          <div class="data-row">
+            <span class="label">{{ entry.period }}</span>
+            <span class="value">{{ entry.averageAskedRate ? (entry.averageAskedRate | number:'1.0-0') + ' €' : '—' }}</span>
+            <span class="value">{{ entry.averageObtainedRate ? (entry.averageObtainedRate | number:'1.0-0') + ' €' : '—' }}</span>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Process duration -->
+    @if (getProcessDurations().length > 0) {
+      <section class="insight-card">
+        <h3 class="insight-title"><mat-icon>schedule</mat-icon>{{ 'dashboard.charts.processDuration' | translate }}</h3>
+        <div class="data-row header">
+          <span class="label">{{ 'dashboard.charts.processDurationGroup' | translate }}</span>
+          <span class="value">{{ 'dashboard.charts.processDurationDays' | translate }}</span>
+          <span class="value">{{ 'dashboard.charts.processDurationSigned' | translate }}</span>
+        </div>
+        @for (duration of getProcessDurations(); track duration.group) {
+          <div class="data-row">
+            <span class="label">{{ duration.group }}</span>
+            <span class="value">{{ duration.averageDays | number:'1.0-0' }}</span>
+            <span class="value">{{ duration.count }}</span>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Bench time -->
+    @if (stats.benchPeriods > 0) {
+      <section class="insight-card">
+        <h3 class="insight-title"><mat-icon>hourglass_empty</mat-icon>{{ 'dashboard.charts.benchTime' | translate }}</h3>
+        <div class="data-row">
+          <span class="label">{{ 'dashboard.charts.benchDays' | translate }}</span>
+          <span class="value">{{ stats.totalBenchDays }}</span>
+        </div>
+        <div class="data-row">
+          <span class="label">{{ 'dashboard.charts.benchPeriods' | translate }}</span>
+          <span class="value">{{ stats.benchPeriods }}</span>
+        </div>
+        <div class="data-row">
+          <span class="label">{{ 'dashboard.charts.benchCost' | translate }}</span>
+          <span class="value">{{ stats.estimatedBenchCost | number:'1.0-0' }} €</span>
+        </div>
+      </section>
+    }
+
+    <!-- Funnel by client type -->
+    @if (getFunnelByClientType().length > 0) {
+      <section class="insight-card">
+        <h3 class="insight-title"><mat-icon>call_split</mat-icon>{{ 'dashboard.charts.funnelByClientType' | translate }}</h3>
+        @for (group of getFunnelByClientType(); track group.group) {
+          <div class="data-row">
+            <span class="label">{{ 'dashboard.charts.clientType.' + group.group | translate }}</span>
+            <span class="value counts">{{ funnelCounts(group) }}</span>
+            <span class="value">{{ funnelConversion(group) | number:'1.0-1' }} %</span>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Funnel by source -->
+    @if (getFunnelBySource().length > 0) {
+      <section class="insight-card">
+        <h3 class="insight-title"><mat-icon>filter_alt</mat-icon>{{ 'dashboard.charts.funnelBySource' | translate }}</h3>
+        @for (group of getFunnelBySource(); track group.group) {
+          <div class="data-row">
+            <span class="label">{{ group.group }}</span>
+            <span class="value counts">{{ funnelCounts(group) }}</span>
+            <span class="value">{{ funnelConversion(group) | number:'1.0-1' }} %</span>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Funnel by ESN -->
+    @if (getFunnelByEsn().length > 0) {
+      <section class="insight-card">
+        <h3 class="insight-title"><mat-icon>handshake</mat-icon>{{ 'dashboard.charts.funnelByEsn' | translate }}</h3>
+        @for (group of getFunnelByEsn(); track group.group) {
+          <div class="data-row">
+            <span class="label">{{ group.group }}</span>
+            <span class="value counts">{{ funnelCounts(group) }}</span>
+            <span class="value">{{ funnelConversion(group) | number:'1.0-1' }} %</span>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Activity heatmap -->
+    @if (getActivityHeatmap().length > 0) {
+      <section class="insight-card wide">
+        <h3 class="insight-title"><mat-icon>calendar_month</mat-icon>{{ 'dashboard.charts.activityHeatmap' | translate }}</h3>
+        <app-activity-heatmap [activity]="getActivityHeatmap()"></app-activity-heatmap>
+      </section>
+    }
+  </div>
+}

@@ -2,9 +2,13 @@ package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.util.WholeNumberDeserializer;
 import lombok.Data;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import tools.jackson.databind.annotation.JsonDeserialize;
+
+import java.util.List;
 
 @Data
 public class UserPreferencesDto {
@@ -28,4 +32,7 @@ public class UserPreferencesDto {
     private Integer followUpDays;
     /** Archive opportunities idle for {@code inactivityDays}, every night. */
     private Boolean autoArchive;
+    /** The dashboard's blocks in the account's order, shown or hidden; left as they are when absent. */
+    @Size(max = 20)
+    private List<@Valid DashboardWidgetDto> dashboardWidgets;
 }

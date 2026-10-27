@@ -373,7 +373,7 @@ Increments, implemented in order:
 - [x] Multi-select mode on project/client/contact lists (bulk delete, tag, status change, archive). Done on 2026-10-26: the projects list picks cards (or a whole page) and shares the Kanban board's bar, which now also adds a tag and deletes; the clients and contacts lists pick rows and delete them at once, keeping clients still linked to missions (`docs/features.md#kanban-and-pipeline-view`).
 - [x] Internationalization hardening (French/English translation coverage, language switch persistence, missing-key checks)
 - [x] Dark mode (light, dark, or system theme from the profile preference and a toolbar toggle)
-- [ ] Customizable dashboard widgets (drag, resize, show/hide)
+- [x] Customizable dashboard widgets (drag, resize, show/hide). Done on 2026-10-27: **Customize** on the overview shows, hides and reorders its six blocks (key figures, charts, reminders, new offers, analytics, recent opportunities) by dragging or with arrows from the keyboard, saved with the account's preferences. Resizing is left out on purpose: each block takes the page's width and lays its own cards out for the screen. The dashboard's analytics became their own component on the way (`dashboard.component.scss` was 605 lines).
 - [x] Onboarding wizard for first-time setup (profile, rate, address, pipeline template)
 - [x] Keyboard shortcuts for power users (new project, move card, search)
 - [ ] Offline-tolerant PWA mode for consulting data on the go

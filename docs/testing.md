@@ -171,6 +171,9 @@ Representative backend tests:
   empty sections left out, an empty week), `WeeklyDigestServiceTest` (due from Monday 8:00 Paris time in winter and
   summer, the unsubscribe token given once), `UserServiceTest` and `UserManagementIntegrationTest` (the switches, a `PUT`
   changing only those it names)
+- dashboard layout: `DashboardLayoutTest` (every block shown until arranged, unknown names dropped and new blocks added
+  at the end, a block listed twice refused) and `WorkspacePreferencesIntegrationTest` (Alice's order and hidden block
+  kept across other preference changes, Bob's usual layout, unknown or repeated blocks refused)
 - secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code (a bare `code` field included), backup code or API key, nor, in such a class or one nested in it, the email or a name)
 
 Backend test data lives under `indezy-server/src/test/resources/`:
@@ -213,6 +216,11 @@ Representative frontend specs:
 - notifications: `profile-notifications.component.spec.ts` (the two switches, emails unavailable, the digest turned on,
   the badge taken off the menu and put back, a switch put back on failure) and `app.component.spec.ts` (the badge left
   off after sign-in when turned off, on when the settings cannot be read)
+- dashboard layout: `dashboard-customize-dialog.component.spec.ts` (blocks in the account's order, reordered by
+  dragging or arrows, shown and hidden, the usual layout), `dashboard.component.spec.ts` (the usual order until arranged,
+  hidden blocks left out, a layout saved with the other preferences and put back on failure, nothing saved when
+  cancelled) and `dashboard-analytics.component.spec.ts` (every insight the statistics contain, lost reasons most
+  frequent first, the insights the statistics lack)
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy
@@ -394,6 +402,9 @@ from the menu ends the session on the server, and an API token is created, shown
 
 Notification scenarios (`e2e/notifications.spec.ts`, on a desktop and on a phone, the tab audited with axe-core) turn
 the weekly digest on and the new offers badge off, which leaves the menu, and keep the badge off at the next sign-in.
+
+Dashboard layout scenarios (`e2e/dashboard-layout.spec.ts`, on a desktop and on a phone, the dialog audited with
+axe-core) hide the charts, move the recent opportunities up, and find the layout again after a reload.
 
 Keyboard scenarios (`e2e/keyboard-navigation.spec.ts`) open a Kanban card with Enter (but not from its favourite
 button), a timeline step and an archived opportunity, then reach a client, one of its opportunities and one of its

@@ -1,15 +1,20 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { UserManagementService } from '../../services/user-management/user-management.service';
+import { NotificationService } from '../../services/notification/notification.service';
+import { DashboardWidget, UserPreferences } from '../../models/user-management.models';
 import { TranslateModule } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
 import { Observable, Subject, of, throwError } from 'rxjs';
-import { DashboardStatsDto, FunnelBreakdown, ProjectDto, User } from '../../models';
+import { DashboardStatsDto, ProjectDto, User } from '../../models';
 import { Season } from '../../models/season.models';
 import { AuthService } from '../../services/auth/auth.service';
 import { ProjectService } from '../../services/project/project.service';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { SeasonPickerComponent } from '../seasons/season-picker/season-picker.component';
+import { DashboardAnalyticsComponent } from './dashboard-analytics/dashboard-analytics.component';
 import { DashboardOffersComponent } from './dashboard-offers/dashboard-offers.component';
 import { DashboardComponent } from './dashboard.component';
 
@@ -57,6 +62,10 @@ describe('DashboardComponent', () => {
   let fixture: ComponentFixture<DashboardComponent>;
   let component: DashboardComponent;
   let savedViewMode: string | null;
+  let users: jasmine.SpyObj<UserManagementService>;
+  let dialog: jasmine.SpyObj<MatDialog>;
+  let notifications: jasmine.SpyObj<NotificationService>;
+  let preferences: Observable<UserPreferences>;
 
   const user: User = { id: 7, email: 'ada@example.com', firstName: 'Ada', lastName: 'Lovelace' };
   const season: Season = {
@@ -65,6 +74,7 @@ describe('DashboardComponent', () => {
   };
 
   beforeEach(() => {
+    preferences = of({ theme: 'light', language: 'en' } as UserPreferences);
     savedViewMode = localStorage.getItem(DashboardComponent.VIEW_MODE_KEY);
     localStorage.removeItem(DashboardComponent.VIEW_MODE_KEY);
   });
@@ -84,12 +94,19 @@ describe('DashboardComponent', () => {
     projects.getDashboardStats.and.returnValue(statsResult);
     auth = jasmine.createSpyObj('AuthService', ['getUser', 'logout']);
     auth.getUser.and.returnValue(currentUser);
+    users = jasmine.createSpyObj('UserManagementService', ['getUserPreferences', 'updateUserPreferences']);
+    users.getUserPreferences.and.returnValue(preferences);
+    dialog = jasmine.createSpyObj('MatDialog', ['open']);
+    notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
       imports: [DashboardComponent, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
         { provide: ProjectService, useValue: projects },
-        { provide: AuthService, useValue: auth }
+        { provide: AuthService, useValue: auth },
+        { provide: UserManagementService, useValue: users },
+        { provide: MatDialog, useValue: dialog },
+        { provide: NotificationService, useValue: notifications }
       ]
     });
     TestBed.overrideComponent(DashboardComponent, {
@@ -110,11 +127,6 @@ describe('DashboardComponent', () => {
     return element().textContent!.replace(/\s+/g, ' ');
   }
 
-  function rows(): string[] {
-    return Array.from(element().querySelectorAll('.data-row'))
-      .map(row => Array.from(row.children).map(cell => cell.textContent!.trim()).join(' '));
-  }
-
   function canvas(name: string): HTMLCanvasElement {
     return element().querySelectorAll<HTMLCanvasElement>('canvas')[name === 'status' ? 0 : 1];
   }
@@ -122,6 +134,62 @@ describe('DashboardComponent', () => {
   function picker(): SeasonPickerStubComponent {
     return fixture.debugElement.query(debug => debug.componentInstance instanceof SeasonPickerStubComponent).componentInstance;
   }
+
+  describe('layout', () => {
+    const arranged: DashboardWidget[] = [{ id: 'RECENT', visible: true }, { id: 'STATS', visible: false },
+      { id: 'CHARTS', visible: true }];
+    const widgets = (): (string | null)[] =>
+      Array.from(element().querySelectorAll('[data-widget]')).map(widget => widget.getAttribute('data-widget'));
+    const closing = (result: DashboardWidget[] | undefined) =>
+      dialog.open.and.returnValue({ afterClosed: () => of(result) } as MatDialogRef<unknown>);
+
+    it('shows the blocks in the usual order until the account arranges them', () => {
+      create();
+      picker().selectionChange.emit(null);
+      expect(widgets()).toEqual(['STATS', 'CHARTS', 'REMINDERS', 'OFFERS', 'ANALYTICS', 'RECENT']);
+    });
+
+    it('shows the account\'s blocks in its order, without the hidden ones', () => {
+      preferences = of({ dashboardWidgets: arranged } as UserPreferences);
+      create();
+      picker().selectionChange.emit(null);
+      expect(widgets()).toEqual(['RECENT', 'CHARTS']);
+    });
+
+    it('saves a new layout with the other preferences, and puts the old one back when it cannot', fakeAsync(() => {
+      create();
+      picker().selectionChange.emit(null);
+      closing(arranged);
+      users.updateUserPreferences.and.returnValue(of({ theme: 'light', language: 'en', dashboardWidgets: arranged } as UserPreferences));
+      component.customize();
+      tick();
+      expect(users.updateUserPreferences).toHaveBeenCalledWith(jasmine.objectContaining({ theme: 'light', dashboardWidgets: arranged }));
+      expect(widgets()).toEqual(['RECENT', 'CHARTS']);
+      expect(notifications.success).toHaveBeenCalledWith('dashboard.widgets.saved');
+
+      users.updateUserPreferences.and.returnValue(throwError(() => new Error('offline')));
+      closing([{ id: 'OFFERS', visible: true }]);
+      component.customize();
+      tick();
+      expect(widgets()).toEqual(['RECENT', 'CHARTS']);
+      expect(notifications.error).toHaveBeenCalledWith('dashboard.widgets.saveError');
+    }));
+
+    it('changes nothing when cancelled, or before the preferences are read', () => {
+      create();
+      closing(undefined);
+      component.customize();
+      expect(users.updateUserPreferences).not.toHaveBeenCalled();
+
+      TestBed.resetTestingModule();
+      preferences = throwError(() => new Error('offline'));
+      create();
+      closing(arranged);
+      component.customize();
+      expect(users.updateUserPreferences).not.toHaveBeenCalled();
+      expect(component.widgets.length).toBe(6);
+    });
+  });
 
   describe('start', () => {
     it('greets the user and waits for the season picker before loading', () => {
@@ -207,20 +275,14 @@ describe('DashboardComponent', () => {
       expect(Chart.getChart(canvas('workMode'))!.data.labels).toEqual(['projects.workModes.REMOTE', 'projects.workModes.HYBRID']);
     });
 
-    it('lists the lost reasons that occurred, most frequent first', () => {
+    it('hands the statistics to the analytics', () => {
       create();
       component.onSeasonChange(null);
+      element();
 
-      expect(component.lostReasons).toEqual([{ reason: 'TIMING', count: 3 }, { reason: 'RATE', count: 1 }]);
-      expect(rows()).toEqual(['projects.lostReason.TIMING 3', 'projects.lostReason.RATE 1']);
-    });
-
-    it('copes with statistics without lost reasons', () => {
-      create(user, of(stats({ lostReasonsBreakdown: undefined as never })));
-      component.onSeasonChange(null);
-
-      expect(component.lostReasons).toEqual([]);
-      expect(text()).not.toContain('dashboard.charts.lostReasons');
+      const analytics = fixture.debugElement.query(debug => debug.componentInstance instanceof DashboardAnalyticsComponent);
+      expect((analytics.componentInstance as DashboardAnalyticsComponent).stats).toBe(component.dashboardStats);
+      expect(text()).toContain('dashboard.analyticsTitle');
     });
 
     it('shows the recent opportunities with their details', () => {
@@ -320,76 +382,6 @@ describe('DashboardComponent', () => {
       expect(DashboardComponent.successRate(null)).toBeNull();
       expect(DashboardComponent.successRate(stats({ wonProjects: 0, lostProjects: 0 }))).toBeNull();
       expect(DashboardComponent.successRate(stats({ wonProjects: 1, lostProjects: 2 }))).toBe(33);
-    });
-  });
-
-  describe('analytics', () => {
-    const funnel = (group: string, counts: number[], rate: number): FunnelBreakdown => ({
-      group, stages: counts.map((count, index) => ({ stage: `S${index}`, count, conversionRate: index === counts.length - 1 ? rate : 100 }))
-    });
-
-    it('shows every insight the statistics contain', () => {
-      create(user, of(stats({
-        targetDailyRate: 650, averageObtainedDailyRate: 600,
-        conversionFunnel: [{ stage: 'IDEA', count: 6, conversionRate: 100 }, { stage: 'WON', count: 2, conversionRate: 33.3 }],
-        sourceRoi: [{ sourceName: 'Malt', totalProjects: 5, wonProjects: 2, conversionRate: 40 }],
-        skillTrends: Array.from({ length: 10 }, (_, index) => ({ skill: `Skill${index}`, count: 10 - index, averageDailyRate: 600 })),
-        dailyRateEvolution: [
-          { period: '2025', averageAskedRate: 620, averageObtainedRate: 0, projectCount: 3 },
-          { period: '2026', averageAskedRate: 0, averageObtainedRate: 640, projectCount: 2 }
-        ],
-        processDurations: [{ group: 'Malt', averageDays: 21.4, count: 2 }],
-        benchPeriods: 2, totalBenchDays: 45, estimatedBenchCost: 27000,
-        funnelByClientType: [funnel('DIRECT', [4, 2, 1], 25)],
-        funnelBySource: [funnel('LinkedIn', [6, 3], 50)],
-        funnelByEsn: [funnel('Capgemini', [3, 1], 33.3)],
-        activityHeatmap: [{ date: '2026-10-01', count: 2 }]
-      })));
-
-      component.onSeasonChange(null);
-
-      expect(element().querySelector('app-rate-target')).not.toBeNull();
-      expect(rows()).toEqual(jasmine.arrayContaining([
-        'projects.statuses.WON 2 33.3 %',
-        'Malt 2/5 40 %',
-        'Skill7 3 600 €',
-        '2025 620 € —',
-        '2026 — 640 €',
-        'Malt 21 2',
-        'dashboard.charts.benchDays 45',
-        'dashboard.charts.benchCost 27,000 €',
-        'dashboard.charts.clientType.DIRECT 4 → 2 → 1 25 %',
-        'LinkedIn 6 → 3 50 %',
-        'Capgemini 3 → 1 33.3 %'
-      ]));
-      expect(text()).not.toContain('Skill8');
-      expect(component.getTopSkillTrends().length).toBe(DashboardComponent.TOP_SKILLS);
-      expect(element().querySelector('app-activity-heatmap')).not.toBeNull();
-    });
-
-    it('hides the insights the statistics lack', () => {
-      create();
-      component.onSeasonChange(null);
-
-      expect(element().querySelector('app-rate-target')).toBeNull();
-      expect(element().querySelector('app-activity-heatmap')).toBeNull();
-      expect(text()).not.toContain('dashboard.charts.conversionFunnel');
-      expect(text()).not.toContain('dashboard.charts.benchTime');
-    });
-
-    it('returns empty insights before the statistics load', () => {
-      create();
-
-      expect(component.getSourceRoi()).toEqual([]);
-      expect(component.getDailyRateEvolution()).toEqual([]);
-      expect(component.getConversionFunnel()).toEqual([]);
-      expect(component.getFunnelBySource()).toEqual([]);
-      expect(component.getFunnelByClientType()).toEqual([]);
-      expect(component.getFunnelByEsn()).toEqual([]);
-      expect(component.getSkillTrends()).toEqual([]);
-      expect(component.getProcessDurations()).toEqual([]);
-      expect(component.getActivityHeatmap()).toEqual([]);
-      expect(component.funnelConversion({ group: 'none', stages: [] })).toBe(0);
     });
   });
 

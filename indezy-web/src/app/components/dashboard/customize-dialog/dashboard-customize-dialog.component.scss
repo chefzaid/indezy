@@ -1,0 +1,46 @@
+.hint {
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.widgets {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.widget {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--mat-sys-surface, #fff);
+
+  mat-checkbox {
+    flex: 1;
+  }
+}
+
+.handle {
+  display: inline-flex;
+  color: var(--text-secondary);
+  cursor: grab;
+}
+
+.arrows {
+  display: inline-flex;
+}
+
+.reset {
+  margin-right: auto;
+}
+
+.cdk-drag-preview {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}

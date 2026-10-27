@@ -842,6 +842,13 @@ API: `GET /seasons/by-freelance/{freelanceId}`, `PUT|DELETE /seasons/{id}`, `POS
 
 ## Dashboard And Analytics
 
+**Customize** (above the overview) arranges its six blocks for the account: key figures, charts, reminders, new
+offers, analytics and recent opportunities. Each is shown or hidden with its checkbox and moved by dragging its handle
+or with its arrows (from the keyboard too); **Usual layout** puts them back. The layout is saved with the account's
+preferences (`dashboardWidgets` of `GET`/`PUT /api/users/preferences`), so it follows the account to every browser; a
+block added later appears, shown, at the end. Resizing blocks is not offered: each takes the page's width and arranges
+its own cards for the screen.
+
 The dashboard provides an overview of the opportunity workspace with:
 
 - total projects

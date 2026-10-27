@@ -200,6 +200,10 @@ public class User extends BaseEntity {
     @Column(name = "new_offers_badge")
     private Boolean newOffersBadge = true;
 
+    /** The dashboard's blocks as arranged (see {@code DashboardLayout}); null until the account arranges them. */
+    @Column(name = "dashboard_layout", length = 200)
+    private String dashboardLayout;
+
     // Security Settings
     @Column(name = "two_factor_enabled")
     private Boolean twoFactorEnabled = false;

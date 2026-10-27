@@ -83,6 +83,8 @@ Important fields:
   (`users.public_profile_enabled`, a null column reads as off): the address of the public profile and whether it is shown.
 - `onboardingPending` (`users.onboarding_pending`): set on accounts created by registration or a first Keycloak sign-in
   until their welcome steps are finished or skipped; a null column, as accounts created before it have, reads as done.
+- `dashboardLayout` (`users.dashboard_layout`): the dashboard's blocks in the account's order, a hidden one after
+  `!` (`OFFERS,!STATS,...`); null until arranged, read as every block shown in the usual order
 - notification preferences: `weeklyReports` (`users.weekly_reports`, the weekly digest, off by default),
   `weeklyDigestToken` (its one-click unsubscribe token, set when first turned on), `weeklyDigestSentOn` (the Monday of the
   last digest sent) and `newOffersBadge` (`users.new_offers_badge`, the new offers count in the menu; a null column reads

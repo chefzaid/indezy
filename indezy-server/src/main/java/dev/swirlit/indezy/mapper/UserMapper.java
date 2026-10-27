@@ -32,6 +32,7 @@ public interface UserMapper {
     @Mapping(target = "disabledAt", ignore = true)
     @Mapping(target = "weeklyDigestToken", ignore = true)
     @Mapping(target = "weeklyDigestSentOn", ignore = true)
+    @Mapping(target = "dashboardLayout", ignore = true)
     User toEntity(UserDto dto);
 
     @Mapping(target = "id", ignore = true)
@@ -53,6 +54,7 @@ public interface UserMapper {
     @Mapping(target = "disabledAt", ignore = true)
     @Mapping(target = "weeklyDigestToken", ignore = true)
     @Mapping(target = "weeklyDigestSentOn", ignore = true)
+    @Mapping(target = "dashboardLayout", ignore = true)
     void updateEntity(UserDto dto, @MappingTarget User user);
 
     /**
@@ -94,6 +96,7 @@ public interface UserMapper {
     @Mapping(target = "defaultView", source = "defaultView")
     @Mapping(target = "itemsPerPage", source = "itemsPerPage")
     @Mapping(target = "autoSave", source = "autoSave")
+    @Mapping(target = "dashboardWidgets", expression = "java(dev.swirlit.indezy.util.DashboardLayout.read(user.getDashboardLayout()))")
     UserPreferencesDto toPreferencesDto(User user);
 
     @Mapping(target = "languagePreference", source = "language")
@@ -106,6 +109,7 @@ public interface UserMapper {
     @Mapping(target = "disabledAt", ignore = true)
     @Mapping(target = "weeklyDigestToken", ignore = true)
     @Mapping(target = "weeklyDigestSentOn", ignore = true)
+    @Mapping(target = "dashboardLayout", ignore = true)
     void updatePreferences(UserPreferencesDto dto, @MappingTarget User user);
 
     // Security settings mapping

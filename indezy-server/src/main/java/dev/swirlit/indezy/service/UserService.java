@@ -6,6 +6,7 @@ import dev.swirlit.indezy.exception.FieldRejectedException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mail.ResendMailer;
 import dev.swirlit.indezy.mapper.UserMapper;
+import dev.swirlit.indezy.util.DashboardLayout;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.repository.FreelanceRepository;
@@ -156,6 +157,9 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
         
         userMapper.updatePreferences(preferencesDto, user);
+        if (preferencesDto.getDashboardWidgets() != null) {
+            user.setDashboardLayout(DashboardLayout.write(preferencesDto.getDashboardWidgets()));
+        }
         User savedUser = userRepository.save(user);
         return userMapper.toPreferencesDto(savedUser);
     }

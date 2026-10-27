@@ -110,385 +110,202 @@
   <!-- Overview Mode -->
   @if (isOverviewMode()) {
     <div class="overview-content">
-      <!-- Stats Cards -->
-      <div class="stats-grid">
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-content">
-              <div class="stat-icon projects">
-                <mat-icon>work</mat-icon>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ stats.totalProjects }}</div>
-                <div class="stat-label">{{ 'dashboard.totalProjects' | translate }}</div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-content">
-              <div class="stat-icon rate">
-                <mat-icon>euro</mat-icon>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ stats.averageDailyRate | number:'1.0-0' }} €</div>
-                <div class="stat-label">{{ 'dashboard.averageDailyRate' | translate }}</div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-        <mat-card class="stat-card" [matTooltip]="'dashboard.estimatedRevenueHint' | translate">
-          <mat-card-content>
-            <div class="stat-content">
-              <div class="stat-icon revenue">
-                <mat-icon>trending_up</mat-icon>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ stats.totalRevenue | number:'1.0-0' }} €</div>
-                <div class="stat-label">{{ 'dashboard.estimatedRevenue' | translate }}</div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-        <mat-card class="stat-card" [matTooltip]="'dashboard.forecastRevenueHint' | translate">
-          <mat-card-content>
-            <div class="stat-content">
-              <div class="stat-icon forecast">
-                <mat-icon>insights</mat-icon>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ stats.forecastRevenue | number:'1.0-0' }} €</div>
-                <div class="stat-label">{{ 'dashboard.forecastRevenue' | translate }}</div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-content">
-              <div class="stat-icon active">
-                <mat-icon>play_circle</mat-icon>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ stats.activeProjects }}</div>
-                <div class="stat-label">{{ 'dashboard.activeProjects' | translate }}</div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
+      <div class="widgets-bar">
+        <button mat-stroked-button type="button" (click)="customize()" data-customize>
+          <mat-icon>tune</mat-icon>
+          {{ 'dashboard.widgets.customize' | translate }}
+        </button>
       </div>
-      <!-- Charts Section -->
-      @if (dashboardStats) {
-        <div class="charts-section">
-          <div class="charts-grid">
-            <mat-card class="chart-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>pie_chart</mat-icon>
-                  {{ 'dashboard.charts.projectsByStatus' | translate }}
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="chart-container">
-                  <canvas #statusChart></canvas>
-                </div>
-              </mat-card-content>
-            </mat-card>
-            <mat-card class="chart-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>location_on</mat-icon>
-                  {{ 'dashboard.charts.projectsByWorkMode' | translate }}
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="chart-container">
-                  <canvas #workModeChart></canvas>
-                </div>
-              </mat-card-content>
-            </mat-card>
-            <mat-card class="chart-card chart-card-wide">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>bar_chart</mat-icon>
-                  {{ 'dashboard.charts.dailyRateDistribution' | translate }}
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="chart-container">
-                  <app-daily-rate-chart [rates]="dashboardStats.dailyRateRanges"></app-daily-rate-chart>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-          <app-dashboard-reminders [stats]="dashboardStats"></app-dashboard-reminders>
-          <app-dashboard-offers></app-dashboard-offers>
-
-          <h2 class="section-title">
-            <mat-icon>analytics</mat-icon>
-            {{ 'dashboard.analyticsTitle' | translate }}
-          </h2>
-          <div class="insights-grid">
-            @if (dashboardStats.targetDailyRate; as target) {
-              <app-rate-target class="insight-card" [target]="target"
-                [obtained]="dashboardStats.averageObtainedDailyRate"></app-rate-target>
-            }
-            <!-- Outcomes -->
-            <section class="insight-card">
-              <h3 class="insight-title"><mat-icon>flag</mat-icon>{{ 'dashboard.outcomesTitle' | translate }}</h3>
-              <div class="stats-summary">
-                <div class="summary-item won">
-                  <mat-icon>emoji_events</mat-icon>
-                  <span class="summary-value">{{ dashboardStats.wonProjects }}</span>
-                  <span class="summary-label">{{ 'dashboard.charts.won' | translate }}</span>
-                </div>
-                <div class="summary-item lost">
-                  <mat-icon>thumb_down</mat-icon>
-                  <span class="summary-value">{{ dashboardStats.lostProjects }}</span>
-                  <span class="summary-label">{{ 'dashboard.charts.lost' | translate }}</span>
-                </div>
-                <div class="summary-item active">
-                  <mat-icon>trending_up</mat-icon>
-                  <span class="summary-value">{{ dashboardStats.activeProjects }}</span>
-                  <span class="summary-label">{{ 'dashboard.charts.active' | translate }}</span>
-                </div>
-              </div>
-              @if (lostReasons.length > 0) {
-                <h4 class="insight-subtitle">{{ 'dashboard.charts.lostReasons' | translate }}</h4>
-                @for (entry of lostReasons; track entry.reason) {
-                  <div class="data-row">
-                    <span class="label">{{ 'projects.lostReason.' + entry.reason | translate }}</span>
-                    <span class="value">{{ entry.count }}</span>
-                  </div>
-                }
-              }
-            </section>
-
-            <!-- Conversion funnel -->
-            @if (getConversionFunnel().length > 0) {
-              <section class="insight-card">
-                <h3 class="insight-title"><mat-icon>filter_alt</mat-icon>{{ 'dashboard.charts.conversionFunnel' | translate }}</h3>
-                <div class="data-row header">
-                  <span class="label">{{ 'dashboard.charts.funnelStage' | translate }}</span>
-                  <span class="value">{{ 'dashboard.charts.funnelCount' | translate }}</span>
-                  <span class="value">{{ 'dashboard.charts.funnelRate' | translate }}</span>
-                </div>
-                @for (entry of getConversionFunnel(); track entry.stage) {
-                  <div class="data-row">
-                    <span class="label">{{ 'projects.statuses.' + entry.stage | translate }}</span>
-                    <span class="value">{{ entry.count }}</span>
-                    <span class="value">{{ entry.conversionRate | number:'1.0-1' }} %</span>
-                  </div>
-                }
-              </section>
-            }
-
-            <!-- Source ROI -->
-            @if (getSourceRoi().length > 0) {
-              <section class="insight-card">
-                <h3 class="insight-title"><mat-icon>leaderboard</mat-icon>{{ 'dashboard.charts.sourceRoi' | translate }}</h3>
-                <div class="data-row header">
-                  <span class="label">{{ 'dashboard.charts.sourceRoiSource' | translate }}</span>
-                  <span class="value">{{ 'dashboard.charts.sourceRoiWon' | translate }}</span>
-                  <span class="value">{{ 'dashboard.charts.sourceRoiRate' | translate }}</span>
-                </div>
-                @for (entry of getSourceRoi(); track entry.sourceName) {
-                  <div class="data-row">
-                    <span class="label">{{ entry.sourceName }}</span>
-                    <span class="value">{{ entry.wonProjects }}/{{ entry.totalProjects }}</span>
-                    <span class="value">{{ entry.conversionRate | number:'1.0-1' }} %</span>
-                  </div>
-                }
-              </section>
-            }
-
-            <!-- Skill demand -->
-            @if (getSkillTrends().length > 0) {
-              <section class="insight-card">
-                <h3 class="insight-title"><mat-icon>insights</mat-icon>{{ 'dashboard.charts.skillTrends' | translate }}</h3>
-                <div class="data-row header">
-                  <span class="label">{{ 'dashboard.charts.skillTrendsSkill' | translate }}</span>
-                  <span class="value">{{ 'dashboard.charts.skillTrendsCount' | translate }}</span>
-                  <span class="value">{{ 'dashboard.charts.skillTrendsRate' | translate }}</span>
-                </div>
-                @for (trend of getTopSkillTrends(); track trend.skill) {
-                  <div class="data-row">
-                    <span class="label">{{ trend.skill }}</span>
-                    <span class="value">{{ trend.count }}</span>
-                    <span class="value">{{ trend.averageDailyRate | number:'1.0-0' }} €</span>
-                  </div>
-                }
-              </section>
-            }
-
-            <!-- Daily rate evolution -->
-            @if (getDailyRateEvolution().length > 0) {
-              <section class="insight-card">
-                <h3 class="insight-title"><mat-icon>trending_up</mat-icon>{{ 'dashboard.charts.rateEvolution' | translate }}</h3>
-                <div class="data-row header">
-                  <span class="label">{{ 'dashboard.charts.rateEvolutionPeriod' | translate }}</span>
-                  <span class="value">{{ 'dashboard.charts.rateEvolutionAsked' | translate }}</span>
-                  <span class="value">{{ 'dashboard.charts.rateEvolutionObtained' | translate }}</span>
-                </div>
-                @for (entry of getDailyRateEvolution(); track entry.period) {
-                  <div class="data-row">
-                    <span class="label">{{ entry.period }}</span>
-                    <span class="value">{{ entry.averageAskedRate ? (entry.averageAskedRate | number:'1.0-0') + ' €' : '—' }}</span>
-                    <span class="value">{{ entry.averageObtainedRate ? (entry.averageObtainedRate | number:'1.0-0') + ' €' : '—' }}</span>
-                  </div>
-                }
-              </section>
-            }
-
-            <!-- Process duration -->
-            @if (getProcessDurations().length > 0) {
-              <section class="insight-card">
-                <h3 class="insight-title"><mat-icon>schedule</mat-icon>{{ 'dashboard.charts.processDuration' | translate }}</h3>
-                <div class="data-row header">
-                  <span class="label">{{ 'dashboard.charts.processDurationGroup' | translate }}</span>
-                  <span class="value">{{ 'dashboard.charts.processDurationDays' | translate }}</span>
-                  <span class="value">{{ 'dashboard.charts.processDurationSigned' | translate }}</span>
-                </div>
-                @for (duration of getProcessDurations(); track duration.group) {
-                  <div class="data-row">
-                    <span class="label">{{ duration.group }}</span>
-                    <span class="value">{{ duration.averageDays | number:'1.0-0' }}</span>
-                    <span class="value">{{ duration.count }}</span>
-                  </div>
-                }
-              </section>
-            }
-
-            <!-- Bench time -->
-            @if (dashboardStats.benchPeriods > 0) {
-              <section class="insight-card">
-                <h3 class="insight-title"><mat-icon>hourglass_empty</mat-icon>{{ 'dashboard.charts.benchTime' | translate }}</h3>
-                <div class="data-row">
-                  <span class="label">{{ 'dashboard.charts.benchDays' | translate }}</span>
-                  <span class="value">{{ dashboardStats.totalBenchDays }}</span>
-                </div>
-                <div class="data-row">
-                  <span class="label">{{ 'dashboard.charts.benchPeriods' | translate }}</span>
-                  <span class="value">{{ dashboardStats.benchPeriods }}</span>
-                </div>
-                <div class="data-row">
-                  <span class="label">{{ 'dashboard.charts.benchCost' | translate }}</span>
-                  <span class="value">{{ dashboardStats.estimatedBenchCost | number:'1.0-0' }} €</span>
-                </div>
-              </section>
-            }
-
-            <!-- Funnel by client type -->
-            @if (getFunnelByClientType().length > 0) {
-              <section class="insight-card">
-                <h3 class="insight-title"><mat-icon>call_split</mat-icon>{{ 'dashboard.charts.funnelByClientType' | translate }}</h3>
-                @for (group of getFunnelByClientType(); track group.group) {
-                  <div class="data-row">
-                    <span class="label">{{ 'dashboard.charts.clientType.' + group.group | translate }}</span>
-                    <span class="value counts">{{ funnelCounts(group) }}</span>
-                    <span class="value">{{ funnelConversion(group) | number:'1.0-1' }} %</span>
-                  </div>
-                }
-              </section>
-            }
-
-            <!-- Funnel by source -->
-            @if (getFunnelBySource().length > 0) {
-              <section class="insight-card">
-                <h3 class="insight-title"><mat-icon>filter_alt</mat-icon>{{ 'dashboard.charts.funnelBySource' | translate }}</h3>
-                @for (group of getFunnelBySource(); track group.group) {
-                  <div class="data-row">
-                    <span class="label">{{ group.group }}</span>
-                    <span class="value counts">{{ funnelCounts(group) }}</span>
-                    <span class="value">{{ funnelConversion(group) | number:'1.0-1' }} %</span>
-                  </div>
-                }
-              </section>
-            }
-
-            <!-- Funnel by ESN -->
-            @if (getFunnelByEsn().length > 0) {
-              <section class="insight-card">
-                <h3 class="insight-title"><mat-icon>handshake</mat-icon>{{ 'dashboard.charts.funnelByEsn' | translate }}</h3>
-                @for (group of getFunnelByEsn(); track group.group) {
-                  <div class="data-row">
-                    <span class="label">{{ group.group }}</span>
-                    <span class="value counts">{{ funnelCounts(group) }}</span>
-                    <span class="value">{{ funnelConversion(group) | number:'1.0-1' }} %</span>
-                  </div>
-                }
-              </section>
-            }
-
-            <!-- Activity heatmap -->
-            @if (getActivityHeatmap().length > 0) {
-              <section class="insight-card wide">
-                <h3 class="insight-title"><mat-icon>calendar_month</mat-icon>{{ 'dashboard.charts.activityHeatmap' | translate }}</h3>
-                <app-activity-heatmap [activity]="getActivityHeatmap()"></app-activity-heatmap>
-              </section>
-            }
-          </div>
-        </div>
-      }
-      <!-- Recent Projects -->
-      <div class="recent-projects-section">
-        <div class="section-header">
-          <h2>{{ 'dashboard.recentProjects' | translate }}</h2>
-          <button mat-raised-button color="primary" routerLink="/projects">
-            {{ 'dashboard.viewAllProjects' | translate }}
-          </button>
-        </div>
-        @if (recentProjects.length > 0) {
-          <div class="projects-grid">
-            @for (project of recentProjects; track project.id) {
-              <mat-card class="project-card">
-                <mat-card-header>
-                  <mat-card-title>{{ project.role }}</mat-card-title>
-                  <mat-card-subtitle>{{ project.clientName }}</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="project-info">
-                    <div class="project-rate">
-                      <mat-icon>euro</mat-icon>
-                      <span>{{ project.dailyRate | number:'1.0-0' }} €{{ 'common.perDay' | translate }}</span>
-                    </div>
-                    @if (project.workMode) {
-                      <div class="project-mode">
-                        <mat-icon>location_on</mat-icon>
-                        <span>{{ 'projects.workModes.' + project.workMode | translate }}</span>
+      @for (widget of visibleWidgets; track widget.id) {
+        <div class="widget" [attr.data-widget]="widget.id">
+          @switch (widget.id) {
+            @case ('STATS') {
+              <div class="stats-grid">
+                <mat-card class="stat-card">
+                  <mat-card-content>
+                    <div class="stat-content">
+                      <div class="stat-icon projects">
+                        <mat-icon>work</mat-icon>
                       </div>
+                      <div class="stat-info">
+                        <div class="stat-number">{{ stats.totalProjects }}</div>
+                        <div class="stat-label">{{ 'dashboard.totalProjects' | translate }}</div>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+                <mat-card class="stat-card">
+                  <mat-card-content>
+                    <div class="stat-content">
+                      <div class="stat-icon rate">
+                        <mat-icon>euro</mat-icon>
+                      </div>
+                      <div class="stat-info">
+                        <div class="stat-number">{{ stats.averageDailyRate | number:'1.0-0' }} €</div>
+                        <div class="stat-label">{{ 'dashboard.averageDailyRate' | translate }}</div>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+                <mat-card class="stat-card" [matTooltip]="'dashboard.estimatedRevenueHint' | translate">
+                  <mat-card-content>
+                    <div class="stat-content">
+                      <div class="stat-icon revenue">
+                        <mat-icon>trending_up</mat-icon>
+                      </div>
+                      <div class="stat-info">
+                        <div class="stat-number">{{ stats.totalRevenue | number:'1.0-0' }} €</div>
+                        <div class="stat-label">{{ 'dashboard.estimatedRevenue' | translate }}</div>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+                <mat-card class="stat-card" [matTooltip]="'dashboard.forecastRevenueHint' | translate">
+                  <mat-card-content>
+                    <div class="stat-content">
+                      <div class="stat-icon forecast">
+                        <mat-icon>insights</mat-icon>
+                      </div>
+                      <div class="stat-info">
+                        <div class="stat-number">{{ stats.forecastRevenue | number:'1.0-0' }} €</div>
+                        <div class="stat-label">{{ 'dashboard.forecastRevenue' | translate }}</div>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+                <mat-card class="stat-card">
+                  <mat-card-content>
+                    <div class="stat-content">
+                      <div class="stat-icon active">
+                        <mat-icon>play_circle</mat-icon>
+                      </div>
+                      <div class="stat-info">
+                        <div class="stat-number">{{ stats.activeProjects }}</div>
+                        <div class="stat-label">{{ 'dashboard.activeProjects' | translate }}</div>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            }
+            @case ('CHARTS') {
+              @if (dashboardStats) {
+                <div class="charts-grid">
+                  <mat-card class="chart-card">
+                    <mat-card-header>
+                      <mat-card-title>
+                        <mat-icon>pie_chart</mat-icon>
+                        {{ 'dashboard.charts.projectsByStatus' | translate }}
+                      </mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="chart-container">
+                        <canvas #statusChart></canvas>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                  <mat-card class="chart-card">
+                    <mat-card-header>
+                      <mat-card-title>
+                        <mat-icon>location_on</mat-icon>
+                        {{ 'dashboard.charts.projectsByWorkMode' | translate }}
+                      </mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="chart-container">
+                        <canvas #workModeChart></canvas>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                  <mat-card class="chart-card chart-card-wide">
+                    <mat-card-header>
+                      <mat-card-title>
+                        <mat-icon>bar_chart</mat-icon>
+                        {{ 'dashboard.charts.dailyRateDistribution' | translate }}
+                      </mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="chart-container">
+                        <app-daily-rate-chart [rates]="dashboardStats.dailyRateRanges"></app-daily-rate-chart>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              }
+            }
+            @case ('REMINDERS') {
+              @if (dashboardStats) {
+                <app-dashboard-reminders [stats]="dashboardStats"></app-dashboard-reminders>
+              }
+            }
+            @case ('OFFERS') {
+              <app-dashboard-offers></app-dashboard-offers>
+            }
+            @case ('ANALYTICS') {
+              <app-dashboard-analytics [stats]="dashboardStats"></app-dashboard-analytics>
+            }
+            @case ('RECENT') {
+              <div class="recent-projects-section">
+                <div class="section-header">
+                  <h2>{{ 'dashboard.recentProjects' | translate }}</h2>
+                  <button mat-raised-button color="primary" routerLink="/projects">
+                    {{ 'dashboard.viewAllProjects' | translate }}
+                  </button>
+                </div>
+                @if (recentProjects.length > 0) {
+                  <div class="projects-grid">
+                    @for (project of recentProjects; track project.id) {
+                      <mat-card class="project-card">
+                        <mat-card-header>
+                          <mat-card-title>{{ project.role }}</mat-card-title>
+                          <mat-card-subtitle>{{ project.clientName }}</mat-card-subtitle>
+                        </mat-card-header>
+                        <mat-card-content>
+                          <div class="project-info">
+                            <div class="project-rate">
+                              <mat-icon>euro</mat-icon>
+                              <span>{{ project.dailyRate | number:'1.0-0' }} €{{ 'common.perDay' | translate }}</span>
+                            </div>
+                            @if (project.workMode) {
+                              <div class="project-mode">
+                                <mat-icon>location_on</mat-icon>
+                                <span>{{ 'projects.workModes.' + project.workMode | translate }}</span>
+                              </div>
+                            }
+                          </div>
+                          @if (project.techStack) {
+                            <p class="project-tech">
+                              {{ project.techStack }}
+                            </p>
+                          }
+                        </mat-card-content>
+                        <mat-card-actions>
+                          <button mat-button [routerLink]="['/projects', project.id]">
+                            {{ 'common.viewDetails' | translate }}
+                          </button>
+                        </mat-card-actions>
+                      </mat-card>
                     }
                   </div>
-                  @if (project.techStack) {
-                    <p class="project-tech">
-                      {{ project.techStack }}
-                    </p>
-                  }
-                </mat-card-content>
-                <mat-card-actions>
-                  <button mat-button [routerLink]="['/projects', project.id]">
-                    {{ 'common.viewDetails' | translate }}
-                  </button>
-                </mat-card-actions>
-              </mat-card>
-            }
-          </div>
-        } @else {
-          <mat-card class="empty-state">
-            <mat-card-content>
-              <div class="empty-content">
-                <mat-icon class="empty-icon">work_off</mat-icon>
-                <h3>{{ 'dashboard.noProjectsYet' | translate }}</h3>
-                <p>{{ 'dashboard.startFirstProject' | translate }}</p>
-                <button mat-raised-button color="primary" routerLink="/projects/new">
-                  {{ 'dashboard.addProject' | translate }}
-                </button>
+                } @else {
+                  <mat-card class="empty-state">
+                    <mat-card-content>
+                      <div class="empty-content">
+                        <mat-icon class="empty-icon">work_off</mat-icon>
+                        <h3>{{ 'dashboard.noProjectsYet' | translate }}</h3>
+                        <p>{{ 'dashboard.startFirstProject' | translate }}</p>
+                        <button mat-raised-button color="primary" routerLink="/projects/new">
+                          {{ 'dashboard.addProject' | translate }}
+                        </button>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                }
               </div>
-            </mat-card-content>
-          </mat-card>
-        }
-      </div>
+            }
+          }
+        </div>
+      }
     </div>
   }
 </div>

@@ -131,4 +131,28 @@ class WorkspacePreferencesIntegrationTest extends TwoAccountsIntegrationTest {
             alice.freelanceId());
         assertThat(call(alice, HttpMethod.GET, "/users/preferences", null, Map.class).getBody()).containsEntry("followUpDays", 5);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void dashboardLayout_ShouldKeepEachAccountsOrderAndHiddenBlocks() {
+        List<Map<String, Object>> usual = (List<Map<String, Object>>) call(alice, HttpMethod.GET, "/users/preferences", null, Map.class)
+            .getBody().get("dashboardWidgets");
+        assertThat(usual).extracting(widget -> widget.get("id")).containsExactly("STATS", "CHARTS", "REMINDERS", "OFFERS", "ANALYTICS", "RECENT");
+
+        List<Map<String, Object>> arranged = List.of(Map.of("id", "OFFERS", "visible", true), Map.of("id", "STATS", "visible", false));
+        Map<String, Object> saved = call(alice, HttpMethod.PUT, "/users/preferences", Map.of("dashboardWidgets", arranged), Map.class).getBody();
+        assertThat((List<Map<String, Object>>) saved.get("dashboardWidgets")).startsWith(Map.of("id", "OFFERS", "visible", true),
+            Map.of("id", "STATS", "visible", false)).hasSize(6);
+        // Saving another preference leaves the layout as it is; Bob keeps the usual one.
+        call(alice, HttpMethod.PUT, "/users/preferences", Map.of("followUpDays", 7), Map.class);
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/users/preferences", null, Map.class).getBody()
+            .get("dashboardWidgets")).first().isEqualTo(Map.of("id", "OFFERS", "visible", true));
+        assertThat((List<Map<String, Object>>) call(bob, HttpMethod.GET, "/users/preferences", null, Map.class).getBody()
+            .get("dashboardWidgets")).first().isEqualTo(Map.of("id", "STATS", "visible", true));
+
+        assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("dashboardWidgets", List.of(Map.of("id", "NOPE", "visible", true))),
+            String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(alice, HttpMethod.PUT, "/users/preferences", Map.of("dashboardWidgets", List.of(Map.of("id", "STATS", "visible", true),
+            Map.of("id", "STATS", "visible", false))), String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 }

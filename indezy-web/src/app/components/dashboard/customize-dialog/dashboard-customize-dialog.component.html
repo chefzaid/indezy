@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>{{ 'dashboard.widgets.customizeTitle' | translate }}</h2>
+<mat-dialog-content>
+  <p class="hint">{{ 'dashboard.widgets.customizeHint' | translate }}</p>
+  <ul class="widgets" cdkDropList (cdkDropListDropped)="dropped($event)">
+    @for (widget of widgets; track widget.id; let index = $index, first = $first, last = $last) {
+      <li class="widget" cdkDrag [attr.data-widget]="widget.id">
+        <span class="handle" cdkDragHandle role="img" [attr.aria-label]="'dashboard.widgets.drag' | translate: { name: ('dashboard.widgets.names.' + widget.id | translate) }">
+          <mat-icon aria-hidden="true">drag_indicator</mat-icon>
+        </span>
+        <mat-checkbox [checked]="widget.visible" (change)="toggle(index, $event.checked)">
+          {{ 'dashboard.widgets.names.' + widget.id | translate }}
+        </mat-checkbox>
+        <span class="arrows">
+          <button mat-icon-button type="button" [disabled]="first" (click)="move(index, -1)"
+            [attr.aria-label]="'dashboard.widgets.moveUp' | translate: { name: ('dashboard.widgets.names.' + widget.id | translate) }">
+            <mat-icon>arrow_upward</mat-icon>
+          </button>
+          <button mat-icon-button type="button" [disabled]="last" (click)="move(index, 1)"
+            [attr.aria-label]="'dashboard.widgets.moveDown' | translate: { name: ('dashboard.widgets.names.' + widget.id | translate) }">
+            <mat-icon>arrow_downward</mat-icon>
+          </button>
+        </span>
+      </li>
+    }
+  </ul>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" class="reset" (click)="reset()">{{ 'dashboard.widgets.reset' | translate }}</button>
+  <button mat-button type="button" [mat-dialog-close]="undefined">{{ 'common.cancel' | translate }}</button>
+  <button mat-raised-button color="primary" type="button" [mat-dialog-close]="widgets" data-save-layout>{{ 'common.save' | translate }}</button>
+</mat-dialog-actions>

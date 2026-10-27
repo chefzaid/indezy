@@ -62,6 +62,16 @@ export interface UserPreferences {
   followUpDays?: number;
   /** Archive opportunities idle for the inactivity period, every night. */
   autoArchive?: boolean;
+  /** The dashboard's blocks in the account's order, shown or hidden. */
+  dashboardWidgets?: DashboardWidget[];
+}
+
+/** The blocks of the dashboard's overview. */
+export type DashboardWidgetId = 'STATS' | 'CHARTS' | 'REMINDERS' | 'OFFERS' | 'ANALYTICS' | 'RECENT';
+
+export interface DashboardWidget {
+  id: DashboardWidgetId;
+  visible: boolean;
 }
 
 export interface PasswordChangeRequest {
