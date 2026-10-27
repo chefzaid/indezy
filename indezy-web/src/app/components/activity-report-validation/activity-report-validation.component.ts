@@ -16,8 +16,7 @@ import { ACTIVITY_REPORT_STATUS_COLORS, PublicActivityReport } from '../../model
 import { ActivityReportService } from '../../services/activity-report/activity-report.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ActivityCalendarComponent } from '../../shared/components/activity-calendar/activity-calendar.component';
-import { LogoComponent } from '../../shared/components/logo/logo.component';
-import { AppLanguage, LANGUAGE_STORAGE_KEY, getSavedLanguage } from '../../shared/locale/app-locale';
+import { PublicPageHeaderComponent } from '../../shared/components/public-page-header/public-page-header.component';
 import { saveBlob } from '../../shared/utils/download-file';
 
 /**
@@ -38,7 +37,7 @@ import { saveBlob } from '../../shared/utils/download-file';
     MatProgressSpinnerModule,
     TranslateModule,
     ActivityCalendarComponent,
-    LogoComponent
+    PublicPageHeaderComponent
   ],
   templateUrl: './activity-report-validation.component.html',
   styleUrls: ['./activity-report-validation.component.scss'],
@@ -52,7 +51,6 @@ export class ActivityReportValidationComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   readonly statusColors = ACTIVITY_REPORT_STATUS_COLORS;
-  readonly language: AppLanguage = getSavedLanguage();
   readonly form = inject(FormBuilder).nonNullable.group({
     validatorName: ['', [Validators.required, Validators.maxLength(120)]],
     comment: ['', [Validators.maxLength(1000)]]
@@ -129,19 +127,6 @@ export class ActivityReportValidationComponent implements OnInit, OnDestroy {
       next: blob => saveBlob(blob, `CRA-${this.view?.report.year}-${month}.pdf`),
       error: () => this.notifications.error('activityReports.pdfError')
     });
-  }
-
-  switchLanguage(language: AppLanguage): void {
-    if (language === this.language) {
-      return;
-    }
-    localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
-    this.reloadPage();
-  }
-
-  /** Separated so tests can stub the full page reload, which keeps the link and its token. */
-  reloadPage(): void {
-    window.location.reload();
   }
 
   private decide(approved: boolean): void {

@@ -15,6 +15,7 @@ import { SourceService } from './source/source.service';
 import { UserManagementService } from './user-management/user-management.service';
 import { ActivityReportService } from './activity-report/activity-report.service';
 import { YearlyReviewService } from './review/yearly-review.service';
+import { PublicProfileService } from './public-profile/public-profile.service';
 import { ProjectStatus, StepStatus } from '../models';
 
 /** One HTTP wrapper call: what the service is asked, and the request it must send. */
@@ -60,6 +61,7 @@ describe('API services', () => {
   const reports = (): ActivityReportService => TestBed.inject(ActivityReportService);
   const reportsOf2 = `${api}/projects/2/activity-reports`;
   const review = (): YearlyReviewService => TestBed.inject(YearlyReviewService);
+  const publicProfile = (): PublicProfileService => TestBed.inject(PublicProfileService);
   const linkToken = { 'X-Report-Token': 'link-token' };
   const decision = { approved: false, validatorName: 'Jean Dupont', comment: 'Le 11 est férié' };
 
@@ -153,6 +155,9 @@ describe('API services', () => {
     { name: 'two-factor removal', call: () => users().disableTwoFactor('123456'), method: 'POST', url: `${api}/users/security/2fa/disable`, body: { code: '123456' } },
     { name: 'data export', call: () => users().exportUserData(), method: 'GET', url: `${api}/users/export`, response: new Blob(['{}']) },
     { name: 'data import preview', call: () => users().previewImport(new Blob(['{}'])), method: 'POST', url: `${api}/users/import/preview` },
+    { name: 'public profile settings', call: () => publicProfile().settings(), method: 'GET', url: `${api}/users/public-profile` },
+    { name: 'save public profile settings', call: () => publicProfile().save({ enabled: true, slug: 'alice' }), method: 'PUT', url: `${api}/users/public-profile`, body: { enabled: true, slug: 'alice' } },
+    { name: 'public profile', call: () => publicProfile().view('alice martin'), method: 'GET', url: `${api}/public/profiles/alice%20martin` },
     { name: 'data import', call: () => users().importData(new Blob(['{}'])), method: 'POST', url: `${api}/users/import` }
   ];
 

@@ -79,6 +79,8 @@ Important fields:
   their email link and returned as `inactivityDays` on the Kanban response.
 - `autoArchive` (`users.auto_archive`): archive the workspace's pipeline opportunities idle
   for the inactivity period every night (off by default; a null column reads as off).
+- `publicProfileSlug` (`users.public_profile_slug`, unique, up to 40 characters) and `publicProfileEnabled`
+  (`users.public_profile_enabled`, a null column reads as off): the address of the public profile and whether it is shown.
 - `onboardingPending` (`users.onboarding_pending`): set on accounts created by registration or a first Keycloak sign-in
   until their welcome steps are finished or skipped; a null column, as accounts created before it have, reads as done.
 - notification preferences

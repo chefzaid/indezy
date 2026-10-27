@@ -20,6 +20,8 @@ import java.util.Map;
 @Setter
 public class User extends BaseEntity {
 
+    public static final int PUBLIC_PROFILE_SLUG_MAX = 40;
+
     @NotBlank
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -141,6 +143,18 @@ public class User extends BaseEntity {
     /** Existing accounts can have a null column after Hibernate adds this preference. */
     public Integer getFollowUpDays() {
         return followUpDays != null ? followUpDays : UserPreferenceDefaults.FOLLOW_UP_DAYS;
+    }
+
+    /** Address name of the public profile, at /p/{slug}: lower-case letters, digits and dashes, one account each. */
+    @Column(name = "public_profile_slug", length = PUBLIC_PROFILE_SLUG_MAX, unique = true)
+    private String publicProfileSlug;
+
+    /** Whether anyone with the link sees the public profile; off until its owner turns it on. */
+    @Column(name = "public_profile_enabled")
+    private Boolean publicProfileEnabled = false;
+
+    public Boolean getPublicProfileEnabled() {
+        return Boolean.TRUE.equals(publicProfileEnabled);
     }
 
     /** Set on accounts created since the welcome steps exist, until their owner finishes or skips them. */

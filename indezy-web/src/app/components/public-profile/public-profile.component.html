@@ -1,0 +1,94 @@
+<main class="public-profile-page">
+  <app-public-page-header></app-public-page-header>
+
+  @if (isLoading) {
+    <div class="state"><mat-spinner diameter="40" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+  } @else if (notFound || !profile) {
+    <mat-card class="state-card">
+      <mat-card-content class="state" data-profile-not-found>
+        <mat-icon class="state-icon">person_off</mat-icon>
+        <h1>{{ 'publicProfile.notFoundTitle' | translate }}</h1>
+        <p>{{ 'publicProfile.notFoundMessage' | translate }}</p>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <mat-card class="profile-card">
+      <mat-card-content>
+        <div class="identity">
+          @if (profile.avatar) {
+            <img class="avatar" [src]="profile.avatar" [alt]="'publicProfile.photo' | translate:{ name: fullName }">
+          } @else {
+            <div class="avatar initials" aria-hidden="true">{{ initials }}</div>
+          }
+          <div>
+            <h1>{{ fullName }}</h1>
+            @if (profile.position) {
+              <p class="position">{{ profile.position }}</p>
+            }
+            @if (profile.city) {
+              <p class="city"><mat-icon aria-hidden="true">location_on</mat-icon>{{ profile.city }}</p>
+            }
+          </div>
+        </div>
+
+        <p class="availability" [class.now]="profile.availableNow" data-availability>
+          <mat-icon aria-hidden="true">{{ profile.availableNow ? 'check_circle' : 'event' }}</mat-icon>
+          @if (profile.availableNow) {
+            {{ 'publicProfile.availableNow' | translate }}
+          } @else if (profile.availableFrom) {
+            {{ 'publicProfile.availableFrom' | translate:{ date: (profile.availableFrom | date:'longDate') } }}
+          } @else {
+            {{ 'publicProfile.availabilityUnknown' | translate }}
+          }
+        </p>
+
+        @if (profile.bio) {
+          <section>
+            <h2>{{ 'publicProfile.about' | translate }}</h2>
+            <p class="bio">{{ profile.bio }}</p>
+          </section>
+        }
+
+        @if (profile.skills.length) {
+          <section>
+            <h2>{{ 'publicProfile.skills' | translate }}</h2>
+            <mat-chip-set [attr.aria-label]="'publicProfile.skills' | translate" data-skills>
+              @for (skill of profile.skills; track skill.name) {
+                <mat-chip>
+                  {{ skill.name }}
+                  @if (skill.level) {
+                    <span class="skill-detail">· {{ 'profile.skillLevels.' + skill.level | translate }}</span>
+                  }
+                  @if (skill.years !== undefined && skill.years !== null) {
+                    <span class="skill-detail">· {{ 'publicProfile.years' | translate:{ count: skill.years } }}</span>
+                  }
+                </mat-chip>
+              }
+            </mat-chip-set>
+          </section>
+        }
+
+        @if (profile.languages.length) {
+          <section>
+            <h2>{{ 'publicProfile.languages' | translate }}</h2>
+            <p>{{ profile.languages.join(', ') }}</p>
+          </section>
+        }
+
+        @if (profile.website || profile.linkedin || profile.github) {
+          <nav class="links" [attr.aria-label]="'publicProfile.links' | translate">
+            @if (profile.website) {
+              <a [href]="profile.website" target="_blank" rel="noopener nofollow"><mat-icon aria-hidden="true">language</mat-icon>{{ 'publicProfile.website' | translate }}</a>
+            }
+            @if (profile.linkedin) {
+              <a [href]="profile.linkedin" target="_blank" rel="noopener nofollow"><mat-icon aria-hidden="true">work</mat-icon>LinkedIn</a>
+            }
+            @if (profile.github) {
+              <a [href]="profile.github" target="_blank" rel="noopener nofollow"><mat-icon aria-hidden="true">code</mat-icon>GitHub</a>
+            }
+          </nav>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</main>

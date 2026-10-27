@@ -29,6 +29,19 @@ Implemented account flows:
 - profile page for account details, avatar, preferences (language, theme, date format), notifications, password, two-factor authentication and a JSON export of every piece of account data
 - **Import data** (Profile → Account): an Indezy export brought into the workspace, preview first (see below)
 
+### Public Profile
+
+**Public profile** (a tab of the profile page) shows a page anyone with its link can read, at `/p/<address>`, without
+an account: the name, title, city, presentation, skills with their level and years, languages, website, LinkedIn and
+GitHub links (web addresses only), the photo, and whether the freelancer is available now or from which date
+(**Available from** of the profile). The email, phone, address and every workspace record stay private.
+
+- It is off until turned on, and needs an address: 3 to 40 lower-case letters, digits and single dashes, offered from
+  the name the first time; one taken by another account is refused. The link is copied or opened from the tab.
+- A hidden profile and an unknown address both answer "No profile here", so neither can be told from the other.
+- API: `GET|PUT /api/users/public-profile` (`enabled`, `slug`) and, without a token, `GET /api/public/profiles/{slug}`.
+  The account export includes the settings (`publicProfile`).
+
 ### Data Import
 
 Choosing an export file (up to 10 MB) lists, section by section, what it would add: sources, clients and ESNs,

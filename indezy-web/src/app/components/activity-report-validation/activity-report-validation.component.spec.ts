@@ -10,7 +10,6 @@ import fr from '../../../assets/i18n/fr.json';
 import { ActivityReport, PublicActivityReport } from '../../models';
 import { ActivityReportService } from '../../services/activity-report/activity-report.service';
 import { NotificationService } from '../../services/notification/notification.service';
-import { LANGUAGE_STORAGE_KEY } from '../../shared/locale/app-locale';
 import { ActivityReportValidationComponent } from './activity-report-validation.component';
 
 describe('ActivityReportValidationComponent', () => {
@@ -160,19 +159,6 @@ describe('ActivityReportValidationComponent', () => {
     service.downloadPublicPdf.and.returnValue(throwError(() => new Error('down')));
     fixture.componentInstance.downloadPdf();
     expect(notifications.error).toHaveBeenCalledWith('activityReports.pdfError');
-  });
-
-  it('switches the language with a reload that keeps the link', () => {
-    const fixture = create('link-token');
-    const reload = spyOn(fixture.componentInstance, 'reloadPage');
-    const store = spyOn(localStorage, 'setItem');
-
-    fixture.componentInstance.switchLanguage(fixture.componentInstance.language);
-    expect(reload).not.toHaveBeenCalled();
-
-    fixture.componentInstance.switchLanguage(fixture.componentInstance.language === 'fr' ? 'en' : 'fr');
-    expect(store).toHaveBeenCalledWith(LANGUAGE_STORAGE_KEY, jasmine.any(String));
-    expect(reload).toHaveBeenCalled();
   });
 
   it('formats nothing before a report is loaded or decided', () => {

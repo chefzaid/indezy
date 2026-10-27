@@ -359,7 +359,7 @@ Increments, implemented in order:
 - [ ] Freelancer network: share opportunities you decline with peers
 - [ ] Co-optation tracking (who referred whom, referral bonuses)
 - [ ] Community TJM and client reviews (anonymized)
-- [ ] Public profile page (shareable mini-portfolio with availability status)
+- [x] Public profile page (shareable mini-portfolio with availability status). Done on 2026-10-27: Profile → **Public profile** shows `/p/<address>` to anyone with the link (`docs/features.md#public-profile`).
 - [ ] Feature request / community board with upvoting (already in roadmap - implement)
 
 ## Product & Website

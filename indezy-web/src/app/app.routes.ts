@@ -25,6 +25,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/emails-unsubscribe/emails-unsubscribe.component').then(m => m.EmailsUnsubscribeComponent)
   },
   {
+    // A freelancer's public profile, opened from its link without an account.
+    path: 'p/:slug',
+    loadComponent: () => import('./components/public-profile/public-profile.component').then(m => m.PublicProfileComponent)
+  },
+  {
     path: 'dashboard',
     loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [authGuard, onboardingGuard, projectLinkGuard],

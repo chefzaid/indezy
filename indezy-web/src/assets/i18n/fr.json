@@ -846,7 +846,8 @@
       "notifications": "Notifications",
       "offers": "Fil d'offres",
       "account": "Compte",
-      "emails": "E-mails"
+      "emails": "E-mails",
+      "publicPage": "Profil public"
     },
     "themes": {
       "light": "Clair",
@@ -953,6 +954,22 @@
         "PROJECTS": "Opportunités",
         "PROJECT_NOTES": "Notes du journal"
       }
+    },
+    "publicPage": {
+      "intro": "Une page que toute personne ayant le lien peut lire : votre nom, intitulé, ville, présentation, compétences, langues, liens et votre disponibilité. Votre email, téléphone et adresse restent privés.",
+      "enabled": "Afficher mon profil public",
+      "slug": "Adresse",
+      "slugHint": "Lettres minuscules, chiffres et tirets, de 3 à 40 caractères",
+      "slugRequired": "Choisissez une adresse pour afficher le profil",
+      "slugInvalid": "Utilisez 3 à 40 lettres minuscules, chiffres et tirets simples",
+      "taken": "Cette adresse est déjà prise",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "shown": "Votre profil public est affiché",
+      "hidden": "Votre profil public est masqué",
+      "hiddenNote": "Le profil est masqué : son lien n'affiche rien tant que vous ne l'activez pas.",
+      "loadError": "Impossible de charger les réglages du profil public",
+      "saveError": "Impossible d'enregistrer les réglages du profil public"
     }
   },
   "errors": {
@@ -1265,7 +1282,6 @@
     "validation": {
       "pageTitle": "Validation du compte rendu d'activité",
       "intro": "{{consultant}} vous demande de valider son compte rendu d'activité de {{month}}.",
-      "language": "Langue",
       "loading": "Chargement du compte rendu...",
       "invalidTitle": "Lien invalide ou expiré",
       "invalidMessage": "Ce lien de validation n'est plus valable. Demandez au consultant de vous en envoyer un nouveau.",
@@ -2011,5 +2027,19 @@
       "offers": "Parcourir les missions freelance",
       "dashboard": "Ouvrir le tableau de bord"
     }
+  },
+  "publicProfile": {
+    "notFoundTitle": "Aucun profil ici",
+    "notFoundMessage": "Cette adresse n'affiche aucun profil : il a peut-être été masqué ou changé.",
+    "photo": "Photo de {{name}}",
+    "availableNow": "Disponible maintenant",
+    "availableFrom": "Disponible à partir du {{date}}",
+    "availabilityUnknown": "Disponibilité sur demande",
+    "about": "À propos",
+    "skills": "Compétences",
+    "years": "{{count}} an(s)",
+    "languages": "Langues",
+    "links": "Liens",
+    "website": "Site web"
   }
 }

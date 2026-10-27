@@ -10,6 +10,7 @@ import dev.swirlit.indezy.dto.OfferStateExportDto;
 import dev.swirlit.indezy.dto.OfferSuggestionDismissalDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.dto.ProjectNoteDto;
+import dev.swirlit.indezy.dto.PublicProfileSettingsDto;
 import dev.swirlit.indezy.dto.SavedOfferSearchDto;
 import dev.swirlit.indezy.dto.SavedSearchEmailsDto;
 import dev.swirlit.indezy.dto.SeasonDto;
@@ -93,6 +94,9 @@ class UserDataExportServiceTest {
     @Mock
     private FreelanceService freelanceService;
 
+    @Mock
+    private PublicProfileService publicProfileService;
+
     @InjectMocks
     private UserDataExportService userDataExportService;
 
@@ -110,6 +114,7 @@ class UserDataExportServiceTest {
         freelance.setNoticePeriodInDays(30);
         freelance.setReversionRate(0.55);
         when(freelanceService.findById(5L)).thenReturn(freelance);
+        when(publicProfileService.settings(1L)).thenReturn(new PublicProfileSettingsDto(true, "alice-martin"));
         when(projectNoteService.export(5L)).thenReturn(List.of(new ProjectNoteDto(9L, 7L, "Called Léa about the rate",
             LocalDateTime.of(2026, 10, 21, 9, 30))));
         SeasonDto season = new SeasonDto();
@@ -151,6 +156,8 @@ class UserDataExportServiceTest {
             .contains("\"projects\"")
             .contains("Backend Dev")
             .contains("\"freelance\"")
+            .contains("\"publicProfile\"")
+            .contains("alice-martin")
             .contains("\"noticePeriodInDays\" : 30")
             .contains("\"reversionRate\" : 0.55")
             .contains("\"projectNotes\"")

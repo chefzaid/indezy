@@ -12,6 +12,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     Optional<User> findByEmail(String email);
 
+    /** The account whose public profile has this address name, shown or not. */
+    Optional<User> findByPublicProfileSlug(String slug);
+
     /**
      * Check if user exists by email
      */

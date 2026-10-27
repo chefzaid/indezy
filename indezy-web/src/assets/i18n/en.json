@@ -846,7 +846,8 @@
       "notifications": "Notifications",
       "offers": "Offer feed",
       "account": "Account",
-      "emails": "Emails"
+      "emails": "Emails",
+      "publicPage": "Public profile"
     },
     "themes": {
       "light": "Light",
@@ -953,6 +954,22 @@
         "PROJECTS": "Opportunities",
         "PROJECT_NOTES": "Journal notes"
       }
+    },
+    "publicPage": {
+      "intro": "A page anyone with its link can read: your name, title, city, presentation, skills, languages, links and when you are available. Your email, phone and address stay private.",
+      "enabled": "Show my public profile",
+      "slug": "Address",
+      "slugHint": "Lower-case letters, digits and dashes, 3 to 40 characters",
+      "slugRequired": "Choose an address to show the profile",
+      "slugInvalid": "Use 3 to 40 lower-case letters, digits and single dashes",
+      "taken": "This address is already taken",
+      "copy": "Copy the link",
+      "copied": "Link copied",
+      "shown": "Your public profile is shown",
+      "hidden": "Your public profile is hidden",
+      "hiddenNote": "The profile is hidden: its link shows nothing until you turn it on.",
+      "loadError": "Could not load the public profile settings",
+      "saveError": "Could not save the public profile settings"
     }
   },
   "errors": {
@@ -1265,7 +1282,6 @@
     "validation": {
       "pageTitle": "Activity report approval",
       "intro": "{{consultant}} asks you to approve their activity report for {{month}}.",
-      "language": "Language",
       "loading": "Loading the activity report...",
       "invalidTitle": "Invalid or expired link",
       "invalidMessage": "This approval link is no longer valid. Ask the consultant to send you a new one.",
@@ -2011,5 +2027,19 @@
       "offers": "Browse freelance missions",
       "dashboard": "Open the dashboard"
     }
+  },
+  "publicProfile": {
+    "notFoundTitle": "No profile here",
+    "notFoundMessage": "This address shows no profile: it may have been hidden or changed.",
+    "photo": "Photo of {{name}}",
+    "availableNow": "Available now",
+    "availableFrom": "Available from {{date}}",
+    "availabilityUnknown": "Availability on request",
+    "about": "About",
+    "skills": "Skills",
+    "years": "{{count}} yr",
+    "languages": "Languages",
+    "links": "Links",
+    "website": "Website"
   }
 }

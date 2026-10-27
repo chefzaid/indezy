@@ -1,0 +1,9 @@
+<header class="page-header">
+  <app-logo [height]="36"></app-logo>
+  <div class="languages" role="group" [attr.aria-label]="'language.switch' | translate">
+    <button mat-button type="button" [class.active]="language === 'fr'" [attr.aria-pressed]="language === 'fr'"
+      lang="fr" (click)="switchLanguage('fr')">{{ 'language.fr' | translate }}</button>
+    <button mat-button type="button" [class.active]="language === 'en'" [attr.aria-pressed]="language === 'en'"
+      lang="en" (click)="switchLanguage('en')">{{ 'language.en' | translate }}</button>
+  </div>
+</header>

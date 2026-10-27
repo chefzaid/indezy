@@ -1,0 +1,34 @@
+<form [formGroup]="form" (ngSubmit)="save()" class="public-page-form">
+  <p class="intro">{{ 'profile.publicPage.intro' | translate }}</p>
+  <mat-slide-toggle formControlName="enabled" data-public-enabled>{{ 'profile.publicPage.enabled' | translate }}</mat-slide-toggle>
+
+  <mat-form-field appearance="outline" class="slug-field">
+    <mat-label>{{ 'profile.publicPage.slug' | translate }}</mat-label>
+    <span matTextPrefix class="prefix">/p/</span>
+    <input matInput formControlName="slug" data-public-slug maxlength="40" autocomplete="off" spellcheck="false">
+    <mat-hint>{{ 'profile.publicPage.slugHint' | translate }}</mat-hint>
+    @if (form.controls.slug.hasError('taken')) {
+      <mat-error>{{ 'profile.publicPage.taken' | translate }}</mat-error>
+    } @else if (form.controls.slug.hasError('required')) {
+      <mat-error>{{ 'profile.publicPage.slugRequired' | translate }}</mat-error>
+    } @else if (form.controls.slug.invalid) {
+      <mat-error>{{ 'profile.publicPage.slugInvalid' | translate }}</mat-error>
+    }
+  </mat-form-field>
+
+  @if (link && savedEnabled) {
+    <div class="link-row" data-public-link>
+      <mat-icon aria-hidden="true">public</mat-icon>
+      <a [href]="link" target="_blank" rel="noopener">{{ link }}</a>
+      <button mat-icon-button type="button" (click)="copyLink()" [attr.aria-label]="'profile.publicPage.copy' | translate">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+  } @else if (link) {
+    <p class="hidden-note">{{ 'profile.publicPage.hiddenNote' | translate }}</p>
+  }
+
+  <div class="actions">
+    <button mat-flat-button type="submit" [disabled]="isSaving" data-public-save>{{ 'common.save' | translate }}</button>
+  </div>
+</form>

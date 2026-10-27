@@ -25,11 +25,13 @@ import { passwordMaxBytes } from '../../shared/utils/password-max-bytes';
 import { saveBlob } from '../../shared/utils/download-file';
 import { rejectedPasswordField } from './password-rejection';
 import { ProfileDataImportComponent } from './data-import/profile-data-import.component';
+import { ProfilePublicPageComponent } from './public-page/profile-public-page.component';
 
 @Component({
     selector: 'app-profile',
     imports: [
     ProfileDataImportComponent,
+    ProfilePublicPageComponent,
     ReactiveFormsModule,
     FormsModule,
     MatCardModule,

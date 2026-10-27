@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.*;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.UserDataExportService;
+import dev.swirlit.indezy.service.PublicProfileService;
 import dev.swirlit.indezy.service.UserService;
 import dev.swirlit.indezy.service.WorkspaceImportService;
 import dev.swirlit.indezy.util.SecurityUtils;
@@ -32,6 +33,7 @@ public class UserController {
     private final UserService userService;
     private final UserDataExportService userDataExportService;
     private final WorkspaceImportService workspaceImportService;
+    private final PublicProfileService publicProfileService;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "Get the profile")
@@ -70,6 +72,19 @@ public class UserController {
     public ResponseEntity<Void> completeOnboarding() {
         userService.completeOnboarding(SecurityUtils.getCurrentUserId());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Whether the public profile is shown, and its address name")
+    @GetMapping("/public-profile")
+    public PublicProfileSettingsDto getPublicProfile() {
+        return publicProfileService.settings(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Show or hide the public profile and choose its address name",
+        description = "400 without an address when showing it, 409 for an address another account took")
+    @PutMapping("/public-profile")
+    public PublicProfileSettingsDto updatePublicProfile(@Valid @RequestBody PublicProfileSettingsDto settings) {
+        return publicProfileService.update(SecurityUtils.getCurrentUserId(), settings);
     }
 
     @Operation(summary = "Get the preferences")

@@ -1,0 +1,12 @@
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.languages button.active {
+  font-weight: 700;
+  color: var(--app-link);
+}
