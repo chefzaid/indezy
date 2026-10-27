@@ -27,6 +27,12 @@ for (const width of [1280, 390]) {
     await page.goto('/profile');
     await page.getByRole('tab', { name: 'Security' }).click();
     const card = page.locator('[data-webhooks]');
+    // A field in error stays readable: its red text meets the contrast WCAG AA asks for.
+    await card.getByLabel('HTTPS address').fill('http://hooks.example.com/indezy');
+    await card.getByLabel('HTTPS address').blur();
+    await expect(card.locator('mat-error')).toHaveText('An https:// address');
+    const errorAudit = await new AxeBuilder({ page }).include('[data-webhooks]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(errorAudit.violations.map(violation => violation.id)).toEqual([]);
     await card.getByLabel('HTTPS address').fill('https://hooks.example.com/indezy');
     await card.locator('[data-event="OPPORTUNITY_STATUS_CHANGED"]').getByRole('checkbox').uncheck();
     await card.locator('[data-event="INVOICE_ISSUED"]').getByRole('checkbox').check();

@@ -38,10 +38,29 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 /* Material's indigo-pink theme draws a few texts under the 4.5:1 contrast WCAG AA asks for on this app's light
-   backgrounds: 54 % black labels and tabs on the page's grey (4.47:1), and red button text (#f44336, 3.7:1). */
+   backgrounds: 54 % black labels and tabs on the page's grey (4.47:1), and red text (#f44336, 3.7:1) on buttons and in
+   the errors of form fields. */
 html:not(.dark-theme) {
   --mat-form-field-outlined-label-text-color: rgba(0, 0, 0, 0.6);
   --mat-form-field-filled-label-text-color: rgba(0, 0, 0, 0.6);
+  --mat-form-field-error-text-color: var(--app-danger);
+  --mat-form-field-error-trailing-icon-color: var(--app-danger);
+  --mat-form-field-error-hover-trailing-icon-color: var(--app-danger);
+  --mat-form-field-error-focus-trailing-icon-color: var(--app-danger);
+  --mat-form-field-outlined-error-label-text-color: var(--app-danger);
+  --mat-form-field-outlined-error-hover-label-text-color: var(--app-danger);
+  --mat-form-field-outlined-error-focus-label-text-color: var(--app-danger);
+  --mat-form-field-outlined-error-outline-color: var(--app-danger);
+  --mat-form-field-outlined-error-hover-outline-color: var(--app-danger);
+  --mat-form-field-outlined-error-focus-outline-color: var(--app-danger);
+  --mat-form-field-outlined-error-caret-color: var(--app-danger);
+  --mat-form-field-filled-error-label-text-color: var(--app-danger);
+  --mat-form-field-filled-error-hover-label-text-color: var(--app-danger);
+  --mat-form-field-filled-error-focus-label-text-color: var(--app-danger);
+  --mat-form-field-filled-error-active-indicator-color: var(--app-danger);
+  --mat-form-field-filled-error-hover-active-indicator-color: var(--app-danger);
+  --mat-form-field-filled-error-focus-active-indicator-color: var(--app-danger);
+  --mat-form-field-filled-error-caret-color: var(--app-danger);
 
   .mat-mdc-tab-group,
   .mat-mdc-tab-nav-bar {
