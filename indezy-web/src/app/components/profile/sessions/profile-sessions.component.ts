@@ -15,7 +15,7 @@ const EVENT_ICONS: Record<AccountEventType, string> = {
   SIGNED_IN: 'login', SIGN_IN_REFUSED: 'gpp_bad', SIGNED_OUT: 'logout', SESSION_REVOKED: 'phonelink_erase',
   OTHER_SESSIONS_REVOKED: 'phonelink_erase', PASSWORD_CHANGED: 'password', TWO_FACTOR_ENABLED: 'verified_user',
   TWO_FACTOR_DISABLED: 'gpp_maybe', DATA_EXPORTED: 'download', DATA_IMPORTED: 'upload', ACCOUNT_DISABLED: 'block',
-  ACCOUNT_ENABLED: 'check_circle'
+  ACCOUNT_ENABLED: 'check_circle', API_TOKEN_CREATED: 'key', API_TOKEN_REVOKED: 'key_off'
 };
 
 /** Where the account is signed in, each session ended on request, and what happened to the account. */
@@ -47,8 +47,8 @@ export class ProfileSessionsComponent implements OnInit, OnDestroy {
     this.loadSessions();
     this.security.activity(0).pipe(takeUntil(this.destroy$)).subscribe({
       next: page => {
-        this.events = page.events;
-        this.total = page.total;
+        this.events = page.events ?? [];
+        this.total = page.total ?? 0;
       },
       error: () => this.notifications.error('profile.sessions.loadError')
     });
@@ -118,7 +118,9 @@ export class ProfileSessionsComponent implements OnInit, OnDestroy {
   /** What happened, in the interface language. */
   describe(event: AccountEvent): string {
     const detail = event.detail ?? '';
-    const params: Record<string, string> = { device: detail || this.translate.instant('profile.sessions.unknownDevice'), count: detail };
+    const params: Record<string, string> = {
+      device: detail || this.translate.instant('profile.sessions.unknownDevice'), count: detail, name: detail
+    };
     if (event.type === 'SIGNED_IN') {
       params['method'] = this.translate.instant(`profile.sessions.methods.${detail}`);
     }

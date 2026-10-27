@@ -28,11 +28,13 @@ import { ProfileDataImportComponent } from './data-import/profile-data-import.co
 import { ProfilePublicPageComponent } from './public-page/profile-public-page.component';
 import { CapabilitiesService } from '../../services/admin/capabilities.service';
 import { ProfileSessionsComponent } from './sessions/profile-sessions.component';
+import { ProfileApiTokensComponent } from './api-tokens/profile-api-tokens.component';
 
 @Component({
     selector: 'app-profile',
     imports: [
-    ProfileDataImportComponent, ProfilePublicPageComponent, ProfileSessionsComponent, ProfilePersonalInfoComponent,
+    ProfileDataImportComponent, ProfilePublicPageComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
+    ProfilePersonalInfoComponent,
     BlockedPublishersComponent, EmailTemplatesSettingsComponent, ReactiveFormsModule, FormsModule, TranslateModule,
     MatCardModule, MatButtonModule, MatIconModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     MatSlideToggleModule, MatProgressSpinnerModule, MatDividerModule

@@ -1,0 +1,88 @@
+.hint {
+  margin: 0 0 12px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.created {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+
+  p {
+    margin: 0 0 8px;
+  }
+}
+
+.secret,
+.example-command {
+  display: block;
+  padding: 8px;
+  margin: 0 0 8px;
+  border-radius: 4px;
+  background: var(--app-surface-muted, rgba(127, 127, 127, 0.12));
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.example {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+.tokens {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.token {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--app-border);
+
+  > mat-icon {
+    flex: none;
+    color: var(--text-secondary);
+  }
+
+  .text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .name {
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+
+  .meta {
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+  }
+
+  button {
+    flex: none;
+  }
+}
+
+.create {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1 1 200px;
+  }
+
+  button {
+    margin-top: 8px;
+  }
+}

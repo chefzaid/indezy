@@ -57,6 +57,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/offers/saved-search-emails-dialog/saved-search-emails-dialog.component',
   'components/onboarding/onboarding-processes',
   'components/onboarding/onboarding.component',
+  'components/profile/api-tokens/profile-api-tokens.component',
   'components/profile/blocked-publishers/blocked-publishers.component',
   'components/profile/data-import/profile-data-import.component',
   'components/profile/email-templates-settings/email-templates-settings.component',

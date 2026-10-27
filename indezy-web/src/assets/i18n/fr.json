@@ -1015,8 +1015,40 @@
         "DATA_EXPORTED": "Données exportées",
         "DATA_IMPORTED": "Données importées",
         "ACCOUNT_DISABLED": "Compte désactivé par un administrateur",
-        "ACCOUNT_ENABLED": "Compte réactivé par un administrateur"
+        "ACCOUNT_ENABLED": "Compte réactivé par un administrateur",
+        "API_TOKEN_CREATED": "Jeton d'API « {{name}} » créé",
+        "API_TOKEN_REVOKED": "Jeton d'API « {{name}} » révoqué"
       }
+    },
+    "apiTokens": {
+      "title": "Jetons d'API",
+      "hint": "Un jeton permet à un autre outil (un script, un tableur, un service d'automatisation) de lire votre espace par l'API : opportunités, clients, contacts, sources et le reste. Il ne peut que lire, jamais rien modifier, et n'accède pas aux réglages de votre compte. Gardez-le comme un mot de passe.",
+      "name": "Nom du jeton",
+      "nameRequired": "Nommez le jeton d'après l'outil qui l'utilise",
+      "lifetime": "Expire après",
+      "days": "{{days}} jours",
+      "never": "Jamais",
+      "create": "Créer le jeton",
+      "createdTitle": "Jeton « {{name}} » créé",
+      "createdHint": "Copiez-le maintenant : il ne sera plus affiché.",
+      "example": "Envoyez-le dans l'en-tête Authorization de chaque requête, par exemple :",
+      "copy": "Copier le jeton",
+      "copied": "Jeton copié",
+      "done": "Terminé",
+      "createdOn": "créé le {{date}}",
+      "lastUsed": "utilisé le {{date}}",
+      "neverUsed": "jamais utilisé",
+      "expiresOn": "expire le {{date}}",
+      "noExpiry": "n'expire pas",
+      "revoke": "Révoquer",
+      "revokeNamed": "Révoquer {{name}}",
+      "revokeTitle": "Révoquer ce jeton ?",
+      "revokeMessage": "Les outils qui utilisent « {{name}} » perdront aussitôt l'accès à votre espace.",
+      "revoked": "Jeton révoqué",
+      "full": "Vous avez {{max}} jetons, le maximum par compte : révoquez-en un pour en créer un autre.",
+      "loadError": "Vos jetons d'API n'ont pas pu être chargés",
+      "createError": "Le jeton n'a pas pu être créé",
+      "revokeError": "Le jeton n'a pas pu être révoqué"
     }
   },
   "errors": {

@@ -51,6 +51,23 @@ The API is `GET /api/users/sessions`, `DELETE /api/users/sessions/{id}`, `DELETE
 out), `POST /api/users/sessions/end-others` and `GET /api/users/activity?page=`; another account's session answers
 `404`.
 
+### API Tokens
+
+**Profile → Security → API tokens** creates personal tokens that let another tool (a script, a spreadsheet, an
+automation service) read the workspace through the API, at most 10 per account. A token is named after its tool and
+lasts 30, 90 (the default) or 365 days, or does not expire; it is shown once, when created, with how to send it
+(`Authorization: Bearer idz_…`) and a copy button, then listed only by its name and first characters with when it was
+created, last used (noted every 5 minutes at most) and expires. **Revoke** (after a confirmation) cuts the tool off at
+once. Creating and revoking one appear in the account activity.
+
+A token only reads: `GET` (and `HEAD`) requests on the workspace's records (opportunities, clients, contacts, sources,
+steps, seasons, activity reports, offers...), with the same workspace checks as the app. Any other method, and every
+path under `/users` (the account, its sessions and tokens, the export), `/admin` and `/auth`, answer `403` "API tokens
+only read workspace data". The API is described at `/api/swagger-ui.html`.
+
+The tokens are managed through `GET /api/users/api-tokens`, `POST /api/users/api-tokens` (`{ "name", "expiresInDays" }`,
+answered with the token this once) and `DELETE /api/users/api-tokens/{id}`, from a signed-in session only.
+
 ### Public Profile
 
 **Public profile** (a tab of the profile page) shows a page anyone with its link can read, at `/p/<address>`, without

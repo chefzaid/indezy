@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { AccountEvent, AccountSession } from '../../../models';
+import { AccountEvent, AccountEventPage, AccountSession } from '../../../models';
 import { AccountSecurityService } from '../../../services/account-security/account-security.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -114,12 +114,14 @@ describe('ProfileSessionsComponent', () => {
     expect(component.describe(event(9, 'SESSION_REVOKED', null))).toBe('Signed out Unknown browser remotely');
     expect(component.describe(event(9, 'SIGN_IN_REFUSED', 'PASSWORD'))).toBe('Sign-in refused: wrong password');
     expect(component.eventIcon(event(9, 'PASSWORD_CHANGED'))).toBe('password');
+    expect(component.describe(event(9, 'API_TOKEN_CREATED', 'Zapier'))).toBe('API token "Zapier" created');
     expect(component.eventIcon({ ...event(9, 'PASSWORD_CHANGED'), type: 'SOMETHING_NEW' as never })).toBe('history');
   });
 
   it('says when nothing is recorded, or when it cannot be read', () => {
-    security.activity.and.returnValue(of({ events: [], total: 0, page: 0, size: 20 }));
+    security.activity.and.returnValue(of({} as AccountEventPage));
     const fixture = create();
+    expect(fixture.componentInstance.total).toBe(0);
     expect(text(fixture, '[data-activity]')).toContain('Nothing recorded yet.');
 
     security.activity.and.returnValue(throwError(() => new Error('500')));

@@ -15,6 +15,8 @@ public final class SecurityUtils {
 
     /** The request attribute holding the id of the session the request's token belongs to. */
     public static final String SESSION_ATTRIBUTE = "indezy.sessionId";
+    /** The authority of a request authenticated by a personal API token rather than a signed-in session. */
+    public static final String API_TOKEN_AUTHORITY = "API_TOKEN";
 
     private SecurityUtils() {
     }
@@ -41,5 +43,12 @@ public final class SecurityUtils {
             return sessionId;
         }
         return null;
+    }
+
+    /** Whether the current request was authenticated by a personal API token. */
+    public static boolean isApiTokenRequest() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.getAuthorities().stream()
+            .anyMatch(authority -> API_TOKEN_AUTHORITY.equals(authority.getAuthority()));
     }
 }

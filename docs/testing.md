@@ -160,6 +160,11 @@ Representative backend tests:
   other sessions ended recorded only when there were any, old sessions and events forgotten), `RequestDeviceTest`
   (browsers and systems named from common User-Agents) and `AuthServiceTest` (a session opened per sign-in, refused
   sign-ins recorded)
+- API tokens: `ApiTokenIntegrationTest` (Alice's token shown once and stored as a hash, reading her workspace but not
+  Bob's, refused for writes, the account, its tokens and the admin console, a wrong token refused, revoked by Alice and
+  not by Bob, a lifetime other than 30, 90 or 365 days, a blank name and an eleventh token refused),
+  `ApiTokenServiceTest` (other bearer tokens left alone, last use noted every 5 minutes at most, a token without expiry)
+  and `ApiTokenScopeInterceptorTest` (reads allowed, writes and account paths refused however written, sessions left alone)
 - secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code (a bare `code` field included), backup code or API key, nor, in such a class or one nested in it, the email or a name)
 
 Backend test data lives under `indezy-server/src/test/resources/`:
@@ -197,6 +202,8 @@ Representative frontend specs:
 - sessions and account activity: `profile-sessions.component.spec.ts` (sessions with this browser marked, one signed
   out, everywhere else once confirmed, the activity in words with more pages, failures) and `auth.service.spec.ts` (the
   session ended on the server at sign-out with a keepalive request)
+- API tokens: `profile-api-tokens.component.spec.ts` (tokens listed with their use and expiry, one created and shown
+  once with an example and copied, a failure, the limit of ten, revoked once confirmed)
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy
@@ -374,7 +381,7 @@ confirmed and turn the offer feed off, which leaves the menu; an account that is
 
 Session scenarios (`e2e/account-sessions.spec.ts`, on a desktop and on a phone) list the sessions and the account
 activity on the **Security** tab, audited with axe-core, sign one session out and then everywhere else; signing out
-from the menu ends the session on the server.
+from the menu ends the session on the server, and an API token is created, shown once, copied and revoked.
 
 Keyboard scenarios (`e2e/keyboard-navigation.spec.ts`) open a Kanban card with Enter (but not from its favourite
 button), a timeline step and an archived opportunity, then reach a client, one of its opportunities and one of its

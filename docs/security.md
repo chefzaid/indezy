@@ -87,6 +87,14 @@ password and Keycloak sign-in. Sign-ins, refused sign-ins of an existing account
 the account's activity log (`account_events`, kept a year), which only its owner reads; neither table keeps an IP
 address or the full User-Agent.
 
+Personal API tokens (`idz_` followed by 32 random bytes, Base64URL) authenticate `Authorization: Bearer` requests
+without a session. Only their SHA-256 hash is stored (`api_tokens.token_hash`) with their first 12 characters for
+display, so a copy of the database cannot call the API; the token is returned once, at creation. `JwtAuthenticationFilter`
+accepts a token while it is neither revoked nor expired and its account is active, and grants it the `API_TOKEN`
+authority; `ApiTokenScopeInterceptor` then refuses (`403`) any method but `GET` and `HEAD`, and every path under
+`/users`, `/admin` and `/auth` (decoded as Spring MVC matches it), so a token can neither write nor manage the account,
+its sessions or other tokens. Workspace checks apply as for a session. An account holds 10 tokens at most.
+
 Workspace isolation: `AccessGuard` resolves the caller's freelance workspace from the JWT account
 (through `CurrentWorkspaceResolver`, once per request) and every controller checks ownership before
 delegating. Records of another workspace answer `404` (so their ids cannot be probed), an explicit

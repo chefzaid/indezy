@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.config;
 
 import dev.swirlit.indezy.service.AccountSessionService;
+import dev.swirlit.indezy.service.ApiTokenService;
 import dev.swirlit.indezy.util.SecurityUtils;
 import dev.swirlit.indezy.util.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -34,6 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final AccountSessionService sessions;
+    private final ApiTokenService apiTokens;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -44,24 +47,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith(BEARER_PREFIX) &&
                 SecurityContextHolder.getContext().getAuthentication() == null) {
             String token = authHeader.substring(BEARER_PREFIX.length());
-            try {
-                String username = jwtUtil.extractUsername(token);
-                Long userId = jwtUtil.extractUserId(token);
-                // A signed token outlives its session and its account: it works only while both are open and active.
-                Optional<Long> session = Boolean.TRUE.equals(jwtUtil.validateToken(token, username)) ?
-                    sessions.authenticate(jwtUtil.extractSessionKey(token), userId) : Optional.empty();
-                if (session.isPresent()) {
-                    request.setAttribute(SecurityUtils.SESSION_ATTRIBUTE, session.get());
-                    UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userId, null, List.of());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (token.startsWith(ApiTokenService.PREFIX)) {
+                // A personal API token: read-only, enforced by ApiTokenScopeInterceptor.
+                apiTokens.authenticate(token).ifPresent(userId ->
+                    signIn(request, userId, List.of(new SimpleGrantedAuthority(SecurityUtils.API_TOKEN_AUTHORITY))));
+            } else {
+                try {
+                    String username = jwtUtil.extractUsername(token);
+                    Long userId = jwtUtil.extractUserId(token);
+                    // A signed token outlives its session and its account: it works only while both are open and active.
+                    Optional<Long> session = Boolean.TRUE.equals(jwtUtil.validateToken(token, username)) ?
+                        sessions.authenticate(jwtUtil.extractSessionKey(token), userId) : Optional.empty();
+                    if (session.isPresent()) {
+                        request.setAttribute(SecurityUtils.SESSION_ATTRIBUTE, session.get());
+                        signIn(request, userId, List.of());
+                    }
+                } catch (Exception e) {
+                    log.debug("Rejected invalid JWT: {}", e.getMessage());
                 }
-            } catch (Exception e) {
-                log.debug("Rejected invalid JWT: {}", e.getMessage());
             }
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private static void signIn(HttpServletRequest request, Long userId, List<SimpleGrantedAuthority> authorities) {
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

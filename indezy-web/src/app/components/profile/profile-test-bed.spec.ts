@@ -67,7 +67,8 @@ export function profileTestBed(): ProfileTestBed {
           { provide: ThemeService, useValue: bed.theme },
           // The public profile tab has its own spec; here it loads hidden settings.
           { provide: PublicProfileService, useValue: { settings: () => of({ enabled: false, slug: null }) } },
-          { provide: AccountSecurityService, useValue: { sessions: () => of([]), activity: () => of({ events: [], total: 0, page: 0, size: 20 }) } }
+          { provide: AccountSecurityService, useValue: { sessions: () => of([]), activity: () => of({ events: [], total: 0, page: 0, size: 20 }),
+          apiTokens: () => of([]) } }
         ]
       });
       bed.navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);

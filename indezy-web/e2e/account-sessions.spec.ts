@@ -66,3 +66,41 @@ test('signing out ends the session on the server', async ({ page }) => {
   await expect(page).toHaveURL(/\/login$/);
   await expect.poll(() => ended).toEqual([expect.stringMatching(/^Bearer header\./)]);
 });
+
+test('creates an API token shown once, then revokes it', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await mockWorkspaceSession(page, 'en');
+  await mockWorkspaceData(page, 'en');
+  const token = { id: 4, name: 'Zapier', tokenStart: 'idz_AbCdEfGh', createdAt: '2026-10-27T09:00:00', lastUsedAt: null,
+    expiresAt: '2027-01-25T09:00:00' };
+  const requests: unknown[] = [];
+  await page.route('**/api/users/api-tokens', route => {
+    if (route.request().method() === 'POST') {
+      requests.push(route.request().postDataJSON());
+      return route.fulfill({ status: 201, json: { token, secret: 'idz_AbCdEfGhsecret' } });
+    }
+    return route.fulfill({ json: [] });
+  });
+  await page.route('**/api/users/api-tokens/4', route => {
+    requests.push(route.request().method());
+    return route.fulfill({ status: 204 });
+  });
+
+  await page.goto('/profile');
+  await page.getByRole('tab', { name: 'Security' }).click();
+  const card = page.locator('[data-api-tokens]');
+  await card.getByLabel('Token name').fill('Zapier');
+  await card.getByRole('button', { name: 'Create token' }).click();
+  await expect(card.locator('[data-token-secret]')).toHaveText('idz_AbCdEfGhsecret');
+  const audit = await new AxeBuilder({ page }).include('[data-api-tokens]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  await card.getByRole('button', { name: 'Copy token' }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('idz_AbCdEfGhsecret');
+  await card.getByRole('button', { name: 'Done' }).click();
+  await expect(card.locator('[data-token-secret]')).toHaveCount(0);
+
+  await card.getByRole('button', { name: 'Revoke Zapier' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Revoke' }).click();
+  await expect(card.locator('[data-token]')).toHaveCount(0);
+  expect(requests).toEqual([{ name: 'Zapier', expiresInDays: 90 }, 'DELETE']);
+});

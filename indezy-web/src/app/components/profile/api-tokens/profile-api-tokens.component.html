@@ -1,0 +1,83 @@
+<mat-card class="form-section" data-api-tokens>
+  <mat-card-header>
+    <mat-card-title>{{ 'profile.apiTokens.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="hint">{{ 'profile.apiTokens.hint' | translate }}</p>
+
+    @if (created) {
+      <div class="created" role="status" data-created-token>
+        <p><strong>{{ 'profile.apiTokens.createdTitle' | translate: { name: created.token.name } }}</strong></p>
+        <p>{{ 'profile.apiTokens.createdHint' | translate }}</p>
+        <code class="secret" data-token-secret>{{ created.secret }}</code>
+        <p class="example">{{ 'profile.apiTokens.example' | translate }}</p>
+        <code class="example-command">curl -H "Authorization: Bearer {{ created.token.tokenStart }}…" {{ apiUrl }}/projects/by-freelance/…</code>
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="copy()">
+            <mat-icon>content_copy</mat-icon>
+            {{ 'profile.apiTokens.copy' | translate }}
+          </button>
+          <button mat-button type="button" (click)="done()">{{ 'profile.apiTokens.done' | translate }}</button>
+        </div>
+      </div>
+    }
+
+    @if (tokens.length > 0) {
+      <ul class="tokens">
+        @for (token of tokens; track token.id) {
+          <li class="token" [attr.data-token]="token.id">
+            <mat-icon aria-hidden="true">key</mat-icon>
+            <div class="text">
+              <span class="name">{{ token.name }} <code>{{ token.tokenStart }}…</code></span>
+              <span class="meta">
+                {{ 'profile.apiTokens.createdOn' | translate: { date: (token.createdAt | date: 'mediumDate') } }} ·
+                @if (token.lastUsedAt) {
+                  {{ 'profile.apiTokens.lastUsed' | translate: { date: (token.lastUsedAt | date: 'medium') } }}
+                } @else {
+                  {{ 'profile.apiTokens.neverUsed' | translate }}
+                }
+                ·
+                @if (token.expiresAt) {
+                  {{ 'profile.apiTokens.expiresOn' | translate: { date: (token.expiresAt | date: 'mediumDate') } }}
+                } @else {
+                  {{ 'profile.apiTokens.noExpiry' | translate }}
+                }
+              </span>
+            </div>
+            <button mat-stroked-button color="warn" type="button" (click)="revoke(token)"
+              [attr.aria-label]="'profile.apiTokens.revokeNamed' | translate: { name: token.name }">
+              {{ 'profile.apiTokens.revoke' | translate }}
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (full) {
+      <p class="hint" data-tokens-full>{{ 'profile.apiTokens.full' | translate: { max: 10 } }}</p>
+    } @else {
+      <form class="create" [formGroup]="form" (ngSubmit)="create()">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'profile.apiTokens.name' | translate }}</mat-label>
+          <input matInput formControlName="name" maxlength="60" autocomplete="off">
+          @if (form.controls.name.hasError('required')) {
+            <mat-error>{{ 'profile.apiTokens.nameRequired' | translate }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'profile.apiTokens.lifetime' | translate }}</mat-label>
+          <mat-select formControlName="expiresInDays">
+            @for (days of lifetimes; track days) {
+              <mat-option [value]="days">
+                {{ (days ? 'profile.apiTokens.days' : 'profile.apiTokens.never') | translate: { days } }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit" [disabled]="creating">
+          {{ 'profile.apiTokens.create' | translate }}
+        </button>
+      </form>
+    }
+  </mat-card-content>
+</mat-card>

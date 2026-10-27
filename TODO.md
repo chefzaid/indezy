@@ -441,7 +441,7 @@ Indezy has no presentation website: `https://indezy.swirlit.dev` redirects strai
 - [x] Account deletion (soft-delete with confirmation) and GDPR data export (droit à la portabilité)
 - [x] Audit log of account activity and active session management. Done on 2026-10-27: **Profile → Security** lists where the account is signed in (browser and system, how and when, last use) with **Sign out** per session and **Sign out everywhere else**, and its activity (sign-ins, refused sign-ins, sign-outs, password, two-factor, export, import and administrator changes) kept a year; a token works only while its session is open, a new password ends the other sessions, and both are in the data export.
 - [x] Rate limiting and brute-force protection on auth endpoints
-- [ ] API tokens for third-party integrations (read-only scopes)
+- [x] API tokens for third-party integrations (read-only scopes). Done on 2026-10-27: **Profile → Security → API tokens** creates up to 10 named tokens (`idz_…`, lasting 30, 90 or 365 days or not expiring), shown once and stored as a SHA-256 hash, listed with their last use and revoked at once; a token only reads the workspace (`GET`), never writes or reaches the account, its tokens or the admin console.
 - [ ] Notification preferences per channel (email, push, in-app) and per event type
 - [ ] Social login (Google, Microsoft, GitHub) through Keycloak identity providers in the `swirlit` realm, so the buttons appear on the Keycloak login page and accounts reach Indezy through the existing SSO exchange, with no login code in the app
 - [ ] Custom Keycloak login theme matching Indezy (logo, colors, typography, light/dark, French and English texts) instead of the default Keycloak look

@@ -53,7 +53,8 @@ describe('ProfileComponent security', () => {
         { provide: ThemeService, useValue: jasmine.createSpyObj('ThemeService', ['apply']) },
         // The public profile tab has its own spec; here it loads hidden settings.
         { provide: PublicProfileService, useValue: { settings: () => of({ enabled: false, slug: null }) } },
-        { provide: AccountSecurityService, useValue: { sessions: () => of([]), activity: () => of({ events: [], total: 0, page: 0, size: 20 }) } }
+        { provide: AccountSecurityService, useValue: { sessions: () => of([]), activity: () => of({ events: [], total: 0, page: 0, size: 20 }),
+          apiTokens: () => of([]) } }
       ]
     });
     fixture = TestBed.createComponent(ProfileComponent);

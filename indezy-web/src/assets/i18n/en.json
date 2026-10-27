@@ -1015,8 +1015,40 @@
         "DATA_EXPORTED": "Data exported",
         "DATA_IMPORTED": "Data imported",
         "ACCOUNT_DISABLED": "Account disabled by an administrator",
-        "ACCOUNT_ENABLED": "Account enabled again by an administrator"
+        "ACCOUNT_ENABLED": "Account enabled again by an administrator",
+        "API_TOKEN_CREATED": "API token \"{{name}}\" created",
+        "API_TOKEN_REVOKED": "API token \"{{name}}\" revoked"
       }
+    },
+    "apiTokens": {
+      "title": "API tokens",
+      "hint": "A token lets another tool (a script, a spreadsheet, an automation service) read your workspace through the API: opportunities, clients, contacts, sources and the rest. It can only read, never change anything, and cannot reach your account settings. Treat it like a password.",
+      "name": "Token name",
+      "nameRequired": "Name the token after the tool that uses it",
+      "lifetime": "Expires after",
+      "days": "{{days}} days",
+      "never": "Never",
+      "create": "Create token",
+      "createdTitle": "Token \"{{name}}\" created",
+      "createdHint": "Copy it now: it won't be shown again.",
+      "example": "Send it in the Authorization header of each request, for example:",
+      "copy": "Copy token",
+      "copied": "Token copied",
+      "done": "Done",
+      "createdOn": "created {{date}}",
+      "lastUsed": "last used {{date}}",
+      "neverUsed": "never used",
+      "expiresOn": "expires {{date}}",
+      "noExpiry": "does not expire",
+      "revoke": "Revoke",
+      "revokeNamed": "Revoke {{name}}",
+      "revokeTitle": "Revoke this token?",
+      "revokeMessage": "Tools using \"{{name}}\" will lose access to your workspace at once.",
+      "revoked": "Token revoked",
+      "full": "You have {{max}} tokens, the most an account holds: revoke one to create another.",
+      "loadError": "Your API tokens could not be loaded",
+      "createError": "The token could not be created",
+      "revokeError": "The token could not be revoked"
     }
   },
   "errors": {

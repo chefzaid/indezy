@@ -548,6 +548,16 @@ Fields: `userId` (`user_id`), `type` (`SIGNED_IN`, `SIGN_IN_REFUSED`, `SIGNED_OU
 the ended session's device) and `device`; `createdAt` is when it happened. Indexed on (`user_id`, `created_at`); events
 over a year old are deleted nightly.
 
+## ApiToken
+
+Table: `api_tokens`
+
+Purpose: the personal read-only API tokens of an account.
+
+Fields: `userId` (`user_id`, indexed), `name` (up to 60 characters), `tokenHash` (`token_hash`, unique SHA-256 hex of
+the token; the token itself is not stored), `tokenStart` (`token_start`, its first 12 characters, for display),
+`expiresAt` (null for a token that does not expire), `lastUsedAt` (written every 5 minutes at most) and `revokedAt`.
+
 ## FeatureFlagState
 
 Table: `feature_flags`
