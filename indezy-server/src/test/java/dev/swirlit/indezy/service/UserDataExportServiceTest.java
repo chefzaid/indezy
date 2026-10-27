@@ -2,14 +2,17 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.ActivityDayDto;
 import dev.swirlit.indezy.dto.ActivityReportDto;
+import dev.swirlit.indezy.dto.FreelanceDto;
 import dev.swirlit.indezy.dto.OfferBoardVisitDto;
 import dev.swirlit.indezy.dto.OfferPublisherBlockDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.dto.OfferStateExportDto;
 import dev.swirlit.indezy.dto.OfferSuggestionDismissalDto;
 import dev.swirlit.indezy.dto.ProjectDto;
+import dev.swirlit.indezy.dto.ProjectNoteDto;
 import dev.swirlit.indezy.dto.SavedOfferSearchDto;
 import dev.swirlit.indezy.dto.SavedSearchEmailsDto;
+import dev.swirlit.indezy.dto.SeasonDto;
 import dev.swirlit.indezy.dto.UserDto;
 import dev.swirlit.indezy.model.OfferApplication;
 import dev.swirlit.indezy.model.enums.ActivityDayType;
@@ -28,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -80,6 +84,15 @@ class UserDataExportServiceTest {
     @Mock
     private ContactRelationService contactRelationService;
 
+    @Mock
+    private ProjectNoteService projectNoteService;
+
+    @Mock
+    private SeasonService seasonService;
+
+    @Mock
+    private FreelanceService freelanceService;
+
     @InjectMocks
     private UserDataExportService userDataExportService;
 
@@ -93,6 +106,15 @@ class UserDataExportServiceTest {
         ProjectDto project = new ProjectDto();
         project.setRole("Backend Dev");
         when(projectService.findByFreelanceId(5L)).thenReturn(List.of(project));
+        FreelanceDto freelance = new FreelanceDto();
+        freelance.setNoticePeriodInDays(30);
+        freelance.setReversionRate(0.55);
+        when(freelanceService.findById(5L)).thenReturn(freelance);
+        when(projectNoteService.export(5L)).thenReturn(List.of(new ProjectNoteDto(9L, 7L, "Called Léa about the rate",
+            LocalDateTime.of(2026, 10, 21, 9, 30))));
+        SeasonDto season = new SeasonDto();
+        season.setName("Autumn 2026");
+        when(seasonService.findByFreelanceId(5L)).thenReturn(List.of(season));
         when(clientService.findByFreelanceId(5L)).thenReturn(List.of());
         when(contactService.findByFreelanceId(5L)).thenReturn(List.of());
         when(sourceService.findByFreelanceId(5L)).thenReturn(List.of());
@@ -128,6 +150,14 @@ class UserDataExportServiceTest {
             .contains("john.doe@example.com")
             .contains("\"projects\"")
             .contains("Backend Dev")
+            .contains("\"freelance\"")
+            .contains("\"noticePeriodInDays\" : 30")
+            .contains("\"reversionRate\" : 0.55")
+            .contains("\"projectNotes\"")
+            .contains("Called Léa about the rate")
+            .contains("\"2026-10-21T09:30:00\"")
+            .contains("\"seasons\"")
+            .contains("Autumn 2026")
             .contains("\"clients\"")
             .contains("\"contacts\"")
             .contains("\"sources\"")

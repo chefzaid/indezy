@@ -240,7 +240,7 @@ Indezy stores personal and commercially sensitive information:
 Account deletion and data portability:
 
 - accounts are not deleted from the application: identities live in Keycloak, and an account whose `User.deletedAt` is set can no longer sign in (`AuthService` rejects it with the generic invalid-credentials error)
-- `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact, source and activity report they own, downloaded as an attachment, with dates in ISO-8601. It also lists the job offers the workspace saved, hid, opened or imported (`jobOffers`). The profile comes from the signed-in account and every other section from its workspace, found through the account's email like every other resource (`AccessGuard`), never from the account id: account and workspace ids are numbered separately.
+- `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact, source and activity report they own, downloaded as an attachment, with dates in ISO-8601. It also lists the job offers the workspace saved, hid, opened or imported (`jobOffers`), the opportunities' journal notes (`projectNotes`), the job-hunting seasons (`seasons`) and the workspace's freelance record (`freelance`: employment status, notice period, reversion and income tax rates). The profile comes from the signed-in account and every other section from its workspace, found through the account's email like every other resource (`AccessGuard`), never from the account id: account and workspace ids are numbered separately.
 
 Privacy expectations:
 

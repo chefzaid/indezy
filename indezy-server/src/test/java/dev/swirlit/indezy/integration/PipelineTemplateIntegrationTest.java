@@ -150,6 +150,8 @@ class PipelineTemplateIntegrationTest {
             {"name": "No steps", "freelanceId": 100, "steps": []}""")).andExpect(status().isBadRequest());
         mockMvc.perform(post("/pipeline-templates/steps").contentType(MediaType.APPLICATION_JSON).content("""
             {"name": "Blank step", "freelanceId": 100, "steps": [{"title": " "}]}""")).andExpect(status().isBadRequest());
+        mockMvc.perform(post("/pipeline-templates/steps").contentType(MediaType.APPLICATION_JSON).content("""
+            {"name": "Missing step", "freelanceId": 100, "steps": [null]}""")).andExpect(status().isBadRequest());
         mockMvc.perform(post("/pipeline-templates/steps").contentType(MediaType.APPLICATION_JSON).content(
                 objectMapper.writeValueAsString(java.util.Map.of("name", "Too long", "freelanceId", 100,
                     "steps", java.util.Collections.nCopies(21, java.util.Map.of("title", "Call"))))))

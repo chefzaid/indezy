@@ -36,6 +36,12 @@ public class ProjectNoteService {
             .toList();
     }
 
+    /** Every journal note of the workspace, newest first, for the account export. */
+    @Transactional(readOnly = true)
+    public List<ProjectNoteDto> export(Long freelanceId) {
+        return projectNoteRepository.findByFreelanceId(freelanceId).stream().map(this::toDto).toList();
+    }
+
     public ProjectNoteDto addNote(Long projectId, String content) {
         log.debug("Adding note to project: {}", projectId);
         Project project = projectRepository.findById(projectId)
