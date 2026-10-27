@@ -571,6 +571,27 @@ Fields: `userId` (`user_id`, indexed), `name` (up to 60 characters), `tokenHash`
 the token; the token itself is not stored), `tokenStart` (`token_start`, its first 12 characters, for display),
 `expiresAt` (null for a token that does not expire), `lastUsedAt` (written every 5 minutes at most) and `revokedAt`.
 
+## Invoice
+
+Table: `invoices`
+
+Purpose: a workspace's invoices to its clients, kept whatever happens to their mission (French law keeps them ten years).
+
+Fields: `freelanceId`, `clientId`, `projectId` and `activityReportId` (ids, not relations, so deleting a mission or a
+report leaves the invoice), `projectRole` (kept for the list), `number` (unique per workspace, set when issued),
+`status` (`DRAFT`, `ISSUED`, `PAID`; an issued invoice past its due date reads as overdue), `issueDate`, `dueDate`,
+`periodStart`, `periodEnd`, `language` (`FR` or `EN`), `notes`, `paidOn`, the lines (`invoice_lines`: `description`,
+`quantity`, `unitPrice`, `vatRate`, in order) and, once issued, the seller (`seller_*`: name, legal form, SIRET, VAT
+number and exemption, share capital, registration, address, IBAN, BIC) and the buyer (`buyer_*`: name, address, SIREN,
+VAT number) as they were. Amounts are computed from the lines: each line to the cent, its VAT to the cent, then summed.
+
+## InvoiceCounter
+
+Table: `invoice_counters`
+
+Purpose: the last number a workspace gave in a year (`freelance_id`, `counter_year`, `last_number`, unique per workspace
+and year), read with a write lock while an invoice is issued so numbers never skip or repeat.
+
 ## FeatureFlagState
 
 Table: `feature_flags`

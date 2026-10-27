@@ -177,6 +177,13 @@ Representative backend tests:
 - billing identity: `BillingIdentityIntegrationTest` (defaults from the profile, Alice's identity kept compact and
   apart from Bob's, a wrong IBAN, SIRET or payment term refused, VAT without a number incomplete, a client's SIREN and VAT
   number) and `BillingTextTest` (identifiers compacted, IBAN check digits and grouping)
+- invoices: `InvoiceIntegrationTest` (a validated month drafted for the ESN in English, once; issued only with a
+  complete billing identity and the client's address, never at a later date or before the last one; numbered without
+  gaps; frozen against later identity changes, read back from its PDF in English and French; paid and unpaid; out of
+  Bob's reach; kept when the mission goes; a draft by hand with its mission and period, changed, refused for Bob's
+  client, unpayable and deleted), `InvoicePdfRendererTest` (a company's capital, registration and VAT in French with a
+  wrapped line and notes; a draft of an individual entrepreneur exempt from VAT) and `InvoiceTotalsTest` (each line and
+  its VAT to the cent)
 - secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code (a bare `code` field included), backup code or API key, nor, in such a class or one nested in it, the email or a name)
 
 Backend test data lives under `indezy-server/src/test/resources/`:

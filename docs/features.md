@@ -41,6 +41,40 @@ number when VAT applies; with portage, the portage company invoices the clients,
 **Billing** section holds its SIREN and VAT number. The API is `GET` and `PUT /api/users/billing`; the identity is part
 of the data export (`billing`).
 
+### Invoices
+
+A workspace invoices its clients from drafts:
+
+- **From an activity report**: a month the client validated becomes a draft billed to the mission's ESN (else its
+  client), in the language of that client's activity reports, with one line of the days worked at the mission's daily
+  rate ("Prestation : Développeur Java — novembre 2026"), the month as the service period, and VAT at the billing
+  identity's rate unless exempt. A report is invoiced once; a month not yet validated cannot be.
+- **By hand**: a client of the workspace (and one of its missions, optionally), a service period, the language (French
+  or English), notes and up to 50 lines, each a description, a quantity (days, to the hundredth), a unit price before VAT
+  and a VAT rate.
+
+A draft changes freely, can be deleted, and its PDF says in capitals that it is not an invoice. **Issuing** needs a
+complete billing identity and the client's address; it takes the issue date (today by default, never later, and never
+before the last invoice issued, so numbers follow the dates), gives the next number of that year with no gap
+(`<prefix><year>-0001`, the workspace's counter locked meanwhile), sets the due date from the payment term, and freezes
+the seller and the buyer as they are: changing the billing identity or the client later changes no issued invoice. An
+issued invoice can then only be marked paid (on a date) or unpaid; it reads as overdue past its due date. It cannot be
+changed or deleted, and it stays when its mission or activity report is deleted (French law keeps invoices ten years).
+
+The PDF (A4, French or English) states the seller (legal name, followed by "EI" for an individual entrepreneur, address,
+SIRET, legal form with share capital and registration for a company, VAT number when VAT applies), the number and the
+issue, due and service dates, the client (name, address, SIREN and VAT number when known), the lines with their VAT
+rate, the totals before VAT, VAT and with VAT, or "TVA non applicable, art. 293 B du CGI" and the amount due when
+exempt, then the payment term and date, the IBAN and BIC, that there is no discount for early payment, and the late
+payment penalties and the €40 recovery fee (art. L441-10 du Code de commerce). Corrections to an issued invoice through
+a credit note are not offered yet (TODO.md).
+
+The API: `GET /api/invoices/by-freelance/{freelanceId}`, `GET /api/invoices/{id}`, `POST /api/invoices` (a draft by
+hand), `POST /api/invoices/from-report` (`{ projectId, year, month }`), `PUT` and `DELETE /api/invoices/{id}` (drafts),
+`POST /api/invoices/{id}/issue` (`{ issueDate }`, optional), `PUT /api/invoices/{id}/payment` (`{ paidOn }`, absent to
+take it back) and `GET /api/invoices/{id}/pdf`; another workspace's invoice answers `404`. Invoices are part of the data
+export.
+
 ### Notifications
 
 **Profile → Notifications** holds the notifications the account can choose, each saved as soon as it is switched:
