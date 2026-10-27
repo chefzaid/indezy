@@ -427,6 +427,29 @@ A shared link:
 
 At most 20 links are open at once per workspace.
 
+## Web Server Headers
+
+The web image's nginx (`indezy-web/nginx.conf`) sends on every response, files included: `X-Frame-Options:
+SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `X-XSS-Protection` and this Content-Security-Policy:
+
+- scripts only from the app's own origin (`script-src 'self'`): no inline script, no `eval`, no other host. The
+  production build turns off Angular's inline critical CSS, whose stylesheet loader is an inline `onload` handler;
+- styles from the app, inline (Angular's component styles) and Google Fonts; fonts from the app and Google Fonts;
+- images from the app, `data:`, `blob:` and HTTPS (avatars);
+- requests (`connect-src`) to the app's own origin only, the API being under `/api`;
+- frames from the app or a `blob:` address (a file's preview), and the browser's PDF viewer for those (`object-src
+  blob:`); the service worker from the app; forms and `<base>` to the app; framed only by the app itself.
+
+`Cache-Control` is chosen by path in a `map` with one top-level `add_header`, because a location adding any header would
+drop the others: hashed files a year (immutable), the service worker and its manifest revalidated each time.
+
+To check a policy change, build for production (`npx ng build --configuration production`), serve
+`dist/indezy-web/browser` with the image's `nginx.conf`, and run a Playwright page through the main pages (with the
+API mocked, `/api/auth/sso` included, and service workers blocked so the mocks apply) failing on any console message
+"Refused to" or "Content Security Policy"; it was done so on 2026-10-27 (dashboard, opportunities, a mission with a PDF
+preview, invoices, documents, profile, offers, calendar, the shared documents page), and removing Google Fonts from
+`font-src` made it fail as expected.
+
 ## Offline Copies
 
 The service worker keeps the latest answers of the main read endpoints in the browser's cache storage for seven days
