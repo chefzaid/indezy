@@ -151,7 +151,9 @@ describe('API services', () => {
     { name: 'two-factor setup', call: () => users().enableTwoFactor(), method: 'POST', url: `${api}/users/security/2fa/enable`, body: {} },
     { name: 'two-factor verification', call: () => users().verifyTwoFactor('123456'), method: 'POST', url: `${api}/users/security/2fa/verify`, body: { code: '123456' } },
     { name: 'two-factor removal', call: () => users().disableTwoFactor('123456'), method: 'POST', url: `${api}/users/security/2fa/disable`, body: { code: '123456' } },
-    { name: 'data export', call: () => users().exportUserData(), method: 'GET', url: `${api}/users/export`, response: new Blob(['{}']) }
+    { name: 'data export', call: () => users().exportUserData(), method: 'GET', url: `${api}/users/export`, response: new Blob(['{}']) },
+    { name: 'data import preview', call: () => users().previewImport(new Blob(['{}'])), method: 'POST', url: `${api}/users/import/preview` },
+    { name: 'data import', call: () => users().importData(new Blob(['{}'])), method: 'POST', url: `${api}/users/import` }
   ];
 
   for (const apiCase of cases) {

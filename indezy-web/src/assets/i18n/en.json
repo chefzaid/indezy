@@ -928,7 +928,32 @@
     "skillAlreadyListed": "Already listed as {{skill}}",
     "followUpDays": "Follow up after (days)",
     "followUpDaysHint": "A message to a contact unanswered this long shows on the dashboard",
-    "followUpDaysError": "Enter a whole number from 1 to 60"
+    "followUpDaysError": "Enter a whole number from 1 to 60",
+    "import": {
+      "title": "Import data",
+      "description": "Bring an Indezy export into this workspace: its sources, clients, contacts, seasons, opportunities with their steps, and journal notes. You see what it adds before anything is saved.",
+      "choose": "Choose an export file",
+      "tooLarge": "The file is over 10 MB",
+      "invalidFile": "This file is not an Indezy export",
+      "error": "The import failed, nothing was saved",
+      "done": "Data imported",
+      "previewTitle": "What {{file}} adds",
+      "resultTitle": "Imported",
+      "counts": "{{added}} new, {{duplicates}} already here, {{invalid}} left out",
+      "countsDone": "{{added}} added, {{duplicates}} already here, {{invalid}} left out",
+      "details": "Show the records",
+      "leftOut": "left out: {{reason}}",
+      "confirm": "Import",
+      "nothingNew": "Everything in this file is already here.",
+      "kinds": {
+        "SOURCES": "Sources",
+        "CLIENTS": "Clients and ESNs",
+        "CONTACTS": "Contacts",
+        "SEASONS": "Seasons",
+        "PROJECTS": "Opportunities",
+        "PROJECT_NOTES": "Journal notes"
+      }
+    }
   },
   "errors": {
     "notFoundTitle": "404 - Page not found",

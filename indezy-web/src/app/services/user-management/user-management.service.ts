@@ -6,7 +6,8 @@ import {
   UserProfile,
   UserNotificationSettings,
   UserPreferences,
-  PasswordChangeRequest
+  PasswordChangeRequest,
+  WorkspaceImportReport
 } from '../../models/user-management.models';
 
 export interface SecuritySettings {
@@ -86,4 +87,20 @@ export class UserManagementService {
   exportUserData(): Observable<Blob> {
     return this.http.get(`${this.API_URL}/export`, { responseType: 'blob' });
   }
+
+  /** What importing the export file would add to the workspace, without writing anything. */
+  previewImport(file: Blob): Observable<WorkspaceImportReport> {
+    return this.http.post<WorkspaceImportReport>(`${this.API_URL}/import/preview`, importForm(file));
+  }
+
+  /** Imports the export file's new records into the workspace. */
+  importData(file: Blob): Observable<WorkspaceImportReport> {
+    return this.http.post<WorkspaceImportReport>(`${this.API_URL}/import`, importForm(file));
+  }
+}
+
+function importForm(file: Blob): FormData {
+  const form = new FormData();
+  form.append('file', file);
+  return form;
 }

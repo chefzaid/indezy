@@ -69,3 +69,28 @@ export interface PasswordChangeRequest {
   newPassword: string;
   confirmPassword: string;
 }
+
+export type WorkspaceImportKind = 'SOURCES' | 'CLIENTS' | 'CONTACTS' | 'SEASONS' | 'PROJECTS' | 'PROJECT_NOTES';
+
+/** One record of an imported file: new, already in the workspace, or left out with why. */
+export interface WorkspaceImportItem {
+  label: string;
+  status: 'NEW' | 'DUPLICATE' | 'INVALID';
+  reason?: string;
+}
+
+export interface WorkspaceImportSection {
+  kind: WorkspaceImportKind;
+  total: number;
+  added: number;
+  duplicates: number;
+  invalid: number;
+  /** The first 200 records; the counts cover them all. */
+  items: WorkspaceImportItem[];
+}
+
+/** What importing an account export adds to the workspace; `applied` is false for a preview. */
+export interface WorkspaceImportReport {
+  applied: boolean;
+  sections: WorkspaceImportSection[];
+}

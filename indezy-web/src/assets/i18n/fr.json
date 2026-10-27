@@ -928,7 +928,32 @@
     "skillAlreadyListed": "Déjà listée comme {{skill}}",
     "followUpDays": "Relancer après (jours)",
     "followUpDaysHint": "Un message à un contact resté sans réponse aussi longtemps apparaît au tableau de bord",
-    "followUpDaysError": "Saisissez un nombre entier de 1 à 60"
+    "followUpDaysError": "Saisissez un nombre entier de 1 à 60",
+    "import": {
+      "title": "Importer des données",
+      "description": "Ajoutez à cet espace un export Indezy : ses sources, clients, contacts, saisons, opportunités avec leurs étapes, et notes du journal. Vous voyez ce qu'il ajoute avant tout enregistrement.",
+      "choose": "Choisir un fichier d'export",
+      "tooLarge": "Le fichier dépasse 10 Mo",
+      "invalidFile": "Ce fichier n'est pas un export Indezy",
+      "error": "L'import a échoué, rien n'a été enregistré",
+      "done": "Données importées",
+      "previewTitle": "Ce qu'ajoute {{file}}",
+      "resultTitle": "Import terminé",
+      "counts": "{{added}} nouveau(x), {{duplicates}} déjà présent(s), {{invalid}} écarté(s)",
+      "countsDone": "{{added}} ajouté(s), {{duplicates}} déjà présent(s), {{invalid}} écarté(s)",
+      "details": "Voir les éléments",
+      "leftOut": "écarté : {{reason}}",
+      "confirm": "Importer",
+      "nothingNew": "Tout ce que contient ce fichier est déjà là.",
+      "kinds": {
+        "SOURCES": "Sources",
+        "CLIENTS": "Clients et ESN",
+        "CONTACTS": "Contacts",
+        "SEASONS": "Saisons",
+        "PROJECTS": "Opportunités",
+        "PROJECT_NOTES": "Notes du journal"
+      }
+    }
   },
   "errors": {
     "notFoundTitle": "404 - Page non trouvée",

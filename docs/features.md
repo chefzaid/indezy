@@ -27,6 +27,28 @@ Implemented account flows:
 - Keycloak single sign-on in production (`/api/auth/sso`, see [Security](./security.md))
 - optional TOTP two-factor authentication for local accounts, asked at login once enabled
 - profile page for account details, avatar, preferences (language, theme, date format), notifications, password, two-factor authentication and a JSON export of every piece of account data
+- **Import data** (Profile → Account): an Indezy export brought into the workspace, preview first (see below)
+
+### Data Import
+
+Choosing an export file (up to 10 MB) lists, section by section, what it would add: sources, clients and ESNs,
+contacts, seasons, opportunities with their interview steps and preparation checklists, and journal notes, each record
+**new**, **already here** or **left out** with why; **Import** then saves the new ones and reports what was added.
+Nothing is written until then, and an import that fails saves nothing.
+
+- A record already in the workspace is left as it is: a source, client or season with the same name (case, accents and
+  punctuation aside), a contact with the same email (or, without one, the same name at the same company), an
+  opportunity with the same role, client and start date. Imported records that point at it point at the existing one,
+  so importing the same file twice adds nothing the second time.
+- A record that breaks the API's rules (a client without a city, an opportunity without a daily rate, a step without a
+  title) or points at a company or opportunity the file does not hold is left out; journal notes come with the
+  opportunities the import adds, and are dated the day of the import.
+- Contacts come without their manager, and the export's other sections (profile, activity reports, offers, templates,
+  attachments, exchanges and relations) are not imported.
+
+API: `POST /api/users/import/preview` and `POST /api/users/import`, each with the file as the multipart `file` part,
+answer the report (`applied`, then per section `kind`, `total`, `added`, `duplicates`, `invalid` and the first 200
+`items` with their `label`, `status` and `reason`); a file that is not an export answers `400`.
 
 ### Welcome Steps
 

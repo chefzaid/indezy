@@ -1,0 +1,63 @@
+<div class="import-row">
+  <div class="import-info">
+    <h4>{{ 'profile.import.title' | translate }}</h4>
+    <p>{{ 'profile.import.description' | translate }}</p>
+  </div>
+  <input #fileInput type="file" accept=".json,application/json" class="file-input" data-import-file (change)="choose($event)"
+         [attr.aria-label]="'profile.import.choose' | translate">
+  <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="isBusy" data-import-choose>
+    <mat-icon>upload_file</mat-icon>
+    {{ 'profile.import.choose' | translate }}
+  </button>
+</div>
+
+@if (isBusy) {
+  <div class="import-busy"><mat-spinner diameter="28" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+}
+
+@if (report) {
+  <section class="import-report" data-import-report aria-live="polite">
+    <h5>{{ (report.applied ? 'profile.import.resultTitle' : 'profile.import.previewTitle') | translate:{ file: file?.name ?? '' } }}</h5>
+    <ul class="sections">
+      @for (section of report.sections; track section.kind) {
+        @if (section.total > 0) {
+          <li [attr.data-section]="section.kind">
+            <span class="section-name">{{ 'profile.import.kinds.' + section.kind | translate }}</span>
+            <span class="section-counts">
+              {{ (report.applied ? 'profile.import.countsDone' : 'profile.import.counts') | translate:{
+                added: section.added, duplicates: section.duplicates, invalid: section.invalid } }}
+            </span>
+            @if (listed(section).length) {
+              <details>
+                <summary>{{ 'profile.import.details' | translate }}</summary>
+                <ul class="items">
+                  @for (item of listed(section); track $index) {
+                    <li [class.invalid]="item.status === 'INVALID'">
+                      {{ item.label }}
+                      @if (item.status === 'INVALID') {
+                        <span class="reason">— {{ 'profile.import.leftOut' | translate:{ reason: item.reason ?? '' } }}</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              </details>
+            }
+          </li>
+        }
+      }
+    </ul>
+    <div class="import-actions">
+      @if (!report.applied) {
+        <button mat-button type="button" (click)="cancel()" [disabled]="isBusy">{{ 'common.cancel' | translate }}</button>
+        <button mat-flat-button type="button" data-import-confirm (click)="confirm()" [disabled]="isBusy || !canImport">
+          {{ 'profile.import.confirm' | translate }}
+        </button>
+      } @else {
+        <button mat-button type="button" (click)="cancel()">{{ 'common.close' | translate }}</button>
+      }
+    </div>
+    @if (!report.applied && !canImport) {
+      <p class="nothing-new">{{ 'profile.import.nothingNew' | translate }}</p>
+    }
+  </section>
+}

@@ -46,7 +46,7 @@ Bugs, failing checks, security findings and code smells found while working on a
 
 - [x] The days a year assumed for a mission that states none differ between screens: `project-detail.component.ts` `calculateTotalRevenue()` falls back to 220 while the project form's default and the projects list's monthly and yearly revenue use 218, so the same opportunity shows a different revenue on its page and in the list. Reproduce: open an opportunity at 650 €/day for 12 months saved without days per year; its page shows 143,000 € and the list 141,700 €. *(found by: Coding Agent, yearly review)* Fixed on 2026-10-27: `DEFAULT_DAYS_PER_YEAR` (218) in `project.models.ts` is shared by the detail page, the list and the form, and the server's yearly review uses the same value.
 
-- [x] The account export (`GET /api/users/export`, Profile → **Export my data**) leaves out records the freelancer entered: the opportunities' journal notes, the job-hunting seasons, and the workspace's freelance record (employment status, notice period, reversion and income tax rates, CV path). `UserDataExportService` lists every other kind but never these, so the GDPR portability export is incomplete. Reproduce: add a note to an opportunity and a season, export, and search the file for either. *(found by: Coding Agent, data import)* Fixed on 2026-10-27: the export carries `freelance`, `projectNotes` (newest first, with their opportunity) and `seasons`, checked with real accounts by `UserDataExportIntegrationTest`.
+- [x] The account export (`GET /api/users/export`, Profile → **Export my data**) leaves out records the freelancer entered: the opportunities' journal notes, the job-hunting seasons, and the workspace's freelance record (employment status, notice period, reversion and income tax rates, CV path). `UserDataExportService` lists every other kind but never these, so the GDPR portability export is incomplete. Reproduce: add a note to an opportunity and a season, export, and search the file for either. *(found by: Coding Agent, data import)* Fixed on 2026-10-27: the export carries `freelance`, `projectNotes` (newest first, with their opportunity) and `seasons`, checked with real accounts by `UserDataExportIntegrationTest`. The opportunities' steps also lacked their preparation checklists (`ProjectMapper.toInterviewStepDto` left them out, so `GET /projects/{id}` did too); they are now included, which the import relies on.
 
 ## Needs Input
 
@@ -339,7 +339,7 @@ Increments, implemented in order:
 
 ## Data & Backup
 
-- [ ] Data export/import (full account backup as JSON/CSV), with preview-first import: parsed items shown before commit, duplicates flagged, result reports imported/skipped
+- [x] Data export/import (full account backup as JSON/CSV), with preview-first import: parsed items shown before commit, duplicates flagged, result reports imported/skipped. Done on 2026-10-27 with the JSON export (Profile → Account → **Import data**); CSV stays the contacts' import (CSV or vCard under a client) and the yearly summary's export.
 - [ ] Scheduled automatic backup to Google Drive / OneDrive / Dropbox (OAuth connect, skip upload when nothing changed, manual Sync Now)
 
 ## Mobile

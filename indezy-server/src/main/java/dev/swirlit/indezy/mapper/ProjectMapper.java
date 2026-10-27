@@ -2,6 +2,7 @@ package dev.swirlit.indezy.mapper;
 
 import dev.swirlit.indezy.dto.InterviewStepDto;
 import dev.swirlit.indezy.dto.ProjectDto;
+import dev.swirlit.indezy.dto.StepChecklistItemDto;
 import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
 import org.mapstruct.*;
@@ -73,6 +74,8 @@ public interface ProjectMapper {
         dto.setDate(interviewStep.getDate());
         dto.setStatus(interviewStep.getStatus());
         dto.setNotes(interviewStep.getNotes());
+        dto.setChecklist(interviewStep.getChecklist().stream()
+            .map(item -> new StepChecklistItemDto(item.getLabel(), item.isDone())).collect(java.util.stream.Collectors.toList()));
 
         Project project = interviewStep.getProject();
         if (project != null) {

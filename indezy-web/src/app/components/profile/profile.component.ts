@@ -24,10 +24,12 @@ import { ThemeService } from '../../shared/theme/theme.service';
 import { passwordMaxBytes } from '../../shared/utils/password-max-bytes';
 import { saveBlob } from '../../shared/utils/download-file';
 import { rejectedPasswordField } from './password-rejection';
+import { ProfileDataImportComponent } from './data-import/profile-data-import.component';
 
 @Component({
     selector: 'app-profile',
     imports: [
+    ProfileDataImportComponent,
     ReactiveFormsModule,
     FormsModule,
     MatCardModule,

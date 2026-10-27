@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.*;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.UserDataExportService;
 import dev.swirlit.indezy.service.UserService;
+import dev.swirlit.indezy.service.WorkspaceImportService;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,7 @@ public class UserController {
 
     private final UserService userService;
     private final UserDataExportService userDataExportService;
+    private final WorkspaceImportService workspaceImportService;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "Get the profile")
@@ -115,6 +118,24 @@ public class UserController {
     @PostMapping("/security/2fa/disable")
     public boolean disableTwoFactor(@Valid @RequestBody TwoFactorCodeRequest request) {
         return userService.disableTwoFactor(SecurityUtils.getCurrentUserId(), request.getCode());
+    }
+
+    @Operation(summary = "Preview the import of an account export into the workspace",
+        description = "Lists each record as new, already there or invalid, writing nothing; 400 for a file that is not an export")
+    @PostMapping(value = "/import/preview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public WorkspaceImportReport previewImport(@RequestParam("file") MultipartFile file) throws IOException {
+        return workspaceImportService.preview(currentWorkspace(), file.getBytes());
+    }
+
+    @Operation(summary = "Import an account export into the workspace",
+        description = "Adds the new records and leaves those already there; the report says what was done")
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public WorkspaceImportReport importData(@RequestParam("file") MultipartFile file) throws IOException {
+        return workspaceImportService.apply(currentWorkspace(), file.getBytes());
+    }
+
+    private Long currentWorkspace() {
+        return accessGuard.currentFreelanceId().orElseThrow(() -> new AccessDeniedException("No workspace for this account"));
     }
 
     @Operation(summary = "Export every piece of data of the account as JSON")
