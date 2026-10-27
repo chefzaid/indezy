@@ -412,7 +412,7 @@ Indezy has no presentation website: `https://indezy.swirlit.dev` redirects strai
 - [ ] Complete the deployment setup (Kubernetes manifests, GitLab CI pipeline, ...)
 - [ ] Improve the devcontainer setup
 - [x] Measure and raise test coverage to at least 85% for both backend and frontend, with a focus on critical business logic and edge cases (measured on 2026-10-26: backend 95.81% lines and 86.20% branches, frontend 98.26% lines; see `docs/testing.md`)
-- [ ] Playwright e2e tests for critical user flows (register, login, create project, move Kanban card, filter lists)
+- [x] Playwright e2e tests for critical user flows (register, login, create project, move Kanban card, filter lists). Done on 2026-10-27: registration (`onboarding.spec.ts`), sign-in back to the page asked for (`project-links.spec.ts`), an opportunity created from the form and a Kanban card dragged to the next stage (`critical-flows.spec.ts`), stage moves from the keyboard and in bulk (`keyboard-shortcuts.spec.ts`, `kanban-bulk.spec.ts`), and filters kept in the address (`project-filters-url.spec.ts`).
 - [x] Add Spring Boot Actuator: K8s probes already reference /api/actuator/health but the actuator dependency is missing from pom.xml
 - [x] Richer database seeding for development (realistic projects, clients, pipeline states)
 - [x] Mask commands to reset/reseed the dev database with test data

@@ -334,6 +334,9 @@ in with the new ESN offered as client, correct the role and save through the imp
 list, the link of a mission already in the pipeline and open its opportunity. In English, a posting of a site the
 feed does not collect fills the form in, names its publisher as the new ESN and is saved through the posting import.
 
+Critical flow scenarios (`e2e/critical-flows.spec.ts`) create an opportunity from the form (role, daily rate and
+client sent, its page opened) and drag a Kanban card with the mouse to the next stage.
+
 Data import scenarios (`e2e/data-import.spec.ts`, on a desktop and on a phone) choose an export file on the profile's
 **Account** tab, read its preview with a record left out and why, then import it and read what was added.
 
