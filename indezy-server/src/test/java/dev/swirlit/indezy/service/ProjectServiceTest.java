@@ -22,23 +22,6 @@ import static org.mockito.Mockito.*;
 class ProjectServiceTest extends ProjectServiceTestSupport {
 
     @Test
-    void findAll_ShouldReturnAllProjects() {
-        // Given
-        List<Project> projects = Arrays.asList(testProject);
-        when(projectRepository.findAll()).thenReturn(projects);
-        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
-
-        // When
-        List<ProjectDto> result = projectService.findAll();
-
-        // Then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getRole()).isEqualTo("Full Stack Developer");
-        verify(projectRepository).findAll();
-        verify(projectMapper).toDto(testProject);
-    }
-
-    @Test
     void findById_WhenProjectExists_ShouldReturnProject() {
         // Given
         when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));

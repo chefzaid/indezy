@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 /** Freelance profiles; a workspace is created with its account at registration or first SSO login. */
 @RestController
@@ -20,14 +19,6 @@ public class FreelanceController {
 
     private final FreelanceService freelanceService;
     private final AccessGuard accessGuard;
-
-    @Operation(summary = "The caller's freelance profile, as a list")
-    @GetMapping
-    public List<FreelanceDto> getAllFreelances() {
-        return accessGuard.currentFreelanceId()
-            .map(freelanceId -> List.of(freelanceService.findById(freelanceId)))
-            .orElseGet(freelanceService::findAll);
-    }
 
     @Operation(summary = "Get a freelance profile")
     @GetMapping("/{id}")

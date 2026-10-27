@@ -80,23 +80,6 @@ class SourceServiceTest {
     }
 
     @Test
-    void findAll_ShouldReturnAllSources() {
-        // Given
-        List<Source> sources = Arrays.asList(testSource);
-        when(sourceRepository.findAll()).thenReturn(sources);
-        when(sourceMapper.toDto(testSource)).thenReturn(testSourceDto);
-
-        // When
-        List<SourceDto> result = sourceService.findAll();
-
-        // Then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).isEqualTo("LinkedIn");
-        verify(sourceRepository).findAll();
-        verify(sourceMapper).toDto(testSource);
-    }
-
-    @Test
     void findById_WithExistingId_ShouldReturnSource() {
         // Given
         when(sourceRepository.findById(1L)).thenReturn(Optional.of(testSource));

@@ -69,15 +69,6 @@ public class ProjectService {
     );
 
     @Transactional(readOnly = true)
-    public List<ProjectDto> findAll() {
-        log.debug("Finding all projects");
-        return projectRepository.findAll()
-            .stream()
-            .map(projectMapper::toDto)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
     public ProjectDto findById(Long id) {
         log.debug("Finding project by id: {}", id);
         Project project = projectRepository.findById(id)

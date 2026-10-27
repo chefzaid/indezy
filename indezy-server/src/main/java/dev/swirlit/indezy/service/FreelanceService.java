@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,15 +20,6 @@ public class FreelanceService {
 
     private final FreelanceRepository freelanceRepository;
     private final FreelanceMapper freelanceMapper;
-
-    @Transactional(readOnly = true)
-    public List<FreelanceDto> findAll() {
-        log.debug("Finding all freelances");
-        return freelanceRepository.findAll()
-            .stream()
-            .map(freelanceMapper::toDto)
-            .toList();
-    }
 
     @Transactional(readOnly = true)
     public FreelanceDto findById(Long id) {

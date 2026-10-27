@@ -65,23 +65,6 @@ class SourceControllerTest {
 
     @Test
     @WithMockUser
-    void getAllSources_ShouldReturnSourceList() throws Exception {
-        // Given
-        List<SourceDto> sources = Arrays.asList(testSourceDto);
-        when(sourceService.findAll()).thenReturn(sources);
-
-        // When & Then
-        mockMvc.perform(get("/sources"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].name", is("LinkedIn")));
-
-        verify(sourceService).findAll();
-    }
-
-    @Test
-    @WithMockUser
     void getSourceById_WithExistingId_ShouldReturnSource() throws Exception {
         // Given
         when(sourceService.findById(1L)).thenReturn(testSourceDto);

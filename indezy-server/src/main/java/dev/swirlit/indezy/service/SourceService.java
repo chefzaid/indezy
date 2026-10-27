@@ -29,15 +29,6 @@ public class SourceService {
     private final SourceMapper sourceMapper;
 
     @Transactional(readOnly = true)
-    public List<SourceDto> findAll() {
-        log.debug("Finding all sources");
-        return sourceRepository.findAll()
-            .stream()
-            .map(sourceMapper::toDto)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
     public SourceDto findById(Long id) {
         log.debug("Finding source by id: {}", id);
         Source source = sourceRepository.findById(id)

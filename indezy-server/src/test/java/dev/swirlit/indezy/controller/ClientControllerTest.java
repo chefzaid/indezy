@@ -63,23 +63,6 @@ class ClientControllerTest {
 
     @Test
     @WithMockUser
-    void getAllClients_ShouldReturnClientList() throws Exception {
-        // Given
-        List<ClientDto> clients = Arrays.asList(testClientDto);
-        when(clientService.findAll()).thenReturn(clients);
-
-        // When & Then
-        mockMvc.perform(get("/clients"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].companyName", is("Test Company")));
-
-        verify(clientService).findAll();
-    }
-
-    @Test
-    @WithMockUser
     void getClientById_WithExistingId_ShouldReturnClient() throws Exception {
         // Given
         when(clientService.findById(1L)).thenReturn(testClientDto);

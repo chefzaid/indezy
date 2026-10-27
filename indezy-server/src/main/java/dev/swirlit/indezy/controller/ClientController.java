@@ -24,14 +24,6 @@ public class ClientController {
     private final ClientService clientService;
     private final AccessGuard accessGuard;
 
-    @Operation(summary = "List the caller's clients")
-    @GetMapping
-    public List<ClientDto> getAllClients() {
-        return accessGuard.currentFreelanceId()
-            .map(clientService::findByFreelanceId)
-            .orElseGet(clientService::findAll);
-    }
-
     @Operation(summary = "List the clients of a workspace")
     @GetMapping("/by-freelance/{freelanceId}")
     public List<ClientDto> getClientsByFreelanceId(@PathVariable Long freelanceId) {

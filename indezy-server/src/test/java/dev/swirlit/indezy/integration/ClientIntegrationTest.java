@@ -71,18 +71,6 @@ class ClientIntegrationTest {
 
     @Test
     @WithMockUser
-    void getAllClients_ShouldReturnClientList() throws Exception {
-        // When & Then
-        mockMvc.perform(get("/clients"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
-                .andExpect(jsonPath("$[0].companyName").exists())
-                .andExpect(jsonPath("$[0].id").exists());
-    }
-
-    @Test
-    @WithMockUser
     void getClientById_WithExistingId_ShouldReturnClient() throws Exception {
         // When & Then
         mockMvc.perform(get("/clients/1"))

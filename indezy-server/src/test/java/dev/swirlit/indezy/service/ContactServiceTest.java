@@ -92,18 +92,6 @@ class ContactServiceTest {
     }
 
     @Test
-    void findAll_ShouldReturnAllContacts() {
-        when(contactRepository.findAll()).thenReturn(List.of(testContact));
-        when(contactMapper.toDto(testContact)).thenReturn(testContactDto);
-
-        List<ContactDto> result = contactService.findAll();
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getFirstName()).isEqualTo("Jane");
-        verify(contactRepository).findAll();
-    }
-
-    @Test
     void findById_WithExistingId_ShouldReturnContact() {
         when(contactRepository.findById(1L)).thenReturn(Optional.of(testContact));
         when(contactMapper.toDto(testContact)).thenReturn(testContactDto);

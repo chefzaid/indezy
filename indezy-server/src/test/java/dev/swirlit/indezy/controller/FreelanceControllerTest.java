@@ -19,8 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -69,30 +67,6 @@ class FreelanceControllerTest {
         testFreelanceDto.setFullName("John Doe");
         testFreelanceDto.setTotalProjects(3);
         testFreelanceDto.setAverageDailyRate(575.0);
-    }
-
-    @Test
-    @WithMockUser
-    void getAllFreelances_ShouldReturnFreelancesList() throws Exception {
-        // Given
-        List<FreelanceDto> freelances = Arrays.asList(testFreelanceDto);
-        when(freelanceService.findAll()).thenReturn(freelances);
-
-        // When & Then
-        mockMvc.perform(get("/freelances"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(1)))
-                .andExpect(jsonPath("$[0].firstName", is("John")))
-                .andExpect(jsonPath("$[0].lastName", is("Doe")))
-                .andExpect(jsonPath("$[0].email", is("john.doe@example.com")))
-                .andExpect(jsonPath("$[0].status", is("FREELANCE")))
-                .andExpect(jsonPath("$[0].fullName", is("John Doe")))
-                .andExpect(jsonPath("$[0].totalProjects", is(3)))
-                .andExpect(jsonPath("$[0].averageDailyRate", is(575.0)));
-
-        verify(freelanceService).findAll();
     }
 
     @Test

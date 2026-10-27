@@ -29,7 +29,7 @@ class SecurityConfigPermitAllIntegrationTest {
 
     @Test
     void permitAllProfileAllowsRequestsPastSecurityFilterChain() {
-        ResponseEntity<String> response = restTemplate.getForEntity(url("/projects"), String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(url("/projects/by-freelance/1"), String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }

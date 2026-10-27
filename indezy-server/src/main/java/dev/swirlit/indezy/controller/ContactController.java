@@ -28,14 +28,6 @@ public class ContactController {
     private final ContactImportService contactImportService;
     private final AccessGuard accessGuard;
 
-    @Operation(summary = "List the caller's contacts")
-    @GetMapping
-    public List<ContactDto> getAllContacts() {
-        return accessGuard.currentFreelanceId()
-            .map(contactService::findByFreelanceId)
-            .orElseGet(contactService::findAll);
-    }
-
     @Operation(summary = "List the contacts of a workspace")
     @GetMapping("/by-freelance/{freelanceId}")
     public List<ContactDto> getContactsByFreelanceId(@PathVariable Long freelanceId) {

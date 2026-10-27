@@ -45,11 +45,6 @@ public class SeasonService {
             .toList();
     }
 
-    @Transactional(readOnly = true)
-    public SeasonDto findById(Long id) {
-        return toDto(getSeason(id), today());
-    }
-
     public SeasonDto create(SeasonDto dto) {
         validateDates(dto);
         Freelance freelance = freelanceRepository.findById(dto.getFreelanceId())

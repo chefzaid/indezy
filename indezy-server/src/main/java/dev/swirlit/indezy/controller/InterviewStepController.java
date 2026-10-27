@@ -23,14 +23,6 @@ public class InterviewStepController {
     private final InterviewStepService interviewStepService;
     private final AccessGuard accessGuard;
 
-    @Operation(summary = "List the caller's interview steps")
-    @GetMapping
-    public List<InterviewStepDto> getAllInterviewSteps() {
-        return accessGuard.currentFreelanceId()
-            .map(freelanceId -> interviewStepService.findByFreelanceIdAndStatus(freelanceId, null))
-            .orElseGet(interviewStepService::findAll);
-    }
-
     @Operation(summary = "List the interview steps of a workspace", description = "Optionally with one status")
     @GetMapping("/by-freelance/{freelanceId}")
     public List<InterviewStepDto> getInterviewStepsByFreelanceIdAndStatus(
@@ -45,13 +37,6 @@ public class InterviewStepController {
     public List<InterviewStepDto> getInterviewStepsByProjectIdOrderByDate(@PathVariable Long projectId) {
         accessGuard.requireProject(projectId);
         return interviewStepService.findByProjectIdOrderByDate(projectId);
-    }
-
-    @Operation(summary = "Get an interview step")
-    @GetMapping("/{id}")
-    public InterviewStepDto getInterviewStepById(@PathVariable Long id) {
-        accessGuard.requireInterviewStep(id);
-        return interviewStepService.findById(id);
     }
 
     @Operation(summary = "Create an interview step")

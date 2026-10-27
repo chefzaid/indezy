@@ -22,14 +22,6 @@ public class SourceController {
     private final SourceService sourceService;
     private final AccessGuard accessGuard;
 
-    @Operation(summary = "List the caller's sources")
-    @GetMapping
-    public List<SourceDto> getAllSources() {
-        return accessGuard.currentFreelanceId()
-            .map(sourceService::findByFreelanceId)
-            .orElseGet(sourceService::findAll);
-    }
-
     @Operation(summary = "List the sources of a workspace")
     @GetMapping("/by-freelance/{freelanceId}")
     public List<SourceDto> getSourcesByFreelanceId(@PathVariable Long freelanceId) {

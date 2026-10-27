@@ -36,12 +36,6 @@ public class ContactService {
     private final ContactInteractionService interactionService;
 
     @Transactional(readOnly = true)
-    public List<ContactDto> findAll() {
-        log.debug("Finding all contacts");
-        return withLastContact(contactRepository.findAll());
-    }
-
-    @Transactional(readOnly = true)
     public ContactDto findById(Long id) {
         log.debug("Finding contact by id: {}", id);
         Contact contact = contactRepository.findById(id)

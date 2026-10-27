@@ -35,15 +35,6 @@ public class ClientService {
     private final ContactRepository contactRepository;
 
     @Transactional(readOnly = true)
-    public List<ClientDto> findAll() {
-        log.debug("Finding all clients");
-        return clientRepository.findAll()
-            .stream()
-            .map(clientMapper::toDto)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
     public ClientDto findById(Long id) {
         log.debug("Finding client by id: {}", id);
         Client client = clientRepository.findById(id)

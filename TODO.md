@@ -425,7 +425,7 @@ Indezy has no presentation website: `https://indezy.swirlit.dev` redirects strai
 - [ ] Automated DB backups with point-in-time recovery; versioned migrations; connection pooling
 - [ ] CI: tests on every PR, scheduled e2e runs, dependency vulnerability scanning, zero-downtime deployments
 - [ ] Keep OpenAPI docs complete with request/response examples
-- [ ] Ensure that all API endpoints are effectively used in the UI (either the app or the admin console). Implement the frontend that would use them if necessary, or remove the endpoints.
+- [x] Ensure that all API endpoints are effectively used in the UI (either the app or the admin console). Implement the frontend that would use them if necessary, or remove the endpoints. Done on 2026-10-27: of the 150 endpoints, the lists of every record (`GET /clients`, `/contacts`, `/projects`, `/sources`, `/interview-steps`, `/freelances`, which fell back to every workspace's records when the caller had none, as in permit-all mode) and `GET /interview-steps/{id}` and `GET /seasons/{id}` were used by nothing and are removed with their service methods; the app reads each list per workspace (`/by-freelance/{id}`). The one-click unsubscribe (`POST /public/saved-search-emails/unsubscribe/{token}`) stays: mailboxes post to it (RFC 8058).
 
 ## Product Direction (added 2026-10-04)
 

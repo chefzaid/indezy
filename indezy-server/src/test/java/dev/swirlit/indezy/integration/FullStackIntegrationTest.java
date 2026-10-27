@@ -37,13 +37,6 @@ class FullStackIntegrationTest {
     void testFreelanceEndpoints() {
         String baseUrl = "http://localhost:" + port + "/api/freelances";
         
-        // Test GET all freelances
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl, String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().contains("John"));
-        assertTrue(response.getBody().contains("Doe"));
-
         // Test GET freelance by ID
         ResponseEntity<String> freelanceResponse = restTemplate.getForEntity(baseUrl + "/1", String.class);
         assertEquals(HttpStatus.OK, freelanceResponse.getStatusCode());
@@ -56,8 +49,8 @@ class FullStackIntegrationTest {
     void testClientEndpoints() {
         String baseUrl = "http://localhost:" + port + "/api/clients";
         
-        // Test GET all clients
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl, String.class);
+        // Test GET the workspace's clients
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/by-freelance/1", String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().contains("Test Company"));
@@ -74,8 +67,8 @@ class FullStackIntegrationTest {
     void testContactEndpoints() {
         String baseUrl = "http://localhost:" + port + "/api/contacts";
         
-        // Test GET all contacts
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl, String.class);
+        // Test GET the workspace's contacts
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/by-freelance/1", String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().contains("Jane"));
@@ -93,8 +86,8 @@ class FullStackIntegrationTest {
     void testProjectEndpoints() {
         String baseUrl = "http://localhost:" + port + "/api/projects";
         
-        // Test GET all projects
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl, String.class);
+        // Test GET the workspace's projects
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/by-freelance/1", String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().contains("Senior Full Stack Developer"));
@@ -111,8 +104,8 @@ class FullStackIntegrationTest {
     void testSourceEndpoints() {
         String baseUrl = "http://localhost:" + port + "/api/sources";
         
-        // Test GET all sources
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl, String.class);
+        // Test GET the workspace's sources
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/by-freelance/1", String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().contains("LinkedIn"));

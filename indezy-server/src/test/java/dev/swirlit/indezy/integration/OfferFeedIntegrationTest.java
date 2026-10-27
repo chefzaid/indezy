@@ -89,7 +89,7 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
         ResponseEntity<Map> second = call(alice, HttpMethod.POST, "/offers/" + lyon.getId() + "/import", null);
         assertThat(second.getBody()).containsEntry("clientName", "Free-Work").containsEntry("sourceName", "Free-Work");
         // The workspace was given every job board as a source when it was created: the import uses the Free-Work one.
-        List<?> sources = call(alice, HttpMethod.GET, "/sources", null, List.class).getBody();
+        List<?> sources = call(alice, HttpMethod.GET, "/sources/by-freelance/" + alice.freelanceId(), null, List.class).getBody();
         assertThat(sources).hasSize(OfferSite.values().length + OfferLeftOutSite.values().length);
         assertThat(sources.stream().map(source -> ((Map<?, ?>) source).get("name")).filter("Free-Work"::equals)).hasSize(1);
 
@@ -117,7 +117,7 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
         // Nothing is created before the form is saved: the publisher is no client yet, the seeded Free-Work source is named.
         assertThat(project.get("clientId")).isNull();
         assertThat(project.get("sourceId")).isNotNull();
-        assertThat(call(alice, HttpMethod.GET, "/clients", null, List.class).getBody()).isEmpty();
+        assertThat(call(alice, HttpMethod.GET, "/clients/by-freelance/" + alice.freelanceId(), null, List.class).getBody()).isEmpty();
 
         project.put("role", "Tech lead Java");
         project.put("status", "INTERVIEW");

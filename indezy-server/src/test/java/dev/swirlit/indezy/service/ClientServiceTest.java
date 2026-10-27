@@ -85,23 +85,6 @@ class ClientServiceTest {
     }
 
     @Test
-    void findAll_ShouldReturnAllClients() {
-        // Given
-        List<Client> clients = Arrays.asList(testClient);
-        when(clientRepository.findAll()).thenReturn(clients);
-        when(clientMapper.toDto(testClient)).thenReturn(testClientDto);
-
-        // When
-        List<ClientDto> result = clientService.findAll();
-
-        // Then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getCompanyName()).isEqualTo("Test Company");
-        verify(clientRepository).findAll();
-        verify(clientMapper).toDto(testClient);
-    }
-
-    @Test
     void findById_WithExistingId_ShouldReturnClient() {
         // Given
         when(clientRepository.findById(1L)).thenReturn(Optional.of(testClient));

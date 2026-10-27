@@ -46,14 +46,6 @@ class FreelanceIntegrationTest {
     }
 
     @Test
-    void getAllFreelances_ShouldReturnTheSeededProfiles() throws Exception {
-        mockMvc.perform(get("/freelances"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(2))))
-                .andExpect(jsonPath("$[*].email", hasItem("john.doe@example.com")));
-    }
-
-    @Test
     void getFreelance_WithExistingId_ShouldReturnFreelance() throws Exception {
         mockMvc.perform(get("/freelances/{id}", 1L))
                 .andExpect(status().isOk())

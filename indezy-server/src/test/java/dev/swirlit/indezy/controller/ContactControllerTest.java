@@ -77,19 +77,6 @@ class ContactControllerTest {
     }
 
     @Test
-    void getAllContacts_ShouldReturnContactList() throws Exception {
-        when(contactService.findAll()).thenReturn(List.of(testContactDto));
-
-        mockMvc.perform(get("/contacts"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].firstName", is("Jane")));
-
-        verify(contactService).findAll();
-    }
-
-    @Test
     void getContactById_WithExistingId_ShouldReturnContact() throws Exception {
         when(contactService.findById(1L)).thenReturn(testContactDto);
 
@@ -163,10 +150,10 @@ class ContactControllerTest {
 
     @Test
     @ExtendWith(OutputCaptureExtension.class)
-    void getAllContacts_AcceptingOnlyCsv_ShouldAnswerNotAcceptableWithoutABody(CapturedOutput output) throws Exception {
-        when(contactService.findAll()).thenReturn(List.of(testContactDto));
+    void getContactsByFreelance_AcceptingOnlyCsv_ShouldAnswerNotAcceptableWithoutABody(CapturedOutput output) throws Exception {
+        when(contactService.findByFreelanceId(1L)).thenReturn(List.of(testContactDto));
 
-        mockMvc.perform(get("/contacts").accept("text/csv"))
+        mockMvc.perform(get("/contacts/by-freelance/1").accept("text/csv"))
                 .andExpect(status().isNotAcceptable())
                 .andExpect(header().string(HttpHeaders.ACCEPT, containsString(MediaType.APPLICATION_JSON_VALUE)))
                 .andExpect(content().string(""));

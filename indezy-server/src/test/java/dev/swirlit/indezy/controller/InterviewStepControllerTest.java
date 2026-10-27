@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,32 +47,13 @@ class InterviewStepControllerTest {
     }
 
     @Test
-    void getAllInterviewSteps_ShouldListTheCallersSteps() {
-        when(accessGuard.currentFreelanceId()).thenReturn(Optional.of(7L));
-        when(interviewStepService.findByFreelanceIdAndStatus(7L, null)).thenReturn(List.of(step));
-
-        assertThat(interviewStepController.getAllInterviewSteps()).containsExactly(step);
-    }
-
-    @Test
-    void getAllInterviewSteps_WithoutAccount_ShouldListEverySteps() {
-        when(accessGuard.currentFreelanceId()).thenReturn(Optional.empty());
-        when(interviewStepService.findAll()).thenReturn(List.of(step));
-
-        assertThat(interviewStepController.getAllInterviewSteps()).containsExactly(step);
-    }
-
-    @Test
     void readEndpoints_ShouldCheckOwnershipAndDelegate() {
-        when(interviewStepService.findById(1L)).thenReturn(step);
         when(interviewStepService.findByProjectIdOrderByDate(1L)).thenReturn(List.of(step));
         when(interviewStepService.findByFreelanceIdAndStatus(1L, StepStatus.PLANNED)).thenReturn(List.of(step));
 
-        assertThat(interviewStepController.getInterviewStepById(1L)).isEqualTo(step);
         assertThat(interviewStepController.getInterviewStepsByProjectIdOrderByDate(1L)).containsExactly(step);
         assertThat(interviewStepController.getInterviewStepsByFreelanceIdAndStatus(1L, StepStatus.PLANNED))
             .containsExactly(step);
-        verify(accessGuard).requireInterviewStep(1L);
         verify(accessGuard).requireProject(1L);
         verify(accessGuard).requireFreelance(1L);
     }

@@ -28,23 +28,6 @@ public class InterviewStepService {
     private final InterviewStepMapper interviewStepMapper;
 
     @Transactional(readOnly = true)
-    public List<InterviewStepDto> findAll() {
-        log.debug("Finding all interview steps");
-        return interviewStepRepository.findAll()
-            .stream()
-            .map(interviewStepMapper::toDto)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public InterviewStepDto findById(Long id) {
-        log.debug("Finding interview step by id: {}", id);
-        InterviewStep interviewStep = interviewStepRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException(String.format(STEP_NOT_FOUND_MSG, id)));
-        return interviewStepMapper.toDto(interviewStep);
-    }
-
-    @Transactional(readOnly = true)
     public List<InterviewStepDto> findByProjectIdOrderByDate(Long projectId) {
         log.debug("Finding interview steps by project id ordered by date: {}", projectId);
         return interviewStepRepository.findByProjectIdOrderByDate(projectId)

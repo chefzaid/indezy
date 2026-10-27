@@ -751,7 +751,7 @@ A season is a bounded job-hunting period, like a sprint: "Autumn search 2026" fr
 - A season can be edited, closed (it then ends the day before, so new opportunities no longer join it) or deleted; deleting keeps its opportunities, which simply no longer belong to a season.
 - Contact reminders (dormant contacts, anniversaries) stay workspace-wide.
 
-API: `GET /seasons/by-freelance/{freelanceId}`, `GET|PUT|DELETE /seasons/{id}`, `POST /seasons`, plus the optional `seasonId` query parameter on `GET /projects/kanban/{freelanceId}` and `GET /projects/stats/dashboard/{freelanceId}`. Seasons are private to their workspace like every other record.
+API: `GET /seasons/by-freelance/{freelanceId}`, `PUT|DELETE /seasons/{id}`, `POST /seasons`, plus the optional `seasonId` query parameter on `GET /projects/kanban/{freelanceId}` and `GET /projects/stats/dashboard/{freelanceId}`. Seasons are private to their workspace like every other record.
 
 ## Dashboard And Analytics
 

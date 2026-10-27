@@ -32,14 +32,6 @@ public class SeasonController {
         return ResponseEntity.ok(seasonService.findByFreelanceId(freelanceId));
     }
 
-    @Operation(summary = "Get season")
-    @GetMapping("/{id}")
-    public ResponseEntity<SeasonDto> getSeason(@PathVariable Long id) {
-        log.debug("GET /seasons/{}", id);
-        accessGuard.requireSeason(id);
-        return ResponseEntity.ok(seasonService.findById(id));
-    }
-
     @Operation(summary = "Create season",
         description = "Create a season; unassigned opportunities created within its dates join it")
     @PostMapping

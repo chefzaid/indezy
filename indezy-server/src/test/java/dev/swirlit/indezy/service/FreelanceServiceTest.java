@@ -15,8 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -75,25 +73,6 @@ class FreelanceServiceTest {
         testFreelanceDto.setFullName("John Doe");
         testFreelanceDto.setTotalProjects(3);
         testFreelanceDto.setAverageDailyRate(575.0);
-    }
-
-    @Test
-    void findAll_ShouldReturnAllFreelances() {
-        // Given
-        List<Freelance> freelances = Arrays.asList(testFreelance);
-        when(freelanceRepository.findAll()).thenReturn(freelances);
-        when(freelanceMapper.toDto(testFreelance)).thenReturn(testFreelanceDto);
-
-        // When
-        List<FreelanceDto> result = freelanceService.findAll();
-
-        // Then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getFirstName()).isEqualTo("John");
-        assertThat(result.get(0).getLastName()).isEqualTo("Doe");
-        assertThat(result.get(0).getEmail()).isEqualTo("john.doe@example.com");
-        verify(freelanceRepository).findAll();
-        verify(freelanceMapper).toDto(testFreelance);
     }
 
     @Test

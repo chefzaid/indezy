@@ -21,8 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -96,52 +94,6 @@ class InterviewStepServiceTest {
         testInterviewStepDto.setNotes("Technical interview with the team");
         testInterviewStepDto.setProjectId(1L);
         testInterviewStepDto.setProjectRole("Full Stack Developer");
-    }
-
-    @Test
-    void findAll_ShouldReturnAllInterviewSteps() {
-        // Given
-        List<InterviewStep> steps = Arrays.asList(testInterviewStep);
-        when(interviewStepRepository.findAll()).thenReturn(steps);
-        when(interviewStepMapper.toDto(testInterviewStep)).thenReturn(testInterviewStepDto);
-
-        // When
-        List<InterviewStepDto> result = interviewStepService.findAll();
-
-        // Then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0)).isEqualTo(testInterviewStepDto);
-        verify(interviewStepRepository).findAll();
-        verify(interviewStepMapper).toDto(testInterviewStep);
-    }
-
-    @Test
-    void findById_WithExistingId_ShouldReturnInterviewStep() {
-        // Given
-        when(interviewStepRepository.findById(1L)).thenReturn(Optional.of(testInterviewStep));
-        when(interviewStepMapper.toDto(testInterviewStep)).thenReturn(testInterviewStepDto);
-
-        // When
-        InterviewStepDto result = interviewStepService.findById(1L);
-
-        // Then
-        assertThat(result).isEqualTo(testInterviewStepDto);
-        verify(interviewStepRepository).findById(1L);
-        verify(interviewStepMapper).toDto(testInterviewStep);
-    }
-
-    @Test
-    void findById_WithNonExistentId_ShouldThrowResourceNotFoundException() {
-        // Given
-        when(interviewStepRepository.findById(999L)).thenReturn(Optional.empty());
-
-        // When & Then
-        assertThatThrownBy(() -> interviewStepService.findById(999L))
-            .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessageContaining("Interview step not found with id: 999");
-        
-        verify(interviewStepRepository).findById(999L);
-        verify(interviewStepMapper, never()).toDto(any());
     }
 
     @Test

@@ -36,14 +36,6 @@ public class ProjectController {
     private final ProjectExportService projectExportService;
     private final AccessGuard accessGuard;
 
-    @Operation(summary = "List the caller's projects")
-    @GetMapping
-    public List<ProjectDto> getAllProjects() {
-        return accessGuard.currentFreelanceId()
-            .map(projectService::findByFreelanceId)
-            .orElseGet(projectService::findAll);
-    }
-
     @Operation(summary = "List the projects of a workspace")
     @GetMapping("/by-freelance/{freelanceId}")
     public List<ProjectDto> getProjectsByFreelanceId(@PathVariable Long freelanceId) {

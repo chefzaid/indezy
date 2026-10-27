@@ -73,27 +73,6 @@ class ProjectControllerTest {
 
     @Test
     @WithMockUser
-    void getAllProjects_ShouldReturnProjectsList() throws Exception {
-        // Given
-        List<ProjectDto> projects = Arrays.asList(testProjectDto);
-        when(projectService.findAll()).thenReturn(projects);
-
-        // When & Then
-        mockMvc.perform(get("/projects"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", is(1)))
-                .andExpect(jsonPath("$[0].role", is("Full Stack Developer")))
-                .andExpect(jsonPath("$[0].dailyRate", is(600)))
-                .andExpect(jsonPath("$[0].workMode", is("HYBRID")))
-                .andExpect(jsonPath("$[0].clientName", is("Test Company")));
-
-        verify(projectService).findAll();
-    }
-
-    @Test
-    @WithMockUser
     void getProjectById_WhenProjectExists_ShouldReturnProject() throws Exception {
         // Given
         when(projectService.findById(1L)).thenReturn(testProjectDto);
