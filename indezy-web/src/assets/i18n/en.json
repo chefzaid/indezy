@@ -605,6 +605,12 @@
         "showsLocation": "Split on site and remote",
         "footer": "Footer note",
         "footerPlaceholder": "e.g.: return the signed report before the 25th to billing@agency.com"
+      },
+      "billing": {
+        "section": "Billing",
+        "hint": "What your invoices to this client state of it.",
+        "siren": "SIREN",
+        "vatNumber": "VAT number"
       }
     },
     "allTypes": "All types",
@@ -867,7 +873,8 @@
       "offers": "Offer feed",
       "account": "Account",
       "emails": "Emails",
-      "publicPage": "Public profile"
+      "publicPage": "Public profile",
+      "billing": "Billing"
     },
     "themes": {
       "light": "Light",
@@ -1066,6 +1073,42 @@
       "loadError": "Your API tokens could not be loaded",
       "createError": "The token could not be created",
       "revokeError": "The token could not be revoked"
+    },
+    "billing": {
+      "title": "Billing identity",
+      "hint": "What your invoices say of you. French invoices must state your legal name, SIRET, address, VAT number (or why VAT does not apply) and payment terms; check them with your accountant.",
+      "complete": "Ready to issue invoices.",
+      "incomplete": "Fill in the SIRET, the address and the IBAN (and the VAT number when VAT applies) to issue invoices.",
+      "legalName": "Legal name",
+      "legalForm": "Legal form",
+      "legalForms": {
+        "MICRO_ENTREPRISE": "Micro-entreprise (EI)",
+        "EI": "Individual entrepreneur (EI)",
+        "EURL": "EURL",
+        "SASU": "SASU",
+        "SARL": "SARL",
+        "SAS": "SAS",
+        "PORTAGE": "Portage",
+        "OTHER": "Other"
+      },
+      "portage": "With portage, the portage company invoices your clients: Indezy does not issue invoices for you.",
+      "siret": "SIRET",
+      "registration": "Registration",
+      "registrationPlaceholder": "RCS Paris 123 456 789",
+      "shareCapital": "Share capital",
+      "vatExempt": "Exempt from VAT (franchise en base, art. 293 B du CGI)",
+      "vatNumber": "VAT number",
+      "vatRate": "VAT rate",
+      "address": "Billing address",
+      "iban": "IBAN",
+      "bic": "BIC",
+      "paymentTermDays": "Payment term (days)",
+      "paymentTermHint": "60 days at most by law",
+      "invoicePrefix": "Invoice number prefix",
+      "invoicePrefixHint": "Numbers read F2026-0001, F2026-0002…",
+      "saved": "Billing identity saved",
+      "saveError": "The billing identity could not be saved",
+      "loadError": "The billing identity could not be loaded"
     }
   },
   "errors": {
@@ -1118,7 +1161,14 @@
     "defaultErrorMessage": "An unexpected error occurred. Please try again.",
     "forbidden": "Access to this resource was denied",
     "serverError": "The server ran into an error. Please try again in a moment.",
-    "networkError": "The server could not be reached. Check your connection and try again."
+    "networkError": "The server could not be reached. Check your connection and try again.",
+    "billing": {
+      "siren": "A SIREN has 9 digits",
+      "siret": "A SIRET has 14 digits",
+      "vatNumber": "A VAT number starts with its country code, such as FR",
+      "bic": "A BIC has 8 or 11 letters and digits",
+      "iban": "This IBAN is not valid"
+    }
   },
   "steps": {
     "notesOptional": "Notes (optional)",

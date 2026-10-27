@@ -15,6 +15,7 @@ import { ClientService } from '../../../services/client/client.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ActivityReportLayout, ClientDto, CreateClientDto, DocumentLanguage } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { billingId, compactId } from '../../../shared/utils/billing-validators';
 import { fieldError } from '../../../shared/utils/form-errors';
 
 @Component({
@@ -101,6 +102,8 @@ export class ClientFormComponent implements OnInit, OnDestroy {
       rating: [null],
       isBlacklisted: [false],
       blacklistReason: [''],
+      siren: ['', [billingId('siren')]],
+      vatNumber: ['', [billingId('vatNumber')]],
       activityReportTitle: ['', [Validators.maxLength(120)]],
       activityReportLayout: ['DAILY_TABLE'],
       activityReportLanguage: ['FR'],
@@ -131,6 +134,8 @@ export class ClientFormComponent implements OnInit, OnDestroy {
               rating: client.rating ?? null,
               isBlacklisted: !!client.isBlacklisted,
               blacklistReason: client.blacklistReason ?? '',
+              siren: client.siren ?? '',
+              vatNumber: client.vatNumber ?? '',
               activityReportTitle: client.activityReportTitle ?? '',
               activityReportLayout: client.activityReportLayout ?? 'DAILY_TABLE',
               activityReportLanguage: client.activityReportLanguage ?? 'FR',
@@ -176,6 +181,8 @@ export class ClientFormComponent implements OnInit, OnDestroy {
       rating: formValue.rating ?? undefined,
       isBlacklisted: !!formValue.isBlacklisted,
       blacklistReason: formValue.isBlacklisted ? formValue.blacklistReason?.trim() || undefined : undefined,
+      siren: compactId(formValue.siren) || undefined,
+      vatNumber: compactId(formValue.vatNumber, true) || undefined,
       activityReportTitle: formValue.activityReportTitle?.trim() || undefined,
       activityReportLayout: formValue.activityReportLayout,
       activityReportLanguage: formValue.activityReportLanguage,

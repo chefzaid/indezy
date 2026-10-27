@@ -605,6 +605,12 @@
         "showsLocation": "Distinguer sur site et télétravail",
         "footer": "Note de bas de page",
         "footerPlaceholder": "Ex : CRA signé à retourner avant le 25 à adv@esn.fr"
+      },
+      "billing": {
+        "section": "Facturation",
+        "hint": "Ce que vos factures à ce client indiquent de lui.",
+        "siren": "SIREN",
+        "vatNumber": "Numéro de TVA"
       }
     },
     "allTypes": "Tous les types",
@@ -867,7 +873,8 @@
       "offers": "Fil d'offres",
       "account": "Compte",
       "emails": "E-mails",
-      "publicPage": "Profil public"
+      "publicPage": "Profil public",
+      "billing": "Facturation"
     },
     "themes": {
       "light": "Clair",
@@ -1066,6 +1073,42 @@
       "loadError": "Vos jetons d'API n'ont pas pu être chargés",
       "createError": "Le jeton n'a pas pu être créé",
       "revokeError": "Le jeton n'a pas pu être révoqué"
+    },
+    "billing": {
+      "title": "Identité de facturation",
+      "hint": "Ce que vos factures disent de vous. Une facture française doit indiquer votre dénomination, SIRET, adresse, numéro de TVA (ou pourquoi la TVA ne s'applique pas) et conditions de paiement ; vérifiez-les avec votre expert-comptable.",
+      "complete": "Prêt à émettre des factures.",
+      "incomplete": "Renseignez le SIRET, l'adresse et l'IBAN (et le numéro de TVA si la TVA s'applique) pour émettre des factures.",
+      "legalName": "Dénomination",
+      "legalForm": "Forme juridique",
+      "legalForms": {
+        "MICRO_ENTREPRISE": "Micro-entreprise (EI)",
+        "EI": "Entrepreneur individuel (EI)",
+        "EURL": "EURL",
+        "SASU": "SASU",
+        "SARL": "SARL",
+        "SAS": "SAS",
+        "PORTAGE": "Portage salarial",
+        "OTHER": "Autre"
+      },
+      "portage": "En portage salarial, la société de portage facture vos clients : Indezy n'émet pas de factures pour vous.",
+      "siret": "SIRET",
+      "registration": "Immatriculation",
+      "registrationPlaceholder": "RCS Paris 123 456 789",
+      "shareCapital": "Capital social",
+      "vatExempt": "Exonéré de TVA (franchise en base, art. 293 B du CGI)",
+      "vatNumber": "Numéro de TVA",
+      "vatRate": "Taux de TVA",
+      "address": "Adresse de facturation",
+      "iban": "IBAN",
+      "bic": "BIC",
+      "paymentTermDays": "Délai de paiement (jours)",
+      "paymentTermHint": "60 jours au plus selon la loi",
+      "invoicePrefix": "Préfixe des numéros de facture",
+      "invoicePrefixHint": "Les numéros se lisent F2026-0001, F2026-0002…",
+      "saved": "Identité de facturation enregistrée",
+      "saveError": "L'identité de facturation n'a pas pu être enregistrée",
+      "loadError": "L'identité de facturation n'a pas pu être chargée"
     }
   },
   "errors": {
@@ -1118,7 +1161,14 @@
     "defaultErrorMessage": "Une erreur inattendue est survenue. Veuillez réessayer.",
     "forbidden": "Accès refusé à cette ressource",
     "serverError": "Le serveur a rencontré une erreur. Veuillez réessayer dans un instant.",
-    "networkError": "Impossible de joindre le serveur. Vérifiez votre connexion puis réessayez."
+    "networkError": "Impossible de joindre le serveur. Vérifiez votre connexion puis réessayez.",
+    "billing": {
+      "siren": "Un SIREN compte 9 chiffres",
+      "siret": "Un SIRET compte 14 chiffres",
+      "vatNumber": "Un numéro de TVA commence par le code du pays, comme FR",
+      "bic": "Un BIC compte 8 ou 11 lettres et chiffres",
+      "iban": "Cet IBAN n'est pas valide"
+    }
   },
   "steps": {
     "notesOptional": "Notes (optionnel)",

@@ -177,7 +177,7 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Accept
 - [ ] Expense tracking (deductible expenses feeding the reversion calculator)
 - [ ] Expand existing reversion rate calculator customization (deductible expenses, social contributions, status-specific assumptions, custom tax settings)
 - [ ] URSSAF/social contribution estimation per status (micro-entreprise, EI, EURL, SASU, portage)
-- [ ] Invoice generation from project data (rate x days worked, French mentions légales)
+- [ ] Invoice generation from project data (rate x days worked, French mentions légales). Progress on 2026-10-27: the billing identity (Profile → Billing: legal name and form, SIRET, VAT or exemption, address, IBAN, payment term, number prefix) and the clients' SIREN and VAT number; the invoices themselves come next.
 - [ ] Invoice status tracking (draft, sent, paid, overdue) with payment delay alerts
 - [x] Yearly summary export for the accountant (CSV/Excel)
 - [ ] Multi-currency support for international clients

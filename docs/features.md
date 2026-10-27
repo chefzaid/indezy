@@ -29,6 +29,18 @@ Implemented account flows:
 - profile page for account details, avatar, preferences (language, theme, date format), notifications, password, two-factor authentication and a JSON export of every piece of account data
 - **Import data** (Profile → Account): an Indezy export brought into the workspace, preview first (see below)
 
+### Billing Identity
+
+**Profile → Billing** holds what the workspace's invoices say of the seller: the legal name (the profile's name until
+set) and form, the SIRET, the VAT number and rate or the VAT exemption (franchise en base, art. 293 B du CGI, the
+default), the share capital and registration for a company, the billing address (the profile's address until set),
+the IBAN and BIC, the payment term (30 days by default, 60 at most) and the prefix of the invoice numbers. Identifiers
+can be typed in groups or lower case; an IBAN with wrong check digits, a SIRET without 14 digits or a malformed VAT
+number or BIC is refused. The tab says whether invoices can be issued: a SIRET, an address and an IBAN, plus a VAT
+number when VAT applies; with portage, the portage company invoices the clients, so Indezy does not. A client's
+**Billing** section holds its SIREN and VAT number. The API is `GET` and `PUT /api/users/billing`; the identity is part
+of the data export (`billing`).
+
 ### Notifications
 
 **Profile → Notifications** holds the notifications the account can choose, each saved as soon as it is switched:

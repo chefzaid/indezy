@@ -109,6 +109,11 @@ Important fields:
 - phone, birth date, address, city
 - status: `FREELANCE`, `PORTAGE`, or `CDI`
 - notice period in days
+- `billing` (embedded `BillingIdentity`, `billing_*` columns, all nullable): the seller on the workspace's invoices,
+  `legalName`, `legalForm` (`MICRO_ENTREPRISE`, `EI`, `EURL`, `SASU`, `SARL`, `SAS`, `PORTAGE`, `OTHER`), `siret` (14
+  digits), `vatNumber`, `vatExempt` (null reads as exempt), `vatRate` (percent, default 20), `shareCapital` and
+  `registration` (companies), `address`, `iban` (ISO 13616 check digits verified), `bic`, `paymentTermDays` (0 to 60,
+  default 30) and `invoicePrefix` (default `F`); until set, the legal name and address come from the profile
 - availability date (edited as **Available from** on the profile through `PUT /users/profile`, which writes it to the owner's workspace)
 - reversion rate
 - income tax rate
@@ -212,6 +217,8 @@ Important fields:
   - `activityReportFooter` (at most 500 characters)
 - `rating` (1-5 quality score, optional)
 - `isBlacklisted` flag with `blacklistReason` (clients to avoid: payment delays, ghosting, bad process)
+- `siren` (9 digits) and `vatNumber`, stated on the client's invoices; typed with spaces or in lower case, they are kept
+  compact and in upper case
 - freelance owner
 
 Relationships:

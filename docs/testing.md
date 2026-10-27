@@ -174,6 +174,9 @@ Representative backend tests:
 - dashboard layout: `DashboardLayoutTest` (every block shown until arranged, unknown names dropped and new blocks added
   at the end, a block listed twice refused) and `WorkspacePreferencesIntegrationTest` (Alice's order and hidden block
   kept across other preference changes, Bob's usual layout, unknown or repeated blocks refused)
+- billing identity: `BillingIdentityIntegrationTest` (defaults from the profile, Alice's identity kept compact and
+  apart from Bob's, a wrong IBAN, SIRET or payment term refused, VAT without a number incomplete, a client's SIREN and VAT
+  number) and `BillingTextTest` (identifiers compacted, IBAN check digits and grouping)
 - secrets in `toString`: `SensitiveToStringTest` (scans the `dto` and `model` packages; no class prints a password, password hash, token, two-factor secret or code (a bare `code` field included), backup code or API key, nor, in such a class or one nested in it, the email or a name)
 
 Backend test data lives under `indezy-server/src/test/resources/`:
@@ -221,6 +224,9 @@ Representative frontend specs:
   hidden blocks left out, a layout saved with the other preferences and put back on failure, nothing saved when
   cancelled) and `dashboard-analytics.component.spec.ts` (every insight the statistics contain, lost reasons most
   frequent first, the insights the statistics lack)
+- billing: `profile-billing.component.spec.ts` (what the identity lacks, a company's and a VAT payer's fields, portage,
+  saved compacted, a malformed IBAN, failures), `billing-validators.spec.ts` and `client-form.component.spec.ts` (a
+  client's SIREN and VAT number typed in groups)
 - shared helpers: `app-locale.spec.ts`, `form-payload.spec.ts`, `form-errors.spec.ts`, `password-max-bytes.spec.ts`, `theme.service.spec.ts`
 
 ## Testing Strategy
@@ -405,6 +411,9 @@ the weekly digest on and the new offers badge off, which leaves the menu, and ke
 
 Dashboard layout scenarios (`e2e/dashboard-layout.spec.ts`, on a desktop and on a phone, the dialog audited with
 axe-core) hide the charts, move the recent opportunities up, and find the layout again after a reload.
+
+Billing scenarios (`e2e/billing.spec.ts`, on a desktop and on a phone, audited with axe-core) fill in the billing
+identity, a wrong IBAN refused, until the tab says invoices can be issued.
 
 Keyboard scenarios (`e2e/keyboard-navigation.spec.ts`) open a Kanban card with Enter (but not from its favourite
 button), a timeline step and an archived opportunity, then reach a client, one of its opportunities and one of its

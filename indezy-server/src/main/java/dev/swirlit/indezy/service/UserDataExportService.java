@@ -44,6 +44,7 @@ public class UserDataExportService {
     private final PublicProfileService publicProfileService;
     private final AccountSessionService accountSessionService;
     private final AccountEventService accountEventService;
+    private final BillingIdentityService billingIdentityService;
 
     // Self-contained mapper (the app does not expose an ObjectMapper bean); modules add date support, written as ISO-8601.
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules()
@@ -59,6 +60,7 @@ public class UserDataExportService {
         export.put("publicProfile", publicProfileService.settings(userId));
         // Employment status, notice period, reversion and tax rates: the workspace's own record.
         export.put("freelance", freelanceService.findById(freelanceId));
+        export.put("billing", billingIdentityService.get(freelanceId));
         export.put("projects", projectService.findByFreelanceId(freelanceId));
         export.put("projectNotes", projectNoteService.export(freelanceId));
         export.put("seasons", seasonService.findByFreelanceId(freelanceId));

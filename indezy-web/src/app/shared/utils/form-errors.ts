@@ -25,5 +25,8 @@ export function fieldError(control: AbstractControl | null, translate: Translate
   if (errors['max']) {
     return translate.instant('errors.maxValue', { value: errors['max'].max });
   }
+  if (errors['billing']) {
+    return translate.instant('errors.billing.' + errors['billing']);
+  }
   return '';
 }

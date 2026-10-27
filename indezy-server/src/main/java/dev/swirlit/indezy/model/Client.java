@@ -50,6 +50,14 @@ public class Client extends BaseEntity {
     @Column(name = "blacklist_reason", columnDefinition = "TEXT")
     private String blacklistReason;
 
+    /** The client's SIREN, stated on its invoices. */
+    @Column(name = "siren", length = 9)
+    private String siren;
+
+    /** The client's intra-community VAT number, stated on its invoices. */
+    @Column(name = "vat_number", length = 20)
+    private String vatNumber;
+
     /*
      * Template of the activity report PDFs of missions through this client (the ESN when the mission has one,
      * otherwise the final client). Null fields use the defaults: standard title, daily table, location column, French.

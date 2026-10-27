@@ -1,0 +1,99 @@
+<mat-card class="form-section" data-billing>
+  <mat-card-header>
+    <mat-card-title>{{ 'profile.billing.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="hint">{{ 'profile.billing.hint' | translate }}</p>
+    <p class="status" [class.complete]="complete" role="status" data-billing-status>
+      <mat-icon aria-hidden="true">{{ complete ? 'check_circle' : 'info' }}</mat-icon>
+      {{ (complete ? 'profile.billing.complete' : 'profile.billing.incomplete') | translate }}
+    </p>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="row">
+        <mat-form-field appearance="outline" class="grow">
+          <mat-label>{{ 'profile.billing.legalName' | translate }}</mat-label>
+          <input matInput formControlName="legalName" maxlength="120" autocomplete="organization">
+          <mat-error>{{ error('legalName') }}</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="grow">
+          <mat-label>{{ 'profile.billing.legalForm' | translate }}</mat-label>
+          <mat-select formControlName="legalForm">
+            @for (legalForm of legalForms; track legalForm) {
+              <mat-option [value]="legalForm">{{ 'profile.billing.legalForms.' + legalForm | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      @if (portage) {
+        <p class="hint" data-portage>{{ 'profile.billing.portage' | translate }}</p>
+      }
+      <div class="row">
+        <mat-form-field appearance="outline" class="grow">
+          <mat-label>{{ 'profile.billing.siret' | translate }}</mat-label>
+          <input matInput formControlName="siret" maxlength="17" inputmode="numeric" autocomplete="off">
+          <mat-error>{{ error('siret') }}</mat-error>
+        </mat-form-field>
+        @if (company) {
+          <mat-form-field appearance="outline" class="grow">
+            <mat-label>{{ 'profile.billing.registration' | translate }}</mat-label>
+            <input matInput formControlName="registration" maxlength="120" [placeholder]="'profile.billing.registrationPlaceholder' | translate">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="grow">
+            <mat-label>{{ 'profile.billing.shareCapital' | translate }}</mat-label>
+            <input matInput type="number" min="0" formControlName="shareCapital">
+            <span matTextSuffix>€</span>
+            <mat-error>{{ error('shareCapital') }}</mat-error>
+          </mat-form-field>
+        }
+      </div>
+      <mat-slide-toggle formControlName="vatExempt" class="vat-toggle">{{ 'profile.billing.vatExempt' | translate }}</mat-slide-toggle>
+      @if (!form.controls.vatExempt.value) {
+        <div class="row">
+          <mat-form-field appearance="outline" class="grow">
+            <mat-label>{{ 'profile.billing.vatNumber' | translate }}</mat-label>
+            <input matInput formControlName="vatNumber" maxlength="20" autocomplete="off">
+            <mat-error>{{ error('vatNumber') }}</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="grow">
+            <mat-label>{{ 'profile.billing.vatRate' | translate }}</mat-label>
+            <input matInput type="number" min="0" max="30" step="0.1" formControlName="vatRate">
+            <span matTextSuffix>%</span>
+            <mat-error>{{ error('vatRate') }}</mat-error>
+          </mat-form-field>
+        </div>
+      }
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>{{ 'profile.billing.address' | translate }}</mat-label>
+        <textarea matInput formControlName="address" rows="3" maxlength="300" autocomplete="street-address"></textarea>
+      </mat-form-field>
+      <div class="row">
+        <mat-form-field appearance="outline" class="grow-2">
+          <mat-label>{{ 'profile.billing.iban' | translate }}</mat-label>
+          <input matInput formControlName="iban" maxlength="42" autocomplete="off">
+          <mat-error>{{ error('iban') }}</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="grow">
+          <mat-label>{{ 'profile.billing.bic' | translate }}</mat-label>
+          <input matInput formControlName="bic" maxlength="11" autocomplete="off">
+          <mat-error>{{ error('bic') }}</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="row">
+        <mat-form-field appearance="outline" class="grow">
+          <mat-label>{{ 'profile.billing.paymentTermDays' | translate }}</mat-label>
+          <input matInput type="number" min="0" max="60" formControlName="paymentTermDays">
+          <mat-hint>{{ 'profile.billing.paymentTermHint' | translate }}</mat-hint>
+          <mat-error>{{ error('paymentTermDays') }}</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="grow">
+          <mat-label>{{ 'profile.billing.invoicePrefix' | translate }}</mat-label>
+          <input matInput formControlName="invoicePrefix" maxlength="10" autocomplete="off">
+          <mat-hint>{{ 'profile.billing.invoicePrefixHint' | translate }}</mat-hint>
+        </mat-form-field>
+      </div>
+      <div class="actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="saving" data-billing-save>{{ 'common.save' | translate }}</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

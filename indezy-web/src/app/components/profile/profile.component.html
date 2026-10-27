@@ -287,6 +287,13 @@
             </div>
           </ng-template>
         </mat-tab>
+        <mat-tab [label]="'profile.tabs.billing' | translate">
+          <ng-template matTabContent>
+            <div class="tab-content">
+              <app-profile-billing></app-profile-billing>
+            </div>
+          </ng-template>
+        </mat-tab>
         <!-- Account Tab -->
         @if (capabilities.snapshot().features.PUBLIC_PROFILES) {
         <mat-tab [label]="'profile.tabs.publicPage' | translate">

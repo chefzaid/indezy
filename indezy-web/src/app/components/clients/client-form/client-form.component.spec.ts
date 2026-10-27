@@ -97,6 +97,25 @@ describe('ClientFormComponent', () => {
     expect(component.getFieldError('activityReportFooter')).toBe('errors.maxLength');
   });
 
+  it('saves the client\'s SIREN and VAT number as typed in groups, and refuses malformed ones', () => {
+    const component = create(9);
+    clients.getById.and.returnValue(of({ id: 9, companyName: 'Acme', city: 'Lyon', isFinal: true, freelanceId: 7,
+      siren: '552100554', vatNumber: 'FR40552100554' } as ClientDto));
+    clients.update.and.returnValue(of({ id: 9 } as ClientDto));
+    component.ngOnInit();
+    expect(component.clientForm.value.siren).toBe('552100554');
+
+    component.clientForm.patchValue({ siren: '123 456', vatNumber: '40' });
+    component.onSubmit();
+    expect(clients.update).not.toHaveBeenCalled();
+    expect(component.getFieldError('siren')).toBe('errors.billing.siren');
+    expect(component.getFieldError('vatNumber')).toBe('errors.billing.vatNumber');
+
+    component.clientForm.patchValue({ siren: '552 100 554', vatNumber: 'fr 40 552100554' });
+    component.onSubmit();
+    expect(clients.update).toHaveBeenCalledWith(9, jasmine.objectContaining({ siren: '552100554', vatNumber: 'FR40552100554' }));
+  });
+
   it('reports a failed save', () => {
     const component = create();
     clients.create.and.returnValue(throwError(() => new Error('down')));

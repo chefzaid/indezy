@@ -18,6 +18,7 @@ import { YearlyReviewService } from './review/yearly-review.service';
 import { PublicProfileService } from './public-profile/public-profile.service';
 import { AdminService } from './admin/admin.service';
 import { AccountSecurityService } from './account-security/account-security.service';
+import { BillingService } from './billing/billing.service';
 import { ProjectStatus, StepStatus } from '../models';
 
 /** One HTTP wrapper call: what the service is asked, and the request it must send. */
@@ -66,6 +67,7 @@ describe('API services', () => {
   const publicProfile = (): PublicProfileService => TestBed.inject(PublicProfileService);
   const admin = (): AdminService => TestBed.inject(AdminService);
   const accountSecurity = (): AccountSecurityService => TestBed.inject(AccountSecurityService);
+  const billing = (): BillingService => TestBed.inject(BillingService);
   const linkToken = { 'X-Report-Token': 'link-token' };
   const decision = { approved: false, validatorName: 'Jean Dupont', comment: 'Le 11 est férié' };
 
@@ -164,6 +166,8 @@ describe('API services', () => {
     { name: 'public profile', call: () => publicProfile().view('alice martin'), method: 'GET', url: `${api}/public/profiles/alice%20martin` },
     { name: 'data import', call: () => users().importData(new Blob(['{}'])), method: 'POST', url: `${api}/users/import` },
 
+    { name: 'billing identity', call: () => billing().identity(), method: 'GET', url: `${api}/users/billing` },
+    { name: 'save billing identity', call: () => billing().saveIdentity({ legalName: 'Alice' } as never), method: 'PUT', url: `${api}/users/billing`, body: { legalName: 'Alice' } },
     { name: 'open sessions', call: () => accountSecurity().sessions(), method: 'GET', url: `${api}/users/sessions` },
     { name: 'end a session', call: () => accountSecurity().end(9), method: 'DELETE', url: `${api}/users/sessions/9` },
     { name: 'end the other sessions', call: () => accountSecurity().endOthers(), method: 'POST', url: `${api}/users/sessions/end-others` },

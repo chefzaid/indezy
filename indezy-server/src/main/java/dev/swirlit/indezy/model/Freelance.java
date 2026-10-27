@@ -115,6 +115,10 @@ public class Freelance extends BaseEntity {
         this.sources = sources != null ? new ArrayList<>(sources) : new ArrayList<>();
     }
 
+    /** The seller's identity on the workspace's invoices; null until set. */
+    @Embedded
+    private BillingIdentity billing;
+
     // Helper methods
     public String getFullName() {
         return firstName + " " + lastName;

@@ -6,7 +6,9 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import dev.swirlit.indezy.util.BillingText;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -39,6 +41,13 @@ public class ClientDto {
     private Boolean isBlacklisted;
 
     private String blacklistReason;
+
+    // Billing: what the client's invoices state of it
+    @Pattern(regexp = "\\d{9}", message = "A SIREN has 9 digits")
+    private String siren;
+
+    @Pattern(regexp = "[A-Z]{2}[0-9A-Z]{2,13}", message = "A VAT number starts with its country code")
+    private String vatNumber;
 
     // Activity report PDF template; null fields use the defaults
     @Size(max = 120, message = "Activity report title must be at most 120 characters")
@@ -86,5 +95,15 @@ public class ClientDto {
 
     public void setContacts(final List<ContactDto> contacts) {
         this.contacts = contacts != null ? new ArrayList<>(contacts) : new ArrayList<>();
+    }
+
+    /** Spaces dropped, as people write a SIREN in groups ("123 456 789"); blank means none. */
+    public void setSiren(final String siren) {
+        this.siren = BillingText.compact(siren, false);
+    }
+
+    /** Spaces dropped and upper case, as a VAT number is compared; blank means none. */
+    public void setVatNumber(final String vatNumber) {
+        this.vatNumber = BillingText.compact(vatNumber, true);
     }
 }

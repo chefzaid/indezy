@@ -11,9 +11,17 @@ export interface ActivityReportTemplateFields {
   activityReportFooter?: string;
 }
 
+/** What the client's invoices state of it. */
+export interface ClientBillingFields {
+  /** 9 digits. */
+  siren?: string;
+  /** Intra-community VAT number, starting with the country code. */
+  vatNumber?: string;
+}
+
 export type ClientStatus = 'ACTIVE' | 'INACTIVE' | 'ESN';
 
-export interface ClientDto extends ActivityReportTemplateFields {
+export interface ClientDto extends ActivityReportTemplateFields, ClientBillingFields {
   id: number;
   companyName: string;
   address?: string;
@@ -38,7 +46,7 @@ export interface ClientDto extends ActivityReportTemplateFields {
   updatedAt?: Date;
 }
 
-export interface CreateClientDto extends ActivityReportTemplateFields {
+export interface CreateClientDto extends ActivityReportTemplateFields, ClientBillingFields {
   companyName: string;
   address?: string;
   city: string;

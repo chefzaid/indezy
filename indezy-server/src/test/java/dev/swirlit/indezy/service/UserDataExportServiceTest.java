@@ -105,6 +105,9 @@ class UserDataExportServiceTest {
     @Mock
     private AccountEventService accountEventService;
 
+    @Mock
+    private BillingIdentityService billingIdentityService;
+
     @InjectMocks
     private UserDataExportService userDataExportService;
 

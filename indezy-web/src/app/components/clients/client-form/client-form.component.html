@@ -98,6 +98,23 @@
             </div>
           </section>
 
+          <section class="form-section" data-client-billing>
+            <h3>{{ 'clients.form.billing.section' | translate }}</h3>
+            <p class="section-hint">{{ 'clients.form.billing.hint' | translate }}</p>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="grow-1">
+                <mat-label>{{ 'clients.form.billing.siren' | translate }}</mat-label>
+                <input matInput formControlName="siren" maxlength="11" inputmode="numeric" autocomplete="off">
+                <mat-error>{{ getFieldError('siren') }}</mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="grow-1">
+                <mat-label>{{ 'clients.form.billing.vatNumber' | translate }}</mat-label>
+                <input matInput formControlName="vatNumber" maxlength="20" autocomplete="off">
+                <mat-error>{{ getFieldError('vatNumber') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </section>
+
           <section class="form-section" data-activity-report-template>
             <h3>{{ 'clients.form.activityReport.section' | translate }}</h3>
             <p class="section-hint">{{ 'clients.form.activityReport.hint' | translate }}</p>
