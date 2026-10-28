@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
 
 /**
  * Turns the reversion rates saved as the share taken (social charges and income tax, in {@code reversion_rate}) into
@@ -50,7 +51,8 @@ public class ReversionRateMigration implements ApplicationRunner {
         return Boolean.TRUE.equals(jdbcTemplate.execute((Connection connection) -> {
             DatabaseMetaData metaData = connection.getMetaData();
             // PostgreSQL keeps names in lower case, H2 in upper case.
-            return hasColumn(metaData, TABLE, LEGACY_COLUMN) || hasColumn(metaData, TABLE.toUpperCase(), LEGACY_COLUMN.toUpperCase());
+            return hasColumn(metaData, TABLE, LEGACY_COLUMN) ||
+                hasColumn(metaData, TABLE.toUpperCase(Locale.ROOT), LEGACY_COLUMN.toUpperCase(Locale.ROOT));
         }));
     }
 
