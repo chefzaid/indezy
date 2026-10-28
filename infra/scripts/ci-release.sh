@@ -99,7 +99,9 @@ deploy_release() {
   smoke_curl http://indezy-server.apps.svc.cluster.local:8080/api/actuator/health >/dev/null
   smoke_curl http://indezy-web.apps.svc.cluster.local:8080/health >/dev/null
   frontend_index="$(smoke_curl http://indezy-web.apps.svc.cluster.local:8080/)"
-  grep -Fq '<title>Indezy - Suivi de missions pour freelances</title>' <<<"$frontend_index"
+  # The build prerenders the presentation page's title (home.meta.title), so match the stable part.
+  grep -Fq '<title>Indezy' <<<"$frontend_index"
+  grep -Fq '<app-root>' <<<"$frontend_index"
 }
 
 case "$phase" in
