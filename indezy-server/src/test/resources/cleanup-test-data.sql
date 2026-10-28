@@ -9,10 +9,12 @@ DELETE FROM job_offers WHERE 1=1;
 DELETE FROM interview_steps WHERE 1=1;
 DELETE FROM activity_report_days WHERE 1=1;
 DELETE FROM activity_reports WHERE 1=1;
+DELETE FROM project_notes WHERE 1=1;
 DELETE FROM projects WHERE 1=1;
 DELETE FROM contacts WHERE 1=1;
 DELETE FROM sources WHERE 1=1;
 DELETE FROM clients WHERE 1=1;
+DELETE FROM seasons WHERE 1=1;
 DELETE FROM freelances WHERE 1=1;
 
 -- Reset sequences to ensure consistent IDs across test runs
