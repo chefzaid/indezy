@@ -154,6 +154,35 @@
   font-weight: 500;
 }
 
+// The upcoming list: one row per step or call, the date in a column of its own.
+.upcoming {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .detail-time {
+    flex: 0 0 13em;
+    text-transform: capitalize;
+  }
+}
+
+.upcoming-intro {
+  margin: 0 0 8px;
+  color: var(--app-text-muted);
+}
+
+@media (max-width: 600px) {
+  .upcoming .detail-step {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .upcoming .detail-time {
+    flex-basis: auto;
+  }
+}
+
 .detail-text {
   display: flex;
   flex-direction: column;

@@ -537,7 +537,8 @@ Invoice scenarios (`e2e/invoices.spec.ts`, on a desktop and on a phone, the page
 axe-core) write a draft, issue it, mark an overdue invoice paid, credit part of it and download the year's FEC.
 
 Keyboard scenarios (`e2e/keyboard-navigation.spec.ts`) open a Kanban card with Enter (but not from its favourite
-button), a timeline step and an archived opportunity, then reach a client, one of its opportunities and one of its
+button), a step of the calendar's upcoming list (reached through the former `/timeline` address) and an archived
+opportunity, then reach a client, one of its opportunities and one of its
 contacts through the links of their table rows.
 
 Welcome step scenarios (`e2e/onboarding.spec.ts`): in English on a desktop, a new account goes from registration to

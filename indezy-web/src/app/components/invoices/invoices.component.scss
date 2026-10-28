@@ -18,6 +18,20 @@
   }
 }
 
+// How many months of activity reports wait to be invoiced.
+.to-invoice {
+  display: inline-block;
+  min-width: 20px;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--mat-sys-primary, #3f51b5);
+  color: var(--mat-sys-on-primary, #fff);
+  font-size: 0.75rem;
+  line-height: 20px;
+  text-align: center;
+}
+
 .notice {
   margin-bottom: 16px;
 

@@ -231,9 +231,24 @@ describe('ActivityReportCardComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('activityReports.link.copyFailed');
   });
 
-  it('drafts the invoice of a validated month and opens the invoices, or says it is invoiced already', () => {
+  it('offers the invoice of a saved month with days worked, unless it was rejected', () => {
     jasmine.clock().mockDate(new Date(2026, 10, 15));
-    const fixture = create(mission, report({ id: 7, status: 'VALIDATED', validatorName: 'Jean Dupont', decidedAt: '2026-12-01T09:42:00Z' }));
+    const invoiceButton = (overrides: Partial<ActivityReport>) => {
+      TestBed.resetTestingModule();
+      return create(mission, report(overrides)).nativeElement.querySelector('[data-invoice-report]');
+    };
+
+    expect(invoiceButton({ id: 7, status: 'DRAFT', workedDays: 3 })).not.toBeNull();
+    expect(invoiceButton({ id: 7, status: 'SUBMITTED', workedDays: 3 })).not.toBeNull();
+    expect(invoiceButton({ id: 7, status: 'REJECTED', workedDays: 3 })).toBeNull();
+    expect(invoiceButton({ id: 7, status: 'DRAFT', workedDays: 0 })).toBeNull();
+    expect(invoiceButton({ status: 'DRAFT', workedDays: 3 })).toBeNull();
+  });
+
+  it('drafts the invoice of a month and opens the invoices, or says it is invoiced already', () => {
+    jasmine.clock().mockDate(new Date(2026, 10, 15));
+    const fixture = create(mission, report({ id: 7, status: 'VALIDATED', workedDays: 15, validatorName: 'Jean Dupont',
+      decidedAt: '2026-12-01T09:42:00Z' }));
     invoices.fromReport.and.returnValue(of({ id: 1 } as Invoice));
     button(fixture, 'Créer la facture').click();
     expect(invoices.fromReport).toHaveBeenCalledWith(42, 2026, 11);

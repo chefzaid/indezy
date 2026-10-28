@@ -26,6 +26,14 @@
         </ng-template>
       </mat-menu>
     }
+    <button mat-stroked-button type="button" (click)="fromReport()" data-invoice-from-report>
+      <mat-icon>event_note</mat-icon>
+      {{ 'invoices.fromReport' | translate }}
+      @if (toInvoice.length > 0) {
+        <span class="to-invoice" aria-hidden="true">{{ toInvoice.length }}</span>
+        <span class="cdk-visually-hidden">{{ 'invoices.toInvoice' | translate: { count: toInvoice.length } }}</span>
+      }
+    </button>
     <button mat-raised-button color="primary" type="button" (click)="write()" data-new-invoice>
       <mat-icon>add</mat-icon>
       {{ 'invoices.new' | translate }}

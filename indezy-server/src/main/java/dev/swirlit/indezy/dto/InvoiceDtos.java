@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.dto;
 
+import dev.swirlit.indezy.model.enums.ActivityReportStatus;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.InvoiceKind;
 import dev.swirlit.indezy.model.enums.InvoiceStatus;
@@ -57,7 +58,15 @@ public final class InvoiceDtos {
         }
     }
 
-    /** A draft made of a validated activity report: the mission and the month. */
+    /**
+     * A month's activity report that can be invoiced: its mission, whom it bills (null without a client), its status, the
+     * days worked, the mission's daily rate and their amount before VAT (null without a rate).
+     */
+    public record InvoiceableReport(Long reportId, Long projectId, String projectRole, String clientName, int year, int month,
+                                    ActivityReportStatus status, BigDecimal workedDays, Integer dailyRate, BigDecimal amount) {
+    }
+
+    /** A draft made of a month's activity report: the mission and the month. */
     public record FromReport(@NotNull Long projectId, @NotNull Integer year, @NotNull Integer month) {
     }
 

@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
@@ -14,15 +15,20 @@ import { AuthService } from '../../services/auth/auth.service';
 import { InterviewStepService } from '../../services/interview-step/interview-step.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { toIsoDate } from '../../shared/locale/app-locale';
-import { CalendarDay, monthGrid, monthKey, monthOf } from './calendar-month';
+import { CalendarDay, UpcomingItem, monthGrid, monthKey, monthOf, upcoming } from './calendar-month';
+
+/** The calendar's two views: the month grid, or the list of what is still to come. */
+export type CalendarView = 'month' | 'upcoming';
 
 /**
  * A month of every dated interview step across the opportunities, Monday first: each day lists its steps by time,
  * coloured by status, and a picked day lists them in full below the grid. The month is in the address (?month=yyyy-MM).
+ * The upcoming view (?view=upcoming) lists the planned steps and booked calls to come, soonest first.
  */
 @Component({
   selector: 'app-calendar',
-  imports: [DatePipe, RouterModule, MatButtonModule, MatIconModule, MatTooltipModule, TranslateModule, BookingLinkComponent],
+  imports: [DatePipe, RouterModule, MatButtonModule, MatButtonToggleModule, MatIconModule, MatTooltipModule, TranslateModule,
+    BookingLinkComponent],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -32,7 +38,9 @@ export class CalendarComponent implements OnInit {
   /** Steps a day shows before "+n" on wide screens. */
   readonly perDay = 3;
   month = monthOf(null);
+  view: CalendarView = 'month';
   weeks: CalendarDay[][] = [];
+  upcomingItems: UpcomingItem[] = [];
   selected: CalendarDay | null = null;
   readonly todayKey = toIsoDate(new Date())!;
   private steps: InterviewStepDto[] = [];
@@ -50,6 +58,7 @@ export class CalendarComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       this.month = monthOf(params.get('month'));
+      this.view = params.get('view') === 'upcoming' ? 'upcoming' : 'month';
       this.layout();
     });
     const freelanceId = this.authService.getUser()?.id;
@@ -83,6 +92,12 @@ export class CalendarComponent implements OnInit {
     this.router.navigate([], { relativeTo: this.route, queryParams: { month: monthKey(month) } });
   }
 
+  /** Switches between the month grid and the upcoming list, kept in the address with the month. */
+  show(view: CalendarView): void {
+    this.router.navigate([], { relativeTo: this.route, queryParams: { view: view === 'upcoming' ? view : null },
+      queryParamsHandling: 'merge' });
+  }
+
   /** The calls that fit in a day's cell after its steps, which come first. */
   callsShown(day: CalendarDay): Booking[] {
     return day.bookings.slice(0, Math.max(0, this.perDay - day.steps.length));
@@ -94,6 +109,7 @@ export class CalendarComponent implements OnInit {
 
   private layout(): void {
     this.weeks = monthGrid(this.month, this.steps, this.bookings);
+    this.upcomingItems = upcoming(this.steps, this.bookings);
     const days = this.weeks.flat();
     const kept = this.selected && days.find(day => day.key === this.selected!.key && day.inMonth);
     this.selected = kept ?? days.find(day => day.key === this.todayKey && day.inMonth) ?? days.find(day => day.inMonth) ?? null;

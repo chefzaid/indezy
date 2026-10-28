@@ -12,7 +12,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 
-import { BillingIdentity, ClientDto, Invoice, InvoiceDraft, ProjectDto } from '../../models';
+import { BillingIdentity, ClientDto, Invoice, InvoiceDraft, InvoiceableReport, ProjectDto } from '../../models';
 import { AuthService } from '../../services/auth/auth.service';
 import { BillingService } from '../../services/billing/billing.service';
 import { ClientService } from '../../services/client/client.service';
@@ -24,6 +24,7 @@ import { saveBlob } from '../../shared/utils/download-file';
 import { invoiceErrorKey } from './invoice-errors';
 import { InvoiceDateDialogComponent, InvoiceDateDialogData } from './date-dialog/invoice-date-dialog.component';
 import { InvoiceDraftDialogComponent, InvoiceDraftDialogData } from './draft-dialog/invoice-draft-dialog.component';
+import { InvoiceReportDialogComponent } from './report-dialog/invoice-report-dialog.component';
 
 export type InvoiceFilter = 'ALL' | 'DRAFT' | 'ISSUED' | 'OVERDUE' | 'PAID';
 
@@ -51,6 +52,8 @@ export class InvoicesComponent implements OnInit {
   filter: InvoiceFilter = 'ALL';
   invoices: Invoice[] = [];
   billing: BillingIdentity | null = null;
+  /** The months of activity reports not invoiced yet, counted on the button that invoices them. */
+  toInvoice: InvoiceableReport[] = [];
   loading = true;
 
   get shown(): Invoice[] {
@@ -85,6 +88,7 @@ export class InvoicesComponent implements OnInit {
         this.invoices = invoices;
         this.billing = billing;
         this.loading = false;
+        this.loadInvoiceable();
       },
       error: () => {
         this.loading = false;
@@ -103,6 +107,23 @@ export class InvoicesComponent implements OnInit {
           .afterClosed().subscribe((draft?: InvoiceDraft) => {
             if (draft) {
               this.saveDraft(invoice, draft);
+            }
+          });
+      },
+      error: () => this.notifications.error('invoices.loadError')
+    });
+  }
+
+  /** Lists the months of activity reports to invoice and drafts the one picked: its days worked at the mission's daily rate. */
+  fromReport(): void {
+    this.invoiceService.invoiceableReports().subscribe({
+      next: reports => {
+        this.toInvoice = reports;
+        this.dialog.open(InvoiceReportDialogComponent, { data: reports, width: '640px', maxWidth: '96vw', autoFocus: false })
+          .afterClosed().subscribe((report?: InvoiceableReport) => {
+            if (report) {
+              this.apply(this.invoiceService.fromReport(report.projectId, report.year, report.month), 'invoices.fromReportCreated',
+                () => this.toInvoice = this.toInvoice.filter(item => item.reportId !== report.reportId));
             }
           });
       },
@@ -157,6 +178,9 @@ export class InvoicesComponent implements OnInit {
         next: () => {
           this.invoices = this.invoices.filter(item => item.id !== invoice.id);
           this.notifications.success('invoices.deleted');
+          if (invoice.activityReportId) {
+            this.loadInvoiceable();
+          }
         },
         error: () => this.notifications.error('invoices.saveError')
       });
@@ -189,13 +213,19 @@ export class InvoicesComponent implements OnInit {
     this.apply(request, invoice ? 'invoices.saved' : 'invoices.created');
   }
 
+  /** A deleted draft of a report frees the month, so the count is read again; it stays as it was when it cannot be. */
+  private loadInvoiceable(): void {
+    this.invoiceService.invoiceableReports().subscribe({ next: reports => this.toInvoice = reports, error: () => undefined });
+  }
+
   /** Shows the invoice as the server answered, first in the list when new; a refusal says why when the server does. */
-  private apply(request: Observable<Invoice>, successKey: string): void {
+  private apply(request: Observable<Invoice>, successKey: string, saved?: () => void): void {
     request.subscribe({
-      next: saved => {
-        const known = this.invoices.some(item => item.id === saved.id);
-        this.invoices = known ? this.invoices.map(item => item.id === saved.id ? saved : item) : [saved, ...this.invoices];
+      next: invoice => {
+        const known = this.invoices.some(item => item.id === invoice.id);
+        this.invoices = known ? this.invoices.map(item => item.id === invoice.id ? invoice : item) : [invoice, ...this.invoices];
         this.notifications.success(successKey);
+        saved?.();
       },
       error: (error: HttpErrorResponse) => this.notifications.error(invoiceErrorKey(error, 'invoices.saveError'))
     });

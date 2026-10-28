@@ -37,4 +37,31 @@ for (const width of [1280, 390]) {
     await page.getByRole('link', { name: /Client interview/ }).click();
     await expect(page).toHaveURL(/\/projects\/42$/);
   });
+
+  test(`lists the planned steps and booked calls to come (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, 'en');
+    await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light', language: 'en' } }));
+    await page.route('**/api/users/profile', route => route.fulfill({ json: { id: 1, skills: [] } }));
+    // Only planned steps still to come are listed: not a past one, nor one already validated.
+    await page.route('**/api/interview-steps/by-freelance/1*', route => route.fulfill({ json: [
+      { id: 4, title: 'Final round', status: 'PLANNED', date: '2099-03-02T15:00:00', projectId: 42, projectRole: 'Java developer' },
+      { id: 5, title: 'Old call', status: 'PLANNED', date: '2020-03-02T15:00:00', projectId: 42, projectRole: 'Java developer' },
+      { id: 6, title: 'Debrief', status: 'VALIDATED', date: '2099-03-03T15:00:00', projectId: 42, projectRole: 'Java developer' }] }));
+    await page.route('**/api/bookings', route => route.fulfill({ json: [{ id: 8, name: 'Claire', startsAt: '2099-03-01T09:00:00Z',
+      endsAt: '2099-03-01T09:30:00Z', email: 'claire@esn.example', company: 'ESN', message: null, cancelledAt: null }] }));
+    await page.route('**/api/users/booking-page', route => route.fulfill({ json: { slug: null, settings: { enabled: false, title: '',
+      durationMinutes: 30, bufferMinutes: 15, minNoticeHours: 24, maxDaysAhead: 21, windows: [] } } }));
+
+    await page.goto('/calendar');
+    await page.locator('[data-calendar-view="upcoming"]').click();
+    await expect(page).toHaveURL(/view=upcoming/);
+    const rows = page.locator('[data-calendar-upcoming] .detail-step');
+    await expect(rows).toHaveCount(2);
+    await expect(rows.nth(0)).toContainText('Call with Claire');
+    await expect(rows.nth(1)).toContainText('Final round');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await page.locator('[data-calendar-view="month"]').click();
+    await expect(page.locator('.month-grid')).toBeVisible();
+  });
 }

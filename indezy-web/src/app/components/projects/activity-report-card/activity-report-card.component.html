@@ -182,7 +182,7 @@
             {{ 'activityReports.downloadPdf' | translate }}
           </button>
         }
-        @if (report.status === 'VALIDATED') {
+        @if (report.id && report.workedDays > 0 && report.status !== 'REJECTED') {
           <button mat-button type="button" (click)="invoice()" [disabled]="isBusy" data-invoice-report>
             <mat-icon>receipt_long</mat-icon>
             {{ 'activityReports.invoice' | translate }}

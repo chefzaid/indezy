@@ -1,5 +1,5 @@
 import { StepStatus } from '../../models';
-import { monthGrid, monthKey, monthOf } from './calendar-month';
+import { monthGrid, monthKey, monthOf, upcoming } from './calendar-month';
 
 describe('calendar month', () => {
   const step = (id: number, date?: string) => ({ id, title: `Step ${id}`, status: StepStatus.PLANNED, date });
@@ -39,5 +39,17 @@ describe('calendar month', () => {
     expect(monthKey(monthOf('2026-03'))).toBe('2026-03');
     expect(monthKey(monthOf('march', new Date(2026, 9, 26)))).toBe('2026-10');
     expect(monthKey(monthOf(null, new Date(2026, 0, 31)))).toBe('2026-01');
+  });
+
+  it('lists the planned steps and the calls not cancelled from now on, soonest first', () => {
+    const now = new Date(2026, 9, 20, 12);
+    const call = (id: number, startsAt: Date, cancelledAt: string | null = null) => ({ id, name: `Caller ${id}`,
+      startsAt: startsAt.toISOString(), endsAt: startsAt.toISOString(), email: 'c@esn.example', company: null, message: null, cancelledAt });
+    const steps = [step(1, '2026-10-22T09:00:00'), step(2, '2026-10-20T11:00:00'), step(3), { ...step(4, '2026-10-21T09:00:00'),
+      status: StepStatus.VALIDATED }, step(5, '2026-10-20T15:00:00')];
+    const calls = [call(8, new Date(2026, 9, 21, 10)), call(9, new Date(2026, 9, 20, 9)), call(10, new Date(2026, 9, 21, 11), '2026-10-19T08:00:00Z')];
+
+    expect(upcoming(steps, calls, now).map(item => item.key)).toEqual(['step-5', 'call-8', 'step-1']);
+    expect(upcoming([], [], now)).toEqual([]);
   });
 });

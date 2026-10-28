@@ -27,7 +27,7 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void invoicesAValidatedMonthThenNumbersFreezesAndSettlesIt() throws IOException {
+    void invoicesAMonthThenNumbersFreezesAndSettlesIt() throws IOException {
         long esn = idOf(call(alice, HttpMethod.POST, "/clients", Map.of("companyName", "Capgemini", "city", "Paris", "isFinal", false,
             "freelanceId", alice.freelanceId(), "activityReportLanguage", "EN"), Map.class));
         long project = idOf(call(alice, HttpMethod.POST, "/projects", Map.of("role", "Développeur Java", "dailyRate", 600,
@@ -37,8 +37,15 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
             Map.of("date", "2026-11-03", "type", "REMOTE", "halfDay", false), Map.of("date", "2026-11-04", "type", "ONSITE", "halfDay", true))),
             Map.class);
         Map<String, Object> fromReport = Map.of("projectId", project, "year", 2026, "month", 11);
-        assertThat(call(alice, HttpMethod.POST, "/invoices/from-report", fromReport, String.class).getStatusCode())
-            .isEqualTo(HttpStatus.CONFLICT);
+        // A month without days worked cannot be invoiced; one with days can, validated or not, and is listed until it is.
+        assertThat(call(alice, HttpMethod.POST, "/invoices/from-report", Map.of("projectId", project, "year", 2026, "month", 12),
+            String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/invoices/invoiceable-reports", null, List.class).getBody())
+            .singleElement().satisfies(month -> assertThat(month).containsEntry("projectId", (int) project)
+                .containsEntry("projectRole", "Développeur Java").containsEntry("clientName", "Capgemini").containsEntry("year", 2026)
+                .containsEntry("month", 11).containsEntry("status", "DRAFT").containsEntry("workedDays", 2.5)
+                .containsEntry("dailyRate", 600).containsEntry("amount", 1500.0));
+        assertThat(call(bob, HttpMethod.GET, "/invoices/invoiceable-reports", null, List.class).getBody()).isEmpty();
         String token = (String) call(alice, HttpMethod.POST, reports + "/submit", null, Map.class).getBody().get("token");
         HttpHeaders link = new HttpHeaders();
         link.set("X-Report-Token", token);
@@ -58,6 +65,7 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
             .containsEntry("unitPrice", 600.0).containsEntry("vatRate", 0.0));
         assertThat(call(alice, HttpMethod.POST, "/invoices/from-report", fromReport, String.class).getStatusCode())
             .isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(alice, HttpMethod.GET, "/invoices/invoiceable-reports", null, List.class).getBody()).isEmpty();
         assertThat(pdf(alice, first)).contains("DRAFT — this document is not an invoice");
 
         // Issued only with a complete billing identity and the client's address.

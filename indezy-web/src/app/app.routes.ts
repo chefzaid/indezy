@@ -85,9 +85,9 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    // The former timeline page is now the calendar's upcoming view.
     path: 'timeline',
-    loadComponent: () => import('./components/timeline/timeline.component').then(m => m.TimelineComponent),
-    canActivate: [authGuard]
+    redirectTo: '/calendar?view=upcoming'
   },
   {
     path: 'calendar',

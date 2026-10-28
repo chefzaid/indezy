@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -39,12 +40,15 @@ import java.time.temporal.ChronoUnit;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * A workspace's invoices (see docs/features.md#invoices): drafts written by hand or made of a validated activity report,
+ * A workspace's invoices (see docs/features.md#invoices): drafts written by hand or made of a month's activity report,
  * issued with the next number of the year and the seller and buyer frozen as they are, then paid. An issued invoice can
  * no longer change or be deleted.
  */
@@ -105,15 +109,39 @@ public class InvoiceService {
     }
 
     /**
-     * A draft of the month a client validated: the days worked at the mission's daily rate, billed to the ESN when the
-     * mission has one, else to the client, in the language of its activity reports. One invoice per report.
+     * The workspace's activity reports that can become an invoice, latest month first: a month with days worked, not
+     * rejected and not invoiced yet, with its mission, whom it bills (the ESN, else the client) and its amount before VAT.
+     */
+    @Transactional(readOnly = true)
+    public List<InvoiceDtos.InvoiceableReport> invoiceableReports(Long freelanceId) {
+        Set<Long> invoiced = invoices.findByFreelanceIdOrderByCreatedAtDesc(freelanceId).stream()
+            .map(Invoice::getActivityReportId).filter(Objects::nonNull).collect(Collectors.toSet());
+        List<ActivityReportDto> reports = activityReports.findByFreelanceId(freelanceId).stream()
+            .filter(report -> invoiceable(report) && !invoiced.contains(report.getId()))
+            .toList();
+        Map<Long, Project> missions = projects.findAllById(reports.stream().map(ActivityReportDto::getProjectId).collect(Collectors.toSet()))
+            .stream().collect(Collectors.toMap(Project::getId, Function.identity()));
+        return reports.stream().map(report -> {
+            Project project = missions.get(report.getProjectId());
+            Client billed = billed(project);
+            return new InvoiceDtos.InvoiceableReport(report.getId(), project.getId(), project.getRole(),
+                billed == null ? null : billed.getCompanyName(), report.getYear(), report.getMonth(), report.getStatus(),
+                BigDecimal.valueOf(report.getWorkedDays()).setScale(2, RoundingMode.HALF_UP), report.getDailyRate(),
+                report.getAmount() == null ? null : BigDecimal.valueOf(report.getAmount()).setScale(2, RoundingMode.HALF_UP));
+        }).toList();
+    }
+
+    /**
+     * A draft of a month's activity report: the days worked at the mission's daily rate, billed to the ESN when the
+     * mission has one, else to the client, in the language of its activity reports. Any month with days worked can be
+     * invoiced, validated or not (clients often approve in their own tools), except a rejected one. One invoice per report.
      */
     @Transactional
     public InvoiceDtos.Invoice fromReport(Long freelanceId, InvoiceDtos.FromReport request) {
         YearMonth month = YearMonth.of(request.year(), request.month());
         ActivityReportDto report = activityReports.getReport(request.projectId(), month);
-        if (report.getId() == null || report.getStatus() != ActivityReportStatus.VALIDATED) {
-            throw new InvalidStateException("Only a validated activity report can be invoiced");
+        if (!invoiceable(report)) {
+            throw new InvalidStateException("Only an activity report with days worked, and not rejected, can be invoiced");
         }
         invoices.findFirstByActivityReportId(report.getId()).ifPresent(existing -> {
             throw new InvalidStateException("This activity report is already invoiced");
@@ -123,7 +151,7 @@ public class InvoiceService {
         if (project.getDailyRate() == null) {
             throw new InvalidStateException("The mission has no daily rate to invoice");
         }
-        Client billed = project.getMiddleman() != null ? project.getMiddleman() : project.getClient();
+        Client billed = billed(project);
         if (billed == null) {
             throw new InvalidStateException("The mission has no client to invoice");
         }
@@ -146,6 +174,16 @@ public class InvoiceService {
         invoice.setLines(List.of(new InvoiceLine(description, BigDecimal.valueOf(report.getWorkedDays()).setScale(2),
             BigDecimal.valueOf(project.getDailyRate()).setScale(2), vatRate.setScale(2))));
         return toDto(invoices.save(invoice));
+    }
+
+    /** A saved month with days worked that was not rejected. */
+    private static boolean invoiceable(ActivityReportDto report) {
+        return report.getId() != null && report.getWorkedDays() > 0 && report.getStatus() != ActivityReportStatus.REJECTED;
+    }
+
+    /** Whom a mission bills: its ESN when it has one, else its client. */
+    private static Client billed(Project project) {
+        return project.getMiddleman() != null ? project.getMiddleman() : project.getClient();
     }
 
     /**

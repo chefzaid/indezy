@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Invoice, InvoiceDraft } from '../../models';
+import { Invoice, InvoiceDraft, InvoiceableReport } from '../../models';
 
 /** An accountant's export: the FEC journal entries, or the register of invoices and credit notes as CSV. */
 export type AccountingExportFormat = 'FEC' | 'REGISTER';
@@ -22,6 +22,11 @@ export class InvoiceService {
 
   create(draft: InvoiceDraft): Observable<Invoice> {
     return this.http.post<Invoice>(this.API_URL, draft);
+  }
+
+  /** The months of activity reports with days worked, not rejected and not invoiced yet, latest first. */
+  invoiceableReports(): Observable<InvoiceableReport[]> {
+    return this.http.get<InvoiceableReport[]>(`${this.API_URL}/invoiceable-reports`);
   }
 
   fromReport(projectId: number, year: number, month: number): Observable<Invoice> {

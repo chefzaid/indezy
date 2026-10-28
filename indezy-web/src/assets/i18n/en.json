@@ -70,8 +70,7 @@
     "dashboard": "Dashboard",
     "offers": "Offers",
     "newOffers": "{{count}} new offers in your saved searches",
-    "timeline": "Timeline",
-    "projects": "Projects",
+    "projects": "Opportunities",
     "clients": "Clients",
     "contacts": "Contacts",
     "sources": "Sources",
@@ -85,11 +84,6 @@
     "admin": "Admin",
     "invoices": "Invoices",
     "documents": "Documents"
-  },
-  "timeline": {
-    "title": "Timeline",
-    "subtitle": "All your scheduled interview steps, soonest first",
-    "empty": "No upcoming steps scheduled"
   },
   "archive": {
     "title": "Archive",
@@ -274,7 +268,7 @@
     }
   },
   "projects": {
-    "title": "My Projects",
+    "title": "My opportunities",
     "newProject": "New project",
     "exportSummary": "Export summary",
     "exportError": "Error exporting summary",
@@ -1633,7 +1627,7 @@
       "imported": "“{{role}}” added to the pipeline (Contact stage)",
       "publisherBlocked": "Offers from {{publisher}} are hidden from your feed. Bring them back from your profile.",
       "applied": "Application to “{{role}}” recorded in your pipeline",
-      "appliedWithFollowUp": "Application to “{{role}}” recorded; its follow-up is in your Timeline",
+      "appliedWithFollowUp": "Application to “{{role}}” recorded; its follow-up is in your Calendar",
       "withdrawn": "Application undone; the opportunity stays in your pipeline."
     },
     "seniority": {
@@ -1964,7 +1958,7 @@
       "dayRequired": "Enter the day you applied.",
       "followUp": "Plan a follow-up",
       "followUpDays": "Follow up after (days)",
-      "followUpOn": "On {{date}}, in your Timeline",
+      "followUpOn": "On {{date}}, in your Calendar",
       "daysRange": "Between 1 and {{max}} days.",
       "joinsPipeline": "The mission joins your pipeline at the Contact stage, with an “Application sent” step waiting for feedback.",
       "inPipeline": "Its opportunity in your pipeline gets an “Application sent” step waiting for feedback.",
@@ -2182,7 +2176,12 @@
     "nothing": "Nothing planned this day",
     "loadError": "The steps could not be loaded",
     "more": "+{{count}}",
-    "dayLabel": "{{date}}: {{count}} step(s)"
+    "dayLabel": "{{date}}: {{count}} step(s)",
+    "views": "Calendar view",
+    "monthView": "Month",
+    "upcomingView": "Upcoming",
+    "upcomingIntro": "Your scheduled interview steps and booked calls, soonest first",
+    "upcomingEmpty": "No upcoming scheduled step or call"
   },
   "globalSearch": {
     "open": "Search everything",
@@ -2411,7 +2410,7 @@
       "OVERDUE": "Overdue",
       "PAID": "Paid"
     },
-    "none": "No invoice yet. Create one, or invoice a validated activity report from its mission's page.",
+    "none": "No invoice yet. Create one, or invoice an activity report with “From an activity report”.",
     "noneForFilter": "No invoice here.",
     "draft": "Draft",
     "statuses": {
@@ -2467,11 +2466,13 @@
       "clientAddress": "Add the client's address before invoicing it.",
       "dateBeforeLast": "An invoice cannot be dated before the last one issued.",
       "alreadyInvoiced": "This month is already invoiced.",
-      "notValidated": "Only a month the client validated can be invoiced.",
       "frozen": "An issued invoice can no longer change.",
       "clientGone": "The invoice's client no longer exists.",
       "creditTooHigh": "A credit note cannot credit more than what is left of its invoice.",
-      "creditClient": "A credit note goes to the client of its invoice."
+      "creditClient": "A credit note goes to the client of its invoice.",
+      "notInvoiceable": "Only a month with days worked, and not rejected, can be invoiced.",
+      "noDailyRate": "Add the mission's daily rate before invoicing it.",
+      "noClient": "Add the mission's client before invoicing it."
     },
     "creditNote": "Credit note",
     "credits": "for {{number}}",
@@ -2481,7 +2482,17 @@
     "export": "Export for the accountant",
     "exportFec": "Journal entries (FEC)",
     "exportRegister": "Invoice register (spreadsheet)",
-    "exportError": "The export could not be made. Please try again."
+    "exportError": "The export could not be made. Please try again.",
+    "fromReport": "From an activity report",
+    "fromReportTitle": "Invoice an activity report",
+    "fromReportIntro": "The months recorded with days worked and not invoiced yet. The invoice is a draft: the days worked × the mission's daily rate, to review before issuing it.",
+    "fromReportNone": "No activity report to invoice. A month shows here once its days worked are recorded on the mission's page.",
+    "fromReportAmount": "{{days}} days × {{rate}} € = {{amount}} € before VAT",
+    "fromReportNoRate": "Add the mission's daily rate to invoice this month.",
+    "fromReportNoClient": "Add the mission's client to invoice this month.",
+    "fromReportCreate": "Create the invoice",
+    "fromReportCreated": "Draft created from the activity report",
+    "toInvoice": "{{count}} months of activity reports to invoice"
   },
   "purchaseOrders": {
     "title": "Purchase orders",

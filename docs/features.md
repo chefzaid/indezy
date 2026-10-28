@@ -14,6 +14,13 @@ The core workflow is:
 4. Track each opportunity through the pipeline and interview steps.
 5. Use dashboard and filtering views to decide what needs attention.
 
+The navigation lists, in this order: **Tableau de bord** (Dashboard), **Calendrier** (Calendar), **Offres** (Offers),
+**Opportunités** (Opportunities, the pipeline of opportunities at `/projects`), **Clients**, **Contacts**, **Sources**,
+**Bilan annuel** (Year in review), **Factures** (Invoices), **Documents**, **Archives**, then **Administration** for
+administrators. Its icons and the app's Roboto font are bundled with the app rather than loaded from Google Fonts: the
+service worker fetches what a page loads under the policy's `connect-src 'self'`, so a font from another host would
+fail once it runs and the icons would show their names (see [Security](./security.md#web-server-headers)).
+
 ## Presentation Page
 
 `https://indezy.swirlit.dev` opens the presentation page, in French at `/` and in English at `/en`: a first visit to
@@ -67,10 +74,11 @@ of the data export (`billing`).
 
 A workspace invoices its clients from drafts:
 
-- **From an activity report**: a month the client validated becomes a draft billed to the mission's ESN (else its
+- **From an activity report**: a month with days worked becomes a draft billed to the mission's ESN (else its
   client), in the language of that client's activity reports, with one line of the days worked at the mission's daily
   rate ("Prestation : Développeur Java — novembre 2026"), the month as the service period, and VAT at the billing
-  identity's rate unless exempt. A report is invoiced once; a month not yet validated cannot be.
+  identity's rate unless exempt. The month need not be validated through Indezy's link (clients often approve in their
+  own tools), but a rejected month cannot be invoiced, nor one without days worked. A report is invoiced once.
 - **By hand**: a client of the workspace (and one of its missions, optionally), a service period, the language (French
   or English), notes and up to 50 lines, each a description, a quantity (days, to the hundredth), a unit price before VAT
   and a VAT rate.
@@ -78,11 +86,17 @@ A workspace invoices its clients from drafts:
 **Invoices** (in the navigation, `/invoices`) lists them newest first with their number (or "Draft"), client, mission,
 period, due or payment date, status and total, filtered by drafts, awaiting payment, overdue and paid, above the totals
 awaiting payment and overdue; it says when the billing identity is incomplete. **New invoice** writes a draft in a
-dialog (client, mission among the client's, period, language, lines with live totals, notes); each invoice's menu
+dialog (client, mission among the client's, period, language, lines with live totals, notes). **From an activity
+report**, with the number of months waiting, lists the months of activity reports not invoiced yet, latest first, with
+their mission, whom they bill, their status, and the days worked times the daily rate with the amount before VAT
+("2,5 j × 600 € = 1 500,00 € HT"); a month whose mission lacks a daily rate or a client says so and cannot be picked.
+**Create the invoice** on a month drafts it and adds it to the list; deleting that draft frees the month again
+(`GET /api/invoices/invoiceable-reports`). Each invoice's menu
 edits, issues (asking the issue date, today or earlier), marks paid (asking the date) or unpaid, downloads the PDF or
-deletes a draft. On a mission's page, a validated month's activity report offers **Create the invoice**, which drafts
-it and opens the invoices. The server's refusals (incomplete billing identity, client without address, a date before
-the last invoice, a month invoiced already) are told in the interface language.
+deletes a draft. On a mission's page, a saved month's activity report with days worked, unless rejected, offers
+**Create the invoice**, which drafts it and opens the invoices. The server's refusals (incomplete billing identity, client without address, a date before
+the last invoice, a month invoiced already or rejected, a mission without a daily rate or a client) are told in the
+interface language.
 
 A draft changes freely, can be deleted, and its PDF says in capitals that it is not an invoice. **Issuing** needs a
 complete billing identity and the client's address; it takes the issue date (today by default, never later, and never
@@ -596,7 +610,7 @@ marked **New**.
   by default, never later) the workspace applied, and whether to plan a follow-up (after 7 days by default, 1 to 60;
   one due already is planned for the next morning). The mission joins the pipeline at the Contact stage, as **Add to
   pipeline** does, unless it already is there, and its opportunity gets an "Application sent" step waiting for
-  feedback, dated that day, plus a planned "Follow up on the application" step at 9:00 that the **Timeline** lists;
+  feedback, dated that day, plus a planned "Follow up on the application" step at 9:00 that the calendar's **Upcoming** list shows;
   steps are titled in the interface's language. The card then reads **Applied 3 days ago** (its tooltip says how and
   on which day) and links to the opportunity, and the **Applied** view lists those offers. A mission is applied to
   once, whichever copy; **Undo the application** forgets it and leaves the opportunity and its steps in the
@@ -926,7 +940,14 @@ Indezy.
 
 ## Calendar
 
-**Calendar** in the navigation shows a month, Monday first, of every dated interview step across the opportunities:
+**Calendar** in the navigation has two views, **Month** and **Upcoming**, switched at the top and kept in the address
+(`/calendar?view=upcoming`).
+
+**Upcoming** lists the planned interview steps and the calls booked through the booking link from now on, soonest
+first, each with its day and time: a step with its opportunity, which it opens, a call as "Call with <name>" with the
+company or email. It replaced the former **Timeline** page, which listed the planned steps only; `/timeline` opens it.
+
+**Month** shows a month, Monday first, of every dated interview step across the opportunities:
 each day lists up to three steps by time, coloured by status, then how many more, and the picked day (today at first)
 lists all of them below the grid with their opportunity, which they open. The arrows and **Today** change the month,
 kept in the address (`/calendar?month=2026-10`). On a phone, days show how many steps they hold and the list below
@@ -1009,7 +1030,8 @@ API: `GET /projects/{projectId}/activity-reports`, `GET|PUT /projects/{projectId
 `POST .../{year}/{month}/submit`, `POST .../link`, `POST .../reopen` and `GET .../pdf`, private to the workspace like
 every project resource. The validation link reaches `GET /public/activity-reports`, `GET /public/activity-reports/pdf`
 and `POST /public/activity-reports/decision` with its token in the `X-Report-Token` header (see
-[Security](./security.md#activity-report-validation-links)). Validated days are what the planned invoices will bill.
+[Security](./security.md#activity-report-validation-links)). A month with days worked, unless rejected, can be invoiced
+from the mission's page or from **Invoices** (see [Invoices](#invoices)).
 
 ## Purchase Orders
 
@@ -1249,7 +1271,7 @@ or during composition and repeated key presses. They are available in both
 French and English, and leave ordinary browser shortcuts unchanged.
 
 Every page works from the keyboard alone, with a visible focus in the order the page reads. Cards and rows opened by a
-click open with Enter once focused (Kanban cards, timeline steps, archived opportunities); Enter on a control inside
+click open with Enter once focused (Kanban cards, archived opportunities); Enter on a control inside
 them, such as a card's favourite star, stays with that control. Table rows opened by a click (clients, a client's
 opportunities and contacts) carry their name as a link to tab to. On the Kanban board, where cards are dragged between
 stages with the mouse, a focused card's stage menu (`Alt+Shift+M`) or its checkbox and the selection bar move it. The

@@ -284,7 +284,7 @@ export class ActivityReportCardComponent implements OnChanges, OnDestroy {
     });
   }
 
-  /** Drafts the invoice of the validated month, then opens the invoices; a month invoiced already opens them too. */
+  /** Drafts the invoice of the month's days worked, then opens the invoices; a month invoiced already opens them too. */
   invoice(): void {
     this.isBusy = true;
     this.invoices.fromReport(this.project.id!, this.year, this.month).pipe(takeUntil(this.destroy$)).subscribe({

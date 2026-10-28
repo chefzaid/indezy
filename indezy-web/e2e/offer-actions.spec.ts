@@ -132,12 +132,12 @@ test('records an application from an offer and follows it in the applied view (e
   await expect(dialog).toContainText('The mission joins your pipeline at the Contact stage');
   await dialog.getByRole('radio', { name: 'Email' }).check();
   await dialog.getByLabel('Follow up after (days)').fill('5');
-  await expect(dialog.locator('[data-follow-up-day]')).toContainText('in your Timeline');
+  await expect(dialog.locator('[data-follow-up-day]')).toContainText('in your Calendar');
   await settle(page);
   await page.screenshot({ path: test.info().outputPath('offer-apply-en.png') });
   await dialog.getByRole('button', { name: 'Record' }).click();
 
-  await expect(page.getByText('Application to “Développeur Java 1” recorded; its follow-up is in your Timeline')).toBeVisible();
+  await expect(page.getByText('Application to “Développeur Java 1” recorded; its follow-up is in your Calendar')).toBeVisible();
   await expect(cards.first().locator('[data-applied]')).toHaveText(/Applied today/);
   await expect(cards.first().getByRole('link', { name: 'In the pipeline' })).toHaveAttribute('href', '/projects/40');
   expect(applications[0].body).toEqual(expect.objectContaining({ via: 'EMAIL', followUpInDays: 5, language: 'EN' }));

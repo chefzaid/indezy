@@ -70,8 +70,7 @@
     "dashboard": "Tableau de bord",
     "offers": "Offres",
     "newOffers": "{{count}} nouvelles offres dans vos recherches enregistrées",
-    "timeline": "Planning",
-    "projects": "Missions",
+    "projects": "Opportunités",
     "clients": "Clients",
     "contacts": "Contacts",
     "sources": "Sources",
@@ -85,11 +84,6 @@
     "admin": "Administration",
     "invoices": "Factures",
     "documents": "Documents"
-  },
-  "timeline": {
-    "title": "Planning",
-    "subtitle": "Toutes vos étapes d'entretien planifiées, les plus proches d'abord",
-    "empty": "Aucune étape à venir planifiée"
   },
   "archive": {
     "title": "Archives",
@@ -274,7 +268,7 @@
     }
   },
   "projects": {
-    "title": "Mes Missions",
+    "title": "Mes opportunités",
     "newProject": "Nouvelle mission",
     "exportSummary": "Exporter le récapitulatif",
     "exportError": "Erreur lors de l'export du récapitulatif",
@@ -1633,7 +1627,7 @@
       "imported": "« {{role}} » ajoutée au pipeline (étape Contact)",
       "publisherBlocked": "Les offres de {{publisher}} sont masquées de votre fil. Rétablissez-les depuis votre profil.",
       "applied": "Candidature à « {{role}} » enregistrée dans votre pipeline",
-      "appliedWithFollowUp": "Candidature à « {{role}} » enregistrée ; sa relance est dans votre Planning",
+      "appliedWithFollowUp": "Candidature à « {{role}} » enregistrée ; sa relance est dans votre Calendrier",
       "withdrawn": "Candidature annulée ; l'opportunité reste dans votre pipeline."
     },
     "seniority": {
@@ -1964,7 +1958,7 @@
       "dayRequired": "Indiquez le jour de votre candidature.",
       "followUp": "Planifier une relance",
       "followUpDays": "Relancer après (jours)",
-      "followUpOn": "Le {{date}}, dans votre Planning",
+      "followUpOn": "Le {{date}}, dans votre Calendrier",
       "daysRange": "Entre 1 et {{max}} jours.",
       "joinsPipeline": "La mission rejoint votre pipeline à l'étape Contact, avec une étape « Candidature envoyée » en attente de retour.",
       "inPipeline": "Son opportunité dans votre pipeline reçoit une étape « Candidature envoyée » en attente de retour.",
@@ -2182,7 +2176,12 @@
     "nothing": "Rien de prévu ce jour",
     "loadError": "Les étapes n'ont pas pu être chargées",
     "more": "+{{count}}",
-    "dayLabel": "{{date}} : {{count}} étape(s)"
+    "dayLabel": "{{date}} : {{count}} étape(s)",
+    "views": "Affichage du calendrier",
+    "monthView": "Mois",
+    "upcomingView": "À venir",
+    "upcomingIntro": "Vos étapes d'entretien planifiées et les appels réservés, les plus proches d'abord",
+    "upcomingEmpty": "Aucune étape planifiée ni appel à venir"
   },
   "globalSearch": {
     "open": "Tout rechercher",
@@ -2411,7 +2410,7 @@
       "OVERDUE": "En retard",
       "PAID": "Payées"
     },
-    "none": "Aucune facture pour l'instant. Créez-en une, ou facturez un compte rendu d'activité validé depuis la page de sa mission.",
+    "none": "Aucune facture pour l'instant. Créez-en une, ou facturez un CRA avec « Depuis un CRA ».",
     "noneForFilter": "Aucune facture ici.",
     "draft": "Brouillon",
     "statuses": {
@@ -2467,11 +2466,13 @@
       "clientAddress": "Ajoutez l'adresse du client avant de le facturer.",
       "dateBeforeLast": "Une facture ne peut pas être datée d'avant la dernière émise.",
       "alreadyInvoiced": "Ce mois est déjà facturé.",
-      "notValidated": "Seul un mois validé par le client peut être facturé.",
       "frozen": "Une facture émise ne peut plus être modifiée.",
       "clientGone": "Le client de la facture n'existe plus.",
       "creditTooHigh": "Un avoir ne peut pas créditer plus que ce qui reste de sa facture.",
-      "creditClient": "Un avoir va au client de sa facture."
+      "creditClient": "Un avoir va au client de sa facture.",
+      "notInvoiceable": "Seul un mois avec des jours travaillés, et non refusé, peut être facturé.",
+      "noDailyRate": "Ajoutez le TJM de la mission avant de la facturer.",
+      "noClient": "Ajoutez le client de la mission avant de la facturer."
     },
     "creditNote": "Avoir",
     "credits": "sur {{number}}",
@@ -2481,7 +2482,17 @@
     "export": "Exporter pour le comptable",
     "exportFec": "Écritures comptables (FEC)",
     "exportRegister": "Registre des factures (tableur)",
-    "exportError": "L'export n'a pas pu être fait. Veuillez réessayer."
+    "exportError": "L'export n'a pas pu être fait. Veuillez réessayer.",
+    "fromReport": "Depuis un CRA",
+    "fromReportTitle": "Facturer un CRA",
+    "fromReportIntro": "Les mois saisis avec des jours travaillés et pas encore facturés. La facture est un brouillon : les jours travaillés × le TJM de la mission, à relire avant de l'émettre.",
+    "fromReportNone": "Aucun CRA à facturer. Un mois apparaît ici dès que ses jours travaillés sont saisis sur la page de la mission.",
+    "fromReportAmount": "{{days}} j × {{rate}} € = {{amount}} € HT",
+    "fromReportNoRate": "Ajoutez le TJM de la mission pour facturer ce mois.",
+    "fromReportNoClient": "Ajoutez le client de la mission pour facturer ce mois.",
+    "fromReportCreate": "Créer la facture",
+    "fromReportCreated": "Brouillon créé depuis le CRA",
+    "toInvoice": "{{count}} mois de CRA à facturer"
   },
   "purchaseOrders": {
     "title": "Bons de commande",

@@ -87,9 +87,8 @@ export class AppComponent implements OnInit {
 
   menuItems: MenuItem[] = [
     { labelKey: 'nav.dashboard', route: '/dashboard', icon: 'dashboard' },
-    { labelKey: 'nav.offers', route: '/offers', icon: 'travel_explore', badge$: this.offerAlerts.newOffers$, feature: 'OFFER_FEED' },
-    { labelKey: 'nav.timeline', route: '/timeline', icon: 'event' },
     { labelKey: 'nav.calendar', route: '/calendar', icon: 'calendar_month' },
+    { labelKey: 'nav.offers', route: '/offers', icon: 'travel_explore', badge$: this.offerAlerts.newOffers$, feature: 'OFFER_FEED' },
     { labelKey: 'nav.projects', route: '/projects', icon: 'work' },
     { labelKey: 'nav.clients', route: '/clients', icon: 'business' },
     { labelKey: 'nav.contacts', route: '/contacts', icon: 'contacts' },

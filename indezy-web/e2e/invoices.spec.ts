@@ -8,6 +8,45 @@ const base = { status: 'DRAFT', overdue: false, clientId: 3, clientName: 'Acme',
   lines: [], vat: 0, paidOn: null, createdAt: '2026-10-27T10:00:00' };
 
 for (const width of [1280, 390]) {
+  test(`invoices a month of an activity report: days worked times the daily rate (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, 'en');
+    await mockWorkspaceData(page, 'en');
+    let months = [{ reportId: 31, projectId: 42, projectRole: 'Java developer', clientName: 'Acme', year: 2026, month: 11,
+      status: 'DRAFT', workedDays: 2.5, dailyRate: 600, amount: 1500 }];
+    let invoices: Record<string, unknown>[] = [];
+    await page.route('**/api/users/billing', route => route.fulfill({ json: { vatExempt: true, vatRate: 20, complete: true } }));
+    await page.route('**/api/invoices/by-freelance/1', route => route.fulfill({ json: invoices }));
+    await page.route('**/api/invoices/invoiceable-reports', route => route.fulfill({ json: months }));
+    await page.route('**/api/invoices/from-report', route => {
+      expect(route.request().postDataJSON()).toEqual({ projectId: 42, year: 2026, month: 11 });
+      const created = { ...base, id: 9, projectId: 42, projectRole: 'Java developer', activityReportId: 31, periodStart: '2026-11-01',
+        periodEnd: '2026-11-30', lines: [{ description: 'Prestation : Java developer — novembre 2026', quantity: 2.5, unitPrice: 600,
+          vatRate: 0 }], totalExcludingVat: 1500, total: 1500 };
+      invoices = [created];
+      months = [];
+      return route.fulfill({ status: 201, json: created });
+    });
+    await page.goto('/invoices');
+    await expect(page.locator('[data-invoice-from-report] .to-invoice')).toHaveText('1');
+
+    await page.locator('[data-invoice-from-report]').click();
+    const dialog = page.getByRole('dialog');
+    const month = dialog.locator('[data-invoiceable-report="31"]');
+    await expect(month).toContainText('Java developer · Acme');
+    await expect(month).toContainText('November 2026 · Draft');
+    await expect(month).toContainText('2.5 days × 600 € = 1,500.00 € before VAT');
+    await page.locator('.mat-mdc-dialog-container').evaluate(container =>
+      Promise.all(container.getAnimations({ subtree: true }).map(animation => animation.finished)));
+    const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
+    await month.locator('[data-invoice-this-report]').click();
+
+    await expect(page.locator('[data-invoice="9"]')).toContainText('Draft');
+    await expect(page.locator('[data-invoice="9"]')).toContainText('1,500.00');
+    await expect(page.locator('[data-invoice-from-report] .to-invoice')).toHaveCount(0);
+  });
+
   test(`writes, issues and settles an invoice (${width}px)`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, 'en');

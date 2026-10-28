@@ -60,7 +60,13 @@ public class InvoiceController {
         return invoices.create(workspace(), draft);
     }
 
-    @Operation(summary = "Draft the invoice of a validated activity report")
+    @Operation(summary = "The activity reports that can be invoiced: days worked, not rejected, not invoiced yet")
+    @GetMapping("/invoiceable-reports")
+    public List<InvoiceDtos.InvoiceableReport> invoiceableReports() {
+        return invoices.invoiceableReports(workspace());
+    }
+
+    @Operation(summary = "Draft the invoice of a month's activity report")
     @PostMapping("/from-report")
     @ResponseStatus(HttpStatus.CREATED)
     public InvoiceDtos.Invoice fromReport(@Valid @RequestBody InvoiceDtos.FromReport request) {

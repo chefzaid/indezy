@@ -1,4 +1,4 @@
-import { Booking, InterviewStepDto } from '../../models';
+import { Booking, InterviewStepDto, StepStatus } from '../../models';
 import { fromIsoDate, toIsoDate } from '../../shared/locale/app-locale';
 
 /** One day of the month grid: its date, whether it belongs to the shown month, its dated steps and booked calls by time. */
@@ -8,6 +8,14 @@ export interface CalendarDay {
   inMonth: boolean;
   steps: InterviewStepDto[];
   bookings: Booking[];
+}
+
+/** A planned step or a booked call still to come, with its time to order the list by. */
+export interface UpcomingItem {
+  key: string;
+  time: number;
+  step?: InterviewStepDto;
+  booking?: Booking;
 }
 
 /**
@@ -53,4 +61,15 @@ export function monthOf(value: string | null, today: Date = new Date()): Date {
 /** The page address of a month: yyyy-MM. */
 export function monthKey(month: Date): string {
   return toIsoDate(month)!.substring(0, 7);
+}
+
+/** The planned steps and the calls not cancelled from {@code now} on, soonest first. */
+export function upcoming(steps: InterviewStepDto[], bookings: Booking[], now: Date = new Date()): UpcomingItem[] {
+  const items: UpcomingItem[] = [
+    ...steps.filter(step => step.status === StepStatus.PLANNED && !!step.date)
+      .map(step => ({ key: `step-${step.id}`, time: new Date(step.date!).getTime(), step })),
+    ...bookings.filter(booking => !booking.cancelledAt)
+      .map(booking => ({ key: `call-${booking.id}`, time: new Date(booking.startsAt).getTime(), booking }))
+  ];
+  return items.filter(item => item.time >= now.getTime()).sort((a, b) => a.time - b.time);
 }

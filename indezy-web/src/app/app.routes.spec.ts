@@ -35,6 +35,10 @@ describe('application routes', () => {
     expect(component).toBeDefined();
   });
 
+  it('sends the former timeline address to the calendar\'s upcoming view', () => {
+    expect(routes.find((route) => route.path === 'timeline')?.redirectTo).toBe('/calendar?view=upcoming');
+  });
+
   it('opens the admin console to signed-in administrators only', () => {
     const admin = routes.find((route) => route.path === 'admin');
 

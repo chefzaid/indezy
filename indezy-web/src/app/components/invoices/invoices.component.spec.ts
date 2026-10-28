@@ -6,7 +6,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { BillingIdentity, ClientDto, Invoice, ProjectDto } from '../../models';
+import { BillingIdentity, ClientDto, Invoice, InvoiceableReport, ProjectDto } from '../../models';
 import { AuthService } from '../../services/auth/auth.service';
 import { BillingService } from '../../services/billing/billing.service';
 import { ClientService } from '../../services/client/client.service';
@@ -15,6 +15,7 @@ import { NotificationService } from '../../services/notification/notification.se
 import { ProjectService } from '../../services/project/project.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { InvoicesComponent } from './invoices.component';
+import { InvoiceReportDialogComponent } from './report-dialog/invoice-report-dialog.component';
 import en from '../../../assets/i18n/en.json';
 
 describe('InvoicesComponent', () => {
@@ -33,12 +34,16 @@ describe('InvoicesComponent', () => {
   const late = invoice(3, { number: 'F2026-0002', status: 'ISSUED', overdue: true, total: 500 });
   const paid = invoice(4, { number: 'F2026-0003', status: 'PAID', paidOn: '2026-10-20', language: 'EN' });
   const billing = { complete: false, vatExempt: false, vatRate: 20 } as BillingIdentity;
+  const november: InvoiceableReport = { reportId: 31, projectId: 8, projectRole: 'Java lead', clientName: 'Acme', year: 2026, month: 11,
+    status: 'DRAFT', workedDays: 2.5, dailyRate: 600, amount: 1500 };
+  let reports: InvoiceableReport[] = [];
   const closing = (result: unknown) => dialog.open.and.returnValue({ afterClosed: () => of(result) } as MatDialogRef<unknown>);
 
   function create(list = of([draft, issued, late, paid])): ComponentFixture<InvoicesComponent> {
     invoiceService = jasmine.createSpyObj('InvoiceService', ['list', 'create', 'update', 'delete', 'issue', 'setPaid', 'downloadPdf',
-      'creditNote', 'exportYear']);
+      'creditNote', 'exportYear', 'invoiceableReports', 'fromReport']);
     invoiceService.list.and.returnValue(list);
+    invoiceService.invoiceableReports.and.returnValue(of(reports));
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -64,7 +69,10 @@ describe('InvoicesComponent', () => {
     return fixture;
   }
 
-  beforeEach(() => user = { id: 7 });
+  beforeEach(() => {
+    user = { id: 7 };
+    reports = [];
+  });
 
   it('lists the invoices with what is owed and overdue, filtered by status', () => {
     const fixture = create();
@@ -115,6 +123,44 @@ describe('InvoicesComponent', () => {
     component.write(draft);
     expect(component.invoices.find(item => item.id === 1)?.total).toBe(1500);
     expect(notifications.success).toHaveBeenCalledWith('invoices.saved');
+  });
+
+  it('counts the months of activity reports to invoice and drafts the one picked', () => {
+    reports = [november, { ...november, reportId: 32, month: 10, status: 'VALIDATED' }];
+    const fixture = create();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-invoice-from-report] .to-invoice')!.textContent!.trim()).toBe('2');
+
+    const created = invoice(9, { activityReportId: 31, totalExcludingVat: 1500, total: 1500 });
+    invoiceService.fromReport.and.returnValue(of(created));
+    closing(november);
+    fixture.componentInstance.fromReport();
+    fixture.detectChanges();
+    expect(dialog.open).toHaveBeenCalledWith(InvoiceReportDialogComponent, jasmine.objectContaining({ data: reports }));
+    expect(invoiceService.fromReport).toHaveBeenCalledWith(8, 2026, 11);
+    expect(notifications.success).toHaveBeenCalledWith('invoices.fromReportCreated');
+    expect(fixture.componentInstance.invoices[0]).toBe(created);
+    expect(fixture.componentInstance.toInvoice.map(report => report.reportId)).toEqual([32]);
+    expect(element.querySelector('[data-invoice-from-report] .to-invoice')!.textContent!.trim()).toBe('1');
+  });
+
+  it('drafts nothing when no month is picked, and tells why the server refuses one', () => {
+    reports = [november];
+    const fixture = create();
+    closing(undefined);
+    fixture.componentInstance.fromReport();
+    expect(invoiceService.fromReport).not.toHaveBeenCalled();
+
+    invoiceService.fromReport.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409,
+      error: { message: 'The mission has no daily rate to invoice' } })));
+    closing(november);
+    fixture.componentInstance.fromReport();
+    expect(notifications.error).toHaveBeenCalledWith('invoices.errors.noDailyRate');
+    expect(fixture.componentInstance.toInvoice).toEqual([november]);
+
+    invoiceService.invoiceableReports.and.returnValue(throwError(() => new Error('down')));
+    fixture.componentInstance.fromReport();
+    expect(notifications.error).toHaveBeenCalledWith('invoices.loadError');
   });
 
   it('issues a draft on the chosen date, and tells why the server refuses', () => {
@@ -229,6 +275,12 @@ describe('InvoicesComponent', () => {
     invoiceService.delete.and.returnValue(of(undefined));
     component.remove(draft);
     expect(component.invoices.map(item => item.id)).toEqual([2, 3, 4]);
+    expect(invoiceService.invoiceableReports).toHaveBeenCalledTimes(1);
+
+    // A deleted draft of an activity report frees its month.
+    invoiceService.invoiceableReports.and.returnValue(of([november]));
+    component.remove(invoice(5, { activityReportId: 31 }));
+    expect(component.toInvoice).toEqual([november]);
 
     invoiceService.delete.and.returnValue(throwError(() => new Error('500')));
     component.remove(issued);

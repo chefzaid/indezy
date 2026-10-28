@@ -32,10 +32,12 @@ test('opens a Kanban card with Enter, but not from a button on it', async ({ pag
   await expect(page).toHaveURL(/\/projects\/42$/);
 });
 
-test('opens a timeline step and an archived opportunity with Enter', async ({ page }) => {
+test('opens an upcoming step and an archived opportunity with Enter', async ({ page }) => {
   await workspace(page);
+  // The former timeline address opens the calendar's upcoming list.
   await page.goto('/timeline');
-  await page.locator('.timeline-row').first().focus();
+  await expect(page).toHaveURL(/\/calendar\?view=upcoming$/);
+  await page.locator('[data-calendar-upcoming] a.detail-step').first().focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/projects\/42$/);
 

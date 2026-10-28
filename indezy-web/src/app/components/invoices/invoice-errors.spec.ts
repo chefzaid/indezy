@@ -9,6 +9,9 @@ describe('invoiceErrorKey', () => {
     expect(invoiceErrorKey(conflict('An invoice cannot be dated before the last one issued, on 2026-10-01'), 'x'))
       .toBe('invoices.errors.dateBeforeLast');
     expect(invoiceErrorKey(conflict('This activity report is already invoiced'), 'x')).toBe('invoices.errors.alreadyInvoiced');
+    expect(invoiceErrorKey(conflict('Only an activity report with days worked, and not rejected, can be invoiced'), 'x'))
+      .toBe('invoices.errors.notInvoiceable');
+    expect(invoiceErrorKey(conflict('The mission has no client to invoice'), 'x')).toBe('invoices.errors.noClient');
   });
 
   it('falls back on anything else', () => {

@@ -1,4 +1,4 @@
-import { DocumentLanguage } from './activity-report.models';
+import { ActivityReportStatus, DocumentLanguage } from './activity-report.models';
 
 export type InvoiceStatus = 'DRAFT' | 'ISSUED' | 'PAID' | 'CREDITED';
 
@@ -52,4 +52,20 @@ export interface InvoiceDraft {
   language: DocumentLanguage;
   notes?: string | null;
   lines: InvoiceLine[];
+}
+
+/** A month's activity report that can be invoiced: days worked, not rejected, not invoiced yet. */
+export interface InvoiceableReport {
+  reportId: number;
+  projectId: number;
+  projectRole: string;
+  /** Whom the month bills: the mission's ESN, else its client; null without one. */
+  clientName: string | null;
+  year: number;
+  month: number;
+  status: ActivityReportStatus;
+  workedDays: number;
+  /** The mission's daily rate and the amount before VAT it gives the days worked; null without a rate. */
+  dailyRate: number | null;
+  amount: number | null;
 }

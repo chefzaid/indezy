@@ -151,4 +151,44 @@ describe('CalendarComponent', () => {
     create('2026-10', { id: 7 }, of(planned), throwError(() => new Error('down')));
     expect(notifications.error).toHaveBeenCalledWith('calendar.loadError');
   });
+
+  it('lists the planned steps and calls to come in the upcoming view, and switches views through the address', () => {
+    const later: InterviewStepDto[] = [
+      { id: 11, title: 'Client interview', status: StepStatus.PLANNED, date: '2099-01-10T10:00:00', projectId: 4, projectRole: 'Java developer' },
+      { id: 12, title: 'Debrief', status: StepStatus.VALIDATED, date: '2099-01-05T10:00:00', projectId: 4, projectRole: 'Java developer' },
+      { id: 13, title: 'Past', status: StepStatus.PLANNED, date: '2020-01-05T10:00:00', projectId: 5, projectRole: 'Ops' }
+    ];
+    const call: Booking = { id: 21, name: 'Recruiter', startsAt: new Date(2099, 0, 8, 11).toISOString(),
+      endsAt: new Date(2099, 0, 8, 11, 30).toISOString(), email: 'r@esn.example', company: 'ESN', message: null, cancelledAt: null };
+    const fixture = create('2026-10', { id: 7 }, of(later), of([call]));
+    const component = fixture.componentInstance;
+    const element = fixture.nativeElement as HTMLElement;
+    expect(component.view).toBe('month');
+    expect(element.querySelector('[data-calendar-upcoming]')).toBeNull();
+
+    params.next(convertToParamMap({ month: '2026-10', view: 'upcoming' }));
+    fixture.detectChanges();
+    expect(element.querySelector('.month-grid')).toBeNull();
+    expect(element.querySelector('.month-nav')).toBeNull();
+    const rows = Array.from(element.querySelectorAll('[data-calendar-upcoming] .detail-step'));
+    expect(rows.length).toBe(2);
+    expect(text(rows[0])).toContain('Call with Recruiter');
+    expect(text(rows[0])).toContain('ESN');
+    expect(text(rows[1])).toContain('Client interview');
+    expect(rows[1].getAttribute('href')).toBe('/projects/4');
+
+    component.show('month');
+    expect(navigate.calls.mostRecent().args[1]).toEqual(jasmine.objectContaining({ queryParams: { view: null },
+      queryParamsHandling: 'merge' }));
+    component.show('upcoming');
+    expect(navigate.calls.mostRecent().args[1].queryParams).toEqual({ view: 'upcoming' });
+  });
+
+  it('says when nothing is to come', () => {
+    const fixture = create('2026-10', { id: 7 }, of([]));
+    params.next(convertToParamMap({ view: 'upcoming' }));
+    fixture.detectChanges();
+
+    expect(text(fixture.nativeElement.querySelector('[data-calendar-upcoming]'))).toContain('No upcoming scheduled step or call');
+  });
 });
