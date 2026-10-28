@@ -1,10 +1,6 @@
 <div class="offers-page">
-  <header class="offers-header">
-    <h1>
-      <mat-icon aria-hidden="true">travel_explore</mat-icon>
-      {{ 'offers.title' | translate }}
-    </h1>
-    <p class="subtitle" data-summary>
+  <app-page-header class="offers-header" icon="travel_explore" [title]="'offers.title' | translate">
+    <p pageHeaderBelow class="page-subtitle" data-summary>
       {{ 'offers.subtitle' | translate: { offers: openOffers, sites: keptSites.length } }}
       @if (lastUpdate) {
         <span class="updated">· {{ 'offers.updated' | translate: { when: lastUpdate } }}</span>
@@ -21,7 +17,7 @@
       ·
       <a routerLink="/offers/sites" fragment="sites-to-visit" class="sites-link" data-sites-to-visit-link>{{ 'offers.sitesToVisit' | translate }}</a>
     </p>
-  </header>
+  </app-page-header>
 
   <div class="toolbar">
     <mat-button-toggle-group [value]="query.view" (change)="setView($event.value)" [attr.aria-label]="'offers.views.label' | translate"

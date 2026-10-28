@@ -89,7 +89,7 @@ describe('OfferFeedComponent', () => {
     const fixture = create({ q: 'java', view: 'SAVED' });
 
     expect(service.search).toHaveBeenCalledWith(jasmine.objectContaining({ q: 'java', view: 'SAVED', page: 0 }), undefined);
-    expect(text(fixture)).toContain('Missions freelance');
+    expect(fixture.nativeElement.querySelector('h1').textContent).toContain('Offres');
     expect(text(fixture)).toContain('150 offres ouvertes sur 2 sites');
     expect(text(fixture)).toContain('2 offres');
     expect(fixture.nativeElement.querySelectorAll('app-offer-card').length).toBe(2);

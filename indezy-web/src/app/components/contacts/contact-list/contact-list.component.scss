@@ -1,32 +1,6 @@
 .contact-list-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 20px;
-  
-  .header-card {
-    margin-bottom: 20px;
-    
-    mat-card-header {
-      mat-card-title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 1.5rem;
-        
-        mat-icon {
-          font-size: 1.5rem;
-          width: 1.5rem;
-          height: 1.5rem;
-          color: var(--app-link);
-        }
-      }
-      
-      mat-card-subtitle {
-        margin-top: 8px;
-        color: var(--app-text-muted);
-      }
-    }
-  }
+  // The whole width of the page with the shell's gutter only, as the dashboard and its board take.
+
   
   .filters-card {
     margin-bottom: 20px;
@@ -156,7 +130,7 @@
           cursor: pointer;
 
           &:hover {
-            background-color: rgba(25, 118, 210, 0.04);
+            background-color: var(--app-hover);
           }
         }
       }
@@ -210,13 +184,13 @@
   min-height: 28px;
   
   &.mat-primary {
-    background-color: #e8f5e8;
-    color: #2e7d32;
+    background-color: var(--app-chip-positive-bg);
+    color: var(--app-chip-positive-text);
   }
   
   &.mat-warn {
-    background-color: #ffebee;
-    color: #b71c1c;
+    background-color: var(--app-chip-danger-bg);
+    color: var(--app-chip-danger-text);
   }
 }
 
@@ -224,7 +198,6 @@
 // rows open the contact for everything else.
 @media (max-width: 600px) {
   .contact-list-container {
-    padding: 0;
 
     .table-card .table-container .contacts-table {
       .mat-column-email,

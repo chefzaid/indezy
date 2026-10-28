@@ -1,29 +1,5 @@
-.compliance-page {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 24px 16px;
-}
-
-.header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-
-  h1 {
-    flex: 1 1 auto;
-    margin: 0;
-  }
-}
-
-.intro {
-  margin: 8px 0 20px;
-  color: var(--app-text-muted);
-}
-
 h2 {
   margin: 24px 0 12px;
-  font-size: 1.15rem;
 }
 
 .shared-link {
@@ -75,7 +51,6 @@ h2 {
 
     h3 {
       margin: 0;
-      font-size: 1rem;
       overflow-wrap: anywhere;
     }
 

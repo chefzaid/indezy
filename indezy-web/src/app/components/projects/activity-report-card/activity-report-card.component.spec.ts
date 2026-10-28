@@ -110,6 +110,11 @@ describe('ActivityReportCardComponent', () => {
     jasmine.clock().mockDate(new Date(2027, 6, 1));
     create();
     expect(service.getReport).toHaveBeenCalledWith(42, 2027, 2);
+
+    // A mission ended early stops with the month it ended.
+    TestBed.resetTestingModule();
+    create({ ...mission, endedOn: '2026-11-20' });
+    expect(service.getReport).toHaveBeenCalledWith(42, 2026, 11);
   });
 
   it('records days with the chosen brush, fills business days and shows live totals and amount', () => {

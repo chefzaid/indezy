@@ -43,7 +43,7 @@ INSERT INTO user_languages (user_id, language) VALUES
 (1, 'French');
 
 -- Insert test freelances (using actual column names from Freelance entity)
-INSERT INTO freelances (id, first_name, last_name, email, phone, birth_date, address, city, status, notice_period_in_days, availability_date, reversion_rate, cv_file_path, password_hash, created_at, updated_at, version) VALUES
+INSERT INTO freelances (id, first_name, last_name, email, phone, birth_date, address, city, status, notice_period_in_days, availability_date, reversion_share, cv_file_path, password_hash, created_at, updated_at, version) VALUES
 (1, 'John', 'Doe', 'john.doe@example.com', '+33 1 23 45 67 89', '1985-03-15', '123 Rue de la Paix', 'Paris', 'FREELANCE', 30, '2024-02-01', 0.15, '/cv/john-doe.pdf', '$2a$10$encrypted_password_hash', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
 (2, 'Jane', 'Smith', 'jane.smith@example.com', '+33 1 98 76 54 32', '1990-07-22', '456 Avenue des Champs', 'Lyon', 'CDI', 60, '2024-03-01', 0.20, '/cv/jane-smith.pdf', '$2a$10$encrypted_password_hash2', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 

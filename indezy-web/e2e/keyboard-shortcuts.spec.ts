@@ -26,7 +26,7 @@ for (const language of ['en', 'fr']) {
     });
     await page.route('**/api/projects/stats/dashboard/1*', route => route.fulfill({ json: emptyDashboardStats }));
     await page.route('**/api/projects/kanban/1*', route => route.fulfill({ json: {
-      columnOrder: ['CONTACT', 'INTERVIEW', 'OFFER', 'WON', 'LOST'],
+      columnOrder: ['CONTACT', 'INTERVIEW', 'OFFER', 'LOST', 'WON'],
       columns: { [project.status]: [{ ...project, projectId: project.id }] }
     } }));
 
@@ -72,13 +72,13 @@ for (const language of ['en', 'fr']) {
     await expect(page.locator('[data-project-status]')).toBeEnabled();
     await expect(page.locator('[data-project-status]')).toContainText(language === 'en' ? 'Offer' : 'Offre');
     await page.keyboard.press('Alt+Shift+KeyM');
-    await page.getByRole('menuitem', { name: language === 'en' ? 'Lost / Dropped' : 'Perdu / Abandonné', exact: true }).focus();
+    await page.getByRole('menuitem', { name: language === 'en' ? 'Declined' : 'Refusé', exact: true }).focus();
     await page.keyboard.press('Enter');
-    const reason = page.getByRole('dialog');
-    await expect(reason).toBeVisible();
+    const refusal = page.getByRole('dialog');
+    await expect(refusal).toBeVisible();
     await page.keyboard.press('Alt+Shift+KeyN');
-    await reason.getByRole('button', { name: language === 'en' ? 'Cancel' : 'Annuler', exact: true }).press('Enter');
-    await expect(reason).not.toBeVisible();
+    await refusal.getByRole('button', { name: language === 'en' ? 'Cancel' : 'Annuler', exact: true }).press('Enter');
+    await expect(refusal).not.toBeVisible();
     expect(changes).toEqual(['OFFER']);
     await expect(page).toHaveURL(/\/projects\/42\?focus=status$/);
   });

@@ -8,11 +8,7 @@ mat-card-title {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.1rem;
 
-  mat-icon {
-    color: var(--app-link);
-  }
 }
 
 mat-card-content {
@@ -78,11 +74,11 @@ mat-card-content {
   }
 
   &.rejected {
-    --banner-color: #d32f2f;
+    --banner-color: var(--app-danger);
   }
 
   &.validated {
-    --banner-color: #2e7d32;
+    --banner-color: var(--app-positive);
   }
 }
 

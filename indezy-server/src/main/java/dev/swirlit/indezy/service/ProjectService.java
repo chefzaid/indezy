@@ -4,6 +4,7 @@ import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.constants.UserPreferenceDefaults;
 import dev.swirlit.indezy.dto.KanbanBoardDto;
 import dev.swirlit.indezy.dto.ProjectDto;
+import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.mapper.ProjectMapper;
 import dev.swirlit.indezy.model.Client;
@@ -13,6 +14,7 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.model.enums.RefusedBy;
 import dev.swirlit.indezy.repository.ActivityReportRepository;
 import dev.swirlit.indezy.repository.PurchaseOrderRepository;
 import dev.swirlit.indezy.model.enums.WebhookEvent;
@@ -32,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,8 +79,8 @@ public class ProjectService {
         ProjectStatus.CONTACT,
         ProjectStatus.INTERVIEW,
         ProjectStatus.OFFER,
-        ProjectStatus.WON,
-        ProjectStatus.LOST
+        ProjectStatus.LOST,
+        ProjectStatus.WON
     );
 
     @Transactional(readOnly = true)
@@ -167,10 +170,8 @@ public class ProjectService {
         if (project.getStatus() == null) {
             project.setStatus(ProjectStatus.CONTACT);
         }
-        // The lost reason only applies to lost opportunities.
-        if (!ProjectStatus.LOST.equals(project.getStatus())) {
-            project.setLostReason(null);
-        }
+        // Who refused and why only apply to refused opportunities, the end of a mission to won ones.
+        project.clearOtherOutcomes();
         
         // Set required relationships
         if (projectDto.getFreelanceId() != null) {
@@ -225,9 +226,7 @@ public class ProjectService {
         if (existingProject.getStatus() == null) {
             existingProject.setStatus(previousStatus != null ? previousStatus : ProjectStatus.CONTACT);
         }
-        if (!ProjectStatus.LOST.equals(existingProject.getStatus())) {
-            existingProject.setLostReason(null);
-        }
+        existingProject.clearOtherOutcomes();
         
         // Update relationships if provided
         if (projectDto.getClientId() != null && !projectDto.getClientId().equals(existingProject.getClient().getId())) {
@@ -291,14 +290,16 @@ public class ProjectService {
         log.info("Deleted project with id: {}", id);
     }
 
-    public ProjectDto updateStatus(Long id, ProjectStatus status, LostReason lostReason) {
+    public ProjectDto updateStatus(Long id, ProjectStatus status, RefusedBy refusedBy, LostReason lostReason) {
         log.debug("Updating project status with id: {} to status: {}", id, status);
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
         ProjectStatus previousStatus = project.getStatus();
         project.setStatus(status);
-        // The lost reason only applies to lost opportunities; clear it otherwise.
-        project.setLostReason(ProjectStatus.LOST.equals(status) ? lostReason : null);
+        project.setRefusedBy(refusedBy);
+        project.setLostReason(lostReason);
+        // Who refused and why only apply to refused opportunities, the end of a mission to won ones.
+        project.clearOtherOutcomes();
         Project updatedProject = projectRepository.save(project);
         publishStatusChange(updatedProject, previousStatus);
         log.info("Updated project status with id: {} to status: {}", id, status);
@@ -354,6 +355,39 @@ public class ProjectService {
         kanbanBoard.setColumns(columns);
         kanbanBoard.setColumnOrder(KANBAN_COLUMN_ORDER.stream().map(Enum::name).toList());
         return kanbanBoard;
+    }
+
+    /**
+     * Ends a won mission on the day given, saying why: its activity reports stop with that month, and it leaves the
+     * missions in progress once that month is over. It stays won; {@link #resumeMission} undoes it.
+     */
+    public ProjectDto endMission(Long id, LocalDate endedOn, String reason) {
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
+        if (!ProjectStatus.WON.equals(project.getStatus())) {
+            throw new InvalidStateException("Only an accepted mission can be ended");
+        }
+        if (project.getStartDate() != null && endedOn.isBefore(project.getStartDate())) {
+            throw new IllegalArgumentException("A mission cannot end before it starts");
+        }
+        project.setEndedOn(endedOn);
+        project.setEndReason(reason.strip());
+        Project saved = projectRepository.save(project);
+        log.info("Ended mission with id: {} on {}", id, endedOn);
+        return projectMapper.toDto(saved);
+    }
+
+    /** Puts a mission ended by mistake back in progress. */
+    public ProjectDto resumeMission(Long id) {
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PROJECT_NOT_FOUND, id)));
+        if (project.getEndedOn() != null) {
+            project.setEndedOn(null);
+            project.setEndReason(null);
+            project = projectRepository.save(project);
+            log.info("Resumed mission with id: {}", id);
+        }
+        return projectMapper.toDto(project);
     }
 
     /**
@@ -423,6 +457,7 @@ public class ProjectService {
         card.setIsFavorite(project.getIsFavorite());
         card.setBoardPosition(project.getBoardPosition());
         card.setUpdatedAt(project.getUpdatedAt() != null ? project.getUpdatedAt().toString() : null);
+        card.setRefusedBy(project.getRefusedBy() != null ? project.getRefusedBy().name() : null);
         card.setLostReason(project.getLostReason() != null ? project.getLostReason().name() : null);
 
         List<InterviewStep> steps = interviewStepRepository.findByProjectId(project.getId());

@@ -385,9 +385,9 @@ export class ActivityReportCardComponent implements OnChanges, OnDestroy {
     if (start !== undefined && current < start) {
       current = start;
     }
-    const end = start !== undefined && this.project.durationInMonths
-      ? start + this.project.durationInMonths - 1
-      : undefined;
+    // The month it ended, else the last month of its duration.
+    const end = this.project.endedOn ? monthIndex(this.project.endedOn)
+      : start !== undefined && this.project.durationInMonths ? start + this.project.durationInMonths - 1 : undefined;
     if (end !== undefined && current > end) {
       current = end;
     }

@@ -115,6 +115,12 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    // The missions in progress, with their activity reports to fill in.
+    path: 'activity-reports',
+    loadComponent: () => import('./components/activity-reports/activity-reports.component').then(m => m.ActivityReportsComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'invoices',
     loadComponent: () => import('./components/invoices/invoices.component').then(m => m.InvoicesComponent),
     canActivate: [authGuard]

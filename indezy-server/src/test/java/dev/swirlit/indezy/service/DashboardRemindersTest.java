@@ -93,9 +93,12 @@ class DashboardRemindersTest extends DashboardStatsTestSupport {
         Project pending = wonMission(5L, today, 1);
         pending.setStatus(ProjectStatus.INTERVIEW);                   // not signed, excluded
         Project noDates = wonMission(6L, null, null);                 // missing dates, excluded
+        Project endedFromItsPage = wonMission(7L, today, 1);          // ended by hand, excluded
+        endedFromItsPage.setEndedOn(today);
+        endedFromItsPage.setEndReason("The client cut the budget");
 
         when(projectRepository.findByFreelanceId(1L))
-            .thenReturn(List.of(endingA, endingB, farFuture, alreadyEnded, pending, noDates));
+            .thenReturn(List.of(endingA, endingB, farFuture, alreadyEnded, pending, noDates, endedFromItsPage));
 
         // When
         DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);

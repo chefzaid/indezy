@@ -1,34 +1,18 @@
 .source-list-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
+  // The whole width of the page with the shell's gutter only, as the dashboard and its board take.
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
 
-.header-card {
-  mat-card-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    mat-icon {
-      color: var(--app-link);
-    }
+  // The header's own margin already sets it apart.
+  app-page-header {
+    margin-bottom: -16px;
   }
 }
 
-.actions-card {
-  .actions-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .results-count {
-    color: var(--app-text-muted);
-    font-size: 14px;
-  }
+.results-count {
+  color: var(--app-text-muted);
+  font-size: 14px;
 }
 
 .table-card {

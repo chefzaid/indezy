@@ -19,8 +19,10 @@ import { DashboardCustomizeDialogComponent, USUAL_LAYOUT } from './customize-dia
 import { DashboardWidget, UserPreferences } from '../../models/user-management.models';
 import { UserManagementService } from '../../services/user-management/user-management.service';
 import { NotificationService } from '../../services/notification/notification.service';
+import { ThemeService } from '../../shared/theme/theme.service';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { SeasonPickerComponent } from '../seasons/season-picker/season-picker.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { Season } from '../../models/season.models';
 import { forkJoin, of, Subscription } from 'rxjs';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
@@ -42,6 +44,7 @@ type ViewMode = 'overview' | 'kanban';
         TranslateModule,
         KanbanBoardComponent,
         SeasonPickerComponent,
+        PageHeaderComponent,
         DashboardRemindersComponent,
         DailyRateChartComponent,
         DashboardOffersComponent,
@@ -83,6 +86,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private readonly users = inject(UserManagementService);
   private readonly dialog = inject(MatDialog);
   private readonly notifications = inject(NotificationService);
+  private readonly theme = inject(ThemeService);
   /** The overview's blocks in the account's order, shown or hidden. */
   widgets: DashboardWidget[] = USUAL_LAYOUT;
   private preferences: UserPreferences | null = null;
@@ -274,6 +278,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** The page's title: the greeting of the hour, with the user's first name when it is known. */
+  greeting(): string {
+    const firstName = this.currentUser?.firstName;
+    return firstName ? `${this.getGreeting()}, ${firstName}` : this.getGreeting();
+  }
+
   private buildCharts(): void {
     if (!this.dashboardStats) {return;}
     this.destroyCharts();
@@ -291,6 +301,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * A stage colour as a slice on the card. The stage colours carry white text, so they are dark: on the dark theme's
+   * card they are lifted toward white (60 % of the colour), as the board's columns are.
+   */
+  private onSurface(color: string): string {
+    if (!this.theme.isDark() || !/^#[0-9a-f]{6}$/i.test(color)) {return color;}
+    return '#' + (color.slice(1).match(/../g) ?? [])
+      .map(channel => Math.round(parseInt(channel, 16) * 0.6 + 255 * 0.4).toString(16).padStart(2, '0'))
+      .join('');
+  }
+
   private destroyCharts(): void {
     this.statusChart?.destroy();
     this.workModeChart?.destroy();
@@ -304,7 +325,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const statusKeys = Object.keys(this.dashboardStats.projectsByStatus);
     const statusLabels = statusKeys.map(s => this.translate.instant('projects.statuses.' + s));
     const statusData = statusKeys.map(s => this.dashboardStats!.projectsByStatus[s]);
-    const statusColors = statusKeys.map(s => PROJECT_STATUS_COLORS[s as keyof typeof PROJECT_STATUS_COLORS] || '#999');
+    const statusColors = statusKeys.map(s => this.onSurface(PROJECT_STATUS_COLORS[s as keyof typeof PROJECT_STATUS_COLORS] || '#999'));
 
     const config: ChartConfiguration<'doughnut'> = {
       type: 'doughnut',

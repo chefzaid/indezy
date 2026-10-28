@@ -25,13 +25,14 @@ import { invoiceErrorKey } from './invoice-errors';
 import { InvoiceDateDialogComponent, InvoiceDateDialogData } from './date-dialog/invoice-date-dialog.component';
 import { InvoiceDraftDialogComponent, InvoiceDraftDialogData } from './draft-dialog/invoice-draft-dialog.component';
 import { InvoiceReportDialogComponent } from './report-dialog/invoice-report-dialog.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 export type InvoiceFilter = 'ALL' | 'DRAFT' | 'ISSUED' | 'OVERDUE' | 'PAID';
 
 /** The workspace's invoices: drafts to write and issue, issued ones to settle, and what is still owed. */
 @Component({
   selector: 'app-invoices',
-  imports: [DatePipe, DecimalPipe, RouterLink, MatButtonModule, MatButtonToggleModule, MatCardModule, MatIconModule, MatMenuModule,
+  imports: [PageHeaderComponent, DatePipe, DecimalPipe, RouterLink, MatButtonModule, MatButtonToggleModule, MatCardModule, MatIconModule, MatMenuModule,
     MatProgressSpinnerModule, TranslateModule],
   templateUrl: './invoices.component.html',
   styleUrls: ['./invoices.component.scss'],

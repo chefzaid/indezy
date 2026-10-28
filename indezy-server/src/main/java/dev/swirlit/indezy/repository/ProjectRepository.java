@@ -1,12 +1,15 @@
 package dev.swirlit.indezy.repository;
 
 import dev.swirlit.indezy.model.Project;
+import dev.swirlit.indezy.model.enums.LostReason;
+import dev.swirlit.indezy.model.enums.RefusedBy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +30,12 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
         "and p.status in (dev.swirlit.indezy.model.enums.ProjectStatus.CONTACT, dev.swirlit.indezy.model.enums.ProjectStatus.INTERVIEW, " +
         "dev.swirlit.indezy.model.enums.ProjectStatus.OFFER) and p.updatedAt <= :idleSince")
     int archiveIdle(@Param("freelanceId") Long freelanceId, @Param("idleSince") LocalDateTime idleSince, @Param("now") LocalDateTime now);
+
+    /** Says who refused the refused opportunities that do not, when they were refused for one of {@code reasons}. */
+    @Modifying(clearAutomatically = true)
+    @Query("update Project p set p.refusedBy = :refusedBy where p.status = dev.swirlit.indezy.model.enums.ProjectStatus.LOST " +
+        "and p.refusedBy is null and p.lostReason in :reasons")
+    int setRefusedByWhereUnsaid(@Param("refusedBy") RefusedBy refusedBy, @Param("reasons") Collection<LostReason> reasons);
 
     List<Project> findByFreelanceIdAndSeasonId(Long freelanceId, Long seasonId);
 

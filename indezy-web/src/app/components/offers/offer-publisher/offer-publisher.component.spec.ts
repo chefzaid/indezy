@@ -53,7 +53,7 @@ describe('OfferPublisherComponent', () => {
     const fixture = create(of(publisher));
 
     expect(offers.publisher).toHaveBeenCalledWith('Exemple Conseil');
-    expect(text(fixture, 'h1')).toBe('Exemple Conseil');
+    expect(text(fixture, 'h1 span')).toBe('Exemple Conseil');
     expect(text(fixture, '[data-publisher-kpi="missions"] dd')).toBe('4');
     expect(text(fixture, '[data-publisher-kpi="rate"] dd').replace(/\s/g, ' ')).toBe('600 €');
     expect(text(fixture, '[data-publisher-kpi="age"] dd')).toBe('12 jours');
@@ -97,6 +97,6 @@ describe('OfferPublisherComponent', () => {
     offers.publisher.and.returnValue(of(publisher));
     (failing.nativeElement.querySelector('.state-card button') as HTMLButtonElement).click();
     failing.detectChanges();
-    expect(text(failing, 'h1')).toBe('Exemple Conseil');
+    expect(text(failing, 'h1 span')).toBe('Exemple Conseil');
   });
 });

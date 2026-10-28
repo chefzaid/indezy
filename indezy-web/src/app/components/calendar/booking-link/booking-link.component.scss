@@ -7,11 +7,7 @@ mat-card-title {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.1rem;
 
-  mat-icon {
-    color: var(--app-link);
-  }
 }
 
 .hint,
@@ -37,7 +33,6 @@ mat-card-title {
 
 h3 {
   margin: 16px 0 8px;
-  font-size: 1rem;
 }
 
 .call {

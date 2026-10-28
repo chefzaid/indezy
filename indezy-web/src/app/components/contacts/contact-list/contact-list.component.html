@@ -1,15 +1,6 @@
 <div class="contact-list-container">
-  <mat-card class="header-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>contacts</mat-icon>
-        {{ 'contacts.title' | translate }}
-      </mat-card-title>
-      <mat-card-subtitle>
-        {{ 'contacts.subtitle' | translate }}
-      </mat-card-subtitle>
-    </mat-card-header>
-  </mat-card>
+  <app-page-header icon="contacts" [title]="'contacts.title' | translate" [subtitle]="'contacts.subtitle' | translate">
+  </app-page-header>
 
   <mat-card class="filters-card">
     <mat-card-content>

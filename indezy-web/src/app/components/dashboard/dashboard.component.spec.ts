@@ -12,6 +12,7 @@ import { DashboardStatsDto, ProjectDto, User } from '../../models';
 import { Season } from '../../models/season.models';
 import { AuthService } from '../../services/auth/auth.service';
 import { ProjectService } from '../../services/project/project.service';
+import { ThemeService } from '../../shared/theme/theme.service';
 import { KanbanBoardComponent } from '../kanban-board/kanban-board.component';
 import { SeasonPickerComponent } from '../seasons/season-picker/season-picker.component';
 import { DashboardAnalyticsComponent } from './dashboard-analytics/dashboard-analytics.component';
@@ -88,7 +89,7 @@ describe('DashboardComponent', () => {
   });
 
   function create(currentUser: User | null = user, statsResult: Observable<DashboardStatsDto> = of(stats()),
-                  projectList: Observable<ProjectDto[]> = of([])): void {
+                  projectList: Observable<ProjectDto[]> = of([]), dark = false): void {
     projects = jasmine.createSpyObj('ProjectService', ['getByFreelanceId', 'getDashboardStats']);
     projects.getByFreelanceId.and.returnValue(projectList);
     projects.getDashboardStats.and.returnValue(statsResult);
@@ -106,7 +107,8 @@ describe('DashboardComponent', () => {
         { provide: AuthService, useValue: auth },
         { provide: UserManagementService, useValue: users },
         { provide: MatDialog, useValue: dialog },
-        { provide: NotificationService, useValue: notifications }
+        { provide: NotificationService, useValue: notifications },
+        { provide: ThemeService, useValue: { isDark: () => dark } }
       ]
     });
     TestBed.overrideComponent(DashboardComponent, {
@@ -197,7 +199,7 @@ describe('DashboardComponent', () => {
 
       expect(component.currentUser).toEqual(user);
       expect(component.seasonResolved).toBeFalse();
-      expect(text()).toContain(', Ada !');
+      expect(text()).toContain(', Ada');
       expect(picker().freelanceId).toBe(7);
       expect(projects.getDashboardStats).not.toHaveBeenCalled();
     });
@@ -237,6 +239,7 @@ describe('DashboardComponent', () => {
         expect(component.getGreeting()).toBe('dashboard.greetingAfternoon');
         jasmine.clock().mockDate(new Date(2026, 9, 26, 20));
         expect(component.getGreeting()).toBe('dashboard.greetingEvening');
+        expect(component.greeting()).toBe('dashboard.greetingEvening, Ada');
       } finally {
         jasmine.clock().uninstall();
       }
@@ -273,6 +276,16 @@ describe('DashboardComponent', () => {
       expect(statusChart.data.datasets[0].data).toEqual([2, 3, 1]);
       expect((statusChart.data.datasets[0].backgroundColor as string[])[2]).toBe('#999');
       expect(Chart.getChart(canvas('workMode'))!.data.labels).toEqual(['projects.workModes.REMOTE', 'projects.workModes.HYBRID']);
+    });
+
+    it('lifts the stage colours toward white on the dark theme, so the slices stand out from the card', () => {
+      create(user, of(stats()), of([]), true);
+
+      picker().selectionChange.emit(null);
+
+      const colors = Chart.getChart(canvas('status'))!.data.datasets[0].backgroundColor as string[];
+      // Accepted's green, #2e7d32, at 60 % with white; the grey of an unknown stage stays as it is.
+      expect(colors).toEqual(['#999', '#82b184', '#999']);
     });
 
     it('hands the statistics to the analytics', () => {

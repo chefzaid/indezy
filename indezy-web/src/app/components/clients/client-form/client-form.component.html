@@ -1,13 +1,11 @@
 <div class="client-form-container">
+  <app-page-header [icon]="isEditMode ? 'edit' : 'add_business'"
+    [title]="(isEditMode ? 'clients.form.editTitle' : 'clients.form.newTitle') | translate"
+    [subtitle]="(isEditMode ? 'clients.form.editSubtitle' : 'clients.form.newSubtitle') | translate">
+  </app-page-header>
+
   <mat-card class="form-card">
     <mat-card-content>
-      <h1 class="form-title">
-        <mat-icon>{{ isEditMode ? 'edit' : 'add_business' }}</mat-icon>
-        {{ isEditMode ? ('clients.form.editTitle' | translate) : ('clients.form.newTitle' | translate) }}
-      </h1>
-      <p class="form-subtitle">
-        {{ isEditMode ? ('clients.form.editSubtitle' | translate) : ('clients.form.newSubtitle' | translate) }}
-      </p>
 
       @if (isLoading) {
         <div class="loading-container">

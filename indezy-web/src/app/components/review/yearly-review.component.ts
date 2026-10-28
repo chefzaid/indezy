@@ -15,6 +15,7 @@ import { NotificationService } from '../../services/notification/notification.se
 import { YearlyReviewService } from '../../services/review/yearly-review.service';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { saveBlob } from '../../shared/utils/download-file';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 /** The first year a review can be asked for, as the server accepts. */
 export const FIRST_REVIEW_YEAR = 2000;
@@ -26,7 +27,7 @@ export const FIRST_REVIEW_YEAR = 2000;
  */
 @Component({
   selector: 'app-yearly-review',
-  imports: [
+  imports: [PageHeaderComponent, 
     CommonModule, RouterModule, MatButtonModule, MatCardModule, MatChipsModule, MatIconModule, MatProgressSpinnerModule,
     TranslateModule, LoadingComponent
   ],

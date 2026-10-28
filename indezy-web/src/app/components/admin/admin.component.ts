@@ -12,11 +12,12 @@ import { AdminService } from '../../services/admin/admin.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { AdminAccountsComponent } from './admin-accounts.component';
 import { AdminFeaturesComponent } from './admin-features.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 /** The admin console: how Indezy is used, its accounts, and the features turned on or off for everyone. */
 @Component({
   selector: 'app-admin',
-  imports: [CommonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, MatTabsModule, TranslateModule,
+  imports: [PageHeaderComponent, CommonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, MatTabsModule, TranslateModule,
     AdminAccountsComponent, AdminFeaturesComponent],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss'],

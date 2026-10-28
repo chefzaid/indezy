@@ -26,9 +26,9 @@
       @for (status of getColumns(); track status) {
         <div class="kanban-column"
           [style.--column-color]="getColumnColor(status)">
-          <div class="column-header" [style.border-top-color]="getColumnColor(status)">
+          <div class="column-header">
             <div class="column-title">
-              <mat-icon [style.color]="getColumnColor(status)">{{ getColumnIcon(status) }}</mat-icon>
+              <mat-icon>{{ getColumnIcon(status) }}</mat-icon>
               <h3>{{ 'projects.statuses.' + status | translate }}</h3>
             </div>
             <div class="column-actions">
@@ -105,10 +105,14 @@
                         }
                       </div>
                     }
-                    @if (card.lostReason) {
-                      <div class="card-lost-reason">
-                        <mat-icon>thumb_down</mat-icon>
-                        <span>{{ 'projects.lostReason.' + card.lostReason | translate }}</span>
+                    @if (card.refusedBy || card.lostReason) {
+                      <div class="card-refusal">
+                        @if (card.refusedBy) {
+                          <app-refused-by-badge [refusedBy]="card.refusedBy"></app-refused-by-badge>
+                        }
+                        @if (card.lostReason) {
+                          <span class="card-lost-reason">{{ 'projects.lostReason.' + card.lostReason | translate }}</span>
+                        }
                       </div>
                     }
                     @if (getDaysSinceActivity(card) !== null) {
@@ -136,7 +140,7 @@
             }
             @if (getCardsForColumn(status).length === 0) {
               <div class="empty-column">
-                <mat-icon [style.color]="getColumnColor(status)">{{ getColumnIcon(status) }}</mat-icon>
+                <mat-icon>{{ getColumnIcon(status) }}</mat-icon>
                 <p>{{ 'kanban.noProjects' | translate }}</p>
               </div>
             }

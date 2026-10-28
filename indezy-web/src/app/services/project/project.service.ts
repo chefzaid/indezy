@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ProjectDto, ProjectStatus, KanbanBoardDto, DashboardStatsDto, LostReason, ProjectNote, ProjectBulkUpdate } from '../../models/project.models';
+import { ProjectDto, ProjectStatus, KanbanBoardDto, DashboardStatsDto, ProjectNote, Refusal, ProjectBulkUpdate } from '../../models/project.models';
 
 @Injectable({
   providedIn: 'root'
@@ -41,16 +41,30 @@ export class ProjectService {
     return this.http.delete<void>(`${this.API_URL}/${id}`);
   }
 
-  updateStatus(id: number, status: ProjectStatus, lostReason?: LostReason): Observable<ProjectDto> {
+  /** Moves an opportunity to another stage, saying who refused it and why when it goes to LOST. */
+  updateStatus(id: number, status: ProjectStatus, refusal?: Refusal): Observable<ProjectDto> {
     let params = new HttpParams().set('status', status);
-    if (lostReason) {
-      params = params.set('lostReason', lostReason);
+    if (refusal) {
+      params = params.set('refusedBy', refusal.refusedBy);
+    }
+    if (refusal?.lostReason) {
+      params = params.set('lostReason', refusal.lostReason);
     }
     return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/status`, null, { params });
   }
 
   toggleFavorite(id: number): Observable<ProjectDto> {
     return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/favorite`, null);
+  }
+
+  /** Ends a won mission on a day (yyyy-MM-dd), saying why. */
+  endMission(id: number, endedOn: string, reason: string): Observable<ProjectDto> {
+    return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/end`, { endedOn, reason });
+  }
+
+  /** Puts a mission ended by mistake back in progress. */
+  resumeMission(id: number): Observable<ProjectDto> {
+    return this.http.patch<ProjectDto>(`${this.API_URL}/${id}/resume`, null);
   }
 
   /** Takes an opportunity out of the pipeline into the archive; it keeps its status. */

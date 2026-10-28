@@ -20,12 +20,12 @@ export async function mockWorkspaceData(page: Page, language: string): Promise<v
     [/\/api\/users\/security$/, { twoFactorEnabled: false }],
     [/\/api\/freelances\/1$/, { id: 1, firstName: 'Workspace', lastName: 'Test' }],
     [/\/api\/projects\/stats\/dashboard\/1/, { ...emptyDashboardStats, totalProjects: 2, activeProjects: 1, averageDailyRate: 650 }],
-    [/\/api\/projects\/kanban\/1/, { inactivityDays: 14, columnOrder: ['CONTACT', 'INTERVIEW', 'OFFER', 'WON', 'LOST'], columns: {
+    [/\/api\/projects\/kanban\/1/, { inactivityDays: 14, columnOrder: ['CONTACT', 'INTERVIEW', 'OFFER', 'LOST', 'WON'], columns: {
       CONTACT: [{ projectId: 43, role: 'Data engineer', status: 'CONTACT', clientName: 'Acme', dailyRate: 650, totalSteps: 0,
         completedSteps: 0, failedSteps: 0 }],
       INTERVIEW: [{ projectId: 42, role: 'Java developer', status: 'INTERVIEW', clientName: 'Acme', dailyRate: 650, totalSteps: 1,
         completedSteps: 0, failedSteps: 0 }],
-      OFFER: [], WON: [], LOST: [] } }],
+      OFFER: [], LOST: [], WON: [] } }],
     [/\/api\/projects\/by-freelance\/1$/, [project, other]],
     [/\/api\/projects\/42$/, project],
     [/\/api\/interview-steps\/by-project\/42\/ordered$/, ['TO_PLAN', 'PLANNED', 'CANCELED', 'WAITING_FEEDBACK', 'VALIDATED',

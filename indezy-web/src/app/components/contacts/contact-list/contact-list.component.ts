@@ -26,10 +26,11 @@ import { IdSelection } from '../../../shared/utils/id-selection';
 import { ListSelectionBarComponent } from '../../../shared/components/list-selection-bar/list-selection-bar.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { relativeDay } from '../../../shared/utils/relative-time';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
     selector: 'app-contact-list',
-    imports: [
+    imports: [PageHeaderComponent, 
     RouterModule,
     FormsModule,
     MatTableModule,

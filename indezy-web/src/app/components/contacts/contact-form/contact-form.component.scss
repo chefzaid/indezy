@@ -1,29 +1,7 @@
 .contact-form-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  // The whole width of the page with the shell's gutter only, as the dashboard and its board take.
   
   .form-card {
-    mat-card-header {
-      mat-card-title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 1.5rem;
-        
-        mat-icon {
-          font-size: 1.5rem;
-          width: 1.5rem;
-          height: 1.5rem;
-        }
-      }
-      
-      mat-card-subtitle {
-        margin-top: 8px;
-        color: var(--app-text-muted);
-      }
-    }
-    
     mat-card-content {
       padding-top: 24px;
       
@@ -46,8 +24,6 @@
         .form-section {
           h3 {
             margin: 0 0 20px 0;
-            font-size: 1.1rem;
-            font-weight: 500;
             color: var(--app-text);
             border-bottom: 1px solid var(--app-border);
             padding-bottom: 8px;
@@ -136,7 +112,7 @@
     .mat-mdc-form-field-error-wrapper {
       .mat-mdc-form-field-error {
         font-size: 0.75rem;
-        color: #c62828;
+        color: var(--app-danger);
       }
     }
   }
@@ -164,7 +140,7 @@ textarea.mat-mdc-input-element {
     color: white;
     
     &:disabled {
-      background-color: #e0e0e0;
+      background-color: var(--app-border);
       color: var(--app-text-muted);
     }
   }
@@ -183,7 +159,6 @@ textarea.mat-mdc-input-element {
 // Responsive adjustments
 @media (max-width: 768px) {
   .contact-form-container {
-    padding: 16px;
     
     .form-card {
       mat-card-content {

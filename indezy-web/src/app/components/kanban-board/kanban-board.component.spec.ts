@@ -155,14 +155,34 @@ describe('KanbanBoardComponent', () => {
     });
   });
 
-  function dropEvent(previousId: string, containerId: string): CdkDragDrop<KanbanProjectCardDto[]> {
+  function dropEvent(previousId: string, containerId: string, card = mockCard): CdkDragDrop<KanbanProjectCardDto[]> {
     return {
-      previousContainer: { data: [mockCard], id: previousId },
+      previousContainer: { data: [card], id: previousId },
       container: { data: [], id: containerId },
       previousIndex: 0,
       currentIndex: 0
     } as unknown as CdkDragDrop<KanbanProjectCardDto[]>;
   }
+
+  it('badges who refused each refused card, the recruiter in red and the freelance in orange', () => {
+    mockProjectService.getKanbanBoard.and.returnValue(of({
+      ...mockBoard,
+      columns: { ...mockBoard.columns, [ProjectStatus.LOST]: [
+        { ...mockCard, projectId: 7, status: ProjectStatus.LOST, refusedBy: 'RECRUITER', lostReason: 'NO_RESPONSE' },
+        { ...mockCard, projectId: 8, status: ProjectStatus.LOST, refusedBy: 'FREELANCE' }] },
+      columnOrder: [...mockBoard.columnOrder, ProjectStatus.LOST]
+    }));
+    fixture.detectChanges();
+
+    const card = (id: number) => fixture.nativeElement.querySelector(`[data-project-id="${id}"]`) as HTMLElement;
+    expect(card(7).querySelector('[data-refused-by]')?.getAttribute('data-refused-by')).toBe('RECRUITER');
+    expect(card(7).querySelector('.by-recruiter')).not.toBeNull();
+    expect(card(7).textContent).toContain('projects.refusedBy.badge.RECRUITER');
+    expect(card(7).textContent).toContain('projects.lostReason.NO_RESPONSE');
+    expect(card(8).querySelector('[data-refused-by]')?.getAttribute('data-refused-by')).toBe('FREELANCE');
+    expect(card(8).querySelector('.by-recruiter')).toBeNull();
+    expect(card(8).querySelector('.card-lost-reason')).toBeNull();
+  });
 
   describe('Card drag and drop', () => {
     beforeEach(() => {
@@ -194,20 +214,24 @@ describe('KanbanBoardComponent', () => {
       expect(mockProjectService.getKanbanBoard).toHaveBeenCalledTimes(2);
     });
 
-    it('should prompt for a reason and persist it when dropping into LOST', () => {
+    it('should ask who refused the card and why, and persist it when dropping into the refused column', () => {
       spyOn(fixture.debugElement.injector.get(MatDialog), 'open')
-        .and.returnValue({ afterClosed: () => of('RATE_TOO_LOW') } as MatDialogRef<unknown>);
+        .and.returnValue({ afterClosed: () => of({ refusedBy: 'FREELANCE', lostReason: 'RATE_TOO_LOW' }) } as MatDialogRef<unknown>);
       mockProjectService.updateStatus.and.returnValue(of({} as ProjectDto));
+      const card: KanbanProjectCardDto = { ...mockCard };
 
       component.onCardDrop(dropEvent(
         `kanban-col-${ProjectStatus.CONTACT}`,
-        `kanban-col-${ProjectStatus.LOST}`
+        `kanban-col-${ProjectStatus.LOST}`,
+        card
       ));
 
-      expect(mockProjectService.updateStatus).toHaveBeenCalledWith(42, ProjectStatus.LOST, 'RATE_TOO_LOW');
+      expect(mockProjectService.updateStatus).toHaveBeenCalledWith(42, ProjectStatus.LOST,
+        { refusedBy: 'FREELANCE', lostReason: 'RATE_TOO_LOW' });
+      expect(card).toEqual(jasmine.objectContaining({ status: ProjectStatus.LOST, refusedBy: 'FREELANCE', lostReason: 'RATE_TOO_LOW' }));
     });
 
-    it('should revert the move when the lost-reason prompt is cancelled', () => {
+    it('should revert the move when the refusal prompt is cancelled', () => {
       spyOn(fixture.debugElement.injector.get(MatDialog), 'open')
         .and.returnValue({ afterClosed: () => of(undefined) } as MatDialogRef<unknown>);
 

@@ -20,9 +20,7 @@
       <button mat-stroked-button type="button" (click)="load()">{{ 'common.retry' | translate }}</button>
     </mat-card>
   } @else if (publisher) {
-    <header class="publisher-header">
-      <h1>{{ publisher.name }}</h1>
-      <div class="header-actions">
+    <app-page-header icon="storefront" [title]="publisher.name">
         @if (publisher.client; as client) {
           <a mat-stroked-button [routerLink]="['/clients', client.id]" data-publisher-client>
             <mat-icon>business</mat-icon>
@@ -35,8 +33,7 @@
           <mat-icon>{{ publisher.blockId ? 'visibility' : 'block' }}</mat-icon>
           {{ (publisher.blockId ? 'offers.publisher.unblock' : 'offers.publisher.block') | translate }}
         </button>
-      </div>
-    </header>
+    </app-page-header>
     @if (publisher.blockId) {
       <p class="banner" role="status" data-publisher-blocked>{{ 'offers.publisher.blocked' | translate }}</p>
     }

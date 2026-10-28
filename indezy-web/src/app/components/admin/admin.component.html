@@ -1,5 +1,6 @@
 <div class="admin-container">
-  <h1 class="admin-title"><mat-icon>admin_panel_settings</mat-icon>{{ 'admin.title' | translate }}</h1>
+  <app-page-header icon="admin_panel_settings" [title]="'admin.title' | translate" [subtitle]="'admin.subtitle' | translate">
+  </app-page-header>
 
   <mat-tab-group animationDuration="0ms">
     <mat-tab [label]="'admin.tabs.overview' | translate">

@@ -2,12 +2,13 @@ import { PurchaseOrderAlert } from './purchase-order.models';
 import { ExpiringDocument } from './compliance.models';
 // Project related interfaces and types
 
+/** The pipeline stages in the order of the Kanban columns: a refused opportunity's column comes before the accepted one's. */
 export enum ProjectStatus {
   CONTACT = 'CONTACT',
   INTERVIEW = 'INTERVIEW',
   OFFER = 'OFFER',
-  WON = 'WON',
-  LOST = 'LOST'
+  LOST = 'LOST',
+  WON = 'WON'
 }
 
 /** Pipeline stage colors, dark enough to carry white text in status pills (4.5:1 contrast at least). */
@@ -15,16 +16,16 @@ export const PROJECT_STATUS_COLORS: { [key in ProjectStatus]: string } = {
   [ProjectStatus.CONTACT]: '#1565c0',
   [ProjectStatus.INTERVIEW]: '#b85600',
   [ProjectStatus.OFFER]: '#8e24aa',
-  [ProjectStatus.WON]: '#2e7d32',
-  [ProjectStatus.LOST]: '#d32f2f'
+  [ProjectStatus.LOST]: '#d32f2f',
+  [ProjectStatus.WON]: '#2e7d32'
 };
 
 export const PROJECT_STATUS_ICONS: { [key in ProjectStatus]: string } = {
   [ProjectStatus.CONTACT]: 'contact_mail',
   [ProjectStatus.INTERVIEW]: 'groups',
   [ProjectStatus.OFFER]: 'handshake',
-  [ProjectStatus.WON]: 'emoji_events',
-  [ProjectStatus.LOST]: 'thumb_down'
+  [ProjectStatus.LOST]: 'thumb_down',
+  [ProjectStatus.WON]: 'emoji_events'
 };
 
 export interface KanbanBoardDto {
@@ -49,6 +50,7 @@ export interface KanbanProjectCardDto {
   isFavorite?: boolean;
   boardPosition?: number;
   updatedAt?: string;
+  refusedBy?: RefusedBy;
   lostReason?: LostReason;
   isPotentialDuplicate?: boolean;
   totalSteps: number;
@@ -57,6 +59,17 @@ export interface KanbanProjectCardDto {
 }
 
 export type WorkMode = 'REMOTE' | 'ONSITE' | 'HYBRID';
+
+/** Who turned a refused opportunity down: the freelance, or the recruiter (the client or the ESN). */
+export type RefusedBy = 'FREELANCE' | 'RECRUITER';
+
+export const REFUSED_BY: RefusedBy[] = ['RECRUITER', 'FREELANCE'];
+
+/** Who refused an opportunity, and why when it was said. */
+export interface Refusal {
+  refusedBy: RefusedBy;
+  lostReason?: LostReason;
+}
 
 export type LostReason =
   | 'RATE_TOO_LOW'
@@ -104,7 +117,11 @@ export interface ProjectDto {
   notes?: string;
   /** When the opportunity was archived; absent while it is in the pipeline. */
   archivedAt?: string;
+  /** The day a won mission ended, and why; absent while it runs. */
+  endedOn?: string;
+  endReason?: string;
   isFavorite?: boolean;
+  refusedBy?: RefusedBy;
   lostReason?: LostReason;
   freelanceId?: number;
   clientId?: number;
@@ -333,7 +350,8 @@ export interface ProjectBulkUpdate {
   projectIds: number[];
   action: 'STATUS' | 'SOURCE' | 'TAG' | 'ARCHIVE' | 'DELETE';
   status?: ProjectStatus;
-  /** Why they were lost, when moved to LOST. */
+  /** Who refused them, and why when it was said, when moved to LOST. */
+  refusedBy?: RefusedBy;
   lostReason?: LostReason;
   sourceId?: number;
   /** The tag added to their tech stack. */

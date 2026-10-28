@@ -14,7 +14,7 @@ import { ProjectService } from '../../../services/project/project.service';
 import { ProjectAttachmentService } from '../../../services/project/project-attachment.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
-import { KanbanLostReasonDialogComponent } from '../../kanban-lost-reason-dialog/kanban-lost-reason-dialog.component';
+import { KanbanRefusalDialogComponent } from '../../kanban-refusal-dialog/kanban-refusal-dialog.component';
 import { RenameTagDialogComponent } from '../rename-tag-dialog/rename-tag-dialog.component';
 import { ProjectDetailComponent } from './project-detail.component';
 import { ContactService } from '../../../services/contact/contact.service';
@@ -150,10 +150,13 @@ describe('ProjectDetailComponent', () => {
     expect(fixture.componentInstance.calculateTotalRevenue()).toBe(0);
   });
 
-  it('shows the reason an opportunity was lost', () => {
-    const fixture = create({ ...mission, status: ProjectStatus.LOST, lostReason: 'RATE_TOO_LOW' });
+  it('shows who refused an opportunity, and why', () => {
+    const fixture = create({ ...mission, status: ProjectStatus.LOST, refusedBy: 'FREELANCE', lostReason: 'RATE_TOO_LOW' });
 
     expect(text(fixture)).toContain('projects.lostReason.RATE_TOO_LOW');
+    const badge = fixture.nativeElement.querySelector('[data-refused-by]') as HTMLElement;
+    expect(badge.getAttribute('data-refused-by')).toBe('FREELANCE');
+    expect(badge.textContent).toContain('projects.refusedBy.badge.FREELANCE');
   });
 
   it('goes back to the list of a project that does not exist', () => {
@@ -216,23 +219,25 @@ describe('ProjectDetailComponent', () => {
       expect(text(fixture)).toContain('projects.statuses.OFFER');
     });
 
-    it('asks why the opportunity was lost', () => {
+    it('asks who refused the opportunity and why', () => {
       const fixture = create();
       const component = fixture.componentInstance;
-      dialog.open.and.returnValue(closingWith('POSITION_FILLED'));
+      dialog.open.and.returnValue(closingWith({ refusedBy: 'RECRUITER', lostReason: 'POSITION_FILLED' }));
       projectService.updateStatus.and.returnValue(of({ ...mission, status: ProjectStatus.LOST,
-        lostReason: 'POSITION_FILLED' }));
+        refusedBy: 'RECRUITER', lostReason: 'POSITION_FILLED' }));
 
       component.changeStatus(ProjectStatus.LOST);
 
-      expect(dialog.open).toHaveBeenCalledWith(KanbanLostReasonDialogComponent, jasmine.objectContaining({
+      expect(dialog.open).toHaveBeenCalledWith(KanbanRefusalDialogComponent, jasmine.objectContaining({
         data: { role: 'Développeur Java' }
       }));
-      expect(projectService.updateStatus).toHaveBeenCalledWith(12, ProjectStatus.LOST, 'POSITION_FILLED');
+      expect(projectService.updateStatus).toHaveBeenCalledWith(12, ProjectStatus.LOST,
+        { refusedBy: 'RECRUITER', lostReason: 'POSITION_FILLED' });
+      expect(component.project?.refusedBy).toBe('RECRUITER');
       expect(component.project?.lostReason).toBe('POSITION_FILLED');
     });
 
-    it('keeps the stage when no reason for the loss is given', () => {
+    it('keeps the stage when the refusal dialog is cancelled', () => {
       const component = create().componentInstance;
       dialog.open.and.returnValue(closingWith(undefined));
 

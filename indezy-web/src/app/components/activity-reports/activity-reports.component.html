@@ -1,0 +1,47 @@
+<div class="activity-reports-page">
+  <app-page-header icon="edit_calendar" [title]="'activityReportsPage.title' | translate"
+    [subtitle]="'activityReportsPage.subtitle' | translate">
+  </app-page-header>
+
+  @if (isLoading) {
+    <app-loading [message]="'common.loading' | translate" [showLogo]="false"></app-loading>
+  } @else {
+    <div class="missions">
+      @for (mission of missions; track mission.id) {
+        <section class="mission" [attr.data-active-mission]="mission.id" [attr.aria-labelledby]="'mission-' + mission.id">
+          <div class="mission-head">
+            <div class="mission-title">
+              <h2 [id]="'mission-' + mission.id"><a [routerLink]="['/projects', mission.id]">{{ mission.role }}</a></h2>
+              <p class="mission-meta">
+                @if (mission.clientName) {
+                  <span>{{ mission.clientName }}</span>
+                }
+                @if (mission.startDate) {
+                  <span>{{ 'activityReportsPage.since' | translate:{ date: (mission.startDate | date:'mediumDate') } }}</span>
+                }
+                @if (lastDay(mission); as last) {
+                  <span>{{ (mission.endedOn ? 'activityReportsPage.endedOn' : 'activityReportsPage.plannedEnd')
+                    | translate:{ date: (last | date:'mediumDate') } }}</span>
+                }
+              </p>
+              @if (plannedEndPassed(mission)) {
+                <p class="planned-end-passed" data-planned-end-passed>
+                  <mat-icon inline aria-hidden="true">info</mat-icon>
+                  {{ 'activityReportsPage.plannedEndPassed' | translate }}
+                </p>
+              }
+            </div>
+            <app-mission-end-action [project]="mission" (changed)="onChanged($event)"></app-mission-end-action>
+          </div>
+          <app-activity-report-card [project]="mission"></app-activity-report-card>
+        </section>
+      } @empty {
+        <div class="empty" data-no-active-mission>
+          <mat-icon aria-hidden="true">event_busy</mat-icon>
+          <p>{{ 'activityReportsPage.empty' | translate }}</p>
+          <a mat-stroked-button routerLink="/projects">{{ 'activityReportsPage.emptyAction' | translate }}</a>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,11 +1,8 @@
 .dashboard-container {
-  max-width: 1200px;
+  // The overview takes the whole width, as the pipeline board does, so switching views does not move the page.
   margin: 0 auto;
 
-  // The pipeline board benefits from every pixel of width.
   &.kanban-active {
-    max-width: none;
-
     .welcome-section {
       margin-bottom: 16px;
     }
@@ -15,47 +12,19 @@
 .welcome-section {
   margin-bottom: 32px;
 
-  .welcome-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-
-  .welcome-text {
-    flex: 1;
-  }
-
-  .view-toggle {
-    mat-button-toggle-group {
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-      mat-button-toggle {
-        border: none;
-
-        &.mat-button-toggle-checked {
-          background-color: #1565c0;
-          color: white;
-        }
-
-        mat-icon {
-          margin-right: 8px;
-        }
-      }
-    }
+  .view-toggle mat-icon {
+    margin-right: 8px;
   }
 }
 
 .season-bar {
-  margin-top: 16px;
+  margin-top: -8px;
 }
 
 .season-banner {
   margin-bottom: 24px;
   border-radius: 12px;
-  border-left: 4px solid #1565c0;
+  border-left: 4px solid var(--app-link);
 
   .season-banner-main {
     display: flex;
@@ -71,7 +40,7 @@
   }
 
   .season-flag {
-    color: #1565c0;
+    color: var(--app-link);
     margin-top: 2px;
   }
 
@@ -156,23 +125,10 @@
     color: var(--app-text-faint);
 
     &.on-target {
-      color: #2e7d32;
+      color: var(--app-positive);
       font-weight: 500;
     }
   }
-}
-
-.welcome-title {
-  font-size: 32px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  color: var(--app-text);
-}
-
-.welcome-subtitle {
-  font-size: 16px;
-  color: var(--app-text-muted);
-  margin: 0;
 }
 
 .stats-grid {
@@ -183,8 +139,8 @@
 }
 
 .stat-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-card-shadow);
 }
 
 .stat-content {
@@ -193,37 +149,19 @@
   gap: 16px;
 }
 
+// The same tinted tile and icon colour as the rest of the workspace, in either theme.
 .stat-icon {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: var(--app-radius);
   display: flex;
   align-items: center;
   justify-content: center;
-  
+  background: var(--app-chip-info-bg);
+
   mat-icon {
     font-size: 24px;
-    color: white;
-  }
-  
-  &.projects {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-  
-  &.rate {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  }
-  
-  &.revenue {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  }
-
-  &.forecast {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-  }
-
-  &.active {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: var(--app-link);
   }
 }
 
@@ -265,8 +203,8 @@
 }
 
 .chart-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-card-shadow);
 
   mat-card-header {
     margin-bottom: 8px;
@@ -276,15 +214,12 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 16px;
-    font-weight: 600;
     color: var(--app-text);
 
     mat-icon {
       font-size: 20px;
       width: 20px;
       height: 20px;
-      color: #667eea;
     }
   }
 
@@ -305,8 +240,6 @@
   margin-bottom: 20px;
   
   h2 {
-    font-size: 24px;
-    font-weight: 600;
     margin: 0;
     color: var(--app-text);
   }
@@ -319,13 +252,13 @@
 }
 
 .project-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-card-shadow);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--app-card-shadow-hover);
   }
 }
 
@@ -360,7 +293,7 @@
 
 .empty-state {
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--app-card-shadow);
 }
 
 .empty-content {
@@ -376,8 +309,6 @@
   }
   
   h3 {
-    font-size: 20px;
-    font-weight: 500;
     margin: 0 0 8px 0;
     color: var(--app-text);
   }
@@ -388,30 +319,8 @@
   }
 }
 
-// View mode specific styles
-.overview-content {
-  // Existing styles are already applied to the content
-}
-
-.kanban-content {
-  // Remove default dashboard padding for full-width kanban board
-  margin: -20px;
-
-  app-kanban-board {
-    display: block;
-    height: calc(100vh - 120px); // Adjust based on header height
-  }
-}
-
 // Responsive design
 @media (max-width: 768px) {
-  .dashboard-container {
-    padding: 16px;
-  }
-  
-  .welcome-title {
-    font-size: 24px;
-  }
   
   .stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -437,28 +346,11 @@
     gap: 12px;
   }
 
-  .welcome-content {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .view-toggle {
     width: 100%;
 
-    mat-button-toggle-group {
-      width: 100%;
-
-      mat-button-toggle {
-        flex: 1;
-      }
-    }
-  }
-
-  .kanban-content {
-    margin: -16px;
-
-    app-kanban-board {
-      height: calc(100vh - 100px);
+    mat-button-toggle {
+      flex: 1;
     }
   }
 }

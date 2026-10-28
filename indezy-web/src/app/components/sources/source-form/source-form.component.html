@@ -1,14 +1,9 @@
 <div class="source-form-container">
+  <app-page-header [icon]="isEditMode ? 'edit' : 'add_circle'" [title]="pageTitle"
+    [subtitle]="(isEditMode ? 'sources.editSubtitle' : 'sources.newSubtitle') | translate">
+  </app-page-header>
+
   <mat-card class="form-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>{{ isEditMode ? 'edit' : 'add_circle' }}</mat-icon>
-        {{ pageTitle }}
-      </mat-card-title>
-      <mat-card-subtitle>
-        {{ isEditMode ? ('sources.editSubtitle' | translate) : ('sources.newSubtitle' | translate) }}
-      </mat-card-subtitle>
-    </mat-card-header>
 
     <mat-card-content>
       @if (isLoading) {

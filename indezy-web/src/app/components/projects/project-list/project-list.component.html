@@ -1,12 +1,5 @@
 <div class="project-list-container">
-  <!-- Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <h1 class="page-title">
-        <mat-icon>work</mat-icon>
-        {{ 'projects.title' | translate }}
-      </h1>
-      <div class="header-actions">
+  <app-page-header icon="work" [title]="'projects.title' | translate" [subtitle]="'projects.subtitle' | translate">
         <button mat-stroked-button type="button" (click)="exportSummary()">
           <mat-icon>download</mat-icon>
           {{ 'projects.exportSummary' | translate }}
@@ -19,9 +12,7 @@
           <mat-icon>add</mat-icon>
           {{ 'projects.newProject' | translate }}
         </button>
-      </div>
-    </div>
-  </div>
+  </app-page-header>
 
   <!-- Filters -->
   <mat-card class="filters-card" [class.collapsed]="!filtersExpanded">

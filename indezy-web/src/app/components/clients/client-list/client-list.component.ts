@@ -21,6 +21,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 import { IdSelection } from '../../../shared/utils/id-selection';
 import { ListSelectionBarComponent } from '../../../shared/components/list-selection-bar/list-selection-bar.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 export type ClientTypeFilter = 'ALL' | 'FINAL' | 'ESN' | 'BLACKLISTED';
 export type ClientSortField = 'name' | 'city' | 'rating' | 'projects';
@@ -43,7 +44,7 @@ const DEFAULT_FILTERS: ClientFilterValues = {
 
 @Component({
     selector: 'app-client-list',
-    imports: [
+    imports: [PageHeaderComponent, 
     RouterModule,
     ReactiveFormsModule,
     MatTableModule,

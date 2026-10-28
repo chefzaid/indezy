@@ -26,9 +26,9 @@
 
 .insight-card {
   padding: 16px 20px;
-  border-radius: 12px;
+  border-radius: var(--app-radius);
   background: var(--app-surface);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--app-card-shadow);
 
   &.wide {
     grid-column: 1 / -1;
@@ -55,7 +55,7 @@
     margin: 16px 0 6px;
     font-size: 13px;
     font-weight: 600;
-    color: #c62828;
+    color: var(--app-danger);
   }
 }
 
@@ -133,11 +133,11 @@
   }
 
   &.won {
-    mat-icon, .summary-value { color: #2e7d32; }
+    mat-icon, .summary-value { color: var(--app-positive); }
   }
 
   &.lost {
-    mat-icon, .summary-value { color: #d32f2f; }
+    mat-icon, .summary-value { color: var(--app-danger); }
   }
 
   &.active {

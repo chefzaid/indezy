@@ -1,29 +1,7 @@
 .source-form-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  // The whole width of the page with the shell's gutter only, as the dashboard and its board take.
 
   .form-card {
-    mat-card-header {
-      mat-card-title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 1.5rem;
-
-        mat-icon {
-          font-size: 1.5rem;
-          width: 1.5rem;
-          height: 1.5rem;
-        }
-      }
-
-      mat-card-subtitle {
-        margin-top: 8px;
-        color: var(--app-text-muted);
-      }
-    }
-
     mat-card-content {
       padding-top: 24px;
 
@@ -46,8 +24,6 @@
         .form-section {
           h3 {
             margin: 0 0 20px 0;
-            font-size: 1.1rem;
-            font-weight: 500;
             color: var(--app-text);
             border-bottom: 1px solid var(--app-border);
             padding-bottom: 8px;

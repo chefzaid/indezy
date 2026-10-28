@@ -27,10 +27,10 @@
 .reminder-card {
   --accent: #1565c0;
   padding: 16px 16px 12px;
-  border-radius: 12px;
+  border-radius: var(--app-radius);
   border-top: 3px solid var(--accent);
   background: var(--app-surface);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--app-card-shadow);
 
   &.accent-orange { --accent: #e65100; }
   &.accent-blue { --accent: #1565c0; }

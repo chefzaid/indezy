@@ -23,12 +23,12 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProjectService } from '../../../services/project/project.service';
 import {
   InterviewStepDto,
-  LostReason,
   DEFAULT_DAYS_PER_YEAR,
   PROJECT_STATUS_COLORS,
   PROJECT_STATUS_ICONS,
   ProjectDto,
   ProjectStatus,
+  Refusal,
   STEP_STATUS_COLORS,
   StepStatus
 } from '../../../models';
@@ -39,9 +39,11 @@ import {
   InterviewStepDialogData
 } from '../interview-step-dialog/interview-step-dialog.component';
 import {
-  KanbanLostReasonDialogComponent,
-  KanbanLostReasonDialogData
-} from '../../kanban-lost-reason-dialog/kanban-lost-reason-dialog.component';
+  KanbanRefusalDialogComponent,
+  KanbanRefusalDialogData
+} from '../../kanban-refusal-dialog/kanban-refusal-dialog.component';
+import { MissionEndActionComponent } from '../mission-end-action/mission-end-action.component';
+import { RefusedByBadgeComponent } from '../../../shared/components/refused-by-badge/refused-by-badge.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -66,6 +68,8 @@ import { ProjectEmailButtonComponent } from '../project-email/project-email-butt
         ProjectArchiveActionComponent,
         StepTemplatesComponent,
         ProjectEmailButtonComponent,
+        RefusedByBadgeComponent,
+        MissionEndActionComponent,
         CommonModule,
         FormsModule,
         RouterModule,
@@ -223,32 +227,32 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  /** Moves the opportunity to another pipeline stage, asking why when it is lost. */
+  /** Moves the opportunity to another pipeline stage, asking who refused it and why when it is refused. */
   changeStatus(status: ProjectStatus): void {
     if (!this.project?.id || status === this.project.status || this.isUpdatingStatus) { return; }
     if (status !== ProjectStatus.LOST) {
       this.persistStatus(status);
       return;
     }
-    const dialogData: KanbanLostReasonDialogData = { role: this.project.role };
-    KanbanLostReasonDialogComponent.open(this.dialog, dialogData)
+    const dialogData: KanbanRefusalDialogData = { role: this.project.role };
+    KanbanRefusalDialogComponent.open(this.dialog, dialogData)
       .afterClosed()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((reason?: LostReason) => {
-        if (reason) {
-          this.persistStatus(ProjectStatus.LOST, reason);
+      .subscribe((refusal?: Refusal) => {
+        if (refusal) {
+          this.persistStatus(ProjectStatus.LOST, refusal);
         }
       });
   }
 
-  private persistStatus(status: ProjectStatus, lostReason?: LostReason): void {
+  private persistStatus(status: ProjectStatus, refusal?: Refusal): void {
     const projectId = this.project!.id!;
     this.isUpdatingStatus = true;
-    this.projectService.updateStatus(projectId, status, lostReason)
+    this.projectService.updateStatus(projectId, status, refusal)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updated) => {
-          this.project = { ...this.project!, status: updated.status, lostReason: updated.lostReason };
+          this.project = { ...this.project!, status: updated.status, refusedBy: updated.refusedBy, lostReason: updated.lostReason };
           this.isUpdatingStatus = false;
           this.notificationService.success('projects.detail.statusUpdated', 2500, {
             status: this.translate.instant('projects.statuses.' + updated.status)

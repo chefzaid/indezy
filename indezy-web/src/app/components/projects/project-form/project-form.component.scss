@@ -1,28 +1,7 @@
 .project-form-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  // The whole width of the page with the shell's gutter only, as the dashboard and its board take.
   
   .form-card {
-    mat-card-header {
-      mat-card-title {
-        .header-content {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          font-size: 1.5rem;
-          font-weight: 500;
-          
-          mat-icon {
-            font-size: 1.5rem;
-            width: 1.5rem;
-            height: 1.5rem;
-            color: var(--app-link);
-          }
-        }
-      }
-    }
-    
     mat-card-content {
       padding: 24px;
       
@@ -66,8 +45,6 @@
         .form-section {
           h3 {
             margin: 0 0 20px 0;
-            font-size: 1.1rem;
-            font-weight: 500;
             color: var(--app-text);
             border-bottom: 2px solid var(--mat-theme-primary, #1565c0);
             padding-bottom: 8px;
@@ -166,7 +143,7 @@
     }
     
     .mat-mdc-form-field-outline {
-      color: rgba(0, 0, 0, 0.12);
+      color: var(--app-border);
     }
     
     &.mat-focused .mat-mdc-form-field-outline {
@@ -174,7 +151,7 @@
     }
     
     &.mat-form-field-invalid .mat-mdc-form-field-outline {
-      color: #c62828;
+      color: var(--app-danger);
     }
   }
   
@@ -187,7 +164,7 @@
   }
   
   &.mat-form-field-invalid .mat-mdc-form-field-label {
-    color: #c62828;
+    color: var(--app-danger);
   }
 }
 
@@ -218,7 +195,7 @@
     color: white;
     
     &:disabled {
-      background-color: #e0e0e0;
+      background-color: var(--app-border);
       color: var(--app-text-muted);
     }
   }
@@ -234,7 +211,7 @@
 
 // Error message styling
 .mat-mdc-form-field-error {
-  color: #c62828;
+  color: var(--app-danger);
   font-size: 0.75rem;
   margin-top: 4px;
 }
@@ -247,7 +224,6 @@
 // Responsive adjustments
 @media (max-width: 768px) {
   .project-form-container {
-    padding: 16px;
     
     .form-card {
       mat-card-content {
@@ -258,7 +234,6 @@
           
           .form-section {
             h3 {
-              font-size: 1rem;
               margin-bottom: 16px;
             }
             
@@ -278,7 +253,6 @@
 
 @media (max-width: 480px) {
   .project-form-container {
-    padding: 8px;
     
     .form-card {
       mat-card-header {

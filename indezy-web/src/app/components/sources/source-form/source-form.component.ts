@@ -18,10 +18,11 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { SourceType } from '../../../models/source.models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { fieldError } from '../../../shared/utils/form-errors';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
     selector: 'app-source-form',
-    imports: [
+    imports: [PageHeaderComponent, 
     RouterModule,
     ReactiveFormsModule,
     MatCardModule,

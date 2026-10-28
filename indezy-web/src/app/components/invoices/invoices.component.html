@@ -1,6 +1,5 @@
 <div class="invoices-page">
-  <div class="header">
-    <h1>{{ 'invoices.title' | translate }}</h1>
+  <app-page-header icon="receipt_long" [title]="'invoices.title' | translate" [subtitle]="'invoices.subtitle' | translate">
     @if (exportYears.length > 0) {
       <button mat-stroked-button type="button" [matMenuTriggerFor]="exportMenu" data-export-invoices>
         <mat-icon>download</mat-icon>
@@ -38,7 +37,7 @@
       <mat-icon>add</mat-icon>
       {{ 'invoices.new' | translate }}
     </button>
-  </div>
+  </app-page-header>
 
   @if (billing && !billing.complete) {
     <mat-card class="notice" data-billing-incomplete>

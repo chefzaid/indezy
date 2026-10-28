@@ -35,6 +35,32 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   --app-positive: #2e7d32;
   --app-danger: #c62828;
   --app-info-bg: #e3f2fd;
+  /* Who refused an opportunity: the recruiter in red, the freelance in orange. Solid, each with a text colour reading
+     at 4.5:1 at least on it, so the badge looks the same in either theme. */
+  --app-refused-by-recruiter: #c62828;
+  --app-refused-by-recruiter-text: #ffffff;
+  --app-refused-by-freelance: #f57c00;
+  --app-refused-by-freelance-text: #212121;
+  /* Text that reads as a warning, an accent or a booked call, redefined lighter for the dark theme. */
+  --app-warning: #8a4b00;
+  --app-accent: #5e35b1;
+  --app-teal: #00796b;
+  /* Tinted chips and badges: a light tint under dark text here, a translucent tint under light text in the dark
+     theme, 4.5:1 at least either way. */
+  --app-chip-positive-bg: #e8f5e9;
+  --app-chip-positive-text: #1b5e20;
+  --app-chip-danger-bg: #ffebee;
+  --app-chip-danger-text: #b71c1c;
+  --app-chip-warning-bg: #fff3e0;
+  --app-chip-warning-text: #8a4b00;
+  --app-chip-info-bg: #e3f2fd;
+  --app-chip-info-text: #0d47a1;
+  --app-chip-indigo-bg: #e8eaf6;
+  --app-chip-indigo-text: #283593;
+  --app-chip-accent-bg: #ede7f6;
+  --app-chip-accent-text: #4527a0;
+  --app-chip-neutral-bg: #eceff1;
+  --app-chip-neutral-text: #37474f;
 }
 
 /* Material's indigo-pink theme draws a few texts under the 4.5:1 contrast WCAG AA asks for on this app's light
@@ -106,6 +132,29 @@ html.dark-theme {
   --app-danger: #ef9a9a;
   --app-info-bg: #1e3a5f;
   --heatmap-l0: #2d333b;
+  --app-warning: #ffb74d;
+  --app-accent: #b39ddb;
+  --app-teal: #80cbc4;
+  --app-chip-positive-bg: rgba(129, 199, 132, 0.18);
+  --app-chip-positive-text: #a5d6a7;
+  --app-chip-danger-bg: rgba(239, 154, 154, 0.18);
+  --app-chip-danger-text: #ef9a9a;
+  --app-chip-warning-bg: rgba(255, 183, 77, 0.18);
+  --app-chip-warning-text: #ffcc80;
+  --app-chip-info-bg: rgba(144, 202, 249, 0.18);
+  --app-chip-info-text: #90caf9;
+  --app-chip-indigo-bg: rgba(159, 168, 218, 0.18);
+  --app-chip-indigo-text: #c5cae9;
+  --app-chip-accent-bg: rgba(179, 157, 219, 0.18);
+  --app-chip-accent-text: #d1c4e9;
+  --app-chip-neutral-bg: rgba(255, 255, 255, 0.1);
+  --app-chip-neutral-text: rgba(255, 255, 255, 0.87);
+
+  /* Stage colors are dark enough to carry white text; drawn on a dark surface (a dot, a timeline mark) they are
+     lifted toward white so they still stand out. */
+  .status-dot {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
+  }
 
   /* The dark palette's indigo 300 carries dark text (6:1), not white (3.45:1); text buttons use lighter tones. */
   .mat-mdc-raised-button.mat-primary,
@@ -133,6 +182,156 @@ body {
 }
 
 /* Global utility classes */
+/* One type scale, boxing and icon size for the whole workspace. */
+html,
+html.dark-theme {
+  --app-radius: 12px;
+  --mat-card-elevated-container-shape: var(--app-radius);
+  --mat-card-outlined-container-shape: var(--app-radius);
+  --mat-card-elevated-container-elevation: var(--app-card-shadow);
+  --mat-card-title-text-size: 1.125rem;
+  --mat-card-title-text-weight: 600;
+  --mat-card-title-text-line-height: 1.5rem;
+  --mat-card-subtitle-text-size: 0.875rem;
+  --mat-card-subtitle-text-color: var(--app-text-muted);
+}
+
+:root {
+  --app-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --app-card-shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+html.dark-theme {
+  --app-card-shadow: none;
+  --app-card-shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* Every card: the same corners, a hairline border that also holds in the dark theme, and a light shadow. Material's
+   card styles load with the first card, after these, hence the extra level. */
+html .mat-mdc-card {
+  border: 1px solid var(--app-border);
+}
+
+/* A card's title with its icon, the same size and colour on every page. */
+.mat-mdc-card-title {
+  color: var(--app-text);
+
+  > .mat-icon:first-child {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: var(--app-link);
+    vertical-align: -4px;
+  }
+}
+
+/* The header every page opens with (app-page-header). */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin: 0 0 24px;
+}
+
+.page-heading {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+/* Named with their elements so they outrank Material's .mat-typography h1 and p. */
+h1.page-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--app-text);
+
+  > .mat-icon {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    font-size: 28px;
+    color: var(--app-link);
+  }
+}
+
+p.page-subtitle {
+  margin: 6px 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--app-text-muted);
+}
+
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  &:empty {
+    display: none;
+  }
+}
+
+/* Section and group titles on the workspace's pages: one size each, whatever the page. */
+.app-content {
+  h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+}
+
+/* A titled part of a page, outside a card's own title. */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--app-text);
+
+  > .mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: var(--app-link);
+  }
+}
+
+@media (max-width: 600px) {
+  .page-header {
+    margin-bottom: 16px;
+  }
+
+  h1.page-title {
+    font-size: 1.375rem;
+
+    > .mat-icon {
+      width: 24px;
+      height: 24px;
+      font-size: 24px;
+    }
+  }
+
+  .page-actions {
+    width: 100%;
+  }
+}
+
 .full-width {
   width: 100%;
 }
@@ -226,7 +425,7 @@ a.row-link {
   }
 
   &:focus-visible {
-    outline: 2px solid #1565c0;
+    outline: 2px solid var(--app-link);
     outline-offset: 2px;
   }
 }

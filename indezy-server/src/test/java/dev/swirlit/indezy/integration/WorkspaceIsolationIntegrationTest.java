@@ -266,7 +266,7 @@ class WorkspaceIsolationIntegrationTest extends TwoAccountsIntegrationTest {
             "/projects/kanban/" + alice.freelanceId() + "?seasonId=" + seasonId, null, Map.class);
         assertThat(board.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat((List<Object>) board.getBody().get("columnOrder"))
-            .containsExactly("CONTACT", "INTERVIEW", "OFFER", "WON", "LOST");
+            .containsExactly("CONTACT", "INTERVIEW", "OFFER", "LOST", "WON");
         assertThat((List<?>) ((Map<?, ?>) board.getBody().get("columns")).get("CONTACT")).hasSize(1);
 
         ResponseEntity<Map> stats = call(alice, HttpMethod.GET,

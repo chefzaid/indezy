@@ -1,11 +1,13 @@
 package dev.swirlit.indezy.controller;
 
+import dev.swirlit.indezy.dto.MissionEndRequest;
 import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.KanbanBoardDto;
 import dev.swirlit.indezy.dto.ProjectBulkUpdateRequest;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.model.enums.RefusedBy;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.DashboardStatsService;
 import dev.swirlit.indezy.service.ProjectBulkService;
@@ -90,9 +92,10 @@ public class ProjectController {
     @PatchMapping("/{id}/status")
     public ProjectDto updateProjectStatus(@PathVariable Long id,
                                           @RequestParam ProjectStatus status,
+                                          @RequestParam(required = false) RefusedBy refusedBy,
                                           @RequestParam(required = false) LostReason lostReason) {
         accessGuard.requireProject(id);
-        return projectService.updateStatus(id, status, lostReason);
+        return projectService.updateStatus(id, status, refusedBy, lostReason);
     }
 
     @Operation(summary = "Change the status, source or tags of several opportunities, or archive or delete them, at once")
@@ -110,6 +113,20 @@ public class ProjectController {
     public ProjectDto archive(@PathVariable Long id) {
         accessGuard.requireProject(id);
         return projectService.setArchived(id, true);
+    }
+
+    @Operation(summary = "End a won mission on a day, saying why")
+    @PatchMapping("/{id}/end")
+    public ProjectDto endMission(@PathVariable Long id, @Valid @RequestBody MissionEndRequest request) {
+        accessGuard.requireProject(id);
+        return projectService.endMission(id, request.endedOn(), request.reason());
+    }
+
+    @Operation(summary = "Put a mission ended by mistake back in progress")
+    @PatchMapping("/{id}/resume")
+    public ProjectDto resumeMission(@PathVariable Long id) {
+        accessGuard.requireProject(id);
+        return projectService.resumeMission(id);
     }
 
     @Operation(summary = "Restore an archived opportunity to its Kanban column")

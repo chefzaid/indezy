@@ -7,11 +7,7 @@ mat-card-title {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.1rem;
 
-  mat-icon {
-    color: var(--app-link);
-  }
 }
 
 mat-card-content {
@@ -26,7 +22,7 @@ mat-card-content {
   flex-direction: column;
   gap: 6px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+  border-bottom: 1px solid var(--app-border);
 }
 
 .order-head {
@@ -50,7 +46,7 @@ mat-card-content {
 
   .period {
     font-size: 0.85rem;
-    color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+    color: var(--app-text-muted);
   }
 }
 
@@ -60,8 +56,8 @@ mat-progress-bar.level-NEAR {
 }
 
 mat-progress-bar.level-EXCEEDED {
-  --mdc-linear-progress-active-indicator-color: #c62828;
-  --mat-progress-bar-active-indicator-color: #c62828;
+  --mdc-linear-progress-active-indicator-color: var(--app-danger);
+  --mat-progress-bar-active-indicator-color: var(--app-danger);
 }
 
 .usage {
@@ -124,7 +120,7 @@ mat-progress-bar.level-EXCEEDED {
 
   > mat-icon {
     flex: none;
-    color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+    color: var(--app-text-muted);
   }
 
   .amendment-text {
@@ -136,5 +132,5 @@ mat-progress-bar.level-EXCEEDED {
 
 .empty {
   margin: 0;
-  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+  color: var(--app-text-muted);
 }

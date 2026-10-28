@@ -47,22 +47,22 @@
   font-weight: 600;
 
   &.admin {
-    background: var(--mat-sys-primary-container, #e3e8ff);
-    color: var(--mat-sys-on-primary-container, #1a237e);
+    background: var(--app-chip-indigo-bg);
+    color: var(--app-chip-indigo-text);
   }
 
   &.active {
-    background: #e6f4ea;
-    color: #1e5631;
+    background: var(--app-chip-positive-bg);
+    color: var(--app-chip-positive-text);
   }
 
   &.disabled {
-    background: #fdecea;
-    color: #8a1c14;
+    background: var(--app-chip-danger-bg);
+    color: var(--app-chip-danger-text);
   }
 
   &.deleted {
-    background: #eceff1;
-    color: #37474f;
+    background: var(--app-chip-neutral-bg);
+    color: var(--app-chip-neutral-text);
   }
 }

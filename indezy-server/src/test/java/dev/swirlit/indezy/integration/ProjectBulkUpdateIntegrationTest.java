@@ -73,18 +73,25 @@ class ProjectBulkUpdateIntegrationTest {
     }
 
     @Test
-    void movesTheSelectionToAStatusWithItsLostReasonOrWithoutOne() throws Exception {
+    void movesTheSelectionToAStatusWithWhoRefusedItAndWhyOrWithoutThem() throws Exception {
         bulk("""
-            {"projectIds": [1, 2], "action": "STATUS", "status": "OFFER", "lostReason": "OTHER"}""")
+            {"projectIds": [1, 2], "action": "STATUS", "status": "OFFER", "refusedBy": "RECRUITER", "lostReason": "OTHER"}""")
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.updated").value(2));
-        assertThat(rows("status", "lost_reason")).containsExactly(
+        assertThat(rows("status", "refused_by", "lost_reason")).containsExactly(
             Map.of("STATUS", "OFFER"), Map.of("STATUS", "OFFER"), Map.of("STATUS", "LOST", "LOST_REASON", "RATE_TOO_LOW"));
 
         bulk("""
-            {"projectIds": [1], "action": "STATUS", "status": "LOST", "lostReason": "NO_RESPONSE"}""")
+            {"projectIds": [1], "action": "STATUS", "status": "LOST", "refusedBy": "RECRUITER", "lostReason": "NO_RESPONSE"}""")
             .andExpect(status().isOk());
-        assertThat(rows("status", "lost_reason").get(0)).isEqualTo(Map.of("STATUS", "LOST", "LOST_REASON", "NO_RESPONSE"));
+        assertThat(rows("status", "refused_by", "lost_reason").get(0))
+            .isEqualTo(Map.of("STATUS", "LOST", "REFUSED_BY", "RECRUITER", "LOST_REASON", "NO_RESPONSE"));
+
+        // The reason is optional.
+        bulk("""
+            {"projectIds": [2], "action": "STATUS", "status": "LOST", "refusedBy": "FREELANCE"}""")
+            .andExpect(status().isOk());
+        assertThat(rows("status", "refused_by", "lost_reason").get(1)).isEqualTo(Map.of("STATUS", "LOST", "REFUSED_BY", "FREELANCE"));
     }
 
     @Test

@@ -12,6 +12,7 @@ import { OfferPublisher } from '../../../models/offer.models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { OfferService } from '../../../services/offer/offer.service';
 import { offerRate } from '../../../shared/utils/offer-format';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 /**
  * What a publisher puts in the feed (`/offers/publishers/{name}`, see docs/features.md#publisher-page): its open
@@ -20,7 +21,7 @@ import { offerRate } from '../../../shared/utils/offer-format';
  */
 @Component({
   selector: 'app-offer-publisher',
-  imports: [DatePipe, RouterModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, TranslateModule],
+  imports: [PageHeaderComponent, DatePipe, RouterModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, TranslateModule],
   templateUrl: './offer-publisher.component.html',
   styleUrls: ['./offer-publisher.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

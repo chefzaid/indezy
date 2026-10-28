@@ -6,8 +6,8 @@
   padding: 8px 12px;
   margin-bottom: 12px;
   border-radius: 8px;
-  background: var(--mat-sys-secondary-container, #e8eaf6);
-  color: var(--mat-sys-on-secondary-container, inherit);
+  background: var(--app-info-bg);
+  color: var(--app-text);
 }
 
 .selection-count {

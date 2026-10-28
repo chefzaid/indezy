@@ -2,6 +2,7 @@ package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.model.enums.RefusedBy;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -97,7 +98,12 @@ public class Project extends BaseEntity {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    /** Why the opportunity was lost; only meaningful when status is LOST. */
+    /** Who refused the opportunity, the freelance or the recruiter; only meaningful when status is LOST. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "refused_by")
+    private RefusedBy refusedBy;
+
+    /** Why the opportunity was refused, when it was said; only meaningful when status is LOST. */
     @Enumerated(EnumType.STRING)
     @Column(name = "lost_reason")
     private LostReason lostReason;
@@ -112,6 +118,14 @@ public class Project extends BaseEntity {
      */
     @Column(name = "archived_at")
     private LocalDateTime archivedAt;
+
+    /** The day a won mission ended, set when it is ended from its page; null while it runs. */
+    @Column(name = "ended_on")
+    private LocalDate endedOn;
+
+    /** Why the mission ended, as written when it was ended. */
+    @Column(name = "end_reason", columnDefinition = "TEXT")
+    private String endReason;
 
     /** Manual priority within a Kanban column (lower comes first); null keeps default ordering. */
     @Column(name = "board_position")
@@ -164,6 +178,33 @@ public class Project extends BaseEntity {
     }
 
     // Helper methods
+
+    /**
+     * The mission's last day: the day it was ended, else its start plus its duration, else none (no start, or an
+     * open-ended mission).
+     */
+    public LocalDate lastDay() {
+        if (endedOn != null) {
+            return endedOn;
+        }
+        return startDate != null && durationInMonths != null ? startDate.plusMonths(durationInMonths).minusDays(1) : null;
+    }
+
+    /**
+     * Keeps what only one outcome says: who refused and why for a refused opportunity, the end of the mission for a won
+     * one. Called once the status is set.
+     */
+    public void clearOtherOutcomes() {
+        if (status != ProjectStatus.LOST) {
+            refusedBy = null;
+            lostReason = null;
+        }
+        if (status != ProjectStatus.WON) {
+            endedOn = null;
+            endReason = null;
+        }
+    }
+
     public Integer getTotalRevenue() {
         if (dailyRate != null && daysPerYear != null && durationInMonths != null) {
             return dailyRate * daysPerYear * durationInMonths / 12;

@@ -1,11 +1,6 @@
 <div class="profile-container">
-  <div class="profile-header">
-    <h1>
-      <mat-icon>person</mat-icon>
-      {{ 'profile.title' | translate }}
-    </h1>
-    <p class="profile-subtitle">{{ 'profile.subtitle' | translate }}</p>
-  </div>
+  <app-page-header icon="person" [title]="'profile.title' | translate" [subtitle]="'profile.subtitle' | translate">
+  </app-page-header>
 
   @if (isLoading) {
     <div class="loading-container">

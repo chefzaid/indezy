@@ -17,7 +17,7 @@ import { ProjectFormComponent } from './project-form.component';
 describe('ProjectFormComponent editing, errors and helpers', () => {
   const saved: ProjectDto = {
     id: 40, role: 'Développeur Java', dailyRate: 600, clientId: 1, freelanceId: 3, status: ProjectStatus.LOST,
-    lostReason: 'RATE_TOO_LOW', startDate: '2026-11-02', durationInMonths: 6, documents: ['contrat.pdf'], seasonId: 4,
+    refusedBy: 'FREELANCE', lostReason: 'RATE_TOO_LOW', startDate: '2026-11-02', durationInMonths: 6, documents: ['contrat.pdf'], seasonId: 4,
     techStack: 'Java', isFavorite: true
   } as ProjectDto;
 
@@ -75,8 +75,8 @@ describe('ProjectFormComponent editing, errors and helpers', () => {
       expect(component.isEditMode).toBeTrue();
       expect(component.isLoading).toBeFalse();
       expect(component.projectForm.value).toEqual(jasmine.objectContaining({
-        role: 'Développeur Java', dailyRate: 600, clientId: 1, status: ProjectStatus.LOST, lostReason: 'RATE_TOO_LOW',
-        seasonId: 4, isFavorite: true, middlemanId: null, sourceId: null
+        role: 'Développeur Java', dailyRate: 600, clientId: 1, status: ProjectStatus.LOST, refusedBy: 'FREELANCE',
+        lostReason: 'RATE_TOO_LOW', seasonId: 4, isFavorite: true, middlemanId: null, sourceId: null
       }));
       expect((component.projectForm.value.startDate as Date).getDate()).toBe(2);
       expect(component.pageTitle).toBe('projects.form.editTitle');
@@ -88,7 +88,7 @@ describe('ProjectFormComponent editing, errors and helpers', () => {
       const fixture = create({ id: 41, before: () => projects.getById.and.returnValue(of({ id: 41, role: 'Ancienne mission', dailyRate: 400 } as ProjectDto)) });
 
       expect(fixture.componentInstance.projectForm.value).toEqual(jasmine.objectContaining({
-        status: ProjectStatus.CONTACT, lostReason: null, clientId: null, seasonId: null, isFavorite: false
+        status: ProjectStatus.CONTACT, refusedBy: null, lostReason: null, clientId: null, seasonId: null, isFavorite: false
       }));
     });
 
@@ -104,30 +104,50 @@ describe('ProjectFormComponent editing, errors and helpers', () => {
       expect(projectId).toBe(40);
       expect(sent).toEqual(jasmine.objectContaining({
         id: 40, role: 'Tech lead Java', documents: ['contrat.pdf'], freelanceId: 3, startDate: '2026-11-02',
-        status: ProjectStatus.LOST, lostReason: 'RATE_TOO_LOW'
+        status: ProjectStatus.LOST, refusedBy: 'FREELANCE', lostReason: 'RATE_TOO_LOW'
       }));
       expect(notifications.success).toHaveBeenCalledWith('projects.updateSuccess');
       expect(navigate).toHaveBeenCalledWith(['/projects', 40]);
     });
 
-    it('forgets why it was lost once it is back in the pipeline', () => {
+    it('forgets who refused it and why once it is back in the pipeline', () => {
       const component = create({ id: 40 }).componentInstance;
       projects.update.and.returnValue(of({} as ProjectDto));
 
       component.projectForm.patchValue({ status: ProjectStatus.OFFER });
+      expect(component.projectForm.value.refusedBy).toBeNull();
       expect(component.projectForm.value.lostReason).toBeNull();
       component.onSubmit();
 
+      expect(projects.update.calls.mostRecent().args[1].refusedBy).toBeUndefined();
       expect(projects.update.calls.mostRecent().args[1].lostReason).toBeUndefined();
       expect(navigate).toHaveBeenCalledWith(['/projects', 40]);
     });
 
-    it('keeps the reason while the project stays lost', () => {
+    it('keeps who refused it and why while the project stays refused', () => {
       const component = create({ id: 40 }).componentInstance;
 
       component.projectForm.patchValue({ status: ProjectStatus.LOST });
 
+      expect(component.projectForm.value.refusedBy).toBe('FREELANCE');
       expect(component.projectForm.value.lostReason).toBe('RATE_TOO_LOW');
+    });
+
+    it('asks who refused a refused project before saving it, the reason being optional', () => {
+      const fixture = create({ id: 42, before: () => projects.getById.and.returnValue(of({ ...saved, id: 42, refusedBy: undefined,
+        lostReason: undefined } as ProjectDto)) });
+      const component = fixture.componentInstance;
+      projects.update.and.returnValue(of({} as ProjectDto));
+
+      component.onSubmit();
+      expect(projects.update).not.toHaveBeenCalled();
+      expect(fixture.nativeElement.querySelector('[data-refused-by-field]')).not.toBeNull();
+
+      component.projectForm.patchValue({ refusedBy: 'RECRUITER' });
+      component.onSubmit();
+
+      expect(projects.update.calls.mostRecent().args[1]).toEqual(jasmine.objectContaining({
+        status: ProjectStatus.LOST, refusedBy: 'RECRUITER', lostReason: undefined }));
     });
 
     it('reports changes that could not be saved', () => {

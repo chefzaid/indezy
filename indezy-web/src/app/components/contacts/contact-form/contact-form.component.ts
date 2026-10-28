@@ -19,10 +19,11 @@ import { ClientDto, ContactDto, CONTACT_LEGAL_BASES } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { fieldError } from '../../../shared/utils/form-errors';
 import { trimmedEmail } from '../../../shared/utils/trimmed-email';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
     selector: 'app-contact-form',
-    imports: [
+    imports: [PageHeaderComponent, 
     RouterModule,
     ReactiveFormsModule,
     MatCardModule,

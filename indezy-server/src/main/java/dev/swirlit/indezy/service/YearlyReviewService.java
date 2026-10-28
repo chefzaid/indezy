@@ -102,9 +102,9 @@ public class YearlyReviewService {
             .toList();
     }
 
-    /** The mission's last day: its start plus its duration, or none while it is open-ended. */
+    /** The mission's last day: the day it was ended, else its start plus its duration, or none while it is open-ended. */
     static LocalDate end(Project project) {
-        return project.getDurationInMonths() == null ? null : project.getStartDate().plusMonths(project.getDurationInMonths()).minusDays(1);
+        return project.lastDay();
     }
 
     /** Its working days within the year, from the calendar days it covers there and its days per year, by halves. */

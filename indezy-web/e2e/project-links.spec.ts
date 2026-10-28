@@ -9,7 +9,7 @@ for (const language of ['en', 'fr']) {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light', language } }));
     await page.route('**/api/users/profile', route => route.fulfill({ json: { id: 1, skills: [] } }));
-    await page.route('**/api/freelances/1', route => route.fulfill({ json: { id: 1, reversionRate: 45 } }));
+    await page.route('**/api/freelances/1', route => route.fulfill({ json: { id: 1, reversionRate: 55 } }));
     await page.route('**/api/projects/42', route => route.fulfill({ json: {
       id: 42, role: 'Java developer', status: 'CONTACT', clientName: 'Acme', dailyRate: 650,
       documents: ['Job brief.pdf'], link: 'https://example.test/mission'

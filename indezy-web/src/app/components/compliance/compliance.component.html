@@ -1,6 +1,5 @@
 <div class="compliance-page">
-  <div class="header">
-    <h1>{{ 'compliance.title' | translate }}</h1>
+  <app-page-header icon="folder_shared" [title]="'compliance.title' | translate" [subtitle]="'compliance.intro' | translate">
     @if (documents.length > 0) {
       <button mat-stroked-button type="button" (click)="share()" data-share-documents>
         <mat-icon>share</mat-icon>
@@ -11,8 +10,7 @@
       <mat-icon>upload_file</mat-icon>
       {{ 'compliance.add' | translate }}
     </button>
-  </div>
-  <p class="intro">{{ 'compliance.intro' | translate }}</p>
+  </app-page-header>
 
   @if (sharedLink) {
     <mat-card class="shared-link" data-shared-link>

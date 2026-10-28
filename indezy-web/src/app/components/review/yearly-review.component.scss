@@ -1,40 +1,6 @@
-.review-container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 24px 16px;
-}
-
-.review-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.review-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 4px;
-}
-
-.review-subtitle {
-  margin: 0;
-  color: var(--text-secondary);
-}
-
-.review-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-
-  mat-spinner {
-    display: inline-block;
-    margin-right: 6px;
-  }
+[data-review-pdf] mat-spinner {
+  display: inline-block;
+  margin-right: 6px;
 }
 
 .year-picker {
@@ -100,12 +66,10 @@
 
   h2 {
     margin: 0 0 12px;
-    font-size: 1.125rem;
   }
 
   h3 {
     margin: 16px 0 8px;
-    font-size: 0.9375rem;
   }
 }
 
@@ -206,9 +170,6 @@
 }
 
 @media (max-width: 600px) {
-  .review-container {
-    padding: 16px 0;
-  }
 
   .figure .figure-value {
     font-size: 1.375rem;

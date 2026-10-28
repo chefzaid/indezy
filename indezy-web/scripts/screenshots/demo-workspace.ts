@@ -20,15 +20,16 @@ export async function mockDemoWorkspace(page: Page, language: 'fr' | 'en', theme
     sourceName: 'Free-Work', startDate: '2026-12-01', durationInMonths: 6, totalSteps: 0, completedSteps: 0, failedSteps: 0,
     updatedAt: new Date().toISOString(), ...extra });
   await page.route('**/api/projects/kanban/1*', route => route.fulfill({ json: { inactivityDays: 14,
-    columnOrder: ['CONTACT', 'INTERVIEW', 'OFFER', 'WON', 'LOST'], columns: {
+    columnOrder: ['CONTACT', 'INTERVIEW', 'OFFER', 'LOST', 'WON'], columns: {
       CONTACT: [card(1, 'Lead développeur Java', 'CONTACT', 'Nova Conseil', 680, 'Java, Spring Boot, Kafka'),
         card(2, 'DevOps AWS', 'CONTACT', 'Atlas Digital', 620, 'AWS, Terraform, Kubernetes', { workMode: 'REMOTE' }),
         card(3, 'Développeur Angular', 'CONTACT', 'Héliade', 560, 'Angular, TypeScript')],
       INTERVIEW: [card(4, 'Architecte cloud', 'INTERVIEW', 'Banque Méridienne', 780, 'Azure, Kubernetes', { totalSteps: 3, completedSteps: 2 }),
         card(5, 'Tech lead Node.js', 'INTERVIEW', 'Orion Services', 700, 'Node.js, PostgreSQL', { totalSteps: 2, completedSteps: 1 })],
       OFFER: [card(6, 'Data engineer', 'OFFER', 'Énergie Verte', 650, 'Python, Spark, Airflow', { totalSteps: 3, completedSteps: 3 })],
-      WON: [card(7, 'Lead Java Kafka', 'WON', 'Assurances du Lac', 720, 'Java, Kafka', { totalSteps: 3, completedSteps: 3 })],
-      LOST: [card(8, 'Développeur Python', 'LOST', 'Studio Pixel', 480, 'Python, Django', { lostReason: 'RATE_TOO_LOW' })]
+      LOST: [card(8, 'Développeur Python', 'LOST', 'Studio Pixel', 480, 'Python, Django', { refusedBy: 'FREELANCE', lostReason: 'RATE_TOO_LOW' }),
+        card(9, 'Développeur Go', 'LOST', 'Fintech Halo', 600, 'Go, gRPC', { refusedBy: 'RECRUITER', lostReason: 'POSITION_FILLED' })],
+      WON: [card(7, 'Lead Java Kafka', 'WON', 'Assurances du Lac', 720, 'Java, Kafka', { totalSteps: 3, completedSteps: 3 })]
     } } }));
   const day = (offset: number) => new Date(Date.now() - offset * 3600 * 1000).toISOString();
   const offers = [

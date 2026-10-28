@@ -61,8 +61,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     { column: 'CONTACT', cards: [{ role: 'Lead Java', client: 'ESN · Lyon', rate: 650 }, { role: 'DevOps AWS', client: 'Remote', rate: 600 }] },
     { column: 'INTERVIEW', cards: [{ role: 'Architecte cloud', client: 'Banque · Paris', rate: 750 }] },
     { column: 'OFFER', cards: [{ role: 'Tech lead Angular', client: 'Retail · Lille', rate: 700 }] },
-    { column: 'WON', cards: [{ role: 'Data engineer', client: 'Énergie · Nantes', rate: 680 }] },
-    { column: 'LOST', cards: [{ role: 'Dev Python', client: 'Startup', rate: 500 }] }
+    { column: 'LOST', cards: [{ role: 'Dev Python', client: 'Startup', rate: 500 }] },
+    { column: 'WON', cards: [{ role: 'Data engineer', client: 'Énergie · Nantes', rate: 680 }] }
   ];
   /** Sign-up opens to the public before launch (TODO.md, Needs Input): until then it is offered in development only. */
   readonly signUpOpen = !environment.production;

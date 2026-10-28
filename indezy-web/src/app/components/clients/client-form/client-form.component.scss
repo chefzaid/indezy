@@ -1,32 +1,3 @@
-.client-form-container {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.form-card {
-  border-radius: 12px;
-}
-
-.form-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: var(--app-text);
-
-  mat-icon {
-    color: var(--app-link);
-  }
-}
-
-.form-subtitle {
-  margin: 4px 0 24px;
-  color: var(--app-text-muted);
-}
-
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -44,10 +15,8 @@
   h3 {
     margin: 0 0 16px;
     padding-bottom: 8px;
-    font-size: 1.05rem;
-    font-weight: 500;
     color: var(--app-text);
-    border-bottom: 2px solid #1565c0;
+    border-bottom: 2px solid var(--app-link);
   }
 }
 
@@ -106,9 +75,6 @@
 }
 
 @media (max-width: 600px) {
-  .client-form-container {
-    padding: 0;
-  }
 
   .form-actions {
     flex-direction: column-reverse;

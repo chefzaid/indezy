@@ -1,9 +1,6 @@
 <div class="archive-container">
-  <h1 class="archive-title">
-    <mat-icon>inventory_2</mat-icon>
-    {{ 'archive.title' | translate }}
-  </h1>
-  <p class="archive-subtitle">{{ 'archive.subtitle' | translate }}</p>
+  <app-page-header icon="inventory_2" [title]="'archive.title' | translate" [subtitle]="'archive.subtitle' | translate">
+  </app-page-header>
 
   <mat-form-field appearance="outline" class="archive-search">
     <mat-label>{{ 'archive.search' | translate }}</mat-label>

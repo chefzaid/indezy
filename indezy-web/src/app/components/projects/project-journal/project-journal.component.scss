@@ -4,13 +4,11 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 1.1rem;
 
     mat-icon {
       font-size: 1.2rem;
       width: 1.2rem;
       height: 1.2rem;
-      color: var(--app-link);
     }
   }
 
@@ -131,7 +129,7 @@
 }
 
 .journal-card .exchange-entry {
-  border-left-color: #00796b;
+  border-left-color: var(--app-teal);
 
   .exchange-title {
     display: inline-flex;

@@ -7,6 +7,7 @@ import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Season;
 import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.LostReason;
+import dev.swirlit.indezy.model.enums.RefusedBy;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -315,7 +316,7 @@ class ProjectServiceTest extends ProjectServiceTestSupport {
         when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
 
         // When
-        ProjectDto result = projectService.updateStatus(1L, ProjectStatus.WON, null);
+        ProjectDto result = projectService.updateStatus(1L, ProjectStatus.WON, null, null);
 
         // Then
         assertThat(result).isNotNull();
@@ -325,34 +326,52 @@ class ProjectServiceTest extends ProjectServiceTestSupport {
     }
 
     @Test
-    void updateStatus_WhenLost_ShouldStoreLostReason() {
+    void updateStatus_WhenLost_ShouldStoreWhoRefusedAndWhy() {
         // Given
         when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
         when(projectRepository.save(testProject)).thenReturn(testProject);
         when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
 
         // When
-        projectService.updateStatus(1L, ProjectStatus.LOST, LostReason.RATE_TOO_LOW);
+        projectService.updateStatus(1L, ProjectStatus.LOST, RefusedBy.FREELANCE, LostReason.RATE_TOO_LOW);
 
         // Then
         assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.LOST);
+        assertThat(testProject.getRefusedBy()).isEqualTo(RefusedBy.FREELANCE);
         assertThat(testProject.getLostReason()).isEqualTo(LostReason.RATE_TOO_LOW);
     }
 
     @Test
-    void updateStatus_WhenNotLost_ShouldClearLostReason() {
-        // Given a project that was previously lost
+    void updateStatus_WhenLostWithoutReason_ShouldStoreWhoRefusedOnly() {
+        // Given
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
+        when(projectRepository.save(testProject)).thenReturn(testProject);
+        when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
+
+        // When the reason is left out, as it is optional
+        projectService.updateStatus(1L, ProjectStatus.LOST, RefusedBy.RECRUITER, null);
+
+        // Then
+        assertThat(testProject.getRefusedBy()).isEqualTo(RefusedBy.RECRUITER);
+        assertThat(testProject.getLostReason()).isNull();
+    }
+
+    @Test
+    void updateStatus_WhenNotLost_ShouldClearWhoRefusedAndWhy() {
+        // Given a project that was previously refused
         testProject.setStatus(ProjectStatus.LOST);
+        testProject.setRefusedBy(RefusedBy.RECRUITER);
         testProject.setLostReason(LostReason.NO_RESPONSE);
         when(projectRepository.findById(1L)).thenReturn(Optional.of(testProject));
         when(projectRepository.save(testProject)).thenReturn(testProject);
         when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
 
         // When it moves back into the pipeline
-        projectService.updateStatus(1L, ProjectStatus.INTERVIEW, LostReason.NO_RESPONSE);
+        projectService.updateStatus(1L, ProjectStatus.INTERVIEW, RefusedBy.RECRUITER, LostReason.NO_RESPONSE);
 
-        // Then the stale reason is cleared
+        // Then the stale side and reason are cleared
         assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.INTERVIEW);
+        assertThat(testProject.getRefusedBy()).isNull();
         assertThat(testProject.getLostReason()).isNull();
     }
 
@@ -362,7 +381,7 @@ class ProjectServiceTest extends ProjectServiceTestSupport {
         when(projectRepository.findById(999L)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> projectService.updateStatus(999L, ProjectStatus.WON, null))
+        assertThatThrownBy(() -> projectService.updateStatus(999L, ProjectStatus.WON, null, null))
                 .isInstanceOf(ResourceNotFoundException.class);
         verify(projectRepository, never()).save(any());
     }

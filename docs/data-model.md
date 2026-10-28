@@ -119,7 +119,10 @@ Important fields:
   `registration` (companies), `address`, `iban` (ISO 13616 check digits verified), `bic`, `paymentTermDays` (0 to 60,
   default 30) and `invoicePrefix` (default `F`); until set, the legal name and address come from the profile
 - availability date (edited as **Available from** on the profile through `PUT /users/profile`, which writes it to the owner's workspace)
-- reversion rate
+- reversion rate (`freelances.reversion_share`): the taux de réversion, the share of the gross daily rate the
+  freelance keeps, in percent. It was saved as the share taken (social charges and income tax) in `reversion_rate`
+  until 2026-10-28; on startup `ReversionRateMigration` moves any such value to 100 less it and empties the old column,
+  which stays, unused, for the version still running during a rollout
 - income tax rate
 - CV file path
 - optional password hash
@@ -160,8 +163,17 @@ Important fields:
 - link
 - personal rating
 - notes
-- `lostReason` (why a lost opportunity was rejected: rate too low, position filled, no response, profile mismatch, client canceled, accepted another offer, other; cleared when the project leaves the LOST status)
+- `refusedBy` (`projects.refused_by`): who refused a `LOST` opportunity, `FREELANCE` or `RECRUITER` (the client or the ESN);
+  asked whenever the app moves an opportunity to Refusé, cleared when it leaves `LOST`. On startup, `RefusedByBackfill`
+  gives refused opportunities saved without it the side their reason tells: the freelance for a rate too low or another
+  offer accepted, the recruiter for a position filled, no response, a profile mismatch or a client that canceled; other
+  reasons, or none, leave it empty
+- `lostReason` (why a refused opportunity was refused, optional: rate too low, position filled, no response, profile mismatch, client canceled, accepted another offer, other; cleared when the project leaves the LOST status)
 - `isFavorite` flag (pins hot leads to the top of their Kanban column)
+- `endedOn` and `endReason` (`projects.ended_on`, `projects.end_reason`): the day a won mission ended and why, set by
+  **End the mission** and cleared by **Resume**; changed only through `PATCH /projects/{id}/end` and `/resume`, and
+  cleared when the opportunity leaves the WON status. The mission's last day (`Project.lastDay()`) is `endedOn`, else
+  its start plus its duration
 - `archivedAt` (`projects.archived_at`): when the opportunity left the pipeline for the archive, by hand or by the
   nightly archiving; null in the pipeline. The status is kept, so restoring the opportunity (clearing the column) puts
   it back in its Kanban column. Changed only through `PATCH /projects/{id}/archive` and `/restore`, never by a
@@ -176,13 +188,13 @@ Relationships:
 - optional season (`season_id`)
 - many interview steps
 
-Status values (Kanban columns, in order):
+Status values (Kanban columns, in order; the enum itself keeps `WON` before `LOST`, the conversion funnel's order):
 
 - `CONTACT`
 - `INTERVIEW`
 - `OFFER`
-- `WON`
-- `LOST`
+- `LOST` (Refusé)
+- `WON` (Accepté)
 
 `CONTACT` replaced the former `IDENTIFIED` and `APPLIED` values.
 

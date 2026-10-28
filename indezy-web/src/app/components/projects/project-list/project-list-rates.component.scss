@@ -2,8 +2,8 @@
 // Reversion rate card
 .reversion-card {
   margin-bottom: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-card-shadow);
 
   .reversion-header {
     display: flex;
@@ -12,7 +12,7 @@
     margin-bottom: 12px;
 
     mat-icon {
-      color: #667eea;
+      color: var(--app-link);
     }
 
     .reversion-title {
@@ -92,7 +92,7 @@
   font-weight: 500;
 
   mat-icon {
-    color: #667eea;
+    color: var(--app-link);
   }
 
   .commute-distance {

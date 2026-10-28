@@ -138,19 +138,23 @@ Parts of tasks that cannot advance without the owner's decision or information. 
 
 - [ ] **Administrators**: who opens the admin console? Set their emails, comma-separated, as `INDEZY_ADMIN_EMAILS` in the `indezy-server-config` ConfigMap (`infra/k8s/server.yaml`, empty today so nobody is an administrator) and restart the server (see `docs/deployment.md#administrators`). The account must exist first.
 
+- [ ] **Member network audience** (Social & Community → Member Network): who can join? (a) freelancers only: peer trust and frank exchanges, a smaller network; (b) freelancers and ESN recruiters, recruiters with a badge and allowed to write only to members who follow them: missions reach members directly, at the cost of stricter spam limits; (c) by invitation at first (each member invites five), opened later to (a) or (b). And who moderates: the admin console's administrators, or moderators chosen among members?
+  - Answer:
+
 ## Pipeline & Kanban
 
 Not all freelance jobs share the same recruitment process:
 
 Some have 3 steps, others 5, with different styles and ordering. For example, a technical test can happen before or after an interview.
 
-The board uses generic columns: Contact => Tests & Entretiens => Offre => Accepté => Perdu / Abandonné. Each Kanban item keeps the intermediate step it is in (interview steps) and the scheduled next step while staying in the same column.
+The board uses generic columns: Contact => Tests & Entretiens => Offre => Refusé => Accepté. Each Kanban item keeps the intermediate step it is in (interview steps) and the scheduled next step while staying in the same column.
 
 - [x] Interview step tracking per project
 - [x] Step scheduling with date/time and notes
 - [x] Step statuses: `TO_PLAN`, `PLANNED`, `CANCELED`, `WAITING_FEEDBACK`, `VALIDATED`, `FAILED`
 - [x] Kanban mode for moving opportunities across high-level statuses
-- [x] Five generic Kanban columns: Contact, Tests & Entretiens, Offre, Accepté, Perdu / Abandonné (existing opportunities migrated automatically)
+- [x] Five generic Kanban columns: Contact, Tests & Entretiens, Offre, Refusé, Accepté (existing opportunities migrated automatically)
+- [x] Refusé (formerly Perdu / Abandonné), before Accepté, says who refused: a red badge when the recruiter did, an orange one when I did, with an optional reason from either side
 - [x] Drag-and-drop status changes from the Kanban board
 - [x] Customizable pipeline templates per client/ESN (save a recruitment process and reuse it): **Templates** on the project's steps card, see `docs/features.md#interview-steps`
 - [x] Bulk actions on Kanban cards (archive, change status, assign source): a checkbox per card and a selection bar, through `PATCH /projects/bulk`
@@ -438,6 +442,66 @@ Increments, implemented in order:
 - [x] Public profile page (shareable mini-portfolio with availability status). Done on 2026-10-27: Profile → **Public profile** shows `/p/<address>` to anyone with the link (`docs/features.md#public-profile`).
 - [ ] Feature request / community board with upvoting (already in roadmap - implement)
 
+### Member Network (added 2026-10-28)
+
+Members of Indezy follow each other, post to a feed (text, images and documents), like posts and, once followed, write to each other. Joining is a choice each account makes, and the network sits behind a feature flag (`SOCIAL_NETWORK`, Admin → Features) so it can open to a few accounts first. It builds on what exists: the public profile (`/p/<address>`) becomes the member card, files are checked and stored the way opportunity attachments and documents are (`AttachmentTypes` reads the real type from the content), and notifications follow the email preferences and the weekly digest. Who can join waits on **Member network audience** in Needs Input.
+
+Joining and the member card
+- [ ] Join from Profile → **Network**, off by default: a member card built from the public profile (photo, headline, stack, city or remote, availability, languages), each field shown or hidden, and a handle (`@camille`) unique among members. Leaving hides the card, the posts and the conversations at once.
+- [ ] Member page `/m/<handle>`: the card, the member's posts, followers and following counts, the skills shared with the viewer, **Follow**, and **Message** once the member follows the viewer.
+- [ ] Availability on the card ("Disponible le 2 décembre", "En mission jusqu'en mars", "À l'écoute"), set by hand or taken from the won missions' end dates, shown as a coloured ring around the photo wherever the member appears.
+- [ ] Verified freelancer badge from a SIRET checked against the public company registry (INSEE Sirene), so members know they talk to an independent and not to a recruiter posing as one.
+
+Feed
+- [ ] Posts with text (paragraphs, links shown as preview cards, @mentions of members, #tags of skills and cities), up to four images (resized, location data stripped, alternative text required) and up to three documents (PDF, slides, spreadsheets, 10 MB each, previewed by their first page).
+- [ ] Home feed at `/network`: the posts of the members and tags followed, newest first, loaded while scrolling, with **New posts** to jump back up; a **For you** tab ranking posts by the reader's stack, city and the tags they react to.
+- [ ] Post types beyond a plain post, each with its own card: **Mission à transmettre** (a mission the author declines or cannot take: role, TJM range, city, remote days, start; the client hidden unless the author names it), **Disponible** (the author's next availability, stack and rate range), **Question** (marked answered when the author picks a reply), **Sondage** (two to four choices, open one to seven days) and **Retour d'expérience** (what a mission, an ESN's process or a tool taught).
+- [ ] **Add to my pipeline** on a Mission à transmettre: one click creates the opportunity in the reader's Contact column with the author as the source, and the author sees how many members took it (who, only for those who agree), completing the decline-sharing item above.
+- [ ] Share from the app to the feed: an offer of the offer feed, a declined opportunity of the Refusé column (client removed), a skill trend or a rate-versus-market card of the dashboard, and milestones ("Mission signée", "Un an de freelance") without client names.
+- [ ] Comments under posts with one level of replies and @mentions; the author pins a comment, closes comments or hides one.
+- [ ] Editing for 15 minutes, then marked "modifié" with the earlier versions kept; deleting a post removes its likes, comments and files.
+- [ ] Bookmarks: posts and documents saved to a private **Enregistrés** list, filtered by tag.
+- [ ] Drafts and scheduled posts (published at a set time, for instance Monday 9:00).
+- [ ] Repost with a comment, the original author notified and able to turn reposts off on a post.
+
+Follow
+- [ ] Follow and unfollow members; lists of followers and following; remove a follower; mute a member (posts hidden, still followed) or block one (no follow, no message, no posts seen, both ways).
+- [ ] Private card: follow requests the member approves, so only approved followers see the posts.
+- [ ] Follow tags (#kafka, #sap-fico, #lyon), each feeding the home feed.
+- [ ] Members to follow, each with its reason: same stack, same city, followed by members you follow, or in the same ESN's process (both had an opportunity with that ESN, only between members who allow it).
+- [ ] Indezy contacts who are members (matched on an email the member confirmed) offered to follow, without the contact being told.
+
+Likes
+- [ ] Like a post or a comment, with the count and the list of who liked; the author notified in groups ("Léa et 4 autres ont aimé votre publication").
+- [ ] A second reaction, **Utile**, for knowledge posts (answered questions, retours d'expérience), which ranks them in **For you** and on tag pages.
+- [ ] The week's most liked posts of each followed tag in the weekly digest email.
+
+Messaging
+- [ ] One-to-one conversations, open only when the recipient follows the sender. When the recipient stops following, past messages stay readable and new ones are refused, the sender seeing why.
+- [ ] Messages with text, images and documents (the posts' limits), link previews, emoji reactions, replies to a message, and editing or deleting for both sides within 15 minutes.
+- [ ] Opportunity cards: send one of your opportunities or offers into a conversation as a card (role, TJM, city, start) that the recipient adds to their pipeline in one click, recording who referred it (feeds the co-optation item above).
+- [ ] Real-time delivery, an unread count on the menu and conversations ordered by their last message. Options: server-sent events (a one-way stream over plain HTTP through the existing ingress, sending stays a POST; typing indicators need their own POSTs) or WebSockets (two-way and cheap for typing indicators, but long-lived connections need ingress timeouts and a fallback); either way, polling every 30 seconds when the stream drops. Read receipts and the typing indicator can each be turned off.
+- [ ] Email for messages still unread after an hour, batched, under the notification preferences and their unsubscribe link; push notifications once the Mobile push item ships.
+- [ ] Search in messages; mute or archive a conversation; report a message; download a conversation as PDF.
+- [ ] Group conversations of up to 20 members who all follow the creator, for a collective or a mission team (a step toward the Teams tier's shared pipelines).
+
+Notifications and discovery
+- [ ] Notification centre (a bell in the toolbar): follows, follow requests, likes, comments, mentions, reposts and messages, grouped and marked read; each type in-app, by email or off in Profile → Notifications.
+- [ ] Member directory and search by skill, city, availability and remote work; tag pages (`/network/tags/kafka`) with the tag's posts, its members and the offer feed's open missions for that skill.
+- [ ] Global search (`Alt+Shift+F`) also finds members, posts and messages.
+
+Safety and moderation
+- [ ] Confidentiality check before a post, a document or a message goes out: the workspace's client, ESN and contact names found in the text or in the documents' text are highlighted, with **Anonymiser** ("une banque à Paris", "une ESN") or **Publier quand même**.
+- [ ] Report a post, a comment, a message or a member, with a reason; a moderation queue in the admin console (hide, warn, suspend, ban, the reporter told the outcome) with its audit trail.
+- [ ] Rate limits on posts, comments, follows and messages per member and per hour, and a spam score (links, repeated text, many first messages) holding suspicious content for review.
+- [ ] Documents checked before they are shared: type read from the content, Office files with macros refused, a malware scan (ClamAV in the cluster), served through short-lived signed links.
+- [ ] Storage of the posts' and messages' files. Options: in the database as attachments and documents are today (one store, backed up with the database, but backups grow with every image) or in an object store (streamed and cheaper per gigabyte, but a bucket and its own backup to run); thumbnails made once either way.
+
+Data, privacy and quality
+- [ ] The account export (`GET /api/users/export`) adds the member card, posts, comments, likes, follows and messages sent; deleting the account deletes its posts and comments and keeps its messages for the other side, signed "Ancien membre".
+- [ ] Phone layout of the feed, member pages and conversations (composer at the bottom, swipe to reply), keyboard access and an axe audit in both themes, in French and English.
+- [ ] Tests: integration tests on two real accounts for the messaging rule, blocks and private cards; Playwright scenarios posting with an image and a document, liking, following and messaging.
+
 ## Product & Website
 
 - [ ] Terms of Service, Privacy Policy, and Contact/Support pages with FAQ
@@ -526,6 +590,8 @@ Differentiators, each covered below:
 - [x] Compliance document vault: URSSAF vigilance certificate (renewed every six months), company registration extract, professional liability insurance, bank details and ID, with expiry reminders and a one-link pack to send to an ESN. Done on 2026-10-27: **Documents** (`/documents`) stores them with their dates (an URSSAF certificate's end set six months after its issue), lists the ones to renew among the dashboard's reminders, and shares them through a revocable link of 7 to 30 days, opened without an account and counted.
 - [x] Purchase orders and amendments per mission (number, amount or day ceiling, period), consumption tracked against CRA days, with an alert before the ceiling. Done on 2026-10-27: **Purchase orders** on a won mission's page, amendments adding days, euros or a later end, usage from the activity reports' days at the daily rate, and an alert from 80 % on the card and among the dashboard's reminders.
 - [ ] Electronic signature of contracts, amendments and CRAs through an EU qualified trust provider.
+- [x] End a mission once it is over, with the reason: **End the mission** on an accepted mission's page and on the CRA page records the day and why; its activity reports, the missions ending soon, the yearly review and the bench time follow its real end, and **Resume** undoes it.
+- [x] **CRA** menu item, before **Factures**: the missions in progress only, each with its activity report of the month to fill in and send.
 
 ### Invoicing and Compliance
 

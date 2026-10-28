@@ -36,12 +36,12 @@ RESTART IDENTITY CASCADE;
 -- Login: john.doe@example.com / password123
 INSERT INTO freelances (
     first_name, last_name, email, phone, birth_date, address, city, status,
-    notice_period_in_days, availability_date, reversion_rate, income_tax_rate,
+    notice_period_in_days, availability_date, reversion_share, income_tax_rate,
     cv_file_path, password_hash, created_at, updated_at, version
 ) VALUES (
     'John', 'Doe', 'john.doe@example.com', '+33 6 12 34 56 78', '1990-04-17',
     '18 rue du Sentier', 'Paris', 'FREELANCE', 30, CURRENT_DATE + 21,
-    46.0, 6.0, '/cv/john-doe.pdf',
+    54.0, 6.0, '/cv/john-doe.pdf',
     '$2a$10$XgbOojgg.CTmnSP8gwpOT.aikY7bnfM4cgCrQhgJOh5UAY1lOpC9S',
     CURRENT_TIMESTAMP - INTERVAL '2 years', CURRENT_TIMESTAMP, 0
 );

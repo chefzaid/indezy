@@ -137,7 +137,7 @@ Representative backend tests:
   earlier period), `SeasonServiceTest`, `AuthServiceTest` (including two-factor login), `CommuteServiceTest` (days on site by work mode, a remote mission first and not looked up, why a time is missing, the month's commute sorting, 25 destinations a request, answers kept a week and failures not, neither address nor key logged), `CurrentWorkspaceResolverTest` (the caller's workspace resolved once per request, the permit-all and missing-workspace cases), ...
 - repositories: `ClientRepositoryTest`, `ProjectRepositoryTest`, `SourceRepositoryTest`, `FreelanceRepositoryTest`
 - integration: `WorkspaceIsolationIntegrationTest` (two real accounts: isolation, seasons, deletion rules, no list of every record) and `WorkspacePreferencesIntegrationTest` (target rate, inactivity and follow-up preferences per account), both on `TwoAccountsIntegrationTest`, `FullStackIntegrationTest`, `ProjectIntegrationTest`, `UserManagementIntegrationTest` (including two-factor verify and disable, a missing code answered `400`, and the log of each request, at `DEBUG`, free of the code)
-- configuration and schema: `SecurityConfigTest`, `ProjectStatusMigrationTest`, `EnumCheckConstraintsTest`, `ColumnLengthsTest`, `SchemaMigrationTest`, `JwtUtilTest`
+- configuration and schema: `SecurityConfigTest`, `ProjectStatusMigrationTest`, `RefusedByBackfillTest` (who refused, told from the reason, never over a side already said), `ReversionRateMigrationTest` (a reversion rate saved as the share taken becomes the share kept, once), `EnumCheckConstraintsTest`, `ColumnLengthsTest`, `SchemaMigrationTest`, `JwtUtilTest`
 - error handling: `GlobalExceptionHandlerTest` (response status, headers, log level and absence of rejected values, read with `OutputCaptureExtension`, including the Spring MVC request errors that keep their 4xx status), `GlobalExceptionHandlerMvcTest` (a probe controller on which Spring MVC raises a missing header, a parameter constraint, a missing parameter and an unsupported method, each reaching its handler) and `ContactControllerTest` (`POST /contacts` with a `text/plain` body answers `415`, and a client accepting only CSV `406`, both logged at `WARN`)
 - auth logging: `AuthControllerTest` (log level of each rejection and fault, without the email) and `AuthLoggingIntegrationTest` (registration, duplicate registration and wrong passwords up to the lockout over HTTP, with Spring MVC and the test client logging the bodies at `DEBUG`, and the whole log free of the email, the name and the passwords)
 - password length: `PasswordMaxBytesTest` (the 72-byte BCrypt limit counted in UTF-8 bytes on registration and password change, with accented and emoji passwords at and over the limit, the 6-character registration minimum, and the 8-character minimum of the new password, with only `@NotBlank` for a missing one and no minimum for the current one) and `PasswordLengthIntegrationTest` (a validation error over HTTP instead of the former `409`, no account created, and a 72-byte password that registers, signs in and can be set as the new password; a new password under 8 characters or a confirmation that differs answers `400` and the current password still signs in)
@@ -246,7 +246,9 @@ Representative frontend specs:
 - `api-services.spec.ts`: one table-driven case per HTTP call (verb, URL, parameters, body) of the client, contact, freelance, interview-step, project, source and user-management services
 - `auth.service.spec.ts`, `auth.guard.spec.ts`, `auth.interceptor.spec.ts`, `error.interceptor.spec.ts`
 - `season.service.spec.ts` and `project-filter.util.spec.ts`
-- `kanban-board.component.spec.ts`, `interview-step-dialog.component.spec.ts`, `dashboard-reminders.component.spec.ts`
+- `activity-reports.component.spec.ts` (the missions in progress the CRA page lists, a planned end passed, an end kept on the page), `mission-end-action.component.spec.ts` and `mission-end-dialog.component.spec.ts` (ending a won mission on a day with a reason, not before its start, resuming it)
+- `page-header.component.spec.ts` (the shared page header: title as the level 1 heading, subtitle, content under it, actions), `dashboard.component.spec.ts` (with the stage chart lifted on the dark theme)
+- `kanban-board.component.spec.ts` (with the refused cards' badges), `kanban-refusal-dialog.component.spec.ts` (who refused required, the reason optional), `interview-step-dialog.component.spec.ts`, `dashboard-reminders.component.spec.ts`
 - `login.component.spec.ts`: the redirect of a signed-in visitor, sign-in back to the requested page, the authenticator-code step, the message for each failure cause, field errors, the Keycloak hand-off, and the French and English email placeholder
 - `register.component.spec.ts`: field errors (including the 72-byte password limit), submission, the conflict-only "account already exists" message, and the French and English accessible names of the password visibility buttons
 - activity reports: `activity-calendar.util.spec.ts` (month weeks starting on Monday, weekends, mission dates, brushes, filling business days, totals), `activity-calendar.component.spec.ts` (shading, French day descriptions, editable buttons), `activity-report-card.component.spec.ts` (opening month within the mission, editing, saving, submitting with the link to copy or email, renewing, approved and rejected months, reopening, month navigation, PDF), `activity-report-validation.component.spec.ts` (token after `#`, invalid links, name and reason rules, answers, conflicts, PDF, language switch) and `client-form.component.spec.ts` (the client's activity report template)
@@ -414,7 +416,7 @@ Shared-link scenarios also check copying from project pages and Kanban cards,
 reopening after reload or password login, malformed links, and unavailable projects.
 Keyboard scenarios cover project creation (including the translated tech stack
 placeholder), search focus with collapsed phone filters,
-translated help, moving a focused Kanban card and cancelling its loss-reason dialog,
+translated help, moving a focused Kanban card and cancelling its refusal dialog,
 while preserving input and dialog keyboard behavior.
 Activity report scenarios (`e2e/activity-reports.spec.ts`), in English and in French on a phone, fill a mission's
 business days, record a half day remote, check the totals, send the month for approval and copy the link, then open it
@@ -477,6 +479,11 @@ feed does not collect fills the form in, names its publisher as the new ESN and 
 
 Critical flow scenarios (`e2e/critical-flows.spec.ts`) create an opportunity from the form (role, daily rate and
 client sent, its page opened) and drag a Kanban card with the mouse to the next stage.
+
+Refusal scenarios (`e2e/kanban-refusal.spec.ts`, on a desktop and on a phone) find the Declined column before the
+Accepted one and the recruiter's red badge on a refused card, move a picked card to Declined, check the dialog cannot be
+confirmed until someone is said to have refused, audit it with axe, confirm with **Me** and no reason, and find the
+card with the orange badge.
 
 Public profile scenarios (`e2e/public-profile.spec.ts`) turn the profile on from its tab with the offered address,
 then read it without an account in English on a desktop and in French on a phone, and an unknown address.
@@ -557,8 +564,8 @@ the global search dialog and the sign-in page, in English with the light theme o
 dark theme on a phone, and expect no violation. The pages are served by `e2e/helpers/workspace-data.ts`, a small
 workspace behind every API call (calls it does not list answer an empty list). A violation is reported with its rule
 and the element's selector; colours come from the `styles.scss` tokens (`--app-text-muted`, `--app-link`,
-`--app-positive`, `--app-danger`), which keep 4.5:1 on the light and dark backgrounds, and status pills carrying white
-text use colours of 4.5:1 or more.
+`--app-positive`, `--app-danger`, `--app-warning`, `--app-accent`, `--app-teal` and the `--app-chip-*` pairs), which
+keep 4.5:1 on the light and dark backgrounds, and status pills carrying white text use colours of 4.5:1 or more.
 
 Extend the suite with registration, project creation, Kanban movement, filtering,
 and interview scheduling as those workflows stabilize.

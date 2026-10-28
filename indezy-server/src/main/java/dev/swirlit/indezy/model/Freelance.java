@@ -54,7 +54,12 @@ public class Freelance extends BaseEntity {
     @Column(name = "availability_date")
     private LocalDate availabilityDate;
 
-    @Column(name = "reversion_rate")
+    /**
+     * The taux de réversion: the share of the gross daily rate the freelance keeps, in percent (100 less the social
+     * charges and the income tax). It was kept as the share taken, in {@code reversion_rate}, before
+     * {@link dev.swirlit.indezy.config.ReversionRateMigration} moved it here.
+     */
+    @Column(name = "reversion_share")
     private Double reversionRate;
 
     @Column(name = "income_tax_rate")

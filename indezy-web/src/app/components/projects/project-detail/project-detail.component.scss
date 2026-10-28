@@ -1,7 +1,5 @@
 .project-detail-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  // The whole width of the page with the shell's gutter only, as the dashboard and its board take.
   
   .loading-container {
     display: flex;
@@ -64,13 +62,11 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 1.1rem;
             
             mat-icon {
               font-size: 1.2rem;
               width: 1.2rem;
               height: 1.2rem;
-              color: var(--app-link);
             }
           }
         }
@@ -170,7 +166,6 @@
 // Responsive adjustments
 @media (max-width: 768px) {
   .project-detail-container {
-    padding: 16px;
     
     .project-content {
       .header-card {
@@ -267,7 +262,7 @@
       top: 18px;
       bottom: 0;
       width: 2px;
-      background: rgba(0, 0, 0, 0.1);
+      background: var(--app-border);
     }
 
     .step-marker {
@@ -355,19 +350,9 @@
     gap: 12px;
   }
 
+  // The page's title, in the same style as every page's (.page-title in styles.scss).
   .project-name {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 500;
-    color: var(--app-text);
-
-    mat-icon {
-      flex: 0 0 auto;
-      color: var(--app-link);
-    }
+    min-width: 0;
   }
 
   .title-badges {
@@ -411,8 +396,19 @@
     }
 
     .lost-reason {
-      color: #c62828;
+      color: var(--app-text);
       font-weight: 500;
     }
+  }
+}
+
+// Step colours carry white text, so they are dark; as timeline marks on the dark theme they are lifted toward white.
+:host-context(html.dark-theme) .steps-card .step-item {
+  .step-marker {
+    border-color: color-mix(in srgb, var(--status-color, #9e9e9e) 60%, white);
+  }
+
+  &.done .step-marker {
+    background: color-mix(in srgb, var(--status-color, #43a047) 60%, white);
   }
 }

@@ -10,9 +10,9 @@
 
 .checklist-progress {
   font-size: 0.8125rem;
-  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+  color: var(--app-text-muted);
 
   &.ready {
-    color: #43a047;
+    color: var(--app-positive);
   }
 }

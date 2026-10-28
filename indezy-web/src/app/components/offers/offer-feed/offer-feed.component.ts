@@ -42,6 +42,7 @@ import { OfferFiltersComponent } from '../offer-filters/offer-filters.component'
 import { OfferMarketComponent } from '../offer-market/offer-market.component';
 import { OfferKeyAction, OfferListKeysDirective } from './offer-list-keys.directive';
 import { OfferSavedSearchesComponent } from '../offer-saved-searches/offer-saved-searches.component';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 /** Whether the market snapshot was left open, in this browser. */
 const MARKET_OPEN_KEY = 'indezy.offers.marketOpen';
@@ -49,7 +50,7 @@ const MARKET_OPEN_KEY = 'indezy.offers.marketOpen';
 /** The freelance missions of every job board in one feed, newest first, with filters kept in the address. */
 @Component({
   selector: 'app-offer-feed',
-  imports: [MatButtonModule, MatButtonToggleModule, MatCardModule, MatFormFieldModule, MatIconModule, MatPaginatorModule,
+  imports: [PageHeaderComponent, MatButtonModule, MatButtonToggleModule, MatCardModule, MatFormFieldModule, MatIconModule, MatPaginatorModule,
     MatProgressSpinnerModule, MatSelectModule, RouterLink, TranslateModule, OfferCardComponent, OfferSelectionBarComponent, OfferFiltersComponent, OfferMarketComponent,
     OfferSavedSearchesComponent, OfferListKeysDirective],
   templateUrl: './offer-feed.component.html',

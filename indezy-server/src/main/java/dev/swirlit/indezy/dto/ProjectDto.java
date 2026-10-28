@@ -3,6 +3,7 @@ package dev.swirlit.indezy.dto;
 import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.model.enums.RefusedBy;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -52,12 +53,18 @@ public class ProjectDto {
 
     private String notes;
 
+    private RefusedBy refusedBy;
+
     private LostReason lostReason;
 
     private Boolean isFavorite;
 
     /** When the opportunity was archived, or null in the pipeline; changed only by archiving and restoring it. */
     private LocalDateTime archivedAt;
+
+    /** The day the won mission ended, and why; changed only by ending and resuming it. */
+    private LocalDate endedOn;
+    private String endReason;
 
     // Related entities
     private Long freelanceId;

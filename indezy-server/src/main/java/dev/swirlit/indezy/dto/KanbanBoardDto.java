@@ -28,6 +28,7 @@ public class KanbanBoardDto {
         private Boolean isFavorite;
         private Integer boardPosition;
         private String updatedAt;
+        private String refusedBy;
         private String lostReason;
         private Boolean isPotentialDuplicate;
         private Integer totalSteps;

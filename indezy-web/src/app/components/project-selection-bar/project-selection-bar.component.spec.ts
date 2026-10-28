@@ -77,11 +77,11 @@ describe('ProjectSelectionBarComponent', () => {
     expect(notifications.successText).toHaveBeenCalledWith('2 opportunities updated', 3000);
   });
 
-  it('asks why the selection was lost, and changes nothing when the question is dismissed', () => {
+  it('asks who refused the selection and why, and changes nothing when the question is dismissed', () => {
     const component = create().componentInstance;
     projects.bulkUpdate.and.returnValue(of({ updated: 2 }));
     dialog.open.and.returnValues(
-      { afterClosed: () => of('NO_RESPONSE') } as never,
+      { afterClosed: () => of({ refusedBy: 'RECRUITER', lostReason: 'NO_RESPONSE' }) } as never,
       { afterClosed: () => of(undefined) } as never);
 
     component.moveTo(ProjectStatus.LOST);
@@ -89,7 +89,7 @@ describe('ProjectSelectionBarComponent', () => {
 
     expect(dialog.open.calls.first().args[1]).toEqual(jasmine.objectContaining({ data: { role: '2 opportunities' } }));
     expect(projects.bulkUpdate).toHaveBeenCalledOnceWith({
-      action: 'STATUS', status: ProjectStatus.LOST, lostReason: 'NO_RESPONSE', projectIds: [4, 9]
+      action: 'STATUS', status: ProjectStatus.LOST, refusedBy: 'RECRUITER', lostReason: 'NO_RESPONSE', projectIds: [4, 9]
     });
   });
 

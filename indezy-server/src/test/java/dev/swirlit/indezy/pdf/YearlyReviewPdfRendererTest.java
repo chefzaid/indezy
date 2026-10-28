@@ -37,7 +37,7 @@ class YearlyReviewPdfRendererTest {
         String text = text(renderer.render(review, DocumentLanguage.FR, TODAY));
 
         assertThat(text).contains("Bilan 2026", "Alice Martin", "+20 % par rapport à 2025", "Lead Java · Acme", "en cours", "40,5*",
-            "* jours estimés", "12 ouvertes · 2 gagnées · 7 perdues", "22 % de gagnées parmi celles décidées", "TJM trop bas (1)",
+            "* jours estimés", "12 ouvertes · 2 gagnées · 7 refusées", "22 % de gagnées parmi celles décidées", "TJM trop bas (1)",
             "Poste pourvu", "Pas de réponse", "Profil inadapté", "Annulé par le client", "Autre offre acceptée", "Autre (1)",
             "Java : 5 opportunité(s)", "3 nouveaux clients · 2 nouvelles ESN · 7 nouveaux contacts · 15 échanges",
             "Généré par Indezy le 27 oct. 2026");

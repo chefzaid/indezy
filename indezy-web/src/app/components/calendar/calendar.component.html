@@ -1,6 +1,5 @@
 <div class="calendar-container">
-  <div class="calendar-header">
-    <h1>{{ 'calendar.title' | translate }}</h1>
+  <app-page-header icon="calendar_month" [title]="'calendar.title' | translate" [subtitle]="'calendar.subtitle' | translate">
     <mat-button-toggle-group [value]="view" (change)="show($event.value)" [attr.aria-label]="'calendar.views' | translate">
       <mat-button-toggle value="month" data-calendar-view="month">{{ 'calendar.monthView' | translate }}</mat-button-toggle>
       <mat-button-toggle value="upcoming" data-calendar-view="upcoming">{{ 'calendar.upcomingView' | translate }}</mat-button-toggle>
@@ -19,7 +18,7 @@
         <button mat-stroked-button type="button" (click)="go()">{{ 'calendar.today' | translate }}</button>
       </div>
     }
-  </div>
+  </app-page-header>
 
   @if (view === 'month') {
     <div class="month-grid" role="grid" [attr.aria-label]="month | date:'MMMM y'">

@@ -16,6 +16,7 @@ import { ProjectDto, ProjectStatus } from '../../models';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { NotificationService } from '../../services/notification/notification.service';
 import { EnterOpensDirective } from '../../shared/directives/enter-opens.directive';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 /**
  * Archive of closed opportunities (won or lost) and of the ones taken out of the pipeline, by hand or after the
@@ -24,7 +25,7 @@ import { EnterOpensDirective } from '../../shared/directives/enter-opens.directi
  */
 @Component({
   selector: 'app-archive',
-  imports: [
+  imports: [PageHeaderComponent, 
     CommonModule, FormsModule, RouterModule, MatCardModule, MatIconModule, EnterOpensDirective,
     MatFormFieldModule, MatInputModule, MatChipsModule, MatButtonModule, TranslateModule, LoadingComponent
   ],

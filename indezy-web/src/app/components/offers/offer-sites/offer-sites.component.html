@@ -3,26 +3,20 @@
     <mat-icon>arrow_back</mat-icon>
     {{ 'offers.sites.back' | translate }}
   </a>
-  <header class="sites-header">
-    <div>
-      <h1>
-        <mat-icon aria-hidden="true">monitor_heart</mat-icon>
-        {{ 'offers.sites.title' | translate }}
-      </h1>
+  <app-page-header icon="monitor_heart" [title]="'offers.sites.title' | translate">
       @if (health) {
-        <p class="subtitle" data-sites-summary>
+        <p pageHeaderBelow class="page-subtitle" data-sites-summary>
           {{ 'offers.sites.subtitle' | translate: { count: health.sites.length } }}
           @if (failingCount) {
             <span class="failing-count">· {{ 'offers.sites.failingCount' | translate: { count: failingCount } }}</span>
           }
         </p>
       }
-    </div>
     <button mat-stroked-button type="button" (click)="load()" [disabled]="loading">
       <mat-icon>sync</mat-icon>
       {{ 'offers.sites.reload' | translate }}
     </button>
-  </header>
+  </app-page-header>
 
   @if (loading && !health) {
     <div class="state"><mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="40"></mat-spinner></div>

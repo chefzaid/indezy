@@ -1,0 +1,58 @@
+.refusal-dialog {
+  min-width: 340px;
+
+  h2[mat-dialog-title] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .project-role {
+    margin: 0 0 12px;
+    font-weight: 600;
+    color: var(--app-text);
+  }
+
+  .side-label {
+    margin: 0;
+    color: var(--app-text-muted);
+  }
+
+  .sides {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin: 4px 0 16px;
+  }
+
+  // The badge's colours: orange when the freelance refused, red when the recruiter did.
+  .sides mat-radio-button {
+    --mat-radio-selected-icon-color: var(--app-refused-by-freelance);
+    --mat-radio-selected-focus-icon-color: var(--app-refused-by-freelance);
+    --mat-radio-selected-hover-icon-color: var(--app-refused-by-freelance);
+    --mat-radio-selected-pressed-icon-color: var(--app-refused-by-freelance);
+    --mat-radio-checked-ripple-color: var(--app-refused-by-freelance);
+  }
+
+  .sides mat-radio-button.by-recruiter {
+    --mat-radio-selected-icon-color: var(--app-refused-by-recruiter);
+    --mat-radio-selected-focus-icon-color: var(--app-refused-by-recruiter);
+    --mat-radio-selected-hover-icon-color: var(--app-refused-by-recruiter);
+    --mat-radio-selected-pressed-icon-color: var(--app-refused-by-recruiter);
+    --mat-radio-checked-ripple-color: var(--app-refused-by-recruiter);
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  mat-dialog-actions {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .refusal-dialog {
+    min-width: 0;
+  }
+}

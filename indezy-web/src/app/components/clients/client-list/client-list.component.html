@@ -1,20 +1,13 @@
 <div class="client-list-container">
+  <app-page-header icon="business" [title]="'clients.title' | translate" [subtitle]="'clients.subtitle' | translate">
+    <button mat-raised-button color="primary" routerLink="/clients/new">
+      <mat-icon>add</mat-icon>
+      {{ 'clients.newClient' | translate }}
+    </button>
+  </app-page-header>
+
   <mat-card class="header-card">
     <mat-card-content>
-      <div class="page-heading">
-        <div>
-          <h1 class="page-title">
-            <mat-icon>business</mat-icon>
-            {{ 'clients.title' | translate }}
-          </h1>
-          <p class="page-subtitle">{{ 'clients.subtitle' | translate }}</p>
-        </div>
-        <button mat-raised-button color="primary" routerLink="/clients/new">
-          <mat-icon>add</mat-icon>
-          {{ 'clients.newClient' | translate }}
-        </button>
-      </div>
-
       <div class="filters-section" [formGroup]="filterForm">
         <mat-form-field appearance="outline" class="search-field">
           <mat-label>{{ 'common.search' | translate }}</mat-label>

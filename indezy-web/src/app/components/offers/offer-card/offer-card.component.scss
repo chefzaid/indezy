@@ -11,7 +11,7 @@
   transition: border-color 0.2s ease;
 
   &.unseen {
-    border-left-color: var(--mat-sys-primary, #3f51b5);
+    border-left-color: var(--app-link);
   }
 
   &.expired {
@@ -20,7 +20,7 @@
 
   &.selected {
     background: var(--app-subtle);
-    box-shadow: inset 0 0 0 2px var(--mat-sys-primary, #3f51b5);
+    box-shadow: inset 0 0 0 2px var(--app-link);
   }
 }
 

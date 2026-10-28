@@ -24,7 +24,7 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
     { id: 3, role: 'Lead Python', clientName: 'Thales', dailyRate: 500, workMode: 'HYBRID', startDate: '2025-06-01',
       techStack: 'Python, Docker', daysPerYear: 200 }
   ] as ProjectDto[];
-  const profile = { id: 7, firstName: 'Zaid', reversionRate: 30, incomeTaxRate: 10 } as FreelanceDto;
+  const profile = { id: 7, firstName: 'Zaid', reversionRate: 70, incomeTaxRate: 10 } as FreelanceDto;
 
   let freelanceService: jasmine.SpyObj<FreelanceService>;
   let commuteService: jasmine.SpyObj<CommuteService>;
@@ -278,7 +278,7 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
       const fixture = create();
       const component = fixture.componentInstance;
 
-      expect(component.reversionRate).toBe(30);
+      expect(component.reversionRate).toBe(70);
       expect(component.incomeTaxRate).toBe(10);
       expect(component.useCustomRate).toBeTrue();
       expect(component.getNetDailyRate(missions[0])).toBe(420);
@@ -290,7 +290,7 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
     it('keeps the default rates when the profile has none', () => {
       const component = create({ id: 7, reversionRate: undefined, incomeTaxRate: undefined } as FreelanceDto).componentInstance;
 
-      expect(component.reversionRate).toBe(45);
+      expect(component.reversionRate).toBe(55);
       expect(component.incomeTaxRate).toBe(5);
       expect(component.useCustomRate).toBeFalse();
     });
@@ -301,7 +301,7 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
         () => freelanceService.getById.and.returnValue(throwError(() => new Error('down')))).componentInstance;
 
       expect(component.freelanceProfile).toBeNull();
-      expect(component.reversionRate).toBe(45);
+      expect(component.reversionRate).toBe(55);
       expect(consoleError).toHaveBeenCalled();
     });
 
@@ -333,7 +333,16 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
       expect(component.reversionRate).toBe(32.5);
     });
 
-    it('derives the reversion rate from the income tax typed in', () => {
+    it('keeps the share of the gross the rate says: a lower rate leaves less', () => {
+      const component = create().componentInstance;
+
+      component.onReversionRateChange(50);
+      expect(component.getNetDailyRate(missions[0])).toBe(300);
+      component.onReversionRateChange(40);
+      expect(component.getNetDailyRate(missions[0])).toBe(240);
+    });
+
+    it('derives the reversion rate from the income tax typed in, a higher tax lowering it', () => {
       const fixture = create();
       const component = fixture.componentInstance;
       const taxInput: HTMLInputElement = fixture.nativeElement.querySelectorAll('.reversion-field input')[1];
@@ -341,10 +350,10 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
       taxInput.value = '12';
       taxInput.dispatchEvent(new Event('change'));
       expect(component.incomeTaxRate).toBe(12);
-      expect(component.reversionRate).toBe(52);
+      expect(component.reversionRate).toBe(48);
 
       component.onIncomeTaxRateChange('7.5');
-      expect(component.reversionRate).toBe(47.5);
+      expect(component.reversionRate).toBe(52.5);
       component.onIncomeTaxRateChange(60);
       expect(component.incomeTaxRate).toBe(7.5);
     });

@@ -1,7 +1,9 @@
 package dev.swirlit.indezy.model;
 
 import dev.swirlit.indezy.model.enums.EmploymentStatus;
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.model.enums.RefusedBy;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,6 +52,39 @@ class ProjectTest {
         project.setPersonalRating(4);
         project.setFreelance(freelance);
         project.setClient(client);
+    }
+
+    @Test
+    void lastDay_IsTheDayItEndedElseItsStartPlusItsDurationElseNone() {
+        project.setStartDate(LocalDate.of(2026, 1, 5));
+        project.setDurationInMonths(6);
+        assertThat(project.lastDay()).isEqualTo(LocalDate.of(2026, 7, 4));
+
+        project.setEndedOn(LocalDate.of(2026, 3, 31));
+        assertThat(project.lastDay()).isEqualTo(LocalDate.of(2026, 3, 31));
+
+        project.setEndedOn(null);
+        project.setDurationInMonths(null);
+        assertThat(project.lastDay()).isNull();
+    }
+
+    @Test
+    void clearOtherOutcomes_KeepsTheRefusalOfARefusedOneAndTheEndOfAWonOne() {
+        project.setRefusedBy(RefusedBy.RECRUITER);
+        project.setLostReason(LostReason.NO_RESPONSE);
+        project.setEndedOn(LocalDate.of(2026, 3, 31));
+        project.setEndReason("Client budget cut");
+
+        project.setStatus(ProjectStatus.WON);
+        project.clearOtherOutcomes();
+        assertThat(project.getRefusedBy()).isNull();
+        assertThat(project.getLostReason()).isNull();
+        assertThat(project.getEndedOn()).isEqualTo(LocalDate.of(2026, 3, 31));
+
+        project.setStatus(ProjectStatus.OFFER);
+        project.clearOtherOutcomes();
+        assertThat(project.getEndedOn()).isNull();
+        assertThat(project.getEndReason()).isNull();
     }
 
     @Test

@@ -10,18 +10,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { LostReason, ProjectBulkUpdate, ProjectStatus, PROJECT_STATUS_COLORS } from '../../models/project.models';
+import { ProjectBulkUpdate, ProjectStatus, PROJECT_STATUS_COLORS, Refusal } from '../../models/project.models';
 import { SourceDto } from '../../models';
 import { AuthService } from '../../services/auth/auth.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ProjectService } from '../../services/project/project.service';
 import { SourceService } from '../../services/source/source.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
-import { KanbanLostReasonDialogComponent } from '../kanban-lost-reason-dialog/kanban-lost-reason-dialog.component';
+import { KanbanRefusalDialogComponent } from '../kanban-refusal-dialog/kanban-refusal-dialog.component';
 
 /**
  * The opportunities picked on the Kanban board or in the list: how many, and what to do with all of them at once (move
- * them to a column, asking why when it is Lost; give them a source; add a tag; archive them; delete them).
+ * them to a column, asking who refused them and why when it is the refused one; give them a source; add a tag; archive them; delete them).
  */
 @Component({
   selector: 'app-project-selection-bar',
@@ -73,9 +73,9 @@ export class ProjectSelectionBarComponent implements OnInit {
       return;
     }
     const role = this.translate.instant('kanban.selection.lostRole', { count: this.projectIds.length });
-    KanbanLostReasonDialogComponent.open(this.dialog, { role }).afterClosed().subscribe((lostReason?: LostReason) => {
-      if (lostReason) {
-        this.apply({ action: 'STATUS', status, lostReason });
+    KanbanRefusalDialogComponent.open(this.dialog, { role }).afterClosed().subscribe((refusal?: Refusal) => {
+      if (refusal) {
+        this.apply({ action: 'STATUS', status, ...refusal });
       }
     });
   }

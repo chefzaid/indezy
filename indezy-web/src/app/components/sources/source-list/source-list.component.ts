@@ -20,10 +20,11 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { SourceDto, SourceType } from '../../../models/source.models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-source-list',
-  imports: [
+  imports: [PageHeaderComponent, 
     RouterModule,
     FormsModule,
     MatTableModule,

@@ -17,10 +17,11 @@ import { ActivityReportLayout, ClientDto, CreateClientDto, DocumentLanguage } fr
 import { NotificationService } from '../../../services/notification/notification.service';
 import { billingId, compactId } from '../../../shared/utils/billing-validators';
 import { fieldError } from '../../../shared/utils/form-errors';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
     selector: 'app-client-form',
-    imports: [
+    imports: [PageHeaderComponent, 
     RouterModule,
     ReactiveFormsModule,
     MatCardModule,

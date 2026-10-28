@@ -299,9 +299,7 @@ public class ActivityReportService {
             .toList());
         dto.setBusinessDays(FrenchPublicHolidays.businessDays(month));
         dto.setMissionStart(project.getStartDate());
-        if (project.getStartDate() != null && project.getDurationInMonths() != null) {
-            dto.setMissionEnd(project.getStartDate().plusMonths(project.getDurationInMonths()).minusDays(1));
-        }
+        dto.setMissionEnd(project.lastDay());
         if (forFreelance) {
             dto.setProjectId(project.getId());
             dto.setDailyRate(project.getDailyRate());

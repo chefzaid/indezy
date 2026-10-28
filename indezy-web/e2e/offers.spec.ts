@@ -6,7 +6,7 @@ test('browses, filters, saves, hides and imports freelance offers (en)', async (
   const api = await mockFeed(page, 'en');
 
   await page.goto('/offers');
-  await expect(page.getByRole('heading', { name: 'Freelance missions' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Offers', exact: true })).toBeVisible();
   await expect(page.locator('[data-summary]')).toContainText('1242 open offers from 2 sites');
   const cards = page.locator('app-offer-card');
   await expect(cards).toHaveCount(2);
@@ -101,7 +101,7 @@ test('opens the filters on a phone and narrows the feed to full remote (fr)', as
   const api = await mockFeed(page, 'fr', false);
 
   await page.goto('/offers?publishedWithinDays=7');
-  await expect(page.getByRole('heading', { name: 'Missions freelance' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Offres', exact: true })).toBeVisible();
   await expect(page.locator('app-offer-card')).toHaveCount(2);
   await expect(page.locator('[data-match-hint]')).toContainText('Ajoutez vos compétences à votre profil');
   await expect(page.locator('[data-match-hint]').getByRole('link', { name: 'Compléter mon profil' })).toHaveAttribute('href', '/profile');

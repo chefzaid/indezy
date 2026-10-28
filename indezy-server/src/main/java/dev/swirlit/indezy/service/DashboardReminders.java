@@ -70,7 +70,8 @@ final class DashboardReminders {
         long threshold = ENDING_SOON_WEEKS * 7L;
         List<DashboardStatsDto.MissionEndingSoon> ending = new ArrayList<>();
         for (Project project : projects) {
-            if (!ProjectStatus.WON.equals(project.getStatus()) ||
+            // A mission already ended from its page is not ending soon.
+            if (!ProjectStatus.WON.equals(project.getStatus()) || project.getEndedOn() != null ||
                 project.getStartDate() == null || project.getDurationInMonths() == null) {
                 continue;
             }

@@ -23,19 +23,20 @@ import { SourceService } from '../../../services/source/source.service';
 import { SeasonService } from '../../../services/season/season.service';
 import { Season } from '../../../models/season.models';
 import { AuthService } from '../../../services/auth/auth.service';
-import { ProjectDto, ClientDto, SourceDto, User, ProjectStatus, LOST_REASONS, PROJECT_STATUS_COLORS, OfferLink, DEFAULT_DAYS_PER_YEAR } from '../../../models';
+import { ProjectDto, ClientDto, SourceDto, User, ProjectStatus, LOST_REASONS, REFUSED_BY, PROJECT_STATUS_COLORS, OfferLink, DEFAULT_DAYS_PER_YEAR } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { fromIsoDate, toIsoDate } from '../../../shared/locale/app-locale';
 import { blankToNull } from '../../../shared/utils/form-payload';
 import { fieldError } from '../../../shared/utils/form-errors';
 import { OfferLinkFieldComponent } from './offer-link-field/offer-link-field.component';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 /** The value of a client or source the offer names and the workspace does not have yet: created when the form is saved. */
 export const NEW_RECORD = -1;
 
 @Component({
     selector: 'app-project-form',
-    imports: [
+    imports: [PageHeaderComponent, 
     RouterModule,
     ReactiveFormsModule,
     MatCardModule,
@@ -84,6 +85,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   readonly statusOptions = Object.values(ProjectStatus);
   readonly statusColors = PROJECT_STATUS_COLORS;
   readonly lostReasons = LOST_REASONS;
+  readonly refusedBySides = REFUSED_BY;
 
   workModeOptions = [
     { value: 'REMOTE', labelKey: 'projects.workModes.remote' },
@@ -123,6 +125,10 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
 
     this.startFromLink = this.route.snapshot.queryParamMap.get('from') === 'link';
     this.initialLink = this.startFromLink ? this.route.snapshot.queryParamMap.get('url') : null;
+    this.projectForm.get('status')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => this.followStatus(status));
+
     const requestedStatus = this.route.snapshot.queryParamMap.get('status');
     if (requestedStatus && this.statusOptions.includes(requestedStatus as ProjectStatus)) {
       this.projectForm.patchValue({ status: requestedStatus });
@@ -135,14 +141,19 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         this.loadProject();
       }
     });
+  }
 
-    this.projectForm.get('status')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(status => {
-        if (status !== ProjectStatus.LOST) {
-          this.projectForm.get('lostReason')?.setValue(null, { emitEvent: false });
-        }
-      });
+  /** Who refused is asked, and kept with the reason, only while the opportunity is refused. */
+  private followStatus(status: ProjectStatus): void {
+    const refusedBy = this.projectForm.get('refusedBy')!;
+    if (status === ProjectStatus.LOST) {
+      refusedBy.setValidators(Validators.required);
+    } else {
+      refusedBy.clearValidators();
+      refusedBy.setValue(null, { emitEvent: false });
+      this.projectForm.get('lostReason')?.setValue(null, { emitEvent: false });
+    }
+    refusedBy.updateValueAndValidity({ emitEvent: false });
   }
 
   ngOnDestroy(): void {
@@ -172,6 +183,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       notes: [''],
       isFavorite: [false],
       status: [ProjectStatus.CONTACT, Validators.required],
+      refusedBy: [null],
       lostReason: [null],
       clientId: [null, Validators.required],
       middlemanId: [null],
@@ -241,6 +253,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
               notes: project.notes,
               isFavorite: project.isFavorite ?? false,
               status: project.status ?? ProjectStatus.CONTACT,
+              refusedBy: project.refusedBy ?? null,
               lostReason: project.lostReason ?? null,
               clientId: project.clientId ?? null,
               middlemanId: project.middlemanId ?? null,
@@ -273,6 +286,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       const projectData: ProjectDto = {
         ...(this.loadedProject ?? {}),
         ...formValue,
+        refusedBy: formValue.status === ProjectStatus.LOST ? formValue.refusedBy ?? undefined : undefined,
         lostReason: formValue.status === ProjectStatus.LOST ? formValue.lostReason ?? undefined : undefined,
         freelanceId: this.loadedProject?.freelanceId ?? this.currentUser?.id,
         startDate: toIsoDate(formValue.startDate)

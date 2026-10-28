@@ -83,11 +83,12 @@
     "review": "Year in review",
     "admin": "Admin",
     "invoices": "Invoices",
-    "documents": "Documents"
+    "documents": "Documents",
+    "activityReports": "Timesheets"
   },
   "archive": {
     "title": "Archive",
-    "subtitle": "Your past opportunities (accepted and lost) and the ones taken out of the pipeline",
+    "subtitle": "Your past opportunities (accepted and declined) and the ones taken out of the pipeline",
     "search": "Search",
     "searchPlaceholder": "Role, tech stack, client, notes...",
     "empty": "No matching opportunities",
@@ -163,9 +164,9 @@
       "dailyRateDistribution": "Daily Rate Distribution",
       "projects": "Projects",
       "won": "Accepted",
-      "lost": "Lost",
+      "lost": "Declined",
       "active": "Active",
-      "lostReasons": "Why opportunities were lost",
+      "lostReasons": "Why opportunities were declined",
       "sourceRoi": "Source ROI (signed contracts)",
       "sourceRoiSource": "Source",
       "sourceRoiWon": "Accepted/Total",
@@ -221,7 +222,7 @@
       "expiresInDays": "expires in {{days}} days",
       "expiredDaysAgo": "expired {{days}} days ago"
     },
-    "estimatedRevenueHint": "Total value of accepted missions and open opportunities (lost ones excluded), unweighted.",
+    "estimatedRevenueHint": "Total value of accepted missions and open opportunities (declined ones excluded), unweighted.",
     "forecastRevenueHint": "Mission value weighted by the win probability of each pipeline stage.",
     "remindersTitle": "Follow-ups",
     "analyticsTitle": "Analytics",
@@ -268,7 +269,8 @@
     }
   },
   "projects": {
-    "title": "My opportunities",
+    "title": "Opportunities",
+    "subtitle": "The missions you follow, from first contact to acceptance",
     "newProject": "New project",
     "exportSummary": "Export summary",
     "exportError": "Error exporting summary",
@@ -382,7 +384,8 @@
       "createClient": "Create a client"
     },
     "lostReason": {
-      "label": "Reason for loss",
+      "label": "Reason (optional)",
+      "none": "Not given",
       "RATE_TOO_LOW": "Rate too low",
       "POSITION_FILLED": "Position filled",
       "NO_RESPONSE": "No response",
@@ -390,6 +393,15 @@
       "CLIENT_CANCELED": "Client canceled",
       "ACCEPTED_OTHER_OFFER": "Accepted another offer",
       "OTHER": "Other"
+    },
+    "refusedBy": {
+      "label": "Declined by",
+      "RECRUITER": "The recruiter",
+      "FREELANCE": "Me",
+      "badge": {
+        "RECRUITER": "Declined by the recruiter",
+        "FREELANCE": "Declined by me"
+      }
     },
     "detail": {
       "loading": "Loading project...",
@@ -420,7 +432,7 @@
       "INTERVIEW": "Tests & Interviews",
       "OFFER": "Offer",
       "WON": "Accepted",
-      "LOST": "Lost / Dropped",
+      "LOST": "Declined",
       "ACTIVE": "Active",
       "COMPLETED": "Completed",
       "PAUSED": "Paused",
@@ -476,7 +488,7 @@
       "saved": "Reversion rate saved",
       "saveError": "Error saving reversion rate",
       "saveTooltip": "Save reversion rate to your profile",
-      "formula": "Net = Gross × (1 - {{rate}}%). Rate = 40% social charges + income tax (PAS).",
+      "formula": "Net = Gross × {{rate}}%. Rate = 100% − 40% social charges − income tax (PAS): the lower the rate, the less you keep.",
       "net": "net",
       "netTooltip": "Net daily rate after applying reversion rate",
       "perMonth": "/month",
@@ -554,7 +566,7 @@
     }
   },
   "clients": {
-    "title": "Client Management",
+    "title": "Clients",
     "subtitle": "Manage your end clients and consulting firms",
     "newClient": "New client",
     "loading": "Loading clients...",
@@ -654,7 +666,7 @@
     }
   },
   "contacts": {
-    "title": "Contact Management",
+    "title": "Contacts",
     "subtitle": "Manage your client contacts and their information",
     "import": {
       "title": "Import contacts",
@@ -776,7 +788,7 @@
     }
   },
   "sources": {
-    "title": "Source Management",
+    "title": "Sources",
     "subtitle": "Manage your platforms and channels for finding projects",
     "newSource": "New source",
     "loading": "Loading sources...",
@@ -829,7 +841,7 @@
     "quickAddTitle": "New opportunity – {{status}}",
     "quickAddSuccess": "Opportunity added",
     "quickAddError": "Error adding opportunity",
-    "lostReasonTitle": "Why was this opportunity lost?",
+    "refusalTitle": "Who declined this opportunity?",
     "perDayShort": "/d",
     "selectCard": "Select \"{{role}}\"",
     "selection": {
@@ -857,7 +869,7 @@
     "inactivityDays": "Inactivity period (days)",
     "inactivityDaysHint": "Highlight idle opportunities and suggest follow-ups after this many days.",
     "inactivityDaysError": "Enter a whole number from 1 to 365.",
-    "title": "My Profile",
+    "title": "My profile",
     "subtitle": "Manage your personal information and preferences",
     "loading": "Loading profile...",
     "basicInfo": "Basic information",
@@ -1581,7 +1593,7 @@
     "invoiceError": "The invoice could not be drafted"
   },
   "offers": {
-    "title": "Freelance missions",
+    "title": "Offers",
     "subtitle": "{{offers}} open offers from {{sites}} sites",
     "updated": "updated {{when}}",
     "sitesLink": "Job boards",
@@ -2170,6 +2182,7 @@
   },
   "calendar": {
     "title": "Calendar",
+    "subtitle": "Your interview steps and booked calls, by month or coming up",
     "previous": "Previous month",
     "next": "Next month",
     "today": "Today",
@@ -2226,9 +2239,9 @@
     "pipelineTitle": "Opportunities",
     "opened": "Added",
     "won": "Won",
-    "lost": "Lost",
+    "lost": "Declined",
     "conversion": "Won out of decided",
-    "lostReasons": "Why they were lost",
+    "lostReasons": "Why they were declined",
     "skillsTitle": "Skills most asked for",
     "noSkills": "No opportunity added this year listed skills.",
     "networkTitle": "Network",
@@ -2320,7 +2333,8 @@
     "website": "Website"
   },
   "admin": {
-    "title": "Admin console",
+    "title": "Admin",
+    "subtitle": "Overview, accounts and features of the instance",
     "tabs": {
       "overview": "Overview",
       "accounts": "Accounts",
@@ -2395,6 +2409,7 @@
   },
   "invoices": {
     "title": "Invoices",
+    "subtitle": "Your invoices, from draft to payment, and the export for your accountant",
     "new": "New invoice",
     "newTitle": "New invoice",
     "editTitle": "Change the draft",
@@ -2718,7 +2733,7 @@
       "eyebrow": "For IT freelancers in France",
       "title": "Find the mission, win it at the right rate, then run it.",
       "lead": "Indezy gathers the freelance missions of the French job boards, follows each opportunity from first contact to signature, and once the mission is signed, writes its activity reports and its invoices.",
-      "sceneLabel": "An Indezy pipeline: opportunities in five stages, from first contact to accepted or lost, each with its role, client and daily rate."
+      "sceneLabel": "An Indezy pipeline: opportunities in five stages, from first contact to accepted or declined, each with its role, client and daily rate."
     },
     "features": {
       "title": "What Indezy does today",
@@ -2825,5 +2840,32 @@
         "alt": "Indezy's dashboard: opportunities, average daily rate, estimated and forecast revenue, and charts by stage and work mode."
       }
     }
+  },
+  "missionEnd": {
+    "action": "End the mission",
+    "hint": "Once the mission is over: its activity reports stop with the month it ends",
+    "dialogTitle": "End the mission",
+    "date": "End date",
+    "beforeStart": "The mission cannot end before it starts",
+    "reason": "Reason",
+    "reasonHint": "Why the mission ends: as planned, stopped by the client, leaving…",
+    "confirm": "End it",
+    "ended": "Ended {{date}}",
+    "resume": "Resume",
+    "endedSuccess": "Mission ended",
+    "endError": "The mission could not be ended",
+    "resumedSuccess": "Mission resumed",
+    "resumeError": "The mission could not be resumed"
+  },
+  "activityReportsPage": {
+    "title": "Timesheets",
+    "subtitle": "Your missions in progress: fill in and send each month's activity report",
+    "since": "Since {{date}}",
+    "plannedEnd": "planned end {{date}}",
+    "endedOn": "ended {{date}}",
+    "plannedEndPassed": "The planned end has passed: end the mission if it is over.",
+    "empty": "No mission in progress. An accepted opportunity shows here from the month it starts.",
+    "emptyAction": "See the opportunities",
+    "loadError": "The missions could not be loaded"
   }
 }

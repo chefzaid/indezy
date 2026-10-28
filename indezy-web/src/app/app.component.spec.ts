@@ -144,7 +144,7 @@ describe('AppComponent offer alerts', () => {
     user$.next({ id: 1, email: 'john@example.com', firstName: 'John', lastName: 'Doe' });
     fixture.detectChanges();
     expect(menuRoutes(fixture)).toEqual(['/dashboard', '/calendar', '/offers', '/projects', '/clients', '/contacts', '/sources',
-      '/review', '/invoices', '/documents', '/archive']);
+      '/review', '/activity-reports', '/invoices', '/documents', '/archive']);
 
     capabilities = { admin: true, features: { ...DEFAULT_CAPABILITIES.features, OFFER_FEED: false, YEARLY_REVIEW: false } };
     alerts.start.calls.reset();

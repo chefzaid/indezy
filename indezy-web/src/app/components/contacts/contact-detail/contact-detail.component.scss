@@ -1,7 +1,5 @@
 .contact-detail-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  // The whole width of the page with the shell's gutter only, as the dashboard and its board take.
   
   .loading-container {
     display: flex;
@@ -18,18 +16,9 @@
     .header-card {
       margin-bottom: 24px;
       
+      // The page's title, in the same style as every page's (.page-title in styles.scss).
       .contact-name {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin: 0;
-        font-size: 1.5rem;
-        font-weight: 500;
-        color: var(--app-text);
-
-        mat-icon {
-          color: var(--app-link);
-        }
+        min-width: 0;
       }
 
       .contact-subtitle {
@@ -100,13 +89,11 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 1.1rem;
             
             mat-icon {
               font-size: 1.2rem;
               width: 1.2rem;
               height: 1.2rem;
-              color: var(--app-link);
             }
           }
         }
@@ -234,13 +221,13 @@
   min-height: 28px;
   
   &.mat-primary {
-    background-color: #e8f5e8;
-    color: #2e7d32;
+    background-color: var(--app-chip-positive-bg);
+    color: var(--app-chip-positive-text);
   }
   
   &.mat-warn {
-    background-color: #ffebee;
-    color: #b71c1c;
+    background-color: var(--app-chip-danger-bg);
+    color: var(--app-chip-danger-text);
   }
 }
 
@@ -265,7 +252,6 @@
 // Responsive adjustments
 @media (max-width: 768px) {
   .contact-detail-container {
-    padding: 16px;
     
     .contact-content {
       .header-card {

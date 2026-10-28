@@ -5,7 +5,9 @@ import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
+import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
+import dev.swirlit.indezy.model.enums.RefusedBy;
 import dev.swirlit.indezy.model.enums.StepStatus;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +37,20 @@ class ProjectBoardServiceTest extends ProjectServiceTestSupport {
     }
 
     @Test
+    void getKanbanBoard_ShouldTellWhoRefusedARefusedCardAndWhy() {
+        testProject.setStatus(ProjectStatus.LOST);
+        testProject.setRefusedBy(RefusedBy.FREELANCE);
+        testProject.setLostReason(LostReason.RATE_TOO_LOW);
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
+        when(interviewStepRepository.findByProjectId(any())).thenReturn(List.of());
+
+        KanbanBoardDto.ProjectCardDto card = projectService.getKanbanBoard(1L, null).getColumns().get("LOST").get(0);
+
+        assertThat(card.getRefusedBy()).isEqualTo("FREELANCE");
+        assertThat(card.getLostReason()).isEqualTo("RATE_TOO_LOW");
+    }
+
+    @Test
     void getKanbanBoard_ShouldGroupProjectsByStatusInColumnOrder() {
         // Given
         testProject.setStatus(ProjectStatus.INTERVIEW);
@@ -58,7 +74,7 @@ class ProjectBoardServiceTest extends ProjectServiceTestSupport {
 
         // Then
         assertThat(board.getColumnOrder()).containsExactly(
-                "CONTACT", "INTERVIEW", "OFFER", "WON", "LOST");
+                "CONTACT", "INTERVIEW", "OFFER", "LOST", "WON");
         assertThat(board.getColumns().get("INTERVIEW")).hasSize(1);
         assertThat(board.getColumns().get("CONTACT")).hasSize(1); // null status defaults to CONTACT
 

@@ -2,6 +2,7 @@ package dev.swirlit.indezy.integration;
 
 import tools.jackson.databind.ObjectMapper;
 import dev.swirlit.indezy.dto.ProjectDto;
+import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -212,6 +213,55 @@ class ProjectIntegrationTest {
         // Verify it's deleted
         mockMvc.perform(get("/projects/{id}", createdProject.getId()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void endsAWonMissionWithItsReasonKeepsItThroughASaveAndResumesIt() throws Exception {
+        ProjectDto mission = createValidProjectDto();
+        mission.setStatus(ProjectStatus.WON);
+        ProjectDto created = objectMapper.readValue(mockMvc.perform(post("/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(mission)))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString(), ProjectDto.class);
+        String today = LocalDate.now().toString();
+
+        mockMvc.perform(patch("/projects/{id}/end", created.getId()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"endedOn\": \"" + today + "\", \"reason\": \"  \"}"))
+            .andExpect(status().isBadRequest());
+        mockMvc.perform(patch("/projects/{id}/end", created.getId()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"endedOn\": \"" + LocalDate.now().minusDays(1) + "\", \"reason\": \"Too early\"}"))
+            .andExpect(status().isBadRequest());
+        mockMvc.perform(patch("/projects/{id}/end", created.getId()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"endedOn\": \"" + today + "\", \"reason\": \" The client cut the budget \"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.endedOn", is(today)))
+            .andExpect(jsonPath("$.endReason", is("The client cut the budget")));
+
+        // A save from the form, which does not send the end, keeps it.
+        created.setRole("Lead Full Stack Developer");
+        mockMvc.perform(put("/projects/{id}", created.getId()).contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(created)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.endedOn", is(today)));
+
+        mockMvc.perform(patch("/projects/{id}/resume", created.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.endedOn", nullValue()))
+            .andExpect(jsonPath("$.endReason", nullValue()));
+    }
+
+    @Test
+    void refusesToEndAnOpportunityThatIsNotAWonMission() throws Exception {
+        ProjectDto created = objectMapper.readValue(mockMvc.perform(post("/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createValidProjectDto())))
+            .andExpect(status().isCreated())
+            .andReturn().getResponse().getContentAsString(), ProjectDto.class);
+
+        mockMvc.perform(patch("/projects/{id}/end", created.getId()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"endedOn\": \"" + LocalDate.now() + "\", \"reason\": \"Done\"}"))
+            .andExpect(status().isConflict());
     }
 
     private ProjectDto createValidProjectDto() {

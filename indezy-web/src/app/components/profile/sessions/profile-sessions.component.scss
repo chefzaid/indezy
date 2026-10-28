@@ -54,12 +54,12 @@
   margin-left: 8px;
   padding: 2px 8px;
   border-radius: 12px;
-  background: #e6f4ea;
-  color: #1e5631;
+  background: var(--app-chip-positive-bg);
+  color: var(--app-chip-positive-text);
   font-size: 0.75rem;
   font-weight: 600;
 }
 
 .event.warning > mat-icon {
-  color: var(--mat-sys-error, #b3261e);
+  color: var(--app-danger);
 }

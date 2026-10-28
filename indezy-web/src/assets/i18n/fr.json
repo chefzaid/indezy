@@ -83,11 +83,12 @@
     "review": "Bilan annuel",
     "admin": "Administration",
     "invoices": "Factures",
-    "documents": "Documents"
+    "documents": "Documents",
+    "activityReports": "CRA"
   },
   "archive": {
     "title": "Archives",
-    "subtitle": "Vos opportunités passées (acceptées et perdues) et celles sorties du pipeline",
+    "subtitle": "Vos opportunités passées (acceptées et refusées) et celles sorties du pipeline",
     "search": "Rechercher",
     "searchPlaceholder": "Poste, stack technique, client, notes...",
     "empty": "Aucune opportunité correspondante",
@@ -163,9 +164,9 @@
       "dailyRateDistribution": "Répartition des TJM",
       "projects": "Missions",
       "won": "Acceptées",
-      "lost": "Perdues",
+      "lost": "Refusées",
       "active": "En cours",
-      "lostReasons": "Pourquoi les opportunités ont été perdues",
+      "lostReasons": "Pourquoi les opportunités ont été refusées",
       "sourceRoi": "ROI par source (contrats signés)",
       "sourceRoiSource": "Source",
       "sourceRoiWon": "Acceptées/Total",
@@ -221,7 +222,7 @@
       "expiresInDays": "expire dans {{days}} jours",
       "expiredDaysAgo": "expiré depuis {{days}} jours"
     },
-    "estimatedRevenueHint": "Valeur totale des missions acceptées et des opportunités en cours (hors perdues), sans pondération.",
+    "estimatedRevenueHint": "Valeur totale des missions acceptées et des opportunités en cours (hors refusées), sans pondération.",
     "forecastRevenueHint": "Valeur des missions pondérée par la probabilité de gain de chaque étape du pipeline.",
     "remindersTitle": "À suivre",
     "analyticsTitle": "Analyses",
@@ -268,7 +269,8 @@
     }
   },
   "projects": {
-    "title": "Mes opportunités",
+    "title": "Opportunités",
+    "subtitle": "Les missions que vous suivez, du premier contact à l'acceptation",
     "newProject": "Nouvelle mission",
     "exportSummary": "Exporter le récapitulatif",
     "exportError": "Erreur lors de l'export du récapitulatif",
@@ -382,7 +384,8 @@
       "createClient": "Créer un client"
     },
     "lostReason": {
-      "label": "Raison de la perte",
+      "label": "Raison du refus (facultatif)",
+      "none": "Non précisée",
       "RATE_TOO_LOW": "TJM trop bas",
       "POSITION_FILLED": "Poste pourvu",
       "NO_RESPONSE": "Sans réponse",
@@ -390,6 +393,15 @@
       "CLIENT_CANCELED": "Client a annulé",
       "ACCEPTED_OTHER_OFFER": "Autre offre acceptée",
       "OTHER": "Autre"
+    },
+    "refusedBy": {
+      "label": "Refusé par",
+      "RECRUITER": "Le recruteur",
+      "FREELANCE": "Moi",
+      "badge": {
+        "RECRUITER": "Refusé par le recruteur",
+        "FREELANCE": "Refusé par moi"
+      }
     },
     "detail": {
       "loading": "Chargement de la mission...",
@@ -420,7 +432,7 @@
       "INTERVIEW": "Tests & Entretiens",
       "OFFER": "Offre",
       "WON": "Accepté",
-      "LOST": "Perdu / Abandonné",
+      "LOST": "Refusé",
       "ACTIVE": "Actif",
       "COMPLETED": "Terminé",
       "PAUSED": "En pause",
@@ -476,7 +488,7 @@
       "saved": "Taux de réversion sauvegardé",
       "saveError": "Erreur lors de la sauvegarde du taux de réversion",
       "saveTooltip": "Sauvegarder le taux de réversion dans votre profil",
-      "formula": "Net = Brut × (1 - {{rate}}%). Taux = 40% charges sociales + impôt sur le revenu (PAS).",
+      "formula": "Net = Brut × {{rate}} %. Taux = 100 % − 40 % de charges sociales − impôt sur le revenu (PAS) : plus le taux est bas, moins il vous reste.",
       "net": "net",
       "netTooltip": "Taux journalier net après application du taux de réversion",
       "perMonth": "/mois",
@@ -554,7 +566,7 @@
     }
   },
   "clients": {
-    "title": "Gestion des Clients",
+    "title": "Clients",
     "subtitle": "Gérez vos clients finaux et ESN",
     "newClient": "Nouveau client",
     "loading": "Chargement des clients...",
@@ -654,7 +666,7 @@
     }
   },
   "contacts": {
-    "title": "Gestion des Contacts",
+    "title": "Contacts",
     "subtitle": "Gérez vos contacts clients et leurs informations",
     "import": {
       "title": "Importer des contacts",
@@ -776,7 +788,7 @@
     }
   },
   "sources": {
-    "title": "Gestion des Sources",
+    "title": "Sources",
     "subtitle": "Gérez vos plateformes et canaux de recherche de missions",
     "newSource": "Nouvelle source",
     "loading": "Chargement des sources...",
@@ -829,7 +841,7 @@
     "quickAddTitle": "Nouvelle opportunité – {{status}}",
     "quickAddSuccess": "Opportunité ajoutée",
     "quickAddError": "Erreur lors de l'ajout de l'opportunité",
-    "lostReasonTitle": "Pourquoi cette opportunité a-t-elle été perdue ?",
+    "refusalTitle": "Qui a refusé cette opportunité ?",
     "perDayShort": "/j",
     "selectCard": "Sélectionner « {{role}} »",
     "selection": {
@@ -857,7 +869,7 @@
     "inactivityDays": "Délai d’inactivité (jours)",
     "inactivityDaysHint": "Signaler les opportunités inactives et suggérer une relance après ce délai.",
     "inactivityDaysError": "Saisissez un nombre entier de 1 à 365.",
-    "title": "Mon Profil",
+    "title": "Mon profil",
     "subtitle": "Gérez vos informations personnelles et préférences",
     "loading": "Chargement du profil...",
     "basicInfo": "Informations de base",
@@ -1581,7 +1593,7 @@
     "invoiceError": "La facture n'a pas pu être créée"
   },
   "offers": {
-    "title": "Missions freelance",
+    "title": "Offres",
     "subtitle": "{{offers}} offres ouvertes sur {{sites}} sites",
     "updated": "mis à jour {{when}}",
     "sitesLink": "Sites d'offres",
@@ -2170,6 +2182,7 @@
   },
   "calendar": {
     "title": "Calendrier",
+    "subtitle": "Vos étapes de recrutement et les appels réservés, au mois ou à venir",
     "previous": "Mois précédent",
     "next": "Mois suivant",
     "today": "Aujourd'hui",
@@ -2226,9 +2239,9 @@
     "pipelineTitle": "Opportunités",
     "opened": "Ajoutées",
     "won": "Gagnées",
-    "lost": "Perdues",
+    "lost": "Refusées",
     "conversion": "Gagnées sur décidées",
-    "lostReasons": "Pourquoi elles ont été perdues",
+    "lostReasons": "Pourquoi elles ont été refusées",
     "skillsTitle": "Compétences les plus demandées",
     "noSkills": "Aucune opportunité ajoutée cette année ne liste de compétences.",
     "networkTitle": "Réseau",
@@ -2320,7 +2333,8 @@
     "website": "Site web"
   },
   "admin": {
-    "title": "Console d'administration",
+    "title": "Administration",
+    "subtitle": "Vue d'ensemble, comptes et fonctionnalités de l'instance",
     "tabs": {
       "overview": "Vue d'ensemble",
       "accounts": "Comptes",
@@ -2395,6 +2409,7 @@
   },
   "invoices": {
     "title": "Factures",
+    "subtitle": "Vos factures, du brouillon au paiement, et l'export pour votre comptable",
     "new": "Nouvelle facture",
     "newTitle": "Nouvelle facture",
     "editTitle": "Modifier le brouillon",
@@ -2718,7 +2733,7 @@
       "eyebrow": "Pour les freelances IT en France",
       "title": "Trouvez la mission, décrochez-la au bon TJM, puis menez-la.",
       "lead": "Indezy rassemble les missions freelance des sites français, suit chaque opportunité du premier contact à la signature et, une fois la mission signée, rédige ses CRA et ses factures.",
-      "sceneLabel": "Un pipeline Indezy : des opportunités en cinq étapes, du premier contact à acceptée ou perdue, chacune avec son poste, son client et son TJM."
+      "sceneLabel": "Un pipeline Indezy : des opportunités en cinq étapes, du premier contact à acceptée ou refusée, chacune avec son poste, son client et son TJM."
     },
     "features": {
       "title": "Ce que fait Indezy aujourd'hui",
@@ -2825,5 +2840,32 @@
         "alt": "Le tableau de bord d'Indezy : opportunités, TJM moyen, revenus estimés et prévus, et graphiques par étape et mode de travail."
       }
     }
+  },
+  "missionEnd": {
+    "action": "Terminer la mission",
+    "hint": "Une fois la mission finie : ses CRA s'arrêtent au mois de fin",
+    "dialogTitle": "Terminer la mission",
+    "date": "Date de fin",
+    "beforeStart": "La mission ne peut pas finir avant de commencer",
+    "reason": "Raison",
+    "reasonHint": "Pourquoi la mission se termine : fin prévue, arrêt du client, départ…",
+    "confirm": "Terminer",
+    "ended": "Terminée le {{date}}",
+    "resume": "Reprendre",
+    "endedSuccess": "Mission terminée",
+    "endError": "La mission n'a pas pu être terminée",
+    "resumedSuccess": "Mission reprise",
+    "resumeError": "La mission n'a pas pu être reprise"
+  },
+  "activityReportsPage": {
+    "title": "CRA",
+    "subtitle": "Vos missions en cours : remplissez et envoyez le compte rendu d'activité de chaque mois",
+    "since": "Depuis le {{date}}",
+    "plannedEnd": "fin prévue le {{date}}",
+    "endedOn": "terminée le {{date}}",
+    "plannedEndPassed": "La fin prévue est passée : terminez la mission si elle est finie.",
+    "empty": "Aucune mission en cours. Une opportunité acceptée apparaît ici dès son mois de début.",
+    "emptyAction": "Voir les opportunités",
+    "loadError": "Les missions n'ont pas pu être chargées"
   }
 }

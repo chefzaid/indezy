@@ -20,6 +20,7 @@ import {
   ComplianceDocumentDialogComponent, ComplianceDocumentDialogData, ComplianceDocumentDialogResult
 } from './document-dialog/compliance-document-dialog.component';
 import { ComplianceShareDialogComponent, ComplianceShareDialogData } from './share-dialog/compliance-share-dialog.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 /** The link just created, shown until the page is left: its token is given only once. */
 export interface SharedLink {
@@ -33,7 +34,7 @@ export interface SharedLink {
  */
 @Component({
   selector: 'app-compliance',
-  imports: [DatePipe, MatButtonModule, MatCardModule, MatIconModule, MatMenuModule, MatProgressSpinnerModule, MatTooltipModule,
+  imports: [PageHeaderComponent, DatePipe, MatButtonModule, MatCardModule, MatIconModule, MatMenuModule, MatProgressSpinnerModule, MatTooltipModule,
     TranslateModule],
   templateUrl: './compliance.component.html',
   styleUrls: ['./compliance.component.scss'],

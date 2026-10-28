@@ -16,10 +16,25 @@ The core workflow is:
 
 The navigation lists, in this order: **Tableau de bord** (Dashboard), **Calendrier** (Calendar), **Offres** (Offers),
 **Opportunités** (Opportunities, the pipeline of opportunities at `/projects`), **Clients**, **Contacts**, **Sources**,
-**Bilan annuel** (Year in review), **Factures** (Invoices), **Documents**, **Archives**, then **Administration** for
+**Bilan annuel** (Year in review), **CRA** (Timesheets), **Factures** (Invoices), **Documents**, **Archives**, then **Administration** for
 administrators. Its icons and the app's Roboto font are bundled with the app rather than loaded from Google Fonts: the
 service worker fetches what a page loads under the policy's `connect-src 'self'`, so a font from another host would
 fail once it runs and the icons would show their names (see [Security](./security.md#web-server-headers)).
+
+Every page of the workspace takes the whole width beside the menu, as the Kanban board does, with no width cap, and
+opens with the same header (`app-page-header`): the page's menu icon and title, named as in the menu, a line under it,
+and its actions on the right, wrapping under the title on a phone. The type scale, cards and icons are shared in
+`styles.scss`: page titles at 1.75rem semibold, section and card titles at 1.125rem semibold, group titles at 1rem
+semibold, title icons in the link colour, and cards with the same corners, hairline border and light shadow. An
+opportunity's, a client's and a contact's page keep their summary card, whose title takes the page title's style.
+
+Colours come from the `styles.scss` tokens, which the dark theme redefines: text that reads as good or bad news, a
+warning, an accent or a booked call (`--app-positive`, `--app-danger`, `--app-warning`, `--app-accent`, `--app-teal`),
+and tinted chips and badges (`--app-chip-<tone>-bg` and `-text`, a light tint under dark text, or a translucent tint
+under light text in the dark theme), each 4.5:1 at least on its background in either theme. Stage colours carry white
+text, so they are dark; where they are drawn on a dark surface (the Kanban columns' icons and rule, the calendar's
+steps, the steps' timeline, the dashboard's stage chart) they are lifted toward white. The loading screen and error
+cards follow the app's theme rather than the system's.
 
 ## Presentation Page
 
@@ -384,11 +399,12 @@ Implemented project fields include:
 - original link
 - personal rating
 - notes
-- lost/rejection reason (captured when a card is moved to LOST, surfaced as a dashboard breakdown)
+- who refused it, the recruiter or the freelance, and optionally why (asked when a card is moved to Refusé; the
+  reason feeds a dashboard breakdown)
 - favorite flag (pins hot leads to the top of their Kanban column)
 - client, optional middleman, source, optional job-hunting season, and freelance owner
 
-The project form edits the pipeline stage (with the loss reason for lost opportunities), the client (final clients and ESNs are listed in two groups, an ESN being the client when the final client is unknown, as for missions added from the offer feed), the optional ESN/intermediary, the source and the season. The project page shows the stage as a pill that can be changed in place and names the opportunity's season, and the projects list filters by stage and season and paginates results.
+The project form edits the pipeline stage (with who refused a refused opportunity, required, and why, optional), the client (final clients and ESNs are listed in two groups, an ESN being the client when the final client is unknown, as for missions added from the offer feed), the optional ESN/intermediary, the source and the season. The project page shows the stage as a pill that can be changed in place and names the opportunity's season, and the projects list filters by stage and season and paginates results.
 
 The projects list's filters combine: words searched, daily rate range, work mode, technologies (typed or picked as
 chips), stage, season, start and end dates, duration, client and **Archive** (all, those in the pipeline or the
@@ -409,8 +425,8 @@ Opportunity statuses, one per Kanban column (French / English labels):
 | `CONTACT` | Contact | 20 % |
 | `INTERVIEW` | Tests & Entretiens / Tests & Interviews | 50 % |
 | `OFFER` | Offre / Offer | 80 % |
+| `LOST` | Refusé / Declined | 0 % |
 | `WON` | Accepté / Accepted | 100 % |
-| `LOST` | Perdu / Abandonné / Lost / Dropped | 0 % |
 
 `CONTACT` replaced the former `IDENTIFIED` and `APPLIED` stages. On startup the API moves any
 remaining opportunity in those stages to `CONTACT` and rebuilds the PostgreSQL status check
@@ -998,6 +1014,20 @@ Each opportunity's page has a **Journal**: its history in one place, newest firs
 An accepted mission's page (stage Accepté / Accepted) has an **Activity reports** card: the monthly activity report
 (compte rendu d'activité, CRA) that ESNs and clients ask for before invoicing.
 
+The **CRA** menu item (Timesheets, `/activity-reports`, between **Bilan annuel** and **Factures**) lists only the
+missions in progress, each with its card, its client, its start and its end, earliest start first: won missions not
+archived, started by the end of the month (or without a start date), and not ended before the month began, so the
+month a mission ends still lists it for its last report. A mission past its planned end that was not ended says so,
+next to the button that ends it.
+
+**End the mission** (Terminer la mission), on an accepted mission's page and on the CRA page, asks for the day it
+ended (today by default, not before its start) and a reason, and records both (`PATCH /projects/{id}/end` with
+`endedOn` and `reason`); the mission stays accepted and its page shows when and why it ended. Its last day is then that
+day rather than its start plus its duration: its activity reports stop with that month, it leaves the CRA page once
+the month is over, the dashboard no longer counts it among the missions ending soon, and the yearly review and the
+bench time use its real end. **Resume** (`PATCH /projects/{id}/resume`) puts a mission ended by mistake back in
+progress. Saving the opportunity's form keeps its end, and moving it out of the Accepté stage clears it.
+
 - The card opens on the current month, kept within the mission dates when they are known, with arrows to move between
   months and a chip per saved month showing its status (Brouillon / Draft, En attente de validation / Awaiting approval,
   Validé / Approved, Refusé / Rejected). Unsaved changes are confirmed before leaving a month.
@@ -1100,7 +1130,7 @@ API: `GET` and `POST /api/compliance-documents` (multipart: `file`, `type`, `lab
 
 ## Kanban And Pipeline View
 
-The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs. Cards can be pinned as favorites (`PATCH /projects/{id}/favorite`), which keeps hot leads at the top of their column. Within a column, cards can be dragged to set a manual priority, persisted through `PUT /projects/kanban/{freelanceId}/reorder` (favorites still pin above the manual order). Each card shows a card-aging indicator (days since last activity) and highlights opportunities after the account's configured inactivity period (14 days by default). A quick-add button on each column opens a minimal dialog (role, client, daily rate) that creates an opportunity directly in that column's status, to be enriched later. Moving a card into the LOST column prompts for a loss reason, which feeds a "why opportunities were lost" breakdown on the dashboard. Cards that share the same client and role (case-insensitive) as another opportunity are flagged as possible duplicates for manual deduplication.
+The dashboard includes a Kanban mode for moving opportunities across high-level statuses. Drag-and-drop changes project status through the project and interview-step APIs. Cards can be pinned as favorites (`PATCH /projects/{id}/favorite`), which keeps hot leads at the top of their column. Within a column, cards can be dragged to set a manual priority, persisted through `PUT /projects/kanban/{freelanceId}/reorder` (favorites still pin above the manual order). Each card shows a card-aging indicator (days since last activity) and highlights opportunities after the account's configured inactivity period (14 days by default). A quick-add button on each column opens a minimal dialog (role, client, daily rate) that creates an opportunity directly in that column's status, to be enriched later. Moving a card into the Refusé column asks who refused it, the recruiter or the freelance, and why if they want to say (`PATCH /projects/{id}/status?status=LOST&refusedBy=RECRUITER&lostReason=NO_RESPONSE`, the reason optional); the card then shows a badge, **Refusé par le recruteur** in red or **Refusé par moi** in orange, with the reason, which also feeds the dashboard's "why opportunities were declined" breakdown. The project page shows the same badge next to the stage. Cards that share the same client and role (case-insensitive) as another opportunity are flagged as possible duplicates for manual deduplication.
 
 Profile → Preferences lets the user set the inactivity period to 1–365 whole days.
 The same saved value controls dashboard follow-up reminders and Kanban highlighting;
@@ -1122,14 +1152,14 @@ run.
 Each card has a checkbox, next to its favorite star, that picks it without opening it; the
 projects list has one on each card too, and one beside the results count that picks the whole
 page. While opportunities are picked, a bar above the board or the list counts them and acts on
-all of them at once: **Move to** a column (Lost asks for the reason first), **Source** gives them
+all of them at once: **Move to** a column (Refusé first asks who refused them, and optionally why), **Source** gives them
 one of the workspace's sources, **Add a tag** adds a typed tag to each tech stack that lacks it
 (case aside; a comma becomes a space, and a tech stack that would pass 255 characters is left
 as it is), **Archive** archives them, **Delete** deletes them once confirmed (with their notes,
 files and activity reports, as a single delete does), and the close button clears the
 selection. The change goes through `PATCH /projects/bulk` (`projectIds`, up to 200, `action`
-`STATUS`, `SOURCE`, `TAG`, `ARCHIVE` or `DELETE`, with `status`, `lostReason`, `sourceId` or
-`tag`), which checks that every opportunity and the source belong to the caller's workspace and
+`STATUS`, `SOURCE`, `TAG`, `ARCHIVE` or `DELETE`, with `status` (and `refusedBy` and `lostReason` for `LOST`),
+`sourceId` or `tag`), which checks that every opportunity and the source belong to the caller's workspace and
 applies it in one transaction, answering how many changed; the page then reloads, selection
 cleared.
 
@@ -1140,7 +1170,7 @@ were `deleted` and `kept`. A client still linked to missions is kept, as a singl
 refuses it, and the message says how many; a client goes with its contacts, a contact with its
 exchanges.
 
-The board has five status-driven columns: Contact, Tests & Entretiens, Offre, Accepté and Perdu / Abandonné. Intermediate recruitment steps (technical test, client interview...) are tracked as interview steps inside the Tests & Entretiens column. The board follows the season selected on the dashboard (`GET /projects/kanban/{freelanceId}?seasonId=`), and cards quick-added to it join that season.
+The board has five status-driven columns: Contact, Tests & Entretiens, Offre, Refusé and Accepté (Declined and Accepted in English), the refused column before the accepted one. Intermediate recruitment steps (technical test, client interview...) are tracked as interview steps inside the Tests & Entretiens column. The board follows the season selected on the dashboard (`GET /projects/kanban/{freelanceId}?seasonId=`), and cards quick-added to it join that season.
 
 ## Job-Hunting Seasons
 
@@ -1216,8 +1246,8 @@ the arrows move to the years before, back to 2000 and never past the current yea
   rate and revenue. Days come from the mission's activity reports of that year when it has any; otherwise they are
   estimated from the calendar days it covers in the year, as a share of the year's length, times its days per year
   (218 when it states none), rounded to half days, and marked with an asterisk. Phones leave out the period column.
-- **Opportunities**: those added during the year, how many of them were won and lost, the won share of the decided
-  ones, and why the lost ones were lost, most frequent reason first.
+- **Opportunities**: those added during the year, how many of them were won and refused, the won share of the decided
+  ones, and why the refused ones were refused, most frequent reason first.
 - **Skills most asked for**: the five skills listed most often by the opportunities added during the year, with
   aliases merged as in [Skill Names](#skill-names).
 - **Network**: final clients, ESNs and contacts added during the year, and the exchanges recorded in it
@@ -1247,7 +1277,7 @@ Signed-in users can open shortcut help from the account menu or with `Alt+Shift+
 `Alt+Shift+N` opens a new project; `Alt+Shift+F` opens project search and focuses its
 field, expanding the filters on phones. `Alt+Shift+M` opens the stage menu for the
 current project, or opens the focused Kanban card with that menu ready. Choose a
-stage to move it; moving to Lost still requires the existing loss-reason dialog.
+stage to move it; moving to Refusé still asks who refused it in its dialog.
 
 In the offer feed, single keys act while one of its offers has the focus (Tab to
 the list, one tab stop for all offers): `J` and `K` (or the arrow keys) move to the
@@ -1299,7 +1329,10 @@ API: `GET /api/commute/projects/{freelanceId}?travelMode=DRIVING|TRANSIT` answer
 
 ## Reversion Rate Calculator
 
-Indezy includes reversion-rate oriented finance fields and calculator behavior for:
+The taux de réversion is the share of the gross daily rate the freelancer keeps: net = gross × rate. It is 100 % less
+40 % of social charges and the income tax withheld (PAS), 55 % by default with a 5 % tax; a higher tax lowers it, and
+a lower rate leaves less. The projects list sets it, or derives it from the tax typed in, and saves both on the
+freelance profile. It feeds:
 
 - net daily revenue
 - monthly revenue

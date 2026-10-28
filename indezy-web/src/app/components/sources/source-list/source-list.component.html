@@ -1,29 +1,13 @@
 <div class="source-list-container">
-  <mat-card class="header-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>source</mat-icon>
-        {{ 'sources.title' | translate }}
-      </mat-card-title>
-      <mat-card-subtitle>
-        {{ 'sources.subtitle' | translate }}
-      </mat-card-subtitle>
-    </mat-card-header>
-  </mat-card>
-
-  <mat-card class="actions-card">
-    <mat-card-content>
-      <div class="actions-row">
-        @if (!isLoading) {
-          <span class="results-count">{{ 'sources.resultsCount' | translate:{ count: filteredSources.length } }}</span>
-        }
-        <button mat-raised-button color="primary" (click)="onCreate()">
-          <mat-icon>add</mat-icon>
-          {{ 'sources.newSource' | translate }}
-        </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
+  <app-page-header icon="source" [title]="'sources.title' | translate" [subtitle]="'sources.subtitle' | translate">
+    @if (!isLoading) {
+      <span class="results-count">{{ 'sources.resultsCount' | translate:{ count: filteredSources.length } }}</span>
+    }
+    <button mat-raised-button color="primary" (click)="onCreate()">
+      <mat-icon>add</mat-icon>
+      {{ 'sources.newSource' | translate }}
+    </button>
+  </app-page-header>
 
   @if (!isLoading && sources.length > 0) {
     <mat-card class="filter-card">

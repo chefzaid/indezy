@@ -16,6 +16,7 @@ import { InterviewStepService } from '../../services/interview-step/interview-st
 import { NotificationService } from '../../services/notification/notification.service';
 import { toIsoDate } from '../../shared/locale/app-locale';
 import { CalendarDay, UpcomingItem, monthGrid, monthKey, monthOf, upcoming } from './calendar-month';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 /** The calendar's two views: the month grid, or the list of what is still to come. */
 export type CalendarView = 'month' | 'upcoming';
@@ -27,7 +28,7 @@ export type CalendarView = 'month' | 'upcoming';
  */
 @Component({
   selector: 'app-calendar',
-  imports: [DatePipe, RouterModule, MatButtonModule, MatButtonToggleModule, MatIconModule, MatTooltipModule, TranslateModule,
+  imports: [PageHeaderComponent, DatePipe, RouterModule, MatButtonModule, MatButtonToggleModule, MatIconModule, MatTooltipModule, TranslateModule,
     BookingLinkComponent],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss'],

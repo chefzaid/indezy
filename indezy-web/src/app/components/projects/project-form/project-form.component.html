@@ -1,14 +1,7 @@
 <div class="project-form-container">
-  <mat-card class="form-card">
-    <mat-card-header>
-      <mat-card-title>
-        <div class="header-content">
-          <mat-icon>{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
-          {{ pageTitle }}
-        </div>
-      </mat-card-title>
-    </mat-card-header>
+  <app-page-header [icon]="isEditMode ? 'edit' : 'add'" [title]="pageTitle"></app-page-header>
 
+  <mat-card class="form-card">
     <mat-card-content>
       @if (isLoading) {
         <div class="loading-container">
@@ -71,17 +64,34 @@
                     }
                   </mat-select>
                 </mat-form-field>
-                @if (projectForm.get('status')?.value === 'LOST') {
+              </div>
+              @if (projectForm.get('status')?.value === 'LOST') {
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>{{ 'projects.refusedBy.label' | translate }}</mat-label>
+                    <mat-select formControlName="refusedBy" required data-refused-by-field>
+                      @for (side of refusedBySides; track side) {
+                        <mat-option [value]="side">
+                          <span class="status-dot" [style.background-color]="'var(--app-refused-by-' + side.toLowerCase() + ')'"></span>
+                          {{ 'projects.refusedBy.' + side | translate }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                    @if (projectForm.get('refusedBy')?.hasError('required')) {
+                      <mat-error>{{ 'errors.fieldRequired' | translate }}</mat-error>
+                    }
+                  </mat-form-field>
                   <mat-form-field appearance="outline" class="half-width">
                     <mat-label>{{ 'projects.lostReason.label' | translate }}</mat-label>
                     <mat-select formControlName="lostReason">
+                      <mat-option [value]="null">{{ 'projects.lostReason.none' | translate }}</mat-option>
                       @for (reason of lostReasons; track reason) {
                         <mat-option [value]="reason">{{ 'projects.lostReason.' + reason | translate }}</mat-option>
                       }
                     </mat-select>
                   </mat-form-field>
-                }
-              </div>
+                </div>
+              }
               <div class="form-row">
                 <mat-form-field appearance="outline" class="half-width">
                   <mat-label>{{ 'projects.form.client' | translate }}</mat-label>

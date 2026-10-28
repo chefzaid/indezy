@@ -1,14 +1,9 @@
 <div class="contact-form-container">
+  <app-page-header [icon]="isEditMode ? 'edit' : 'person_add'" [title]="pageTitle"
+    [subtitle]="(isEditMode ? 'contacts.editSubtitle' : 'contacts.newSubtitle') | translate">
+  </app-page-header>
+
   <mat-card class="form-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>{{ isEditMode ? 'edit' : 'person_add' }}</mat-icon>
-        {{ pageTitle }}
-      </mat-card-title>
-      <mat-card-subtitle>
-        {{ isEditMode ? ('contacts.editSubtitle' | translate) : ('contacts.newSubtitle' | translate) }}
-      </mat-card-subtitle>
-    </mat-card-header>
 
     <mat-card-content>
       @if (isLoading) {

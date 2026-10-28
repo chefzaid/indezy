@@ -65,7 +65,9 @@ public class ProjectBulkService {
         Consumer<Project> change = switch (action) {
             case STATUS -> project -> {
                 project.setStatus(request.status());
-                project.setLostReason(ProjectStatus.LOST.equals(request.status()) ? request.lostReason() : null);
+                project.setRefusedBy(request.refusedBy());
+                project.setLostReason(request.lostReason());
+                project.clearOtherOutcomes();
             };
             case SOURCE -> project -> project.setSource(source);
             case ARCHIVE -> project -> {

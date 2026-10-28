@@ -105,15 +105,3 @@
   }
 }
 
-// Dark theme support
-@media (prefers-color-scheme: dark) {
-  .error-text {
-    .error-title {
-      color: #fff;
-    }
-
-    .error-message {
-      color: var(--app-text-faint);
-    }
-  }
-}

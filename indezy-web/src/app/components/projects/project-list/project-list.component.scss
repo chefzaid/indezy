@@ -1,44 +1,7 @@
-.project-list-container {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.page-header {
-  margin-bottom: 24px;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.page-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 28px;
-  font-weight: 600;
-  margin: 0;
-  color: var(--app-text);
-  
-  mat-icon {
-    font-size: 32px;
-    color: #667eea;
-  }
-}
-
 .filters-card {
   margin-bottom: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-card-shadow);
 
   mat-card-header {
     display: flex;
@@ -194,13 +157,13 @@
 }
 
 .project-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-card-shadow);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--app-card-shadow-hover);
   }
 }
 
@@ -237,7 +200,7 @@
 }
 
 .mission-phase {
-  color: #2e7d32;
+  color: var(--app-positive);
   font-weight: 500;
 }
 
@@ -277,7 +240,7 @@
     font-size: 16px;
     width: 16px;
     height: 16px;
-    color: #667eea;
+    color: var(--app-link);
   }
 }
 
@@ -313,8 +276,8 @@
   margin-top: 40px;
   
   mat-card {
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: var(--app-radius);
+    box-shadow: var(--app-card-shadow);
   }
 }
 
@@ -331,8 +294,6 @@
   }
   
   h3 {
-    font-size: 20px;
-    font-weight: 500;
     margin: 0 0 8px 0;
     color: var(--app-text);
   }
@@ -351,19 +312,6 @@
 
 // Responsive design
 @media (max-width: 768px) {
-  .project-list-container {
-    padding: 16px;
-  }
-  
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-  
-  .page-title {
-    font-size: 24px;
-  }
   
   .filter-row {
     flex-direction: column;
@@ -425,24 +373,7 @@
 }
 
 @media (max-width: 768px) {
-  .project-list-container {
-    padding: 0;
-  }
 
-  .header-content {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .header-actions {
-    button {
-      flex: 1 1 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
 }
 
 .archived-pill {
@@ -451,5 +382,5 @@
   border-radius: 12px;
   font-size: 0.75rem;
   border: 1px solid currentColor;
-  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+  color: var(--app-text-muted);
 }

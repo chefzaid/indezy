@@ -13,6 +13,7 @@ import { OfferService } from '../../../services/offer/offer.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { relativeTime } from '../../../shared/utils/relative-time';
 import { OfferSitesToVisitComponent } from '../offer-sites-to-visit/offer-sites-to-visit.component';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 /** A site whose newest offer is older than this reads as quiet. */
 const QUIET_AFTER_MS = 30 * 86_400_000;
@@ -25,7 +26,7 @@ const CLOCK_TICK_MS = 30_000;
  */
 @Component({
   selector: 'app-offer-sites',
-  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatSlideToggleModule, RouterLink, TranslateModule,
+  imports: [PageHeaderComponent, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatSlideToggleModule, RouterLink, TranslateModule,
     OfferSitesToVisitComponent],
   templateUrl: './offer-sites.component.html',
   styleUrls: ['./offer-sites.component.scss'],

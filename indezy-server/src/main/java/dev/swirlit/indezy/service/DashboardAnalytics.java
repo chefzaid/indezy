@@ -279,8 +279,7 @@ final class DashboardAnalytics {
      */
     static long[] buildBenchStats(List<Project> projects) {
         List<Project> missions = projects.stream()
-            .filter(p -> ProjectStatus.WON.equals(p.getStatus()) &&
-                p.getStartDate() != null && p.getDurationInMonths() != null)
+            .filter(p -> ProjectStatus.WON.equals(p.getStatus()) && p.getStartDate() != null && p.lastDay() != null)
             .sorted(Comparator.comparing(Project::getStartDate))
             .toList();
 
@@ -289,7 +288,8 @@ final class DashboardAnalytics {
         LocalDate previousEnd = null;
         for (Project mission : missions) {
             LocalDate start = mission.getStartDate();
-            LocalDate end = start.plusMonths(mission.getDurationInMonths());
+            // The day after its last day, ended early or at term.
+            LocalDate end = mission.lastDay().plusDays(1);
             if (previousEnd != null && start.isAfter(previousEnd)) {
                 totalBenchDays += ChronoUnit.DAYS.between(previousEnd, start);
                 benchPeriods++;

@@ -43,10 +43,11 @@ import { saveBlob } from '../../../shared/utils/download-file';
 import { IdSelection } from '../../../shared/utils/id-selection';
 import { filtersFromParams, filtersToParams } from '../../../services/project/project-filter-url';
 import { ProjectSelectionBarComponent } from '../../project-selection-bar/project-selection-bar.component';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
     selector: 'app-project-list',
-    imports: [
+    imports: [PageHeaderComponent, 
         CommonModule,
         RouterModule,
         ReactiveFormsModule,
@@ -103,13 +104,13 @@ export class ProjectListComponent implements OnInit {
   commuteTravelMode: TravelMode = 'DRIVING';
   commuteData: Map<number, CommuteInfoDto> = new Map();
 
-  // Reversion rate
+  /** The taux de réversion: the share of the gross daily rate the freelance keeps, in percent. */
   freelanceProfile: FreelanceDto | null = null;
-  reversionRate = 45;
+  reversionRate = 55;
   incomeTaxRate = 5;
   useCustomRate = false;
   readonly DEFAULT_DAYS_PER_YEAR = DEFAULT_DAYS_PER_YEAR;
-  /** Social charges applied on top of the income tax when deriving the reversion rate. */
+  /** Social charges taken from the gross, with the income tax, when deriving the reversion rate. */
   static readonly SOCIAL_CHARGES_RATE = 40;
 
   workModeOptions = [
@@ -455,7 +456,8 @@ export class ProjectListComponent implements OnInit {
       return;
     }
     this.incomeTaxRate = tax;
-    this.reversionRate = Math.min(100, ProjectListComponent.SOCIAL_CHARGES_RATE + tax);
+    // What is left once the social charges and the income tax are taken: a higher tax lowers it.
+    this.reversionRate = Math.max(0, 100 - ProjectListComponent.SOCIAL_CHARGES_RATE - tax);
   }
 
   /** Parses a percentage typed in a number input, rejecting values outside [0, max]. */
@@ -485,7 +487,7 @@ export class ProjectListComponent implements OnInit {
     if (!project.dailyRate) {
       return 0;
     }
-    return Math.round(project.dailyRate * (1 - this.reversionRate / 100));
+    return Math.round(project.dailyRate * this.reversionRate / 100);
   }
 
   getNetMonthly(project: ProjectDto): number {

@@ -11,7 +11,7 @@
       <mat-card class="header-card">
         <mat-card-content>
           <div class="header-top">
-            <h1 class="project-name">
+            <h1 class="page-title project-name">
               <mat-icon>work</mat-icon>
               <span>{{ project.role }}</span>
             </h1>
@@ -59,6 +59,9 @@
             }
             <span class="subtitle-sep">•</span>
             <span>{{ project.dailyRate | number:'1.0-0' }} €{{ 'common.perDay' | translate }}</span>
+            @if (project.status === 'LOST' && project.refusedBy) {
+              <app-refused-by-badge [refusedBy]="project.refusedBy"></app-refused-by-badge>
+            }
             @if (project.status === 'LOST' && project.lostReason) {
               <span class="subtitle-sep">•</span>
               <span class="lost-reason">{{ 'projects.lostReason.' + project.lostReason | translate }}</span>
@@ -76,6 +79,7 @@
             {{ 'common.edit' | translate }}
           </button>
           <app-project-email-button [project]="project"></app-project-email-button>
+          <app-mission-end-action [project]="project" (changed)="project = $event"></app-mission-end-action>
           <app-project-archive-action [project]="project" (changed)="project = $event"></app-project-archive-action>
           <button mat-button color="warn" (click)="onDelete()">
             <mat-icon>delete</mat-icon>

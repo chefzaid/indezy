@@ -27,6 +27,10 @@ import { TranslateService } from '@ngx-translate/core';
       justify-content: center;
       background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
     }
+
+    :host-context(html.dark-theme) .server-error-container {
+      background: var(--app-bg);
+    }
   `]
 })
 export class ServerErrorComponent {

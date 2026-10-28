@@ -1,0 +1,80 @@
+// Two missions side by side when the page is wide enough, one under the other otherwise.
+.missions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr));
+  gap: 24px;
+}
+
+.mission {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mission-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.mission-title {
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+
+    a {
+      color: var(--app-text);
+      text-decoration: none;
+
+      &:hover,
+      &:focus-visible {
+        color: var(--app-link);
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.mission-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 12px;
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: var(--app-text-muted);
+}
+
+.planned-end-passed {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 6px 0 0;
+  font-size: 0.875rem;
+  color: var(--app-warning);
+}
+
+.empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--app-text-muted);
+
+  mat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+  }
+
+  p {
+    margin: 0;
+    max-width: 480px;
+  }
+}

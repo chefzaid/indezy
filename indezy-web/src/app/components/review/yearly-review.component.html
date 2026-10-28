@@ -1,13 +1,5 @@
 <div class="review-container">
-  <div class="review-header">
-    <div>
-      <h1 class="review-title">
-        <mat-icon>auto_graph</mat-icon>
-        {{ 'review.title' | translate }}
-      </h1>
-      <p class="review-subtitle">{{ 'review.subtitle' | translate }}</p>
-    </div>
-    <div class="review-actions">
+  <app-page-header icon="auto_graph" [title]="'review.title' | translate" [subtitle]="'review.subtitle' | translate">
       <div class="year-picker" role="group" [attr.aria-label]="'review.year' | translate">
         <button mat-icon-button type="button" data-year-previous (click)="changeYear(-1)"
                 [disabled]="year <= firstYear" [attr.aria-label]="'review.previousYear' | translate">
@@ -27,8 +19,7 @@
         }
         {{ 'review.downloadPdf' | translate }}
       </button>
-    </div>
-  </div>
+  </app-page-header>
 
   @if (isLoading && !review) {
     <app-loading [message]="'common.loading' | translate" [showLogo]="false"></app-loading>

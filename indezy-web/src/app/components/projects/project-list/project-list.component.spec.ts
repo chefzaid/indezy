@@ -105,7 +105,7 @@ describe('ProjectListComponent', () => {
     expect(page).toContain('projects.workModes.REMOTE');
     expect(page).toContain('Angular, TypeScript');
     expect(page).toContain('Refonte du portail');
-    // 600 €/day at the default 45 % reversion rate: 330 €/day, 5,995 €/month and 71,940 €/year over 218 days.
+    // 600 €/day at the default 55 % reversion rate: 330 €/day, 5,995 €/month and 71,940 €/year over 218 days.
     expect(page).toContain('330 €');
     expect(page).toContain('5,995 €');
     expect(page).toContain('71,940 €');
@@ -294,7 +294,7 @@ describe('ProjectListComponent', () => {
         downloaded = this.download;
       });
 
-      const exportButton = Array.from<HTMLButtonElement>(fixture.nativeElement.querySelectorAll('.header-actions button'))
+      const exportButton = Array.from<HTMLButtonElement>(fixture.nativeElement.querySelectorAll('.page-actions button'))
         .find(button => button.textContent!.includes('projects.exportSummary'))!;
       exportButton.click();
 

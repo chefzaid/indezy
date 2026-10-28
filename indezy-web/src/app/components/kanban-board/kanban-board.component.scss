@@ -17,8 +17,6 @@
 
   h2 {
     margin: 0 auto 0 0;
-    font-size: 24px;
-    font-weight: 600;
     color: var(--app-text);
   }
 }
@@ -38,6 +36,8 @@
 }
 
 .kanban-column {
+  // The stage colour drawn on the column (its icons and header rule); white text sits on the stage colour itself.
+  --column-tone: var(--column-color);
   flex: 1 1 0;
   min-width: 172px;
   max-width: 320px;
@@ -55,7 +55,7 @@
   align-items: center;
   gap: 4px;
   padding: 10px 8px 10px 10px;
-  border-top: 3px solid;
+  border-top: 3px solid var(--column-tone);
   border-radius: 10px 10px 0 0;
 
   .column-title {
@@ -68,6 +68,7 @@
       font-size: 18px;
       width: 18px;
       height: 18px;
+      color: var(--column-tone);
     }
 
     h3 {
@@ -76,7 +77,7 @@
       font-weight: 600;
       color: var(--app-text);
       line-height: 1.25;
-      // Long stage names ("Perdu / Abandonné") wrap instead of being cut off.
+      // Long stage names ("Tests & Entretiens") wrap instead of being cut off.
       overflow-wrap: break-word;
     }
   }
@@ -140,13 +141,13 @@
   .card-content {
     margin: 0;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--app-card-shadow);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
     padding: 0;
 
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+      box-shadow: var(--app-card-shadow-hover);
     }
 
     mat-card-header {
@@ -263,20 +264,18 @@
   }
 }
 
-.card-lost-reason {
+.card-refusal {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
+  gap: 4px 8px;
   margin-top: 6px;
+}
+
+.card-lost-reason {
   font-size: 11px;
   font-weight: 600;
-  color: #c62828;
-
-  mat-icon {
-    font-size: 13px;
-    width: 13px;
-    height: 13px;
-  }
+  color: var(--app-text-muted);
 }
 
 .card-aging {
@@ -294,7 +293,7 @@
   }
 
   &.stale {
-    color: #e65100;
+    color: var(--app-warning);
     font-weight: 600;
   }
 }
@@ -306,7 +305,7 @@
   margin-top: 6px;
   font-size: 11px;
   font-weight: 600;
-  color: #8e24aa;
+  color: var(--app-accent);
 
   mat-icon {
     font-size: 13px;
@@ -317,7 +316,7 @@
 
 .drag-placeholder {
   background: var(--app-hover);
-  border: 2px dashed #ccc;
+  border: 2px dashed var(--app-text-faint);
   min-height: 50px;
   border-radius: 8px;
 }
@@ -335,6 +334,7 @@
     width: 32px;
     height: 32px;
     margin-bottom: 8px;
+    color: var(--column-tone);
     opacity: 0.4;
   }
 
@@ -404,6 +404,11 @@
 }
 
 .project-card.selected .card-content {
-  outline: 2px solid var(--mat-sys-primary, #3f51b5);
+  outline: 2px solid var(--app-link);
   outline-offset: -2px;
+}
+
+// The stage colours carry white text, so they are dark; on the dark theme's columns they are lifted toward white.
+:host-context(html.dark-theme) .kanban-column {
+  --column-tone: color-mix(in srgb, var(--column-color) 60%, white);
 }
