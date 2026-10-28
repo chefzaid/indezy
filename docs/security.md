@@ -483,7 +483,10 @@ SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `X-XSS-Protec
 
 - scripts only from the app's own origin (`script-src 'self'`): no inline script, no `eval`, no other host. The
   production build turns off Angular's inline critical CSS, whose stylesheet loader is an inline `onload` handler;
-- styles from the app, inline (Angular's component styles) and Google Fonts; fonts from the app and Google Fonts;
+- styles from the app and inline (Angular's component styles); fonts from the app (and `data:`) only. Roboto and the
+  Material Icons are bundled with the app (`@fontsource/roboto`, `material-icons`): the service worker fetches every
+  request a page makes under its own copy of this policy, so with `connect-src 'self'` a font from Google Fonts failed
+  once the worker ran and the icons showed their ligature names ("da", "tra"...);
 - images from the app, `data:`, `blob:` and HTTPS (avatars);
 - requests (`connect-src`) to the app's own origin only, the API being under `/api`;
 - frames from the app or a `blob:` address (a file's preview), and the browser's PDF viewer for those (`object-src
@@ -497,7 +500,9 @@ To check a policy change, build for production (`npx ng build --configuration pr
 API mocked, `/api/auth/sso` included, and service workers blocked so the mocks apply) failing on any console message
 "Refused to" or "Content Security Policy"; it was done so on 2026-10-27 (dashboard, opportunities, a mission with a PDF
 preview, invoices, documents, profile, offers, calendar, the shared documents page), and removing Google Fonts from
-`font-src` made it fail as expected.
+`font-src` made it fail as expected. Blocking the service worker hid that the worker's own fetches fall under
+`connect-src`: check a policy change once more with the worker running (load a page, wait for
+`navigator.serviceWorker.controller`, reload) and look for failed fonts or images (`document.fonts` reading `error`).
 
 ## Offline Copies
 
