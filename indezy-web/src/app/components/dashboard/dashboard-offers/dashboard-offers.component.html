@@ -16,19 +16,44 @@
       <ul class="offer-rows">
         @for (offer of offers; track offer.id) {
           <li [attr.data-dashboard-offer]="offer.id">
-            <a class="title" [routerLink]="['/offers', offer.id]">{{ offer.title }}</a>
-            <span class="facts">
-              @if (offer.company) {
-                <span>{{ offer.company }}</span>
+            <div class="offer-main">
+              <a class="title" [routerLink]="['/offers', offer.id]">{{ offer.title }}</a>
+              <span class="facts">
+                @if (rate(offer)) {
+                  <span class="rate" data-offer-rate>
+                    <mat-icon aria-hidden="true">payments</mat-icon>{{ rate(offer) }}{{ 'common.perDay' | translate }}
+                  </span>
+                }
+                @if (offer.company) {
+                  <span data-offer-company><mat-icon aria-hidden="true">business</mat-icon>{{ offer.company }}</span>
+                }
+                @if (place(offer)) {
+                  <span><mat-icon aria-hidden="true">place</mat-icon>{{ place(offer) }}</span>
+                }
+                @if (offer.workMode) {
+                  <span><mat-icon aria-hidden="true">home_work</mat-icon>{{ remoteKey(offer) | translate: { days: offer.remoteDaysPerWeek } }}</span>
+                }
+                @if (offer.durationMonths) {
+                  <span><mat-icon aria-hidden="true">date_range</mat-icon>{{ durationKey(offer) | translate: { count: offer.durationMonths } }}</span>
+                }
+                @if (offer.startAsap) {
+                  <span><mat-icon aria-hidden="true">rocket_launch</mat-icon>{{ 'offers.card.asap' | translate }}</span>
+                } @else if (offer.startDate) {
+                  <span><mat-icon aria-hidden="true">event</mat-icon>{{ 'offers.card.startsOn' | translate: { date: (offer.startDate | date: 'mediumDate') } }}</span>
+                }
+                <span class="site">{{ offer.siteName }}</span>
+              </span>
+              @if (offer.excerpt) {
+                <p class="excerpt" data-offer-excerpt>{{ offer.excerpt }}</p>
               }
-              @if (rate(offer)) {
-                <span>{{ rate(offer) }}</span>
+              @if (offer.skills.length) {
+                <ul class="skills" [attr.aria-label]="'offers.card.skills' | translate">
+                  @for (skill of skills(offer); track skill) {
+                    <li class="skill" [class.matched]="isMatched(offer, skill)">{{ skill }}</li>
+                  }
+                </ul>
               }
-              @if (place(offer)) {
-                <span>{{ place(offer) }}</span>
-              }
-              <span class="site">{{ offer.siteName }}</span>
-            </span>
+            </div>
             @if (offer.match; as match) {
               <span class="score" [attr.aria-label]="'offers.match.aria' | translate: { score: match.score }">
                 {{ 'offers.match.score' | translate: { score: match.score } }}

@@ -1,4 +1,4 @@
-import { offerPlace, offerRate } from './offer-format';
+import { isMatchedSkill, offerDurationKey, offerPlace, offerRate, offerRemoteKey, offerSkillsMatchedFirst } from './offer-format';
 
 describe('offer format', () => {
   const plain = (value: string): string => value.replace(/\s/g, ' ');
@@ -18,5 +18,22 @@ describe('offer format', () => {
     expect(offerPlace({ regionName: 'Île-de-France' })).toBe('Île-de-France');
     expect(offerPlace({ countryCode: 'CH' })).toBe('CH');
     expect(offerPlace({ countryCode: 'FR' })).toBe('');
+  });
+
+  it('says how the mission is worked and for how long', () => {
+    expect(offerRemoteKey({ workMode: 'HYBRID', remoteDaysPerWeek: 2 })).toBe('offers.card.remote.hybridDays');
+    expect(offerRemoteKey({ workMode: 'HYBRID' })).toBe('offers.card.remote.HYBRID');
+    expect(offerRemoteKey({ workMode: 'REMOTE' })).toBe('offers.card.remote.REMOTE');
+    expect(offerDurationKey({ durationMonths: 1 })).toBe('offers.card.oneMonth');
+    expect(offerDurationKey({ durationMonths: 6 })).toBe('offers.card.months');
+  });
+
+  it('puts the skills the profile names first, case and accents aside', () => {
+    const offer = { skills: ['Kafka', 'Java', 'Réseau', 'Spring'], match: { score: 70, skills: ['java', 'reseau'] } };
+
+    expect(isMatchedSkill(offer, 'Réseau')).toBeTrue();
+    expect(isMatchedSkill(offer, 'Kafka')).toBeFalse();
+    expect(offerSkillsMatchedFirst(offer, 3)).toEqual(['Java', 'Réseau', 'Kafka']);
+    expect(offerSkillsMatchedFirst({ skills: ['Go'] }, 6)).toEqual(['Go']);
   });
 });

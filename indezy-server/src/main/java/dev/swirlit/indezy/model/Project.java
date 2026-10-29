@@ -14,6 +14,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,13 @@ import java.util.List;
 @Getter
 @Setter
 public class Project extends BaseEntity {
+
+    /** Working days a year assumed for a mission that states none, as the yearly review does. */
+    public static final int DEFAULT_DAYS_PER_YEAR = 218;
+
+    /** The average year, to turn a period's calendar days into its share of a year. */
+    private static final double DAYS_IN_A_YEAR = 365.25;
+
 
     /** The tags of the tech stack, comma-separated, fit in its column. */
     public static final int TECH_STACK_MAX = 255;
@@ -213,16 +221,35 @@ public class Project extends BaseEntity {
     }
 
     /**
-     * Total revenue weighted by the status win probability, giving an expected (forecast)
-     * value for the pipeline: signed contracts count fully, lost ones contribute nothing,
-     * and in-progress opportunities by their stage likelihood. Null when revenue is unknown.
+     * What the mission is worth over its whole period: its daily rate times its working days, from its days per year
+     * (218 when it states none), from its start to the day it ended when it was ended, else over its duration. Zero
+     * without a daily rate or a period to count.
      */
-    public Double getForecastRevenue() {
-        Integer total = getTotalRevenue();
-        if (total != null && status != null) {
-            return total * status.getWinProbability();
+    public double missionValue() {
+        if (dailyRate == null) {
+            return 0;
         }
-        return null;
+        int perYear = daysPerYear != null ? daysPerYear : DEFAULT_DAYS_PER_YEAR;
+        if (startDate != null && endedOn != null) {
+            return (double) dailyRate * perYear * (ChronoUnit.DAYS.between(startDate, endedOn) + 1) / DAYS_IN_A_YEAR;
+        }
+        return durationInMonths != null ? (double) dailyRate * perYear * durationInMonths / 12 : 0;
+    }
+
+    /**
+     * The part of {@link #missionValue()} still to come from {@code today}, pro rata of the days left: all of it before
+     * the mission starts (or without a start date), none after its last day.
+     */
+    public double missionValueFrom(LocalDate today) {
+        double value = missionValue();
+        LocalDate last = lastDay();
+        if (value == 0 || startDate == null || last == null || !today.isAfter(startDate)) {
+            return value;
+        }
+        if (today.isAfter(last)) {
+            return 0;
+        }
+        return value * (ChronoUnit.DAYS.between(today, last) + 1) / (ChronoUnit.DAYS.between(startDate, last) + 1);
     }
 
     /** Intermediary/ESN margin per day (client rate minus the freelance rate), or null when the client rate is unknown. */

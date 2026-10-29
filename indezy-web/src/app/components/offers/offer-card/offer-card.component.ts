@@ -18,7 +18,7 @@ import { Offer } from '../../../models/offer.models';
 import { OfferShareService } from '../../../services/offer/offer-share.service';
 import { describeOfferChange } from '../../../services/offer/offer-history';
 import { relativeDay, relativeTime } from '../../../shared/utils/relative-time';
-import { offerPlace, offerRate } from '../../../shared/utils/offer-format';
+import { isMatchedSkill, offerDurationKey, offerPlace, offerRate, offerRemoteKey, offerSkillsMatchedFirst } from '../../../shared/utils/offer-format';
 
 /** Skills shown before the rest collapse into "+n". */
 const VISIBLE_SKILLS = 8;
@@ -140,26 +140,21 @@ export class OfferCardComponent {
 
   /** Translation key of the work mode, with the remote days when known. */
   get remoteKey(): string {
-    if (this.offer.workMode === 'HYBRID') {
-      return this.offer.remoteDaysPerWeek ? 'offers.card.remote.hybridDays' : 'offers.card.remote.HYBRID';
-    }
-    return `offers.card.remote.${this.offer.workMode}`;
+    return offerRemoteKey(this.offer);
   }
 
   get durationKey(): string {
-    return this.offer.durationMonths === 1 ? 'offers.card.oneMonth' : 'offers.card.months';
+    return offerDurationKey(this.offer);
   }
 
   /** The offer's skills, those of the profile first. */
   get visibleSkills(): string[] {
-    const skills = this.offer.skills;
-    return [...skills.filter(skill => this.isMatched(skill)), ...skills.filter(skill => !this.isMatched(skill))].slice(0, VISIBLE_SKILLS);
+    return offerSkillsMatchedFirst(this.offer, VISIBLE_SKILLS);
   }
 
   /** Whether the profile names this skill of the offer. */
   isMatched(skill: string): boolean {
-    const wanted = fold(skill);
-    return this.offer.match?.skills.some(matched => fold(matched) === wanted) ?? false;
+    return isMatchedSkill(this.offer, skill);
   }
 
   get matchLevel(): 'good' | 'fair' | 'low' {
@@ -256,9 +251,4 @@ export class OfferCardComponent {
   get hiddenSkills(): number {
     return Math.max(0, this.offer.skills.length - VISIBLE_SKILLS);
   }
-}
-
-/** Case and accents aside, as the server compares skills. */
-function fold(text: string): string {
-  return text.normalize('NFD').replace(/\p{M}+/gu, '').toLowerCase().trim();
 }

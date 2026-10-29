@@ -257,39 +257,44 @@ class ProjectTest {
     }
 
     @Test
-    void getForecastRevenue_WithContactStatus_ShouldWeightByProbability() {
-        // Given total revenue 66,000 and the default CONTACT status (20% probability)
-        project.setStatus(ProjectStatus.CONTACT);
+    void missionValue_IsItsWorkingDaysOverItsDurationOrUpToTheDayItEnded() {
+        // 600 a day, 220 days a year, over six months.
+        assertThat(project.missionValue()).isEqualTo(66000.0);
 
-        // When / Then: 66,000 * 0.20 = 13,200
-        assertThat(project.getForecastRevenue()).isEqualTo(13200.0);
-    }
+        // Without days per year, the 218 the yearly review assumes.
+        project.setDaysPerYear(null);
+        assertThat(project.missionValue()).isEqualTo(65400.0);
 
-    @Test
-    void getForecastRevenue_WithWonStatus_ShouldEqualTotalRevenue() {
-        // Given a signed contract (100% probability)
-        project.setStatus(ProjectStatus.WON);
+        // Ended early: from its start to that day, 90 days.
+        project.setStartDate(LocalDate.of(2026, 1, 1));
+        project.setEndedOn(LocalDate.of(2026, 3, 31));
+        assertThat(project.missionValue()).isCloseTo(600 * 218 * 90 / 365.25, within(0.01));
 
-        // When / Then: signed contracts count fully
-        assertThat(project.getForecastRevenue()).isEqualTo(66000.0);
-    }
-
-    @Test
-    void getForecastRevenue_WithLostStatus_ShouldBeZero() {
-        // Given a lost opportunity (0% probability)
-        project.setStatus(ProjectStatus.LOST);
-
-        // When / Then: lost opportunities contribute nothing
-        assertThat(project.getForecastRevenue()).isZero();
-    }
-
-    @Test
-    void getForecastRevenue_WithUnknownRevenue_ShouldReturnNull() {
-        // Given total revenue cannot be computed
         project.setDailyRate(null);
+        assertThat(project.missionValue()).isZero();
+    }
 
-        // When / Then
-        assertThat(project.getForecastRevenue()).isNull();
+    @Test
+    void missionValue_IsZeroForAnOpenEndedMission() {
+        project.setDurationInMonths(null);
+
+        assertThat(project.missionValue()).isZero();
+        assertThat(project.missionValueFrom(LocalDate.of(2024, 3, 1))).isZero();
+    }
+
+    @Test
+    void missionValueFrom_IsThePartOfTheDaysLeftFromToday() {
+        // Six months from 1 January: its last day is 30 June, 181 days in all.
+        project.setStartDate(LocalDate.of(2026, 1, 1));
+
+        assertThat(project.missionValueFrom(LocalDate.of(2025, 12, 1))).isEqualTo(66000.0);
+        assertThat(project.missionValueFrom(LocalDate.of(2026, 1, 1))).isEqualTo(66000.0);
+        assertThat(project.missionValueFrom(LocalDate.of(2026, 4, 1))).isCloseTo(66000.0 * 91 / 181, within(0.01));
+        assertThat(project.missionValueFrom(LocalDate.of(2026, 7, 1))).isZero();
+
+        // Without a start date, all of it is still to come.
+        project.setStartDate(null);
+        assertThat(project.missionValueFrom(LocalDate.of(2026, 4, 1))).isEqualTo(66000.0);
     }
 
     @Test

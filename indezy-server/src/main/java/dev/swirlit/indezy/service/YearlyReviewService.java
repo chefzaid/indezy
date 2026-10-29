@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 public class YearlyReviewService {
 
     /** Working days a year assumed for a mission that states none, as the projects list does. */
-    static final int DEFAULT_DAYS_PER_YEAR = 218;
+    static final int DEFAULT_DAYS_PER_YEAR = Project.DEFAULT_DAYS_PER_YEAR;
     static final int TOP_SKILLS = 5;
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
 

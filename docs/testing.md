@@ -433,7 +433,7 @@ read the hint for a missing city, narrow the feed to full remote, clear the filt
 horizontal scroll. Job board scenarios follow the feed's link to **Job boards** in English, read a failing board and
 its last error, mark a matching service as visited and forget the visit, keep a board out of the feed, read it on request and see when it can be read again, and see a refused
 request's wait; in French on a phone they follow the feed's link to the sites to visit yourself, read the boards and the ones left out without a horizontal scroll, and the French phone scenario checks that the four views fit the screen. A dashboard
-scenario shows the best new missions and opens the feed with them. The feed's mocked API is
+scenario shows the best new offers and opens the feed with them. The feed's mocked API is
 `e2e/helpers/offer-feed.ts`.
 
 Offer action scenarios (`e2e/offer-actions.spec.ts`): a keyboard scenario moves through the feed with J and K, saves,

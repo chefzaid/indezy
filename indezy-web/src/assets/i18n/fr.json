@@ -142,7 +142,7 @@
     "greetingMorning": "Bonjour",
     "greetingAfternoon": "Bon après-midi",
     "greetingEvening": "Bonsoir",
-    "subtitle": "Voici un aperçu de vos missions freelance",
+    "subtitle": "Aperçu de votre recherche de mission",
     "displayMode": "Mode d'affichage",
     "overview": "Aperçu",
     "kanban": "Kanban",
@@ -152,7 +152,7 @@
     "averageDailyRate": "TJM moyen",
     "estimatedRevenue": "Revenus estimés",
     "forecastRevenue": "Revenus prévisionnels",
-    "activeProjects": "Missions actives",
+    "activeProjects": "Opportunités actives",
     "recentProjects": "Missions récentes",
     "viewAllProjects": "Voir toutes les missions",
     "noProjectsYet": "Aucune mission pour le moment",
@@ -222,19 +222,19 @@
       "expiresInDays": "expire dans {{days}} jours",
       "expiredDaysAgo": "expiré depuis {{days}} jours"
     },
-    "estimatedRevenueHint": "Valeur totale des missions acceptées et des opportunités en cours (hors refusées), sans pondération.",
-    "forecastRevenueHint": "Valeur des missions pondérée par la probabilité de gain de chaque étape du pipeline.",
+    "estimatedRevenueHint": "Valeur de vos missions acceptées sur toute leur durée : TJM × jours travaillés (218 par an quand la mission n'en indique pas), jusqu'à sa fin ou au jour où elle a été terminée.",
+    "forecastRevenueHint": "Ce que vos missions acceptées rapporteront encore, d'aujourd'hui à leur fin : toute leur valeur avant qu'elles commencent, rien une fois finies.",
     "remindersTitle": "À suivre",
     "analyticsTitle": "Analyses",
     "outcomesTitle": "Bilan des opportunités",
     "showAll": "Tout afficher ({{count}})",
     "showLess": "Réduire",
     "offers": {
-      "bestMatches": "Vos meilleures nouvelles missions",
-      "newest": "Nouvelles missions",
+      "bestMatches": "Vos meilleures nouvelles offres",
+      "newest": "Nouvelles offres",
       "openFeed": "Ouvrir le fil",
       "completeProfile": "Ajoutez vos compétences à votre profil pour voir les missions qui vous correspondent le mieux.",
-      "empty": "Aucune nouvelle mission depuis votre dernier passage dans le fil."
+      "empty": "Aucune nouvelle offre depuis votre dernier passage dans le fil."
     },
     "widgets": {
       "customize": "Personnaliser",

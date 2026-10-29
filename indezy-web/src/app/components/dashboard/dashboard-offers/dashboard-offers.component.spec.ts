@@ -48,13 +48,24 @@ describe('DashboardOffersComponent', () => {
 
   it('shows the unseen offers that match the profile best', () => {
     const fixture = create(of(page([offer(1, { company: 'Exemple Conseil', rateMin: 550, rateMax: 650, city: 'Courbevoie', departmentCode: '92',
-      countryCode: 'FR', match: { score: 80, skills: ['Java'] } })], true)));
+      countryCode: 'FR', workMode: 'HYBRID', remoteDaysPerWeek: 2, durationMonths: 6, startAsap: true,
+      excerpt: 'Au sein de la DSI, vous concevez les API de paiement…', skills: ['Kafka', 'Java', 'Spring'],
+      match: { score: 80, skills: ['Java'] } })], true)));
 
     expect(service.searchQuietly).toHaveBeenCalledWith(jasmine.objectContaining({ sort: 'MATCH', unseenOnly: true, size: 5 }));
-    expect(text(fixture)).toContain('Vos meilleures nouvelles missions');
+    expect(text(fixture)).toContain('Vos meilleures nouvelles offres');
     expect(text(fixture)).toContain('Exemple Conseil');
-    expect(text(fixture).replace(/\s/g, ' ')).toContain('550 € – 650 €');
+    const row = fixture.nativeElement.querySelector('[data-dashboard-offer="1"]') as HTMLElement;
+    expect(row.querySelector('[data-offer-rate]')!.textContent!.replace(/\s/g, ' ')).toContain('550 € – 650 €/jour');
     expect(text(fixture)).toContain('Courbevoie (92)');
+    expect(text(fixture)).toContain('2 j/sem. de télétravail');
+    expect(text(fixture)).toContain('6 mois');
+    expect(row.querySelector('[data-offer-excerpt]')!.textContent).toContain('API de paiement');
+    // The skills the profile names come first, set apart.
+    const skills = Array.from(row.querySelectorAll('.skill'));
+    expect(skills.map(skill => skill.textContent!.trim())).toEqual(['Java', 'Kafka', 'Spring']);
+    expect(skills[0].classList).toContain('matched');
+    expect(skills[1].classList).not.toContain('matched');
     expect(text(fixture)).toContain('80 %');
     expect(fixture.nativeElement.querySelector('.feed-link').getAttribute('href')).toBe('/offers?sort=MATCH&unseenOnly=true');
     expect(fixture.nativeElement.querySelector('[data-profile-hint]')).toBeNull();
@@ -64,7 +75,7 @@ describe('DashboardOffersComponent', () => {
     const fixture = create(of(page([], false)), of(page([offer(2), offer(3)], false)));
 
     expect(service.searchQuietly.calls.mostRecent().args[0].sort).toBe('NEWEST');
-    expect(text(fixture)).toContain('Nouvelles missions');
+    expect(text(fixture)).toContain('Nouvelles offres');
     expect(text(fixture)).toContain('Ajoutez vos compétences à votre profil');
     const link = fixture.nativeElement.querySelector('[data-dashboard-offer="2"] a') as HTMLAnchorElement;
     expect(link.getAttribute('href')).toBe('/offers/2');
@@ -74,7 +85,7 @@ describe('DashboardOffersComponent', () => {
 
   it('says when nothing is new and hides itself when the feed cannot be read', () => {
     const empty = create(of(page([], true)));
-    expect(text(empty)).toContain('Aucune nouvelle mission depuis votre dernier passage');
+    expect(text(empty)).toContain('Aucune nouvelle offre depuis votre dernier passage');
     TestBed.resetTestingModule();
 
     const failed = create(throwError(() => new Error('down')));

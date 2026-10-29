@@ -420,13 +420,13 @@ not-found page, and unavailable projects return to the list with an error.
 
 Opportunity statuses, one per Kanban column (French / English labels):
 
-| Status | Column | Win probability |
-| --- | --- | --- |
-| `CONTACT` | Contact | 20 % |
-| `INTERVIEW` | Tests & Entretiens / Tests & Interviews | 50 % |
-| `OFFER` | Offre / Offer | 80 % |
-| `LOST` | Refusé / Declined | 0 % |
-| `WON` | Accepté / Accepted | 100 % |
+| Status | Column |
+| --- | --- |
+| `CONTACT` | Contact |
+| `INTERVIEW` | Tests & Entretiens / Tests & Interviews |
+| `OFFER` | Offre / Offer |
+| `LOST` | Refusé / Declined |
+| `WON` | Accepté / Accepted |
 
 `CONTACT` replaced the former `IDENTIFIED` and `APPLIED` stages. On startup the API moves any
 remaining opportunity in those stages to `CONTACT` and rebuilds the PostgreSQL status check
@@ -1198,9 +1198,12 @@ The dashboard provides an overview of the opportunity workspace with:
 
 - total projects
 - average daily rate
-- estimated revenue
-- forecast revenue (pipeline revenue weighted by each opportunity's win probability per status)
-- active projects
+- estimated revenue (**Revenus estimés**): the value of the accepted missions only, over their whole period: daily rate
+  times working days (the mission's days per year, 218 when it states none), over its duration or from its start to
+  the day it was ended
+- forecast revenue (**Revenus prévisionnels**): what the accepted missions will still bring, the share of that value
+  for the days left from today to their last day (all of it before a mission starts, nothing once it is over)
+- active opportunities (**Opportunités actives**): those neither accepted nor refused
 - projects by status
 - projects by work mode
 - daily rate distribution by exact negotiated euro amount (for example 550, 600 and 650),
@@ -1221,8 +1224,10 @@ The dashboard provides an overview of the opportunity workspace with:
 - interviews of the week (steps planned in the next seven days, soonest first, with their time and opportunity), first among the reminders
 - mission end-date reminders (signed missions ending within six weeks, so prospection can restart before the bench)
 - stale-opportunity detection (active opportunities idle for the configured inactivity period, surfaced to follow up or archive before they go cold)
-- new missions from the offer feed: the five offers not seen yet that match the profile best (or the five newest, with
-  an invitation to add skills, when the profile names none), each with its publisher, rate, place, site and score;
+- new offers from the offer feed (**Vos meilleures nouvelles offres**): the five offers not seen yet that match the
+  profile best (or the five newest, with an invitation to add skills, when the profile names none), each with its daily
+  rate first, its publisher, place, remote days, duration, start and site, the first two lines of its description, its
+  skills (the profile's first, set apart) and its score;
   opening one on its site marks it seen, and **Open the feed** shows them all; a feed that cannot be read hides it
 - recent projects
 - overview and Kanban display modes

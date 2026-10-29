@@ -93,16 +93,11 @@ public class DashboardStatsService {
 
         List<DashboardStatsDto.DailyRateRange> dailyRateRanges = buildDailyRateRanges(projects);
 
-        // Unweighted value of the live pipeline and signed missions; lost opportunities earn nothing.
-        double totalRevenue = projects.stream()
-            .filter(p -> !ProjectStatus.LOST.equals(p.getStatus()))
-            .filter(p -> p.getTotalRevenue() != null)
-            .mapToDouble(Project::getTotalRevenue)
-            .sum();
-        double forecastRevenue = projects.stream()
-            .filter(p -> p.getForecastRevenue() != null)
-            .mapToDouble(Project::getForecastRevenue)
-            .sum();
+        // Accepted missions only: what they are worth over their whole period, and what they still bring from today.
+        LocalDate today = LocalDate.now(ZoneId.systemDefault());
+        List<Project> missions = projects.stream().filter(p -> ProjectStatus.WON.equals(p.getStatus())).toList();
+        double totalRevenue = missions.stream().mapToDouble(Project::missionValue).sum();
+        double forecastRevenue = missions.stream().mapToDouble(p -> p.missionValueFrom(today)).sum();
 
         long[] bench = DashboardAnalytics.buildBenchStats(projects);
 
@@ -117,7 +112,6 @@ public class DashboardStatsService {
             .orElse(UserPreferenceDefaults.INACTIVITY_DAYS);
         int followUpDays = freelanceRepository.findFollowUpDays(freelanceId).orElse(UserPreferenceDefaults.FOLLOW_UP_DAYS);
 
-        LocalDate today = LocalDate.now(ZoneId.systemDefault());
         List<InterviewStep> validatedSteps = inSeason(
             interviewStepRepository.findByFreelanceIdAndStatus(freelanceId, StepStatus.VALIDATED), seasonId);
         Map<Long, LocalDateTime> signatures = DashboardAnalytics.signatureDates(validatedSteps);

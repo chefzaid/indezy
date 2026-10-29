@@ -200,7 +200,7 @@ test('reads the job boards on a phone (fr)', async ({ page }) => {
   await expect(page).toHaveURL(/\/offers$/);
 });
 
-test('shows the best new missions on the dashboard (en)', async ({ page }) => {
+test('shows the best new offers on the dashboard (en)', async ({ page }) => {
   const api = await mockFeed(page, 'en');
   await page.route('**/api/projects/stats/dashboard/1*', route => route.fulfill({ json: emptyDashboardStats }));
   await page.route('**/api/projects/by-freelance/1', route => route.fulfill({ json: [] }));
@@ -208,7 +208,7 @@ test('shows the best new missions on the dashboard (en)', async ({ page }) => {
 
   await page.goto('/dashboard');
   const widget = page.locator('app-dashboard-offers');
-  await expect(widget.getByRole('heading', { name: 'Your best new missions' })).toBeVisible();
+  await expect(widget.getByRole('heading', { name: 'Your best new offers' })).toBeVisible();
   await expect(widget.locator('[data-dashboard-offer]')).toHaveCount(2);
   await expect(widget.locator('[data-dashboard-offer="1"]')).toContainText('80%');
   expect(api.searches.some(url => url.searchParams.get('sort') === 'MATCH' && url.searchParams.get('unseenOnly') === 'true')).toBe(true);

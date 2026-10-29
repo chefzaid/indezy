@@ -109,31 +109,39 @@ class DashboardStatsServiceTest extends DashboardStatsTestSupport {
     }
 
     @Test
-    void getDashboardStats_ShouldComputeForecastRevenueWeightedByStatus() {
-        // Given a signed contract (120,000 at 100%) and an interview-stage one (66,000 at 50%).
+    void getDashboardStats_ShouldCountOnlyAcceptedMissionsInBothRevenues() {
+        // Given a signed contract not started yet (120,000), one half done (20 days, 10 left), and an interview-stage one.
+        LocalDate today = LocalDate.now();
         Project won = new Project();
         won.setStatus(ProjectStatus.WON);
         won.setDailyRate(500);
         won.setDaysPerYear(240);
         won.setDurationInMonths(12);
+        Project halfDone = new Project();
+        halfDone.setStatus(ProjectStatus.WON);
+        halfDone.setDailyRate(500);
+        halfDone.setDaysPerYear(240);
+        halfDone.setStartDate(today.minusDays(10));
+        halfDone.setEndedOn(today.plusDays(9));
         Project interview = new Project();
         interview.setStatus(ProjectStatus.INTERVIEW);
         interview.setDailyRate(600);
         interview.setDaysPerYear(220);
         interview.setDurationInMonths(6);
 
-        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(won, interview));
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(won, halfDone, interview));
 
         // When
         DashboardStatsDto stats = dashboardStatsService.getDashboardStats(1L, null);
 
-        // Then: 120,000 * 1.0 + 66,000 * 0.5 = 153,000, while total revenue stays unweighted.
-        assertThat(stats.getForecastRevenue()).isEqualTo(153000.0);
-        assertThat(stats.getTotalEstimatedRevenue()).isEqualTo(186000.0);
+        // Then the estimate is their whole value, the forecast what is left of it from today; the opportunity counts in neither.
+        double halfDoneValue = 500 * 240 * 20 / 365.25;
+        assertThat(stats.getTotalEstimatedRevenue()).isCloseTo(120000 + halfDoneValue, within(0.01));
+        assertThat(stats.getForecastRevenue()).isCloseTo(120000 + halfDoneValue / 2, within(0.01));
     }
 
     @Test
-    void getDashboardStats_ShouldLeaveLostOpportunitiesOutOfEstimatedRevenue() {
+    void getDashboardStats_ShouldLeaveRefusedOpportunitiesOutOfBothRevenues() {
         // Given a signed contract (120,000) and a lost opportunity that would have been worth 66,000.
         Project won = new Project();
         won.setStatus(ProjectStatus.WON);

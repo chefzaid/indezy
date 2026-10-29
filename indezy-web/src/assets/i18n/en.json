@@ -142,7 +142,7 @@
     "greetingMorning": "Good morning",
     "greetingAfternoon": "Good afternoon",
     "greetingEvening": "Good evening",
-    "subtitle": "Here's an overview of your freelance projects",
+    "subtitle": "An overview of your mission search",
     "displayMode": "Display mode",
     "overview": "Overview",
     "kanban": "Kanban",
@@ -152,7 +152,7 @@
     "averageDailyRate": "Average daily rate",
     "estimatedRevenue": "Estimated revenue",
     "forecastRevenue": "Forecast revenue",
-    "activeProjects": "Active projects",
+    "activeProjects": "Active opportunities",
     "recentProjects": "Recent projects",
     "viewAllProjects": "View all projects",
     "noProjectsYet": "No projects yet",
@@ -222,19 +222,19 @@
       "expiresInDays": "expires in {{days}} days",
       "expiredDaysAgo": "expired {{days}} days ago"
     },
-    "estimatedRevenueHint": "Total value of accepted missions and open opportunities (declined ones excluded), unweighted.",
-    "forecastRevenueHint": "Mission value weighted by the win probability of each pipeline stage.",
+    "estimatedRevenueHint": "Value of your accepted missions over their whole duration: daily rate × working days (218 a year when the mission states none), up to its end or the day it was ended.",
+    "forecastRevenueHint": "What your accepted missions will still bring, from today to their end: all of their value before they start, nothing once over.",
     "remindersTitle": "Follow-ups",
     "analyticsTitle": "Analytics",
     "outcomesTitle": "Opportunity outcomes",
     "showAll": "Show all ({{count}})",
     "showLess": "Show less",
     "offers": {
-      "bestMatches": "Your best new missions",
-      "newest": "New missions",
+      "bestMatches": "Your best new offers",
+      "newest": "New offers",
       "openFeed": "Open the feed",
       "completeProfile": "Add your skills to your profile to see the missions that match you best.",
-      "empty": "No new mission since you last looked at the feed."
+      "empty": "No new offer since you last looked at the feed."
     },
     "widgets": {
       "customize": "Customize",
