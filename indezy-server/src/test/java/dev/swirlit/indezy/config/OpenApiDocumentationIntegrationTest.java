@@ -1,7 +1,5 @@
 package dev.swirlit.indezy.config;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +7,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -34,13 +33,13 @@ class OpenApiDocumentationIntegrationTest {
 
     @BeforeEach
     void readTheDescription() throws Exception {
-        docs = new ObjectMapper().readTree(mockMvc.perform(get("/v3/api-docs")).andReturn().getResponse().getContentAsString());
+        docs = JsonMapper.builder().build().readTree(mockMvc.perform(get("/v3/api-docs")).andReturn().getResponse().getContentAsString());
     }
 
     @Test
     void describesTheRunningApiOnItsOwnHost() {
-        assertThat(docs.at("/info/version").asText()).isNotBlank().isNotEqualTo("1.0.0");
-        assertThat(docs.at("/servers/0/url").asText()).isEqualTo("/api");
+        assertThat(docs.at("/info/version").asString()).isNotBlank().isNotEqualTo("1.0.0");
+        assertThat(docs.at("/servers/0/url").asString()).isEqualTo("/api");
         assertThat(docs.toString()).doesNotContain("indezy.com");
     }
 
@@ -52,13 +51,11 @@ class OpenApiDocumentationIntegrationTest {
     @Test
     void everyOperationHasASummaryAndTheErrorsItCanAnswer() {
         List<String> missing = new ArrayList<>();
-        for (Iterator<Map.Entry<String, JsonNode>> paths = docs.get("paths").fields(); paths.hasNext();) {
-            Map.Entry<String, JsonNode> path = paths.next();
-            for (Iterator<Map.Entry<String, JsonNode>> operations = path.getValue().fields(); operations.hasNext();) {
-                Map.Entry<String, JsonNode> operation = operations.next();
+        for (Map.Entry<String, JsonNode> path : docs.get("paths").properties()) {
+            for (Map.Entry<String, JsonNode> operation : path.getValue().properties()) {
                 String name = operation.getKey().toUpperCase() + " " + path.getKey();
                 JsonNode responses = operation.getValue().get("responses");
-                if (operation.getValue().path("summary").asText().isBlank()) {
+                if (operation.getValue().path("summary").asString().isBlank()) {
                     missing.add(name + " summary");
                 }
                 boolean open = path.getKey().startsWith("/auth/") || path.getKey().startsWith("/public/");
@@ -68,9 +65,9 @@ class OpenApiDocumentationIntegrationTest {
                 if (path.getKey().contains("{") && !responses.has("404")) {
                     missing.add(name + " 404");
                 }
-                responses.fields().forEachRemaining(response -> {
+                responses.properties().forEach(response -> {
                     if (response.getKey().startsWith("4")) {
-                        assertThat(response.getValue().at("/content/application~1json/schema/$ref").asText())
+                        assertThat(response.getValue().at("/content/application~1json/schema/$ref").asString())
                             .as(name).endsWith("/ErrorResponse");
                     }
                 });
@@ -98,16 +95,16 @@ class OpenApiDocumentationIntegrationTest {
             assertThat(schema.isMissingNode()).as(name + " is a schema").isFalse();
             JsonNode example = schema.get("example");
             assertThat(example).as(name + " example").isNotNull();
-            example.fields().forEachRemaining(field -> {
+            example.properties().forEach(field -> {
                 JsonNode property = schema.at("/properties/" + field.getKey());
                 assertThat(property.isMissingNode()).as(name + "." + field.getKey() + " is a property").isFalse();
                 if (property.has("enum")) {
                     assertThat(property.get("enum").toString()).as(name + "." + field.getKey())
-                        .contains("\"" + field.getValue().asText() + "\"");
+                        .contains("\"" + field.getValue().asString() + "\"");
                 }
             });
             schema.path("required").forEach(required ->
-                assertThat(example.has(required.asText())).as(name + " example has " + required.asText()).isTrue());
+                assertThat(example.has(required.asString())).as(name + " example has " + required.asString()).isTrue());
         });
     }
 }

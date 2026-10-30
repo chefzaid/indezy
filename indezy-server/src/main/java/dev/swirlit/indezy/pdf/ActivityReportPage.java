@@ -47,7 +47,7 @@ final class ActivityReportPage {
         this.report = report;
         this.template = report.template();
         this.language = template.language();
-        this.locale = ActivityReportLabel.locale(language);
+        this.locale = language.locale();
         this.days = report.daysByDate();
         this.holidays = FrenchPublicHolidays.in(report.month());
     }

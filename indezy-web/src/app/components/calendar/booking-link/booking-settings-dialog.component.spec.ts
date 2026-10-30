@@ -1,6 +1,6 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { BookingSettings } from '../../../models';
@@ -13,7 +13,7 @@ describe('BookingSettingsDialogComponent', () => {
     close = jasmine.createSpy('close');
     TestBed.configureTestingModule({
       imports: [BookingSettingsDialogComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), { provide: MAT_DIALOG_DATA, useValue: settings }, { provide: MatDialogRef, useValue: { close } }]
+      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: MAT_DIALOG_DATA, useValue: settings }, { provide: MatDialogRef, useValue: { close } }]
     });
     const fixture = TestBed.createComponent(BookingSettingsDialogComponent);
     fixture.detectChanges();

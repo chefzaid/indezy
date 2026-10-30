@@ -11,6 +11,7 @@ import dev.swirlit.indezy.model.enums.WebhookEvent;
 import dev.swirlit.indezy.repository.WebhookDeliveryRepository;
 import dev.swirlit.indezy.repository.WebhookRepository;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -34,7 +35,7 @@ class WebhookServiceTest {
     private final WebhookRepository webhooks = mock(WebhookRepository.class);
     private final WebhookDeliveryRepository deliveries = mock(WebhookDeliveryRepository.class);
     private final WebhookService service = new WebhookService(webhooks, deliveries, new WebhookAddresses(true),
-        Clock.fixed(Instant.parse("2026-10-27T10:00:00Z"), ZoneOffset.UTC));
+        Clock.fixed(Instant.parse("2026-10-27T10:00:00Z"), ZoneOffset.UTC), JsonMapper.builder().build());
 
     @Test
     void keepsFiveWebhooksAtMostAndOneEventAtLeast() {

@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ContactDto, ContactRelation } from '../../../models/contact.models';
+import { ContactDto, ContactRelation, contactName } from '../../../models/contact.models';
 import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 
@@ -59,9 +59,7 @@ export class ContactNetworkComponent implements OnChanges {
     this.loadRelations();
   }
 
-  nameOf(contact: ContactDto): string {
-    return [contact.firstName, contact.lastName].filter(Boolean).join(' ');
-  }
+  readonly nameOf = contactName;
 
   link(): void {
     const { otherId, note } = this.form.getRawValue();

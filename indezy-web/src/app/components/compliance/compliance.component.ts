@@ -6,7 +6,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
@@ -34,7 +33,7 @@ export interface SharedLink {
  */
 @Component({
   selector: 'app-compliance',
-  imports: [PageHeaderComponent, DatePipe, MatButtonModule, MatCardModule, MatIconModule, MatMenuModule, MatProgressSpinnerModule, MatTooltipModule,
+  imports: [PageHeaderComponent, DatePipe, MatButtonModule, MatCardModule, MatIconModule, MatMenuModule, MatProgressSpinnerModule,
     TranslateModule],
   templateUrl: './compliance.component.html',
   styleUrls: ['./compliance.component.scss'],

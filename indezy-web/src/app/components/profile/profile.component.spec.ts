@@ -18,7 +18,7 @@ describe('ProfileComponent', () => {
       expect(component.profileForm.value.birthDate).toEqual(new Date(1990, 4, 12));
       expect(component.profileForm.value.availabilityDate).toEqual(new Date(2026, 10, 2));
       expect(component.preferencesForm.value).toEqual(jasmine.objectContaining({
-        theme: 'dark', dateFormat: 'DD/MM/YYYY', itemsPerPage: 50, defaultView: 'projects', autoSave: false, inactivityDays: 30
+        theme: 'dark', language: 'fr', inactivityDays: 30
       }));
       expect(component.isLoading).toBeFalse();
     });
@@ -30,8 +30,8 @@ describe('ProfileComponent', () => {
       expect(component.profileForm.value).toEqual(jasmine.objectContaining({
         birthDate: null, availabilityDate: null, targetDailyRate: null, skills: [], languages: []
       }));
-      expect(component.preferencesForm.value.dateFormat).toBe('DD/MM/YYYY');
-      expect(component.preferencesForm.value.itemsPerPage).toBe(25);
+      expect(component.preferencesForm.value).toEqual(jasmine.objectContaining({ followUpDays: 5, autoArchive: false,
+        contactRetentionYears: 0 }));
     });
 
     it('shows a spinner until the profile arrives, then the personal information tab', () => {

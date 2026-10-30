@@ -21,17 +21,6 @@ public interface FreelanceMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
-    Freelance toEntity(FreelanceDto dto);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "projects", ignore = true)
-    @Mapping(target = "clients", ignore = true)
-    @Mapping(target = "contacts", ignore = true)
-    @Mapping(target = "sources", ignore = true)
-    @Mapping(target = "passwordHash", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "version", ignore = true)
     @Mapping(target = "cvFilePath", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(FreelanceDto dto, @MappingTarget Freelance freelance);
 }

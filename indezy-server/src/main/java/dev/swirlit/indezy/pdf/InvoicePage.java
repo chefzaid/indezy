@@ -47,7 +47,7 @@ final class InvoicePage {
         this.seller = seller;
         this.buyer = buyer;
         this.language = invoice.getLanguage();
-        this.locale = ActivityReportLabel.locale(language);
+        this.locale = language.locale();
     }
 
     String title() {

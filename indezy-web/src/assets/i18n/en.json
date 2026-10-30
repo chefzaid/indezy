@@ -432,11 +432,7 @@
       "INTERVIEW": "Tests & Interviews",
       "OFFER": "Offer",
       "WON": "Accepted",
-      "LOST": "Declined",
-      "ACTIVE": "Active",
-      "COMPLETED": "Completed",
-      "PAUSED": "Paused",
-      "CANCELLED": "Cancelled"
+      "LOST": "Declined"
     },
     "durations": {
       "1-3": "1-3 months",
@@ -880,9 +876,6 @@
     "addSkill": "Add a skill",
     "languages": "Languages",
     "addLanguage": "Add a language",
-    "regionalSettings": "Regional settings",
-    "timezone": "Timezone",
-    "currency": "Currency",
     "changePassword": "Change password",
     "twoFactor": {
       "title": "Two-factor authentication",
@@ -905,11 +898,6 @@
     "displayPreferences": "Display preferences",
     "theme": "Theme",
     "language": "Language",
-    "dateFormat": "Date format",
-    "timeFormat": "Time format",
-    "defaultView": "Default view",
-    "itemsPerPage": "Items per page",
-    "autoSave": "Auto save",
     "notificationSettings": "Notification settings",
     "accountManagement": "Account management",
     "exportData": "Export my data",
@@ -936,10 +924,6 @@
       "light": "Light",
       "dark": "Dark",
       "auto": "Auto"
-    },
-    "timeFormats": {
-      "h24": "24 hours",
-      "h12": "12 hours"
     },
     "notifications": {
       "digestTitle": "Weekly digest",
@@ -1247,8 +1231,6 @@
   "errors": {
     "notFoundTitle": "404 - Page not found",
     "notFoundMessage": "The page you are looking for does not exist or has been moved. Return to the homepage to continue using Indezy.",
-    "serverErrorTitle": "Server error",
-    "serverErrorMessage": "A technical error occurred on our servers. Our team has been notified and is working to resolve the issue.",
     "loadingClients": "Error loading clients",
     "loadingContacts": "Error loading contacts",
     "loadingSources": "Error loading sources",
@@ -1284,14 +1266,6 @@
     "maxLength": "Maximum {{length}} characters",
     "minValue": "Minimum value is {{value}}",
     "maxValue": "Maximum value is {{value}}",
-    "defaultWarningTitle": "Warning",
-    "defaultInfoTitle": "Information",
-    "defaultNotFoundTitle": "Not found",
-    "defaultErrorTitle": "Error",
-    "defaultWarningMessage": "Please check the information entered.",
-    "defaultInfoMessage": "No additional information available.",
-    "defaultNotFoundMessage": "The requested item was not found.",
-    "defaultErrorMessage": "An unexpected error occurred. Please try again.",
     "forbidden": "Access to this resource was denied",
     "serverError": "The server ran into an error. Please try again in a moment.",
     "networkError": "The server could not be reached. Check your connection and try again.",
@@ -1360,7 +1334,6 @@
     },
     "templates": {
       "menu": "Templates",
-      "apply": "Apply a template",
       "forClient": "For {{client}}",
       "forAnyone": "Any client",
       "stepCount": "{{count}} step(s)",

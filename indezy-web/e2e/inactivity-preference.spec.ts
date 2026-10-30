@@ -5,10 +5,7 @@ for (const language of ['en', 'fr']) {
   test(`saves the inactivity preference and applies it on the Kanban board (${language})`, async ({ page }) => {
     test.setTimeout(60_000);
     await mockWorkspaceSession(page, language);
-    let preferences = {
-      theme: 'light', language, dateFormat: 'DD/MM/YYYY', timeFormat: '24h', currency: 'EUR',
-      timezone: 'Europe/Paris', defaultView: 'dashboard', itemsPerPage: 25, autoSave: true, inactivityDays: 14
-    };
+    let preferences = { theme: 'light', language, inactivityDays: 14 };
     await page.route('**/api/users/preferences', async route => {
       if (route.request().method() === 'PUT') {
         preferences = { ...preferences, ...route.request().postDataJSON() };

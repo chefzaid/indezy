@@ -1,8 +1,8 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TestBed } from '@angular/core/testing';
 import { DOCUMENT } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AuthService } from '../../services/auth/auth.service';
@@ -20,7 +20,7 @@ describe('HomeComponent', () => {
     auth.isAuthenticated.and.returnValue(signedIn);
     TestBed.configureTestingModule({
       imports: [HomeComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), provideRouter([]), { provide: AuthService, useValue: auth },
+      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, provideRouter([]), { provide: AuthService, useValue: auth },
         { provide: ActivatedRoute, useValue: { snapshot: { data: { language } } } }]
     });
     const translate = TestBed.inject(TranslateService);

@@ -10,7 +10,7 @@
   </mat-form-field>
 
   @if (isLoading) {
-    <app-loading></app-loading>
+    <app-loading [message]="'common.loading' | translate"></app-loading>
   } @else if (filteredProjects.length === 0) {
     <div class="archive-empty">
       <mat-icon>inbox</mat-icon>

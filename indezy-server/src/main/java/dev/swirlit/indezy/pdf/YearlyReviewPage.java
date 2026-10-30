@@ -32,7 +32,7 @@ final class YearlyReviewPage {
         this.writer = writer;
         this.review = review;
         this.language = language;
-        this.locale = ActivityReportLabel.locale(language);
+        this.locale = language.locale();
     }
 
     String title() {

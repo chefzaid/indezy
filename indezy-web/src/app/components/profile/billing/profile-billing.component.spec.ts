@@ -1,5 +1,5 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
@@ -20,7 +20,7 @@ describe('ProfileBillingComponent', () => {
     billing.identity.and.returnValue(read);
     TestBed.configureTestingModule({
       imports: [ProfileBillingComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), { provide: BillingService, useValue: billing }, { provide: NotificationService, useValue: notifications }]
+      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: BillingService, useValue: billing }, { provide: NotificationService, useValue: notifications }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);

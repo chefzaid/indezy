@@ -1,7 +1,7 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { NEVER, of, throwError } from 'rxjs';
 
@@ -32,8 +32,9 @@ describe('ProfilePublicPageComponent', () => {
     profiles.save.and.callFake(settings => of(settings));
     clipboard.copy.and.returnValue(true);
     await TestBed.configureTestingModule({
-      imports: [ProfilePublicPageComponent, TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [ProfilePublicPageComponent, TranslateModule.forRoot()],
       providers: [
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: PublicProfileService, useValue: profiles },
         { provide: NotificationService, useValue: notifications },
         { provide: Clipboard, useValue: clipboard }

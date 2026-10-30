@@ -50,13 +50,12 @@ spec:
               $PSQL -tc "SELECT 1 FROM pg_database WHERE datname='indezy'" | grep -q 1 || \
                 $PSQL -c "CREATE DATABASE indezy OWNER indezy_user;"
 
-              echo "Granting connect and schema privileges, enabling extensions..."
+              echo "Granting connect and schema privileges, enabling pg_trgm..."
               $PSQL -c "GRANT CONNECT ON DATABASE indezy TO indezy_user;"
               PGPASSWORD="${INDEZY_DB_PASSWORD}" psql \
                 -h postgres.swirlit.internal \
                 -U indezy_user -d indezy <<-SQL
                   GRANT ALL ON SCHEMA public TO indezy_user;
-                  CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
                   -- Trigram index of the offers' search text (see docs/architecture.md).
                   CREATE EXTENSION IF NOT EXISTS pg_trgm;
               SQL

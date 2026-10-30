@@ -1,6 +1,6 @@
 # Architecture Overview And ADR Index
 
-This directory contains architecture decision records for Indezy. ADRs capture decisions that should remain understandable after the code has moved on.
+This document describes how Indezy is built and indexes its architecture decision records (ADRs), which capture decisions that should stay understandable after the code has moved on.
 
 ## System Architecture At A Glance
 
@@ -25,6 +25,8 @@ Runtime entry points:
 - database: PostgreSQL in local Docker Compose or shared infrastructure PostgreSQL in cluster
 - ingress host: `indezy.swirlit.dev`
 
+The pipeline and release flow are described in [Deployment](./deployment.md#delivery-pipeline).
+
 ## Backend Architecture
 
 The backend is a Spring Boot modular monolith organized by technical layer:
@@ -42,31 +44,11 @@ The backend is a Spring Boot modular monolith organized by technical layer:
 - `exception`: error responses and exception mapping
 - `util`: JWT, security context, the French public holiday calendar, French departments and regions, and text folding for search
 
-This structure keeps early development simple while preserving clear places for domain behavior and tests.
+Entities, their ownership and workspace scoping are described in [Data Model](./data-model.md#ownership-rules).
 
 ## Frontend Architecture
 
-The frontend is an Angular application using:
-
-- standalone components
-- lazy-loaded route groups
-- Angular Material
-- RxJS
-- `@ngx-translate`
-- service classes for API access
-- route guards and HTTP interceptors
-
-Routes are organized around the main product areas:
-
-- auth
-- dashboard
-- profile
-- projects
-- clients
-- contacts
-- sources
-- offers (the freelance offer feed)
-- activity report validation (`/activity-report`, public: opened by clients and ESNs without an account)
+The frontend is an Angular application using standalone components, lazy-loaded routes, Angular Material, RxJS, `@ngx-translate`, service classes for API access, and route guards and HTTP interceptors. Routes and their guards are declared in `indezy-web/src/app/app.routes.ts`.
 
 ## Key Runtime Lifecycles
 
@@ -98,68 +80,28 @@ Routes are organized around the main product areas:
 
 ### Offer collection
 
-1. `OfferScheduler` wakes every `indezy.offers.tick` (5 minutes) when `indezy.offers.collection-enabled` is on.
-2. For each site, `OfferSiteRuns.claim` marks it running with a conditional update when it is due; a site another run holds, or not due yet, is skipped.
-3. The site's `OfferReader` reads its pages through `SiteHttpClient`, which keeps to the site's domain, honours its `robots.txt` and waits 2 seconds between requests.
-4. Each page goes through `OfferNormalizer` (freelance only, no title naming a CDI or CDD job, capped texts, rate and remote parsing (the remote policy read from the description, `OfferText.remoteInText`, when the site gives no work mode), department, region and coordinates, the commune read out of place names such as "Paris 13ème" or "La Défense et remote" by `PlaceNames`, geocoding cached in `geo_places`) and `OfferStore`, which adds new offers and refreshes known ones in one transaction.
-5. A newest-first site stops at the first page of known offers; every site stops at the page budget (`indezy.offers.max-pages`, 10). The run's outcome sets the next run (the site's interval, doubled per consecutive failure up to a day).
-6. Sites whose HTML list pages describe their offers extend `HtmlListReader`, which reads page after page, newest first, until a page holds no offer, the site has no further page (a 404 past the first) or the batch has enough; `PageFacts` reads their labelled facts ("TJM : 550 €"). Sites that describe each offer on its own page extend `DetailPagesReader`: the site's list (a sitemap read by `Sitemaps`, or an API) gives every offer, `OfferBatch.known` filters out the ones stored or skipped, and the unknown pages are read ten per batch, most recently changed first, their schema.org `JobPosting` read by `JobPostings` and their French dates by `FrenchDates`. A page gone (404 or 410) is handed on as closed.
-7. `OfferNormalizer` gives each offer its copy keys (`OfferFingerprint`), and `OfferStore` puts an offer saved or refreshed in one `copyGroup` with its copies on other sites, merging their groups. The feed's specification lists one offer per group (the earliest the search finds) and reads workspace states across the group; `OfferSearchService` adds the other copies as `alsoOn`. Offers stored before copies were told apart get their keys from `OfferScheduler.keyStoredOffers` (30 seconds after startup, then every 6 hours, 500 offers per transaction), which groups them the same way.
-8. Offers the normalizer sets aside (not freelance, older than the retention window, already expired) are recorded in `offer_skips`, so the next runs do not fetch them again.
-9. `SavedOfferSearchService` counts each saved search's new offers with the feed's own specification plus "first seen after the search was last opened", and the badge's total with one `anyOf` query over the workspace's searches; the frontend's `OfferAlertsService` asks for it at sign-in, every five minutes and after a saved search changes.
-10. `SavedSearchEmailScheduler` (every `indezy.mail.tick`, 5 minutes, with the collection) has `SavedSearchEmailService` send the saved searches' due emails: for each search that emails, a transaction checks it is due (30 minutes after the last for one sent at once, its hour Paris time for a digest), moves its `emailedUntil` on (the version of the row guards the claim across replicas) and reads the offers first seen in between through `OfferSearchService.foundBetween` (the feed's specification, page mapping and match score); `SavedSearchEmailComposer` writes the email and `ResendMailer` posts it to Resend's API with an idempotency key. A refused email gives its window back to the next run; 60 days of emails without an offer opened from them turn the search's emails off with a last email saying so.
-10. `OfferSearchService.profile` reads the workspace owner's skills, target daily rate and city as an `OfferMatch.Profile`. `OfferMatch` scores each card's offer in Java, and builds the same points as a Criteria expression (a `LIKE` per profile skill on the folded search text, `CASE` on rate and squared distance) that the feed's specification sorts on (`sort=MATCH`) and filters on (`matchesProfile`); `JobOfferSpecificationsTest` checks that both agree.
-11. `OfferMarketService` builds the market snapshot from the feed's own specification: `OfferMarketQueries` reads the rates, work mode, remote days, publisher and publication time of every offer it finds (dropping its order) and groups their skills by lower case in SQL; quartiles, rate bands, the remote split, the publishers and the days are computed in Java.
-12. `OfferSiteHealthService` gives each site's `offer_site_statuses` row, its open offers and what it brought over a day and a week (`JobOfferRepository.collectionBySite`). A workspace's `offer_site_exclusions` leave the site out of the feed's specification (a `NOT EXISTS` in the feed view), so the feed, saved search counts and market snapshot follow it. `OfferSiteRefresher` reads a site on request: `OfferSiteRuns.requestRefresh` makes it due now with a conditional update that refuses when the site ran or was asked for in the last 15 minutes or a run holds it, then a task on Spring's `applicationTaskExecutor` claims it like the scheduler does and runs `OfferCollector.collect`.
-13. Each offer keeps its publisher's folded words in `company_key`, set whenever its company is (`JobOffer.setCompany`); `OfferScheduler.keyStoredOffers` gives offers stored before it their key, 500 at a time after the last one looked at, then reads again the descriptions stored with markup a site escaped twice (`HtmlText.toText` reads such HTML twice from the start), reads the remote policy of offers stored without a work mode from their description, and `OfferRelocation` looks up again, 50 at a time, the offers that name a French place and have no coordinates (a lookup that timed out is not cached, and sites read page by page never read a stored offer again); `OfferNormalizer.relocate` only completes what an offer knows of its place. A workspace's `offer_publisher_blocks` hold the same key, and the feed view's specification leaves out offers whose `company_key` one of them names (`NOT EXISTS`), like an excluded site.
-14. `JobBoardSources` gives a workspace the job boards (`OfferSite` and `OfferLeftOutSite`) as sources: `AuthService` calls it when it creates a workspace, and `JobBoardSourcesBackfill` for the workspaces created before, when the server is ready. `freelances.job_board_sources_seeded`, set by a conditional update, makes it happen once per workspace, whichever replica claims it.
-15. `OfferLinkService` makes a pasted link into the opportunity it would be. `OfferLinkReader.parse` keeps an `https` address without its fragment, tracking parameters (`utm_*`, click identifiers, referrers) or trailing slashes, refusing other schemes, credentials and ports; `siteOf` matches its host to a reader's domain. The offer is the stored one of the identifier its reader reads from the address (`OfferReader.offerId`), else the newest stored offer of the site whose address ends with the same segment, decoded and case aside (`JobOfferRepository.findTop20BySiteAndUrlContainingIgnoreCaseOrderByIdDesc`), the same path first, and with the same parameters when the stored address has some. Not stored, the readers of one page per offer (`DetailPagesReader.externalId`) read that page alone (`OfferCollector.readOne`: normalized and stored as a run would, or skipped with the reason) once `OfferLinkService` counted it against the workspace's 20 reads an hour (in memory, per replica); the other sites get `OfferSiteRefresher.refresh`, and a reading under way (a live run, or a request newer than the last run) answers `READING`. `OfferImportService.draft` builds the prefill without creating the publisher or the site's source, and `importOffer` with a body creates the opportunity as corrected, an unset client or source being the publisher or the site; the controller checks the body's client, intermediary, source and season belong to the workspace. A link to any other site goes to `PostingReader`, which reads that one page through `SiteHttpClient.fetcherFor(domain, PublicHosts::isPublic)` (the host checked before every request, redirects and `robots.txt` included), its `JobPosting` by `JobPostings` else its title and summary; `OfferNormalizer.posting` makes it an offer of no site, never stored, `OfferImportService.draftPosting` its draft (client and source by name, `PostingSite` naming a known board or the host), and `importPosting` the opportunity, once per link (`ProjectRepository.findIdsByFreelanceIdAndLink`).
-16. The feed and an offer's own page (`OfferPageComponent`, `/offers/{id}`) share the actions on one offer through `OfferActions`, each as its `OfferActionsHost`: the feed patches, drops and restores its page of offers; the offer's page patches and restores its one offer and never drops it. `OfferShareService` builds and copies the page's address.
-17. `OfferSearchSuggestionService` suggests searches: `OfferSearchCandidates` draws them from the profile (`OfferSearchService.profile` and `home` for the city's name and region, `FreelanceRepository.findProfilePosition`) and the pipeline (`ProjectRepository.findRecentStacksAndRates`), each is counted with `JobOfferSpecifications.matching` (open, matching the profile, published in the last seven days), and the ranked list is kept in memory per workspace for 10 minutes or until its inputs change; saved searches and `offer_suggestion_dismissals` are left out afterwards, by `keyOf`, a SHA-256 of the filters written canonically (no view, sort or page, lists sorted, unset values dropped).
-18. `OfferRateBenchmarkService` computes the medians of `offer_rate_benchmarks` (`JobOfferRepository.findRatedMainSkills`: open offers stating a rate, with their copy group, region and first skill through `index(s) = 0`) and replaces them in one transaction, from `OfferScheduler` at 04:45 Paris time and two minutes after a start with none; `compare` reads them through a copy kept in memory for 10 minutes. `OfferSearchService` adds the comparison to each offer it returns. `ClockConfig` makes `Clock` a bean, so services built with Lombok constructors take it like any dependency.
-19. `OfferSuspicionService` reads the rules of `OfferSuspicion` for every open offer (`JobOfferRepository.findSuspicionInputs` and `findMainSkills`, the rate rule through `OfferRateBenchmarkService.compare`) and stores the reasons as bits in `job_offers.suspicion` where they changed, 500 offers per update; `OfferScheduler` runs it every hour and after the nightly medians. `FakePublishers` holds the publishers known for fake listings, which `FreeWorkReader` drops. The `hideSuspicious` filter of `JobOfferSpecifications` keeps offers whose `suspicion` is null.
-20. `OfferRateBenchmarkService.refresh` also keeps the night's medians in `offer_rate_history` (one run per Paris day, replacing an earlier one, and 400 days kept); `OfferTrendService` compares a skill's latest night with the nights 30, 90 and 365 days before, a week of tolerance each.
-21. `OfferPublisherInsightService` reads a publisher's stored offers by their `company_key` (`JobOfferRepository.findByCompanyKeyOrderByPublishedAtDesc`); a mission published again is a second reference with the same title and publisher (`publisher_key`) on a site. `OfferSearchService.alsoOn` also gives each offer the spread of the intermediaries publishing its mission (it and its open copies).
-22. `OfferStore.save` compares each stored offer read again with its new details (`OfferChanges.between`) and keeps the changes in `job_offer_changes`, and keeps the reference each new offer came under in `offer_appearances` (once per site and reference); `OfferHistoryService` reads both for the offers a page shows. `OfferRetention` removes the changes with their offers and forgets references after 90 days.
-23. Every night at 04:15 (Paris time), `OfferRetention` removes offers older than 90 days or expired, with their workspace states, unless a workspace saved, applied to or imported them, and forgets skips older than 30 days.
+The `scraping` package fills the shared offer feed from the job boards ([ADR 0009](./adr/0009-collecting-job-offers.md)):
+
+1. `OfferScheduler` wakes every `indezy.offers.tick` (5 minutes) while `indezy.offers.collection-enabled` is on, and `OfferSiteRuns` claims each due site with a conditional update, so one replica reads it at a time. A failing site waits its interval doubled per failure, up to a day.
+2. The site's `OfferReader` reads its list pages (`HtmlListReader`) or, for sites that describe each offer on its own page, the unknown pages its sitemap or API lists (`DetailPagesReader`), through `SiteHttpClient`, which keeps to the site's domain, honours `robots.txt` and waits 2 seconds between requests. A run stops at known offers or at `indezy.offers.max-pages` (10).
+3. `OfferNormalizer` keeps freelance missions only, caps texts, parses rate, remote policy and place (geocoding cached in `geo_places`) and computes the copy keys (`OfferFingerprint`); offers it sets aside are recorded in `offer_skips` so later runs skip them.
+4. `OfferStore` adds new offers and refreshes known ones in one transaction, groups a mission's copies across sites (`copyGroup`) and records changes and appearances.
+5. Every night `OfferRetention` (04:15 Paris time) removes offers older than 90 days or expired, unless a workspace saved, applied to or imported them; the rate medians and suspicion flags are recomputed at 04:45 (`OfferRateBenchmarkService`, `OfferSuspicionService`).
+6. The feed (`OfferSearchService`), saved search counts, search suggestions and the market snapshot filter offers with the same specification (`JobOfferSpecifications`), and saved search emails read new offers through `OfferSearchService`; `OfferSiteRefresher` reads one site on request.
 
 ### Offer search at scale
 
-What `OfferSearchLoadTest` found with 50,000 offers (see [Testing](./testing.md#search-load-test)), and how the feed's specification is written for PostgreSQL's planner:
+How the feed's query stays fast on PostgreSQL; the measurements are in [Testing](./testing.md#search-load-test):
 
-1. Workspace states (hidden, saved, seen, noted) are shared by a mission's copies, so `JobOfferSpecifications.state` asks two subqueries: one on the offer, one on its copy group. Asked as one subquery matching either, PostgreSQL compared every offer with every state of the workspace (for a workspace with 3,500 hidden states, 44 million comparisons and 9 seconds for one count); each now correlates on one equality, which it hashes once.
-2. The workspace's excluded sites and blocked publishers are lists read once per query (`site in (…)`, `company_key in (…)`, an offer without a publisher never blocked), not a lookup per offer.
-3. On PostgreSQL, `OfferSearchIndex` gives the folded `search_text` a trigram index (`idx_job_offers_search_text_trgm`, GIN with `gin_trgm_ops`). At startup, when the index is missing, it creates the `pg_trgm` extension (also created by the database setup hook) and builds the index `CONCURRENTLY`, so the collection keeps writing; an index an interrupted build left invalid is dropped and built again, and a refused extension only logs a warning. Hibernate cannot declare such an index, and on H2 the runner does nothing.
-4. The match score (`OfferMatch.points`, behind `sort=MATCH` and `matchesProfile`) measures every open offer. Which profile terms each offer mentions is recorded (`OfferMentionIndexer`, tables `offer_terms` and `offer_mentions`), with the very function the cards score with (`OfferMatch.mentions`): a term joins the vocabulary when a profile first searches with it and is read once in the offers recorded so far, in SQL; new or changed offers (their `mentionsIndexedAt` cleared with their text or skills) are recorded every minute against the whole vocabulary, and stamped only if their text is still the one read. A skill whose spellings are all recorded is then an indexed lookup in `offer_mentions` for a recorded offer, and a read of its own text for one not recorded yet; a skill not recorded yet falls back to one subquery per skill (`JobOfferSpecifications.textMatching`) on the trigram index. Recording and backfills lock one row of `offer_terms`, so replicas take turns. With 40,000 open offers, the best-match search went from 790 to 373 ms alone, the unread offers matching the profile from 1,123 to 203 ms, and the 95th percentile of the searches twenty at a time from 7.0 to 2.9 s (measured on 2026-10-27, PostgreSQL 16, four cores); recording the 50,000 offers took 53 s. The copies an earlier-copy subquery reads are few, so their texts are read directly, and `least()` names the skills once. The keyword filter stays a `LIKE` on each offer, read after the cheaper filters: typed words are mostly common ones ("développeur" is in most titles), which no index narrows, and PostgreSQL keeps no statistics on texts this long to tell a rare word from a common one.
-5. The database setup hook sets two planner settings on `indezy_user` only (the development init script on its own role): `jit = off`, since compiling the feed's long query plans took about a second each, longer than running them (1.4 s against 0.2 s for a count), and `random_page_cost = 1.1`, the cost of reading a page on the node's SSD, so the planner reads the trigram index (a count naming a common skill went from 0.9 to 0.3 s).
-6. Every feed asks the open offers per site (`OfferSearchService.sites`) and the skill suggestions (`skills`), which move only when a site is read. Both are counted once a minute (`ExpiringValue`, which also keeps the rate medians): the open offers of every site, and every skill of the open offers with its count, which `skills` filters by the typed prefix in memory. The workspace's own data (excluded sites, collection health) is read on each request.
-7. The market snapshot (`OfferMarketService.snapshot`, about 0.9 s alone with 40,000 open offers) is kept a minute per workspace and filters (`ExpiringCache`, 500 snapshots at most; the sort, page and total left out of the key), so the panel opened again, or the same filters read with another sort or page, reuse it: under load its 95th percentile went from 7.4 s to 0.12 s. The first snapshot of new filters is still computed. Feed pages are not kept: they carry the workspace's states (saved, seen, noted), which must change at once. The dashboard is not kept either: a busy workspace's (400 opportunities, 1,600 steps, 200 contacts) took 59 ms alone and 554 ms at the 95th percentile with 20 at a time on PostgreSQL, measured on 2026-10-27, and each user reads only their own.
-8. A search's total is counted once: when the feed reads another page, page size or sort of the filters it shows, it sends their total (`total`, the page's count minus the offers it took out since), and `JobOfferRepository.findPage` reads the page as a slice, one offer past it, without the count query (page 21 alone: 40 ms instead of 145 ms). A retry or other filters count again; a saved search never stores it.
-9. What remains is the work every first page does on every open offer: counting the total (about 100 ms with 40,000 open offers), the keyword filter (about 450 ms alone for one common or rare word: a `LIKE` on each offer, whose substring semantics the recorded whole-word mentions cannot replace), and the match score's lookups. Twenty searches at a time on two database cores therefore wait for each other; the next steps are in [TODO.md](../TODO.md#job-board-integrations).
+- Workspace states (hidden, saved, seen, noted), shared by a mission's copies, are two correlated subqueries (one on the offer, one on its copy group); excluded sites and blocked publishers are lists read once per query.
+- `OfferSearchIndex` builds a GIN trigram index on the folded `search_text` (`idx_job_offers_search_text_trgm`) at startup with `CREATE INDEX CONCURRENTLY`, rebuilds one left invalid, and only logs a warning when `pg_trgm` is refused; it does nothing on H2.
+- `OfferMentionIndexer` records which profile terms each offer mentions (`offer_terms`, `offer_mentions`) with the function the cards score with (`OfferMatch.mentions`), so the match score (`sort=MATCH`, `matchesProfile`) is an indexed lookup; a term not recorded yet falls back to the trigram index. Recording locks one `offer_terms` row, so replicas take turns.
+- The keyword filter stays a `LIKE` on each offer, applied after the cheaper filters.
+- The database setup hook sets `jit = off` and `random_page_cost = 1.1` on `indezy_user` (the local init script on its own role).
+- Open offers per site and skill suggestions are counted once a minute (`ExpiringValue`); the market snapshot is kept a minute per workspace and filters (`ExpiringCache`). Feed pages and the dashboard are not cached, since they show the workspace's own states.
+- When the feed reads another page or sort of the same filters it sends the total it already has, and `JobOfferRepository.findPage` reads the page without a count query.
 
-### Deployment
-
-1. GitLab CI checks out the repository.
-2. Required `01-build`, optional `02-test`, and required `03-package` package and validate backend/frontend outputs.
-3. Optional manual E2E validates the critical browser flow; quality independently publishes non-blocking dependency and Sonar reports from the test artifacts, manually in standard mode and automatically in full mode.
-4. Release consumes the required build outputs and publishes checksummed packages/images; deploy requires that release job, while full mode automates build, release, and deploy.
-5. Release commits its version and image tags, creates the matching tag, and prepares the next minor version.
-6. Argo CD syncs that exact revision to K3s; CI waits for healthy reconciliation and checks both services.
-
-## Data Ownership Rules
-
-Current practical rules:
-
-- `Freelance` owns projects, clients, contacts, and sources.
-- `Project` must have one client (the final client, or an ESN when that one is unknown) and may have a middleman client.
-- `Contact` belongs to a client and a freelance.
-- `InterviewStep` belongs to a project.
-- `User` owns account profile, preferences, and two-factor settings.
-- `Season` belongs to a freelance and groups projects.
-- `ActivityReport` belongs to a project (one per month) and is deleted with it.
-- `JobOffer` is shared by every workspace; `JobOfferState` holds what one workspace did with an offer (saved, hidden, seen, imported project, its private note, its application) and is never visible to another. `OfferBulkService` acts on several offers, each in its own transaction so one offer gone or already imported leaves the others done. `OfferApplicationService` records an application: it imports the mission when needed and adds its steps through `InterviewStepService`.
-
-Future account work should clarify whether `User` and `Freelance` remain separate concepts or become a one-to-one account/workspace model.
+Remaining work is tracked in [TODO.md](../TODO.md#job-board-integrations).
 
 ## ADR Process
 
@@ -178,32 +120,32 @@ Use the next number in sequence and this filename shape:
 NNNN-short-title.md
 ```
 
-## Accepted ADRs
+## ADR Index
 
-- [ADR 0001: Split Documentation Out Of Root README](./adr/0001-documentation-structure.md)
-- [ADR 0002: Spring Boot And Angular Modular Monolith](./adr/0002-spring-boot-angular-modular-monolith.md)
-- [ADR 0003: Java 25, Angular 22, And PostgreSQL Stack](./adr/0003-java-angular-postgresql-stack.md)
-- [ADR 0004: GitOps Deployment Through GitLab CI And ArgoCD](./adr/0004-gitlab-ci-argocd-gitops.md)
-- [ADR 0005: Security Baseline And Hardening Direction](./adr/0005-security-baseline.md)
-- [ADR 0006: Code Quality And Verification Gates](./adr/0006-code-quality-and-verification-gates.md)
-- [ADR 0007: Explicit Delivery Jobs And Non-Blocking Verification](./adr/0007-explicit-delivery-jobs.md)
-- [ADR 0008: Generate PDF Documents With Apache PDFBox](./adr/0008-pdf-documents-with-pdfbox.md)
-- [ADR 0009: Collect Freelance Offers From Job Boards In The Backend](./adr/0009-collecting-job-offers.md)
-- [ADR 0010: Keep Opportunity Files In PostgreSQL](./adr/0010-attachments-in-postgresql.md)
-- [ADR 0011: Organizations For The Teams Tier](./adr/0011-organizations-for-the-teams-tier.md) (proposed)
+| ADR | Status |
+|---|---|
+| [0001: Split Documentation Out Of Root README](./adr/0001-documentation-structure.md) | Accepted |
+| [0002: Spring Boot And Angular Modular Monolith](./adr/0002-spring-boot-angular-modular-monolith.md) | Accepted |
+| [0003: Java 25, Angular 22, And PostgreSQL Stack](./adr/0003-java-angular-postgresql-stack.md) | Accepted |
+| [0004: GitOps Deployment Through GitLab CI And ArgoCD](./adr/0004-gitlab-ci-argocd-gitops.md) | Accepted |
+| [0005: Security Baseline And Hardening Direction](./adr/0005-security-baseline.md) | Superseded |
+| [0006: Code Quality And Verification Gates](./adr/0006-code-quality-and-verification-gates.md) | Superseded by ADR 0007 |
+| [0007: Explicit Delivery Jobs And Non-Blocking Verification](./adr/0007-explicit-delivery-jobs.md) | Accepted |
+| [0008: Generate PDF Documents With Apache PDFBox](./adr/0008-pdf-documents-with-pdfbox.md) | Accepted |
+| [0009: Collect Freelance Offers From Job Boards In The Backend](./adr/0009-collecting-job-offers.md) | Accepted |
+| [0010: Keep Opportunity Files In PostgreSQL](./adr/0010-attachments-in-postgresql.md) | Accepted |
+| [0011: Organizations For The Teams Tier](./adr/0011-organizations-for-the-teams-tier.md) | Proposed |
 
-## Proposed ADRs For Upcoming Work
+## Decisions Still Open
 
-Good candidates from the roadmap:
+These will need an ADR once decided:
 
 - versioned database migrations
-- User/Freelance account boundary
-- attachment storage and preview model
+- the `User`/`Freelance` account boundary
 - email and calendar integration model
 - AI provider and bring-your-own-key model
-- mobile/offline synchronization
-- feature flags and subscription entitlements
-- observability baseline
+- mobile app technology
+- plans and subscription entitlements
 
 ## ADR Template
 

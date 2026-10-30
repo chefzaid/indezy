@@ -1,6 +1,4 @@
 {
-  // Development Container Configuration
-  // Uses the repository's shared Compose configuration under infra/compose
   "name": "Indezy Development Environment",
   "dockerComposeFile": "../infra/compose/compose.yaml",
   "service": "devcontainer",
@@ -19,9 +17,17 @@
             "path": "/usr/local/sdkman/candidates/java/current"
           }
         ],
-        "java.compile.nullAnalysis.mode": "automatic",
-        "java.configuration.maven.userSettings": "/workspace/.devcontainer/maven-settings.xml"
-      }
+        "java.compile.nullAnalysis.mode": "automatic"
+      },
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-spring-boot",
+        "angular.ng-template",
+        "dbaeumer.vscode-eslint",
+        "ms-playwright.playwright",
+        "redhat.vscode-yaml",
+        "sonarsource.sonarlint-vscode"
+      ]
     }
   },
   "forwardPorts": [8080, 4200, 5432, 5050],

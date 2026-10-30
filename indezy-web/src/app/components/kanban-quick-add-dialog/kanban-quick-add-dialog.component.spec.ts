@@ -1,6 +1,6 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
@@ -46,10 +46,10 @@ describe('KanbanQuickAddDialogComponent', () => {
       imports: [
         KanbanQuickAddDialogComponent,
         ReactiveFormsModule,
-        NoopAnimationsModule,
         TranslateModule.forRoot()
       ],
       providers: [
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         FormBuilder,
         { provide: MatDialogRef, useValue: mockDialogRef },
         { provide: MAT_DIALOG_DATA, useValue: mockData },

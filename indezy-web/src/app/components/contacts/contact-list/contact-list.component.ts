@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 
-import { RouterModule, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,17 +9,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ContactService } from '../../../services/contact/contact.service';
 import { ClientService } from '../../../services/client/client.service';
-import { ContactDto, ClientDto } from '../../../models';
+import { ContactDto, ClientDto, contactName } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { IdSelection } from '../../../shared/utils/id-selection';
@@ -31,7 +30,6 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 @Component({
     selector: 'app-contact-list',
     imports: [PageHeaderComponent, 
-    RouterModule,
     FormsModule,
     MatTableModule,
     MatButtonModule,
@@ -39,10 +37,8 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatChipsModule,
     MatCardModule,
     MatProgressSpinnerModule,
-    MatDialogModule,
     MatTooltipModule,
     TranslateModule,
     DatePipe,
@@ -208,7 +204,7 @@ export class ContactListComponent implements OnInit, OnDestroy {
     if (contact.anonymizedAt) {
       return this.translate.instant('contacts.privacy.anonymized');
     }
-    return [contact.firstName, contact.lastName].filter(Boolean).join(' ');
+    return contactName(contact);
   }
 
   /** How long ago the contact's latest exchange was, in words ("il y a 3 semaines"). */

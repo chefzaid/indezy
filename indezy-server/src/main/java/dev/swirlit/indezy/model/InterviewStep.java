@@ -52,8 +52,4 @@ public class InterviewStep extends BaseEntity {
     public boolean isFailed() {
         return StepStatus.FAILED.equals(status);
     }
-
-    public boolean isPlanned() {
-        return StepStatus.PLANNED.equals(status);
-    }
 }

@@ -1,5 +1,3 @@
-const angularTemplate = require('@angular-eslint/eslint-plugin-template');
-const angularTemplateParser = require('@angular-eslint/template-parser');
 const tsPlugin = require('@typescript-eslint/eslint-plugin');
 const tsParser = require('@typescript-eslint/parser');
 
@@ -32,32 +30,12 @@ const sharedTypeScriptRules = {
 
 module.exports = [
   {
-    ignores: [
-      'dist/',
-      'coverage/',
-      '.angular/',
-      'node_modules/',
-      '../indezy-server/target/',
-      '**/target/',
-      '**/*.generated.ts',
-      '**/*.generated.js',
-      'test-results/',
-      '*.log',
-      '*.tmp',
-      '*.temp',
-      '.cache/',
-      'projects/**/*'
-    ]
+    ignores: ['dist/', 'coverage/', '.angular/']
   },
   {
     files: ['**/*.ts'],
     languageOptions: {
       parser: tsParser,
-      parserOptions: {
-        project: ['./tsconfig.json', './tsconfig.spec.json'],
-        tsconfigRootDir: __dirname,
-        sourceType: 'module'
-      },
       ecmaVersion: 2022,
       sourceType: 'module'
     },
@@ -74,15 +52,5 @@ module.exports = [
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off'
     }
-  },
-  {
-    files: ['**/*.html'],
-    languageOptions: {
-      parser: angularTemplateParser
-    },
-    plugins: {
-      '@angular-eslint/template': angularTemplate
-    },
-    rules: {}
   }
 ];

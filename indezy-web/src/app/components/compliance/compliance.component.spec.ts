@@ -1,7 +1,7 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
@@ -39,7 +39,7 @@ describe('ComplianceComponent', () => {
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
       imports: [ComplianceComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), { provide: ComplianceService, useValue: service }, { provide: ConfirmDialogService, useValue: confirm },
+      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: ComplianceService, useValue: service }, { provide: ConfirmDialogService, useValue: confirm },
         { provide: NotificationService, useValue: notifications }]
     });
     TestBed.overrideProvider(MatDialog, { useValue: dialog });

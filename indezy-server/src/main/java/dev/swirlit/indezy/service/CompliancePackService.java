@@ -8,14 +8,13 @@ import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.repository.ComplianceDocumentRepository;
 import dev.swirlit.indezy.repository.CompliancePackRepository;
 import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.util.Tokens;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
-import java.util.Base64;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,13 +32,11 @@ public class CompliancePackService {
 
     static final int DEFAULT_DAYS = 14;
     static final int MAX_ACTIVE = 20;
-    private static final int TOKEN_BYTES = 32;
 
     private final CompliancePackRepository packs;
     private final ComplianceDocumentRepository documents;
     private final FreelanceRepository freelances;
     private final Clock clock;
-    private final SecureRandom random = new SecureRandom();
 
     @Transactional(readOnly = true)
     public List<ComplianceDtos.Pack> list(Long freelanceId) {
@@ -55,13 +52,11 @@ public class CompliancePackService {
         if (list(freelanceId).stream().filter(ComplianceDtos.Pack::active).count() >= MAX_ACTIVE) {
             throw new InvalidStateException("Up to " + MAX_ACTIVE + " links can be open at once: revoke one first");
         }
-        byte[] bytes = new byte[TOKEN_BYTES];
-        random.nextBytes(bytes);
-        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        String token = Tokens.random();
         CompliancePack pack = new CompliancePack();
         pack.setFreelanceId(freelanceId);
         pack.setRecipient(request.recipient().strip());
-        pack.setTokenHash(ActivityReportService.hash(token));
+        pack.setTokenHash(Tokens.sha256Hex(token));
         pack.setExpiresAt(clock.instant().plus(Duration.ofDays(request.days() == null ? DEFAULT_DAYS : request.days())));
         pack.setDocumentIds(ids);
         return new ComplianceDtos.CreatedPack(toDto(packs.save(pack)), token);
@@ -107,7 +102,7 @@ public class CompliancePackService {
         if (token == null || token.isBlank()) {
             throw new ResourceNotFoundException("Link invalid or expired");
         }
-        return packs.findByTokenHash(ActivityReportService.hash(token.strip()))
+        return packs.findByTokenHash(Tokens.sha256Hex(token.strip()))
             .filter(pack -> pack.getRevokedAt() == null && pack.getExpiresAt().isAfter(clock.instant()))
             .orElseThrow(() -> new ResourceNotFoundException("Link invalid or expired"));
     }

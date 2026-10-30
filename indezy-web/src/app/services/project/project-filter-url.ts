@@ -1,5 +1,6 @@
 import { ParamMap, Params } from '@angular/router';
 import { DateFilterValue, ProjectFilterValues } from './project-filter.util';
+import { toIsoDate } from '../../shared/locale/app-locale';
 
 /**
  * The projects list's filters in its address, so a filtered view can be bookmarked or shared: one short parameter per
@@ -25,8 +26,7 @@ function day(value: DateFilterValue | undefined): string | null {
   if (typeof value === 'string') {
     return DAY.test(value) ? value : null;
   }
-  const pad = (n: number): string => String(n).padStart(2, '0');
-  return Number.isNaN(value.getTime()) ? null : `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`;
+  return Number.isNaN(value.getTime()) ? null : toIsoDate(value);
 }
 
 /** The address parameters of {@code filters}. */

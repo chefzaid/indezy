@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule } from '@ngx-translate/core';
@@ -13,7 +12,7 @@ import { NotificationService } from '../../services/notification/notification.se
 /** The features an administrator turns on or off for every account, without a redeploy. */
 @Component({
   selector: 'app-admin-features',
-  imports: [CommonModule, MatCardModule, MatSlideToggleModule, TranslateModule],
+  imports: [MatCardModule, MatSlideToggleModule, TranslateModule],
   templateUrl: './admin-features.component.html',
   styleUrls: ['./admin-features.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

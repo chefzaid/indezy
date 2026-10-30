@@ -2,8 +2,6 @@ package dev.swirlit.indezy.mail;
 
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 
-import java.util.Locale;
-
 /** French and English text of the weekly digest. */
 enum WeeklyDigestLabel {
     SUBJECT("Votre semaine Indezy du %s", "Your Indezy week of %s"),
@@ -41,10 +39,6 @@ enum WeeklyDigestLabel {
     }
 
     String format(DocumentLanguage language, Object... values) {
-        return String.format(locale(language), in(language), values);
-    }
-
-    static Locale locale(DocumentLanguage language) {
-        return language == DocumentLanguage.EN ? Locale.UK : Locale.FRANCE;
+        return String.format(language.locale(), in(language), values);
     }
 }

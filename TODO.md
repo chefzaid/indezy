@@ -394,6 +394,7 @@ Increments, implemented in order:
 - [x] Finer daily rate chart: plot the actual TJM values the freelancer negotiated (e.g. 550, 600, 650 €) instead of wide ranges (0-300, 300-500, ...), as one freelancer's rates vary within a narrow band
 - [x] Overview/Kanban display modes on the dashboard
 - [ ] Dashboard period tagging with `YYYY-MM` labels, sprint-style but flexible so reporting periods can exist only when needed instead of forcing every month
+- [ ] Commute times in production, with statistics about them: manage the commute times of the opportunities (driving and transit) and give stats on them across the pipeline. Production computes none today: no Vault path or ExternalSecret passes `GOOGLE_MAPS_API_KEY` to the server pods (`infra/k8s/external-secrets.yaml`, `infra/k8s/server.yaml`).
 - [x] Conversion funnel by source, client type and ESN (where do opportunities die?)
 - [x] Average process duration per client/ESN (time from contact to signature)
 - [x] Daily rate evolution over time (asked vs obtained)

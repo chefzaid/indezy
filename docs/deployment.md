@@ -1,92 +1,65 @@
 # Deployment Guide
 
-This repository owns its [public DNS](dns.md), including the DNS cutover when
-the shared platform switches to HA Tunnel ingress.
-
-Indezy deploys to the application-neutral K3s platform managed by [`swirl-cloud`](https://github.com/chefzaid/swirl-cloud). The platform provides generic GitLab runner, Argo CD, Vault, External Secrets, registry, ingress, PostgreSQL, and observability services. This repository owns all Indezy-specific project, secret, delivery, and runtime configuration.
+Indezy deploys to the application-neutral K3s platform managed by [`swirl-cloud`](https://github.com/chefzaid/swirl-cloud). The platform provides the GitLab runner, Argo CD, Vault, External Secrets, registry, ingress, PostgreSQL and observability services. This repository owns all Indezy-specific project, secret, delivery and runtime configuration.
 
 ## Infrastructure Layout
 
-Indezy follows the shared application-repository convention used by Swirl Demo App and Thoughty:
-
-| Directory | Responsibility |
+| Path | Responsibility |
 |---|---|
-| `infra/ansible/` | optional manual reconciliation of committed GitOps state |
-| `infra/argocd/` | the single Argo CD `Application` bootstrap at `application.yaml` |
-| `infra/compose/` | local development and production-shaped profiles |
-| `infra/database/` | ordered local database initialization scripts |
-| `infra/k8s/` | application-owned Kubernetes desired state |
-| `infra/scripts/` | configuration, health-check, and local lifecycle helpers |
+| `.gitlab-ci.yml` | delivery pipeline |
+| `infra/onboarding.json` | onboarding contract read by the platform's `add-repos.sh` |
+| `infra/argocd/application.yaml` | the single Argo CD `Application` |
+| `infra/k8s/` | desired state; `kustomization.yaml` is the entry point and holds the image tags |
+| `infra/overlays/ha/` | optional multi-node profile |
+| `infra/ansible/` | optional manual reconciliation of the pushed GitOps state (`site.yaml`, `inventory.ini`) |
+| `infra/compose/compose.yaml` | local PostgreSQL, pgAdmin (`admin` profile) and the dev container |
+| `infra/database/init/` | local PostgreSQL initialization |
+| `infra/scripts/` | CI, release and GitLab configuration scripts, and the local helpers behind `maskfile.md` |
 
-Names use lowercase kebab-case. YAML files use `.yaml`; the Compose base is `compose.yaml`; Kubernetes workload files use the logical component name because each may contain more than one resource kind. Hook jobs end in `-job.yaml` and the aggregate entry point remains `kustomization.yaml`.
-
-Production entry points:
-
-- Argo CD: `infra/argocd/application.yaml`
-- Kubernetes: `infra/k8s/kustomization.yaml`
-- GitLab bootstrap: `infra/scripts/configure-gitlab.sh`
-- immutable image-tag update: `infra/scripts/set-image-tags.sh`
-
-Local entry points:
-
-- Compose: `infra/compose/compose.yaml`
-- Ansible: `infra/ansible/site.yaml` with `infra/ansible/inventory.ini`
-- PostgreSQL initialization: `infra/database/init/`
-- backend health helper: `infra/scripts/check-backend-health.sh`
-
-Shared platform resources remain in `swirl-cloud`.
+Production images are built from `indezy-server/Dockerfile.runtime` and `indezy-web/Dockerfile.runtime`. Names use lowercase kebab-case and YAML files end in `.yaml`; Kubernetes files use the component name, and hook jobs end in `-job.yaml`.
 
 ## Runtime And Ownership
 
-The public endpoint is `https://indezy.swirlit.dev`. Traefik routes `/api` to the Spring Boot service and `/` to the Angular/NGINX service. The native Ingress publishes Indezy in the cluster Homepage `Applications` group. The frontend is public; the API uses the app-owned ForwardAuth Middleware with the shared Keycloak OAuth2 Proxy. It preserves login return URLs and refresh cookies, forwards the signed access token, and leaves application authorization responses intact. The non-secret issuer, internal JWKS URI, and required audience live in `infra/k8s/server.yaml`; identity-provider secrets remain platform-owned.
+The public endpoint is `https://indezy.swirlit.dev`. Application resources run in `apps`; Argo CD and shared services run in `infra`; CI pods run in `gitlab-runners`.
 
-`/api/public` has its own Ingress, `indezy-public-api-ingress`, without the SSO Middleware: activity report
-validation links are opened by clients and ESNs who have no account, and the link token authorizes each request (see
-[Security](./security.md#activity-report-validation-links)). Traefik prefers this longer path over `/api`.
+`infra/k8s/ingress.yaml` declares three Ingresses on that host:
 
-`infra/k8s/ingress.yaml` also owns the 16 MiB request limit and a ServersTransport
-that allows 120 seconds for backend response headers. Connection timeouts and
-HTTP-to-HTTPS redirects are platform settings. NetworkPolicy permits Traefik
-pods. Database setup and readiness helpers use the public PostgreSQL 18.6 Alpine
-image pinned by its multi-architecture digest, without platform registry credentials.
+| Ingress | Path | Backend | Middlewares |
+|---|---|---|---|
+| `indezy-ingress` | `/` | `indezy-web` | upload limit |
+| `indezy-api-ingress` | `/api` | `indezy-server` | `indezy-sso` ForwardAuth, upload limit |
+| `indezy-public-api-ingress` | `/api/public` | `indezy-server` | upload limit |
 
-| Concern | Repository resource |
-|---|---|
-| GitLab pipeline | `.gitlab-ci.yml` |
-| Argo CD application | `infra/argocd/application.yaml` |
-| aggregate desired state | `infra/k8s/kustomization.yaml` |
-| runtime and registry secrets | `infra/k8s/external-secrets.yaml` |
-| database provisioning | `infra/k8s/database-setup-job.yaml` |
-| application services and ingress | `infra/k8s/server.yaml`, `web.yaml`, and `ingress.yaml` |
+The `indezy-sso` Middleware sends requests to the shared Keycloak OAuth2 Proxy, preserves login return URLs and backend `401`s, and forwards the signed access token. `/api/public` skips it: shared links are opened by people without an account, and each request is authorized by its own token (see [Security](./security.md#activity-report-validation-links)). Traefik prefers the longer path. The same file owns the 16 MiB request-body limit and the `indezy-backend` ServersTransport (120 seconds for response headers). TLS uses the cluster's `swirlit-dev-tls` Secret; connection timeouts and HTTP-to-HTTPS redirects are platform settings. `indezy-ingress` publishes Indezy in the Homepage `Applications - PROD` group.
 
-Application resources run in `apps`; Argo CD and shared services run in `infra`; disposable CI pods run in `gitlab-runners`.
+The Keycloak issuer, internal JWKS URI and required audience live in `infra/k8s/server.yaml`; identity-provider secrets stay platform-owned.
 
-The backend reads the freelance job boards and the French government geocoding API (`geo.api.gouv.fr`) over HTTPS
-for the offer feed, so its pods need outbound internet access. Their egress policy admits DNS (`kube-system/kube-dns`),
-PostgreSQL (`app: postgres`, or `cnpg.io/cluster: postgres-ha` under the platform's HA profile) and Keycloak
-(`app: keycloak`) in `infra`, and every public address; private, link-local and carrier-grade NAT ranges are refused,
-so a service the backend starts using elsewhere in the cluster needs its own rule there. Collection
-runs inside the server, one site at a time; each site is claimed in the database, so more replicas would not read a
-site twice. `INDEZY_OFFERS_COLLECTION_ENABLED=false` stops it and `INDEZY_OFFERS_GEOCODING_ENABLED=false` stops the
-geocoding calls (offers are then placed by postal code or department name only), without a redeploy of the image.
-The server also archives, every night at 03:30 Paris time, the idle opportunities of the accounts that turned it on;
-`INDEZY_PROJECTS_ARCHIVING_ENABLED=false` stops it. At 03:45 it anonymizes the dormant contacts of the accounts that set a
-retention period; `INDEZY_CONTACTS_RETENTION_ENABLED=false` stops it.
+The backend connects to `postgres.swirlit.internal:5432/indezy` as `indezy_user`. The `indezy-db-setup` Argo CD sync hook creates or updates that role and database, sets the role's planner settings and enables `pg_trgm` before the Deployments roll out. The hook and the server's `wait-for-db` init container use the public PostgreSQL 18.6 Alpine image pinned by digest in `kustomization.yaml`, without registry credentials.
 
-The backend connects to `postgres.swirlit.internal:5432/indezy` as `indezy_user`. An Argo CD sync hook creates or updates that role and database before the Deployments roll out. The public ingress uses the cluster's `swirlit-dev-tls` Secret.
+Network policy admits Traefik, Prometheus, CI job pods and pods in `apps` to both services. The backend reads the job boards, `geo.api.gouv.fr` and Resend over HTTPS, so its egress policy admits DNS (`kube-system/kube-dns`), PostgreSQL (`app: postgres`, or `cnpg.io/cluster: postgres-ha` under the platform's HA profile) and Keycloak (`app: keycloak`) in `infra`, and every public address; private, link-local and carrier-grade NAT ranges are refused, so a new in-cluster dependency needs its own rule.
+
+Background work runs inside the server and is turned off by environment variable, without a new image:
+
+| Work | Schedule | Off switch |
+|---|---|---|
+| offer collection, one site at a time, each site claimed in the database | every 5 minutes | `INDEZY_OFFERS_COLLECTION_ENABLED=false` |
+| geocoding of offers (otherwise placed by postal code or department) | with the collection | `INDEZY_OFFERS_GEOCODING_ENABLED=false` |
+| archiving idle opportunities of accounts that turned it on | 03:30 Paris time | `INDEZY_PROJECTS_ARCHIVING_ENABLED=false` |
+| anonymizing dormant contacts of accounts with a retention period | 03:45 Paris time | `INDEZY_CONTACTS_RETENTION_ENABLED=false` |
+| all scheduled work at once, the above plus webhook deliveries, digests, saved search emails and session clean-up | | `INDEZY_SCHEDULING_ENABLED=false` |
 
 ## Secrets
 
-External Secrets projects these Vault contracts into `apps`:
+External Secrets projects these Vault KV paths into `apps` (`infra/k8s/external-secrets.yaml`):
 
-| Vault KV path | Purpose |
-|---|---|
-| `apps/indezy/runtime` | database password and JWT signing secret |
-| `apps/indezy/registry` | read-only private-registry credential |
-| `apps/indezy/mail` | Resend sending key of the saved search emails (`RESEND_API_KEY`, empty sends nothing) |
-| `infra/postgres` | shared administrator used only by the database setup hook |
+| Vault KV path | Kubernetes Secret | Keys | Purpose |
+|---|---|---|---|
+| `apps/indezy/runtime` | `indezy-server-secret` | `DB_PASSWORD`, `JWT_SECRET` (from `database_password`, `jwt_secret`) | database password and JWT signing secret |
+| `apps/indezy/registry` | `indezy-registry-auth` | `registry`, `username`, `password` (rendered as a docker config) | read-only registry pull credential |
+| `apps/indezy/mail` | `indezy-mail` | `RESEND_API_KEY` | Resend key of the saved search emails; empty sends nothing |
+| `infra/postgres` | `indezy-db-admin-credentials` | `POSTGRES_ADMIN_USER`, `POSTGRES_ADMIN_PASSWORD` | shared administrator, used only by the database setup hook |
 
-The app bootstrap generates strong runtime values when `apps/indezy/runtime` does not exist. Do not commit plaintext or base64-encoded secret values. An optional Google Maps server key should likewise be added to the external secret contract before the feature is enabled.
+Onboarding generates missing `apps/indezy/runtime` fields (24 random bytes for the database password and 48 for the JWT secret, hex encoded) and keeps existing values. Never commit plaintext or base64-encoded secret values. `GOOGLE_MAPS_API_KEY` (commute times) is not projected; add it to the contract before enabling the feature in production.
 
 ## Administrators
 
@@ -98,32 +71,54 @@ exist (register or sign in through Keycloak once with that email).
 ## Saved search email credentials
 
 Saved search emails go through Resend, from `Indezy <noreply@swirlit.dev>` (`INDEZY_MAIL_FROM`), with links to
-`https://indezy.swirlit.dev` (`INDEZY_PUBLIC_URL`). `swirlit.dev` is the domain the website already verified in
-Resend for sending; create a sending access key restricted to it for Indezy, separate from the website's, and store it
-as the `RESEND_API_KEY` field at Vault KV v2 path `secret/apps/indezy/mail`. `infra/k8s/external-secrets.yaml`
-synchronizes it to the `indezy-mail` Secret, which the server reads through an optional `secretKeyRef`.
+`https://indezy.swirlit.dev` (`INDEZY_PUBLIC_URL`). `swirlit.dev` is already verified in Resend for the website; create
+a sending access key restricted to it for Indezy, separate from the website's, and store it as the `RESEND_API_KEY`
+field at Vault KV v2 path `secret/apps/indezy/mail`. The server reads the `indezy-mail` Secret through an optional
+`secretKeyRef`.
 
-The field must exist before a release that holds the `indezy-mail` ExternalSecret, even empty: otherwise the secret
-fails to sync, Argo CD reports the application degraded and the deploy job's health check fails. The onboarding
-contract (`infra/onboarding.json`) seeds it empty when missing and keeps an existing value. With an empty key the
-server sends nothing and the saved search dialog says emails are not set up. After adding or rotating the key, wait
+The field must exist, even empty, or the ExternalSecret fails to sync, Argo CD reports the application degraded and the
+deploy job's health check fails. Onboarding seeds it empty when missing and keeps an existing value. With an empty key
+the server sends nothing and the saved search dialog says emails are not set up. After adding or rotating the key, wait
 for the ExternalSecret to be Ready and restart the server Deployment, which reads it at startup.
 
 Resend accepting an email means accepted for delivery, not delivered; its logs show bounces. Each email carries an
 idempotency key (`saved-search/<id>/<cutoff>`), so a retry within Resend's 24 hours sends it once.
 
-## Delivery Pipeline, Images, and Artifacts
+## Delivery Pipeline
 
-The graph shows ordered build, test, package, E2E, quality, security, release, deploy, and version jobs. Tests are non-blocking and E2E is optional/manual. Default-branch quality runs automatically. Standard mode leaves Trivy security manual; `PIPELINE_MODE=full` runs both independent, non-blocking reports automatically and automates release and deploy while E2E remains manual. `03-security` is ordered after `02-quality` but has no dependency on it.
+`.gitlab-ci.yml` runs a branch pipeline, or a merge request pipeline when the branch has an open merge request. Jobs run on the platform's instance runner (tag `swirl-cloud`) as unprivileged Kubernetes pods.
 
-The release job publishes:
+| Job | Stage | Runs | What it does |
+|---|---|---|---|
+| `01-build` | build | every pipeline | required: validates the manifests and onboarding contract, packages the JAR (with SpotBugs and Checkstyle) and the production web archive |
+| `02-test` | build | every pipeline | allowed to fail: backend and frontend tests, lint and the coverage policy |
+| `03-package` | build | every pipeline except Sonar scan-only | required: builds both runtime images with Kaniko, without pushing |
+| `01-e2e` | verify | manual | allowed to fail: the Playwright suite |
+| `02-quality` | verify | automatic on the default branch and in full mode, manual otherwise | allowed to fail: Sonar analysis from the test artifacts |
+| `03-security` | verify | automatic in full mode, manual otherwise | allowed to fail: Trivy scan of dependencies, IaC and secrets, failing on high or critical findings |
+| `01-release` | release | default branch, manual with confirmation | publishes the release (below) |
+| `02-deploy` | release | default branch, after `01-release` | deploys it (below) |
+| `set-major-version` | version | default branch, manual | prepares `<NEW_MAJOR_VERSION>.0.0` and synchronizes the Maven and npm manifests |
 
-```text
-registry.swirlit.dev/swirlit/indezy/indezy-server:<semantic-version>
-registry.swirlit.dev/swirlit/indezy/indezy-web:<semantic-version>
-```
+`PIPELINE_MODE=full` runs quality and security automatically, and a pipeline started from the GitLab UI in full mode on the default branch also releases and deploys without the manual step; E2E stays manual. The schedules set `PLAYWRIGHT_SCHEDULE=true` (build, tests, package and the [nightly E2E suite](./testing.md#scheduled-e2e-runs), nothing after) or `READER_CANARY=true` (the [reader canaries](./testing.md#reader-canaries) only).
 
-Daemonless Kaniko builds each runtime Dockerfile's `production` stage and reuses 30-day registry-backed layers on unprivileged Kubernetes runners. Maven/npm/Sonar caches avoid repeated dependency downloads. GitLab retains test, coverage, browser, and compiled outputs for seven days, while releases publish versioned JAR and SPA archives plus `SHA256SUMS` immutably to the Generic Package Registry. The linked SonarQube project retains long-lived quality-gate, issue, and metric history.
+`01-release` needs only `01-build` and `03-package`, and:
+
+1. builds and pushes `registry.swirlit.dev/swirlit/indezy/indezy-server:<version>` and `indezy-web:<version>` with Kaniko, reusing registry-backed layer caches for 30 days;
+2. uploads the JAR, the web archive and `SHA256SUMS` to the Generic Package Registry;
+3. refuses to continue when the default branch moved past the pipeline's commit;
+4. commits `release: <version> [skip ci]` with the version and the image tags in `infra/k8s/kustomization.yaml`, and tags it `v<version>`;
+5. commits `chore: prepare <next minor version> [skip ci]`, pushes both commits and the tag, and creates a GitLab Release linking the packages.
+
+`02-deploy` applies `infra/argocd/application.yaml`, requests a hard refresh, waits up to 15 minutes for the pushed revision to be `Synced` and `Healthy`, then checks the backend health endpoint and the frontend's health and index page inside the cluster.
+
+`VERSION` holds the base version; each first-parent commit after the one that last changed it adds one to the patch, so releasing `1.17.3` prepares `1.18.0`. Release, deploy and `set-major-version` share the `indezy-production` resource group. Argo CD, not CI, creates the namespace, reconciles, prunes and self-heals.
+
+GitLab keeps test, coverage, browser, quality, security and release artifacts for seven days; Maven, npm, Sonar and Trivy caches and a cached Kaniko executor avoid repeated downloads. The SonarQube project keeps the long-lived quality history.
+
+### Automatic Sonar analysis
+
+`.sonar-auto.json` declares the contract the platform uses to request a scan when analysis is missing or older than 24 hours: a default-branch pipeline with `SONAR_SCAN_ONLY=true`, which runs only `01-build`, `02-test` and `02-quality`. The platform provisions the Sonar project and the masked `SONAR_TOKEN`. A submission failure fails the quality job visibly, without affecting delivery.
 
 ## Add or reconfigure this repository
 
@@ -132,53 +127,45 @@ The platform reads [infra/onboarding.json](../infra/onboarding.json), prompts
 for the public subdomain (`@` selects the zone apex), and provisions the declared
 service requests without executing repository administrator scripts.
 
-This repository declares its exact public configuration files, registry access,
-runtime secrets, DNS hostname and readiness checks. Rendered settings and
-`infra/onboarding-values.json` are committed to the application repository.
-Rerunning onboarding changes the chosen host, ingress, backend CORS, identity
-endpoints, image paths and delivery settings together. Application resource
-names, database/role names and Vault paths remain stable.
+The contract declares the files to render, registry access, Vault fields, DNS
+hostname and readiness checks. Onboarding commits the rendered files with its
+saved choices in `infra/onboarding-values.json`, which the first run creates.
+Rerunning it changes the host, ingress, backend CORS, identity endpoints, image
+paths and delivery settings together; resource names, database and role names
+and Vault paths stay the same. It also configures two-way GitHub/GitLab
+synchronization through `.github/workflows/sync-gitlab.yml`, which runs on every
+GitHub push and, through a repository-dispatch webhook, on every GitLab push; it
+fast-forwards the side behind, merges divergent branches without force pushing,
+refuses conflicting tag rewrites; its monthly schedule rotates the managed
+GitLab token before it expires.
 
-Missing `apps/indezy/runtime` fields are generated according to the declaration:
-the database password uses 24 random bytes and the JWT secret uses 48, encoded
-as hexadecimal. Existing values are preserved. The existing database sync hook
-and optional HA schema hook retain ownership of database provisioning and
-migrations; identity uses the shared OAuth2 Proxy client.
+Public DNS is declared in `infra/onboarding.json` (`dns.hosts`) and reconciled
+by the platform; see its [application DNS ownership](https://github.com/chefzaid/swirl-cloud/blob/main/docs/dns.md#application-dns-ownership).
 
 After provisioning, the platform starts an API pipeline for the exact pushed
-configuration. `APP_ONBOARDING=true` permits automatic release for that API
-pipeline. `ONBOARDING_EXPECTED_SHA` must match before building or publishing;
-deployment also requires its generated release to descend from that commit and
-remain the default branch tip. The first Argo CD apply follows image publication.
-Ordinary release behavior and Sonar scan-only exclusions are unchanged.
+configuration. `APP_ONBOARDING=true` lets that pipeline release automatically;
+`ONBOARDING_EXPECTED_SHA` must match before building or publishing, and
+deployment requires the release to descend from that commit and remain the
+default branch tip. The publication records `Onboarding-Pipeline` and
+`Onboarding-Source` commit trailers so a repeat run can find the existing
+release. A failed deployment can retry that pipeline's deploy job; if
+publication fails after its Git push, repair the failed publication step before
+retrying, since the guard refuses to publish another release from the old
+checkout.
 
-The final onboarding publication records `Onboarding-Pipeline` and
-`Onboarding-Source` commit trailers so a repeat run can identify the existing
-release. A failed deployment can retry that pipeline's deploy job. If publication
-fails after its Git push, repair the failed publication step before retrying:
-the guard refuses to publish another release from the old checkout.
-
-Run the focused offline checks with Python, PyYAML, Git and kubectl:
+`01-build` runs the offline onboarding checks (Python, PyYAML, Git and kubectl):
 
 ```sh
 python3 infra/scripts/test-onboarding.py
 ```
 
-They cover custom domains/project paths, root-to-subdomain changes, image-tag
-updates and stale pipeline refusal without calling live services.
+## Standalone GitLab bootstrap
 
-## Individual GitLab bootstrap
+`infra/scripts/configure-gitlab.sh` is a fallback for setting the project up without the platform's onboarding. It needs:
 
-Prerequisites:
-
-- the generic instance runner is online with tag `swirl-cloud`
-- GitLab, Argo CD, Vault, External Secrets, and the registry are healthy
-- `.gitlab-ci.yml` exists in the repository's current commit
-- `kubectl`, `curl`, `git`, `jq`, `openssl`, `python3`, `libsodium`, and `sudo` are installed on the control-plane host
-- `GITLAB_ADMIN_TOKEN` can manage `swirlit/indezy`
-- `GITHUB_ADMIN_TOKEN` can manage Actions secrets and dispatch workflows for `chefzaid/indezy`
-
-Run:
+- the instance runner online with tag `swirl-cloud`, and healthy GitLab, Argo CD, Vault, External Secrets and registry
+- `kubectl`, `curl`, `git`, `jq`, `openssl`, `python3`, `libsodium` and `sudo` on the control-plane host
+- `GITLAB_ADMIN_TOKEN` able to manage `swirlit/indezy`, and `GITHUB_ADMIN_TOKEN` able to manage Actions secrets and dispatch workflows for `chefzaid/indezy`
 
 ```bash
 GITLAB_ADMIN_TOKEN=<gitlab-token> \
@@ -186,116 +173,59 @@ GITHUB_ADMIN_TOKEN=<github-token> \
   ./infra/scripts/configure-gitlab.sh
 ```
 
-The app-owned script creates or updates the project, enables the instance runner and CI job-token pushes, configures bidirectional GitHub/GitLab push synchronization, creates a read-only registry deploy token, writes app-specific Vault values, and applies the Argo CD `Application`. It also reconciles project metadata, labels, merge safeguards, `main` protection, cleanup, badges, the GitLab/Sonar binding, and a masked project-scoped `SONAR_TOKEN`. It does not add Indezy configuration to `swirl-cloud` or commit credentials.
+It creates or updates the GitLab project and its settings (runner, job-token pushes, `main` protection, labels, badges, the Sonar binding and `SONAR_TOKEN`), the GitHub/GitLab synchronization, the registry deploy token and the `apps/indezy/registry` and `apps/indezy/runtime` Vault values, then applies the Argo CD `Application`. It does not seed `apps/indezy/mail` or reconcile DNS.
 
-Every GitHub push starts `.github/workflows/sync-gitlab.yml` directly. Every GitLab branch or tag push invokes the same workflow through the managed repository-dispatch webhook, including commits marked `[skip ci]`. The reconciler fast-forwards whichever side is behind, merges divergent branches without force pushing, and refuses conflicting tag rewrites. Its monthly schedule self-rotates the managed GitLab token into the encrypted GitHub secret before expiry.
+## Validation And Manual Reconciliation
 
-## Delivery Flow
-
-Normal pipelines run `01-build`, `02-test`, and `03-package` automatically and default-branch quality automatically, with E2E, security, release, and version changes available manually. Full mode automates non-blocking quality/security reporting, release, and deploy while leaving E2E manual. Release then:
-
-1. consumes the successful backend and frontend build artifacts;
-2. publishes immutable application archives, checksums, server images, and web images using 30-day registry-backed Kaniko caching;
-3. refuses to deploy if `main` advanced during the pipeline;
-4. commits the semantic release version and image tags in `infra/k8s/kustomization.yaml` and creates its annotated tag;
-5. prepares and commits the next minor version with patch reset to zero;
-6. creates a GitLab Release linked to both packages;
-7. applies and refreshes the Indezy Argo CD `Application`;
-8. waits for that exact commit to become `Synced` and `Healthy`; and
-9. checks both internal health endpoints.
-
-`VERSION` starts at `1.0.0`. Each new first-parent commit advances the patch used by builds and releases. Releasing, for example, `1.0.3` prepares `1.1.0`. Set `NEW_MAJOR_VERSION` when starting a pipeline and play `set-major-version` to deliberately prepare `<major>.0.0` and synchronize Maven/npm manifests.
-
-Production delivery is serialized through the `indezy-production` resource group. Argo CD, rather than CI, owns namespace creation, reconciliation, pruning, and self-healing.
-
-## Validation And Bootstrap
-
-Before pushing:
+Before pushing infrastructure changes:
 
 ```bash
 kubectl kustomize infra/k8s >/dev/null
-kubectl apply --dry-run=client --validate=false -k infra/k8s >/dev/null
+kubectl kustomize infra/overlays/ha >/dev/null
 kubectl apply --dry-run=client --validate=false \
   -f infra/argocd/application.yaml >/dev/null
 ```
 
-The normal bootstrap is performed by `configure-gitlab.sh`; applying the application directly is useful only when the GitLab project and Vault contracts already exist:
-
-```bash
-kubectl apply -f infra/argocd/application.yaml
-```
-
-For a repeatable operator-triggered refresh, the Ansible entry point applies the same Argo CD `Application`, requests a hard source refresh, waits for a new `Synced`/`Healthy` reconciliation, and verifies both Deployment rollouts. It deploys the pushed `main` revision, never uncommitted local manifests:
+The Ansible entry point applies the same `Application`, requests a hard refresh, waits for a new `Synced`/`Healthy` reconciliation and checks both rollouts. It deploys the pushed `main` revision, never local manifests:
 
 ```bash
 ansible-playbook -i infra/ansible/inventory.ini infra/ansible/site.yaml
 ```
 
-## Health And Rollback
+## Rollback
 
-Backend health: `/api/actuator/health`
+Revert or change the image-tag commit on `main` and let Argo CD sync it. Do not patch live Deployments: self-healing restores Git's desired state. Post-rollout checks are in [Operations](./operations.md#first-checks-after-a-rollout).
 
-Frontend health: `/health`
-
-```bash
-kubectl get application indezy -n infra
-kubectl get deployment,pod,service,ingress,externalsecret -n apps
-kubectl rollout status deployment/indezy-server -n apps
-kubectl rollout status deployment/indezy-web -n apps
-```
-
-Rollback by reverting or changing the desired image-tag commit on `main`. Do not patch live Deployments because Argo CD self-healing restores Git's desired state.
-
-## Automatic Sonar coverage
-
-The platform discovers this repository through its Argo CD workloads in `apps`.
-`.sonar-auto.json` declares the CI contract. `SONAR_SCAN_ONLY=true` on the default
-branch runs only compilation, tests/coverage and `02-quality`; it excludes image
-packaging, browser/security jobs, release, deployment and version changes.
-The platform provisions the Sonar project and masked analysis token, and requests
-a scan when analysis is missing or more than 24 hours old. Normal default-branch
-pipelines also run quality automatically. Submission failures fail the quality
-job visibly; quality findings remain independent of deployment permission.
-
-The quality job uses the shared slim Node scanner image; browser images are only
-needed for explicitly requested E2E jobs.
-
-## Future multi-node HA profile
+## Multi-node HA profile
 
 `infra/overlays/ha` runs two API and two web replicas across at least two eligible
 hostnames, with a disruption budget for each Deployment and rolling updates
-that retain an available replica. Keep the normal `infra/k8s` path for the
-current single-host installation. PostgreSQL, Keycloak and ingress must also
-survive a host failure; this overlay does not replicate the shared database.
+that keep an available replica. Keep `infra/k8s` for the current single-host
+installation. PostgreSQL, Keycloak and ingress must also survive a host failure;
+this overlay does not replicate the shared database.
 
-To opt in, persist `spec.source.path: infra/overlays/ha` in this repository's
-`infra/argocd/application.yaml`, then reconcile that Application. Bootstrap and
-release helpers may reapply this file, so do not rely on a live-only override.
+To opt in, persist `spec.source.path: infra/overlays/ha` in
+`infra/argocd/application.yaml`, then reconcile that Application; release and
+bootstrap helpers reapply this file, so a live-only override does not last.
 Image updates stay in `infra/k8s/kustomization.yaml`; the overlay inherits them
-and copies the rendered API image to its schema Job.
+and copies the API image to its schema Job.
 
-```sh
-kubectl kustomize infra/k8s >/dev/null
-kubectl kustomize infra/overlays/ha >/dev/null
-```
+The profile serializes schema updates before the API revision starts. After the
+database setup hook, `indezy-schema-migration` takes a PostgreSQL advisory lock
+before Spring initializes Hibernate and applies schema changes on that same
+connection; a startup or DDL failure fails the hook, and closing the connection
+releases the lock. The migration-only process binds HTTP to loopback, has no
+Service and exits. API replicas use `ddl-auto=validate` and wait in the next
+Argo sync wave.
 
-The HA profile serializes schema updates before starting the API revision.
-After the existing database setup hook, `indezy-schema-migration` acquires a
-PostgreSQL advisory lock before Spring initializes Hibernate. Schema changes
-use that same database connection; startup or DDL failure fails the hook, and
-closing the connection releases the lock. The migration-only process binds
-HTTP to loopback, has no Service, closes its Spring context and exits. API
-replicas use `ddl-auto=validate` and wait in the next Argo sync wave.
-
-This reuses the existing Hibernate schema-update behavior, not a versioned
-migration system. Back up the database and test schema changes against a copy
-first; they must remain compatible with the old API revision during rollout.
-Breaking or destructive changes require an explicit migration plan. Publish an
-image containing the schema-only mode before selecting the HA profile.
+This reuses Hibernate's schema update, not a versioned migration system. Back up
+the database and test schema changes against a copy first; they must stay
+compatible with the old API revision during rollout, and breaking or destructive
+changes need an explicit migration plan.
 
 The API uses shared JWT credentials and needs no sticky sessions. Login failure
-counters remain per process, so additional replicas do not provide a distributed
-account lockout. Readiness includes database connectivity; liveness checks only
-application state, allowing database failover without restarting every API.
-Validate authentication across replicas, concurrent writes and optimistic
-locking, a database outage, and a node drain before accepting the profile.
+counters stay per process, so more replicas do not give a distributed account
+lockout. Readiness includes database connectivity; liveness checks only
+application state, so a database failover does not restart every API. Validate
+authentication across replicas, concurrent writes and optimistic locking, a
+database outage and a node drain before accepting the profile.

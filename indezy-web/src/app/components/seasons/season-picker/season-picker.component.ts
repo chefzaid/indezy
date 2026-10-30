@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ALL_SEASONS, SeasonSelection, SeasonService } from '../../../services/season/season.service';
@@ -29,7 +29,6 @@ import { toIsoDate } from '../../../shared/locale/app-locale';
     MatIconModule,
     MatMenuModule,
     MatTooltipModule,
-    MatDialogModule,
     TranslateModule
   ],
   templateUrl: './season-picker.component.html',

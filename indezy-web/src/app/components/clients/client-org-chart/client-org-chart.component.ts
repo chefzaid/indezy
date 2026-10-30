@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ContactDto, ContactRelation } from '../../../models/contact.models';
+import { ContactDto, ContactRelation, contactName } from '../../../models/contact.models';
 import { ContactService } from '../../../services/contact/contact.service';
 
 /** A contact of the client with the people reporting to it there, and those it works with elsewhere. */
@@ -22,8 +22,7 @@ export interface OrgNode {
  */
 export function buildOrgChart(contacts: ContactDto[], relations: ContactRelation[]): OrgNode[] {
   const ids = new Set(contacts.map(contact => contact.id));
-  const name = (contact: ContactDto): string => [contact.firstName, contact.lastName].filter(Boolean).join(' ');
-  const byName = (a: OrgNode, b: OrgNode): number => name(a.contact).localeCompare(name(b.contact));
+  const byName = (a: OrgNode, b: OrgNode): number => contactName(a.contact).localeCompare(contactName(b.contact));
   const nodes = new Map(contacts.map(contact => [contact.id, {
     contact,
     reports: [] as OrgNode[],
@@ -69,7 +68,5 @@ export class ClientOrgChartComponent implements OnChanges {
     });
   }
 
-  nameOf(contact: ContactDto): string {
-    return [contact.firstName, contact.lastName].filter(Boolean).join(' ');
-  }
+  readonly nameOf = contactName;
 }

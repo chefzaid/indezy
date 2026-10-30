@@ -1,7 +1,7 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ConfirmDialogComponent, ConfirmDialogData } from './confirm-dialog.component';
 
 describe('ConfirmDialogComponent', () => {
@@ -19,8 +19,9 @@ describe('ConfirmDialogComponent', () => {
     dialogRefSpy = jasmine.createSpyObj<MatDialogRef<ConfirmDialogComponent, boolean>>('MatDialogRef', ['close']);
 
     await TestBed.configureTestingModule({
-      imports: [ConfirmDialogComponent, TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [ConfirmDialogComponent, TranslateModule.forRoot()],
       providers: [
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: MatDialogRef, useValue: dialogRefSpy },
         { provide: MAT_DIALOG_DATA, useValue: data }
       ]

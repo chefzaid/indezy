@@ -20,6 +20,7 @@ import { ContactService } from '../../../services/contact/contact.service';
 import { ProjectService } from '../../../services/project/project.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { toIsoDate } from '../../../shared/locale/app-locale';
 
 export const SUMMARY_MAX = 500;
 export const CHANNEL_ICONS: Record<InteractionChannel, string> = {
@@ -30,12 +31,6 @@ export const CHANNEL_ICONS: Record<InteractionChannel, string> = {
   OTHER: 'chat'
 };
 type Answer = 'WAITING' | 'ANSWERED' | 'UNANSWERED';
-
-/** The local calendar day of {@code date}, as yyyy-MM-dd. */
-export function localDay(date: Date = new Date()): string {
-  const pad = (value: number): string => String(value).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
 
 /**
  * The exchanges kept with a contact (messages, calls, meetings), newest first, with when it was last contacted, how
@@ -62,7 +57,7 @@ export class ContactInteractionsComponent implements OnChanges {
   readonly icons = CHANNEL_ICONS;
   readonly summaryMax = SUMMARY_MAX;
   readonly form = inject(FormBuilder).nonNullable.group({
-    occurredOn: [localDay(), Validators.required],
+    occurredOn: [toIsoDate(new Date()), Validators.required],
     channel: ['EMAIL' as InteractionChannel, Validators.required],
     direction: ['OUTGOING' as InteractionDirection, Validators.required],
     answer: ['WAITING' as Answer],
@@ -77,7 +72,7 @@ export class ContactInteractionsComponent implements OnChanges {
   formOpen = false;
   editingId: number | null = null;
   saving = false;
-  today = localDay();
+  today = toIsoDate(new Date());
 
   ngOnChanges(): void {
     this.load();
@@ -97,14 +92,14 @@ export class ContactInteractionsComponent implements OnChanges {
   }
 
   startAdd(): void {
-    this.today = localDay();
+    this.today = toIsoDate(new Date());
     this.editingId = null;
     this.form.reset({ occurredOn: this.today, channel: 'EMAIL', direction: 'OUTGOING', answer: 'WAITING', summary: '', projectId: null });
     this.formOpen = true;
   }
 
   startEdit(interaction: ContactInteraction): void {
-    this.today = localDay();
+    this.today = toIsoDate(new Date());
     this.editingId = interaction.id ?? null;
     this.form.reset({
       occurredOn: interaction.occurredOn,

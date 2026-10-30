@@ -1,13 +1,10 @@
-import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorIntl } from '@angular/material/paginator';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader, provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
@@ -32,24 +29,15 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([authInterceptor, errorInterceptor])
     ),
-    provideAnimationsAsync(),
     // Production only: the app and the workspace's last answers stay readable offline (ngsw-config.json).
     provideServiceWorker('ngsw-worker.js', { enabled: environment.production, registrationStrategy: 'registerWhenStable:30000' }),
     provideAppLocale(),
     { provide: MatPaginatorIntl, useClass: TranslatedPaginatorIntl },
     provideAppInitializer(() => inject(ThemeService).restore()),
     provideAppInitializer(() => inject(AuthService).initializeSso()),
-    importProvidersFrom(
-      MatSnackBarModule,
-      MatDialogModule,
-      TranslateModule.forRoot({
-        fallbackLang: 'fr',
-        loader: {
-          provide: TranslateLoader,
-          useClass: TranslateHttpLoader
-        }
-      })
-    ),
-    ...provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' })
+    provideTranslateService({
+      fallbackLang: 'fr',
+      loader: provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' })
+    })
   ]
 };

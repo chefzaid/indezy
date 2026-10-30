@@ -57,6 +57,8 @@ export class AppDateAdapter extends NativeDateAdapter {
 }
 
 /** Formats a date as an ISO calendar day (yyyy-MM-dd) using local time, as the API expects. */
+export function toIsoDate(date: Date): string;
+export function toIsoDate(date: Date | string | null | undefined): string | undefined;
 export function toIsoDate(date: Date | string | null | undefined): string | undefined {
   if (!date) {
     return undefined;

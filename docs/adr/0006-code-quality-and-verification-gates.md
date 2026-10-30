@@ -1,9 +1,9 @@
 # ADR 0006: Code Quality And Verification Gates
 
-- Status: Accepted
+- Status: Superseded by [ADR 0007](./0007-explicit-delivery-jobs.md)
 - Date: 2026-06-12
 
-The pipeline-gate and future-improvement portions of this decision are superseded by [ADR 0007](./0007-explicit-delivery-jobs.md). Its local test-tooling decisions remain active.
+ADR 0007 sets the pipeline's gates. The [Testing Guide](../testing.md) describes the local test commands.
 
 ## Context
 
@@ -25,8 +25,7 @@ Use the existing test and quality tooling as the project baseline and evolve CI 
 
 Local development should use:
 
-- `mask test`
-- `mask test-coverage`
+- `mask test`, which also writes the coverage reports
 - backend targeted Maven tests
 - frontend targeted Karma tests
 - frontend lint

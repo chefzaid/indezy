@@ -1,6 +1,5 @@
 package dev.swirlit.indezy.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpServer;
 import dev.swirlit.indezy.service.WebhookDeliveryJob;
 import org.junit.jupiter.api.AfterEach;
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import tools.jackson.databind.json.JsonMapper;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -79,7 +79,7 @@ class WebhookIntegrationTest extends TwoAccountsIntegrationTest {
         call(alice, HttpMethod.PATCH, "/projects/" + project + "/status?status=INTERVIEW", null, Map.class);
         assertThat(job.deliverDue()).isEqualTo(2);
         assertThat(received).hasSize(2);
-        ObjectMapper json = new ObjectMapper();
+        JsonMapper json = JsonMapper.builder().build();
         Map<String, Object> first = json.readValue(received.get(0).body(), Map.class);
         assertThat(first).containsEntry("event", "OPPORTUNITY_CREATED");
         assertThat((Map<String, Object>) first.get("data")).containsEntry("projectId", (int) project).containsEntry("role", "Architecte")

@@ -6,20 +6,15 @@ import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.ApiToken;
 import dev.swirlit.indezy.model.enums.AccountEventType;
 import dev.swirlit.indezy.repository.ApiTokenRepository;
+import dev.swirlit.indezy.util.Tokens;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -38,7 +33,6 @@ public class ApiTokenService {
     static final Set<Integer> LIFETIMES = Set.of(30, 90, 365);
     private static final Duration USED_EVERY = Duration.ofMinutes(5);
     private static final int TOKEN_START_LENGTH = 12;
-    private static final SecureRandom RANDOM = new SecureRandom();
 
     private final ApiTokenRepository tokens;
     private final AccountEventService events;
@@ -58,13 +52,11 @@ public class ApiTokenService {
         if (tokens.countByUserIdAndRevokedAtIsNull(userId) >= MAX_TOKENS) {
             throw new InvalidStateException("An account has " + MAX_TOKENS + " API tokens at most: revoke one first");
         }
-        byte[] random = new byte[32];
-        RANDOM.nextBytes(random);
-        String secret = PREFIX + Base64.getUrlEncoder().withoutPadding().encodeToString(random);
+        String secret = PREFIX + Tokens.random();
         ApiToken token = new ApiToken();
         token.setUserId(userId);
         token.setName(request.name().strip());
-        token.setTokenHash(hash(secret));
+        token.setTokenHash(Tokens.sha256Hex(secret));
         token.setTokenStart(secret.substring(0, TOKEN_START_LENGTH));
         token.setExpiresAt(days == null ? null : LocalDateTime.now(clock).plusDays(days));
         token.setScopes(request.scopes());
@@ -90,20 +82,12 @@ public class ApiTokenService {
             return Optional.empty();
         }
         LocalDateTime now = LocalDateTime.now(clock);
-        return tokens.findUsable(hash(secret), now).map(token -> {
+        return tokens.findUsable(Tokens.sha256Hex(secret), now).map(token -> {
             if (token.getLastUsedAt() == null || token.getLastUsedAt().isBefore(now.minus(USED_EVERY))) {
                 tokens.touch(token.getId(), now);
             }
             return new ApiTokenDtos.Authenticated(token.getUserId(), token.getScopes());
         });
-    }
-
-    static String hash(String secret) {
-        try {
-            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(secret.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 is missing", e);
-        }
     }
 
     private static ApiTokenDtos.Token toDto(ApiToken token) {

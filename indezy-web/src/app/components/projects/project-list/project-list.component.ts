@@ -13,7 +13,6 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
@@ -61,7 +60,6 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
         MatProgressSpinnerModule,
         MatSnackBarModule,
         MatDatepickerModule,
-        MatSliderModule,
         MatCheckboxModule,
         MatExpansionModule,
         MatDividerModule,

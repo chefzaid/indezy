@@ -35,7 +35,6 @@ export interface ClientDto extends ActivityReportTemplateFields, ClientBillingFi
   freelanceId?: number;
   totalProjects?: number;
   totalContacts?: number;
-  averageProjectRating?: number;
   averageDailyRate?: number;
   // Legacy properties for compatibility
   name?: string;

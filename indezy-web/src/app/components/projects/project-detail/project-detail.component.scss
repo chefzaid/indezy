@@ -179,28 +179,6 @@
   }
 }
 
-.journal-content {
-  code {
-    padding: 1px 4px;
-    background: var(--app-hover);
-    border-radius: 3px;
-    font-family: monospace;
-  }
-
-  h1, h2, h3 {
-    margin: 8px 0 4px;
-  }
-
-  ul {
-    margin: 4px 0;
-    padding-left: 20px;
-  }
-
-  a {
-    color: var(--app-link);
-  }
-}
-
 .skill-tags {
   display: flex;
   flex-wrap: wrap;

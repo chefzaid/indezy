@@ -11,6 +11,7 @@ import dev.swirlit.indezy.model.enums.ActivityDayType;
 import dev.swirlit.indezy.model.enums.ActivityReportStatus;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.PublicHoliday;
+import dev.swirlit.indezy.util.Tokens;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -188,7 +189,7 @@ class ActivityReportServiceTest extends ActivityReportServiceTestSupport {
 
         assertThat(link.getToken()).hasSize(43).matches("[A-Za-z0-9_-]+");
         assertThat(link.getExpiresAt()).isEqualTo(NOW.plus(ActivityReportService.LINK_VALIDITY));
-        assertThat(rejected.getValidationTokenHash()).isEqualTo(ActivityReportService.hash(link.getToken()))
+        assertThat(rejected.getValidationTokenHash()).isEqualTo(Tokens.sha256Hex(link.getToken()))
             .isNotEqualTo(link.getToken()).hasSize(64);
         assertThat(rejected.getStatus()).isEqualTo(ActivityReportStatus.SUBMITTED);
         assertThat(rejected.getSubmittedAt()).isEqualTo(NOW);
@@ -217,12 +218,12 @@ class ActivityReportServiceTest extends ActivityReportServiceTestSupport {
     @Test
     void renewLink_ShouldReplaceTheTokenOfASubmittedReport() {
         ActivityReport submitted = report(ActivityReportStatus.SUBMITTED);
-        submitted.setValidationTokenHash(ActivityReportService.hash("old-token"));
+        submitted.setValidationTokenHash(Tokens.sha256Hex("old-token"));
 
         ActivityReportLinkDto link = service.renewLink(PROJECT_ID, NOVEMBER);
 
-        assertThat(submitted.getValidationTokenHash()).isEqualTo(ActivityReportService.hash(link.getToken()))
-            .isNotEqualTo(ActivityReportService.hash("old-token"));
+        assertThat(submitted.getValidationTokenHash()).isEqualTo(Tokens.sha256Hex(link.getToken()))
+            .isNotEqualTo(Tokens.sha256Hex("old-token"));
         assertThat(submitted.getStatus()).isEqualTo(ActivityReportStatus.SUBMITTED);
     }
 
@@ -238,7 +239,7 @@ class ActivityReportServiceTest extends ActivityReportServiceTestSupport {
     void reopen_ShouldRevokeTheLinkAndForgetTheDecision() {
         ActivityReport validated = report(ActivityReportStatus.VALIDATED);
         validated.setSubmittedAt(NOW);
-        validated.setValidationTokenHash(ActivityReportService.hash("token"));
+        validated.setValidationTokenHash(Tokens.sha256Hex("token"));
         validated.setValidationExpiresAt(NOW.plusSeconds(60));
         validated.setValidatorName("Jean Dupont");
         validated.setDecidedAt(NOW);
@@ -265,12 +266,5 @@ class ActivityReportServiceTest extends ActivityReportServiceTestSupport {
 
         assertThat(service.getReports(PROJECT_ID)).extracting(ActivityReportDto::getId).containsExactly(3L);
         assertThat(service.findByFreelanceId(1L)).extracting(ActivityReportDto::getMonth).containsExactly(10);
-    }
-
-    @Test
-    void deleteByProjectId_ShouldRemoveTheProjectsReports() {
-        service.deleteByProjectId(PROJECT_ID);
-
-        verify(reportRepository).deleteByProjectId(PROJECT_ID);
     }
 }

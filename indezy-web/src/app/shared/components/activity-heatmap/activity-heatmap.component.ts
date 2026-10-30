@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ActivityDay } from '../../../models';
+import { toIsoDate } from '../../locale/app-locale';
 
 export interface HeatmapCell {
   date: string;
@@ -14,7 +14,7 @@ export interface HeatmapCell {
  */
 @Component({
   selector: 'app-activity-heatmap',
-  imports: [CommonModule, TranslateModule],
+  imports: [TranslateModule],
   templateUrl: './activity-heatmap.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./activity-heatmap.component.scss']
@@ -37,7 +37,7 @@ export class ActivityHeatmapComponent implements OnChanges {
     const weeks: HeatmapCell[][] = [];
     let week: HeatmapCell[] = [];
     for (let day = start; day <= end; day = this.addDays(day, 1)) {
-      const iso = this.toIso(day);
+      const iso = toIsoDate(day);
       week.push({ date: iso, count: counts.get(iso) ?? 0 });
       if (day.getDay() === 0) {
         weeks.push(week);
@@ -74,11 +74,5 @@ export class ActivityHeatmapComponent implements OnChanges {
     const result = this.atMidnight(date);
     const offset = (result.getDay() + 6) % 7; // days since Monday
     return this.addDays(result, -offset);
-  }
-
-  private toIso(date: Date): string {
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const day = `${date.getDate()}`.padStart(2, '0');
-    return `${date.getFullYear()}-${month}-${day}`;
   }
 }

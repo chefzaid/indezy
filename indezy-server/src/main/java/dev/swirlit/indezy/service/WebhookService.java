@@ -1,7 +1,5 @@
 package dev.swirlit.indezy.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.swirlit.indezy.dto.WebhookDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -14,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.security.SecureRandom;
 import java.time.Clock;
@@ -41,7 +41,7 @@ public class WebhookService implements WebhookPublisher {
     private final WebhookDeliveryRepository deliveries;
     private final WebhookAddresses addresses;
     private final Clock clock;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JsonMapper jsonMapper;
     private final SecureRandom random = new SecureRandom();
 
     @Transactional(readOnly = true)
@@ -125,8 +125,8 @@ public class WebhookService implements WebhookPublisher {
         body.put("createdAt", clock.instant().toString());
         body.put("data", data);
         try {
-            saved.setPayload(objectMapper.writeValueAsString(body));
-        } catch (JsonProcessingException e) {
+            saved.setPayload(jsonMapper.writeValueAsString(body));
+        } catch (JacksonException e) {
             throw new IllegalStateException("A webhook payload could not be written", e);
         }
         return saved;

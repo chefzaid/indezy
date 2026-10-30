@@ -13,6 +13,8 @@ spring:
         "[hbm2ddl.halt_on_error]": true
 
 indezy:
+  # A one-off run: no background jobs.
+  scheduling-enabled: false
   contacts:
     # A one-off run: never anonymize contacts.
     retention-enabled: false

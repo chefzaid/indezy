@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, filter, map, of, take, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, of, take, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Capabilities, FeatureFlag } from '../../models';
 
@@ -16,7 +16,6 @@ export const DEFAULT_CAPABILITIES: Capabilities = {
 })
 export class CapabilitiesService {
   private readonly current = new BehaviorSubject<Capabilities | null>(null);
-  readonly capabilities$ = this.current.pipe(filter((capabilities): capabilities is Capabilities => capabilities !== null));
 
   constructor(private readonly http: HttpClient) {}
 

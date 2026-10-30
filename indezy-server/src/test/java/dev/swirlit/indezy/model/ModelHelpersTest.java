@@ -1,6 +1,5 @@
 package dev.swirlit.indezy.model;
 
-import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -152,19 +151,6 @@ class ModelHelpersTest {
             assertThat(freelance.getClients()).isEmpty();
             assertThat(freelance.getContacts()).isEmpty();
             assertThat(freelance.getSources()).isEmpty();
-        }
-    }
-
-    @Nested
-    class ResourceNotFoundExceptionTest {
-
-        @Test
-        void constructor_WithCause_ShouldPreserveMessageAndCause() {
-            Throwable cause = new IllegalStateException("root");
-            ResourceNotFoundException ex = new ResourceNotFoundException("not found", cause);
-
-            assertThat(ex.getMessage()).isEqualTo("not found");
-            assertThat(ex.getCause()).isSameAs(cause);
         }
     }
 }

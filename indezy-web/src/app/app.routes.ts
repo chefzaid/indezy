@@ -155,10 +155,6 @@ export const routes: Routes = [
     loadComponent: () => import('./components/error/not-found/not-found.component').then(m => m.NotFoundComponent)
   },
   {
-    path: 'error',
-    loadComponent: () => import('./components/error/server-error/server-error.component').then(m => m.ServerErrorComponent)
-  },
-  {
     path: '**',
     loadComponent: () => import('./components/error/not-found/not-found.component').then(m => m.NotFoundComponent)
   }

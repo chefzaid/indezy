@@ -28,8 +28,6 @@ export interface UserProfile {
   /** A level and years of experience for some of the skills, keyed by skill. */
   skillDetails?: Record<string, SkillDetail>;
   languages?: string[];
-  timezone?: string;
-  currency?: string;
   targetDailyRate?: number | null;
   /** ISO day (yyyy-MM-dd) the workspace is next available from, which offers' start dates are matched against. */
   availabilityDate?: string | null;
@@ -61,13 +59,6 @@ export interface UserNotificationSettings {
 export interface UserPreferences {
   theme: 'light' | 'dark' | 'auto';
   language: string;
-  dateFormat: string;
-  timeFormat: '12h' | '24h';
-  currency: string;
-  timezone: string;
-  defaultView: 'dashboard' | 'projects' | 'clients';
-  itemsPerPage: number;
-  autoSave: boolean;
   inactivityDays: number;
   /** Days a message sent to a contact waits for an answer before the dashboard says to follow up. */
   followUpDays?: number;

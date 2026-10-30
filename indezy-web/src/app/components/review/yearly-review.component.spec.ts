@@ -1,8 +1,8 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NEVER, Subject, of, throwError } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { YearlyReviewComponent } from './yearly-review.component';
 import { YearlyReviewService } from '../../services/review/yearly-review.service';
@@ -55,8 +55,9 @@ describe('YearlyReviewComponent', () => {
     reviews.get.and.callFake((_id, year) => of(review({ year })));
 
     await TestBed.configureTestingModule({
-      imports: [YearlyReviewComponent, RouterModule.forRoot([]), TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [YearlyReviewComponent, RouterModule.forRoot([]), TranslateModule.forRoot()],
       providers: [
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: YearlyReviewService, useValue: reviews },
         { provide: AuthService, useValue: auth },
         { provide: NotificationService, useValue: notifications }

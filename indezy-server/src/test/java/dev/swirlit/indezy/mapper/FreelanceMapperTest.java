@@ -68,27 +68,6 @@ class FreelanceMapperTest {
     }
 
     @Test
-    void toEntity_WithValidFreelanceDto_ShouldMapToFreelance() {
-        Freelance result = freelanceMapper.toEntity(testFreelanceDto);
-
-        assertThat(result).isNotNull();
-        // ID should be null for new entities (ignored in mapping)
-        assertThat(result.getId()).isNull();
-        assertThat(result.getFirstName()).isEqualTo(testFreelanceDto.getFirstName());
-        assertThat(result.getLastName()).isEqualTo(testFreelanceDto.getLastName());
-        assertThat(result.getEmail()).isEqualTo(testFreelanceDto.getEmail());
-        assertThat(result.getPhone()).isEqualTo(testFreelanceDto.getPhone());
-        assertThat(result.getStatus()).isEqualTo(testFreelanceDto.getStatus());
-    }
-
-    @Test
-    void toEntity_WithNullFreelanceDto_ShouldReturnNull() {
-        Freelance result = freelanceMapper.toEntity(null);
-
-        assertThat(result).isNull();
-    }
-
-    @Test
     void updateEntity_WithValidData_ShouldUpdateFreelance() {
         Freelance existingFreelance = new Freelance();
         existingFreelance.setId(1L);

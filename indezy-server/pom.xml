@@ -28,9 +28,6 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <pdfbox.version>3.0.8</pdfbox.version>
         <jsoup.version>1.23.2</jsoup.version>
-        <maven.compiler.release>25</maven.compiler.release>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Code Quality Plugin Versions -->
         <jacoco.version>0.8.13</jacoco.version>
@@ -169,19 +166,6 @@
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>${mapstruct.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Lombok-MapStruct binding for compatibility -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok-mapstruct-binding</artifactId>
-            <version>0.2.0</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
     
     <build>
@@ -242,7 +226,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.0</version>
                 <configuration>
-                    <release>${maven.compiler.release}</release>
                     <annotationProcessorPaths>
                         <!-- Lombok must be processed first -->
                         <path>
@@ -264,7 +247,6 @@
                         </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
-                        <compilerArg>-Amapstruct.defaultComponentModel=spring</compilerArg>
                         <compilerArg>-Amapstruct.unmappedTargetPolicy=IGNORE</compilerArg>
                     </compilerArgs>
                 </configuration>

@@ -30,9 +30,4 @@ public class OfferTerm {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
-
-    public OfferTerm(String term, Instant createdAt) {
-        this.term = term;
-        this.createdAt = createdAt;
-    }
 }

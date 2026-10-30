@@ -1,6 +1,6 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { PurchaseOrder, PurchaseOrderAmendment } from '../../../../models';
@@ -17,7 +17,7 @@ describe('PurchaseOrderDialogComponent', () => {
     close = jasmine.createSpy('close');
     TestBed.configureTestingModule({
       imports: [PurchaseOrderDialogComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), { provide: MAT_DIALOG_DATA, useValue: data }, { provide: MatDialogRef, useValue: { close } }]
+      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: MAT_DIALOG_DATA, useValue: data }, { provide: MatDialogRef, useValue: { close } }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);

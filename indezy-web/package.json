@@ -7,17 +7,15 @@
     "start": "ng serve --host 0.0.0.0 --port 4200",
     "build": "ng build",
     "postbuild": "node scripts/prerender-home.mjs",
-    "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI",
     "test:e2e": "playwright test",
-    "test:node": "node --check extension/background.js && node --check extension/options.js && node --test extension/test/ scripts/test/",
+    "test:node": "node --check extension/background.js && node --check extension/options.js && node --test 'extension/test/*.test.mjs' 'scripts/test/*.test.mjs'",
     "lint": "ng lint && node scripts/coverage-sources.mjs --check",
     "coverage-sources": "node scripts/coverage-sources.mjs"
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^22.0.1",
     "@angular/cdk": "^22.0.1",
     "@angular/common": "^22.0.1",
     "@angular/compiler": "^22.0.1",
@@ -38,9 +36,6 @@
   },
   "devDependencies": {
     "@angular-eslint/builder": "^22.0.0",
-    "@angular-eslint/eslint-plugin": "^22.0.0",
-    "@angular-eslint/eslint-plugin-template": "^22.0.0",
-    "@angular-eslint/template-parser": "^22.0.0",
     "@angular/build": "^22.0.1",
     "@angular/cli": "^22.0.1",
     "@angular/compiler-cli": "^22.0.1",
@@ -57,7 +52,6 @@
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0",
     "karma-junit-reporter": "^2.0.1",
     "typescript": "~6.0.3"
   },

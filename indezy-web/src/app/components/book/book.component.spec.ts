@@ -1,7 +1,7 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -22,7 +22,7 @@ describe('BookComponent', () => {
     service.publicPage.and.returnValue(answer);
     TestBed.configureTestingModule({
       imports: [BookComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), provideRouter([]), { provide: BookingService, useValue: service },
+      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, provideRouter([]), { provide: BookingService, useValue: service },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ slug: 'abc123' }) } } }]
     });
     const translate = TestBed.inject(TranslateService);

@@ -9,7 +9,8 @@ import { ContactService } from '../../../services/contact/contact.service';
 import { ProjectService } from '../../../services/project/project.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
-import { ContactInteractionsComponent, localDay } from './contact-interactions.component';
+import { ContactInteractionsComponent } from './contact-interactions.component';
+import { toIsoDate } from '../../../shared/locale/app-locale';
 
 describe('ContactInteractionsComponent', () => {
   let fixture: ComponentFixture<ContactInteractionsComponent>;
@@ -89,11 +90,11 @@ describe('ContactInteractionsComponent', () => {
     contacts.addInteraction.and.returnValue(of({ ...sent, id: 9 }));
 
     element().querySelector<HTMLButtonElement>('.add-interaction')!.click();
-    expect(component.form.getRawValue().occurredOn).toBe(localDay());
+    expect(component.form.getRawValue().occurredOn).toBe(toIsoDate(new Date()));
     component.form.patchValue({ channel: 'LINKEDIN', answer: 'UNANSWERED', summary: '  Followed up  ' });
     component.save();
 
-    expect(contacts.addInteraction).toHaveBeenCalledWith(3, { occurredOn: localDay(), channel: 'LINKEDIN', direction: 'OUTGOING',
+    expect(contacts.addInteraction).toHaveBeenCalledWith(3, { occurredOn: toIsoDate(new Date()), channel: 'LINKEDIN', direction: 'OUTGOING',
       replied: false, summary: 'Followed up', projectId: null });
     expect(notifications.success).toHaveBeenCalledWith('contacts.interactions.saved');
     expect(contacts.getInteractions).toHaveBeenCalledTimes(2);
@@ -193,10 +194,6 @@ describe('ContactInteractionsComponent', () => {
     expect(contacts.deleteInteraction).not.toHaveBeenCalled();
     component.remove(sent);
     expect(notifications.error).toHaveBeenCalledWith('contacts.interactions.deleteError');
-  });
-
-  it('writes the local day', () => {
-    expect(localDay(new Date(2026, 0, 5, 23, 30))).toBe('2026-01-05');
   });
 
   it('offers the opportunities in the pipeline, by role, and keeps the one an exchange is about', () => {

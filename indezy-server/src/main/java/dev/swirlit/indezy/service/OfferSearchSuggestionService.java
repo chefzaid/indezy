@@ -15,6 +15,7 @@ import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.SavedOfferSearchRepository;
 import dev.swirlit.indezy.scraping.GeoLocator;
 import dev.swirlit.indezy.util.FrenchGeography;
+import dev.swirlit.indezy.util.Tokens;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,9 +24,6 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -34,7 +32,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -173,12 +170,7 @@ public class OfferSearchSuggestionService {
             }
             canonical.put(field.getKey(), value.isArray() ? sorted((ArrayNode) value) : value.toString());
         }
-        try {
-            byte[] digest = MessageDigest.getInstance("SHA-256").digest(canonical.toString().getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest).substring(0, 32);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 is missing", e);
-        }
+        return Tokens.sha256Hex(canonical.toString()).substring(0, 32);
     }
 
     /** The candidates finding offers, with what they find, best first; each set of filters once. */

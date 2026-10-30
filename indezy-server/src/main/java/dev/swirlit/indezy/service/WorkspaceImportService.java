@@ -1,16 +1,14 @@
 package dev.swirlit.indezy.service;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.swirlit.indezy.dto.WorkspaceImportFile;
 import dev.swirlit.indezy.dto.WorkspaceImportReport;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Brings an Indezy account export into a workspace: its sources, clients and ESNs, contacts, seasons, opportunities with
@@ -27,10 +25,7 @@ public class WorkspaceImportService {
     private final ImportWriters writers;
     private final ImportWorkspaceIndex index;
     private final Validator validator;
-
-    // Self-contained reader, as the export writes with its own mapper; sections the import does not read are skipped.
-    private final ObjectMapper reader = new ObjectMapper().findAndRegisterModules()
-        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    private final JsonMapper jsonMapper;
 
     @Transactional(readOnly = true)
     public WorkspaceImportReport preview(Long freelanceId, byte[] file) {
@@ -45,11 +40,14 @@ public class WorkspaceImportService {
     WorkspaceImportFile read(byte[] file) {
         WorkspaceImportFile parsed;
         try {
-            parsed = reader.readValue(file, WorkspaceImportFile.class);
+            // Read as before Jackson 3: fields an older or newer export holds and the import does not are skipped, a
+            // checklist item's null done reads as false, and whatever follows the export's object is ignored.
+            parsed = jsonMapper.readerFor(WorkspaceImportFile.class)
+                .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,
+                    DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .readValue(file);
         } catch (JacksonException e) {
             throw new IllegalArgumentException("The file is not an Indezy export", e);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("The file could not be read", e);
         }
         if (parsed == null || parsed.isEmpty()) {
             throw new IllegalArgumentException("The file holds nothing an import can bring in");

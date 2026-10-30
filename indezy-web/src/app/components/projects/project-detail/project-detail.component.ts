@@ -4,7 +4,6 @@ import { PurchaseOrdersCardComponent } from '../purchase-orders/purchase-orders-
 import { ProjectLinkComponent } from '../../../shared/components/project-link/project-link.component';
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, LOCALE_ID, Injector, ViewChild, afterNextRender, inject } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,9 +12,6 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -46,8 +42,8 @@ import { MissionEndActionComponent } from '../mission-end-action/mission-end-act
 import { RefusedByBadgeComponent } from '../../../shared/components/refused-by-badge/refused-by-badge.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { SkillMatchService } from '../../../shared/services/skill-match.service';
+import { MatDialog } from '@angular/material/dialog';
+import { parseTechTags, skillMatchScore } from '../../../shared/utils/skill-match';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { RenameTagDialogComponent, RenameTagResult } from '../rename-tag-dialog/rename-tag-dialog.component';
@@ -71,7 +67,6 @@ import { ProjectEmailButtonComponent } from '../project-email/project-email-butt
         RefusedByBadgeComponent,
         MissionEndActionComponent,
         CommonModule,
-        FormsModule,
         RouterModule,
         MatCardModule,
         MatButtonModule,
@@ -79,11 +74,7 @@ import { ProjectEmailButtonComponent } from '../project-email/project-email-butt
         MatChipsModule,
         MatProgressSpinnerModule,
         MatDividerModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
         MatMenuModule,
-        MatDialogModule,
         MatTooltipModule,
         TranslateModule,
         ProjectJournalComponent
@@ -119,7 +110,6 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     private readonly notificationService: NotificationService,
     private readonly translate: TranslateService,
     private readonly confirmDialog: ConfirmDialogService,
-    private readonly skillMatchService: SkillMatchService,
     private readonly userManagementService: UserManagementService,
     private readonly authService: AuthService,
     private readonly dialog: MatDialog
@@ -129,12 +119,12 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
   /** The opportunity's tech stack as individual skill tags. */
   getTechTags(): string[] {
-    return this.skillMatchService.parseTags(this.project?.techStack);
+    return parseTechTags(this.project?.techStack);
   }
 
   /** Match score (0–100) of the opportunity against the freelancer's skill profile. */
   getMatchScore(): number {
-    return this.skillMatchService.matchScore(this.project?.techStack, this.userSkills);
+    return skillMatchScore(this.project?.techStack, this.userSkills);
   }
 
   private loadUserSkills(): void {

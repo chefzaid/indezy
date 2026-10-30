@@ -1,7 +1,7 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ContactImportDialogComponent } from './contact-import-dialog.component';
 
 describe('ContactImportDialogComponent', () => {
@@ -13,8 +13,8 @@ describe('ContactImportDialogComponent', () => {
     dialogRefSpy = jasmine.createSpyObj<MatDialogRef<ContactImportDialogComponent, string>>('MatDialogRef', ['close']);
 
     await TestBed.configureTestingModule({
-      imports: [ContactImportDialogComponent, TranslateModule.forRoot(), NoopAnimationsModule],
-      providers: [{ provide: MatDialogRef, useValue: dialogRefSpy }]
+      imports: [ContactImportDialogComponent, TranslateModule.forRoot()],
+      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: MatDialogRef, useValue: dialogRefSpy }]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ContactImportDialogComponent);

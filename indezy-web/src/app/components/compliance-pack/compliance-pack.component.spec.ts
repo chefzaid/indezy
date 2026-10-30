@@ -1,6 +1,6 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
@@ -24,7 +24,7 @@ describe('CompliancePackComponent', () => {
     notifications = jasmine.createSpyObj('NotificationService', ['error']);
     TestBed.configureTestingModule({
       imports: [CompliancePackComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), provideRouter([]), { provide: ComplianceService, useValue: service },
+      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, provideRouter([]), { provide: ComplianceService, useValue: service },
         { provide: NotificationService, useValue: notifications }, { provide: ActivatedRoute, useValue: { snapshot: { fragment } } }]
     });
     const translate = TestBed.inject(TranslateService);

@@ -41,7 +41,6 @@
               "material-icons/iconfont/filled.css",
               "src/styles.scss"
             ],
-            "scripts": [],
             "browser": "src/main.ts"
           },
           "configurations": {
@@ -96,12 +95,6 @@
           },
           "defaultConfiguration": "development"
         },
-        "extract-i18n": {
-          "builder": "@angular/build:extract-i18n",
-          "options": {
-            "buildTarget": "indezy-web:build"
-          }
-        },
         "test": {
           "builder": "@angular/build:karma",
           "options": {
@@ -127,11 +120,8 @@
               "material-icons/iconfont/filled.css",
               "src/styles.scss"
             ],
-            "scripts": [],
             "codeCoverage": true,
             "codeCoverageExclude": [
-              "src/test.ts",
-              "src/polyfills.ts",
               "src/app/coverage-sources.ts",
               "**/*.spec.ts"
             ]
@@ -141,8 +131,7 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
+              "src/**/*.ts"
             ]
           }
         }

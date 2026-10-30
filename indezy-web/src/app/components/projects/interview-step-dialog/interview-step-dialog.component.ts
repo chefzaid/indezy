@@ -14,6 +14,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InterviewStepService } from '../../../services/interview-step/interview-step.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { InterviewStepDto, STEP_STATUS_COLORS, StepChecklistItem, StepStatus } from '../../../models';
+import { toIsoDate } from '../../../shared/locale/app-locale';
 
 export interface InterviewStepDialogData {
   projectId: number;
@@ -186,8 +187,7 @@ export class InterviewStepDialogComponent {
     }
     const [hours, minutes] = (time || '09:00').split(':').map(Number);
     const pad = (n: number): string => `${n}`.padStart(2, '0');
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
-      `T${pad(hours || 0)}:${pad(minutes || 0)}:00`;
+    return `${toIsoDate(date)}T${pad(hours || 0)}:${pad(minutes || 0)}:00`;
   }
 
   static toTimeInput(date: Date): string {

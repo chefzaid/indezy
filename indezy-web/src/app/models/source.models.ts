@@ -14,7 +14,6 @@ export interface SourceDto {
   freelanceId: number;
   totalProjects?: number;
   averageDailyRate?: number;
-  projects?: unknown[]; // ProjectDto[] - avoiding circular dependency
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -20,13 +20,10 @@ import { ProfileComponent } from './profile.component';
 export const profile: UserProfile = {
   id: 1, firstName: 'Ada', lastName: 'Lovelace', email: 'ada@example.com', phone: '0600000000', birthDate: '1990-05-12',
   city: 'Paris', position: 'Tech lead', skills: ['Java', 'Angular'], languages: ['Anglais'], targetDailyRate: 650,
-  availabilityDate: '2026-11-02', timezone: 'Europe/Paris', currency: 'EUR'
+  availabilityDate: '2026-11-02'
 };
 
-export const preferences = {
-  theme: 'dark', language: 'fr', dateFormat: 'dd/MM/yyyy', timeFormat: '24h', currency: 'EUR', timezone: 'Europe/Paris',
-  defaultView: 'projects', itemsPerPage: '50', autoSave: false, inactivityDays: 30
-} as unknown as UserPreferences;
+export const preferences: UserPreferences = { theme: 'dark', language: 'fr', inactivityDays: 30 };
 
 export const notificationSettings: UserNotificationSettings = { weeklyReports: true, weeklyDigestSections: ['PIPELINE'],
   bookingEmails: true, newOffersBadge: true, emailsAvailable: true };

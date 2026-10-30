@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 
-import { ACTIVITY_REPORT_STATUS_COLORS, PublicActivityReport } from '../../models';
+import { PublicActivityReport } from '../../models';
 import { ActivityReportService } from '../../services/activity-report/activity-report.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ActivityCalendarComponent } from '../../shared/components/activity-calendar/activity-calendar.component';
@@ -50,7 +50,6 @@ export class ActivityReportValidationComponent implements OnInit, OnDestroy {
   private readonly locale = inject(LOCALE_ID);
   private readonly destroy$ = new Subject<void>();
 
-  readonly statusColors = ACTIVITY_REPORT_STATUS_COLORS;
   readonly form = inject(FormBuilder).nonNullable.group({
     validatorName: ['', [Validators.required, Validators.maxLength(120)]],
     comment: ['', [Validators.maxLength(1000)]]

@@ -8,7 +8,7 @@ import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ProjectService } from '../../../services/project/project.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
-import { localDay } from '../../contacts/contact-interactions/contact-interactions.component';
+import { toIsoDate } from '../../../shared/locale/app-locale';
 import { ProjectJournalComponent } from './project-journal.component';
 
 describe('ProjectJournalComponent', () => {
@@ -168,7 +168,7 @@ describe('ProjectJournalComponent', () => {
     component.exchangeForm.patchValue({ contactId: 9, channel: 'LINKEDIN', answered: false, summary: '  Relance  ' });
     component.recordExchange();
 
-    expect(contacts.addInteraction).toHaveBeenCalledWith(9, { occurredOn: localDay(), channel: 'LINKEDIN', direction: 'OUTGOING',
+    expect(contacts.addInteraction).toHaveBeenCalledWith(9, { occurredOn: toIsoDate(new Date()), channel: 'LINKEDIN', direction: 'OUTGOING',
       replied: false, summary: 'Relance', projectId: 12 });
     expect(component.recording).toBe(false);
     expect(contacts.getProjectInteractions).toHaveBeenCalledTimes(2);

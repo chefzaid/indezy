@@ -46,15 +46,6 @@ export interface UpdateInterviewStepDto {
   projectId?: number;
 }
 
-export interface StepTransitionDto {
-  projectId: number;
-  fromStepTitle: string;
-  toStepTitle: string;
-  notes?: string;
-}
-
-// Constants for interview steps
-// Status display labels
 // Status colors for UI, dark enough to carry white text in status pills (4.5:1 contrast at least)
 export const STEP_STATUS_COLORS: { [key in StepStatus]: string } = {
   [StepStatus.TO_PLAN]: '#b85600', // orange

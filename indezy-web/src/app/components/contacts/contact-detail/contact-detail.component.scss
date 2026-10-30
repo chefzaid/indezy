@@ -161,43 +161,6 @@
           }
         }
         
-        &.timeline-card {
-          .timeline-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 12px 0;
-            
-            &:not(:last-child) {
-              border-bottom: 1px solid var(--app-border);
-            }
-            
-            .timeline-icon {
-              mat-icon {
-                color: var(--app-link);
-                font-size: 1.2rem;
-                width: 1.2rem;
-                height: 1.2rem;
-              }
-            }
-            
-            .timeline-content {
-              flex: 1;
-              
-              .timeline-title {
-                font-weight: 500;
-                color: var(--app-text);
-                margin-bottom: 4px;
-              }
-              
-              .timeline-date {
-                font-size: 0.85rem;
-                color: var(--app-text-muted);
-              }
-            }
-          }
-        }
-        
         &.notes-card {
           grid-column: 1 / -1;
           

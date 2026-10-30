@@ -16,8 +16,8 @@ describe('ProfileComponent settings', () => {
       component.preferencesForm.patchValue({ autoArchive: true, contactRetentionYears: 3 });
       component.onUpdatePreferences();
 
-      expect(bed.users.updateUserPreferences).toHaveBeenCalledWith(jasmine.objectContaining({ theme: 'dark', itemsPerPage: 50, autoArchive: true,
-        contactRetentionYears: 3 }));
+      expect(bed.users.updateUserPreferences).toHaveBeenCalledWith(jasmine.objectContaining({ theme: 'dark', inactivityDays: 30,
+        autoArchive: true, contactRetentionYears: 3 }));
       expect(component.retentionYears).toEqual([0, 1, 2, 3, 5]);
       expect(bed.notifications.success).toHaveBeenCalledWith('profile.preferencesUpdated');
       expect(bed.theme.apply).toHaveBeenCalledWith('dark');

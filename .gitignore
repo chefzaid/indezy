@@ -1,103 +1,54 @@
-# Environment variables
+# Local settings
 .env
 .env.local
 .env.production
 
-# DevContainer
-.devcontainer/.env.local
-
-# IDE
+# IDE and OS
 .idea/
 *.swp
 *.swo
-
-# OS
 .DS_Store
 Thumbs.db
 
-# Logs
+# Logs (mask run writes indezy-server.log)
 *.log
 logs/
 
-# Backend (Java/Maven)
+# Server build
 indezy-server/target/
 indezy-server/.mvn/wrapper/maven-wrapper.jar
-
-# Compiled class file
 *.class
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
 
-# Frontend (Node/Angular)
-indezy-web/node_modules/
+# Web build and dependencies
+node_modules/
 indezy-web/dist/
 indezy-web/.angular/
-indezy-web/coverage/
 indezy-web/.nyc_output/
-
-# Node.js (any location)
-node_modules/
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+*.tar.gz
+*.zip
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Docker
-docker-compose.override.yml
-
-# Temporary files
-*.tmp
-*.temp
-.cache/
-
-# Build artifacts
-build/
-out/
-
-# Test results
+# Test results and coverage
 test-results/
 coverage/
+playwright-report/
+
+# Caches and temporary files
+.cache/
+.scannerwork/
+__pycache__/
+*.tmp
+*.temp
+*.bak
+*.backup
 
 # CI-generated reports and release staging
 quality-reports/
+security-reports/
 package-output/
 coverage-policy-junit.xml
 coverage-policy.env
 release.env
-
-# File uploads (development)
-uploads/
-files/
-
-# Backup files
-*.bak
-*.backup
-
-# Local Sonar analysis output
-.scannerwork/
-
-# Local analysis and browser reports
-playwright-report/
-# Python helper bytecode
-__pycache__/

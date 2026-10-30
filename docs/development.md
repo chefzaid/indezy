@@ -1,14 +1,13 @@
 # Development Guide
 
-This guide describes how to work on Indezy locally. It mirrors the repository as it exists today: a Spring Boot backend, an Angular frontend, Docker Compose services, and a Mask command runner.
+How to run and change Indezy locally: a Spring Boot backend, an Angular frontend and PostgreSQL, driven by the mask
+commands of [`maskfile.md`](../maskfile.md).
 
 ## Local Topology
 
-The local application is split into:
-
 - `indezy-server`: Spring Boot API on `http://localhost:8080/api`
 - `indezy-web`: Angular dev server on `http://localhost:4200`
-- `postgres`: PostgreSQL on `localhost:5432`
+- `postgres`: PostgreSQL 18 on `localhost:5432`
 - `pgadmin`: optional database UI on `http://localhost:5050`
 
 ```mermaid
@@ -19,302 +18,94 @@ flowchart LR
     pgadmin[pgAdmin\nlocalhost:5050] --> pg
 ```
 
-PostgreSQL is the only local application database. Normal startup preserves its data.
-The explicit `seed` profile is reserved for `mask db-reset`, which recreates the schema
-and loads `data-dev.sql`. H2 remains test-only.
+PostgreSQL is the only local database, and a normal start keeps its data. Tests use H2.
 
-The frontend local environment points to `http://localhost:8080/api`. The production frontend uses the relative `/api` path so Traefik Ingress can route API traffic to the backend.
+## Setup
 
-## Recommended Baseline
-
-Install these tools on the host when not using the dev container:
-
-- Java 25
-- Node.js 26
-- npm
-- Docker and Docker Compose
-- Mask
-
-Install Mask with one of:
+Install Java 25, Node.js 26, Docker with Compose, and [mask](https://github.com/jacobdeichert/mask):
 
 ```bash
-cargo install mask
-npm install -g @jacobdeichert/mask
-brew install mask
+cargo install mask   # or: brew install mask
 ```
 
-Run a quick environment check:
+Or open the repository in the [development container](../.devcontainer/README.md), which brings Java, Node.js,
+PostgreSQL and pgAdmin.
+
+Under WSL, the mask commands run Maven, Docker and the backend on the Windows host (`cmd.exe`, `docker.exe`,
+`powershell.exe`), through `infra/scripts/mask-helpers.sh`.
+
+## First Run
 
 ```bash
-mask info
+mask install    # Maven and npm dependencies
+mask db-reset   # PostgreSQL with the sample data
+mask run        # PostgreSQL, the backend in the background, then the web app
 ```
 
-## Fastest Path To A Running App
+`mask db-reset` is destructive: it stops the local run, starts PostgreSQL, recreates the schema with the `seed` profile,
+loads `data-dev.sql` and prints the sample account's credentials. `mask run` stops whatever listens on the backend,
+frontend and PostgreSQL ports, builds both applications, starts PostgreSQL and the backend (logs in
+`indezy-server.log`), waits for `/api/actuator/health`, then runs the Angular dev server in the foreground.
 
-### 1. Install dependencies
+Then open:
 
-```bash
-mask install
-```
+- the app: `http://localhost:4200`
+- the API: `http://localhost:8080/api`
+- Swagger UI: `http://localhost:8080/api/swagger-ui.html`, from the OpenAPI description at `/api/v3/api-docs`
 
-This runs Maven dependency resolution for `indezy-server` and `npm install` for `indezy-web`.
+`mask --help` lists the other commands: one application at a time (`run-indezy-server`, `run-indezy-web`), the tests
+([Testing Guide](./testing.md)), `status`, `logs` and `stop`, which stops the local processes and the containers.
 
-### 2. Create a sample database
+## Local Settings
 
-```bash
-mask db-reset
-```
+The mask commands read an optional `.env` at the repository root; `.env.example` lists its settings (PostgreSQL
+database, user, password and port, the backend and frontend ports, pgAdmin's login and port). Copy it to `.env` to
+change them, and never commit `.env`.
 
-This destructive command starts PostgreSQL, recreates the application schema, loads a
-large sample dataset, and prints the sample account credentials. It first stops local
-services using the configured PostgreSQL, backend, or frontend ports.
+## Docker Compose
 
-### 3. Start the local stack
+`infra/compose/compose.yaml` holds the local services, published on `127.0.0.1` only:
 
-```bash
-mask run
-```
+- `postgres`, which the mask commands start. `infra/database/init` runs once when its volume is created: it adds the
+  `pg_trgm` extension and the planner settings the cluster gives the application's role. A volume made by an older
+  PostgreSQL major version needs `docker compose -f infra/compose/compose.yaml down -v`.
+- `pgadmin`, in the `admin` profile, with the database connection configured:
+  `docker compose -f infra/compose/compose.yaml --profile admin up -d pgadmin`
+- `devcontainer`, in the `devcontainer` profile, which VS Code starts.
 
-This builds both applications, starts PostgreSQL and the backend, then starts the Angular
-development server. If the configured PostgreSQL, backend, or frontend port is already
-occupied, `mask run` stops the existing container or listener first. Later backend restarts preserve changes made
-to the sample data.
-
-Local URLs:
-
-- frontend: `http://localhost:4200`
-- backend API: `http://localhost:8080/api`
-- Swagger UI: `http://localhost:8080/api/swagger-ui.html`, from the OpenAPI description at `/api/v3/api-docs`: each
-  operation's summary, its success status (`@ResponseStatus` on handlers answering 201, 202 or 204), the error answers it
-  can give (400, 401, 403, 404, 409, in the `ErrorResponse` shape, added by `OpenApiDocumentation`), and example bodies
-  for the main schemas from `indezy-server/src/main/resources/openapi/examples/<Schema>.json`. Add an example there for a
-  new main schema; `OpenApiDocumentationIntegrationTest` fails when an example names a property its schema lacks or
-  misses a required one, and when an operation has no summary or error answers.
-
-## Running One Application Component
-
-Start only the backend and PostgreSQL:
-
-```bash
-mask run-indezy-server
-```
-
-Start only the frontend:
-
-```bash
-mask run-indezy-web
-```
-
-Inside the VS Code dev container, the `devcontainer` profile connects to:
-
-```text
-jdbc:postgresql://postgres:5432/indezy
-```
-
-## Docker Compose Profiles
-
-`infra/compose/compose.yaml` uses profiles:
-
-- `dev`: development backend and Angular dev server
-- `prod`: production-style backend and Nginx-served frontend
-- `admin`: pgAdmin
-- `devcontainer`: VS Code dev container support
-
-Examples:
-
-```bash
-# The dev backend runs the jar its image builds: --build picks up a change to the sources
-docker compose -f infra/compose/compose.yaml --profile dev up --build
-docker compose -f infra/compose/compose.yaml --profile prod up
-docker compose -f infra/compose/compose.yaml --profile admin up -d pgadmin
-docker compose -f infra/compose/compose.yaml down
-```
-
-The PostgreSQL service is shared by development and production-style local flows.
-
-## VS Code Dev Container
-
-The dev container is configured in `.devcontainer/devcontainer.json`.
-
-It provides:
-
-- its own image (`.devcontainer/Dockerfile`, Ubuntu 24.04) with Java 25 and Node.js 26 from devcontainer features,
-  `psql` and Git; the server's `Dockerfile` only builds the runtime image
-- Maven settings and Maven, npm, Playwright and VS Code extension caches kept across rebuilds
-- forwarded ports for backend, frontend, PostgreSQL, and pgAdmin
-- automatic `postgres` (PostgreSQL 18, as in production) and `pgadmin` services
-- a post-create hook through `.devcontainer/post-create.sh`: dependencies, Chromium for the Karma and Playwright tests
-  (`CHROME_BIN` set), a first compile, and the aliases listed in `.devcontainer/README.md`
-
-Start it with VS Code's "Reopen in Container" command. The workspace folder inside the container is `/workspace`.
-
-Forwarded ports:
-
-- `8080`: Spring Boot backend
-- `4200`: Angular frontend
-- `5432`: PostgreSQL
-- `5050`: pgAdmin
-
-## Environment Files
-
-The root `.env.example` documents Docker Compose values:
-
-```bash
-POSTGRES_DB=indezy
-POSTGRES_USER=indezy_user
-POSTGRES_PASSWORD=change_this_password_in_production
-POSTGRES_PORT=5432
-BACKEND_PORT=8080
-FRONTEND_PORT=4200
-PGADMIN_EMAIL=admin@indezy.com
-PGADMIN_PASSWORD=change_this_password_in_production
-PGADMIN_PORT=5050
-```
-
-Copy it when you need local overrides:
-
-```bash
-cp .env.example .env
-```
-
-Do not commit `.env`.
+The production images are built by CI from each application's `Dockerfile.runtime` (see the
+[Deployment Guide](./deployment.md)).
 
 ## Backend Configuration
 
-Important backend files:
+`indezy-server/src/main/resources` holds `application.yml` and one file per profile:
 
-- `indezy-server/src/main/resources/application.yml`
-- `indezy-server/src/main/resources/application-devcontainer.yml`
-- `indezy-server/src/main/resources/application-seed.yml`
-- `indezy-server/src/main/resources/application-kubernetes.yml`
+- default: PostgreSQL on `localhost:${POSTGRES_PORT}` with the `POSTGRES_*` settings, `ddl-auto: update`, the API under
+  `/api`
+- `devcontainer`: PostgreSQL at `postgres:5432` inside the development container
+- `seed`: only for `mask db-reset`; recreates the schema (`ddl-auto: create`), loads `data-dev.sql`, never collects
+  offers
+- `kubernetes` and `schema-migration`: the deployed server and its schema hook
 
-Default API context path:
+Environment variables of note:
 
-```yaml
-server:
-  servlet:
-    context-path: /api
-```
+- `JWT_SECRET`: the token signing key; the default is for local use only.
+- `GOOGLE_MAPS_API_KEY`: commute times; see [Google Maps API Key](#google-maps-api-key).
+- `INDEZY_OFFERS_COLLECTION_ENABLED` (`true`): a local run reads the job boards in the background a minute after
+  startup, 2 seconds between requests; set it to `false` to work offline or on the sample offers of `data-dev.sql`.
+- `INDEZY_OFFERS_GEOCODING_ENABLED` (`true`): looks up offer cities on `geo.api.gouv.fr`.
 
-Default JWT settings:
-
-```yaml
-jwt:
-  secret: ${JWT_SECRET:indezy-super-secret-key-change-in-production}
-  expiration: 86400000
-```
-
-Default local configuration:
-
-- connects to PostgreSQL on `localhost:${POSTGRES_PORT}`
-- preserves the schema and data with `ddl-auto: update`
-- reads the database name and credentials from `POSTGRES_*` environment variables
-
-Devcontainer profile:
-
-- uses PostgreSQL service `postgres`
-- uses `ddl-auto: update`
-
-Seed profile:
-
-- is invoked only through `mask db-reset`
-- recreates the PostgreSQL schema with `ddl-auto: create`
-- loads `data-dev.sql` after Hibernate creates the tables
-- never starts the offer collection
-
-Offer feed (`indezy.offers.*`, see [Features](./features.md#freelance-offer-feed)):
-
-- `collection-enabled` (`INDEZY_OFFERS_COLLECTION_ENABLED`, `true` by default): a local `mask run` reads the seventeen job
-  boards in the background a minute after startup, politely (2 seconds between requests); set it to `false` to work
-  offline or on the sample offers of `data-dev.sql`
-- `geocoding-enabled` (`INDEZY_OFFERS_GEOCODING_ENABLED`, `true`): look up offer cities on `geo.api.gouv.fr`
-- `tick` (5 minutes), `request-delay` (2 seconds), `max-pages` (10 pages a run), `retention-days` (90),
-  `stale-run-after` (1 hour) and `user-agent`; tests turn the collection and geocoding off in
-  `application-test.properties`
+The other `indezy.offers.*` settings (`tick`, `request-delay`, `max-pages`, `retention-days`, `stale-run-after`,
+`user-agent`) have their defaults in `OfferProperties`. See [Features](./features.md#freelance-offer-feed) for what the
+feed does.
 
 ## Frontend Configuration
 
-Important frontend files:
-
-- `indezy-web/src/environments/environment.ts`
-- `indezy-web/src/environments/environment.prod.ts`
-- `indezy-web/src/app/app.routes.ts`
-- `indezy-web/src/app/app.config.ts`
-
-Local API URL:
-
-```ts
-apiUrl: 'http://localhost:8080/api'
-```
-
-Production API URL:
-
-```ts
-apiUrl: '/api'
-```
-
-Top-level routes:
-
-- `/login`
-- `/register`
-- `/dashboard`
-- `/profile`
-- `/projects`
-- `/clients`
-- `/contacts`
-- `/sources`
-- `/activity-report` (public: activity report validation through a link)
-- `/404`
-- `/error`
-
-Protected routes use `authGuard`. API requests get a bearer token from the auth interceptor when a token is available.
-
-## Daily Commands
-
-High-level commands:
-
-```bash
-mask install
-mask build
-mask test
-mask test-coverage
-mask db-reset
-mask run
-mask run-indezy-server
-mask run-indezy-web
-mask status
-mask logs
-mask stop
-```
-
-Backend commands:
-
-```bash
-cd indezy-server
-./mvnw dependency:go-offline
-./mvnw spring-boot:run
-./mvnw test
-./mvnw clean package -DskipTests
-```
-
-On Windows, use `mvnw.cmd` instead of `./mvnw`.
-
-Each of these Maven commands except `dependency:go-offline` first runs Checkstyle, which fails on
-any warning; `./mvnw checkstyle:check` lists them (see [Testing Guide](./testing.md#direct-backend-commands)).
-SpotBugs runs in `./mvnw verify`, after the tests, and fails on any finding (add
-`-Djacoco.haltOnFailure=false`, as CI does, while JaCoCo's branch rule still fails before it);
-`./mvnw compile spotbugs:check` lists them without running the tests.
-
-Frontend commands:
-
-```bash
-cd indezy-web
-npm install
-npm start
-npm run build
-npm test -- --watch=false --browsers=ChromeHeadless
-npm run lint
-```
+- `indezy-web/src/environments/environment.ts`: the local API at `http://localhost:8080/api`
+- `indezy-web/src/environments/environment.prod.ts`: the relative `/api`, which the Ingress routes to the backend
+- `indezy-web/src/app/app.routes.ts`: the routes; signed-in pages use `authGuard`, and the auth interceptor adds the
+  bearer token to API requests
+- `indezy-web/src/app/app.config.ts`: the application providers
 
 ## Browser Extension
 
@@ -325,94 +116,67 @@ into Chromium. To package it for a store, zip the folder's contents (`cd extensi
 
 ## Google Maps API Key
 
-Commute-time sorting uses the Google Maps Distance Matrix API.
-
-1. Create or select a Google Cloud project.
-2. Enable the Distance Matrix API.
-3. Create an API key.
-4. Restrict the key to the Distance Matrix API and to the server IP when possible.
-5. Export the key before starting the backend:
+Commute-time sorting uses the Google Maps Distance Matrix API. Create a key in a Google Cloud project with the
+Distance Matrix API enabled, restrict it to that API (and to the server's IP when possible), and export it before
+starting the backend:
 
 ```bash
 export GOOGLE_MAPS_API_KEY=your-api-key-here
 ```
 
-The backend reads it through:
-
-```yaml
-google:
-  maps:
-    api-key: ${GOOGLE_MAPS_API_KEY:}
-```
-
-Without a valid key, the app still returns projects, but commute time and distance data are omitted.
+Without a key, the app still lists projects, without commute times and distances.
 
 ## Adding Backend Features
 
-The backend follows a conventional layered structure:
+The backend is layered: `controller` (HTTP), `service` (business rules and transactions), `repository` (JPA), `model`
+(entities), `dto` (API shapes), `mapper` (MapStruct) and `exception` (API errors), beside feature packages described in
+the [Architecture Overview](./architecture.md).
 
-- `controller`: HTTP endpoints
-- `service`: business logic
-- `repository`: JPA persistence
-- `model`: entities
-- `dto`: API request and response shapes
-- `mapper`: MapStruct conversions
-- `exception`: API error handling
-- `config`: security, CORS, OpenAPI, and data initialization
-
-When adding a feature:
-
-1. Start from the domain model and relationships.
-2. Add or update DTOs rather than exposing entities directly. Mark a password, token, two-factor secret or code, or API key field with `@ToString.Exclude` (and, in an auth request or response, the email and names too), since Spring MVC logs bodies through `toString` at `DEBUG`; `SensitiveToStringTest` fails otherwise. Read such a body into a DTO, not a `Map`, whose `toString` prints every entry.
-3. Add MapStruct mappings for request and response conversion.
-4. Keep controller methods thin.
-5. Put transaction-sensitive behavior in services.
-6. Add focused unit tests and integration coverage for user-visible workflows.
+1. Start from the domain model and its relationships.
+2. Expose DTOs, never entities. Mark a password, token, two-factor secret or code, or API key field with
+   `@ToString.Exclude` (and, in an auth request or response, the email and names too), since Spring MVC logs bodies
+   through `toString` at `DEBUG`; `SensitiveToStringTest` fails otherwise. Read such a body into a DTO, not a `Map`,
+   whose `toString` prints every entry.
+3. Map requests and responses with MapStruct.
+4. Keep controllers thin and put transaction-sensitive behavior in services.
+5. Give each operation a summary, and a new main schema an example in
+   `src/main/resources/openapi/examples/<Schema>.json`; `OpenApiDocumentationIntegrationTest` checks both.
+6. Add focused unit tests, and integration tests for user-visible workflows.
 
 ## Adding Frontend Features
 
-The frontend uses Angular standalone components and lazy route loading. Every page is reached through
-`loadComponent` or a section's `loadChildren`, so the initial bundle holds only the application shell and each page
-downloads when first opened. `app.routes.spec.ts` fails when a route imports its page eagerly through `component`, or
-when a loader no longer resolves.
+The frontend uses Angular standalone components. Every page is reached through `loadComponent` or a section's
+`loadChildren`, so the initial bundle holds only the application shell; `app.routes.spec.ts` fails when a route imports
+its page eagerly or a loader no longer resolves.
 
-When adding a feature:
-
-1. Add route definitions in the relevant `*.routes.ts` file, loading the page with `loadComponent`.
-2. Keep API calls in services under `src/app/services`.
-3. Keep shared UI in `src/app/shared/components`.
-4. Add models under `src/app/models`.
-5. Use translation keys in both `fr.json` and `en.json`.
-6. Prefer Angular Material controls already used in the app.
-7. Add tests beside the service, guard, interceptor, or component being changed.
+1. Add the route in the relevant `*.routes.ts` file, loading the page with `loadComponent`.
+2. Keep API calls in services under `src/app/services`, shared UI in `src/app/shared/components`, and models under
+   `src/app/models`.
+3. Add every text to both `src/assets/i18n/fr.json` and `en.json`.
+4. Prefer the Angular Material controls the app already uses.
+5. Add specs beside the service, guard, interceptor or component you change.
 
 ## Troubleshooting
 
-### Backend starts but frontend calls fail
+### The backend does not start or `mask run` stops waiting for it
 
-Check that the backend is available:
+Read `indezy-server.log` (and `indezy-server-error.log` under WSL). A Checkstyle warning stops the build before the
+server starts; `./mvnw checkstyle:check` in `indezy-server` lists them.
 
-```bash
-curl http://localhost:8080/api/swagger-ui.html
-```
+### Frontend calls fail
 
-Then verify `indezy-web/src/environments/environment.ts` still points to `http://localhost:8080/api`.
+Check that the backend answers on `http://localhost:8080/api/actuator/health`, and that
+`indezy-web/src/environments/environment.ts` still points at `http://localhost:8080/api`.
 
 ### PostgreSQL cannot connect
-
-Check the container:
 
 ```bash
 docker compose -f infra/compose/compose.yaml ps postgres
 docker compose -f infra/compose/compose.yaml logs postgres
 ```
 
-The host-based Mask commands connect to `localhost`. The `devcontainer` profile uses the
-Docker service hostname `postgres`; do not pass that profile when starting Maven on the host.
-
-### `mask status` reports health check failure
-
-The status command checks `/api/actuator/health`. If the actuator dependency is not present or the endpoint is not enabled, the port can be running while the health request fails. This is tracked in the technical backlog.
+The mask commands connect to `localhost`. The `devcontainer` profile uses the service name `postgres`; do not activate
+it when running Maven on the host.
 
 ## Related Guides
 

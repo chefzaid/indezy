@@ -5,7 +5,6 @@ import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject, takeUntil } from 'rxjs';
@@ -14,7 +13,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
-import { ContactDto } from '../../../models';
+import { ContactDto, contactName } from '../../../models';
 import { ContactInteractionsComponent } from '../contact-interactions/contact-interactions.component';
 import { ContactNetworkComponent } from '../contact-network/contact-network.component';
 import { saveBlob } from '../../../shared/utils/download-file';
@@ -27,7 +26,6 @@ import { saveBlob } from '../../../shared/utils/download-file';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatChipsModule,
     MatDividerModule,
     MatProgressSpinnerModule,
     TranslateModule,
@@ -171,6 +169,6 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
     if (this.contact.anonymizedAt) {
       return this.translate.instant('contacts.privacy.anonymized');
     }
-    return [this.contact.firstName, this.contact.lastName].filter(Boolean).join(' ');
+    return contactName(this.contact);
   }
 }

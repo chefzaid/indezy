@@ -11,7 +11,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDividerModule } from '@angular/material/divider';
 import { UserManagementService, TwoFactorSetup } from '../../services/user-management/user-management.service';
 import { UserProfile, UserPreferences, PasswordChangeRequest } from '../../models/user-management.models';
 import { TranslateModule } from '@ngx-translate/core';
@@ -42,7 +41,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
     ProfileNotificationsComponent, ProfileBillingComponent, ProfilePersonalInfoComponent,
     BlockedPublishersComponent, EmailTemplatesSettingsComponent, ReactiveFormsModule, FormsModule, TranslateModule,
     MatCardModule, MatButtonModule, MatIconModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatSlideToggleModule, MatProgressSpinnerModule, MatDividerModule
+    MatSlideToggleModule, MatProgressSpinnerModule
 ],
     templateUrl: './profile.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -177,9 +176,7 @@ export class ProfileComponent implements OnInit {
       github: [''],
       skills: [[]],
       skillDetails: [{}],
-      languages: [[]],
-      timezone: ['Europe/Paris'],
-      currency: ['EUR']
+      languages: [[]]
     });
 
     this.passwordForm = this.fb.group({
@@ -191,13 +188,6 @@ export class ProfileComponent implements OnInit {
     this.preferencesForm = this.fb.group({
       theme: ['light'],
       language: ['fr'],
-      dateFormat: ['DD/MM/YYYY'],
-      timeFormat: ['24h'],
-      currency: ['EUR'],
-      timezone: ['Europe/Paris'],
-      defaultView: ['dashboard'],
-      itemsPerPage: [25],
-      autoSave: [true],
       autoArchive: [false],
       contactRetentionYears: [0],
       inactivityDays: [null, [Validators.required, Validators.min(1), Validators.max(365), Validators.pattern('^[0-9]+$')]],
@@ -259,19 +249,12 @@ export class ProfileComponent implements OnInit {
       github: profile.github,
       skills: profile.skills || [],
       skillDetails: profile.skillDetails ?? {},
-      languages: profile.languages || [],
-      timezone: profile.timezone,
-      currency: profile.currency
+      languages: profile.languages || []
     });
 
     // Load preferences
     this.userManagementService.getUserPreferences().subscribe((preferences: UserPreferences) => {
-      this.preferencesForm.patchValue({
-        ...preferences,
-        // Stored patterns may use Java casing (dd/MM/yyyy); the selector lists DD/MM/YYYY.
-        dateFormat: preferences.dateFormat?.toUpperCase() ?? 'DD/MM/YYYY',
-        itemsPerPage: preferences.itemsPerPage !== undefined && preferences.itemsPerPage !== null ? Number(preferences.itemsPerPage) : 25
-      });
+      this.preferencesForm.patchValue(preferences);
     });
   }
 

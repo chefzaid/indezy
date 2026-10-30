@@ -1,5 +1,5 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
@@ -21,7 +21,7 @@ describe('AdminComponent', () => {
     TestBed.configureTestingModule({
       imports: [AdminComponent, TranslateModule.forRoot()],
       providers: [
-        provideNoopAnimations(),
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: AdminService, useValue: admin },
         { provide: NotificationService, useValue: notifications }
       ]

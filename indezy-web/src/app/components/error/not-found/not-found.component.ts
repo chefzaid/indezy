@@ -1,46 +1,43 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { ErrorDisplayComponent, ErrorDisplayConfig } from '../../../shared/components/error-display/error-display.component';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { LogoComponent } from '../../../shared/components/logo/logo.component';
 
 @Component({
     selector: 'app-not-found',
-    imports: [
-    RouterModule,
-    ErrorDisplayComponent
-],
+    imports: [MatButtonModule, MatCardModule, MatIconModule, RouterModule, TranslateModule, LogoComponent],
     template: `
     <div class="not-found-container">
-      <app-error-display [config]="errorConfig"></app-error-display>
+      <div class="error-container">
+        <mat-card class="error-card">
+          <mat-card-content>
+            <div class="error-content">
+              <div class="error-logo">
+                <app-logo class="logo-image" [height]="40"></app-logo>
+              </div>
+              <div class="error-icon">
+                <mat-icon>search_off</mat-icon>
+              </div>
+              <div class="error-text">
+                <h2 class="error-title">{{ 'errors.notFoundTitle' | translate }}</h2>
+                <p class="error-message">{{ 'errors.notFoundMessage' | translate }}</p>
+              </div>
+              <div class="error-actions">
+                <button mat-button routerLink="/dashboard">
+                  <mat-icon>home</mat-icon>
+                  {{ 'common.backToHome' | translate }}
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
     </div>
   `,
     changeDetection: ChangeDetectionStrategy.Eager,
-    styles: [`
-    .not-found-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    }
-
-    :host-context(html.dark-theme) .not-found-container {
-      background: var(--app-bg);
-    }
-  `]
+    styleUrls: ['./not-found.component.scss']
 })
-export class NotFoundComponent {
-  errorConfig: ErrorDisplayConfig;
-
-  constructor(private readonly translate: TranslateService) {
-    this.errorConfig = {
-      type: 'not-found',
-      title: this.translate.instant('errors.notFoundTitle'),
-      message: this.translate.instant('errors.notFoundMessage'),
-      showRetry: false,
-      showHome: true,
-      showLogo: true
-    };
-  }
-}
+export class NotFoundComponent {}

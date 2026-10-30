@@ -17,24 +17,20 @@ describe('LoadingComponent', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  it('shows the logo, a spinner and the default message', () => {
+  it('shows the logo and a spinner, without text by default', () => {
     const element = render();
 
     expect(element.querySelector('app-logo')).not.toBeNull();
     expect(element.querySelector('mat-spinner')).not.toBeNull();
-    expect(element.querySelector('.loading-message')!.textContent).toBe('Chargement...');
-    expect(element.querySelector('.loading-subtitle')).toBeNull();
-    expect(element.querySelector('.loading-container')!.classList).not.toContain('fullscreen');
+    expect(element.querySelector('.loading-text')).toBeNull();
   });
 
-  it('shows a custom message and subtitle in fullscreen', () => {
-    const element = render({ message: 'Loading clients', subtitle: 'Please wait', fullscreen: true, spinnerSize: 32, color: 'accent' });
+  it('shows a message and a subtitle', () => {
+    const element = render({ message: 'Loading clients', subtitle: 'Please wait' });
 
     expect(element.querySelector('.loading-message')!.textContent).toBe('Loading clients');
     expect(element.querySelector('.loading-subtitle')!.textContent).toBe('Please wait');
-    expect(element.querySelector('.loading-container')!.classList).toContain('fullscreen');
-    expect(element.querySelector('mat-spinner')!.classList).toContain('mat-accent');
-    expect((element.querySelector('mat-spinner') as HTMLElement).style.width).toBe('32px');
+    expect((element.querySelector('mat-spinner') as HTMLElement).style.width).toBe('50px');
   });
 
   it('shows only the spinner without logo or message', () => {

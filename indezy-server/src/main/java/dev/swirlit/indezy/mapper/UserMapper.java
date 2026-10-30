@@ -25,23 +25,6 @@ public interface UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
-    @Mapping(target = "avatarImage", ignore = true)
-    @Mapping(target = "onboardingPending", ignore = true)
-    @Mapping(target = "publicProfileSlug", ignore = true)
-    @Mapping(target = "publicProfileEnabled", ignore = true)
-    @Mapping(target = "disabledAt", ignore = true)
-    @Mapping(target = "weeklyDigestToken", ignore = true)
-    @Mapping(target = "weeklyDigestSentOn", ignore = true)
-    @Mapping(target = "dashboardLayout", ignore = true)
-    User toEntity(UserDto dto);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "passwordHash", ignore = true)
-    @Mapping(target = "lastPasswordChange", ignore = true)
-    @Mapping(target = "twoFactorSecret", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "version", ignore = true)
     @Mapping(target = "email", ignore = true) // Don't allow email updates through profile update
     @Mapping(target = "avatar", ignore = true) // Avatars only change through the upload endpoint
     @Mapping(target = "avatarImage", ignore = true)
@@ -94,13 +77,6 @@ public interface UserMapper {
     // Preferences mapping
     @Mapping(target = "theme", source = "theme")
     @Mapping(target = "language", source = "languagePreference")
-    @Mapping(target = "dateFormat", source = "dateFormat")
-    @Mapping(target = "timeFormat", source = "timeFormat")
-    @Mapping(target = "currency", source = "currency")
-    @Mapping(target = "timezone", source = "timezone")
-    @Mapping(target = "defaultView", source = "defaultView")
-    @Mapping(target = "itemsPerPage", source = "itemsPerPage")
-    @Mapping(target = "autoSave", source = "autoSave")
     @Mapping(target = "dashboardWidgets", expression = "java(dev.swirlit.indezy.util.DashboardLayout.read(user.getDashboardLayout()))")
     @Mapping(target = "contactRetentionYears", expression = "java(user.getContactRetentionYears() == null ? 0 : user.getContactRetentionYears())")
     UserPreferencesDto toPreferencesDto(User user);

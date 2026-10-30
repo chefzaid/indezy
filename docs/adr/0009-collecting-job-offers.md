@@ -50,8 +50,9 @@ the load on each board lower than one person browsing it.
 
 ## Consequences
 
-- The backend makes outbound HTTPS requests to the boards and to `geo.api.gouv.fr`; egress must stay open for the
-  server (it is today: the namespace's network policy limits ingress only).
+- The backend makes outbound HTTPS requests to the boards and to `geo.api.gouv.fr`, so the server's egress policy
+  (`allow-indezy-server-egress` in `infra/k8s/network-policy.yaml`) keeps the public internet open to it, private
+  ranges excluded.
 - A site changing its API or markup breaks only its reader: the failure is recorded on the site's status, the other
   sites keep running, and the reader's test, built on a saved sample of the site's answer, shows what to adapt.
 - Offers are shared data (`job_offers`); what a workspace does with them is in `job_offer_states`, removed with the

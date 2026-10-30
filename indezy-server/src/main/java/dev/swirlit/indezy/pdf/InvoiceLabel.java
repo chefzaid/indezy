@@ -53,6 +53,6 @@ enum InvoiceLabel {
     }
 
     String format(DocumentLanguage language, Object... values) {
-        return String.format(ActivityReportLabel.locale(language), in(language), values);
+        return String.format(language.locale(), in(language), values);
     }
 }

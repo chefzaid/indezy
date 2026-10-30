@@ -93,12 +93,6 @@ public class User extends BaseEntity {
     @Column(name = "language")
     private List<String> languages = new ArrayList<>();
 
-    @Column(name = "timezone")
-    private String timezone;
-
-    @Column(name = "currency")
-    private String currency;
-
     @Column(name = "target_daily_rate")
     private Integer targetDailyRate;
 
@@ -118,21 +112,6 @@ public class User extends BaseEntity {
 
     @Column(name = "language_preference")
     private String languagePreference = "en";
-
-    @Column(name = "date_format")
-    private String dateFormat = "MM/dd/yyyy";
-
-    @Column(name = "time_format")
-    private String timeFormat = "12h";
-
-    @Column(name = "default_view")
-    private String defaultView = "dashboard";
-
-    @Column(name = "items_per_page")
-    private Integer itemsPerPage = 10;
-
-    @Column(name = "auto_save")
-    private Boolean autoSave = true;
 
     @Column(name = "inactivity_days")
     private Integer inactivityDays = UserPreferenceDefaults.INACTIVITY_DAYS;

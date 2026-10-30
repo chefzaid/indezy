@@ -1,9 +1,9 @@
 package dev.swirlit.indezy.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -96,7 +96,7 @@ class PurchaseOrderIntegrationTest extends TwoAccountsIntegrationTest {
 
         // In the account's data export; deleted with the order's amendments, and with the mission.
         String export = call(alice, HttpMethod.GET, "/users/export", null, String.class).getBody();
-        assertThat((List<?>) new ObjectMapper().readValue(export, Map.class).get("purchaseOrders")).hasSize(1);
+        assertThat((List<?>) JsonMapper.builder().build().readValue(export, Map.class).get("purchaseOrders")).hasSize(1);
         call(alice, HttpMethod.POST, orders, Map.of("amendsId", id, "number", "Avenant 3", "dayCeiling", 2), Map.class);
         assertThat(call(alice, HttpMethod.DELETE, "/purchase-orders/" + id, null, Void.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat((List<?>) call(alice, HttpMethod.GET, orders, null, List.class).getBody()).isEmpty();

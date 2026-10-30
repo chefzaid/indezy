@@ -10,7 +10,6 @@ public interface SourceMapper {
     @Mapping(target = "freelanceId", source = "freelance.id")
     @Mapping(target = "totalProjects", expression = "java(source.getProjects().size())")
     @Mapping(target = "averageDailyRate", expression = "java(source.getProjects().stream().filter(p -> p.getDailyRate() != null).mapToInt(p -> p.getDailyRate()).average().orElse(0.0))")
-    @Mapping(target = "projects", expression = "java(new java.util.ArrayList<>())")
     SourceDto toDto(Source source);
 
     @Mapping(target = "id", ignore = true)

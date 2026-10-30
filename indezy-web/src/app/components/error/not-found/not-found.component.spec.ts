@@ -20,7 +20,6 @@ describe('NotFoundComponent', () => {
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(fixture.componentInstance.errorConfig).toEqual(jasmine.objectContaining({ type: 'not-found', showRetry: false }));
     expect(element.querySelector('.error-title')!.textContent!.trim()).toBe(en.errors.notFoundTitle);
     expect(element.querySelector('.error-message')!.textContent!.trim()).toBe(en.errors.notFoundMessage);
     expect(element.querySelector('.error-icon mat-icon')!.textContent).toBe('search_off');

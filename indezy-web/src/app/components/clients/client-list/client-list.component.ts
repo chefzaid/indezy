@@ -7,7 +7,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
@@ -54,7 +53,6 @@ const DEFAULT_FILTERS: ClientFilterValues = {
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatProgressSpinnerModule,
     MatTooltipModule,
     MatPaginatorModule,
     LoadingComponent,

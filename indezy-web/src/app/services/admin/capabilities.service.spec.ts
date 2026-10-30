@@ -34,7 +34,6 @@ describe('CapabilitiesService', () => {
     expect(await first).toBeFalse();
     expect(await firstValueFrom(service.isEnabled('YEARLY_REVIEW'))).toBeTrue();
     expect(service.snapshot()).toEqual(adminWithoutOffers);
-    expect(await firstValueFrom(service.capabilities$)).toEqual(adminWithoutOffers);
   });
 
   it('falls back to every feature on when they cannot be read', async () => {

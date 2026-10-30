@@ -8,9 +8,6 @@ import dev.swirlit.indezy.util.AttachmentTypes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.CacheControl;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -62,16 +58,8 @@ public class ProjectAttachmentController {
     public ResponseEntity<byte[]> content(@PathVariable Long id) {
         accessGuard.requireProjectAttachment(id);
         ProjectAttachment attachment = attachmentService.get(id);
-        ContentDisposition disposition = (AttachmentTypes.isInline(attachment.getContentType()) ?
-            ContentDisposition.inline() : ContentDisposition.attachment())
-            .filename(attachment.getFileName(), StandardCharsets.UTF_8).build();
-        return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(attachment.getContentType()))
-            .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
-            .header("X-Content-Type-Options", "nosniff")
-            .header("Content-Security-Policy", "sandbox; default-src 'none'")
-            .cacheControl(CacheControl.noStore().cachePrivate())
-            .body(attachment.getContent());
+        return DocumentResponses.of(attachment.getFileName(), attachment.getContentType(), attachment.getContent(),
+            AttachmentTypes.isInline(attachment.getContentType()));
     }
 
     @Operation(summary = "Delete a file of an opportunity")

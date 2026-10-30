@@ -1,653 +1,152 @@
-# Indezy - Development Commands
+# Indezy development commands
 
-This is a [mask](https://github.com/jacobdeichert/mask) file that provides easy-to-use commands for developing the Indezy application.
-
-## Installation
-
-First, install mask:
-
-```bash
-# Using cargo (Rust)
-cargo install mask
-
-# Using npm
-npm install -g @jacobdeichert/mask
-
-# Using homebrew (macOS/Linux)
-brew install mask
-```
-
-## Usage
-
-Run `mask` or `mask --help` to see all available commands.
-
-## Available Commands
-
-### Dependencies
-- `mask install` - Install all dependencies
-- `mask install-indezy-server` - Install indezy-server dependencies only
-- `mask install-indezy-web` - Install indezy-web dependencies only
-
-### Build
-- `mask build` - Build all components
-- `mask build-indezy-server` - Build indezy-server only
-- `mask build-indezy-web` - Build indezy-web only
-
-### Testing
-- `mask test` - Run all tests
-- `mask test-indezy-server` - Run indezy-server tests only
-- `mask test-indezy-web` - Run indezy-web tests only
-- `mask test-coverage` - Run tests with coverage reports
-
-### Local Development (PostgreSQL)
-- `mask run` - Run indezy-web, indezy-server, and PostgreSQL
-- `mask run-indezy-web` - Run indezy-web only
-- `mask run-indezy-server` - Run indezy-server with PostgreSQL
-- `mask db-reset` - Wipe and repopulate PostgreSQL with sample data
-
-### Information
-- `mask info` - Show environment information
-- `mask status` - Show service status
-- `mask stop` - Stop all running services
-- `mask logs` - View indezy-server logs
-
-## install-indezy-server
-
-> Install indezy-server dependencies
-
-```bash
-echo "📦 Installing indezy-server dependencies..."
-cd indezy-server
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd dependency:go-offline"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw dependency:go-offline
-fi
-cd ..
-echo "✅ Backend dependencies installed!"
-```
-
-## install-indezy-web
-
-> Install indezy-web dependencies
-
-```bash
-echo "📦 Installing indezy-web dependencies..."
-cd indezy-web
-# Clean node_modules if it exists to avoid permission issues on Windows
-if [ -d "node_modules" ]; then
-    echo "🧹 Cleaning existing node_modules..."
-    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
-        # On Windows, use rmdir which handles locked files better
-        cmd.exe /c "rmdir /s /q node_modules" 2>/dev/null || rm -rf node_modules 2>/dev/null || true
-    else
-        rm -rf node_modules
-    fi
-fi
-npm install
-cd ..
-echo "✅ Frontend dependencies installed!"
-```
+Run them with [mask](https://github.com/jacobdeichert/mask) (`cargo install mask` or `brew install mask`) from the
+repository root; `mask --help` lists them. Settings come from an optional `.env` (see `.env.example`).
 
 ## install
 
-> Install all dependencies
+> Install the server and web dependencies
 
 ```bash
-echo "📦 Installing all dependencies..."
-
-# Install indezy-server dependencies
-echo "📦 Installing indezy-server dependencies..."
-cd indezy-server
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd dependency:go-offline"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw dependency:go-offline
-fi
-cd ..
-
-# Install indezy-web dependencies
-echo "📦 Installing indezy-web dependencies..."
-cd indezy-web
-# Clean node_modules if it exists to avoid permission issues on Windows
-if [ -d "node_modules" ]; then
-    echo "🧹 Cleaning existing node_modules..."
-    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
-        # On Windows, use rmdir which handles locked files better
-        cmd.exe /c "rmdir /s /q node_modules" 2>/dev/null || rm -rf node_modules 2>/dev/null || true
-    else
-        rm -rf node_modules
-    fi
-fi
-npm install
-cd ..
-
-echo "✅ All dependencies installed!"
-```
-
-## build-indezy-server
-
-> Build indezy-server application
-
-```bash
-echo "🔨 Building indezy-server..."
-cd indezy-server
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean package -DskipTests"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean package -DskipTests
-fi
-cd ..
-echo "✅ Backend built successfully!"
-```
-
-## build-indezy-web
-
-> Build indezy-web application
-
-```bash
-echo "🔨 Building indezy-web..."
-cd indezy-web
-npm run build
-cd ..
-echo "✅ Frontend built successfully!"
+source "$MASKFILE_DIR/infra/scripts/mask-helpers.sh"
+mvnw dependency:go-offline
+(cd indezy-web && npm ci)
 ```
 
 ## build
 
-> Build all components
+> Build the server jar and the web app
 
 ```bash
-echo "🔨 Building all components..."
-
-# Build indezy-server
-echo "🔨 Building indezy-server..."
-cd indezy-server
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean package -DskipTests"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean package -DskipTests
-fi
-cd ..
-
-# Build indezy-web
-echo "🔨 Building indezy-web..."
-cd indezy-web
-npm run build
-cd ..
-
-echo "✅ All components built successfully!"
-```
-
-## test-indezy-server
-
-> Run indezy-server tests
-
-```bash
-echo "🧪 Running indezy-server tests..."
-cd indezy-server
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd test"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw test
-fi
-cd ..
-echo "✅ Backend tests completed!"
-```
-
-## test-indezy-web
-
-> Run indezy-web tests
-
-```bash
-echo "🧪 Running indezy-web tests..."
-cd indezy-web
-npm test -- --watch=false --browsers=ChromeHeadless
-cd ..
-echo "✅ Frontend tests completed!"
+source "$MASKFILE_DIR/infra/scripts/mask-helpers.sh"
+mvnw clean package -DskipTests
+(cd indezy-web && npm run build)
 ```
 
 ## test
 
-> Run all tests
+> Run the server and web tests, with coverage
 
 ```bash
-echo "🧪 Running all tests..."
-
-# Run indezy-server tests
-echo "🧪 Running indezy-server tests..."
-cd indezy-server
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd test"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw test
-fi
-cd ..
-
-# Run indezy-web tests
-echo "🧪 Running indezy-web tests..."
-cd indezy-web
-npm test -- --watch=false --browsers=ChromeHeadless
-cd ..
-
-echo "✅ All tests completed!"
+source "$MASKFILE_DIR/infra/scripts/mask-helpers.sh"
+mvnw verify
+(cd indezy-web && npm run test:ci)
+echo "📊 Coverage: indezy-server/target/site/jacoco/index.html and indezy-web/coverage/index.html"
 ```
 
-## test-coverage
+## test-indezy-server
 
-> Run tests with coverage reports
+> Run the server tests, Checkstyle and SpotBugs
 
 ```bash
-echo "🧪 Running tests with coverage..."
-echo "📊 Backend coverage..."
-cd indezy-server
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd test jacoco:report"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw test jacoco:report
-fi
-cd ..
-echo "📊 Frontend coverage..."
-cd indezy-web
-npm run test:coverage
-cd ..
-echo "✅ Coverage reports generated!"
-echo "📊 Backend coverage: indezy-server/target/site/jacoco/index.html"
-echo "📊 Frontend coverage: indezy-web/coverage/index.html"
+source "$MASKFILE_DIR/infra/scripts/mask-helpers.sh"
+mvnw verify
 ```
 
-## run-indezy-server
+## test-indezy-web
 
-> Run indezy-server locally with PostgreSQL
-
-```bash
-set -e
-
-if [[ -f ".env" ]]; then
-    set -a
-    source <(sed 's/\r$//' .env)
-    set +a
-fi
-export SERVER_PORT="$(printenv BACKEND_PORT 2>/dev/null || echo 8080)"
-export WSLENV="$(printenv WSLENV 2>/dev/null || true):POSTGRES_PORT:POSTGRES_DB:POSTGRES_USER:POSTGRES_PASSWORD:SERVER_PORT:BACKEND_PORT:FRONTEND_PORT"
-
-if command -v docker.exe >/dev/null 2>&1 && docker.exe compose version >/dev/null 2>&1; then
-    start_postgres() { docker.exe compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
-    postgres_is_ready() { docker.exe compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
-elif docker compose version >/dev/null 2>&1; then
-    start_postgres() { docker compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
-    postgres_is_ready() { docker compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
-elif command -v docker-compose >/dev/null 2>&1; then
-    start_postgres() { docker-compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
-    postgres_is_ready() { docker-compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
-else
-    echo "❌ Docker Compose is required"
-    exit 1
-fi
-
-echo "🐳 Starting PostgreSQL..."
-start_postgres
-echo "⏳ Waiting for PostgreSQL..."
-until postgres_is_ready >/dev/null 2>&1; do
-    sleep 1
-done
-
-echo "🚀 Starting indezy-server..."
-cd indezy-server
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd spring-boot:run"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw spring-boot:run
-fi
-cd ..
-```
-
-## run-indezy-web
-
-> Run indezy-web locally
+> Run the web unit tests in headless Chrome
 
 ```bash
-echo "🚀 Starting indezy-web..."
-cd indezy-web
-npm start
-cd ..
+cd "$MASKFILE_DIR/indezy-web"
+npm run test:ci
 ```
 
 ## run
 
-> Run indezy-web, indezy-server, and PostgreSQL locally
+> Build both applications, then run PostgreSQL, the server (in the background) and the web app
 
 ```bash
-set -e
-
-if [[ -f ".env" ]]; then
-    set -a
-    source <(sed 's/\r$//' .env)
-    set +a
-fi
-export SERVER_PORT="$(printenv BACKEND_PORT 2>/dev/null || echo 8080)"
-export WSLENV="$(printenv WSLENV 2>/dev/null || true):POSTGRES_PORT:POSTGRES_DB:POSTGRES_USER:POSTGRES_PASSWORD:SERVER_PORT:BACKEND_PORT:FRONTEND_PORT"
-
-if command -v docker.exe >/dev/null 2>&1 && docker.exe compose version >/dev/null 2>&1; then
-    start_postgres() { docker.exe compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
-    postgres_is_ready() { docker.exe compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
-elif docker compose version >/dev/null 2>&1; then
-    start_postgres() { docker compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
-    postgres_is_ready() { docker compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
-elif command -v docker-compose >/dev/null 2>&1; then
-    start_postgres() { docker-compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
-    postgres_is_ready() { docker-compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
-else
-    echo "❌ Docker Compose is required"
-    exit 1
-fi
-
-echo "🧹 Stopping previous local run..."
+source "$MASKFILE_DIR/infra/scripts/mask-helpers.sh"
+echo "🧹 Stopping the previous local run..."
 bash infra/scripts/stop-local-ports.sh
-
-echo "🚀 Starting local development environment..."
-echo "🔨 Building applications first..."
-
-# Build indezy-server
-echo "🔨 Building indezy-server..."
-cd indezy-server
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd clean package -DskipTests"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw clean package -DskipTests
-fi
-cd ..
-
-# Build indezy-web
-echo "🔨 Building indezy-web..."
-cd indezy-web
-npm run build
-cd ..
-
-echo "🐳 Starting PostgreSQL..."
+mvnw clean package -DskipTests
+(cd indezy-web && npm run build)
 start_postgres
-echo "⏳ Waiting for PostgreSQL..."
-until postgres_is_ready >/dev/null 2>&1; do
-    sleep 1
-done
-echo "🚀 Starting indezy-server..."
-cd indezy-server
-if [[ -f "mvnw.cmd" ]]; then
-    # Keep Windows command quoting inside PowerShell so Mask's Bash executor
-    # cannot reinterpret cmd.exe's arguments.
-    powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "../infra/scripts/start-backend.ps1"
+
+echo "🚀 Starting indezy-server (logs: indezy-server.log)..."
+if on_windows_host; then
+    powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File infra/scripts/start-backend.ps1
 else
-    # Unix: Start in background
-    chmod +x mvnw 2>/dev/null || true
-    nohup ./mvnw spring-boot:run > ../indezy-server.log 2>&1 &
-    BACKEND_PID=$!
-    echo "Backend started with PID: $BACKEND_PID"
+    (cd indezy-server && nohup ./mvnw spring-boot:run > ../indezy-server.log 2>&1 &)
 fi
-cd ..
-echo "⏳ Waiting for indezy-server to start..."
 for _ in {1..60}; do
-    if bash infra/scripts/check-backend-health.sh; then
-        break
-    fi
+    http_ok "$backend_health_url" && break
     sleep 1
 done
-if ! bash infra/scripts/check-backend-health.sh; then
+if ! http_ok "$backend_health_url"; then
     echo "❌ indezy-server did not become healthy. Recent logs:"
-    tail -n 40 indezy-server.log 2>/dev/null || true
-    tail -n 40 indezy-server-error.log 2>/dev/null || true
+    tail -n 40 indezy-server.log indezy-server-error.log 2>/dev/null || true
     exit 1
 fi
-echo "🚀 Starting indezy-web..."
-cd indezy-web
+
+cd "$MASKFILE_DIR/indezy-web"
 npm start
-cd ..
+```
+
+## run-indezy-server
+
+> Run PostgreSQL and the server in the foreground
+
+```bash
+source "$MASKFILE_DIR/infra/scripts/mask-helpers.sh"
+start_postgres
+mvnw spring-boot:run
+```
+
+## run-indezy-web
+
+> Run the web app's development server
+
+```bash
+cd "$MASKFILE_DIR/indezy-web"
+npm start
 ```
 
 ## db-reset
 
-> Wipe PostgreSQL and populate it with realistic local sample data
+> Wipe PostgreSQL and fill it with the sample data
 
 ```bash
-set -e
-
-if [[ -f ".env" ]]; then
-    set -a
-    source <(sed 's/\r$//' .env)
-    set +a
-fi
-export WSLENV="$(printenv WSLENV 2>/dev/null || true):POSTGRES_PORT:POSTGRES_DB:POSTGRES_USER:POSTGRES_PASSWORD"
-
-if command -v docker.exe >/dev/null 2>&1 && docker.exe compose version >/dev/null 2>&1; then
-    start_postgres() { docker.exe compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
-    postgres_is_ready() { docker.exe compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
-elif docker compose version >/dev/null 2>&1; then
-    start_postgres() { docker compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
-    postgres_is_ready() { docker compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
-elif command -v docker-compose >/dev/null 2>&1; then
-    start_postgres() { docker-compose -f infra/compose/compose.yaml up -d --force-recreate postgres; }
-    postgres_is_ready() { docker-compose -f infra/compose/compose.yaml exec -T postgres pg_isready -U "$(printenv POSTGRES_USER 2>/dev/null || echo indezy_user)" -d "$(printenv POSTGRES_DB 2>/dev/null || echo indezy)"; }
-else
-    echo "❌ Docker Compose is required"
-    exit 1
-fi
-
-echo "🧹 Stopping the running local stack before resetting the database..."
+source "$MASKFILE_DIR/infra/scripts/mask-helpers.sh"
+echo "🧹 Stopping the local run before resetting the database..."
 bash infra/scripts/stop-local-ports.sh
-
-echo "🐳 Starting PostgreSQL..."
 start_postgres
-echo "⏳ Waiting for PostgreSQL..."
-until postgres_is_ready >/dev/null 2>&1; do
-    sleep 1
-done
-
-echo "🧹 Wiping and repopulating the Indezy database..."
-cd indezy-server
-if [[ -f "mvnw.cmd" ]]; then
-    cmd.exe /c "mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=seed -Dspring-boot.run.arguments=--spring.main.web-application-type=none"
-else
-    chmod +x mvnw 2>/dev/null || true
-    ./mvnw spring-boot:run -Dspring-boot.run.profiles=seed -Dspring-boot.run.arguments=--spring.main.web-application-type=none
-fi
-cd ..
-
+mvnw spring-boot:run -Dspring-boot.run.profiles=seed -Dspring-boot.run.arguments=--spring.main.web-application-type=none
 echo ""
-echo "✅ Sample database is ready"
-echo "   Email:    john.doe@example.com"
-echo "   Password: password123"
-echo ""
-echo "Start the application with: mask run"
-```
-## info
-
-> Show environment information
-
-```bash
-echo "📋 Indezy Development Environment Information"
-echo "============================================="
-echo ""
-echo "🔧 System Information:"
-echo "  OS: $(uname -s 2>/dev/null || echo 'Windows')"
-echo "  Architecture: $(uname -m 2>/dev/null || echo 'Unknown')"
-echo ""
-echo "☕ Java:"
-if command -v java &> /dev/null; then
-    java -version 2>&1 | head -n 1
-else
-    echo "  Java not found"
-fi
-echo ""
-echo "📦 Node.js:"
-if command -v node &> /dev/null; then
-    echo "  Version: $(node --version)"
-    echo "  NPM: $(npm --version)"
-else
-    echo "  Node.js not found"
-fi
-echo ""
-echo "🐳 Docker:"
-if command -v docker.exe >/dev/null 2>&1; then
-    echo "  Version: $(docker.exe --version)"
-    echo "  Compose: $(docker.exe compose version --short)"
-elif command -v docker &> /dev/null; then
-    echo "  Version: $(docker --version)"
-    if docker compose version >/dev/null 2>&1; then
-        echo "  Compose: $(docker compose version --short)"
-    elif command -v docker-compose >/dev/null 2>&1; then
-        echo "  Compose: $(docker-compose --version)"
-    else
-        echo "  Compose: Not available"
-    fi
-else
-    echo "  Docker not found"
-fi
-echo ""
-echo "🌐 Default URLs:"
-echo "  Frontend: http://localhost:4200"
-echo "  Backend: http://localhost:8080/api"
-echo "  Swagger: http://localhost:8080/api/swagger-ui.html"
-echo "  Database: localhost:5432"
-echo "  pgAdmin: http://localhost:5050"
-echo ""
-echo "🔐 Seeded test account (after 'mask db-reset'):"
-echo "  Prerequisite: run 'mask db-reset' at least once"
-echo "  Login: john.doe@example.com"
-echo "  Password: password123"
+echo "✅ Sample database is ready: sign in as john.doe@example.com / password123, then run: mask run"
 ```
 
 ## status
 
-> Show service status
+> Show which local services answer
 
 ```bash
-echo "📋 Indezy Service Status"
-echo "======================="
-echo ""
-echo "🔍 Checking local services..."
-echo ""
-echo "Frontend (port 4200):"
-if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
-    if netstat.exe -an | findstr.exe :4200 >/dev/null 2>&1; then
-        echo "  ✅ Running"
-    else
-        echo "  ❌ Not running"
-    fi
-else
-    if lsof -Pi :4200 -sTCP:LISTEN -t >/dev/null 2>&1; then
-        echo "  ✅ Running"
-    else
-        echo "  ❌ Not running"
-    fi
-fi
-echo ""
-echo "Backend (port 8080):"
-if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
-    if netstat.exe -an | findstr.exe :8080 >/dev/null 2>&1; then
-        echo "  ✅ Running"
-        if bash infra/scripts/check-backend-health.sh >/dev/null 2>&1; then
-            echo "  ✅ Health check passed"
-        else
-            echo "  ⚠️  Health check failed"
-        fi
-    else
-        echo "  ❌ Not running"
-    fi
-else
-    if lsof -Pi :8080 -sTCP:LISTEN -t >/dev/null 2>&1; then
-        echo "  ✅ Running"
-        if curl -s http://localhost:8080/api/actuator/health >/dev/null 2>&1; then
-            echo "  ✅ Health check passed"
-        else
-            echo "  ⚠️  Health check failed"
-        fi
-    else
-        echo "  ❌ Not running"
-    fi
-fi
-echo ""
-echo "Database (port 5432):"
-if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]] || [[ -n "$WINDIR" ]] || command -v cmd.exe >/dev/null 2>&1; then
-    if netstat.exe -an | findstr.exe :5432 >/dev/null 2>&1; then
-        echo "  ✅ Running"
-    else
-        echo "  ❌ Not running"
-    fi
-else
-    if lsof -Pi :5432 -sTCP:LISTEN -t >/dev/null 2>&1; then
-        echo "  ✅ Running"
-    else
-        echo "  ❌ Not running"
-    fi
-fi
-echo ""
-echo "🐳 Docker services:"
-if command -v docker.exe >/dev/null 2>&1 && docker.exe compose version >/dev/null 2>&1; then
-    docker.exe compose -f infra/compose/compose.yaml ps 2>/dev/null || echo "  No Docker services running"
-elif docker compose version >/dev/null 2>&1; then
-    docker compose -f infra/compose/compose.yaml ps 2>/dev/null || echo "  No Docker services running"
-elif command -v docker-compose &> /dev/null; then
-    docker-compose -f infra/compose/compose.yaml ps 2>/dev/null || echo "  No Docker services running"
-else
-    echo "  Docker Compose not available"
-fi
+source "$MASKFILE_DIR/infra/scripts/mask-helpers.sh"
+report() {
+    if http_ok "$2"; then echo "✅ $1: $2"; else echo "❌ $1 is not answering on $2"; fi
+}
+report "Web app" "http://localhost:${FRONTEND_PORT:-4200}/"
+report "Server" "$backend_health_url"
+echo "   Swagger UI: http://localhost:${SERVER_PORT}/api/swagger-ui.html"
+compose ps
 ```
 
 ## stop
 
-> Stop all running services
+> Stop the local server, web app and containers
 
 ```bash
-echo "🛑 Stopping all services..."
-
-# Stop indezy-server processes
-echo "Stopping indezy-server processes..."
-if [[ -f "indezy-server.log" ]]; then
-    # Try to find and kill indezy-server processes
-    pkill -f "spring-boot:run" 2>/dev/null || true
-    pkill -f "mvnw" 2>/dev/null || true
-    echo "Backend processes stopped"
-else
-    echo "No indezy-server log file found"
-fi
-
-# Stop indezy-web processes (if running)
-echo "Stopping indezy-web processes..."
-pkill -f "ng serve" 2>/dev/null || true
-pkill -f "npm start" 2>/dev/null || true
-
-# Stop Docker services
-echo "Stopping Docker services..."
-if command -v docker.exe >/dev/null 2>&1 && docker.exe compose version >/dev/null 2>&1; then
-    docker.exe compose -f infra/compose/compose.yaml down 2>/dev/null || true
-elif docker compose version >/dev/null 2>&1; then
-    docker compose -f infra/compose/compose.yaml down 2>/dev/null || true
-elif command -v docker-compose &> /dev/null; then
-    docker-compose -f infra/compose/compose.yaml down 2>/dev/null || true
-fi
-
+source "$MASKFILE_DIR/infra/scripts/mask-helpers.sh"
+bash infra/scripts/stop-local-ports.sh
+compose down
 echo "✅ All services stopped"
 ```
 
 ## logs
 
-> View indezy-server logs
+> Follow the server logs of `mask run`
 
 ```bash
-if [[ -f "indezy-server.log" ]]; then
-    echo "📋 Backend logs (last 50 lines):"
-    echo "=================================="
-    tail -f indezy-server.log
-else
-    echo "❌ Backend log file not found"
-    echo "Make sure you've started the indezy-server with 'mask run'"
-fi
+tail -f "$MASKFILE_DIR/indezy-server.log"
 ```

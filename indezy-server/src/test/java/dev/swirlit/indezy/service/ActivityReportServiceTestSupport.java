@@ -13,6 +13,7 @@ import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.pdf.ActivityReportPdfRenderer;
 import dev.swirlit.indezy.repository.ActivityReportRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
+import dev.swirlit.indezy.util.Tokens;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.time.Clock;
@@ -86,9 +87,9 @@ abstract class ActivityReportServiceTestSupport {
 
     ActivityReport submittedWithToken(String token, Instant expiresAt) {
         ActivityReport report = report(ActivityReportStatus.SUBMITTED);
-        report.setValidationTokenHash(ActivityReportService.hash(token));
+        report.setValidationTokenHash(Tokens.sha256Hex(token));
         report.setValidationExpiresAt(expiresAt);
-        when(reportRepository.findByValidationTokenHash(ActivityReportService.hash(token))).thenReturn(Optional.of(report));
+        when(reportRepository.findByValidationTokenHash(Tokens.sha256Hex(token))).thenReturn(Optional.of(report));
         return report;
     }
 

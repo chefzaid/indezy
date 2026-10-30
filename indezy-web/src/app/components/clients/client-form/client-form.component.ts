@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
-import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -22,7 +22,6 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 @Component({
     selector: 'app-client-form',
     imports: [PageHeaderComponent, 
-    RouterModule,
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,

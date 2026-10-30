@@ -39,7 +39,6 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.time.format.TextStyle;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -158,7 +157,7 @@ public class InvoiceService {
         DocumentLanguage language = Objects.requireNonNullElse(billed.getActivityReportLanguage(), DocumentLanguage.FR);
         BillingIdentityDto seller = BillingIdentityService.toDto(project.getFreelance());
         BigDecimal vatRate = seller.vatExempt() ? BigDecimal.ZERO : BigDecimal.valueOf(seller.vatRate());
-        String period = month.getMonth().getDisplayName(TextStyle.FULL, language == DocumentLanguage.EN ? Locale.UK : Locale.FRANCE) + " " +
+        String period = month.getMonth().getDisplayName(TextStyle.FULL, language.locale()) + " " +
             month.getYear();
         String description = (language == DocumentLanguage.EN ? "Services: " : "Prestation : ") + project.getRole() + " — " + period;
 

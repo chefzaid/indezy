@@ -1,6 +1,6 @@
 # Security Reference
 
-This reference documents the current security posture and the expected direction for hardening. It should be read as an implementation reference, not a compliance guarantee.
+This reference documents the current security posture. It is an implementation reference, not a compliance guarantee.
 
 ## Security Posture Summary
 
@@ -63,17 +63,25 @@ The default value must not be used for any internet-exposed deployment.
 Current backend rules:
 
 - `/auth/**` is public
-- `/public/**` is public: today only the activity report validation endpoints, authorized by their link token (see [Activity Report Validation Links](#activity-report-validation-links))
-- `/health` is public
-- `/actuator/health` is public (other actuator endpoints require authentication)
-- `/v3/api-docs/**` is public
-- `/swagger-ui/**` is public
-- `/swagger-ui.html` is public
+- `/public/**` is public: the endpoints of the `Public*Controller` classes (activity report validation, booking pages,
+  shared compliance documents, public profiles, and the saved search and weekly digest unsubscribe links). Each is
+  authorized by the unguessable token or address its link carries, and a public profile answers only when its owner
+  turned it on (see the sections below)
+- `/health` is permitted, though no backend endpoint maps it
+- `/actuator/health`, `/actuator/health/**` and `/actuator/prometheus` are public. The only other exposed actuator
+  endpoint, `/actuator/info`, requires a JWT (`management.endpoints.web.exposure.include`), and health details are shown
+  only to an authenticated caller (`show-details: when-authorized`)
+- `/v3/api-docs/**`, `/swagger-ui/**` and `/swagger-ui.html` are public
 - all other requests require a valid JWT (`anyRequest().authenticated()`); unauthenticated requests receive `401`
 - `/admin/**` also requires an administrator, an account whose email `INDEZY_ADMIN_EMAILS` names (`AdminService`);
   anyone else receives `403`
 - a feature an administrator turned off answers `403` on its paths, public ones included (`FeatureFlagInterceptor`,
   see [Admin Console And Feature Flags](./features.md#admin-console-and-feature-flags))
+
+These are the backend's rules. In production, every `/api` path except `/api/public` first passes the `indezy-sso`
+ForwardAuth Middleware (`indezy-api-ingress` in `infra/k8s/ingress.yaml`), so from the internet the actuator, OpenAPI and
+Swagger paths need an OAuth2 Proxy session. Inside the cluster, Prometheus scrapes `/api/actuator/prometheus` on the pod
+and the deploy job reads the health endpoint on the service, which the network policy admits.
 
 A JWT authenticates only while its session is open and its account active. Each sign-in opens a session
 (`account_sessions`) named by the token's `sid` claim, and `JwtAuthenticationFilter` checks on every request that the
@@ -107,41 +115,24 @@ follow the same rules, including the `seasonId` filter of the Kanban and dashboa
 seasons with two real accounts. The checks are skipped only when `indezy.security.permit-all` is
 enabled for anonymous test runs.
 
-Remaining hardening direction:
-
-1. Consider disabling Swagger in production or restricting it behind authentication/IP allowlists.
-
 ## Frontend Route Protection
 
-Protected routes use `authGuard`:
+Routes and their guards are declared in `indezy-web/src/app/app.routes.ts`. Every workspace page uses `authGuard`;
+`/admin` also needs `adminGuard`, and the pages of a feature that can be turned off (`/offers`, `/review`) need
+`featureGuard`: both read `GET /users/capabilities` and send anyone else to the dashboard.
 
-- `/dashboard`
-- `/profile`
-- `/projects`
-- `/clients`
-- `/contacts`
-- `/sources`
-
-Public routes:
+Routes without a guard:
 
 - `/` and `/en` (the presentation page: the session is exchanged there to know whether the visitor is signed in, but a
   visitor without one is never sent to Keycloak; served as static HTML first, see
   [Features](./features.md#presentation-page))
-- `/login`
-- `/register`
-- `/activity-report` (activity report validation by a client or ESN)
-- `/documents-pack` (shared compliance documents)
-- `/book/<link>` (booking a call)
-- `/p/<address>` (a public profile)
-- `/emails/unsubscribe` (a saved search email's unsubscribe link)
-- `/404`
-- `/error`
+- `/login` and `/register`
+- the shared-link pages `/activity-report`, `/documents-pack`, `/book/:slug`, `/p/:slug` and `/emails/unsubscribe`, on
+  which the app skips its Keycloak session exchange (`PUBLIC_PAGE_PATHS` in `auth.service.ts`)
+- `/404` and `/error`
 
 `robots.txt` lets search engines index `/` and `/en` only (with the scripts, styles and assets that render them), and
 `sitemap.xml` lists those two; shared links, public profiles and the app stay out.
-
-`/admin` also needs `adminGuard`, and the pages of a feature that can be turned off (`/offers`, `/review`) need
-`featureGuard`: both read `GET /users/capabilities` and send anyone else to the dashboard.
 
 Frontend route guards improve user experience but are not a security boundary. The backend must enforce access control.
 
@@ -197,51 +188,23 @@ Rules:
 
 ## CORS
 
-CORS is configured through `CorsConfig` and application properties. Controllers
-inherit this origin allowlist. Security integration tests verify that user
+`CorsConfig` reads the `cors.*` properties and applies them to every path. Security integration tests verify that user
 updates accept the configured origin and reject an untrusted origin.
 
-Default local origins:
-
-- `http://localhost:4200`
-- `http://127.0.0.1:4200`
-
-Local profile also allows:
-
-- `http://0.0.0.0:4200`
-
-Allowed headers include wildcard configuration plus explicit:
-
-- `Authorization`
-- `Content-Type`
-- `Accept`
-- `X-Requested-With`
-- `Origin`
-
-The backend exposes:
-
-- `Authorization`
-
-Production should use the smallest possible allowed-origin set.
+- allowed origins: `http://localhost:4200` and `http://127.0.0.1:4200` (`application.yml` and the `devcontainer`
+  profile); the `kubernetes` profile adds `https://indezy.swirlit.dev` and keeps the two local origins
+- allowed methods: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`; credentials allowed
+- allowed headers: `*`, plus `Authorization`, `Content-Type`, `Accept`, `X-Requested-With` and `Origin` added by `CorsConfig`
+- exposed headers: `Authorization` and `Retry-After` (when a job board can be read on request again)
 
 ## Secrets
 
-Secrets currently used or anticipated:
+Production manifests contain no secret values: External Secrets projects them from Vault, as listed in
+[Deployment](./deployment.md#secrets). Base64 in a Secret is encoding, not encryption.
 
-- `JWT_SECRET`
-- `DB_PASSWORD`
-- `POSTGRES_ADMIN_PASSWORD`
-- `GOOGLE_MAPS_API_KEY`
-
-Production Kubernetes manifests contain no secret values. External Secrets projects application values from `apps/indezy/*` and the database administrator contract from `infra/postgres`; base64 would be encoding, not encryption.
-
-Production expectations:
-
-- rotate all defaults
-- store real secrets outside Git where possible
-- restrict Google Maps API key by API and server IP
-- rotate JWT secret intentionally because it invalidates active tokens
-- keep GitLab job-token permissions and the read-only registry deploy token scoped to the minimum necessary access
+- rotating `JWT_SECRET` invalidates active tokens
+- restrict a Google Maps API key by API and server IP
+- keep GitLab job-token permissions and the read-only registry deploy token scoped to the minimum
 
 ## Two-Factor Authentication
 
@@ -390,6 +353,23 @@ The backend reads public job boards for the offer feed ([ADR 0009](./adr/0009-co
 - Places are looked up on the French government geocoding API (`geo.api.gouv.fr`) with the city and postal code of an
   offer or of the profile only, never a person's address.
 
+## Saved Search Emails
+
+- An email goes to the workspace's own address only, and only for a search whose emails the workspace turned on.
+- The Resend key stays in Vault and the `indezy-mail` Secret; the server sends the address, the subject and the bodies
+  to Resend over HTTPS and logs neither: an email's `toString` is its idempotency key, and Resend's errors are logged by
+  their name only.
+- No tracking pixel and no click-tracking redirect: the offer links open the offer's page in the app, which tells the
+  server an email was read once the workspace is signed in (`POST /offers/searches/{id}/emails/opened`, its own searches
+  only). A mailbox's link scanner opening the links records nothing.
+- The unsubscribe link carries a 256-bit random token per search, after `#`, so it reaches neither access logs nor
+  Referer headers; the page sends it in the `X-Email-Token` header to `/api/public/saved-search-emails`, which only
+  shows the search's name and stops its emails, and only on a button press, so a link scanner opening the page stops
+  nothing. The one-click unsubscribe of the `List-Unsubscribe` header (RFC 8058) must hold the token in its address
+  (`POST /api/public/saved-search-emails/unsubscribe/{token}`); that address only stops the emails. Tokens longer than
+  64 characters are refused before any lookup.
+- Sending stops by itself after 60 days of emails without an offer opened from them, and says so.
+
 ## File Uploads And Attachments
 
 Backend multipart limits are:
@@ -420,7 +400,7 @@ Opportunity files (`/api/projects/{id}/attachments`, see [ADR 0010](./adr/0010-a
   with the session's credentials.
 
 Files are not scanned for malware: only their owner can read them back, so a file harms no one but the account that
-uploaded it; a scanner is listed in the [Security Backlog](#security-backlog).
+uploaded it.
 
 ## Shared Compliance Documents
 
@@ -479,7 +459,8 @@ The public booking page (`/api/public/booking/{link}`) needs no account, so:
 ## Web Server Headers
 
 The web image's nginx (`indezy-web/nginx.conf`) sends on every response, files included: `X-Frame-Options:
-SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `X-XSS-Protection` and this Content-Security-Policy:
+SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer-when-downgrade` and this
+Content-Security-Policy:
 
 - scripts only from the app's own origin (`script-src 'self'`): no inline script, no `eval`, no other host. The
   production build turns off Angular's inline critical CSS, whose stylesheet loader is an inline `onload` handler;
@@ -498,9 +479,7 @@ drop the others: hashed files a year (immutable), the service worker and its man
 To check a policy change, build for production (`npx ng build --configuration production`), serve
 `dist/indezy-web/browser` with the image's `nginx.conf`, and run a Playwright page through the main pages (with the
 API mocked, `/api/auth/sso` included, and service workers blocked so the mocks apply) failing on any console message
-"Refused to" or "Content Security Policy"; it was done so on 2026-10-27 (dashboard, opportunities, a mission with a PDF
-preview, invoices, documents, profile, offers, calendar, the shared documents page), and removing Google Fonts from
-`font-src` made it fail as expected. Blocking the service worker hid that the worker's own fetches fall under
+"Refused to" or "Content Security Policy". Blocking the service worker hides that the worker's own fetches fall under
 `connect-src`: check a policy change once more with the worker running (load a page, wait for
 `navigator.serviceWorker.controller`, reload) and look for failed fonts or images (`document.fonts` reading `error`).
 
@@ -536,24 +515,35 @@ named `=HYPERLINK(...)` shows as text instead of running as a formula (OWASP CSV
 fields holding the separator, a quote or a line break. Numbers and dates the server formats are written as they are.
 Exports are downloaded with `Cache-Control: no-store` and hold only the signed-in workspace's data.
 
-## Software Supply Chain and Code Quality
+## Software Supply Chain And Containers
 
-Required `01-build` and `03-package` are separate from optional `02-test`. Optional manual `01-e2e`, allowed-to-fail `02-quality`, and independent `03-security` are verify jobs; standard mode leaves quality/security manual and full mode runs them automatically. Trivy scans dependencies, IaC, and secrets, retains JSON/SARIF findings for seven days, and exits nonzero on high/critical findings without becoming a deployment gate. `01-release` depends only on the required build path.
+The pipeline, its non-blocking Sonar and Trivy reports and the release publication are described in
+[Deployment](./deployment.md#delivery-pipeline). CI credentials stay in Vault, masked project variables or short-lived
+GitLab job credentials.
 
-The manual release-publication job publishes immutable, checksummed JAR and SPA archives to GitLab's registries; deployment starts only after publication passes. Daemonless Kaniko reuses 30-day registry-backed image layers without privileged runner access. Credentials remain in Vault, masked project CI variables, or short-lived GitLab job credentials.
+### Runtime dependency maintenance
 
-## Security Backlog
+Spring Boot 4.1.1 supplies patched Jackson, Log4j and PostgreSQL JDBC
+dependencies. Tomcat remains overridden to 11.0.25 for CVE-2026-65182,
+CVE-2026-65905 and CVE-2026-68525 until Spring Boot manages a fixed version.
+The web runtime uses digest-pinned NGINX 1.30.4 on Alpine, and both
+`Dockerfile.runtime` files run `apk upgrade` before dropping privileges. Rebuild
+and scan packaged images to verify both application and OS dependencies.
+NGINX runs directly as PID 1 and supervises its own workers; the web image and
+Kubernetes workload do not depend on an additional init executable. Validate
+the published image's startup and graceful termination as well as its scan.
 
-Priority items:
+### Container configuration hardening
 
-- scan opportunity files for malware (for example a ClamAV service) before they are kept
-- enforce ownership checks for every user-owned resource
-- add password reset and email validation
-- add rate limiting and brute-force protection on auth endpoints
-- wire Actuator safely and expose only appropriate endpoints
-- introduce account deletion and GDPR export
-- add audit log for sensitive account actions
-- review CORS and Swagger exposure for production
+The application workloads run with UID and GID 10001, above the host system-user
+range, with a read-only root filesystem, all capabilities dropped, no privilege
+escalation and the runtime default seccomp profile. Writable application data and
+temporary files use explicit volumes.
+
+The database setup hook and the server's `wait-for-db` init container use the
+official PostgreSQL 18.6 Alpine image pinned by digest, run as UID 65534 with a
+read-only root filesystem and need no registry credential; the application images
+are pulled with the app-owned `indezy-registry-auth` credential.
 
 ## Review Checklist For Security-Sensitive Changes
 
@@ -575,45 +565,3 @@ Before merging:
 - [Operations](./operations.md)
 - [Data Model](./data-model.md)
 - [Architecture Overview and ADR Index](./architecture.md)
-
-### Runtime dependency maintenance
-
-Spring Boot 4.1.1 supplies patched Jackson, Log4j and PostgreSQL JDBC
-dependencies. Tomcat remains overridden to 11.0.25 for CVE-2026-65182,
-CVE-2026-65905 and CVE-2026-68525 until Spring Boot manages a fixed version.
-The web runtime uses digest-pinned NGINX 1.30.4 on Alpine, and both CI runtime
-Dockerfiles apply Alpine security updates before dropping privileges. Rebuild
-and scan packaged images to verify both application and OS dependencies.
-NGINX runs directly as PID 1 and supervises its own workers; the web image and
-Kubernetes workload do not depend on an additional init executable. Validate
-the published image's startup and graceful termination as well as its scan.
-
-### Container configuration hardening
-
-The application workloads run with UID and GID 10001, above the host system-user
-range, with the existing read-only filesystem, dropped capabilities and runtime
-seccomp profile. Writable application data and temporary files use explicit
-volumes.
-
-Bare-metal database helper jobs consume the official public PostgreSQL 18.6
-image pinned by digest. They execute client commands as UID 65534 with a read-only
-filesystem and need no platform registry credential. This repository owns their
-configuration and image pin; application images retain app-owned pull credentials.
-
-## Saved Search Emails
-
-- An email goes to the workspace's own address only, and only for a search whose emails the workspace turned on.
-- The Resend key stays in Vault and the `indezy-mail` Secret; the server sends the address, the subject and the bodies
-  to Resend over HTTPS and logs neither: an email's `toString` is its idempotency key, and Resend's errors are logged by
-  their name only.
-- No tracking pixel and no click-tracking redirect: the offer links open the offer's page in the app, which tells the
-  server an email was read once the workspace is signed in (`POST /offers/searches/{id}/emails/opened`, its own searches
-  only). A mailbox's link scanner opening the links records nothing.
-- The unsubscribe link carries a 256-bit random token per search, after `#`, so it reaches neither access logs nor
-  Referer headers; the page sends it in the `X-Email-Token` header to `/api/public/saved-search-emails`, which only
-  shows the search's name and stops its emails, and only on a button press, so a link scanner opening the page stops
-  nothing. The one-click unsubscribe of the `List-Unsubscribe` header (RFC 8058) must hold the token in its address
-  (`POST /api/public/saved-search-emails/unsubscribe/{token}`); that address only stops the emails. Tokens longer than
-  64 characters are refused before any lookup.
-- Sending stops by itself after 60 days of emails without an offer opened from them, and says so.
-

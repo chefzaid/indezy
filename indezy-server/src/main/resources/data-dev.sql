@@ -48,9 +48,8 @@ INSERT INTO freelances (
 
 INSERT INTO users (
     first_name, last_name, email, phone, birth_date, address, city, avatar, bio,
-    company, position, website, linkedin, github, timezone, currency, target_daily_rate, password_hash,
-    last_password_change, theme, language_preference, date_format, time_format,
-    default_view, items_per_page, auto_save, weekly_reports,
+    company, position, website, linkedin, github, target_daily_rate, password_hash,
+    last_password_change, theme, language_preference, weekly_reports,
     two_factor_enabled, created_at, updated_at, version
 ) VALUES (
     'John', 'Doe', 'john.doe@example.com', '+33 6 12 34 56 78', '1990-04-17',
@@ -58,10 +57,9 @@ INSERT INTO users (
     'Freelance Java and TypeScript engineer focused on business applications.',
     'Doe Consulting', 'Senior full-stack engineer', 'https://john-doe.example',
     'https://linkedin.com/in/john-doe', 'https://github.com/john-doe',
-    'Europe/Paris', 'EUR', 600,
+    600,
     '$2a$10$XgbOojgg.CTmnSP8gwpOT.aikY7bnfM4cgCrQhgJOh5UAY1lOpC9S',
-    CURRENT_TIMESTAMP - INTERVAL '90 days', 'light', 'fr', 'DD/MM/YYYY', '24h',
-    'dashboard', 25, true, true, false,
+    CURRENT_TIMESTAMP - INTERVAL '90 days', 'light', 'fr', true, false,
     CURRENT_TIMESTAMP - INTERVAL '2 years', CURRENT_TIMESTAMP, 0
 );
 

@@ -2,11 +2,8 @@ package dev.swirlit.indezy.scraping;
 
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.util.TextFolding;
+import dev.swirlit.indezy.util.Tokens;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
 import java.util.regex.Pattern;
 
 /**
@@ -38,7 +35,7 @@ public final class OfferFingerprint {
         if (publisher == null || publisher.isEmpty()) {
             publisher = TextFolding.words(site.getDisplayName());
         }
-        return hash(core + "|" + publisher.replace(" ", ""));
+        return Tokens.sha256Hex(core + "|" + publisher.replace(" ", ""));
     }
 
     /** Title and the opening of the text; {@code null} when either is missing or the text is too short to tell. */
@@ -52,20 +49,12 @@ public final class OfferFingerprint {
         while (HEADINGS.matcher(opening).find()) {
             opening = HEADINGS.matcher(opening).replaceFirst("");
         }
-        return opening.length() < OPENING_LENGTH ? null : hash(core + "|" + opening.substring(0, OPENING_LENGTH));
+        return opening.length() < OPENING_LENGTH ? null : Tokens.sha256Hex(core + "|" + opening.substring(0, OPENING_LENGTH));
     }
 
     /** The folded title without its gender marks ("Développeur Java (H/F)" is "developpeur java"). */
     static String title(String title) {
         String folded = TextFolding.words(title);
         return folded == null ? "" : GENDERS.matcher(folded).replaceAll(" ").replaceAll("\\s+", " ").strip();
-    }
-
-    private static String hash(String text) {
-        try {
-            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(text.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 is part of every Java runtime", e);
-        }
     }
 }

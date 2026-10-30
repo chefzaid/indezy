@@ -4,8 +4,6 @@ import dev.swirlit.indezy.model.enums.ActivityReportStatus;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.PublicHoliday;
 
-import java.util.Locale;
-
 /** French and English text of the activity report PDF. */
 enum ActivityReportLabel {
     DEFAULT_TITLE("Compte rendu d'activité", "Activity report"),
@@ -64,11 +62,7 @@ enum ActivityReportLabel {
     }
 
     String format(DocumentLanguage language, Object... values) {
-        return String.format(locale(language), in(language), values);
-    }
-
-    static Locale locale(DocumentLanguage language) {
-        return language == DocumentLanguage.EN ? Locale.UK : Locale.FRANCE;
+        return String.format(language.locale(), in(language), values);
     }
 
     static ActivityReportLabel of(ActivityReportStatus status) {

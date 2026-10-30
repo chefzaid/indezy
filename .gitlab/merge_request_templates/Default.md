@@ -4,9 +4,10 @@ Explain what changes for users or operators and why.
 
 ## Verification
 
-- [ ] Required `build` and Docker-build jobs passed; optional unit-test and 80 percent coverage results were reviewed.
-- [ ] Playwright, Sonar, and dependency reports from `e2e` were reviewed when relevant; they do not block release.
-- [ ] Documentation and release notes are updated.
+- [ ] Required `01-build` and `03-package` passed; `02-test` results and the 80 percent coverage report were reviewed.
+- [ ] When relevant, `01-e2e` (Playwright), `02-quality` (Sonar, dependency audits) and `03-security` (Trivy) were
+      reviewed; they do not block release.
+- [ ] Documentation is updated.
 - [ ] No secret, credential, personal data, or generated build output is committed.
 
 ## Delivery risk

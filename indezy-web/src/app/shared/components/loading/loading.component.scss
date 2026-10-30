@@ -4,18 +4,6 @@
   align-items: center;
   padding: 40px;
   min-height: 200px;
-
-  &.fullscreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    // The page's own background, so the overlay follows the app's light or dark theme.
-    background-color: color-mix(in srgb, var(--app-bg) 90%, transparent);
-    z-index: 9999;
-    min-height: 100vh;
-  }
 }
 
 .loading-content {

@@ -50,7 +50,6 @@ public final class SecurityUtils {
         return null;
     }
 
-    /** Whether the current request was authenticated by a personal API token. */
     /** The scopes of the API token signing the request in, by name; empty when it has none (all of the workspace). */
     public static Set<String> apiTokenScopes() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -62,6 +61,7 @@ public final class SecurityUtils {
             .collect(Collectors.toUnmodifiableSet());
     }
 
+    /** Whether the current request was authenticated by a personal API token. */
     public static boolean isApiTokenRequest() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null && authentication.getAuthorities().stream()

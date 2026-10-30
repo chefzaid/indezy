@@ -38,9 +38,7 @@ describe('ProfilePersonalInfoComponent', () => {
       github: [''],
       skills: [[]],
       skillDetails: [{}],
-      languages: [[]],
-      timezone: ['Europe/Paris'],
-      currency: ['EUR']
+      languages: [[]]
     });
     form.patchValue(values);
     fixture = TestBed.createComponent(ProfilePersonalInfoComponent);

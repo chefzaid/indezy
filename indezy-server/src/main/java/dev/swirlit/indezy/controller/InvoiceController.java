@@ -11,10 +11,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -119,11 +116,7 @@ public class InvoiceController {
                                          @RequestParam(defaultValue = "FEC") AccountingExportService.Format format,
                                          @RequestParam(defaultValue = "FR") DocumentLanguage language) {
         AccountingExportService.ExportFile file = accountingExport.export(workspace(), year, format, language);
-        return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(file.fileName()).build().toString())
-            .header(HttpHeaders.CACHE_CONTROL, "no-store")
-            .contentType(MediaType.parseMediaType(file.contentType()))
-            .body(file.content());
+        return PdfResponses.attachment(file.fileName(), file.contentType(), file.content());
     }
 
     private Long workspace() {

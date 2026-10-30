@@ -4,7 +4,6 @@ import dev.swirlit.indezy.service.OfferRateBenchmarkService;
 import dev.swirlit.indezy.service.OfferSuspicionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
  * daily rates are compared with and flags suspicious offers every hour.
  */
 @Component
-@EnableScheduling
 @ConditionalOnProperty(name = "indezy.offers.collection-enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class OfferScheduler {

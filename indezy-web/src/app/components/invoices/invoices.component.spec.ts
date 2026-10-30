@@ -1,8 +1,8 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
@@ -50,7 +50,7 @@ describe('InvoicesComponent', () => {
     TestBed.configureTestingModule({
       imports: [InvoicesComponent, TranslateModule.forRoot()],
       providers: [
-        provideRouter([]), provideNoopAnimations(),
+        provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: InvoiceService, useValue: invoiceService },
         { provide: BillingService, useValue: { identity: () => of(billing) } },
         { provide: ClientService, useValue: { getForCurrentFreelance: () => of([{ id: 4, companyName: 'Zeta' }, { id: 3, companyName: 'Acme' }] as ClientDto[]) } },

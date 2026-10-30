@@ -15,7 +15,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ContactService } from '../../../services/contact/contact.service';
 import { ClientService } from '../../../services/client/client.service';
 import { AuthService } from '../../../services/auth/auth.service';
-import { ClientDto, ContactDto, CONTACT_LEGAL_BASES } from '../../../models';
+import { ClientDto, ContactDto, CONTACT_LEGAL_BASES, contactName } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { fieldError } from '../../../shared/utils/form-errors';
 import { trimmedEmail } from '../../../shared/utils/trimmed-email';
@@ -139,9 +139,7 @@ export class ContactFormComponent implements OnInit, OnDestroy {
     return this.managers.filter(contact => contact.id !== this.contactId);
   }
 
-  nameOf(contact: ContactDto): string {
-    return [contact.firstName, contact.lastName].filter(Boolean).join(' ');
-  }
+  readonly nameOf = contactName;
 
   private loadContact(): void {
     if (!this.contactId) { return; }

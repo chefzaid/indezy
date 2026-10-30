@@ -183,42 +183,6 @@
                   </div>
                   <div class="form-row">
                     <mat-form-field appearance="outline">
-                      <mat-label>{{ 'profile.dateFormat' | translate }}</mat-label>
-                      <mat-select formControlName="dateFormat">
-                        <mat-option value="DD/MM/YYYY">DD/MM/YYYY</mat-option>
-                        <mat-option value="MM/DD/YYYY">MM/DD/YYYY</mat-option>
-                        <mat-option value="YYYY-MM-DD">YYYY-MM-DD</mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                      <mat-label>{{ 'profile.timeFormat' | translate }}</mat-label>
-                      <mat-select formControlName="timeFormat">
-                        <mat-option value="24h">{{ 'profile.timeFormats.h24' | translate }}</mat-option>
-                        <mat-option value="12h">{{ 'profile.timeFormats.h12' | translate }}</mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                  <div class="form-row">
-                    <mat-form-field appearance="outline">
-                      <mat-label>{{ 'profile.defaultView' | translate }}</mat-label>
-                      <mat-select formControlName="defaultView">
-                        <mat-option value="dashboard">{{ 'nav.dashboard' | translate }}</mat-option>
-                        <mat-option value="projects">{{ 'nav.projects' | translate }}</mat-option>
-                        <mat-option value="clients">{{ 'nav.clients' | translate }}</mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                      <mat-label>{{ 'profile.itemsPerPage' | translate }}</mat-label>
-                      <mat-select formControlName="itemsPerPage">
-                        <mat-option [value]="10">10</mat-option>
-                        <mat-option [value]="25">25</mat-option>
-                        <mat-option [value]="50">50</mat-option>
-                        <mat-option [value]="100">100</mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                  <div class="form-row">
-                    <mat-form-field appearance="outline">
                       <mat-label>{{ 'profile.inactivityDays' | translate }}</mat-label>
                       <input matInput type="number" min="1" max="365" step="1" formControlName="inactivityDays">
                       <mat-hint>{{ 'profile.inactivityDaysHint' | translate }}</mat-hint>
@@ -245,9 +209,6 @@
                       </mat-select>
                       <mat-hint>{{ 'profile.contactRetentionHint' | translate }}</mat-hint>
                     </mat-form-field>
-                    <mat-slide-toggle formControlName="autoSave">
-                      {{ 'profile.autoSave' | translate }}
-                    </mat-slide-toggle>
                   </div>
                 </mat-card-content>
               </mat-card>

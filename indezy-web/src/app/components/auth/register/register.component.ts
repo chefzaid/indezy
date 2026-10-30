@@ -109,13 +109,7 @@ export class RegisterComponent implements OnInit {
   getErrorMessage(field: string): string {
     const control = this.registerForm.get(field);
     if (control?.hasError('required')) {
-      const requiredMessageKeys: Record<string, string> = {
-        firstName: 'auth.firstNameRequired',
-        lastName: 'auth.lastNameRequired',
-        email: 'auth.emailRequired',
-      };
-      const key = requiredMessageKeys[field] ?? `auth.${field}Required`;
-      return this.translateService.instant(key);
+      return this.translateService.instant(`auth.${field}Required`);
     }
     if (control?.hasError('email')) {
       return this.translateService.instant('common.invalidEmail');

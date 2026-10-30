@@ -8,16 +8,15 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { ClientService } from '../../../services/client/client.service';
 import { ContactService } from '../../../services/contact/contact.service';
 import { ProjectService } from '../../../services/project/project.service';
 import { AuthService } from '../../../services/auth/auth.service';
-import { ClientDto, ContactDto, PROJECT_STATUS_COLORS, ProjectDto, ProjectStatus } from '../../../models';
+import { ClientDto, ContactDto, PROJECT_STATUS_COLORS, ProjectDto, ProjectStatus, contactName } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { ContactImportDialogComponent } from '../../contacts/contact-import-dialog/contact-import-dialog.component';
@@ -38,9 +37,7 @@ const TABS = ['details', 'projects', 'contacts'] as const;
     MatProgressSpinnerModule,
     MatTableModule,
     MatTabsModule,
-    MatMenuModule,
     MatTooltipModule,
-    MatDialogModule,
     TranslateModule,
     ClientOrgChartComponent
 ],
@@ -299,7 +296,5 @@ export class ClientDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  getContactName(contact: ContactDto): string {
-    return [contact.firstName, contact.lastName].filter(Boolean).join(' ');
-  }
+  readonly getContactName = contactName;
 }

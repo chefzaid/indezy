@@ -12,8 +12,6 @@ import dev.swirlit.indezy.util.BillingText;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 public class ClientDto {
@@ -69,33 +67,11 @@ public class ClientDto {
     // Computed fields
     private Integer totalProjects;
     private Integer totalContacts;
-    private Double averageProjectRating;
     private Double averageDailyRate;
-
-    // Related collections (for detailed views)
-    private List<ProjectDto> projects;
-    private List<ContactDto> contacts;
 
     // Audit fields
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    // Custom getters and setters for collections to prevent EI_EXPOSE_REP
-    public List<ProjectDto> getProjects() {
-        return projects != null ? new ArrayList<>(projects) : new ArrayList<>();
-    }
-
-    public void setProjects(final List<ProjectDto> projects) {
-        this.projects = projects != null ? new ArrayList<>(projects) : new ArrayList<>();
-    }
-
-    public List<ContactDto> getContacts() {
-        return contacts != null ? new ArrayList<>(contacts) : new ArrayList<>();
-    }
-
-    public void setContacts(final List<ContactDto> contacts) {
-        this.contacts = contacts != null ? new ArrayList<>(contacts) : new ArrayList<>();
-    }
 
     /** Spaces dropped, as people write a SIREN in groups ("123 456 789"); blank means none. */
     public void setSiren(final String siren) {

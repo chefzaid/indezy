@@ -5,11 +5,10 @@ import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Subject, takeUntil } from 'rxjs';
@@ -47,11 +46,9 @@ import { EnterOpensDirective } from '../../shared/directives/enter-opens.directi
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    MatChipsModule,
     MatProgressBarModule,
     MatSnackBarModule,
     MatTooltipModule,
-    MatDialogModule,
     MatCheckboxModule,
     ProjectSelectionBarComponent,
     RefusedByBadgeComponent,

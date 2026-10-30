@@ -1,6 +1,5 @@
 package dev.swirlit.indezy.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.swirlit.indezy.exception.ErrorResponse;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverters;
@@ -18,6 +17,8 @@ import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,8 +44,8 @@ public final class OpenApiDocumentation implements OpenApiCustomizer {
 
     private final Map<String, Object> examples;
 
-    public OpenApiDocumentation() {
-        this.examples = readExamples();
+    public OpenApiDocumentation(JsonMapper jsonMapper) {
+        this.examples = readExamples(jsonMapper);
     }
 
     @Override
@@ -118,8 +119,7 @@ public final class OpenApiDocumentation implements OpenApiCustomizer {
         return body;
     }
 
-    private static Map<String, Object> readExamples() {
-        ObjectMapper reader = new ObjectMapper();
+    private static Map<String, Object> readExamples(JsonMapper reader) {
         Map<String, Object> read = new LinkedHashMap<>();
         try {
             for (Resource resource : new PathMatchingResourcePatternResolver().getResources(EXAMPLES)) {
@@ -130,6 +130,8 @@ public final class OpenApiDocumentation implements OpenApiCustomizer {
             }
         } catch (IOException e) {
             throw new UncheckedIOException("Could not read the OpenAPI examples", e);
+        } catch (JacksonException e) {
+            throw new IllegalStateException("Could not read the OpenAPI examples", e);
         }
         return read;
     }

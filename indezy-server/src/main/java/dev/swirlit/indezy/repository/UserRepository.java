@@ -32,11 +32,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /** The account whose public profile has this address name, shown or not. */
     Optional<User> findByPublicProfileSlug(String slug);
 
-    /**
-     * Check if user exists by email
-     */
-    boolean existsByEmail(String email);
-
     /** The active accounts with the weekly digest on that were not sent the digest of {@code week} yet. */
     @Query("SELECT u.id FROM User u WHERE u.weeklyReports = TRUE AND u.deletedAt IS NULL AND u.disabledAt IS NULL " +
         "AND (u.weeklyDigestSentOn IS NULL OR u.weeklyDigestSentOn < :week)")

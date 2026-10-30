@@ -22,9 +22,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
-    properties:
-      hibernate:
-        "[format_sql]": true
   
   servlet:
     multipart:
@@ -41,6 +38,8 @@ google:
     api-key: ${GOOGLE_MAPS_API_KEY:}
 
 indezy:
+  # Runs scheduled work at all: the jobs switched below, webhook deliveries, nightly clean-ups, digests and emails.
+  scheduling-enabled: ${INDEZY_SCHEDULING_ENABLED:true}
   contacts:
     # Anonymizes every night the dormant contacts of the accounts that set a retention period (see docs/features.md#contact-privacy).
     retention-enabled: ${INDEZY_CONTACTS_RETENTION_ENABLED:true}
@@ -114,4 +113,3 @@ logging:
     # Logs each resolved exception's message at DEBUG, rejected values included: GlobalExceptionHandler logs a safe line.
     "[org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver]": INFO
     "[org.hibernate.SQL]": WARN
-    "[org.hibernate.type.descriptor.sql.BasicBinder]": WARN

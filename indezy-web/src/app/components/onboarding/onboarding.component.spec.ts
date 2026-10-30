@@ -1,7 +1,7 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, provideRouter } from '@angular/router';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatStepper } from '@angular/material/stepper';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NEVER, of, throwError } from 'rxjs';
@@ -46,8 +46,9 @@ describe('OnboardingComponent', () => {
     auth.completeOnboarding.and.returnValue(of(undefined));
 
     await TestBed.configureTestingModule({
-      imports: [OnboardingComponent, TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [OnboardingComponent, TranslateModule.forRoot()],
       providers: [
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         provideRouter([]),
         { provide: UserManagementService, useValue: users },
         { provide: PipelineTemplateService, useValue: templates },

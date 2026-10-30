@@ -24,26 +24,21 @@ import dev.swirlit.indezy.pdf.ActivityReportTemplate;
 import dev.swirlit.indezy.repository.ActivityReportRepository;
 import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.util.FrenchPublicHolidays;
+import dev.swirlit.indezy.util.Tokens;
 import lombok.extern.slf4j.Slf4j;
 import dev.swirlit.indezy.model.enums.WebhookEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.text.Normalizer;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -62,7 +57,6 @@ import java.util.stream.Stream;
 public class ActivityReportService {
 
     static final Duration LINK_VALIDITY = Duration.ofDays(30);
-    private static final int TOKEN_BYTES = 32;
     private static final int MAX_TOKEN_LENGTH = 128;
     private static final int MAX_FILE_NAME_ROLE = 40;
 
@@ -70,7 +64,6 @@ public class ActivityReportService {
     private final ProjectRepository projectRepository;
     private final ActivityReportPdfRenderer pdfRenderer;
     private final Clock clock;
-    private final SecureRandom secureRandom = new SecureRandom();
     private WebhookPublisher webhooks = WebhookPublisher.NONE;
 
     /** A rendered report: the file name to offer and the PDF bytes. */
@@ -221,16 +214,10 @@ public class ActivityReportService {
             .toList();
     }
 
-    public void deleteByProjectId(Long projectId) {
-        activityReportRepository.deleteByProjectId(projectId);
-    }
-
     private ActivityReportLinkDto issueLink(Project project, ActivityReport report) {
-        byte[] bytes = new byte[TOKEN_BYTES];
-        secureRandom.nextBytes(bytes);
-        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        String token = Tokens.random();
         Instant expiresAt = clock.instant().plus(LINK_VALIDITY);
-        report.setValidationTokenHash(hash(token));
+        report.setValidationTokenHash(Tokens.sha256Hex(token));
         report.setValidationExpiresAt(expiresAt);
         ActivityReport saved = activityReportRepository.save(report);
         log.info("Issued a validation link for activity report {} of project {}", saved.getId(), project.getId());
@@ -241,7 +228,7 @@ public class ActivityReportService {
         if (token == null || token.isBlank() || token.length() > MAX_TOKEN_LENGTH) {
             throw new ResourceNotFoundException(ErrorMessages.ACTIVITY_REPORT_LINK_INVALID);
         }
-        return activityReportRepository.findByValidationTokenHash(hash(token.trim()))
+        return activityReportRepository.findByValidationTokenHash(Tokens.sha256Hex(token.trim()))
             .filter(report -> report.getValidationExpiresAt() != null && report.getValidationExpiresAt().isAfter(clock.instant()))
             .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ACTIVITY_REPORT_LINK_INVALID));
     }
@@ -385,14 +372,5 @@ public class ActivityReportService {
 
     private static Long workspaceOf(Project project) {
         return project.getFreelance() == null ? null : project.getFreelance().getId();
-    }
-
-    static String hash(String token) {
-        try {
-            byte[] digest = MessageDigest.getInstance("SHA-256").digest(token.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 is not available", e);
-        }
     }
 }

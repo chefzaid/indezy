@@ -4,7 +4,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { PipelineTemplate, ProjectDto } from '../../../models';
@@ -19,7 +18,7 @@ import { TemplateSaveDialogComponent } from '../template-save-dialog/template-sa
  */
 @Component({
   selector: 'app-step-templates',
-  imports: [MatButtonModule, MatDividerModule, MatIconModule, MatMenuModule, MatTooltipModule, TranslateModule],
+  imports: [MatButtonModule, MatDividerModule, MatIconModule, MatMenuModule, TranslateModule],
   templateUrl: './step-templates.component.html',
   styleUrls: ['./step-templates.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

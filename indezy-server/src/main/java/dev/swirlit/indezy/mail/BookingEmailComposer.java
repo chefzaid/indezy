@@ -34,7 +34,7 @@ public class BookingEmailComposer {
 
     public Email compose(Booking booking, String recipient, DocumentLanguage language) {
         boolean english = language == DocumentLanguage.EN;
-        Locale locale = english ? Locale.UK : Locale.FRANCE;
+        Locale locale = language.locale();
         ZonedDateTime start = booking.getStartsAt().atZone(PARIS);
         String when = start.format(DateTimeFormatter.ofPattern(english ? "EEEE d MMMM, HH:mm" : "EEEE d MMMM, HH'h'mm", locale));
         long minutes = Duration.between(booking.getStartsAt(), booking.getEndsAt()).toMinutes();

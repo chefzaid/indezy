@@ -101,9 +101,9 @@ public class WeeklyDigestComposer {
 
     public Email compose(Digest digest) {
         DocumentLanguage language = digest.language();
-        DateTimeFormatter day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(WeeklyDigestLabel.locale(language));
+        DateTimeFormatter day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(language.locale());
         DateTimeFormatter moment = DateTimeFormatter.ofPattern(language == DocumentLanguage.EN ? "EEE d MMM, HH:mm" : "EEE d MMM, HH'h'mm",
-            WeeklyDigestLabel.locale(language));
+            language.locale());
         String heading = WeeklyDigestLabel.HEADING.format(language, digest.firstName());
         StringBuilder html = new StringBuilder("<h1 style=\"font-size:20px;margin:0 0 16px\">").append(escape(heading)).append("</h1>");
         StringBuilder text = new StringBuilder(heading).append("\n\n");
@@ -114,7 +114,7 @@ public class WeeklyDigestComposer {
             section(html, text, WeeklyDigestLabel.PIPELINE.in(language), List.of(WeeklyDigestLabel.PIPELINE_LINE.format(language, stats.open(),
                 status.getOrDefault("CONTACT", 0L), status.getOrDefault("INTERVIEW", 0L), status.getOrDefault("OFFER", 0L))), item -> null);
         }
-        NumberFormat euros = NumberFormat.getCurrencyInstance(WeeklyDigestLabel.locale(language));
+        NumberFormat euros = NumberFormat.getCurrencyInstance(language.locale());
         euros.setCurrency(Currency.getInstance("EUR"));
         section(html, text, WeeklyDigestLabel.OVERDUE.in(language), stats.overdueInvoices().stream().limit(ITEMS)
             .map(invoice -> WeeklyDigestLabel.OVERDUE_LINE.format(language, invoice.getNumber(), invoice.getClientName(),

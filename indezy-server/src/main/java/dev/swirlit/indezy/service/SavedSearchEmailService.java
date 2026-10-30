@@ -14,6 +14,7 @@ import dev.swirlit.indezy.model.SavedOfferSearch;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.SavedSearchEmails;
 import dev.swirlit.indezy.repository.SavedOfferSearchRepository;
+import dev.swirlit.indezy.util.Tokens;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -29,7 +29,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,7 +48,6 @@ public class SavedSearchEmailService {
     static final int OFFERS_PER_EMAIL = 20;
     static final int DEFAULT_HOUR = 8;
     static final ZoneId PARIS = ZoneId.of("Europe/Paris");
-    private static final int TOKEN_BYTES = 32;
     private static final int MAX_TOKEN_LENGTH = 64;
     private static final List<SavedSearchEmails> SENDING = List.of(SavedSearchEmails.INSTANT, SavedSearchEmails.DAILY);
 
@@ -64,7 +62,6 @@ public class SavedSearchEmailService {
     private final ResendMailer mailer;
     private final TransactionTemplate transactions;
     private final Clock clock;
-    private final SecureRandom random = new SecureRandom();
 
     @Autowired
     public SavedSearchEmailService(SavedOfferSearchRepository searches, SavedOfferSearchService savedSearches, OfferSearchService offerSearch,
@@ -103,7 +100,7 @@ public class SavedSearchEmailService {
                 search.setEmailsStoppedAt(null);
             }
             if (search.getEmailToken() == null) {
-                search.setEmailToken(newToken());
+                search.setEmailToken(Tokens.random());
             }
         }
         return savedSearches.toDto(search, 0);
@@ -232,11 +229,5 @@ public class SavedSearchEmailService {
     private static PublicSavedSearchEmailsDto toPublicDto(SavedOfferSearch search) {
         return new PublicSavedSearchEmailsDto(search.getName(), search.getEmailFrequency(),
             Objects.requireNonNullElse(search.getEmailLanguage(), DocumentLanguage.FR));
-    }
-
-    private String newToken() {
-        byte[] bytes = new byte[TOKEN_BYTES];
-        random.nextBytes(bytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 }

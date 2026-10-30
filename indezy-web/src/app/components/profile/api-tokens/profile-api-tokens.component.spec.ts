@@ -1,6 +1,6 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
@@ -25,7 +25,7 @@ describe('ProfileApiTokensComponent', () => {
     TestBed.configureTestingModule({
       imports: [ProfileApiTokensComponent, TranslateModule.forRoot()],
       providers: [
-        provideNoopAnimations(),
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: AccountSecurityService, useValue: security },
         { provide: NotificationService, useValue: notifications },
         { provide: ConfirmDialogService, useValue: confirm },

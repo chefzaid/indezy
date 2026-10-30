@@ -18,6 +18,7 @@ import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -61,8 +62,7 @@ class UserManagementIntegrationTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         ResponseEntity<String> response = restTemplate.exchange(
             url, HttpMethod.POST, new HttpEntity<>("{}", headers), String.class);
-        return new com.fasterxml.jackson.databind.ObjectMapper()
-            .readTree(response.getBody()).get("secret").asText();
+        return JsonMapper.builder().build().readTree(response.getBody()).get("secret").asString();
     }
 
     /** Posts a two-factor code, as a {@link TwoFactorCodeRequest} or as raw JSON, to {@code /security/2fa/<action>}. */
@@ -220,10 +220,12 @@ class UserManagementIntegrationTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         
-        // Verify response contains expected preference fields
+        // Verify response contains expected preference fields, and none of the display settings nothing applied
         assertTrue(response.getBody().contains("theme"));
         assertTrue(response.getBody().contains("language"));
-        assertTrue(response.getBody().contains("timezone"));
+        for (String removed : List.of("dateFormat", "timeFormat", "currency", "timezone", "defaultView", "itemsPerPage", "autoSave")) {
+            assertFalse(response.getBody().contains(removed), removed);
+        }
     }
 
     @Test
@@ -231,12 +233,14 @@ class UserManagementIntegrationTest {
     void testUpdateUserPreferences() {
         String url = getBaseUrl() + "/preferences";
         
+        // A page loaded before the display settings went still sends them: they are read past.
         String preferencesRequest = """
             {
                 "theme": "dark",
                 "language": "en",
+                "followUpDays": 20,
                 "timeFormat": "24h",
-                "itemsPerPage": 20
+                "itemsPerPage": 50
             }
             """;
 
@@ -250,8 +254,9 @@ class UserManagementIntegrationTest {
         
         // Verify updated preferences in response
         assertTrue(response.getBody().contains("dark"));
-        assertTrue(response.getBody().contains("24h"));
-        assertTrue(response.getBody().contains("20"));
+        assertTrue(response.getBody().contains("\"followUpDays\":20"));
+        assertFalse(response.getBody().contains("24h"));
+        assertFalse(response.getBody().contains("itemsPerPage"));
     }
 
     @Test

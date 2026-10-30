@@ -22,30 +22,9 @@
     "lib": [
       "ES2022",
       "dom"
-    ],
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@/components/*": [
-        "./src/app/components/*"
-      ],
-      "@/services/*": [
-        "./src/app/services/*"
-      ],
-      "@/models/*": [
-        "./src/app/models/*"
-      ],
-      "@/guards/*": [
-        "./src/app/guards/*"
-      ],
-      "@/utils/*": [
-        "./src/app/utils/*"
-      ]
-    }
+    ]
   },
   "angularCompilerOptions": {
-    "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true

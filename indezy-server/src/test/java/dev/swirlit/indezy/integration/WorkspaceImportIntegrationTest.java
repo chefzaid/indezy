@@ -1,6 +1,5 @@
 package dev.swirlit.indezy.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.swirlit.indezy.dto.RegisterRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.LinkedMultiValueMap;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ class WorkspaceImportIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    private final ObjectMapper json = new ObjectMapper();
+    private final JsonMapper json = JsonMapper.builder().build();
 
     @Test
     @SuppressWarnings("unchecked")
@@ -134,6 +134,58 @@ class WorkspaceImportIntegrationTest {
             .isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(restTemplate.postForEntity(url("/users/import/preview"), null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    /**
+     * A file exported before the display settings went, pretty-printed as exports are, still imports: what it holds and
+     * the import does not read is skipped.
+     */
+    @Test
+    void importsAnExportThatStillHoldsTheRemovedDisplaySettings() {
+        Account dave = register("dave");
+        String export = """
+            {
+              "profile" : {
+                "id" : 1,
+                "firstName" : "Dave",
+                "lastName" : "Test",
+                "timezone" : "Europe/Paris",
+                "currency" : "EUR",
+                "preferences" : {
+                  "theme" : "light",
+                  "language" : "fr",
+                  "dateFormat" : "DD/MM/YYYY",
+                  "timeFormat" : "24h",
+                  "currency" : "EUR",
+                  "timezone" : "Europe/Paris",
+                  "defaultView" : "dashboard",
+                  "itemsPerPage" : 25,
+                  "autoSave" : true
+                }
+              },
+              "clients" : [ {
+                "id" : 1,
+                "companyName" : "Initech",
+                "city" : "Paris",
+                "isFinal" : true,
+                "currency" : "EUR",
+                "createdAt" : "2026-01-05T09:30:00.123456"
+              } ],
+              "seasons" : [ {
+                "id" : 2,
+                "name" : "Spring 2026",
+                "startDate" : "2026-03-01",
+                "targetDailyRate" : 600,
+                "createdAt" : "2026-02-20T18:00:00"
+              } ],
+              "sessions" : [ ]
+            }
+            """;
+
+        Map<String, Object> report = upload(dave, "/users/import", export.getBytes(StandardCharsets.UTF_8), Map.class).getBody();
+        assertThat(report).containsEntry("applied", true);
+        assertThat(section(report, "CLIENTS")).containsEntry("added", 1).containsEntry("invalid", 0);
+        assertThat(section(report, "SEASONS")).containsEntry("added", 1).containsEntry("invalid", 0);
     }
 
     private static Map<String, Object> with(Map<String, Object> base, String key, Object value) {

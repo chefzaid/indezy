@@ -1,7 +1,10 @@
 # ADR 0005: Security Baseline And Hardening Direction
 
-- Status: Accepted
+- Status: Superseded
 - Date: 2026-06-12
+
+`SecurityConfig` now requires authentication for every route that is not explicitly public
+(`anyRequest().authenticated()`); the [Security Reference](../security.md) describes the current security model.
 
 ## Context
 

@@ -13,14 +13,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { forkJoin, of } from 'rxjs';
 
-import { ContactDto, ContactInteraction, INTERACTION_CHANNELS, InteractionChannel, InteractionDirection } from '../../../models/contact.models';
+import { ContactDto, ContactInteraction, INTERACTION_CHANNELS, InteractionChannel, InteractionDirection, contactName } from '../../../models/contact.models';
 import { ProjectDto, ProjectNote } from '../../../models';
 import { ContactService } from '../../../services/contact/contact.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ProjectService } from '../../../services/project/project.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MarkdownService } from '../../../shared/services/markdown.service';
-import { CHANNEL_ICONS, SUMMARY_MAX, localDay } from '../../contacts/contact-interactions/contact-interactions.component';
+import { CHANNEL_ICONS, SUMMARY_MAX } from '../../contacts/contact-interactions/contact-interactions.component';
+import { toIsoDate } from '../../../shared/locale/app-locale';
 import { NOTE_TEMPLATES } from '../project-detail/note-templates';
 
 /** A line of the journal: a note written on the opportunity, or an exchange about it with a contact. */
@@ -55,7 +56,7 @@ export class ProjectJournalComponent implements OnChanges {
   readonly summaryMax = SUMMARY_MAX;
   readonly exchangeForm = inject(FormBuilder).nonNullable.group({
     contactId: [null as number | null, Validators.required],
-    occurredOn: [localDay(), Validators.required],
+    occurredOn: [toIsoDate(new Date()), Validators.required],
     channel: ['EMAIL' as InteractionChannel],
     direction: ['OUTGOING' as InteractionDirection],
     answered: [null as boolean | null],
@@ -73,7 +74,7 @@ export class ProjectJournalComponent implements OnChanges {
   selectedNoteTemplate = '';
   recording = false;
   isSavingExchange = false;
-  today = localDay();
+  today = toIsoDate(new Date());
 
   ngOnChanges(): void {
     this.loadNotes();
@@ -86,9 +87,7 @@ export class ProjectJournalComponent implements OnChanges {
   }
 
 
-  nameOf(contact: ContactDto): string {
-    return [contact.firstName, contact.lastName].filter(Boolean).join(' ');
-  }
+  readonly nameOf = contactName;
 
   /** Renders note content written in Markdown as safe, bindable HTML. */
   renderMarkdown(text: string): SafeHtml {
@@ -136,7 +135,7 @@ export class ProjectJournalComponent implements OnChanges {
   }
 
   startRecording(): void {
-    this.today = localDay();
+    this.today = toIsoDate(new Date());
     this.exchangeForm.reset({ contactId: this.contacts.length === 1 ? this.contacts[0].id! : null, occurredOn: this.today,
       channel: 'EMAIL', direction: 'OUTGOING', answered: null, summary: '' });
     this.recording = true;

@@ -29,7 +29,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -122,6 +124,10 @@ class UserDataExportServiceTest {
 
     @Mock
     private BookingService bookingService;
+
+    // As Spring Boot builds it, with no spring.jackson settings.
+    @Spy
+    private JsonMapper jsonMapper = JsonMapper.builder().build();
 
     @InjectMocks
     private UserDataExportService userDataExportService;

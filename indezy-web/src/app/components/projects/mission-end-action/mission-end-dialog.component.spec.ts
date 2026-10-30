@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { provideNativeDateAdapter } from '@angular/material/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNativeDateAdapter, MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { MissionEndDialogComponent } from './mission-end-dialog.component';
@@ -10,8 +9,9 @@ describe('MissionEndDialogComponent', () => {
   function create(startDate?: string): { component: MissionEndDialogComponent; close: jasmine.Spy } {
     const dialogRef = jasmine.createSpyObj<MatDialogRef<MissionEndDialogComponent>>('MatDialogRef', ['close']);
     TestBed.configureTestingModule({
-      imports: [MissionEndDialogComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [MissionEndDialogComponent, TranslateModule.forRoot()],
       providers: [
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         provideNativeDateAdapter(),
         { provide: MatDialogRef, useValue: dialogRef },
         { provide: MAT_DIALOG_DATA, useValue: { role: 'Développeur Java', startDate } }

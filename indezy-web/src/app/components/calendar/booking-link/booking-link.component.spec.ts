@@ -1,7 +1,7 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TestBed } from '@angular/core/testing';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatDialog } from '@angular/material/dialog';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
@@ -36,7 +36,7 @@ describe('BookingLinkComponent', () => {
     clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
     TestBed.configureTestingModule({
       imports: [BookingLinkComponent, TranslateModule.forRoot()],
-      providers: [provideNoopAnimations(), { provide: BookingService, useValue: service }, { provide: NotificationService, useValue: notifications },
+      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: BookingService, useValue: service }, { provide: NotificationService, useValue: notifications },
         { provide: ConfirmDialogService, useValue: confirm }, { provide: Clipboard, useValue: clipboard }]
     });
     TestBed.overrideProvider(MatDialog, { useValue: dialog });

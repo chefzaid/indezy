@@ -1,14 +1,13 @@
 package dev.swirlit.indezy.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
 
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -50,10 +49,7 @@ public class UserDataExportService {
     private final ComplianceDocumentService complianceDocumentService;
     private final CompliancePackService compliancePackService;
     private final BookingService bookingService;
-
-    // Self-contained mapper (the app does not expose an ObjectMapper bean); modules add date support, written as ISO-8601.
-    private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules()
-        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    private final JsonMapper jsonMapper;
 
     /** The profile of account {@code userId} and the records of its workspace {@code freelanceId}. */
     @Transactional(readOnly = true)
@@ -95,10 +91,12 @@ public class UserDataExportService {
         export.put("accountActivity", accountEventService.export(userId));
 
         try {
-            return objectMapper.writerWithDefaultPrettyPrinter()
-                .writeValueAsString(export)
-                .getBytes(StandardCharsets.UTF_8);
-        } catch (JsonProcessingException e) {
+            // Dates are ISO-8601 text, Jackson 3's default; each record's properties keep their declaration order, as
+            // files exported before Jackson 3 have them, where Jackson 3 sorts them by name.
+            return jsonMapper.rebuild().disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build()
+                .writerWithDefaultPrettyPrinter()
+                .writeValueAsBytes(export);
+        } catch (JacksonException e) {
             throw new IllegalStateException("Failed to serialize user data export", e);
         }
     }

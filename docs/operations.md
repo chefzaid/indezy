@@ -19,17 +19,17 @@ This runbook covers the Indezy application layer. Use the `swirl-cloud` runbooks
 
 ```bash
 kubectl get application indezy -n infra
-kubectl get pods,services,ingress -n apps -l app=indezy-server
-kubectl get pods,services -n apps -l app=indezy-web
+kubectl get deployment,pod -n apps -l 'app in (indezy-server,indezy-web)'
+kubectl get service indezy-server indezy-web -n apps
+kubectl get ingress indezy-ingress indezy-api-ingress indezy-public-api-ingress -n apps
 kubectl get externalsecret indezy-server-secret indezy-registry-auth \
-  indezy-db-admin-credentials -n apps
+  indezy-mail indezy-db-admin-credentials -n apps
 kubectl rollout status deployment/indezy-server -n apps
 kubectl rollout status deployment/indezy-web -n apps
 curl --fail https://indezy.swirlit.dev/health
-curl --fail https://indezy.swirlit.dev/api/actuator/health
 ```
 
-Healthy means the expected Git revision is `Synced` and `Healthy` in Argo CD, both Deployments have an available replica, External Secrets report `Ready=True`, and both health endpoints succeed.
+`/api` sits behind the SSO Middleware, so check the backend health endpoint through a port-forward (see [Backend is running but not ready](#backend-is-running-but-not-ready)), not the public host. Healthy means the expected Git revision is `Synced` and `Healthy` in Argo CD, both Deployments have an available replica, External Secrets report `Ready=True`, and both health endpoints succeed.
 
 ## Logs
 
@@ -132,16 +132,16 @@ Check startup logs and database connectivity. The health endpoint will remain un
 ### Frontend loads but API calls fail
 
 ```bash
-kubectl get ingress indezy-ingress -n apps -o yaml
+kubectl get ingress indezy-api-ingress indezy-public-api-ingress -n apps -o yaml
 kubectl get endpoints indezy-server -n apps
 kubectl logs deployment/indezy-server -n apps --tail=100
 ```
 
-Confirm the `/api` ingress route, ready backend endpoints, and the backend `/api` context path.
+Confirm the `/api` route of `indezy-api-ingress` (and `/api/public` of `indezy-public-api-ingress`), ready backend endpoints, and the backend `/api` context path.
 
 ### Images published but deployment did not change
 
-Check the `01-release` job, the `deploy: ... [skip ci]` commit, and Argo CD's revision and conditions. CI intentionally fails when `main` advanced during a pipeline instead of overwriting newer desired state.
+Check the `01-release` and `02-deploy` jobs, the `release: <version> [skip ci]` commit with its image tags in `infra/k8s/kustomization.yaml`, and Argo CD's revision and conditions. Release intentionally fails when `main` advanced during the pipeline instead of overwriting newer desired state (see [Deployment](./deployment.md#delivery-pipeline)).
 
 ### A feature misbehaves in production
 
@@ -166,4 +166,4 @@ Keep the dump outside Git and handle it as sensitive data.
 
 ## Secret Rotation
 
-Rotate the application database password by updating `apps/indezy/runtime` in Vault and allowing the database setup hook to update the role before the backend rollout. Rotating `jwt_secret` invalidates active sessions. Registry pull-token rotation is managed by `infra/scripts/configure-gitlab.sh` when the stored credential is absent or the managed token no longer exists.
+Rotate the application database password by updating `apps/indezy/runtime` in Vault and allowing the database setup hook to update the role before the backend rollout. Rotating `jwt_secret` invalidates active sessions. Rerunning onboarding (or the fallback `infra/scripts/configure-gitlab.sh`) replaces the registry pull token when the stored credential is missing or no longer valid. The Resend key is rotated as described in [Deployment](./deployment.md#saved-search-email-credentials).

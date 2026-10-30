@@ -1,8 +1,8 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ArchiveComponent } from './archive.component';
 import { ProjectService } from '../../services/project/project.service';
 import { AuthService } from '../../services/auth/auth.service';
@@ -32,8 +32,9 @@ describe('ArchiveComponent', () => {
     notifications = jasmine.createSpyObj<NotificationService>('NotificationService', ['success', 'error']);
 
     await TestBed.configureTestingModule({
-      imports: [ArchiveComponent, RouterModule.forRoot([]), TranslateModule.forRoot(), NoopAnimationsModule],
+      imports: [ArchiveComponent, RouterModule.forRoot([]), TranslateModule.forRoot()],
       providers: [
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: ProjectService, useValue: projectServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: NotificationService, useValue: notifications }

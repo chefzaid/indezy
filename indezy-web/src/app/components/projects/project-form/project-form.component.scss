@@ -250,18 +250,3 @@
     }
   }
 }
-
-@media (max-width: 480px) {
-  .project-form-container {
-    
-    .form-card {
-      mat-card-header {
-        mat-card-title {
-          .header-content {
-            font-size: 1.3rem;
-          }
-        }
-      }
-    }
-  }
-}

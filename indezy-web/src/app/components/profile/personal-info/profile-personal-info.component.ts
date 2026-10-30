@@ -62,18 +62,6 @@ export class ProfilePersonalInfoComponent {
     'Chinois', 'Japonais', 'Arabe', 'Russe', 'Néerlandais'
   ];
 
-  timezones = [
-    'Europe/Paris', 'Europe/London', 'Europe/Berlin', 'Europe/Madrid',
-    'America/New_York', 'America/Los_Angeles', 'Asia/Tokyo', 'Asia/Shanghai'
-  ];
-
-  currencies = [
-    { value: 'EUR', label: '€ Euro' },
-    { value: 'USD', label: '$ Dollar US' },
-    { value: 'GBP', label: '£ Livre Sterling' },
-    { value: 'CHF', label: 'CHF Franc Suisse' }
-  ];
-
   addLanguage(language: string): void {
     const languages: string[] = this.form.get('languages')?.value || [];
     if (!languages.includes(language)) {

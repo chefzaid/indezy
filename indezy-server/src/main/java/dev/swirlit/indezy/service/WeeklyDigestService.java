@@ -13,6 +13,7 @@ import dev.swirlit.indezy.model.enums.DigestSection;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.UserRepository;
+import dev.swirlit.indezy.util.Tokens;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -29,7 +29,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 
@@ -49,9 +48,7 @@ public class WeeklyDigestService {
     static final int SEND_HOUR = 8;
     static final ZoneId PARIS = ZoneId.of("Europe/Paris");
     private static final Duration OFFERS_SINCE = Duration.ofDays(7);
-    private static final int TOKEN_BYTES = 32;
     private static final int MAX_TOKEN_LENGTH = 64;
-    private static final SecureRandom RANDOM = new SecureRandom();
     private static final OfferPageDto NO_OFFERS = new OfferPageDto(List.of(), 0, 0, 0, 0, false, false);
 
     /** A digest claimed for sending, and the week the account was sent before. */
@@ -115,9 +112,7 @@ public class WeeklyDigestService {
     /** Gives the account an unsubscribe token when the digest is turned on and it has none yet. */
     public static void prepare(User user) {
         if (Boolean.TRUE.equals(user.getWeeklyReports()) && user.getWeeklyDigestToken() == null) {
-            byte[] bytes = new byte[TOKEN_BYTES];
-            RANDOM.nextBytes(bytes);
-            user.setWeeklyDigestToken(Base64.getUrlEncoder().withoutPadding().encodeToString(bytes));
+            user.setWeeklyDigestToken(Tokens.random());
         }
     }
 

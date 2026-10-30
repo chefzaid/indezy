@@ -1,7 +1,5 @@
 package dev.swirlit.indezy.integration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.swirlit.indezy.dto.RegisterRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,7 @@ class UserDataExportIntegrationTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void exportsTheJournalTheSeasonsAndTheFreelanceRecordOfItsOwnWorkspaceOnly() throws JsonProcessingException {
+    void exportsTheJournalTheSeasonsAndTheFreelanceRecordOfItsOwnWorkspaceOnly() {
         Map<String, Object> registered = register("alice");
         String alice = (String) registered.get("token");
         long freelanceId = ((Number) ((Map<String, Object>) registered.get("user")).get("id")).longValue();
@@ -61,6 +60,11 @@ class UserDataExportIntegrationTest {
         assertThat((List<Map<String, Object>>) export.get("seasons")).singleElement()
             .satisfies(season -> assertThat(season).containsEntry("name", "Autumn 2026"));
         assertThat((Map<String, Object>) export.get("freelance")).containsEntry("lastName", "Test").containsKey("reversionRate");
+        // The display settings nothing applied are gone from the profile.
+        Map<String, Object> profile = (Map<String, Object>) export.get("profile");
+        assertThat(profile).containsEntry("firstName", "alice").doesNotContainKeys("timezone", "currency");
+        assertThat((Map<String, Object>) profile.get("preferences")).containsKey("theme")
+            .doesNotContainKeys("dateFormat", "timeFormat", "currency", "timezone", "defaultView", "itemsPerPage", "autoSave");
 
         Map<String, Object> other = exportOf(bob);
         assertThat((List<?>) other.get("projectNotes")).isEmpty();
@@ -83,8 +87,8 @@ class UserDataExportIntegrationTest {
 
     /** The export comes as a file to download, so it is read as text. */
     @SuppressWarnings("unchecked")
-    private Map<String, Object> exportOf(String token) throws JsonProcessingException {
-        return new ObjectMapper().readValue(call(token, HttpMethod.GET, "/users/export", null, String.class).getBody(), Map.class);
+    private Map<String, Object> exportOf(String token) {
+        return JsonMapper.builder().build().readValue(call(token, HttpMethod.GET, "/users/export", null, String.class).getBody(), Map.class);
     }
 
     private <T> ResponseEntity<T> call(String token, HttpMethod method, String path, Object body, Class<T> type) {

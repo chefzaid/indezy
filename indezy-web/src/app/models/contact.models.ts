@@ -4,6 +4,11 @@
 export type ContactLegalBasis = 'LEGITIMATE_INTEREST' | 'CONSENT' | 'CONTRACT';
 export const CONTACT_LEGAL_BASES: ContactLegalBasis[] = ['LEGITIMATE_INTEREST', 'CONSENT', 'CONTRACT'];
 
+/** A contact's first and last names, as lists show them. */
+export function contactName(contact: Pick<ContactDto, 'firstName' | 'lastName'>): string {
+  return [contact.firstName, contact.lastName].filter(Boolean).join(' ');
+}
+
 export interface ContactDto {
   id?: number;
   firstName: string;

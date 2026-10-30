@@ -47,7 +47,7 @@ enum YearlyReviewLabel {
     }
 
     String format(DocumentLanguage language, Object... values) {
-        return String.format(ActivityReportLabel.locale(language), in(language), values);
+        return String.format(language.locale(), in(language), values);
     }
 
     static String reason(LostReason reason, DocumentLanguage language) {

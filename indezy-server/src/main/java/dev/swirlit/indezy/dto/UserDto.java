@@ -47,8 +47,6 @@ public class UserDto {
     /** A level and years of experience for some of the skills, keyed by skill. */
     private Map<String, @Valid SkillDetailDto> skillDetails;
     private List<String> languages;
-    private String timezone;
-    private String currency;
 
     @Min(1)
     @JsonDeserialize(using = WholeNumberDeserializer.class)

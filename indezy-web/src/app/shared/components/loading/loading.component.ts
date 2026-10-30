@@ -1,14 +1,12 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
 import { LogoComponent } from '../logo/logo.component';
 
 @Component({
     selector: 'app-loading',
     imports: [
     MatProgressSpinnerModule,
-    MatIconModule,
     LogoComponent
 ],
     templateUrl: './loading.component.html',
@@ -16,11 +14,7 @@ import { LogoComponent } from '../logo/logo.component';
     styleUrls: ['./loading.component.scss']
 })
 export class LoadingComponent {
-  @Input() message: string = 'Chargement...';
+  @Input() message: string = '';
   @Input() subtitle: string = '';
   @Input() showLogo: boolean = true;
-  @Input() fullscreen: boolean = false;
-  @Input() spinnerSize: number = 50;
-  @Input() strokeWidth: number = 4;
-  @Input() color: 'primary' | 'accent' | 'warn' = 'primary';
 }

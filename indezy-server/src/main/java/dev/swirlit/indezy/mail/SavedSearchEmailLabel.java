@@ -2,8 +2,6 @@ package dev.swirlit.indezy.mail;
 
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 
-import java.util.Locale;
-
 /** French and English text of the saved search emails. */
 enum SavedSearchEmailLabel {
     SUBJECT_ONE("1 nouvelle offre : %s", "1 new offer: %s"),
@@ -46,6 +44,6 @@ enum SavedSearchEmailLabel {
     }
 
     String format(DocumentLanguage language, Object... values) {
-        return String.format(language == DocumentLanguage.EN ? Locale.UK : Locale.FRANCE, in(language), values);
+        return String.format(language.locale(), in(language), values);
     }
 }

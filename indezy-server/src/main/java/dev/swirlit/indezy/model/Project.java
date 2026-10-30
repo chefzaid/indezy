@@ -268,16 +268,4 @@ public class Project extends BaseEntity {
         }
         return null;
     }
-
-    public boolean isRemote() {
-        return WorkMode.REMOTE.equals(workMode);
-    }
-
-    public boolean isHybrid() {
-        return WorkMode.HYBRID.equals(workMode);
-    }
-
-    public boolean isOnsite() {
-        return WorkMode.ONSITE.equals(workMode);
-    }
 }

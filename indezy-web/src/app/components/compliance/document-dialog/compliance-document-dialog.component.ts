@@ -3,7 +3,6 @@ import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Va
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
@@ -27,7 +26,7 @@ const MAX_BYTES = 10 * 1024 * 1024;
 /** Stores a document (a PDF or image of 10 MB at most) or changes what it is: type, label and dates. */
 @Component({
   selector: 'app-compliance-document-dialog',
-  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule,
+  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     TranslateModule],
   templateUrl: './compliance-document-dialog.component.html',
   styleUrls: ['./compliance-document-dialog.component.scss'],

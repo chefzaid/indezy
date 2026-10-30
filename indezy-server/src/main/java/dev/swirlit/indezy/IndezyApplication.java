@@ -1,6 +1,7 @@
 package dev.swirlit.indezy;
 
 import dev.swirlit.indezy.admin.AdminProperties;
+import dev.swirlit.indezy.config.CorsProperties;
 import dev.swirlit.indezy.mail.MailProperties;
 import dev.swirlit.indezy.scraping.OfferProperties;
 import org.springframework.boot.SpringApplication;
@@ -14,7 +15,7 @@ import java.sql.SQLException;
 
 @SpringBootApplication
 @EnableJpaAuditing
-@EnableConfigurationProperties({OfferProperties.class, MailProperties.class, AdminProperties.class})
+@EnableConfigurationProperties({OfferProperties.class, MailProperties.class, AdminProperties.class, CorsProperties.class})
 public class IndezyApplication {
 
     public static void main(String[] args) throws SQLException {

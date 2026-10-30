@@ -3,6 +3,7 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.dto.ApiTokenDtos;
 import dev.swirlit.indezy.model.ApiToken;
 import dev.swirlit.indezy.repository.ApiTokenRepository;
+import dev.swirlit.indezy.util.Tokens;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -36,7 +37,7 @@ class ApiTokenServiceTest {
         token.setId(3L);
         token.setUserId(7L);
         token.setLastUsedAt(NOW.minusMinutes(1));
-        when(tokens.findUsable(ApiTokenService.hash("idz_abc"), NOW)).thenReturn(Optional.of(token));
+        when(tokens.findUsable(Tokens.sha256Hex("idz_abc"), NOW)).thenReturn(Optional.of(token));
         assertThat(service.authenticate("idz_abc")).map(ApiTokenDtos.Authenticated::userId).contains(7L);
         verify(tokens, never()).touch(anyLong(), any());
 
@@ -52,6 +53,6 @@ class ApiTokenServiceTest {
         assertThat(created.secret()).startsWith("idz_");
         assertThat(created.token().expiresAt()).isNull();
         assertThat(created.toString()).doesNotContain(created.secret());
-        assertThat(ApiTokenService.hash(created.secret())).hasSize(64).isNotEqualTo(created.secret());
+        assertThat(Tokens.sha256Hex(created.secret())).hasSize(64).isNotEqualTo(created.secret());
     }
 }

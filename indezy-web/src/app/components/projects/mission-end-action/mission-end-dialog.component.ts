@@ -4,7 +4,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -25,7 +24,7 @@ export interface MissionEnd {
 /** Asks when a mission ended, today by default, and why; closes with both, or with nothing when cancelled. */
 @Component({
   selector: 'app-mission-end-dialog',
-  imports: [ReactiveFormsModule, MatButtonModule, MatDatepickerModule, MatDialogModule, MatFormFieldModule, MatIconModule,
+  imports: [ReactiveFormsModule, MatButtonModule, MatDatepickerModule, MatDialogModule, MatFormFieldModule,
     MatInputModule, TranslateModule],
   template: `
     <h2 mat-dialog-title>{{ 'missionEnd.dialogTitle' | translate }}</h2>

@@ -1,7 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TranslateModule } from '@ngx-translate/core';
@@ -17,7 +15,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
 /** The admin console: how Indezy is used, its accounts, and the features turned on or off for everyone. */
 @Component({
   selector: 'app-admin',
-  imports: [PageHeaderComponent, CommonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, MatTabsModule, TranslateModule,
+  imports: [PageHeaderComponent, MatCardModule, MatProgressSpinnerModule, MatTabsModule, TranslateModule,
     AdminAccountsComponent, AdminFeaturesComponent],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss'],

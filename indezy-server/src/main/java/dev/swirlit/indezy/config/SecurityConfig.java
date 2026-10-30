@@ -40,7 +40,6 @@ public class SecurityConfig {
                     // Public endpoints
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/public/**").permitAll()
-                    .requestMatchers("/health").permitAll()
                     .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                     .requestMatchers("/actuator/prometheus").permitAll()
                     // Swagger/OpenAPI endpoints

@@ -1,8 +1,8 @@
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { AuthService } from './services/auth/auth.service';
 import { RouterTestingModule } from '@angular/router/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,7 +30,6 @@ describe('AppComponent', () => {
       imports: [
         AppComponent,
         RouterTestingModule,
-        NoopAnimationsModule,
         MatToolbarModule,
         MatButtonModule,
         MatIconModule,
@@ -40,6 +39,7 @@ describe('AppComponent', () => {
         TranslateModule.forRoot()
       ],
       providers: [
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: AuthService, useValue: mockAuthService },
         provideHttpClient(),
         provideHttpClientTesting()
@@ -100,8 +100,9 @@ describe('AppComponent offer alerts', () => {
     const auth = jasmine.createSpyObj('AuthService', ['isAuthenticated', 'logout'], { currentUser$: user$.asObservable() });
     auth.isAuthenticated.and.callFake(() => user$.value !== null);
     await TestBed.configureTestingModule({
-      imports: [AppComponent, RouterTestingModule, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [AppComponent, RouterTestingModule, TranslateModule.forRoot()],
       providers: [
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: AuthService, useValue: auth },
         { provide: OfferAlertsService, useValue: alerts },
         { provide: CapabilitiesService, useValue: capabilitiesService },

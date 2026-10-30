@@ -1,6 +1,5 @@
 package dev.swirlit.indezy.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
@@ -11,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -110,8 +110,8 @@ class ComplianceIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(open(token).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(alice, HttpMethod.GET, "/compliance-packs", null, List.class).getBody()).hasSize(1);
 
-        Map<String, Object> export = new ObjectMapper().readValue(call(alice, HttpMethod.GET, "/users/export", null, String.class).getBody(),
-            Map.class);
+        Map<String, Object> export = JsonMapper.builder().build()
+            .readValue(call(alice, HttpMethod.GET, "/users/export", null, String.class).getBody(), Map.class);
         assertThat((List<?>) export.get("complianceDocuments")).hasSize(2);
         assertThat(export.get("compliancePacks").toString()).doesNotContain(token);
     }
