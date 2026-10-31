@@ -104,6 +104,7 @@ class OfferImportServiceTest {
         assertThat(sent.getRemoteDaysPerMonth()).isEqualTo(9);
         assertThat(sent.getStartDate()).isEqualTo(LocalDate.of(2026, 11, 2));
         assertThat(sent.getDurationInMonths()).isEqualTo(6);
+        assertThat(sent.getWorkAddress()).isEqualTo("Paris");
         assertThat(sent.getLink()).isEqualTo(offer.getUrl());
         assertThat(sent.getFreelanceId()).isEqualTo(3L);
         assertThat(sent.getClientId()).isEqualTo(20L);
@@ -178,6 +179,7 @@ class OfferImportServiceTest {
         ArgumentCaptor<ProjectDto> project = ArgumentCaptor.forClass(ProjectDto.class);
         verify(projectService).create(project.capture());
         assertThat(project.getValue().getDailyRate()).isEqualTo(550);
+        assertThat(project.getValue().getWorkAddress()).isNull();
 
         offer.setRateMin(null);
         offer.setRegionCode(null);
@@ -331,5 +333,14 @@ class OfferImportServiceTest {
     private static <T extends dev.swirlit.indezy.model.BaseEntity> T withId(T entity, Long id) {
         entity.setId(id);
         return entity;
+    }
+
+    @Test
+    void writesThePlaceOfWorkWithItsPostalCode() {
+        offer.setPostalCode("92400");
+        offer.setCity("Courbevoie");
+        assertThat(OfferImportService.workAddress(offer)).isEqualTo("92400 Courbevoie");
+        offer.setCity(" ");
+        assertThat(OfferImportService.workAddress(offer)).isNull();
     }
 }

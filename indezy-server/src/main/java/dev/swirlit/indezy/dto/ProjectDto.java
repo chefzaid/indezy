@@ -43,6 +43,9 @@ public class ProjectDto {
     private LocalDate startDate;
     private Integer durationInMonths;
     private Integer orderRenewalInMonths;
+    /** Where the mission is worked, when not at the client's address; the commute goes there. */
+    @Size(max = 255)
+    private String workAddress;
     /** Months the ESN's non-solicitation clause runs after the mission. */
     @Min(1)
     @Max(36)

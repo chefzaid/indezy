@@ -652,6 +652,10 @@ minutes, 1 h 45 at rush hour), 1.4 times elsewhere; public transport 1.15 times.
 1 h 45 at rush hour` marked **estimation**. With a key (set up as [Development](./development.md) describes), Google's
 Distance Matrix gives the time and its time in traffic for that departure, answers kept a week.
 
+An opportunity's **Place of work** (optional, up to 255 characters, shown on its page) is where its commute goes instead
+of the client's address: a campus, La Défense, an ESN's premises. An offer added from the feed or from its link fills it
+in with the offer's postal code and town (`92400 Courbevoie`).
+
 The opportunity page shows a **Commute** card (none for a fully remote mission): the trip one way by car and by public
 transport with its distance, off-peak and at rush hour, the month's time there and back, and what each remote day a week
 gives back on the quickest way (`Each remote day a week gives you back 13.3 h a month.`), from `GET

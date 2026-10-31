@@ -108,3 +108,21 @@ test('sums the pipeline commute up on the dashboard', async ({ page }) => {
   const audit = await new AxeBuilder({ page }).include('[data-commute-stats]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(audit.violations.map(violation => violation.id)).toEqual([]);
 });
+
+test('records where a mission is worked and shows it on its page', async ({ page }) => {
+  await mockWorkspaceSession(page, 'en');
+  await mockWorkspaceData(page, 'en');
+  let mission: Record<string, unknown> = { id: 42, role: 'Java developer', status: 'INTERVIEW', clientId: 3, clientName: 'Acme',
+    dailyRate: 650, workMode: 'HYBRID', freelanceId: 1 };
+  await page.route('**/api/projects/42', async route => {
+    if (route.request().method() === 'PUT') {
+      mission = { ...mission, ...route.request().postDataJSON() };
+    }
+    return route.fulfill({ json: mission });
+  });
+  await page.goto('/projects/42/edit');
+  await page.locator('[data-work-address]').fill('Tour First, La Défense');
+  await page.locator('.form-actions button[color="primary"]').click();
+  await expect.poll(() => mission['workAddress']).toBe('Tour First, La Défense');
+  await expect(page.locator('.info-item[data-work-address]')).toContainText('Tour First, La Défense');
+});

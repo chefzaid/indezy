@@ -134,7 +134,7 @@ public class CommuteService {
         String origin = address(freelance.getAddress(), freelance.getCity());
         List<Project> projects = projectRepository.findByFreelanceId(freelanceId);
         Map<String, Trip> byDestination = origin.isBlank() ? Map.of() : lookUp(origin, projects.stream()
-            .filter(project -> project.getWorkMode() != WorkMode.REMOTE).map(project -> clientAddress(project.getClient()))
+            .filter(project -> project.getWorkMode() != WorkMode.REMOTE).map(CommuteService::destination)
             .filter(destination -> !destination.isBlank()).toList(), travelMode);
 
         Integer maximum = maximumMinutes(freelanceId, travelMode);
@@ -156,7 +156,7 @@ public class CommuteService {
             .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + projectId));
         Freelance freelance = project.getFreelance();
         String origin = address(freelance.getAddress(), freelance.getCity());
-        String destination = clientAddress(project.getClient());
+        String destination = destination(project);
         ProjectDto dto = projectMapper.toDto(project);
         List<CommuteInfoDto> commutes = new ArrayList<>();
         for (TravelMode mode : TravelMode.values()) {
@@ -172,7 +172,7 @@ public class CommuteService {
 
     private static CommuteInfoDto commuteOf(Project project, ProjectDto dto, String origin, Map<String, Trip> byDestination,
                                             TravelMode travelMode, Integer maximumMinutes) {
-        String destination = clientAddress(project.getClient());
+        String destination = destination(project);
         int days = onSiteDays(project);
         Trip trip;
         if (days == 0) {
@@ -434,7 +434,12 @@ public class CommuteService {
         return sb.toString();
     }
 
-    private static String clientAddress(Client client) {
+    /** Where the mission is worked: its own place of work, else its client's address. */
+    static String destination(Project project) {
+        if (project.getWorkAddress() != null && !project.getWorkAddress().isBlank()) {
+            return project.getWorkAddress().strip();
+        }
+        Client client = project.getClient();
         return client == null ? "" : address(client.getAddress(), client.getCity());
     }
 }

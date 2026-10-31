@@ -177,6 +177,7 @@ public class OfferImportService {
         project.setStartDate(offer.getStartDate());
         project.setDurationInMonths(offer.getDurationMonths());
         project.setLink(offer.getUrl());
+        project.setWorkAddress(workAddress(offer));
         project.setFreelanceId(freelanceId);
         return project;
     }
@@ -236,6 +237,14 @@ public class OfferImportService {
             source.setFreelance(freelance);
             return sources.save(source);
         });
+    }
+
+    /** The offer's place as an address its commute can be looked up from ("92400 Courbevoie"); none without a city. */
+    static String workAddress(JobOffer offer) {
+        if (offer.getCity() == null || offer.getCity().isBlank()) {
+            return null;
+        }
+        return cut(offer.getPostalCode() == null ? offer.getCity().strip() : offer.getPostalCode().strip() + " " + offer.getCity().strip());
     }
 
     /** A client needs a city: the offer's, else its region, else France. */

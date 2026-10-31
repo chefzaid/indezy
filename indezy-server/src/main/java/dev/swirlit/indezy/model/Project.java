@@ -87,6 +87,10 @@ public class Project extends BaseEntity {
     @Column(name = "order_renewal_in_months")
     private Integer orderRenewalInMonths;
 
+    /** Where the mission is worked when not at the client's head office (a campus, La Défense, an ESN's premises). */
+    @Column(name = "work_address")
+    private String workAddress;
+
     /** Months after the mission the ESN's non-solicitation clause forbids working for its end client without it. */
     @Column(name = "non_solicitation_months")
     private Integer nonSolicitationMonths;

@@ -399,7 +399,10 @@
       "createClient": "Create a client",
       "nonSolicitationMonths": "Non-solicitation (months)",
       "nonSolicitationHint": "Optional. How long after the mission the ESN's clause forbids working for its client without it.",
-      "nonSolicitationError": "Enter a whole number of months from 1 to 36, or leave blank."
+      "nonSolicitationError": "Enter a whole number of months from 1 to 36, or leave blank.",
+      "workAddress": "Place of work",
+      "workAddressPlaceholder": "Tour First, La Défense",
+      "workAddressHint": "Optional. Where the mission is worked when not at the client's address; the commute goes there."
     },
     "lostReason": {
       "label": "Reason (optional)",

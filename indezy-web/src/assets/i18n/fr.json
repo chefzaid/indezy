@@ -399,7 +399,10 @@
       "createClient": "Créer un client",
       "nonSolicitationMonths": "Non-sollicitation (mois)",
       "nonSolicitationHint": "Facultatif. Durée après la mission pendant laquelle la clause de l'ESN interdit de travailler pour son client sans elle.",
-      "nonSolicitationError": "Saisissez un nombre entier de mois entre 1 et 36, ou laissez vide."
+      "nonSolicitationError": "Saisissez un nombre entier de mois entre 1 et 36, ou laissez vide.",
+      "workAddress": "Lieu de travail",
+      "workAddressPlaceholder": "Tour First, La Défense",
+      "workAddressHint": "Facultatif. Où se déroule la mission quand ce n'est pas à l'adresse du client ; le trajet y mène."
     },
     "lostReason": {
       "label": "Raison du refus (facultatif)",

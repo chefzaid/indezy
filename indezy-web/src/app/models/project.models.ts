@@ -110,6 +110,8 @@ export interface ProjectDto {
   startDate?: string;
   durationInMonths?: number;
   orderRenewalInMonths?: number;
+  /** Where the mission is worked, when not at the client's address; the commute goes there. */
+  workAddress?: string | null;
   /** Months the ESN's non-solicitation clause runs after the mission. */
   nonSolicitationMonths?: number | null;
   /** The contract's points checked before signing. */

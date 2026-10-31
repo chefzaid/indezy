@@ -361,6 +361,22 @@ class CommuteServiceTest {
     }
 
     @Test
+    void goesToTheMissionsPlaceOfWorkRatherThanItsClient() {
+        when(geoLocator.canLocate()).thenReturn(true);
+        when(geoLocator.locateAddress("10 rue de la Paix, Paris")).thenReturn(Optional.of(new GeoLocator.Place("Paris", "75", null, 48.8690, 2.3310)));
+        when(geoLocator.locateAddress("92400 Courbevoie")).thenReturn(Optional.of(new GeoLocator.Place("Courbevoie", "92", null, 48.8976, 2.2574)));
+        project(1, "Lyon", WorkMode.ONSITE).setWorkAddress(" 92400 Courbevoie ");
+        project(2, null, WorkMode.ONSITE).setWorkAddress("92400 Courbevoie");
+
+        List<ProjectCommuteDto> results = commuteService.getProjectsSortedByCommute(1L, TravelMode.DRIVING);
+
+        assertThat(commuteOf(results, 1).getDestination()).isEqualTo("92400 Courbevoie");
+        assertThat(commuteOf(results, 1).getDurationInSeconds()).isBetween(10 * 60, 30 * 60);
+        assertThat(commuteOf(results, 2).getUnavailable()).isNull();
+        verify(geoLocator, never()).locateAddress("Lyon");
+    }
+
+    @Test
     void costsADayOnSiteFromTheProfilesRateOrPass() {
         when(geoLocator.canLocate()).thenReturn(true);
         when(geoLocator.locateAddress("10 rue de la Paix, Paris")).thenReturn(Optional.of(new GeoLocator.Place("Paris", "75", null, 48.8690, 2.3310)));

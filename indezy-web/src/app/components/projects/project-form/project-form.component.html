@@ -221,6 +221,16 @@
                   </mat-form-field>
                 </div>
               }
+              @if (projectForm.get('workMode')?.value !== 'REMOTE') {
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                    <mat-label>{{ 'projects.form.workAddress' | translate }}</mat-label>
+                    <input matInput formControlName="workAddress" maxlength="255" data-work-address
+                      [placeholder]="'projects.form.workAddressPlaceholder' | translate">
+                    <mat-hint>{{ 'projects.form.workAddressHint' | translate }}</mat-hint>
+                  </mat-form-field>
+                </div>
+              }
               <div class="form-row">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>{{ 'projects.form.advantages' | translate }}</mat-label>
