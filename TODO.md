@@ -116,6 +116,8 @@ Parts of tasks that cannot advance without the owner's decision or information. 
   - Answer:
 - [ ] **Teams tier: organizations** (Teams Tier, all items): `docs/adr/0011-organizations-for-the-teams-tier.md` proposes the organization model and its data boundary (private by default; availability, skills and dispatched work shared on joining; anything else per item). Accept it as written or change it, and answer its three questions (the boundary, the first kind of organization, several organizations per consultant). The tier also waits on **Plans, prices and payment provider**.
   - Answer:
+- [ ] **Google Maps key** (Commute And Places): production computes no commute time. Create a Google Cloud key for the Distance Matrix API only, restricted to the server's address, under the publisher's billing account (about 5 US$ per 1,000 lookups beyond the monthly free credit; the week-long cache keeps it small), and store it in Vault at `secret/apps/indezy/maps` (field `GOOGLE_MAPS_API_KEY`). Or keep production on the keyless estimate (see the item there). Which one?
+  - Answer:
 - [ ] **Search load target** (Search under load): `OfferSearchLoadTest` asks for a 95th percentile under 300 ms with 20 searches at a time over 40,000 open offers. Measured on 2026-10-27 (PostgreSQL 16, four cores): 2.9 s, down from 7.0 s, after the work listed in the item. Twenty searches on four cores leave each about 60 ms of processor time, while the simplest one (newest offers, no filter: the total, the page and the workspace's states) already takes about 190 ms alone, so the target needs a change of means, not more query tuning. Options: (a) a search engine beside PostgreSQL (OpenSearch or Meilisearch: a new service to run, fed by the collection); (b) more processors for the database and the server; (c) a target closer to the real use (how many searches at a time are expected at launch?), for instance 300 ms alone and 1 s at the 95th percentile with 20 at a time. Which one?
   - Answer:
 
@@ -179,9 +181,6 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Refus�
 - [x] Source management for opportunity origins
 - [x] Source types: `JOB_BOARD`, `SOCIAL_MEDIA`, `EMAIL`, `CALL`, `SMS`
 - [x] Source ratings for popularity and usefulness
-- [x] Commute-time sorting support using home address and job location
-- [x] Google Maps Distance Matrix API integration for driving and transit modes
-- [x] Graceful commute fallback when no Google Maps API key is configured
 - [x] Attachments per project (job description PDF, contract, technical test brief) with inline preview (image, PDF) instead of forcing downloads: stored in PostgreSQL ([ADR 0010](docs/adr/0010-attachments-in-postgresql.md)), 10 MB each, 20 per opportunity
 - [x] Notes/journal timeline per project (every call, email, decision logged chronologically), with Markdown support and live preview
 - [x] Note templates (call debrief, interview debrief, negotiation summary) selectable when adding a note
@@ -194,7 +193,25 @@ The board uses generic columns: Contact => Tests & Entretiens => Offre => Refus�
 - [x] Contract milestones tracking (start date, renewal date, notice period alerts)
 - [x] Mission end-date reminders to restart prospection N weeks before the bench
 - [x] Job-hunting seasons (prospection campaigns): separate pipeline and dashboard per job-search period (e.g. "Autumn search 2026"), each with its own stats, objective and target rate, comparable against the global view
-- [x] Commute-aware opportunity scoring: enhance existing home-to-job commute sorting (driving/transit modes, Maps API fallback handling, caching, remote/hybrid rules): missions sorted by the month's commute from their days on site, remote ones first and not looked up, why a time is missing, 25 destinations a request and answers kept a week (`docs/features.md#commute-time-sorting`)
+
+### Commute And Places (consolidated 2026-10-31)
+
+Where missions are, how long it takes to get there, and what that costs a freelancer. Commute times come from Google's
+Distance Matrix (`CommuteService`, `docs/features.md#commute-time-sorting`); production computes none until it has a key.
+
+- [x] Commute-time sorting from the home address to the client's address, by car or public transport, through Google's Distance Matrix; without a key nothing is looked up and each mission says why it has no time.
+- [x] Monthly commute scoring: days on site from the work mode (none when remote, the mission's own days on site, else 20 on site and 10 hybrid), missions sorted by the month's commute there and back, remote ones first and never looked up, 25 destinations a request and answers kept a week (`CommuteService`).
+- [ ] Commute times in production: no Vault path or ExternalSecret passes `GOOGLE_MAPS_API_KEY` to the server pods (`infra/k8s/external-secrets.yaml`, `infra/k8s/server.yaml`); add them once the key exists (waits on Needs Input "Google Maps key").
+- [ ] An estimate without Google: locate the home and client addresses through the national address base (`api-adresse.data.gouv.fr`, free and keyless, like the `geo.api.gouv.fr` lookups the offer feed already makes) and give the straight-line distance and an estimated time, marked as an estimate, when no key is set, so commute sorting works in every deployment.
+- [ ] Place of work of a mission: an opportunity's own address (a client campus, La Défense, an ESN's premises) when it differs from the client's head office, used for its commute; an offer pasted from its link or added from the feed fills it in from the offer's place.
+- [ ] Commute on the opportunity itself: one-way time and distance by car and by transit, the month's total, and what remote days would save ("2 jours de télétravail par semaine vous rendent 11 h par mois"), on the opportunity page and as a chip on its Kanban card; looked up when the page opens and kept a week like the sorted list.
+- [ ] Rush-hour times: ask Google for a weekday departure at 8:30 (driving with traffic, transit on its timetable) instead of the current moment, which is what a mission actually costs each morning.
+- [ ] Maximum commute in the profile (one way, per mode): opportunities beyond it flagged on the board and in the list, and the profile match's place fit read from the commute when one is known, the straight-line distance otherwise.
+- [ ] Commute of an offer in the feed, on request from its details (one lookup, kept a week); the feed itself keeps the straight-line distance, since a lookup per listed offer would cost too much.
+- [ ] Effective daily rate: next to the TJM, what the mission pays once its commute is counted, its hours priced at the TJM's hourly rate and its cost taken off (kilometres at a rate set in the profile, or a monthly transit pass such as Navigo), to compare a nearby mission with a better-paid distant one.
+- [ ] Professional kilometres of the year: the on-site days of the validated activity reports times each mission's round trip, per month and per client, exported for the accountant to claim mileage (frais réels or indemnités kilométriques); the amount on the official scale once yearly rates are settled (Needs Input "Social contribution rates").
+- [ ] Commute statistics on the dashboard: the average monthly commute of the pipeline and of the won missions, the share of remote work, and commute against daily rate, in the analytics view.
+- [ ] Map of the opportunities and clients on OpenStreetMap tiles (no key): pins coloured by stage around the home address, opened from the opportunities list; the list stays the main view on a phone.
 
 ## Clients, ESN & Contacts
 
@@ -394,7 +411,6 @@ Increments, implemented in order:
 - [x] Finer daily rate chart: plot the actual TJM values the freelancer negotiated (e.g. 550, 600, 650 €) instead of wide ranges (0-300, 300-500, ...), as one freelancer's rates vary within a narrow band
 - [x] Overview/Kanban display modes on the dashboard
 - [ ] Dashboard period tagging with `YYYY-MM` labels, sprint-style but flexible so reporting periods can exist only when needed instead of forcing every month
-- [ ] Commute times in production, with statistics about them: manage the commute times of the opportunities (driving and transit) and give stats on them across the pipeline. Production computes none today: no Vault path or ExternalSecret passes `GOOGLE_MAPS_API_KEY` to the server pods (`infra/k8s/external-secrets.yaml`, `infra/k8s/server.yaml`).
 - [x] Conversion funnel by source, client type and ESN (where do opportunities die?)
 - [x] Average process duration per client/ESN (time from contact to signature)
 - [x] Daily rate evolution over time (asked vs obtained)
@@ -602,6 +618,30 @@ Differentiators, each covered below:
 - [x] Accounting exports and connectors for common French accounting tools. Done on 2026-10-27: **Export for the accountant** on the Invoices page downloads a year's journal entries as a FEC file (sales and bank journals, which every French accounting tool imports) or the invoice register as a spreadsheet in French or English.
 - [ ] Direct connectors pushing entries and invoice PDFs to accounting tools' APIs (Pennylane, Tiime, Indy…), beyond the FEC import above.
 - [ ] Declaration calendar per legal status (URSSAF declarations, VAT returns, CFE, income-tax instalments) with amounts estimated from invoices (builds on the URSSAF estimation item above).
+
+### French Freelance Essentials (added 2026-10-31)
+
+What a French IT freelancer handles around missions, with public data and the app's own records; nothing here needs a
+paid provider.
+
+Clients and contracts
+- [ ] Company lookup when adding a client: type a name or a SIREN and pick the company from the public directory (`recherche-entreprises.api.gouv.fr`, free and keyless): legal name, SIREN, head office address, NAF code and legal form filled in, and the intra-EU VAT number computed from the SIREN.
+- [ ] Company health check: a client or ESN closed, or in insolvency proceedings (sauvegarde, redressement, liquidation) according to the public directory and the BODACC announcements, flagged on its page and on its opportunities before the freelancer signs or invoices.
+- [ ] Non-solicitation clauses: on a mission signed through an ESN, the clause's length (often 12 months after the mission) recorded with the end client; an opportunity sent directly by that end client, or by another ESN for it, before the clause ends is flagged, with the date it ends.
+- [ ] Contract checklist when a mission is won: the points to check in an ESN or client contract (payment terms, notice period, non-solicitation, intellectual property, liability and insurance, rate revision, place of work), ticked and noted per mission, and kept with its documents.
+- [ ] Rate review at renewal: before a mission's renewal date, a reminder with the rate of the previous period, the market median for its skills, and a draft email asking for the new rate, from the templates.
+
+Money
+- [ ] Payment terms check: a client's or purchase order's terms beyond the legal maximum (60 days from the invoice, or 45 days end of month) flagged when entered, and each client's real average payment delay, from the paid invoices, shown on its page and on its new opportunities.
+- [ ] Quotes (devis) for fixed-price work: a numbered quote with French mentions, sent as PDF, accepted or refused, and turned into an invoice; deposit invoices (factures d'acompte) taken off the final one.
+- [ ] Revenue thresholds of the micro-entreprise regime and of the VAT franchise: the year's invoiced revenue against each ceiling, with a warning on approaching it and the date the franchise would be lost; the ceilings themselves wait on Needs Input "Social contribution rates" (they change by law).
+- [ ] Dependence on one client: the share of the last 12 months' revenue from each client and ESN, with a warning past a set share (one client paying most of the revenue weakens the independence an URSSAF or court looks at when it reclassifies a freelance contract as employment).
+- [ ] Billed days objective: a yearly target of billed days, set in the profile, against the days of the validated activity reports so far and the year's projection, beside the reversion rate calculator's workable days.
+
+Profile and reputation
+- [ ] Dossier de compétences built from the profile and the missions (no AI): summary, skills with levels and years, missions with client, role, dates and stack, as PDF in a few layouts ESNs ask for, in French or English; the AI item above tailors it to one opportunity.
+- [ ] Testimonials: ask a client contact for a short recommendation through a link (no account), approve it, and show it on the public profile.
+- [ ] Training record: the trainings followed, their certificates and expiry, and the funding asked to the training fund of the freelancer's status (FIF PL for liberal professions, AGEFICE for traders), with the request deadlines; certifications appear on the public profile and the dossier de compétences.
 
 ### Market Intelligence
 
