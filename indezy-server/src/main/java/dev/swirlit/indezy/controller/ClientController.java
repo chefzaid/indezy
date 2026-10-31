@@ -3,8 +3,10 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.BulkDeleteRequest;
 import dev.swirlit.indezy.dto.BulkDeleteResult;
 import dev.swirlit.indezy.dto.ClientDto;
+import dev.swirlit.indezy.dto.CompanyHealthDto;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.ClientService;
+import dev.swirlit.indezy.service.CompanyHealthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -23,6 +25,7 @@ public class ClientController {
 
     private final ClientService clientService;
     private final AccessGuard accessGuard;
+    private final CompanyHealthService companyHealthService;
 
     @Operation(summary = "List the clients of a workspace")
     @GetMapping("/by-freelance/{freelanceId}")
@@ -36,6 +39,14 @@ public class ClientController {
     public ClientDto getClientById(@PathVariable Long id) {
         accessGuard.requireClient(id);
         return clientService.findById(id);
+    }
+
+    @Operation(summary = "Check a client is still in business",
+        description = "Closed according to the public directory, or under insolvency proceedings according to BODACC")
+    @GetMapping("/{id}/health")
+    public CompanyHealthDto getClientHealth(@PathVariable Long id) {
+        accessGuard.requireClient(id);
+        return companyHealthService.check(clientService.findById(id).getSiren());
     }
 
     @Operation(summary = "Create a client")

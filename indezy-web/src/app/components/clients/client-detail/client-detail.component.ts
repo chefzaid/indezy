@@ -26,10 +26,11 @@ import { ClientOrgChartComponent } from '../client-org-chart/client-org-chart.co
 const TABS = ['details', 'projects', 'contacts'] as const;
 
 import { PaymentDelayComponent } from '../../../shared/components/payment-delay/payment-delay.component';
+import { CompanyHealthComponent } from '../../../shared/components/company-health/company-health.component';
 
 @Component({
     selector: 'app-client-detail',
-    imports: [PaymentDelayComponent,
+    imports: [CompanyHealthComponent, PaymentDelayComponent,
     CommonModule,
     RouterModule,
     MatCardModule,

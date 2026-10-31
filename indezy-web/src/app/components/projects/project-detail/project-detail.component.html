@@ -68,6 +68,12 @@
             }
           </div>
           <app-payment-delay [clientId]="project.middlemanId ?? project.clientId"></app-payment-delay>
+          @if (project.clientId) {
+            <app-company-health [clientId]="project.clientId" [name]="project.clientName ?? ''"></app-company-health>
+          }
+          @if (project.middlemanId) {
+            <app-company-health [clientId]="project.middlemanId" [name]="project.middlemanName ?? ''"></app-company-health>
+          }
           <app-non-solicitation-notice [projectId]="project.id!" [freelanceId]="project.freelanceId!"></app-non-solicitation-notice>
         </mat-card-content>
         <mat-card-actions>

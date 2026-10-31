@@ -20,4 +20,14 @@ class CompanyLookupIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.GET, "/companies/search?q=acme", null, List.class).getBody()).isEmpty();
         assertThat(call(alice, HttpMethod.GET, "/companies/search?q=ab", null, List.class).getBody()).isEmpty();
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void checksTheHealthOfTheAccountsOwnClientsOnly() {
+        // No SIREN on Alice's client: nothing to check, nothing asked.
+        assertThat(call(alice, HttpMethod.GET, "/clients/" + aliceClientId + "/health", null, java.util.Map.class).getBody())
+            .containsEntry("checked", false).containsEntry("closed", false);
+        assertThat(call(bob, HttpMethod.GET, "/clients/" + aliceClientId + "/health", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }

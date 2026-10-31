@@ -98,6 +98,8 @@ Environment variables of note:
   addresses of the commute estimates on IGN's Géoplateforme (`data.geopf.fr/geocodage`).
 - `INDEZY_COMPANIES_URL` (`https://recherche-entreprises.api.gouv.fr`): the public company directory the client form
   looks companies up in; tests point it at a closed local port.
+- `INDEZY_COMPANIES_BODACC_URL` (the DILA's `annonces-commerciales` records on opendatasoft): the BODACC announcements the
+  company health check reads; tests point it at a closed local port.
 
 The other `indezy.offers.*` settings (`tick`, `request-delay`, `max-pages`, `retention-days`, `stale-run-after`,
 `user-agent`) have their defaults in `OfferProperties`. See [Features](./features.md#freelance-offer-feed) for what the

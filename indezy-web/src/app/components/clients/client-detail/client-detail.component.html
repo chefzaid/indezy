@@ -37,6 +37,7 @@
           {{ 'clients.detail.summary' | translate:{ projects: projects.length, contacts: contacts.length } }}
         </div>
         <app-payment-delay [clientId]="client.id"></app-payment-delay>
+        <app-company-health [clientId]="client.id" [name]="client.companyName"></app-company-health>
       </mat-card-content>
       <mat-card-actions>
         <button mat-button (click)="onBack()">

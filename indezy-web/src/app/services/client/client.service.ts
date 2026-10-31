@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ClientDto, CreateClientDto, UpdateClientDto } from '../../models/client.models';
+import { ClientDto, CompanyHealth, CreateClientDto, UpdateClientDto } from '../../models/client.models';
 import { AuthService } from '../auth/auth.service';
 import { BulkDeleteResult } from '../../models/bulk.models';
 
@@ -23,6 +23,11 @@ export class ClientService {
 
   getById(id: number): Observable<ClientDto> {
     return this.http.get<ClientDto>(`${this.API_URL}/${id}`);
+  }
+
+  /** Whether the client is still in business, from its SIREN. */
+  getHealth(id: number): Observable<CompanyHealth> {
+    return this.http.get<CompanyHealth>(`${this.API_URL}/${id}/health`);
   }
 
   getByFreelanceId(freelanceId: number): Observable<ClientDto[]> {

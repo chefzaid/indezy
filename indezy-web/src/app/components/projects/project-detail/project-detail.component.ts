@@ -57,10 +57,11 @@ import { PaymentDelayComponent } from '../../../shared/components/payment-delay/
 import { ProjectCommuteComponent } from './project-commute/project-commute.component';
 import { ContractChecklistComponent } from './contract-checklist/contract-checklist.component';
 import { NonSolicitationNoticeComponent } from './non-solicitation-notice/non-solicitation-notice.component';
+import { CompanyHealthComponent } from '../../../shared/components/company-health/company-health.component';
 
 @Component({
     selector: 'app-project-detail',
-    imports: [ProjectCommuteComponent, ContractChecklistComponent, NonSolicitationNoticeComponent, PaymentDelayComponent,
+    imports: [CompanyHealthComponent, ProjectCommuteComponent, ContractChecklistComponent, NonSolicitationNoticeComponent, PaymentDelayComponent,
         ProjectLinkComponent,
         ProjectResourcesComponent,
         ActivityReportCardComponent,

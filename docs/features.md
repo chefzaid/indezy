@@ -277,6 +277,15 @@ its SIREN, legal form, town and NAF code, a closed one marked **closed**. Pickin
 the head office's address and town, and the intra-EU VAT number computed from the SIREN (`FR` + key + SIREN); what the
 directory does not give stays as typed. Answers are kept a day; an unreachable directory offers nothing.
 
+### Company Health Check
+
+A client or ESN with a SIREN is checked on its page and on its opportunities' pages: closed according to the public
+directory, or under collective proceedings (safeguard, receivership, liquidation) according to its latest BODACC
+announcement of the last three years (the DILA's open data, keyless), the page then says so with the announcement's date
+(`Acme is under insolvency proceedings (receivership). Announced in the BODACC on May 3, 2026.`). Only the SIREN is sent,
+answers are kept a day, and a company without a SIREN or that neither source answers for is not flagged
+(`GET /api/clients/{id}/health`).
+
 ### Contact Interaction History
 
 A contact's **Exchanges** record a day (today at the latest), a channel (email, phone, LinkedIn, meeting, other), who

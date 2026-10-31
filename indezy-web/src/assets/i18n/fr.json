@@ -707,6 +707,17 @@
     "orgChart": {
       "title": "Organigramme",
       "reportsTo": "rattaché à {{name}}"
+    },
+    "health": {
+      "closed": "{{name}} est fermée, selon l'annuaire des entreprises.",
+      "procedure": "{{name}} fait l'objet d'une procédure collective ({{procedure}}).",
+      "announcedOn": "Annoncée au BODACC le {{date}}.",
+      "procedures": {
+        "SAUVEGARDE": "sauvegarde",
+        "REDRESSEMENT": "redressement judiciaire",
+        "LIQUIDATION": "liquidation judiciaire",
+        "OTHER": "procédure collective"
+      }
     }
   },
   "contacts": {

@@ -196,6 +196,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'shared/components/activity-calendar/activity-calendar.component',
   'shared/components/activity-calendar/activity-calendar.util',
   'shared/components/activity-heatmap/activity-heatmap.component',
+  'shared/components/company-health/company-health.component',
   'shared/components/confirm-dialog/confirm-dialog.component',
   'shared/components/list-selection-bar/list-selection-bar.component',
   'shared/components/loading/loading.component',

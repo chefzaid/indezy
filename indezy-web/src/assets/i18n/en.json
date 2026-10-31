@@ -707,6 +707,17 @@
     "orgChart": {
       "title": "Org chart",
       "reportsTo": "reports to {{name}}"
+    },
+    "health": {
+      "closed": "{{name}} has closed, according to the public company directory.",
+      "procedure": "{{name}} is under insolvency proceedings ({{procedure}}).",
+      "announcedOn": "Announced in the BODACC on {{date}}.",
+      "procedures": {
+        "SAUVEGARDE": "safeguard",
+        "REDRESSEMENT": "receivership",
+        "LIQUIDATION": "liquidation",
+        "OTHER": "collective proceedings"
+      }
     }
   },
   "contacts": {

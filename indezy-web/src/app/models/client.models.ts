@@ -66,3 +66,12 @@ export interface CreateClientDto extends ActivityReportTemplateFields, ClientBil
 export interface UpdateClientDto extends Partial<CreateClientDto> {
   id: number;
 }
+
+/** Whether a company is still in business: closed in the public directory, or under insolvency proceedings in the BODACC. */
+export interface CompanyHealth {
+  /** False without a SIREN, or when neither source answered. */
+  checked: boolean;
+  closed: boolean;
+  procedure?: 'SAUVEGARDE' | 'REDRESSEMENT' | 'LIQUIDATION' | 'OTHER' | null;
+  procedureOn?: string | null;
+}
