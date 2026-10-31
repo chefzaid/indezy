@@ -266,6 +266,13 @@
       "change": "{{change}} % vs the 90 days before",
       "noComparison": "Nothing to compare with",
       "previous": "Before: {{value}}"
+    },
+    "billedDays": {
+      "title": "Billed days {{year}}",
+      "billed": "Validated activity reports",
+      "projected": "At this pace, by year end",
+      "short": "{{days}} days short of your target at this pace.",
+      "ahead": "{{days}} days above your target at this pace."
     }
   },
   "projects": {
@@ -1229,7 +1236,10 @@
     "contactRetention": "Anonymize contacts without exchange for",
     "retentionNever": "Never",
     "retentionYears": "{{years}} year(s)",
-    "contactRetentionHint": "Every night, contacts with no exchange, no change and no opportunity with their company for that long lose their name, email, phone and notes. The CNIL advises 3 years for prospects."
+    "contactRetentionHint": "Every night, contacts with no exchange, no change and no opportunity with their company for that long lose their name, email, phone and notes. The CNIL advises 3 years for prospects.",
+    "billedDaysTarget": "Days to bill per year",
+    "billedDaysTargetHint": "Optional. Compared on the dashboard with your validated activity reports.",
+    "billedDaysTargetError": "Enter a whole number of days from 1 to 366, or leave blank."
   },
   "errors": {
     "notFoundTitle": "404 - Page not found",

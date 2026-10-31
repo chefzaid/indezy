@@ -140,8 +140,17 @@ export interface ProjectDto {
   failedSteps?: number;
 }
 
+/** This year's days of validated activity reports, the profile's yearly target and the year at the completed months' pace. */
+export interface BilledDays {
+  year: number;
+  billed: number;
+  target: number | null;
+  projected: number | null;
+}
+
 export interface DashboardStatsDto {
   targetDailyRate?: number | null;
+  billedDays?: BilledDays | null;
   averageObtainedDailyRate?: number | null;
   totalProjects: number;
   averageDailyRate: number;

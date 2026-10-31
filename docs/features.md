@@ -108,6 +108,10 @@ missions or open the dashboard. Accounts older than the welcome steps never see 
 company and title, presentation, website, LinkedIn and GitHub, photo, languages, skills, target daily rate (a positive
 whole number of euros) and **Available from**. The city feeds offer distances and the match; the availability date the
 match; the target rate the match, suggested searches, the dashboard and new seasons' default target.
+**Days to bill per year** (1 to 366, optional) puts a **Billed days** card on the dashboard: the days of this year's
+validated activity reports against the target, with the share reached, and the year at the pace of its completed months
+(none in January), saying how many days above or short of the target that pace ends. The card shows without a target
+once a report of the year is validated.
 
 - Skills are free text with suggestions: up to 50 of 60 characters, each once whatever its spelling, each with an
   optional level (beginner to expert) and years (0 to 60).

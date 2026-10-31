@@ -32,6 +32,7 @@ describe('ProfilePersonalInfoComponent', () => {
       company: [''],
       position: [''],
       targetDailyRate: [null],
+      billedDaysTarget: [null],
       availabilityDate: [null],
       website: [''],
       linkedin: [''],

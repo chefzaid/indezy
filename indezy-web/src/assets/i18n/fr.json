@@ -266,6 +266,13 @@
       "change": "{{change}} % par rapport aux 90 jours précédents",
       "noComparison": "Rien à comparer",
       "previous": "Avant : {{value}}"
+    },
+    "billedDays": {
+      "title": "Jours facturés {{year}}",
+      "billed": "Comptes rendus d'activité validés",
+      "projected": "À ce rythme, en fin d'année",
+      "short": "{{days}} jours sous votre objectif à ce rythme.",
+      "ahead": "{{days}} jours au-dessus de votre objectif à ce rythme."
     }
   },
   "projects": {
@@ -1229,7 +1236,10 @@
     "contactRetention": "Anonymiser les contacts sans échange depuis",
     "retentionNever": "Jamais",
     "retentionYears": "{{years}} an(s)",
-    "contactRetentionHint": "Chaque nuit, les contacts sans échange, sans modification et sans opportunité avec leur société depuis ce délai perdent leur nom, e-mail, téléphone et notes. La CNIL recommande 3 ans pour les prospects."
+    "contactRetentionHint": "Chaque nuit, les contacts sans échange, sans modification et sans opportunité avec leur société depuis ce délai perdent leur nom, e-mail, téléphone et notes. La CNIL recommande 3 ans pour les prospects.",
+    "billedDaysTarget": "Jours à facturer par an",
+    "billedDaysTargetHint": "Facultatif. Comparé sur le tableau de bord à vos comptes rendus d'activité validés.",
+    "billedDaysTargetError": "Saisissez un nombre entier de jours entre 1 et 366, ou laissez vide."
   },
   "errors": {
     "notFoundTitle": "404 - Page non trouvée",

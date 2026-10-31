@@ -8,6 +8,11 @@
       <app-rate-target class="insight-card" [target]="target"
         [obtained]="stats.averageObtainedDailyRate"></app-rate-target>
     }
+    @if (stats.billedDays; as days) {
+      @if (days.target || days.billed > 0) {
+        <app-billed-days class="insight-card" [days]="days"></app-billed-days>
+      }
+    }
     @if (trends.length > 0) {
       <section class="insight-card wide" data-trends>
         <h3 class="insight-title"><mat-icon>compare_arrows</mat-icon>{{ 'dashboard.trends.title' | translate }}</h3>

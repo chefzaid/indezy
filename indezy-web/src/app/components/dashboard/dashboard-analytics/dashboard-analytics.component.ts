@@ -6,6 +6,7 @@ import {
   DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, SkillTrend, ProcessDuration, ActivityDay, Trend
 } from '../../../models';
 import { ActivityHeatmapComponent } from '../../../shared/components/activity-heatmap/activity-heatmap.component';
+import { BilledDaysComponent } from '../billed-days/billed-days.component';
 import { RateTargetComponent } from '../rate-target/rate-target.component';
 
 /**
@@ -14,7 +15,7 @@ import { RateTargetComponent } from '../rate-target/rate-target.component';
  */
 @Component({
   selector: 'app-dashboard-analytics',
-  imports: [CommonModule, MatIconModule, TranslateModule, ActivityHeatmapComponent, RateTargetComponent],
+  imports: [CommonModule, MatIconModule, TranslateModule, ActivityHeatmapComponent, RateTargetComponent, BilledDaysComponent],
   templateUrl: './dashboard-analytics.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./dashboard-analytics.component.scss']

@@ -48,6 +48,7 @@ public class DashboardStatsService {
     private final InvoiceService invoiceService;
     private final PurchaseOrderService purchaseOrderService;
     private final ComplianceDocumentService complianceDocumentService;
+    private final BilledDaysService billedDaysService;
 
     /** Notice period applied when the freelance has not configured one. */
     private static final int DEFAULT_NOTICE_PERIOD_DAYS = 30;
@@ -128,6 +129,7 @@ public class DashboardStatsService {
             .totalProjects(totalProjects)
             .averageDailyRate(averageDailyRate)
             .targetDailyRate(freelanceRepository.findTargetDailyRate(freelanceId).orElse(null))
+            .billedDays(billedDaysService.ofYear(freelanceId, today))
             .averageObtainedDailyRate(obtainedRate.isPresent() ? obtainedRate.getAsDouble() : null)
             .totalEstimatedRevenue(totalRevenue)
             .forecastRevenue(forecastRevenue)

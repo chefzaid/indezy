@@ -29,6 +29,8 @@ export interface UserProfile {
   skillDetails?: Record<string, SkillDetail>;
   languages?: string[];
   targetDailyRate?: number | null;
+  /** Days to bill in a year, compared on the dashboard with the validated activity reports. */
+  billedDaysTarget?: number | null;
   /** ISO day (yyyy-MM-dd) the workspace is next available from, which offers' start dates are matched against. */
   availabilityDate?: string | null;
   notifications?: UserNotificationSettings;

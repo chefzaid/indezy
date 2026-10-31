@@ -3,6 +3,7 @@ package dev.swirlit.indezy.dto;
 import dev.swirlit.indezy.util.WholeNumberDeserializer;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -51,6 +52,12 @@ public class UserDto {
     @Min(1)
     @JsonDeserialize(using = WholeNumberDeserializer.class)
     private Integer targetDailyRate;
+
+    /** Days to bill in a year, against the validated activity reports. */
+    @Min(1)
+    @Max(366)
+    @JsonDeserialize(using = WholeNumberDeserializer.class)
+    private Integer billedDaysTarget;
 
     /** When the workspace is next available (its freelance record's), which offers' start dates are matched against. */
     private LocalDate availabilityDate;

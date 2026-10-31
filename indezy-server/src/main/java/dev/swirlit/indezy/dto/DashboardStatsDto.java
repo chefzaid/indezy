@@ -20,6 +20,8 @@ public class DashboardStatsDto {
     private long totalProjects;
     private double averageDailyRate;
     private Integer targetDailyRate;
+    /** This year's billed days against the profile's target. */
+    private BilledDays billedDays;
     /** Average recorded daily rate of accepted missions; null before any accepted rate is known. */
     private Double averageObtainedDailyRate;
     private double totalEstimatedRevenue;
@@ -329,5 +331,12 @@ public class DashboardStatsDto {
         private String role;
         private String clientName;
         private LocalDateTime date;
+    }
+
+    /**
+     * The days of this year's validated activity reports, the profile's target (null when none) and the year at the
+     * pace of its completed months (null in January).
+     */
+    public record BilledDays(int year, double billed, Integer target, Integer projected) {
     }
 }

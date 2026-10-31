@@ -96,6 +96,10 @@ public class User extends BaseEntity {
     @Column(name = "target_daily_rate")
     private Integer targetDailyRate;
 
+    /** Days the freelancer aims to bill in a year, compared on the dashboard with the validated activity reports. */
+    @Column(name = "billed_days_target")
+    private Integer billedDaysTarget;
+
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 

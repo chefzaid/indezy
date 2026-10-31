@@ -15,6 +15,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WorkspacePreferencesIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Test
+    void billedDaysTarget_ShouldReachOnlyItsOwnersDashboard() {
+        Map profile = call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+        profile.put("billedDaysTarget", 400);
+        assertThat(call(alice, HttpMethod.PUT, "/users/profile", profile, String.class).getStatusCode().value()).isEqualTo(400);
+        profile.put("billedDaysTarget", 200);
+        assertThat(call(alice, HttpMethod.PUT, "/users/profile", profile, Map.class).getBody())
+            .containsEntry("billedDaysTarget", 200);
+
+        Map aliceDays = (Map) call(alice, HttpMethod.GET, "/projects/stats/dashboard/" + alice.freelanceId(), null, Map.class)
+            .getBody().get("billedDays");
+        assertThat(aliceDays).containsEntry("target", 200).containsEntry("billed", 0.0)
+            .containsEntry("year", LocalDate.now(java.time.ZoneId.systemDefault()).getYear());
+        Map bobDays = (Map) call(bob, HttpMethod.GET, "/projects/stats/dashboard/" + bob.freelanceId(), null, Map.class)
+            .getBody().get("billedDays");
+        assertThat(bobDays.get("target")).isNull();
+    }
+
+    @Test
     void targetRate_ShouldDefaultNewSeasonsWithoutChangingExistingOnesOrOtherAccounts() {
         Map profile = call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
         profile.put("targetDailyRate", 650);

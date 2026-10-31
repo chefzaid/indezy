@@ -45,6 +45,9 @@ abstract class DashboardStatsTestSupport {
     @Mock
     ComplianceDocumentService complianceDocumentService;
 
+    @Mock
+    BilledDaysService billedDaysService;
+
     @InjectMocks
     DashboardStatsService dashboardStatsService;
 
