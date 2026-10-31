@@ -87,6 +87,10 @@ public class Project extends BaseEntity {
     @Column(name = "order_renewal_in_months")
     private Integer orderRenewalInMonths;
 
+    /** Months after the mission the ESN's non-solicitation clause forbids working for its end client without it. */
+    @Column(name = "non_solicitation_months")
+    private Integer nonSolicitationMonths;
+
     @Column(name = "days_per_year")
     private Integer daysPerYear;
 

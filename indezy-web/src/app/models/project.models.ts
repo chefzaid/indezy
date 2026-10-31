@@ -110,6 +110,8 @@ export interface ProjectDto {
   startDate?: string;
   durationInMonths?: number;
   orderRenewalInMonths?: number;
+  /** Months the ESN's non-solicitation clause runs after the mission. */
+  nonSolicitationMonths?: number | null;
   daysPerYear?: number;
   documents?: string[];
   link?: string;
@@ -341,6 +343,8 @@ export interface CreateProjectDto {
   startDate?: string;
   durationInMonths?: number;
   orderRenewalInMonths?: number;
+  /** Months the ESN's non-solicitation clause runs after the mission. */
+  nonSolicitationMonths?: number | null;
   daysPerYear?: number;
   documents?: string[];
   link?: string;
@@ -375,4 +379,16 @@ export interface ProjectAttachment {
   sizeBytes: number;
   createdAt: string;
   inline: boolean;
+}
+
+/** An opportunity for the end client of a mission won through an ESN, while that ESN's non-solicitation clause runs. */
+export interface NonSolicitation {
+  projectId: number;
+  missionId: number;
+  missionRole: string;
+  middlemanName: string;
+  clientName: string;
+  months: number;
+  /** Absent while the mission runs open-ended. */
+  endsOn?: string | null;
 }

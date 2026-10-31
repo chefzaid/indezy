@@ -68,6 +68,7 @@
             }
           </div>
           <app-payment-delay [clientId]="project.middlemanId ?? project.clientId"></app-payment-delay>
+          <app-non-solicitation-notice [projectId]="project.id!" [freelanceId]="project.freelanceId!"></app-non-solicitation-notice>
         </mat-card-content>
         <mat-card-actions>
           <app-project-link [projectId]="project.id!"></app-project-link>

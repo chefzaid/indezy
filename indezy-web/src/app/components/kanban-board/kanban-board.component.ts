@@ -30,6 +30,7 @@ import { ProjectSelectionBarComponent } from '../project-selection-bar/project-s
 import {
   KanbanBoardDto,
   KanbanProjectCardDto,
+  NonSolicitation,
   ProjectStatus,
   Refusal,
   PROJECT_STATUS_COLORS,
@@ -77,6 +78,8 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
   private readonly commuteService = inject(CommuteService);
   /** Each opportunity's one-way drive at rush hour, in minutes, when one is known, and whether it exceeds the profile's longest. */
   commutes = new Map<number, { minutes: number; beyond: boolean }>();
+  /** The opportunities a non-solicitation clause covers, with the clause. */
+  clauses = new Map<number, NonSolicitation>();
 
   readonly STATUS_COLORS = PROJECT_STATUS_COLORS;
   readonly STATUS_ICONS = PROJECT_STATUS_ICONS;
@@ -96,6 +99,7 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
         this.currentUserId = user.id;
         this.loadKanbanBoard();
         this.loadCommutes();
+        this.loadClauses();
       }
     });
   }
@@ -144,6 +148,18 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
       },
       error: () => {
         this.commutes = new Map();
+      }
+    });
+  }
+
+  /** The non-solicitation clauses covering cards; a failed read leaves the cards unmarked. */
+  loadClauses(): void {
+    this.projectService.getNonSolicitations(this.currentUserId!).pipe(takeUntil(this.destroy$)).subscribe({
+      next: clauses => {
+        this.clauses = new Map(clauses.map(clause => [clause.projectId, clause] as const));
+      },
+      error: () => {
+        this.clauses = new Map();
       }
     });
   }

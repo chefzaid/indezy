@@ -55,10 +55,11 @@ import { ProjectEmailButtonComponent } from '../project-email/project-email-butt
 
 import { PaymentDelayComponent } from '../../../shared/components/payment-delay/payment-delay.component';
 import { ProjectCommuteComponent } from './project-commute/project-commute.component';
+import { NonSolicitationNoticeComponent } from './non-solicitation-notice/non-solicitation-notice.component';
 
 @Component({
     selector: 'app-project-detail',
-    imports: [ProjectCommuteComponent, PaymentDelayComponent,
+    imports: [ProjectCommuteComponent, NonSolicitationNoticeComponent, PaymentDelayComponent,
         ProjectLinkComponent,
         ProjectResourcesComponent,
         ActivityReportCardComponent,

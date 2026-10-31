@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.MissionEndRequest;
 import dev.swirlit.indezy.dto.DashboardStatsDto;
+import dev.swirlit.indezy.dto.NonSolicitationDto;
 import dev.swirlit.indezy.dto.KanbanBoardDto;
 import dev.swirlit.indezy.dto.ProjectBulkUpdateRequest;
 import dev.swirlit.indezy.dto.ProjectDto;
@@ -10,6 +11,7 @@ import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.RefusedBy;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.DashboardStatsService;
+import dev.swirlit.indezy.service.NonSolicitationService;
 import dev.swirlit.indezy.service.ProjectBulkService;
 import dev.swirlit.indezy.service.ProjectExportService;
 import dev.swirlit.indezy.service.ProjectService;
@@ -23,6 +25,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 
@@ -32,11 +36,14 @@ import java.util.Map;
 @Tag(name = "Projects", description = "Opportunities, the Kanban pipeline and the dashboard")
 public class ProjectController {
 
+    private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
+
     private final ProjectService projectService;
     private final ProjectBulkService projectBulkService;
     private final DashboardStatsService dashboardStatsService;
     private final ProjectExportService projectExportService;
     private final AccessGuard accessGuard;
+    private final NonSolicitationService nonSolicitationService;
 
     @Operation(summary = "List the projects of a workspace")
     @GetMapping("/by-freelance/{freelanceId}")
@@ -176,6 +183,14 @@ public class ProjectController {
         accessGuard.requireFreelance(freelanceId);
         accessGuard.requireSeasonIfPresent(seasonId);
         return dashboardStatsService.getDashboardStats(freelanceId, seasonId);
+    }
+
+    @Operation(summary = "Opportunities a non-solicitation clause covers",
+        description = "Those for the end client of a mission signed through an ESN, offered directly or by another ESN, while the clause runs")
+    @GetMapping("/non-solicitation/{freelanceId}")
+    public List<NonSolicitationDto> getNonSolicitations(@PathVariable Long freelanceId) {
+        accessGuard.requireFreelance(freelanceId);
+        return nonSolicitationService.forFreelance(freelanceId, LocalDate.now(PARIS));
     }
 
     @Operation(summary = "Accountant CSV summary", description = "All projects, or those of one year")

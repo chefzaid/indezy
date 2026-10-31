@@ -388,7 +388,10 @@
       "source": "Source",
       "noSource": "None",
       "noClientsHint": "No final client yet.",
-      "createClient": "Create a client"
+      "createClient": "Create a client",
+      "nonSolicitationMonths": "Non-solicitation (months)",
+      "nonSolicitationHint": "Optional. How long after the mission the ESN's clause forbids working for its client without it.",
+      "nonSolicitationError": "Enter a whole number of months from 1 to 36, or leave blank."
     },
     "lostReason": {
       "label": "Reason (optional)",
@@ -572,6 +575,12 @@
       "exchangesError": "The exchanges about this opportunity could not be loaded",
       "opportunity": "About the opportunity (optional)",
       "noOpportunity": "None"
+    },
+    "nonSolicitation": {
+      "notice": "Non-solicitation: you worked for {{client}} through {{esn}}; taking this mission without {{esn}} breaches its clause",
+      "until": "until {{date}}.",
+      "afterMission": "until {{months}} months after that mission ends.",
+      "chip": "Covered by the non-solicitation clause of {{esn}}"
     }
   },
   "clients": {

@@ -42,7 +42,8 @@ describe('ProjectDetailComponent', () => {
   function create(project: ProjectDto | null = mission, query: Record<string, string> = {},
                   before: () => void = () => undefined): ComponentFixture<ProjectDetailComponent> {
     projectService = jasmine.createSpyObj('ProjectService',
-      ['getById', 'getProjectNotes', 'updateStatus', 'renameTag', 'addProjectNote', 'deleteProjectNote', 'delete']);
+      ['getById', 'getProjectNotes', 'updateStatus', 'renameTag', 'addProjectNote', 'deleteProjectNote', 'delete', 'getNonSolicitations']);
+    projectService.getNonSolicitations.and.returnValue(of([]));
     projectService.getById.and.returnValue(of(project as ProjectDto));
     projectService.getProjectNotes.and.returnValue(of([]));
     const steps = jasmine.createSpyObj('InterviewStepService', ['getByProjectIdOrderByDate', 'updateStatus', 'delete']);

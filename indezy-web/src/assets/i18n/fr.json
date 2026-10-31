@@ -388,7 +388,10 @@
       "source": "Source",
       "noSource": "Aucune",
       "noClientsHint": "Aucun client final pour l'instant.",
-      "createClient": "Créer un client"
+      "createClient": "Créer un client",
+      "nonSolicitationMonths": "Non-sollicitation (mois)",
+      "nonSolicitationHint": "Facultatif. Durée après la mission pendant laquelle la clause de l'ESN interdit de travailler pour son client sans elle.",
+      "nonSolicitationError": "Saisissez un nombre entier de mois entre 1 et 36, ou laissez vide."
     },
     "lostReason": {
       "label": "Raison du refus (facultatif)",
@@ -572,6 +575,12 @@
       "exchangesError": "Les échanges sur cette opportunité n'ont pas pu être chargés",
       "opportunity": "Au sujet de l'opportunité (facultatif)",
       "noOpportunity": "Aucune"
+    },
+    "nonSolicitation": {
+      "notice": "Non-sollicitation : vous avez travaillé pour {{client}} via {{esn}} ; prendre cette mission sans {{esn}} enfreint sa clause",
+      "until": "jusqu'au {{date}}.",
+      "afterMission": "jusqu'à {{months}} mois après la fin de cette mission.",
+      "chip": "Couvert par la clause de non-sollicitation de {{esn}}"
     }
   },
   "clients": {

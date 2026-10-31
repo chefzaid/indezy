@@ -85,6 +85,13 @@
                           {{ 'projects.workModes.' + card.workMode | translate }}
                         </span>
                       }
+                      @if (clauses.get(card.projectId); as clause) {
+                        <span class="meta-item clause" data-card-non-solicitation
+                          [matTooltip]="'projects.nonSolicitation.chip' | translate:{ esn: clause.middlemanName }">
+                          <mat-icon aria-hidden="true">gavel</mat-icon>
+                          <span class="cdk-visually-hidden">{{ 'projects.nonSolicitation.chip' | translate:{ esn: clause.middlemanName } }}</span>
+                        </span>
+                      }
                       @if (commutes.get(card.projectId); as commute) {
                         <span class="meta-item commute" data-card-commute [class.beyond]="commute.beyond"
                           [matTooltip]="(commute.beyond ? 'kanban.commuteBeyond' : 'kanban.commute') | translate:{ time: commuteTime(commute.minutes) }">

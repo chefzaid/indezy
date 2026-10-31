@@ -30,7 +30,8 @@ describe('ProjectDetailComponent steps', () => {
   let dialog: jasmine.SpyObj<MatDialog>;
 
   function create(before: () => void = () => undefined): ComponentFixture<ProjectDetailComponent> {
-    projectService = jasmine.createSpyObj('ProjectService', ['getById', 'getProjectNotes', 'addProjectNote', 'deleteProjectNote']);
+    projectService = jasmine.createSpyObj('ProjectService', ['getById', 'getProjectNotes', 'addProjectNote', 'deleteProjectNote', 'getNonSolicitations']);
+    projectService.getNonSolicitations.and.returnValue(of([]));
     projectService.getById.and.returnValue(of(mission));
     projectService.getProjectNotes.and.returnValue(of([]));
     stepService = jasmine.createSpyObj('InterviewStepService', ['getByProjectIdOrderByDate', 'updateStatus', 'delete']);

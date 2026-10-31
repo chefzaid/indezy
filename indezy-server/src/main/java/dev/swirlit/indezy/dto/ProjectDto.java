@@ -43,6 +43,10 @@ public class ProjectDto {
     private LocalDate startDate;
     private Integer durationInMonths;
     private Integer orderRenewalInMonths;
+    /** Months the ESN's non-solicitation clause runs after the mission. */
+    @Min(1)
+    @Max(36)
+    private Integer nonSolicitationMonths;
     private Integer daysPerYear;
     private List<String> documents;
     private String link;

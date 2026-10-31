@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ProjectDto, ProjectStatus, KanbanBoardDto, DashboardStatsDto, ProjectNote, Refusal, ProjectBulkUpdate } from '../../models/project.models';
+import { ProjectDto, ProjectStatus, KanbanBoardDto, DashboardStatsDto, ProjectNote, Refusal, ProjectBulkUpdate, NonSolicitation } from '../../models/project.models';
 
 @Injectable({
   providedIn: 'root'
@@ -83,6 +83,11 @@ export class ProjectService {
   }
 
   /** Kanban board of the workspace, limited to one season when a season id is given. */
+  /** The opportunities a non-solicitation clause of a won mission still covers. */
+  getNonSolicitations(freelanceId: number): Observable<NonSolicitation[]> {
+    return this.http.get<NonSolicitation[]>(`${this.API_URL}/non-solicitation/${freelanceId}`);
+  }
+
   getKanbanBoard(freelanceId: number, seasonId?: number | null): Observable<KanbanBoardDto> {
     return this.http.get<KanbanBoardDto>(`${this.API_URL}/kanban/${freelanceId}`, { params: seasonParams(seasonId) });
   }

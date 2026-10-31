@@ -259,6 +259,16 @@
                   {{ 'projects.form.maxDays' | translate }}
                 </a>
               </div>
+              @if (projectForm.value.middlemanId) {
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width" subscriptSizing="dynamic">
+                    <mat-label>{{ 'projects.form.nonSolicitationMonths' | translate }}</mat-label>
+                    <input matInput type="number" min="1" max="36" step="1" formControlName="nonSolicitationMonths" data-non-solicitation-months>
+                    <mat-hint>{{ 'projects.form.nonSolicitationHint' | translate }}</mat-hint>
+                    <mat-error>{{ 'projects.form.nonSolicitationError' | translate }}</mat-error>
+                  </mat-form-field>
+                </div>
+              }
             </div>
             <!-- Additional Information Section -->
             <div class="form-section">

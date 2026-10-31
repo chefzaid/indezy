@@ -11,7 +11,7 @@ export async function mockWorkspaceData(page: Page, language: string): Promise<v
   const contact = { id: 2, firstName: 'Alice', lastName: 'Martin', email: 'alice@acme.example', clientId: 3, clientName: 'Acme' };
   const project = {
     id: 42, role: 'Java developer', status: 'INTERVIEW', clientId: 3, clientName: 'Acme', dailyRate: 650, workMode: 'HYBRID',
-    startDate: '2026-11-02', durationInMonths: 6, techStack: 'Java, Kafka', totalSteps: 1, completedSteps: 0
+    startDate: '2026-11-02', durationInMonths: 6, techStack: 'Java, Kafka', totalSteps: 1, completedSteps: 0, freelanceId: 1
   };
   const other = { ...project, id: 43, role: 'Data engineer', status: 'CONTACT', techStack: 'Python' };
   const json: [RegExp, unknown][] = [

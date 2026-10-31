@@ -165,6 +165,15 @@ starting this year as CSV.
 | `LOST` | Refusé / Declined |
 | `WON` | Accepté / Accepted |
 
+### Non-Solicitation Clauses
+
+An opportunity with an ESN takes the months of the ESN's non-solicitation clause (1 to 36, optional, often 12). Once
+that mission is won, every other opportunity for its end client, sent directly or by another ESN, carries a notice on
+its page (`Non-solicitation: you worked for Acme through ESN Conseil; taking this mission without ESN Conseil breaches its
+clause until March 31, 2027.`, linking the mission) and a gavel on its Kanban card, until the months have passed after
+the mission's last day (an open-ended mission: "until 12 months after that mission ends"). An archived opportunity is
+not flagged. `GET /api/projects/non-solicitation/{freelanceId}` lists them.
+
 ## Kanban And Pipeline View
 
 The dashboard's Kanban mode shows the pipeline in the five stage columns and follows the selected season.

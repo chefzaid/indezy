@@ -48,7 +48,9 @@ describe('KanbanBoardComponent', () => {
   };
 
   beforeEach(async () => {
-    mockProjectService = jasmine.createSpyObj('ProjectService', ['getKanbanBoard', 'updateStatus', 'toggleFavorite', 'reorderKanbanColumn']);
+    mockProjectService = jasmine.createSpyObj('ProjectService', ['getKanbanBoard', 'updateStatus', 'toggleFavorite', 'reorderKanbanColumn',
+      'getNonSolicitations']);
+    mockProjectService.getNonSolicitations.and.returnValue(of([]));
     mockNotificationService = jasmine.createSpyObj('NotificationService', ['success', 'error', 'successText', 'errorText']);
     currentUser$ = new BehaviorSubject<User | null>(mockUser);
     const mockAuthService = jasmine.createSpyObj('AuthService', ['getUser'], { currentUser$ });
