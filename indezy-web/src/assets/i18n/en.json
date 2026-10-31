@@ -2936,6 +2936,8 @@
     "plannedEndPassed": "The planned end has passed: end the mission if it is over.",
     "empty": "No mission in progress. An accepted opportunity shows here from the month it starts.",
     "emptyAction": "See the opportunities",
-    "loadError": "The missions could not be loaded"
+    "loadError": "The missions could not be loaded",
+    "kilometres": "Professional kilometres",
+    "kilometresError": "The kilometres could not be exported."
   }
 }

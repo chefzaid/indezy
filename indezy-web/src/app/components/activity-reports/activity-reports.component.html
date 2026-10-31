@@ -1,6 +1,15 @@
 <div class="activity-reports-page">
   <app-page-header icon="edit_calendar" [title]="'activityReportsPage.title' | translate"
     [subtitle]="'activityReportsPage.subtitle' | translate">
+    <button mat-stroked-button [matMenuTriggerFor]="kilometresMenu" data-export-kilometres>
+      <mat-icon>directions_car</mat-icon>
+      {{ 'activityReportsPage.kilometres' | translate }}
+    </button>
+    <mat-menu #kilometresMenu="matMenu">
+      @for (year of exportYears; track year) {
+        <button mat-menu-item (click)="exportKilometres(year)" [attr.data-kilometres-year]="year">{{ year }}</button>
+      }
+    </mat-menu>
   </app-page-header>
 
   @if (isLoading) {

@@ -668,6 +668,15 @@ over the month's 20 working days. The cost comes from the profile: **Cost per ki
 trip's kilometres) and **Monthly transport pass** (0 to 1,000 €, spread over the days on site); without them only the
 hours count, and the card says so.
 
+### Professional Kilometres
+
+**Professional kilometres** on the Timesheets page downloads this year's or last year's kilometres as CSV for the
+accountant to claim mileage (frais réels or indemnités kilométriques): a row per month and mission with the client, the
+days on site of its validated activity report (half days counting half), the round trip by car and their product, then
+the total (`GET /api/commute/kilometres/{freelanceId}/{year}?language=FR`, French decimals and headers, or `EN`). A
+mission whose route is unknown keeps its days with the kilometres left blank; client names stay text in spreadsheets.
+The amount on the official scale is not computed: its yearly rates wait on the owner (see TODO.md).
+
 ## Filtering And Search Surfaces
 
 Every list filters as you type: opportunities, clients (words, type, city), contacts (words, client), sources (words,

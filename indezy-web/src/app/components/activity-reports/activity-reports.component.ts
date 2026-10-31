@@ -3,7 +3,10 @@ import { DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { CommuteService } from '../../services/commute/commute.service';
+import { saveBlob } from '../../shared/utils/download-file';
 
 import { ProjectDto, ProjectStatus } from '../../models';
 import { AuthService } from '../../services/auth/auth.service';
@@ -21,7 +24,7 @@ import { MissionEndActionComponent } from '../projects/mission-end-action/missio
  */
 @Component({
   selector: 'app-activity-reports',
-  imports: [DatePipe, RouterModule, MatButtonModule, MatIconModule, TranslateModule, LoadingComponent, PageHeaderComponent,
+  imports: [DatePipe, RouterModule, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, LoadingComponent, PageHeaderComponent,
     ActivityReportCardComponent, MissionEndActionComponent],
   templateUrl: './activity-reports.component.html',
   styleUrls: ['./activity-reports.component.scss'],
@@ -34,6 +37,23 @@ export class ActivityReportsComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly projectService = inject(ProjectService);
   private readonly notificationService = inject(NotificationService);
+  private readonly commuteService = inject(CommuteService);
+  private readonly translate = inject(TranslateService);
+  /** This year and the last, whose kilometres the accountant asks for. */
+  readonly exportYears = [new Date().getFullYear(), new Date().getFullYear() - 1];
+
+  /** Downloads a year's professional kilometres, in the interface's language. */
+  exportKilometres(year: number): void {
+    const freelanceId = this.authService.getUser()?.id;
+    if (!freelanceId) {
+      return;
+    }
+    const english = this.translate.getCurrentLang() === 'en';
+    this.commuteService.exportKilometres(freelanceId, year, english ? 'EN' : 'FR').subscribe({
+      next: blob => saveBlob(blob, `${english ? 'kilometres' : 'kilometres-pro'}-${year}.csv`),
+      error: () => this.notificationService.error('activityReportsPage.kilometresError')
+    });
+  }
 
   ngOnInit(): void {
     const freelanceId = this.authService.getUser()?.id;

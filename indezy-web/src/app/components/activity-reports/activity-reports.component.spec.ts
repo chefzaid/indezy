@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { ProjectDto, ProjectStatus } from '../../models';
@@ -11,6 +11,7 @@ import { ProjectService } from '../../services/project/project.service';
 import { ActivityReportCardComponent } from '../projects/activity-report-card/activity-report-card.component';
 import { MissionEndActionComponent } from '../projects/mission-end-action/mission-end-action.component';
 import { ActivityReportsComponent, activeMissions } from './activity-reports.component';
+import { CommuteService } from '../../services/commute/commute.service';
 
 @Component({ selector: 'app-activity-report-card', template: '' })
 class ActivityReportCardStubComponent {
@@ -49,18 +50,21 @@ describe('activeMissions', () => {
 describe('ActivityReportsComponent', () => {
   let projects: jasmine.SpyObj<ProjectService>;
   let notifications: jasmine.SpyObj<NotificationService>;
+  let commutes: jasmine.SpyObj<CommuteService>;
 
   function create(list: ProjectDto[] | Error, user: { id: number } | null = { id: 7 }): ComponentFixture<ActivityReportsComponent> {
     projects = jasmine.createSpyObj('ProjectService', ['getByFreelanceId']);
     projects.getByFreelanceId.and.returnValue(list instanceof Error ? throwError(() => list) : of(list));
     notifications = jasmine.createSpyObj('NotificationService', ['error']);
+    commutes = jasmine.createSpyObj('CommuteService', ['exportKilometres']);
     TestBed.configureTestingModule({
       imports: [ActivityReportsComponent, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
         { provide: ProjectService, useValue: projects },
         { provide: AuthService, useValue: { getUser: () => user } },
-        { provide: NotificationService, useValue: notifications }
+        { provide: NotificationService, useValue: notifications },
+        { provide: CommuteService, useValue: commutes }
       ]
     });
     TestBed.overrideComponent(ActivityReportsComponent, {
@@ -122,5 +126,35 @@ describe('ActivityReportsComponent', () => {
     const signedOut = create([], null);
     expect(projects.getByFreelanceId).not.toHaveBeenCalled();
     expect(signedOut.componentInstance.isLoading).toBeFalse();
+  });
+
+  it('downloads a year\'s professional kilometres in the interface\'s language', () => {
+    const fixture = create([]);
+    const component = fixture.componentInstance;
+    const link = document.createElement('a');
+    spyOn(document, 'createElement').and.returnValue(link);
+    spyOn(link, 'click');
+    commutes.exportKilometres.and.returnValue(of(new Blob(['x'])));
+    const year = new Date().getFullYear();
+    expect(component.exportYears).toEqual([year, year - 1]);
+
+    TestBed.inject(TranslateService).use('en');
+    component.exportKilometres(2026);
+    expect(commutes.exportKilometres).toHaveBeenCalledWith(7, 2026, 'EN');
+    expect(link.download).toBe('kilometres-2026.csv');
+    TestBed.inject(TranslateService).use('fr');
+    component.exportKilometres(2025);
+    expect(commutes.exportKilometres).toHaveBeenCalledWith(7, 2025, 'FR');
+    expect(link.download).toBe('kilometres-pro-2025.csv');
+
+    commutes.exportKilometres.and.returnValue(throwError(() => new Error('down')));
+    component.exportKilometres(2026);
+    expect(notifications.error).toHaveBeenCalledWith('activityReportsPage.kilometresError');
+  });
+
+  it('exports nothing signed out', () => {
+    const fixture = create([], null);
+    fixture.componentInstance.exportKilometres(2026);
+    expect(commutes.exportKilometres).not.toHaveBeenCalled();
   });
 });

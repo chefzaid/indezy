@@ -1,5 +1,6 @@
 import { Page, expect, test } from '@playwright/test';
 import { mockWorkspaceSession } from './helpers/workspace';
+import { mockWorkspaceData } from './helpers/workspace-data';
 
 interface Day { date: string; type: string; halfDay: boolean }
 
@@ -173,4 +174,21 @@ test('saves an ESN activity report template from the client form', async ({ page
     companyName: 'Capgemini', isFinal: false, activityReportTitle: 'Monthly timesheet', activityReportLayout: 'CALENDAR_GRID',
     activityReportLanguage: 'EN', activityReportShowsLocation: false, activityReportFooter: 'Return before the 25th'
   }));
+});
+
+test('downloads the year\'s professional kilometres for the accountant', async ({ page }) => {
+  await mockWorkspaceSession(page, 'en');
+  await mockWorkspaceData(page, 'en');
+  const year = new Date().getFullYear();
+  let asked = '';
+  await page.route(`**/api/commute/kilometres/1/${year}?*`, route => {
+    asked = new URL(route.request().url()).search;
+    return route.fulfill({ body: 'Month;Client;Mission;Days on site;Round trip (km);Kilometres\r\nTotal;;;;;0\r\n', contentType: 'text/csv' });
+  });
+  await page.goto('/activity-reports');
+  await page.locator('[data-export-kilometres]').click();
+  const download = page.waitForEvent('download');
+  await page.locator(`[data-kilometres-year="${year}"]`).click();
+  expect((await download).suggestedFilename()).toBe(`kilometres-${year}.csv`);
+  expect(asked).toBe('?language=EN');
 });

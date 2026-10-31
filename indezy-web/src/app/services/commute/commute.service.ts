@@ -17,6 +17,11 @@ export class CommuteService {
     return this.http.get<ProjectCommuteDto[]>(`${this.API_URL}/projects/${freelanceId}`, { params });
   }
 
+  /** The year's professional kilometres as CSV: days on site of the validated reports times each round trip by car. */
+  exportKilometres(freelanceId: number, year: number, language: 'FR' | 'EN'): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/kilometres/${freelanceId}/${year}`, { params: { language }, responseType: 'blob' });
+  }
+
   /** One opportunity's trip by car, then by public transport. */
   getProjectCommute(projectId: number): Observable<CommuteInfoDto[]> {
     return this.http.get<CommuteInfoDto[]>(`${this.API_URL}/project/${projectId}`);

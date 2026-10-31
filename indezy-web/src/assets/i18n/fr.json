@@ -2936,6 +2936,8 @@
     "plannedEndPassed": "La fin prévue est passée : terminez la mission si elle est finie.",
     "empty": "Aucune mission en cours. Une opportunité acceptée apparaît ici dès son mois de début.",
     "emptyAction": "Voir les opportunités",
-    "loadError": "Les missions n'ont pas pu être chargées"
+    "loadError": "Les missions n'ont pas pu être chargées",
+    "kilometres": "Kilomètres professionnels",
+    "kilometresError": "Les kilomètres n'ont pas pu être exportés."
   }
 }

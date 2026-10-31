@@ -236,6 +236,17 @@ public class CommuteService {
         return low;
     }
 
+    /** The one-way road distance to a mission by car, in metres; empty without both addresses or a route. */
+    public Optional<Integer> drivingMeters(Project project) {
+        Freelance freelance = project.getFreelance();
+        String origin = freelance == null ? "" : address(freelance.getAddress(), freelance.getCity());
+        String destination = destination(project);
+        if (origin.isBlank() || destination.isBlank()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(lookUp(origin, List.of(destination), TravelMode.DRIVING).get(destination)).map(Trip::meters);
+    }
+
     /** Days on site a month: none when remote, as the mission states them, else all of them or half when hybrid. */
     static int onSiteDays(Project project) {
         if (project.getWorkMode() == WorkMode.REMOTE) {

@@ -52,4 +52,17 @@ class ProjectCommuteIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(((Number) saved.get("kmRate")).doubleValue()).isEqualTo(0.6);
         assertThat(((Number) saved.get("transitPassMonthly")).doubleValue()).isEqualTo(88.8);
     }
+
+    @Test
+    void exportsTheYearsKilometresToTheirOwnerOnly() {
+        org.springframework.http.ResponseEntity<String> csv = call(alice, HttpMethod.GET,
+            "/commute/kilometres/" + alice.freelanceId() + "/2026?language=EN", null, String.class);
+        assertThat(csv.getHeaders().getContentDisposition().getFilename()).isEqualTo("kilometres-2026.csv");
+        assertThat(csv.getHeaders().getFirst("Cache-Control")).isEqualTo("no-store");
+        assertThat(csv.getBody()).startsWith("Month;Client;Mission;Days on site;Round trip (km);Kilometres").contains("Total;;;;;0");
+        assertThat(call(alice, HttpMethod.GET, "/commute/kilometres/" + alice.freelanceId() + "/1999", null, String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(bob, HttpMethod.GET, "/commute/kilometres/" + alice.freelanceId() + "/2026", null, String.class)
+            .getStatusCode().is4xxClientError()).isTrue();
+    }
 }
