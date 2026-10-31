@@ -581,6 +581,30 @@
       "until": "until {{date}}.",
       "afterMission": "until {{months}} months after that mission ends.",
       "chip": "Covered by the non-solicitation clause of {{esn}}"
+    },
+    "contract": {
+      "title": "Contract checklist",
+      "hint": "The points to check in the ESN's or client's contract before signing, with what it says.",
+      "note": "What the contract says",
+      "saveError": "The checklist could not be saved.",
+      "points": {
+        "PAYMENT_TERMS": "Payment terms",
+        "NOTICE_PERIOD": "Notice period",
+        "NON_SOLICITATION": "Non-solicitation",
+        "INTELLECTUAL_PROPERTY": "Intellectual property",
+        "LIABILITY_INSURANCE": "Liability and insurance",
+        "RATE_REVISION": "Rate revision",
+        "PLACE_OF_WORK": "Place of work"
+      },
+      "examples": {
+        "PAYMENT_TERMS": "45 days end of month, at most 60 days",
+        "NOTICE_PERIOD": "15 days on both sides",
+        "NON_SOLICITATION": "12 months after the mission",
+        "INTELLECTUAL_PROPERTY": "Rights transferred on payment",
+        "LIABILITY_INSURANCE": "Capped at the amount invoiced, RC Pro required",
+        "RATE_REVISION": "Reviewed at each renewal",
+        "PLACE_OF_WORK": "La Défense, 2 remote days a week"
+      }
     }
   },
   "clients": {

@@ -96,6 +96,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/projects/project-archive-action/project-archive-action.component',
   'components/projects/project-attachments/attachment-preview-dialog.component',
   'components/projects/project-attachments/project-attachments.component',
+  'components/projects/project-detail/contract-checklist/contract-checklist.component',
   'components/projects/project-detail/non-solicitation-notice/non-solicitation-notice.component',
   'components/projects/project-detail/note-templates',
   'components/projects/project-detail/project-commute/project-commute.component',

@@ -581,6 +581,30 @@
       "until": "jusqu'au {{date}}.",
       "afterMission": "jusqu'à {{months}} mois après la fin de cette mission.",
       "chip": "Couvert par la clause de non-sollicitation de {{esn}}"
+    },
+    "contract": {
+      "title": "Points du contrat",
+      "hint": "Les points à vérifier dans le contrat de l'ESN ou du client avant de signer, avec ce qu'il prévoit.",
+      "note": "Ce que prévoit le contrat",
+      "saveError": "La liste n'a pas pu être enregistrée.",
+      "points": {
+        "PAYMENT_TERMS": "Délais de paiement",
+        "NOTICE_PERIOD": "Préavis",
+        "NON_SOLICITATION": "Non-sollicitation",
+        "INTELLECTUAL_PROPERTY": "Propriété intellectuelle",
+        "LIABILITY_INSURANCE": "Responsabilité et assurance",
+        "RATE_REVISION": "Révision du TJM",
+        "PLACE_OF_WORK": "Lieu de travail"
+      },
+      "examples": {
+        "PAYMENT_TERMS": "45 jours fin de mois, 60 jours au plus",
+        "NOTICE_PERIOD": "15 jours de part et d'autre",
+        "NON_SOLICITATION": "12 mois après la mission",
+        "INTELLECTUAL_PROPERTY": "Droits cédés au paiement",
+        "LIABILITY_INSURANCE": "Plafonnée au montant facturé, RC Pro exigée",
+        "RATE_REVISION": "Revue à chaque renouvellement",
+        "PLACE_OF_WORK": "La Défense, 2 jours de télétravail par semaine"
+      }
     }
   },
   "clients": {

@@ -92,6 +92,7 @@
       <div class="details-grid">
         @if (project.status === 'WON') {
           <app-activity-report-card [project]="project"></app-activity-report-card>
+          <app-contract-checklist [project]="project"></app-contract-checklist>
           <app-purchase-orders-card [projectId]="project.id!"></app-purchase-orders-card>
         }
         <app-project-commute [projectId]="project.id!"></app-project-commute>

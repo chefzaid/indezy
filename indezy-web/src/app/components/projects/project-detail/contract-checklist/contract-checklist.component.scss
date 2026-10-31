@@ -1,0 +1,24 @@
+// The card, not this element, takes a cell of the page's grid.
+:host { display: contents; }
+
+mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
+}
+
+.count { margin-left: auto; color: var(--app-text-muted); font-size: 0.875rem; font-weight: normal; }
+.hint { margin: 16px 0 8px; color: var(--app-text-muted); font-size: 0.875rem; }
+
+.point {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 4px 0;
+
+  mat-checkbox { flex: 1 1 220px; }
+  .note { flex: 1 1 220px; }
+}

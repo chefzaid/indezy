@@ -94,6 +94,12 @@ public class Project extends BaseEntity {
     @Column(name = "days_per_year")
     private Integer daysPerYear;
 
+    /** The contract's points checked before signing the mission. */
+    @ElementCollection
+    @CollectionTable(name = "project_contract_checks", joinColumns = @JoinColumn(name = "project_id"))
+    @OrderColumn(name = "position")
+    private List<ContractCheck> contractChecks = new ArrayList<>();
+
     @ElementCollection
     @CollectionTable(name = "project_documents", joinColumns = @JoinColumn(name = "project_id"))
     @Column(name = "document_path")
@@ -179,6 +185,14 @@ public class Project extends BaseEntity {
 
     public void setDocuments(final List<String> documents) {
         this.documents = documents != null ? new ArrayList<>(documents) : new ArrayList<>();
+    }
+
+    public List<ContractCheck> getContractChecks() {
+        return contractChecks != null ? new ArrayList<>(contractChecks) : new ArrayList<>();
+    }
+
+    public void setContractChecks(final List<ContractCheck> contractChecks) {
+        this.contractChecks = contractChecks != null ? new ArrayList<>(contractChecks) : new ArrayList<>();
     }
 
     public List<InterviewStep> getSteps() {

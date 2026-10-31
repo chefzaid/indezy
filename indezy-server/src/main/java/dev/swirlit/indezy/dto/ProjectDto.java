@@ -89,6 +89,9 @@ public class ProjectDto {
     private Integer completedSteps;
     private Integer failedSteps;
 
+    /** The contract's points checked before signing; written through {@code PUT /projects/{id}/contract-checks} only. */
+    private List<ContractCheckDto> contractChecks;
+
     // Interview steps (only populated when explicitly requested)
     private List<InterviewStepDto> steps;
 
@@ -99,6 +102,14 @@ public class ProjectDto {
 
     public void setDocuments(final List<String> documents) {
         this.documents = documents != null ? new ArrayList<>(documents) : new ArrayList<>();
+    }
+
+    public List<ContractCheckDto> getContractChecks() {
+        return contractChecks != null ? new ArrayList<>(contractChecks) : new ArrayList<>();
+    }
+
+    public void setContractChecks(final List<ContractCheckDto> contractChecks) {
+        this.contractChecks = contractChecks != null ? new ArrayList<>(contractChecks) : new ArrayList<>();
     }
 
     public List<InterviewStepDto> getSteps() {

@@ -112,6 +112,8 @@ export interface ProjectDto {
   orderRenewalInMonths?: number;
   /** Months the ESN's non-solicitation clause runs after the mission. */
   nonSolicitationMonths?: number | null;
+  /** The contract's points checked before signing. */
+  contractChecks?: ContractCheck[];
   daysPerYear?: number;
   documents?: string[];
   link?: string;
@@ -391,4 +393,16 @@ export interface NonSolicitation {
   months: number;
   /** Absent while the mission runs open-ended. */
   endsOn?: string | null;
+}
+
+/** The points to check in a mission's contract, in the order they are shown. */
+export const CONTRACT_POINTS = ['PAYMENT_TERMS', 'NOTICE_PERIOD', 'NON_SOLICITATION', 'INTELLECTUAL_PROPERTY', 'LIABILITY_INSURANCE',
+  'RATE_REVISION', 'PLACE_OF_WORK'] as const;
+export type ContractPoint = typeof CONTRACT_POINTS[number];
+
+/** One point of a mission's contract checklist. */
+export interface ContractCheck {
+  point: ContractPoint;
+  checked: boolean;
+  note?: string | null;
 }

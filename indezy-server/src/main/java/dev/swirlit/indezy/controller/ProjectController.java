@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.MissionEndRequest;
+import dev.swirlit.indezy.dto.ContractChecksRequest;
 import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.NonSolicitationDto;
 import dev.swirlit.indezy.dto.KanbanBoardDto;
@@ -10,6 +11,7 @@ import dev.swirlit.indezy.model.enums.LostReason;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.model.enums.RefusedBy;
 import dev.swirlit.indezy.service.AccessGuard;
+import dev.swirlit.indezy.service.ContractCheckService;
 import dev.swirlit.indezy.service.DashboardStatsService;
 import dev.swirlit.indezy.service.NonSolicitationService;
 import dev.swirlit.indezy.service.ProjectBulkService;
@@ -44,6 +46,7 @@ public class ProjectController {
     private final ProjectExportService projectExportService;
     private final AccessGuard accessGuard;
     private final NonSolicitationService nonSolicitationService;
+    private final ContractCheckService contractCheckService;
 
     @Operation(summary = "List the projects of a workspace")
     @GetMapping("/by-freelance/{freelanceId}")
@@ -183,6 +186,13 @@ public class ProjectController {
         accessGuard.requireFreelance(freelanceId);
         accessGuard.requireSeasonIfPresent(seasonId);
         return dashboardStatsService.getDashboardStats(freelanceId, seasonId);
+    }
+
+    @Operation(summary = "Replace a mission's contract checklist", description = "Each point at most once, with an optional note")
+    @PutMapping("/{id}/contract-checks")
+    public ProjectDto replaceContractChecks(@PathVariable Long id, @Valid @RequestBody ContractChecksRequest request) {
+        accessGuard.requireProject(id);
+        return contractCheckService.replace(id, request.checks());
     }
 
     @Operation(summary = "Opportunities a non-solicitation clause covers",

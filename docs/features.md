@@ -174,6 +174,14 @@ clause until March 31, 2027.`, linking the mission) and a gavel on its Kanban ca
 the mission's last day (an open-ended mission: "until 12 months after that mission ends"). An archived opportunity is
 not flagged. `GET /api/projects/non-solicitation/{freelanceId}` lists them.
 
+### Contract Checklist
+
+A won mission's page holds a **Contract checklist** of the points to check in the ESN's or client's contract before
+signing: payment terms, notice period, non-solicitation, intellectual property, liability and insurance, rate revision and
+place of work. Each is ticked and noted (up to 500 characters, an example as placeholder), saved as it is ticked or its
+note left, with the count checked (`2/7`). `PUT /api/projects/{id}/contract-checks` replaces it whole, each point at most
+once; editing the mission leaves it as it is, and the account export carries it with the mission.
+
 ## Kanban And Pipeline View
 
 The dashboard's Kanban mode shows the pipeline in the five stage columns and follows the selected season.

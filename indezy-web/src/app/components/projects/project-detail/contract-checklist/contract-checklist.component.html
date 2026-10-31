@@ -1,0 +1,24 @@
+<mat-card class="info-card" data-contract-checklist>
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>fact_check</mat-icon>
+      {{ 'projects.contract.title' | translate }}
+      <span class="count" data-contract-count>{{ checkedCount }}/{{ checks.length }}</span>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="hint">{{ 'projects.contract.hint' | translate }}</p>
+    @for (check of checks; track check.point) {
+      <div class="point" [attr.data-contract-point]="check.point">
+        <mat-checkbox [checked]="check.checked" (change)="toggle(check.point, $event.checked)">
+          {{ 'projects.contract.points.' + check.point | translate }}
+        </mat-checkbox>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="note">
+          <mat-label>{{ 'projects.contract.note' | translate }}</mat-label>
+          <input matInput maxlength="500" [ngModel]="check.note" #note (blur)="saveNote(check.point, note.value)"
+            [placeholder]="'projects.contract.examples.' + check.point | translate">
+        </mat-form-field>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>
