@@ -202,7 +202,7 @@
 :host-context(html.dark-theme) {
   .status.OK {
     background: rgba(129, 199, 132, 0.18);
-    color: #a5d6a7;
+    color: var(--app-chip-positive-text);
   }
 
   .status.FAILING {

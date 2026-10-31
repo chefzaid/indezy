@@ -63,7 +63,7 @@
 
 :host-context(html.dark-theme) .link-status p {
   &.success {
-    color: #a5d6a7;
+    color: var(--app-chip-positive-text);
   }
 
   &.problem {

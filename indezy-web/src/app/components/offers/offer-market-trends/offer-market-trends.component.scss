@@ -84,7 +84,7 @@
 
 :host-context(html.dark-theme) .trend-table {
   .up {
-    color: #a5d6a7;
+    color: var(--app-chip-positive-text);
   }
 
   .down {

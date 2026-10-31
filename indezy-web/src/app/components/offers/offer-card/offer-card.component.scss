@@ -365,7 +365,7 @@
 
   .new-badge {
     background: rgba(129, 199, 132, 0.18);
-    color: #a5d6a7;
+    color: var(--app-chip-positive-text);
   }
 
   .expired-badge {
@@ -381,7 +381,7 @@
   .match-badge.good,
   .skill.matched {
     background: rgba(129, 199, 132, 0.18);
-    color: #a5d6a7;
+    color: var(--app-chip-positive-text);
   }
 
   .skill.matched {
@@ -395,7 +395,7 @@
 
   .market-chip.above {
     background: rgba(129, 199, 132, 0.18);
-    color: #a5d6a7;
+    color: var(--app-chip-positive-text);
   }
 
   .market-chip.below {
