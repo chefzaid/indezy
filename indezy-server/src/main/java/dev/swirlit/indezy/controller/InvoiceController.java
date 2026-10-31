@@ -59,13 +59,13 @@ public class InvoiceController {
         return invoices.create(workspace(), draft);
     }
 
-    @Operation(summary = "The activity reports that can be invoiced: days worked, not rejected, not invoiced yet")
     @Operation(summary = "How each client pays: its paid invoices, average days to payment and past the due date")
     @GetMapping("/payment-delays")
     public List<InvoiceDtos.PaymentDelay> paymentDelays() {
         return paymentDelays.byClient(workspace());
     }
 
+    @Operation(summary = "The activity reports that can be invoiced: days worked, not rejected, not invoiced yet")
     @GetMapping("/invoiceable-reports")
     public List<InvoiceDtos.InvoiceableReport> invoiceableReports() {
         return invoices.invoiceableReports(workspace());
