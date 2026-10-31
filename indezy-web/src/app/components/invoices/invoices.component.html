@@ -60,6 +60,8 @@
     </mat-card>
   </div>
 
+  <app-client-shares [invoices]="invoices"></app-client-shares>
+
   <mat-button-toggle-group [value]="filter" (change)="filter = $event.value" [attr.aria-label]="'invoices.filter' | translate">
     @for (option of filters; track option) {
       <mat-button-toggle [value]="option">{{ 'invoices.filters.' + option | translate }}</mat-button-toggle>

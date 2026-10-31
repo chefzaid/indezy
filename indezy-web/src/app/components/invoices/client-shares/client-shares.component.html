@@ -1,0 +1,24 @@
+@if (shares.length > 0) {
+  <mat-card class="shares" data-client-shares>
+    <mat-card-header>
+      <mat-card-title>{{ 'invoices.shares.title' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (dependence; as top) {
+        <p class="warning" role="note" data-client-dependence>
+          <mat-icon aria-hidden="true">warning</mat-icon>
+          <span>{{ 'invoices.shares.dependence' | translate:{ client: top.clientName, percent: top.percent } }}</span>
+        </p>
+      }
+      <ul>
+        @for (share of shares; track share.clientId) {
+          <li [attr.data-client-share]="share.clientId">
+            <a [routerLink]="['/clients', share.clientId]" class="name">{{ share.clientName }}</a>
+            <span class="bar" aria-hidden="true"><span [style.width.%]="share.percent"></span></span>
+            <span class="figure">{{ share.percent }} % · {{ share.revenue | number:'1.0-0' }} €</span>
+          </li>
+        }
+      </ul>
+    </mat-card-content>
+  </mat-card>
+}

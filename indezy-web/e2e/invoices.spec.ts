@@ -74,6 +74,9 @@ for (const width of [1280, 390]) {
     await page.goto('/invoices');
     await expect(page.locator('[data-invoice="1"]')).toContainText('Overdue');
     await expect(page.locator('[data-invoice-figures]')).toContainText('600.00');
+    // One client paid all of the last 12 months' revenue: the page says what that means.
+    await expect(page.locator('[data-client-shares]')).toContainText('100 % · 600 €');
+    await expect(page.locator('[data-client-dependence]')).toContainText('paid 100 % of your revenue');
 
     await page.locator('[data-new-invoice]').click();
     const dialog = page.getByRole('dialog');

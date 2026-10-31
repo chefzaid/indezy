@@ -43,6 +43,8 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/error/not-found/not-found.component',
   'components/global-search/global-search-dialog.component',
   'components/home/home.component',
+  'components/invoices/client-shares/client-shares',
+  'components/invoices/client-shares/client-shares.component',
   'components/invoices/date-dialog/invoice-date-dialog.component',
   'components/invoices/draft-dialog/invoice-draft-dialog.component',
   'components/invoices/invoice-errors',

@@ -2483,7 +2483,11 @@
     "fromReportNoClient": "Ajoutez le client de la mission pour facturer ce mois.",
     "fromReportCreate": "Créer la facture",
     "fromReportCreated": "Brouillon créé depuis le CRA",
-    "toInvoice": "{{count}} mois de CRA à facturer"
+    "toInvoice": "{{count}} mois de CRA à facturer",
+    "shares": {
+      "title": "Chiffre d'affaires par client, 12 derniers mois",
+      "dependence": "{{client}} représente {{percent}} % de votre chiffre d'affaires des 12 derniers mois. Travailler surtout pour un seul client affaiblit l'indépendance que l'URSSAF et les tribunaux examinent avant de requalifier une prestation en salariat : un second client réduit ce risque."
+    }
   },
   "purchaseOrders": {
     "title": "Bons de commande",

@@ -2483,7 +2483,11 @@
     "fromReportNoClient": "Add the mission's client to invoice this month.",
     "fromReportCreate": "Create the invoice",
     "fromReportCreated": "Draft created from the activity report",
-    "toInvoice": "{{count}} months of activity reports to invoice"
+    "toInvoice": "{{count}} months of activity reports to invoice",
+    "shares": {
+      "title": "Revenue by client, last 12 months",
+      "dependence": "{{client}} paid {{percent}} % of your revenue over the last 12 months. Working mostly for one client weakens the independence URSSAF and the courts look at before reclassifying a freelance contract as employment: a second client lowers the risk."
+    }
   },
   "purchaseOrders": {
     "title": "Purchase orders",

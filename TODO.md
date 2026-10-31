@@ -634,7 +634,7 @@ Money
 - [ ] Payment terms check: a client's or purchase order's terms beyond the legal maximum (60 days from the invoice, or 45 days end of month) flagged when entered, and each client's real average payment delay, from the paid invoices, shown on its page and on its new opportunities.
 - [ ] Quotes (devis) for fixed-price work: a numbered quote with French mentions, sent as PDF, accepted or refused, and turned into an invoice; deposit invoices (factures d'acompte) taken off the final one.
 - [ ] Revenue thresholds of the micro-entreprise regime and of the VAT franchise: the year's invoiced revenue against each ceiling, with a warning on approaching it and the date the franchise would be lost; the ceilings themselves wait on Needs Input "Social contribution rates" (they change by law).
-- [ ] Dependence on one client: the share of the last 12 months' revenue from each client and ESN, with a warning past a set share (one client paying most of the revenue weakens the independence an URSSAF or court looks at when it reclassifies a freelance contract as employment).
+- [x] Dependence on one client: the share of the last 12 months' revenue from each client and ESN, with a warning past a set share (one client paying most of the revenue weakens the independence an URSSAF or court looks at when it reclassifies a freelance contract as employment). Done on 2026-10-31: **Revenue by client, last 12 months** on the Invoices page, the warning from 50 %.
 - [ ] Billed days objective: a yearly target of billed days, set in the profile, against the days of the validated activity reports so far and the year's projection, beside the reversion rate calculator's workable days.
 
 Profile and reputation

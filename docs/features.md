@@ -495,7 +495,10 @@ dashboard lists running orders at 80 % or more.
 ## Invoices
 
 **Invoices** lists the workspace's invoices with their status (draft, awaiting payment, overdue, paid, credited) and the
-totals awaiting payment and overdue. A draft is made:
+totals awaiting payment and overdue. **Revenue by client, last 12 months** shares the invoices issued in the last year
+(excluding VAT, less their credit notes) between clients, largest first, and warns when one client paid half or more:
+working mostly for one client weakens the independence URSSAF and the courts weigh before reclassifying a freelance
+contract as employment. A draft is made:
 
 - **From an activity report**: a month with days worked, billed to the mission's ESN (else its client) in that client's
   report language, with the days at the daily rate. A rejected month cannot be invoiced, and a month only once.
