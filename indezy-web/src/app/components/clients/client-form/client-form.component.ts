@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -9,7 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { Subject, takeUntil } from 'rxjs';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { Subject, catchError, debounceTime, distinctUntilChanged, of, switchMap, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ClientService } from '../../../services/client/client.service';
 import { AuthService } from '../../../services/auth/auth.service';
@@ -18,6 +19,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { billingId, compactId } from '../../../shared/utils/billing-validators';
 import { fieldError } from '../../../shared/utils/form-errors';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { Company, CompanyService } from '../../../services/company/company.service';
 
 @Component({
     selector: 'app-client-form',
@@ -31,6 +33,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
     MatIconModule,
     MatProgressSpinnerModule,
     MatSlideToggleModule,
+    MatAutocompleteModule,
     TranslateModule
 ],
     templateUrl: './client-form.component.html',
@@ -50,6 +53,11 @@ export class ClientFormComponent implements OnInit, OnDestroy {
   readonly reportLanguages: DocumentLanguage[] = ['FR', 'EN'];
 
   private readonly destroy$ = new Subject<void>();
+  private readonly companyService = inject(CompanyService);
+  /** The directory's companies matching the name typed. */
+  companies: Company[] = [];
+  /** The name of the company last picked, not looked up again. */
+  private pickedName: string | null = null;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -71,6 +79,14 @@ export class ClientFormComponent implements OnInit, OnDestroy {
         this.loadClient();
       }
     });
+
+    this.clientForm.get('companyName')?.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((name: string | null) => (name ?? '').trim().length < 3 || this.isEditMode || name === this.pickedName ? of([]) :
+        this.companyService.search(name!.trim()).pipe(catchError(() => of([])))),
+      takeUntil(this.destroy$)
+    ).subscribe(companies => this.companies = companies);
 
     // Creating an intermediary straight from a link such as /clients/new?type=esn
     if (this.route.snapshot.queryParamMap.get('type') === 'esn') {
@@ -216,4 +232,24 @@ export class ClientFormComponent implements OnInit, OnDestroy {
   getFieldError(fieldName: string): string {
     return fieldError(this.clientForm.get(fieldName), this.translate);
   }
+
+  /** Fills the form in from the company picked in the directory, leaving blank what it does not know. */
+  pickCompany(company: Company): void {
+    this.pickedName = company.name;
+    this.clientForm.patchValue({
+      companyName: company.name,
+      siren: company.siren,
+      vatNumber: company.vatNumber ?? this.clientForm.value.vatNumber,
+      address: company.address ? [company.address, [company.postalCode, titleCase(company.city)].filter(Boolean).join(' ')].join('\n')
+        : this.clientForm.value.address,
+      city: titleCase(company.city) || this.clientForm.value.city
+    });
+    this.companies = [];
+  }
 }
+
+/** "SAINT-DENIS" → "Saint-Denis": the directory writes towns in capitals. */
+function titleCase(value: string | null | undefined): string {
+  return (value ?? '').toLowerCase().replace(/(^|[\s'-])\p{L}/gu, letter => letter.toUpperCase());
+}
+

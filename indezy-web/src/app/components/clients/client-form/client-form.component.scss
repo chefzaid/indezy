@@ -84,3 +84,12 @@
     }
   }
 }
+
+.company-facts {
+  display: block;
+  color: var(--app-text-muted);
+}
+
+.company-closed {
+  color: var(--app-danger);
+}

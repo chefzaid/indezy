@@ -1,10 +1,11 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { ClientDto } from '../../../models';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ClientService } from '../../../services/client/client.service';
+import { Company, CompanyService } from '../../../services/company/company.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ClientFormComponent } from './client-form.component';
 
@@ -12,10 +13,13 @@ describe('ClientFormComponent', () => {
   let clients: jasmine.SpyObj<ClientService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let navigate: jasmine.Spy;
+  let directory: jasmine.SpyObj<CompanyService>;
 
   function create(id?: number, type?: string): ClientFormComponent {
     clients = jasmine.createSpyObj('ClientService', ['getById', 'create', 'update']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
+    directory = jasmine.createSpyObj('CompanyService', ['search']);
+    directory.search.and.returnValue(of([]));
     TestBed.configureTestingModule({
       imports: [ClientFormComponent, TranslateModule.forRoot()],
       providers: [
@@ -26,12 +30,65 @@ describe('ClientFormComponent', () => {
         } },
         { provide: ClientService, useValue: clients },
         { provide: AuthService, useValue: { getUser: () => ({ id: 7 }) } },
-        { provide: NotificationService, useValue: notifications }
+        { provide: NotificationService, useValue: notifications },
+        { provide: CompanyService, useValue: directory }
       ]
     });
     navigate = spyOn(TestBed.inject(Router), 'navigate');
     return TestBed.createComponent(ClientFormComponent).componentInstance;
   }
+
+  describe('company lookup', () => {
+    const total: Company = { siren: '542051180', name: 'TOTALENERGIES SE', address: '2 PLACE JEAN MILLIER', postalCode: '92400',
+      city: 'SAINT-DENIS', nafCode: '70.10Z', legalForm: 'SA', vatNumber: 'FR59542051180', closed: false };
+
+    it('looks the name typed up in the directory, from three characters', fakeAsync(() => {
+      const component = create();
+      directory.search.and.returnValue(of([total]));
+      component.ngOnInit();
+      component.clientForm.patchValue({ companyName: 'to' });
+      tick(300);
+      expect(directory.search).not.toHaveBeenCalled();
+      component.clientForm.patchValue({ companyName: ' total ' });
+      tick(300);
+      expect(directory.search).toHaveBeenCalledWith('total');
+      expect(component.companies).toEqual([total]);
+    }));
+
+    it('fills the form in from the company picked, without looking it up again', fakeAsync(() => {
+      const component = create();
+      component.ngOnInit();
+      component.pickCompany(total);
+      tick(300);
+      expect(component.clientForm.value).toEqual(jasmine.objectContaining({ companyName: 'TOTALENERGIES SE', siren: '542051180',
+        vatNumber: 'FR59542051180', address: '2 PLACE JEAN MILLIER\n92400 Saint-Denis', city: 'Saint-Denis' }));
+      expect(directory.search).not.toHaveBeenCalled();
+      expect(component.companies).toEqual([]);
+
+      component.clientForm.patchValue({ address: 'Kept', city: 'Kept', vatNumber: 'FR00000000000' });
+      component.pickCompany({ siren: '123456789', name: 'BARE', closed: true });
+      expect(component.clientForm.value).toEqual(jasmine.objectContaining({ address: 'Kept', city: 'Kept', vatNumber: 'FR00000000000' }));
+    }));
+
+    it('finds nothing when the directory fails', fakeAsync(() => {
+      const component = create();
+      directory.search.and.returnValue(throwError(() => new Error('down')));
+      component.ngOnInit();
+      component.clientForm.patchValue({ companyName: 'acme' });
+      tick(300);
+      expect(component.companies).toEqual([]);
+    }));
+
+    it('looks nothing up while editing', fakeAsync(() => {
+      const editing = create(9);
+      clients.getById.and.returnValue(of({ id: 9, companyName: 'Capgemini', city: 'Paris', isFinal: false, freelanceId: 7 } as ClientDto));
+      editing.ngOnInit();
+      directory.search.calls.reset();
+      editing.clientForm.patchValue({ companyName: 'Capgemini SE' });
+      tick(300);
+      expect(directory.search).not.toHaveBeenCalled();
+    }));
+  });
 
   it('creates an ESN with the default activity report template', () => {
     const component = create(undefined, 'esn');

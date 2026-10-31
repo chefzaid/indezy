@@ -305,7 +305,9 @@ Commute-time sorting sends the profile's address and the clients' addresses (no 
 (IGN's Géoplateforme, `indezy.offers.address-url`, keyless), whose answers are kept in `geo_places` under the folded
 address (or its SHA-256 when long); a failed search is logged by its exception type only. Google Maps Distance Matrix is
 used instead only when a key is set: it then receives the same addresses, with the key in the query; neither the
-addresses nor the key are logged, a failed request being logged by its exception type only, since its message quotes the address asked. The offer collection calls the job boards and the
+addresses nor the key are logged, a failed request being logged by its exception type only, since its message quotes the address asked. The company lookup sends the words typed in a new
+client's name to the public company directory (`indezy.companies.url`, keyless) and logs a failure by its exception
+type only. The offer collection calls the job boards and the
 French government geocoding API, without keys (see [Job Offer Collection](#job-offer-collection)). Saved search emails
 go through Resend, which receives the workspace's address and the email's offers, with a sending key kept in Vault
 (see [Saved Search Emails](#saved-search-emails)).

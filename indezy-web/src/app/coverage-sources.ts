@@ -164,6 +164,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'services/booking/booking.service',
   'services/client/client.service',
   'services/commute/commute.service',
+  'services/company/company.service',
   'services/compliance/compliance.service',
   'services/contact/contact.service',
   'services/email-template/email-template.service',

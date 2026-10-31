@@ -269,6 +269,14 @@ example) or vCard content, skipping emails the workspace already has.
 A **contact** belongs to one client and holds a name, email, phone, notes and the legal basis for keeping their
 details. The list shows each contact's last exchange; emptying a field in the form clears it.
 
+### Company Lookup
+
+Typing three characters or more of a new client's name (or its SIREN) offers up to five companies of the French public
+directory (`recherche-entreprises.api.gouv.fr`, free and keyless, asked through `GET /api/companies/search?q=`), each with
+its SIREN, legal form, town and NAF code, a closed one marked **closed**. Picking one fills in the legal name, the SIREN,
+the head office's address and town, and the intra-EU VAT number computed from the SIREN (`FR` + key + SIREN); what the
+directory does not give stays as typed. Answers are kept a day; an unreachable directory offers nothing.
+
 ### Contact Interaction History
 
 A contact's **Exchanges** record a day (today at the latest), a channel (email, phone, LinkedIn, meeting, other), who

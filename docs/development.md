@@ -96,6 +96,8 @@ Environment variables of note:
   startup, 2 seconds between requests; set it to `false` to work offline or on the sample offers of `data-dev.sql`.
 - `INDEZY_OFFERS_GEOCODING_ENABLED` (`true`): looks up offer cities on `geo.api.gouv.fr`, and the home and client
   addresses of the commute estimates on IGN's Géoplateforme (`data.geopf.fr/geocodage`).
+- `INDEZY_COMPANIES_URL` (`https://recherche-entreprises.api.gouv.fr`): the public company directory the client form
+  looks companies up in; tests point it at a closed local port.
 
 The other `indezy.offers.*` settings (`tick`, `request-delay`, `max-pages`, `retention-days`, `stale-run-after`,
 `user-agent`) have their defaults in `OfferProperties`. See [Features](./features.md#freelance-offer-feed) for what the

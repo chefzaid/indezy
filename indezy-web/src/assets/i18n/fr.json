@@ -689,7 +689,9 @@
         "hint": "Ce que vos factures à ce client indiquent de lui.",
         "siren": "SIREN",
         "vatNumber": "Numéro de TVA"
-      }
+      },
+      "companyLookupHint": "Saisissez un nom ou un SIREN pour remplir le reste depuis l'annuaire public.",
+      "companyClosed": "fermée"
     },
     "allTypes": "Tous les types",
     "finalClients": "Clients finaux",

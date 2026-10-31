@@ -19,9 +19,24 @@
             <div class="form-row">
               <mat-form-field appearance="outline" class="grow-2">
                 <mat-label>{{ 'clients.form.companyName' | translate }}</mat-label>
-                <input matInput formControlName="companyName"
+                <input matInput formControlName="companyName" [matAutocomplete]="directory"
                   [attr.aria-label]="'clients.form.companyName' | translate"
                   [placeholder]="'clients.form.companyNamePlaceholder' | translate">
+                <mat-autocomplete #directory="matAutocomplete">
+                  @for (company of companies; track company.siren) {
+                    <mat-option [value]="company.name" [attr.data-company]="company.siren"
+                      (onSelectionChange)="$event.isUserInput && pickCompany(company)">
+                      <span class="company-name">{{ company.name }}</span>
+                      <small class="company-facts">
+                        {{ company.siren }}{{ company.legalForm ? ' · ' + company.legalForm : '' }}{{ company.city ? ' · ' + company.city : '' }}{{ company.nafCode ? ' · NAF ' + company.nafCode : '' }}
+                        @if (company.closed) {
+                          · <span class="company-closed">{{ 'clients.form.companyClosed' | translate }}</span>
+                        }
+                      </small>
+                    </mat-option>
+                  }
+                </mat-autocomplete>
+                <mat-hint>{{ 'clients.form.companyLookupHint' | translate }}</mat-hint>
                 <mat-error>{{ getFieldError('companyName') }}</mat-error>
               </mat-form-field>
               <mat-form-field appearance="outline" class="grow-1">

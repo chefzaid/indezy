@@ -689,7 +689,9 @@
         "hint": "What your invoices to this client state of it.",
         "siren": "SIREN",
         "vatNumber": "VAT number"
-      }
+      },
+      "companyLookupHint": "Type a name or a SIREN to fill the rest in from the public directory.",
+      "companyClosed": "closed"
     },
     "allTypes": "All types",
     "finalClients": "Final clients",
