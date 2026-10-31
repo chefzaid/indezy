@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.OfferApplicationRequest;
 import dev.swirlit.indezy.dto.OfferBulkImportDto;
 import dev.swirlit.indezy.dto.OfferBulkImportRequest;
 import dev.swirlit.indezy.dto.OfferBulkStateRequest;
+import dev.swirlit.indezy.dto.OfferCommuteDto;
 import dev.swirlit.indezy.dto.OfferCopyDto;
 import dev.swirlit.indezy.dto.OfferDraftDto;
 import dev.swirlit.indezy.dto.OfferDto;
@@ -138,6 +139,7 @@ class OfferControllerTest {
             .andExpect(jsonPath("$.content[0].match.skills[0]").value("Java"))
             .andExpect(jsonPath("$.content[0].match.place").value("NEAR"))
             .andExpect(jsonPath("$.content[0].siteName").value("Free-Work"))
+            .andExpect(jsonPath("$.content[0].commute.carRushMinutes").value(26))
             .andExpect(jsonPath("$.content[0].publishedAt").value("2026-10-19T08:47:42Z"))
             .andExpect(jsonPath("$.content[0].description").doesNotExist())
             .andExpect(jsonPath("$.content[0].alsoOn[0].siteName").value("Collective"))
@@ -450,6 +452,7 @@ class OfferControllerTest {
             new OfferMatchDto(83, List.of("Java"), OfferMatchDto.RateFit.MEETS, OfferMatchDto.PlaceFit.NEAR, null), "Call Léa",
             new OfferApplication(LocalDate.of(2026, 10, 20), ApplicationChannel.EMAIL), new OfferRateMarketDto(9, 550, 34, "Java", "Île-de-France"),
             List.of(OfferSuspicion.SAME_TEXT_MANY_PUBLISHERS), new OfferPublisherSpreadDto(3, 520, 600),
-            new OfferHistoryDto(3, List.of(new OfferHistoryDto.Change(OfferChangeField.RATE, "|500", "|550", Instant.parse("2026-10-20T08:00:00Z")))));
+            new OfferHistoryDto(3, List.of(new OfferHistoryDto.Change(OfferChangeField.RATE, "|500", "|550", Instant.parse("2026-10-20T08:00:00Z")))),
+            new OfferCommuteDto(18, 26, 42, 48));
     }
 }

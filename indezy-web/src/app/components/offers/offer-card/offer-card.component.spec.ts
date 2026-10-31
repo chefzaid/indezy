@@ -56,6 +56,17 @@ describe('OfferCardComponent', () => {
     return (fixture.nativeElement as HTMLElement).querySelector(selector) as HTMLElement;
   }
 
+  it('shows the estimated trip from the profile city, off-peak to rush hour, by car and by transit', () => {
+    const fixture = create(offer({ commute: { carMinutes: 18, carRushMinutes: 26, transitMinutes: 42, transitRushMinutes: 48 } }));
+    expect(element(fixture, '[data-fact="commute"]').textContent?.replace(/\s+/g, ' '))
+      .toContain('≈ 18 min – 26 min en voiture · ≈ 42 min – 48 min en transports');
+    expect(element(fixture, '[data-fact="commute"]').title).toContain('heure de pointe');
+  });
+
+  it('shows no trip without an estimate', () => {
+    expect(element(create(), '[data-fact="commute"]')).toBeNull();
+  });
+
   it('shows the site, the facts and the skills of a new offer', () => {
     const fixture = create();
 

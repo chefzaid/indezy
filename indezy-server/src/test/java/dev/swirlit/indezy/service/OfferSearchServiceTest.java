@@ -16,6 +16,7 @@ import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.OfferSiteStatus;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
@@ -64,6 +65,23 @@ class OfferSearchServiceTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    void estimatesNoTripToAFullyRemoteMission() {
+        JobOffer offer = offer(7L);
+        offer.setWorkMode(WorkMode.REMOTE);
+        when(offers.findAll(any(Specification.class), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(offer), PageRequest.of(0, 20), 1));
+        when(offers.findSkillsOf(List.of(7L))).thenReturn(List.of());
+        when(freelances.findProfileCity(3L)).thenReturn(Optional.of("Paris"));
+        when(geoLocator.locate("Paris", null)).thenReturn(Optional.of(new GeoLocator.Place("Paris", "75", "11", 48.8589, 2.347)));
+
+        OfferDto dto = service.search(3L, new OfferSearchRequest()).content().get(0);
+
+        assertThat(dto.distanceKm()).isEqualTo(8);
+        assertThat(dto.commute()).isNull();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     void answersAPageWithSkillsStatesAndDistances() {
         JobOffer offer = offer(7L);
         when(offers.findAll(any(Specification.class), any(Pageable.class)))
@@ -84,6 +102,10 @@ class OfferSearchServiceTest {
         assertThat(dto.seen()).isTrue();
         assertThat(dto.importedProjectId()).isEqualTo(12L);
         assertThat(dto.distanceKm()).isEqualTo(8);
+        // About 10 km of road from Paris to La Défense: some 20 minutes by car, Île-de-France's rush hour slowing it.
+        assertThat(dto.commute().carMinutes()).isBetween(18, 22);
+        assertThat(dto.commute().carRushMinutes()).isGreaterThan(dto.commute().carMinutes());
+        assertThat(dto.commute().transitMinutes()).isGreaterThan(dto.commute().carMinutes());
         assertThat(dto.departmentName()).isEqualTo("Hauts-de-Seine");
         assertThat(dto.regionName()).isEqualTo("Île-de-France");
         assertThat(dto.description()).isNull();
@@ -241,6 +263,7 @@ class OfferSearchServiceTest {
         assertThat(dto.skills()).isEmpty();
         assertThat(dto.expired()).isTrue();
         assertThat(dto.distanceKm()).isNull();
+        assertThat(dto.commute()).isNull();
         assertThatThrownBy(() -> service.get(null, 8L)).isInstanceOf(ResourceNotFoundException.class);
     }
 

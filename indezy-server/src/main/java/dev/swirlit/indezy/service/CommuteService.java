@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import tools.jackson.databind.JsonNode;
 import dev.swirlit.indezy.dto.CommuteInfoDto;
+import dev.swirlit.indezy.dto.OfferCommuteDto;
 import dev.swirlit.indezy.dto.ProjectCommuteDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -320,7 +321,23 @@ public class CommuteService {
 
     /** Whether a place lies in Île-de-France, whose roads are the most jammed at rush hour. */
     static boolean ileDeFrance(GeoLocator.Place place) {
-        return place.departmentCode() != null && ILE_DE_FRANCE.contains(place.departmentCode());
+        return ileDeFrance(place.departmentCode());
+    }
+
+    static boolean ileDeFrance(String departmentCode) {
+        return departmentCode != null && ILE_DE_FRANCE.contains(departmentCode);
+    }
+
+    /** An offer's trip from {@code straightKm} away, Île-de-France's rush hour applying when the offer lies there. */
+    public static OfferCommuteDto offerCommute(double straightKm, String departmentCode) {
+        Trip car = estimated(straightKm, TravelMode.DRIVING, ileDeFrance(departmentCode));
+        Trip transit = estimated(straightKm, TravelMode.TRANSIT, ileDeFrance(departmentCode));
+        return new OfferCommuteDto(minutes(car.seconds()), minutes(car.rushSeconds()), minutes(transit.seconds()),
+            minutes(transit.rushSeconds()));
+    }
+
+    private static int minutes(int seconds) {
+        return (int) Math.round(seconds / 60.0);
     }
 
     /** The next weekday at 8:30, Paris time, after {@code now}: when commutes are measured. */

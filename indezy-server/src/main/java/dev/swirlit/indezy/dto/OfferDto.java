@@ -65,7 +65,9 @@ public record OfferDto(
     /** The intermediaries publishing the mission and their rates; absent when one publishes it. */
     OfferPublisherSpreadDto publisherSpread,
     /** What changed on the offer and how often its mission came back; absent without either. */
-    OfferHistoryDto history) {
+    OfferHistoryDto history,
+    /** The estimated trip from the profile's city; absent without both places or for a fully remote mission. */
+    OfferCommuteDto commute) {
 
     public OfferDto {
         skills = skills == null ? List.of() : List.copyOf(skills);

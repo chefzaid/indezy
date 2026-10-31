@@ -77,6 +77,12 @@
         }
       </li>
     }
+    @if (offer.commute; as commute) {
+      <li data-fact="commute" [attr.title]="'offers.card.commuteHint' | translate">
+        <mat-icon aria-hidden="true">commute</mat-icon>{{ 'offers.card.commute' | translate: {
+          car: tripRange(commute.carMinutes, commute.carRushMinutes), transit: tripRange(commute.transitMinutes, commute.transitRushMinutes) } }}
+      </li>
+    }
     @if (offer.workMode) {
       <li data-fact="remote">
         <mat-icon aria-hidden="true">home_work</mat-icon>{{ remoteKey | translate: { days: offer.remoteDaysPerWeek } }}

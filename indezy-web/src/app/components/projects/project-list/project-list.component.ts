@@ -43,6 +43,7 @@ import { IdSelection } from '../../../shared/utils/id-selection';
 import { filtersFromParams, filtersToParams } from '../../../services/project/project-filter-url';
 import { ProjectSelectionBarComponent } from '../../project-selection-bar/project-selection-bar.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { tripTime } from '../../../shared/utils/trip-time';
 
 @Component({
     selector: 'app-project-list',
@@ -417,8 +418,7 @@ export class ProjectListComponent implements OnInit {
 
   /** A time as minutes, or hours and minutes ("1 h 05"). */
   formatMinutes(seconds: number): string {
-    const minutes = Math.round(seconds / 60);
-    return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, '0')}`;
+    return tripTime(seconds / 60);
   }
 
   /** One trip's distance: Google's own words, else kilometres. */

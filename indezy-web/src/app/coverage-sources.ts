@@ -225,4 +225,5 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'shared/utils/skill-match',
   'shared/utils/skill-names',
   'shared/utils/trimmed-email',
+  'shared/utils/trip-time',
 ];

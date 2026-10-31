@@ -1694,7 +1694,9 @@
       "suspicious": "Douteuse",
       "publisherPage": "Ce que {{publisher}} publie dans le fil",
       "spread": "{{count}} intermédiaires",
-      "spreadRates": "{{count}} intermédiaires, {{rates}}"
+      "spreadRates": "{{count}} intermédiaires, {{rates}}",
+      "commute": "{{car}} en voiture · {{transit}} en transports",
+      "commuteHint": "Estimation depuis votre ville : heures creuses, puis heure de pointe (un jour de semaine à 8 h 30)"
     },
     "match": {
       "score": "{{score}} %",

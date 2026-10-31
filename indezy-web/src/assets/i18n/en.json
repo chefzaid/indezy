@@ -1694,7 +1694,9 @@
       "suspicious": "Looks suspicious",
       "publisherPage": "What {{publisher}} puts in the feed",
       "spread": "{{count}} intermediaries",
-      "spreadRates": "{{count}} intermediaries, {{rates}}"
+      "spreadRates": "{{count}} intermediaries, {{rates}}",
+      "commute": "{{car}} by car · {{transit}} by transit",
+      "commuteHint": "Estimated from your city: off-peak, then at rush hour (a weekday at 8:30)"
     },
     "match": {
       "score": "{{score}}%",

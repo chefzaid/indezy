@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import dev.swirlit.indezy.dto.CommuteInfoDto;
+import dev.swirlit.indezy.dto.OfferCommuteDto;
 import dev.swirlit.indezy.dto.ProjectCommuteDto;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -309,6 +310,17 @@ class CommuteServiceTest {
         assertThat(CommuteService.estimated(100, TravelMode.TRANSIT, false).seconds())
             .isEqualTo((int) Math.round((10 / 18.0 * 60 + 40 + 90 / 70.0 * 60 + 15) * 60));
         assertThat(CommuteService.estimated(10, TravelMode.DRIVING, false).meters()).isEqualTo(13000);
+    }
+
+    @Test
+    void estimatesAnOffersTripInMinutesWithTheRushHourOfItsRegion() {
+        OfferCommuteDto paris = CommuteService.offerCommute(30, "92");
+        OfferCommuteDto lyon = CommuteService.offerCommute(30, "69");
+        assertThat(paris.carMinutes()).isEqualTo(lyon.carMinutes())
+            .isEqualTo((int) Math.round(CommuteService.estimated(30, TravelMode.DRIVING, true).seconds() / 60.0));
+        assertThat(paris.carRushMinutes()).isGreaterThan(lyon.carRushMinutes());
+        assertThat(paris.transitRushMinutes()).isEqualTo(lyon.transitRushMinutes()).isGreaterThan(paris.transitMinutes());
+        assertThat(CommuteService.offerCommute(30, null)).isEqualTo(lyon);
     }
 
     @Test

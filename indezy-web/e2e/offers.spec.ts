@@ -14,6 +14,7 @@ test('browses, filters, saves, hides and imports freelance offers (en)', async (
   await expect(first).toContainText('New');
   await expect(first.locator('[data-fact="place"]')).toContainText('Courbevoie (92)');
   await expect(first.locator('[data-fact="remote"]')).toContainText('Hybrid · 2 remote days a week');
+  await expect(first.locator('[data-fact="commute"]')).toContainText('≈ 18 min – 26 min by car · ≈ 42 min – 48 min by transit');
   await expect(first.locator('[data-also-on]')).toContainText('Also on');
   await expect(first.locator('[data-also-on]').getByRole('link', { name: 'Collective' })).toHaveAttribute('href', copy.url);
   await expect(first.locator('[data-match]')).toHaveText(/80%/);

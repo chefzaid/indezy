@@ -9,6 +9,7 @@ export function offer(id: number, overrides: Record<string, unknown> = {}): Mock
     title: `Développeur Java ${id}`, company: 'Exemple Conseil', excerpt: 'Refonte d\'un SI bancaire en Java 21 et Spring Boot.',
     rateMin: 550, rateMax: 650, city: 'Courbevoie', departmentCode: '92', departmentName: 'Hauts-de-Seine', countryCode: 'FR',
     workMode: 'HYBRID', remoteDaysPerWeek: 2, durationMonths: 6, startDate: '2026-11-02', seniority: 'SENIOR',
+    commute: { carMinutes: 18, carRushMinutes: 26, transitMinutes: 42, transitRushMinutes: 48 },
     skills: ['Java', 'Spring Boot', 'Kafka'], publishedAt: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
     datePrecision: 'EXACT', expired: false, saved: false, hidden: false, seen: false, ...overrides
   };

@@ -19,6 +19,7 @@ import { OfferShareService } from '../../../services/offer/offer-share.service';
 import { describeOfferChange } from '../../../services/offer/offer-history';
 import { relativeDay, relativeTime } from '../../../shared/utils/relative-time';
 import { isMatchedSkill, offerDurationKey, offerPlace, offerRate, offerRemoteKey, offerSkillsMatchedFirst } from '../../../shared/utils/offer-format';
+import { tripRange } from '../../../shared/utils/trip-time';
 
 /** Skills shown before the rest collapse into "+n". */
 const VISIBLE_SKILLS = 8;
@@ -137,6 +138,9 @@ export class OfferCardComponent {
   get place(): string {
     return offerPlace(this.offer);
   }
+
+  /** "≈ 50 min – 1 h 45": an estimated trip from off-peak to rush hour. */
+  readonly tripRange = tripRange;
 
   /** Translation key of the work mode, with the remote days when known. */
   get remoteKey(): string {

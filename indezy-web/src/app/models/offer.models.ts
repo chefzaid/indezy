@@ -99,6 +99,8 @@ export interface Offer {
   regionName?: string;
   countryCode?: string;
   distanceKm?: number;
+  /** The trip from the profile's city, estimated from the straight line; absent without both places or for a remote mission. */
+  commute?: OfferCommute;
   workMode?: WorkMode;
   remoteDaysPerWeek?: number;
   durationMonths?: number;
@@ -483,4 +485,12 @@ export function publisherKey(name: string | undefined | null): string {
 
 export function emptyOfferFilters(): OfferFilters {
   return { regions: [], departments: [], workModes: [], sites: [], seniorities: [], skills: [] };
+}
+
+/** Estimated minutes from the profile's city to an offer's, off-peak and at rush hour (a weekday at 8:30). */
+export interface OfferCommute {
+  carMinutes: number;
+  carRushMinutes: number;
+  transitMinutes: number;
+  transitRushMinutes: number;
 }

@@ -63,7 +63,7 @@ class SavedSearchEmailComposerTest {
     void tellsTheFactsAnOfferStates() {
         OfferDto bare = new OfferDto(9L, OfferSite.KICKLOX, "Kicklox", "https://app.kicklox.com/missions/9", "Pentester", null, null, null,
             null, 700, null, null, "69", "Rhône", null, "FR", null, WorkMode.HYBRID, null, null, null, null, null, List.of(), CUTOFF,
-            OfferDatePrecision.EXACT, null, false, false, false, false, null, List.of(), null, null, null, null, null, null, null);
+            OfferDatePrecision.EXACT, null, false, false, false, false, null, List.of(), null, null, null, null, null, null, null, null);
 
         assertThat(SavedSearchEmailComposer.facts(bare, DocumentLanguage.EN)).containsExactly("Rhône", "Hybrid", "€700 / day");
     }
@@ -81,6 +81,6 @@ class SavedSearchEmailComposerTest {
     private static OfferDto offer(Long id, String title, WorkMode mode, Integer remoteDays, OfferMatchDto match, List<OfferSuspicion> suspicion) {
         return new OfferDto(id, OfferSite.FREE_WORK, "Free-Work", "https://www.free-work.com/" + id, title, "Exemple Conseil", null, null,
             550, 650, "Lyon", "69002", "69", "Rhône", "Auvergne-Rhône-Alpes", "FR", null, mode, remoteDays, 6, null, null, null, List.of("Java"),
-            CUTOFF, OfferDatePrecision.EXACT, null, false, false, false, false, null, List.of(), match, null, null, null, suspicion, null, null);
+            CUTOFF, OfferDatePrecision.EXACT, null, false, false, false, false, null, List.of(), match, null, null, null, suspicion, null, null, null);
     }
 }

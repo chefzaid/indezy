@@ -325,9 +325,12 @@ an offer set aside (salaried, older than 90 days, gone) is not read again for 30
 on the [Job boards](#site-health) page; the next ones are planned in
 [TODO.md](../TODO.md#freelance-offer-feed-added-2026-10-19).
 
-A card shows the site, title, publisher, daily rate, place with its distance from the profile's city, work mode (read
-from the text when the site gives none), duration, start, seniority, skills, an excerpt and its age; unseen offers are
-marked **New**.
+A card shows the site, title, publisher, daily rate, place with its distance from the profile's city, the trip there by
+car and by public transport from off-peak to rush hour (`≈ 18 min – 26 min by car · ≈ 42 min – 48 min by transit`,
+estimated from the straight line as described under [Commute-Time Sorting](#commute-time-sorting), none for a fully
+remote mission), work mode (read from the text when the site gives none), duration, start, seniority, skills, an excerpt
+and its age; unseen offers are marked **New**. The **distance** sort is also the commute order, the estimate growing
+with the distance.
 
 - **Filters** (kept in the address): keywords in the offer or the workspace's note, rate range, regions, departments,
   distance (10 to 200 km), work modes, remote days, duration, start date, seniority, skills, publication age, sites,
