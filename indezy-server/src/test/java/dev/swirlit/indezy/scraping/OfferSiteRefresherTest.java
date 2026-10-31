@@ -88,7 +88,7 @@ class OfferSiteRefresherTest {
 
     private OfferSiteRefresher refresher(boolean collectionEnabled) {
         OfferProperties properties = new OfferProperties(collectionEnabled, Duration.ofMinutes(5), Duration.ofSeconds(2), 10,
-            Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1");
+            Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1", "http://127.0.0.1:9/geocodage");
         return new OfferSiteRefresher(runs, statuses, collector, properties, tasks::add, Clock.fixed(NOW, ZoneOffset.UTC));
     }
 }

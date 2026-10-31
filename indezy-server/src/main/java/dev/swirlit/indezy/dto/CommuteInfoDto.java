@@ -24,14 +24,18 @@ public class CommuteInfoDto {
     private TravelMode travelMode;
     private Integer durationInSeconds;
     private String durationText;
+    /** One trip at rush hour (a weekday at 8:30), when known: the monthly commute counts it. */
+    private Integer rushDurationInSeconds;
     private Integer distanceInMeters;
     private String distanceText;
     /** A fully remote mission: no commute, nothing looked up. */
     private boolean remote;
     /** Days on site a month: as the mission states them, else 20 on site and 10 hybrid. */
     private Integer onsiteDaysPerMonth;
-    /** The commute's time a month, there and back on each day on site; 0 for a remote mission. */
+    /** The commute's time a month, there and back on each day on site, at rush hour when known; 0 for a remote mission. */
     private Integer monthlySeconds;
+    /** Estimated from the straight line between the two addresses, without Google: no road was looked up. */
+    private boolean estimated;
     /** Why there is no time, when there is none. */
     private CommuteUnavailable unavailable;
 }

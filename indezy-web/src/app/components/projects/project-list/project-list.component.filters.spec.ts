@@ -218,6 +218,24 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
       expect(fixture.nativeElement.querySelector('[data-commute="1"] a')).toBeNull();
     });
 
+    it('shows a trip estimated without Google as such', () => {
+      const fixture = create();
+      commuteService.getProjectsSortedByCommute.and.returnValue(of([
+        { project: missions[0], commute: commute(1, undefined, { durationInSeconds: 2820, rushDurationInSeconds: 6300, distanceInMeters: 9700,
+          estimated: true, monthlySeconds: 252000 }) }]));
+
+      fixture.componentInstance.loadCommuteData();
+      fixture.detectChanges();
+
+      const shown = fixture.nativeElement.querySelector('[data-commute="1"]').textContent.replace(/\s+/g, ' ');
+      expect(shown).toContain('≈ 47 min');
+      expect(shown).toContain('(≈ 10 km)');
+      expect(fixture.nativeElement.querySelector('[data-commute-rush]')).not.toBeNull();
+      expect(shown).toContain('projects.commute.estimate');
+      expect(shown).not.toContain('projects.commute.reasons');
+      expect(fixture.componentInstance.tripTime(commute(1, undefined, { durationInSeconds: 3900 }))).toBe('1 h 05');
+    });
+
     it('gives a commute\'s hours a month, and none for a remote mission', () => {
       const fixture = create();
       commuteService.getProjectsSortedByCommute.and.returnValue(of([

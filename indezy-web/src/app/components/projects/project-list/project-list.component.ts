@@ -410,6 +410,22 @@ export class ProjectListComponent implements OnInit {
     return this.commuteData.get(projectId);
   }
 
+  /** One trip's time: Google's own words, else minutes, or hours and minutes ("1 h 05"). */
+  tripTime(commute: CommuteInfoDto): string {
+    return commute.durationText ?? this.formatMinutes(commute.durationInSeconds ?? 0);
+  }
+
+  /** A time as minutes, or hours and minutes ("1 h 05"). */
+  formatMinutes(seconds: number): string {
+    const minutes = Math.round(seconds / 60);
+    return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, '0')}`;
+  }
+
+  /** One trip's distance: Google's own words, else kilometres. */
+  tripDistance(commute: CommuteInfoDto): string {
+    return commute.distanceText ?? `${Math.round((commute.distanceInMeters ?? 0) / 1000)} km`;
+  }
+
   /** The commute's hours a month, to the tenth. */
   monthlyHours(commute: CommuteInfoDto): number {
     return Math.round((commute.monthlySeconds ?? 0) / 360) / 10;

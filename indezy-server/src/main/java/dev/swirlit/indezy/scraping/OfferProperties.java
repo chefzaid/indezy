@@ -17,6 +17,8 @@ import java.time.Duration;
  * @param userAgent how Indezy introduces itself to the sites
  * @param geocodingEnabled whether places are looked up on {@code geocodingUrl} (the French government API)
  * @param geocodingUrl base URL of the geocoding API
+ * @param addressUrl base URL of the national address search (IGN's Géoplateforme, free and keyless), which locates the
+ *                   home and client addresses of the commute estimates
  */
 @ConfigurationProperties(prefix = "indezy.offers")
 public record OfferProperties(
@@ -28,5 +30,6 @@ public record OfferProperties(
     @DefaultValue("90") int retentionDays,
     @DefaultValue("Mozilla/5.0 (compatible; IndezyBot/1.0; +https://indezy.swirlit.dev)") String userAgent,
     @DefaultValue("false") boolean geocodingEnabled,
-    @DefaultValue("https://geo.api.gouv.fr") String geocodingUrl) {
+    @DefaultValue("https://geo.api.gouv.fr") String geocodingUrl,
+    @DefaultValue("https://data.geopf.fr/geocodage") String addressUrl) {
 }

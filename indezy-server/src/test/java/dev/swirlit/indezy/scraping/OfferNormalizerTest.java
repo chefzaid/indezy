@@ -26,7 +26,7 @@ class OfferNormalizerTest {
     private final GeoLocator geoLocator = mock(GeoLocator.class);
     private final OfferNormalizer normalizer = new OfferNormalizer(geoLocator, new OfferProperties(true,
         java.time.Duration.ofMinutes(5), java.time.Duration.ofSeconds(2), 10, java.time.Duration.ofHours(1), 90, "IndezyBot/test",
-        false, "http://127.0.0.1"));
+        false, "http://127.0.0.1", "http://127.0.0.1:9/geocodage"));
 
     @Test
     void completesAFreelanceOffer() {

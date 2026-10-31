@@ -583,10 +583,18 @@ on the profile, and shows the net daily, monthly and yearly revenue and the work
 ## Commute-Time Sorting
 
 **Sort by → Commute time** on the opportunities list orders missions by their monthly commute, by car or public
-transport: one trip from the profile's address to the client's (Google Distance Matrix) times the days on site (none
-when remote, listed first; else the mission's days, else 20 less its remote days, else 20 on site or 10 hybrid). A
-mission without a time says why. Answers are kept a week; the Google Maps key is set up as [Development](./development.md)
-and [Deployment](./deployment.md) describe.
+transport: one trip from the profile's address to the client's, at rush hour, there and back, times the days on site
+(none when remote, listed first; else the mission's days, else 20 less its remote days, else 20 on site or 10 hybrid). A
+mission without a time says why.
+
+Without a Google Maps key (production's choice: free), both addresses are located through the national address search
+(IGN's Géoplateforme, each address searched once and kept) and the trip is estimated from the straight line: roads 1.3
+times longer; a car at 30, 50 or 80 km/h by distance plus 5 minutes, public transport at 18, 35 or 70 km/h plus 15
+minutes. At rush hour (a weekday at 8:30) a car takes 2.2 times as long on a trip over 10 km touching Île-de-France
+(Issou to Montrouge: about 50 minutes, 1 h 45 at rush hour), 1.4 times elsewhere and 1.2 on a short trip; public
+transport 1.15 times. The list shows `≈ 50 min (≈ 56 km) · ≈ 1 h 45 at rush hour` marked **estimation**. With a key
+(set up as [Development](./development.md) describes), Google's Distance Matrix gives the time and its time in traffic
+for that departure, answers kept a week.
 
 ## Filtering And Search Surfaces
 

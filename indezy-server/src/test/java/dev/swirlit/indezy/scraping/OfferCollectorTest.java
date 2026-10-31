@@ -34,7 +34,7 @@ class OfferCollectorTest {
     private final OfferStore store = mock(OfferStore.class);
     private final OfferSiteRuns runs = mock(OfferSiteRuns.class);
     private final OfferProperties properties = new OfferProperties(true, Duration.ofMinutes(5), Duration.ofSeconds(2), 3,
-        Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1");
+        Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1", "http://127.0.0.1:9/geocodage");
 
     @Test
     void stopsANewestFirstSiteAtTheFirstPageOfKnownOffers() {

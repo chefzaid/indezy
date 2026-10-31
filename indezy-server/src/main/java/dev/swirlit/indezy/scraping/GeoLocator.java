@@ -15,8 +15,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Duration;
+import java.util.HexFormat;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,6 +36,11 @@ public class GeoLocator {
     }
 
     private static final Duration TIMEOUT = Duration.ofSeconds(8);
+    /** Addresses are cached beside the cities, told apart by this prefix. */
+    private static final String ADDRESS_KEY = "address|";
+    private static final int MAX_KEY = 200;
+    /** Below this confidence the search guessed (a street of another town, a lone city): the address is left unknown. */
+    static final double MIN_ADDRESS_SCORE = 0.4;
 
     private final GeoPlaceRepository places;
     private final OfferProperties properties;
@@ -122,6 +130,76 @@ public class GeoLocator {
             place.setLongitude(longitude);
         }
         return place;
+    }
+
+    /** Whether places are looked up at all on this server. */
+    public boolean canLocate() {
+        return properties.geocodingEnabled();
+    }
+
+    /**
+     * The street address {@code address} (number, street, postal code and city, in any order), from the national
+     * address search; empty when unknown, too uncertain or not looked up. Cached like the cities.
+     */
+    public Optional<Place> locateAddress(String address) {
+        String words = Objects.requireNonNullElse(TextFolding.words(address), "");
+        if (words.isEmpty()) {
+            return Optional.empty();
+        }
+        String key = ADDRESS_KEY + (words.length() + ADDRESS_KEY.length() <= MAX_KEY ? words : sha256(words));
+        Optional<GeoPlace> cached = places.findById(key);
+        if (cached.isPresent()) {
+            return toPlace(cached.get());
+        }
+        if (!properties.geocodingEnabled()) {
+            return Optional.empty();
+        }
+        try {
+            HttpRequest request = HttpRequest.newBuilder(URI.create(properties.addressUrl() + "/search?limit=1&q=" +
+                    URLEncoder.encode(address.strip(), StandardCharsets.UTF_8)))
+                .timeout(TIMEOUT)
+                .header("User-Agent", properties.userAgent())
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+            HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() != 200) {
+                throw new IOException("address search answered " + response.statusCode());
+            }
+            GeoPlace place = new GeoPlace();
+            place.setQueryKey(key);
+            place.setResolvedAt(clock.instant());
+            JsonNode feature = Json.parse(response.body()).path("features").path(0);
+            JsonNode coordinates = feature.path("geometry").path("coordinates");
+            Double longitude = Json.decimal(coordinates.path(0));
+            Double latitude = Json.decimal(coordinates.path(1));
+            Double score = Json.decimal(feature.path("properties").path("score"));
+            if (latitude != null && longitude != null && score != null && score >= MIN_ADDRESS_SCORE) {
+                place.setFound(true);
+                place.setCity(Json.text(feature.path("properties").path("city")));
+                String context = Json.text(feature.path("properties").path("context"));
+                place.setDepartmentCode(context == null ? null : context.split(",")[0].strip());
+                place.setLatitude(latitude);
+                place.setLongitude(longitude);
+            }
+            places.save(place);
+            return toPlace(place);
+        } catch (IOException e) {
+            // The address is personal data: only the failure is logged.
+            log.warn("Address search unavailable: {}", e.getClass().getSimpleName());
+            return Optional.empty();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return Optional.empty();
+        }
+    }
+
+    private static String sha256(String text) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(text.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private static Optional<Place> toPlace(GeoPlace place) {

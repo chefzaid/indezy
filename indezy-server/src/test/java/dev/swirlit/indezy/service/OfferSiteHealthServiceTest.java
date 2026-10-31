@@ -162,6 +162,6 @@ class OfferSiteHealthServiceTest {
 
     static OfferProperties properties(boolean collectionEnabled) {
         return new OfferProperties(collectionEnabled, Duration.ofMinutes(5), Duration.ofSeconds(2), 10, Duration.ofHours(1), 90,
-            "IndezyBot/test", false, "http://127.0.0.1");
+            "IndezyBot/test", false, "http://127.0.0.1", "http://127.0.0.1:9/geocodage");
     }
 }

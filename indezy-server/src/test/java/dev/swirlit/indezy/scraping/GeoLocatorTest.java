@@ -39,6 +39,9 @@ class GeoLocatorTest {
     private volatile String answerWithPostalCode;
     private volatile String answer = "[{\"nom\":\"Courbevoie\",\"centre\":{\"type\":\"Point\",\"coordinates\":[2.2574,48.8976]}," +
         "\"codeDepartement\":\"92\",\"codeRegion\":\"11\"}]";
+    private volatile String addressAnswer = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\"," +
+        "\"geometry\":{\"type\":\"Point\",\"coordinates\":[2.3310,48.8690]},\"properties\":{\"label\":\"10 Rue de la Paix 75002 Paris\"," +
+        "\"score\":0.97,\"city\":\"Paris\",\"context\":\"75, Paris, Île-de-France\"}}]}";
     private final GeoPlaceRepository places = mock(GeoPlaceRepository.class);
     private final OfferMetrics metrics = mock(OfferMetrics.class);
 
@@ -50,6 +53,14 @@ class GeoLocatorTest {
             queries.add(query);
             String reply = answerWithPostalCode != null && query.contains("codePostal") ? answerWithPostalCode : answer;
             byte[] body = reply.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(status, body.length);
+            try (OutputStream out = exchange.getResponseBody()) {
+                out.write(body);
+            }
+        });
+        server.createContext("/geocodage/search", exchange -> {
+            queries.add("address:" + exchange.getRequestURI().getRawQuery());
+            byte[] body = addressAnswer.getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(status, body.length);
             try (OutputStream out = exchange.getResponseBody()) {
                 out.write(body);
@@ -156,9 +167,47 @@ class GeoLocatorTest {
         verify(metrics).geocodingTimedOut();
     }
 
+    @Test
+    void locatesAStreetAddressOnceAndKeepsIt() {
+        GeoLocator locator = locator(true);
+        assertThat(locator.canLocate()).isTrue();
+
+        assertThat(locator.locateAddress(" 10 rue de la Paix, Paris ")).contains(new GeoLocator.Place("Paris", "75", null, 48.869, 2.331));
+        assertThat(queries).singleElement().asString().isEqualTo("address:limit=1&q=10+rue+de+la+Paix%2C+Paris");
+        ArgumentCaptor<GeoPlace> saved = ArgumentCaptor.forClass(GeoPlace.class);
+        verify(places).save(saved.capture());
+        assertThat(saved.getValue().getQueryKey()).isEqualTo("address|10 rue de la paix paris");
+
+        GeoPlace cached = saved.getValue();
+        when(places.findById("address|10 rue de la paix paris")).thenReturn(Optional.of(cached));
+        assertThat(locator.locateAddress("10 rue de la Paix, Paris")).isPresent();
+        assertThat(queries).hasSize(1);
+    }
+
+    @Test
+    void leavesAnUncertainOrUnreachableAddressUnknown() {
+        addressAnswer = addressAnswer.replace("0.97", "0.31");
+        assertThat(locator(true).locateAddress("rue inconnue")).isEmpty();
+        ArgumentCaptor<GeoPlace> saved = ArgumentCaptor.forClass(GeoPlace.class);
+        verify(places).save(saved.capture());
+        assertThat(saved.getValue().isFound()).isFalse();
+
+        status = 500;
+        assertThat(locator(true).locateAddress("autre adresse")).isEmpty();
+        assertThat(locator(false).locateAddress("10 rue de la Paix")).isEmpty();
+        assertThat(locator(false).canLocate()).isFalse();
+        assertThat(locator(true).locateAddress("  ")).isEmpty();
+        // A very long address is kept under its hash.
+        status = 200;
+        addressAnswer = addressAnswer.replace("0.31", "0.9");
+        locator(true).locateAddress("a".repeat(300));
+        verify(places, org.mockito.Mockito.atLeastOnce()).findById(org.mockito.ArgumentMatchers.matches("address\\|[0-9a-f]{64}"));
+    }
+
     private GeoLocator locator(boolean enabled) {
         OfferProperties properties = new OfferProperties(true, Duration.ofMinutes(5), Duration.ofSeconds(2), 10,
-            Duration.ofHours(1), 90, "IndezyBot/test", enabled, "http://127.0.0.1:" + server.getAddress().getPort());
+            Duration.ofHours(1), 90, "IndezyBot/test", enabled, "http://127.0.0.1:" + server.getAddress().getPort(),
+            "http://127.0.0.1:" + server.getAddress().getPort() + "/geocodage");
         return new GeoLocator(places, properties, HttpClient.newHttpClient(), Clock.fixed(NOW, ZoneOffset.UTC), metrics);
     }
 }

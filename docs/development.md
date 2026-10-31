@@ -90,10 +90,12 @@ The production images are built by CI from each application's `Dockerfile.runtim
 Environment variables of note:
 
 - `JWT_SECRET`: the token signing key; the default is for local use only.
-- `GOOGLE_MAPS_API_KEY`: commute times; see [Google Maps API Key](#google-maps-api-key).
+- `GOOGLE_MAPS_API_KEY` (unset): commute times from Google instead of the free estimate; see
+  [Google Maps API Key](#google-maps-api-key).
 - `INDEZY_OFFERS_COLLECTION_ENABLED` (`true`): a local run reads the job boards in the background a minute after
   startup, 2 seconds between requests; set it to `false` to work offline or on the sample offers of `data-dev.sql`.
-- `INDEZY_OFFERS_GEOCODING_ENABLED` (`true`): looks up offer cities on `geo.api.gouv.fr`.
+- `INDEZY_OFFERS_GEOCODING_ENABLED` (`true`): looks up offer cities on `geo.api.gouv.fr`, and the home and client
+  addresses of the commute estimates on IGN's Géoplateforme (`data.geopf.fr/geocodage`).
 
 The other `indezy.offers.*` settings (`tick`, `request-delay`, `max-pages`, `retention-days`, `stale-run-after`,
 `user-agent`) have their defaults in `OfferProperties`. See [Features](./features.md#freelance-offer-feed) for what the
@@ -116,15 +118,14 @@ into Chromium. To package it for a store, zip the folder's contents (`cd extensi
 
 ## Google Maps API Key
 
-Commute-time sorting uses the Google Maps Distance Matrix API. Create a key in a Google Cloud project with the
-Distance Matrix API enabled, restrict it to that API (and to the server's IP when possible), and export it before
-starting the backend:
+Commute-time sorting needs no key: it estimates each trip from the addresses located by the national address search
+(see [Features](./features.md#commute-time-sorting)), which production uses. To get Google's real routes instead,
+create a key in a Google Cloud project with the Distance Matrix API enabled (a paid API beyond Google's monthly credit),
+restrict it to that API and the server's IP, and export it before starting the backend:
 
 ```bash
 export GOOGLE_MAPS_API_KEY=your-api-key-here
 ```
-
-Without a key, the app still lists projects, without commute times and distances.
 
 ## Adding Backend Features
 

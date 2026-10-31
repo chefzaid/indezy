@@ -278,7 +278,7 @@ public final class JobOfferSpecifications {
     }
 
     /** {@link #squaredDistance} in Java. */
-    static double squaredDistanceKm(Origin origin, double latitude, double longitude) {
+    public static double squaredDistanceKm(Origin origin, double latitude, double longitude) {
         double north = (latitude - origin.latitude()) * KM_PER_DEGREE_LATITUDE;
         double east = (longitude - origin.longitude()) * kmPerDegreeLongitude(origin);
         return north * north + east * east;

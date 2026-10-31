@@ -35,7 +35,7 @@ class OfferRetentionTest {
     private final OfferChangeRepository changes = mock(OfferChangeRepository.class);
     private final OfferAppearanceRepository appearances = mock(OfferAppearanceRepository.class);
     private final OfferRetention retention = new OfferRetention(offers, states, skips, changes, appearances, new OfferProperties(true, Duration.ofMinutes(5),
-        Duration.ofSeconds(2), 10, Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1"),
+        Duration.ofSeconds(2), 10, Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1", "http://127.0.0.1:9/geocodage"),
         Clock.fixed(NOW, ZoneOffset.UTC));
 
     @Test

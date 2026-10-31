@@ -389,16 +389,20 @@
                     <span>{{ 'projects.commute.remote' | translate }}</span>
                   } @else {
                     <mat-icon aria-hidden="true">{{ getCommuteIcon(commute.travelMode) }}</mat-icon>
-                    @if (commute.durationText) {
-                      <span>{{ commute.durationText }}</span>
-                    }
-                    @if (commute.distanceText) {
-                      <span class="commute-distance">({{ commute.distanceText }})</span>
+                    @if (commute.durationInSeconds) {
+                      <span [attr.data-estimated]="commute.estimated || null">{{ commute.estimated ? '≈ ' : '' }}{{ tripTime(commute) }}</span>
+                      <span class="commute-distance">({{ commute.estimated ? '≈ ' : '' }}{{ tripDistance(commute) }})</span>
+                      @if (commute.rushDurationInSeconds && commute.rushDurationInSeconds !== commute.durationInSeconds) {
+                        <span class="commute-rush" data-commute-rush>· {{ 'projects.commute.rush' | translate:{ time: (commute.estimated ? '≈ ' : '') + formatMinutes(commute.rushDurationInSeconds) } }}</span>
+                      }
                     }
                     @if (commute.monthlySeconds) {
                       <span class="commute-month">· {{ 'projects.commute.perMonth' | translate:{ hours: monthlyHours(commute), days: commute.onsiteDaysPerMonth } }}</span>
                     }
-                    @if (!commute.durationText) {
+                    @if (commute.estimated) {
+                      <span class="commute-estimate" [matTooltip]="'projects.commute.estimateHint' | translate">{{ 'projects.commute.estimate' | translate }}</span>
+                    }
+                    @if (!commute.durationInSeconds) {
                       <span class="commute-unavailable">
                         {{ 'projects.commute.reasons.' + (commute.unavailable ?? 'LOOKUP_FAILED') | translate }}
                         @if (commute.unavailable === 'NO_HOME_ADDRESS') {

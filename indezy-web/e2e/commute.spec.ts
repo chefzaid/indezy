@@ -15,7 +15,8 @@ for (const width of [1280, 390]) {
       { id: 1, role: 'Java developer', dailyRate: 600, status: 'CONTACT', workMode: 'ONSITE' },
       { id: 2, role: 'Kafka engineer', dailyRate: 700, status: 'CONTACT', workMode: 'REMOTE' },
       { id: 3, role: 'Go developer', dailyRate: 450, status: 'CONTACT', workMode: 'HYBRID' },
-      { id: 4, role: 'Data engineer', dailyRate: 500, status: 'CONTACT', workMode: 'ONSITE' }
+      { id: 4, role: 'Data engineer', dailyRate: 500, status: 'CONTACT', workMode: 'ONSITE' },
+      { id: 5, role: 'SRE', dailyRate: 620, status: 'CONTACT', workMode: 'ONSITE' }
     ];
     await page.route('**/api/projects/by-freelance/1', route => route.fulfill({ json: projects }));
     const modes: string[] = [];
@@ -27,13 +28,15 @@ for (const width of [1280, 390]) {
           distanceText: '60 km', monthlySeconds: 57600 }) },
         { project: projects[0], commute: commute(1, { durationInSeconds: 1800, durationText: '30 mins', distanceText: '20 km',
           monthlySeconds: 72000 }) },
-        { project: projects[3], commute: commute(4, { unavailable: 'NO_CLIENT_ADDRESS' }) }
+        { project: projects[3], commute: commute(4, { unavailable: 'NO_CLIENT_ADDRESS' }) },
+        { project: projects[4], commute: commute(5, { durationInSeconds: 3000, rushDurationInSeconds: 6300, distanceInMeters: 56000,
+          estimated: true, monthlySeconds: 252000 }) }
       ] });
     });
 
     await page.goto('/projects');
     const titles = page.locator('.project-title');
-    await expect(titles).toHaveCount(4);
+    await expect(titles).toHaveCount(5);
     if (width < 760) {
       await page.getByRole('button', { name: /Filters/ }).first().click();
     }
@@ -42,12 +45,16 @@ for (const width of [1280, 390]) {
     if (width < 760) {
       await page.keyboard.press('Escape');
     }
-    await expect(titles).toHaveText(['Kafka engineer', 'Go developer', 'Java developer', 'Data engineer']);
+    await expect(titles).toHaveText(['Kafka engineer', 'Go developer', 'Java developer', 'SRE', 'Data engineer']);
+    // Issou to Montrouge by car: some 50 minutes off-peak, 1 h 45 at rush hour, which the month counts.
+    await expect(page.locator('[data-commute="5"]')).toContainText('≈ 50 min');
+    await expect(page.locator('[data-commute="5"]')).toContainText('≈ 1 h 45 at rush hour');
+    await expect(page.locator('[data-commute="5"]')).toContainText('estimate');
     await expect(page.locator('[data-commute="2"]')).toContainText('Remote: no commute');
     await expect(page.locator('[data-commute="3"]')).toContainText('1 hour');
     await expect(page.locator('[data-commute="3"]')).toContainText('(60 km)');
-    await expect(page.locator('[data-commute="3"]')).toContainText('· 16 h a month there and back (8 days on site)');
-    await expect(page.locator('[data-commute="1"]')).toContainText('20 h a month there and back (20 days on site)');
+    await expect(page.locator('[data-commute="3"]')).toContainText('· 16 h a month there and back at rush hour (8 days on site)');
+    await expect(page.locator('[data-commute="1"]')).toContainText('20 h a month there and back at rush hour (20 days on site)');
     await expect(page.locator('[data-commute="4"]')).toContainText('The client has no address.');
     expect(modes).toEqual(['DRIVING']);
     const audit = await new AxeBuilder({ page }).include('.project-list-container').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

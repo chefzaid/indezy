@@ -100,7 +100,7 @@ class SiteHttpClientTest {
         server.start();
         base = "http://" + DOMAIN + ":" + server.getAddress().getPort();
         OfferProperties properties = new OfferProperties(true, Duration.ofMinutes(5), Duration.ofSeconds(2), 10,
-            Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1");
+            Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1", "http://127.0.0.1:9/geocodage");
         Clock clock = Clock.fixed(Instant.parse("2026-10-19T10:00:00Z"), ZoneOffset.UTC);
         client = new SiteHttpClient(properties, HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build(),
             clock, waits::add);
@@ -200,7 +200,7 @@ class SiteHttpClientTest {
         assertThat(client.fetcherFor(DOMAIN).get(base + "/page")).isEqualTo("Café");
 
         SiteHttpClient failing = new SiteHttpClient(new OfferProperties(true, Duration.ofMinutes(5), Duration.ZERO, 10,
-            Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1"),
+            Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1", "http://127.0.0.1:9/geocodage"),
             HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build(), Clock.systemUTC(), waits::add);
         robotsStatus = 503;
         assertThatThrownBy(() -> failing.fetcherFor(DOMAIN).get(base + "/page"))
@@ -273,7 +273,7 @@ class SiteHttpClientTest {
 
     private SiteHttpClient clientAt(Clock clock) {
         return new SiteHttpClient(new OfferProperties(true, Duration.ofMinutes(5), Duration.ofSeconds(2), 10, Duration.ofHours(1), 90,
-            "IndezyBot/test", false, "http://127.0.0.1"), HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build(), clock, waits::add);
+            "IndezyBot/test", false, "http://127.0.0.1", "http://127.0.0.1:9/geocodage"), HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build(), clock, waits::add);
     }
 
     /** A clock the test moves forward. */

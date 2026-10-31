@@ -24,7 +24,7 @@ class OfferSiteRunsTest {
     private final OfferSiteStatusRepository statuses = mock(OfferSiteStatusRepository.class);
     private final OfferMetrics metrics = mock(OfferMetrics.class);
     private final OfferSiteRuns runs = new OfferSiteRuns(statuses, new OfferProperties(true, Duration.ofMinutes(5),
-        Duration.ofSeconds(2), 10, Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1"), metrics);
+        Duration.ofSeconds(2), 10, Duration.ofHours(1), 90, "IndezyBot/test", false, "http://127.0.0.1", "http://127.0.0.1:9/geocodage"), metrics);
 
     @Test
     void createsAStatusOnFirstClaimAndWinsWhenTheUpdateDoes() {

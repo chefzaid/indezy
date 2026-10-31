@@ -15,7 +15,9 @@ import dev.swirlit.indezy.model.enums.CommuteUnavailable;
 import dev.swirlit.indezy.model.enums.TravelMode;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.repository.JobOfferSpecifications;
 import dev.swirlit.indezy.repository.ProjectRepository;
+import dev.swirlit.indezy.scraping.GeoLocator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,6 +64,8 @@ class CommuteServiceTest {
     private ProjectMapper projectMapper;
     @Mock
     private RestTemplate restTemplate;
+    @Mock
+    private GeoLocator geoLocator;
 
     private CommuteService commuteService;
     private Freelance freelance;
@@ -72,7 +76,7 @@ class CommuteServiceTest {
     void setUp() {
         // No API key configured by default: the service must degrade gracefully without calling Google.
         commuteService = new CommuteService(freelanceRepository, projectRepository, projectMapper, restTemplate,
-            Clock.fixed(Instant.parse("2026-10-27T10:00:00Z"), ZoneOffset.UTC));
+            Clock.fixed(Instant.parse("2026-10-27T10:00:00Z"), ZoneOffset.UTC), geoLocator);
         freelance = new Freelance();
         freelance.setId(1L);
         freelance.setAddress("10 rue de la Paix");
@@ -199,7 +203,7 @@ class CommuteServiceTest {
         assertThat(commuteOf(results, 3).getMonthlySeconds()).isEqualTo(36000);
         ArgumentCaptor<URI> asked = ArgumentCaptor.forClass(URI.class);
         verify(restTemplate).getForObject(asked.capture(), eq(JsonNode.class));
-        assertThat(asked.getValue().getRawQuery()).contains("origins=10%20rue%20de%20la%20Paix,%20Paris",
+        assertThat(asked.getValue().getRawQuery()).contains("departure_time=1793172600", "origins=10%20rue%20de%20la%20Paix,%20Paris",
             "destinations=Lyon%7CNanterre%20%7BLa%20D%C3%A9fense%7D", "mode=driving", "key=secret-key");
 
         // Asked again: the answers kept are used; another mode is asked anew.
@@ -257,5 +261,94 @@ class CommuteServiceTest {
             .contains("The Distance Matrix could not be asked: RestClientException", "The Distance Matrix answered REQUEST_DENIED")
             .noneMatch(line -> line.contains("secret-key") || line.contains("rue de la Paix") || line.contains("Lyon"));
         assertThat(logs.list).allMatch(event -> event.getThrowableProxy() == null);
+    }
+
+    @Test
+    void estimatesTheTripFromTheAddressesWithoutAKey() {
+        when(geoLocator.canLocate()).thenReturn(true);
+        when(geoLocator.locateAddress("10 rue de la Paix, Paris")).thenReturn(Optional.of(new GeoLocator.Place("Paris", "75", null, 48.8690, 2.3310)));
+        // La Défense, about 7.5 km away; Lyon, about 390 km.
+        when(geoLocator.locateAddress("La Défense")).thenReturn(Optional.of(new GeoLocator.Place("Puteaux", "92", null, 48.8920, 2.2380)));
+        when(geoLocator.locateAddress("Lyon")).thenReturn(Optional.of(new GeoLocator.Place("Lyon", "69", null, 45.7640, 4.8357)));
+        project(1, "La Défense", WorkMode.ONSITE);
+        project(2, "Lyon", WorkMode.HYBRID).setOnsiteDaysPerMonth(2);
+        project(3, "Nowhere", WorkMode.ONSITE);
+
+        List<ProjectCommuteDto> results = commuteService.getProjectsSortedByCommute(1L, TravelMode.TRANSIT);
+
+        CommuteInfoDto defense = commuteOf(results, 1);
+        assertThat(defense.isEstimated()).isTrue();
+        assertThat(defense.getDurationText()).isNull();
+        assertThat(defense.getDistanceInMeters()).isBetween(9000, 11000);
+        // About 9.7 km of road at 18 km/h, plus a quarter of an hour: some 47 minutes.
+        assertThat(defense.getDurationInSeconds()).isBetween(45 * 60, 50 * 60);
+        // Inside Île-de-France but under 10 km of road: a short drive, yet by transit only a little longer at rush hour.
+        assertThat(defense.getRushDurationInSeconds()).isEqualTo((int) Math.round(defense.getDurationInSeconds() * 1.15));
+        assertThat(defense.getMonthlySeconds()).isEqualTo(defense.getRushDurationInSeconds() * 2 * 20);
+        assertThat(commuteOf(results, 2).getDurationInSeconds()).isBetween(7 * 3600, 8 * 3600);
+        assertThat(commuteOf(results, 3).getUnavailable()).isEqualTo(CommuteUnavailable.NOT_FOUND);
+        assertThat(commuteOf(results, 3).isEstimated()).isFalse();
+        verify(restTemplate, never()).getForObject(any(URI.class), eq(JsonNode.class));
+
+        // A home address the search cannot find: no estimate for anyone.
+        when(geoLocator.locateAddress("10 rue de la Paix, Paris")).thenReturn(Optional.empty());
+        assertThat(commuteOf(commuteService.getProjectsSortedByCommute(1L, TravelMode.DRIVING), 1).getUnavailable())
+            .isEqualTo(CommuteUnavailable.NOT_FOUND);
+    }
+
+    @Test
+    void estimatesByCarAndTransitWithTheirSpeeds() {
+        // 10 km straight: 13 km of road at 50 km/h plus 5 minutes by car; at 18 km/h plus 15 minutes by transit.
+        assertThat(CommuteService.estimated(10, TravelMode.DRIVING, false).seconds()).isEqualTo((int) Math.round((13 / 50.0 * 60 + 5) * 60));
+        assertThat(CommuteService.estimated(10, TravelMode.TRANSIT, false).seconds()).isEqualTo((int) Math.round((13 / 18.0 * 60 + 15) * 60));
+        assertThat(CommuteService.estimated(2, TravelMode.DRIVING, false).seconds()).isEqualTo((int) Math.round((2.6 / 30 * 60 + 5) * 60));
+        assertThat(CommuteService.estimated(40, TravelMode.DRIVING, false).seconds()).isEqualTo((int) Math.round((52 / 80.0 * 60 + 5) * 60));
+        assertThat(CommuteService.estimated(40, TravelMode.TRANSIT, false).seconds()).isEqualTo((int) Math.round((52 / 35.0 * 60 + 15) * 60));
+        assertThat(CommuteService.estimated(100, TravelMode.TRANSIT, false).seconds()).isEqualTo((int) Math.round((130 / 70.0 * 60 + 15) * 60));
+        assertThat(CommuteService.estimated(10, TravelMode.DRIVING, false).meters()).isEqualTo(13000);
+    }
+
+    @Test
+    void takesLongerAtRushHourAboveAllByCarInIleDeFrance() {
+        // Issou (78) to Montrouge (92): about 43 km straight, some 50 minutes off-peak and 1 h 45 at 8:30 by car.
+        GeoLocator.Place issou = new GeoLocator.Place("Issou", "78", null, 48.9890, 1.7920);
+        GeoLocator.Place montrouge = new GeoLocator.Place("Montrouge", "92", null, 48.8160, 2.3180);
+        double km = Math.sqrt(JobOfferSpecifications.squaredDistanceKm(new JobOfferSpecifications.Origin(issou.latitude(), issou.longitude()),
+            montrouge.latitude(), montrouge.longitude()));
+        CommuteService.Trip byCar = CommuteService.estimated(km, TravelMode.DRIVING, CommuteService.ileDeFrance(issou));
+        assertThat(byCar.seconds()).isBetween(45 * 60, 52 * 60);
+        assertThat(byCar.rushSeconds()).isBetween(100 * 60, 110 * 60);
+        assertThat(byCar.commuteSeconds()).isEqualTo(byCar.rushSeconds());
+
+        assertThat(CommuteService.ileDeFrance(new GeoLocator.Place("Lyon", "69", null, 45.76, 4.83))).isFalse();
+        assertThat(CommuteService.ileDeFrance(new GeoLocator.Place("Somewhere", null, null, 45.76, 4.83))).isFalse();
+        CommuteService.Trip lyon = CommuteService.estimated(20, TravelMode.DRIVING, false);
+        assertThat(lyon.rushSeconds()).isEqualTo((int) Math.round(lyon.seconds() * 1.4));
+        CommuteService.Trip shortDrive = CommuteService.estimated(5, TravelMode.DRIVING, true);
+        assertThat(shortDrive.rushSeconds()).isEqualTo((int) Math.round(shortDrive.seconds() * 1.2));
+        CommuteService.Trip byTrain = CommuteService.estimated(km, TravelMode.TRANSIT, true);
+        assertThat(byTrain.rushSeconds()).isEqualTo((int) Math.round(byTrain.seconds() * 1.15));
+    }
+
+    @Test
+    void countsGooglesTimeInTrafficForTheMonth() {
+        ReflectionTestUtils.setField(commuteService, "googleMapsApiKey", "secret-key");
+        project(1, "Montrouge", WorkMode.ONSITE);
+        when(restTemplate.getForObject(any(URI.class), eq(JsonNode.class))).thenReturn(json("{\"status\": \"OK\", \"rows\": [{\"elements\": [" +
+            element(3000).replace("}}", "}, \"duration_in_traffic\": {\"value\": 6300, \"text\": \"1 h 45\"}}") + "]}]}"));
+
+        CommuteInfoDto commute = commuteOf(commuteService.getProjectsSortedByCommute(1L, TravelMode.DRIVING), 1);
+
+        assertThat(commute.getDurationInSeconds()).isEqualTo(3000);
+        assertThat(commute.getRushDurationInSeconds()).isEqualTo(6300);
+        assertThat(commute.getMonthlySeconds()).isEqualTo(6300 * 2 * 20);
+        assertThat(commute.isEstimated()).isFalse();
+    }
+
+    @Test
+    void measuresTheRushHourOfTheNextWeekday() {
+        // Friday 30 October 2026 at noon UTC: the next weekday is Monday 2 November, 8:30 in Paris (7:30 UTC, winter time).
+        assertThat(CommuteService.rushHour(Instant.parse("2026-10-30T12:00:00Z"))).isEqualTo(Instant.parse("2026-11-02T07:30:00Z"));
+        assertThat(CommuteService.rushHour(Instant.parse("2026-10-27T10:00:00Z"))).isEqualTo(Instant.parse("2026-10-28T07:30:00Z"));
     }
 }

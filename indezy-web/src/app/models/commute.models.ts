@@ -15,6 +15,8 @@ export interface CommuteInfoDto {
   travelMode: TravelMode;
   durationInSeconds?: number;
   durationText?: string;
+  /** One trip at rush hour (a weekday at 8:30), when known: the monthly commute counts it. */
+  rushDurationInSeconds?: number | null;
   distanceInMeters?: number;
   distanceText?: string;
   /** A fully remote mission: no commute. */
@@ -23,6 +25,8 @@ export interface CommuteInfoDto {
   /** The commute's time a month, there and back on each day on site. */
   monthlySeconds?: number | null;
   unavailable?: CommuteUnavailable | null;
+  /** Estimated from the straight line between the addresses, without Google. */
+  estimated?: boolean;
 }
 
 export interface ProjectCommuteDto {

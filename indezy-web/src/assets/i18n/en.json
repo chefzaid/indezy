@@ -456,15 +456,18 @@
       "byCar": "Sort by driving time",
       "byTransit": "Sort by public transport time",
       "remote": "Remote: no commute",
-      "perMonth": "{{hours}} h a month there and back ({{days}} days on site)",
+      "perMonth": "{{hours}} h a month there and back at rush hour ({{days}} days on site)",
       "openProfile": "Open my profile",
       "reasons": {
         "NO_HOME_ADDRESS": "No commute time without your home address.",
         "NO_CLIENT_ADDRESS": "The client has no address.",
         "NO_API_KEY": "Commute times are not set up on this server.",
-        "NOT_FOUND": "No route found.",
+        "NOT_FOUND": "The addresses could not be found, or no route joins them.",
         "LOOKUP_FAILED": "Route not available right now."
-      }
+      },
+      "estimate": "estimate",
+      "estimateHint": "Estimated from the straight line between your address and the client's: actual routes may differ.",
+      "rush": "{{time}} at rush hour"
     },
     "skills": {
       "matchScore": "Skill match",

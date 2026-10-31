@@ -378,3 +378,13 @@
   border: 1px solid currentColor;
   color: var(--app-text-muted);
 }
+
+.commute-estimate {
+  color: var(--app-text-muted);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.commute-rush {
+  color: var(--app-text-muted);
+}
