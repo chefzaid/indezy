@@ -15,6 +15,9 @@ mask test-indezy-web    # npm run test:ci
 
 Coverage reports: `indezy-server/target/site/jacoco/index.html` and `indezy-web/coverage/index.html`.
 
+The server's tests run in the `Europe/Paris` time zone (surefire's `argLine`), the zone the application dates invoices,
+reports and reminders in, so a test's "today" is the server's at any hour.
+
 In `indezy-server` (`mvnw.cmd` on Windows):
 
 ```bash

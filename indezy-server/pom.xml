@@ -19,6 +19,8 @@
     <description>Job tracking application for freelancers - Backend API</description>
     
     <properties>
+        <!-- JaCoCo's agent sets it; empty when JaCoCo is skipped. -->
+        <argLine></argLine>
         <java.version>25</java.version>
         <!-- The reader canaries read live sites and the load test needs a PostgreSQL: each runs on request only (see docs/testing.md). -->
         <test.excludedGroups>canary,load</test.excludedGroups>
@@ -259,6 +261,9 @@
                 <version>3.5.3</version>
                 <configuration>
                     <excludedGroups>${test.excludedGroups}</excludedGroups>
+                    <!-- Tests run in the business time zone the server dates invoices and reminders in, so a test's
+                         "today" is the server's even between 22:00 UTC and midnight. -->
+                    <argLine>@{argLine} -Duser.timezone=Europe/Paris</argLine>
                 </configuration>
             </plugin>
 
