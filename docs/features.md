@@ -598,12 +598,13 @@ mission without a time says why.
 
 Without a Google Maps key (production's choice: free), both addresses are located through the national address search
 (IGN's Géoplateforme, each address searched once and kept) and the trip is estimated from the straight line: roads 1.3
-times longer; a car at 30, 50 or 80 km/h by distance plus 5 minutes, public transport at 18, 35 or 70 km/h plus 15
-minutes. At rush hour (a weekday at 8:30) a car takes 2.2 times as long on a trip over 10 km touching Île-de-France
-(Issou to Montrouge: about 50 minutes, 1 h 45 at rush hour), 1.4 times elsewhere and 1.2 on a short trip; public
-transport 1.15 times. The list shows `≈ 50 min (≈ 56 km) · ≈ 1 h 45 at rush hour` marked **estimation**. With a key
-(set up as [Development](./development.md) describes), Google's Distance Matrix gives the time and its time in traffic
-for that departure, answers kept a week.
+times longer; a car at 30 km/h for the first 5 km, 70 up to 20 km and 100 beyond, plus 5 minutes; public transport at 18
+km/h for the first 10 km, 45 up to 40 km, 70 up to 150 km and 200 beyond (high-speed rail), plus 15 minutes (each speed
+covers only its own kilometres, so a longer trip never takes less time). At rush hour (a weekday at 8:30) a car's first
+10 km take 1.2 times as long and the rest 2.7 times on a trip touching Île-de-France (Issou to Montrouge: about 50
+minutes, 1 h 45 at rush hour), 1.4 times elsewhere; public transport 1.15 times. The list shows `≈ 50 min (≈ 56 km) · ≈
+1 h 45 at rush hour` marked **estimation**. With a key (set up as [Development](./development.md) describes), Google's
+Distance Matrix gives the time and its time in traffic for that departure, answers kept a week.
 
 ## Filtering And Search Surfaces
 

@@ -60,10 +60,16 @@ public class CommuteService {
     /** How much longer roads run than the straight line, on average. */
     static final double ROAD_FACTOR = 1.3;
     /** How much longer a trip takes at rush hour: by car touching Île-de-France, by car elsewhere, a short drive, transit. */
-    static final double RUSH_ILE_DE_FRANCE = 2.2;
+    static final double RUSH_ILE_DE_FRANCE = 2.7;
     static final double RUSH_CITY = 1.4;
     static final double RUSH_SHORT = 1.2;
     static final double RUSH_TRANSIT = 1.15;
+    /** The first kilometres of a drive, in town at both ends, which rush hour slows only {@value #RUSH_SHORT} times. */
+    static final double RUSH_SHORT_KM = 10;
+    private static final double[][] CAR_BANDS = {{5, 30}, {20, 70}, {Double.MAX_VALUE, 100}};
+    private static final double[][] TRANSIT_BANDS = {{10, 18}, {40, 45}, {150, 70}, {Double.MAX_VALUE, 200}};
+    private static final double PARKING_MINUTES = 5;
+    private static final double TRANSIT_ACCESS_MINUTES = 15;
     private static final Set<String> ILE_DE_FRANCE = Set.of("75", "77", "78", "91", "92", "93", "94", "95");
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
     /** The Distance Matrix's limit of destinations per request. */
@@ -273,30 +279,43 @@ public class CommuteService {
     }
 
     /**
-     * A trip estimated from the straight line: roads run about {@value #ROAD_FACTOR} times longer; a car goes 30 km/h in
-     * town, 50 on a suburban trip and 80 beyond 40 km, plus 5 minutes to park; public transport 18 km/h in town, 35 in
-     * the suburbs and 70 by train beyond 60 km, plus 15 minutes of walking and waiting. At rush hour a car takes
-     * {@value #RUSH_ILE_DE_FRANCE} times as long on a trip of more than 10 km touching Île-de-France (Issou to Montrouge:
-     * about 50 minutes, 1 h 45 at 8:30), {@value #RUSH_CITY} times elsewhere and {@value #RUSH_SHORT} on a short trip;
-     * public transport, which traffic barely slows, {@value #RUSH_TRANSIT} times (fuller trains, longer waits).
+     * A trip estimated from the straight line: roads run about {@value #ROAD_FACTOR} times longer, driven at 30 km/h for
+     * the first 5 km, 70 up to 20 km and 100 beyond, plus 5 minutes to park; public transport runs 18 km/h for the first
+     * 10 km, 45 up to 40 km, 70 up to 150 km and 200 beyond (high-speed rail), plus 15 minutes of walking and waiting. Each band counts only its own
+     * kilometres, so a longer trip never takes less time. At rush hour a car's first 10 km and its parking take
+     * {@value #RUSH_SHORT} times as long and the rest {@value #RUSH_ILE_DE_FRANCE} times on a trip touching Île-de-France
+     * (Issou to Montrouge: about 50 minutes, 1 h 45 at 8:30), {@value #RUSH_CITY} times elsewhere; public transport,
+     * which traffic barely slows, {@value #RUSH_TRANSIT} times (fuller trains, longer waits).
      */
     static Trip estimated(double straightKm, TravelMode mode, boolean ileDeFrance) {
         double roadKm = straightKm * ROAD_FACTOR;
-        double speed;
-        int extraMinutes;
-        double rush;
+        double minutes;
+        double rushMinutes;
         if (mode == TravelMode.DRIVING) {
-            speed = roadKm < 10 ? 30 : roadKm < 40 ? 50 : 80;
-            extraMinutes = 5;
-            rush = roadKm <= 10 ? RUSH_SHORT : ileDeFrance ? RUSH_ILE_DE_FRANCE : RUSH_CITY;
+            double town = PARKING_MINUTES + minutes(Math.min(roadKm, RUSH_SHORT_KM), CAR_BANDS);
+            double beyond = minutes(roadKm, CAR_BANDS) - minutes(Math.min(roadKm, RUSH_SHORT_KM), CAR_BANDS);
+            minutes = town + beyond;
+            rushMinutes = town * RUSH_SHORT + beyond * (ileDeFrance ? RUSH_ILE_DE_FRANCE : RUSH_CITY);
         } else {
-            speed = roadKm < 15 ? 18 : roadKm < 60 ? 35 : 70;
-            extraMinutes = 15;
-            rush = RUSH_TRANSIT;
+            minutes = TRANSIT_ACCESS_MINUTES + minutes(roadKm, TRANSIT_BANDS);
+            rushMinutes = minutes * RUSH_TRANSIT;
         }
-        double minutes = roadKm / speed * 60 + extraMinutes;
-        return new Trip((int) Math.round(minutes * 60), (int) Math.round(minutes * rush * 60), null, (int) Math.round(roadKm * 1000), null,
+        return new Trip((int) Math.round(minutes * 60), (int) Math.round(rushMinutes * 60), null, (int) Math.round(roadKm * 1000), null,
             null, true);
+    }
+
+    /** Minutes to cover a distance through speed bands, each {upper kilometre, km/h}, the last one open-ended. */
+    private static double minutes(double km, double[][] bands) {
+        double minutes = 0;
+        double from = 0;
+        for (double[] band : bands) {
+            double to = Math.min(km, band[0]);
+            if (to > from) {
+                minutes += (to - from) / band[1] * 60;
+            }
+            from = band[0];
+        }
+        return minutes;
     }
 
     /** Whether a place lies in Île-de-France, whose roads are the most jammed at rush hour. */

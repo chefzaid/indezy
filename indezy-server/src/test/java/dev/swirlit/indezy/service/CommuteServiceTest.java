@@ -44,6 +44,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -285,7 +286,8 @@ class CommuteServiceTest {
         // Inside Île-de-France but under 10 km of road: a short drive, yet by transit only a little longer at rush hour.
         assertThat(defense.getRushDurationInSeconds()).isEqualTo((int) Math.round(defense.getDurationInSeconds() * 1.15));
         assertThat(defense.getMonthlySeconds()).isEqualTo(defense.getRushDurationInSeconds() * 2 * 20);
-        assertThat(commuteOf(results, 2).getDurationInSeconds()).isBetween(7 * 3600, 8 * 3600);
+        // About 500 km of track, mostly by high-speed rail.
+        assertThat(commuteOf(results, 2).getDurationInSeconds()).isBetween(4 * 3600, 5 * 3600);
         assertThat(commuteOf(results, 3).getUnavailable()).isEqualTo(CommuteUnavailable.NOT_FOUND);
         assertThat(commuteOf(results, 3).isEstimated()).isFalse();
         verify(restTemplate, never()).getForObject(any(URI.class), eq(JsonNode.class));
@@ -299,13 +301,29 @@ class CommuteServiceTest {
     @Test
     void estimatesByCarAndTransitWithTheirSpeeds() {
         // 10 km straight: 13 km of road at 50 km/h plus 5 minutes by car; at 18 km/h plus 15 minutes by transit.
-        assertThat(CommuteService.estimated(10, TravelMode.DRIVING, false).seconds()).isEqualTo((int) Math.round((13 / 50.0 * 60 + 5) * 60));
-        assertThat(CommuteService.estimated(10, TravelMode.TRANSIT, false).seconds()).isEqualTo((int) Math.round((13 / 18.0 * 60 + 15) * 60));
+        // 13 road km: 5 at 30 km/h, 8 at 70, and parking; by transit 10 at 18 km/h, 3 at 45, and the walk.
+        assertThat(CommuteService.estimated(10, TravelMode.DRIVING, false).seconds()).isEqualTo((int) Math.round((10 + 8 / 70.0 * 60 + 5) * 60));
+        assertThat(CommuteService.estimated(10, TravelMode.TRANSIT, false).seconds()).isEqualTo((int) Math.round((10 / 18.0 * 60 + 4 + 15) * 60));
         assertThat(CommuteService.estimated(2, TravelMode.DRIVING, false).seconds()).isEqualTo((int) Math.round((2.6 / 30 * 60 + 5) * 60));
-        assertThat(CommuteService.estimated(40, TravelMode.DRIVING, false).seconds()).isEqualTo((int) Math.round((52 / 80.0 * 60 + 5) * 60));
-        assertThat(CommuteService.estimated(40, TravelMode.TRANSIT, false).seconds()).isEqualTo((int) Math.round((52 / 35.0 * 60 + 15) * 60));
-        assertThat(CommuteService.estimated(100, TravelMode.TRANSIT, false).seconds()).isEqualTo((int) Math.round((130 / 70.0 * 60 + 15) * 60));
+        // 130 road km by transit: 10 at 18 km/h, 30 at 45 and 90 at 70.
+        assertThat(CommuteService.estimated(100, TravelMode.TRANSIT, false).seconds())
+            .isEqualTo((int) Math.round((10 / 18.0 * 60 + 40 + 90 / 70.0 * 60 + 15) * 60));
         assertThat(CommuteService.estimated(10, TravelMode.DRIVING, false).meters()).isEqualTo(13000);
+    }
+
+    @Test
+    void neverTakesLessTimeForALongerTrip() {
+        for (TravelMode mode : TravelMode.values()) {
+            for (boolean ileDeFrance : new boolean[] {false, true}) {
+                CommuteService.Trip previous = CommuteService.estimated(0, mode, ileDeFrance);
+                for (double km = 0.1; km <= 150; km += 0.1) {
+                    CommuteService.Trip trip = CommuteService.estimated(km, mode, ileDeFrance);
+                    assertThat(trip.seconds()).as("%s %.1f km", mode, km).isGreaterThanOrEqualTo(previous.seconds());
+                    assertThat(trip.rushSeconds()).as("%s %.1f km at rush hour", mode, km).isGreaterThanOrEqualTo(previous.rushSeconds());
+                    previous = trip;
+                }
+            }
+        }
     }
 
     @Test
@@ -323,9 +341,9 @@ class CommuteServiceTest {
         assertThat(CommuteService.ileDeFrance(new GeoLocator.Place("Lyon", "69", null, 45.76, 4.83))).isFalse();
         assertThat(CommuteService.ileDeFrance(new GeoLocator.Place("Somewhere", null, null, 45.76, 4.83))).isFalse();
         CommuteService.Trip lyon = CommuteService.estimated(20, TravelMode.DRIVING, false);
-        assertThat(lyon.rushSeconds()).isEqualTo((int) Math.round(lyon.seconds() * 1.4));
+        assertThat(lyon.rushSeconds()).isBetween((int) Math.round(lyon.seconds() * 1.2), (int) Math.round(lyon.seconds() * 1.4));
         CommuteService.Trip shortDrive = CommuteService.estimated(5, TravelMode.DRIVING, true);
-        assertThat(shortDrive.rushSeconds()).isEqualTo((int) Math.round(shortDrive.seconds() * 1.2));
+        assertThat(shortDrive.rushSeconds()).isCloseTo((int) Math.round(shortDrive.seconds() * 1.2), within(1));
         CommuteService.Trip byTrain = CommuteService.estimated(km, TravelMode.TRANSIT, true);
         assertThat(byTrain.rushSeconds()).isEqualTo((int) Math.round(byTrain.seconds() * 1.15));
     }
