@@ -112,6 +112,10 @@ match; the target rate the match, suggested searches, the dashboard and new seas
 validated activity reports against the target, with the share reached, and the year at the pace of its completed months
 (none in January), saying how many days above or short of the target that pace ends. The card shows without a target
 once a report of the year is validated.
+The analytics also show a **Commute** card once a trip is known (the driving list of
+[Commute-Time Sorting](#commute-time-sorting)): the average monthly hours there and back of the open opportunities and
+of the won missions, the share of days remote across both, and, when both exist, the average daily rate of the missions
+over 20 hours a month against the shorter ones.
 **Longest drive** and **Longest public transport trip** (1 to 600 minutes, one way at rush hour, optional) flag the
 missions whose commute by that mode takes longer, in the sorted list, on the opportunity's commute card and on its
 Kanban chip, and set what the offer match calls near: an offer whose estimated trip fits either limit is near, one

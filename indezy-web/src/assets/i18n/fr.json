@@ -273,6 +273,14 @@
       "projected": "À ce rythme, en fin d'année",
       "short": "{{days}} jours sous votre objectif à ce rythme.",
       "ahead": "{{days}} jours au-dessus de votre objectif à ce rythme."
+    },
+    "commute": {
+      "title": "Trajets",
+      "pipeline": "Opportunités en cours, par mois",
+      "won": "Missions gagnées, par mois",
+      "hours": "{{hours}} h",
+      "remote": "Jours en télétravail",
+      "rates": "Au-delà de {{hours}} h de trajet par mois, les missions paient en moyenne {{long}} € par jour, contre {{short}} € pour des trajets plus courts."
     }
   },
   "projects": {

@@ -7,6 +7,7 @@ import {
 } from '../../../models';
 import { ActivityHeatmapComponent } from '../../../shared/components/activity-heatmap/activity-heatmap.component';
 import { BilledDaysComponent } from '../billed-days/billed-days.component';
+import { CommuteStatsComponent } from '../commute-stats/commute-stats.component';
 import { RateTargetComponent } from '../rate-target/rate-target.component';
 
 /**
@@ -15,7 +16,7 @@ import { RateTargetComponent } from '../rate-target/rate-target.component';
  */
 @Component({
   selector: 'app-dashboard-analytics',
-  imports: [CommonModule, MatIconModule, TranslateModule, ActivityHeatmapComponent, RateTargetComponent, BilledDaysComponent],
+  imports: [CommonModule, MatIconModule, TranslateModule, ActivityHeatmapComponent, RateTargetComponent, BilledDaysComponent, CommuteStatsComponent],
   templateUrl: './dashboard-analytics.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./dashboard-analytics.component.scss']

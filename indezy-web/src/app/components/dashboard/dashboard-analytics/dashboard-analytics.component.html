@@ -8,6 +8,7 @@
       <app-rate-target class="insight-card" [target]="target"
         [obtained]="stats.averageObtainedDailyRate"></app-rate-target>
     }
+    <app-commute-stats class="insight-card"></app-commute-stats>
     @if (stats.billedDays; as days) {
       @if (days.target || days.billed > 0) {
         <app-billed-days class="insight-card" [days]="days"></app-billed-days>

@@ -273,6 +273,14 @@
       "projected": "At this pace, by year end",
       "short": "{{days}} days short of your target at this pace.",
       "ahead": "{{days}} days above your target at this pace."
+    },
+    "commute": {
+      "title": "Commute",
+      "pipeline": "Open opportunities, a month",
+      "won": "Won missions, a month",
+      "hours": "{{hours}} h",
+      "remote": "Days remote",
+      "rates": "Over {{hours}} h a month there and back, missions pay €{{long}} a day on average, against €{{short}} for shorter commutes."
     }
   },
   "projects": {

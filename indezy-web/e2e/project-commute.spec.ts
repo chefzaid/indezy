@@ -89,3 +89,22 @@ test('sets the longest drive and public transport trip in the profile', async ({
   await expect.poll(() => [profile['maxDriveMinutes'], profile['maxTransitMinutes'], profile['kmRate'], profile['transitPassMonthly']])
     .toEqual([45, 60, 0.6, 88.8]);
 });
+
+test('sums the pipeline commute up on the dashboard', async ({ page }) => {
+  await mockWorkspaceSession(page, 'en');
+  await mockWorkspaceData(page, 'en');
+  const result = (id: number, status: string, dailyRate: number, hours: number, onsite: number) => ({
+    project: { id, status, dailyRate, role: 'Role', freelanceId: 1 },
+    commute: { ...trip, projectId: id, travelMode: 'DRIVING', onsiteDaysPerMonth: onsite, remote: onsite === 0,
+      durationInSeconds: 1800, monthlySeconds: hours * 3600 } });
+  await page.route('**/api/commute/projects/1*', route => route.fulfill({ json: [
+    result(42, 'INTERVIEW', 600, 10, 20), result(43, 'OFFER', 700, 30, 10), result(44, 'WON', 650, 12, 10)] }));
+  await page.goto('/dashboard');
+  const card = page.locator('[data-commute-stats]');
+  await expect(card.locator('[data-commute-pipeline]')).toHaveText('20 h');
+  await expect(card.locator('[data-commute-won]')).toHaveText('12 h');
+  await expect(card.locator('[data-commute-remote]')).toHaveText('33 %');
+  await expect(card.locator('[data-commute-rates]')).toContainText('€700 a day on average, against €625');
+  const audit = await new AxeBuilder({ page }).include('[data-commute-stats]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+});
