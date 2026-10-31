@@ -40,6 +40,9 @@ import java.util.function.Function;
 @Slf4j
 public class DashboardStatsService {
 
+    /** The zone dates are told in: the workspace's days are French days, whatever the container's zone. */
+    private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
+
     private final ProjectRepository projectRepository;
     private final FreelanceRepository freelanceRepository;
     private final ContactRepository contactRepository;
@@ -95,7 +98,8 @@ public class DashboardStatsService {
         List<DashboardStatsDto.DailyRateRange> dailyRateRanges = buildDailyRateRanges(projects);
 
         // Accepted missions only: what they are worth over their whole period, and what they still bring from today.
-        LocalDate today = LocalDate.now(ZoneId.systemDefault());
+        // Today in France, as invoices and activity reports are dated, whatever the container's zone.
+        LocalDate today = LocalDate.now(PARIS);
         List<Project> missions = projects.stream().filter(p -> ProjectStatus.WON.equals(p.getStatus())).toList();
         double totalRevenue = missions.stream().mapToDouble(Project::missionValue).sum();
         double forecastRevenue = missions.stream().mapToDouble(p -> p.missionValueFrom(today)).sum();

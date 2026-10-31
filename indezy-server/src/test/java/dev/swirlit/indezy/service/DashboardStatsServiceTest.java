@@ -22,6 +22,22 @@ import static org.mockito.Mockito.*;
 class DashboardStatsServiceTest extends DashboardStatsTestSupport {
 
     @Test
+    void getDashboardStats_ShouldTellTodayInFranceWhateverTheContainersZone() {
+        java.util.TimeZone container = java.util.TimeZone.getDefault();
+        try {
+            // Fourteen hours ahead of UTC: most of the day, its date differs from France's.
+            java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Pacific/Kiritimati"));
+            when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of());
+
+            dashboardStatsService.getDashboardStats(1L, null);
+
+            org.mockito.Mockito.verify(billedDaysService).ofYear(1L, java.time.LocalDate.now(java.time.ZoneId.of("Europe/Paris")));
+        } finally {
+            java.util.TimeZone.setDefault(container);
+        }
+    }
+
+    @Test
     void getDashboardStats_ShouldCompareTheProfileTargetWithOnlyAcceptedRates() {
         Project won = projectWithStatus(ProjectStatus.WON);
         won.setDailyRate(600);

@@ -32,6 +32,9 @@ import java.util.Optional;
 @Transactional
 public class SeasonService {
 
+    /** The zone dates are told in: the workspace's days are French days, whatever the container's zone. */
+    private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
+
     private final SeasonRepository seasonRepository;
     private final FreelanceRepository freelanceRepository;
     private final ProjectRepository projectRepository;
@@ -130,6 +133,6 @@ public class SeasonService {
     }
 
     private static LocalDate today() {
-        return LocalDate.now(ZoneId.systemDefault());
+        return LocalDate.now(PARIS);
     }
 }
