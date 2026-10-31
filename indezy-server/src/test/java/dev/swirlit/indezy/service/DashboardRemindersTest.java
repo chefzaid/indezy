@@ -164,6 +164,35 @@ class DashboardRemindersTest extends DashboardStatsTestSupport {
     }
 
     @Test
+    void getDashboardStats_ShouldGiveARenewalsRateAgainstTheMarketOfItsFirstSkill() {
+        LocalDate today = LocalDate.now();
+        testProject.setStatus(ProjectStatus.WON);
+        testProject.setStartDate(today.minusMonths(3));
+        testProject.setOrderRenewalInMonths(1);
+        testProject.setTechStack(" Java , Kafka");
+        testFreelance.setNoticePeriodInDays(60);
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of(testProject));
+        when(freelanceRepository.findById(1L)).thenReturn(Optional.of(testFreelance));
+        // Without the feed's medians, the renewal comes without the market.
+        assertThat(dashboardStatsService.getDashboardStats(1L, null).getUpcomingRenewals().getFirst().getMarket()).isNull();
+
+        OfferRateBenchmarkService benchmarks = org.mockito.Mockito.mock(OfferRateBenchmarkService.class);
+        dev.swirlit.indezy.dto.OfferRateMarketDto market = new dev.swirlit.indezy.dto.OfferRateMarketDto(-8, 650, 40, "Java", null);
+        when(benchmarks.compare(600, 600, null, "Java")).thenReturn(market);
+        dashboardStatsService.setBenchmarks(benchmarks);
+
+        DashboardStatsDto.UpcomingRenewal renewal = dashboardStatsService.getDashboardStats(1L, null).getUpcomingRenewals().getFirst();
+        assertThat(renewal.getDailyRate()).isEqualTo(600);
+        assertThat(renewal.getMarket()).isEqualTo(market);
+        testProject.setTechStack(" ");
+        assertThat(dashboardStatsService.market(testProject)).isNull();
+        testProject.setTechStack(null);
+        assertThat(dashboardStatsService.market(testProject)).isNull();
+        testProject.setDailyRate(null);
+        assertThat(dashboardStatsService.market(testProject)).isNull();
+    }
+
+    @Test
     void getDashboardStats_ShouldNotSurfaceRenewalsBeyondNoticePeriod() {
         LocalDate today = LocalDate.now();
         testProject.setStatus(ProjectStatus.WON);

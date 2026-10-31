@@ -25,7 +25,7 @@ describe('ProjectEmailDialogComponent', () => {
   const silent = { id: 13, firstName: 'Sans', lastName: 'Email', clientName: 'Airbus' } as ContactDto;
   let contactsWithBasis = false;
 
-  function create(setup: () => void = () => undefined): ComponentFixture<ProjectEmailDialogComponent> {
+  function create(setup: () => void = () => undefined, data: object = project): ComponentFixture<ProjectEmailDialogComponent> {
     registerLocaleData(localeFr);
     contacts = jasmine.createSpyObj('ContactService', ['getByClientId']);
     contacts.getByClientId.and.callFake(id => of(id === 5 ? [contactsWithBasis ? { ...lea, legalBasis: 'CONSENT' } as ContactDto : lea] :
@@ -40,7 +40,7 @@ describe('ProjectEmailDialogComponent', () => {
     TestBed.configureTestingModule({
       imports: [ProjectEmailDialogComponent, TranslateModule.forRoot()],
       providers: [
-        { provide: MAT_DIALOG_DATA, useValue: project },
+        { provide: MAT_DIALOG_DATA, useValue: data },
         { provide: LOCALE_ID, useValue: 'fr-FR' },
         { provide: ContactService, useValue: contacts },
         { provide: EmailTemplateService, useValue: templates },
@@ -60,7 +60,7 @@ describe('ProjectEmailDialogComponent', () => {
     const component = create().componentInstance;
 
     expect(component.contacts.map(contact => contact.id)).toEqual([11, 12]);
-    expect(component.templates.map(template => template.name)).toEqual(['Relance', 'Proposition de TJM', 'Annonce de disponibilité', 'Relance ESN',
+    expect(component.templates.map(template => template.name)).toEqual(['Relance', 'Proposition de TJM', 'Annonce de disponibilité', 'Révision du TJM au renouvellement', 'Relance ESN',
       'Premier contact']);
     expect(component.form.value.recipient).toBe(11);
     expect(component.form.value.subject).toBe('Suite à notre échange sur la mission Développeur Java');
@@ -68,6 +68,14 @@ describe('ProjectEmailDialogComponent', () => {
     expect(component.form.value.body).toContain('Ada Lovelace\n0600000000');
     expect(component.missing).toBeFalse();
     expect(component.mailto).toMatch(/^mailto:lea@alten\.fr\?subject=Suite%20%C3%A0/);
+  });
+
+  it('starts on the template it is opened for, a known one only', () => {
+    const review = create(undefined, { ...project, emailTemplate: 'rateReview' }).componentInstance;
+    expect(review.form.value.template).toBe('rateReview');
+    expect(review.form.value.subject).toBe('Renouvellement de la mission Développeur Java : mon TJM');
+    TestBed.resetTestingModule();
+    expect(create(undefined, { ...project, emailTemplate: 'unknown' }).componentInstance.form.value.template).toBe('followUp');
   });
 
   it('writes again for another template or recipient, with the rate, company and availability', () => {
@@ -126,7 +134,7 @@ describe('ProjectEmailDialogComponent', () => {
     }).componentInstance;
 
     expect(component.contacts).toEqual([]);
-    expect(component.templates.length).toBe(3);
+    expect(component.templates.length).toBe(4);
     expect(component.form.value.body).toContain('Bonjour {{firstName}},');
     expect(notifications.error).toHaveBeenCalledOnceWith('emails.loadError');
   });

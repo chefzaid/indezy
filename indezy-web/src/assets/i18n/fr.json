@@ -281,6 +281,11 @@
       "hours": "{{hours}} h",
       "remote": "Jours en télétravail",
       "rates": "Au-delà de {{hours}} h de trajet par mois, les missions paient en moyenne {{long}} € par jour, contre {{short}} € pour des trajets plus courts."
+    },
+    "renewal": {
+      "rate": "{{rate}} € par jour actuellement",
+      "market": "médiane du marché {{median}} € pour {{skill}}",
+      "ask": "Demander le nouveau TJM"
     }
   },
   "projects": {
@@ -2204,6 +2209,11 @@
         "name": "Annonce de disponibilité",
         "subject": "Disponible à partir du {{availability}}",
         "body": "Bonjour {{firstName}},\n\nJe serai disponible pour une nouvelle mission à partir du {{availability}}. Un de vos besoins actuels correspondrait-il à mon profil ?\n\nBien cordialement,\n{{myName}}\n{{myPhone}}"
+      },
+      "rateReview": {
+        "name": "Révision du TJM au renouvellement",
+        "subject": "Renouvellement de la mission {{role}} : mon TJM",
+        "body": "Bonjour {{firstName}},\n\nLe renouvellement de la commande pour la mission {{role}} chez {{company}} approche. Mon TJM est de {{rate}} HT sur cette période ; au vu du marché et de la mission, je vous propose de le porter à … € HT pour la suivante.\n\nJe reste disponible pour en discuter.\n\nBien cordialement,\n{{myName}}\n{{myPhone}}"
       }
     },
     "action": "Écrire un e-mail",

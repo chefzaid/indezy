@@ -223,7 +223,8 @@ the client or its ESN. Deleting the opportunity keeps its exchanges, tied to non
 
 **Write an email** on an opportunity picks a template and a recipient among the ESN's and the client's contacts, then
 fills a subject and message to edit; **Open in my mail app** opens a `mailto:` link, **Copy** copies them. Indezy sends
-nothing itself. A follow-up, a rate proposal and an availability announcement are always offered; **Profile → Emails**
+nothing itself. A follow-up, a rate proposal, an availability announcement and a rate review at renewal are always
+offered (an opportunity opened with `?email=rateReview` starts on the last); **Profile → Emails**
 manages the workspace's own (up to 50). Variables are written `{{name}}`: `firstName`, `lastName`, `company`, `role`,
 `rate`, `availability`, `myName`, `myPhone` and `privacyNotice`; one without a value stays as written and is pointed out.
 
@@ -605,7 +606,9 @@ mode. **Customize** shows, hides and orders its six blocks, saved with the accou
 - **Charts**: opportunities by stage and work mode, and the negotiated rates.
 - **Reminders**: interviews this week, overdue invoices, follow-ups due, stale opportunities, missions ending within six
   weeks, order renewals within the notice period (30 days by default), purchase orders near their ceiling, documents to
-  renew, contacts without activity for six months, and "on this day" anniversaries.
+  renew, contacts without activity for six months, and "on this day" anniversaries. Each renewal also shows the current
+  daily rate and the market median of the mission's first skill in the offer feed, with **Ask for the new rate**, which
+  opens the opportunity's email on the built-in **Rate review at renewal** template.
 - **New offers**: the five unseen offers matching the profile best (the five newest without skills).
 - **Analytics**: [trends](#trends), outcomes and refusal reasons, source ROI, conversion funnels (overall and by source,
   client type and ESN), asked against obtained rates by year, bench time with its cost, time to signature per client or

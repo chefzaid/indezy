@@ -281,6 +281,11 @@
       "hours": "{{hours}} h",
       "remote": "Days remote",
       "rates": "Over {{hours}} h a month there and back, missions pay €{{long}} a day on average, against €{{short}} for shorter commutes."
+    },
+    "renewal": {
+      "rate": "€{{rate}} a day now",
+      "market": "market median €{{median}} for {{skill}}",
+      "ask": "Ask for the new rate"
     }
   },
   "projects": {
@@ -2204,6 +2209,11 @@
         "name": "Availability announcement",
         "subject": "Available from {{availability}}",
         "body": "Hello {{firstName}},\n\nI will be available for a new mission from {{availability}}. Would any of your current needs fit my profile?\n\nKind regards,\n{{myName}}\n{{myPhone}}"
+      },
+      "rateReview": {
+        "name": "Rate review at renewal",
+        "subject": "Renewal of the {{role}} mission: my daily rate",
+        "body": "Hello {{firstName}},\n\nThe order for the {{role}} mission at {{company}} is coming up for renewal. My daily rate has been {{rate}} excluding VAT for this period; given the market and the mission, I suggest bringing it to … € excluding VAT for the next one.\n\nI am happy to discuss it.\n\nBest regards,\n{{myName}}\n{{myPhone}}"
       }
     },
     "action": "Write an email",

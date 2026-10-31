@@ -156,6 +156,10 @@ public class DashboardStatsDto {
         private String clientName;
         private LocalDate renewalDate;
         private long daysUntilRenewal;
+        /** The current period's daily rate. */
+        private Integer dailyRate;
+        /** That rate against the market median of the mission's first skill; null without a median. */
+        private OfferRateMarketDto market;
     }
 
     /**

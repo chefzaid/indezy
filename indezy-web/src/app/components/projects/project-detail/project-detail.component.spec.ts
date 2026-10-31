@@ -17,6 +17,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 import { KanbanRefusalDialogComponent } from '../../kanban-refusal-dialog/kanban-refusal-dialog.component';
 import { RenameTagDialogComponent } from '../rename-tag-dialog/rename-tag-dialog.component';
 import { ProjectDetailComponent } from './project-detail.component';
+import { ProjectEmailDialogComponent } from '../project-email/project-email-dialog.component';
 import { ContactService } from '../../../services/contact/contact.service';
 
 describe('ProjectDetailComponent', () => {
@@ -193,6 +194,13 @@ describe('ProjectDetailComponent', () => {
     expect(dialog.open).not.toHaveBeenCalled();
     expect(confirmDialog.confirm).not.toHaveBeenCalled();
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('opens the email on the template a reminder asks for', () => {
+    const fixture = create(mission, { email: 'rateReview' });
+    fixture.detectChanges();
+    expect(dialog.open).toHaveBeenCalledWith(ProjectEmailDialogComponent, jasmine.objectContaining({
+      data: jasmine.objectContaining({ id: mission.id, emailTemplate: 'rateReview' }) }));
   });
 
   it('opens the status menu when asked to change the status', async () => {

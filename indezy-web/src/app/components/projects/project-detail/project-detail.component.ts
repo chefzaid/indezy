@@ -52,6 +52,7 @@ import { StepChecklistComponent } from '../step-checklist/step-checklist.compone
 import { ProjectArchiveActionComponent } from '../project-archive-action/project-archive-action.component';
 import { StepTemplatesComponent } from '../step-templates/step-templates.component';
 import { ProjectEmailButtonComponent } from '../project-email/project-email-button.component';
+import { ProjectEmailDialogComponent } from '../project-email/project-email-dialog.component';
 
 import { PaymentDelayComponent } from '../../../shared/components/payment-delay/payment-delay.component';
 import { ProjectCommuteComponent } from './project-commute/project-commute.component';
@@ -196,6 +197,11 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             this.loadSteps();
             if (this.route.snapshot.queryParamMap.get('focus') === 'status') {
               afterNextRender(() => this.statusTrigger?.openMenu(), { injector: this.injector });
+            }
+            // A reminder's link (the rate review before a renewal) opens the email on its template.
+            const emailTemplate = this.route.snapshot.queryParamMap.get('email');
+            if (emailTemplate) {
+              this.dialog.open(ProjectEmailDialogComponent, { data: { ...project, emailTemplate }, autoFocus: 'first-tabbable', maxWidth: '95vw' });
             }
           } else {
             this.notificationService.error('errors.projectNotFound');

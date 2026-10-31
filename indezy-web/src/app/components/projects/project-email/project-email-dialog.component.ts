@@ -19,7 +19,7 @@ import { UserManagementService } from '../../../services/user-management/user-ma
 import { EMAIL_VARIABLES, EmailValues, fillTemplate, mailtoLink } from '../../../shared/utils/email-template';
 
 /** The templates always offered, in the interface language (translation keys under emails.builtIn). */
-export const BUILT_IN_EMAILS = ['followUp', 'rateProposal', 'availability'];
+export const BUILT_IN_EMAILS = ['followUp', 'rateProposal', 'availability', 'rateReview'];
 
 /** A template to pick: a built-in one by its key, or one of the workspace's own. */
 interface TemplateChoice {
@@ -52,7 +52,7 @@ export class ProjectEmailDialogComponent implements OnInit {
 
   constructor(
     fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) readonly project: ProjectDto,
+    @Inject(MAT_DIALOG_DATA) readonly project: ProjectDto & { emailTemplate?: string },
     @Inject(LOCALE_ID) private readonly locale: string,
     private readonly contactService: ContactService,
     private readonly templateService: EmailTemplateService,
@@ -61,7 +61,8 @@ export class ProjectEmailDialogComponent implements OnInit {
     private readonly translate: TranslateService,
     private readonly changes: ChangeDetectorRef
   ) {
-    this.form = fb.group({ template: [BUILT_IN_EMAILS[0]], recipient: [null], subject: [''], body: [''] });
+    this.form = fb.group({ template: [BUILT_IN_EMAILS.includes(project.emailTemplate ?? '') ? project.emailTemplate : BUILT_IN_EMAILS[0]],
+      recipient: [null], subject: [''], body: [''] });
   }
 
   ngOnInit(): void {

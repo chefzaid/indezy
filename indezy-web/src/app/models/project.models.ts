@@ -261,6 +261,10 @@ export interface UpcomingRenewal {
   clientName: string;
   renewalDate: string;
   daysUntilRenewal: number;
+  /** The current period's daily rate. */
+  dailyRate?: number | null;
+  /** That rate against the market median of the mission's first skill. */
+  market?: { percent: number; median: number; offers: number; skill: string; regionName?: string } | null;
 }
 
 export interface OnThisDayItem {

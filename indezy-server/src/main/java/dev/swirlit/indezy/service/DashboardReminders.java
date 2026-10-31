@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.DashboardStatsDto;
+import dev.swirlit.indezy.dto.OfferRateMarketDto;
 import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.InterviewStep;
 import dev.swirlit.indezy.model.Project;
@@ -15,6 +16,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.Map;
 
 /**
@@ -98,6 +100,12 @@ final class DashboardReminders {
      */
     static List<DashboardStatsDto.UpcomingRenewal> buildUpcomingRenewals(
             List<Project> projects, LocalDate today, int noticePeriodInDays) {
+        return buildUpcomingRenewals(projects, today, noticePeriodInDays, project -> null);
+    }
+
+    /** As above, each renewal with its rate against the market, as {@code market} gives it, to review the rate in time. */
+    static List<DashboardStatsDto.UpcomingRenewal> buildUpcomingRenewals(
+            List<Project> projects, LocalDate today, int noticePeriodInDays, Function<Project, OfferRateMarketDto> market) {
         List<DashboardStatsDto.UpcomingRenewal> renewals = new ArrayList<>();
         for (Project project : projects) {
             if (!ProjectStatus.WON.equals(project.getStatus()) ||
@@ -118,6 +126,8 @@ final class DashboardReminders {
                     .clientName(project.getClient() != null ? project.getClient().getCompanyName() : null)
                     .renewalDate(renewalDate)
                     .daysUntilRenewal(daysUntilRenewal)
+                    .dailyRate(project.getDailyRate())
+                    .market(market.apply(project))
                     .build());
             }
         }

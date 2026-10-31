@@ -126,6 +126,16 @@
             <span class="secondary">{{ renewal.clientName }}</span>
             <span class="meta">{{ 'dashboard.charts.renewsInDays' | translate:{ days: renewal.daysUntilRenewal } }}</span>
           </a>
+          @if (renewal.dailyRate) {
+            <p class="renewal-rate" [attr.data-renewal-rate]="renewal.projectId">
+              {{ 'dashboard.renewal.rate' | translate:{ rate: (renewal.dailyRate | number:'1.0-0') } }}
+              @if (renewal.market; as market) {
+                · {{ 'dashboard.renewal.market' | translate:{ median: (market.median | number:'1.0-0'), skill: market.skill } }}
+              }
+              · <a [routerLink]="['/projects', renewal.projectId]" [queryParams]="{ email: 'rateReview' }" data-renewal-email>
+                {{ 'dashboard.renewal.ask' | translate }}</a>
+            </p>
+          }
         }
         @if (getUpcomingRenewals().length > collapsedSize) {
           <button type="button" class="toggle-btn" (click)="toggle('renewals')">

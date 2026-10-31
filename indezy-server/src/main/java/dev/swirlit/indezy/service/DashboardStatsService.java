@@ -1,6 +1,8 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.DashboardStatsDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import dev.swirlit.indezy.dto.OfferRateMarketDto;
 import dev.swirlit.indezy.constants.UserPreferenceDefaults;
 import dev.swirlit.indezy.model.Contact;
 import dev.swirlit.indezy.model.Freelance;
@@ -52,6 +54,7 @@ public class DashboardStatsService {
     private final PurchaseOrderService purchaseOrderService;
     private final ComplianceDocumentService complianceDocumentService;
     private final BilledDaysService billedDaysService;
+    private OfferRateBenchmarkService benchmarks;
 
     /** Notice period applied when the freelance has not configured one. */
     private static final int DEFAULT_NOTICE_PERIOD_DAYS = 30;
@@ -159,7 +162,7 @@ public class DashboardStatsService {
             .missionsEndingSoon(DashboardReminders.buildMissionsEndingSoon(projects, today))
             .staleOpportunities(DashboardReminders.buildStaleOpportunities(
                 projects, LocalDateTime.now(ZoneId.systemDefault()), inactivityDays))
-            .upcomingRenewals(DashboardReminders.buildUpcomingRenewals(projects, today, noticePeriodInDays))
+            .upcomingRenewals(DashboardReminders.buildUpcomingRenewals(projects, today, noticePeriodInDays, this::market))
             .onThisDay(DashboardReminders.buildOnThisDay(projects, contacts, today))
             .dormantContacts(DashboardReminders.buildDormantContacts(contacts,
                 contactInteractionService.lastContactedInWorkspace(freelanceId), LocalDateTime.now(ZoneId.systemDefault())))
@@ -220,5 +223,20 @@ public class DashboardStatsService {
                 .count(entry.getValue())
                 .build())
             .toList();
+    }
+
+    /** Optional: without the offer feed's medians, renewals come without the market. */
+    @Autowired(required = false)
+    void setBenchmarks(OfferRateBenchmarkService benchmarks) {
+        this.benchmarks = benchmarks;
+    }
+
+    /** The mission's rate against the market median of its first skill, in all of France. */
+    OfferRateMarketDto market(Project project) {
+        if (benchmarks == null || project.getDailyRate() == null || project.getTechStack() == null) {
+            return null;
+        }
+        String firstSkill = project.getTechStack().split(",")[0].strip();
+        return firstSkill.isEmpty() ? null : benchmarks.compare(project.getDailyRate(), project.getDailyRate(), null, firstSkill);
     }
 }
