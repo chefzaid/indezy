@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * A mission's commute from home (see docs/features.md#commute-time-sorting): one trip's time and distance, the days on
  * site a month by its work mode, and the time it costs a month, there and back; or why it has no time.
@@ -38,6 +40,11 @@ public class CommuteInfoDto {
     private boolean estimated;
     /** Whether the trip at rush hour takes longer than the profile's longest for its mode; null without both. */
     private Boolean beyondMaximum;
+    /**
+     * What a day on site costs to get there, in euros, from the profile: the round trip's kilometres at its rate by car,
+     * its monthly pass spread over the days on site by public transport; null without the setting or a trip.
+     */
+    private BigDecimal dailyCost;
     /** Why there is no time, when there is none. */
     private CommuteUnavailable unavailable;
 }

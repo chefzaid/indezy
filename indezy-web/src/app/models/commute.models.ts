@@ -29,6 +29,8 @@ export interface CommuteInfoDto {
   estimated?: boolean;
   /** Whether the trip at rush hour takes longer than the profile's longest for its mode; absent without both. */
   beyondMaximum?: boolean | null;
+  /** What a day on site costs to get there, in euros, from the profile's rate per km or monthly pass. */
+  dailyCost?: number | null;
 }
 
 export interface ProjectCommuteDto {

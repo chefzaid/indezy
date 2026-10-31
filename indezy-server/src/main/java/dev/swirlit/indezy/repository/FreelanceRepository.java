@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,12 @@ public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
     /** The workspaces whose account anonymizes dormant contacts: workspace, account and retention years. */
     @Query("SELECT f.id, u.id, u.contactRetentionYears FROM User u, Freelance f WHERE u.email = f.email AND u.contactRetentionYears > 0")
     List<Object[]> findContactRetentionWorkspaces();
+
+    @Query("SELECT u.kmRate FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
+    Optional<BigDecimal> findKmRate(@Param("freelanceId") Long freelanceId);
+
+    @Query("SELECT u.transitPassMonthly FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
+    Optional<BigDecimal> findTransitPassMonthly(@Param("freelanceId") Long freelanceId);
 
     @Query("SELECT u.maxDriveMinutes FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     Optional<Integer> findMaxDriveMinutes(@Param("freelanceId") Long freelanceId);

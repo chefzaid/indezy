@@ -35,6 +35,10 @@ export interface UserProfile {
   maxDriveMinutes?: number | null;
   /** The longest acceptable public transport trip, one way at rush hour, in minutes. */
   maxTransitMinutes?: number | null;
+  /** What a kilometre driven costs, in euros. */
+  kmRate?: number | null;
+  /** The monthly public transport pass, in euros. */
+  transitPassMonthly?: number | null;
   /** ISO day (yyyy-MM-dd) the workspace is next available from, which offers' start dates are matched against. */
   availabilityDate?: string | null;
   notifications?: UserNotificationSettings;

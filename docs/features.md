@@ -653,6 +653,12 @@ gives back on the quickest way (`Each remote day a week gives you back 13.3 h a 
 /api/commute/project/{id}`. Each Kanban card carries a chip with its drive at rush hour (`≈ 1 h 45`), read from the same
 sorted list.
 
+With the opportunity's daily rate, each way there also shows its **effective daily rate**: the rate less, on each day on
+site, the hours there and back at rush hour priced at the rate's hourly rate (7 hours a day) and the day's cost, spread
+over the month's 20 working days. The cost comes from the profile: **Cost per kilometre driven** (0 to 5 €, the round
+trip's kilometres) and **Monthly transport pass** (0 to 1,000 €, spread over the days on site); without them only the
+hours count, and the card says so.
+
 ## Filtering And Search Surfaces
 
 Every list filters as you type: opportunities, clients (words, type, city), contacts (words, client), sources (words,

@@ -23,6 +23,11 @@
                 <div class="beyond" data-commute-beyond>{{ 'projects.commute.beyondMaximum' | translate }}</div>
               }
               <div class="month">{{ 'projects.commute.perMonth' | translate:{ hours: (monthlyHours(trip) | number:'1.0-1'), days: trip.onsiteDaysPerMonth } }}</div>
+              @if (effectiveRate(trip); as effective) {
+                <div class="effective" data-effective-rate>
+                  {{ ((trip.dailyCost !== null && trip.dailyCost !== undefined) ? 'projects.commute.effectiveRate' : 'projects.commute.effectiveRateTime') | translate:{ rate: (effective | number:'1.0-0'), cost: (trip.dailyCost | number:'1.2-2') } }}
+                </div>
+              }
             } @else {
               <div class="unavailable">
                 {{ 'projects.commute.reasons.' + (trip.unavailable ?? 'LOOKUP_FAILED') | translate }}

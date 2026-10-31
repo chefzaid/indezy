@@ -480,7 +480,9 @@
       "rush": "{{time}} at rush hour",
       "title": "Commute",
       "remoteDaySaving": "Each remote day a week gives you back {{hours}} h a month.",
-      "beyondMaximum": "Longer than your longest commute"
+      "beyondMaximum": "Longer than your longest commute",
+      "effectiveRate": "Effective daily rate: €{{rate}}, the hours there priced at the rate and {{cost}} € a day on site taken off.",
+      "effectiveRateTime": "Effective daily rate: €{{rate}}, the hours there priced at the rate (set a cost in your profile to take it off too)."
     },
     "skills": {
       "matchScore": "Skill match",
@@ -1294,7 +1296,13 @@
     "maxDriveMinutes": "Longest drive to a mission",
     "maxTransitMinutes": "Longest public transport trip to a mission",
     "maxCommuteHint": "Optional. One way at rush hour: longer commutes are flagged and the offer match counts it.",
-    "maxCommuteError": "Enter a whole number of minutes from 1 to 600, or leave blank."
+    "maxCommuteError": "Enter a whole number of minutes from 1 to 600, or leave blank.",
+    "kmRate": "Cost per kilometre driven",
+    "kmRateHint": "Optional. Taken off a mission's effective daily rate when driving there (the tax scale is about 0.60 €).",
+    "kmRateError": "Enter an amount from 0 to 5 €, with at most two decimals, or leave blank.",
+    "transitPassMonthly": "Monthly transport pass",
+    "transitPassHint": "Optional. A Navigo or similar, spread over the days on site of a mission.",
+    "transitPassError": "Enter an amount from 0 to 1,000 €, with at most two decimals, or leave blank."
   },
   "errors": {
     "notFoundTitle": "404 - Page not found",

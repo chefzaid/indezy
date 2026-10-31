@@ -101,7 +101,7 @@
           <app-contract-checklist [project]="project"></app-contract-checklist>
           <app-purchase-orders-card [projectId]="project.id!"></app-purchase-orders-card>
         }
-        <app-project-commute [projectId]="project.id!"></app-project-commute>
+        <app-project-commute [projectId]="project.id!" [dailyRate]="project.dailyRate"></app-project-commute>
         <!-- Project Information -->
         <mat-card class="info-card">
           <mat-card-header>

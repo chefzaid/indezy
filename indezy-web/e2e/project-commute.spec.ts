@@ -14,7 +14,7 @@ for (const { language, width, theme } of [{ language: 'en', width: 1280, theme: 
     await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme, language, inactivityDays: 14 } }));
     await page.route('**/api/commute/project/42', route => route.fulfill({ json: [
       { ...trip, travelMode: 'DRIVING', durationInSeconds: 3000, rushDurationInSeconds: 6300, distanceInMeters: 56000,
-        monthlySeconds: 6300 * 40, beyondMaximum: true },
+        monthlySeconds: 6300 * 40, beyondMaximum: true, dailyCost: 33.6 },
       { ...trip, travelMode: 'TRANSIT', durationInSeconds: 5400, rushDurationInSeconds: 6000, distanceInMeters: 56000,
         monthlySeconds: 6000 * 40 }] }));
 
@@ -25,6 +25,9 @@ for (const { language, width, theme } of [{ language: 'en', width: 1280, theme: 
     await expect(card.locator('[data-commute-mode="DRIVING"] [data-commute-beyond]')).toBeVisible();
     await expect(card.locator('[data-commute-mode="TRANSIT"] [data-commute-beyond]')).toHaveCount(0);
     await expect(card.locator('[data-commute-mode="TRANSIT"]')).toContainText(language === 'en' ? '66.7 h a month' : '66,7 h par mois');
+    // 650 € a day, 1 h 45 each way at 92.86 €/h and 33.60 € a day by car; 1 h 40 each way by transit, no cost set.
+    await expect(card.locator('[data-commute-mode="DRIVING"] [data-effective-rate]')).toContainText(language === 'en' ? '€291' : '291 €');
+    await expect(card.locator('[data-commute-mode="TRANSIT"] [data-effective-rate]')).toContainText(language === 'en' ? '€340' : '340 €');
     await expect(card.locator('[data-remote-day-saving]')).toContainText(language === 'en' ? '13.3 h a month' : '13,3 h par mois');
     const audit = await new AxeBuilder({ page }).include('[data-project-commute]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
@@ -78,6 +81,11 @@ test('sets the longest drive and public transport trip in the profile', async ({
   await expect(save).toBeDisabled();
   await page.locator('[data-max-drive]').fill('45');
   await page.locator('[data-max-transit]').fill('60');
+  await page.locator('[data-km-rate]').fill('0.601');
+  await expect(save).toBeDisabled();
+  await page.locator('[data-km-rate]').fill('0.6');
+  await page.locator('[data-transit-pass]').fill('88.8');
   await save.click();
-  await expect.poll(() => [profile['maxDriveMinutes'], profile['maxTransitMinutes']]).toEqual([45, 60]);
+  await expect.poll(() => [profile['maxDriveMinutes'], profile['maxTransitMinutes'], profile['kmRate'], profile['transitPassMonthly']])
+    .toEqual([45, 60, 0.6, 88.8]);
 });

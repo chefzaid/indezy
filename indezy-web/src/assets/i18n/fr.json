@@ -480,7 +480,9 @@
       "rush": "{{time}} aux heures de pointe",
       "title": "Trajet",
       "remoteDaySaving": "Chaque jour de télétravail par semaine vous rend {{hours}} h par mois.",
-      "beyondMaximum": "Plus long que votre trajet maximal"
+      "beyondMaximum": "Plus long que votre trajet maximal",
+      "effectiveRate": "TJM effectif : {{rate}} €, les heures de trajet comptées au taux du TJM et {{cost}} € par jour sur site déduits.",
+      "effectiveRateTime": "TJM effectif : {{rate}} €, les heures de trajet comptées au taux du TJM (indiquez un coût dans votre profil pour le déduire aussi)."
     },
     "skills": {
       "matchScore": "Correspondance",
@@ -1294,7 +1296,13 @@
     "maxDriveMinutes": "Trajet maximal en voiture vers une mission",
     "maxTransitMinutes": "Trajet maximal en transports vers une mission",
     "maxCommuteHint": "Facultatif. Aller simple à l'heure de pointe : les trajets plus longs sont signalés et l'adéquation des offres en tient compte.",
-    "maxCommuteError": "Saisissez un nombre entier de minutes entre 1 et 600, ou laissez vide."
+    "maxCommuteError": "Saisissez un nombre entier de minutes entre 1 et 600, ou laissez vide.",
+    "kmRate": "Coût du kilomètre en voiture",
+    "kmRateHint": "Facultatif. Déduit du TJM effectif d'une mission quand vous y allez en voiture (le barème fiscal est d'environ 0,60 €).",
+    "kmRateError": "Saisissez un montant de 0 à 5 €, avec au plus deux décimales, ou laissez vide.",
+    "transitPassMonthly": "Abonnement de transport mensuel",
+    "transitPassHint": "Facultatif. Un Navigo ou équivalent, réparti sur les jours sur site d'une mission.",
+    "transitPassError": "Saisissez un montant de 0 à 1 000 €, avec au plus deux décimales, ou laissez vide."
   },
   "errors": {
     "notFoundTitle": "404 - Page non trouvée",

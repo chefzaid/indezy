@@ -70,4 +70,17 @@ describe('ProjectCommuteComponent', () => {
     render([trip({ onsiteDaysPerMonth: 2 })]);
     expect(fixture.componentInstance.remoteDaySaving()).toBeNull();
   });
+
+  it('takes the commute off the daily rate: its hours at the hourly rate and its cost, over the month', () => {
+    render([trip({ dailyCost: 33.6 })]);
+    const component = fixture.componentInstance;
+    expect(component.effectiveRate(component.trips[0])).toBeNull();
+    fixture.componentRef.setInput('dailyRate', 700);
+    // 1 h 45 each way at 100 €/h on each of the 20 days on site, and 33.60 € a day: 700 - 350 - 33.60.
+    expect(component.effectiveRate(component.trips[0])).toBe(316);
+    expect(component.effectiveRate(trip({ onsiteDaysPerMonth: 10, rushDurationInSeconds: null, durationInSeconds: 3600 }))).toBe(600);
+    expect(component.effectiveRate(trip({ durationInSeconds: undefined, rushDurationInSeconds: undefined }))).toBeNull();
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-effective-rate]')?.textContent).toContain('projects.commute.effectiveRate');
+  });
 });

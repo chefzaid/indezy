@@ -26,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URI;
 import java.time.Clock;
 import java.time.DayOfWeek;
@@ -160,7 +162,10 @@ public class CommuteService {
         for (TravelMode mode : TravelMode.values()) {
             Map<String, Trip> byDestination = origin.isBlank() || destination.isBlank() || onSiteDays(project) == 0 ? Map.of() :
                 lookUp(origin, List.of(destination), mode);
-            commutes.add(commuteOf(project, dto, origin, byDestination, mode, maximumMinutes(freelance.getId(), mode)));
+            CommuteInfoDto commute = commuteOf(project, dto, origin, byDestination, mode, maximumMinutes(freelance.getId(), mode));
+            commute.setDailyCost(dailyCost(commute, mode == TravelMode.DRIVING ? freelanceRepository.findKmRate(freelance.getId()) :
+                freelanceRepository.findTransitPassMonthly(freelance.getId())));
+            commutes.add(commute);
         }
         return commutes;
     }
@@ -192,6 +197,18 @@ public class CommuteService {
             .beyondMaximum(maximumMinutes == null || trip == null || trip.commuteSeconds() == null ? null :
                 trip.commuteSeconds() > maximumMinutes * 60)
             .build();
+    }
+
+    /** A day on site's cost to get there: the round trip at the rate per km, or the monthly pass over the days on site. */
+    static BigDecimal dailyCost(CommuteInfoDto commute, Optional<BigDecimal> setting) {
+        if (setting.isEmpty() || commute.isRemote() || commute.getDurationInSeconds() == null || commute.getOnsiteDaysPerMonth() == 0) {
+            return null;
+        }
+        if (commute.getTravelMode() == TravelMode.DRIVING) {
+            return commute.getDistanceInMeters() == null ? null : setting.get()
+                .multiply(BigDecimal.valueOf(2L * commute.getDistanceInMeters())).divide(BigDecimal.valueOf(1000), 2, RoundingMode.HALF_UP);
+        }
+        return setting.get().divide(BigDecimal.valueOf(commute.getOnsiteDaysPerMonth()), 2, RoundingMode.HALF_UP);
     }
 
     /** The profile's longest acceptable trip by this mode, one way at rush hour, in minutes. */

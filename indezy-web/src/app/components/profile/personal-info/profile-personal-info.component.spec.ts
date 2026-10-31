@@ -35,6 +35,8 @@ describe('ProfilePersonalInfoComponent', () => {
       billedDaysTarget: [null],
       maxDriveMinutes: [null],
       maxTransitMinutes: [null],
+      kmRate: [null],
+      transitPassMonthly: [null],
       availabilityDate: [null],
       website: [''],
       linkedin: [''],

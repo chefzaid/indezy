@@ -39,4 +39,17 @@ class ProjectCommuteIntegrationTest extends TwoAccountsIntegrationTest {
             .containsEntry("maxDriveMinutes", 45).containsEntry("maxTransitMinutes", 60);
         assertThat(call(bob, HttpMethod.GET, "/users/profile", null, Map.class).getBody().get("maxDriveMinutes")).isNull();
     }
+
+    @Test
+    void keepsWhatTheCommuteCosts() {
+        Map profile = call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+        profile.put("kmRate", 6);
+        assertThat(call(alice, HttpMethod.PUT, "/users/profile", profile, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        profile.put("kmRate", 0.6);
+        profile.put("transitPassMonthly", 88.8);
+        call(alice, HttpMethod.PUT, "/users/profile", profile, Map.class);
+        Map saved = call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+        assertThat(((Number) saved.get("kmRate")).doubleValue()).isEqualTo(0.6);
+        assertThat(((Number) saved.get("transitPassMonthly")).doubleValue()).isEqualTo(88.8);
+    }
 }

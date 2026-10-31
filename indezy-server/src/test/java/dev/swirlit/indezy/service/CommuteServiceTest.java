@@ -361,6 +361,34 @@ class CommuteServiceTest {
     }
 
     @Test
+    void costsADayOnSiteFromTheProfilesRateOrPass() {
+        when(geoLocator.canLocate()).thenReturn(true);
+        when(geoLocator.locateAddress("10 rue de la Paix, Paris")).thenReturn(Optional.of(new GeoLocator.Place("Paris", "75", null, 48.8690, 2.3310)));
+        when(geoLocator.locateAddress("La Défense")).thenReturn(Optional.of(new GeoLocator.Place("Puteaux", "92", null, 48.8920, 2.2380)));
+        Project defense = project(1, "La Défense", WorkMode.HYBRID);
+        defense.setFreelance(freelance);
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(defense));
+        when(freelanceRepository.findKmRate(1L)).thenReturn(Optional.of(new java.math.BigDecimal("0.60")));
+        when(freelanceRepository.findTransitPassMonthly(1L)).thenReturn(Optional.of(new java.math.BigDecimal("88.80")));
+
+        List<CommuteInfoDto> commutes = commuteService.getProjectCommute(1L);
+
+        // By car, the round trip's kilometres at 0.60 €; by transit, the pass over the 10 days on site.
+        CommuteInfoDto car = commutes.get(0);
+        assertThat(car.getDailyCost()).isEqualByComparingTo(java.math.BigDecimal.valueOf(car.getDistanceInMeters() * 2 * 0.6 / 1000)
+            .setScale(2, java.math.RoundingMode.HALF_UP));
+        assertThat(commutes.get(1).getDailyCost()).isEqualByComparingTo("8.88");
+
+        when(freelanceRepository.findKmRate(1L)).thenReturn(Optional.empty());
+        assertThat(commuteService.getProjectCommute(1L).get(0).getDailyCost()).isNull();
+        assertThat(CommuteService.dailyCost(CommuteInfoDto.builder().remote(true).build(), Optional.of(java.math.BigDecimal.ONE))).isNull();
+        assertThat(CommuteService.dailyCost(CommuteInfoDto.builder().travelMode(TravelMode.DRIVING).durationInSeconds(600)
+            .onsiteDaysPerMonth(10).build(), Optional.of(java.math.BigDecimal.ONE))).isNull();
+        assertThat(CommuteService.dailyCost(CommuteInfoDto.builder().travelMode(TravelMode.TRANSIT).durationInSeconds(600)
+            .onsiteDaysPerMonth(0).build(), Optional.of(java.math.BigDecimal.ONE))).isNull();
+    }
+
+    @Test
     void findsTheFarthestDistanceATripFitsIn() {
         for (TravelMode mode : TravelMode.values()) {
             double km = CommuteService.reachKm(60, mode, true);

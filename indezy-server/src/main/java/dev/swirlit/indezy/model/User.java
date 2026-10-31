@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -107,6 +108,14 @@ public class User extends BaseEntity {
     /** The longest acceptable public transport trip to a mission, one way at rush hour, in minutes. */
     @Column(name = "max_transit_minutes")
     private Integer maxTransitMinutes;
+
+    /** What a kilometre driven to a mission costs, in euros: the effective daily rate takes it off. */
+    @Column(name = "km_rate", precision = 4, scale = 2)
+    private BigDecimal kmRate;
+
+    /** The monthly public transport pass (a Navigo, say), in euros: the effective daily rate takes it off. */
+    @Column(name = "transit_pass_monthly", precision = 6, scale = 2)
+    private BigDecimal transitPassMonthly;
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;

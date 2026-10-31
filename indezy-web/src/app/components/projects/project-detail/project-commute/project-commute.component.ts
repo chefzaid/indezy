@@ -10,6 +10,10 @@ import { tripTime } from '../../../../shared/utils/trip-time';
 
 /** Weeks in a month of 20 working days: what one remote day a week gives back. */
 const WEEKS_PER_MONTH = 4;
+/** Working days in a month, over which the days on site are spread. */
+const WORKING_DAYS_PER_MONTH = 20;
+/** A working day's hours, which price an hour of the daily rate. */
+const HOURS_PER_DAY = 7;
 
 /**
  * The commute to an opportunity: one way by car and by public transport, off-peak and at rush hour, the month's time
@@ -27,6 +31,8 @@ export class ProjectCommuteComponent implements OnChanges {
   private readonly changes = inject(ChangeDetectorRef);
 
   @Input({ required: true }) projectId!: number;
+  /** The mission's daily rate, which its effective rate starts from. */
+  @Input() dailyRate: number | null | undefined = null;
 
   trips: CommuteInfoDto[] = [];
 
@@ -64,6 +70,20 @@ export class ProjectCommuteComponent implements OnChanges {
   /** The month's commute in hours, to the tenth. */
   monthlyHours(trip: CommuteInfoDto): number {
     return Math.round((trip.monthlySeconds ?? 0) / 360) / 10;
+  }
+
+  /**
+   * What the mission pays a day once its commute is counted: the hours there and back at rush hour priced at the daily
+   * rate's hourly rate ({@link HOURS_PER_DAY} hours a day), and the day's cost when the profile sets one, taken off on
+   * each day on site and spread over the month's working days. Null without a rate or a time.
+   */
+  effectiveRate(trip: CommuteInfoDto): number | null {
+    const seconds = trip.rushDurationInSeconds ?? trip.durationInSeconds;
+    if (!this.dailyRate || seconds === null || seconds === undefined) {
+      return null;
+    }
+    const perDayOnSite = 2 * seconds / 3600 * this.dailyRate / HOURS_PER_DAY + (trip.dailyCost ?? 0);
+    return Math.round(this.dailyRate - trip.onsiteDaysPerMonth / WORKING_DAYS_PER_MONTH * perDayOnSite);
   }
 
   /** Hours a month one remote day a week gives back on the quickest way there, null without a time or a day on site a week. */
