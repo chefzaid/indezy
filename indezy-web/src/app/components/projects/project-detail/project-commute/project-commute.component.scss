@@ -1,0 +1,25 @@
+// The card, not this element, takes a cell of the page's grid, so a remote mission leaves no empty cell.
+:host { display: contents; }
+
+mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
+}
+
+mat-card-content { padding-top: 16px; }
+
+.trip {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+
+  > mat-icon { color: var(--app-text-muted); flex-shrink: 0; }
+}
+
+.mode, .month, .hint { color: var(--app-text-muted); font-size: 0.875rem; }
+.unavailable a { margin-left: 4px; color: var(--app-link); }
+.saving { margin: 8px 0 0; color: var(--app-positive); }
+.hint { margin: 8px 0 0; }

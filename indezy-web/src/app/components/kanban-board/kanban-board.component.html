@@ -85,6 +85,14 @@
                           {{ 'projects.workModes.' + card.workMode | translate }}
                         </span>
                       }
+                      @if (commuteMinutes.get(card.projectId); as minutes) {
+                        <span class="meta-item commute" data-card-commute
+                          [matTooltip]="'kanban.commute' | translate:{ time: commuteTime(minutes) }">
+                          <mat-icon aria-hidden="true">directions_car</mat-icon>
+                          <span aria-hidden="true">{{ commuteTime(minutes) }}</span>
+                          <span class="cdk-visually-hidden">{{ 'kanban.commute' | translate:{ time: commuteTime(minutes) } }}</span>
+                        </span>
+                      }
                     </div>
                     @if (card.techStack) {
                       <div class="card-tech">

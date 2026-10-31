@@ -1,0 +1,42 @@
+@if (trips.length > 0) {
+  <mat-card class="info-card" data-project-commute>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>commute</mat-icon>
+        {{ 'projects.commute.title' | translate }}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @for (trip of trips; track trip.travelMode) {
+        <div class="trip" [attr.data-commute-mode]="trip.travelMode">
+          <mat-icon aria-hidden="true">{{ trip.travelMode === 'DRIVING' ? 'directions_car' : 'train' }}</mat-icon>
+          <div>
+            <div class="mode">{{ (trip.travelMode === 'DRIVING' ? 'projects.commute.car' : 'projects.commute.transit') | translate }}</div>
+            @if (trip.durationInSeconds !== null && trip.durationInSeconds !== undefined) {
+              <div class="time">
+                <strong>{{ time(trip) }}</strong> ({{ distance(trip) }})
+                @if (rush(trip); as rush) {
+                  · {{ 'projects.commute.rush' | translate:{ time: rush } }}
+                }
+              </div>
+              <div class="month">{{ 'projects.commute.perMonth' | translate:{ hours: (monthlyHours(trip) | number:'1.0-1'), days: trip.onsiteDaysPerMonth } }}</div>
+            } @else {
+              <div class="unavailable">
+                {{ 'projects.commute.reasons.' + (trip.unavailable ?? 'LOOKUP_FAILED') | translate }}
+                @if (trip.unavailable === 'NO_HOME_ADDRESS') {
+                  <a routerLink="/profile">{{ 'projects.commute.openProfile' | translate }}</a>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+      @if (remoteDaySaving(); as hours) {
+        <p class="saving" data-remote-day-saving>{{ 'projects.commute.remoteDaySaving' | translate:{ hours: (hours | number:'1.0-1') } }}</p>
+      }
+      @if (trips[0].estimated) {
+        <p class="hint">{{ 'projects.commute.estimateHint' | translate }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+}

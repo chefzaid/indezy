@@ -36,6 +36,8 @@ import {
   PROJECT_STATUS_ICONS
 } from '../../models/project.models';
 import { EnterOpensDirective } from '../../shared/directives/enter-opens.directive';
+import { CommuteService } from '../../services/commute/commute.service';
+import { tripTime } from '../../shared/utils/trip-time';
 
 @Component({
   selector: 'app-kanban-board',
@@ -72,6 +74,9 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly locale = inject(LOCALE_ID);
   private readonly translate = inject(TranslateService);
+  private readonly commuteService = inject(CommuteService);
+  /** Each opportunity's one-way drive at rush hour, in minutes, when one is known. */
+  commuteMinutes = new Map<number, number>();
 
   readonly STATUS_COLORS = PROJECT_STATUS_COLORS;
   readonly STATUS_ICONS = PROJECT_STATUS_ICONS;
@@ -90,6 +95,7 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
       if (user?.id) {
         this.currentUserId = user.id;
         this.loadKanbanBoard();
+        this.loadCommutes();
       }
     });
   }
@@ -122,6 +128,28 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
           this.isLoading = false;
         }
       });
+  }
+
+  /** The drive to each opportunity, for its card's chip; a failed lookup leaves the cards without it. */
+  loadCommutes(): void {
+    this.commuteService.getProjectsSortedByCommute(this.currentUserId!, 'DRIVING').pipe(takeUntil(this.destroy$)).subscribe({
+      next: results => {
+        this.commuteMinutes = new Map(results
+          .filter(result => result.project.id !== undefined && !result.commute?.remote)
+          .flatMap(result => {
+            const seconds = result.commute?.rushDurationInSeconds ?? result.commute?.durationInSeconds;
+            return seconds === null || seconds === undefined ? [] : [[result.project.id!, seconds / 60] as [number, number]];
+          }));
+      },
+      error: () => {
+        this.commuteMinutes = new Map();
+      }
+    });
+  }
+
+  /** "≈ 1 h 45": a card's drive at rush hour. */
+  commuteTime(minutes: number): string {
+    return `≈ ${tripTime(minutes)}`;
   }
 
   openQuickAdd(status: string): void {

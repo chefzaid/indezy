@@ -474,7 +474,9 @@
       },
       "estimate": "estimation",
       "estimateHint": "Estimé à vol d'oiseau entre votre adresse et celle du client : le trajet réel peut différer.",
-      "rush": "{{time}} aux heures de pointe"
+      "rush": "{{time}} aux heures de pointe",
+      "title": "Trajet",
+      "remoteDaySaving": "Chaque jour de télétravail par semaine vous rend {{hours}} h par mois."
     },
     "skills": {
       "matchScore": "Correspondance",
@@ -866,7 +868,8 @@
       "delete": "Supprimer",
       "confirmDelete": "Supprimer ces {{count}} opportunités, avec leurs notes, fichiers et comptes rendus d'activité ? C'est définitif.",
       "deleted": "{{count}} opportunité(s) supprimée(s)"
-    }
+    },
+    "commute": "En voiture à l'heure de pointe : {{time}}"
   },
   "profile": {
     "targetDailyRate": "TJM cible",

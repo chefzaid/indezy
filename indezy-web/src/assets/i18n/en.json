@@ -474,7 +474,9 @@
       },
       "estimate": "estimate",
       "estimateHint": "Estimated from the straight line between your address and the client's: actual routes may differ.",
-      "rush": "{{time}} at rush hour"
+      "rush": "{{time}} at rush hour",
+      "title": "Commute",
+      "remoteDaySaving": "Each remote day a week gives you back {{hours}} h a month."
     },
     "skills": {
       "matchScore": "Skill match",
@@ -866,7 +868,8 @@
       "delete": "Delete",
       "confirmDelete": "Delete these {{count}} opportunities, with their notes, files and activity reports? This cannot be undone.",
       "deleted": "{{count}} opportunities deleted"
-    }
+    },
+    "commute": "Drive at rush hour: {{time}}"
   },
   "profile": {
     "targetDailyRate": "Target daily rate",

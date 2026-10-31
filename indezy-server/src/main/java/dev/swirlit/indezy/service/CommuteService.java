@@ -136,33 +136,57 @@ public class CommuteService {
         List<ProjectCommuteDto> results = new ArrayList<>();
         for (Project project : projects) {
             ProjectDto dto = projectMapper.toDto(project);
-            String destination = clientAddress(project.getClient());
-            int days = onSiteDays(project);
-            Trip trip;
-            if (days == 0) {
-                trip = null;
-            } else if (origin.isBlank()) {
-                trip = Trip.none(CommuteUnavailable.NO_HOME_ADDRESS);
-            } else if (destination.isBlank()) {
-                trip = Trip.none(CommuteUnavailable.NO_CLIENT_ADDRESS);
-            } else {
-                trip = byDestination.get(destination);
-            }
-            results.add(ProjectCommuteDto.builder().project(dto).commute(CommuteInfoDto.builder()
-                .projectId(project.getId()).projectRole(dto.getRole()).clientName(dto.getClientName())
-                .origin(origin).destination(destination).travelMode(travelMode)
-                .remote(days == 0).onsiteDaysPerMonth(days)
-                .durationInSeconds(trip == null ? null : trip.seconds()).durationText(trip == null ? null : trip.durationText())
-                .distanceInMeters(trip == null ? null : trip.meters()).distanceText(trip == null ? null : trip.distanceText())
-                .rushDurationInSeconds(trip == null ? null : trip.rushSeconds())
-                .monthlySeconds(days == 0 ? Integer.valueOf(0) : monthly(trip.commuteSeconds(), days))
-                .unavailable(trip == null ? null : trip.unavailable())
-                .estimated(trip != null && trip.estimated())
-                .build()).build());
+            results.add(ProjectCommuteDto.builder().project(dto)
+                .commute(commuteOf(project, dto, origin, byDestination, travelMode)).build());
         }
         // The cheapest commute first, a remote mission costing nothing; those without a time last.
         results.sort(Comparator.comparing(result -> result.getCommute().getMonthlySeconds(), Comparator.nullsLast(Comparator.naturalOrder())));
         return results;
+    }
+
+    /** One opportunity's commute by car, then by public transport (see docs/features.md#commute-time-sorting). */
+    @Transactional(readOnly = true)
+    public List<CommuteInfoDto> getProjectCommute(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + projectId));
+        Freelance freelance = project.getFreelance();
+        String origin = address(freelance.getAddress(), freelance.getCity());
+        String destination = clientAddress(project.getClient());
+        ProjectDto dto = projectMapper.toDto(project);
+        List<CommuteInfoDto> commutes = new ArrayList<>();
+        for (TravelMode mode : TravelMode.values()) {
+            Map<String, Trip> byDestination = origin.isBlank() || destination.isBlank() || onSiteDays(project) == 0 ? Map.of() :
+                lookUp(origin, List.of(destination), mode);
+            commutes.add(commuteOf(project, dto, origin, byDestination, mode));
+        }
+        return commutes;
+    }
+
+    private static CommuteInfoDto commuteOf(Project project, ProjectDto dto, String origin, Map<String, Trip> byDestination,
+                                            TravelMode travelMode) {
+        String destination = clientAddress(project.getClient());
+        int days = onSiteDays(project);
+        Trip trip;
+        if (days == 0) {
+            trip = null;
+        } else if (origin.isBlank()) {
+            trip = Trip.none(CommuteUnavailable.NO_HOME_ADDRESS);
+        } else if (destination.isBlank()) {
+            trip = Trip.none(CommuteUnavailable.NO_CLIENT_ADDRESS);
+        } else {
+            trip = byDestination.get(destination);
+        }
+        return CommuteInfoDto.builder()
+            .projectId(project.getId()).projectRole(dto.getRole()).clientName(dto.getClientName())
+            .origin(origin).destination(destination).travelMode(travelMode)
+            .remote(days == 0).onsiteDaysPerMonth(days)
+            .durationInSeconds(trip == null ? null : trip.seconds()).durationText(trip == null ? null : trip.durationText())
+            .distanceInMeters(trip == null ? null : trip.meters()).distanceText(trip == null ? null : trip.distanceText())
+            .rushDurationInSeconds(trip == null ? null : trip.rushSeconds())
+            .monthlySeconds(days == 0 ? Integer.valueOf(0) : monthly(trip.commuteSeconds(), days))
+            .unavailable(trip == null ? null : trip.unavailable())
+            .estimated(trip != null && trip.estimated())
+            .build();
     }
 
     /** Days on site a month: none when remote, as the mission states them, else all of them or half when hybrid. */

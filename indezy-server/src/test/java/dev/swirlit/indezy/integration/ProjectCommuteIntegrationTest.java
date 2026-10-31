@@ -1,0 +1,29 @@
+package dev.swirlit.indezy.integration;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/** An opportunity's commute, over HTTP: both ways there for its owner, nothing for another account. */
+class ProjectCommuteIntegrationTest extends TwoAccountsIntegrationTest {
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void answersBothWaysThereOnlyToTheOpportunitysOwner() {
+        long projectId = ((Number) call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650,
+            "clientId", aliceClientId, "workMode", "ONSITE"), Map.class).getBody().get("id")).longValue();
+
+        List<Map<String, Object>> commutes = call(alice, HttpMethod.GET, "/commute/project/" + projectId, null, List.class).getBody();
+        assertThat(commutes).extracting(commute -> commute.get("travelMode")).containsExactly("DRIVING", "TRANSIT");
+        assertThat(commutes).allSatisfy(commute -> assertThat(commute).containsEntry("onsiteDaysPerMonth", 20)
+            .containsEntry("remote", false));
+
+        assertThat(call(bob, HttpMethod.GET, "/commute/project/" + projectId, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+    }
+}

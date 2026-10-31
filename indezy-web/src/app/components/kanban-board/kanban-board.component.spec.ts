@@ -14,6 +14,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { KanbanBoardDto, KanbanProjectCardDto, ProjectDto, ProjectStatus } from '../../models/project.models';
 import { User } from '../../models';
+import { CommuteService } from '../../services/commute/commute.service';
 
 describe('KanbanBoardComponent', () => {
   let component: KanbanBoardComponent;
@@ -102,6 +103,33 @@ describe('KanbanBoardComponent', () => {
       fixture.detectChanges();
 
       expect(mockProjectService.getKanbanBoard).not.toHaveBeenCalled();
+    });
+
+    it('chips each card with its drive at rush hour, leaving out remote and unknown ones', () => {
+      mockProjectService.getKanbanBoard.and.returnValue(of(mockBoard));
+      const commute = TestBed.inject(CommuteService);
+      const trip = { projectRole: 'Lead', origin: 'Issou', destination: 'Montrouge', travelMode: 'DRIVING' as const,
+        onsiteDaysPerMonth: 20 };
+      spyOn(commute, 'getProjectsSortedByCommute').and.returnValue(of([
+        { project: { id: mockCard.projectId } as ProjectDto, commute: { ...trip, projectId: mockCard.projectId, remote: false,
+          durationInSeconds: 3000, rushDurationInSeconds: 6300 } },
+        { project: { id: 8 } as ProjectDto, commute: { ...trip, projectId: 8, remote: true } },
+        { project: { id: 9 } as ProjectDto, commute: { ...trip, projectId: 9, remote: false, unavailable: 'NOT_FOUND' as const } }]));
+
+      fixture.detectChanges();
+
+      expect(commute.getProjectsSortedByCommute).toHaveBeenCalledWith(1, 'DRIVING');
+      expect([...component.commuteMinutes.entries()]).toEqual([[mockCard.projectId, 105]]);
+      expect((fixture.nativeElement as HTMLElement).querySelector('[data-card-commute]')?.textContent).toContain('≈ 1 h 45');
+    });
+
+    it('shows no chip when the commutes cannot be read', () => {
+      mockProjectService.getKanbanBoard.and.returnValue(of(mockBoard));
+      spyOn(TestBed.inject(CommuteService), 'getProjectsSortedByCommute').and.returnValue(throwError(() => new Error('down')));
+
+      fixture.detectChanges();
+
+      expect(component.commuteMinutes.size).toBe(0);
     });
 
     it('should notify on load error', () => {

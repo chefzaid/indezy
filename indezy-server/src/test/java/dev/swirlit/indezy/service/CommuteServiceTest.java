@@ -324,6 +324,43 @@ class CommuteServiceTest {
     }
 
     @Test
+    void givesOneOpportunitysTripByCarThenByTransit() {
+        when(geoLocator.canLocate()).thenReturn(true);
+        when(geoLocator.locateAddress("10 rue de la Paix, Paris")).thenReturn(Optional.of(new GeoLocator.Place("Paris", "75", null, 48.8690, 2.3310)));
+        when(geoLocator.locateAddress("La Défense")).thenReturn(Optional.of(new GeoLocator.Place("Puteaux", "92", null, 48.8920, 2.2380)));
+        Project defense = project(1, "La Défense", WorkMode.HYBRID);
+        defense.setFreelance(freelance);
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(defense));
+
+        List<CommuteInfoDto> commutes = commuteService.getProjectCommute(1L);
+
+        assertThat(commutes).extracting(CommuteInfoDto::getTravelMode).containsExactly(TravelMode.DRIVING, TravelMode.TRANSIT);
+        assertThat(commutes).allSatisfy(commute -> {
+            assertThat(commute.isEstimated()).isTrue();
+            assertThat(commute.getOnsiteDaysPerMonth()).isEqualTo(10);
+            assertThat(commute.getMonthlySeconds()).isEqualTo(commute.getRushDurationInSeconds() * 2 * 10);
+        });
+        assertThat(commutes.get(1).getDurationInSeconds()).isGreaterThan(commutes.get(0).getDurationInSeconds());
+    }
+
+    @Test
+    void looksNothingUpForARemoteOpportunityOrOneWithoutAHomeAddress() {
+        Project remote = project(2, "Lyon", WorkMode.REMOTE);
+        remote.setFreelance(freelance);
+        when(projectRepository.findById(2L)).thenReturn(Optional.of(remote));
+        assertThat(commuteService.getProjectCommute(2L)).allSatisfy(commute -> assertThat(commute.isRemote()).isTrue());
+
+        Project onSite = project(3, "Lyon", WorkMode.ONSITE);
+        Freelance homeless = new Freelance();
+        onSite.setFreelance(homeless);
+        when(projectRepository.findById(3L)).thenReturn(Optional.of(onSite));
+        assertThat(commuteService.getProjectCommute(3L))
+            .allSatisfy(commute -> assertThat(commute.getUnavailable()).isEqualTo(CommuteUnavailable.NO_HOME_ADDRESS));
+        verify(geoLocator, never()).locateAddress(any());
+        assertThatThrownBy(() -> commuteService.getProjectCommute(9L)).isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
     void neverTakesLessTimeForALongerTrip() {
         for (TravelMode mode : TravelMode.values()) {
             for (boolean ileDeFrance : new boolean[] {false, true}) {
