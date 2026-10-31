@@ -27,6 +27,8 @@ describe('HomeComponent', () => {
     translate.setTranslation('en', en);
     translate.setTranslation('fr', fr);
     navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    // The document is shared by every test: each starts from the app's own title.
+    TestBed.inject(Title).setTitle('Indezy');
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
     return { component: fixture.componentInstance, element: fixture.nativeElement as HTMLElement };
@@ -74,7 +76,7 @@ describe('HomeComponent', () => {
     expect(TestBed.inject(Meta).getTag('property="og:url"')!.content).toBe(`${location.origin}/en`);
 
     component.ngOnDestroy();
-    expect(TestBed.inject(Title).getTitle()).not.toContain('Find the mission');
+    expect(TestBed.inject(Title).getTitle()).toBe('Indezy');
     expect(TestBed.inject(Meta).getTag('name="description"')).toBeNull();
     expect(TestBed.inject(DOCUMENT).head.querySelector('link[rel="canonical"]')).toBeNull();
   });
