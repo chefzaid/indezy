@@ -29,9 +29,9 @@ public record OfferMatchDto(int score, List<String> skills, RateFit rate, PlaceF
 
     public enum PlaceFit {
         REMOTE,
-        /** Within 30 km. */
+        /** Within 30 km, or within the profile's longest commute at rush hour by the estimate. */
         NEAR,
-        /** Within 80 km. */
+        /** Within 80 km, or within one and a half times that commute. */
         REACHABLE,
         /** Farther, with three remote days a week or more. */
         MOSTLY_REMOTE,

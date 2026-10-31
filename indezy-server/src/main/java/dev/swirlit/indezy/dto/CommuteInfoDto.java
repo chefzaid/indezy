@@ -36,6 +36,8 @@ public class CommuteInfoDto {
     private Integer monthlySeconds;
     /** Estimated from the straight line between the two addresses, without Google: no road was looked up. */
     private boolean estimated;
+    /** Whether the trip at rush hour takes longer than the profile's longest for its mode; null without both. */
+    private Boolean beyondMaximum;
     /** Why there is no time, when there is none. */
     private CommuteUnavailable unavailable;
 }

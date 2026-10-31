@@ -14,7 +14,7 @@ for (const { language, width, theme } of [{ language: 'en', width: 1280, theme: 
     await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme, language, inactivityDays: 14 } }));
     await page.route('**/api/commute/project/42', route => route.fulfill({ json: [
       { ...trip, travelMode: 'DRIVING', durationInSeconds: 3000, rushDurationInSeconds: 6300, distanceInMeters: 56000,
-        monthlySeconds: 6300 * 40 },
+        monthlySeconds: 6300 * 40, beyondMaximum: true },
       { ...trip, travelMode: 'TRANSIT', durationInSeconds: 5400, rushDurationInSeconds: 6000, distanceInMeters: 56000,
         monthlySeconds: 6000 * 40 }] }));
 
@@ -22,6 +22,8 @@ for (const { language, width, theme } of [{ language: 'en', width: 1280, theme: 
     const card = page.locator('[data-project-commute]');
     await expect(card.locator('[data-commute-mode="DRIVING"]')).toContainText('≈ 50 min (56 km)');
     await expect(card.locator('[data-commute-mode="DRIVING"]')).toContainText('≈ 1 h 45');
+    await expect(card.locator('[data-commute-mode="DRIVING"] [data-commute-beyond]')).toBeVisible();
+    await expect(card.locator('[data-commute-mode="TRANSIT"] [data-commute-beyond]')).toHaveCount(0);
     await expect(card.locator('[data-commute-mode="TRANSIT"]')).toContainText(language === 'en' ? '66.7 h a month' : '66,7 h par mois');
     await expect(card.locator('[data-remote-day-saving]')).toContainText(language === 'en' ? '13.3 h a month' : '13,3 h par mois');
     const audit = await new AxeBuilder({ page }).include('[data-project-commute]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -45,12 +47,37 @@ test('chips each Kanban card with its drive at rush hour', async ({ page }) => {
   await mockWorkspaceSession(page, 'en');
   await mockWorkspaceData(page, 'en');
   await page.route('**/api/commute/projects/1*', route => route.fulfill({ json: [
-    { project: { id: 42 }, commute: { ...trip, travelMode: 'DRIVING', durationInSeconds: 3000, rushDurationInSeconds: 6300 } }] }));
+    { project: { id: 42 }, commute: { ...trip, travelMode: 'DRIVING', durationInSeconds: 3000, rushDurationInSeconds: 6300,
+      beyondMaximum: true } }] }));
   await page.goto('/dashboard');
   await page.getByRole('radio', { name: /Kanban/ }).click();
   const chip = page.locator('[data-card-commute]');
   await expect(chip).toHaveCount(1);
   await expect(chip).toContainText('≈ 1 h 45');
+  await expect(chip).toHaveClass(/beyond/);
+  await expect(chip).toContainText('longer than your longest commute');
   const audit = await new AxeBuilder({ page }).include('app-kanban-board').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(audit.violations.map(violation => violation.id)).toEqual([]);
+});
+
+test('sets the longest drive and public transport trip in the profile', async ({ page }) => {
+  await mockWorkspaceSession(page, 'en');
+  let profile: Record<string, unknown> = { id: 1, firstName: 'Workspace', lastName: 'Test', email: 'workspace@example.test' };
+  await page.route('**/api/users/profile', async route => {
+    if (route.request().method() === 'PUT') {
+      profile = { ...profile, ...route.request().postDataJSON() };
+    }
+    await route.fulfill({ json: profile });
+  });
+  await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light', language: 'en', inactivityDays: 14 } }));
+  await page.route('**/api/users/security', route => route.fulfill({ json: { twoFactorEnabled: false } }));
+  await page.route('**/api/users/notifications', route => route.fulfill({ json: {} }));
+  await page.goto('/profile');
+  const save = page.getByRole('tabpanel').getByRole('button', { name: 'Save', exact: true });
+  await page.locator('[data-max-drive]').fill('601');
+  await expect(save).toBeDisabled();
+  await page.locator('[data-max-drive]').fill('45');
+  await page.locator('[data-max-transit]').fill('60');
+  await save.click();
+  await expect.poll(() => [profile['maxDriveMinutes'], profile['maxTransitMinutes']]).toEqual([45, 60]);
 });

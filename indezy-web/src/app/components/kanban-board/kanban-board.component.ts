@@ -75,8 +75,8 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
   private readonly locale = inject(LOCALE_ID);
   private readonly translate = inject(TranslateService);
   private readonly commuteService = inject(CommuteService);
-  /** Each opportunity's one-way drive at rush hour, in minutes, when one is known. */
-  commuteMinutes = new Map<number, number>();
+  /** Each opportunity's one-way drive at rush hour, in minutes, when one is known, and whether it exceeds the profile's longest. */
+  commutes = new Map<number, { minutes: number; beyond: boolean }>();
 
   readonly STATUS_COLORS = PROJECT_STATUS_COLORS;
   readonly STATUS_ICONS = PROJECT_STATUS_ICONS;
@@ -134,15 +134,16 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
   loadCommutes(): void {
     this.commuteService.getProjectsSortedByCommute(this.currentUserId!, 'DRIVING').pipe(takeUntil(this.destroy$)).subscribe({
       next: results => {
-        this.commuteMinutes = new Map(results
+        this.commutes = new Map(results
           .filter(result => result.project.id !== undefined && !result.commute?.remote)
           .flatMap(result => {
             const seconds = result.commute?.rushDurationInSeconds ?? result.commute?.durationInSeconds;
-            return seconds === null || seconds === undefined ? [] : [[result.project.id!, seconds / 60] as [number, number]];
+            return seconds === null || seconds === undefined ? [] :
+              [[result.project.id!, { minutes: seconds / 60, beyond: result.commute?.beyondMaximum === true }] as const];
           }));
       },
       error: () => {
-        this.commuteMinutes = new Map();
+        this.commutes = new Map();
       }
     });
   }

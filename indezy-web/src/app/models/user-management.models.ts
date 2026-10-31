@@ -31,6 +31,10 @@ export interface UserProfile {
   targetDailyRate?: number | null;
   /** Days to bill in a year, compared on the dashboard with the validated activity reports. */
   billedDaysTarget?: number | null;
+  /** The longest acceptable drive to a mission, one way at rush hour, in minutes. */
+  maxDriveMinutes?: number | null;
+  /** The longest acceptable public transport trip, one way at rush hour, in minutes. */
+  maxTransitMinutes?: number | null;
   /** ISO day (yyyy-MM-dd) the workspace is next available from, which offers' start dates are matched against. */
   availabilityDate?: string | null;
   notifications?: UserNotificationSettings;

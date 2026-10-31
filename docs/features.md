@@ -112,6 +112,10 @@ match; the target rate the match, suggested searches, the dashboard and new seas
 validated activity reports against the target, with the share reached, and the year at the pace of its completed months
 (none in January), saying how many days above or short of the target that pace ends. The card shows without a target
 once a report of the year is validated.
+**Longest drive** and **Longest public transport trip** (1 to 600 minutes, one way at rush hour, optional) flag the
+missions whose commute by that mode takes longer, in the sorted list, on the opportunity's commute card and on its
+Kanban chip, and set what the offer match calls near: an offer whose estimated trip fits either limit is near, one
+within one and a half times it reachable (instead of 30 and 80 km).
 
 - Skills are free text with suggestions: up to 50 of 60 characters, each once whatever its spelling, each with an
   optional level (beginner to expert) and years (0 to 60).
@@ -393,7 +397,7 @@ Once the profile names skills, every offer is scored out of 100:
 | --- | --- | --- |
 | Skills | up to 60 | 20 per profile skill the offer mentions, full marks from three. A skill counts when its words appear whole ("Java" is not in "JavaScript"); one shorter than three characters ("Go", "C#") only when listed among the offer's skills. Up to 20 profile skills. |
 | Daily rate | 25 | 25 when the highest rate stated meets the target, 15 within 10 % below, 10 when no rate is stated. |
-| Place | 15 | 15 when full remote or within 30 km, 10 within 80 km, 5 farther with three remote days a week or more, or with no place stated. |
+| Place | 15 | 15 when full remote or within 30 km (or within the profile's longest commute), 10 within 80 km (or one and a half times it), 5 farther with three remote days a week or more, or with no place stated. |
 | Availability | 10 | 10 when it starts once the freelancer is available, 5 up to two weeks before or with no start stated. |
 
 A profile without a target rate, city or availability date is scored on the other parts. The badge is green from 60 and

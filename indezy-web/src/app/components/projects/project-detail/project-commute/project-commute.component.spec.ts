@@ -31,13 +31,15 @@ describe('ProjectCommuteComponent', () => {
   }
 
   it('shows each way there off-peak and at rush hour, its month and what a remote day gives back', () => {
-    const element = render([trip({}), trip({ travelMode: 'TRANSIT', durationInSeconds: 5400, rushDurationInSeconds: 6000,
+    const element = render([trip({ beyondMaximum: true }), trip({ travelMode: 'TRANSIT', durationInSeconds: 5400, rushDurationInSeconds: 6000,
       monthlySeconds: 6000 * 2 * 20 })]);
     expect(commute.getProjectCommute).toHaveBeenCalledWith(42);
     const car = element.querySelector('[data-commute-mode="DRIVING"]')!.textContent!.replace(/\s+/g, ' ');
     expect(car).toContain('≈ 50 min (56 km)');
     expect(fixture.componentInstance.rush(fixture.componentInstance.trips[0])).toBe('≈ 1 h 45');
     expect(element.querySelector('[data-commute-mode="TRANSIT"]')).not.toBeNull();
+    expect(element.querySelector('[data-commute-mode="DRIVING"] [data-commute-beyond]')).not.toBeNull();
+    expect(element.querySelector('[data-commute-mode="TRANSIT"] [data-commute-beyond]')).toBeNull();
     // The quickest way at rush hour is transit, 100 minutes: twice a day, four days a month.
     expect(fixture.componentInstance.remoteDaySaving()).toBe(13.3);
     expect(fixture.componentInstance.monthlyHours(trip({}))).toBe(70);

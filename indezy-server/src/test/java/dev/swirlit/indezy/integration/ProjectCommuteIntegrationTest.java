@@ -26,4 +26,17 @@ class ProjectCommuteIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.GET, "/commute/project/" + projectId, null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    void keepsTheLongestCommutesOfTheProfile() {
+        Map profile = call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+        profile.put("maxDriveMinutes", 601);
+        assertThat(call(alice, HttpMethod.PUT, "/users/profile", profile, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        profile.put("maxDriveMinutes", 45);
+        profile.put("maxTransitMinutes", 60);
+        call(alice, HttpMethod.PUT, "/users/profile", profile, Map.class);
+        assertThat(call(alice, HttpMethod.GET, "/users/profile", null, Map.class).getBody())
+            .containsEntry("maxDriveMinutes", 45).containsEntry("maxTransitMinutes", 60);
+        assertThat(call(bob, HttpMethod.GET, "/users/profile", null, Map.class).getBody().get("maxDriveMinutes")).isNull();
+    }
 }

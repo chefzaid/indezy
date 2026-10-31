@@ -31,6 +31,12 @@ public interface FreelanceRepository extends JpaRepository<Freelance, Long> {
     @Query("SELECT f.id, u.id, u.contactRetentionYears FROM User u, Freelance f WHERE u.email = f.email AND u.contactRetentionYears > 0")
     List<Object[]> findContactRetentionWorkspaces();
 
+    @Query("SELECT u.maxDriveMinutes FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
+    Optional<Integer> findMaxDriveMinutes(@Param("freelanceId") Long freelanceId);
+
+    @Query("SELECT u.maxTransitMinutes FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
+    Optional<Integer> findMaxTransitMinutes(@Param("freelanceId") Long freelanceId);
+
     @Query("SELECT u.billedDaysTarget FROM User u, Freelance f WHERE f.id = :freelanceId AND u.email = f.email")
     Optional<Integer> findBilledDaysTarget(@Param("freelanceId") Long freelanceId);
 

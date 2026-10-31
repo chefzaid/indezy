@@ -476,7 +476,8 @@
       "estimateHint": "Estimé à vol d'oiseau entre votre adresse et celle du client : le trajet réel peut différer.",
       "rush": "{{time}} aux heures de pointe",
       "title": "Trajet",
-      "remoteDaySaving": "Chaque jour de télétravail par semaine vous rend {{hours}} h par mois."
+      "remoteDaySaving": "Chaque jour de télétravail par semaine vous rend {{hours}} h par mois.",
+      "beyondMaximum": "Plus long que votre trajet maximal"
     },
     "skills": {
       "matchScore": "Correspondance",
@@ -869,7 +870,8 @@
       "confirmDelete": "Supprimer ces {{count}} opportunités, avec leurs notes, fichiers et comptes rendus d'activité ? C'est définitif.",
       "deleted": "{{count}} opportunité(s) supprimée(s)"
     },
-    "commute": "En voiture à l'heure de pointe : {{time}}"
+    "commute": "En voiture à l'heure de pointe : {{time}}",
+    "commuteBeyond": "En voiture à l'heure de pointe, plus long que votre trajet maximal : {{time}}"
   },
   "profile": {
     "targetDailyRate": "TJM cible",
@@ -1242,7 +1244,11 @@
     "contactRetentionHint": "Chaque nuit, les contacts sans échange, sans modification et sans opportunité avec leur société depuis ce délai perdent leur nom, e-mail, téléphone et notes. La CNIL recommande 3 ans pour les prospects.",
     "billedDaysTarget": "Jours à facturer par an",
     "billedDaysTargetHint": "Facultatif. Comparé sur le tableau de bord à vos comptes rendus d'activité validés.",
-    "billedDaysTargetError": "Saisissez un nombre entier de jours entre 1 et 366, ou laissez vide."
+    "billedDaysTargetError": "Saisissez un nombre entier de jours entre 1 et 366, ou laissez vide.",
+    "maxDriveMinutes": "Trajet maximal en voiture vers une mission",
+    "maxTransitMinutes": "Trajet maximal en transports vers une mission",
+    "maxCommuteHint": "Facultatif. Aller simple à l'heure de pointe : les trajets plus longs sont signalés et l'adéquation des offres en tient compte.",
+    "maxCommuteError": "Saisissez un nombre entier de minutes entre 1 et 600, ou laissez vide."
   },
   "errors": {
     "notFoundTitle": "404 - Page non trouvée",

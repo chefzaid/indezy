@@ -17,6 +17,8 @@ import dev.swirlit.indezy.model.OfferSiteStatus;
 import dev.swirlit.indezy.model.enums.OfferDatePrecision;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.WorkMode;
+import dev.swirlit.indezy.model.enums.TravelMode;
+import dev.swirlit.indezy.repository.OfferMatch;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
 import dev.swirlit.indezy.repository.JobOfferStateRepository;
@@ -62,6 +64,24 @@ class OfferSearchServiceTest {
     private final OfferHistoryService history = mock(OfferHistoryService.class);
     private final OfferSearchService service = new OfferSearchService(offers, states, statuses, freelances, geoLocator, exclusions,
         benchmarks, history, Clock.fixed(NOW, ZoneOffset.UTC));
+
+    @Test
+    void measuresNearAndReachableByTheProfilesLongestCommute() {
+        when(freelances.findProfileCity(3L)).thenReturn(Optional.of("Paris"));
+        when(geoLocator.locate("Paris", null)).thenReturn(Optional.of(new GeoLocator.Place("Paris", "75", "11", 48.8589, 2.347)));
+        assertThat(service.profile(3L).nearKm()).isEqualTo(30);
+
+        when(freelances.findMaxDriveMinutes(3L)).thenReturn(Optional.of(45));
+        when(freelances.findMaxTransitMinutes(3L)).thenReturn(Optional.of(60));
+        OfferMatch.Profile profile = service.profile(3L);
+        assertThat(profile.nearKm()).isEqualTo(Math.max(CommuteService.reachKm(45, TravelMode.DRIVING, true),
+            CommuteService.reachKm(60, TravelMode.TRANSIT, true)));
+        assertThat(profile.reachableKm()).isEqualTo(Math.max(CommuteService.reachKm(68, TravelMode.DRIVING, true),
+            CommuteService.reachKm(90, TravelMode.TRANSIT, true)));
+
+        when(freelances.findMaxTransitMinutes(3L)).thenReturn(Optional.empty());
+        assertThat(service.profile(3L).nearKm()).isEqualTo(CommuteService.reachKm(45, TravelMode.DRIVING, true));
+    }
 
     @Test
     @SuppressWarnings("unchecked")

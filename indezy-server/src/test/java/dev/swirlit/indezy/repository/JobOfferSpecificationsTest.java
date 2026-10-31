@@ -353,7 +353,10 @@ class JobOfferSpecificationsTest {
             new OfferMatch.Profile(List.of("Spark"), 700, null),
             new OfferMatch.Profile(List.of("Java", "Spring", "AWS"), 600, PARIS, LocalDate.of(2026, 12, 1), today),
             new OfferMatch.Profile(List.of("Java", "Go"), null, null, LocalDate.of(2026, 10, 1), today),
-            new OfferMatch.Profile(List.of("Spark", "Java"), 700, null, LocalDate.of(2026, 11, 2), today));
+            new OfferMatch.Profile(List.of("Spark", "Java"), 700, null, LocalDate.of(2026, 11, 2), today),
+            // A longest commute in the profile widens or narrows what is near and reachable.
+            new OfferMatch.Profile(List.of("Java", "Spring", "AWS"), 600, PARIS).reaching(5, 12),
+            new OfferMatch.Profile(List.of("Java", "Spring", "AWS"), 600, PARIS).reaching(300, 500));
         for (OfferMatch.Profile profile : profiles) {
             Map<String, Integer> scores = new HashMap<>();
             List<JobOffer> open = repository.findAll().stream().filter(offer -> offer.getExpiresAt() == null).toList();

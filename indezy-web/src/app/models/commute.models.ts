@@ -27,6 +27,8 @@ export interface CommuteInfoDto {
   unavailable?: CommuteUnavailable | null;
   /** Estimated from the straight line between the addresses, without Google. */
   estimated?: boolean;
+  /** Whether the trip at rush hour takes longer than the profile's longest for its mode; absent without both. */
+  beyondMaximum?: boolean | null;
 }
 
 export interface ProjectCommuteDto {

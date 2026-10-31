@@ -69,7 +69,7 @@ public final class OfferMatch {
      * {@code today} says), each optional.
      */
     public record Profile(List<String> skills, Integer targetRate, Origin origin, LocalDate availableFrom, LocalDate today,
-                          Set<String> recordedTerms) {
+                          Set<String> recordedTerms, double nearKm, double reachableKm) {
 
         public static final Profile NONE = new Profile(List.of(), null, null);
 
@@ -78,12 +78,20 @@ public final class OfferMatch {
         }
 
         public Profile(List<String> skills, Integer targetRate, Origin origin, LocalDate availableFrom, LocalDate today) {
-            this(skills, targetRate, origin, availableFrom, today, Set.of());
+            this(skills, targetRate, origin, availableFrom, today, Set.of(), NEAR_KM, REACHABLE_KM);
         }
 
         /** The same profile, the given terms' mentions being recorded ({@code OfferMentionIndexer}). */
         public Profile recording(Set<String> terms) {
-            return new Profile(skills, targetRate, origin, availableFrom, today, terms);
+            return new Profile(skills, targetRate, origin, availableFrom, today, terms, nearKm, reachableKm);
+        }
+
+        /**
+         * The same profile with an offer near within {@code near} km and reachable within {@code reachable}, as the
+         * profile's longest commute sets them, instead of {@value #NEAR_KM} and {@value #REACHABLE_KM}.
+         */
+        public Profile reaching(double near, double reachable) {
+            return new Profile(skills, targetRate, origin, availableFrom, today, recordedTerms, near, reachable);
         }
 
         /** The terms a profile's skills are matched by: every spelling of each. */
@@ -102,6 +110,8 @@ public final class OfferMatch {
             }
             skills = List.copyOf(byKey.values());
             recordedTerms = recordedTerms == null ? Set.of() : Set.copyOf(recordedTerms);
+            nearKm = nearKm > 0 ? nearKm : NEAR_KM;
+            reachableKm = Math.max(reachableKm, nearKm);
             targetRate = targetRate != null && targetRate > 0 ? targetRate : null;
             if (availableFrom == null || today == null) {
                 availableFrom = null;
@@ -148,7 +158,7 @@ public final class OfferMatch {
             .filter(skill -> SkillNames.variants(skill).stream().anyMatch(variant -> mentions(offer.getSearchText(), listed, variant)))
             .toList();
         RateFit rate = profile.targetRate() == null ? null : rateFit(offer, profile.targetRate());
-        PlaceFit place = profile.origin() == null ? null : placeFit(offer, profile.origin());
+        PlaceFit place = profile.origin() == null ? null : placeFit(offer, profile.origin(), profile.nearKm(), profile.reachableKm());
         AvailabilityFit availability = profile.availableFrom() == null ? null : availabilityFit(offer, profile);
         int points = Math.min(mentioned.size(), profile.skillsForFull()) * (SKILL_POINTS / profile.skillsForFull()) +
             (rate == null ? 0 : RATE.get(rate)) + (place == null ? 0 : PLACE.get(place)) +
@@ -182,6 +192,10 @@ public final class OfferMatch {
     }
 
     static PlaceFit placeFit(JobOffer offer, Origin origin) {
+        return placeFit(offer, origin, NEAR_KM, REACHABLE_KM);
+    }
+
+    static PlaceFit placeFit(JobOffer offer, Origin origin, double nearKm, double reachableKm) {
         if (offer.getWorkMode() == WorkMode.REMOTE) {
             return PlaceFit.REMOTE;
         }
@@ -189,10 +203,10 @@ public final class OfferMatch {
             return PlaceFit.UNKNOWN;
         }
         double squared = JobOfferSpecifications.squaredDistanceKm(origin, offer.getLatitude(), offer.getLongitude());
-        if (squared <= NEAR_KM * NEAR_KM) {
+        if (squared <= nearKm * nearKm) {
             return PlaceFit.NEAR;
         }
-        if (squared <= REACHABLE_KM * REACHABLE_KM) {
+        if (squared <= reachableKm * reachableKm) {
             return PlaceFit.REACHABLE;
         }
         boolean mostlyRemote = offer.getWorkMode() == WorkMode.HYBRID && offer.getRemoteDaysPerWeek() != null &&
@@ -233,7 +247,7 @@ public final class OfferMatch {
             points = cb.sum(points, ratePoints(profile.targetRate(), root, cb));
         }
         if (profile.origin() != null) {
-            points = cb.sum(points, placePoints(profile.origin(), root, cb));
+            points = cb.sum(points, placePoints(profile, root, cb));
         }
         if (profile.availableFrom() != null) {
             points = cb.sum(points, availabilityPoints(profile, root, cb));
@@ -305,15 +319,15 @@ public final class OfferMatch {
             .otherwise(RATE.get(RateFit.BELOW));
     }
 
-    private static Expression<Integer> placePoints(Origin origin, Root<JobOffer> root, CriteriaBuilder cb) {
-        Expression<Double> squared = JobOfferSpecifications.squaredDistance(origin, root, cb);
+    private static Expression<Integer> placePoints(Profile profile, Root<JobOffer> root, CriteriaBuilder cb) {
+        Expression<Double> squared = JobOfferSpecifications.squaredDistance(profile.origin(), root, cb);
         Predicate mostlyRemote = cb.and(cb.equal(root.get("workMode"), WorkMode.HYBRID),
             cb.ge(root.<Integer>get("remoteDaysPerWeek"), MOSTLY_REMOTE_DAYS));
         return cb.<Integer>selectCase()
             .when(cb.equal(root.get("workMode"), WorkMode.REMOTE), PLACE.get(PlaceFit.REMOTE))
             .when(cb.or(cb.isNull(root.get("latitude")), cb.isNull(root.get("longitude"))), PLACE.get(PlaceFit.UNKNOWN))
-            .when(cb.le(squared, (double) NEAR_KM * NEAR_KM), PLACE.get(PlaceFit.NEAR))
-            .when(cb.le(squared, (double) REACHABLE_KM * REACHABLE_KM), PLACE.get(PlaceFit.REACHABLE))
+            .when(cb.le(squared, profile.nearKm() * profile.nearKm()), PLACE.get(PlaceFit.NEAR))
+            .when(cb.le(squared, profile.reachableKm() * profile.reachableKm()), PLACE.get(PlaceFit.REACHABLE))
             .when(mostlyRemote, PLACE.get(PlaceFit.MOSTLY_REMOTE))
             .otherwise(PLACE.get(PlaceFit.FAR));
     }

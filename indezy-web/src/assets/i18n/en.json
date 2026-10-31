@@ -476,7 +476,8 @@
       "estimateHint": "Estimated from the straight line between your address and the client's: actual routes may differ.",
       "rush": "{{time}} at rush hour",
       "title": "Commute",
-      "remoteDaySaving": "Each remote day a week gives you back {{hours}} h a month."
+      "remoteDaySaving": "Each remote day a week gives you back {{hours}} h a month.",
+      "beyondMaximum": "Longer than your longest commute"
     },
     "skills": {
       "matchScore": "Skill match",
@@ -869,7 +870,8 @@
       "confirmDelete": "Delete these {{count}} opportunities, with their notes, files and activity reports? This cannot be undone.",
       "deleted": "{{count}} opportunities deleted"
     },
-    "commute": "Drive at rush hour: {{time}}"
+    "commute": "Drive at rush hour: {{time}}",
+    "commuteBeyond": "Drive at rush hour, longer than your longest commute: {{time}}"
   },
   "profile": {
     "targetDailyRate": "Target daily rate",
@@ -1242,7 +1244,11 @@
     "contactRetentionHint": "Every night, contacts with no exchange, no change and no opportunity with their company for that long lose their name, email, phone and notes. The CNIL advises 3 years for prospects.",
     "billedDaysTarget": "Days to bill per year",
     "billedDaysTargetHint": "Optional. Compared on the dashboard with your validated activity reports.",
-    "billedDaysTargetError": "Enter a whole number of days from 1 to 366, or leave blank."
+    "billedDaysTargetError": "Enter a whole number of days from 1 to 366, or leave blank.",
+    "maxDriveMinutes": "Longest drive to a mission",
+    "maxTransitMinutes": "Longest public transport trip to a mission",
+    "maxCommuteHint": "Optional. One way at rush hour: longer commutes are flagged and the offer match counts it.",
+    "maxCommuteError": "Enter a whole number of minutes from 1 to 600, or leave blank."
   },
   "errors": {
     "notFoundTitle": "404 - Page not found",

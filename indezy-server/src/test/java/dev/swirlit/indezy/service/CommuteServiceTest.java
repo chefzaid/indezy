@@ -361,6 +361,37 @@ class CommuteServiceTest {
     }
 
     @Test
+    void findsTheFarthestDistanceATripFitsIn() {
+        for (TravelMode mode : TravelMode.values()) {
+            double km = CommuteService.reachKm(60, mode, true);
+            assertThat(CommuteService.estimated(km, mode, true).rushSeconds()).isLessThanOrEqualTo(3600);
+            assertThat(CommuteService.estimated(km + 0.5, mode, true).rushSeconds()).isGreaterThan(3600);
+        }
+        // Rush hour weighs more in Île-de-France: the same hour reaches less far there.
+        assertThat(CommuteService.reachKm(60, TravelMode.DRIVING, true)).isLessThan(CommuteService.reachKm(60, TravelMode.DRIVING, false));
+        assertThat(CommuteService.reachKm(1, TravelMode.TRANSIT, false)).isZero();
+    }
+
+    @Test
+    void flagsATripLongerThanTheProfilesLongest() {
+        when(geoLocator.canLocate()).thenReturn(true);
+        when(geoLocator.locateAddress("10 rue de la Paix, Paris")).thenReturn(Optional.of(new GeoLocator.Place("Paris", "75", null, 48.8690, 2.3310)));
+        when(geoLocator.locateAddress("La Défense")).thenReturn(Optional.of(new GeoLocator.Place("Puteaux", "92", null, 48.8920, 2.2380)));
+        project(1, "La Défense", WorkMode.ONSITE).setFreelance(freelance);
+        project(2, null, WorkMode.ONSITE).setFreelance(freelance);
+        when(freelanceRepository.findMaxDriveMinutes(1L)).thenReturn(Optional.of(15));
+        when(freelanceRepository.findMaxTransitMinutes(1L)).thenReturn(Optional.of(90));
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(projects.get(0)));
+
+        List<CommuteInfoDto> commutes = commuteService.getProjectCommute(1L);
+        assertThat(commutes.get(0).getBeyondMaximum()).isTrue();
+        assertThat(commutes.get(1).getBeyondMaximum()).isFalse();
+        assertThat(commuteOf(commuteService.getProjectsSortedByCommute(1L, TravelMode.DRIVING), 2).getBeyondMaximum()).isNull();
+        when(freelanceRepository.findMaxDriveMinutes(1L)).thenReturn(Optional.empty());
+        assertThat(commuteOf(commuteService.getProjectsSortedByCommute(1L, TravelMode.DRIVING), 1).getBeyondMaximum()).isNull();
+    }
+
+    @Test
     void neverTakesLessTimeForALongerTrip() {
         for (TravelMode mode : TravelMode.values()) {
             for (boolean ileDeFrance : new boolean[] {false, true}) {

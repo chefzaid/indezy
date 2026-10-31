@@ -18,6 +18,7 @@ import dev.swirlit.indezy.model.JobOffer;
 import dev.swirlit.indezy.model.OfferSiteStatus;
 import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.OfferSuspicion;
+import dev.swirlit.indezy.model.enums.TravelMode;
 import dev.swirlit.indezy.model.enums.WorkMode;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.JobOfferRepository;
@@ -73,6 +74,8 @@ public class OfferSearchService {
     private static final double EARTH_RADIUS_KM = 6371.0;
     /** Where "today" is read, against the profile's availability date. */
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
+    /** How much longer than the longest commute a reachable offer may take. */
+    static final double REACHABLE_COMMUTE_FACTOR = 1.5;
 
     private final JobOfferRepository offers;
     private final JobOfferStateRepository states;
@@ -203,10 +206,32 @@ public class OfferSearchService {
 
     /** What the workspace's offers are measured against: the profile's skills, target daily rate, city and availability. */
     public OfferMatch.Profile profile(Long freelanceId) {
+        Optional<GeoLocator.Place> home = home(freelanceId);
         OfferMatch.Profile profile = new OfferMatch.Profile(freelances.findProfileSkills(freelanceId),
-            freelances.findTargetDailyRate(freelanceId).orElse(null), origin(freelanceId).orElse(null),
+            freelances.findTargetDailyRate(freelanceId).orElse(null), home.map(OfferSearchService::origin).orElse(null),
             freelances.findAvailabilityDate(freelanceId).orElse(null), LocalDate.now(clock.withZone(PARIS)));
+        profile = withLongestCommute(profile, freelanceId, home.map(CommuteService::ileDeFrance).orElse(false));
         return profile.canMatch() && mentions != null ? profile.recording(mentions.indexed(profile.terms())) : profile;
+    }
+
+    /**
+     * With a longest commute in the profile, an offer is near when its estimated trip at rush hour fits it by either mode,
+     * and reachable within one and a half times it.
+     */
+    private OfferMatch.Profile withLongestCommute(OfferMatch.Profile profile, Long freelanceId, boolean ileDeFrance) {
+        Integer drive = freelances.findMaxDriveMinutes(freelanceId).orElse(null);
+        Integer transit = freelances.findMaxTransitMinutes(freelanceId).orElse(null);
+        if (drive == null && transit == null) {
+            return profile;
+        }
+        return profile.reaching(reach(drive, transit, 1, ileDeFrance), reach(drive, transit, REACHABLE_COMMUTE_FACTOR, ileDeFrance));
+    }
+
+    private static double reach(Integer drive, Integer transit, double factor, boolean ileDeFrance) {
+        double byCar = drive == null ? 0 : CommuteService.reachKm((int) Math.round(drive * factor), TravelMode.DRIVING, ileDeFrance);
+        double byTransit = transit == null ? 0 :
+            CommuteService.reachKm((int) Math.round(transit * factor), TravelMode.TRANSIT, ileDeFrance);
+        return Math.max(byCar, byTransit);
     }
 
     @Autowired
@@ -216,7 +241,11 @@ public class OfferSearchService {
 
     /** Where distances are measured from: the profile's city, or the workspace's. */
     Optional<Origin> origin(Long freelanceId) {
-        return home(freelanceId).map(place -> new Origin(place.latitude(), place.longitude()));
+        return home(freelanceId).map(OfferSearchService::origin);
+    }
+
+    private static Origin origin(GeoLocator.Place place) {
+        return new Origin(place.latitude(), place.longitude());
     }
 
     /** The place of the profile's city, or of the workspace's. */

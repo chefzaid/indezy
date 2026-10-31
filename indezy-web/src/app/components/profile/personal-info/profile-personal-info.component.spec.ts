@@ -33,6 +33,8 @@ describe('ProfilePersonalInfoComponent', () => {
       position: [''],
       targetDailyRate: [null],
       billedDaysTarget: [null],
+      maxDriveMinutes: [null],
+      maxTransitMinutes: [null],
       availabilityDate: [null],
       website: [''],
       linkedin: [''],

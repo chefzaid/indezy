@@ -396,6 +396,9 @@
                         <span class="commute-rush" data-commute-rush>· {{ 'projects.commute.rush' | translate:{ time: (commute.estimated ? '≈ ' : '') + formatMinutes(commute.rushDurationInSeconds) } }}</span>
                       }
                     }
+                    @if (commute.beyondMaximum) {
+                      <span class="commute-beyond" data-commute-beyond>· {{ 'projects.commute.beyondMaximum' | translate }}</span>
+                    }
                     @if (commute.monthlySeconds) {
                       <span class="commute-month">· {{ 'projects.commute.perMonth' | translate:{ hours: monthlyHours(commute), days: commute.onsiteDaysPerMonth } }}</span>
                     }

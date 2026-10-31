@@ -59,6 +59,18 @@ public class UserDto {
     @JsonDeserialize(using = WholeNumberDeserializer.class)
     private Integer billedDaysTarget;
 
+    /** The longest acceptable drive, one way at rush hour, in minutes. */
+    @Min(1)
+    @Max(600)
+    @JsonDeserialize(using = WholeNumberDeserializer.class)
+    private Integer maxDriveMinutes;
+
+    /** The longest acceptable public transport trip, one way at rush hour, in minutes. */
+    @Min(1)
+    @Max(600)
+    @JsonDeserialize(using = WholeNumberDeserializer.class)
+    private Integer maxTransitMinutes;
+
     /** When the workspace is next available (its freelance record's), which offers' start dates are matched against. */
     private LocalDate availabilityDate;
 

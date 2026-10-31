@@ -112,15 +112,18 @@ describe('KanbanBoardComponent', () => {
         onsiteDaysPerMonth: 20 };
       spyOn(commute, 'getProjectsSortedByCommute').and.returnValue(of([
         { project: { id: mockCard.projectId } as ProjectDto, commute: { ...trip, projectId: mockCard.projectId, remote: false,
-          durationInSeconds: 3000, rushDurationInSeconds: 6300 } },
+          durationInSeconds: 3000, rushDurationInSeconds: 6300, beyondMaximum: true } },
+        { project: { id: 7 } as ProjectDto, commute: { ...trip, projectId: 7, remote: false, durationInSeconds: 600 } },
         { project: { id: 8 } as ProjectDto, commute: { ...trip, projectId: 8, remote: true } },
         { project: { id: 9 } as ProjectDto, commute: { ...trip, projectId: 9, remote: false, unavailable: 'NOT_FOUND' as const } }]));
 
       fixture.detectChanges();
 
       expect(commute.getProjectsSortedByCommute).toHaveBeenCalledWith(1, 'DRIVING');
-      expect([...component.commuteMinutes.entries()]).toEqual([[mockCard.projectId, 105]]);
-      expect((fixture.nativeElement as HTMLElement).querySelector('[data-card-commute]')?.textContent).toContain('≈ 1 h 45');
+      expect([...component.commutes.entries()]).toEqual([[mockCard.projectId, { minutes: 105, beyond: true }], [7, { minutes: 10, beyond: false }]]);
+      const chip = (fixture.nativeElement as HTMLElement).querySelector('[data-card-commute]');
+      expect(chip?.textContent).toContain('≈ 1 h 45');
+      expect(chip?.classList).toContain('beyond');
     });
 
     it('shows no chip when the commutes cannot be read', () => {
@@ -129,7 +132,7 @@ describe('KanbanBoardComponent', () => {
 
       fixture.detectChanges();
 
-      expect(component.commuteMinutes.size).toBe(0);
+      expect(component.commutes.size).toBe(0);
     });
 
     it('should notify on load error', () => {

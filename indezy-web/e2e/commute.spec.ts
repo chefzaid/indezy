@@ -30,6 +30,7 @@ for (const width of [1280, 390]) {
           monthlySeconds: 72000 }) },
         { project: projects[3], commute: commute(4, { unavailable: 'NO_CLIENT_ADDRESS' }) },
         { project: projects[4], commute: commute(5, { durationInSeconds: 3000, rushDurationInSeconds: 6300, distanceInMeters: 56000,
+          beyondMaximum: true,
           estimated: true, monthlySeconds: 252000 }) }
       ] });
     });
@@ -50,6 +51,8 @@ for (const width of [1280, 390]) {
     await expect(page.locator('[data-commute="5"]')).toContainText('≈ 50 min');
     await expect(page.locator('[data-commute="5"]')).toContainText('≈ 1 h 45 at rush hour');
     await expect(page.locator('[data-commute="5"]')).toContainText('estimate');
+    await expect(page.locator('[data-commute="5"] [data-commute-beyond]')).toContainText('Longer than your longest commute');
+    await expect(page.locator('[data-commute="3"] [data-commute-beyond]')).toHaveCount(0);
     await expect(page.locator('[data-commute="2"]')).toContainText('Remote: no commute');
     await expect(page.locator('[data-commute="3"]')).toContainText('1 hour');
     await expect(page.locator('[data-commute="3"]')).toContainText('(60 km)');

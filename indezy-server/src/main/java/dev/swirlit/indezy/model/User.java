@@ -100,6 +100,14 @@ public class User extends BaseEntity {
     @Column(name = "billed_days_target")
     private Integer billedDaysTarget;
 
+    /** The longest acceptable drive to a mission, one way at rush hour, in minutes. */
+    @Column(name = "max_drive_minutes")
+    private Integer maxDriveMinutes;
+
+    /** The longest acceptable public transport trip to a mission, one way at rush hour, in minutes. */
+    @Column(name = "max_transit_minutes")
+    private Integer maxTransitMinutes;
+
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 

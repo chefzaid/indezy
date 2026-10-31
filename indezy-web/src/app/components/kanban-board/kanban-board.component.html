@@ -85,12 +85,12 @@
                           {{ 'projects.workModes.' + card.workMode | translate }}
                         </span>
                       }
-                      @if (commuteMinutes.get(card.projectId); as minutes) {
-                        <span class="meta-item commute" data-card-commute
-                          [matTooltip]="'kanban.commute' | translate:{ time: commuteTime(minutes) }">
-                          <mat-icon aria-hidden="true">directions_car</mat-icon>
-                          <span aria-hidden="true">{{ commuteTime(minutes) }}</span>
-                          <span class="cdk-visually-hidden">{{ 'kanban.commute' | translate:{ time: commuteTime(minutes) } }}</span>
+                      @if (commutes.get(card.projectId); as commute) {
+                        <span class="meta-item commute" data-card-commute [class.beyond]="commute.beyond"
+                          [matTooltip]="(commute.beyond ? 'kanban.commuteBeyond' : 'kanban.commute') | translate:{ time: commuteTime(commute.minutes) }">
+                          <mat-icon aria-hidden="true">{{ commute.beyond ? 'warning' : 'directions_car' }}</mat-icon>
+                          <span aria-hidden="true">{{ commuteTime(commute.minutes) }}</span>
+                          <span class="cdk-visually-hidden">{{ (commute.beyond ? 'kanban.commuteBeyond' : 'kanban.commute') | translate:{ time: commuteTime(commute.minutes) } }}</span>
                         </span>
                       }
                     </div>

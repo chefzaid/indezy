@@ -80,6 +80,20 @@ class OfferMatchTest {
     }
 
     @Test
+    void readsNearAndReachableFromTheProfilesLongestCommute() {
+        // Compiègne, about 70 km from Paris: reachable by default, near for a profile accepting it.
+        JobOffer compiegne = offer(o -> at(o, 49.4175, 2.8261));
+        OfferMatch.Profile patient = JAVA_DEV.reaching(75, 110);
+        assertThat(OfferMatch.score(compiegne, compiegne.getSkills(), patient).place()).isEqualTo(PlaceFit.NEAR);
+        assertThat(OfferMatch.score(compiegne, compiegne.getSkills(), JAVA_DEV).place()).isEqualTo(PlaceFit.REACHABLE);
+        assertThat(OfferMatch.score(compiegne, compiegne.getSkills(), JAVA_DEV.reaching(10, 20)).place()).isEqualTo(PlaceFit.FAR);
+        // The radii survive recording mentions; a reachable radius is never shorter than the near one; zero keeps the default.
+        assertThat(patient.recording(java.util.Set.of("java")).nearKm()).isEqualTo(75);
+        assertThat(JAVA_DEV.reaching(40, 10).reachableKm()).isEqualTo(40);
+        assertThat(JAVA_DEV.reaching(0, 0).nearKm()).isEqualTo(30);
+    }
+
+    @Test
     void comparesWhenTheMissionStartsWithWhenTheFreelanceIsAvailable() {
         LocalDate today = LocalDate.of(2026, 10, 20);
         OfferMatch.Profile freeInNovember = new OfferMatch.Profile(List.of("Java"), null, null, LocalDate.of(2026, 11, 16), today);

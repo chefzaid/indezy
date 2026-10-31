@@ -19,6 +19,9 @@
                   · {{ 'projects.commute.rush' | translate:{ time: rush } }}
                 }
               </div>
+              @if (trip.beyondMaximum) {
+                <div class="beyond" data-commute-beyond>{{ 'projects.commute.beyondMaximum' | translate }}</div>
+              }
               <div class="month">{{ 'projects.commute.perMonth' | translate:{ hours: (monthlyHours(trip) | number:'1.0-1'), days: trip.onsiteDaysPerMonth } }}</div>
             } @else {
               <div class="unavailable">

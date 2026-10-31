@@ -159,6 +159,22 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+          <mat-label>{{ 'profile.maxDriveMinutes' | translate }}</mat-label>
+          <input matInput type="number" min="1" max="600" step="1" formControlName="maxDriveMinutes" data-max-drive>
+          <span matTextSuffix>min</span>
+          <mat-hint>{{ 'profile.maxCommuteHint' | translate }}</mat-hint>
+          <mat-error>{{ 'profile.maxCommuteError' | translate }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+          <mat-label>{{ 'profile.maxTransitMinutes' | translate }}</mat-label>
+          <input matInput type="number" min="1" max="600" step="1" formControlName="maxTransitMinutes" data-max-transit>
+          <span matTextSuffix>min</span>
+          <mat-hint>{{ 'profile.maxCommuteHint' | translate }}</mat-hint>
+          <mat-error>{{ 'profile.maxCommuteError' | translate }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>{{ 'profile.availabilityDate' | translate }}</mat-label>
           <input matInput [matDatepicker]="availabilityPicker" formControlName="availabilityDate" data-availability-date>
           <mat-datepicker-toggle matIconSuffix [for]="availabilityPicker"></mat-datepicker-toggle>

@@ -412,3 +412,7 @@
 :host-context(html.dark-theme) .kanban-column {
   --column-tone: color-mix(in srgb, var(--column-color) 60%, white);
 }
+
+.meta-item.commute.beyond {
+  color: var(--app-danger);
+}

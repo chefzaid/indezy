@@ -21,5 +21,6 @@ mat-card-content { padding-top: 16px; }
 
 .mode, .month, .hint { color: var(--app-text-muted); font-size: 0.875rem; }
 .unavailable a { margin-left: 4px; color: var(--app-link); }
+.beyond { color: var(--app-danger); font-size: 0.875rem; }
 .saving { margin: 8px 0 0; color: var(--app-positive); }
 .hint { margin: 8px 0 0; }

@@ -70,6 +70,8 @@ public class CommuteService {
     private static final double[][] CAR_BANDS = {{5, 30}, {20, 70}, {Double.MAX_VALUE, 100}};
     private static final double[][] TRANSIT_BANDS = {{10, 18}, {40, 45}, {150, 70}, {Double.MAX_VALUE, 200}};
     private static final double PARKING_MINUTES = 5;
+    private static final double MAX_REACH_KM = 1_000;
+    private static final int REACH_STEPS = 30;
     private static final double TRANSIT_ACCESS_MINUTES = 15;
     private static final Set<String> ILE_DE_FRANCE = Set.of("75", "77", "78", "91", "92", "93", "94", "95");
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
@@ -133,11 +135,12 @@ public class CommuteService {
             .filter(project -> project.getWorkMode() != WorkMode.REMOTE).map(project -> clientAddress(project.getClient()))
             .filter(destination -> !destination.isBlank()).toList(), travelMode);
 
+        Integer maximum = maximumMinutes(freelanceId, travelMode);
         List<ProjectCommuteDto> results = new ArrayList<>();
         for (Project project : projects) {
             ProjectDto dto = projectMapper.toDto(project);
             results.add(ProjectCommuteDto.builder().project(dto)
-                .commute(commuteOf(project, dto, origin, byDestination, travelMode)).build());
+                .commute(commuteOf(project, dto, origin, byDestination, travelMode, maximum)).build());
         }
         // The cheapest commute first, a remote mission costing nothing; those without a time last.
         results.sort(Comparator.comparing(result -> result.getCommute().getMonthlySeconds(), Comparator.nullsLast(Comparator.naturalOrder())));
@@ -157,13 +160,13 @@ public class CommuteService {
         for (TravelMode mode : TravelMode.values()) {
             Map<String, Trip> byDestination = origin.isBlank() || destination.isBlank() || onSiteDays(project) == 0 ? Map.of() :
                 lookUp(origin, List.of(destination), mode);
-            commutes.add(commuteOf(project, dto, origin, byDestination, mode));
+            commutes.add(commuteOf(project, dto, origin, byDestination, mode, maximumMinutes(freelance.getId(), mode)));
         }
         return commutes;
     }
 
     private static CommuteInfoDto commuteOf(Project project, ProjectDto dto, String origin, Map<String, Trip> byDestination,
-                                            TravelMode travelMode) {
+                                            TravelMode travelMode, Integer maximumMinutes) {
         String destination = clientAddress(project.getClient());
         int days = onSiteDays(project);
         Trip trip;
@@ -186,7 +189,34 @@ public class CommuteService {
             .monthlySeconds(days == 0 ? Integer.valueOf(0) : monthly(trip.commuteSeconds(), days))
             .unavailable(trip == null ? null : trip.unavailable())
             .estimated(trip != null && trip.estimated())
+            .beyondMaximum(maximumMinutes == null || trip == null || trip.commuteSeconds() == null ? null :
+                trip.commuteSeconds() > maximumMinutes * 60)
             .build();
+    }
+
+    /** The profile's longest acceptable trip by this mode, one way at rush hour, in minutes. */
+    private Integer maximumMinutes(Long freelanceId, TravelMode mode) {
+        Optional<Integer> maximum = mode == TravelMode.DRIVING ? freelanceRepository.findMaxDriveMinutes(freelanceId) :
+            freelanceRepository.findMaxTransitMinutes(freelanceId);
+        return maximum.orElse(null);
+    }
+
+    /**
+     * The farthest straight-line distance, in km, whose estimated trip by this mode at rush hour takes at most this many
+     * minutes: the estimate grows with the distance, so it is found by halving.
+     */
+    public static double reachKm(int minutes, TravelMode mode, boolean ileDeFrance) {
+        double low = 0;
+        double high = MAX_REACH_KM;
+        for (int step = 0; step < REACH_STEPS; step++) {
+            double middle = (low + high) / 2;
+            if (estimated(middle, mode, ileDeFrance).rushSeconds() <= minutes * 60) {
+                low = middle;
+            } else {
+                high = middle;
+            }
+        }
+        return low;
     }
 
     /** Days on site a month: none when remote, as the mission states them, else all of them or half when hybrid. */
