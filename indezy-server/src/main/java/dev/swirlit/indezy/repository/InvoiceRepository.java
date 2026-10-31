@@ -15,6 +15,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     List<Invoice> findByFreelanceIdOrderByCreatedAtDesc(Long freelanceId);
 
+    List<Invoice> findByFreelanceIdAndStatus(Long freelanceId, InvoiceStatus status);
+
     Optional<Invoice> findByIdAndFreelanceId(Long id, Long freelanceId);
 
     Optional<Invoice> findFirstByActivityReportId(Long activityReportId);

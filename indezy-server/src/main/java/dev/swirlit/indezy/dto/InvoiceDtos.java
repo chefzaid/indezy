@@ -77,4 +77,8 @@ public final class InvoiceDtos {
     /** The day it was paid; absent to say it is not paid after all. */
     public record Payment(LocalDate paidOn) {
     }
+
+    /** How a client pays: over how many paid invoices, the average days from issue to payment and past the due date. */
+    public record PaymentDelay(Long clientId, int paidInvoices, long averageDays, long averageDaysLate) {
+    }
 }

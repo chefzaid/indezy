@@ -69,3 +69,11 @@ export interface InvoiceableReport {
   dailyRate: number | null;
   amount: number | null;
 }
+
+/** How a client pays: over how many paid invoices, the average days from issue to payment and past the due date. */
+export interface PaymentDelay {
+  clientId: number;
+  paidInvoices: number;
+  averageDays: number;
+  averageDaysLate: number;
+}

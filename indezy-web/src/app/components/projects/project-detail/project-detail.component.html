@@ -67,6 +67,7 @@
               <span class="lost-reason">{{ 'projects.lostReason.' + project.lostReason | translate }}</span>
             }
           </div>
+          <app-payment-delay [clientId]="project.middlemanId ?? project.clientId"></app-payment-delay>
         </mat-card-content>
         <mat-card-actions>
           <app-project-link [projectId]="project.id!"></app-project-link>

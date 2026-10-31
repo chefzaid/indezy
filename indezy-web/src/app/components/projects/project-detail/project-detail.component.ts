@@ -53,9 +53,11 @@ import { ProjectArchiveActionComponent } from '../project-archive-action/project
 import { StepTemplatesComponent } from '../step-templates/step-templates.component';
 import { ProjectEmailButtonComponent } from '../project-email/project-email-button.component';
 
+import { PaymentDelayComponent } from '../../../shared/components/payment-delay/payment-delay.component';
+
 @Component({
     selector: 'app-project-detail',
-    imports: [
+    imports: [PaymentDelayComponent,
         ProjectLinkComponent,
         ProjectResourcesComponent,
         ActivityReportCardComponent,

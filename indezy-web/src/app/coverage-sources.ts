@@ -196,6 +196,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'shared/components/loading/loading.component',
   'shared/components/logo/logo.component',
   'shared/components/page-header/page-header.component',
+  'shared/components/payment-delay/payment-delay.component',
   'shared/components/project-link/project-link.component',
   'shared/components/public-page-header/public-page-header.component',
   'shared/components/refused-by-badge/refused-by-badge.component',

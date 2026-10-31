@@ -36,6 +36,7 @@
           <span class="sep">•</span>
           {{ 'clients.detail.summary' | translate:{ projects: projects.length, contacts: contacts.length } }}
         </div>
+        <app-payment-delay [clientId]="client.id"></app-payment-delay>
       </mat-card-content>
       <mat-card-actions>
         <button mat-button (click)="onBack()">

@@ -2487,6 +2487,10 @@
     "shares": {
       "title": "Chiffre d'affaires par client, 12 derniers mois",
       "dependence": "{{client}} représente {{percent}} % de votre chiffre d'affaires des 12 derniers mois. Travailler surtout pour un seul client affaiblit l'indépendance que l'URSSAF et les tribunaux examinent avant de requalifier une prestation en salariat : un second client réduit ce risque."
+    },
+    "delay": {
+      "onTime": "Paie en {{averageDays}} jours en moyenne, à l'échéance ({{paidInvoices}} facture(s) payée(s))",
+      "late": "Paie en {{averageDays}} jours en moyenne, avec {{averageDaysLate}} jours de retard ({{paidInvoices}} facture(s) payée(s))"
     }
   },
   "purchaseOrders": {

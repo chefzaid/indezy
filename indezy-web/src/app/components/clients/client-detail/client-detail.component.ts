@@ -25,9 +25,11 @@ import { ClientOrgChartComponent } from '../client-org-chart/client-org-chart.co
 /** Tab order of the client page; the "tab" query parameter selects one by name. */
 const TABS = ['details', 'projects', 'contacts'] as const;
 
+import { PaymentDelayComponent } from '../../../shared/components/payment-delay/payment-delay.component';
+
 @Component({
     selector: 'app-client-detail',
-    imports: [
+    imports: [PaymentDelayComponent,
     CommonModule,
     RouterModule,
     MatCardModule,

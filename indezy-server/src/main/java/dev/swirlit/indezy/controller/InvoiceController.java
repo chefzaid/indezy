@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.InvoiceDtos;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.AccountingExportService;
+import dev.swirlit.indezy.service.InvoicePaymentDelays;
 import dev.swirlit.indezy.service.InvoiceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,6 +36,7 @@ public class InvoiceController {
 
     private final InvoiceService invoices;
     private final AccountingExportService accountingExport;
+    private final InvoicePaymentDelays paymentDelays;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "The workspace's invoices, newest first")
@@ -58,6 +60,12 @@ public class InvoiceController {
     }
 
     @Operation(summary = "The activity reports that can be invoiced: days worked, not rejected, not invoiced yet")
+    @Operation(summary = "How each client pays: its paid invoices, average days to payment and past the due date")
+    @GetMapping("/payment-delays")
+    public List<InvoiceDtos.PaymentDelay> paymentDelays() {
+        return paymentDelays.byClient(workspace());
+    }
+
     @GetMapping("/invoiceable-reports")
     public List<InvoiceDtos.InvoiceableReport> invoiceableReports() {
         return invoices.invoiceableReports(workspace());

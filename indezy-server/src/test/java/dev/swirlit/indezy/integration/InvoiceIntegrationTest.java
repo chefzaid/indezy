@@ -123,6 +123,10 @@ class InvoiceIntegrationTest extends TwoAccountsIntegrationTest {
             .containsEntry("status", "PAID").containsEntry("paidOn", "2027-01-05").containsEntry("overdue", false);
         assertThat((List<?>) call(alice, HttpMethod.GET, "/projects/stats/dashboard/" + alice.freelanceId(), null, Map.class).getBody()
             .get("overdueInvoices")).isEmpty();
+        // How the client pays: one paid invoice; Bob sees nothing of it.
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/invoices/payment-delays", null, List.class).getBody())
+            .singleElement().satisfies(delay -> assertThat(delay).containsEntry("paidInvoices", 1).containsKeys("averageDays", "averageDaysLate"));
+        assertThat((List<?>) call(bob, HttpMethod.GET, "/invoices/payment-delays", null, List.class).getBody()).isEmpty();
         assertThat(call(alice, HttpMethod.PUT, "/invoices/" + first + "/payment", new HashMap<>(), Map.class).getBody())
             .containsEntry("status", "ISSUED").containsEntry("paidOn", null);
 

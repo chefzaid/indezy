@@ -2487,6 +2487,10 @@
     "shares": {
       "title": "Revenue by client, last 12 months",
       "dependence": "{{client}} paid {{percent}} % of your revenue over the last 12 months. Working mostly for one client weakens the independence URSSAF and the courts look at before reclassifying a freelance contract as employment: a second client lowers the risk."
+    },
+    "delay": {
+      "onTime": "Pays in {{averageDays}} days on average, on time ({{paidInvoices}} paid invoice(s))",
+      "late": "Pays in {{averageDays}} days on average, {{averageDaysLate}} days late ({{paidInvoices}} paid invoice(s))"
     }
   },
   "purchaseOrders": {
