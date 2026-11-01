@@ -42,17 +42,41 @@ build_application() {
   popd >/dev/null
 }
 
+# Runs a step for at most the given seconds. A step still running then prints the threads of every JVM and the
+# processes left, and fails, so a hang names its test and the job keeps its reports instead of reaching the job's
+# two-hour timeout with nothing to read.
+within() {
+  local seconds="$1" waited=0 step
+  shift
+  "$@" &
+  step=$!
+  while kill -0 "$step" 2>/dev/null; do
+    if (( waited >= seconds )); then
+      printf '%s still running after %s seconds; threads and processes left:\n' "$*" "$seconds" >&2
+      jcmd -l 2>/dev/null | while read -r pid _; do jcmd "$pid" Thread.print 2>/dev/null || true; done
+      ps >&2 || true
+      kill "$step" 2>/dev/null || true
+      return 124
+    fi
+    sleep 5
+    waited=$((waited + 5))
+  done
+  wait "$step"
+}
+
 test_application() {
   pushd indezy-server >/dev/null
-  ./mvnw --batch-mode clean verify -Djacoco.haltOnFailure=false
+  # The tests log at DEBUG (application-test.properties): each class's output goes to its surefire report, kept as an
+  # artifact, as the job log stops at GitLab's 4 MB within minutes.
+  within 2400 ./mvnw --batch-mode clean verify -Djacoco.haltOnFailure=false -Dmaven.test.redirectTestOutputToFile=true
   popd >/dev/null
 
   pushd indezy-web >/dev/null
   export CHROME_BIN="${CHROME_BIN:-/usr/bin/chromium-browser}"
-  npm ci
-  npm run lint
-  npm run test:ci
-  npm run test:node
+  within 900 npm ci
+  within 900 npm run lint
+  within 1800 npm run test:ci
+  within 600 npm run test:node
   popd >/dev/null
 
   python3 infra/scripts/ci-coverage-check.py \

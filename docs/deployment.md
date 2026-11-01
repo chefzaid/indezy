@@ -91,7 +91,7 @@ idempotency key (`saved-search/<id>/<cutoff>`), so a retry within Resend's 24 ho
 | Job | Stage | Runs | What it does |
 |---|---|---|---|
 | `01-build` | build | every pipeline | required: validates the manifests and onboarding contract, packages the JAR (with SpotBugs and Checkstyle) and the production web archive |
-| `02-test` | build | every pipeline | allowed to fail: backend and frontend tests, lint and the coverage policy |
+| `02-test` | build | every pipeline | allowed to fail: backend and frontend tests, lint and the coverage policy; each server test class's output goes to its surefire report, and a step past its time limit (40 minutes for the server, 30 for Karma) fails with the threads of the JVMs still running |
 | `03-package` | build | every pipeline except Sonar scan-only | required: builds both runtime images with Kaniko, without pushing |
 | `01-e2e` | verify | manual | allowed to fail: the Playwright suite |
 | `02-quality` | verify | automatic on the default branch and in full mode, manual otherwise | allowed to fail: Sonar analysis from the test artifacts |
