@@ -32,6 +32,9 @@ module.exports = function configureKarma(config) {
         flags: ['--no-sandbox', '--disable-dev-shm-usage'],
       },
     },
+    // Chrome gets 30 seconds to exit after the run instead of 2. Past the limit Karma 6.4's SIGKILL timer can find the
+    // browser already gone, throw, and leave Karma waiting forever: in CI the coverage reports outlast 2 seconds.
+    processKillTimeout: 30000,
     restartOnFileChange: true,
   });
 };
