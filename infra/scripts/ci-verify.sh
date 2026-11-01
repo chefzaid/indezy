@@ -72,7 +72,13 @@ test_application() {
   popd >/dev/null
 
   pushd indezy-web >/dev/null
-  export CHROME_BIN="${CHROME_BIN:-/usr/bin/chromium-browser}"
+  if [[ -z "${CHROME_BIN:-}" ]]; then
+    # The Ubuntu host's AppArmor profile for /usr/lib/chromium/chromium is stacked on the container's, which then
+    # refuses Karma's signals: Karma cannot stop Chrome after the run and never exits. Under another name the same
+    # binary runs under the container's profile alone.
+    ln -f /usr/lib/chromium/chromium /usr/lib/chromium/chromium-karma
+    export CHROME_BIN=/usr/lib/chromium/chromium-karma
+  fi
   within 900 npm ci
   within 900 npm run lint
   within 1800 npm run test:ci
