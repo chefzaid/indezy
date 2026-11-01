@@ -165,12 +165,12 @@ class CommuteServiceTest {
         assertThat(commuteOf(results, 1).getOrigin()).isEqualTo("10 rue de la Paix, Paris");
         assertThat(commuteOf(results, 1).getTravelMode()).isEqualTo(TravelMode.TRANSIT);
         assertThat(commuteOf(results, 2).getUnavailable()).isEqualTo(CommuteUnavailable.NO_CLIENT_ADDRESS);
-        // A remote mission costs nothing, so it comes first, and needs no address.
+        // A remote mission costs nothing a month, so it comes first, its trip asked all the same.
         assertThat(results.get(0).getProject().getId()).isEqualTo(3L);
         assertThat(commuteOf(results, 3)).satisfies(remote -> {
             assertThat(remote.isRemote()).isTrue();
             assertThat(remote.getMonthlySeconds()).isZero();
-            assertThat(remote.getUnavailable()).isNull();
+            assertThat(remote.getUnavailable()).isEqualTo(CommuteUnavailable.NO_API_KEY);
         });
 
         freelance.setAddress(" ");
@@ -178,6 +178,7 @@ class CommuteServiceTest {
         results = commuteService.getProjectsSortedByCommute(1L, TravelMode.DRIVING);
         assertThat(commuteOf(results, 1).getUnavailable()).isEqualTo(CommuteUnavailable.NO_HOME_ADDRESS);
         assertThat(commuteOf(results, 3).isRemote()).isTrue();
+        assertThat(commuteOf(results, 3).getUnavailable()).isEqualTo(CommuteUnavailable.NO_HOME_ADDRESS);
         verify(restTemplate, never()).getForObject(any(URI.class), eq(JsonNode.class));
     }
 
@@ -344,12 +345,29 @@ class CommuteServiceTest {
     }
 
     @Test
-    void looksNothingUpForARemoteOpportunityOrOneWithoutAHomeAddress() {
+    void showsARemoteOpportunitysTripWithoutCountingADayThere() {
+        when(geoLocator.canLocate()).thenReturn(true);
+        when(geoLocator.locateAddress("10 rue de la Paix, Paris")).thenReturn(Optional.of(new GeoLocator.Place("Paris", "75", null, 48.8690, 2.3310)));
+        when(geoLocator.locateAddress("Lyon")).thenReturn(Optional.of(new GeoLocator.Place("Lyon", "69", null, 45.7640, 4.8357)));
+        when(freelanceRepository.findMaxDriveMinutes(1L)).thenReturn(Optional.of(15));
+        when(freelanceRepository.findKmRate(1L)).thenReturn(Optional.of(java.math.BigDecimal.ONE));
         Project remote = project(2, "Lyon", WorkMode.REMOTE);
         remote.setFreelance(freelance);
         when(projectRepository.findById(2L)).thenReturn(Optional.of(remote));
-        assertThat(commuteService.getProjectCommute(2L)).allSatisfy(commute -> assertThat(commute.isRemote()).isTrue());
 
+        assertThat(commuteService.getProjectCommute(2L)).hasSize(2).allSatisfy(commute -> {
+            assertThat(commute.isRemote()).isTrue();
+            // About 390 km as the crow flies: the trip and its distance are shown, but no day there is counted or costed.
+            assertThat(commute.getDistanceInMeters()).isGreaterThan(400_000);
+            assertThat(commute.getRushDurationInSeconds()).isGreaterThan(commute.getDurationInSeconds());
+            assertThat(commute.getMonthlySeconds()).isZero();
+            assertThat(commute.getBeyondMaximum()).isNull();
+            assertThat(commute.getDailyCost()).isNull();
+        });
+    }
+
+    @Test
+    void looksNothingUpWithoutAHomeAddress() {
         Project onSite = project(3, "Lyon", WorkMode.ONSITE);
         Freelance homeless = new Freelance();
         onSite.setFreelance(homeless);

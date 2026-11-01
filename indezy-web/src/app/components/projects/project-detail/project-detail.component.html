@@ -158,14 +158,14 @@
                 {{ project.advantages || ('common.notSpecifiedPlural' | translate) }}
               </div>
             </div>
-            @if (project.workAddress) {
+            @if (project.place) {
               <mat-divider></mat-divider>
-              <div class="info-item" data-work-address>
+              <div class="info-item" data-place>
                 <div class="info-label">
                   <mat-icon>place</mat-icon>
-                  {{ 'projects.form.workAddress' | translate }}
+                  {{ 'projects.detail.place' | translate }}
                 </div>
-                <div class="info-value">{{ project.workAddress }}</div>
+                <div class="info-value">{{ project.place }}</div>
               </div>
             }
           </mat-card-content>

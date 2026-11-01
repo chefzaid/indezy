@@ -55,6 +55,20 @@ class ProjectTest {
     }
 
     @Test
+    void getPlace_IsThePlaceOfWorkElseTheClientsCity() {
+        assertThat(project.getPlace()).isEqualTo("Paris");
+
+        project.setWorkAddress(" 92400 Courbevoie ");
+        assertThat(project.getPlace()).isEqualTo("92400 Courbevoie");
+
+        project.setWorkAddress(" ");
+        client.setCity(" ");
+        assertThat(project.getPlace()).isNull();
+        project.setClient(null);
+        assertThat(project.getPlace()).isNull();
+    }
+
+    @Test
     void lastDay_IsTheDayItEndedElseItsStartPlusItsDurationElseNone() {
         project.setStartDate(LocalDate.of(2026, 1, 5));
         project.setDurationInMonths(6);

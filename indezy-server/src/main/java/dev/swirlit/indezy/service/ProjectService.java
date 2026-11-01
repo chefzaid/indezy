@@ -446,6 +446,7 @@ public class ProjectService {
         card.setRole(project.getRole());
         card.setStatus(project.getStatus() != null ? project.getStatus().name() : ProjectStatus.CONTACT.name());
         card.setClientName(project.getClient() != null ? project.getClient().getCompanyName() : null);
+        card.setPlace(project.getPlace());
         card.setDailyRate(project.getDailyRate());
         card.setWorkMode(project.getWorkMode() != null ? project.getWorkMode().toString() : null);
         card.setTechStack(project.getTechStack());

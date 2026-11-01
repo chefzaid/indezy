@@ -17,6 +17,8 @@ public class KanbanBoardDto {
         private String role;
         private String status;
         private String clientName;
+        /** Its place of work, else its client's city. */
+        private String place;
         private Integer dailyRate;
         private String workMode;
         private String techStack;

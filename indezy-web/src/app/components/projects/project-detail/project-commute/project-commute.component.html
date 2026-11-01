@@ -22,11 +22,13 @@
               @if (trip.beyondMaximum) {
                 <div class="beyond" data-commute-beyond>{{ 'projects.commute.beyondMaximum' | translate }}</div>
               }
-              <div class="month">{{ 'projects.commute.perMonth' | translate:{ hours: (monthlyHours(trip) | number:'1.0-1'), days: trip.onsiteDaysPerMonth } }}</div>
-              @if (effectiveRate(trip); as effective) {
-                <div class="effective" data-effective-rate>
-                  {{ ((trip.dailyCost !== null && trip.dailyCost !== undefined) ? 'projects.commute.effectiveRate' : 'projects.commute.effectiveRateTime') | translate:{ rate: (effective | number:'1.0-0'), cost: (trip.dailyCost | number:'1.2-2') } }}
-                </div>
+              @if (!trip.remote) {
+                <div class="month">{{ 'projects.commute.perMonth' | translate:{ hours: (monthlyHours(trip) | number:'1.0-1'), days: trip.onsiteDaysPerMonth } }}</div>
+                @if (effectiveRate(trip); as effective) {
+                  <div class="effective" data-effective-rate>
+                    {{ ((trip.dailyCost !== null && trip.dailyCost !== undefined) ? 'projects.commute.effectiveRate' : 'projects.commute.effectiveRateTime') | translate:{ rate: (effective | number:'1.0-0'), cost: (trip.dailyCost | number:'1.2-2') } }}
+                  </div>
+                }
               }
             } @else {
               <div class="unavailable">
@@ -38,6 +40,9 @@
             }
           </div>
         </div>
+      }
+      @if (remote) {
+        <p class="saving" data-commute-remote>{{ 'projects.commute.remoteNote' | translate }}</p>
       }
       @if (remoteDaySaving(); as hours) {
         <p class="saving" data-remote-day-saving>{{ 'projects.commute.remoteDaySaving' | translate:{ hours: (hours | number:'1.0-1') } }}</p>

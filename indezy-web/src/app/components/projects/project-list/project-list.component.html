@@ -363,8 +363,55 @@
               }
               @if (project.workMode) {
                 <div class="detail-item">
-                  <mat-icon>location_on</mat-icon>
+                  <mat-icon>home_work</mat-icon>
                   <span>{{ getWorkModeLabel(project.workMode) }}</span>
+                </div>
+              }
+              @if (project.place) {
+                <div class="detail-item" [attr.data-place]="project.id">
+                  <mat-icon aria-hidden="true">place</mat-icon>
+                  <span>{{ project.place }}</span>
+                  @if (cardCommutes.get(project.id!)?.distance; as distance) {
+                    <span class="commute-distance" [matTooltip]="'projects.commute.distanceHint' | translate">· {{ distance }}</span>
+                  }
+                </div>
+              }
+              @if (cardCommutes.get(project.id!); as trips) {
+                <div class="detail-item commute-detail" [attr.data-commute]="project.id">
+                  <mat-icon aria-hidden="true">commute</mat-icon>
+                  @if (trips.car || trips.transit) {
+                    <span [matTooltip]="'projects.commute.rangeHint' | translate">
+                      @if (trips.car) {
+                        <span data-commute-car>{{ 'projects.commute.carRange' | translate:{ time: trips.car } }}</span>
+                      }
+                      @if (trips.car && trips.transit) {
+                        ·
+                      }
+                      @if (trips.transit) {
+                        <span data-commute-transit>{{ 'projects.commute.transitRange' | translate:{ time: trips.transit } }}</span>
+                      }
+                    </span>
+                    @if (filterForm.get('sortBy')?.value === 'commuteTime' && getCommuteInfo(project.id); as commute) {
+                      @if (commute.beyondMaximum) {
+                        <span class="commute-beyond" data-commute-beyond>· {{ 'projects.commute.beyondMaximum' | translate }}</span>
+                      }
+                      @if (commute.monthlySeconds) {
+                        <span class="commute-month">· {{ 'projects.commute.perMonth' | translate:{ hours: monthlyHours(commute), days: commute.onsiteDaysPerMonth } }}</span>
+                      } @else if (commute.remote) {
+                        <span class="commute-month">· {{ 'projects.commute.remote' | translate }}</span>
+                      }
+                    }
+                    @if (trips.estimated) {
+                      <span class="commute-estimate" [matTooltip]="'projects.commute.estimateHint' | translate">{{ 'projects.commute.estimate' | translate }}</span>
+                    }
+                  } @else {
+                    <span class="commute-unavailable">
+                      {{ 'projects.commute.reasons.' + trips.unavailable | translate }}
+                      @if (trips.unavailable === 'NO_HOME_ADDRESS') {
+                        <a routerLink="/profile">{{ 'projects.commute.openProfile' | translate }}</a>
+                      }
+                    </span>
+                  }
                 </div>
               }
               @if (project.durationInMonths) {
@@ -379,40 +426,6 @@
                   <span>{{ project.startDate | date:'shortDate' }}</span>
                   @if (getMissionPhaseKey(project); as phaseKey) {
                     <span class="mission-phase">· {{ phaseKey | translate }}</span>
-                  }
-                </div>
-              }
-              @if (getCommuteInfo(project.id); as commute) {
-                <div class="detail-item commute-detail" [attr.data-commute]="project.id">
-                  @if (commute.remote) {
-                    <mat-icon aria-hidden="true">home_work</mat-icon>
-                    <span>{{ 'projects.commute.remote' | translate }}</span>
-                  } @else {
-                    <mat-icon aria-hidden="true">{{ getCommuteIcon(commute.travelMode) }}</mat-icon>
-                    @if (commute.durationInSeconds) {
-                      <span [attr.data-estimated]="commute.estimated || null">{{ commute.estimated ? '≈ ' : '' }}{{ tripTime(commute) }}</span>
-                      <span class="commute-distance">({{ commute.estimated ? '≈ ' : '' }}{{ tripDistance(commute) }})</span>
-                      @if (commute.rushDurationInSeconds && commute.rushDurationInSeconds !== commute.durationInSeconds) {
-                        <span class="commute-rush" data-commute-rush>· {{ 'projects.commute.rush' | translate:{ time: (commute.estimated ? '≈ ' : '') + formatMinutes(commute.rushDurationInSeconds) } }}</span>
-                      }
-                    }
-                    @if (commute.beyondMaximum) {
-                      <span class="commute-beyond" data-commute-beyond>· {{ 'projects.commute.beyondMaximum' | translate }}</span>
-                    }
-                    @if (commute.monthlySeconds) {
-                      <span class="commute-month">· {{ 'projects.commute.perMonth' | translate:{ hours: monthlyHours(commute), days: commute.onsiteDaysPerMonth } }}</span>
-                    }
-                    @if (commute.estimated) {
-                      <span class="commute-estimate" [matTooltip]="'projects.commute.estimateHint' | translate">{{ 'projects.commute.estimate' | translate }}</span>
-                    }
-                    @if (!commute.durationInSeconds) {
-                      <span class="commute-unavailable">
-                        {{ 'projects.commute.reasons.' + (commute.unavailable ?? 'LOOKUP_FAILED') | translate }}
-                        @if (commute.unavailable === 'NO_HOME_ADDRESS') {
-                          <a routerLink="/profile">{{ 'projects.commute.openProfile' | translate }}</a>
-                        }
-                      </span>
-                    }
                   }
                 </div>
               }

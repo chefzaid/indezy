@@ -39,6 +39,8 @@ export interface KanbanProjectCardDto {
   role: string;
   status: string;
   clientName?: string;
+  /** Its place of work, else its client's city. */
+  place?: string | null;
   dailyRate: number;
   workMode?: string;
   techStack?: string;
@@ -112,6 +114,8 @@ export interface ProjectDto {
   orderRenewalInMonths?: number;
   /** Where the mission is worked, when not at the client's address; the commute goes there. */
   workAddress?: string | null;
+  /** Where the mission is worked, as shown: its place of work, else its client's city; set by the server. */
+  place?: string | null;
   /** Months the ESN's non-solicitation clause runs after the mission. */
   nonSolicitationMonths?: number | null;
   /** The contract's points checked before signing. */

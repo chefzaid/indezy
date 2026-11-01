@@ -92,12 +92,21 @@
                           <span class="cdk-visually-hidden">{{ 'projects.nonSolicitation.chip' | translate:{ esn: clause.middlemanName } }}</span>
                         </span>
                       }
+                      @if (card.place) {
+                        <span class="meta-item place" data-card-place [matTooltip]="'kanban.place' | translate:{ place: card.place }">
+                          <mat-icon aria-hidden="true">place</mat-icon>
+                          {{ card.place }}
+                          @if (commutes.get(card.projectId)?.distance; as distance) {
+                            <span>· {{ distance }}</span>
+                          }
+                        </span>
+                      }
                       @if (commutes.get(card.projectId); as commute) {
                         <span class="meta-item commute" data-card-commute [class.beyond]="commute.beyond"
-                          [matTooltip]="(commute.beyond ? 'kanban.commuteBeyond' : 'kanban.commute') | translate:{ time: commuteTime(commute.minutes) }">
+                          [matTooltip]="(commute.beyond ? 'kanban.commuteBeyond' : 'kanban.commute') | translate:{ time: commute.time }">
                           <mat-icon aria-hidden="true">{{ commute.beyond ? 'warning' : 'directions_car' }}</mat-icon>
-                          <span aria-hidden="true">{{ commuteTime(commute.minutes) }}</span>
-                          <span class="cdk-visually-hidden">{{ (commute.beyond ? 'kanban.commuteBeyond' : 'kanban.commute') | translate:{ time: commuteTime(commute.minutes) } }}</span>
+                          <span aria-hidden="true">{{ commute.time }}</span>
+                          <span class="cdk-visually-hidden">{{ (commute.beyond ? 'kanban.commuteBeyond' : 'kanban.commute') | translate:{ time: commute.time } }}</span>
                         </span>
                       }
                     </div>

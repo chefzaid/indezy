@@ -104,6 +104,8 @@ class ProjectMapperTest {
         assertThat(result.getFreelanceId()).isEqualTo(testProject.getFreelance().getId());
         assertThat(result.getClientId()).isEqualTo(testProject.getClient().getId());
         assertThat(result.getSourceId()).isEqualTo(testProject.getSource().getId());
+        // A remote mission still shows where its client is.
+        assertThat(result.getPlace()).isEqualTo("Test City");
     }
 
     @Test

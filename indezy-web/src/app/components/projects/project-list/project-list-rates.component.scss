@@ -86,8 +86,9 @@
   }
 }
 
-// Commute detail on project cards
+// Commute detail on project cards: both ways' trips wrap on a narrow card.
 .commute-detail {
+  flex-wrap: wrap;
   color: var(--app-link) !important;
   font-weight: 500;
 

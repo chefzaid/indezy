@@ -30,7 +30,7 @@ public class CommuteInfoDto {
     private Integer rushDurationInSeconds;
     private Integer distanceInMeters;
     private String distanceText;
-    /** A fully remote mission: no commute, nothing looked up. */
+    /** A fully remote mission: no day on site counted, though its trip is shown. */
     private boolean remote;
     /** Days on site a month: as the mission states them, else 20 on site and 10 hybrid. */
     private Integer onsiteDaysPerMonth;
@@ -38,7 +38,7 @@ public class CommuteInfoDto {
     private Integer monthlySeconds;
     /** Estimated from the straight line between the two addresses, without Google: no road was looked up. */
     private boolean estimated;
-    /** Whether the trip at rush hour takes longer than the profile's longest for its mode; null without both. */
+    /** Whether the trip at rush hour takes longer than the profile's longest for its mode; null without both or when remote. */
     private Boolean beyondMaximum;
     /**
      * What a day on site costs to get there, in euros, from the profile: the round trip's kilometres at its rate by car,

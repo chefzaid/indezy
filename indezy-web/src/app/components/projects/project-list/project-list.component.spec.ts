@@ -61,7 +61,7 @@ describe('ProjectListComponent', () => {
         { provide: ProjectService, useValue: projectService },
         { provide: FreelanceService, useValue: freelanceService },
         { provide: SeasonService, useValue: seasonService },
-        { provide: CommuteService, useValue: jasmine.createSpyObj('CommuteService', ['getProjectsSortedByCommute']) },
+        { provide: CommuteService, useValue: { getProjectsSortedByCommute: () => of([]) } },
         { provide: AuthService, useValue: { getUser: () => user } },
         { provide: NotificationService, useValue: notifications },
         { provide: ConfirmDialogService, useValue: confirmDialog },

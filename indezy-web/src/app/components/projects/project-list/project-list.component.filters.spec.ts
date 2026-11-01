@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { EMPTY, of, throwError } from 'rxjs';
 import { FreelanceDto, ProjectDto, ProjectStatus } from '../../../models';
-import { CommuteInfoDto, ProjectCommuteDto } from '../../../models/commute.models';
+import { CommuteInfoDto, ProjectCommuteDto, TravelMode } from '../../../models/commute.models';
 import { AuthService } from '../../../services/auth/auth.service';
 import { CommuteService } from '../../../services/commute/commute.service';
 import { FreelanceService } from '../../../services/freelance/freelance.service';
@@ -17,7 +17,7 @@ import { ProjectListComponent } from './project-list.component';
 
 describe('ProjectListComponent filters, commute and reversion rate', () => {
   const missions: ProjectDto[] = [
-    { id: 1, role: 'Développeur Angular', clientName: 'Airbus', dailyRate: 600, workMode: 'REMOTE', startDate: '2026-01-05',
+    { id: 1, role: 'Développeur Angular', clientName: 'Airbus', place: 'Toulouse', dailyRate: 600, workMode: 'REMOTE', startDate: '2026-01-05',
       durationInMonths: 6, techStack: 'Angular, TypeScript', status: ProjectStatus.CONTACT },
     { id: 2, role: 'Architecte Java', clientName: 'Société Générale', dailyRate: 750, workMode: 'ONSITE', startDate: '2026-03-01',
       durationInMonths: 12, techStack: 'Java, Spring', status: ProjectStatus.WON },
@@ -37,6 +37,7 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
     freelanceService = jasmine.createSpyObj('FreelanceService', ['getById', 'update']);
     freelanceService.getById.and.returnValue(of({ ...freelance }));
     commuteService = jasmine.createSpyObj('CommuteService', ['getProjectsSortedByCommute']);
+    commuteService.getProjectsSortedByCommute.and.returnValue(of([]));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
       imports: [ProjectListComponent, TranslateModule.forRoot()],
@@ -178,39 +179,81 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
       { project: { role: 'Sans id', dailyRate: 400 } as ProjectDto, commute: commute(0, 60) }
     ];
 
-    it('sorts by commute time once the times are loaded', () => {
-      const fixture = create();
+    /** Answers each travel mode with its own trips, or fails. */
+    function answering(byMode: Partial<Record<TravelMode, ProjectCommuteDto[]>> | Error): () => void {
+      return () => commuteService.getProjectsSortedByCommute.and.callFake((_id: number, mode?: TravelMode) =>
+        byMode instanceof Error ? throwError(() => byMode) : of(byMode[mode ?? 'DRIVING'] ?? []));
+    }
+
+    it('shows each card\'s place, distance and trips by car and by public transport, a remote mission\'s too', () => {
+      const remote = { remote: true, onsiteDaysPerMonth: 0, monthlySeconds: 0, estimated: true };
+      const fixture = create(profile, answering({
+        DRIVING: [{ project: missions[0], commute: commute(1, undefined, { ...remote, durationInSeconds: 1080, rushDurationInSeconds: 1560,
+          distanceInMeters: 23_400 }) }],
+        TRANSIT: [{ project: missions[0], commute: commute(1, undefined, { ...remote, travelMode: 'TRANSIT', durationInSeconds: 2520,
+          rushDurationInSeconds: 2880, distanceInMeters: 23_400 }) }]
+      }));
       const component = fixture.componentInstance;
-      commuteService.getProjectsSortedByCommute.and.returnValue(of(results));
+
+      expect(commuteService.getProjectsSortedByCommute).toHaveBeenCalledWith(7, 'DRIVING');
+      expect(commuteService.getProjectsSortedByCommute).toHaveBeenCalledWith(7, 'TRANSIT');
+      expect(component.cardCommutes.get(1)).toEqual({ distance: '≈ 23 km', car: '≈ 18 min – 26 min', transit: '≈ 42 min – 48 min',
+        estimated: true, unavailable: null });
+      fixture.detectChanges();
+      const place = fixture.nativeElement.querySelector('[data-place="1"]').textContent;
+      expect(place).toContain('Toulouse');
+      expect(place).toContain('· ≈ 23 km');
+      const trips = fixture.nativeElement.querySelector('[data-commute="1"]');
+      expect(trips.querySelector('[data-commute-car]')).not.toBeNull();
+      expect(trips.querySelector('[data-commute-transit]')).not.toBeNull();
+      expect(trips.textContent).toContain('projects.commute.estimate');
+      expect(trips.textContent).not.toContain('projects.commute.perMonth');
+      // Without a place, a card shows none.
+      expect(fixture.nativeElement.querySelector('[data-place="2"]')).toBeNull();
+    });
+
+    it('sorts by commute time with the trips loaded on opening', () => {
+      const fixture = create(profile, answering({ DRIVING: results }));
+      const component = fixture.componentInstance;
 
       component.filterForm.patchValue({ sortBy: 'commuteTime', sortOrder: 'desc' });
       component.onSortByChange('commuteTime');
       expect(component.filterForm.value.sortOrder).toBe('asc');
 
-      expect(commuteService.getProjectsSortedByCommute).toHaveBeenCalledWith(7, 'DRIVING');
-      expect(component.isCommuteSortActive).toBeTrue();
+      expect(commuteService.getProjectsSortedByCommute).toHaveBeenCalledTimes(2);
+      expect(component.commutesLoaded).toBeTrue();
       expect(component.isCommuteLoading).toBeFalse();
       expect(component.commuteData.size).toBe(2);
       expect(titles(fixture)).toEqual(['Architecte Java', 'Développeur Angular', 'Lead Python']);
       const page = text(fixture);
-      expect(page).toContain('20 min');
-      expect(page).toContain('(20 km)');
       expect(page).toContain('projects.commute.travelMode');
+      expect(page).toContain('· projects.commute.perMonth');
       expect(component.getCommuteInfo(1)?.durationInSeconds).toBe(3600);
       expect(component.getCommuteInfo(undefined)).toBeUndefined();
       expect(component.getCommuteInfo(3)).toBeUndefined();
 
       component.onSortByChange('commuteTime');
       component.onSortByChange('dailyRate');
-      expect(commuteService.getProjectsSortedByCommute).toHaveBeenCalledTimes(1);
+      expect(commuteService.getProjectsSortedByCommute).toHaveBeenCalledTimes(2);
+    });
+
+    it('sorts by the other travel mode without asking again', () => {
+      const fixture = create(profile, answering({ DRIVING: results, TRANSIT: [
+        { project: missions[0], commute: commute(1, 600, { travelMode: 'TRANSIT' }) },
+        { project: missions[1], commute: commute(2, 6000, { travelMode: 'TRANSIT' }) }] }));
+      const component = fixture.componentInstance;
+      component.filterForm.patchValue({ sortBy: 'commuteTime', sortOrder: 'asc' });
+
+      component.onTravelModeChange('TRANSIT');
+
+      expect(component.commuteTravelMode).toBe('TRANSIT');
+      expect(titles(fixture)).toEqual(['Développeur Angular', 'Architecte Java', 'Lead Python']);
+      expect(commuteService.getProjectsSortedByCommute).toHaveBeenCalledTimes(2);
     });
 
     it('says why the commute of a project is unknown', () => {
-      const fixture = create();
-      commuteService.getProjectsSortedByCommute.and.returnValue(of([{ project: missions[0], commute: commute(1) },
-        { project: missions[1], commute: commute(2, undefined, { unavailable: 'NO_HOME_ADDRESS' }) }]));
-
-      fixture.componentInstance.loadCommuteData();
+      const fixture = create(profile, answering({ DRIVING: [{ project: missions[0], commute: commute(1) },
+        { project: missions[1], commute: commute(2, undefined, { unavailable: 'NO_HOME_ADDRESS' }) }] }));
 
       expect(text(fixture)).toContain('projects.commute.reasons.LOOKUP_FAILED');
       expect(text(fixture)).toContain('projects.commute.reasons.NO_HOME_ADDRESS');
@@ -218,75 +261,47 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
       expect(fixture.nativeElement.querySelector('[data-commute="1"] a')).toBeNull();
     });
 
-    it('shows a trip estimated without Google as such', () => {
-      const fixture = create();
-      commuteService.getProjectsSortedByCommute.and.returnValue(of([
+    it('marks a trip estimated without Google as such', () => {
+      const fixture = create(profile, answering({ DRIVING: [
         { project: missions[0], commute: commute(1, undefined, { durationInSeconds: 2820, rushDurationInSeconds: 6300, distanceInMeters: 9700,
-          estimated: true, monthlySeconds: 252000 }) }]));
+          estimated: true, monthlySeconds: 252000 }) }] }));
 
-      fixture.componentInstance.loadCommuteData();
-      fixture.detectChanges();
-
-      const shown = fixture.nativeElement.querySelector('[data-commute="1"]').textContent.replace(/\s+/g, ' ');
-      expect(shown).toContain('≈ 47 min');
-      expect(shown).toContain('(≈ 10 km)');
-      expect(fixture.nativeElement.querySelector('[data-commute-rush]')).not.toBeNull();
-      expect(shown).toContain('projects.commute.estimate');
+      const shown = text(fixture);
+      expect(fixture.componentInstance.cardCommutes.get(1)).toEqual(jasmine.objectContaining({ distance: '≈ 10 km', car: '≈ 47 min – 1 h 45',
+        transit: null }));
+      expect(fixture.nativeElement.querySelector('[data-commute="1"]').textContent).toContain('projects.commute.estimate');
       expect(shown).not.toContain('projects.commute.reasons');
-      expect(fixture.componentInstance.tripTime(commute(1, undefined, { durationInSeconds: 3900 }))).toBe('1 h 05');
     });
 
-    it('gives a commute\'s hours a month, and none for a remote mission', () => {
-      const fixture = create();
-      commuteService.getProjectsSortedByCommute.and.returnValue(of([
+    it('gives a commute\'s hours a month while sorting by it, and no day on site for a remote mission', () => {
+      const fixture = create(profile, answering({ DRIVING: [
         { project: missions[0], commute: commute(1, 1800, { onsiteDaysPerMonth: 8, monthlySeconds: 28800 }) },
-        { project: missions[1], commute: commute(2, undefined, { remote: true, onsiteDaysPerMonth: 0, monthlySeconds: 0 }) }]));
+        { project: missions[1], commute: commute(2, 1200, { remote: true, onsiteDaysPerMonth: 0, monthlySeconds: 0 }) }] }));
 
-      fixture.componentInstance.loadCommuteData();
+      expect(text(fixture)).not.toContain('projects.commute.perMonth');
+      fixture.componentInstance.filterForm.patchValue({ sortBy: 'commuteTime' });
 
       expect(text(fixture)).toContain('· projects.commute.perMonth');
       expect(fixture.componentInstance.monthlyHours(commute(1, 1800, { monthlySeconds: 28800 }))).toBe(8);
       expect(fixture.componentInstance.monthlyHours(commute(1, 1800, { monthlySeconds: 27000 }))).toBe(7.5);
       expect(fixture.componentInstance.monthlyHours(commute(1, 1800, { monthlySeconds: null }))).toBe(0);
-      expect(fixture.nativeElement.querySelector('[data-commute="2"]').textContent).toContain('projects.commute.remote');
-      expect(fixture.nativeElement.querySelector('[data-commute="2"] .commute-month')).toBeNull();
+      const remote = fixture.nativeElement.querySelector('[data-commute="2"]').textContent;
+      expect(remote).toContain('projects.commute.remote');
+      expect(remote).not.toContain('projects.commute.perMonth');
     });
 
-    it('reloads the times for another travel mode while sorting by commute', () => {
-      const fixture = create();
-      const component = fixture.componentInstance;
-      commuteService.getProjectsSortedByCommute.and.returnValue(of(results));
-
-      component.onTravelModeChange('TRANSIT');
-      expect(component.commuteTravelMode).toBe('TRANSIT');
-      expect(commuteService.getProjectsSortedByCommute).not.toHaveBeenCalled();
-
-      component.filterForm.patchValue({ sortBy: 'commuteTime' });
-      component.onTravelModeChange('TRANSIT');
-      expect(commuteService.getProjectsSortedByCommute).toHaveBeenCalledWith(7, 'TRANSIT');
-
-      component.filterForm.patchValue({ sortBy: 'role' });
-      component.onTravelModeChange('DRIVING');
-      expect(commuteService.getProjectsSortedByCommute).toHaveBeenCalledWith(7, 'DRIVING');
-    });
-
-    it('shows the icon of the travel mode', () => {
-      const component = create().componentInstance;
-
-      expect(component.getCommuteIcon('DRIVING')).toBe('directions_car');
-      expect(component.getCommuteIcon('TRANSIT')).toBe('directions_transit');
-    });
-
-    it('reports commute times that could not be loaded', () => {
+    it('reports commute times that could not be loaded only while sorting by them', () => {
       const consoleError = spyOn(console, 'error');
-      const fixture = create();
-      commuteService.getProjectsSortedByCommute.and.returnValue(throwError(() => new Error('down')));
+      const fixture = create(profile, answering(new Error('down')));
+      expect(notifications.error).not.toHaveBeenCalled();
+      expect(fixture.componentInstance.cardCommutes.size).toBe(0);
 
+      fixture.componentInstance.filterForm.patchValue({ sortBy: 'commuteTime' });
       fixture.componentInstance.onSortByChange('commuteTime');
 
       expect(notifications.error).toHaveBeenCalledWith('projects.commuteLoadError');
       expect(fixture.componentInstance.isCommuteLoading).toBeFalse();
-      expect(fixture.componentInstance.isCommuteSortActive).toBeFalse();
+      expect(fixture.componentInstance.commutesLoaded).toBeFalse();
       expect(consoleError).toHaveBeenCalled();
     });
   });

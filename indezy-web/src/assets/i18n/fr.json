@@ -443,7 +443,8 @@
       "daysPerMonth": "jours/mois",
       "changeStatus": "Changer l'étape du pipeline",
       "statusUpdated": "Mission déplacée vers « {{status}} »",
-      "via": "via {{name}}"
+      "via": "via {{name}}",
+      "place": "Lieu de la mission"
     },
     "workModes": {
       "REMOTE": "Télétravail",
@@ -481,7 +482,7 @@
       "transit": "Transport",
       "byCar": "Trier par temps en voiture",
       "byTransit": "Trier par temps en transport en commun",
-      "remote": "Télétravail : pas de trajet",
+      "remote": "Télétravail : aucun jour sur site",
       "perMonth": "{{hours}} h par mois aller-retour aux heures de pointe ({{days}} jours sur site)",
       "openProfile": "Ouvrir mon profil",
       "reasons": {
@@ -498,7 +499,12 @@
       "remoteDaySaving": "Chaque jour de télétravail par semaine vous rend {{hours}} h par mois.",
       "beyondMaximum": "Plus long que votre trajet maximal",
       "effectiveRate": "TJM effectif : {{rate}} €, les heures de trajet comptées au taux du TJM et {{cost}} € par jour sur site déduits.",
-      "effectiveRateTime": "TJM effectif : {{rate}} €, les heures de trajet comptées au taux du TJM (indiquez un coût dans votre profil pour le déduire aussi)."
+      "effectiveRateTime": "TJM effectif : {{rate}} €, les heures de trajet comptées au taux du TJM (indiquez un coût dans votre profil pour le déduire aussi).",
+      "carRange": "{{time}} en voiture",
+      "transitRange": "{{time}} en transports",
+      "rangeHint": "Un trajet depuis votre adresse : aux heures creuses, puis à l'heure de pointe (un jour de semaine à 8 h 30)",
+      "distanceHint": "Distance par la route depuis votre adresse",
+      "remoteNote": "Mission en full remote : aucun jour sur site n'est compté dans le mois."
     },
     "skills": {
       "matchScore": "Correspondance",
@@ -934,8 +940,9 @@
       "confirmDelete": "Supprimer ces {{count}} opportunités, avec leurs notes, fichiers et comptes rendus d'activité ? C'est définitif.",
       "deleted": "{{count}} opportunité(s) supprimée(s)"
     },
-    "commute": "En voiture à l'heure de pointe : {{time}}",
-    "commuteBeyond": "En voiture à l'heure de pointe, plus long que votre trajet maximal : {{time}}"
+    "commute": "En voiture, aux heures creuses puis à l'heure de pointe : {{time}}",
+    "commuteBeyond": "En voiture, aux heures creuses puis à l'heure de pointe, plus long que votre trajet maximal : {{time}}",
+    "place": "Lieu de la mission : {{place}}"
   },
   "profile": {
     "targetDailyRate": "TJM cible",

@@ -235,6 +235,14 @@ public class Project extends BaseEntity {
         }
     }
 
+    /** Where the mission is worked, as its cards and page show it: its place of work, else its client's city. */
+    public String getPlace() {
+        if (workAddress != null && !workAddress.isBlank()) {
+            return workAddress.strip();
+        }
+        return client == null || client.getCity() == null || client.getCity().isBlank() ? null : client.getCity().strip();
+    }
+
     public Integer getTotalRevenue() {
         if (dailyRate != null && daysPerYear != null && durationInMonths != null) {
             return dailyRate * daysPerYear * durationInMonths / 12;

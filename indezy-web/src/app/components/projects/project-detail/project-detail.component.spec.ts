@@ -26,7 +26,7 @@ describe('ProjectDetailComponent', () => {
     marginPercentage: 18.75, askedDailyRate: 700, offeredDailyRate: 620, workMode: 'HYBRID', remoteDaysPerMonth: 8,
     onsiteDaysPerMonth: 12, startDate: '2026-11-02', durationInMonths: 6, orderRenewalInMonths: 3, daysPerYear: 216,
     techStack: 'Java, Spring, Kafka', description: 'Plateforme de paiement', advantages: 'Tickets restaurant',
-    clientId: 3, clientName: 'Société Générale', middlemanName: 'Capgemini', sourceName: 'Free-Work', seasonName: 'Automne',
+    clientId: 3, clientName: 'Société Générale', place: 'La Défense', middlemanName: 'Capgemini', sourceName: 'Free-Work', seasonName: 'Automne',
     personalRating: 4, documents: ['contrat.pdf'], link: 'https://www.free-work.com/mission/12', notes: 'Rappeler jeudi',
     totalSteps: 3, completedSteps: 1
   } as ProjectDto;
@@ -112,6 +112,7 @@ describe('ProjectDetailComponent', () => {
       expect(page).withContext(shown).toContain(shown);
     }
     expect(fixture.nativeElement.querySelector('.client-link').getAttribute('href')).toBe('/clients/3');
+    expect(fixture.nativeElement.querySelector('[data-place]').textContent).toContain('La Défense');
     expect(fixture.nativeElement.querySelectorAll('.rating-display mat-icon.filled').length).toBe(4);
     expect(fixture.nativeElement.querySelector('app-activity-report-card')).toBeNull();
     // 650 €/day over 216 days a year for 6 months.

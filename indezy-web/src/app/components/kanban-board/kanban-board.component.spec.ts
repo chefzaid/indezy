@@ -107,25 +107,32 @@ describe('KanbanBoardComponent', () => {
       expect(mockProjectService.getKanbanBoard).not.toHaveBeenCalled();
     });
 
-    it('chips each card with its drive at rush hour, leaving out remote and unknown ones', () => {
-      mockProjectService.getKanbanBoard.and.returnValue(of(mockBoard));
+    it('chips each card with its drive off-peak then at rush hour, remote ones too, leaving out unknown ones', () => {
+      mockProjectService.getKanbanBoard.and.returnValue(of({ ...mockBoard, columns: { ...mockBoard.columns,
+        [mockCard.status]: [{ ...mockCard, place: 'Montrouge' }] } }));
       const commute = TestBed.inject(CommuteService);
       const trip = { projectRole: 'Lead', origin: 'Issou', destination: 'Montrouge', travelMode: 'DRIVING' as const,
         onsiteDaysPerMonth: 20 };
       spyOn(commute, 'getProjectsSortedByCommute').and.returnValue(of([
         { project: { id: mockCard.projectId } as ProjectDto, commute: { ...trip, projectId: mockCard.projectId, remote: false,
-          durationInSeconds: 3000, rushDurationInSeconds: 6300, beyondMaximum: true } },
+          durationInSeconds: 3000, rushDurationInSeconds: 6300, distanceInMeters: 56_000, estimated: true, beyondMaximum: true } },
         { project: { id: 7 } as ProjectDto, commute: { ...trip, projectId: 7, remote: false, durationInSeconds: 600 } },
-        { project: { id: 8 } as ProjectDto, commute: { ...trip, projectId: 8, remote: true } },
+        { project: { id: 8 } as ProjectDto, commute: { ...trip, projectId: 8, remote: true, durationInSeconds: 1200,
+          rushDurationInSeconds: 1500, estimated: true } },
         { project: { id: 9 } as ProjectDto, commute: { ...trip, projectId: 9, remote: false, unavailable: 'NOT_FOUND' as const } }]));
 
       fixture.detectChanges();
 
       expect(commute.getProjectsSortedByCommute).toHaveBeenCalledWith(1, 'DRIVING');
-      expect([...component.commutes.entries()]).toEqual([[mockCard.projectId, { minutes: 105, beyond: true }], [7, { minutes: 10, beyond: false }]]);
+      expect([...component.commutes.entries()]).toEqual([
+        [mockCard.projectId, { time: '≈ 50 min – 1 h 45', distance: '≈ 56 km', beyond: true }],
+        [7, { time: '10 min', distance: null, beyond: false }],
+        [8, { time: '≈ 20 min – 25 min', distance: null, beyond: false }]]);
       const chip = (fixture.nativeElement as HTMLElement).querySelector('[data-card-commute]');
-      expect(chip?.textContent).toContain('≈ 1 h 45');
+      expect(chip?.textContent).toContain('≈ 50 min – 1 h 45');
       expect(chip?.classList).toContain('beyond');
+      expect((fixture.nativeElement as HTMLElement).querySelector('[data-card-place]')?.textContent?.replace(/\s+/g, ' '))
+        .toContain('Montrouge · ≈ 56 km');
     });
 
     it('shows no chip when the commutes cannot be read', () => {

@@ -153,6 +153,11 @@ Its page changes the stage in place and shows the tech stack as tags with how we
 be renamed across every opportunity), the steps, journal and emails, and once won the activity reports and purchase
 orders. **Copy project link** copies an address that opens the page for the owning account only.
 
+Each card of the list, whatever the work mode (remote, hybrid or on site), shows the mission's place (its place of work,
+else its client's city) with its distance from the profile's address, and the trip there by car and by public transport
+from off-peak to rush hour (`≈ 18 min – 26 min by car · ≈ 42 min – 48 min by transit`), as described under
+[Commute-Time Sorting](#commute-time-sorting). The page shows the place under **Mission location**.
+
 The list's filters (words, rate range, work mode, technologies, stage, season, dates, duration, client, **Archive**) and
 sort live in the page's address, so a view can be bookmarked or shared. **Export summary** downloads the opportunities
 starting this year as CSV.
@@ -659,11 +664,12 @@ An opportunity's **Place of work** (optional, up to 255 characters, shown on its
 of the client's address: a campus, La Défense, an ESN's premises. An offer added from the feed or from its link fills it
 in with the offer's postal code and town (`92400 Courbevoie`).
 
-The opportunity page shows a **Commute** card (none for a fully remote mission): the trip one way by car and by public
-transport with its distance, off-peak and at rush hour, the month's time there and back, and what each remote day a week
-gives back on the quickest way (`Each remote day a week gives you back 13.3 h a month.`), from `GET
-/api/commute/project/{id}`. Each Kanban card carries a chip with its drive at rush hour (`≈ 1 h 45`), read from the same
-sorted list.
+The opportunity page shows a **Commute** card: the trip one way by car and by public transport with its distance,
+off-peak and at rush hour, the month's time there and back, and what each remote day a week gives back on the quickest
+way (`Each remote day a week gives you back 13.3 h a month.`), from `GET /api/commute/project/{id}`. A fully remote
+mission shows its trips alone, saying no day on site is counted: it costs nothing a month and sorts first. Each Kanban
+card carries its place with the distance (`Montrouge · ≈ 56 km`) and a chip with its drive off-peak then at rush hour
+(`≈ 50 min – 1 h 45`), read from the same sorted list.
 
 With the opportunity's daily rate, each way there also shows its **effective daily rate**: the rate less, on each day on
 site, the hours there and back at rush hour priced at the rate's hourly rate (7 hours a day) and the day's cost, spread

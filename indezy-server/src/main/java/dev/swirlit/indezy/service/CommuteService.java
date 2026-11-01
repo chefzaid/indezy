@@ -47,7 +47,7 @@ import java.util.Set;
 /**
  * The missions sorted by what their commute costs a month (see docs/features.md#commute-time-sorting): one trip's time
  * from home to the client, by car or public transport, times two for each day on site. A remote mission costs nothing
- * and is not looked up. Without a Google Maps key (the free way, production's), the trip is estimated from the straight
+ * a month, though its trip is looked up all the same, for its card and page. Without a Google Maps key (the free way, production's), the trip is estimated from the straight
  * line between the two addresses, located through the national address search. With one, it comes from Google's
  * Distance Matrix: destinations asked 25 at a time, the answers kept a week and a failed lookup not kept, so the next
  * request tries again. Neither addresses nor the key are ever logged.
@@ -134,8 +134,7 @@ public class CommuteService {
         String origin = address(freelance.getAddress(), freelance.getCity());
         List<Project> projects = projectRepository.findByFreelanceId(freelanceId);
         Map<String, Trip> byDestination = origin.isBlank() ? Map.of() : lookUp(origin, projects.stream()
-            .filter(project -> project.getWorkMode() != WorkMode.REMOTE).map(CommuteService::destination)
-            .filter(destination -> !destination.isBlank()).toList(), travelMode);
+            .map(CommuteService::destination).filter(destination -> !destination.isBlank()).toList(), travelMode);
 
         Integer maximum = maximumMinutes(freelanceId, travelMode);
         List<ProjectCommuteDto> results = new ArrayList<>();
@@ -160,7 +159,7 @@ public class CommuteService {
         ProjectDto dto = projectMapper.toDto(project);
         List<CommuteInfoDto> commutes = new ArrayList<>();
         for (TravelMode mode : TravelMode.values()) {
-            Map<String, Trip> byDestination = origin.isBlank() || destination.isBlank() || onSiteDays(project) == 0 ? Map.of() :
+            Map<String, Trip> byDestination = origin.isBlank() || destination.isBlank() ? Map.of() :
                 lookUp(origin, List.of(destination), mode);
             CommuteInfoDto commute = commuteOf(project, dto, origin, byDestination, mode, maximumMinutes(freelance.getId(), mode));
             commute.setDailyCost(dailyCost(commute, mode == TravelMode.DRIVING ? freelanceRepository.findKmRate(freelance.getId()) :
@@ -175,26 +174,28 @@ public class CommuteService {
         String destination = destination(project);
         int days = onSiteDays(project);
         Trip trip;
-        if (days == 0) {
-            trip = null;
-        } else if (origin.isBlank()) {
+        if (origin.isBlank()) {
             trip = Trip.none(CommuteUnavailable.NO_HOME_ADDRESS);
         } else if (destination.isBlank()) {
             trip = Trip.none(CommuteUnavailable.NO_CLIENT_ADDRESS);
         } else {
             trip = byDestination.get(destination);
         }
+        if (trip == null) {
+            trip = Trip.none(CommuteUnavailable.LOOKUP_FAILED);
+        }
         return CommuteInfoDto.builder()
             .projectId(project.getId()).projectRole(dto.getRole()).clientName(dto.getClientName())
             .origin(origin).destination(destination).travelMode(travelMode)
             .remote(days == 0).onsiteDaysPerMonth(days)
-            .durationInSeconds(trip == null ? null : trip.seconds()).durationText(trip == null ? null : trip.durationText())
-            .distanceInMeters(trip == null ? null : trip.meters()).distanceText(trip == null ? null : trip.distanceText())
-            .rushDurationInSeconds(trip == null ? null : trip.rushSeconds())
+            .durationInSeconds(trip.seconds()).durationText(trip.durationText())
+            .distanceInMeters(trip.meters()).distanceText(trip.distanceText())
+            .rushDurationInSeconds(trip.rushSeconds())
             .monthlySeconds(days == 0 ? Integer.valueOf(0) : monthly(trip.commuteSeconds(), days))
-            .unavailable(trip == null ? null : trip.unavailable())
-            .estimated(trip != null && trip.estimated())
-            .beyondMaximum(maximumMinutes == null || trip == null || trip.commuteSeconds() == null ? null :
+            .unavailable(trip.unavailable())
+            .estimated(trip.estimated())
+            // A remote mission is never too far: no day there is counted.
+            .beyondMaximum(days == 0 || maximumMinutes == null || trip.commuteSeconds() == null ? null :
                 trip.commuteSeconds() > maximumMinutes * 60)
             .build();
     }

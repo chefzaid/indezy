@@ -17,7 +17,7 @@ const HOURS_PER_DAY = 7;
 
 /**
  * The commute to an opportunity: one way by car and by public transport, off-peak and at rush hour, the month's time
- * there and back, and the time each remote day a week gives back. Hidden for a fully remote mission.
+ * there and back, and the time each remote day a week gives back. A fully remote mission shows its trips alone.
  */
 @Component({
   selector: 'app-project-commute',
@@ -40,7 +40,7 @@ export class ProjectCommuteComponent implements OnChanges {
     this.trips = [];
     this.commuteService.getProjectCommute(this.projectId).subscribe({
       next: trips => {
-        this.trips = trips.some(trip => trip.remote) ? [] : trips;
+        this.trips = trips;
         this.changes.markForCheck();
       },
       error: () => {
@@ -48,6 +48,11 @@ export class ProjectCommuteComponent implements OnChanges {
         this.changes.markForCheck();
       }
     });
+  }
+
+  /** A fully remote mission: no day on site to count, cost or give back. */
+  get remote(): boolean {
+    return this.trips.some(trip => trip.remote);
   }
 
   /** "≈ 50 min", Google's own words, or with the rush hour time when it differs. */

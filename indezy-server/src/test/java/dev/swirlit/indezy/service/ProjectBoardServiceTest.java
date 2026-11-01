@@ -48,6 +48,7 @@ class ProjectBoardServiceTest extends ProjectServiceTestSupport {
 
         assertThat(card.getRefusedBy()).isEqualTo("FREELANCE");
         assertThat(card.getLostReason()).isEqualTo("RATE_TOO_LOW");
+        assertThat(card.getPlace()).isEqualTo(testProject.getPlace()).isNotBlank();
     }
 
     @Test

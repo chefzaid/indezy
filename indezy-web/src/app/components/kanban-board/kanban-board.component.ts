@@ -38,7 +38,7 @@ import {
 } from '../../models/project.models';
 import { EnterOpensDirective } from '../../shared/directives/enter-opens.directive';
 import { CommuteService } from '../../services/commute/commute.service';
-import { tripTime } from '../../shared/utils/trip-time';
+import { commuteDistance, commuteRange } from '../../shared/utils/trip-time';
 
 @Component({
   selector: 'app-kanban-board',
@@ -76,8 +76,11 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
   private readonly locale = inject(LOCALE_ID);
   private readonly translate = inject(TranslateService);
   private readonly commuteService = inject(CommuteService);
-  /** Each opportunity's one-way drive at rush hour, in minutes, when one is known, and whether it exceeds the profile's longest. */
-  commutes = new Map<number, { minutes: number; beyond: boolean }>();
+  /**
+   * Each opportunity's one-way drive off-peak then at rush hour ("≈ 18 min – 26 min") and its distance, when known,
+   * whatever its work mode, and whether it exceeds the profile's longest.
+   */
+  commutes = new Map<number, { time: string; distance: string | null; beyond: boolean }>();
   /** The opportunities a non-solicitation clause covers, with the clause. */
   clauses = new Map<number, NonSolicitation>();
 
@@ -134,16 +137,16 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  /** The drive to each opportunity, for its card's chip; a failed lookup leaves the cards without it. */
+  /** The drive to each opportunity, for its card's chips; a failed lookup leaves the cards without it. */
   loadCommutes(): void {
     this.commuteService.getProjectsSortedByCommute(this.currentUserId!, 'DRIVING').pipe(takeUntil(this.destroy$)).subscribe({
       next: results => {
         this.commutes = new Map(results
-          .filter(result => result.project.id !== undefined && !result.commute?.remote)
+          .filter(result => result.project.id !== undefined)
           .flatMap(result => {
-            const seconds = result.commute?.rushDurationInSeconds ?? result.commute?.durationInSeconds;
-            return seconds === null || seconds === undefined ? [] :
-              [[result.project.id!, { minutes: seconds / 60, beyond: result.commute?.beyondMaximum === true }] as const];
+            const time = commuteRange(result.commute);
+            return time === null ? [] : [[result.project.id!, { time, distance: commuteDistance(result.commute),
+              beyond: result.commute?.beyondMaximum === true }] as const];
           }));
       },
       error: () => {
@@ -162,11 +165,6 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
         this.clauses = new Map();
       }
     });
-  }
-
-  /** "≈ 1 h 45": a card's drive at rush hour. */
-  commuteTime(minutes: number): string {
-    return `≈ ${tripTime(minutes)}`;
   }
 
   openQuickAdd(status: string): void {

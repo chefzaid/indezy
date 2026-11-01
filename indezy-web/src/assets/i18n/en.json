@@ -443,7 +443,8 @@
       "daysPerMonth": "days/month",
       "changeStatus": "Change pipeline stage",
       "statusUpdated": "Opportunity moved to \"{{status}}\"",
-      "via": "via {{name}}"
+      "via": "via {{name}}",
+      "place": "Mission location"
     },
     "workModes": {
       "REMOTE": "Remote",
@@ -481,7 +482,7 @@
       "transit": "Transit",
       "byCar": "Sort by driving time",
       "byTransit": "Sort by public transport time",
-      "remote": "Remote: no commute",
+      "remote": "Remote: no day on site",
       "perMonth": "{{hours}} h a month there and back at rush hour ({{days}} days on site)",
       "openProfile": "Open my profile",
       "reasons": {
@@ -498,7 +499,12 @@
       "remoteDaySaving": "Each remote day a week gives you back {{hours}} h a month.",
       "beyondMaximum": "Longer than your longest commute",
       "effectiveRate": "Effective daily rate: €{{rate}}, the hours there priced at the rate and {{cost}} € a day on site taken off.",
-      "effectiveRateTime": "Effective daily rate: €{{rate}}, the hours there priced at the rate (set a cost in your profile to take it off too)."
+      "effectiveRateTime": "Effective daily rate: €{{rate}}, the hours there priced at the rate (set a cost in your profile to take it off too).",
+      "carRange": "{{time}} by car",
+      "transitRange": "{{time}} by transit",
+      "rangeHint": "One way from your address: off-peak, then at rush hour (a weekday at 8:30)",
+      "distanceHint": "Road distance from your address",
+      "remoteNote": "Fully remote: no day on site is counted in the month."
     },
     "skills": {
       "matchScore": "Skill match",
@@ -934,8 +940,9 @@
       "confirmDelete": "Delete these {{count}} opportunities, with their notes, files and activity reports? This cannot be undone.",
       "deleted": "{{count}} opportunities deleted"
     },
-    "commute": "Drive at rush hour: {{time}}",
-    "commuteBeyond": "Drive at rush hour, longer than your longest commute: {{time}}"
+    "commute": "By car, off-peak then at rush hour: {{time}}",
+    "commuteBeyond": "By car, off-peak then at rush hour, longer than your longest commute: {{time}}",
+    "place": "Mission location: {{place}}"
   },
   "profile": {
     "targetDailyRate": "Target daily rate",

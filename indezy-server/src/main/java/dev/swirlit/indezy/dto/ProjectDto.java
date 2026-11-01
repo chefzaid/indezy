@@ -46,6 +46,8 @@ public class ProjectDto {
     /** Where the mission is worked, when not at the client's address; the commute goes there. */
     @Size(max = 255)
     private String workAddress;
+    /** Where the mission is worked, as shown: its place of work, else its client's city; read only. */
+    private String place;
     /** Months the ESN's non-solicitation clause runs after the mission. */
     @Min(1)
     @Max(36)

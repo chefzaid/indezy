@@ -1,5 +1,6 @@
 import { Component, DestroyRef, ElementRef, Injector, OnInit, ViewChild, afterNextRender, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -36,14 +37,46 @@ import {
   sortProjects
 } from '../../../services/project/project-filter.util';
 import { ProjectDto, User, FreelanceDto, ProjectStatus, PROJECT_STATUS_COLORS, DEFAULT_DAYS_PER_YEAR } from '../../../models';
-import { TravelMode, ProjectCommuteDto, CommuteInfoDto } from '../../../models/commute.models';
+import { TravelMode, ProjectCommuteDto, CommuteInfoDto, CommuteUnavailable } from '../../../models/commute.models';
 import { KeyboardShortcutsService } from '../../../shared/shortcuts/keyboard-shortcuts.service';
 import { saveBlob } from '../../../shared/utils/download-file';
 import { IdSelection } from '../../../shared/utils/id-selection';
 import { filtersFromParams, filtersToParams } from '../../../services/project/project-filter-url';
 import { ProjectSelectionBarComponent } from '../../project-selection-bar/project-selection-bar.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { tripTime } from '../../../shared/utils/trip-time';
+import { commuteDistance, commuteRange } from '../../../shared/utils/trip-time';
+
+/** What an opportunity's card shows of its commute: the distance and both ways' trips, or why there is none. */
+export interface CardCommute {
+  distance: string | null;
+  car: string | null;
+  transit: string | null;
+  estimated: boolean;
+  unavailable: CommuteUnavailable | null;
+}
+
+function byProject(results: ProjectCommuteDto[]): Map<number, CommuteInfoDto> {
+  return new Map(results.filter(result => result.commute && result.project.id)
+    .map(result => [result.project.id!, result.commute!] as const));
+}
+
+/** Each opportunity's card commute from its trips by car and by public transport. */
+function cardCommutes(car: Map<number, CommuteInfoDto>, transit: Map<number, CommuteInfoDto>): Map<number, CardCommute> {
+  const cards = new Map<number, CardCommute>();
+  for (const id of new Set([...car.keys(), ...transit.keys()])) {
+    const byCar = car.get(id);
+    const byTransit = transit.get(id);
+    const known = [byCar, byTransit].filter(trip => commuteRange(trip) !== null);
+    cards.set(id, {
+      distance: commuteDistance(byCar) ?? commuteDistance(byTransit),
+      car: commuteRange(byCar),
+      transit: commuteRange(byTransit),
+      estimated: known.some(trip => trip!.estimated),
+      unavailable: known.length > 0 ? null : (byCar?.unavailable ?? byTransit?.unavailable ?? 'LOOKUP_FAILED')
+    });
+  }
+  return cards;
+}
 
 @Component({
     selector: 'app-project-list',
@@ -97,11 +130,15 @@ export class ProjectListComponent implements OnInit {
   /** Filters start collapsed on phones so the missions are visible without scrolling. */
   filtersExpanded = typeof window === 'undefined' || !window.matchMedia('(max-width: 768px)').matches;
 
-  // Commute sorting
-  isCommuteSortActive = false;
+  // Commute: each card's trips, and the sort by commute time
+  commutesLoaded = false;
   isCommuteLoading = false;
   commuteTravelMode: TravelMode = 'DRIVING';
+  /** The chosen way's trips, which the commute sort orders by. */
   commuteData: Map<number, CommuteInfoDto> = new Map();
+  /** Each opportunity's distance and trips by car and by public transport, whatever its work mode. */
+  cardCommutes = new Map<number, CardCommute>();
+  private trips: Record<TravelMode, Map<number, CommuteInfoDto>> = { DRIVING: new Map(), TRANSIT: new Map() };
 
   /** The taux de réversion: the share of the gross daily rate the freelance keeps, in percent. */
   freelanceProfile: FreelanceDto | null = null;
@@ -197,6 +234,7 @@ export class ProjectListComponent implements OnInit {
     // The address's filters apply from the first list shown.
     this.setupFilters();
     this.loadProjects();
+    this.loadCommuteData();
     this.loadSeasons();
     this.loadFreelanceProfile();
   }
@@ -360,12 +398,12 @@ export class ProjectListComponent implements OnInit {
     }
   }
 
-  // Commute sorting methods
+  // Commute methods
   onSortByChange(sortBy: string): void {
     if (sortBy === 'commuteTime') {
       // The shortest commute first: descending would open on the dearest and on those without a time.
       this.filterForm.patchValue({ sortOrder: 'asc' });
-      if (!this.isCommuteSortActive) {
+      if (!this.commutesLoaded && !this.isCommuteLoading) {
         this.loadCommuteData();
       }
     }
@@ -373,37 +411,40 @@ export class ProjectListComponent implements OnInit {
 
   onTravelModeChange(mode: TravelMode): void {
     this.commuteTravelMode = mode;
-    if (this.isCommuteSortActive || this.filterForm.get('sortBy')?.value === 'commuteTime') {
-      this.loadCommuteData();
-    }
+    this.commuteData = this.trips[mode];
+    this.applyFilters();
   }
 
+  /** Every opportunity's trip by car and by public transport; a failure says so only while sorting by commute. */
   loadCommuteData(): void {
     if (!this.currentUser?.id) {
       return;
     }
 
     this.isCommuteLoading = true;
-    this.commuteService.getProjectsSortedByCommute(this.currentUser.id, this.commuteTravelMode).subscribe({
-      next: (results: ProjectCommuteDto[]) => {
-        this.commuteData.clear();
-        for (const result of results) {
-          if (result.commute && result.project.id) {
-            this.commuteData.set(result.project.id, result.commute);
-          }
-        }
-        this.isCommuteSortActive = true;
+    forkJoin({
+      DRIVING: this.commuteService.getProjectsSortedByCommute(this.currentUser.id, 'DRIVING'),
+      TRANSIT: this.commuteService.getProjectsSortedByCommute(this.currentUser.id, 'TRANSIT')
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: results => {
+        this.trips = { DRIVING: byProject(results.DRIVING), TRANSIT: byProject(results.TRANSIT) };
+        this.cardCommutes = cardCommutes(this.trips.DRIVING, this.trips.TRANSIT);
+        this.commuteData = this.trips[this.commuteTravelMode];
+        this.commutesLoaded = true;
         this.isCommuteLoading = false;
         this.applyFilters();
       },
       error: (error) => {
         this.isCommuteLoading = false;
-        this.notificationService.error('projects.commuteLoadError');
+        if (this.filterForm.get('sortBy')?.value === 'commuteTime') {
+          this.notificationService.error('projects.commuteLoadError');
+        }
         console.error('Error loading commute data:', error);
       }
     });
   }
 
+  /** The chosen way's trip, which the commute sort's monthly time comes from. */
   getCommuteInfo(projectId: number | undefined): CommuteInfoDto | undefined {
     if (!projectId) {
       return undefined;
@@ -411,28 +452,9 @@ export class ProjectListComponent implements OnInit {
     return this.commuteData.get(projectId);
   }
 
-  /** One trip's time: Google's own words, else minutes, or hours and minutes ("1 h 05"). */
-  tripTime(commute: CommuteInfoDto): string {
-    return commute.durationText ?? this.formatMinutes(commute.durationInSeconds ?? 0);
-  }
-
-  /** A time as minutes, or hours and minutes ("1 h 05"). */
-  formatMinutes(seconds: number): string {
-    return tripTime(seconds / 60);
-  }
-
-  /** One trip's distance: Google's own words, else kilometres. */
-  tripDistance(commute: CommuteInfoDto): string {
-    return commute.distanceText ?? `${Math.round((commute.distanceInMeters ?? 0) / 1000)} km`;
-  }
-
   /** The commute's hours a month, to the tenth. */
   monthlyHours(commute: CommuteInfoDto): number {
     return Math.round((commute.monthlySeconds ?? 0) / 360) / 10;
-  }
-
-  getCommuteIcon(mode: TravelMode): string {
-    return mode === 'DRIVING' ? 'directions_car' : 'directions_transit';
   }
 
   // Reversion rate methods

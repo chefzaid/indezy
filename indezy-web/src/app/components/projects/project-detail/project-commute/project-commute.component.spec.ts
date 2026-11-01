@@ -44,6 +44,7 @@ describe('ProjectCommuteComponent', () => {
     expect(fixture.componentInstance.remoteDaySaving()).toBe(13.3);
     expect(fixture.componentInstance.monthlyHours(trip({}))).toBe(70);
     expect(element.querySelector('[data-remote-day-saving]')).not.toBeNull();
+    expect(element.querySelector('[data-commute-remote]')).toBeNull();
   });
 
   it('says why a trip has no time, linking the profile for the home address', () => {
@@ -60,9 +61,20 @@ describe('ProjectCommuteComponent', () => {
     expect(fixture.componentInstance.distance(fixture.componentInstance.trips[0])).toBe('55 km');
   });
 
-  it('shows nothing for a remote mission, nor when the lookup fails', () => {
-    expect(render([trip({ remote: true })]).querySelector('[data-project-commute]')).toBeNull();
-    TestBed.resetTestingModule();
+  it('shows a remote mission\'s trips without a month, a rate or a day to give back', () => {
+    const remote = { remote: true, onsiteDaysPerMonth: 0, monthlySeconds: 0, dailyCost: null };
+    const element = render([trip(remote), trip({ ...remote, travelMode: 'TRANSIT' })]);
+    fixture.componentRef.setInput('dailyRate', 700);
+    fixture.detectChanges();
+    expect(element.querySelector('[data-commute-mode="DRIVING"]')!.textContent!.replace(/\s+/g, ' ')).toContain('≈ 50 min (56 km)');
+    expect(element.querySelector('[data-commute-mode="TRANSIT"]')).not.toBeNull();
+    expect(element.querySelector('[data-commute-remote]')).not.toBeNull();
+    expect(element.querySelector('.month')).toBeNull();
+    expect(element.querySelector('[data-effective-rate]')).toBeNull();
+    expect(element.querySelector('[data-remote-day-saving]')).toBeNull();
+  });
+
+  it('shows nothing when the lookup fails', () => {
     expect(render(new Error('down')).querySelector('[data-project-commute]')).toBeNull();
   });
 
