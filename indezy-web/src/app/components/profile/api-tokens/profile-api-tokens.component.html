@@ -99,7 +99,7 @@
         @if (noScope) {
           <p class="form-error" role="alert">{{ 'profile.apiTokens.noScope' | translate }}</p>
         }
-        <button mat-raised-button color="primary" type="submit" [disabled]="creating">
+        <button mat-flat-button color="primary" type="submit" [disabled]="creating">
           {{ 'profile.apiTokens.create' | translate }}
         </button>
       </form>

@@ -69,26 +69,16 @@
   }
 
   .up {
-    color: #1b5e20;
+    color: var(--app-chip-positive-text);
   }
 
   .down {
-    color: #8a4b00;
+    color: var(--app-chip-warning-text);
   }
 
   .none,
   .flat {
     color: var(--app-text-muted);
-  }
-}
-
-:host-context(html.dark-theme) .trend-table {
-  .up {
-    color: var(--app-chip-positive-text);
-  }
-
-  .down {
-    color: #ffcc80;
   }
 }
 

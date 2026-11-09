@@ -9,7 +9,7 @@
         <button mat-button type="button" lang="en" [attr.aria-pressed]="language === 'en'" (click)="switchLanguage('en')">EN</button>
       </div>
       @if (auth.isAuthenticated()) {
-        <a mat-raised-button color="primary" routerLink="/dashboard" data-open-dashboard>{{ 'home.openDashboard' | translate }}</a>
+        <a mat-flat-button color="primary" routerLink="/dashboard" data-open-dashboard>{{ 'home.openDashboard' | translate }}</a>
       } @else {
         <button mat-stroked-button type="button" (click)="signIn()" data-sign-in>{{ 'home.signIn' | translate }}</button>
       }
@@ -24,10 +24,10 @@
         <p class="lead">{{ 'home.hero.lead' | translate }}</p>
         <div class="cta">
           @if (auth.isAuthenticated()) {
-            <a mat-raised-button color="primary" routerLink="/dashboard">{{ 'home.openDashboard' | translate }}</a>
+            <a mat-flat-button color="primary" routerLink="/dashboard">{{ 'home.openDashboard' | translate }}</a>
           } @else {
             @if (signUpOpen) {
-              <a mat-raised-button color="primary" routerLink="/register" data-sign-up>{{ 'home.signUp' | translate }}</a>
+              <a mat-flat-button color="primary" routerLink="/register" data-sign-up>{{ 'home.signUp' | translate }}</a>
             }
             <button mat-stroked-button type="button" (click)="signIn()">{{ 'home.signIn' | translate }}</button>
           }

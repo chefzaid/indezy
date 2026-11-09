@@ -274,18 +274,18 @@ describe('DashboardComponent', () => {
       const statusChart = Chart.getChart(canvas('status'))!;
       expect(statusChart.data.labels).toEqual(['projects.statuses.IDEA', 'projects.statuses.WON', 'projects.statuses.UNKNOWN']);
       expect(statusChart.data.datasets[0].data).toEqual([2, 3, 1]);
-      expect((statusChart.data.datasets[0].backgroundColor as string[])[2]).toBe('#999');
+      expect((statusChart.data.datasets[0].backgroundColor as string[])[2]).toBe('#64748b');
       expect(Chart.getChart(canvas('workMode'))!.data.labels).toEqual(['projects.workModes.REMOTE', 'projects.workModes.HYBRID']);
     });
 
-    it('lifts the stage colours toward white on the dark theme, so the slices stand out from the card', () => {
+    it('lifts the stage colours toward white on the dark theme, so the bars stand out from the card', () => {
       create(user, of(stats()), of([]), true);
 
       picker().selectionChange.emit(null);
 
       const colors = Chart.getChart(canvas('status'))!.data.datasets[0].backgroundColor as string[];
-      // Accepted's green, #2e7d32, at 60 % with white; the grey of an unknown stage stays as it is.
-      expect(colors).toEqual(['#999', '#82b184', '#999']);
+      // Accepted's green, #15803d, and the slate of an unknown stage, #64748b, at 60 % with white.
+      expect(colors).toEqual(['#a2acb9', '#73b38b', '#a2acb9']);
     });
 
     it('hands the statistics to the analytics', () => {

@@ -195,6 +195,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'services/source/source.service',
   'services/user-management/user-management.service',
   'services/webhook/webhook.service',
+  'shared/charts/chart-theme',
   'shared/components/activity-calendar/activity-calendar.component',
   'shared/components/activity-calendar/activity-calendar.util',
   'shared/components/activity-heatmap/activity-heatmap.component',

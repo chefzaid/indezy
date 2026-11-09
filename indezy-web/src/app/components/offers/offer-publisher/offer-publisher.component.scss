@@ -107,15 +107,10 @@
 .site-badge {
   padding: 2px 8px;
   border-radius: 10px;
-  background: rgba(63, 81, 181, 0.1);
-  color: #283593;
+  background: var(--app-chip-neutral-bg);
+  color: var(--app-chip-neutral-text);
   font-size: 0.8rem;
   font-weight: 600;
-}
-
-:host-context(html.dark-theme) .site-badge {
-  background: rgba(159, 168, 218, 0.18);
-  color: #c5cae9;
 }
 
 @media (max-width: 599px) {

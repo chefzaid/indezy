@@ -1,13 +1,13 @@
 <div class="app-container">
   @if (authService.isAuthenticated() && !onHomePage()) {
     <!-- Top Navigation -->
-    <mat-toolbar color="primary" class="app-toolbar">
+    <mat-toolbar class="app-toolbar">
       <button mat-icon-button (click)="sidenav.toggle()" class="menu-button"
         [attr.aria-label]="'nav.toggleMenu' | translate">
         <mat-icon>menu</mat-icon>
       </button>
       <a routerLink="/dashboard" class="app-logo-link">
-        <app-logo surface="primary" [height]="32"></app-logo>
+        <app-logo [height]="28"></app-logo>
       </a>
       <span class="spacer"></span>
       <button mat-icon-button (click)="shortcuts.openSearch()" class="search-button"

@@ -83,7 +83,7 @@
               <mat-icon>cancel</mat-icon>
               {{ 'common.cancel' | translate }}
             </button>
-            <button mat-raised-button color="primary" type="submit" [disabled]="isSubmitting">
+            <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
               @if (isSubmitting) {
                 <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="20"></mat-spinner>
               }

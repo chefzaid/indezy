@@ -42,7 +42,7 @@
   }
 
   .journal-entry {
-    border-left: 3px solid #667eea;
+    border-left: 3px solid var(--app-link);
     padding: 8px 12px;
     background: var(--app-subtle);
     border-radius: 0 8px 8px 0;

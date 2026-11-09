@@ -176,7 +176,7 @@
             <button type="button" mat-button (click)="onCancel()" [disabled]="isSaving">
               {{ 'common.cancel' | translate }}
             </button>
-            <button type="submit" mat-raised-button color="primary" [disabled]="isSaving">
+            <button type="submit" mat-flat-button color="primary" [disabled]="isSaving">
               @if (isSaving) {
                 <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="18"></mat-spinner>
               } @else {

@@ -11,7 +11,7 @@
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()">{{ 'common.cancel' | translate }}</button>
-  <button mat-raised-button color="primary" [disabled]="!content.trim()" (click)="onImport()">
+  <button mat-flat-button color="primary" [disabled]="!content.trim()" (click)="onImport()">
     {{ 'contacts.import.action' | translate }}
   </button>
 </mat-dialog-actions>

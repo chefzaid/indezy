@@ -3,7 +3,7 @@
     @if (!isLoading) {
       <span class="results-count">{{ 'sources.resultsCount' | translate:{ count: filteredSources.length } }}</span>
     }
-    <button mat-raised-button color="primary" (click)="onCreate()">
+    <button mat-flat-button color="primary" (click)="onCreate()">
       <mat-icon>add</mat-icon>
       {{ 'sources.newSource' | translate }}
     </button>
@@ -130,7 +130,7 @@
           <mat-icon class="empty-icon">source</mat-icon>
           <h3>{{ 'sources.noSources' | translate }}</h3>
           <p>{{ 'sources.addPlatforms' | translate }}</p>
-          <button mat-raised-button color="primary" (click)="onCreate()">
+          <button mat-flat-button color="primary" (click)="onCreate()">
             {{ 'sources.addSource' | translate }}
           </button>
         </div>

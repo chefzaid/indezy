@@ -1,6 +1,6 @@
 <div class="client-list-container">
   <app-page-header icon="business" [title]="'clients.title' | translate" [subtitle]="'clients.subtitle' | translate">
-    <button mat-raised-button color="primary" routerLink="/clients/new">
+    <button mat-flat-button color="primary" routerLink="/clients/new">
       <mat-icon>add</mat-icon>
       {{ 'clients.newClient' | translate }}
     </button>
@@ -87,7 +87,7 @@
             </button>
           } @else {
             <p>{{ 'clients.startFirstClient' | translate }}</p>
-            <button mat-raised-button color="primary" routerLink="/clients/new">
+            <button mat-flat-button color="primary" routerLink="/clients/new">
               <mat-icon>add</mat-icon>
               {{ 'clients.addClient' | translate }}
             </button>

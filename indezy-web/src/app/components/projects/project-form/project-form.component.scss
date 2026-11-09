@@ -46,7 +46,7 @@
           h3 {
             margin: 0 0 20px 0;
             color: var(--app-text);
-            border-bottom: 2px solid var(--mat-theme-primary, #1565c0);
+            border-bottom: 2px solid var(--app-link);
             padding-bottom: 8px;
           }
           
@@ -185,19 +185,6 @@
   
   .mat-mdc-select-placeholder {
     color: var(--app-text-faint);
-  }
-}
-
-// Button styling
-.mat-mdc-raised-button {
-  &.mat-primary {
-    background-color: var(--mat-theme-primary, #1565c0);
-    color: white;
-    
-    &:disabled {
-      background-color: var(--app-border);
-      color: var(--app-text-muted);
-    }
   }
 }
 

@@ -26,6 +26,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
 import { Season } from '../../models/season.models';
 import { forkJoin, of, Subscription } from 'rxjs';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { applyChartTheme, themeColor } from '../../shared/charts/chart-theme';
 
 Chart.register(...registerables);
 
@@ -291,10 +292,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // ResizeObserver; keep those callbacks from triggering application-wide
     // change detection on every frame.
     // Follow the light/dark theme: axis and legend text plus slice separators use app tokens.
-    const styles = getComputedStyle(document.documentElement);
-    Chart.defaults.color = styles.getPropertyValue('--app-text-muted').trim() || '#666';
-    Chart.defaults.borderColor = styles.getPropertyValue('--app-border').trim() || 'rgba(0, 0, 0, 0.1)';
-    this.chartSurface = styles.getPropertyValue('--app-surface').trim() || '#fff';
+    applyChartTheme();
+    this.chartSurface = themeColor('--app-surface', '#fff');
     this.ngZone.runOutsideAngular(() => {
       this.buildStatusChart();
       this.buildWorkModeChart();
@@ -302,7 +301,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * A stage colour as a slice on the card. The stage colours carry white text, so they are dark: on the dark theme's
+   * A stage colour as a bar on the card. The stage colours carry white text, so they are dark: on the dark theme's
    * card they are lifted toward white (60 % of the colour), as the board's columns are.
    */
   private onSurface(color: string): string {
@@ -325,28 +324,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const statusKeys = Object.keys(this.dashboardStats.projectsByStatus);
     const statusLabels = statusKeys.map(s => this.translate.instant('projects.statuses.' + s));
     const statusData = statusKeys.map(s => this.dashboardStats!.projectsByStatus[s]);
-    const statusColors = statusKeys.map(s => this.onSurface(PROJECT_STATUS_COLORS[s as keyof typeof PROJECT_STATUS_COLORS] || '#999'));
+    const statusColors = statusKeys.map(s => this.onSurface(PROJECT_STATUS_COLORS[s as keyof typeof PROJECT_STATUS_COLORS] || '#64748b'));
 
-    const config: ChartConfiguration<'doughnut'> = {
-      type: 'doughnut',
+    // One bar per stage, named on its axis: stages compare by length, which a ring of five slices does not show.
+    const config: ChartConfiguration<'bar'> = {
+      type: 'bar',
       data: {
         labels: statusLabels,
         datasets: [{
+          label: this.translate.instant('dashboard.charts.projects'),
           data: statusData,
           backgroundColor: statusColors,
-          borderWidth: 2,
-          borderColor: this.chartSurface
+          borderRadius: 6,
+          borderSkipped: false,
+          maxBarThickness: 28
         }]
       },
       options: {
+        indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { padding: 16, usePointStyle: true, pointStyle: 'circle' }
-          }
-        }
+        scales: {
+          x: { beginAtZero: true, ticks: { precision: 0 } },
+          y: { grid: { display: false } }
+        },
+        plugins: { legend: { display: false } }
       }
     };
 
@@ -359,7 +361,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const modeKeys = Object.keys(this.dashboardStats.projectsByWorkMode);
     const modeLabels = modeKeys.map(m => this.translate.instant('projects.workModes.' + m));
     const modeData = modeKeys.map(m => this.dashboardStats!.projectsByWorkMode[m]);
-    const modeColors = ['#4facfe', '#43e97b', '#f5576c'];
+    // Each mode keeps its colour whichever modes the season holds: the logo's indigo, violet and amber.
+    const modeTokens: Record<string, string> = {
+      REMOTE: '--app-mode-remote', HYBRID: '--app-mode-hybrid', ONSITE: '--app-mode-onsite'
+    };
+    const modeColors = modeKeys.map(m => themeColor(modeTokens[m] ?? '--app-text-faint', '#706e80'));
 
     const config: ChartConfiguration<'doughnut'> = {
       type: 'doughnut',

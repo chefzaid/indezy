@@ -55,7 +55,7 @@
               <mat-label>{{ 'booking.public.message' | translate }}</mat-label>
               <textarea matInput formControlName="message" rows="3" maxlength="500"></textarea>
             </mat-form-field>
-            <button mat-raised-button color="primary" type="submit" [disabled]="sending" data-book-submit>{{ 'booking.public.book' | translate }}</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="sending" data-book-submit>{{ 'booking.public.book' | translate }}</button>
           </form>
         }
       }

@@ -5,6 +5,7 @@ import {
 import { TranslateService } from '@ngx-translate/core';
 import { Chart, registerables } from 'chart.js';
 import { DailyRateRange } from '../../../models';
+import { applyChartTheme, themeColor } from '../../../shared/charts/chart-theme';
 
 Chart.register(...registerables);
 
@@ -55,9 +56,9 @@ export class DailyRateChartComponent implements AfterViewInit, OnChanges, OnDest
       return;
     }
     this.chart?.destroy();
-    const styles = getComputedStyle(document.documentElement);
-    const color = styles.getPropertyValue('--app-text-muted').trim() || '#666';
-    const borderColor = styles.getPropertyValue('--app-border').trim() || 'rgba(0, 0, 0, 0.1)';
+    applyChartTheme();
+    const backgroundColor = themeColor('--app-chart-bar', 'rgba(79, 70, 229, 0.75)');
+    const borderColor = themeColor('--app-chart-bar-border', '#4f46e5');
     this.zone.runOutsideAngular(() => {
       this.chart = new Chart(canvas, {
         type: 'bar',
@@ -66,8 +67,8 @@ export class DailyRateChartComponent implements AfterViewInit, OnChanges, OnDest
           datasets: [{
             label: this.translate.instant('dashboard.charts.projects'),
             data: this.rates.map(rate => rate.count),
-            backgroundColor: 'rgba(102, 126, 234, 0.7)',
-            borderColor: '#667eea',
+            backgroundColor,
+            borderColor,
             borderWidth: 1,
             borderRadius: 6
           }]
@@ -76,8 +77,8 @@ export class DailyRateChartComponent implements AfterViewInit, OnChanges, OnDest
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            x: { ticks: { color }, grid: { color: borderColor } },
-            y: { beginAtZero: true, ticks: { color, stepSize: 1 }, grid: { color: borderColor } }
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, ticks: { stepSize: 1 } }
           },
           plugins: { legend: { display: false } }
         }

@@ -166,7 +166,7 @@
           
           .notes-content {
             background-color: var(--app-hover);
-            border-left: 4px solid var(--mat-theme-primary, #1565c0);
+            border-left: 4px solid var(--app-link);
             padding: 16px;
             border-radius: 4px;
             line-height: 1.6;
@@ -191,14 +191,6 @@
   &.mat-warn {
     background-color: var(--app-chip-danger-bg);
     color: var(--app-chip-danger-text);
-  }
-}
-
-// Button styling
-.mat-mdc-raised-button {
-  &.mat-primary {
-    background-color: var(--mat-theme-primary, #1565c0);
-    color: white;
   }
 }
 

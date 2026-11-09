@@ -1,191 +1,130 @@
 @use '@angular/cdk' as cdk;
 @use '@angular/material' as mat;
+@use './theme-colors' as brand;
 
-/* The prebuilt Material theme leaves out the CDK accessibility styles: .cdk-visually-hidden keeps
-   screen-reader-only text (such as calendar day descriptions and live announcements) off screen. */
+/* Material 3, from the logo: its indigo (#4F46E5) leads, its amber dot (#FBBF24) is the tertiary colour. The palettes
+   in _theme-colors.scss come from `ng generate @angular/material:theme-color`. Every system colour is a light-dark()
+   pair, so the dark theme is the color-scheme switch alone (ThemeService puts .dark-theme on <html>). */
+$font-family: ('Inter Variable', Inter, 'Helvetica Neue', Arial, sans-serif);
+
+html {
+  color-scheme: light;
+  @include mat.theme((
+    color: (primary: brand.$primary-palette, tertiary: brand.$tertiary-palette, theme-type: color-scheme),
+    typography: (plain-family: $font-family, brand-family: $font-family),
+    density: 0
+  ));
+}
+
+html.dark-theme {
+  color-scheme: dark;
+}
+
+/* The color="accent" and color="warn" inputs of buttons, checkboxes, icons and the like: Material 3 ignores them
+   unless these styles map them to its tertiary and error colours, through the system variables above. */
+$color-variants: mat.define-theme((
+  color: (theme-type: light, primary: brand.$primary-palette, tertiary: brand.$tertiary-palette, use-system-variables: true),
+  typography: (use-system-variables: true)
+));
+@include mat.color-variants-backwards-compatibility($color-variants);
+
+/* Headings and paragraphs under .mat-typography keep the compact sizes of a working tool (h1 24px, h2 20px, h3 16px);
+   Material 3's own hierarchy starts h1 at 57px. */
+@include mat.typography-hierarchy(mat.m2-define-typography-config($font-family: $font-family));
+
+/* No prebuilt theme loads the CDK accessibility styles: .cdk-visually-hidden keeps screen-reader-only text (such as
+   calendar day descriptions and live announcements) off screen. */
 @include cdk.a11y-visually-hidden();
 
-/* You can add global styles to this file, and also import other style files */
-
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: $font-family; }
 
-/* Application color tokens; components use these instead of hard-coded light colors. */
+/* Application colour tokens, light then dark; components use these instead of hard-coded colours. The neutrals are
+   tones of the generated neutral palette (page 96 / 6, cards 100 / 12), the brand tones its primary palette (40 / 80).
+   Text reads at 4.5:1 at least on the page, on cards and on the recessed --app-subtle in both themes. */
 :root {
-  --primary-color: #1976d2;
-  --accent-color: #ff4081;
-  --warn-color: #f44336;
-  --success-color: #4caf50;
-  --background-color: #fafafa;
-  --surface-color: #ffffff;
-  --text-primary: rgba(0, 0, 0, 0.87);
-  // 60 % black: the 54 % of Material's light theme reads at 4.47:1 on the page's grey, under WCAG AA's 4.5:1.
-  --text-secondary: rgba(0, 0, 0, 0.6);
-
-  --app-bg: #f5f5f5;
-  --app-surface: #ffffff;
-  --app-subtle: #f5f7fa;
-  --app-hover: rgba(0, 0, 0, 0.04);
-  --app-text: rgba(0, 0, 0, 0.87);
-  --app-text-muted: rgba(0, 0, 0, 0.6);
-  --app-text-faint: rgba(0, 0, 0, 0.38);
-  --app-border: rgba(0, 0, 0, 0.12);
-  --app-link: #1565c0;
-  /* Text that reads as good or bad news (a net rate, a delete action), 4.5:1 at least on surfaces and the page. */
-  --app-positive: #2e7d32;
-  --app-danger: #c62828;
-  --app-info-bg: #e3f2fd;
+  --app-bg: light-dark(#f5f2ff, #13121b);
+  --app-surface: light-dark(#ffffff, #1f1f28);
+  /* A recessed area: board columns, tiles inside a card. */
+  --app-subtle: light-dark(#f0ecf9, #1b1b24);
+  --app-hover: light-dark(rgba(27, 27, 36, 0.05), rgba(228, 225, 238, 0.08));
+  --app-text: light-dark(#1b1b24, #e4e1ee);
+  --app-text-muted: light-dark(#5e5d6d, #aca9bc);
+  --app-text-faint: light-dark(#67657a, #8b8999);
+  --app-border: light-dark(#e4e1ee, #35343e);
+  /* The brand colour as text, icons and selection: links, active navigation, focus rings. */
+  --app-link: light-dark(#4d44e3, #c3c0ff);
+  --app-selected-bg: light-dark(#e2dfff, rgba(195, 192, 255, 0.16));
+  /* Text that reads as good or bad news (a net rate, a delete action). */
+  --app-positive: light-dark(#276c2b, #81c784);
+  --app-danger: light-dark(#c62828, #ef9a9a);
+  --app-info-bg: light-dark(#e2dfff, rgba(195, 192, 255, 0.14));
   /* Who refused an opportunity: the recruiter in red, the freelance in orange. Solid, each with a text colour reading
      at 4.5:1 at least on it, so the badge looks the same in either theme. */
   --app-refused-by-recruiter: #c62828;
   --app-refused-by-recruiter-text: #ffffff;
   --app-refused-by-freelance: #f57c00;
   --app-refused-by-freelance-text: #212121;
-  /* Text that reads as a warning, an accent or a booked call, redefined lighter for the dark theme. */
-  --app-warning: #8a4b00;
-  --app-accent: #5e35b1;
-  --app-teal: #00796b;
-  /* Tinted chips and badges: a light tint under dark text here, a translucent tint under light text in the dark
-     theme, 4.5:1 at least either way. */
-  --app-chip-positive-bg: #e8f5e9;
-  --app-chip-positive-text: #1b5e20;
-  --app-chip-danger-bg: #ffebee;
-  --app-chip-danger-text: #b71c1c;
-  --app-chip-warning-bg: #fff3e0;
-  --app-chip-warning-text: #8a4b00;
-  --app-chip-info-bg: #e3f2fd;
-  --app-chip-info-text: #0d47a1;
-  --app-chip-indigo-bg: #e8eaf6;
-  --app-chip-indigo-text: #283593;
-  --app-chip-accent-bg: #ede7f6;
-  --app-chip-accent-text: #4527a0;
-  --app-chip-neutral-bg: #eceff1;
-  --app-chip-neutral-text: #37474f;
-}
+  /* Text that reads as a warning, an accent or a booked call. */
+  --app-warning: light-dark(#8a4b00, #ffb74d);
+  --app-accent: light-dark(#6d28d9, #c4b5fd);
+  --app-teal: light-dark(#00796b, #80cbc4);
+  /* Tinted chips and badges: a light tint under dark text, a translucent tint under light text in the dark theme. */
+  --app-chip-positive-bg: light-dark(#e8f5e9, rgba(129, 199, 132, 0.18));
+  --app-chip-positive-text: light-dark(#1b5e20, #c8e6c9);
+  --app-chip-danger-bg: light-dark(#ffebee, rgba(239, 154, 154, 0.18));
+  --app-chip-danger-text: light-dark(#b71c1c, #ef9a9a);
+  --app-chip-warning-bg: light-dark(#fff3e0, rgba(255, 183, 77, 0.18));
+  --app-chip-warning-text: light-dark(#8a4b00, #ffcc80);
+  --app-chip-info-bg: light-dark(#e2dfff, rgba(195, 192, 255, 0.16));
+  --app-chip-info-text: light-dark(#3323cc, #c3c0ff);
+  --app-chip-indigo-bg: light-dark(#e0e7ff, rgba(165, 180, 252, 0.18));
+  --app-chip-indigo-text: light-dark(#3730a3, #c7d2fe);
+  --app-chip-accent-bg: light-dark(#ede9fe, rgba(196, 181, 253, 0.18));
+  --app-chip-accent-text: light-dark(#5b21b6, #ddd6fe);
+  --app-chip-neutral-bg: light-dark(#eae6f4, rgba(228, 225, 238, 0.1));
+  --app-chip-neutral-text: light-dark(#3b3a44, #e4e1ee);
+  /* The work modes in charts and the market, from the logo: its indigo, a purple and its amber. 3:1 at least on cards. */
+  --app-mode-remote: light-dark(#4f46e5, #a5b4fc);
+  --app-mode-hybrid: light-dark(#a855f7, #c084fc);
+  --app-mode-onsite: var(--app-highlight);
+  /* The logo's amber, for what is picked out: a favourite, a note, a chart's target bar. 3:1 at least on cards. */
+  --app-highlight: light-dark(#d97706, #fbbf24);
+  /* One-series charts: bars in the brand colour, one bar picked out in amber. */
+  --app-chart-bar: light-dark(rgba(79, 70, 229, 0.75), rgba(195, 192, 255, 0.75));
+  --app-chart-bar-border: light-dark(#4f46e5, #c3c0ff);
+  --app-chart-highlight: light-dark(rgba(217, 119, 6, 0.85), rgba(251, 191, 36, 0.85));
+  --app-chart-highlight-border: var(--app-highlight);
+  --heatmap-l0: light-dark(#eae6f4, #2a2933);
+  --heatmap-l1: light-dark(#c3c0ff, #3323cc);
+  --heatmap-l2: light-dark(#8582ff, #4d44e3);
+  --heatmap-l3: light-dark(#4d44e3, #8582ff);
+  --heatmap-l4: light-dark(#2606c2, #c3c0ff);
 
-/* Material's indigo-pink theme draws a few texts under the 4.5:1 contrast WCAG AA asks for on this app's light
-   backgrounds: 54 % black labels and tabs on the page's grey (4.47:1), and red text (#f44336, 3.7:1) on buttons and in
-   the errors of form fields. */
-html:not(.dark-theme) {
-  --mat-form-field-outlined-label-text-color: rgba(0, 0, 0, 0.6);
-  --mat-form-field-filled-label-text-color: rgba(0, 0, 0, 0.6);
-  --mat-form-field-error-text-color: var(--app-danger);
-  --mat-form-field-error-trailing-icon-color: var(--app-danger);
-  --mat-form-field-error-hover-trailing-icon-color: var(--app-danger);
-  --mat-form-field-error-focus-trailing-icon-color: var(--app-danger);
-  --mat-form-field-outlined-error-label-text-color: var(--app-danger);
-  --mat-form-field-outlined-error-hover-label-text-color: var(--app-danger);
-  --mat-form-field-outlined-error-focus-label-text-color: var(--app-danger);
-  --mat-form-field-outlined-error-outline-color: var(--app-danger);
-  --mat-form-field-outlined-error-hover-outline-color: var(--app-danger);
-  --mat-form-field-outlined-error-focus-outline-color: var(--app-danger);
-  --mat-form-field-outlined-error-caret-color: var(--app-danger);
-  --mat-form-field-filled-error-label-text-color: var(--app-danger);
-  --mat-form-field-filled-error-hover-label-text-color: var(--app-danger);
-  --mat-form-field-filled-error-focus-label-text-color: var(--app-danger);
-  --mat-form-field-filled-error-active-indicator-color: var(--app-danger);
-  --mat-form-field-filled-error-hover-active-indicator-color: var(--app-danger);
-  --mat-form-field-filled-error-focus-active-indicator-color: var(--app-danger);
-  --mat-form-field-filled-error-caret-color: var(--app-danger);
+  /* Sign-in, sign-up and error pages: the page colour under a soft glow of the brand colour. */
+  --app-backdrop: radial-gradient(ellipse 90% 60% at 50% 0%, color-mix(in srgb, var(--mat-sys-primary) 16%, transparent),
+    transparent), var(--app-bg);
 
-  .mat-mdc-tab-group,
-  .mat-mdc-tab-nav-bar {
-    --mat-tab-inactive-label-text-color: rgba(0, 0, 0, 0.6);
-  }
+  /* Older names still used by a few components. */
+  --primary-color: var(--app-link);
+  --text-primary: var(--app-text);
+  --text-secondary: var(--app-text-muted);
 
-  .mat-mdc-button.mat-warn,
-  .mat-mdc-outlined-button.mat-warn {
-    --mat-button-text-label-text-color: var(--app-danger);
-    --mat-button-outlined-label-text-color: var(--app-danger);
-  }
-}
-
-/* Dark theme: Material component colors plus the application tokens. */
-$dark-theme: mat.m2-define-dark-theme((
-  color: (
-    primary: mat.m2-define-palette(mat.$m2-indigo-palette, 300, 200, 500),
-    accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400),
-    warn: mat.m2-define-palette(mat.$m2-red-palette, 300)
-  ),
-  density: 0
-));
-
-html.dark-theme {
-  color-scheme: dark;
-  @include mat.all-component-colors($dark-theme);
-
-  --text-primary: rgba(255, 255, 255, 0.87);
-  --text-secondary: rgba(255, 255, 255, 0.6);
-  --background-color: #121212;
-  --surface-color: #1e1e1e;
-
-  --app-bg: #121212;
-  --app-surface: #1e1e1e;
-  --app-subtle: #262a30;
-  --app-hover: rgba(255, 255, 255, 0.06);
-  --app-text: rgba(255, 255, 255, 0.87);
-  --app-text-muted: rgba(255, 255, 255, 0.62);
-  --app-text-faint: rgba(255, 255, 255, 0.4);
-  --app-border: rgba(255, 255, 255, 0.14);
-  --app-link: #90caf9;
-  --app-positive: #81c784;
-  --app-danger: #ef9a9a;
-  --app-info-bg: #1e3a5f;
-  --heatmap-l0: #2d333b;
-  --app-warning: #ffb74d;
-  --app-accent: #b39ddb;
-  --app-teal: #80cbc4;
-  --app-chip-positive-bg: rgba(129, 199, 132, 0.18);
-  --app-chip-positive-text: #c8e6c9;
-  --app-chip-danger-bg: rgba(239, 154, 154, 0.18);
-  --app-chip-danger-text: #ef9a9a;
-  --app-chip-warning-bg: rgba(255, 183, 77, 0.18);
-  --app-chip-warning-text: #ffcc80;
-  --app-chip-info-bg: rgba(144, 202, 249, 0.18);
-  --app-chip-info-text: #90caf9;
-  --app-chip-indigo-bg: rgba(159, 168, 218, 0.18);
-  --app-chip-indigo-text: #c5cae9;
-  --app-chip-accent-bg: rgba(179, 157, 219, 0.18);
-  --app-chip-accent-text: #d1c4e9;
-  --app-chip-neutral-bg: rgba(255, 255, 255, 0.1);
-  --app-chip-neutral-text: rgba(255, 255, 255, 0.87);
-
-  /* Stage colors are dark enough to carry white text; drawn on a dark surface (a dot, a timeline mark) they are
-     lifted toward white so they still stand out. */
-  .status-dot {
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
-  }
-
-  /* The dark palette's indigo 300 carries dark text (6:1), not white (3.45:1); text buttons use lighter tones. */
-  .mat-mdc-raised-button.mat-primary,
-  .mat-mdc-unelevated-button.mat-primary {
-    --mat-button-protected-label-text-color: rgba(0, 0, 0, 0.87);
-    --mat-button-filled-label-text-color: rgba(0, 0, 0, 0.87);
-  }
-
-  .mat-mdc-button.mat-primary,
-  .mat-mdc-outlined-button.mat-primary {
-    --mat-button-text-label-text-color: var(--app-link);
-    --mat-button-outlined-label-text-color: var(--app-link);
-  }
-
-  .mat-mdc-button.mat-warn,
-  .mat-mdc-outlined-button.mat-warn {
-    --mat-button-text-label-text-color: var(--app-danger);
-    --mat-button-outlined-label-text-color: var(--app-danger);
-  }
-}
-
-body {
-  background-color: var(--app-bg);
-  color: var(--app-text);
-}
-
-/* Global utility classes */
-/* One type scale, boxing and icon size for the whole workspace. */
-html,
-html.dark-theme {
   --app-radius: 12px;
+  /* light-dark() takes colours only, so the shadows switch through their colour. */
+  --app-card-shadow: 0 1px 2px light-dark(rgba(27, 27, 36, 0.06), transparent);
+  --app-card-shadow-hover: 0 4px 14px light-dark(rgba(27, 27, 36, 0.1), rgba(0, 0, 0, 0.5));
+}
+
+/* Material's containers on the application's surfaces: one page colour under the toolbar, the navigation and the
+   content, white cards (lighter ones in the dark theme) on it, with the same corners everywhere. */
+html {
+  --mat-sidenav-container-shape: 0;
+  --mat-sidenav-container-background-color: var(--app-bg);
+  --mat-sidenav-content-background-color: var(--app-bg);
+  --mat-sidenav-container-text-color: var(--app-text);
+  --mat-card-elevated-container-color: var(--app-surface);
+  --mat-card-outlined-container-color: var(--app-surface);
   --mat-card-elevated-container-shape: var(--app-radius);
   --mat-card-outlined-container-shape: var(--app-radius);
   --mat-card-elevated-container-elevation: var(--app-card-shadow);
@@ -194,16 +133,15 @@ html.dark-theme {
   --mat-card-title-text-line-height: 1.5rem;
   --mat-card-subtitle-text-size: 0.875rem;
   --mat-card-subtitle-text-color: var(--app-text-muted);
+  --mat-table-background-color: var(--app-surface);
+  --mat-paginator-container-background-color: var(--app-surface);
+  --mat-expansion-container-background-color: var(--app-surface);
+  --mat-dialog-container-shape: 16px;
 }
 
-:root {
-  --app-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --app-card-shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.12);
-}
-
-html.dark-theme {
-  --app-card-shadow: none;
-  --app-card-shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.5);
+body {
+  background-color: var(--app-bg);
+  color: var(--app-text);
 }
 
 /* Every card: the same corners, a hairline border that also holds in the dark theme, and a light shadow. Material's
@@ -368,7 +306,7 @@ p.page-subtitle {
   line-height: 20px;
   white-space: nowrap;
   color: #fff;
-  background-color: var(--status-color, #78909c);
+  background-color: var(--status-color, #64748b);
 
   .mat-icon {
     font-size: 14px;
@@ -418,7 +356,12 @@ a.row-link {
   border-radius: 50%;
   margin-right: 8px;
   vertical-align: middle;
-  background-color: var(--status-color, #78909c);
+  background-color: var(--status-color, #64748b);
+}
+
+/* Stage colours are dark enough to carry white text; a dot of one on a dark surface gets a light ring. */
+html.dark-theme .status-dot {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
 }
 
 /* Snackbar variants used by NotificationService. */
@@ -427,24 +370,18 @@ a.row-link {
     --mat-snack-bar-container-color: #2e7d32;
     --mat-snack-bar-supporting-text-color: #fff;
     --mat-snack-bar-button-color: #e8f5e9;
-    --mdc-snackbar-container-color: #2e7d32;
-    --mdc-snackbar-supporting-text-color: #fff;
   }
 
   &.error-snackbar {
     --mat-snack-bar-container-color: #c62828;
     --mat-snack-bar-supporting-text-color: #fff;
     --mat-snack-bar-button-color: #ffebee;
-    --mdc-snackbar-container-color: #c62828;
-    --mdc-snackbar-supporting-text-color: #fff;
   }
 
   &.info-snackbar {
-    --mat-snack-bar-container-color: #1565c0;
+    --mat-snack-bar-container-color: #4d44e3;
     --mat-snack-bar-supporting-text-color: #fff;
-    --mat-snack-bar-button-color: #e3f2fd;
-    --mdc-snackbar-container-color: #1565c0;
-    --mdc-snackbar-supporting-text-color: #fff;
+    --mat-snack-bar-button-color: #e2dfff;
   }
 }
 

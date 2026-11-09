@@ -33,7 +33,7 @@
         </div>
 
         <div class="action-buttons">
-          <button mat-raised-button color="primary" (click)="onCreate()">
+          <button mat-flat-button color="primary" (click)="onCreate()">
             <mat-icon>add</mat-icon>
             {{ 'contacts.newContact' | translate }}
           </button>
@@ -150,7 +150,7 @@
               <h3>{{ 'contacts.noContactsFound' | translate }}</h3>
               <p>{{ hasActiveFilters() ? ('contacts.noMatchingContacts' | translate) : ('contacts.addFirstContact' | translate) }}</p>
               @if (!hasActiveFilters()) {
-                <button mat-raised-button color="primary" (click)="onCreate()">
+                <button mat-flat-button color="primary" (click)="onCreate()">
                   <mat-icon>add</mat-icon>
                   {{ 'contacts.addContact' | translate }}
                 </button>

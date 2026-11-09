@@ -14,10 +14,10 @@ export type PublicHolidayName =
 
 /** Status pill colors, dark enough to carry white text (4.5:1 contrast at least). */
 export const ACTIVITY_REPORT_STATUS_COLORS: Record<ActivityReportStatus, string> = {
-  DRAFT: '#546e7a',
-  SUBMITTED: '#b85600',
-  VALIDATED: '#2e7d32',
-  REJECTED: '#d32f2f'
+  DRAFT: '#64748b',
+  SUBMITTED: '#b45309',
+  VALIDATED: '#15803d',
+  REJECTED: '#b91c1c'
 };
 
 /** One recorded day; days without an entry were not worked. Dates are ISO `yyyy-MM-dd`. */

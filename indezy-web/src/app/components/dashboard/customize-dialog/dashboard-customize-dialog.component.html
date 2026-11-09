@@ -27,5 +27,5 @@
 <mat-dialog-actions align="end">
   <button mat-button type="button" class="reset" (click)="reset()">{{ 'dashboard.widgets.reset' | translate }}</button>
   <button mat-button type="button" [mat-dialog-close]="undefined">{{ 'common.cancel' | translate }}</button>
-  <button mat-raised-button color="primary" type="button" [mat-dialog-close]="widgets" data-save-layout>{{ 'common.save' | translate }}</button>
+  <button mat-flat-button color="primary" type="button" [mat-dialog-close]="widgets" data-save-layout>{{ 'common.save' | translate }}</button>
 </mat-dialog-actions>

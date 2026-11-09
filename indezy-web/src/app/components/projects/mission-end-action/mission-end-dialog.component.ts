@@ -54,7 +54,7 @@ export interface MissionEnd {
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
-      <button mat-raised-button color="primary" type="submit" form="mission-end-form" [disabled]="form.invalid" data-mission-end-confirm>
+      <button mat-flat-button color="primary" type="submit" form="mission-end-form" [disabled]="form.invalid" data-mission-end-confirm>
         {{ 'missionEnd.confirm' | translate }}
       </button>
     </mat-dialog-actions>

@@ -8,7 +8,7 @@
           <mat-icon>link</mat-icon>
           {{ 'projects.offerLink.fromLink' | translate }}
         </a>
-        <button mat-raised-button color="primary" routerLink="/projects/new">
+        <button mat-flat-button color="primary" routerLink="/projects/new">
           <mat-icon>add</mat-icon>
           {{ 'projects.newProject' | translate }}
         </button>
@@ -494,7 +494,7 @@
               <p>{{ 'projects.tryDifferentFilters' | translate }}</p>
             }
             @if (projects.length === 0) {
-              <button mat-raised-button color="primary" routerLink="/projects/new">
+              <button mat-flat-button color="primary" routerLink="/projects/new">
                 <mat-icon>add</mat-icon>
                 {{ 'projects.addProject' | translate }}
               </button>

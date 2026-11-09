@@ -30,7 +30,7 @@
           @if (failed) {
             <p class="error" role="alert">{{ 'emailsUnsubscribe.error' | translate }}</p>
           }
-          <button mat-raised-button color="primary" type="button" [disabled]="sending" (click)="unsubscribe()" data-unsubscribe>
+          <button mat-flat-button color="primary" type="button" [disabled]="sending" (click)="unsubscribe()" data-unsubscribe>
             {{ 'emailsUnsubscribe.stop' | translate }}
           </button>
         </div>

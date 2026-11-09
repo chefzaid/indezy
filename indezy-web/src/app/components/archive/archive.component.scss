@@ -45,13 +45,14 @@
     font-weight: 500;
   }
 
+  // The pipeline's stage colours (PROJECT_STATUS_COLORS).
   .status-won {
-    background-color: #2e7d32;
+    background-color: #15803d;
     color: #fff;
   }
 
   .status-lost {
-    background-color: #c62828;
+    background-color: #8f5a68;
     color: #fff;
   }
 }

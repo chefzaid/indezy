@@ -11,13 +11,16 @@ export enum ProjectStatus {
   WON = 'WON'
 }
 
-/** Pipeline stage colors, dark enough to carry white text in status pills (4.5:1 contrast at least). */
+/**
+ * Pipeline stage colors, dark enough to carry white text in status pills (4.5:1 contrast at least). A lost
+ * opportunity is a muted rose, not an alarm red: losing one is part of the pipeline, not an error.
+ */
 export const PROJECT_STATUS_COLORS: { [key in ProjectStatus]: string } = {
-  [ProjectStatus.CONTACT]: '#1565c0',
-  [ProjectStatus.INTERVIEW]: '#b85600',
-  [ProjectStatus.OFFER]: '#8e24aa',
-  [ProjectStatus.LOST]: '#d32f2f',
-  [ProjectStatus.WON]: '#2e7d32'
+  [ProjectStatus.CONTACT]: '#2563eb',
+  [ProjectStatus.INTERVIEW]: '#b45309',
+  [ProjectStatus.OFFER]: '#7c3aed',
+  [ProjectStatus.LOST]: '#8f5a68',
+  [ProjectStatus.WON]: '#15803d'
 };
 
 export const PROJECT_STATUS_ICONS: { [key in ProjectStatus]: string } = {

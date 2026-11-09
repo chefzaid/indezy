@@ -125,13 +125,13 @@
             gap: 8px;
             
             mat-icon {
-              color: #ddd;
+              color: var(--app-border);
               font-size: 1.5rem;
               width: 1.5rem;
               height: 1.5rem;
               
               &.filled {
-                color: #ffc107;
+                color: var(--app-highlight);
               }
             }
             
@@ -151,7 +151,7 @@
           
           .notes-content {
             background-color: var(--app-hover);
-            border-left: 4px solid var(--mat-theme-primary, #1565c0);
+            border-left: 4px solid var(--app-link);
             padding: 16px;
             border-radius: 4px;
             line-height: 1.6;

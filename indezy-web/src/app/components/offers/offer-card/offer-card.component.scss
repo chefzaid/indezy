@@ -45,26 +45,26 @@
 }
 
 .site-badge {
-  background: rgba(63, 81, 181, 0.12);
-  color: #303f9f;
+  background: var(--app-chip-neutral-bg);
+  color: var(--app-chip-neutral-text);
 }
 
 .new-badge {
-  background: #e8f5e9;
-  color: #1b5e20;
+  background: var(--app-chip-positive-bg);
+  color: var(--app-chip-positive-text);
 }
 
 .expired-badge {
-  background: #fdecea;
-  color: #b71c1c;
+  background: var(--app-chip-danger-bg);
+  color: var(--app-chip-danger-text);
 }
 
 .applied-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #e3f2fd;
-  color: #0d47a1;
+  background: var(--app-chip-info-bg);
+  color: var(--app-chip-info-text);
   cursor: help;
 
   mat-icon {
@@ -87,13 +87,13 @@
   }
 
   &.good {
-    background: #e8f5e9;
-    color: #1b5e20;
+    background: var(--app-chip-positive-bg);
+    color: var(--app-chip-positive-text);
   }
 
   &.fair {
-    background: #fff4e5;
-    color: #8a4b00;
+    background: var(--app-chip-warning-bg);
+    color: var(--app-chip-warning-text);
   }
 
   &.low {
@@ -106,8 +106,8 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  background: #fdecea;
-  color: #8c1d18;
+  background: var(--app-chip-danger-bg);
+  color: var(--app-chip-danger-text);
   cursor: help;
 
   mat-icon {
@@ -127,8 +127,8 @@
   cursor: help;
 
   &.above {
-    background: #e8f5e9;
-    color: #1b5e20;
+    background: var(--app-chip-positive-bg);
+    color: var(--app-chip-positive-text);
   }
 
   &.close {
@@ -137,8 +137,8 @@
   }
 
   &.below {
-    background: #fff4e5;
-    color: #8a4b00;
+    background: var(--app-chip-warning-bg);
+    color: var(--app-chip-warning-text);
   }
 }
 
@@ -273,9 +273,9 @@
   font-size: 0.8rem;
 
   &.matched {
-    border-color: #2e7d32;
-    background: #e8f5e9;
-    color: #1b5e20;
+    border-color: var(--app-positive);
+    background: var(--app-chip-positive-bg);
+    color: var(--app-chip-positive-text);
     font-weight: 600;
   }
 
@@ -306,7 +306,7 @@
   padding: 8px 10px;
   border-radius: 8px;
   background: var(--app-subtle);
-  border-left: 3px solid #ffb300;
+  border-left: 3px solid var(--app-highlight);
   color: var(--app-text);
   font-size: 0.9rem;
   white-space: pre-wrap;
@@ -354,58 +354,6 @@
   mat-spinner {
     display: inline-block;
     margin-right: 6px;
-  }
-}
-
-:host-context(html.dark-theme) {
-  .site-badge {
-    background: rgba(159, 168, 218, 0.18);
-    color: #c5cae9;
-  }
-
-  .new-badge {
-    background: rgba(129, 199, 132, 0.18);
-    color: var(--app-chip-positive-text);
-  }
-
-  .expired-badge {
-    background: rgba(239, 154, 154, 0.18);
-    color: #ef9a9a;
-  }
-
-  .applied-badge {
-    background: rgba(144, 202, 249, 0.18);
-    color: #90caf9;
-  }
-
-  .match-badge.good,
-  .skill.matched {
-    background: rgba(129, 199, 132, 0.18);
-    color: var(--app-chip-positive-text);
-  }
-
-  .skill.matched {
-    border-color: #81c784;
-  }
-
-  .suspicious-badge {
-    background: rgba(239, 154, 154, 0.18);
-    color: #ef9a9a;
-  }
-
-  .market-chip.above {
-    background: rgba(129, 199, 132, 0.18);
-    color: var(--app-chip-positive-text);
-  }
-
-  .market-chip.below {
-    background: rgba(255, 183, 77, 0.18);
-    color: #ffcc80;
-  }
-
-  .match-badge.fair {
-    background: rgba(255, 183, 77, 0.18);
-    color: #ffcc80;
   }
 }
 

@@ -80,7 +80,7 @@
                     }
                   </mat-form-field>
                   <div class="form-actions">
-                    <button mat-raised-button
+                    <button mat-flat-button
                       color="primary"
                       type="submit"
                       [disabled]="passwordForm.invalid || isUpdating">
@@ -111,7 +111,7 @@
                 </p>
 
                 @if (!twoFactorEnabled && !twoFactorSetup) {
-                  <button mat-raised-button color="primary" [disabled]="isProcessingTwoFactor"
+                  <button mat-flat-button color="primary" [disabled]="isProcessingTwoFactor"
                           (click)="startTwoFactorSetup()">
                     {{ 'profile.twoFactor.enable' | translate }}
                   </button>
@@ -128,7 +128,7 @@
                     <button mat-button [disabled]="isProcessingTwoFactor" (click)="cancelTwoFactorSetup()">
                       {{ 'common.cancel' | translate }}
                     </button>
-                    <button mat-raised-button color="primary"
+                    <button mat-flat-button color="primary"
                             [disabled]="isProcessingTwoFactor || !twoFactorCode.trim()"
                             (click)="verifyTwoFactorSetup()">
                       {{ 'profile.twoFactor.verify' | translate }}
@@ -213,7 +213,7 @@
                 </mat-card-content>
               </mat-card>
               <div class="form-actions">
-                <button mat-raised-button
+                <button mat-flat-button
                   color="primary"
                   type="submit"
                   [disabled]="preferencesForm.invalid || isUpdating">

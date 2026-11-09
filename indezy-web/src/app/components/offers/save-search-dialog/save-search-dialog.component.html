@@ -10,7 +10,7 @@
 
 <mat-dialog-actions align="end">
   <button mat-button type="button" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
-  <button mat-raised-button color="primary" type="button" [disabled]="!name.trim()" (click)="save()">
+  <button mat-flat-button color="primary" type="button" [disabled]="!name.trim()" (click)="save()">
     {{ 'offers.savedSearches.confirm' | translate }}
   </button>
 </mat-dialog-actions>

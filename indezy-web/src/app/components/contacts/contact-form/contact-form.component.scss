@@ -133,26 +133,11 @@ textarea.mat-mdc-input-element {
   }
 }
 
-// Button styling
-.mat-mdc-raised-button {
-  &.mat-primary {
-    background-color: var(--mat-theme-primary, #1565c0);
-    color: white;
-    
-    &:disabled {
-      background-color: var(--app-border);
-      color: var(--app-text-muted);
-    }
-  }
-}
-
 .mat-mdc-button {
-  &:not(.mat-mdc-raised-button) {
-    color: var(--app-text-muted);
-    
-    &:hover {
-      background-color: var(--app-hover);
-    }
+  color: var(--app-text-muted);
+
+  &:hover {
+    background-color: var(--app-hover);
   }
 }
 

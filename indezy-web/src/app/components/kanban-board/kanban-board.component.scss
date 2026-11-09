@@ -36,7 +36,7 @@
 }
 
 .kanban-column {
-  // The stage colour drawn on the column (its icons and header rule); white text sits on the stage colour itself.
+  // The stage colour drawn on the column: its icon only, so the cards hold the eye.
   --column-tone: var(--column-color);
   flex: 1 1 0;
   min-width: 172px;
@@ -54,9 +54,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 4px;
-  padding: 10px 8px 10px 10px;
-  border-top: 3px solid var(--column-tone);
-  border-radius: 10px 10px 0 0;
+  padding: 10px 8px 10px 12px;
 
   .column-title {
     display: flex;
@@ -111,7 +109,8 @@
   }
 
   .column-count {
-    color: white;
+    color: var(--app-text-muted);
+    background: var(--app-hover);
     border-radius: 10px;
     padding: 2px 8px;
     font-size: 11px;
@@ -196,7 +195,7 @@
         }
 
         &.is-favorite {
-          color: #f5b50a;
+          color: var(--app-highlight);
         }
       }
     }
@@ -228,28 +227,18 @@
 
     &.rate {
       font-weight: 600;
-      color: var(--app-positive);
+      color: var(--app-text);
     }
   }
 }
 
 .card-tech, .card-source {
-  display: flex;
-  align-items: center;
-  gap: 4px;
   font-size: 11px;
   color: var(--app-text-muted);
   margin-bottom: 4px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-
-  mat-icon {
-    font-size: 13px;
-    width: 13px;
-    height: 13px;
-    flex-shrink: 0;
-  }
 }
 
 .card-rating {
@@ -260,7 +249,7 @@
     font-size: 14px;
     width: 14px;
     height: 14px;
-    color: #ffc107;
+    color: var(--app-highlight);
   }
 }
 

@@ -34,10 +34,7 @@
               "src/assets"
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/indigo-pink.css",
-              "@fontsource/roboto/300.css",
-              "@fontsource/roboto/400.css",
-              "@fontsource/roboto/500.css",
+              "@fontsource-variable/inter/wght.css",
               "material-icons/iconfont/filled.css",
               "src/styles.scss"
             ],
@@ -113,10 +110,7 @@
               "src/assets"
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/indigo-pink.css",
-              "@fontsource/roboto/300.css",
-              "@fontsource/roboto/400.css",
-              "@fontsource/roboto/500.css",
+              "@fontsource-variable/inter/wght.css",
               "material-icons/iconfont/filled.css",
               "src/styles.scss"
             ],

@@ -3,13 +3,9 @@ import {
   OnChanges, OnDestroy, ViewChild, inject
 } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
+import { applyChartTheme, themeColor } from '../../../shared/charts/chart-theme';
 
 Chart.register(...registerables);
-
-const BAR = 'rgba(102, 126, 234, 0.7)';
-const BAR_BORDER = '#667eea';
-const HIGHLIGHT = 'rgba(245, 158, 11, 0.85)';
-const HIGHLIGHT_BORDER = '#d97706';
 
 /** A small bar chart of the market snapshot; screen readers get its values from `description`. */
 @Component({
@@ -48,9 +44,11 @@ export class OfferBarChartComponent implements AfterViewInit, OnChanges, OnDestr
       return;
     }
     this.chart?.destroy();
-    const styles = getComputedStyle(document.documentElement);
-    const color = styles.getPropertyValue('--app-text-muted').trim() || '#666';
-    const gridColor = styles.getPropertyValue('--app-border').trim() || 'rgba(0, 0, 0, 0.1)';
+    applyChartTheme();
+    const bar = themeColor('--app-chart-bar', 'rgba(79, 70, 229, 0.75)');
+    const barBorder = themeColor('--app-chart-bar-border', '#4f46e5');
+    const highlight = themeColor('--app-chart-highlight', 'rgba(217, 119, 6, 0.85)');
+    const highlightBorder = themeColor('--app-chart-highlight-border', '#d97706');
     const highlighted = (index: number): boolean => index === this.highlight;
     this.zone.runOutsideAngular(() => {
       this.chart = new Chart(canvas, {
@@ -60,8 +58,8 @@ export class OfferBarChartComponent implements AfterViewInit, OnChanges, OnDestr
           datasets: [{
             label: this.seriesLabel,
             data: this.values,
-            backgroundColor: this.values.map((_, index) => highlighted(index) ? HIGHLIGHT : BAR),
-            borderColor: this.values.map((_, index) => highlighted(index) ? HIGHLIGHT_BORDER : BAR_BORDER),
+            backgroundColor: this.values.map((_, index) => highlighted(index) ? highlight : bar),
+            borderColor: this.values.map((_, index) => highlighted(index) ? highlightBorder : barBorder),
             borderWidth: 1,
             borderRadius: 4
           }]
@@ -70,8 +68,8 @@ export class OfferBarChartComponent implements AfterViewInit, OnChanges, OnDestr
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            x: { ticks: { color, maxRotation: 0, autoSkip: true }, grid: { display: false } },
-            y: { beginAtZero: true, ticks: { color, precision: 0 }, grid: { color: gridColor } }
+            x: { ticks: { maxRotation: 0, autoSkip: true }, grid: { display: false } },
+            y: { beginAtZero: true, ticks: { precision: 0 } }
           },
           plugins: { legend: { display: false } }
         }

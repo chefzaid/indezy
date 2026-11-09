@@ -37,7 +37,7 @@
                 [attr.aria-label]="'kanban.addCard' | translate">
                 <mat-icon>add</mat-icon>
               </button>
-              <span class="column-count" [style.background-color]="getColumnColor(status)">
+              <span class="column-count">
                 {{ getColumnCount(status) }}
               </span>
             </div>
@@ -112,13 +112,11 @@
                     </div>
                     @if (card.techStack) {
                       <div class="card-tech">
-                        <mat-icon>code</mat-icon>
                         <span>{{ card.techStack }}</span>
                       </div>
                     }
                     @if (card.sourceName) {
                       <div class="card-source">
-                        <mat-icon>source</mat-icon>
                         <span>{{ card.sourceName }}</span>
                       </div>
                     }
@@ -182,7 +180,7 @@
             <mat-icon class="empty-icon">view_kanban</mat-icon>
             <h3>{{ 'kanban.emptyBoard' | translate }}</h3>
             <p>{{ 'kanban.addFirstProject' | translate }}</p>
-            <button mat-raised-button color="primary" routerLink="/projects/new">
+            <button mat-flat-button color="primary" routerLink="/projects/new">
               {{ 'kanban.addProject' | translate }}
             </button>
           </div>
@@ -198,7 +196,7 @@
           <div class="empty-content">
             <mat-icon class="empty-icon">error_outline</mat-icon>
             <h3>{{ 'kanban.loadError' | translate }}</h3>
-            <button mat-raised-button color="primary" (click)="loadKanbanBoard()">
+            <button mat-flat-button color="primary" (click)="loadKanbanBoard()">
               {{ 'common.retry' | translate }}
             </button>
           </div>

@@ -46,8 +46,8 @@
   gap: 8px;
 
   .chosen {
-    background: var(--app-link);
-    color: #fff;
+    background: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
   }
 }
 

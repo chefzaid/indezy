@@ -33,7 +33,7 @@ export interface InvoiceDateDialogData {
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button type="button" [mat-dialog-close]="undefined">{{ 'common.cancel' | translate }}</button>
-      <button mat-raised-button color="primary" type="button" [disabled]="!date || (!!data.max && date > data.max)"
+      <button mat-flat-button color="primary" type="button" [disabled]="!date || (!!data.max && date > data.max)"
         [mat-dialog-close]="date" data-invoice-date-confirm>{{ data.confirmKey | translate }}</button>
     </mat-dialog-actions>
   `,

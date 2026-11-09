@@ -20,12 +20,20 @@
   }
 }
 
+// The toolbar sits on the page colour, a hairline under it; the brand colour is left to actions and selection.
 .app-toolbar {
+  --mat-toolbar-container-background-color: var(--app-bg);
+  --mat-toolbar-container-text-color: var(--app-text);
   flex: 0 0 auto;
   position: relative;
   z-index: 2;
   gap: 4px;
   padding: 0 8px 0 4px;
+  border-bottom: 1px solid var(--app-border);
+
+  .mat-mdc-icon-button {
+    color: var(--app-text-muted);
+  }
 
   .app-logo-link {
     display: flex;
@@ -38,6 +46,8 @@
   }
 
   .user-button {
+    --mat-button-text-label-text-color: var(--app-text);
+
     .user-name {
       font-weight: 500;
     }
@@ -63,7 +73,7 @@
     border-radius: 8px;
 
     &.active-nav-item {
-      background-color: rgba(25, 118, 210, 0.12);
+      background-color: var(--app-selected-bg);
 
       .mat-icon,
       .mdc-list-item__primary-text {
@@ -84,8 +94,8 @@
     min-width: 20px;
     padding: 0 6px;
     border-radius: 10px;
-    background-color: var(--mat-sys-primary, #3f51b5);
-    color: var(--mat-sys-on-primary, #fff);
+    background-color: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
     font-size: 0.75rem;
     font-weight: 600;
     line-height: 20px;

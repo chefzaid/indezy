@@ -1,14 +1,9 @@
+// Text colours of the theme, which read at 4.5:1 on the days' tints in either theme.
 :host {
   display: block;
-  --onsite: #1565c0;
-  --remote: #00796b;
-  --absence: #e65100;
-}
-
-:host-context(html.dark-theme) {
-  --onsite: #90caf9;
-  --remote: #80cbc4;
-  --absence: #ffb74d;
+  --onsite: var(--app-link);
+  --remote: var(--app-teal);
+  --absence: var(--app-warning);
 }
 
 .calendar {

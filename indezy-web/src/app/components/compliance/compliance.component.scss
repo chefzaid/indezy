@@ -76,16 +76,12 @@ h2 {
   }
 
   &.validity-EXPIRING {
-    color: #b23c00;
+    color: var(--app-warning);
   }
 
   &.validity-EXPIRED {
     color: var(--app-danger);
   }
-}
-
-:host-context(.dark-theme) .validity.validity-EXPIRING {
-  color: #ffb74d;
 }
 
 @media (max-width: 599px) {

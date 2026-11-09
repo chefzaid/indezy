@@ -18,7 +18,7 @@
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()">{{ 'common.cancel' | translate }}</button>
-  <button mat-raised-button color="primary" [disabled]="!from || !to.trim()" (click)="onConfirm()">
+  <button mat-flat-button color="primary" [disabled]="!from || !to.trim()" (click)="onConfirm()">
     {{ 'projects.skills.renameAction' | translate }}
   </button>
 </mat-dialog-actions>

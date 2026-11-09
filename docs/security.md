@@ -469,8 +469,8 @@ Content-Security-Policy:
 
 - scripts only from the app's own origin (`script-src 'self'`): no inline script, no `eval`, no other host. The
   production build turns off Angular's inline critical CSS, whose stylesheet loader is an inline `onload` handler;
-- styles from the app and inline (Angular's component styles); fonts from the app (and `data:`) only. Roboto and the
-  Material Icons are bundled with the app (`@fontsource/roboto`, `material-icons`): the service worker fetches every
+- styles from the app and inline (Angular's component styles); fonts from the app (and `data:`) only. Inter and the
+  Material Icons are bundled with the app (`@fontsource-variable/inter`, `material-icons`): the service worker fetches every
   request a page makes under its own copy of this policy, so with `connect-src 'self'` a font from Google Fonts failed
   once the worker ran and the icons showed their ligature names ("da", "tra"...);
 - images from the app, `data:`, `blob:` and HTTPS (avatars);

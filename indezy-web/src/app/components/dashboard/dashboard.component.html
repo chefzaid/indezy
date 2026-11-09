@@ -184,7 +184,7 @@
                   <mat-card class="chart-card">
                     <mat-card-header>
                       <mat-card-title>
-                        <mat-icon>pie_chart</mat-icon>
+                        <mat-icon>stacked_bar_chart</mat-icon>
                         {{ 'dashboard.charts.projectsByStatus' | translate }}
                       </mat-card-title>
                     </mat-card-header>
@@ -238,7 +238,7 @@
               <div class="recent-projects-section">
                 <div class="section-header">
                   <h2>{{ 'dashboard.recentProjects' | translate }}</h2>
-                  <button mat-raised-button color="primary" routerLink="/projects">
+                  <button mat-flat-button color="primary" routerLink="/projects">
                     {{ 'dashboard.viewAllProjects' | translate }}
                   </button>
                 </div>
@@ -284,7 +284,7 @@
                         <mat-icon class="empty-icon">work_off</mat-icon>
                         <h3>{{ 'dashboard.noProjectsYet' | translate }}</h3>
                         <p>{{ 'dashboard.startFirstProject' | translate }}</p>
-                        <button mat-raised-button color="primary" routerLink="/projects/new">
+                        <button mat-flat-button color="primary" routerLink="/projects/new">
                           {{ 'dashboard.addProject' | translate }}
                         </button>
                       </div>

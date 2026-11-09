@@ -75,7 +75,7 @@
   margin: 0 0 12px;
 
   mat-icon {
-    color: #d97706;
+    color: var(--app-chart-highlight-border);
   }
 }
 
@@ -116,29 +116,25 @@
   border-radius: 3px;
 }
 
-$remote: #43a047;
-$hybrid: #667eea;
-$onsite: #fb8c00;
-$unstated: #9e9e9e;
-
+// The work modes in the dashboard's colours.
 .remote {
-  background: $remote;
+  background: var(--app-mode-remote);
 }
 
 .hybrid {
-  background: $hybrid;
+  background: var(--app-mode-hybrid);
 }
 
 .onsite {
-  background: $onsite;
+  background: var(--app-mode-onsite);
 }
 
 .unstated {
-  background: $unstated;
+  background: var(--app-text-faint);
 }
 
 .target-swatch {
-  background: #f59e0b;
+  background: var(--app-chart-highlight);
 }
 
 .split-bar {
@@ -214,7 +210,7 @@ $unstated: #9e9e9e;
     position: absolute;
     inset: 0 auto 0 0;
     border-radius: 6px;
-    background: rgba(102, 126, 234, 0.14);
+    background: var(--app-selected-bg);
   }
 }
 
@@ -230,12 +226,6 @@ button.ranking-row {
   &:disabled {
     cursor: default;
     opacity: 0.6;
-  }
-}
-
-:host-context(html.dark-theme) {
-  .ranking-row .bar {
-    background: rgba(159, 168, 218, 0.2);
   }
 }
 

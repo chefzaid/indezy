@@ -34,7 +34,7 @@
             {{ 'projects.journal.recordExchange' | translate }}
           </button>
         }
-        <button mat-raised-button color="primary" [disabled]="!newNoteContent.trim() || isSavingNote" (click)="addNote()">
+        <button mat-flat-button color="primary" [disabled]="!newNoteContent.trim() || isSavingNote" (click)="addNote()">
           <mat-icon>add_comment</mat-icon>
           {{ 'projects.notes.add' | translate }}
         </button>
@@ -92,7 +92,7 @@
         }
         <div class="journal-actions">
           <button mat-button type="button" (click)="recording = false">{{ 'common.cancel' | translate }}</button>
-          <button mat-raised-button color="primary" type="submit"
+          <button mat-flat-button color="primary" type="submit"
             [disabled]="!contacts.length || exchangeForm.invalid || isSavingExchange">{{ 'common.save' | translate }}</button>
         </div>
       </form>

@@ -14,7 +14,7 @@
         <p class="summary" data-booking-off>{{ 'booking.off' | translate }}</p>
       }
       <div class="actions">
-        <button mat-raised-button color="primary" type="button" (click)="edit()" data-booking-settings>
+        <button mat-flat-button color="primary" type="button" (click)="edit()" data-booking-settings>
           <mat-icon>tune</mat-icon>{{ (page.slug ? 'booking.settings' : 'booking.setUp') | translate }}
         </button>
         @if (page.settings.enabled && url) {

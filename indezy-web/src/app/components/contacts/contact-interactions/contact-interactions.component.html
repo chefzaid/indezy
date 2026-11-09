@@ -89,7 +89,7 @@
         </mat-form-field>
         <div class="form-actions">
           <button mat-button type="button" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || saving">
+          <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving">
             {{ 'common.save' | translate }}
           </button>
         </div>

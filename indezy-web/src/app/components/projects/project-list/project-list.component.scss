@@ -15,8 +15,8 @@
       gap: 8px;
 
       .filter-count {
-        background-color: var(--mat-primary-500);
-        color: white;
+        background-color: var(--mat-sys-primary);
+        color: var(--mat-sys-on-primary);
         border-radius: 12px;
         padding: 2px 8px;
         font-size: 0.75rem;
@@ -60,7 +60,7 @@
           margin: 0 0 16px 0;
           font-size: 1rem;
           font-weight: 500;
-          color: var(--mat-primary-600);
+          color: var(--app-link);
           display: flex;
           align-items: center;
           gap: 8px;
@@ -69,7 +69,7 @@
             content: '';
             width: 3px;
             height: 16px;
-            background-color: var(--mat-primary-500);
+            background-color: var(--mat-sys-primary);
             border-radius: 2px;
           }
         }
@@ -82,11 +82,6 @@
               display: flex;
               flex-wrap: wrap;
               gap: 8px;
-            }
-
-            mat-chip {
-              background-color: var(--mat-primary-100);
-              color: var(--mat-primary-700);
             }
           }
 
@@ -364,10 +359,6 @@
   mat-card-header {
     padding-bottom: 16px;
   }
-}
-
-@media (max-width: 768px) {
-
 }
 
 .archived-pill {

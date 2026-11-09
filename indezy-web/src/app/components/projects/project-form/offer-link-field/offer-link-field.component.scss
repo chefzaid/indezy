@@ -53,21 +53,11 @@
   }
 
   &.success {
-    color: #1b5e20;
-  }
-
-  &.problem {
-    color: #8a4b00;
-  }
-}
-
-:host-context(html.dark-theme) .link-status p {
-  &.success {
     color: var(--app-chip-positive-text);
   }
 
   &.problem {
-    color: #ffcc80;
+    color: var(--app-chip-warning-text);
   }
 }
 

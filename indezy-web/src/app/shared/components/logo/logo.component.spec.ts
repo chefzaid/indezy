@@ -35,13 +35,4 @@ describe('LogoComponent', () => {
     fixture.detectChanges();
     expect(source()).toBe('assets/brand/indezy-logo-on-dark.svg');
   });
-
-  it('keeps the toolbar variant in both themes', () => {
-    fixture.componentRef.setInput('surface', 'primary');
-    fixture.detectChanges();
-    expect(source()).toBe('assets/brand/indezy-logo-on-primary.svg');
-    theme.apply('dark');
-    fixture.detectChanges();
-    expect(source()).toBe('assets/brand/indezy-logo-on-primary.svg');
-  });
 });

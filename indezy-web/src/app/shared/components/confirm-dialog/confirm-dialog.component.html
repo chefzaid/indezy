@@ -8,7 +8,7 @@
   <button mat-button (click)="onCancel()">
     {{ (data.cancelKey || 'common.cancel') | translate }}
   </button>
-  <button mat-raised-button [color]="data.danger ? 'warn' : 'primary'" (click)="onConfirm()">
+  <button mat-flat-button [color]="data.danger ? 'warn' : 'primary'" (click)="onConfirm()">
     {{ (data.confirmKey || 'common.confirm') | translate }}
   </button>
 </mat-dialog-actions>

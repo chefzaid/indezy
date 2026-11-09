@@ -48,10 +48,10 @@ export interface UpdateInterviewStepDto {
 
 // Status colors for UI, dark enough to carry white text in status pills (4.5:1 contrast at least)
 export const STEP_STATUS_COLORS: { [key in StepStatus]: string } = {
-  [StepStatus.TO_PLAN]: '#b85600', // orange
-  [StepStatus.PLANNED]: '#1565c0', // blue
-  [StepStatus.CANCELED]: '#616161', // grey
-  [StepStatus.WAITING_FEEDBACK]: '#946200', // amber
-  [StepStatus.VALIDATED]: '#2e7d32', // green
-  [StepStatus.FAILED]: '#c62828' // red
+  [StepStatus.TO_PLAN]: '#c2410c', // orange
+  [StepStatus.PLANNED]: '#2563eb', // blue
+  [StepStatus.CANCELED]: '#64748b', // slate
+  [StepStatus.WAITING_FEEDBACK]: '#a16207', // amber
+  [StepStatus.VALIDATED]: '#15803d', // green
+  [StepStatus.FAILED]: '#b91c1c' // red
 };
