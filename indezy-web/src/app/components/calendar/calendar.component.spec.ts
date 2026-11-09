@@ -89,20 +89,27 @@ describe('CalendarComponent', () => {
   });
 
   it('moves between months through the address, keeping the picked day when it is still shown', () => {
-    const fixture = create();
-    const component = fixture.componentInstance;
+    // Today must fall outside the months shown, or it is picked instead of the 1st.
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date(2026, 6, 15));
+    try {
+      const fixture = create();
+      const component = fixture.componentInstance;
 
-    component.go(1);
-    expect(navigate.calls.mostRecent().args[1]).toEqual(jasmine.objectContaining({ queryParams: { month: '2026-11' } }));
-    component.go(-1);
-    expect(navigate.calls.mostRecent().args[1].queryParams).toEqual({ month: '2026-09' });
+      component.go(1);
+      expect(navigate.calls.mostRecent().args[1]).toEqual(jasmine.objectContaining({ queryParams: { month: '2026-11' } }));
+      component.go(-1);
+      expect(navigate.calls.mostRecent().args[1].queryParams).toEqual({ month: '2026-09' });
 
-    component.select(component.weeks.flat().find(day => day.key === '2026-10-20')!);
-    params.next(convertToParamMap({ month: '2026-10' }));
-    expect(component.selected!.key).toBe('2026-10-20');
-    params.next(convertToParamMap({ month: '2026-11' }));
-    expect(component.selected!.key).toBe('2026-11-01');
-    expect(component.weeks.flat().find(day => day.key === '2026-11-03')!.steps.map(step => step.id)).toEqual([5]);
+      component.select(component.weeks.flat().find(day => day.key === '2026-10-20')!);
+      params.next(convertToParamMap({ month: '2026-10' }));
+      expect(component.selected!.key).toBe('2026-10-20');
+      params.next(convertToParamMap({ month: '2026-11' }));
+      expect(component.selected!.key).toBe('2026-11-01');
+      expect(component.weeks.flat().find(day => day.key === '2026-11-03')!.steps.map(step => step.id)).toEqual([5]);
+    } finally {
+      jasmine.clock().uninstall();
+    }
   });
 
   it('opens on the current month and today, and goes back to it', () => {
