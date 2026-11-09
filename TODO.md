@@ -645,7 +645,7 @@ Money
 Profile and reputation
 - [ ] Dossier de compétences built from the profile and the missions (no AI): summary, skills with levels and years, missions with client, role, dates and stack, as PDF in a few layouts ESNs ask for, in French or English; the AI item above tailors it to one opportunity.
 - [ ] Testimonials: ask a client contact for a short recommendation through a link (no account), approve it, and show it on the public profile.
-- [ ] Training record: the trainings followed, their certificates and expiry, and the funding asked to the training fund of the freelancer's status (FIF PL for liberal professions, AGEFICE for traders), with the request deadlines; certifications appear on the public profile and the dossier de compétences.
+- [ ] Training record: the trainings followed, their certificates and expiry, and the funding asked to the training fund of the freelancer's status (FIF PL for liberal professions, AGEFICE for traders), with the request deadlines; certifications appear on the public profile and the dossier de compétences. Partly done on 2026-11-09: the server keeps each workspace's trainings with their certification, its end and the funding asked (`/api/trainings`, in the data export); the page, the deadline reminder and the certifications on the public profile and the dossier remain.
 
 ### Market Intelligence
 

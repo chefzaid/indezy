@@ -48,6 +48,7 @@ public class UserDataExportService {
     private final PurchaseOrderService purchaseOrderService;
     private final ComplianceDocumentService complianceDocumentService;
     private final CompliancePackService compliancePackService;
+    private final TrainingService trainingService;
     private final BookingService bookingService;
     private final JsonMapper jsonMapper;
 
@@ -74,6 +75,7 @@ public class UserDataExportService {
         export.put("activityReports", activityReportService.findByFreelanceId(freelanceId));
         export.put("purchaseOrders", purchaseOrderService.export(freelanceId));
         export.put("complianceDocuments", complianceDocumentService.list(freelanceId));
+        export.put("trainings", trainingService.list(freelanceId));
         export.put("compliancePacks", compliancePackService.list(freelanceId));
         export.put("bookingPage", bookingService.page(freelanceId));
         export.put("bookings", bookingService.export(freelanceId));
