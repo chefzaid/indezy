@@ -479,7 +479,9 @@ Content-Security-Policy:
   blob:`); the service worker from the app; forms and `<base>` to the app; framed only by the app itself.
 
 `Cache-Control` is chosen by path in a `map` with one top-level `add_header`, because a location adding any header would
-drop the others: hashed files a year (immutable), the service worker and its manifest revalidated each time.
+drop the others: the build's hashed files a year (immutable: its scripts and styles at the root and its fonts under
+`/media`), and the files that keep their name across releases (the service worker and its manifest, the screenshots, brand
+images and icons under `/assets`, the favicon and the web manifest) revalidated each time.
 
 To check a policy change, build for production (`npx ng build --configuration production`), serve
 `dist/indezy-web/browser` with the image's `nginx.conf`, and run a Playwright page through the main pages (with the

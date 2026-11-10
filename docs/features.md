@@ -25,6 +25,11 @@ decision (TODO.md, Needs Input). Signed in, **Open the dashboard**. The page nev
 `/?project=<id>` link still opens its opportunity. Both languages are prerendered, so search engines and link previews
 read them without JavaScript.
 
+The screens come from `scripts/screenshots` (`npx playwright test -c pw.screenshots.config.ts`) and the card link
+previews show (`src/assets/brand/og-image.png`, 1200 × 630) from `scripts/og-image` (`node scripts/og-image/render.mjs`):
+both are retaken after a theme change. They keep their names, so nginx has browsers check them again on each visit
+instead of keeping them a year as it does the build's hashed scripts, styles and fonts.
+
 ## Authentication And Account Access
 
 Local accounts register and sign in with an email and a password of 8 characters to 72 bytes (an accented letter counts
