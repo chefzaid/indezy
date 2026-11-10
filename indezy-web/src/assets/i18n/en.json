@@ -105,7 +105,7 @@
     "loginTitle": "Sign in to Indezy",
     "loginSubtitle": "Manage your freelance projects with ease",
     "login": "Sign in",
-    "continueWithKeycloak": "Continue with Keycloak",
+    "continueWithSso": "Continue with SSO",
     "orSignInLocally": "or sign in locally",
     "loggingIn": "Signing in...",
     "loginSuccess": "Successfully signed in!",

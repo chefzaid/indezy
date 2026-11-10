@@ -105,7 +105,7 @@
     "loginTitle": "Connexion à Indezy",
     "loginSubtitle": "Gérez vos missions freelance en toute simplicité",
     "login": "Se connecter",
-    "continueWithKeycloak": "Continuer avec Keycloak",
+    "continueWithSso": "Continuer avec SSO",
     "orSignInLocally": "ou se connecter localement",
     "loggingIn": "Connexion...",
     "loginSuccess": "Connexion réussie !",
