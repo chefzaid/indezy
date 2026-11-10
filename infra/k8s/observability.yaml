@@ -13,7 +13,7 @@ data:
       "tags": ["indezy", "spring-boot", "provisioned"],
       "timezone": "browser",
       "schemaVersion": 41,
-      "version": 1,
+      "version": 2,
       "refresh": "30s",
       "time": {"from": "now-6h", "to": "now"},
       "panels": [
@@ -43,7 +43,7 @@ data:
           "title": "5xx Error Ratio",
           "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4},
           "datasource": {"type": "prometheus", "uid": "prometheus"},
-          "targets": [{"refId": "A", "expr": "sum(rate(http_server_requests_seconds_count{namespace=\"apps\",app=\"indezy-server\",status=~\"5..\"}[5m])) / clamp_min(sum(rate(http_server_requests_seconds_count{namespace=\"apps\",app=\"indezy-server\"}[5m])), 0.000001)", "instant": true}],
+          "targets": [{"refId": "A", "expr": "(sum(rate(http_server_requests_seconds_count{namespace=\"apps\",app=\"indezy-server\",status=~\"5..\"}[5m])) or vector(0)) / clamp_min(sum(rate(http_server_requests_seconds_count{namespace=\"apps\",app=\"indezy-server\"}[5m])), 0.000001)", "instant": true}],
           "fieldConfig": {"defaults": {"unit": "percentunit", "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "red", "value": 0.05}]}}, "overrides": []},
           "options": {"reduceOptions": {"calcs": ["lastNotNull"], "values": false}, "colorMode": "value", "graphMode": "area"}
         },
@@ -160,7 +160,7 @@ data:
           "gridPos": {"x": 12, "y": 36, "w": 12, "h": 8},
           "datasource": {"type": "prometheus", "uid": "prometheus"},
           "targets": [{"refId": "A", "expr": "sum by (method, uri) (increase(http_server_requests_seconds_count{namespace=\"apps\",app=\"indezy-server\",status=~\"5..\"}[15m])) > 0", "legendFormat": "{{method}} {{uri}}"}],
-          "fieldConfig": {"defaults": {"unit": "short", "min": 0}, "overrides": []},
+          "fieldConfig": {"defaults": {"unit": "short", "min": 0, "noValue": "No server errors"}, "overrides": []},
           "options": {"legend": {"displayMode": "table", "placement": "right"}}
         },
         {
