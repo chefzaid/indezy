@@ -80,6 +80,17 @@ class OfferNormalizerTest {
     }
 
     @Test
+    void keepsALinkWithTheCharactersNoUriMayHoldEncoded() {
+        String quoted = "https://ouidesk.com/mission/Développeur-Java-Angular-\"H-F\"-e53b18319b90bcf15c113b05d316ff7c";
+
+        JobOffer offer = normalizer.normalize(OfferSite.OUIDESK, base().url(quoted).build(), NOW).orElseThrow();
+
+        assertThat(offer.getUrl()).isEqualTo("https://ouidesk.com/mission/Développeur-Java-Angular-%22H-F%22-e53b18319b90bcf15c113b05d316ff7c");
+        // Encoded, it would no longer fit.
+        assertThat(OfferNormalizer.webLink("https://www.example.com/offre/" + "\"".repeat(400))).isNull();
+    }
+
+    @Test
     void dropsOffersTheFeedWouldRemoveAtOnce() {
         assertThat(normalizer.normalize(OfferSite.NEXT_MONDAYS, base().publishedAt(NOW.minus(java.time.Duration.ofDays(91))).build(), NOW))
             .isEmpty();

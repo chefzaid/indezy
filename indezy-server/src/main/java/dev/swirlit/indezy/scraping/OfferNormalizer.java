@@ -10,6 +10,7 @@ import dev.swirlit.indezy.util.TextFolding;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
@@ -39,6 +40,8 @@ public class OfferNormalizer {
     /** Where a mission's length is looked for when the site gives none. */
     private static final int DURATION_SEARCH_LENGTH = 2_000;
     private static final String PARIS = "75";
+    /** The length of a stored offer's link. */
+    private static final int MAX_LINK_LENGTH = 1000;
 
     private final GeoLocator geoLocator;
     private final OfferProperties properties;
@@ -304,16 +307,17 @@ public class OfferNormalizer {
         return value.length() > max ? value.substring(0, max).strip() : value;
     }
 
-    /** An absolute http(s) link, or {@code null}. */
+    /** An absolute http(s) link, the characters no URI may hold encoded (see {@link WebAddresses}), or {@code null}. */
     static String webLink(String url) {
-        if (url == null || url.length() > 1000) {
+        if (url == null || url.length() > MAX_LINK_LENGTH) {
             return null;
         }
         try {
-            URI uri = URI.create(url.strip());
+            URI uri = WebAddresses.uri(url.strip());
             String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(Locale.ROOT);
-            return ("https".equals(scheme) || "http".equals(scheme)) && uri.getHost() != null ? uri.toString() : null;
-        } catch (IllegalArgumentException e) {
+            String link = uri.toString();
+            return ("https".equals(scheme) || "http".equals(scheme)) && uri.getHost() != null && link.length() <= MAX_LINK_LENGTH ? link : null;
+        } catch (MalformedURLException e) {
             return null;
         }
     }

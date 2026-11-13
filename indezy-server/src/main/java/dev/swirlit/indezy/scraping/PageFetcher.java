@@ -8,6 +8,10 @@ import java.io.IOException;
  */
 public interface PageFetcher {
 
+    /**
+     * The page at {@code url}, the characters no URI may hold encoded (see {@link WebAddresses}); a
+     * {@link java.net.MalformedURLException} when even so no request can be made of it.
+     */
     String get(String url) throws IOException, InterruptedException;
 
     String postJson(String url, String json) throws IOException, InterruptedException;

@@ -7,6 +7,7 @@ import dev.swirlit.indezy.scraping.ScrapedOffer;
 import dev.swirlit.indezy.scraping.SiteResponseException;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -88,8 +89,10 @@ abstract class OfferDetailsReader implements OfferReader {
             if (e.getStatus() != 404 && e.getStatus() != 410) {
                 throw e;
             }
+        } catch (MalformedURLException e) {
+            // One address no request can be made of costs its offer only, not the rest of the site's run.
         }
-        // A page gone or without an offer is handed on as closed, so it is set aside and not fetched again.
+        // A page gone, without an offer or at no usable address is handed on as closed, so it is set aside and not fetched again.
         return ScrapedOffer.builder().externalId(entry.externalId()).url(entry.url()).freelance(false).build();
     }
 

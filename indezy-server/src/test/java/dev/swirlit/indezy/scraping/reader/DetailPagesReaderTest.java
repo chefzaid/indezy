@@ -5,6 +5,7 @@ import dev.swirlit.indezy.scraping.FakeFetcher;
 import dev.swirlit.indezy.scraping.PageFetcher;
 import dev.swirlit.indezy.scraping.ScrapedOffer;
 import dev.swirlit.indezy.scraping.SiteResponseException;
+import dev.swirlit.indezy.scraping.WebAddresses;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 class DetailPagesReaderTest {
 
@@ -47,6 +49,28 @@ class DetailPagesReaderTest {
         assertThat(batch.offers).extracting(ScrapedOffer::isFreelance).containsExactly(true, false, false);
         assertThat(batch.offers.get(0).getTitle()).isEqualTo("Data engineer");
         assertThat(batch.offers.get(0).getUrl()).isEqualTo(SITE + "nouvelle");
+    }
+
+    @Test
+    void handsOnAnOfferAtAnUnusableAddressAsClosedAndReadsTheOthers() throws Exception {
+        FakeFetcher fetcher = new FakeFetcher() {
+            @Override
+            public String get(String url) throws IOException {
+                // As the site's client, which requests no address that is no URI, even encoded.
+                WebAddresses.uri(url);
+                return super.get(url);
+            }
+        }.page(SITE + "nouvelle", "<h1>Data engineer</h1>");
+        ListedSite site = new ListedSite(List.of(
+            new DetailPagesReader.Entry("://www.example.com/offre/cassee", "cassee", Instant.parse("2026-10-19T00:00:00Z")),
+            new DetailPagesReader.Entry(SITE + "nouvelle", "nouvelle", Instant.parse("2026-10-18T00:00:00Z"))));
+        WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of());
+
+        site.read(fetcher, batch);
+
+        assertThat(fetcher.requests()).containsExactly(SITE + "nouvelle");
+        assertThat(batch.offers).extracting(ScrapedOffer::getExternalId, ScrapedOffer::isFreelance)
+            .containsExactly(tuple("cassee", false), tuple("nouvelle", true));
     }
 
     @Test

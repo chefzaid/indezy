@@ -370,8 +370,9 @@ kept only when its site marks it as freelance and its title names no CDI or CDD 
 | Kicklox | sitemap missions whose contract is "Prestation", without partners' salaried jobs or standing ads | every 3 hours |
 
 Sites describing each offer on its own page are read a batch per run, so their backlog fills in over the first runs;
-an offer set aside (salaried, older than 90 days, gone) is not read again for 30 days. The boards not read are listed
-on the [Job boards](#site-health) page; the next ones are planned in
+an offer set aside (salaried, older than 90 days, gone, or listed at an address no request can be made of) is not read
+again for 30 days; a link's quotes or spaces are percent-encoded first, so they do not set it aside. The boards not
+read are listed on the [Job boards](#site-health) page; the next ones are planned in
 [TODO.md](../TODO.md#freelance-offer-feed-added-2026-10-19).
 
 A card shows the site, title, publisher, daily rate, place with its distance from the profile's city, the trip there by

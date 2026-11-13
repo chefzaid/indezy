@@ -290,18 +290,24 @@ class HtmlSitesReaderTest {
     @Test
     void readsOuiDeskMissionsAsTheyDescribeThemselves() throws Exception {
         String mission = "https://ouidesk.com/mission/Consultant-réseaux-et-sécurité-H-F-1196ae9a011ad6a2c1d91fdb23574712";
+        // Its sitemap writes the quotes of a title as they are, which no URI may hold.
+        String quoted = "https://ouidesk.com/mission/Développeur-Java-Angular-\"H-F\"-e53b18319b90bcf15c113b05d316ff7c";
         FakeFetcher fetcher = new FakeFetcher()
             .resource(OuiDeskReader.SITEMAP, "ouidesk-sitemap.xml")
-            .resource(mission, "ouidesk-mission.html");
+            .resource(mission, "ouidesk-mission.html")
+            .page(quoted, "<meta name=\"description\" content='Mission freelance de Développeur Java Angular \"H/F\" sur OuiDesk.'>" +
+                "<h4 class=\"text-blue mb-4\"><!---->Développeur Java Angular \"H/F\"</h4>");
         WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of());
         OuiDeskReader reader = new OuiDeskReader();
 
         reader.read(fetcher, batch);
 
-        // Only the mission page: the talents' profiles and the search pages are left aside.
-        assertThat(fetcher.requests()).containsExactly(OuiDeskReader.SITEMAP, mission);
+        // Only the mission pages: the talents' profiles and the search pages are left aside.
+        assertThat(fetcher.requests()).containsExactly(OuiDeskReader.SITEMAP, mission, quoted);
         ScrapedOffer offer = batch.offers.get(0);
-        assertThat(batch.offers).hasSize(1);
+        assertThat(batch.offers).hasSize(2);
+        assertThat(batch.offers.get(1)).extracting(ScrapedOffer::getExternalId, ScrapedOffer::getTitle, ScrapedOffer::isFreelance)
+            .containsExactly("e53b18319b90bcf15c113b05d316ff7c", "Développeur Java Angular \"H/F\"", true);
         assertThat(offer.getExternalId()).isEqualTo("1196ae9a011ad6a2c1d91fdb23574712");
         assertThat(offer.getTitle()).isEqualTo("Consultant réseaux et sécurité H/F");
         assertThat(offer.getCity()).isEqualTo("Lille");

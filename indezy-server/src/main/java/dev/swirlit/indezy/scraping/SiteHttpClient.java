@@ -30,7 +30,8 @@ import java.util.zip.GZIPInputStream;
 /**
  * The only way the offer collection reaches the network. Each request stays on the reader's domain, or its site's
  * API's ({@link OfferReader#apiDomain()}), redirects included, is checked against the host's {@code robots.txt}, waits the configured delay
- * since the previous request to that host, and is refused when its body passes {@link #MAX_BODY_BYTES}.
+ * since the previous request to that host, and is refused when its body passes {@link #MAX_BODY_BYTES}. Addresses are
+ * requested as {@link WebAddresses} encodes them, so a quote or a space in a sitemap's link does not stop a reading.
  */
 @Component
 public class SiteHttpClient {
@@ -103,12 +104,12 @@ public class SiteHttpClient {
         return new PageFetcher() {
             @Override
             public String get(String url) throws IOException, InterruptedException {
-                return send(allowed, URI.create(url), null);
+                return send(allowed, WebAddresses.uri(url), null);
             }
 
             @Override
             public String postJson(String url, String json) throws IOException, InterruptedException {
-                return send(allowed, URI.create(url), json);
+                return send(allowed, WebAddresses.uri(url), json);
             }
         };
     }
@@ -132,7 +133,7 @@ public class SiteHttpClient {
                 if (jsonBody != null || redirects >= MAX_REDIRECTS) {
                     throw new SiteResponseException(status, "Unexpected redirect from " + uri.getPath());
                 }
-                uri = uri.resolve(location);
+                uri = uri.resolve(WebAddresses.uri(location));
                 continue;
             }
             if (status < 200 || status >= 300) {
@@ -165,7 +166,7 @@ public class SiteHttpClient {
                 String location = response.headers().firstValue("Location").orElse(null);
                 if (isRedirect(status) && location != null) {
                     response.body().close();
-                    uri = uri.resolve(location);
+                    uri = uri.resolve(WebAddresses.uri(location));
                     continue;
                 }
                 if (status >= 200 && status < 300) {

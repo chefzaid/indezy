@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
@@ -74,6 +75,8 @@ class SiteHttpClientTest {
             }
         });
         server.createContext("/redirect", exchange -> redirect(exchange, "/page"));
+        server.createContext("/mission/", exchange -> respond(exchange, 200, exchange.getRequestURI().getRawPath(), "text/plain"));
+        server.createContext("/quoted", exchange -> redirect(exchange, "/mission/Data-Analyst-\"H-F\""));
         server.createContext("/away", exchange -> redirect(exchange, "http://example.com/jobs"));
         server.createContext("/loop", exchange -> redirect(exchange, "/loop"));
         server.createContext("/moved/", exchange -> {
@@ -146,6 +149,17 @@ class SiteHttpClientTest {
             .isInstanceOf(SiteResponseException.class).hasMessageContaining("Refused to leave");
         assertThatThrownBy(() -> fetcher.postJson(base + "/redirect", "{}"))
             .isInstanceOf(SiteResponseException.class).hasMessageContaining("Unexpected redirect");
+    }
+
+    @Test
+    void requestsAddressesWithTheCharactersNoUriMayHoldEncoded() throws Exception {
+        PageFetcher fetcher = client.fetcherFor(DOMAIN);
+
+        // As OuiDesk's sitemap writes a mission whose title has quotes; the client writes the accent's escape itself.
+        assertThat(fetcher.get(base + "/mission/Développeur-Java-Angular-\"H-F\"-e53b"))
+            .isEqualToIgnoringCase("/mission/D%C3%A9veloppeur-Java-Angular-%22H-F%22-e53b");
+        assertThat(fetcher.get(base + "/quoted")).isEqualTo("/mission/Data-Analyst-%22H-F%22");
+        assertThatThrownBy(() -> fetcher.get("://" + DOMAIN + "/mission/x")).isInstanceOf(MalformedURLException.class);
     }
 
     @Test
