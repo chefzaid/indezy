@@ -182,28 +182,40 @@ class HtmlSitesReaderTest {
         String missions = "https://www.koino.fr/missions/";
         FakeFetcher fetcher = new FakeFetcher()
             .resource(KoinoReader.SITEMAP, "koino-sitemap.xml")
-            .resource(missions + "data-analyst-data-engineer-urgent", "koino-mission-open.html")
+            .resource(missions + "business-analyst-run-applicatif-erp-plm", "koino-mission-open.html")
             .resource(missions + "architecte-ia-multi-agents-azure", "koino-mission-closed.html");
-        WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of());
+        WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of("expert-ia-agentique-gemini-enterprise-gcp"));
         KoinoReader reader = new KoinoReader();
 
         reader.read(fetcher, batch);
 
-        assertThat(batch.offers).extracting(ScrapedOffer::getExternalId)
-            .containsExactly("data-analyst-data-engineer-urgent", "architecte-ia-multi-agents-azure");
-        ScrapedOffer data = batch.offers.get(0);
-        assertThat(data.isFreelance()).isTrue();
-        assertThat(data.getTitle()).isEqualTo("Data Analyst / Data Engineer");
-        assertThat(data.getCity()).isEqualTo("Lyon");
-        assertThat(data.getRateText()).isEqualTo("550 €");
-        assertThat(data.getDescription()).startsWith("Fiabiliser les tableaux de bord d'un distributeur.")
-            .contains("Description du client").contains("• Modéliser les ventes").doesNotContain("Candidature");
-        assertThat(data.getPublishedAt()).isEqualTo(Instant.parse("2026-10-12T10:10:49.454Z"));
-        assertThat(data.isPublishedDayOnly()).isTrue();
-        ScrapedOffer closed = batch.offers.get(1);
+        assertThat(fetcher.requests()).containsExactly(KoinoReader.SITEMAP, missions + "business-analyst-run-applicatif-erp-plm");
+        assertThat(batch.offers).extracting(ScrapedOffer::getExternalId).containsExactly("business-analyst-run-applicatif-erp-plm");
+        ScrapedOffer analyst = batch.offers.get(0);
+        assertThat(analyst.isFreelance()).isTrue();
+        assertThat(analyst.getTitle()).isEqualTo("Business Analyst RUN applicatif ERP/PLM");
+        assertThat(analyst.getCity()).isEqualTo("Paris");
+        assertThat(analyst.getRemoteText()).isEqualTo("Télétravail, Paris");
+        assertThat(analyst.getRateText()).isEqualTo("Selon profil");
+        // The summary, then the full description, not the short sections it repeats.
+        assertThat(analyst.getDescription()).startsWith("Support N2/N3 d'une application métier en production")
+            .contains("Description du client").contains("• Prendre en charge le support applicatif N2/N3")
+            .contains("pas ouverte au télétravail complet").doesNotContain("• Assurer le support applicatif")
+            .doesNotContain("Lire la description complète").doesNotContain("Postuler").doesNotContain("Data Engineer Azure Databricks");
+        assertThat(analyst.getPublishedAt()).isEqualTo(Instant.parse("2026-11-11T23:00:00Z"));
+        assertThat(analyst.isPublishedDayOnly()).isTrue();
+        // A link to a closed mission, which the sitemap no longer lists.
+        ScrapedOffer closed = reader.readOne(fetcher, missions + "architecte-ia-multi-agents-azure").orElseThrow();
+        assertThat(closed.getExternalId()).isEqualTo("architecte-ia-multi-agents-azure");
         assertThat(closed.isFreelance()).isFalse();
+        assertThat(closed.getTitle()).isEqualTo("Architecte IA multi-agents Azure");
         assertThat(closed.getRemoteText()).isEqualTo("Télétravail");
         assertThat(closed.getCity()).isNull();
+        assertThat(closed.getDescription()).contains("Le client").contains("• Co-construire avec l'équipe IT interne");
+        assertThat(closed.getPublishedAt()).isEqualTo(Instant.parse("2026-08-09T22:00:00Z"));
+        // An open mission without the site's "Mission freelance" label is not taken.
+        assertThat(reader.offer(new DetailPagesReader.Entry(missions + "chef", "chef", null),
+            Jsoup.parse("<main data-mission-etat=\"ouverte\"><h1>Chef de projet</h1></main>")).isFreelance()).isFalse();
         assertThat(reader.offer(null, Jsoup.parse("<p>Page introuvable</p>"))).isNull();
         assertThat(reader.site()).isEqualTo(OfferSite.KOINO);
         assertThat(reader.domain()).isEqualTo("koino.fr");

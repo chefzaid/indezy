@@ -294,7 +294,7 @@ Sites checked on 2026-10-19, and how each one is read:
 | freelance-informatique.fr | server-rendered `/offres-freelance?page=` (50 a page) | the date encoded in the reference (`261015I001` = 2026-10-15) | skills, department and city, start, duration; some titles link through a Base64 `data-obf` attribute; no daily rate in the list |
 | espace-freelance.fr | `/missions-disponibles/page/<n>/` (nine a page) | card date | trade, agency, reference, start, daily rate; city in the title |
 | beyondskillsit.com | Webflow listing `/offres-disponibles` and the sitemap | sitemap `lastmod` | keeps cards labelled Freelance; place, work mode and daily rate on the card |
-| koino.fr | Webflow sitemap (`/missions/…`), then each page | sitemap `lastmod` | keeps missions whose application is open |
+| koino.fr | `sitemap-missions.xml` (its open missions; the main sitemap lists none since November 2026), then each page | the page's publication day | keeps missions labelled "Mission freelance" whose application is open (`data-mission-etat="ouverte"`); place and daily rate from the page's facts |
 | sixiemehomme.io | the missions shown on the home page, then their public pages | first seen | only the showcased missions are public; daily rate, location, remote, start, duration |
 
 Sites to check by hand for missions (a sign-in, a membership or a referral is needed, or the site is closed to crawlers), so Indezy does not read them:

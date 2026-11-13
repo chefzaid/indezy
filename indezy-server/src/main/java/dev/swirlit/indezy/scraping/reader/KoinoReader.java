@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.scraping.reader;
 
 import dev.swirlit.indezy.model.enums.OfferSite;
+import dev.swirlit.indezy.scraping.FrenchDates;
 import dev.swirlit.indezy.scraping.HtmlText;
 import dev.swirlit.indezy.scraping.PageFacts;
 import dev.swirlit.indezy.scraping.PageFetcher;
@@ -12,20 +13,27 @@ import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Koïno: its sitemap lists every mission page with its last change, and each page shows whether applications are
- * open (the hidden status carries Webflow's {@code w-condition-invisible}), its facts ("TJM : selon profil",
- * "Localisation : Télétravail") and its description. Closed missions are handed on as closed, so they are set aside.
+ * Koïno: its missions sitemap lists the missions open to applications with their last change, and each mission page
+ * is labelled "Mission freelance", states whether applications are open ({@code data-mission-etat="ouverte"}, else
+ * {@code "fermee"}), its facts ("Lieu" to "Télétravail, Paris", "TJM" to "Selon profil"), its publication day and
+ * its description. Closed missions are handed on as closed, so they are set aside.
  */
 @Component
 public class KoinoReader extends DetailPagesReader {
 
-    static final String SITEMAP = "https://www.koino.fr/sitemap.xml";
+    /** The open missions; the main sitemap no longer lists any. */
+    static final String SITEMAP = "https://www.koino.fr/sitemap-missions.xml";
     private static final String MISSIONS = "/missions/";
+    private static final String OPEN = "ouverte";
+    private static final Pattern REMOTE = Pattern.compile("\\b(teletravail|remote|distance)\\b");
 
     @Override
     public OfferSite site() {
@@ -51,32 +59,41 @@ public class KoinoReader extends DetailPagesReader {
 
     @Override
     ScrapedOffer offer(Entry entry, Document page) {
+        Element mission = page.selectFirst("main[data-mission-etat]");
         Element title = page.selectFirst("h1");
-        if (title == null) {
+        if (mission == null || title == null) {
             return null;
         }
-        Element status = page.selectFirst(".offer-status:not(.w-condition-invisible)");
-        boolean open = status != null && TextFolding.words(status.text()).contains("ouverte");
-        Map<String, String> facts = PageFacts.written(page.select(".offer-details-item"));
-        String place = facts.get("localisation");
-        boolean remote = place != null && TextFolding.words(place).matches(".*\\b(teletravail|remote|distance)\\b.*");
-        // The status badges are paragraphs of the same header.
-        Element summary = page.select(".offer-hero-section p").stream()
-            .filter(paragraph -> paragraph.closest(".offer-status") == null)
-            .findFirst().orElse(null);
-        String sections = page.select("h2.heading-label, .cms-richtext").stream()
-            .map(Element::outerHtml)
-            .collect(Collectors.joining());
-        String description = HtmlText.toText((summary == null ? "" : summary.outerHtml()) + sections);
+        Element label = page.selectFirst(".mi-sur");
+        boolean freelance = label != null && TextFolding.words(label.text()).contains("freelance");
+        boolean open = OPEN.equals(mission.attr("data-mission-etat"));
+        Map<String, String> facts = PageFacts.of(page.select(".mi-tuile"), "dt", "dd");
+        // "Télétravail, Paris": the remote work, then the town.
+        String place = facts.get("lieu");
+        boolean remote = place != null && remote(place);
+        String city = place == null ? null : Arrays.stream(place.split(","))
+            .map(String::strip)
+            .filter(part -> !part.isEmpty() && !remote(part))
+            .collect(Collectors.joining(", "));
+        // The full description repeats the short sections above it.
+        Element summary = page.selectFirst(".chapo");
+        Element full = page.selectFirst(".mi-complet-c");
+        String sections = full != null ? full.outerHtml() : page.select(".mi-corps .mi-bloc").outerHtml();
+        Element published = page.selectFirst(".mi-faits-pied time[datetime]");
+        LocalDate day = published == null ? null : FrenchDates.parse(published.attr("datetime"), LocalDate.now(FrenchDates.PARIS));
         return ScrapedOffer.builder()
             .title(title.text())
-            .description(description)
+            .description(HtmlText.toText((summary == null ? "" : summary.outerHtml()) + sections))
             .rateText(facts.get("tjm"))
-            .city(remote ? null : place)
+            .city(city == null || city.isEmpty() ? null : city)
             .remoteText(remote ? place : null)
-            .publishedAt(entry.lastModified())
+            .publishedAt(day != null ? FrenchDates.startOfDay(day) : entry.lastModified())
             .publishedDayOnly(true)
-            .freelance(open)
+            .freelance(freelance && open)
             .build();
+    }
+
+    private static boolean remote(String text) {
+        return REMOTE.matcher(TextFolding.words(text)).find();
     }
 }
