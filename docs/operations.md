@@ -60,7 +60,8 @@ read from the shared site statuses at most once a minute, `indezy_offers_site_co
 site, the new offers per hour and the runs and geocoding timeouts per hour. The platform's
 Prometheus rules (`swirl-cloud`, group `applications.indezy`, owner `application`) alert when a
 site fails three runs in a row (`IndezyOfferSiteFailing`), when every successful reading of a
-site over 24 hours found nothing (`IndezyOfferSiteFindsNothing`, a sign its pages changed) and
+site over 24 hours found nothing (`IndezyOfferSiteFindsNothing`, a sign its pages changed; offers it still lists and
+Indezy already holds count as found) and
 when more than 20 lookups to `geo.api.gouv.fr` fail in an hour (`IndezyGeocodingTimeouts`);
 their runbooks are in `swirl-cloud`'s `docs/guides/alert-runbooks.md`.
 

@@ -158,6 +158,9 @@ public class OfferCollector {
 
         @Override
         public Set<String> known(Collection<String> externalIds) {
+            // The offers a site still lists and Indezy already holds are found too: a reader of one page per offer
+            // fetches only the others, so a site with nothing new would otherwise look as if it listed nothing.
+            found += store.stored(site, externalIds).size();
             return store.known(site, externalIds);
         }
     }

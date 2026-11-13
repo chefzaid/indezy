@@ -31,7 +31,7 @@ public record OfferSiteHealthDto(List<Site> sites, List<LeftOut> leftOut, boolea
      * @param collectedWeek      offers first seen over the last 7 days
      * @param openOffers         offers not expired
      * @param newestOfferAt      when its most recent offer was published
-     * @param lastFound          freelance offers the last successful run read
+     * @param lastFound          freelance offers the last successful run found listed, read or already held
      * @param lastNew            offers it saw for the first time
      * @param excluded           whether the workspace keeps it out of its feed
      * @param refreshAvailableAt when it can be read on request again; {@code null} when it can now

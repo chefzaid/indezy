@@ -200,8 +200,14 @@ public class OfferStore {
         if (externalIds.isEmpty()) {
             return Set.of();
         }
-        Set<String> known = new HashSet<>(offers.findKnownIds(site, externalIds));
+        Set<String> known = stored(site, externalIds);
         known.addAll(skips.findSkippedIds(site, externalIds));
         return known;
+    }
+
+    /** Which identifiers of a site are stored offers; only freelance offers are stored. */
+    @Transactional(readOnly = true)
+    public Set<String> stored(OfferSite site, Collection<String> externalIds) {
+        return externalIds.isEmpty() ? new HashSet<>() : new HashSet<>(offers.findKnownIds(site, externalIds));
     }
 }

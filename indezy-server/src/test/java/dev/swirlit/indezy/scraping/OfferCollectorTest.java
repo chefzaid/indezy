@@ -94,6 +94,23 @@ class OfferCollectorTest {
     }
 
     @Test
+    void countsTheListedOffersAlreadyHeldAsFound() {
+        when(store.known(OfferSite.KOINO, List.of("held", "skipped"))).thenReturn(java.util.Set.of("held", "skipped"));
+        when(store.stored(OfferSite.KOINO, List.of("held", "skipped"))).thenReturn(new java.util.HashSet<>(List.of("held")));
+        OfferReader reader = new PagedReader(OfferSite.KOINO, false, 0) {
+            @Override
+            public void read(PageFetcher fetcher, OfferBatch batch) {
+                batch.known(List.of("held", "skipped"));
+            }
+        };
+
+        collector(reader).collect(OfferSite.KOINO);
+
+        // A site listing only offers Indezy holds still found one; the one set aside earlier is not counted.
+        verify(runs).succeeded(OfferSite.KOINO, NOW, 1, 0);
+    }
+
+    @Test
     void recordsAFailedRunWithoutThrowing() {
         OfferReader broken = new PagedReader(OfferSite.YEETS, true, 1) {
             @Override
