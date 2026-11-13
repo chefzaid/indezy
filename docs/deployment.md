@@ -34,7 +34,7 @@ The `indezy-sso` Middleware sends requests to the shared Keycloak OAuth2 Proxy, 
 
 The Keycloak issuer, internal JWKS URI and required audience live in `infra/k8s/server.yaml`; identity-provider secrets stay platform-owned.
 
-The backend connects to `postgres.swirlit.internal:5432/indezy` as `indezy_user`. The `indezy-db-setup` Argo CD sync hook creates or updates that role and database, sets the role's planner settings and enables `pg_trgm` before the Deployments roll out. The hook and the server's `wait-for-db` init container use the public PostgreSQL 18.6 Alpine image pinned by digest in `kustomization.yaml`, without registry credentials.
+The backend connects to `postgres.swirl.internal:5432/indezy` as `indezy_user`. The `indezy-db-setup` Argo CD sync hook creates or updates that role and database, sets the role's planner settings and enables `pg_trgm` before the Deployments roll out. The hook and the server's `wait-for-db` init container use the public PostgreSQL 18.6 Alpine image pinned by digest in `kustomization.yaml`, without registry credentials.
 
 Network policy admits Traefik, Prometheus, CI job pods and pods in `apps` to both services. The backend reads the job boards, `geo.api.gouv.fr` and Resend over HTTPS, so its egress policy admits DNS (`kube-system/kube-dns`), PostgreSQL (`app: postgres`, or `cnpg.io/cluster: postgres-ha` under the platform's HA profile) and Keycloak (`app: keycloak`) in `infra`, and every public address; private, link-local and carrier-grade NAT ranges are refused, so a new in-cluster dependency needs its own rule.
 
@@ -104,7 +104,7 @@ idempotency key (`saved-search/<id>/<cutoff>`), so a retry within Resend's 24 ho
 
 `01-release` needs only `01-build` and `03-package`, and:
 
-1. builds and pushes `registry.swirlit.dev/swirlit/indezy/indezy-server:<version>` and `indezy-web:<version>` with Kaniko, reusing registry-backed layer caches for 30 days;
+1. builds and pushes `registry.swirlit.dev/swirl/indezy/indezy-server:<version>` and `indezy-web:<version>` with Kaniko, reusing registry-backed layer caches for 30 days;
 2. uploads the JAR, the web archive and `SHA256SUMS` to the Generic Package Registry;
 3. refuses to continue when the default branch moved past the pipeline's commit;
 4. commits `release: <version> [skip ci]` with the version and the image tags in `infra/k8s/kustomization.yaml`, and tags it `v<version>`;
@@ -165,7 +165,7 @@ python3 infra/scripts/test-onboarding.py
 
 - the instance runner online with tag `swirl-cloud`, and healthy GitLab, Argo CD, Vault, External Secrets and registry
 - `kubectl`, `curl`, `git`, `jq`, `openssl`, `python3`, `libsodium` and `sudo` on the control-plane host
-- `GITLAB_ADMIN_TOKEN` able to manage `swirlit/indezy`, and `GITHUB_ADMIN_TOKEN` able to manage Actions secrets and dispatch workflows for `chefzaid/indezy`
+- `GITLAB_ADMIN_TOKEN` able to manage `swirl/indezy`, and `GITHUB_ADMIN_TOKEN` able to manage Actions secrets and dispatch workflows for `chefzaid/indezy`
 
 ```bash
 GITLAB_ADMIN_TOKEN=<gitlab-token> \

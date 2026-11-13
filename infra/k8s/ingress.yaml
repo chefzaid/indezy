@@ -110,7 +110,7 @@ metadata:
 spec:
   forwardAuth:
     # The proxy's static upstream preserves login return URLs and backend 401s.
-    address: http://oauth2-proxy.swirlit.internal:4180/
+    address: http://oauth2-proxy.swirl.internal:4180/
     trustForwardHeader: true
     preserveLocationHeader: true
     forwardBody: false

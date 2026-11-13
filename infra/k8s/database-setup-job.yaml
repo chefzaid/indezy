@@ -30,7 +30,7 @@ spec:
             - |
               set -e
               export PGPASSWORD="${POSTGRES_ADMIN_PASSWORD}"
-              PSQL="psql -h postgres.swirlit.internal -U ${POSTGRES_ADMIN_USER} -d postgres"
+              PSQL="psql -h postgres.swirl.internal -U ${POSTGRES_ADMIN_USER} -d postgres"
 
               echo "Creating indezy_user if needed and ensuring its password is current..."
               $PSQL --set=app_password="$INDEZY_DB_PASSWORD" <<'SQL'
@@ -53,7 +53,7 @@ spec:
               echo "Granting connect and schema privileges, enabling pg_trgm..."
               $PSQL -c "GRANT CONNECT ON DATABASE indezy TO indezy_user;"
               PGPASSWORD="${INDEZY_DB_PASSWORD}" psql \
-                -h postgres.swirlit.internal \
+                -h postgres.swirl.internal \
                 -U indezy_user -d indezy <<-SQL
                   GRANT ALL ON SCHEMA public TO indezy_user;
                   -- Trigram index of the offers' search text (see docs/architecture.md).

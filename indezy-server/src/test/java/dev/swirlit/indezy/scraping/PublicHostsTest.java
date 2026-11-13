@@ -52,7 +52,7 @@ class PublicHostsTest {
     void refusesAddressesAndPrivateNamesWithoutResolvingThem() {
         PublicHosts.Resolver everythingPublic = host -> new InetAddress[] {InetAddress.getByName("52.95.110.1")};
 
-        for (String refused : new String[] {"52.95.110.1", "[::1]", "::1", "localhost", "indezy-server", "postgres.swirlit.internal",
+        for (String refused : new String[] {"52.95.110.1", "[::1]", "::1", "localhost", "indezy-server", "postgres.swirl.internal",
             "printer.local", "kubernetes.default.svc", "api.default.svc.cluster.local", "box.home.arpa", "", null}) {
             assertThat(PublicHosts.isPublic(refused, everythingPublic)).as(String.valueOf(refused)).isFalse();
         }

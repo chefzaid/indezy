@@ -1143,7 +1143,7 @@
       "unknownDevice": "Unknown browser",
       "methods": {
         "PASSWORD": "Password",
-        "KEYCLOAK": "Swirlit single sign-on",
+        "KEYCLOAK": "Swirl single sign-on",
         "REGISTRATION": "Account created"
       },
       "signedInOn": "signed in {{date}}",

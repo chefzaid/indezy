@@ -237,11 +237,11 @@ spec:
             - -c
             - |
               until curl -fsS --user "${KIBANA_BOOTSTRAP_USERNAME}:${KIBANA_BOOTSTRAP_PASSWORD}" \
-                http://kibana.swirlit.internal:5601/api/status >/dev/null; do sleep 5; done
+                http://kibana.swirl.internal:5601/api/status >/dev/null; do sleep 5; done
               response="$(curl -fsS --user "${KIBANA_BOOTSTRAP_USERNAME}:${KIBANA_BOOTSTRAP_PASSWORD}" -X POST \
                 -H 'kbn-xsrf: indezy-observability-bootstrap' \
                 -F file=@/saved-objects/indezy.ndjson \
-                'http://kibana.swirlit.internal:5601/api/saved_objects/_import?overwrite=true')"
+                'http://kibana.swirl.internal:5601/api/saved_objects/_import?overwrite=true')"
               echo "$response"
               echo "$response" | grep -q '"success":true'
           securityContext:

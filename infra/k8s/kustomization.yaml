@@ -10,9 +10,9 @@ resources:
   - network-policy.yaml
   - observability.yaml
 images:
-  - name: registry.swirlit.dev/swirlit/indezy/indezy-server
+  - name: registry.swirlit.dev/swirl/indezy/indezy-server
     newTag: 1.21.2
-  - name: registry.swirlit.dev/swirlit/indezy/indezy-web
+  - name: registry.swirlit.dev/swirl/indezy/indezy-web
     newTag: 1.21.2
   - name: postgres
     newName: docker.io/library/postgres

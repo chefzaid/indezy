@@ -16,9 +16,9 @@ public class KeycloakSsoConfig {
 
     @Bean
     public JwtDecoder keycloakJwtDecoder(
-            @Value("${indezy.security.keycloak.issuer:https://keycloak.swirlit.dev/auth/realms/swirlit}")
+            @Value("${indezy.security.keycloak.issuer:https://keycloak.swirlit.dev/auth/realms/swirl}")
             String issuer,
-            @Value("${indezy.security.keycloak.jwk-set-uri:https://keycloak.swirlit.dev/auth/realms/swirlit/protocol/openid-connect/certs}")
+            @Value("${indezy.security.keycloak.jwk-set-uri:https://keycloak.swirlit.dev/auth/realms/swirl/protocol/openid-connect/certs}")
             String jwkSetUri,
             @Value("${indezy.security.keycloak.audience:oauth2-proxy}") String audience) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();

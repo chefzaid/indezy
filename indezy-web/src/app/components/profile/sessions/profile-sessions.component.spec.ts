@@ -57,7 +57,7 @@ describe('ProfileSessionsComponent', () => {
 
     expect(text(fixture, '[data-session="1"]')).toContain('Firefox on Windows This browser');
     expect(element.querySelector('[data-session="1"] button')).toBeNull();
-    expect(text(fixture, '[data-session="2"]')).toContain('Swirlit single sign-on');
+    expect(text(fixture, '[data-session="2"]')).toContain('Swirl single sign-on');
     expect(element.querySelector('[data-session="2"] button')?.getAttribute('aria-label')).toBe('Sign out Chrome on Android');
     expect(text(fixture, '[data-session="3"]')).toContain('Unknown browser');
     expect(fixture.componentInstance.icon(phone)).toBe('smartphone');
@@ -101,7 +101,7 @@ describe('ProfileSessionsComponent', () => {
 
   it('describes the activity in words, and reads more of it', () => {
     const fixture = create();
-    expect(text(fixture, '[data-event="SIGNED_IN"]')).toContain('Signed in (Swirlit single sign-on)');
+    expect(text(fixture, '[data-event="SIGNED_IN"]')).toContain('Signed in (Swirl single sign-on)');
     expect(text(fixture, '[data-event="SIGN_IN_REFUSED"]')).toContain('Sign-in refused: wrong authenticator code');
 
     security.activity.and.returnValue(of({ events: [event(3, 'OTHER_SESSIONS_REVOKED', '2')], total: 3, page: 1, size: 20 }));

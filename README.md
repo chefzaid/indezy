@@ -14,11 +14,11 @@ Use the platform's `add-repos.sh` entry point to install or reconfigure this
 repository through its [declarative onboarding contract](docs/deployment.md#add-or-reconfigure-this-repository).
 This repository owns its hostname, runtime secrets, database setup and delivery configuration.
 
-- [Run a pipeline](https://gitlab.swirlit.dev/swirlit/indezy/-/pipelines/new?ref=main)
-- [Pipelines and delivery jobs](https://gitlab.swirlit.dev/swirlit/indezy/-/pipelines)
-- [Versioned application packages](https://gitlab.swirlit.dev/swirlit/indezy/-/packages)
-- [Container images](https://gitlab.swirlit.dev/swirlit/indezy/-/container_registry)
-- [Releases](https://gitlab.swirlit.dev/swirlit/indezy/-/releases)
+- [Run a pipeline](https://gitlab.swirlit.dev/swirl/indezy/-/pipelines/new?ref=main)
+- [Pipelines and delivery jobs](https://gitlab.swirlit.dev/swirl/indezy/-/pipelines)
+- [Versioned application packages](https://gitlab.swirlit.dev/swirl/indezy/-/packages)
+- [Container images](https://gitlab.swirlit.dev/swirl/indezy/-/container_registry)
+- [Releases](https://gitlab.swirlit.dev/swirl/indezy/-/releases)
 
 Build and package are required; tests, E2E, quality and security reports never block a release. Versions come from
 [`VERSION`](./VERSION). The [Deployment Guide](docs/deployment.md) describes the pipeline, releases and versioning.

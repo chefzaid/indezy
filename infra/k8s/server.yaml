@@ -7,10 +7,10 @@ metadata:
     app: indezy-server
 data:
   SPRING_PROFILES_ACTIVE: kubernetes
-  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres.swirlit.internal:5432/indezy"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres.swirl.internal:5432/indezy"
   SPRING_DATASOURCE_USERNAME: indezy_user
-  INDEZY_SECURITY_KEYCLOAK_ISSUER: https://keycloak.swirlit.dev/auth/realms/swirlit
-  INDEZY_SECURITY_KEYCLOAK_JWK_SET_URI: http://keycloak.swirlit.internal:8080/auth/realms/swirlit/protocol/openid-connect/certs
+  INDEZY_SECURITY_KEYCLOAK_ISSUER: https://keycloak.swirlit.dev/auth/realms/swirl
+  INDEZY_SECURITY_KEYCLOAK_JWK_SET_URI: http://keycloak.swirl.internal:8080/auth/realms/swirl/protocol/openid-connect/certs
   INDEZY_SECURITY_KEYCLOAK_AUDIENCE: oauth2-proxy
   # Emails of the accounts that open the admin console, comma-separated; empty names no administrator.
   INDEZY_ADMIN_EMAILS: ""
@@ -56,7 +56,7 @@ spec:
             - sh
             - -c
             - |
-              until pg_isready -h postgres.swirlit.internal -p 5432 -U indezy_user -d indezy; do
+              until pg_isready -h postgres.swirl.internal -p 5432 -U indezy_user -d indezy; do
                 echo "Waiting for infrastructure postgres (indezy db)..."; sleep 3
               done
           securityContext:
@@ -76,7 +76,7 @@ spec:
               memory: 64Mi
       containers:
         - name: indezy-server
-          image: registry.swirlit.dev/swirlit/indezy/indezy-server:initial
+          image: registry.swirlit.dev/swirl/indezy/indezy-server:initial
           ports:
             - containerPort: 8080
           env:

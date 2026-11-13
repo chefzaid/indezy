@@ -29,7 +29,7 @@ spec:
         - name: indezy-registry-auth
       containers:
         - name: indezy-web
-          image: registry.swirlit.dev/swirlit/indezy/indezy-web:initial
+          image: registry.swirlit.dev/swirl/indezy/indezy-web:initial
           # NGINX supervises its own workers and handles termination as PID 1.
           command: ["nginx"]
           args: ["-g", "daemon off;"]

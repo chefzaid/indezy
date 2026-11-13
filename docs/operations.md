@@ -7,12 +7,12 @@ This runbook covers the Indezy application layer. Use the `swirl-cloud` runbooks
 | Surface | Address |
 |---|---|
 | application | `https://indezy.swirlit.dev` |
-| GitLab project and pipelines | `https://gitlab.swirlit.dev/swirlit/indezy` |
-| SonarQube quality dashboard | `https://sonarqube.swirlit.dev/dashboard?id=swirlit%3Aindezy` |
+| GitLab project and pipelines | `https://gitlab.swirlit.dev/swirl/indezy` |
+| SonarQube quality dashboard | `https://sonarqube.swirlit.dev/dashboard?id=swirl%3Aindezy` |
 | Argo CD application | `https://argocd.swirlit.dev/applications/indezy` |
 | backend service | `indezy-server.apps.svc.cluster.local:8080` |
 | frontend service | `indezy-web.apps.svc.cluster.local:8080` |
-| shared PostgreSQL | `postgres.swirlit.internal:5432` |
+| shared PostgreSQL | `postgres.swirl.internal:5432` |
 | Prometheus metrics | `indezy-server.apps.svc.cluster.local:8080/api/actuator/prometheus` |
 
 ## First Checks After A Rollout
@@ -107,7 +107,7 @@ kubectl logs job/indezy-db-setup -n apps
 
 ### Keycloak SSO exchange fails
 
-An unauthenticated browser API request should be redirected to Keycloak's `swirlit` realm, preserving its original URL for return after login. After authentication, `GET /api/auth/sso` must receive an ingress-provided access token and return an Indezy session. Check the OAuth2 Proxy and the app-owned ForwardAuth Middleware first, then verify the public issuer, internal JWKS URI, and `oauth2-proxy` audience in `infra/k8s/server.yaml`. Never work around the failure by trusting identity headers without validating the signed token.
+An unauthenticated browser API request should be redirected to Keycloak's `swirl` realm, preserving its original URL for return after login. After authentication, `GET /api/auth/sso` must receive an ingress-provided access token and return an Indezy session. Check the OAuth2 Proxy and the app-owned ForwardAuth Middleware first, then verify the public issuer, internal JWKS URI, and `oauth2-proxy` audience in `infra/k8s/server.yaml`. Never work around the failure by trusting identity headers without validating the signed token.
 
 ### Backend waits for PostgreSQL
 
@@ -159,7 +159,7 @@ This is expected with self-healing. Make the desired change in Git and let Argo 
 Indezy data is stored in the shared PostgreSQL service. Confirm the platform backup policy includes the `indezy` database and test restores before production use. Take an additional logical backup before risky schema or data work from a trusted environment that can reach PostgreSQL:
 
 ```bash
-pg_dump -h postgres.swirlit.internal -U indezy_user -d indezy > indezy-backup.sql
+pg_dump -h postgres.swirl.internal -U indezy_user -d indezy > indezy-backup.sql
 ```
 
 Keep the dump outside Git and handle it as sensitive data.

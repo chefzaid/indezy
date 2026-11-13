@@ -23,7 +23,7 @@ Test escape hatch:
 
 ## Authentication
 
-Production authentication is centralized in the shared Keycloak `swirlit` realm. The Traefik Ingress sends unauthenticated browser traffic to the cluster OAuth2 Proxy. On startup, Angular calls `GET /api/auth/sso`; Spring validates the forwarded Keycloak access token's signature, issuer, expiry, and `oauth2-proxy` audience through the realm JWKS before linking its verified email to an existing account or creating an Indezy profile. Only then does the API issue Indezy's existing local bearer token.
+Production authentication is centralized in the shared Keycloak `swirl` realm. The Traefik Ingress sends unauthenticated browser traffic to the cluster OAuth2 Proxy. On startup, Angular calls `GET /api/auth/sso`; Spring validates the forwarded Keycloak access token's signature, issuer, expiry, and `oauth2-proxy` audience through the realm JWKS before linking its verified email to an existing account or creating an Indezy profile. Only then does the API issue Indezy's existing local bearer token.
 
 The Keycloak password never reaches Indezy. Local login and registration remain available for development. In production the UI is public and its API calls pass through the authentication Middleware.
 

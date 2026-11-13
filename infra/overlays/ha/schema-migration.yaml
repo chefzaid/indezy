@@ -32,7 +32,7 @@ spec:
       containers:
         - name: schema-migration
           # Replaced from the rendered API image by kustomization.yaml.
-          image: registry.swirlit.dev/swirlit/indezy/indezy-server:initial
+          image: registry.swirlit.dev/swirl/indezy/indezy-server:initial
           command: ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "/app/app.jar"]
           envFrom:
             - configMapRef:
