@@ -14,28 +14,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PostingSitesReaderTest {
 
     @Test
-    void readsFreelanceRepublikMissionsWithTheirCommune() throws Exception {
-        String mission = "https://www.freelancerepublik.com/missions/developpeur-scala-4e1a99f0";
+    void readsFreelanceRepublikMissionsFromItsJobBoardWithTheirCommune() throws Exception {
+        String mission = "https://www.freelancerepublik.com/missions/chef-de-projet-moe-scrum-master-java-net-h-f-5150aeca";
         FakeFetcher fetcher = new FakeFetcher()
-            .resource(FreelanceRepublikReader.SITEMAP, "freelancerepublik-sitemap.xml")
+            .resource(FreelanceRepublikReader.JOB_BOARD, "freelancerepublik-board.html")
             .resource(mission, "freelancerepublik-mission.html");
-        WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of());
+        // The Scala mission was read before; the new one is on the board only, the sitemap no longer listing new missions.
+        WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of("developpeur-scala-4e1a99f0"));
         FreelanceRepublikReader reader = new FreelanceRepublikReader();
 
         reader.read(fetcher, batch);
 
-        assertThat(batch.offers).extracting(ScrapedOffer::getExternalId).containsExactly("developpeur-scala-4e1a99f0");
+        assertThat(fetcher.requests()).containsExactly(FreelanceRepublikReader.JOB_BOARD, mission);
+        assertThat(batch.offers).extracting(ScrapedOffer::getExternalId).containsExactly("chef-de-projet-moe-scrum-master-java-net-h-f-5150aeca");
         ScrapedOffer offer = batch.offers.get(0);
         assertThat(offer.getUrl()).isEqualTo(mission);
-        assertThat(offer.getTitle()).isEqualTo("Developpeur Scala");
+        assertThat(offer.getTitle()).isEqualTo("Chef de projet MOE / Scrum Master – Java/.NET (H/F)");
         assertThat(offer.getCompany()).isEqualTo("Freelance Republik");
-        assertThat(offer.getDescription()).isEqualTo("Ce que le poste implique\n\nNous recherchons un Développeur Scala pour renforcer une équipe TMA/MOE.");
-        assertThat(offer.getCity()).isEqualTo("Paris");
+        assertThat(offer.getDescription()).startsWith("A propos de la société L’entreprise conçoit").endsWith("de l’industrie et de l’énergie.");
+        assertThat(offer.getCity()).isEqualTo("Le Plessis-Robinson");
         assertThat(offer.getCountryCode()).isEqualTo("FR");
-        assertThat(offer.getPublishedAt()).isEqualTo(Instant.parse("2026-08-03T08:50:37.990Z"));
+        assertThat(offer.getPublishedAt()).isEqualTo(Instant.parse("2026-11-10T15:12:39.735Z"));
         assertThat(offer.isFreelance()).isTrue();
-        assertThat(reader.offerId(mission)).contains("developpeur-scala-4e1a99f0");
+        // Each card's day orders the board's missions, newest first.
+        assertThat(reader.entries(fetcher)).extracting(DetailPagesReader.Entry::lastModified)
+            .containsExactly(Instant.parse("2026-11-09T23:00:00Z"), Instant.parse("2026-08-02T22:00:00Z"));
+        assertThat(reader.offerId(mission)).contains("chef-de-projet-moe-scrum-master-java-net-h-f-5150aeca");
         assertThat(reader.offerId("https://www.freelancerepublik.com/missions")).isEmpty();
+        assertThat(reader.offerId(FreelanceRepublikReader.JOB_BOARD)).isEmpty();
         assertThat(reader.site()).isEqualTo(OfferSite.FREELANCE_REPUBLIK);
         assertThat(reader.domain()).isEqualTo("freelancerepublik.com");
     }

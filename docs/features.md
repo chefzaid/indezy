@@ -362,7 +362,7 @@ kept only when its site marks it as freelance and its title names no CDI or CDD 
 | Beyond Skills IT | offers labelled Freelance | every 12 hours |
 | Koïno | sitemap missions open to applications | every 12 hours |
 | Sixième Homme | the missions its home page showcases (the only public ones) | every 12 hours |
-| FreelanceRepublik | sitemap missions with a contractor posting | every 12 hours |
+| FreelanceRepublik | missions of its job board with a contractor posting | every 12 hours |
 | EasyPartner | sitemap jobs with a contractor posting ("Prestation") | every 12 hours |
 | Castor Network | Alten's freelance missions (engineering as well as IT) | every 12 hours |
 | KatchMe | open freelance offers of its WordPress API | every 6 hours |

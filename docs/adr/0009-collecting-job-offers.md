@@ -19,7 +19,7 @@ The server runs as one replica with 1 GiB of memory on a shared node.
   site has its own refresh interval in `OfferSite`).
 - Read a site's own structured data before its HTML: its public JSON API (Free-Work, Cherry Pick, LeHibou, Yeets, KatchMe's WordPress API), the
   page's framework data (Collective.work's `__NEXT_DATA__`, LittleBig Connection's React Server Components payload),
-  then sitemaps with schema.org `JobPosting` markup (WorkDispo, Next Mondays, Mindquest, FreelanceRepublik, EasyPartner) and finally HTML (Silkhom,
+  then pages with schema.org `JobPosting` markup, listed by a sitemap (WorkDispo, Next Mondays, Mindquest, EasyPartner) or a job board (FreelanceRepublik), and finally HTML (Silkhom,
   LeGratin, Freelance-Informatique, Espace Freelance, Beyond Skills IT, Koïno, Sixième Homme, Castor Network, OuiDesk), parsed with jsoup
   (MIT license, `org.jsoup:jsoup`).
 - Leave out listings that look generated rather than published by people (Free-Work's Digistrat, Propulse IT and
