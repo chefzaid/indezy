@@ -132,11 +132,19 @@ spec:
                   name: indezy-mail
                   key: RESEND_API_KEY
                   optional: true
+          # The server starts in about 20 s; probe every 5 s for up to the same
+          # three minutes the fixed delays allowed, so it serves as soon as it is up.
+          startupProbe:
+            httpGet:
+              path: /api/actuator/health/liveness
+              port: 8080
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 36
           livenessProbe:
             httpGet:
               path: /api/actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 90
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 3
@@ -144,7 +152,6 @@ spec:
             httpGet:
               path: /api/actuator/health/readiness
               port: 8080
-            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
