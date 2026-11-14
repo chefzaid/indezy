@@ -170,6 +170,12 @@ or hidden, and whether the member works remotely. Only members see members' card
 **Leave the network** hides the card at once and keeps the handle the account's for its return. The membership is part
 of the data export.
 
+A member's page, `/m/<handle>` (**See my page** on the Network tab for one's own), shows the card, the members following
+them and they follow (each list opening their pages), the skills on their card the viewer's card has too, **Follows
+you** when they do, and **Follow** / **Unfollow**. On their own page a member **removes** a follower, without them being
+told. A member who left the network leaves every count and list while away, and a visitor who has not joined is asked
+to join first.
+
 ## Projects And Opportunities
 
 **Opportunities** (`/projects`) lists the workspace's opportunities and missions. Beyond the role, stage, description,

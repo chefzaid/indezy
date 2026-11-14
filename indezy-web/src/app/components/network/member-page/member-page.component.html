@@ -1,0 +1,72 @@
+<div class="member-page">
+  @if (loading) {
+    <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+  } @else if (problem) {
+    <section class="problem" [attr.data-member-problem]="problem">
+      <mat-icon aria-hidden="true">{{ problem === 'notMember' ? 'group_add' : 'person_off' }}</mat-icon>
+      <p>{{ 'network.page.' + problem | translate }}</p>
+      @if (problem === 'notMember') {
+        <a mat-flat-button routerLink="/profile">{{ 'network.page.join' | translate }}</a>
+      }
+    </section>
+  } @else if (page) {
+    <app-member-card [card]="page.card"></app-member-card>
+
+    <div class="relation">
+      @if (page.followsYou) {
+        <span class="follows-you" data-follows-you>{{ 'network.page.followsYou' | translate }}</span>
+      }
+      @if (!page.own) {
+        <button mat-flat-button type="button" (click)="toggleFollow()" [disabled]="isFollowing" data-follow
+          [attr.aria-pressed]="page.followed">
+          <mat-icon>{{ page.followed ? 'person_remove' : 'person_add' }}</mat-icon>
+          {{ (page.followed ? 'network.page.unfollow' : 'network.page.follow') | translate }}
+        </button>
+      }
+    </div>
+
+    <div class="counts">
+      <button mat-stroked-button type="button" (click)="show('followers')" [attr.aria-pressed]="list === 'followers'" data-followers>
+        {{ 'network.page.followers' | translate: { count: page.followers } }}
+      </button>
+      <button mat-stroked-button type="button" (click)="show('following')" [attr.aria-pressed]="list === 'following'" data-following>
+        {{ 'network.page.following' | translate: { count: page.following } }}
+      </button>
+    </div>
+
+    @if (page.sharedSkills.length) {
+      <section class="shared" data-shared-skills>
+        <h2>{{ 'network.page.shared' | translate }}</h2>
+        <ul class="tags">
+          @for (skill of page.sharedSkills; track skill) {
+            <li>{{ skill }}</li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (list) {
+      <section class="members" [attr.data-member-list]="list">
+        <h2>{{ 'network.page.' + list + 'Title' | translate }}</h2>
+        @if (members.length === 0) {
+          <p class="empty">{{ 'network.page.none' | translate }}</p>
+        }
+        <ul>
+          @for (member of members; track member.handle) {
+            <li>
+              <a [routerLink]="['/m', member.handle]">{{ member.firstName }} {{ member.lastName }} <span class="handle">&#64;{{ member.handle }}</span></a>
+              @if (member.headline) {
+                <span class="headline">{{ member.headline }}</span>
+              }
+              @if (page.own && list === 'followers') {
+                <button mat-button type="button" (click)="removeFollower(member)" [attr.data-remove-follower]="member.handle">
+                  {{ 'network.page.removeFollower' | translate }}
+                </button>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  }
+</div>

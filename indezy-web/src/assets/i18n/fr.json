@@ -1409,7 +1409,8 @@
       "left": "Vous avez quitté le réseau",
       "preview": "Votre carte, telle que la voient les membres",
       "loadError": "Votre adhésion n'a pas pu être chargée",
-      "saveError": "Votre adhésion n'a pas pu être enregistrée"
+      "saveError": "Votre adhésion n'a pas pu être enregistrée",
+      "seePage": "Voir ma page"
     }
   },
   "errors": {
@@ -3197,6 +3198,25 @@
       "availableFrom": "Disponible le {{date}}",
       "stack": "Compétences",
       "languages": "Parle {{languages}}"
+    },
+    "page": {
+      "notMember": "Rejoignez le réseau pour voir ses membres.",
+      "notFound": "Aucun membre ici : cet identifiant est inconnu, ou son membre a quitté le réseau.",
+      "error": "Cette page n'a pas pu être chargée. Réessayez dans un instant.",
+      "join": "Rejoindre depuis Profil → Réseau",
+      "followsYou": "Vous suit",
+      "follow": "Suivre",
+      "unfollow": "Ne plus suivre",
+      "followers": "{{count}} abonnés",
+      "following": "{{count}} abonnements",
+      "shared": "Compétences en commun",
+      "followersTitle": "Abonnés",
+      "followingTitle": "Abonnements",
+      "none": "Aucun membre pour l'instant.",
+      "removeFollower": "Retirer",
+      "followerRemoved": "Abonné retiré",
+      "followError": "Le changement n'a pas pu être fait. Réessayez dans un instant.",
+      "listError": "Cette liste n'a pas pu être chargée."
     }
   }
 }

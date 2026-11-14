@@ -1409,7 +1409,8 @@
       "left": "You left the network",
       "preview": "Your card, as members see it",
       "loadError": "Your membership could not be loaded",
-      "saveError": "Your membership could not be saved"
+      "saveError": "Your membership could not be saved",
+      "seePage": "See my page"
     }
   },
   "errors": {
@@ -3197,6 +3198,25 @@
       "availableFrom": "Available from {{date}}",
       "stack": "Skills",
       "languages": "Speaks {{languages}}"
+    },
+    "page": {
+      "notMember": "Join the network to see its members.",
+      "notFound": "No member here: this handle is unknown, or its member left the network.",
+      "error": "This page could not be loaded. Try again in a moment.",
+      "join": "Join from Profile → Network",
+      "followsYou": "Follows you",
+      "follow": "Follow",
+      "unfollow": "Unfollow",
+      "followers": "{{count}} followers",
+      "following": "{{count}} following",
+      "shared": "Skills you share",
+      "followersTitle": "Followers",
+      "followingTitle": "Following",
+      "none": "No member yet.",
+      "removeFollower": "Remove",
+      "followerRemoved": "Follower removed",
+      "followError": "This could not be changed. Try again in a moment.",
+      "listError": "This list could not be loaded."
     }
   }
 }

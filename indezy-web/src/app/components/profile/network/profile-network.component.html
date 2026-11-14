@@ -1,7 +1,10 @@
 <form [formGroup]="form" (ngSubmit)="save()" class="network-form" data-profile-network>
   <p class="intro">{{ 'profile.network.intro' | translate }}</p>
   @if (membership?.joined) {
-    <p class="status joined" data-network-joined>{{ 'profile.network.member' | translate: { handle: membership!.handle } }}</p>
+    <p class="status joined" data-network-joined>
+      {{ 'profile.network.member' | translate: { handle: membership!.handle } }}
+      <a [routerLink]="['/m', membership!.handle]" data-network-page>{{ 'profile.network.seePage' | translate }}</a>
+    </p>
   } @else {
     <p class="status">{{ 'profile.network.notMember' | translate }}</p>
   }

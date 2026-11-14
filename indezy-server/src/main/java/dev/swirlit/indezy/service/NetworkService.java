@@ -102,14 +102,26 @@ public class NetworkService {
     /** A member's card, for members only; a former member, like an unknown handle, is not found. */
     @Transactional(readOnly = true)
     public NetworkDtos.MemberCard card(Long viewerId, String handle) {
-        if (members.findByUserId(viewerId).filter(NetworkMember::isActive).isEmpty()) {
-            throw new InvalidStateException("Join the network to see its members");
-        }
-        NetworkMember member = members.findByHandle(handle.toLowerCase(Locale.ROOT)).filter(NetworkMember::isActive)
+        requireMember(viewerId);
+        return card(activeMember(handle));
+    }
+
+    /** The viewer's own membership, refused until the account joins: only members see members. */
+    NetworkMember requireMember(Long userId) {
+        return members.findByUserId(userId).filter(NetworkMember::isActive)
+            .orElseThrow(() -> new InvalidStateException("Join the network to see its members"));
+    }
+
+    /** The member holding the handle, still in the network and with an account; not found otherwise. */
+    NetworkMember activeMember(String handle) {
+        return members.findByHandle(handle.toLowerCase(Locale.ROOT)).filter(NetworkMember::isActive)
+            .filter(member -> users.findById(member.getUserId()).filter(owner -> owner.getDeletedAt() == null).isPresent())
             .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
-        User user = users.findById(member.getUserId()).filter(owner -> owner.getDeletedAt() == null)
-            .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
-        return card(member, user);
+    }
+
+    /** The member's card as members see it. */
+    NetworkDtos.MemberCard card(NetworkMember member) {
+        return card(member, user(member.getUserId()));
     }
 
     private boolean available(Long userId, String handle) {

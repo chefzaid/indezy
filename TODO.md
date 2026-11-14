@@ -477,7 +477,7 @@ Members of Indezy follow each other, post to a feed (text, images and documents)
 
 Joining and the member card
 - [x] Join from Profile → **Network**, off by default: a member card built from the public profile (photo, headline, stack, city or remote, availability, languages), each field shown or hidden, and a handle (`@camille`) unique among members. Leaving hides the card, the posts and the conversations at once. Done on 2026-11-14 (`docs/features.md#member-network`): behind `SOCIAL_NETWORK`, the one feature off until an administrator turns it on, for the whole platform; opening it to a few accounts first waits on **Member network audience**, as who may join does.
-- [ ] Member page `/m/<handle>`: the card, the member's posts, followers and following counts, the skills shared with the viewer, **Follow**, and **Message** once the member follows the viewer.
+- [ ] Member page `/m/<handle>`: the card, the member's posts, followers and following counts, the skills shared with the viewer, **Follow**, and **Message** once the member follows the viewer. Partly done on 2026-11-14: the card, the followers and following counts and lists, the skills shared with the viewer and **Follow** (`docs/features.md#member-network`); the posts and **Message** come with posts and conversations.
 - [ ] Availability on the card ("Disponible le 2 décembre", "En mission jusqu'en mars", "À l'écoute"), set by hand or taken from the won missions' end dates, shown as a coloured ring around the photo wherever the member appears.
 - [ ] Verified freelancer badge from a SIRET checked against the public company registry (INSEE Sirene), so members know they talk to an independent and not to a recruiter posing as one.
 
@@ -494,7 +494,7 @@ Feed
 - [ ] Repost with a comment, the original author notified and able to turn reposts off on a post.
 
 Follow
-- [ ] Follow and unfollow members; lists of followers and following; remove a follower; mute a member (posts hidden, still followed) or block one (no follow, no message, no posts seen, both ways).
+- [ ] Follow and unfollow members; lists of followers and following; remove a follower; mute a member (posts hidden, still followed) or block one (no follow, no message, no posts seen, both ways). Partly done on 2026-11-14: following and unfollowing, the lists of followers and following, and removing a follower; muting and blocking remain.
 - [ ] Private card: follow requests the member approves, so only approved followers see the posts.
 - [ ] Follow tags (#kafka, #sap-fico, #lyon), each feeding the home feed.
 - [ ] Members to follow, each with its reason: same stack, same city, followed by members you follow, or in the same ESN's process (both had an opportunity with that ESN, only between members who allow it).

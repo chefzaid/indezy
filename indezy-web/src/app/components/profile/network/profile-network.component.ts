@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -23,7 +24,7 @@ export const CARD_FIELDS: (keyof NetworkFields)[] = ['photo', 'headline', 'stack
  */
 @Component({
   selector: 'app-profile-network',
-  imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSlideToggleModule, TranslateModule,
+  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatInputModule, MatSlideToggleModule, TranslateModule,
     MemberCardComponent],
   templateUrl: './profile-network.component.html',
   styleUrls: ['./profile-network.component.scss'],

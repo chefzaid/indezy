@@ -27,6 +27,20 @@ export interface MemberCard {
   languages: string[];
 }
 
+/**
+ * A member's page as a member sees it: the card, the counts, the skills shared with the viewer, who follows whom, and
+ * whether it is the viewer's own.
+ */
+export interface MemberPage {
+  card: MemberCard;
+  followers: number;
+  following: number;
+  sharedSkills: string[];
+  followed: boolean;
+  followsYou: boolean;
+  own: boolean;
+}
+
 /** The account's membership: whether it joined, its handle (a suggested one before), its fields and its card once joined. */
 export interface NetworkMembership {
   joined: boolean;

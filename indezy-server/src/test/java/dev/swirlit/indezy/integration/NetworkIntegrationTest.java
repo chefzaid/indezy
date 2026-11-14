@@ -92,4 +92,51 @@ class NetworkIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.PUT, "/network/membership", Map.of("handle", handle, "fields", fields), Map.class).getBody())
             .containsEntry("joined", true);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void followsAMemberSeesTheSharedSkillsAndRemovesAFollower() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        for (Account account : List.of(alice, bob)) {
+            Map<String, Object> profile = call(account, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+            profile.put("skills", account == alice ? List.of("Java", "Kafka", "SQL") : List.of("kafka", "Java", "Go"));
+            call(account, HttpMethod.PUT, "/users/profile", profile, Map.class);
+        }
+        String aliceHandle = unique("alice");
+        String bobHandle = unique("bob");
+        assertThat(call(bob, HttpMethod.PUT, "/network/members/" + aliceHandle + "/follow", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+        call(alice, HttpMethod.PUT, "/network/membership", Map.of("handle", aliceHandle, "fields", ALL_SHOWN), Map.class);
+        call(bob, HttpMethod.PUT, "/network/membership", Map.of("handle", bobHandle, "fields", ALL_SHOWN), Map.class);
+
+        assertThat(call(bob, HttpMethod.GET, "/network/members/" + aliceHandle + "/page", null, Map.class).getBody())
+            .containsEntry("followers", 0).containsEntry("followed", false).containsEntry("own", false)
+            .containsEntry("sharedSkills", List.of("Java", "Kafka"));
+        assertThat(call(bob, HttpMethod.PUT, "/network/members/" + bobHandle + "/follow", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.BAD_REQUEST);
+        Map<String, Object> followed = call(bob, HttpMethod.PUT, "/network/members/" + aliceHandle + "/follow", null, Map.class).getBody();
+        assertThat(followed).containsEntry("followers", 1).containsEntry("followed", true).containsEntry("followsYou", false);
+        call(bob, HttpMethod.PUT, "/network/members/" + aliceHandle + "/follow", null, Map.class);
+        assertThat(call(alice, HttpMethod.GET, "/network/members/" + aliceHandle + "/page", null, Map.class).getBody())
+            .containsEntry("own", true).containsEntry("followers", 1).containsEntry("sharedSkills", List.of());
+        assertThat(call(alice, HttpMethod.GET, "/network/members/" + bobHandle + "/page", null, Map.class).getBody())
+            .containsEntry("following", 1).containsEntry("followsYou", true);
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/network/members/" + aliceHandle + "/followers", null, List.class)
+            .getBody()).singleElement().satisfies(card -> assertThat(card).containsEntry("handle", bobHandle));
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/network/members/" + bobHandle + "/following", null, List.class)
+            .getBody()).singleElement().satisfies(card -> assertThat(card).containsEntry("handle", aliceHandle));
+
+        // A member who leaves leaves the counts; Alice removes Bob as a follower, then Bob unfollows nobody.
+        call(bob, HttpMethod.DELETE, "/network/membership", null, String.class);
+        assertThat(call(alice, HttpMethod.GET, "/network/members/" + aliceHandle + "/page", null, Map.class).getBody())
+            .containsEntry("followers", 0);
+        call(bob, HttpMethod.PUT, "/network/membership", Map.of("handle", bobHandle, "fields", ALL_SHOWN), Map.class);
+        assertThat(call(alice, HttpMethod.DELETE, "/network/followers/" + bobHandle, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(call(bob, HttpMethod.GET, "/network/members/" + aliceHandle + "/page", null, Map.class).getBody())
+            .containsEntry("followed", false).containsEntry("followers", 0);
+        call(bob, HttpMethod.PUT, "/network/members/" + aliceHandle + "/follow", null, Map.class);
+        assertThat(call(bob, HttpMethod.DELETE, "/network/members/" + aliceHandle + "/follow", null, Map.class).getBody())
+            .containsEntry("followed", false);
+    }
 }

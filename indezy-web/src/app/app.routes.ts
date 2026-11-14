@@ -131,6 +131,12 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    // A member's page in the member network, for members.
+    path: 'm/:handle',
+    loadComponent: () => import('./components/network/member-page/member-page.component').then(m => m.MemberPageComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
     path: 'quotes',
     loadComponent: () => import('./components/quotes/quotes.component').then(m => m.QuotesComponent),
     canActivate: [authGuard]

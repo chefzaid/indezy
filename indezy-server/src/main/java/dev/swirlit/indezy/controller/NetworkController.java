@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
+import dev.swirlit.indezy.service.NetworkFollowService;
 import dev.swirlit.indezy.service.NetworkService;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /** The member network: joining, the member card, and the handles. Off until an administrator turns it on. */
 @RestController
 @RequestMapping("/network")
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class NetworkController {
 
     private final NetworkService network;
+    private final NetworkFollowService follows;
 
     @Operation(summary = "Whether the account joined, its handle and what its card shows")
     @GetMapping("/membership")
@@ -55,5 +59,42 @@ public class NetworkController {
     @GetMapping("/members/{handle}")
     public NetworkDtos.MemberCard card(@PathVariable String handle) {
         return network.card(SecurityUtils.getCurrentUserId(), handle);
+    }
+
+    @Operation(summary = "A member's page: the card, the counts, the skills shared with the viewer and who follows whom")
+    @GetMapping("/members/{handle}/page")
+    public NetworkDtos.MemberPage page(@PathVariable String handle) {
+        return follows.page(SecurityUtils.getCurrentUserId(), handle);
+    }
+
+    @Operation(summary = "Follow a member", description = "400 for the viewer's own handle")
+    @PutMapping("/members/{handle}/follow")
+    public NetworkDtos.MemberPage follow(@PathVariable String handle) {
+        return follows.follow(SecurityUtils.getCurrentUserId(), handle);
+    }
+
+    @Operation(summary = "Stop following a member")
+    @DeleteMapping("/members/{handle}/follow")
+    public NetworkDtos.MemberPage unfollow(@PathVariable String handle) {
+        return follows.unfollow(SecurityUtils.getCurrentUserId(), handle);
+    }
+
+    @Operation(summary = "The members, still in the network, who follow a member")
+    @GetMapping("/members/{handle}/followers")
+    public List<NetworkDtos.MemberCard> followers(@PathVariable String handle) {
+        return follows.followers(SecurityUtils.getCurrentUserId(), handle);
+    }
+
+    @Operation(summary = "The members, still in the network, a member follows")
+    @GetMapping("/members/{handle}/following")
+    public List<NetworkDtos.MemberCard> following(@PathVariable String handle) {
+        return follows.following(SecurityUtils.getCurrentUserId(), handle);
+    }
+
+    @Operation(summary = "Stop a member following the viewer")
+    @DeleteMapping("/followers/{handle}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFollower(@PathVariable String handle) {
+        follows.removeFollower(SecurityUtils.getCurrentUserId(), handle);
     }
 }

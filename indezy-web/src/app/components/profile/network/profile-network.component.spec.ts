@@ -1,6 +1,7 @@
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
@@ -29,7 +30,7 @@ describe('ProfileNetworkComponent', () => {
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     TestBed.configureTestingModule({
       imports: [ProfileNetworkComponent, TranslateModule.forRoot()],
-      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: NetworkService, useValue: network },
+      providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: NetworkService, useValue: network },
         { provide: NotificationService, useValue: notifications }, { provide: ConfirmDialogService, useValue: confirm }]
     });
     const translate = TestBed.inject(TranslateService);
@@ -55,6 +56,7 @@ describe('ProfileNetworkComponent', () => {
     expect(notifications.success).toHaveBeenCalledWith('profile.network.joined');
     fixture.detectChanges();
     expect(element.querySelector('[data-network-joined]')?.textContent).toContain('@camille');
+    expect(element.querySelector('[data-network-page]')?.getAttribute('href')).toBe('/m/camille');
     const shown = element.querySelector('[data-member-card="camille"]')!;
     expect(shown.textContent).toContain('Camille Durand');
     expect(shown.textContent).toContain('Lyon');
