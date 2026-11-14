@@ -211,6 +211,10 @@ the author sees it, marked hidden) or **closes** the comments, after which none 
 block each other, and those of members away from the network, are not shown. Images, documents and link previews wait
 on the choice of their store.
 
+**Members to follow**, above the feed, are up to ten members each with its reason: followed by members the reader
+follows ("Followed by Léo and 2 other members you follow"), sharing skills with the reader's card ("Also on Kafka"),
+or in the same city, the strongest first, on what the cards show only; following one reads the feed again.
+
 **Members** on the feed (`/network/members`) is the member directory: the members found by a skill, a city, an
 availability or remote work, 20 a page by last name, each card opening the member's page. It searches what each card
 shows only, so a hidden skill or city is never found, and leaves out the viewer and any member either one blocks.

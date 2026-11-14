@@ -77,4 +77,31 @@ class NetworkDirectoryIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(found(alice, "skill=" + skill)).containsExactly(lyon);
         assertThat(found(carolAccount, "skill=" + skill)).containsExactly(lyon);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void suggestsMembersToFollowWithTheirReason() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        String run = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
+        String skill = "Skill" + run;
+        String city = "Ville" + run;
+        join(alice, city, List.of(skill), ALL_SHOWN, Map.of("mode", "AUTO"));
+        String sameStack = join(bob, "Ailleurs", List.of(skill), ALL_SHOWN, Map.of("mode", "AUTO"));
+        Account carol = register("carol");
+        String friend = join(carol, "Ailleurs", List.of("Autre"), ALL_SHOWN, Map.of("mode", "AUTO"));
+        String friendOfFriend = join(register("dan"), "Ailleurs", List.of("Autre"), ALL_SHOWN, Map.of("mode", "AUTO"));
+        String sameCity = join(register("erin"), city, List.of("Autre"), ALL_SHOWN, Map.of("mode", "AUTO"));
+        call(alice, HttpMethod.PUT, "/network/members/" + friend + "/follow", null, Map.class);
+        call(carol, HttpMethod.PUT, "/network/members/" + friendOfFriend + "/follow", null, Map.class);
+
+        List<Map<String, Object>> suggested = call(alice, HttpMethod.GET, "/network/suggestions", null, List.class).getBody();
+        Map<String, Map<String, Object>> byHandle = new HashMap<>();
+        suggested.forEach(suggestion -> byHandle.put((String) ((Map<String, Object>) suggestion.get("card")).get("handle"), suggestion));
+        assertThat(byHandle).doesNotContainKey(friend);
+        assertThat(byHandle.get(friendOfFriend)).containsEntry("reason", "FOLLOWED_BY").containsEntry("followedBy", 1)
+            .containsEntry("followedByName", "carol");
+        assertThat(byHandle.get(sameStack)).containsEntry("reason", "SAME_STACK").containsEntry("sharedSkills", List.of(skill));
+        assertThat(byHandle.get(sameCity)).containsEntry("reason", "SAME_CITY");
+        assertThat(suggested.indexOf(byHandle.get(friendOfFriend))).isLessThan(suggested.indexOf(byHandle.get(sameCity)));
+    }
 }

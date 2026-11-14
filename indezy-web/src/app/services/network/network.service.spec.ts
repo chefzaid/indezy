@@ -75,6 +75,8 @@ describe('NetworkService', () => {
     expect(http.expectOne(call => call.url.endsWith('/network/feed')).request.params.get('page')).toBe('0');
     service.memberPosts('leo', 2).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/members/leo/posts')).request.params.get('page')).toBe('2');
+    service.suggestions().subscribe();
+    http.expectOne(call => call.url.endsWith('/network/suggestions'));
     service.member('camille').subscribe();
     http.expectOne(call => call.url.endsWith('/network/members/camille'));
     service.page('camille').subscribe();

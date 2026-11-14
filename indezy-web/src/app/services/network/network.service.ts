@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -133,6 +133,11 @@ export class NetworkService {
       }
     }
     return this.http.get<MemberDirectory>(`${this.API_URL}/members`, { params });
+  }
+
+  /** Members to follow, each with its reason. */
+  suggestions(): Observable<MemberSuggestion[]> {
+    return this.http.get<MemberSuggestion[]>(`${this.API_URL}/suggestions`);
   }
 
   member(handle: string): Observable<MemberCard> {

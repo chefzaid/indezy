@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { NetworkPost } from '../../../models';
+import { MemberSuggestion, NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -43,10 +43,25 @@ export class NetworkFeedComponent implements OnInit {
   isPosting = false;
   /** The tags the reader follows, each opening its page. */
   tags: string[] = [];
+  /** Members to follow, each with its reason. */
+  suggestions: MemberSuggestion[] = [];
 
   ngOnInit(): void {
     this.load(0);
     this.network.followedTags().subscribe({ next: tags => this.tags = tags, error: () => this.tags = [] });
+    this.network.suggestions().subscribe({ next: suggestions => this.suggestions = suggestions, error: () => this.suggestions = [] });
+  }
+
+  /** Follows a suggested member, who leaves the suggestions, and reads the feed again with their posts. */
+  follow(suggestion: MemberSuggestion): void {
+    this.network.follow(suggestion.card.handle).subscribe({
+      next: () => {
+        this.suggestions = this.suggestions.filter(item => item !== suggestion);
+        this.load(0);
+      },
+      error: (error: HttpErrorResponse) =>
+        this.notifications.error(error.status === 429 ? 'network.page.tooManyFollows' : 'network.page.followError')
+    });
   }
 
   load(page: number): void {

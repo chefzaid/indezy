@@ -37,6 +37,34 @@
       </div>
     </form>
 
+    @if (suggestions.length) {
+      <section class="suggestions" data-suggestions>
+        <h2>{{ 'network.suggestions.title' | translate }}</h2>
+        <ul>
+          @for (suggestion of suggestions; track suggestion.card.handle) {
+            <li [attr.data-suggestion]="suggestion.card.handle">
+              <a [routerLink]="['/m', suggestion.card.handle]">{{ suggestion.card.firstName }} {{ suggestion.card.lastName }}</a>
+              <span class="why">
+                @switch (suggestion.reason) {
+                  @case ('FOLLOWED_BY') {
+                    {{ (suggestion.followedBy > 1 ? 'network.suggestions.followedByMany' : 'network.suggestions.followedByOne')
+                      | translate: { name: suggestion.followedByName, others: suggestion.followedBy - 1 } }}
+                  }
+                  @case ('SAME_STACK') {
+                    {{ 'network.suggestions.sameStack' | translate: { skills: suggestion.sharedSkills.join(', ') } }}
+                  }
+                  @default {
+                    {{ 'network.suggestions.sameCity' | translate: { city: suggestion.card.city } }}
+                  }
+                }
+              </span>
+              <button mat-stroked-button type="button" (click)="follow(suggestion)" data-suggestion-follow>{{ 'network.page.follow' | translate }}</button>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
     @if (loading) {
       <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
     } @else {

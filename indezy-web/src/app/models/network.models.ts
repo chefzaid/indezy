@@ -123,6 +123,15 @@ export interface NetworkPosts {
   more: boolean;
 }
 
+/** A member to follow, and why: followed by members the reader follows, the same skills, or the same city. */
+export interface MemberSuggestion {
+  card: MemberCard;
+  reason: 'FOLLOWED_BY' | 'SAME_STACK' | 'SAME_CITY';
+  followedBy: number;
+  followedByName: string | null;
+  sharedSkills: string[];
+}
+
 /** What the member directory is asked for; every criterion is optional. */
 export interface DirectorySearch {
   skill?: string | null;

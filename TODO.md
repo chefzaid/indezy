@@ -501,7 +501,7 @@ Follow
 - [x] Follow and unfollow members; lists of followers and following; remove a follower; mute a member (posts hidden, still followed) or block one (no follow, no message, no posts seen, both ways). Partly done on 2026-11-14: following and unfollowing, the lists of followers and following, and removing a follower; done the same day with muting and blocking (`docs/features.md#member-network`), muting taking effect on the posts once they come.
 - [ ] Private card: follow requests the member approves, so only approved followers see the posts.
 - [x] Follow tags (#kafka, #sap-fico, #lyon), each feeding the home feed. Done on 2026-11-14 (`docs/features.md#member-network`).
-- [ ] Members to follow, each with its reason: same stack, same city, followed by members you follow, or in the same ESN's process (both had an opportunity with that ESN, only between members who allow it).
+- [ ] Members to follow, each with its reason: same stack, same city, followed by members you follow, or in the same ESN's process (both had an opportunity with that ESN, only between members who allow it). Partly done on 2026-11-14: followed by members you follow, same stack and same city (`docs/features.md#member-network`); the shared ESN process needs a setting each member turns on, and waits.
 - [ ] Indezy contacts who are members (matched on an email the member confirmed) offered to follow, without the contact being told.
 
 Likes

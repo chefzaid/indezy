@@ -3355,6 +3355,13 @@
       "loadError": "This tag could not be loaded",
       "followError": "This could not be changed. Try again in a moment.",
       "subtitle": "Posts naming this tag, and the members whose cards show the skill"
+    },
+    "suggestions": {
+      "title": "Members to follow",
+      "sameStack": "Also on {{skills}}",
+      "sameCity": "Also in {{city}}",
+      "followedByOne": "Followed by {{name}}, whom you follow",
+      "followedByMany": "Followed by {{name}} and {{others}} other members you follow"
     }
   }
 }

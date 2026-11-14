@@ -130,6 +130,20 @@ public final class NetworkDtos {
         }
     }
 
+    /** Why a member is suggested: members the viewer follows follow them, they share skills, or the same city. */
+    public enum SuggestionReason { FOLLOWED_BY, SAME_STACK, SAME_CITY }
+
+    /**
+     * A member to follow and why: how many members the viewer follows follow them (and one's name), the skills shared,
+     * or the city, the strongest reason first.
+     */
+    public record Suggestion(MemberCard card, SuggestionReason reason, int followedBy, String followedByName, List<String> sharedSkills) {
+
+        public Suggestion {
+            sharedSkills = List.copyOf(sharedSkills);
+        }
+    }
+
     /** A page of the member directory, and how many members match in all. */
     public record Directory(List<MemberCard> members, int total, int page, int size) {
 

@@ -5,7 +5,7 @@ import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { NetworkPost } from '../../../models';
+import { MemberPage, MemberSuggestion, NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -20,10 +20,16 @@ describe('NetworkFeedComponent', () => {
     author: { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [], city: null, remote: false,
       availability: null, availabilityDate: null, languages: [], verified: false } });
 
+  const suggestion = (handle: string, reason: MemberSuggestion['reason'], followedBy = 0): MemberSuggestion => ({ reason, followedBy,
+    followedByName: followedBy ? 'Léo' : null, sharedSkills: reason === 'SAME_STACK' ? ['Kafka'] : [], card: { ...post(0).author, handle,
+      city: 'Lyon' } });
+
   function create(feed = of({ posts: [post(2), post(1, true)], page: 0, more: true })): ComponentFixture<NetworkFeedComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags']);
+    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow']);
     network.feed.and.returnValue(feed);
     network.followedTags.and.returnValue(of(['kafka']));
+    network.suggestions.and.returnValue(of([suggestion('ines_b', 'FOLLOWED_BY', 3), suggestion('paul_d', 'SAME_STACK'),
+      suggestion('zoe_l', 'SAME_CITY'), suggestion('jade_k', 'FOLLOWED_BY', 1)]));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     TestBed.configureTestingModule({
@@ -78,6 +84,27 @@ describe('NetworkFeedComponent', () => {
     network.deletePost.and.returnValue(throwError(() => new Error('down')));
     component.remove(post(2));
     expect(notifications.error).toHaveBeenCalledTimes(3);
+  });
+
+  it('suggests members to follow with their reason, and follows one', () => {
+    const fixture = create();
+    const element: HTMLElement = fixture.nativeElement;
+    const text = (handle: string) => element.querySelector(`[data-suggestion="${handle}"] .why`)?.textContent?.replace(/\s+/g, ' ').trim();
+    expect(text('ines_b')).toBe('Followed by Léo and 2 other members you follow');
+    expect(text('jade_k')).toBe('Followed by Léo, whom you follow');
+    expect(text('paul_d')).toBe('Also on Kafka');
+    expect(text('zoe_l')).toBe('Also in Lyon');
+    network.follow.and.returnValue(of({} as MemberPage));
+    (element.querySelector('[data-suggestion="paul_d"] [data-suggestion-follow]') as HTMLButtonElement).click();
+    expect(network.follow).toHaveBeenCalledWith('paul_d');
+    expect(fixture.componentInstance.suggestions.length).toBe(3);
+    expect(network.feed).toHaveBeenCalledTimes(2);
+    network.follow.and.returnValue(throwError(() => new HttpErrorResponse({ status: 429 })));
+    fixture.componentInstance.follow(fixture.componentInstance.suggestions[0]);
+    expect(notifications.error).toHaveBeenCalledWith('network.page.tooManyFollows');
+    network.follow.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    fixture.componentInstance.follow(fixture.componentInstance.suggestions[0]);
+    expect(notifications.error).toHaveBeenCalledWith('network.page.followError');
   });
 
   it('asks a visitor to join, says when the posts cannot be loaded, and when there are none', () => {

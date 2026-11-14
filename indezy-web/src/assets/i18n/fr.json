@@ -3355,6 +3355,13 @@
       "loadError": "Ce tag n'a pas pu être chargé",
       "followError": "Le changement n'a pas pu être fait. Réessayez dans un instant.",
       "subtitle": "Les publications qui nomment ce tag, et les membres dont la carte affiche la compétence"
+    },
+    "suggestions": {
+      "title": "Membres à suivre",
+      "sameStack": "Aussi sur {{skills}}",
+      "sameCity": "Aussi à {{city}}",
+      "followedByOne": "Suivi par {{name}}, que vous suivez",
+      "followedByMany": "Suivi par {{name}} et {{others}} autres membres que vous suivez"
     }
   }
 }

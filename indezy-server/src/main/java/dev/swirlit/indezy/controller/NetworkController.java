@@ -7,6 +7,7 @@ import dev.swirlit.indezy.service.NetworkDirectoryService;
 import dev.swirlit.indezy.service.NetworkFollowService;
 import dev.swirlit.indezy.service.NetworkPostService;
 import dev.swirlit.indezy.service.NetworkService;
+import dev.swirlit.indezy.service.NetworkSuggestionService;
 import dev.swirlit.indezy.service.NetworkTagService;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +41,7 @@ public class NetworkController {
     private final NetworkPostService posts;
     private final NetworkCommentService comments;
     private final NetworkTagService tags;
+    private final NetworkSuggestionService suggestions;
 
     @Operation(summary = "Whether the account joined, its handle and what its card shows")
     @GetMapping("/membership")
@@ -80,6 +82,12 @@ public class NetworkController {
                                            @RequestParam(required = false) NetworkAvailability availability,
                                            @RequestParam(required = false) Boolean remote, @RequestParam(defaultValue = "0") int page) {
         return directory.search(SecurityUtils.getCurrentUserId(), new NetworkDirectoryService.Search(skill, city, availability, remote, page));
+    }
+
+    @Operation(summary = "Members to follow, each with its reason: followed by members the viewer follows, same skills or city")
+    @GetMapping("/suggestions")
+    public List<NetworkDtos.Suggestion> suggestions() {
+        return suggestions.suggestions(SecurityUtils.getCurrentUserId());
     }
 
     @Operation(summary = "A member's card, for members", description = "409 until the account joins, 404 for a handle no member holds")
