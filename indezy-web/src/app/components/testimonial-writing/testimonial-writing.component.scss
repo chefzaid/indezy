@@ -1,0 +1,57 @@
+.testimonial-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.testimonial-card {
+  margin-top: 16px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+}
+
+.intro {
+  color: var(--app-text-muted);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 0;
+  text-align: center;
+
+  .state-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    color: var(--app-text-muted);
+
+    &.done {
+      color: var(--app-positive);
+    }
+  }
+}
+
+.form-error {
+  margin: 0;
+  color: var(--app-danger);
+  font-size: 0.875rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}

@@ -13,6 +13,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { SLUG_PATTERN, slugFrom } from '../../../models';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PublicProfileService } from '../../../services/public-profile/public-profile.service';
+import { TestimonialsSectionComponent } from '../testimonials/testimonials-section.component';
 
 /**
  * The public profile's settings: whether anyone with the link sees it, and its address name, offered from the
@@ -20,7 +21,7 @@ import { PublicProfileService } from '../../../services/public-profile/public-pr
  */
 @Component({
   selector: 'app-profile-public-page',
-  imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSlideToggleModule,
+  imports: [TestimonialsSectionComponent, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSlideToggleModule,
     TranslateModule],
   templateUrl: './profile-public-page.component.html',
   styleUrls: ['./profile-public-page.component.scss'],

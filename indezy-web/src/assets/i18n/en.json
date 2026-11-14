@@ -1350,6 +1350,36 @@
         "FR": "In French, anonymized",
         "EN": "In English, anonymized"
       }
+    },
+    "testimonials": {
+      "title": "Testimonials",
+      "intro": "Ask a client contact for a short recommendation through a link: they write it without an account, and you choose whether it shows on your public page.",
+      "contact": "Ask",
+      "someoneElse": "Someone who is not a contact",
+      "recipientName": "Their name",
+      "recipientRequired": "Pick a contact or type a name.",
+      "ask": "Ask for a testimonial",
+      "linkFor": "Link for {{name}}",
+      "linkOnce": "Copy it now: it is shown once. It stays open 30 days, until it is written.",
+      "copy": "Copy the link",
+      "email": "Send by email",
+      "copied": "Link copied.",
+      "copyError": "The link could not be copied.",
+      "waiting": "Waiting for its author, until {{date}}.",
+      "approve": "Show on my public page",
+      "hide": "Hide",
+      "deleteTitle": "Delete the testimonial?",
+      "deleteMessage": "The testimonial of {{name}} will be deleted, and its link will no longer open.",
+      "loadError": "The testimonials could not be loaded.",
+      "askError": "The testimonial could not be asked.",
+      "saveError": "The testimonial could not be changed.",
+      "deleteError": "The testimonial could not be deleted.",
+      "statuses": {
+        "REQUESTED": "Asked",
+        "RECEIVED": "To review",
+        "APPROVED": "Shown",
+        "HIDDEN": "Hidden"
+      }
     }
   },
   "errors": {
@@ -2435,7 +2465,8 @@
     "languages": "Languages",
     "links": "Links",
     "website": "Website",
-    "certifications": "Certifications"
+    "certifications": "Certifications",
+    "testimonials": "Testimonials"
   },
   "admin": {
     "title": "Admin",
@@ -3031,5 +3062,23 @@
       "REFUSED": "Refused",
       "PAID": "Paid"
     }
+  },
+  "testimonialWriting": {
+    "title": "A testimonial for {{name}}",
+    "intro": "{{name}} asks you for a few words about working together. They are shown on {{name}}'s public page with your name, once {{name}} approves them.",
+    "authorName": "Your name",
+    "authorTitle": "Your title and company",
+    "text": "Your testimonial",
+    "nameRequired": "Your name is required.",
+    "textLength": "Write between 20 and 1,500 characters.",
+    "consent": "I agree to my testimonial being shown with my name and title on {{name}}'s public page.",
+    "consentRequired": "Your agreement is needed to send it.",
+    "send": "Send my testimonial",
+    "thanksTitle": "Thank you",
+    "thanksMessage": "Your testimonial reached {{name}}.",
+    "invalidTitle": "This link is not valid",
+    "invalidMessage": "It may have expired or been withdrawn. Ask its sender for a new one.",
+    "alreadyWritten": "This testimonial has already been written.",
+    "sendError": "Your testimonial could not be sent. Try again in a moment."
   }
 }

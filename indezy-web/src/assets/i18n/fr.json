@@ -1350,6 +1350,36 @@
         "FR": "En français, anonymisé",
         "EN": "En anglais, anonymisé"
       }
+    },
+    "testimonials": {
+      "title": "Recommandations",
+      "intro": "Demandez une courte recommandation à un contact client par un lien : il l'écrit sans compte, et vous choisissez de l'afficher ou non sur votre page publique.",
+      "contact": "Demander à",
+      "someoneElse": "Une personne hors de vos contacts",
+      "recipientName": "Son nom",
+      "recipientRequired": "Choisissez un contact ou saisissez un nom.",
+      "ask": "Demander une recommandation",
+      "linkFor": "Lien pour {{name}}",
+      "linkOnce": "Copiez-le maintenant : il n'est affiché qu'une fois. Il reste ouvert 30 jours, jusqu'à ce que la recommandation soit écrite.",
+      "copy": "Copier le lien",
+      "email": "Envoyer par e-mail",
+      "copied": "Lien copié.",
+      "copyError": "Le lien n'a pas pu être copié.",
+      "waiting": "En attente de son auteur, jusqu'au {{date}}.",
+      "approve": "Afficher sur ma page publique",
+      "hide": "Masquer",
+      "deleteTitle": "Supprimer la recommandation ?",
+      "deleteMessage": "La recommandation de {{name}} sera supprimée et son lien ne s'ouvrira plus.",
+      "loadError": "Les recommandations n'ont pas pu être chargées.",
+      "askError": "La recommandation n'a pas pu être demandée.",
+      "saveError": "La recommandation n'a pas pu être modifiée.",
+      "deleteError": "La recommandation n'a pas pu être supprimée.",
+      "statuses": {
+        "REQUESTED": "Demandée",
+        "RECEIVED": "À relire",
+        "APPROVED": "Affichée",
+        "HIDDEN": "Masquée"
+      }
     }
   },
   "errors": {
@@ -2435,7 +2465,8 @@
     "languages": "Langues",
     "links": "Liens",
     "website": "Site web",
-    "certifications": "Certifications"
+    "certifications": "Certifications",
+    "testimonials": "Recommandations"
   },
   "admin": {
     "title": "Administration",
@@ -3031,5 +3062,23 @@
       "REFUSED": "Refusée",
       "PAID": "Versée"
     }
+  },
+  "testimonialWriting": {
+    "title": "Une recommandation pour {{name}}",
+    "intro": "{{name}} vous demande quelques mots sur votre collaboration. Ils s'afficheront sur la page publique de {{name}} avec votre nom, une fois validés par {{name}}.",
+    "authorName": "Votre nom",
+    "authorTitle": "Votre fonction et votre entreprise",
+    "text": "Votre recommandation",
+    "nameRequired": "Votre nom est obligatoire.",
+    "textLength": "Écrivez entre 20 et 1 500 caractères.",
+    "consent": "J'accepte que ma recommandation soit affichée avec mon nom et ma fonction sur la page publique de {{name}}.",
+    "consentRequired": "Votre accord est nécessaire pour l'envoyer.",
+    "send": "Envoyer ma recommandation",
+    "thanksTitle": "Merci",
+    "thanksMessage": "Votre recommandation est bien parvenue à {{name}}.",
+    "invalidTitle": "Ce lien n'est pas valide",
+    "invalidMessage": "Il a peut-être expiré ou été retiré. Demandez-en un nouveau à son expéditeur.",
+    "alreadyWritten": "Cette recommandation a déjà été écrite.",
+    "sendError": "Votre recommandation n'a pas pu être envoyée. Réessayez dans un instant."
   }
 }

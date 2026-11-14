@@ -1,0 +1,80 @@
+.testimonials {
+  margin-top: 32px;
+
+  h3 {
+    margin: 0 0 4px;
+  }
+
+  .intro,
+  .hint {
+    color: var(--app-text-muted);
+    font-size: 0.875rem;
+  }
+
+  .ask {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0 12px;
+    margin-top: 12px;
+
+    mat-form-field {
+      flex: 1 1 220px;
+    }
+
+    button {
+      margin-top: 8px;
+    }
+  }
+
+  .asked-link,
+  .testimonial {
+    margin-bottom: 12px;
+  }
+
+  .url {
+    display: block;
+    padding: 8px;
+    border-radius: 6px;
+    background: var(--app-subtle);
+    overflow-wrap: anywhere;
+  }
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+    font-weight: 600;
+  }
+
+  blockquote {
+    margin: 8px 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--app-border);
+    white-space: pre-line;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .status {
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: var(--app-subtle);
+
+    &.status-APPROVED {
+      color: var(--app-positive);
+    }
+
+    &.status-RECEIVED {
+      color: var(--app-link);
+    }
+  }
+}

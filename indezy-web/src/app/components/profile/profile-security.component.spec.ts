@@ -1,4 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { TestimonialService } from '../../services/testimonial/testimonial.service';
+import { ContactService } from '../../services/contact/contact.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { provideRouter } from '@angular/router';
@@ -56,7 +58,9 @@ describe('ProfileComponent security', () => {
         { provide: PublicProfileService, useValue: { settings: () => of({ enabled: false, slug: null }) } },
         { provide: AccountSecurityService, useValue: { sessions: () => of([]), activity: () => of({ events: [], total: 0, page: 0, size: 20 }),
           apiTokens: () => of([]) } },
-        { provide: WebhookService, useValue: { list: () => of([]) } }
+        { provide: WebhookService, useValue: { list: () => of([]) } },
+        { provide: TestimonialService, useValue: { list: () => of([]) } },
+        { provide: ContactService, useValue: { getForCurrentFreelance: () => of([]) } }
       ]
     });
     fixture = TestBed.createComponent(ProfileComponent);

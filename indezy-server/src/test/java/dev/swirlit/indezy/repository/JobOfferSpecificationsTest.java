@@ -357,21 +357,7 @@ class JobOfferSpecificationsTest {
             // A longest commute in the profile widens or narrows what is near and reachable.
             new OfferMatch.Profile(List.of("Java", "Spring", "AWS"), 600, PARIS).reaching(5, 12),
             new OfferMatch.Profile(List.of("Java", "Spring", "AWS"), 600, PARIS).reaching(300, 500));
-        for (OfferMatch.Profile profile : profiles) {
-            Map<String, Integer> scores = new HashMap<>();
-            List<JobOffer> open = repository.findAll().stream().filter(offer -> offer.getExpiresAt() == null).toList();
-            open.forEach(offer -> scores.put(offer.getExternalId(), OfferMatch.score(offer, offer.getSkills(), profile).score()));
-            List<String> byScore = open.stream()
-                .sorted(Comparator.comparing((JobOffer offer) -> scores.get(offer.getExternalId())).reversed()
-                    .thenComparing(JobOffer::getPublishedAt, Comparator.reverseOrder()))
-                .map(JobOffer::getExternalId)
-                .toList();
-
-            assertThat(search(request(r -> r.setSort(OfferSearchRequest.Sort.MATCH)), profile)).as("%s", profile).isEqualTo(byScore);
-            assertThat(search(request(r -> r.setMatchesProfile(true)), profile)).as("%s", profile)
-                .containsExactlyInAnyOrderElementsOf(scores.entrySet().stream()
-                    .filter(entry -> entry.getValue() >= OfferMatch.GOOD_MATCH).map(Map.Entry::getKey).toList());
-        }
+        profiles.forEach(this::assertSortedAndFilteredAsScored);
     }
 
     @Test
@@ -394,22 +380,7 @@ class JobOfferSpecificationsTest {
         entityManager.flush();
         entityManager.clear();
 
-        for (OfferMatch.Profile plain : profiles) {
-            OfferMatch.Profile profile = plain.recording(Set.copyOf(terms));
-            List<JobOffer> open = repository.findAll().stream().filter(offer -> offer.getExpiresAt() == null).toList();
-            Map<String, Integer> scores = new HashMap<>();
-            open.forEach(offer -> scores.put(offer.getExternalId(), OfferMatch.score(offer, offer.getSkills(), profile).score()));
-            List<String> byScore = open.stream()
-                .sorted(Comparator.comparing((JobOffer offer) -> scores.get(offer.getExternalId())).reversed()
-                    .thenComparing(JobOffer::getPublishedAt, Comparator.reverseOrder()))
-                .map(JobOffer::getExternalId)
-                .toList();
-
-            assertThat(search(request(r -> r.setSort(OfferSearchRequest.Sort.MATCH)), profile)).as("%s", profile).isEqualTo(byScore);
-            assertThat(search(request(r -> r.setMatchesProfile(true)), profile)).as("%s", profile)
-                .containsExactlyInAnyOrderElementsOf(scores.entrySet().stream()
-                    .filter(entry -> entry.getValue() >= OfferMatch.GOOD_MATCH).map(Map.Entry::getKey).toList());
-        }
+        profiles.forEach(plain -> assertSortedAndFilteredAsScored(plain.recording(Set.copyOf(terms))));
         assertThat(repository.findAll()).filteredOn(offer -> offer.getMentionsIndexedAt() == null).extracting(JobOffer::getExternalId)
             .containsExactly("lyon");
     }
@@ -438,6 +409,22 @@ class JobOfferSpecificationsTest {
         assertThat(JobOfferSpecifications.keywords(null)).isEmpty();
         assertThat(JobOfferSpecifications.keywords("  ")).isEmpty();
         assertThat(JobOfferSpecifications.keywords("Java, java; C++ a b c d e f g h i j")).containsExactly("java", "c++");
+    }
+
+    /** The feed sorted and filtered on the match in the database as the cards score each open offer. */
+    private void assertSortedAndFilteredAsScored(OfferMatch.Profile profile) {
+        List<JobOffer> open = repository.findAll().stream().filter(offer -> offer.getExpiresAt() == null).toList();
+        Map<String, Integer> scores = new HashMap<>();
+        open.forEach(offer -> scores.put(offer.getExternalId(), OfferMatch.score(offer, offer.getSkills(), profile).score()));
+        List<String> byScore = open.stream()
+            .sorted(Comparator.comparing((JobOffer offer) -> scores.get(offer.getExternalId())).reversed()
+                .thenComparing(JobOffer::getPublishedAt, Comparator.reverseOrder()))
+            .map(JobOffer::getExternalId)
+            .toList();
+        assertThat(search(request(r -> r.setSort(OfferSearchRequest.Sort.MATCH)), profile)).as("%s", profile).isEqualTo(byScore);
+        assertThat(search(request(r -> r.setMatchesProfile(true)), profile)).as("%s", profile)
+            .containsExactlyInAnyOrderElementsOf(scores.entrySet().stream()
+                .filter(entry -> entry.getValue() >= OfferMatch.GOOD_MATCH).map(Map.Entry::getKey).toList());
     }
 
     private List<String> search(OfferSearchRequest request, Object context) {

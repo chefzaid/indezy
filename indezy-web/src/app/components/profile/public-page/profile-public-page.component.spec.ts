@@ -1,4 +1,6 @@
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
+import { TestimonialService } from '../../../services/testimonial/testimonial.service';
+import { ContactService } from '../../../services/contact/contact.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -37,7 +39,9 @@ describe('ProfilePublicPageComponent', () => {
         { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: PublicProfileService, useValue: profiles },
         { provide: NotificationService, useValue: notifications },
-        { provide: Clipboard, useValue: clipboard }
+        { provide: Clipboard, useValue: clipboard },
+        { provide: TestimonialService, useValue: { list: () => of([]) } },
+        { provide: ContactService, useValue: { getForCurrentFreelance: () => of([]) } }
       ]
     }).compileComponents();
   });

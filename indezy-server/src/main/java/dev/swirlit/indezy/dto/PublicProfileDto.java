@@ -24,12 +24,15 @@ public record PublicProfileDto(
     LocalDate availableFrom,
     boolean availableNow,
     /** The certifications of the training record still valid, most recent first. */
-    List<String> certifications) {
+    List<String> certifications,
+    /** The testimonials the freelancer approved, the latest first. */
+    List<TestimonialDtos.Shown> testimonials) {
 
     public PublicProfileDto {
         skills = List.copyOf(skills);
         languages = List.copyOf(languages);
         certifications = certifications == null ? List.of() : List.copyOf(certifications);
+        testimonials = testimonials == null ? List.of() : List.copyOf(testimonials);
     }
 
     public record Skill(String name, SkillLevel level, Integer years) {

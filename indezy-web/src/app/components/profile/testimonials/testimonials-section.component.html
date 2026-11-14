@@ -1,0 +1,75 @@
+<section class="testimonials" aria-labelledby="testimonials-title" data-testimonials>
+  <h3 id="testimonials-title">{{ 'profile.testimonials.title' | translate }}</h3>
+  <p class="intro">{{ 'profile.testimonials.intro' | translate }}</p>
+
+  <form [formGroup]="form" (ngSubmit)="ask()" class="ask">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'profile.testimonials.contact' | translate }}</mat-label>
+      <mat-select formControlName="contactId" data-testimonial-contact>
+        <mat-option [value]="null">{{ 'profile.testimonials.someoneElse' | translate }}</mat-option>
+        @for (contact of contacts; track contact.id) {
+          <mat-option [value]="contact.id">{{ contact.firstName }} {{ contact.lastName }}{{ contact.clientName ? ' · ' + contact.clientName : '' }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    @if (!form.controls.contactId.value) {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'profile.testimonials.recipientName' | translate }}</mat-label>
+        <input matInput formControlName="recipientName" maxlength="120" data-testimonial-name>
+        <mat-error>{{ 'profile.testimonials.recipientRequired' | translate }}</mat-error>
+      </mat-form-field>
+    }
+    <button mat-stroked-button type="submit" data-ask-testimonial>
+      <mat-icon>rate_review</mat-icon>{{ 'profile.testimonials.ask' | translate }}
+    </button>
+  </form>
+
+  @if (asked) {
+    <mat-card class="asked-link" data-testimonial-link>
+      <mat-card-content>
+        <p><strong>{{ 'profile.testimonials.linkFor' | translate:{ name: asked.recipient } }}</strong></p>
+        <p class="hint">{{ 'profile.testimonials.linkOnce' | translate }}</p>
+        <code class="url">{{ asked.url }}</code>
+        <div class="actions">
+          <button mat-stroked-button type="button" (click)="copy(asked)" data-copy-testimonial-link>
+            <mat-icon>content_copy</mat-icon>{{ 'profile.testimonials.copy' | translate }}
+          </button>
+          <a mat-stroked-button [href]="mailto(asked)"><mat-icon>mail</mat-icon>{{ 'profile.testimonials.email' | translate }}</a>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @for (testimonial of testimonials; track testimonial.id) {
+    <mat-card class="testimonial" [attr.data-testimonial]="testimonial.id">
+      <mat-card-content>
+        <div class="head">
+          <span class="who">{{ testimonial.authorName ?? testimonial.recipientName }}{{ testimonial.authorTitle ? ' · ' + testimonial.authorTitle : '' }}</span>
+          <span class="status" [class]="'status status-' + testimonial.status" data-testimonial-status>
+            {{ 'profile.testimonials.statuses.' + testimonial.status | translate }}
+          </span>
+        </div>
+        @if (testimonial.text) {
+          <blockquote>{{ testimonial.text }}</blockquote>
+        } @else {
+          <p class="hint">{{ 'profile.testimonials.waiting' | translate:{ date: (testimonial.expiresAt | date:'mediumDate') } }}</p>
+        }
+        <div class="actions">
+          @if (testimonial.status === 'RECEIVED' || testimonial.status === 'HIDDEN') {
+            <button mat-flat-button type="button" (click)="setStatus(testimonial, 'APPROVED')" data-approve-testimonial>
+              <mat-icon>visibility</mat-icon>{{ 'profile.testimonials.approve' | translate }}
+            </button>
+          }
+          @if (testimonial.status === 'APPROVED') {
+            <button mat-stroked-button type="button" (click)="setStatus(testimonial, 'HIDDEN')" data-hide-testimonial>
+              <mat-icon>visibility_off</mat-icon>{{ 'profile.testimonials.hide' | translate }}
+            </button>
+          }
+          <button mat-button type="button" (click)="remove(testimonial)" data-delete-testimonial>
+            <mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

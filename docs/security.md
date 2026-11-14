@@ -64,7 +64,7 @@ Current backend rules:
 
 - `/auth/**` is public
 - `/public/**` is public: the endpoints of the `Public*Controller` classes (activity report validation, booking pages,
-  shared compliance documents, public profiles, and the saved search and weekly digest unsubscribe links). Each is
+  shared compliance documents, public profiles, testimonial links, and the saved search and weekly digest unsubscribe links). Each is
   authorized by the unguessable token or address its link carries, and a public profile answers only when its owner
   turned it on (see the sections below)
 - `/health` is permitted, though no backend endpoint maps it
@@ -166,6 +166,21 @@ link is a capability, so it is built to be unguessable, short-lived, revocable a
   `ActivityReportIntegrationTest` replays the whole flow with Spring MVC at `DEBUG` and checks that the captured log
   never contains it. The validator's name and comment are excluded from the DTOs' `toString` as personal data
 
+## Testimonial Links
+
+A client contact writes a testimonial without an Indezy account, through a link the freelancer sends. It is built like
+the activity report links:
+
+- asking (`POST /api/testimonials`) generates 32 random bytes (`Tokens.random()`); the API returns the token once, in
+  `TestimonialDtos.Link`, whose `toString` leaves it out, and stores only its SHA-256 hash (`testimonials.token_hash`)
+- a link works for 30 days (`TestimonialService.LINK_VALIDITY`) and is answered once (`409` afterwards); deleting the
+  testimonial revokes it. An unknown, expired, empty or oversized token answers the same `404`. A workspace keeps at most
+  50 unanswered requests at once
+- the token travels after the `#` of the link (`https://<host>/testimonial#<token>`) and is sent in the
+  `X-Testimonial-Token` header, never in the URL; `/testimonial` is one of the `PUBLIC_PAGE_PATHS`
+- the public view shows only the freelancer's and the recipient's names. The author agrees to be named with their text;
+  nothing shows on the public profile until the freelancer approves it, and hiding or deleting it takes it off
+
 ## Password Storage
 
 The backend exposes a `PasswordEncoder` bean using BCrypt.
@@ -243,7 +258,7 @@ Indezy stores personal and commercially sensitive information:
 Account deletion and data portability:
 
 - accounts are not deleted from the application: identities live in Keycloak, and an account whose `User.deletedAt` is set can no longer sign in (`AuthService` rejects it with the generic invalid-credentials error)
-- `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact, source and activity report they own, downloaded as an attachment, with dates in ISO-8601. It also lists the job offers the workspace saved, hid, opened or imported (`jobOffers`), the opportunities' journal notes (`projectNotes`), the job-hunting seasons (`seasons`) and the workspace's freelance record (`freelance`: employment status, notice period, reversion and income tax rates).
+- `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact, source and activity report they own, downloaded as an attachment, with dates in ISO-8601. It also lists the job offers the workspace saved, hid, opened or imported (`jobOffers`), the opportunities' journal notes (`projectNotes`), the job-hunting seasons (`seasons`), the testimonials asked and received (`testimonials`) and the workspace's freelance record (`freelance`: employment status, notice period, reversion and income tax rates).
 - `GET /api/public/profiles/{slug}` is read without a token, like every `/api/public` path (the ingress lets it past the SSO): it answers only profiles their owner turned on, the same `404` for a hidden profile and an unknown address, no email, phone, address or workspace record, and only `http(s)` links, so a `javascript:` link saved on the profile is never served. Its `toString` prints nothing about the person.
 - `POST /api/users/import/preview` and `POST /api/users/import` bring an export into the signed-in account's own workspace only, whatever ids or workspace the file names: every record is created afresh under the caller's workspace through the same services and validation as the API, references are remapped to the records just created or matched, and the upload is bounded by the 10 MB multipart limit. The report lists records by name, and its `toString` (logged at DEBUG) prints statuses only. The profile comes from the signed-in account and every other section from its workspace, found through the account's email like every other resource (`AccessGuard`), never from the account id: account and workspace ids are numbered separately.
 

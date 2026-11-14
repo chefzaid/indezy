@@ -151,6 +151,14 @@ name, title, city, presentation, skills with levels, languages, links, photo and
 address and workspace records stay private. The address has 3 to 40 lower-case letters, digits and single dashes, one
 per account. A hidden profile and an unknown address both answer "No profile here".
 
+### Testimonials
+
+**Profile → Public profile → Testimonials** asks a client contact, or someone named, for a short recommendation through a
+link to copy or send by email. Its author writes it without an account (20 to 1,500 characters, with their name and
+optionally their title), agreeing to be named with it; the link is shown once, stays open 30 days and is answered
+once. A received testimonial waits **To review** until **Show on my public page** puts it on `/p/<address>`, under
+**Testimonials**; **Hide** takes it off and deleting it closes its link. Testimonials are part of the data export.
+
 ## Projects And Opportunities
 
 **Opportunities** (`/projects`) lists the workspace's opportunities and missions. Beyond the role, stage, description,

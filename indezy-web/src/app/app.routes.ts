@@ -28,6 +28,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/auth/register/register.component').then(m => m.RegisterComponent)
   },
   {
+    // Opened by a client contact from a testimonial link, without an account.
+    path: 'testimonial',
+    loadComponent: () => import('./components/testimonial-writing/testimonial-writing.component').then(m => m.TestimonialWritingComponent)
+  },
+  {
     // Opened by clients and ESNs from an activity report's validation link, without an account.
     path: 'activity-report',
     loadComponent: () => import('./components/activity-report-validation/activity-report-validation.component')

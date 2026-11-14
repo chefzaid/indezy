@@ -145,3 +145,20 @@ section h2 {
     color: var(--app-positive);
   }
 }
+
+.testimonial {
+  margin: 0 0 16px;
+
+  blockquote {
+    margin: 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--app-border);
+    white-space: pre-line;
+  }
+
+  figcaption {
+    margin-top: 6px;
+    color: var(--app-text-muted);
+    font-size: 0.875rem;
+  }
+}

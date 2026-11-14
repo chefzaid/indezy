@@ -23,6 +23,8 @@ export interface PublicProfile {
   availableNow: boolean;
   /** The training record's certifications still valid. */
   certifications?: string[];
+  /** The testimonials the freelancer approved. */
+  testimonials?: import('./testimonial.models').ShownTestimonial[];
 }
 
 /** An address name built from a name: lower case, no accents, words joined by dashes, at most 40 characters. */

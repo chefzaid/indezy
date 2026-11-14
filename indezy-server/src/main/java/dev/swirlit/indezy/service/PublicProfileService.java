@@ -3,6 +3,7 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.PublicProfileDto;
 import dev.swirlit.indezy.dto.PublicProfileSettingsDto;
+import dev.swirlit.indezy.dto.TestimonialDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.Freelance;
@@ -39,6 +40,13 @@ public class PublicProfileService {
     private final FreelanceRepository freelances;
     private final Clock clock;
     private TrainingService trainings;
+    private TestimonialService testimonials;
+
+    /** Optional: without testimonials, the page shows none. */
+    @Autowired(required = false)
+    void setTestimonials(TestimonialService testimonials) {
+        this.testimonials = testimonials;
+    }
 
     /** Optional: without the training record, the page shows no certification. */
     @Autowired(required = false)
@@ -84,7 +92,7 @@ public class PublicProfileService {
             }).toList(),
             user.getLanguages(), webLink(user.getWebsite()), webLink(user.getLinkedin()), webLink(user.getGithub()),
             available, available != null && !available.isAfter(LocalDate.now(clock.withZone(PARIS))),
-            certifications(freelance));
+            certifications(freelance), testimonials(freelance));
     }
 
     /** The training record's valid certifications; none without a workspace or a training record. */
@@ -94,6 +102,15 @@ public class PublicProfileService {
             return List.of();
         }
         return record.validCertifications(freelance.get().getId());
+    }
+
+    /** The approved testimonials; none without a workspace. */
+    private List<TestimonialDtos.Shown> testimonials(Optional<Freelance> freelance) {
+        TestimonialService shown = testimonials;
+        if (shown == null || freelance.isEmpty()) {
+            return List.of();
+        }
+        return shown.approved(freelance.get().getId());
     }
 
     /** A link shown on the page only when it is a web address, never a script or another scheme. */

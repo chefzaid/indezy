@@ -79,6 +79,18 @@
           </section>
         }
 
+        @if (profile.testimonials?.length) {
+          <section data-public-testimonials>
+            <h2>{{ 'publicProfile.testimonials' | translate }}</h2>
+            @for (testimonial of profile.testimonials; track $index) {
+              <figure class="testimonial">
+                <blockquote>{{ testimonial.text }}</blockquote>
+                <figcaption>{{ testimonial.authorName }}{{ testimonial.authorTitle ? ', ' + testimonial.authorTitle : '' }}</figcaption>
+              </figure>
+            }
+          </section>
+        }
+
         @if (profile.languages.length) {
           <section>
             <h2>{{ 'publicProfile.languages' | translate }}</h2>

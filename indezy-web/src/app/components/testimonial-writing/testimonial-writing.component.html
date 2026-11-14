@@ -1,0 +1,54 @@
+<main class="testimonial-page">
+  <app-public-page-header></app-public-page-header>
+
+  <mat-card class="testimonial-card">
+    <mat-card-content>
+      @if (isLoading) {
+        <div class="state">
+          <mat-spinner [attr.aria-label]="'common.loading' | translate" diameter="40"></mat-spinner>
+        </div>
+      } @else if (invalidLink || !request) {
+        <div class="state" data-testimonial-invalid>
+          <mat-icon class="state-icon" aria-hidden="true">link_off</mat-icon>
+          <h1>{{ 'testimonialWriting.invalidTitle' | translate }}</h1>
+          <p>{{ 'testimonialWriting.invalidMessage' | translate }}</p>
+        </div>
+      } @else if (request.answered) {
+        <div class="state" data-testimonial-thanks>
+          <mat-icon class="state-icon done" aria-hidden="true">check_circle</mat-icon>
+          <h1>{{ 'testimonialWriting.thanksTitle' | translate }}</h1>
+          <p>{{ 'testimonialWriting.thanksMessage' | translate:{ name: request.freelancerName } }}</p>
+        </div>
+      } @else {
+        <h1>{{ 'testimonialWriting.title' | translate:{ name: request.freelancerName } }}</h1>
+        <p class="intro">{{ 'testimonialWriting.intro' | translate:{ name: request.freelancerName } }}</p>
+        <form [formGroup]="form" (ngSubmit)="send()" class="fields">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'testimonialWriting.authorName' | translate }}</mat-label>
+            <input matInput formControlName="authorName" maxlength="120" autocomplete="name" data-author-name>
+            <mat-error>{{ 'testimonialWriting.nameRequired' | translate }}</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'testimonialWriting.authorTitle' | translate }}</mat-label>
+            <input matInput formControlName="authorTitle" maxlength="160" autocomplete="organization-title" data-author-title>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'testimonialWriting.text' | translate }}</mat-label>
+            <textarea matInput formControlName="text" rows="6" maxlength="1500" data-testimonial-text></textarea>
+            <mat-hint align="end">{{ form.controls.text.value.length }} / 1500</mat-hint>
+            <mat-error>{{ 'testimonialWriting.textLength' | translate }}</mat-error>
+          </mat-form-field>
+          <mat-checkbox formControlName="consent" data-testimonial-consent>
+            {{ 'testimonialWriting.consent' | translate:{ name: request.freelancerName } }}
+          </mat-checkbox>
+          @if (form.controls.consent.touched && form.controls.consent.invalid) {
+            <p class="form-error" role="alert">{{ 'testimonialWriting.consentRequired' | translate }}</p>
+          }
+          <div class="actions">
+            <button mat-flat-button type="submit" [disabled]="isSending" data-send-testimonial>{{ 'testimonialWriting.send' | translate }}</button>
+          </div>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</main>
