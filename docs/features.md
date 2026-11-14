@@ -703,6 +703,15 @@ over the month's 20 working days. The cost comes from the profile: **Cost per ki
 trip's kilometres) and **Monthly transport pass** (0 to 1,000 €, spread over the days on site); without them only the
 hours count, and the card says so.
 
+### Opportunity Map
+
+**Map** on the opportunities list opens `/projects/map`: each opportunity still on the board at its place of work or its
+client's address, as a pin coloured by stage around the home address, on OpenStreetMap tiles (no key, its attribution
+shown). A pin's popup names the role, the client, the stage and the place, and opens the opportunity. The places are
+located on the server by the same address search as the commute estimate (each address once, then kept); the page says
+how many opportunities could not be placed, and links the profile when it has no home address
+(`GET /api/commute/map/{freelanceId}`). The list stays the main view on a phone.
+
 ### Professional Kilometres
 
 **Professional kilometres** on the Timesheets page downloads this year's or last year's kilometres as CSV for the

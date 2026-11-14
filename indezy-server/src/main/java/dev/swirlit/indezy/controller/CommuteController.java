@@ -1,11 +1,13 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.CommuteInfoDto;
+import dev.swirlit.indezy.dto.OpportunityMapDto;
 import dev.swirlit.indezy.dto.ProjectCommuteDto;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.TravelMode;
 import dev.swirlit.indezy.service.AccessGuard;
 import dev.swirlit.indezy.service.CommuteService;
+import dev.swirlit.indezy.service.OpportunityMapService;
 import dev.swirlit.indezy.service.ProfessionalKilometresService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +30,7 @@ public class CommuteController {
     private final CommuteService commuteService;
     private final AccessGuard accessGuard;
     private final ProfessionalKilometresService kilometresService;
+    private final OpportunityMapService mapService;
 
     private static final int MIN_YEAR = 2000;
     private static final int MAX_YEAR = 2100;
@@ -66,5 +69,12 @@ public class CommuteController {
             .header(HttpHeaders.CACHE_CONTROL, "no-store")
             .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
             .body(kilometresService.csv(freelanceId, year, language));
+    }
+
+    @Operation(summary = "The opportunities on a map", description = "The home address and each opportunity's place, located by the address search")
+    @GetMapping("/map/{freelanceId}")
+    public OpportunityMapDto map(@PathVariable Long freelanceId) {
+        accessGuard.requireFreelance(freelanceId);
+        return mapService.map(freelanceId);
     }
 }

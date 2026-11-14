@@ -36,9 +36,17 @@
             "styles": [
               "@fontsource-variable/inter/wght.css",
               "material-icons/iconfont/filled.css",
-              "src/styles.scss"
+              "src/styles.scss",
+              {
+                "input": "node_modules/leaflet/dist/leaflet.css",
+                "bundleName": "leaflet",
+                "inject": false
+              }
             ],
-            "browser": "src/main.ts"
+            "browser": "src/main.ts",
+            "allowedCommonJsDependencies": [
+              "leaflet"
+            ]
           },
           "configurations": {
             "production": {

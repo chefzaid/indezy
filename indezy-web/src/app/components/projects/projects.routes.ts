@@ -13,6 +13,11 @@ export const projectRoutes: Routes = [
     loadComponent: () => import('./project-form/project-form.component').then(m => m.ProjectFormComponent)
   },
   {
+    // Before ':id', which would take it for an id.
+    path: 'map',
+    loadComponent: () => import('./opportunity-map/opportunity-map.component').then(m => m.OpportunityMapComponent)
+  },
+  {
     path: ':id',
     loadComponent: () => import('./project-detail/project-detail.component').then(m => m.ProjectDetailComponent)
   },

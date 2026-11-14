@@ -65,4 +65,15 @@ class ProjectCommuteIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.GET, "/commute/kilometres/" + alice.freelanceId() + "/2026", null, String.class)
             .getStatusCode().is4xxClientError()).isTrue();
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void mapsTheOpportunitiesOfTheirOwnerOnly() {
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "clientId", aliceClientId), Map.class);
+        // The test profile locates no address: the opportunity is counted, not placed.
+        Map<String, Object> map = call(alice, HttpMethod.GET, "/commute/map/" + alice.freelanceId(), null, Map.class).getBody();
+        assertThat(map).containsEntry("unplaced", 1).containsEntry("pins", List.of());
+        assertThat(call(bob, HttpMethod.GET, "/commute/map/" + alice.freelanceId(), null, String.class).getStatusCode().is4xxClientError())
+            .isTrue();
+    }
 }

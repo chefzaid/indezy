@@ -1,0 +1,28 @@
+<div class="opportunity-map-page">
+  <app-page-header icon="map" [title]="'projects.map.title' | translate" [subtitle]="'projects.map.subtitle' | translate">
+    <a mat-stroked-button routerLink="/projects" data-map-list>
+      <mat-icon>list</mat-icon>{{ 'projects.map.list' | translate }}
+    </a>
+  </app-page-header>
+
+  <ul class="map-legend" [attr.aria-label]="'projects.map.legend' | translate" data-map-legend>
+    <li><span class="dot home" aria-hidden="true"></span>{{ 'projects.map.home' | translate }}</li>
+    @for (stage of stages; track stage) {
+      <li><span class="dot" [style.background]="colors[stage]" aria-hidden="true"></span>{{ 'projects.statuses.' + stage | translate }}</li>
+    }
+  </ul>
+
+  <div #mapElement class="opportunity-map" role="region" [attr.aria-label]="'projects.map.title' | translate" data-map></div>
+
+  @if (data) {
+    <p class="map-summary" data-map-summary>
+      {{ 'projects.map.placed' | translate:{ count: data.pins.length } }}
+      @if (data.unplaced > 0) {
+        · {{ 'projects.map.unplaced' | translate:{ count: data.unplaced } }}
+      }
+      @if (!data.home) {
+        · <a routerLink="/profile">{{ 'projects.map.noHome' | translate }}</a>
+      }
+    </p>
+  }
+</div>

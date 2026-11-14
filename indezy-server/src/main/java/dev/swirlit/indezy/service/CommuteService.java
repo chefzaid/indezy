@@ -432,7 +432,7 @@ public class CommuteService {
         return day.toInstant();
     }
 
-    private static String address(String street, String city) {
+    static String address(String street, String city) {
         StringBuilder sb = new StringBuilder();
         if (street != null && !street.isBlank()) {
             sb.append(street.trim());

@@ -4,6 +4,10 @@
           <mat-icon>download</mat-icon>
           {{ 'projects.exportSummary' | translate }}
         </button>
+        <a mat-stroked-button routerLink="/projects/map" data-open-map>
+          <mat-icon>map</mat-icon>
+          {{ 'projects.map.open' | translate }}
+        </a>
         <a mat-stroked-button routerLink="/projects/new" [queryParams]="{ from: 'link' }" data-from-offer-link>
           <mat-icon>link</mat-icon>
           {{ 'projects.offerLink.fromLink' | translate }}

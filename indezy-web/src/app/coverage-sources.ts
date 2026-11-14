@@ -98,6 +98,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/projects/interview-step-dialog/interview-step-dialog.component',
   'components/projects/mission-end-action/mission-end-action.component',
   'components/projects/mission-end-action/mission-end-dialog.component',
+  'components/projects/opportunity-map/opportunity-map.component',
   'components/projects/project-archive-action/project-archive-action.component',
   'components/projects/project-attachments/attachment-preview-dialog.component',
   'components/projects/project-attachments/project-attachments.component',

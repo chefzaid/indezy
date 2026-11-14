@@ -311,7 +311,9 @@ SIREN to that directory and to the BODACC open data (`indezy.companies.bodacc-ur
 exception type only. The offer collection calls the job boards and the
 French government geocoding API, without keys (see [Job Offer Collection](#job-offer-collection)). Saved search emails
 go through Resend, which receives the workspace's address and the email's offers, with a sending key kept in Vault
-(see [Saved Search Emails](#saved-search-emails)).
+(see [Saved Search Emails](#saved-search-emails)). The opportunity map's tiles come from OpenStreetMap's tile server (`tile.openstreetmap.org`,
+keyless, under its tile usage policy), which therefore receives the viewer's IP address and the map areas shown; the
+places themselves are located on the server and never sent to it.
 
 Rules:
 
@@ -473,7 +475,8 @@ Content-Security-Policy:
   Material Icons are bundled with the app (`@fontsource-variable/inter`, `material-icons`): the service worker fetches every
   request a page makes under its own copy of this policy, so with `connect-src 'self'` a font from Google Fonts failed
   once the worker ran and the icons showed their ligature names ("da", "tra"...);
-- images from the app, `data:`, `blob:` and HTTPS (avatars);
+- images from the app, `data:`, `blob:` and HTTPS (avatars, and the opportunity map's OpenStreetMap tiles, asked with
+  `ngsw-bypass` so the browser loads them itself rather than the service worker under `connect-src 'self'`);
 - requests (`connect-src`) to the app's own origin only, the API being under `/api`;
 - frames from the app or a `blob:` address (a file's preview), and the browser's PDF viewer for those (`object-src
   blob:`); the service worker from the app; forms and `<base>` to the app; framed only by the app itself.

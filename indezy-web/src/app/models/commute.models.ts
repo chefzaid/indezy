@@ -37,3 +37,21 @@ export interface ProjectCommuteDto {
   project: import('./project.models').ProjectDto;
   commute?: CommuteInfoDto;
 }
+
+/** The opportunities on a map: the home address and each opportunity's place the address search found. */
+export interface OpportunityMap {
+  home: { latitude: number; longitude: number } | null;
+  pins: OpportunityPin[];
+  /** Opportunities whose place could not be found. */
+  unplaced: number;
+}
+
+export interface OpportunityPin {
+  projectId: number;
+  role: string;
+  clientName?: string | null;
+  status: import('./project.models').ProjectStatus;
+  place: string;
+  latitude: number;
+  longitude: number;
+}

@@ -630,6 +630,18 @@
         "RATE_REVISION": "Reviewed at each renewal",
         "PLACE_OF_WORK": "La Défense, 2 remote days a week"
       }
+    },
+    "map": {
+      "title": "Opportunity map",
+      "subtitle": "Each opportunity at its place of work or its client's address, around your home.",
+      "list": "List",
+      "legend": "Legend",
+      "home": "Home",
+      "placed": "{{count}} opportunity(ies) placed",
+      "unplaced": "{{count}} without a place found",
+      "noHome": "Add your address to see your home",
+      "loadError": "The map could not be loaded.",
+      "open": "Map"
     }
   },
   "clients": {

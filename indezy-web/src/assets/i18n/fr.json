@@ -630,6 +630,18 @@
         "RATE_REVISION": "Revue à chaque renouvellement",
         "PLACE_OF_WORK": "La Défense, 2 jours de télétravail par semaine"
       }
+    },
+    "map": {
+      "title": "Carte des opportunités",
+      "subtitle": "Chaque opportunité à son lieu de travail ou à l'adresse de son client, autour de chez vous.",
+      "list": "Liste",
+      "legend": "Légende",
+      "home": "Domicile",
+      "placed": "{{count}} opportunité(s) placée(s)",
+      "unplaced": "{{count}} sans lieu trouvé",
+      "noHome": "Ajoutez votre adresse pour voir votre domicile",
+      "loadError": "La carte n'a pas pu être chargée.",
+      "open": "Carte"
     }
   },
   "clients": {
