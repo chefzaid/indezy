@@ -3322,7 +3322,13 @@
       "open": "Ouvrir les commentaires",
       "commentError": "Le commentaire n'a pas pu être enregistré",
       "deleteComment": "Supprimer ce commentaire ?",
-      "commentActions": "Actions sur le commentaire"
+      "commentActions": "Actions sur le commentaire",
+      "edit": "Modifier",
+      "edited": "modifié",
+      "editLabel": "Votre publication",
+      "replacedAt": "Jusqu'au {{date}}",
+      "editTooLate": "Une publication ne se modifie que dans les 15 minutes qui suivent sa parution.",
+      "editError": "La publication n'a pas pu être modifiée."
     }
   }
 }

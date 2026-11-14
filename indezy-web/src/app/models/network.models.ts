@@ -74,7 +74,18 @@ export interface NetworkPost {
   /** How many comments the reader sees under it, and whether its author closed them. */
   comments: number;
   commentsClosed: boolean;
+  /** Its author changed its text: its earlier versions are kept. */
+  edited: boolean;
 }
+
+/** An earlier text of an edited post, and when it was replaced. */
+export interface NetworkPostVersion {
+  text: string;
+  replacedAt: string;
+}
+
+/** How long after posting, in milliseconds, a post can still be edited. */
+export const POST_EDIT_WINDOW = 15 * 60 * 1000;
 
 /** A comment as the reader sees it, with its replies when it is under the post itself. */
 export interface NetworkComment {

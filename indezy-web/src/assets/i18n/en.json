@@ -3322,7 +3322,13 @@
       "open": "Open the comments",
       "commentError": "The comment could not be saved",
       "deleteComment": "Delete this comment?",
-      "commentActions": "Actions on the comment"
+      "commentActions": "Actions on the comment",
+      "edit": "Edit",
+      "edited": "edited",
+      "editLabel": "Your post",
+      "replacedAt": "Until {{date}}",
+      "editTooLate": "A post can only be edited in the 15 minutes after it is posted.",
+      "editError": "The post could not be changed."
     }
   }
 }

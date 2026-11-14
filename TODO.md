@@ -492,7 +492,7 @@ Feed
 - [ ] **Add to my pipeline** on a Mission à transmettre: one click creates the opportunity in the reader's Contact column with the author as the source, and the author sees how many members took it (who, only for those who agree), completing the decline-sharing item above.
 - [ ] Share from the app to the feed: an offer of the offer feed, a declined opportunity of the Refusé column (client removed), a skill trend or a rate-versus-market card of the dashboard, and milestones ("Mission signée", "Un an de freelance") without client names.
 - [x] Comments under posts with one level of replies and @mentions; the author pins a comment, closes comments or hides one. Done on 2026-11-14 (`docs/features.md#member-network`); the mentions in comments are written as text, linking and notifying with the notification centre.
-- [ ] Editing for 15 minutes, then marked "modifié" with the earlier versions kept; deleting a post removes its likes, comments and files.
+- [x] Editing for 15 minutes, then marked "modifié" with the earlier versions kept; deleting a post removes its likes, comments and files. Done on 2026-11-14 (`docs/features.md#member-network`); a post's files go with it once posts carry files.
 - [ ] Bookmarks: posts and documents saved to a private **Enregistrés** list, filtered by tag.
 - [ ] Drafts and scheduled posts (published at a set time, for instance Monday 9:00).
 - [ ] Repost with a comment, the original author notified and able to turn reposts off on a post.

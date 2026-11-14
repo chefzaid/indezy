@@ -153,6 +153,18 @@ public class NetworkController {
         return posts.post(SecurityUtils.getCurrentUserId(), request);
     }
 
+    @Operation(summary = "Edit one's own post", description = "In the 15 minutes after posting it (409 later); the earlier text is kept")
+    @PutMapping("/posts/{id}")
+    public NetworkDtos.Post editPost(@PathVariable Long id, @Valid @RequestBody NetworkDtos.NewPost request) {
+        return posts.edit(SecurityUtils.getCurrentUserId(), id, request);
+    }
+
+    @Operation(summary = "The earlier texts of an edited post, the latest first")
+    @GetMapping("/posts/{id}/versions")
+    public List<NetworkDtos.PostVersion> postVersions(@PathVariable Long id) {
+        return posts.versions(SecurityUtils.getCurrentUserId(), id);
+    }
+
     @Operation(summary = "Delete one's own post")
     @DeleteMapping("/posts/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

@@ -114,4 +114,27 @@ class NetworkPostsIntegrationTest extends TwoAccountsIntegrationTest {
             .isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(call(alice, HttpMethod.PUT, like, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void editsAPostForFifteenMinutesKeepingTheEarlierText() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        join(alice);
+        join(bob);
+        Map<String, Object> posted = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Premier jet #java"), Map.class).getBody();
+        String post = "/network/posts/" + posted.get("id");
+        assertThat(posted).containsEntry("edited", false);
+        assertThat(call(bob, HttpMethod.PUT, post, Map.of("text", "Pas à moi"), String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.PUT, post, Map.of("text", "Premier jet #java"), Map.class).getBody()).containsEntry("edited", false);
+        assertThat(call(alice, HttpMethod.PUT, post, Map.of("text", "Version revue #kotlin"), Map.class).getBody())
+            .containsEntry("edited", true).containsEntry("text", "Version revue #kotlin").containsEntry("tags", List.of("kotlin"));
+        assertThat((List<Map<String, Object>>) call(bob, HttpMethod.GET, post + "/versions", null, List.class).getBody()).singleElement()
+            .satisfies(version -> assertThat(version).containsEntry("text", "Premier jet #java"));
+
+        jdbcTemplate.update("update network_posts set created_at = ? where id = ?",
+            java.sql.Timestamp.valueOf(java.time.LocalDateTime.now().minusMinutes(16)), ((Number) posted.get("id")).longValue());
+        assertThat(call(alice, HttpMethod.PUT, post, Map.of("text", "Trop tard"), String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(alice, HttpMethod.DELETE, post, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(call(bob, HttpMethod.GET, post + "/versions", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }

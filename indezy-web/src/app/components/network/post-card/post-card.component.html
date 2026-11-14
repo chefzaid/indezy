@@ -5,12 +5,22 @@
       <span class="handle">&#64;{{ post.author.handle }}</span>
     </a>
     <time [attr.datetime]="post.createdAt">{{ post.createdAt | date:'medium' }}</time>
+    @if (post.edited) {
+      <button mat-button type="button" class="edited" (click)="toggleVersions()" [attr.aria-expanded]="versions !== null" data-post-edited>
+        {{ 'network.post.edited' | translate }}
+      </button>
+    }
     @if (post.own) {
       <button mat-icon-button type="button" [matMenuTriggerFor]="actions" [attr.aria-label]="'network.post.actions' | translate"
         data-post-actions>
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #actions="matMenu">
+        @if (editable) {
+          <button mat-menu-item type="button" (click)="startEditing()" data-post-edit>
+            <mat-icon>edit</mat-icon>{{ 'network.post.edit' | translate }}
+          </button>
+        }
         <button mat-menu-item type="button" (click)="toggleClosed()" data-post-close-comments>
           <mat-icon>{{ post.commentsClosed ? 'chat' : 'speaker_notes_off' }}</mat-icon>
           {{ (post.commentsClosed ? 'network.post.open' : 'network.post.close') | translate }}
@@ -21,7 +31,27 @@
       </mat-menu>
     }
   </header>
+  @if (versions) {
+    <ul class="versions" data-post-versions>
+      @for (version of versions; track $index) {
+        <li><span class="replaced">{{ 'network.post.replacedAt' | translate: { date: (version.replacedAt | date:'short') } }}</span>{{ version.text }}</li>
+      }
+    </ul>
+  }
+  @if (editing) {
+    <form class="edit" (submit)="$event.preventDefault(); saveEdit()" data-post-edit-form>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'network.post.editLabel' | translate }}</mat-label>
+        <textarea matInput [formControl]="editing" rows="3" maxlength="3000" data-post-edit-text></textarea>
+      </mat-form-field>
+      <div class="actions">
+        <button mat-button type="button" (click)="editing = null">{{ 'network.post.cancel' | translate }}</button>
+        <button mat-flat-button type="submit" [disabled]="!editing.value.trim()" data-post-edit-save>{{ 'common.save' | translate }}</button>
+      </div>
+    </form>
+  } @else {
   <p class="text">@for (part of parts; track $index) {@if (handleOf(part); as handle) {<a [routerLink]="['/m', handle]" class="mention">&#64;{{ handle }}</a>} @else if (tagOf(part); as tag) {<span class="tag">#{{ tag }}</span>} @else {{{ textOf(part) }}}}</p>
+  }
   <footer>
     <button mat-button type="button" (click)="toggleLike()" [disabled]="isLiking" [attr.aria-pressed]="post.liked" data-like
       [class.liked]="post.liked">

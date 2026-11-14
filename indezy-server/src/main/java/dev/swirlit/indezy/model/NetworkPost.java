@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -28,6 +29,10 @@ public class NetworkPost extends BaseEntity {
 
     @Column(name = "text", nullable = false, length = TEXT_MAX)
     private String text;
+
+    /** When its author last changed its text, within the edit window; none while never edited. */
+    @Column(name = "edited_at")
+    private Instant editedAt;
 
     /** No new comment once its author closes them. */
     @Column(name = "comments_closed", nullable = false)

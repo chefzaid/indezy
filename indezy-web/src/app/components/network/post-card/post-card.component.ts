@@ -1,12 +1,16 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { MemberCard, NetworkPost } from '../../../models';
+import { MemberCard, NetworkPost, NetworkPostVersion, POST_EDIT_WINDOW } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PostCommentsComponent } from '../post-comments/post-comments.component';
@@ -42,7 +46,8 @@ export function segments(text: string): PostSegment[] {
 /** A post: its author (opening their page), when it was posted, its text with mentions and tags, and its own actions. */
 @Component({
   selector: 'app-post-card',
-  imports: [DatePipe, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, PostCommentsComponent],
+  imports: [DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
+    TranslateModule, PostCommentsComponent],
   templateUrl: './post-card.component.html',
   styleUrls: ['./post-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -57,6 +62,46 @@ export class PostCardComponent {
   isLiking = false;
   /** Whether the comments are open under the post. */
   showComments = false;
+  /** The text being written while the author edits the post; none otherwise. */
+  editing: FormControl<string> | null = null;
+  /** The post's earlier texts, once asked for. */
+  versions: NetworkPostVersion[] | null = null;
+
+  /** The reader's own post, in the 15 minutes after it was posted. */
+  get editable(): boolean {
+    return this.post.own && Date.now() - Date.parse(this.post.createdAt) < POST_EDIT_WINDOW;
+  }
+
+  startEditing(): void {
+    this.editing = new FormControl(this.post.text, { nonNullable: true, validators: [Validators.required, Validators.maxLength(3000)] });
+  }
+
+  saveEdit(): void {
+    const text = this.editing?.value.trim();
+    if (!text) {
+      return;
+    }
+    this.network.editPost(this.post.id, text).subscribe({
+      next: post => {
+        this.post = post;
+        this.editing = null;
+        this.versions = null;
+      },
+      error: (error: HttpErrorResponse) => this.notifications.error(error.status === 409 ? 'network.post.editTooLate' : 'network.post.editError')
+    });
+  }
+
+  /** Shows the post's earlier texts, or hides them. */
+  toggleVersions(): void {
+    if (this.versions) {
+      this.versions = null;
+      return;
+    }
+    this.network.postVersions(this.post.id).subscribe({
+      next: versions => this.versions = versions,
+      error: () => this.notifications.error('network.post.editError')
+    });
+  }
 
   /** Closes the comments of the reader's own post, or opens them again. */
   toggleClosed(): void {

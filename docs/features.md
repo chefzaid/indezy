@@ -197,7 +197,8 @@ lists the members muted and blocked, each to unmute or unblock.
 `@handle` links to the member's page and `#tag` names a skill or a city (each kept, lower-case, for the tag pages to
 come); then the reader's posts and those of the members they follow, the newest first, 20 at a time with **Show
 more**, but those of members muted or blocked either way, or away from the network. A member's page shows their posts
-too. **Like** a post, once, or no longer; its likes count opens who liked it (but members blocked either way). A member
+too. Its author **edits** a post in the 15 minutes after posting it; it then reads **edited**, which opens its earlier
+texts. **Like** a post, once, or no longer; its likes count opens who liked it (but members blocked either way). A member
 deletes their own posts, their likes and comments going with them, and they are part of the data export.
 
 **Comments** open under a post: comments and, under each, replies (one level), the oldest first. Each writer deletes

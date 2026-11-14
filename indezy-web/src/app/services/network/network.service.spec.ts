@@ -49,6 +49,10 @@ describe('NetworkService', () => {
     expect(http.expectOne(call => call.url.endsWith('/network/posts/5/pinned-comment')).request.params.get('commentId')).toBe('3');
     service.pinComment(5, null).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/posts/5/pinned-comment')).request.params.keys()).toEqual([]);
+    service.editPost(5, 'Revu').subscribe();
+    expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/5')).request.body).toEqual({ text: 'Revu' });
+    service.postVersions(5).subscribe();
+    http.expectOne(call => call.url.endsWith('/network/posts/5/versions'));
     service.deletePost(5).subscribe();
     http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/posts/5'));
     service.feed().subscribe();

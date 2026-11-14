@@ -63,6 +63,46 @@ footer {
   }
 }
 
+.edited {
+  min-width: 0;
+  padding: 0 4px;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+.versions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 12px;
+  border-left: 2px solid var(--app-border);
+  list-style: none;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  white-space: pre-line;
+
+  .replaced {
+    display: block;
+    font-size: 0.75rem;
+  }
+}
+
+.edit {
+  display: flex;
+  flex-direction: column;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}
+
 .mention {
   color: var(--app-link);
 }

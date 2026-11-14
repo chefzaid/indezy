@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, NetworkComment, NetworkPost, NetworkPosts, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -36,6 +36,15 @@ export class NetworkService {
 
   post(text: string): Observable<NetworkPost> {
     return this.http.post<NetworkPost>(`${this.API_URL}/posts`, { text });
+  }
+
+  /** Changes the text of the reader's own post, in the 15 minutes after posting it. */
+  editPost(id: number, text: string): Observable<NetworkPost> {
+    return this.http.put<NetworkPost>(`${this.API_URL}/posts/${id}`, { text });
+  }
+
+  postVersions(id: number): Observable<NetworkPostVersion[]> {
+    return this.http.get<NetworkPostVersion[]>(`${this.API_URL}/posts/${id}/versions`);
   }
 
   deletePost(id: number): Observable<void> {

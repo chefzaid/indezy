@@ -19,7 +19,7 @@ describe('PostCommentsComponent', () => {
   const comment = (id: number, changes: Partial<NetworkComment> = {}): NetworkComment => ({ id, author: member('leo_m'), text: `Comment ${id}`,
     createdAt: '2026-11-14T10:00:00', own: false, hidden: false, pinned: false, replies: [], ...changes });
   const post: NetworkPost = { id: 9, author: member('camille'), text: 'Post', tags: [], createdAt: '2026-11-14T09:00:00', own: true,
-    likes: 0, liked: false, comments: 3, commentsClosed: false };
+    likes: 0, liked: false, comments: 3, commentsClosed: false, edited: false };
   const read = [comment(1, { pinned: true, replies: [comment(3, { own: true })] }), comment(2, { hidden: true })];
 
   function create(postShown = post): ComponentFixture<PostCommentsComponent> {
