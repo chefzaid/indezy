@@ -1410,7 +1410,16 @@
       "preview": "Votre carte, telle que la voient les membres",
       "loadError": "Votre adhésion n'a pas pu être chargée",
       "saveError": "Votre adhésion n'a pas pu être enregistrée",
-      "seePage": "Voir ma page"
+      "seePage": "Voir ma page",
+      "availability": "Votre disponibilité",
+      "modes": {
+        "AUTO": "D'après mes missions gagnées et ma date de disponibilité",
+        "AVAILABLE": "Disponible",
+        "ON_MISSION": "En mission",
+        "LISTENING": "À l'écoute"
+      },
+      "availableFrom": "À partir du",
+      "onMissionUntil": "Jusqu'au"
     }
   },
   "errors": {
@@ -3197,7 +3206,10 @@
       "availableNow": "Disponible maintenant",
       "availableFrom": "Disponible le {{date}}",
       "stack": "Compétences",
-      "languages": "Parle {{languages}}"
+      "languages": "Parle {{languages}}",
+      "onMission": "En mission",
+      "onMissionUntil": "En mission jusqu'en {{date}}",
+      "listening": "À l'écoute"
     },
     "page": {
       "notMember": "Rejoignez le réseau pour voir ses membres.",

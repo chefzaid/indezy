@@ -6,9 +6,13 @@ import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.NetworkMember;
+import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.User;
+import dev.swirlit.indezy.model.enums.NetworkAvailability;
+import dev.swirlit.indezy.model.enums.ProjectStatus;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.NetworkMemberRepository;
+import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +23,10 @@ import java.text.Normalizer;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -42,10 +48,12 @@ public class NetworkService {
     private static final java.util.regex.Pattern HANDLE = java.util.regex.Pattern.compile(NetworkDtos.HANDLE);
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
     private static final NetworkDtos.Fields ALL_SHOWN = new NetworkDtos.Fields(true, true, true, true, true, true, false);
+    private static final NetworkDtos.Availability AUTO = new NetworkDtos.Availability(NetworkAvailability.AUTO, null);
 
     private final NetworkMemberRepository members;
     private final UserRepository users;
     private final FreelanceRepository freelances;
+    private final ProjectRepository projects;
     private final Clock clock;
 
     @Transactional(readOnly = true)
@@ -53,7 +61,8 @@ public class NetworkService {
         User user = user(userId);
         return members.findByUserId(userId).filter(NetworkMember::isActive).map(member -> membership(member, user))
             .orElseGet(() -> new NetworkDtos.Membership(false, members.findByUserId(userId).map(NetworkMember::getHandle)
-                .orElseGet(() -> suggestion(user)), members.findByUserId(userId).map(NetworkService::fields).orElse(ALL_SHOWN), null));
+                .orElseGet(() -> suggestion(user)), members.findByUserId(userId).map(NetworkService::fields).orElse(ALL_SHOWN),
+                members.findByUserId(userId).map(NetworkService::availability).orElse(AUTO), null));
     }
 
     /** Joins with the handle and the fields chosen, or changes them; a handle another member holds is refused. */
@@ -80,6 +89,10 @@ public class NetworkService {
         member.setShowAvailability(fields.availability());
         member.setShowLanguages(fields.languages());
         member.setRemote(fields.remote());
+        NetworkDtos.Availability availability = Objects.requireNonNullElse(request.availability(), AUTO);
+        member.setAvailabilityMode(availability.mode());
+        boolean dated = availability.mode() == NetworkAvailability.AVAILABLE || availability.mode() == NetworkAvailability.ON_MISSION;
+        member.setAvailabilityDate(dated ? availability.date() : null);
         return membership(members.save(member), user);
     }
 
@@ -147,7 +160,12 @@ public class NetworkService {
     }
 
     private NetworkDtos.Membership membership(NetworkMember member, User user) {
-        return new NetworkDtos.Membership(true, member.getHandle(), fields(member), card(member, user));
+        return new NetworkDtos.Membership(true, member.getHandle(), fields(member), availability(member), card(member, user));
+    }
+
+    private static NetworkDtos.Availability availability(NetworkMember member) {
+        return new NetworkDtos.Availability(Objects.requireNonNullElse(member.getAvailabilityMode(), NetworkAvailability.AUTO),
+            member.getAvailabilityDate());
     }
 
     private static NetworkDtos.Fields fields(NetworkMember member) {
@@ -156,14 +174,39 @@ public class NetworkService {
     }
 
     private NetworkDtos.MemberCard card(NetworkMember member, User user) {
-        Optional<Freelance> freelance = freelances.findByEmail(user.getEmail());
-        LocalDate available = member.isShowAvailability() ? freelance.map(Freelance::getAvailabilityDate).orElse(null) : null;
+        NetworkDtos.Availability shown = member.isShowAvailability() ? shownAvailability(member, user) : null;
         String avatar = user.getAvatarImage() != null ? user.getAvatarImage() : PublicProfileService.webLink(user.getAvatar());
         return new NetworkDtos.MemberCard(member.getHandle(), user.getFirstName(), user.getLastName(), member.isShowPhoto() ? avatar : null,
             member.isShowHeadline() ? user.getPosition() : null, member.isShowStack() ? user.getSkills() : List.of(),
-            member.isShowLocation() ? user.getCity() : null, member.isRemote(), available,
-            available != null && !available.isAfter(LocalDate.now(clock.withZone(PARIS))),
-            member.isShowLanguages() ? user.getLanguages() : List.of());
+            member.isShowLocation() ? user.getCity() : null, member.isRemote(), shown == null ? null : shown.mode(),
+            shown == null ? null : shown.date(), member.isShowLanguages() ? user.getLanguages() : List.of());
+    }
+
+    /**
+     * The availability the card tells: as set, an availability day past reading as now; or, automatic, on the won mission
+     * running today until its last day (none said for an open-ended one), else available from the profile's day, else none.
+     */
+    private NetworkDtos.Availability shownAvailability(NetworkMember member, User user) {
+        LocalDate today = LocalDate.now(clock.withZone(PARIS));
+        NetworkAvailability mode = Objects.requireNonNullElse(member.getAvailabilityMode(), NetworkAvailability.AUTO);
+        if (mode == NetworkAvailability.AVAILABLE) {
+            LocalDate from = member.getAvailabilityDate();
+            return new NetworkDtos.Availability(mode, from == null || !from.isAfter(today) ? null : from);
+        }
+        if (mode != NetworkAvailability.AUTO) {
+            return new NetworkDtos.Availability(mode, member.getAvailabilityDate());
+        }
+        Optional<Freelance> freelance = freelances.findByEmail(user.getEmail());
+        List<Project> running = freelance.map(owner -> projects.findByFreelanceId(owner.getId())).orElse(List.of()).stream()
+            .filter(project -> project.getStatus() == ProjectStatus.WON && project.getStartDate() != null && !project.getStartDate().isAfter(today))
+            .filter(project -> project.lastDay() == null || !project.lastDay().isBefore(today)).toList();
+        if (!running.isEmpty()) {
+            LocalDate until = running.stream().anyMatch(project -> project.lastDay() == null) ? null :
+                running.stream().map(Project::lastDay).max(Comparator.naturalOrder()).orElseThrow();
+            return new NetworkDtos.Availability(NetworkAvailability.ON_MISSION, until);
+        }
+        LocalDate from = freelance.map(Freelance::getAvailabilityDate).orElse(null);
+        return from == null ? null : new NetworkDtos.Availability(NetworkAvailability.AVAILABLE, from.isAfter(today) ? from : null);
     }
 
     private User user(Long userId) {

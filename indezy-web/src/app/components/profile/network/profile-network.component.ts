@@ -5,11 +5,12 @@ import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, debounceTime, distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs';
 
-import { HANDLE_PATTERN, NetworkFields, NetworkMembership } from '../../../models';
+import { HANDLE_PATTERN, NetworkAvailability, NetworkFields, NetworkMembership } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -24,7 +25,7 @@ export const CARD_FIELDS: (keyof NetworkFields)[] = ['photo', 'headline', 'stack
  */
 @Component({
   selector: 'app-profile-network',
-  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatInputModule, MatSlideToggleModule, TranslateModule,
+  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatSlideToggleModule, TranslateModule,
     MemberCardComponent],
   templateUrl: './profile-network.component.html',
   styleUrls: ['./profile-network.component.scss'],
@@ -41,8 +42,16 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
   readonly fieldNames = CARD_FIELDS;
   readonly form = this.fb.group({
     handle: ['', [Validators.required, Validators.pattern(HANDLE_PATTERN)]],
-    fields: this.fb.group({ photo: true, headline: true, stack: true, location: true, availability: true, languages: true, remote: false })
+    fields: this.fb.group({ photo: true, headline: true, stack: true, location: true, availability: true, languages: true, remote: false }),
+    availability: this.fb.group({ mode: 'AUTO' as NetworkAvailability, date: '' })
   });
+  readonly modes: NetworkAvailability[] = ['AUTO', 'AVAILABLE', 'ON_MISSION', 'LISTENING'];
+
+  /** Available from a day, or on a mission until one: the modes that name a day. */
+  get dated(): boolean {
+    const mode = this.form.controls.availability.controls.mode.value;
+    return mode === 'AVAILABLE' || mode === 'ON_MISSION';
+  }
   membership: NetworkMembership | null = null;
   isSaving = false;
 
@@ -78,9 +87,9 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
       return;
     }
     const joined = this.membership?.joined === true;
-    const { handle, fields } = this.form.getRawValue();
+    const { handle, fields, availability } = this.form.getRawValue();
     this.isSaving = true;
-    this.network.join(handle, fields).pipe(takeUntil(this.destroy$)).subscribe({
+    this.network.join(handle, fields, { mode: availability.mode, date: this.dated && availability.date ? availability.date : null }).pipe(takeUntil(this.destroy$)).subscribe({
       next: membership => {
         this.isSaving = false;
         this.show(membership);
@@ -115,7 +124,8 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
 
   private show(membership: NetworkMembership): void {
     this.membership = membership;
-    this.form.setValue({ handle: membership.handle, fields: membership.fields }, { emitEvent: false });
+    this.form.setValue({ handle: membership.handle, fields: membership.fields,
+      availability: { mode: membership.availability.mode, date: membership.availability.date ?? '' } }, { emitEvent: false });
     this.changes.markForCheck();
   }
 }

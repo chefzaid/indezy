@@ -18,9 +18,10 @@ describe('ProfileNetworkComponent', () => {
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
   const fields = { photo: true, headline: true, stack: true, location: true, availability: true, languages: true, remote: false };
   const card: MemberCard = { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null, headline: 'Architecte Java',
-    stack: ['Java', 'Kafka'], city: 'Lyon', remote: true, availableFrom: '2026-12-02', availableNow: false, languages: ['Français'] };
-  const outside: NetworkMembership = { joined: false, handle: 'camille', fields, card: null };
-  const member: NetworkMembership = { joined: true, handle: 'camille', fields, card };
+    stack: ['Java', 'Kafka'], city: 'Lyon', remote: true, availability: 'AVAILABLE', availabilityDate: '2026-12-02', languages: ['Français'] };
+  const auto = { mode: 'AUTO' as const, date: null };
+  const outside: NetworkMembership = { joined: false, handle: 'camille', fields, availability: auto, card: null };
+  const member: NetworkMembership = { joined: true, handle: 'camille', fields, availability: auto, card };
 
   function create(membership = of(outside)): ComponentFixture<ProfileNetworkComponent> {
     network = jasmine.createSpyObj('NetworkService', ['membership', 'join', 'leave', 'handle']);
@@ -52,7 +53,7 @@ describe('ProfileNetworkComponent', () => {
     network.join.and.returnValue(of(member));
     component.form.controls.fields.patchValue({ location: false, remote: true });
     component.save();
-    expect(network.join).toHaveBeenCalledWith('camille', { ...fields, location: false, remote: true });
+    expect(network.join).toHaveBeenCalledWith('camille', { ...fields, location: false, remote: true }, auto);
     expect(notifications.success).toHaveBeenCalledWith('profile.network.joined');
     fixture.detectChanges();
     expect(element.querySelector('[data-network-joined]')?.textContent).toContain('@camille');
@@ -65,8 +66,14 @@ describe('ProfileNetworkComponent', () => {
     expect(shown.textContent).toContain('Speaks Français');
     expect(shown.querySelector('.initials')?.textContent).toBe('CD');
 
+    component.form.controls.availability.setValue({ mode: 'ON_MISSION', date: '2027-03-31' });
+    expect(component.dated).toBeTrue();
     component.save();
+    expect(network.join).toHaveBeenCalledWith('camille', jasmine.any(Object), { mode: 'ON_MISSION', date: '2027-03-31' });
     expect(notifications.success).toHaveBeenCalledWith('profile.network.saved');
+    component.form.controls.availability.setValue({ mode: 'LISTENING', date: '2027-03-31' });
+    component.save();
+    expect(network.join).toHaveBeenCalledWith('camille', jasmine.any(Object), { mode: 'LISTENING', date: null });
   });
 
   it('refuses a malformed handle, and says when another member holds it, while typing or on saving', fakeAsync(() => {

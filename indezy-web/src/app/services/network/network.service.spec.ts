@@ -11,9 +11,10 @@ describe('NetworkService', () => {
     const fields = { photo: true, headline: true, stack: true, location: false, availability: true, languages: true, remote: true };
     service.membership().subscribe();
     http.expectOne(call => call.method === 'GET' && call.url.endsWith('/network/membership'));
-    service.join('camille', fields).subscribe();
+    const availability = { mode: 'LISTENING' as const, date: null };
+    service.join('camille', fields, availability).subscribe();
     expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/membership')).request.body)
-      .toEqual({ handle: 'camille', fields });
+      .toEqual({ handle: 'camille', fields, availability });
     service.leave().subscribe();
     http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/membership'));
     service.handle('cam ille').subscribe();

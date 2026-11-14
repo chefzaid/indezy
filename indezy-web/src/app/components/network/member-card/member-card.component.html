@@ -1,10 +1,12 @@
 <article class="member-card" [attr.data-member-card]="card.handle">
   <div class="identity">
-    @if (card.avatar) {
-      <img class="photo" [src]="card.avatar" alt="" width="56" height="56">
-    } @else {
-      <span class="photo initials" aria-hidden="true">{{ initials }}</span>
-    }
+    <span class="ring" [class]="'ring ' + (card.availability ?? 'NONE')">
+      @if (card.avatar) {
+        <img class="photo" [src]="card.avatar" alt="" width="56" height="56">
+      } @else {
+        <span class="photo initials" aria-hidden="true">{{ initials }}</span>
+      }
+    </span>
     <div>
       <h3 class="name">{{ card.firstName }} {{ card.lastName }}</h3>
       <span class="handle">&#64;{{ card.handle }}</span>
@@ -20,10 +22,23 @@
     @if (card.remote) {
       <li><mat-icon aria-hidden="true">home_work</mat-icon>{{ 'network.card.remote' | translate }}</li>
     }
-    @if (card.availableNow) {
-      <li class="available"><mat-icon aria-hidden="true">event_available</mat-icon>{{ 'network.card.availableNow' | translate }}</li>
-    } @else if (card.availableFrom) {
-      <li><mat-icon aria-hidden="true">event</mat-icon>{{ 'network.card.availableFrom' | translate: { date: (card.availableFrom | date:'longDate') } }}</li>
+    @if (card.availability) {
+      <li [class]="'availability ' + card.availability" data-card-availability>
+        <mat-icon aria-hidden="true">{{ icons[card.availability] }}</mat-icon>
+        @switch (card.availability) {
+          @case ('AVAILABLE') {
+            {{ card.availabilityDate ? ('network.card.availableFrom' | translate: { date: (card.availabilityDate | date:'longDate') })
+              : ('network.card.availableNow' | translate) }}
+          }
+          @case ('ON_MISSION') {
+            {{ card.availabilityDate ? ('network.card.onMissionUntil' | translate: { date: (card.availabilityDate | date:'MMMM y') })
+              : ('network.card.onMission' | translate) }}
+          }
+          @default {
+            {{ 'network.card.listening' | translate }}
+          }
+        }
+      </li>
     }
   </ul>
   @if (card.stack.length) {

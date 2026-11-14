@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MemberCard, MemberPage, NetworkFields, NetworkMembership } from '../../models';
+import { MemberCard, MemberPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -17,8 +17,8 @@ export class NetworkService {
   }
 
   /** Joins, or changes the handle and the card. */
-  join(handle: string, fields: NetworkFields): Observable<NetworkMembership> {
-    return this.http.put<NetworkMembership>(`${this.API_URL}/membership`, { handle, fields });
+  join(handle: string, fields: NetworkFields, availability: NetworkAvailabilitySetting): Observable<NetworkMembership> {
+    return this.http.put<NetworkMembership>(`${this.API_URL}/membership`, { handle, fields, availability });
   }
 
   leave(): Observable<void> {

@@ -15,16 +15,18 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light', language, inactivityDays: 14 } }));
     await page.route('**/api/users/security', route => route.fulfill({ json: { twoFactorEnabled: false } }));
     await page.route('**/api/users/notifications', route => route.fulfill({ json: {} }));
-    let membership: Record<string, unknown> = { joined: false, handle: 'camille', fields, card: null };
+    let membership: Record<string, unknown> = { joined: false, handle: 'camille', fields, availability: { mode: 'AUTO', date: null },
+      card: null };
     const calls: unknown[] = [];
     await page.route('**/api/network/membership', route => {
       const method = route.request().method();
       if (method === 'PUT') {
         const body = route.request().postDataJSON();
         calls.push(body);
-        membership = { joined: true, handle: body.handle, fields: body.fields, card: { handle: body.handle, firstName: 'Camille',
-          lastName: 'Durand', avatar: null, headline: 'Architecte Java', stack: ['Java', 'Kafka'], city: body.fields.location ? 'Lyon' : null,
-          remote: body.fields.remote, availableFrom: null, availableNow: true, languages: [] } };
+        membership = { joined: true, handle: body.handle, fields: body.fields, availability: body.availability, card: { handle: body.handle,
+          firstName: 'Camille', lastName: 'Durand', avatar: null, headline: 'Architecte Java', stack: ['Java', 'Kafka'],
+          city: body.fields.location ? 'Lyon' : null, remote: body.fields.remote, availability: body.availability.mode,
+          availabilityDate: body.availability.date, languages: [] } };
       } else if (method === 'DELETE') {
         calls.push('leave');
         membership = { ...membership, joined: false, card: null };
@@ -46,12 +48,15 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await tab.locator('[data-network-handle]').fill('camille_d');
     await tab.locator('[data-network-field="location"]').getByRole('switch').click();
     await tab.locator('[data-network-field="remote"]').getByRole('switch').click();
+    await tab.locator('[data-network-availability]').click();
+    await page.getByRole('option', { name: en ? 'On a mission' : 'En mission' }).click();
+    await tab.locator('[data-network-availability-date] input').fill('2027-03-31');
     await tab.locator('[data-network-save]').click();
 
     const card = page.locator('[data-member-card="camille_d"]');
     await expect(card).toContainText('Camille Durand');
     await expect(card).toContainText(en ? 'Remote' : 'À distance');
-    await expect(card).toContainText(en ? 'Available now' : 'Disponible maintenant');
+    await expect(card.locator('[data-card-availability]')).toContainText(en ? 'On a mission until March 2027' : 'En mission jusqu');
     await expect(card).not.toContainText('Lyon');
     await expect(tab.locator('[data-network-joined]')).toContainText('@camille_d');
     const audit = await new AxeBuilder({ page }).include('[data-profile-network]').include('[data-network-preview]')
@@ -63,7 +68,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.getByRole('dialog').getByRole('button', { name: en ? 'Leave the network' : 'Quitter le réseau' }).click();
     await expect(page.locator('[data-network-preview]')).toHaveCount(0);
     await expect(tab.locator('[data-network-handle]')).toHaveValue('camille_d');
-    expect(calls).toEqual([{ handle: 'camille_d', fields: { ...fields, location: false, remote: true } }, 'leave']);
+    expect(calls).toEqual([{ handle: 'camille_d', fields: { ...fields, location: false, remote: true },
+      availability: { mode: 'ON_MISSION', date: '2027-03-31' } }, 'leave']);
   });
 }
 
@@ -83,7 +89,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await mockWorkspaceSession(page, language);
     await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
     const leo = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: 'Data engineer', stack: ['Kafka', 'Spark'],
-      city: 'Nantes', remote: true, availableFrom: '2026-12-02', availableNow: false, languages: ['Français'] };
+      city: 'Nantes', remote: true, availability: 'AVAILABLE', availabilityDate: '2026-12-02', languages: ['Français'] };
     let memberPage = { card: leo, followers: 4, following: 2, sharedSkills: ['Kafka'], followed: false, followsYou: true, own: false };
     await page.route('**/api/network/members/leo_m/page', route => route.fulfill({ json: memberPage }));
     await page.route('**/api/network/members/leo_m/follow', route => {

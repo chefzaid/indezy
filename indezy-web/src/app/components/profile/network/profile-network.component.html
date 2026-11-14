@@ -28,6 +28,23 @@
     }
   </fieldset>
 
+  <div formGroupName="availability" class="availability">
+    <mat-form-field appearance="outline" class="grow" data-network-availability>
+      <mat-label>{{ 'profile.network.availability' | translate }}</mat-label>
+      <mat-select formControlName="mode">
+        @for (mode of modes; track mode) {
+          <mat-option [value]="mode">{{ 'profile.network.modes.' + mode | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    @if (dated) {
+      <mat-form-field appearance="outline" data-network-availability-date>
+        <mat-label>{{ (form.controls.availability.controls.mode.value === 'AVAILABLE' ? 'profile.network.availableFrom' : 'profile.network.onMissionUntil') | translate }}</mat-label>
+        <input matInput type="date" formControlName="date">
+      </mat-form-field>
+    }
+  </div>
+
   <div class="actions">
     @if (membership?.joined) {
       <button mat-stroked-button type="button" (click)="leave()" data-network-leave>{{ 'profile.network.leave' | translate }}</button>

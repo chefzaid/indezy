@@ -166,7 +166,12 @@ off by default). Then **Profile → Network** joins it, a choice each account ma
 (`@camille_d`, 3 to 30 lower-case letters, digits or underscores, starting with a letter; offered from the first name,
 said taken while typing, and never one that would pass for Indezy, such as `@admin` or `@support`), and a **member
 card** built from the profile: the name, then the photo, headline, skills, city, availability and languages, each shown
-or hidden, and whether the member works remotely. Only members see members' cards (`GET /api/network/members/<handle>`).
+or hidden, and whether the member works remotely. The card's availability is, by default, taken from the won missions
+("On a mission until March 2027" while one runs, through its last day, with no end said for an open-ended one), else
+the profile's availability date ("Available from 2 December 2026", or now); or it is set by hand: available (from a
+day or now), on a mission (until a day), or **Open to offers**. A coloured ring around the photo tells it at a glance:
+green available, orange on a mission, indigo open to offers. Only members see members' cards
+(`GET /api/network/members/<handle>`).
 **Leave the network** hides the card at once and keeps the handle the account's for its return. The membership is part
 of the data export.
 

@@ -1410,7 +1410,16 @@
       "preview": "Your card, as members see it",
       "loadError": "Your membership could not be loaded",
       "saveError": "Your membership could not be saved",
-      "seePage": "See my page"
+      "seePage": "See my page",
+      "availability": "Your availability",
+      "modes": {
+        "AUTO": "From my won missions and my availability date",
+        "AVAILABLE": "Available",
+        "ON_MISSION": "On a mission",
+        "LISTENING": "Open to offers"
+      },
+      "availableFrom": "From",
+      "onMissionUntil": "Until"
     }
   },
   "errors": {
@@ -3197,7 +3206,10 @@
       "availableNow": "Available now",
       "availableFrom": "Available from {{date}}",
       "stack": "Skills",
-      "languages": "Speaks {{languages}}"
+      "languages": "Speaks {{languages}}",
+      "onMission": "On a mission",
+      "onMissionUntil": "On a mission until {{date}}",
+      "listening": "Open to offers"
     },
     "page": {
       "notMember": "Join the network to see its members.",

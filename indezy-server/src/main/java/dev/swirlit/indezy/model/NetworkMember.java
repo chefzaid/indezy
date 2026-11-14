@@ -1,12 +1,16 @@
 package dev.swirlit.indezy.model;
 
+import dev.swirlit.indezy.model.enums.NetworkAvailability;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 /**
  * An account's membership of the member network: its handle, unique among members, and what its member card shows of
@@ -50,6 +54,14 @@ public class NetworkMember extends BaseEntity {
 
     @Column(name = "show_languages", nullable = false)
     private boolean showLanguages = true;
+
+    /** How the card tells the availability, and the day it names (from when available, until when on a mission). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "availability_mode", length = 20)
+    private NetworkAvailability availabilityMode = NetworkAvailability.AUTO;
+
+    @Column(name = "availability_date")
+    private LocalDate availabilityDate;
 
     /** Works remotely: the card says so beside, or instead of, the city. */
     @Column(name = "remote", nullable = false)

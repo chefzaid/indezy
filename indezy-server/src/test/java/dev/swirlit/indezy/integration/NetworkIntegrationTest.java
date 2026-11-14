@@ -139,4 +139,32 @@ class NetworkIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.DELETE, "/network/members/" + aliceHandle + "/follow", null, Map.class).getBody())
             .containsEntry("followed", false);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void tellsTheAvailabilityFromTheWonMissionOrAsSet() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        java.time.LocalDate start = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Paris")).minusMonths(1);
+        call(alice, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 650, "status", "WON", "clientId", aliceClientId,
+            "startDate", start.toString(), "durationInMonths", 6), Map.class);
+        String handle = unique("alice");
+        Map<String, Object> joined = call(alice, HttpMethod.PUT, "/network/membership", Map.of("handle", handle, "fields", ALL_SHOWN),
+            Map.class).getBody();
+        assertThat((Map<String, Object>) joined.get("availability")).containsEntry("mode", "AUTO");
+        assertThat((Map<String, Object>) joined.get("card")).containsEntry("availability", "ON_MISSION")
+            .containsEntry("availabilityDate", start.plusMonths(6).minusDays(1).toString());
+
+        String later = start.plusMonths(3).toString();
+        Map<String, Object> available = call(alice, HttpMethod.PUT, "/network/membership", Map.of("handle", handle, "fields", ALL_SHOWN,
+            "availability", Map.of("mode", "AVAILABLE", "date", later)), Map.class).getBody();
+        assertThat((Map<String, Object>) available.get("card")).containsEntry("availability", "AVAILABLE").containsEntry("availabilityDate", later);
+        Map<String, Object> listening = call(alice, HttpMethod.PUT, "/network/membership", Map.of("handle", handle, "fields", ALL_SHOWN,
+            "availability", Map.of("mode", "LISTENING", "date", later)), Map.class).getBody();
+        assertThat((Map<String, Object>) listening.get("availability")).containsEntry("mode", "LISTENING").containsEntry("date", null);
+        assertThat((Map<String, Object>) listening.get("card")).containsEntry("availability", "LISTENING");
+        Map<String, Object> hidden = new HashMap<>(ALL_SHOWN);
+        hidden.put("availability", false);
+        assertThat((Map<String, Object>) call(alice, HttpMethod.PUT, "/network/membership", Map.of("handle", handle, "fields", hidden),
+            Map.class).getBody().get("card")).containsEntry("availability", null);
+    }
 }

@@ -15,6 +15,25 @@
   gap: 12px;
 }
 
+.ring {
+  display: inline-flex;
+  padding: 2px;
+  border: 3px solid transparent;
+  border-radius: 50%;
+
+  &.AVAILABLE {
+    border-color: var(--app-chip-positive-text);
+  }
+
+  &.ON_MISSION {
+    border-color: var(--app-chip-warning-text);
+  }
+
+  &.LISTENING {
+    border-color: var(--app-chip-indigo-text);
+  }
+}
+
 .photo {
   width: 56px;
   height: 56px;
@@ -69,7 +88,7 @@
     font-size: 18px;
   }
 
-  &.available {
+  &.AVAILABLE {
     color: var(--app-chip-positive-text);
   }
 }

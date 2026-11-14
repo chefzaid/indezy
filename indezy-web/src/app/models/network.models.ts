@@ -12,6 +12,18 @@ export interface NetworkFields {
   remote: boolean;
 }
 
+/**
+ * How a card tells the availability: AUTO from the won missions (stored only), available (from a day or now), on a
+ * mission (until a day or with no end said), or open to hear of a mission.
+ */
+export type NetworkAvailability = 'AUTO' | 'AVAILABLE' | 'ON_MISSION' | 'LISTENING';
+
+/** The availability as the member sets it: the mode, and the day it names when available or on a mission. */
+export interface NetworkAvailabilitySetting {
+  mode: NetworkAvailability;
+  date: string | null;
+}
+
 /** What members see of a member: the name always, the rest as the member chose. */
 export interface MemberCard {
   handle: string;
@@ -22,8 +34,9 @@ export interface MemberCard {
   stack: string[];
   city: string | null;
   remote: boolean;
-  availableFrom: string | null;
-  availableNow: boolean;
+  /** The status the card shows, never AUTO, and the day it names; null when hidden or unknown. */
+  availability: Exclude<NetworkAvailability, 'AUTO'> | null;
+  availabilityDate: string | null;
   languages: string[];
 }
 
@@ -46,5 +59,6 @@ export interface NetworkMembership {
   joined: boolean;
   handle: string;
   fields: NetworkFields;
+  availability: NetworkAvailabilitySetting;
   card: MemberCard | null;
 }
