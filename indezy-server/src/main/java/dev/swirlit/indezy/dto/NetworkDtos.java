@@ -46,10 +46,10 @@ public final class NetworkDtos {
     /**
      * A post as members read it: its author's card, its text, the #tags it names, when it was posted, whether it is the
      * reader's, how many members like it and whether the reader does, how many comments the reader sees under it and
-     * whether its author closed them, and whether its author edited it.
+     * whether its author closed them, whether its author edited it, and whether the reader saved it.
      */
     public record Post(Long id, MemberCard author, String text, List<String> tags, LocalDateTime createdAt, boolean own, int likes,
-                       boolean liked, int comments, boolean commentsClosed, boolean edited) {
+                       boolean liked, int comments, boolean commentsClosed, boolean edited, boolean bookmarked) {
 
         public Post {
             tags = List.copyOf(tags);
@@ -94,6 +94,14 @@ public final class NetworkDtos {
         @Override
         public String toString() {
             return "NewPost[length=" + (text == null ? 0 : text.length()) + "]";
+        }
+    }
+
+    /** A page of the reader's saved posts, and the tags of all their saved posts, to filter by. */
+    public record SavedPosts(Posts page, List<String> tags) {
+
+        public SavedPosts {
+            tags = List.copyOf(tags);
         }
     }
 

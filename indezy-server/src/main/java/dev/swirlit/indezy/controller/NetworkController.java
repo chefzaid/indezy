@@ -231,6 +231,24 @@ public class NetworkController {
         comments.pin(SecurityUtils.getCurrentUserId(), id, commentId);
     }
 
+    @Operation(summary = "Save a post to one's private list")
+    @PutMapping("/posts/{id}/bookmark")
+    public NetworkDtos.Post bookmark(@PathVariable Long id) {
+        return posts.bookmark(SecurityUtils.getCurrentUserId(), id, true);
+    }
+
+    @Operation(summary = "Take a post off one's private list")
+    @DeleteMapping("/posts/{id}/bookmark")
+    public NetworkDtos.Post unbookmark(@PathVariable Long id) {
+        return posts.bookmark(SecurityUtils.getCurrentUserId(), id, false);
+    }
+
+    @Operation(summary = "One's saved posts, the latest saved first, 20 a page, those naming a tag when one is given")
+    @GetMapping("/bookmarks")
+    public NetworkDtos.SavedPosts bookmarks(@RequestParam(required = false) String tag, @RequestParam(defaultValue = "0") int page) {
+        return posts.saved(SecurityUtils.getCurrentUserId(), tag, page);
+    }
+
     @Operation(summary = "The home feed: the viewer's posts and those of the members they follow, the newest first, 20 a page")
     @GetMapping("/feed")
     public NetworkDtos.Posts feed(@RequestParam(defaultValue = "0") int page) {

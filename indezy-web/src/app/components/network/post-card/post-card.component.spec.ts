@@ -11,7 +11,7 @@ import { PostCardComponent, segments } from './post-card.component';
 
 describe('PostCardComponent', () => {
   const post: NetworkPost = { id: 4, text: 'Merci @leo_m pour #Kafka !\n<b>pas du HTML</b> mail@example.com', tags: ['kafka'],
-    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
+    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
       headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false } };
 
   it('splits the text into plain text, mentions and tags, leaving an address or a word alone', () => {
@@ -25,7 +25,7 @@ describe('PostCardComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
 
   function configure(): void {
-    network = jasmine.createSpyObj('NetworkService', ['like', 'likers', 'closeComments', 'comments', 'editPost', 'postVersions']);
+    network = jasmine.createSpyObj('NetworkService', ['like', 'likers', 'closeComments', 'comments', 'editPost', 'postVersions', 'bookmark']);
     network.comments.and.returnValue(of([]));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({ imports: [PostCardComponent, TranslateModule.forRoot()], providers: [provideRouter([]),
@@ -119,6 +119,24 @@ describe('PostCardComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('network.post.editError');
     fixture.componentRef.setInput('post', { ...post, createdAt: '2020-01-01T00:00:00' });
     expect(component.editable).toBeFalse();
+  });
+
+  it('saves the post to the reader\'s list, or takes it off, telling who shows it', () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', post);
+    fixture.detectChanges();
+    const unsaved = jasmine.createSpy('unsaved');
+    fixture.componentInstance.unsaved.subscribe(unsaved);
+    network.bookmark.and.returnValue(of({ ...post, bookmarked: true }));
+    (fixture.nativeElement.querySelector('[data-bookmark]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(network.bookmark).toHaveBeenCalledWith(4, true);
+    expect(unsaved).toHaveBeenCalledWith(jasmine.objectContaining({ bookmarked: true }));
+    expect(fixture.nativeElement.querySelector('[data-bookmark]').getAttribute('aria-pressed')).toBe('true');
+    network.bookmark.and.returnValue(throwError(() => new Error('down')));
+    fixture.componentInstance.toggleBookmark();
+    expect(notifications.error).toHaveBeenCalledWith('network.post.likeError');
   });
 
   it('links the author and the members mentioned, shows the text as text, and lets its author delete it', () => {

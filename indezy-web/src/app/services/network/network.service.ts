@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -41,6 +41,18 @@ export class NetworkService {
   /** Changes the text of the reader's own post, in the 15 minutes after posting it. */
   editPost(id: number, text: string): Observable<NetworkPost> {
     return this.http.put<NetworkPost>(`${this.API_URL}/posts/${id}`, { text });
+  }
+
+  /** Saves a post to the reader's private list, or takes it off. */
+  bookmark(id: number, saved: boolean): Observable<NetworkPost> {
+    const url = `${this.API_URL}/posts/${id}/bookmark`;
+    return saved ? this.http.put<NetworkPost>(url, null) : this.http.delete<NetworkPost>(url);
+  }
+
+  /** The reader's saved posts, 20 a page, those naming the tag when one is given. */
+  saved(tag: string | null, page = 0): Observable<SavedPosts> {
+    const params: Record<string, string | number> = tag ? { tag, page } : { page };
+    return this.http.get<SavedPosts>(`${this.API_URL}/bookmarks`, { params });
   }
 
   postVersions(id: number): Observable<NetworkPostVersion[]> {

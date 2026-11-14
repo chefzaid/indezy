@@ -3296,7 +3296,8 @@
       "postError": "The post could not be saved",
       "loadError": "The posts could not be loaded",
       "empty": "No post yet. Follow members from the directory to read theirs, or write the first one.",
-      "more": "Show more"
+      "more": "Show more",
+      "saved": "Saved"
     },
     "post": {
       "actions": "Actions on the post",
@@ -3328,7 +3329,17 @@
       "editLabel": "Your post",
       "replacedAt": "Until {{date}}",
       "editTooLate": "A post can only be edited in the 15 minutes after it is posted.",
-      "editError": "The post could not be changed."
+      "editError": "The post could not be changed.",
+      "save": "Save",
+      "saved": "Saved"
+    },
+    "savedPosts": {
+      "title": "Saved posts",
+      "subtitle": "The posts you saved, only for you, the latest saved first",
+      "all": "All",
+      "filter": "Filter by tag",
+      "empty": "No saved post. Save a post with its Save button to find it here.",
+      "loadError": "Your saved posts could not be loaded"
     }
   }
 }

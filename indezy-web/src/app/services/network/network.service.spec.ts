@@ -51,6 +51,14 @@ describe('NetworkService', () => {
     expect(http.expectOne(call => call.url.endsWith('/network/posts/5/pinned-comment')).request.params.keys()).toEqual([]);
     service.editPost(5, 'Revu').subscribe();
     expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/5')).request.body).toEqual({ text: 'Revu' });
+    service.bookmark(5, true).subscribe();
+    http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/5/bookmark'));
+    service.bookmark(5, false).subscribe();
+    http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/posts/5/bookmark'));
+    service.saved('kafka', 1).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/bookmarks')).request.params.toString()).toBe('tag=kafka&page=1');
+    service.saved(null).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/bookmarks')).request.params.toString()).toBe('page=0');
     service.postVersions(5).subscribe();
     http.expectOne(call => call.url.endsWith('/network/posts/5/versions'));
     service.deletePost(5).subscribe();

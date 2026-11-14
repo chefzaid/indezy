@@ -62,6 +62,10 @@
       <mat-icon>chat_bubble_outline</mat-icon>
       {{ (post.comments ? 'network.post.comments' : 'network.post.comment') | translate: { count: post.comments } }}
     </button>
+    <button mat-button type="button" (click)="toggleBookmark()" [attr.aria-pressed]="post.bookmarked" data-bookmark>
+      <mat-icon>{{ post.bookmarked ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+      {{ (post.bookmarked ? 'network.post.saved' : 'network.post.save') | translate }}
+    </button>
     @if (post.likes > 0) {
       <button mat-button type="button" (click)="likers ? likers = null : showLikers()" [attr.aria-expanded]="likers !== null" data-likes>
         {{ 'network.post.likes' | translate: { count: post.likes } }}

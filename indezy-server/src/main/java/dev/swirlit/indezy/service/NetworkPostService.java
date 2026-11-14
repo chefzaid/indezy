@@ -3,12 +3,14 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.NetworkBookmark;
 import dev.swirlit.indezy.model.NetworkComment;
 import dev.swirlit.indezy.model.NetworkLike;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkPostVersion;
 import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
+import dev.swirlit.indezy.repository.NetworkBookmarkRepository;
 import dev.swirlit.indezy.repository.NetworkCommentRepository;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
 import dev.swirlit.indezy.repository.NetworkLikeRepository;
@@ -67,6 +69,7 @@ public class NetworkPostService {
     private final NetworkLikeRepository likes;
     private final NetworkCommentRepository comments;
     private final NetworkPostVersionRepository versions;
+    private final NetworkBookmarkRepository bookmarks;
     private final Clock clock;
 
     @Transactional
@@ -78,7 +81,7 @@ public class NetworkPostService {
         post.setTags(tags(post.getText()));
         posts.save(post);
         log.info("Member {} posted {}", userId, post.getId());
-        return toDto(post, network.card(author), userId, List.of(), 0);
+        return toDto(post, network.card(author), userId, List.of(), 0, false);
     }
 
     /** Deletes the reader's own post; another member's, like an unknown one, is not found. */
@@ -89,6 +92,7 @@ public class NetworkPostService {
         likes.deleteByPostId(post.getId());
         comments.deleteByPostId(post.getId());
         versions.deleteByPostId(post.getId());
+        bookmarks.deleteByPostId(post.getId());
         posts.delete(post);
     }
 
@@ -115,7 +119,7 @@ public class NetworkPostService {
     @Transactional(readOnly = true)
     public List<NetworkDtos.Post> export(Long userId) {
         return posts.findByAuthorIdInOrderByCreatedAtDescIdDesc(List.of(userId), Pageable.unpaged()).stream()
-            .map(post -> toDto(post, null, userId, List.of(), 0)).toList();
+            .map(post -> toDto(post, null, userId, List.of(), 0, false)).toList();
     }
 
     private NetworkDtos.Posts page(Collection<Long> authors, Long readerId, int page) {
@@ -126,10 +130,11 @@ public class NetworkPostService {
         Map<Long, List<NetworkComment>> commented = comments.findByPostIdIn(ids).stream()
             .collect(Collectors.groupingBy(NetworkComment::getPostId));
         Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(readerId));
+        Set<Long> saved = bookmarks.findByUserIdAndPostIdIn(readerId, ids).stream().map(NetworkBookmark::getPostId).collect(Collectors.toSet());
         List<NetworkDtos.Post> shown = found.getContent().stream()
             .map(post -> cards.computeIfAbsent(post.getAuthorId(), this::authorCard)
                 .map(card -> toDto(post, card, readerId, liked.getOrDefault(post.getId(), List.of()),
-                    seenComments(post, readerId, blocked, commented.getOrDefault(post.getId(), List.of())))))
+                    seenComments(post, readerId, blocked, commented.getOrDefault(post.getId(), List.of())), saved.contains(post.getId()))))
             .flatMap(Optional::stream).toList();
         return new NetworkDtos.Posts(shown, found.getNumber(), found.hasNext());
     }
@@ -150,10 +155,52 @@ public class NetworkPostService {
     }
 
     private static NetworkDtos.Post toDto(NetworkPost post, NetworkDtos.MemberCard author, Long readerId, List<NetworkLike> postLikes,
-                                          int seenComments) {
+                                          int seenComments, boolean bookmarked) {
         return new NetworkDtos.Post(post.getId(), author, post.getText(), List.copyOf(post.getTags()), post.getCreatedAt(),
             post.getAuthorId().equals(readerId), postLikes.size(), postLikes.stream().anyMatch(like -> like.getUserId().equals(readerId)),
-            seenComments, post.isCommentsClosed(), post.getEditedAt() != null);
+            seenComments, post.isCommentsClosed(), post.getEditedAt() != null, bookmarked);
+    }
+
+    /** A single post as the reader now reads it. */
+    private NetworkDtos.Post reread(NetworkPost post, Long readerId) {
+        return toDto(post, authorCard(post.getAuthorId()).orElseThrow(), readerId, likes.findByPostIdIn(List.of(post.getId())),
+            seenComments(post, readerId, Set.copyOf(restrictions.blockedEitherWay(readerId)), comments.findByPostIdIn(List.of(post.getId()))),
+            bookmarks.findByUserIdAndPostId(readerId, post.getId()).isPresent());
+    }
+
+    /** Saves a post the reader can read to their private list, or takes it off. */
+    @Transactional
+    public NetworkDtos.Post bookmark(Long userId, Long postId, boolean saved) {
+        NetworkPost post = readable(userId, postId);
+        Optional<NetworkBookmark> existing = bookmarks.findByUserIdAndPostId(userId, postId);
+        if (saved && existing.isEmpty()) {
+            NetworkBookmark bookmark = new NetworkBookmark();
+            bookmark.setUserId(userId);
+            bookmark.setPostId(postId);
+            bookmarks.save(bookmark);
+        } else if (!saved) {
+            existing.ifPresent(bookmarks::delete);
+        }
+        return reread(post, userId);
+    }
+
+    /**
+     * The reader's saved posts they can still read, the latest saved first, 20 a page, those naming the tag only when one
+     * is given; with the tags of all of them, to filter by.
+     */
+    @Transactional(readOnly = true)
+    public NetworkDtos.SavedPosts saved(Long userId, String tag, int page) {
+        network.requireMember(userId);
+        Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(userId));
+        List<NetworkPost> readable = bookmarks.findByUserIdOrderByCreatedAtDescIdDesc(userId).stream()
+            .map(bookmark -> posts.findById(bookmark.getPostId())).flatMap(Optional::stream)
+            .filter(post -> !blocked.contains(post.getAuthorId()) && authorCard(post.getAuthorId()).isPresent()).toList();
+        List<String> tags = readable.stream().flatMap(post -> post.getTags().stream()).distinct().sorted().toList();
+        String wanted = tag == null || tag.isBlank() ? null : tag.strip().toLowerCase(Locale.ROOT).replaceFirst("^#", "");
+        List<NetworkPost> chosen = readable.stream().filter(post -> wanted == null || post.getTags().contains(wanted)).toList();
+        int from = Math.max(0, page) * PAGE_SIZE;
+        List<NetworkDtos.Post> shown = chosen.stream().skip(from).limit(PAGE_SIZE).map(post -> reread(post, userId)).toList();
+        return new NetworkDtos.SavedPosts(new NetworkDtos.Posts(shown, Math.max(0, page), chosen.size() > from + PAGE_SIZE), tags);
     }
 
     /**
@@ -177,8 +224,7 @@ public class NetworkPostService {
             post.setTags(tags(text));
             post.setEditedAt(clock.instant());
         }
-        return toDto(post, authorCard(userId).orElseThrow(), userId, likes.findByPostIdIn(List.of(postId)),
-            seenComments(post, userId, Set.copyOf(restrictions.blockedEitherWay(userId)), comments.findByPostIdIn(List.of(postId))));
+        return reread(post, userId);
     }
 
     /** The earlier texts of a post the reader can read, the latest first. */
@@ -202,8 +248,7 @@ public class NetworkPostService {
         } else if (!liked) {
             existing.ifPresent(likes::delete);
         }
-        return toDto(post, authorCard(post.getAuthorId()).orElseThrow(), userId, likes.findByPostIdIn(List.of(postId)),
-            seenComments(post, userId, Set.copyOf(restrictions.blockedEitherWay(userId)), comments.findByPostIdIn(List.of(postId))));
+        return reread(post, userId);
     }
 
     /** The members who like a post the reader can read, but those blocked either way. */

@@ -76,6 +76,14 @@ export interface NetworkPost {
   commentsClosed: boolean;
   /** Its author changed its text: its earlier versions are kept. */
   edited: boolean;
+  /** The reader saved it to their private list. */
+  bookmarked: boolean;
+}
+
+/** A page of the reader's saved posts, and the tags of all of them, to filter by. */
+export interface SavedPosts {
+  page: NetworkPosts;
+  tags: string[];
 }
 
 /** An earlier text of an edited post, and when it was replaced. */

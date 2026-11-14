@@ -136,7 +136,7 @@ describe('MemberPageComponent', () => {
   });
 
   it('shows the member\'s posts, pages through them, and lets the viewer delete their own', () => {
-    const post = (id: number) => ({ id, text: `Post ${id}`, tags: [], createdAt: '2026-11-14T10:00:00', own: true, likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false,
+    const post = (id: number) => ({ id, text: `Post ${id}`, tags: [], createdAt: '2026-11-14T10:00:00', own: true, likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false,
       author: card('camille') });
     const fixture = create();
     const component = fixture.componentInstance;

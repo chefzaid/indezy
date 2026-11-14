@@ -1,5 +1,9 @@
 <div class="feed-page">
   <app-page-header icon="diversity_3" [title]="'network.feed.title' | translate" [subtitle]="'network.feed.subtitle' | translate">
+    <a mat-stroked-button routerLink="/network/saved" data-feed-saved>
+      <mat-icon>bookmarks</mat-icon>
+      {{ 'network.feed.saved' | translate }}
+    </a>
     <a mat-stroked-button routerLink="/network/members" data-feed-members>
       <mat-icon>group</mat-icon>
       {{ 'network.feed.members' | translate }}

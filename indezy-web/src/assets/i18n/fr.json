@@ -3296,7 +3296,8 @@
       "postError": "La publication n'a pas pu être enregistrée",
       "loadError": "Les publications n'ont pas pu être chargées",
       "empty": "Aucune publication pour l'instant. Suivez des membres depuis l'annuaire pour lire les leurs, ou écrivez la première.",
-      "more": "Afficher plus"
+      "more": "Afficher plus",
+      "saved": "Enregistrés"
     },
     "post": {
       "actions": "Actions sur la publication",
@@ -3328,7 +3329,17 @@
       "editLabel": "Votre publication",
       "replacedAt": "Jusqu'au {{date}}",
       "editTooLate": "Une publication ne se modifie que dans les 15 minutes qui suivent sa parution.",
-      "editError": "La publication n'a pas pu être modifiée."
+      "editError": "La publication n'a pas pu être modifiée.",
+      "save": "Enregistrer",
+      "saved": "Enregistré"
+    },
+    "savedPosts": {
+      "title": "Publications enregistrées",
+      "subtitle": "Les publications que vous avez enregistrées, pour vous seul, les dernières d'abord",
+      "all": "Toutes",
+      "filter": "Filtrer par tag",
+      "empty": "Aucune publication enregistrée. Enregistrez une publication avec son bouton Enregistrer pour la retrouver ici.",
+      "loadError": "Vos publications enregistrées n'ont pas pu être chargées"
     }
   }
 }

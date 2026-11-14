@@ -137,6 +137,11 @@ export const routes: Routes = [
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
   },
   {
+    path: 'network/saved',
+    loadComponent: () => import('./components/network/saved/saved-posts.component').then(m => m.SavedPostsComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
     path: 'network/members',
     loadComponent: () => import('./components/network/member-directory/member-directory.component').then(m => m.MemberDirectoryComponent),
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]

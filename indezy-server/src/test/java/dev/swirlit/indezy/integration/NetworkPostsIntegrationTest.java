@@ -137,4 +137,41 @@ class NetworkPostsIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.DELETE, post, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(call(bob, HttpMethod.GET, post + "/versions", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void savesPostsToAPrivateListFilteredByTag() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        join(alice);
+        join(bob);
+        Object kafka = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Retour #Kafka"), Map.class).getBody().get("id");
+        Object spark = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Atelier #Spark"), Map.class).getBody().get("id");
+        assertThat(call(bob, HttpMethod.PUT, "/network/posts/" + kafka + "/bookmark", null, Map.class).getBody())
+            .containsEntry("bookmarked", true);
+        call(bob, HttpMethod.PUT, "/network/posts/" + spark + "/bookmark", null, Map.class);
+        call(bob, HttpMethod.PUT, "/network/posts/" + spark + "/bookmark", null, Map.class);
+
+        Map<String, Object> saved = call(bob, HttpMethod.GET, "/network/bookmarks", null, Map.class).getBody();
+        assertThat(saved).containsEntry("tags", List.of("kafka", "spark"));
+        assertThat((List<Map<String, Object>>) ((Map<String, Object>) saved.get("page")).get("posts"))
+            .extracting(post -> post.get("id")).containsExactly(spark, kafka);
+        Map<String, Object> filtered = (Map<String, Object>) call(bob, HttpMethod.GET, "/network/bookmarks?tag=Kafka", null, Map.class)
+            .getBody().get("page");
+        assertThat((List<Map<String, Object>>) filtered.get("posts")).singleElement()
+            .satisfies(post -> assertThat(post).containsEntry("id", kafka).containsEntry("bookmarked", true));
+        assertThat((List<Map<String, Object>>) ((Map<String, Object>) call(alice, HttpMethod.GET, "/network/bookmarks", null, Map.class)
+            .getBody().get("page")).get("posts")).isEmpty();
+
+        // Taken off, deleted by its author, or blocked: a saved post leaves the list.
+        call(bob, HttpMethod.DELETE, "/network/posts/" + spark + "/bookmark", null, Map.class);
+        call(alice, HttpMethod.DELETE, "/network/posts/" + kafka, null, String.class);
+        Object third = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Troisième"), Map.class).getBody().get("id");
+        call(bob, HttpMethod.PUT, "/network/posts/" + third + "/bookmark", null, Map.class);
+        assertThat((List<Map<String, Object>>) ((Map<String, Object>) call(bob, HttpMethod.GET, "/network/bookmarks", null, Map.class)
+            .getBody().get("page")).get("posts")).extracting(post -> post.get("id")).containsExactly(third);
+        String bobHandle = (String) call(bob, HttpMethod.GET, "/network/membership", null, Map.class).getBody().get("handle");
+        call(alice, HttpMethod.PUT, "/network/members/" + bobHandle + "/block", null, Map.class);
+        assertThat((List<Map<String, Object>>) ((Map<String, Object>) call(bob, HttpMethod.GET, "/network/bookmarks", null, Map.class)
+            .getBody().get("page")).get("posts")).isEmpty();
+    }
 }

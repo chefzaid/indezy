@@ -129,6 +129,17 @@ export class PostCardComponent {
     });
   }
 
+  /** Saves the post to the reader's private list, or takes it off. */
+  toggleBookmark(): void {
+    this.network.bookmark(this.post.id, !this.post.bookmarked).subscribe({
+      next: post => {
+        this.post = post;
+        this.unsaved.emit(post);
+      },
+      error: () => this.notifications.error('network.post.likeError')
+    });
+  }
+
   /** Shows who likes the post, or hides the list. */
   showLikers(): void {
     this.network.likers(this.post.id).subscribe({
@@ -138,6 +149,8 @@ export class PostCardComponent {
   }
   /** Asked to delete the post, its author's own. */
   @Output() readonly deleted = new EventEmitter<NetworkPost>();
+  /** Told once the reader saves the post or takes it off their list. */
+  @Output() readonly unsaved = new EventEmitter<NetworkPost>();
 
   get parts(): PostSegment[] {
     return segments(this.post.text);
