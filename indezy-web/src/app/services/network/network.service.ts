@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, NetworkPost, NetworkPosts, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, NetworkComment, NetworkPost, NetworkPosts, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -46,6 +46,33 @@ export class NetworkService {
   like(id: number, liked: boolean): Observable<NetworkPost> {
     const url = `${this.API_URL}/posts/${id}/like`;
     return liked ? this.http.put<NetworkPost>(url, null) : this.http.delete<NetworkPost>(url);
+  }
+
+  comments(postId: number): Observable<NetworkComment[]> {
+    return this.http.get<NetworkComment[]>(`${this.API_URL}/posts/${postId}/comments`);
+  }
+
+  /** Comments a post, or replies to one of its comments. */
+  comment(postId: number, text: string, parentId: number | null = null): Observable<NetworkComment> {
+    return this.http.post<NetworkComment>(`${this.API_URL}/posts/${postId}/comments`, { text, parentId });
+  }
+
+  deleteComment(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/comments/${id}`);
+  }
+
+  hideComment(id: number, hidden: boolean): Observable<void> {
+    return this.http.put<void>(`${this.API_URL}/comments/${id}/hidden`, null, { params: { hidden } });
+  }
+
+  closeComments(postId: number, closed: boolean): Observable<void> {
+    return this.http.put<void>(`${this.API_URL}/posts/${postId}/comments-closed`, null, { params: { closed } });
+  }
+
+  /** Pins a comment above the others, or none. */
+  pinComment(postId: number, commentId: number | null): Observable<void> {
+    const params: Record<string, number> = commentId === null ? {} : { commentId };
+    return this.http.put<void>(`${this.API_URL}/posts/${postId}/pinned-comment`, null, { params });
   }
 
   likers(id: number): Observable<MemberCard[]> {

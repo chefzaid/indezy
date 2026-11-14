@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
+import dev.swirlit.indezy.service.NetworkCommentService;
 import dev.swirlit.indezy.service.NetworkDirectoryService;
 import dev.swirlit.indezy.service.NetworkFollowService;
 import dev.swirlit.indezy.service.NetworkPostService;
@@ -36,6 +37,7 @@ public class NetworkController {
     private final NetworkFollowService follows;
     private final NetworkDirectoryService directory;
     private final NetworkPostService posts;
+    private final NetworkCommentService comments;
 
     @Operation(summary = "Whether the account joined, its handle and what its card shows")
     @GetMapping("/membership")
@@ -174,6 +176,47 @@ public class NetworkController {
     @GetMapping("/posts/{id}/likes")
     public List<NetworkDtos.MemberCard> likers(@PathVariable Long id) {
         return posts.likers(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "The comments under a post, each with its replies, the pinned one first")
+    @GetMapping("/posts/{id}/comments")
+    public List<NetworkDtos.Comment> comments(@PathVariable Long id) {
+        return comments.list(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "Comment a post, or reply to one of its comments", description = "409 once its author closed the comments")
+    @PostMapping("/posts/{id}/comments")
+    @ResponseStatus(HttpStatus.CREATED)
+    public NetworkDtos.Comment comment(@PathVariable Long id, @Valid @RequestBody NetworkDtos.NewComment request) {
+        return comments.comment(SecurityUtils.getCurrentUserId(), id, request);
+    }
+
+    @Operation(summary = "Delete one's own comment, and its replies")
+    @DeleteMapping("/comments/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComment(@PathVariable Long id) {
+        comments.delete(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "Hide a comment under one's own post, or show it again")
+    @PutMapping("/comments/{id}/hidden")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void hideComment(@PathVariable Long id, @RequestParam boolean hidden) {
+        comments.hide(SecurityUtils.getCurrentUserId(), id, hidden);
+    }
+
+    @Operation(summary = "Close the comments of one's own post, or open them again")
+    @PutMapping("/posts/{id}/comments-closed")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void closeComments(@PathVariable Long id, @RequestParam boolean closed) {
+        comments.close(SecurityUtils.getCurrentUserId(), id, closed);
+    }
+
+    @Operation(summary = "Pin a comment of one's own post above the others, or none")
+    @PutMapping("/posts/{id}/pinned-comment")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void pinComment(@PathVariable Long id, @RequestParam(required = false) Long commentId) {
+        comments.pin(SecurityUtils.getCurrentUserId(), id, commentId);
     }
 
     @Operation(summary = "The home feed: the viewer's posts and those of the members they follow, the newest first, 20 a page")

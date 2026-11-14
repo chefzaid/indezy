@@ -3303,7 +3303,26 @@
       "like": "Like",
       "liked": "Liked",
       "likes": "Likes: {{count}}",
-      "likeError": "This could not be changed. Try again in a moment."
+      "likeError": "This could not be changed. Try again in a moment.",
+      "comments": "Comments: {{count}}",
+      "comment": "Comment",
+      "writeComment": "Write a comment",
+      "writeReply": "Reply to {{name}}",
+      "send": "Send",
+      "reply": "Reply",
+      "cancel": "Cancel",
+      "pin": "Pin on top",
+      "unpin": "Unpin",
+      "hide": "Hide",
+      "unhide": "Show again",
+      "pinned": "Pinned",
+      "hidden": "Hidden: only you see it",
+      "closed": "Comments are closed.",
+      "close": "Close the comments",
+      "open": "Open the comments",
+      "commentError": "The comment could not be saved",
+      "deleteComment": "Delete this comment?",
+      "commentActions": "Actions on the comment"
     }
   }
 }

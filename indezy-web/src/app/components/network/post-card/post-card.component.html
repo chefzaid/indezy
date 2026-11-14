@@ -11,6 +11,10 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #actions="matMenu">
+        <button mat-menu-item type="button" (click)="toggleClosed()" data-post-close-comments>
+          <mat-icon>{{ post.commentsClosed ? 'chat' : 'speaker_notes_off' }}</mat-icon>
+          {{ (post.commentsClosed ? 'network.post.open' : 'network.post.close') | translate }}
+        </button>
         <button mat-menu-item type="button" (click)="deleted.emit(post)" data-post-delete>
           <mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}
         </button>
@@ -24,6 +28,10 @@
       <mat-icon>{{ post.liked ? 'favorite' : 'favorite_border' }}</mat-icon>
       {{ (post.liked ? 'network.post.liked' : 'network.post.like') | translate }}
     </button>
+    <button mat-button type="button" (click)="showComments = !showComments" [attr.aria-expanded]="showComments" data-show-comments>
+      <mat-icon>chat_bubble_outline</mat-icon>
+      {{ (post.comments ? 'network.post.comments' : 'network.post.comment') | translate: { count: post.comments } }}
+    </button>
     @if (post.likes > 0) {
       <button mat-button type="button" (click)="likers ? likers = null : showLikers()" [attr.aria-expanded]="likers !== null" data-likes>
         {{ 'network.post.likes' | translate: { count: post.likes } }}
@@ -36,5 +44,8 @@
         <li><a [routerLink]="['/m', member.handle]">{{ member.firstName }} {{ member.lastName }}</a></li>
       }
     </ul>
+  }
+  @if (showComments) {
+    <app-post-comments [post]="post" (counted)="post = { ...post, comments: $event }"></app-post-comments>
   }
 </article>

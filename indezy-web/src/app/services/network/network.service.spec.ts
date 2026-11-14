@@ -34,6 +34,21 @@ describe('NetworkService', () => {
     http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/posts/5/like'));
     service.likers(5).subscribe();
     http.expectOne(call => call.url.endsWith('/network/posts/5/likes'));
+    service.comments(5).subscribe();
+    http.expectOne(call => call.method === 'GET' && call.url.endsWith('/network/posts/5/comments'));
+    service.comment(5, 'Merci', 3).subscribe();
+    expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/posts/5/comments')).request.body)
+      .toEqual({ text: 'Merci', parentId: 3 });
+    service.deleteComment(3).subscribe();
+    http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/comments/3'));
+    service.hideComment(3, true).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/comments/3/hidden')).request.params.get('hidden')).toBe('true');
+    service.closeComments(5, false).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/posts/5/comments-closed')).request.params.get('closed')).toBe('false');
+    service.pinComment(5, 3).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/posts/5/pinned-comment')).request.params.get('commentId')).toBe('3');
+    service.pinComment(5, null).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/posts/5/pinned-comment')).request.params.keys()).toEqual([]);
     service.deletePost(5).subscribe();
     http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/posts/5'));
     service.feed().subscribe();

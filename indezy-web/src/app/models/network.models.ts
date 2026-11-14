@@ -71,6 +71,22 @@ export interface NetworkPost {
   /** How many members like it, and whether the reader does. */
   likes: number;
   liked: boolean;
+  /** How many comments the reader sees under it, and whether its author closed them. */
+  comments: number;
+  commentsClosed: boolean;
+}
+
+/** A comment as the reader sees it, with its replies when it is under the post itself. */
+export interface NetworkComment {
+  id: number;
+  author: MemberCard;
+  text: string;
+  createdAt: string;
+  own: boolean;
+  /** Hidden by the post's author: only they see it. */
+  hidden: boolean;
+  pinned: boolean;
+  replies: NetworkComment[];
 }
 
 /** A page of posts, the newest first, and whether more follow. */

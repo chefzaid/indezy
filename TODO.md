@@ -491,7 +491,7 @@ Feed
 - [ ] Post types beyond a plain post, each with its own card: **Mission à transmettre** (a mission the author declines or cannot take: role, TJM range, city, remote days, start; the client hidden unless the author names it), **Disponible** (the author's next availability, stack and rate range), **Question** (marked answered when the author picks a reply), **Sondage** (two to four choices, open one to seven days) and **Retour d'expérience** (what a mission, an ESN's process or a tool taught).
 - [ ] **Add to my pipeline** on a Mission à transmettre: one click creates the opportunity in the reader's Contact column with the author as the source, and the author sees how many members took it (who, only for those who agree), completing the decline-sharing item above.
 - [ ] Share from the app to the feed: an offer of the offer feed, a declined opportunity of the Refusé column (client removed), a skill trend or a rate-versus-market card of the dashboard, and milestones ("Mission signée", "Un an de freelance") without client names.
-- [ ] Comments under posts with one level of replies and @mentions; the author pins a comment, closes comments or hides one.
+- [x] Comments under posts with one level of replies and @mentions; the author pins a comment, closes comments or hides one. Done on 2026-11-14 (`docs/features.md#member-network`); the mentions in comments are written as text, linking and notifying with the notification centre.
 - [ ] Editing for 15 minutes, then marked "modifié" with the earlier versions kept; deleting a post removes its likes, comments and files.
 - [ ] Bookmarks: posts and documents saved to a private **Enregistrés** list, filtered by tag.
 - [ ] Drafts and scheduled posts (published at a set time, for instance Monday 9:00).

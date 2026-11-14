@@ -29,6 +29,14 @@ public class NetworkPost extends BaseEntity {
     @Column(name = "text", nullable = false, length = TEXT_MAX)
     private String text;
 
+    /** No new comment once its author closes them. */
+    @Column(name = "comments_closed", nullable = false)
+    private boolean commentsClosed;
+
+    /** The comment its author pinned above the others. */
+    @Column(name = "pinned_comment_id")
+    private Long pinnedCommentId;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "network_post_tags", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "tag", length = 40)

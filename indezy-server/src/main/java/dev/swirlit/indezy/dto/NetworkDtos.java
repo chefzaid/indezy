@@ -45,10 +45,11 @@ public final class NetworkDtos {
 
     /**
      * A post as members read it: its author's card, its text, the #tags it names, when it was posted, whether it is the
-     * reader's, how many members like it and whether the reader does.
+     * reader's, how many members like it and whether the reader does, how many comments the reader sees under it and
+     * whether its author closed them.
      */
     public record Post(Long id, MemberCard author, String text, List<String> tags, LocalDateTime createdAt, boolean own, int likes,
-                       boolean liked) {
+                       boolean liked, int comments, boolean commentsClosed) {
 
         public Post {
             tags = List.copyOf(tags);
@@ -58,6 +59,32 @@ public final class NetworkDtos {
         @Override
         public String toString() {
             return "Post[id=" + id + "]";
+        }
+    }
+
+    /**
+     * A comment as the reader sees it, with its replies when it is under the post itself: hidden ones only the post's
+     * author sees, marked so; the pinned one first.
+     */
+    public record Comment(Long id, MemberCard author, String text, LocalDateTime createdAt, boolean own, boolean hidden, boolean pinned,
+                          List<Comment> replies) {
+
+        public Comment {
+            replies = List.copyOf(replies);
+        }
+
+        @Override
+        public String toString() {
+            return "Comment[id=" + id + "]";
+        }
+    }
+
+    /** A new comment, or a reply to the comment named. */
+    public record NewComment(@NotBlank @Size(max = 1500) String text, Long parentId) {
+
+        @Override
+        public String toString() {
+            return "NewComment[length=" + (text == null ? 0 : text.length()) + "]";
         }
     }
 

@@ -198,7 +198,12 @@ lists the members muted and blocked, each to unmute or unblock.
 come); then the reader's posts and those of the members they follow, the newest first, 20 at a time with **Show
 more**, but those of members muted or blocked either way, or away from the network. A member's page shows their posts
 too. **Like** a post, once, or no longer; its likes count opens who liked it (but members blocked either way). A member
-deletes their own posts, their likes going with them, and they are part of the data export. Images, documents and link previews wait
+deletes their own posts, their likes and comments going with them, and they are part of the data export.
+
+**Comments** open under a post: comments and, under each, replies (one level), the oldest first. Each writer deletes
+their own comment, its replies going with it. The post's author **pins** one comment on top, **hides** one (then only
+the author sees it, marked hidden) or **closes** the comments, after which none is added. Comments between members who
+block each other, and those of members away from the network, are not shown. Images, documents and link previews wait
 on the choice of their store.
 
 **Members** on the feed (`/network/members`) is the member directory: the members found by a skill, a city, an

@@ -9,6 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MemberCard, NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { PostCommentsComponent } from '../post-comments/post-comments.component';
 
 /** A piece of a post's text: plain text, a member mentioned, or a #tag. */
 export type PostSegment = { text: string } | { handle: string } | { tag: string };
@@ -41,7 +42,7 @@ export function segments(text: string): PostSegment[] {
 /** A post: its author (opening their page), when it was posted, its text with mentions and tags, and its own actions. */
 @Component({
   selector: 'app-post-card',
-  imports: [DatePipe, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule],
+  imports: [DatePipe, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, PostCommentsComponent],
   templateUrl: './post-card.component.html',
   styleUrls: ['./post-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -54,6 +55,17 @@ export class PostCardComponent {
   /** The members who like the post, once asked for. */
   likers: MemberCard[] | null = null;
   isLiking = false;
+  /** Whether the comments are open under the post. */
+  showComments = false;
+
+  /** Closes the comments of the reader's own post, or opens them again. */
+  toggleClosed(): void {
+    const closed = !this.post.commentsClosed;
+    this.network.closeComments(this.post.id, closed).subscribe({
+      next: () => this.post = { ...this.post, commentsClosed: closed },
+      error: () => this.notifications.error('network.post.commentError')
+    });
+  }
 
   toggleLike(): void {
     this.isLiking = true;

@@ -10,7 +10,7 @@ import { PostCardComponent, segments } from './post-card.component';
 
 describe('PostCardComponent', () => {
   const post: NetworkPost = { id: 4, text: 'Merci @leo_m pour #Kafka !\n<b>pas du HTML</b> mail@example.com', tags: ['kafka'],
-    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
+    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
       headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false } };
 
   it('splits the text into plain text, mentions and tags, leaving an address or a word alone', () => {
@@ -24,7 +24,8 @@ describe('PostCardComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
 
   function configure(): void {
-    network = jasmine.createSpyObj('NetworkService', ['like', 'likers']);
+    network = jasmine.createSpyObj('NetworkService', ['like', 'likers', 'closeComments', 'comments']);
+    network.comments.and.returnValue(of([]));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({ imports: [PostCardComponent, TranslateModule.forRoot()], providers: [provideRouter([]),
       { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications }] });
@@ -57,6 +58,27 @@ describe('PostCardComponent', () => {
     component.showLikers();
     expect(notifications.error).toHaveBeenCalledWith('network.post.likeError');
     expect(notifications.error).toHaveBeenCalledTimes(2);
+  });
+
+  it('opens the comments under the post, and lets its author close them', () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', post);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-show-comments]')?.textContent).toContain('network.post.comments');
+    (element.querySelector('[data-show-comments]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(element.querySelector('app-post-comments')).not.toBeNull();
+    expect(component.post.comments).toBe(3);
+    network.closeComments.and.returnValue(of(undefined));
+    component.toggleClosed();
+    expect(network.closeComments).toHaveBeenCalledWith(4, true);
+    expect(component.post.commentsClosed).toBeTrue();
+    network.closeComments.and.returnValue(throwError(() => new Error('down')));
+    component.toggleClosed();
+    expect(notifications.error).toHaveBeenCalledWith('network.post.commentError');
   });
 
   it('links the author and the members mentioned, shows the text as text, and lets its author delete it', () => {

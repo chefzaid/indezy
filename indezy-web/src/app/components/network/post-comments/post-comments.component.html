@@ -1,0 +1,76 @@
+<section class="comments" [attr.data-comments]="post.id">
+  <ng-template #entry let-comment let-top="top">
+    <div class="comment" [class.hidden]="comment.hidden" [attr.data-comment]="comment.id">
+      <div class="head">
+        <a [routerLink]="['/m', comment.author.handle]" class="author">{{ comment.author.firstName }} {{ comment.author.lastName }}</a>
+        <time [attr.datetime]="comment.createdAt">{{ comment.createdAt | date:'short' }}</time>
+        @if (comment.pinned) {
+          <span class="mark" data-comment-pinned><mat-icon aria-hidden="true">push_pin</mat-icon>{{ 'network.post.pinned' | translate }}</span>
+        }
+        @if (comment.hidden) {
+          <span class="mark" data-comment-hidden>{{ 'network.post.hidden' | translate }}</span>
+        }
+        @if (comment.own || post.own) {
+          <button mat-icon-button type="button" [matMenuTriggerFor]="actions" [attr.aria-label]="'network.post.commentActions' | translate"
+            data-comment-actions>
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #actions="matMenu">
+            @if (post.own && top) {
+              <button mat-menu-item type="button" (click)="pin(comment)" data-comment-pin>
+                <mat-icon>push_pin</mat-icon>{{ (comment.pinned ? 'network.post.unpin' : 'network.post.pin') | translate }}
+              </button>
+            }
+            @if (post.own) {
+              <button mat-menu-item type="button" (click)="hide(comment)" data-comment-hide>
+                <mat-icon>{{ comment.hidden ? 'visibility' : 'visibility_off' }}</mat-icon>
+                {{ (comment.hidden ? 'network.post.unhide' : 'network.post.hide') | translate }}
+              </button>
+            }
+            @if (comment.own) {
+              <button mat-menu-item type="button" (click)="remove(comment)" data-comment-delete>
+                <mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}
+              </button>
+            }
+          </mat-menu>
+        }
+      </div>
+      <p class="text">{{ comment.text }}</p>
+      @if (top && !post.commentsClosed) {
+        <button mat-button type="button" class="reply" (click)="replyTo = comment" data-comment-reply>{{ 'network.post.reply' | translate }}</button>
+      }
+    </div>
+  </ng-template>
+
+  <ul class="list">
+    @for (comment of comments; track comment.id) {
+      <li>
+        <ng-container *ngTemplateOutlet="entry; context: { $implicit: comment, top: true }"></ng-container>
+        @if (comment.replies.length) {
+          <ul class="replies">
+            @for (answer of comment.replies; track answer.id) {
+              <li><ng-container *ngTemplateOutlet="entry; context: { $implicit: answer, top: false }"></ng-container></li>
+            }
+          </ul>
+        }
+      </li>
+    }
+  </ul>
+
+  @if (post.commentsClosed) {
+    <p class="closed" data-comments-closed>{{ 'network.post.closed' | translate }}</p>
+  } @else {
+    <form class="composer" (submit)="$event.preventDefault(); send()" data-comment-form>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ replyTo ? ('network.post.writeReply' | translate: { name: replyTo.author.firstName }) : ('network.post.writeComment' | translate) }}</mat-label>
+        <textarea matInput [formControl]="draft" rows="2" [maxlength]="max" data-comment-text></textarea>
+      </mat-form-field>
+      <div class="actions">
+        @if (replyTo) {
+          <button mat-button type="button" (click)="replyTo = null" data-reply-cancel>{{ 'network.post.cancel' | translate }}</button>
+        }
+        <button mat-flat-button type="submit" [disabled]="isSending || !draft.value.trim()" data-comment-send>{{ 'network.post.send' | translate }}</button>
+      </div>
+    </form>
+  }
+</section>

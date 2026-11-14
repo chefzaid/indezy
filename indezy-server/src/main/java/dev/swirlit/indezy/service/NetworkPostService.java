@@ -2,10 +2,12 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.NetworkComment;
 import dev.swirlit.indezy.model.NetworkLike;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
+import dev.swirlit.indezy.repository.NetworkCommentRepository;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
 import dev.swirlit.indezy.repository.NetworkLikeRepository;
 import dev.swirlit.indezy.repository.NetworkMemberRepository;
@@ -55,6 +57,7 @@ public class NetworkPostService {
     private final NetworkFollowRepository followRepository;
     private final NetworkRestrictionRepository restrictions;
     private final NetworkLikeRepository likes;
+    private final NetworkCommentRepository comments;
 
     @Transactional
     public NetworkDtos.Post post(Long userId, NetworkDtos.NewPost request) {
@@ -65,7 +68,7 @@ public class NetworkPostService {
         post.setTags(tags(post.getText()));
         posts.save(post);
         log.info("Member {} posted {}", userId, post.getId());
-        return toDto(post, network.card(author), userId, List.of());
+        return toDto(post, network.card(author), userId, List.of(), 0);
     }
 
     /** Deletes the reader's own post; another member's, like an unknown one, is not found. */
@@ -74,6 +77,7 @@ public class NetworkPostService {
         network.requireMember(userId);
         NetworkPost post = posts.findByIdAndAuthorId(postId, userId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
         likes.deleteByPostId(post.getId());
+        comments.deleteByPostId(post.getId());
         posts.delete(post);
     }
 
@@ -100,29 +104,45 @@ public class NetworkPostService {
     @Transactional(readOnly = true)
     public List<NetworkDtos.Post> export(Long userId) {
         return posts.findByAuthorIdInOrderByCreatedAtDescIdDesc(List.of(userId), Pageable.unpaged()).stream()
-            .map(post -> toDto(post, null, userId, List.of())).toList();
+            .map(post -> toDto(post, null, userId, List.of(), 0)).toList();
     }
 
     private NetworkDtos.Posts page(Collection<Long> authors, Long readerId, int page) {
         Page<NetworkPost> found = posts.findByAuthorIdInOrderByCreatedAtDescIdDesc(authors, PageRequest.of(Math.max(0, page), PAGE_SIZE));
         Map<Long, Optional<NetworkDtos.MemberCard>> cards = new HashMap<>();
-        Map<Long, List<NetworkLike>> liked = likes.findByPostIdIn(found.getContent().stream().map(NetworkPost::getId).toList()).stream()
-            .collect(Collectors.groupingBy(NetworkLike::getPostId));
+        List<Long> ids = found.getContent().stream().map(NetworkPost::getId).toList();
+        Map<Long, List<NetworkLike>> liked = likes.findByPostIdIn(ids).stream().collect(Collectors.groupingBy(NetworkLike::getPostId));
+        Map<Long, List<NetworkComment>> commented = comments.findByPostIdIn(ids).stream()
+            .collect(Collectors.groupingBy(NetworkComment::getPostId));
+        Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(readerId));
         List<NetworkDtos.Post> shown = found.getContent().stream()
             .map(post -> cards.computeIfAbsent(post.getAuthorId(), this::authorCard)
-                .map(card -> toDto(post, card, readerId, liked.getOrDefault(post.getId(), List.of()))))
+                .map(card -> toDto(post, card, readerId, liked.getOrDefault(post.getId(), List.of()),
+                    seenComments(post, readerId, blocked, commented.getOrDefault(post.getId(), List.of())))))
             .flatMap(Optional::stream).toList();
         return new NetworkDtos.Posts(shown, found.getNumber(), found.hasNext());
     }
 
+    /** How many of the comments the reader sees: not hidden (but to the post's author), nor written by a member blocked either way. */
+    static int seenComments(NetworkPost post, Long readerId, Set<Long> blocked, List<NetworkComment> postComments) {
+        return (int) postComments.stream().filter(comment -> visible(post, comment, readerId, blocked)).count();
+    }
+
+    /** Whether the reader sees the comment: not hidden, unless they wrote the post, and not by a member blocked either way. */
+    static boolean visible(NetworkPost post, NetworkComment comment, Long readerId, Set<Long> blocked) {
+        return !blocked.contains(comment.getAuthorId()) && (!comment.isHidden() || post.getAuthorId().equals(readerId));
+    }
+
     /** The author's card while they are in the network; their posts are hidden while they are away. */
-    private Optional<NetworkDtos.MemberCard> authorCard(Long authorId) {
+    Optional<NetworkDtos.MemberCard> authorCard(Long authorId) {
         return members.findByUserId(authorId).filter(NetworkMember::isActive).flatMap(network::liveCard);
     }
 
-    private static NetworkDtos.Post toDto(NetworkPost post, NetworkDtos.MemberCard author, Long readerId, List<NetworkLike> postLikes) {
+    private static NetworkDtos.Post toDto(NetworkPost post, NetworkDtos.MemberCard author, Long readerId, List<NetworkLike> postLikes,
+                                          int seenComments) {
         return new NetworkDtos.Post(post.getId(), author, post.getText(), List.copyOf(post.getTags()), post.getCreatedAt(),
-            post.getAuthorId().equals(readerId), postLikes.size(), postLikes.stream().anyMatch(like -> like.getUserId().equals(readerId)));
+            post.getAuthorId().equals(readerId), postLikes.size(), postLikes.stream().anyMatch(like -> like.getUserId().equals(readerId)),
+            seenComments, post.isCommentsClosed());
     }
 
     /** Likes a post the reader can read, or no longer; returns it as the reader now reads it. */
@@ -138,7 +158,8 @@ public class NetworkPostService {
         } else if (!liked) {
             existing.ifPresent(likes::delete);
         }
-        return toDto(post, authorCard(post.getAuthorId()).orElseThrow(), userId, likes.findByPostIdIn(List.of(postId)));
+        return toDto(post, authorCard(post.getAuthorId()).orElseThrow(), userId, likes.findByPostIdIn(List.of(postId)),
+            seenComments(post, userId, Set.copyOf(restrictions.blockedEitherWay(userId)), comments.findByPostIdIn(List.of(postId))));
     }
 
     /** The members who like a post the reader can read, but those blocked either way. */
@@ -151,7 +172,7 @@ public class NetworkPostService {
     }
 
     /** A post the reader can read: its author in the network, neither blocking the other; not found otherwise. */
-    private NetworkPost readable(Long userId, Long postId) {
+    NetworkPost readable(Long userId, Long postId) {
         network.requireMember(userId);
         NetworkPost post = posts.findById(postId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
         if (authorCard(post.getAuthorId()).isEmpty() || restrictions.blockedEitherWay(userId).contains(post.getAuthorId())) {

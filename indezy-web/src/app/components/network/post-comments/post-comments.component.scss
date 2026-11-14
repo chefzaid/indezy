@@ -1,0 +1,95 @@
+.comments {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--app-border);
+}
+
+.list,
+.replies {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.replies {
+  margin: 8px 0 0 24px;
+  padding-left: 12px;
+  border-left: 2px solid var(--app-border);
+}
+
+.comment {
+  &.hidden {
+    opacity: 0.7;
+  }
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 8px;
+  }
+
+  .author {
+    color: var(--app-link);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  time,
+  .mark {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+  }
+
+  .mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+
+    mat-icon {
+      width: 14px;
+      height: 14px;
+      font-size: 14px;
+    }
+  }
+
+  .head button {
+    margin-left: auto;
+  }
+
+  .text {
+    margin: 2px 0 0;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+  }
+
+  .reply {
+    margin-left: -8px;
+  }
+}
+
+.closed {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.composer {
+  display: flex;
+  flex-direction: column;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}

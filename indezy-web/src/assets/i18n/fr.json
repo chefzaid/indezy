@@ -3303,7 +3303,26 @@
       "like": "J'aime",
       "liked": "Aimé",
       "likes": "J'aime : {{count}}",
-      "likeError": "Le changement n'a pas pu être fait. Réessayez dans un instant."
+      "likeError": "Le changement n'a pas pu être fait. Réessayez dans un instant.",
+      "comments": "Commentaires : {{count}}",
+      "comment": "Commenter",
+      "writeComment": "Écrire un commentaire",
+      "writeReply": "Répondre à {{name}}",
+      "send": "Envoyer",
+      "reply": "Répondre",
+      "cancel": "Annuler",
+      "pin": "Épingler en haut",
+      "unpin": "Désépingler",
+      "hide": "Masquer",
+      "unhide": "Afficher à nouveau",
+      "pinned": "Épinglé",
+      "hidden": "Masqué : vous seul le voyez",
+      "closed": "Les commentaires sont fermés.",
+      "close": "Fermer les commentaires",
+      "open": "Ouvrir les commentaires",
+      "commentError": "Le commentaire n'a pas pu être enregistré",
+      "deleteComment": "Supprimer ce commentaire ?",
+      "commentActions": "Actions sur le commentaire"
     }
   }
 }
