@@ -1,0 +1,53 @@
+.feed-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+}
+
+.composer {
+  display: flex;
+  flex-direction: column;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  .hint {
+    margin: 0 0 8px;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.problem,
+.empty {
+  color: var(--text-secondary);
+}
+
+.problem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.posts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

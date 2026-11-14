@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, NetworkPost, NetworkPosts, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -32,6 +32,23 @@ export class NetworkService {
 
   handle(handle: string): Observable<{ handle: string; available: boolean }> {
     return this.http.get<{ handle: string; available: boolean }>(`${this.API_URL}/handles/${encodeURIComponent(handle)}`);
+  }
+
+  post(text: string): Observable<NetworkPost> {
+    return this.http.post<NetworkPost>(`${this.API_URL}/posts`, { text });
+  }
+
+  deletePost(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/posts/${id}`);
+  }
+
+  /** The reader's posts and those of the members they follow, 20 a page. */
+  feed(page = 0): Observable<NetworkPosts> {
+    return this.http.get<NetworkPosts>(`${this.API_URL}/feed`, { params: { page } });
+  }
+
+  memberPosts(handle: string, page = 0): Observable<NetworkPosts> {
+    return this.http.get<NetworkPosts>(`${this.member$(handle)}/posts`, { params: { page } });
   }
 
   /** The members found by a skill, a city, an availability or remote work, 20 a page. */

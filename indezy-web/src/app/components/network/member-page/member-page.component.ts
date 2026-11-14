@@ -9,11 +9,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, map, switchMap } from 'rxjs';
 
-import { MemberCard, MemberPage } from '../../../models';
+import { MemberCard, MemberPage, NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MemberCardComponent } from '../member-card/member-card.component';
+import { PostCardComponent } from '../post-card/post-card.component';
 
 /** Which list of the page is open. */
 export type MemberList = 'followers' | 'following';
@@ -24,7 +25,7 @@ export type MemberList = 'followers' | 'following';
  */
 @Component({
   selector: 'app-member-page',
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatMenuModule, MatProgressSpinnerModule, TranslateModule, MemberCardComponent],
+  imports: [RouterLink, MatButtonModule, MatIconModule, MatMenuModule, MatProgressSpinnerModule, TranslateModule, MemberCardComponent, PostCardComponent],
   templateUrl: './member-page.component.html',
   styleUrls: ['./member-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -44,6 +45,9 @@ export class MemberPageComponent implements OnInit {
   list: MemberList | null = null;
   members: MemberCard[] = [];
   isFollowing = false;
+  posts: NetworkPost[] = [];
+  postsPage = 0;
+  morePosts = false;
 
   ngOnInit(): void {
     this.route.paramMap.pipe(map(params => params.get('handle') ?? ''), switchMap(handle => {
@@ -55,6 +59,7 @@ export class MemberPageComponent implements OnInit {
         this.page = page;
         this.problem = null;
         this.loading = false;
+        this.loadPosts(0);
         this.changes.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
@@ -127,6 +132,29 @@ export class MemberPageComponent implements OnInit {
       danger: true }).subscribe(confirmed => {
       if (confirmed) {
         block();
+      }
+    });
+  }
+
+  loadPosts(page: number): void {
+    this.network.memberPosts(this.page!.card.handle, page).subscribe({
+      next: found => {
+        this.posts = page === 0 ? found.posts : [...this.posts, ...found.posts];
+        this.postsPage = found.page;
+        this.morePosts = found.more;
+        this.changes.markForCheck();
+      },
+      error: () => this.notifications.error('network.feed.loadError')
+    });
+  }
+
+  removePost(post: NetworkPost): void {
+    this.confirm.confirm({ messageKey: 'network.feed.deleteConfirm', confirmKey: 'common.delete', danger: true }).subscribe(confirmed => {
+      if (confirmed) {
+        this.network.deletePost(post.id).subscribe({
+          next: () => this.posts = this.posts.filter(item => item.id !== post.id),
+          error: () => this.notifications.error('network.feed.postError')
+        });
       }
     });
   }

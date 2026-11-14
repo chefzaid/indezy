@@ -3256,7 +3256,9 @@
       "blockedDone": "Bloqué",
       "unblockedDone": "Débloqué",
       "blockedNote": "Vous bloquez ce membre.",
-      "mutedNote": "Masqué"
+      "mutedNote": "Masqué",
+      "posts": "Publications",
+      "noPosts": "Aucune publication pour l'instant."
     },
     "directory": {
       "title": "Membres",
@@ -3280,6 +3282,24 @@
         "ON_MISSION": "En mission",
         "LISTENING": "À l'écoute"
       }
+    },
+    "feed": {
+      "title": "Réseau",
+      "subtitle": "Vos publications et celles des membres que vous suivez, les plus récentes d'abord",
+      "members": "Membres",
+      "compose": "Partagez quelque chose avec les membres",
+      "composeHint": "Mentionnez un membre avec @identifiant, nommez une compétence ou une ville avec #tag.",
+      "publish": "Publier",
+      "posted": "Publié",
+      "deleted": "Publication supprimée",
+      "deleteConfirm": "Supprimer cette publication ?",
+      "postError": "La publication n'a pas pu être enregistrée",
+      "loadError": "Les publications n'ont pas pu être chargées",
+      "empty": "Aucune publication pour l'instant. Suivez des membres depuis l'annuaire pour lire les leurs, ou écrivez la première.",
+      "more": "Afficher plus"
+    },
+    "post": {
+      "actions": "Actions sur la publication"
     }
   }
 }

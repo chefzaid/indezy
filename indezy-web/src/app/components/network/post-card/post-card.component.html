@@ -1,0 +1,21 @@
+<article class="post" [attr.data-post]="post.id">
+  <header>
+    <a [routerLink]="['/m', post.author.handle]" class="author">
+      {{ post.author.firstName }} {{ post.author.lastName }}
+      <span class="handle">&#64;{{ post.author.handle }}</span>
+    </a>
+    <time [attr.datetime]="post.createdAt">{{ post.createdAt | date:'medium' }}</time>
+    @if (post.own) {
+      <button mat-icon-button type="button" [matMenuTriggerFor]="actions" [attr.aria-label]="'network.post.actions' | translate"
+        data-post-actions>
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #actions="matMenu">
+        <button mat-menu-item type="button" (click)="deleted.emit(post)" data-post-delete>
+          <mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}
+        </button>
+      </mat-menu>
+    }
+  </header>
+  <p class="text">@for (part of parts; track $index) {@if (handleOf(part); as handle) {<a [routerLink]="['/m', handle]" class="mention">&#64;{{ handle }}</a>} @else if (tagOf(part); as tag) {<span class="tag">#{{ tag }}</span>} @else {{{ textOf(part) }}}}</p>
+</article>

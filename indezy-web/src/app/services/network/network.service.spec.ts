@@ -26,6 +26,14 @@ describe('NetworkService', () => {
       .toBe('page=2&skill=Kafka&availability=LISTENING&remote=true');
     service.directory({}).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/members')).request.params.toString()).toBe('page=0');
+    service.post('Bonjour').subscribe();
+    expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/posts')).request.body).toEqual({ text: 'Bonjour' });
+    service.deletePost(5).subscribe();
+    http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/posts/5'));
+    service.feed().subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/feed')).request.params.get('page')).toBe('0');
+    service.memberPosts('leo', 2).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/members/leo/posts')).request.params.get('page')).toBe('2');
     service.member('camille').subscribe();
     http.expectOne(call => call.url.endsWith('/network/members/camille'));
     service.page('camille').subscribe();

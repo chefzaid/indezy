@@ -131,6 +131,12 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'network',
+    pathMatch: 'full',
+    loadComponent: () => import('./components/network/feed/network-feed.component').then(m => m.NetworkFeedComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
     path: 'network/members',
     loadComponent: () => import('./components/network/member-directory/member-directory.component').then(m => m.MemberDirectoryComponent),
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]

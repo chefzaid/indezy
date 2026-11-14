@@ -2,10 +2,13 @@ package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /** The member network: an account's membership, its member card, and the requests that join, change and leave. */
@@ -38,6 +41,37 @@ public final class NetworkDtos {
     }
 
     public record HandleAvailability(String handle, boolean available) {
+    }
+
+    /** A post as members read it: its author's card, its text, the #tags it names, when it was posted, and whether it is the reader's. */
+    public record Post(Long id, MemberCard author, String text, List<String> tags, LocalDateTime createdAt, boolean own) {
+
+        public Post {
+            tags = List.copyOf(tags);
+        }
+
+        // Spring MVC logs bodies through toString at DEBUG: not the text a member wrote.
+        @Override
+        public String toString() {
+            return "Post[id=" + id + "]";
+        }
+    }
+
+    /** A new post: its text, paragraphs kept. */
+    public record NewPost(@NotBlank @Size(max = 3000) String text) {
+
+        @Override
+        public String toString() {
+            return "NewPost[length=" + (text == null ? 0 : text.length()) + "]";
+        }
+    }
+
+    /** A page of posts, the newest first, and whether more follow. */
+    public record Posts(List<Post> posts, int page, boolean more) {
+
+        public Posts {
+            posts = List.copyOf(posts);
+        }
     }
 
     /** A page of the member directory, and how many members match in all. */

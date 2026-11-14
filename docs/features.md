@@ -193,7 +193,14 @@ follows, keeps either from following the other, takes each out of the lists the 
 page from the blocked member, as if no member held the handle; the blocked member is not told. **Profile → Network**
 lists the members muted and blocked, each to unmute or unblock.
 
-**Network** in the menu (`/network/members`) is the member directory: the members found by a skill, a city, an
+**Network** in the menu (`/network`) is the home feed: a post of up to 3,000 characters, paragraphs kept, where
+`@handle` links to the member's page and `#tag` names a skill or a city (each kept, lower-case, for the tag pages to
+come); then the reader's posts and those of the members they follow, the newest first, 20 at a time with **Show
+more**, but those of members muted or blocked either way, or away from the network. A member's page shows their posts
+too. A member deletes their own posts, and they are part of the data export. Images, documents and link previews wait
+on the choice of their store.
+
+**Members** on the feed (`/network/members`) is the member directory: the members found by a skill, a city, an
 availability or remote work, 20 a page by last name, each card opening the member's page. It searches what each card
 shows only, so a hidden skill or city is never found, and leaves out the viewer and any member either one blocks.
 

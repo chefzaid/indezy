@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
 import dev.swirlit.indezy.service.NetworkDirectoryService;
 import dev.swirlit.indezy.service.NetworkFollowService;
+import dev.swirlit.indezy.service.NetworkPostService;
 import dev.swirlit.indezy.service.NetworkService;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,6 +35,7 @@ public class NetworkController {
     private final NetworkService network;
     private final NetworkFollowService follows;
     private final NetworkDirectoryService directory;
+    private final NetworkPostService posts;
 
     @Operation(summary = "Whether the account joined, its handle and what its card shows")
     @GetMapping("/membership")
@@ -140,6 +142,32 @@ public class NetworkController {
     @GetMapping("/restrictions")
     public NetworkDtos.Restrictions restrictions() {
         return follows.restrictions(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Post to the network", description = "Text of up to 3,000 characters; its #tags are kept")
+    @PostMapping("/posts")
+    @ResponseStatus(HttpStatus.CREATED)
+    public NetworkDtos.Post post(@Valid @RequestBody NetworkDtos.NewPost request) {
+        return posts.post(SecurityUtils.getCurrentUserId(), request);
+    }
+
+    @Operation(summary = "Delete one's own post")
+    @DeleteMapping("/posts/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePost(@PathVariable Long id) {
+        posts.delete(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "The home feed: the viewer's posts and those of the members they follow, the newest first, 20 a page")
+    @GetMapping("/feed")
+    public NetworkDtos.Posts feed(@RequestParam(defaultValue = "0") int page) {
+        return posts.feed(SecurityUtils.getCurrentUserId(), page);
+    }
+
+    @Operation(summary = "A member's posts, the newest first, 20 a page")
+    @GetMapping("/members/{handle}/posts")
+    public NetworkDtos.Posts memberPosts(@PathVariable String handle, @RequestParam(defaultValue = "0") int page) {
+        return posts.memberPosts(SecurityUtils.getCurrentUserId(), handle, page);
     }
 
     @Operation(summary = "Stop a member following the viewer")

@@ -86,5 +86,20 @@
         </ul>
       </section>
     }
+
+    <section class="member-posts" data-member-posts>
+      <h2>{{ 'network.page.posts' | translate }}</h2>
+      @if (posts.length === 0) {
+        <p class="empty">{{ 'network.page.noPosts' | translate }}</p>
+      }
+      <ul class="posts">
+        @for (post of posts; track post.id) {
+          <li><app-post-card [post]="post" (deleted)="removePost($event)"></app-post-card></li>
+        }
+      </ul>
+      @if (morePosts) {
+        <button mat-stroked-button type="button" (click)="loadPosts(postsPage + 1)" data-posts-more>{{ 'network.feed.more' | translate }}</button>
+      }
+    </section>
   }
 </div>

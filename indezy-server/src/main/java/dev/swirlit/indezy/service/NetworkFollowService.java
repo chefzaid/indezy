@@ -137,7 +137,7 @@ public class NetworkFollowService {
     }
 
     /** The member holding the handle, unless they block the viewer: then, as for an unknown handle, none is found. */
-    private NetworkMember visible(NetworkMember viewer, String handle) {
+    NetworkMember visible(NetworkMember viewer, String handle) {
         NetworkMember member = network.activeMember(handle);
         if (restricted(member.getUserId(), viewer.getUserId(), NetworkRestrictionKind.BLOCK)) {
             throw new ResourceNotFoundException(NetworkService.NOT_FOUND);

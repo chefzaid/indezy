@@ -98,6 +98,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       memberPage = { ...memberPage, followed: route.request().method() === 'PUT', followers: route.request().method() === 'PUT' ? 5 : 4 };
       return route.fulfill({ json: memberPage });
     });
+    await page.route('**/api/network/members/leo_m/posts?**', route => route.fulfill({ json: { posts: [{ id: 7, text: 'Retour sur #Kafka',
+      tags: ['kafka'], createdAt: '2026-11-10T09:00:00', own: false, author: leo }], page: 0, more: false } }));
     await page.route('**/api/network/members/leo_m/followers', route => route.fulfill({ json: [
       { ...leo, handle: 'ines_b', firstName: 'Inès', lastName: 'Bernard', headline: 'Scrum master' }] }));
 
@@ -108,6 +110,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(card.locator('[data-card-verified]')).toBeVisible();
     await expect(page.locator('[data-follows-you]')).toBeVisible();
     await expect(page.locator('[data-shared-skills]')).toContainText('Kafka');
+    await expect(page.locator('[data-member-posts] [data-post="7"]')).toContainText('Retour sur #Kafka');
     await page.locator('[data-follow]').click();
     await expect(page.locator('[data-follow]')).toContainText(en ? 'Unfollow' : 'Ne plus suivre');
     await expect(page.locator('[data-followers]')).toContainText(en ? '5 followers' : '5 abonnés');
@@ -172,5 +175,41 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const audit = await new AxeBuilder({ page }).include('app-member-directory').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}
+
+for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
+  test(`writes a post to the home feed, mentioning a member (${language}, ${width}px)`, async ({ page }) => {
+    const en = language === 'en';
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, language);
+    await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+    const author = (handle: string, firstName: string) => ({ handle, firstName, lastName: 'Durand', avatar: null, headline: null, stack: [],
+      city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false });
+    const posted: unknown[] = [];
+    await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [{ id: 1, text: 'Bonjour à tous', tags: [],
+      createdAt: '2026-11-13T09:00:00', own: false, author: author('leo_m', 'Léo') }], page: 0, more: false } }));
+    await page.route('**/api/network/posts', route => {
+      const body = route.request().postDataJSON();
+      posted.push(body);
+      return route.fulfill({ status: 201, json: { id: 2, text: body.text, tags: ['kafka'], createdAt: '2026-11-14T10:00:00', own: true,
+        author: author('camille', 'Camille') } });
+    });
+
+    await page.goto('/network');
+    await expect(page.locator('[data-post="1"]')).toContainText('Bonjour à tous');
+    await expect(page.locator('[data-publish]')).toBeDisabled();
+    await page.locator('[data-composer-text]').fill('Merci @leo_m pour le retour sur #Kafka');
+    await page.locator('[data-publish]').click();
+    const mine = page.locator('[data-post="2"]');
+    await expect(mine).toContainText('Merci');
+    await expect(mine.locator('.mention')).toHaveAttribute('href', '/m/leo_m');
+    await expect(page.locator('[data-post]').first()).toHaveAttribute('data-post', '2');
+    expect(posted).toEqual([{ text: 'Merci @leo_m pour le retour sur #Kafka' }]);
+    await expect(page.locator('[data-feed-members]')).toHaveAttribute('href', '/network/members');
+    const audit = await new AxeBuilder({ page }).include('app-network-feed').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    void en;
   });
 }

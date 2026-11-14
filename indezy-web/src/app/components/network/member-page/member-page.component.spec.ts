@@ -24,7 +24,8 @@ describe('MemberPageComponent', () => {
 
   function create(read = of(page)): ComponentFixture<MemberPageComponent> {
     network = jasmine.createSpyObj('NetworkService', ['page', 'follow', 'unfollow', 'followers', 'following', 'removeFollower', 'mute',
-      'block']);
+      'block', 'memberPosts', 'deletePost']);
+    network.memberPosts.and.returnValue(of({ posts: [], page: 0, more: false }));
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     network.page.and.returnValue(read);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -132,6 +133,32 @@ describe('MemberPageComponent', () => {
     network.follow.and.returnValue(of({ ...page, followed: true }));
     component.toggleFollow();
     expect(network.followers).toHaveBeenCalledTimes(2);
+  });
+
+  it('shows the member\'s posts, pages through them, and lets the viewer delete their own', () => {
+    const post = (id: number) => ({ id, text: `Post ${id}`, tags: [], createdAt: '2026-11-14T10:00:00', own: true, author: card('camille') });
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    expect(network.memberPosts).toHaveBeenCalledWith('camille', 0);
+    expect(element.querySelector('[data-member-posts]')?.textContent).toContain('No post yet.');
+    network.memberPosts.and.returnValue(of({ posts: [post(2)], page: 0, more: true }));
+    component.loadPosts(0);
+    fixture.detectChanges();
+    expect(element.querySelector('[data-member-posts] [data-post="2"]')).not.toBeNull();
+    network.memberPosts.and.returnValue(of({ posts: [post(1)], page: 1, more: false }));
+    (element.querySelector('[data-posts-more]') as HTMLButtonElement).click();
+    expect(component.posts.map(item => item.id)).toEqual([2, 1]);
+    confirm.confirm.and.returnValue(of(true));
+    network.deletePost.and.returnValue(of(undefined));
+    component.removePost(post(2));
+    expect(component.posts.map(item => item.id)).toEqual([1]);
+    network.deletePost.and.returnValue(throwError(() => new Error('down')));
+    component.removePost(post(1));
+    expect(notifications.error).toHaveBeenCalledWith('network.feed.postError');
+    network.memberPosts.and.returnValue(throwError(() => new Error('down')));
+    component.loadPosts(0);
+    expect(notifications.error).toHaveBeenCalledWith('network.feed.loadError');
   });
 
   for (const [status, problem] of [[409, 'notMember'], [404, 'notFound'], [500, 'error']] as const) {

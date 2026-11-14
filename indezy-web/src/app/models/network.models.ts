@@ -60,6 +60,23 @@ export interface MemberPage {
   blocked: boolean;
 }
 
+/** A post as members read it. */
+export interface NetworkPost {
+  id: number;
+  author: MemberCard;
+  text: string;
+  tags: string[];
+  createdAt: string;
+  own: boolean;
+}
+
+/** A page of posts, the newest first, and whether more follow. */
+export interface NetworkPosts {
+  posts: NetworkPost[];
+  page: number;
+  more: boolean;
+}
+
 /** What the member directory is asked for; every criterion is optional. */
 export interface DirectorySearch {
   skill?: string | null;

@@ -1,0 +1,45 @@
+<div class="feed-page">
+  <app-page-header icon="diversity_3" [title]="'network.feed.title' | translate" [subtitle]="'network.feed.subtitle' | translate">
+    <a mat-stroked-button routerLink="/network/members" data-feed-members>
+      <mat-icon>group</mat-icon>
+      {{ 'network.feed.members' | translate }}
+    </a>
+  </app-page-header>
+
+  @if (notMember) {
+    <section class="problem" data-feed-not-member>
+      <p>{{ 'network.directory.notMember' | translate }}</p>
+      <a mat-flat-button routerLink="/profile">{{ 'network.directory.join' | translate }}</a>
+    </section>
+  } @else {
+    <form class="composer" (submit)="$event.preventDefault(); publish()" data-composer>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'network.feed.compose' | translate }}</mat-label>
+        <textarea matInput [formControl]="draft" rows="3" [maxlength]="max" data-composer-text></textarea>
+        <mat-hint align="end">{{ draft.value.length }} / {{ max }}</mat-hint>
+      </mat-form-field>
+      <p class="hint">{{ 'network.feed.composeHint' | translate }}</p>
+      <div class="actions">
+        <button mat-flat-button type="submit" [disabled]="isPosting || !draft.value.trim()" data-publish>
+          {{ 'network.feed.publish' | translate }}
+        </button>
+      </div>
+    </form>
+
+    @if (loading) {
+      <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+    } @else {
+      @if (posts.length === 0) {
+        <p class="empty" data-feed-empty>{{ 'network.feed.empty' | translate }}</p>
+      }
+      <ul class="posts">
+        @for (post of posts; track post.id) {
+          <li><app-post-card [post]="post" (deleted)="remove($event)"></app-post-card></li>
+        }
+      </ul>
+      @if (more) {
+        <button mat-stroked-button type="button" (click)="load(page + 1)" data-feed-more>{{ 'network.feed.more' | translate }}</button>
+      }
+    }
+  }
+</div>

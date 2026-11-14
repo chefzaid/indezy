@@ -3256,7 +3256,9 @@
       "blockedDone": "Blocked",
       "unblockedDone": "No longer blocked",
       "blockedNote": "You block this member.",
-      "mutedNote": "Muted"
+      "mutedNote": "Muted",
+      "posts": "Posts",
+      "noPosts": "No post yet."
     },
     "directory": {
       "title": "Members",
@@ -3280,6 +3282,24 @@
         "ON_MISSION": "On a mission",
         "LISTENING": "Open to offers"
       }
+    },
+    "feed": {
+      "title": "Network",
+      "subtitle": "Your posts and those of the members you follow, the newest first",
+      "members": "Members",
+      "compose": "Share something with the members",
+      "composeHint": "Mention a member with @handle, name a skill or a city with #tag.",
+      "publish": "Publish",
+      "posted": "Posted",
+      "deleted": "Post deleted",
+      "deleteConfirm": "Delete this post?",
+      "postError": "The post could not be saved",
+      "loadError": "The posts could not be loaded",
+      "empty": "No post yet. Follow members from the directory to read theirs, or write the first one.",
+      "more": "Show more"
+    },
+    "post": {
+      "actions": "Actions on the post"
     }
   }
 }
