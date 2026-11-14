@@ -3340,6 +3340,18 @@
       "filter": "Filter by tag",
       "empty": "No saved post. Save a post with its Save button to find it here.",
       "loadError": "Your saved posts could not be loaded"
+    },
+    "tags": {
+      "followed": "Tags you follow",
+      "follow": "Follow the tag",
+      "unfollow": "Unfollow the tag",
+      "posts": "Posts",
+      "members": "Members with this skill",
+      "noPosts": "No post names this tag yet.",
+      "noMembers": "No member shows this skill.",
+      "loadError": "This tag could not be loaded",
+      "followError": "This could not be changed. Try again in a moment.",
+      "subtitle": "Posts naming this tag, and the members whose cards show the skill"
     }
   }
 }

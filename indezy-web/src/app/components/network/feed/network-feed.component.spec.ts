@@ -21,8 +21,9 @@ describe('NetworkFeedComponent', () => {
       availability: null, availabilityDate: null, languages: [], verified: false } });
 
   function create(feed = of({ posts: [post(2), post(1, true)], page: 0, more: true })): ComponentFixture<NetworkFeedComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost']);
+    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags']);
     network.feed.and.returnValue(feed);
+    network.followedTags.and.returnValue(of(['kafka']));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     TestBed.configureTestingModule({
@@ -44,6 +45,7 @@ describe('NetworkFeedComponent', () => {
     const component = fixture.componentInstance;
     const element: HTMLElement = fixture.nativeElement;
     expect(element.querySelectorAll('[data-post]').length).toBe(2);
+    expect(element.querySelector('[data-followed-tags] a')?.getAttribute('href')).toBe('/network/tags/kafka');
     network.feed.and.returnValue(of({ posts: [post(0)], page: 1, more: false }));
     (element.querySelector('[data-feed-more]') as HTMLButtonElement).click();
     expect(network.feed).toHaveBeenCalledWith(1);

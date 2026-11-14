@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -107,6 +107,20 @@ export class NetworkService {
 
   memberPosts(handle: string, page = 0): Observable<NetworkPosts> {
     return this.http.get<NetworkPosts>(`${this.member$(handle)}/posts`, { params: { page } });
+  }
+
+  tagPage(tag: string, page = 0): Observable<TagPage> {
+    return this.http.get<TagPage>(`${this.API_URL}/tags/${encodeURIComponent(tag)}`, { params: { page } });
+  }
+
+  followedTags(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.API_URL}/tags`);
+  }
+
+  /** Follows a tag, or no longer; answers the tags the reader follows. */
+  followTag(tag: string, followed: boolean): Observable<string[]> {
+    const url = `${this.API_URL}/tags/${encodeURIComponent(tag)}/follow`;
+    return followed ? this.http.put<string[]>(url, null) : this.http.delete<string[]>(url);
   }
 
   /** The members found by a skill, a city, an availability or remote work, 20 a page. */

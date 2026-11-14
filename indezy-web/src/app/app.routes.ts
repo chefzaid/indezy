@@ -137,6 +137,11 @@ export const routes: Routes = [
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
   },
   {
+    path: 'network/tags/:tag',
+    loadComponent: () => import('./components/network/tag-page/tag-page.component').then(m => m.TagPageComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
     path: 'network/saved',
     loadComponent: () => import('./components/network/saved/saved-posts.component').then(m => m.SavedPostsComponent),
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]

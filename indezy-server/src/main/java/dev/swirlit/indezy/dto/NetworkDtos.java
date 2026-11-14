@@ -97,6 +97,14 @@ public final class NetworkDtos {
         }
     }
 
+    /** A tag's page: the tag, whether the reader follows it, a page of the posts naming it, and members whose cards show the skill. */
+    public record TagPage(String tag, boolean followed, Posts posts, List<MemberCard> members) {
+
+        public TagPage {
+            members = List.copyOf(members);
+        }
+    }
+
     /** A page of the reader's saved posts, and the tags of all their saved posts, to filter by. */
     public record SavedPosts(Posts page, List<String> tags) {
 

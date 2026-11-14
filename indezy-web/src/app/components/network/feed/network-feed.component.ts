@@ -41,9 +41,12 @@ export class NetworkFeedComponent implements OnInit {
   loading = true;
   notMember = false;
   isPosting = false;
+  /** The tags the reader follows, each opening its page. */
+  tags: string[] = [];
 
   ngOnInit(): void {
     this.load(0);
+    this.network.followedTags().subscribe({ next: tags => this.tags = tags, error: () => this.tags = [] });
   }
 
   load(page: number): void {

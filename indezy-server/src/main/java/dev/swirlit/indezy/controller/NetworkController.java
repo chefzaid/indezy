@@ -7,6 +7,7 @@ import dev.swirlit.indezy.service.NetworkDirectoryService;
 import dev.swirlit.indezy.service.NetworkFollowService;
 import dev.swirlit.indezy.service.NetworkPostService;
 import dev.swirlit.indezy.service.NetworkService;
+import dev.swirlit.indezy.service.NetworkTagService;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,6 +39,7 @@ public class NetworkController {
     private final NetworkDirectoryService directory;
     private final NetworkPostService posts;
     private final NetworkCommentService comments;
+    private final NetworkTagService tags;
 
     @Operation(summary = "Whether the account joined, its handle and what its card shows")
     @GetMapping("/membership")
@@ -249,7 +251,31 @@ public class NetworkController {
         return posts.saved(SecurityUtils.getCurrentUserId(), tag, page);
     }
 
-    @Operation(summary = "The home feed: the viewer's posts and those of the members they follow, the newest first, 20 a page")
+    @Operation(summary = "A tag's page: whether the viewer follows it, its posts (20 a page) and members whose cards show the skill")
+    @GetMapping("/tags/{tag}")
+    public NetworkDtos.TagPage tag(@PathVariable String tag, @RequestParam(defaultValue = "0") int page) {
+        return tags.page(SecurityUtils.getCurrentUserId(), tag, page);
+    }
+
+    @Operation(summary = "The tags the viewer follows")
+    @GetMapping("/tags")
+    public List<String> followedTags() {
+        return tags.followed(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Follow a tag: posts naming it reach the home feed")
+    @PutMapping("/tags/{tag}/follow")
+    public List<String> followTag(@PathVariable String tag) {
+        return tags.follow(SecurityUtils.getCurrentUserId(), tag, true);
+    }
+
+    @Operation(summary = "Stop following a tag")
+    @DeleteMapping("/tags/{tag}/follow")
+    public List<String> unfollowTag(@PathVariable String tag) {
+        return tags.follow(SecurityUtils.getCurrentUserId(), tag, false);
+    }
+
+    @Operation(summary = "The home feed: the viewer's posts, those of the members and tags they follow, the newest first, 20 a page")
     @GetMapping("/feed")
     public NetworkDtos.Posts feed(@RequestParam(defaultValue = "0") int page) {
         return posts.feed(SecurityUtils.getCurrentUserId(), page);

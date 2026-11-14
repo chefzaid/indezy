@@ -9,6 +9,7 @@ import dev.swirlit.indezy.model.NetworkLike;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkPostVersion;
+import dev.swirlit.indezy.model.NetworkTagFollow;
 import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
 import dev.swirlit.indezy.repository.NetworkBookmarkRepository;
 import dev.swirlit.indezy.repository.NetworkCommentRepository;
@@ -18,6 +19,7 @@ import dev.swirlit.indezy.repository.NetworkMemberRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
 import dev.swirlit.indezy.repository.NetworkPostVersionRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
+import dev.swirlit.indezy.repository.NetworkTagFollowRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -70,6 +72,7 @@ public class NetworkPostService {
     private final NetworkCommentRepository comments;
     private final NetworkPostVersionRepository versions;
     private final NetworkBookmarkRepository bookmarks;
+    private final NetworkTagFollowRepository tagFollows;
     private final Clock clock;
 
     @Transactional
@@ -96,16 +99,34 @@ public class NetworkPostService {
         posts.delete(post);
     }
 
-    /** The reader's posts and those of the members they follow, still in the network, but those muted or blocked either way. */
+    /**
+     * The reader's posts, those of the members they follow and those naming a tag they follow, still in the network, but
+     * those of members muted or blocked either way.
+     */
     @Transactional(readOnly = true)
     public NetworkDtos.Posts feed(Long userId, int page) {
         network.requireMember(userId);
         Set<Long> authors = new HashSet<>();
         authors.add(userId);
         followRepository.following(userId).forEach(member -> authors.add(member.getUserId()));
-        restrictions.targets(userId, NetworkRestrictionKind.MUTE).forEach(member -> authors.remove(member.getUserId()));
-        authors.removeAll(restrictions.blockedEitherWay(userId));
-        return page(authors, userId, page);
+        Set<Long> excluded = new HashSet<>(restrictions.blockedEitherWay(userId));
+        restrictions.targets(userId, NetworkRestrictionKind.MUTE).forEach(member -> excluded.add(member.getUserId()));
+        authors.removeAll(excluded);
+        List<String> tags = tagFollows.findByUserIdOrderByTagAsc(userId).stream().map(NetworkTagFollow::getTag).toList();
+        // An empty IN list is not valid everywhere: a value no row holds stands in for none.
+        Page<NetworkPost> found = posts.feed(authors, tags.isEmpty() ? List.of("") : tags, excluded.isEmpty() ? List.of(-1L) : excluded,
+            PageRequest.of(Math.max(0, page), PAGE_SIZE));
+        return page(found, userId);
+    }
+
+    /** A tag's posts, from every member the reader can read, but those muted or blocked either way. */
+    @Transactional(readOnly = true)
+    public NetworkDtos.Posts tagPosts(Long userId, String tag, int page) {
+        network.requireMember(userId);
+        Set<Long> excluded = new HashSet<>(restrictions.blockedEitherWay(userId));
+        restrictions.targets(userId, NetworkRestrictionKind.MUTE).forEach(member -> excluded.add(member.getUserId()));
+        return page(posts.feed(List.of(-1L), List.of(tag), excluded.isEmpty() ? List.of(-1L) : excluded,
+            PageRequest.of(Math.max(0, page), PAGE_SIZE)), userId);
     }
 
     /** A member's posts, for the members their page shows to. */
@@ -123,7 +144,10 @@ public class NetworkPostService {
     }
 
     private NetworkDtos.Posts page(Collection<Long> authors, Long readerId, int page) {
-        Page<NetworkPost> found = posts.findByAuthorIdInOrderByCreatedAtDescIdDesc(authors, PageRequest.of(Math.max(0, page), PAGE_SIZE));
+        return page(posts.findByAuthorIdInOrderByCreatedAtDescIdDesc(authors, PageRequest.of(Math.max(0, page), PAGE_SIZE)), readerId);
+    }
+
+    private NetworkDtos.Posts page(Page<NetworkPost> found, Long readerId) {
         Map<Long, Optional<NetworkDtos.MemberCard>> cards = new HashMap<>();
         List<Long> ids = found.getContent().stream().map(NetworkPost::getId).toList();
         Map<Long, List<NetworkLike>> liked = likes.findByPostIdIn(ids).stream().collect(Collectors.groupingBy(NetworkLike::getPostId));

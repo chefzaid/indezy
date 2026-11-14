@@ -16,6 +16,13 @@
       <a mat-flat-button routerLink="/profile">{{ 'network.directory.join' | translate }}</a>
     </section>
   } @else {
+    @if (tags.length) {
+      <nav class="followed-tags" [attr.aria-label]="'network.tags.followed' | translate" data-followed-tags>
+        @for (tag of tags; track tag) {
+          <a [routerLink]="['/network/tags', tag]">#{{ tag }}</a>
+        }
+      </nav>
+    }
     <form class="composer" (submit)="$event.preventDefault(); publish()" data-composer>
       <mat-form-field appearance="outline">
         <mat-label>{{ 'network.feed.compose' | translate }}</mat-label>

@@ -194,8 +194,10 @@ page from the blocked member, as if no member held the handle; the blocked membe
 lists the members muted and blocked, each to unmute or unblock.
 
 **Network** in the menu (`/network`) is the home feed: a post of up to 3,000 characters, paragraphs kept, where
-`@handle` links to the member's page and `#tag` names a skill or a city (each kept, lower-case, for the tag pages to
-come); then the reader's posts and those of the members they follow, the newest first, 20 at a time with **Show
+`@handle` links to the member's page and `#tag` names a skill or a city, opening the tag's page
+(`/network/tags/<tag>`): the posts naming it, the members whose cards show the skill, and **Follow the tag**. The feed
+then holds the reader's posts, those of the members they follow and those naming a tag they follow (listed above
+it), the newest first, 20 at a time with **Show
 more**, but those of members muted or blocked either way, or away from the network. A member's page shows their posts
 too. Its author **edits** a post in the 15 minutes after posting it; it then reads **edited**, which opens its earlier
 texts. **Save** keeps a post in the reader's private **Saved** list (`/network/saved`), the latest saved first and

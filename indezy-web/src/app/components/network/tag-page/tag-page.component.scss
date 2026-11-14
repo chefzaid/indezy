@@ -1,0 +1,38 @@
+.tag-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.empty {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    color: var(--app-link);
+  }
+}
+
+.posts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}

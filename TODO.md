@@ -500,7 +500,7 @@ Feed
 Follow
 - [x] Follow and unfollow members; lists of followers and following; remove a follower; mute a member (posts hidden, still followed) or block one (no follow, no message, no posts seen, both ways). Partly done on 2026-11-14: following and unfollowing, the lists of followers and following, and removing a follower; done the same day with muting and blocking (`docs/features.md#member-network`), muting taking effect on the posts once they come.
 - [ ] Private card: follow requests the member approves, so only approved followers see the posts.
-- [ ] Follow tags (#kafka, #sap-fico, #lyon), each feeding the home feed.
+- [x] Follow tags (#kafka, #sap-fico, #lyon), each feeding the home feed. Done on 2026-11-14 (`docs/features.md#member-network`).
 - [ ] Members to follow, each with its reason: same stack, same city, followed by members you follow, or in the same ESN's process (both had an opportunity with that ESN, only between members who allow it).
 - [ ] Indezy contacts who are members (matched on an email the member confirmed) offered to follow, without the contact being told.
 
@@ -520,7 +520,7 @@ Messaging
 
 Notifications and discovery
 - [ ] Notification centre (a bell in the toolbar): follows, follow requests, likes, comments, mentions, reposts and messages, grouped and marked read; each type in-app, by email or off in Profile → Notifications.
-- [ ] Member directory and search by skill, city, availability and remote work; tag pages (`/network/tags/kafka`) with the tag's posts, its members and the offer feed's open missions for that skill. Partly done on 2026-11-14: the directory and its search (`docs/features.md#member-network`); the tag pages come with posts and tags.
+- [ ] Member directory and search by skill, city, availability and remote work; tag pages (`/network/tags/kafka`) with the tag's posts, its members and the offer feed's open missions for that skill. Partly done on 2026-11-14: the directory and its search (`docs/features.md#member-network`); the tag pages come with posts and tags. The tag pages followed the same day, with their posts and members; the offer feed's open missions for the skill remain.
 - [ ] Global search (`Alt+Shift+F`) also finds members, posts and messages.
 
 Safety and moderation

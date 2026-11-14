@@ -80,6 +80,14 @@ export interface NetworkPost {
   bookmarked: boolean;
 }
 
+/** A tag's page: whether the reader follows it, its posts, and members whose cards show the skill. */
+export interface TagPage {
+  tag: string;
+  followed: boolean;
+  posts: NetworkPosts;
+  members: MemberCard[];
+}
+
 /** A page of the reader's saved posts, and the tags of all of them, to filter by. */
 export interface SavedPosts {
   page: NetworkPosts;

@@ -252,3 +252,35 @@ test('finds the saved posts by tag on the saved page', async ({ page }) => {
   const audit = await new AxeBuilder({ page }).include('app-saved-posts').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(audit.violations.map(violation => violation.id)).toEqual([]);
 });
+
+for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
+  test(`follows a tag from its page, reached from a post (${language}, ${width}px)`, async ({ page }) => {
+    const en = language === 'en';
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, language);
+    await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+    const leo = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: ['Kafka'], city: null,
+      remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
+    const post = { id: 3, text: 'Retour sur #Kafka', tags: ['kafka'], createdAt: '2026-11-13T09:00:00', own: false, likes: 0, liked: false,
+      comments: 0, commentsClosed: false, edited: false, bookmarked: false, author: leo };
+    await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [post], page: 0, more: false } }));
+    let followed = false;
+    await page.route('**/api/network/tags/kafka?**', route => route.fulfill({ json: { tag: 'kafka', followed,
+      posts: { posts: [post], page: 0, more: false }, members: [leo] } }));
+    await page.route('**/api/network/tags/kafka/follow', route => {
+      followed = route.request().method() === 'PUT';
+      return route.fulfill({ json: followed ? ['kafka'] : [] });
+    });
+
+    await page.goto('/network');
+    await page.locator('[data-post="3"] .tag').click();
+    await expect(page).toHaveURL(/\/network\/tags\/kafka$/);
+    await expect(page.locator('[data-tag-members]')).toContainText('Léo Martin');
+    await expect(page.locator('[data-tag-posts] [data-post="3"]')).toBeVisible();
+    await page.locator('[data-follow-tag]').click();
+    await expect(page.locator('[data-follow-tag]')).toContainText(en ? 'Unfollow the tag' : 'Ne plus suivre le tag');
+    const audit = await new AxeBuilder({ page }).include('app-tag-page').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}

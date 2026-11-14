@@ -50,7 +50,7 @@
       </div>
     </form>
   } @else {
-  <p class="text">@for (part of parts; track $index) {@if (handleOf(part); as handle) {<a [routerLink]="['/m', handle]" class="mention">&#64;{{ handle }}</a>} @else if (tagOf(part); as tag) {<span class="tag">#{{ tag }}</span>} @else {{{ textOf(part) }}}}</p>
+  <p class="text">@for (part of parts; track $index) {@if (handleOf(part); as handle) {<a [routerLink]="['/m', handle]" class="mention">&#64;{{ handle }}</a>} @else if (tagOf(part); as tag) {<a [routerLink]="['/network/tags', tag.toLowerCase()]" class="tag">#{{ tag }}</a>} @else {{{ textOf(part) }}}}</p>
   }
   <footer>
     <button mat-button type="button" (click)="toggleLike()" [disabled]="isLiking" [attr.aria-pressed]="post.liked" data-like

@@ -150,6 +150,7 @@ describe('PostCardComponent', () => {
     expect(element.querySelector('.author')?.getAttribute('href')).toBe('/m/camille');
     expect(element.querySelector('.mention')?.getAttribute('href')).toBe('/m/leo_m');
     expect(element.querySelector('.tag')?.textContent).toBe('#Kafka');
+    expect(element.querySelector('.tag')?.getAttribute('href')).toBe('/network/tags/kafka');
     expect(element.querySelector('.text b')).toBeNull();
     expect(element.querySelector('.text')?.textContent).toContain('<b>pas du HTML</b>');
     expect(element.querySelector('[data-post-actions]')).not.toBeNull();

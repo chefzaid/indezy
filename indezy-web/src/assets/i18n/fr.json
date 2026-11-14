@@ -3340,6 +3340,18 @@
       "filter": "Filtrer par tag",
       "empty": "Aucune publication enregistrée. Enregistrez une publication avec son bouton Enregistrer pour la retrouver ici.",
       "loadError": "Vos publications enregistrées n'ont pas pu être chargées"
+    },
+    "tags": {
+      "followed": "Tags que vous suivez",
+      "follow": "Suivre le tag",
+      "unfollow": "Ne plus suivre le tag",
+      "posts": "Publications",
+      "members": "Membres avec cette compétence",
+      "noPosts": "Aucune publication ne nomme encore ce tag.",
+      "noMembers": "Aucun membre n'affiche cette compétence.",
+      "loadError": "Ce tag n'a pas pu être chargé",
+      "followError": "Le changement n'a pas pu être fait. Réessayez dans un instant.",
+      "subtitle": "Les publications qui nomment ce tag, et les membres dont la carte affiche la compétence"
     }
   }
 }

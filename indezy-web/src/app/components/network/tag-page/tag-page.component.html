@@ -1,0 +1,37 @@
+@if (page) {
+  <div class="tag-page" [attr.data-tag-page]="page.tag">
+    <app-page-header icon="tag" [title]="'#' + page.tag" [subtitle]="'network.tags.subtitle' | translate">
+      <button mat-flat-button type="button" (click)="toggleFollow()" [attr.aria-pressed]="page.followed" data-follow-tag>
+        <mat-icon>{{ page.followed ? 'remove' : 'add' }}</mat-icon>
+        {{ (page.followed ? 'network.tags.unfollow' : 'network.tags.follow') | translate }}
+      </button>
+    </app-page-header>
+
+    <section data-tag-members>
+      <h2>{{ 'network.tags.members' | translate }}</h2>
+      @if (page.members.length === 0) {
+        <p class="empty">{{ 'network.tags.noMembers' | translate }}</p>
+      }
+      <ul class="members">
+        @for (member of page.members; track member.handle) {
+          <li><a [routerLink]="['/m', member.handle]">{{ member.firstName }} {{ member.lastName }}</a></li>
+        }
+      </ul>
+    </section>
+
+    <section data-tag-posts>
+      <h2>{{ 'network.tags.posts' | translate }}</h2>
+      @if (posts.length === 0) {
+        <p class="empty">{{ 'network.tags.noPosts' | translate }}</p>
+      }
+      <ul class="posts">
+        @for (post of posts; track post.id) {
+          <li><app-post-card [post]="post"></app-post-card></li>
+        }
+      </ul>
+      @if (page.posts.more) {
+        <button mat-stroked-button type="button" (click)="more()" data-tag-more>{{ 'network.feed.more' | translate }}</button>
+      }
+    </section>
+  </div>
+}

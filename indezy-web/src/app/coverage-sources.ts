@@ -65,6 +65,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/network/post-card/post-card.component',
   'components/network/post-comments/post-comments.component',
   'components/network/saved/saved-posts.component',
+  'components/network/tag-page/tag-page.component',
   'components/offers/offer-apply-dialog/offer-apply-dialog.component',
   'components/offers/offer-bar-chart/offer-bar-chart.component',
   'components/offers/offer-card/offer-card.component',
