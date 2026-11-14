@@ -82,9 +82,9 @@ export class MemberPageComponent implements OnInit {
           this.show('followers');
         }
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.isFollowing = false;
-        this.notifications.error('network.page.followError');
+        this.notifications.error(error.status === 429 ? 'network.page.tooManyFollows' : 'network.page.followError');
       }
     });
   }

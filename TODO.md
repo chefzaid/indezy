@@ -526,7 +526,7 @@ Notifications and discovery
 Safety and moderation
 - [ ] Confidentiality check before a post, a document or a message goes out: the workspace's client, ESN and contact names found in the text or in the documents' text are highlighted, with **Anonymiser** ("une banque à Paris", "une ESN") or **Publier quand même**.
 - [ ] Report a post, a comment, a message or a member, with a reason; a moderation queue in the admin console (hide, warn, suspend, ban, the reporter told the outcome) with its audit trail.
-- [ ] Rate limits on posts, comments, follows and messages per member and per hour, and a spam score (links, repeated text, many first messages) holding suspicious content for review.
+- [ ] Rate limits on posts, comments, follows and messages per member and per hour, and a spam score (links, repeated text, many first messages) holding suspicious content for review. Partly done on 2026-11-14: 10 posts, 60 comments and 100 follows an hour (`docs/security.md#member-network`); messages come with conversations, and the spam score with the moderation queue.
 - [ ] Documents checked before they are shared: type read from the content, Office files with macros refused, a malware scan (ClamAV in the cluster), served through short-lived signed links.
 - [ ] Storage of the posts' and messages' files. Options: in the database as attachments and documents are today (one store, backed up with the database, but backups grow with every image) or in an object store (streamed and cheaper per gigabyte, but a bucket and its own backup to run); thumbnails made once either way. Waits on **Member network files** in Needs Input.
 

@@ -37,6 +37,7 @@ public class NetworkCommentService {
     private final NetworkPostRepository postRepository;
     private final NetworkCommentRepository comments;
     private final NetworkRestrictionRepository restrictions;
+    private final NetworkLimits limits;
 
     /** The comments the reader sees under a post they can read, each with its replies. */
     @Transactional(readOnly = true)
@@ -67,6 +68,7 @@ public class NetworkCommentService {
             comments.findById(request.parentId()).filter(parent -> parent.getPostId().equals(postId) && parent.getParentId() == null)
                 .orElseThrow(() -> new IllegalArgumentException("A reply answers a comment under the same post"));
         }
+        limits.comment(readerId);
         NetworkComment comment = new NetworkComment();
         comment.setPostId(postId);
         comment.setAuthorId(readerId);

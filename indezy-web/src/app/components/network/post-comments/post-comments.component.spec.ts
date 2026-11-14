@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { MemberCard, NetworkComment, NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
@@ -67,6 +68,9 @@ describe('PostCommentsComponent', () => {
     component.draft.setValue('Encore');
     component.send();
     expect(notifications.error).toHaveBeenCalledWith('network.post.commentError');
+    network.comment.and.returnValue(throwError(() => new HttpErrorResponse({ status: 429 })));
+    component.send();
+    expect(notifications.error).toHaveBeenCalledWith('network.post.tooManyComments');
   });
 
   it('pins, hides and deletes as the post\'s author and the comment\'s writer', () => {

@@ -60,6 +60,10 @@ describe('MemberPageComponent', () => {
     network.unfollow.and.returnValue(throwError(() => new Error('down')));
     fixture.componentInstance.toggleFollow();
     expect(notifications.error).toHaveBeenCalledWith('network.page.followError');
+    fixture.componentInstance.page = { ...page, followed: false };
+    network.follow.and.returnValue(throwError(() => new HttpErrorResponse({ status: 429 })));
+    fixture.componentInstance.toggleFollow();
+    expect(notifications.error).toHaveBeenCalledWith('network.page.tooManyFollows');
     expect(fixture.componentInstance.isFollowing).toBeFalse();
   });
 

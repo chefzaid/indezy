@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -16,6 +17,8 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
     Page<NetworkPost> findByAuthorIdInOrderByCreatedAtDescIdDesc(Collection<Long> authorIds, Pageable page);
 
     Optional<NetworkPost> findByIdAndAuthorId(Long id, Long authorId);
+
+    long countByAuthorIdAndCreatedAtAfter(Long authorId, LocalDateTime since);
 
     /** The posts of these authors, or naming one of these tags but by the excluded authors, the newest first. */
     @Query(value = "select distinct p from NetworkPost p left join p.tags t where (p.authorId in :authors or t in :tags) " +

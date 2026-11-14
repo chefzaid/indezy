@@ -74,10 +74,12 @@ public class NetworkPostService {
     private final NetworkBookmarkRepository bookmarks;
     private final NetworkTagFollowRepository tagFollows;
     private final Clock clock;
+    private final NetworkLimits limits;
 
     @Transactional
     public NetworkDtos.Post post(Long userId, NetworkDtos.NewPost request) {
         NetworkMember author = network.requireMember(userId);
+        limits.post(userId);
         NetworkPost post = new NetworkPost();
         post.setAuthorId(userId);
         post.setText(request.text().strip());

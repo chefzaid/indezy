@@ -182,6 +182,25 @@ the activity report links:
 - the public view shows only the freelancer's and the recipient's names. The author agrees to be named with their text;
   nothing shows on the public profile until the freelancer approves it, and hiding or deleting it takes it off
 
+## Member Network
+
+The member network (`/api/network`) is off until an administrator turns it on (`SOCIAL_NETWORK`); then:
+
+- only members see members: every network endpoint but the membership's own answers `409` until the account joins, and
+  a former member, like an unknown handle, is not found;
+- a member's card shows only the fields they left on, and the directory searches those alone, so a hidden skill or
+  city is never found;
+- a block is both ways: neither follows the other, nor reads the other's posts, comments or lists, and the blocker's
+  page answers `404` to the blocked member as for an unknown handle; a muted member's posts leave the feed;
+- a member may post 10 times, comment 60 times and follow 100 members an hour (`NetworkLimits`); beyond, `429` with
+  `Retry-After`;
+- posts and comments are plain text: the page shows them as text nodes, `@handle` and `#tag` as links it builds, never
+  HTML; their bodies leave the logs (`toString` gives the id or length only), as do the member cards';
+- the verification sends the billing SIRET alone to the public registry, read afresh;
+- deleting a post deletes its likes, comments, earlier texts and saves; the account export holds the membership and
+  the posts.
+
+## Password Storage
 ## Password Storage
 
 The backend exposes a `PasswordEncoder` bean using BCrypt.

@@ -3258,7 +3258,8 @@
       "blockedNote": "Vous bloquez ce membre.",
       "mutedNote": "Masqué",
       "posts": "Publications",
-      "noPosts": "Aucune publication pour l'instant."
+      "noPosts": "Aucune publication pour l'instant.",
+      "tooManyFollows": "Vous avez suivi beaucoup de membres cette heure-ci : réessayez plus tard."
     },
     "directory": {
       "title": "Membres",
@@ -3297,7 +3298,8 @@
       "loadError": "Les publications n'ont pas pu être chargées",
       "empty": "Aucune publication pour l'instant. Suivez des membres depuis l'annuaire pour lire les leurs, ou écrivez la première.",
       "more": "Afficher plus",
-      "saved": "Enregistrés"
+      "saved": "Enregistrés",
+      "tooManyPosts": "Vous avez beaucoup publié cette heure-ci : réessayez plus tard."
     },
     "post": {
       "actions": "Actions sur la publication",
@@ -3331,7 +3333,8 @@
       "editTooLate": "Une publication ne se modifie que dans les 15 minutes qui suivent sa parution.",
       "editError": "La publication n'a pas pu être modifiée.",
       "save": "Enregistrer",
-      "saved": "Enregistré"
+      "saved": "Enregistré",
+      "tooManyComments": "Vous avez beaucoup commenté cette heure-ci : réessayez plus tard."
     },
     "savedPosts": {
       "title": "Publications enregistrées",

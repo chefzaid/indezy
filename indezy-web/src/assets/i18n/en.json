@@ -3258,7 +3258,8 @@
       "blockedNote": "You block this member.",
       "mutedNote": "Muted",
       "posts": "Posts",
-      "noPosts": "No post yet."
+      "noPosts": "No post yet.",
+      "tooManyFollows": "You have followed many members this hour: try again later."
     },
     "directory": {
       "title": "Members",
@@ -3297,7 +3298,8 @@
       "loadError": "The posts could not be loaded",
       "empty": "No post yet. Follow members from the directory to read theirs, or write the first one.",
       "more": "Show more",
-      "saved": "Saved"
+      "saved": "Saved",
+      "tooManyPosts": "You have posted a lot this hour: try again later."
     },
     "post": {
       "actions": "Actions on the post",
@@ -3331,7 +3333,8 @@
       "editTooLate": "A post can only be edited in the 15 minutes after it is posted.",
       "editError": "The post could not be changed.",
       "save": "Save",
-      "saved": "Saved"
+      "saved": "Saved",
+      "tooManyComments": "You have commented a lot this hour: try again later."
     },
     "savedPosts": {
       "title": "Saved posts",

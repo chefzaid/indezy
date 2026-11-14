@@ -64,6 +64,9 @@ describe('NetworkFeedComponent', () => {
     component.draft.setValue('Again');
     component.publish();
     expect(notifications.error).toHaveBeenCalledWith('network.feed.postError');
+    network.post.and.returnValue(throwError(() => new HttpErrorResponse({ status: 429 })));
+    component.publish();
+    expect(notifications.error).toHaveBeenCalledWith('network.feed.tooManyPosts');
 
     confirm.confirm.and.returnValue(of(false));
     component.remove(post(1, true));
@@ -74,7 +77,7 @@ describe('NetworkFeedComponent', () => {
     expect(component.posts.some(item => item.id === 1)).toBeFalse();
     network.deletePost.and.returnValue(throwError(() => new Error('down')));
     component.remove(post(2));
-    expect(notifications.error).toHaveBeenCalledTimes(2);
+    expect(notifications.error).toHaveBeenCalledTimes(3);
   });
 
   it('asks a visitor to join, says when the posts cannot be loaded, and when there are none', () => {

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,6 +18,8 @@ public interface NetworkCommentRepository extends JpaRepository<NetworkComment, 
     List<NetworkComment> findByPostIdIn(Collection<Long> postIds);
 
     List<NetworkComment> findByParentId(Long parentId);
+
+    long countByAuthorIdAndCreatedAtAfter(Long authorId, LocalDateTime since);
 
     @Modifying
     @Query("delete from NetworkComment c where c.postId = :postId")

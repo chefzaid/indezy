@@ -32,6 +32,7 @@ public class NetworkFollowService {
     private final NetworkService network;
     private final NetworkFollowRepository follows;
     private final NetworkRestrictionRepository restrictions;
+    private final NetworkLimits limits;
 
     @Transactional(readOnly = true)
     public NetworkDtos.MemberPage page(Long viewerId, String handle) {
@@ -50,6 +51,7 @@ public class NetworkFollowService {
             throw new InvalidStateException("Unblock this member to follow them");
         }
         if (follows.findByFollowerIdAndFollowedId(viewerId, member.getUserId()).isEmpty()) {
+            limits.follow(viewerId);
             NetworkFollow follow = new NetworkFollow();
             follow.setFollowerId(viewerId);
             follow.setFollowedId(member.getUserId());

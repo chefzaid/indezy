@@ -174,4 +174,18 @@ class NetworkPostsIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat((List<Map<String, Object>>) ((Map<String, Object>) call(bob, HttpMethod.GET, "/network/bookmarks", null, Map.class)
             .getBody().get("page")).get("posts")).isEmpty();
     }
+
+    @Test
+    void refusesAnEleventhPostInAnHour() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        join(alice);
+        for (int number = 1; number <= 10; number++) {
+            assertThat(call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Post " + number), String.class).getStatusCode())
+                .isEqualTo(HttpStatus.CREATED);
+        }
+        org.springframework.http.ResponseEntity<String> refused = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Encore"),
+            String.class);
+        assertThat(refused.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
+        assertThat(refused.getHeaders().getFirst("Retry-After")).isEqualTo("3600");
+    }
 }

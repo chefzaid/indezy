@@ -83,9 +83,9 @@ export class NetworkFeedComponent implements OnInit {
         this.draft.reset('');
         this.notifications.success('network.feed.posted');
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.isPosting = false;
-        this.notifications.error('network.feed.postError');
+        this.notifications.error(error.status === 429 ? 'network.feed.tooManyPosts' : 'network.feed.postError');
       }
     });
   }

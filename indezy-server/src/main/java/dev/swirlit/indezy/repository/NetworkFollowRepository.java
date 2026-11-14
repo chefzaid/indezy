@@ -6,12 +6,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface NetworkFollowRepository extends JpaRepository<NetworkFollow, Long> {
 
     Optional<NetworkFollow> findByFollowerIdAndFollowedId(Long followerId, Long followedId);
+
+    long countByFollowerIdAndCreatedAtAfter(Long followerId, LocalDateTime since);
 
     /** The members, still in the network, who follow the account, the latest first. */
     @Query("select m from NetworkFollow f join NetworkMember m on m.userId = f.followerId " +

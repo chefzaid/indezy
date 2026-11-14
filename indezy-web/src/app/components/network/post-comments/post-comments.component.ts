@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -74,9 +75,9 @@ export class PostCommentsComponent implements OnInit {
         this.replyTo = null;
         this.load();
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.isSending = false;
-        this.notifications.error('network.post.commentError');
+        this.notifications.error(error.status === 429 ? 'network.post.tooManyComments' : 'network.post.commentError');
       }
     });
   }
