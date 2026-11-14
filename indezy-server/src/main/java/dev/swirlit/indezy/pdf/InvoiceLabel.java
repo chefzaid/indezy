@@ -9,6 +9,7 @@ enum InvoiceLabel {
     CREDIT_TITLE("Avoir", "Credit note"),
     CREDIT_DRAFT("BROUILLON — ce document n'est pas un avoir", "DRAFT — this document is not a credit note"),
     CREDITS("Avoir sur la facture N° %s du %s", "Credit note for invoice No. %s of %s"),
+    QUOTE("Selon devis N° %s", "As per quote No. %s"),
     NUMBER("N° %s", "No. %s"),
     ISSUED("Date d'émission : %s", "Issue date: %s"),
     DUE("Échéance : %s", "Due date: %s"),

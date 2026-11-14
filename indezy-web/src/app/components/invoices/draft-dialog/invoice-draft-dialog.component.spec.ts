@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ClientDto, Invoice, ProjectDto } from '../../../models';
+import { ClientDto, Invoice, ProjectDto, Quote } from '../../../models';
 import { InvoiceDraftDialogComponent, InvoiceDraftDialogData } from './invoice-draft-dialog.component';
 
 describe('InvoiceDraftDialogComponent', () => {
@@ -25,6 +25,7 @@ describe('InvoiceDraftDialogComponent', () => {
 
   it('starts a new draft with one line at the workspace\'s VAT rate and counts its totals as the server does', () => {
     const component = create();
+    expect(component.titleKey).toBe('invoices.newTitle');
     expect(component.lines.length).toBe(1);
     component.lines.at(0).patchValue({ description: 'Audit', quantity: 18.5, unitPrice: 633.33 });
     component.addLine();
@@ -53,6 +54,7 @@ describe('InvoiceDraftDialogComponent', () => {
     const invoice = { id: 5, clientId: 3, projectId: 9, periodStart: '2026-10-01', periodEnd: '2026-10-31', language: 'EN', notes: 'PO 12',
       lines: [{ description: 'Audit', quantity: 2, unitPrice: 700, vatRate: 0 }] } as unknown as Invoice;
     const component = create({ invoice, vatRate: 0 });
+    expect(component.titleKey).toBe('invoices.editTitle');
     expect(component.form.value.language).toBe('EN');
     component.lines.at(0).patchValue({ description: ' Audit SI ' });
     component.form.patchValue({ notes: ' ' });
@@ -68,8 +70,33 @@ describe('InvoiceDraftDialogComponent', () => {
       lines: [{ description: 'Audit', quantity: 1, unitPrice: 700, vatRate: 0 }] } as unknown as Invoice;
     const component = create({ invoice: note });
     expect(component.form.controls.clientId.disabled).toBeTrue();
+    expect(component.titleKey).toBe('invoices.editCreditNote');
     component.save();
     expect(close).toHaveBeenCalledWith(jasmine.objectContaining({ clientId: 3 }));
+  });
+
+  it('writes a quote with how long it holds and the deposit it asks, instead of a period', () => {
+    const component = create({ forQuote: true });
+    expect(component.titleKey).toBe('quotes.newTitle');
+    expect(component.form.value.validityDays).toBe(30);
+    component.form.patchValue({ clientId: 3, depositPercent: 101 });
+    component.lines.at(0).patchValue({ description: 'Audit', unitPrice: 800 });
+    component.save();
+    expect(close).not.toHaveBeenCalled();
+    component.form.patchValue({ depositPercent: null });
+    component.save();
+    expect(close).toHaveBeenCalledWith({ clientId: 3, projectId: null, language: 'FR', notes: null, validityDays: 30, depositPercent: null,
+      lines: [{ description: 'Audit', quantity: 1, unitPrice: 800, vatRate: 20 }] });
+  });
+
+  it('changes a quote draft, keeping its validity and deposit', () => {
+    const quote = { id: 5, clientId: 3, projectId: 9, language: 'EN', notes: 'Start in two weeks', validityDays: 15, depositPercent: 30,
+      lines: [{ description: 'Audit', quantity: 5, unitPrice: 800, vatRate: 0 }] } as unknown as Quote;
+    const component = create({ forQuote: true, quote });
+    expect(component.titleKey).toBe('quotes.editTitle');
+    component.save();
+    expect(close).toHaveBeenCalledWith(jasmine.objectContaining({ projectId: 9, language: 'EN', validityDays: 15, depositPercent: 30,
+      notes: 'Start in two weeks' }));
   });
 
   it('keeps the dialog open while the draft is incomplete, and stops at fifty lines', () => {

@@ -84,7 +84,8 @@
     "admin": "Administration",
     "invoices": "Factures",
     "documents": "Documents",
-    "activityReports": "CRA"
+    "activityReports": "CRA",
+    "quotes": "Devis"
   },
   "archive": {
     "title": "Archives",
@@ -3080,5 +3081,71 @@
     "invalidMessage": "Il a peut-être expiré ou été retiré. Demandez-en un nouveau à son expéditeur.",
     "alreadyWritten": "Cette recommandation a déjà été écrite.",
     "sendError": "Votre recommandation n'a pas pu être envoyée. Réessayez dans un instant."
+  },
+  "quotes": {
+    "title": "Devis",
+    "subtitle": "Les devis de vos prestations au forfait, du brouillon à la réponse du client et à la facture",
+    "new": "Nouveau devis",
+    "newTitle": "Nouveau devis",
+    "editTitle": "Modifier le devis",
+    "toInvoices": "Factures",
+    "billingIncomplete": "Votre identité de facturation est incomplète : vous pouvez rédiger des devis, mais pas encore les envoyer.",
+    "pending": "Envoyés, en attente de réponse (HT)",
+    "acceptanceRate": "Acceptés parmi les devis répondus",
+    "filters": {
+      "ALL": "Tous",
+      "DRAFT": "Brouillons",
+      "SENT": "Envoyés",
+      "ACCEPTED": "Acceptés",
+      "REFUSED": "Refusés"
+    },
+    "statuses": {
+      "DRAFT": "Brouillon",
+      "SENT": "Envoyé",
+      "ACCEPTED": "Accepté",
+      "REFUSED": "Refusé",
+      "EXPIRED": "Expiré"
+    },
+    "none": "Aucun devis pour l'instant. Rédigez-en un pour une prestation au forfait : un audit, une formation, un développement.",
+    "noneForFilter": "Aucun devis ici.",
+    "validUntil": "valable jusqu'au {{date}}",
+    "validity": "valable {{days}} jours après envoi",
+    "acceptedOn": "accepté le {{date}}",
+    "refusedOn": "refusé le {{date}}",
+    "deposit": "acompte de {{percent}} %",
+    "validityDays": "Durée de validité",
+    "days": "jours",
+    "validityError": "Entre 1 et 365 jours.",
+    "depositPercent": "Acompte à la commande",
+    "depositError": "Entre 1 et 100 %.",
+    "notes": "Notes (imprimées sur le devis)",
+    "send": "Envoyer",
+    "sendTitle": "Envoyer ce devis ?",
+    "sendMessage": "Il reçoit le numéro de devis suivant de l'année et ne peut plus être modifié ni supprimé.",
+    "sendDate": "Date du devis",
+    "accept": "Accepté par le client",
+    "refuse": "Refusé par le client",
+    "invoice": "Créer la facture",
+    "openInvoices": "Voir la facture",
+    "created": "Devis rédigé",
+    "saved": "Devis enregistré",
+    "sent": "Devis envoyé",
+    "acceptedDone": "Devis accepté",
+    "refusedDone": "Devis refusé",
+    "invoiced": "Facture rédigée à partir du devis : relisez-la et émettez-la",
+    "deleted": "Devis supprimé",
+    "deleteConfirm": "Supprimer ce devis ?",
+    "loadError": "Les devis n'ont pas pu être chargés",
+    "saveError": "Le devis n'a pas pu être enregistré",
+    "pdfError": "Le PDF n'a pas pu être téléchargé",
+    "errors": {
+      "billing": "Complétez votre identité de facturation (Profil → Facturation) avant d'envoyer un devis.",
+      "clientAddress": "Ajoutez l'adresse du client avant de lui envoyer un devis.",
+      "frozen": "Un devis envoyé ne peut plus être modifié.",
+      "clientGone": "Le client du devis n'existe plus.",
+      "notSent": "Seul un devis envoyé peut être accepté ou refusé.",
+      "notAccepted": "Seul un devis accepté peut être facturé.",
+      "alreadyInvoiced": "Ce devis est déjà facturé."
+    }
   }
 }

@@ -1,0 +1,97 @@
+<div class="quotes-page">
+  <app-page-header icon="request_quote" [title]="'quotes.title' | translate" [subtitle]="'quotes.subtitle' | translate">
+    <a mat-stroked-button routerLink="/invoices">
+      <mat-icon>receipt_long</mat-icon>
+      {{ 'quotes.toInvoices' | translate }}
+    </a>
+    <button mat-flat-button color="primary" type="button" (click)="write()" data-new-quote>
+      <mat-icon>add</mat-icon>
+      {{ 'quotes.new' | translate }}
+    </button>
+  </app-page-header>
+
+  @if (billing && !billing.complete) {
+    <mat-card class="notice" data-billing-incomplete>
+      <mat-card-content>
+        <mat-icon aria-hidden="true">info</mat-icon>
+        <span>{{ 'quotes.billingIncomplete' | translate }}</span>
+        <a mat-button routerLink="/profile">{{ 'invoices.completeBilling' | translate }}</a>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <div class="figures" data-quote-figures>
+    <mat-card class="figure">
+      <span class="label">{{ 'quotes.pending' | translate }}</span>
+      <span class="value" data-quotes-pending>{{ pending | number:'1.2-2' }} €</span>
+    </mat-card>
+    <mat-card class="figure">
+      <span class="label">{{ 'quotes.acceptanceRate' | translate }}</span>
+      <span class="value" data-quotes-acceptance>{{ acceptanceRate === null ? '—' : acceptanceRate + ' %' }}</span>
+    </mat-card>
+  </div>
+
+  <mat-button-toggle-group [value]="filter" (change)="filter = $event.value" [attr.aria-label]="'invoices.filter' | translate">
+    @for (option of filters; track option) {
+      <mat-button-toggle [value]="option">{{ 'quotes.filters.' + option | translate }}</mat-button-toggle>
+    }
+  </mat-button-toggle-group>
+
+  @if (loading) {
+    <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+  } @else if (shown.length === 0) {
+    <p class="empty">{{ (quotes.length === 0 ? 'quotes.none' : 'quotes.noneForFilter') | translate }}</p>
+  } @else {
+    <ul class="list">
+      @for (quote of shown; track quote.id) {
+        <li class="quote" [attr.data-quote]="quote.id">
+          <div class="main">
+            <span class="number">{{ quote.number ?? ('invoices.draft' | translate) }}</span>
+            <span class="client">{{ quote.clientName }}@if (quote.projectRole) { · {{ quote.projectRole }} }</span>
+            <span class="meta">
+              @if (quote.status === 'SENT' && quote.validUntil) {
+                {{ 'quotes.validUntil' | translate: { date: (quote.validUntil | date:'mediumDate') } }}
+              } @else if (quote.status === 'DRAFT') {
+                {{ 'quotes.validity' | translate: { days: quote.validityDays } }}
+              }
+              @if (quote.decidedOn) {
+                {{ (quote.status === 'ACCEPTED' ? 'quotes.acceptedOn' : 'quotes.refusedOn') | translate: { date: (quote.decidedOn | date:'mediumDate') } }}
+              }
+              @if (quote.depositPercent) {
+                · {{ 'quotes.deposit' | translate: { percent: quote.depositPercent } }}
+              }
+            </span>
+          </div>
+          <span class="badge" [class]="quote.expired ? 'EXPIRED' : quote.status">
+            {{ 'quotes.statuses.' + (quote.expired ? 'EXPIRED' : quote.status) | translate }}
+          </span>
+          <span class="amount">{{ quote.total | number:'1.2-2' }} €</span>
+          <button mat-icon-button type="button" [matMenuTriggerFor]="actions"
+            [attr.aria-label]="'invoices.actions' | translate: { name: quote.number ?? ('invoices.draft' | translate) }">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #actions="matMenu">
+            @if (quote.status === 'DRAFT') {
+              <button mat-menu-item type="button" (click)="write(quote)"><mat-icon>edit</mat-icon>{{ 'invoices.edit' | translate }}</button>
+              <button mat-menu-item type="button" (click)="send(quote)" data-send-quote><mat-icon>send</mat-icon>{{ 'quotes.send' | translate }}</button>
+            }
+            @if (quote.status === 'SENT') {
+              <button mat-menu-item type="button" (click)="decide(quote, true)" data-accept-quote><mat-icon>thumb_up</mat-icon>{{ 'quotes.accept' | translate }}</button>
+              <button mat-menu-item type="button" (click)="decide(quote, false)" data-refuse-quote><mat-icon>thumb_down</mat-icon>{{ 'quotes.refuse' | translate }}</button>
+            }
+            @if (quote.status === 'ACCEPTED' && !quote.invoiceId) {
+              <button mat-menu-item type="button" (click)="invoice(quote)" data-invoice-quote><mat-icon>receipt_long</mat-icon>{{ 'quotes.invoice' | translate }}</button>
+            }
+            @if (quote.invoiceId) {
+              <a mat-menu-item routerLink="/invoices"><mat-icon>receipt_long</mat-icon>{{ 'quotes.openInvoices' | translate }}</a>
+            }
+            <button mat-menu-item type="button" (click)="download(quote)"><mat-icon>picture_as_pdf</mat-icon>{{ 'invoices.pdf' | translate }}</button>
+            @if (quote.status === 'DRAFT') {
+              <button mat-menu-item type="button" (click)="remove(quote)"><mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}</button>
+            }
+          </mat-menu>
+        </li>
+      }
+    </ul>
+  }
+</div>

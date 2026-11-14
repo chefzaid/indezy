@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { mockWorkspaceSession } from './helpers/workspace';
 import { mockWorkspaceData } from './helpers/workspace-data';
+import { settleDialog } from './helpers/dialog';
 
 const usage = { dayCeiling: 4, amountCeiling: null, periodEnd: null, workedDays: 3.5, amount: 2100, share: 0.875, daysLeft: 0.5,
   level: 'NEAR' };
@@ -39,8 +40,7 @@ for (const width of [1280, 390]) {
     await dialog.locator('[data-save-order]').click();
     await expect(dialog.locator('[data-order-error]')).toHaveText('Give a ceiling in days or in euros.');
     await dialog.getByLabel('Ceiling in days').fill('4');
-    await page.locator('.mat-mdc-dialog-container').evaluate(container =>
-      Promise.all(container.getAnimations({ subtree: true }).map(animation => animation.finished)));
+    await settleDialog(page);
     const dialogAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
     expect(dialogAudit.violations.map(violation => violation.id)).toEqual([]);

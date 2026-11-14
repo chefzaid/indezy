@@ -1,0 +1,21 @@
+@use '../invoices/billing-list' as list;
+
+@include list.billing-list('.quote');
+
+.badge {
+  &.SENT {
+    background: var(--app-chip-indigo-bg);
+    color: var(--app-chip-indigo-text);
+  }
+
+  &.ACCEPTED {
+    background: var(--app-chip-positive-bg);
+    color: var(--app-chip-positive-text);
+  }
+
+  &.REFUSED,
+  &.EXPIRED {
+    background: var(--app-chip-danger-bg);
+    color: var(--app-chip-danger-text);
+  }
+}

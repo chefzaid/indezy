@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ClientDto, DocumentLanguage, Invoice, InvoiceDraft, InvoiceLine, ProjectDto } from '../../../models';
+import { ClientDto, DocumentLanguage, Invoice, InvoiceDraft, InvoiceLine, ProjectDto, Quote, QuoteDraft } from '../../../models';
 
 export interface InvoiceDraftDialogData {
   clients: ClientDto[];
@@ -18,11 +18,18 @@ export interface InvoiceDraftDialogData {
   invoice?: Invoice;
   /** The VAT rate new lines start with: 0 when exempt. */
   vatRate: number;
+  /** Writes a quote rather than an invoice: how long it holds and the deposit it asks, instead of a period. */
+  forQuote?: boolean;
+  /** The quote draft to change. */
+  quote?: Quote;
 }
 
 const MAX_LINES = 50;
 
-/** Writes a draft: the client, optionally its mission, the period, the language, notes and lines, with live totals. */
+/**
+ * Writes a draft invoice or quote: the client, optionally its mission, the language, notes and lines, with live totals; an
+ * invoice's period, or a quote's validity and deposit.
+ */
 @Component({
   selector: 'app-invoice-draft-dialog',
   imports: [ReactiveFormsModule, DecimalPipe, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule,
@@ -33,7 +40,7 @@ const MAX_LINES = 50;
 })
 export class InvoiceDraftDialogComponent implements OnInit {
   readonly data = inject<InvoiceDraftDialogData>(MAT_DIALOG_DATA);
-  private readonly dialogRef = inject(MatDialogRef<InvoiceDraftDialogComponent, InvoiceDraft>);
+  private readonly dialogRef = inject(MatDialogRef<InvoiceDraftDialogComponent, InvoiceDraft | QuoteDraft>);
   private readonly fb = inject(FormBuilder);
   readonly languages: DocumentLanguage[] = ['FR', 'EN'];
 
@@ -43,6 +50,8 @@ export class InvoiceDraftDialogComponent implements OnInit {
     periodStart: [''],
     periodEnd: [''],
     language: ['FR' as DocumentLanguage],
+    validityDays: [30, [Validators.required, Validators.min(1), Validators.max(365)]],
+    depositPercent: [null as number | null, [Validators.min(1), Validators.max(100)]],
     notes: ['', Validators.maxLength(1000)],
     lines: this.fb.array<FormGroup>([])
   });
@@ -61,9 +70,23 @@ export class InvoiceDraftDialogComponent implements OnInit {
     return this.data.projects.filter(project => project.clientId === clientId || project.middlemanId === clientId);
   }
 
+  get titleKey(): string {
+    if (this.data.forQuote) {
+      return this.data.quote ? 'quotes.editTitle' : 'quotes.newTitle';
+    }
+    return this.data.invoice?.kind === 'CREDIT_NOTE' ? 'invoices.editCreditNote' : this.data.invoice ? 'invoices.editTitle' : 'invoices.newTitle';
+  }
+
   ngOnInit(): void {
     const invoice = this.data.invoice;
-    if (invoice) {
+    const quote = this.data.quote;
+    if (quote) {
+      this.form.patchValue({
+        clientId: quote.clientId, projectId: quote.projectId, language: quote.language, notes: quote.notes ?? '',
+        validityDays: quote.validityDays, depositPercent: quote.depositPercent
+      });
+      quote.lines.forEach(line => this.addLine(line));
+    } else if (invoice) {
       this.form.patchValue({
         clientId: invoice.clientId, projectId: invoice.projectId, periodStart: invoice.periodStart ?? '',
         periodEnd: invoice.periodEnd ?? '', language: invoice.language, notes: invoice.notes ?? ''
@@ -115,6 +138,16 @@ export class InvoiceDraftDialogComponent implements OnInit {
       return;
     }
     const value = this.form.getRawValue();
+    const lines = (value.lines as InvoiceLine[]).map(line => ({
+      description: line.description.trim(), quantity: Number(line.quantity), unitPrice: Number(line.unitPrice), vatRate: Number(line.vatRate)
+    }));
+    if (this.data.forQuote) {
+      this.dialogRef.close({
+        clientId: value.clientId!, projectId: value.projectId, language: value.language ?? 'FR', notes: value.notes?.trim() || null,
+        validityDays: Number(value.validityDays), depositPercent: value.depositPercent ? Number(value.depositPercent) : null, lines
+      });
+      return;
+    }
     this.dialogRef.close({
       clientId: value.clientId!,
       projectId: value.projectId,
@@ -122,9 +155,7 @@ export class InvoiceDraftDialogComponent implements OnInit {
       periodEnd: value.periodEnd || null,
       language: value.language ?? 'FR',
       notes: value.notes?.trim() || null,
-      lines: (value.lines as InvoiceLine[]).map(line => ({
-        description: line.description.trim(), quantity: Number(line.quantity), unitPrice: Number(line.unitPrice), vatRate: Number(line.vatRate)
-      }))
+      lines
     });
   }
 }

@@ -84,7 +84,8 @@
     "admin": "Admin",
     "invoices": "Invoices",
     "documents": "Documents",
-    "activityReports": "Timesheets"
+    "activityReports": "Timesheets",
+    "quotes": "Quotes"
   },
   "archive": {
     "title": "Archive",
@@ -3080,5 +3081,71 @@
     "invalidMessage": "It may have expired or been withdrawn. Ask its sender for a new one.",
     "alreadyWritten": "This testimonial has already been written.",
     "sendError": "Your testimonial could not be sent. Try again in a moment."
+  },
+  "quotes": {
+    "title": "Quotes",
+    "subtitle": "Quotes for fixed-price work, from draft to the client's answer and the invoice",
+    "new": "New quote",
+    "newTitle": "New quote",
+    "editTitle": "Change the quote",
+    "toInvoices": "Invoices",
+    "billingIncomplete": "Your billing identity is incomplete: you can write quotes, but not send them yet.",
+    "pending": "Sent, awaiting an answer (before VAT)",
+    "acceptanceRate": "Accepted of those answered",
+    "filters": {
+      "ALL": "All",
+      "DRAFT": "Drafts",
+      "SENT": "Sent",
+      "ACCEPTED": "Accepted",
+      "REFUSED": "Refused"
+    },
+    "statuses": {
+      "DRAFT": "Draft",
+      "SENT": "Sent",
+      "ACCEPTED": "Accepted",
+      "REFUSED": "Refused",
+      "EXPIRED": "Expired"
+    },
+    "none": "No quote yet. Write one for fixed-price work: an audit, a training, a development.",
+    "noneForFilter": "No quote here.",
+    "validUntil": "valid until {{date}}",
+    "validity": "valid {{days}} days once sent",
+    "acceptedOn": "accepted {{date}}",
+    "refusedOn": "refused {{date}}",
+    "deposit": "{{percent}} % deposit",
+    "validityDays": "Valid for",
+    "days": "days",
+    "validityError": "Between 1 and 365 days.",
+    "depositPercent": "Deposit on order",
+    "depositError": "Between 1 and 100 %.",
+    "notes": "Notes (printed on the quote)",
+    "send": "Send",
+    "sendTitle": "Send this quote?",
+    "sendMessage": "It gets the next quote number of the year and can no longer change or be deleted.",
+    "sendDate": "Quote date",
+    "accept": "Accepted by the client",
+    "refuse": "Refused by the client",
+    "invoice": "Create the invoice",
+    "openInvoices": "See the invoice",
+    "created": "Quote drafted",
+    "saved": "Quote saved",
+    "sent": "Quote sent",
+    "acceptedDone": "Quote accepted",
+    "refusedDone": "Quote refused",
+    "invoiced": "Invoice drafted from the quote: review and issue it",
+    "deleted": "Quote deleted",
+    "deleteConfirm": "Delete this quote?",
+    "loadError": "The quotes could not be loaded",
+    "saveError": "The quote could not be saved",
+    "pdfError": "The PDF could not be downloaded",
+    "errors": {
+      "billing": "Complete your billing identity (Profile → Billing) before sending a quote.",
+      "clientAddress": "Add the client's address before sending it a quote.",
+      "frozen": "A sent quote can no longer change.",
+      "clientGone": "The quote's client no longer exists.",
+      "notSent": "Only a sent quote can be accepted or refused.",
+      "notAccepted": "Only an accepted quote can be invoiced.",
+      "alreadyInvoiced": "This quote is already invoiced."
+    }
   }
 }

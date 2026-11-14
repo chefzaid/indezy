@@ -129,6 +129,9 @@ class UserDataExportServiceTest {
     private TestimonialService testimonialService;
 
     @Mock
+    private QuoteService quoteService;
+
+    @Mock
     private BookingService bookingService;
 
     // As Spring Boot builds it, with no spring.jackson settings.

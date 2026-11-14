@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ (data.invoice?.kind === 'CREDIT_NOTE' ? 'invoices.editCreditNote' : data.invoice ? 'invoices.editTitle' : 'invoices.newTitle') | translate }}</h2>
+<h2 mat-dialog-title>{{ titleKey | translate }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form" id="invoice-draft-form" (ngSubmit)="save()">
     <div class="row">
@@ -22,14 +22,29 @@
       </mat-form-field>
     </div>
     <div class="row">
-      <mat-form-field appearance="outline" class="grow">
-        <mat-label>{{ 'invoices.periodStart' | translate }}</mat-label>
-        <input matInput type="date" formControlName="periodStart">
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="grow">
-        <mat-label>{{ 'invoices.periodEnd' | translate }}</mat-label>
-        <input matInput type="date" formControlName="periodEnd">
-      </mat-form-field>
+      @if (data.forQuote) {
+        <mat-form-field appearance="outline" class="grow" data-validity-days>
+          <mat-label>{{ 'quotes.validityDays' | translate }}</mat-label>
+          <input matInput type="number" formControlName="validityDays" min="1" max="365" required>
+          <span matTextSuffix>{{ 'quotes.days' | translate }}</span>
+          <mat-error>{{ 'quotes.validityError' | translate }}</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="grow" data-deposit-percent>
+          <mat-label>{{ 'quotes.depositPercent' | translate }}</mat-label>
+          <input matInput type="number" formControlName="depositPercent" min="1" max="100">
+          <span matTextSuffix>%</span>
+          <mat-error>{{ 'quotes.depositError' | translate }}</mat-error>
+        </mat-form-field>
+      } @else {
+        <mat-form-field appearance="outline" class="grow">
+          <mat-label>{{ 'invoices.periodStart' | translate }}</mat-label>
+          <input matInput type="date" formControlName="periodStart">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="grow">
+          <mat-label>{{ 'invoices.periodEnd' | translate }}</mat-label>
+          <input matInput type="date" formControlName="periodEnd">
+        </mat-form-field>
+      }
       <mat-form-field appearance="outline" class="grow">
         <mat-label>{{ 'invoices.language' | translate }}</mat-label>
         <mat-select formControlName="language">
@@ -81,7 +96,7 @@
     </dl>
 
     <mat-form-field appearance="outline" class="full">
-      <mat-label>{{ 'invoices.notes' | translate }}</mat-label>
+      <mat-label>{{ (data.forQuote ? 'quotes.notes' : 'invoices.notes') | translate }}</mat-label>
       <textarea matInput formControlName="notes" rows="2" maxlength="1000"></textarea>
     </mat-form-field>
   </form>

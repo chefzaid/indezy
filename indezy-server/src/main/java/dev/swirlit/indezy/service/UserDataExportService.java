@@ -45,6 +45,7 @@ public class UserDataExportService {
     private final AccountEventService accountEventService;
     private final BillingIdentityService billingIdentityService;
     private final InvoiceService invoiceService;
+    private final QuoteService quoteService;
     private final PurchaseOrderService purchaseOrderService;
     private final ComplianceDocumentService complianceDocumentService;
     private final CompliancePackService compliancePackService;
@@ -65,6 +66,7 @@ public class UserDataExportService {
         export.put("freelance", freelanceService.findById(freelanceId));
         export.put("billing", billingIdentityService.get(freelanceId));
         export.put("invoices", invoiceService.list(freelanceId));
+        export.put("quotes", quoteService.list(freelanceId));
         export.put("projects", projectService.findByFreelanceId(freelanceId));
         export.put("projectNotes", projectNoteService.export(freelanceId));
         export.put("seasons", seasonService.findByFreelanceId(freelanceId));

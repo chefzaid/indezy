@@ -2,11 +2,12 @@ import AxeBuilder from '@axe-core/playwright';
 import { Page, expect, test } from '@playwright/test';
 import { mockWorkspaceSession } from './helpers/workspace';
 import { mockWorkspaceData } from './helpers/workspace-data';
+import { settleDialog } from './helpers/dialog';
 
 /** The app's main pages, each audited once its content is shown. */
 const PAGES = ['/dashboard', '/projects', '/projects/42', '/projects/new', '/clients', '/clients/3', '/contacts', '/contacts/2',
   '/sources', '/calendar', '/archive', '/review', '/profile', '/offers', '/welcome', '/p/workspace-test', '/admin',
-  '/invoices', '/documents'];
+  '/invoices', '/quotes', '/documents'];
 
 /** The WCAG 2.1 A and AA rules a page breaks, one line each, empty when it breaks none. */
 async function violations(page: Page): Promise<string[]> {
@@ -62,13 +63,14 @@ for (const { language, theme, phone } of [
     await page.goto('/dashboard');
     await page.getByRole('radio', { name: /Kanban/ }).click();
     await expect(page.locator('app-kanban-board .kanban-column').first()).toBeVisible();
+    // On a phone the tap shows the radio's tooltip: measured once it has faded in.
+    await settled(page);
     expect(await violations(page), 'kanban board').toEqual([]);
 
     await page.getByRole('button', { name: language === 'en' ? 'Search everything' : 'Tout rechercher' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     // Measured once it has faded in: halfway, its text is half transparent.
-    await page.locator('.mat-mdc-dialog-container').evaluate(dialog =>
-      Promise.all(dialog.getAnimations({ subtree: true }).map(animation => animation.finished)));
+    await settleDialog(page);
     expect(await violations(page), 'search dialog').toEqual([]);
   });
 }

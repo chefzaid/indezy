@@ -67,6 +67,13 @@ public class Invoice extends BaseEntity {
     @Column(name = "credited_issue_date")
     private LocalDate creditedIssueDate;
 
+    /** The accepted quote the invoice bills, and its number, as the invoice states it. */
+    @Column(name = "quote_id")
+    private Long quoteId;
+
+    @Column(name = "quote_number", length = 30)
+    private String quoteNumber;
+
     /** Given when issued: prefix, year and a number that follows the last one with no gap ("F2026-0007"). */
     @Column(name = "number", length = 30)
     private String number;

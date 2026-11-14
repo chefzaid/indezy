@@ -13,6 +13,7 @@ import dev.swirlit.indezy.model.InvoiceCounter;
 import dev.swirlit.indezy.model.InvoiceLine;
 import dev.swirlit.indezy.model.InvoiceSeller;
 import dev.swirlit.indezy.model.Project;
+import dev.swirlit.indezy.model.Quote;
 import dev.swirlit.indezy.model.enums.ActivityReportStatus;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.InvoiceKind;
@@ -172,6 +173,21 @@ public class InvoiceService {
         invoice.setLanguage(language);
         invoice.setLines(List.of(new InvoiceLine(description, BigDecimal.valueOf(report.getWorkedDays()).setScale(2),
             BigDecimal.valueOf(project.getDailyRate()).setScale(2), vatRate.setScale(2))));
+        return toDto(invoices.save(invoice));
+    }
+
+    /** A draft billing an accepted quote: its client, mission, language and lines, stating the quote's number. */
+    @Transactional
+    public InvoiceDtos.Invoice fromQuote(Long freelanceId, Quote quote) {
+        Invoice invoice = new Invoice();
+        invoice.setFreelanceId(freelanceId);
+        invoice.setQuoteId(quote.getId());
+        invoice.setQuoteNumber(quote.getNumber());
+        invoice.setClientId(quote.getClientId());
+        invoice.setProjectId(quote.getProjectId());
+        invoice.setProjectRole(quote.getProjectRole());
+        invoice.setLanguage(quote.getLanguage());
+        invoice.setLines(quote.getLines());
         return toDto(invoices.save(invoice));
     }
 
@@ -371,7 +387,7 @@ public class InvoiceService {
         return invoice;
     }
 
-    private static InvoiceSeller seller(BillingIdentityDto identity) {
+    static InvoiceSeller seller(BillingIdentityDto identity) {
         InvoiceSeller seller = new InvoiceSeller();
         seller.setName(identity.legalName());
         seller.setLegalForm(identity.legalForm());
@@ -386,7 +402,7 @@ public class InvoiceService {
         return seller;
     }
 
-    private static InvoiceBuyer buyer(Client client) {
+    static InvoiceBuyer buyer(Client client) {
         InvoiceBuyer buyer = new InvoiceBuyer();
         buyer.setName(client.getCompanyName());
         buyer.setAddress(Stream.of(client.getAddress(), client.getCity()).filter(part -> part != null && !part.isBlank())
@@ -403,7 +419,8 @@ public class InvoiceService {
         boolean overdue = !invoice.isCreditNote() && invoice.getStatus() == InvoiceStatus.ISSUED && invoice.getDueDate() != null &&
             invoice.getDueDate().isBefore(LocalDate.now(clock.withZone(PARIS)));
         return new InvoiceDtos.Invoice(invoice.getId(), invoice.isCreditNote() ? InvoiceKind.CREDIT_NOTE : InvoiceKind.INVOICE,
-            invoice.getNumber(), invoice.getStatus(), overdue, invoice.getCreditedInvoiceId(), invoice.getCreditedNumber(), invoice.getClientId(), clientName,
+            invoice.getNumber(), invoice.getStatus(), overdue, invoice.getCreditedInvoiceId(), invoice.getCreditedNumber(), invoice.getQuoteId(),
+            invoice.getQuoteNumber(), invoice.getClientId(), clientName,
             invoice.getProjectId(), invoice.getProjectRole(), invoice.getActivityReportId(), invoice.getIssueDate(), invoice.getDueDate(),
             invoice.getPeriodStart(), invoice.getPeriodEnd(), invoice.getLanguage(), invoice.getNotes(), invoice.getLines().stream()
             .map(line -> new InvoiceDtos.Line(line.getDescription(), line.getQuantity(), line.getUnitPrice(), line.getVatRate())).toList(),

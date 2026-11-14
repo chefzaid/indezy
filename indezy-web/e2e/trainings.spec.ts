@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { emptyDashboardStats, mockWorkspaceSession } from './helpers/workspace';
 import { mockWorkspaceData } from './helpers/workspace-data';
+import { settleDialog } from './helpers/dialog';
 
 for (const { language, width, theme } of [{ language: 'en', width: 1280, theme: 'light' }, { language: 'fr', width: 390, theme: 'dark' }]) {
   test(`records a training, its certification and the funding asked, on the Documents page (${language})`, async ({ page }) => {
@@ -23,8 +24,7 @@ for (const { language, width, theme } of [{ language: 'en', width: 1280, theme: 
     await page.locator('[data-add-training]').click();
     const dialog = page.getByRole('dialog');
     // Measured once it has faded in: halfway, its text is half transparent.
-    await page.locator('.mat-mdc-dialog-container').evaluate(container =>
-      Promise.all(container.getAnimations({ subtree: true }).map(animation => animation.finished)));
+    await settleDialog(page);
     await dialog.locator('[data-training-title]').fill('Certified Kubernetes Administrator');
     await dialog.locator('[data-training-start]').fill('2026-11-16');
     await dialog.locator('[data-training-end]').fill('2026-11-18');

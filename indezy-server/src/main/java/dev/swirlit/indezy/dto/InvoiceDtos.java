@@ -33,7 +33,8 @@ public final class InvoiceDtos {
     }
 
     public record Invoice(
-        Long id, InvoiceKind kind, String number, InvoiceStatus status, boolean overdue, Long creditedInvoiceId, String creditedNumber, Long clientId, String clientName, Long projectId,
+        Long id, InvoiceKind kind, String number, InvoiceStatus status, boolean overdue, Long creditedInvoiceId, String creditedNumber,
+        Long quoteId, String quoteNumber, Long clientId, String clientName, Long projectId,
         String projectRole, Long activityReportId, LocalDate issueDate, LocalDate dueDate, LocalDate periodStart, LocalDate periodEnd,
         DocumentLanguage language, String notes, List<Line> lines, BigDecimal totalExcludingVat, BigDecimal vat, BigDecimal total,
         LocalDate paidOn, LocalDateTime createdAt) {

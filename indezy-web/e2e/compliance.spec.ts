@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { mockWorkspaceSession } from './helpers/workspace';
 import { mockWorkspaceData } from './helpers/workspace-data';
+import { settleDialog } from './helpers/dialog';
 
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const urssaf = { id: 4, type: 'URSSAF_VIGILANCE', label: null, fileName: 'attestation.pdf', contentType: 'application/pdf', sizeBytes: 4,
@@ -36,8 +37,7 @@ for (const width of [1280, 390]) {
     await expect(dialog).toContainText('Empty: 6 months after the issue date');
     await dialog.locator('[data-document-file]').setInputFiles({ name: 'attestation.pdf', mimeType: 'application/pdf',
       buffer: Buffer.from('%PDF-1.7') });
-    await page.locator('.mat-mdc-dialog-container').evaluate(container =>
-      Promise.all(container.getAnimations({ subtree: true }).map(animation => animation.finished)));
+    await settleDialog(page);
     const dialogAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
     expect(dialogAudit.violations.map(violation => violation.id)).toEqual([]);
     await dialog.locator('[data-save-document]').click();

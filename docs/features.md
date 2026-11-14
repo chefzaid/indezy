@@ -590,6 +590,20 @@ mentions French law asks, the VAT or its exemption, and the late payment penalti
 **Create a credit note** on an issued invoice drafts one with the same lines, to reduce for a partial credit; it is
 issued in the same numbering and cannot credit more than what is left. Fully credited, the invoice reads **Credited**.
 
+### Quotes
+
+**Quotes** (`/quotes`) prepares fixed-price work (an audit, a training, a development): a draft names a client,
+optionally a mission, the language, how long the offer holds (30 days by default, up to 365), an optional deposit on
+order (1 to 100 %), notes and up to 50 lines. Its PDF says it has not been sent. **Send** needs a complete
+[billing identity](#billing-identity) and the client's address, takes a date (never later than today), gives the year's
+next quote number, apart from the invoices' (`D<year>-0001`), sets the day it holds until and freezes the seller, the
+buyer and the payment term. The PDF states the VAT or its exemption, how long the offer holds, the deposit and its
+amount, the payment term, the late payment penalties, that the quote is free, and a box for the client's signature
+preceded by "Bon pour accord". A sent quote is then **Accepted by the client** or **Refused by the client**, and reads
+**Expired** past its validity until then; **Create the invoice** drafts, once, the invoice of an accepted quote with its
+lines, client, mission and language, stating "Selon devis N° …". The page totals the sent quotes awaiting an answer and
+the share of answered quotes accepted. Quotes are part of the data export.
+
 ### Billing Identity
 
 **Profile → Billing** holds the seller's legal name and form, SIRET, VAT number and rate (20 % by default) or VAT

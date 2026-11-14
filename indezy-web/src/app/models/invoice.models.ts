@@ -19,6 +19,9 @@ export interface Invoice {
   /** The invoice a credit note credits, and its number. */
   creditedInvoiceId: number | null;
   creditedNumber: string | null;
+  /** The accepted quote the invoice bills, and its number. */
+  quoteId?: number | null;
+  quoteNumber?: string | null;
   /** Given when issued: "F2026-0007". */
   number: string | null;
   status: InvoiceStatus;

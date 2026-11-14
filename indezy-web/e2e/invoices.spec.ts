@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { mockWorkspaceSession } from './helpers/workspace';
 import { mockWorkspaceData } from './helpers/workspace-data';
+import { settleDialog } from './helpers/dialog';
 
 const base = { status: 'DRAFT', overdue: false, clientId: 3, clientName: 'Acme', projectId: null, projectRole: null,
   activityReportId: null, issueDate: null, dueDate: null, periodStart: null, periodEnd: null, language: 'FR', notes: null,
@@ -36,8 +37,7 @@ for (const width of [1280, 390]) {
     await expect(month).toContainText('Java developer · Acme');
     await expect(month).toContainText('November 2026 · Draft');
     await expect(month).toContainText('2.5 days × 600 € = 1,500.00 € before VAT');
-    await page.locator('.mat-mdc-dialog-container').evaluate(container =>
-      Promise.all(container.getAnimations({ subtree: true }).map(animation => animation.finished)));
+    await settleDialog(page);
     const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     await month.locator('[data-invoice-this-report]').click();
@@ -86,8 +86,7 @@ for (const width of [1280, 390]) {
     await dialog.getByLabel('Quantity').fill('2');
     await dialog.getByLabel('Unit price').fill('650');
     await expect(dialog.locator('[data-draft-totals]')).toContainText('1,300.00');
-    await page.locator('.mat-mdc-dialog-container').evaluate(container =>
-      Promise.all(container.getAnimations({ subtree: true }).map(animation => animation.finished)));
+    await settleDialog(page);
     const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     await dialog.locator('[data-save-draft]').click();

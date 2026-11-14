@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { mockWorkspaceSession } from './helpers/workspace';
 import { mockWorkspaceData } from './helpers/workspace-data';
+import { settleDialog } from './helpers/dialog';
 
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const off = { enabled: false, title: '', durationMinutes: 30, bufferMinutes: 15, minNoticeHours: 24, maxDaysAhead: 21, windows: [] };
@@ -43,8 +44,7 @@ for (const width of [1280, 390]) {
     await expect(dialog.locator('[data-booking-error]')).toHaveText('Open at least one day.');
     await dialog.getByRole('checkbox', { name: 'Tuesday' }).check();
     await dialog.getByLabel('Tuesday until').fill('12:00');
-    await page.locator('.mat-mdc-dialog-container').evaluate(container =>
-      Promise.all(container.getAnimations({ subtree: true }).map(animation => animation.finished)));
+    await settleDialog(page);
     const dialogAudit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(WCAG).analyze();
     expect(dialogAudit.violations.map(violation => violation.id)).toEqual([]);
     await dialog.locator('[data-save-booking]').click();
