@@ -23,6 +23,11 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     List<Invoice> findByCreditedInvoiceIdAndNumberIsNotNull(Long creditedInvoiceId);
 
+    /** The invoices billing a quote: its deposit and its final invoice. */
+    List<Invoice> findByQuoteId(Long quoteId);
+
+    List<Invoice> findByFreelanceIdAndQuoteIdIsNotNull(Long freelanceId);
+
     List<Invoice> findByFreelanceIdAndStatusAndDueDateBeforeOrderByDueDateAsc(Long freelanceId, InvoiceStatus status, LocalDate before);
 
     /** The date of the workspace's latest issued invoice. */

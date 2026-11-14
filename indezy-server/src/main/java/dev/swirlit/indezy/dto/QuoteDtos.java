@@ -20,11 +20,12 @@ public final class QuoteDtos {
     private QuoteDtos() {
     }
 
-    /** A quote; a sent one past its validity reads as expired, and an accepted one names the invoice billing it. */
+    /** A quote; a sent one past its validity reads as expired, and an accepted one names its deposit and final invoices. */
     public record Quote(
         Long id, String number, QuoteStatus status, boolean expired, Long clientId, String clientName, Long projectId, String projectRole,
         LocalDate issueDate, int validityDays, LocalDate validUntil, Integer depositPercent, DocumentLanguage language, String notes,
         List<InvoiceDtos.Line> lines, BigDecimal totalExcludingVat, BigDecimal vat, BigDecimal total, LocalDate decidedOn, Long invoiceId,
+        Long depositInvoiceId,
         LocalDateTime createdAt) {
 
         public Quote {

@@ -28,7 +28,8 @@ describe('QuotesComponent', () => {
   const quote = (id: number, changes: Partial<Quote> = {}): Quote => ({
     id, number: null, status: 'DRAFT', expired: false, clientId: 3, clientName: 'Acme', projectId: 8, projectRole: 'Audit',
     issueDate: null, validityDays: 30, validUntil: null, depositPercent: null, language: 'FR', notes: null, lines: [],
-    totalExcludingVat: 4000, vat: 0, total: 4000, decidedOn: null, invoiceId: null, createdAt: '2026-11-14T10:00:00', ...changes
+    totalExcludingVat: 4000, vat: 0, total: 4000, decidedOn: null, invoiceId: null,
+    depositInvoiceId: null, createdAt: '2026-11-14T10:00:00', ...changes
   });
   const draft = quote(1, { depositPercent: 30 });
   const sent = quote(2, { number: 'D2026-0001', status: 'SENT', issueDate: '2026-11-01', validUntil: '2026-12-01', totalExcludingVat: 2000 });
@@ -40,7 +41,8 @@ describe('QuotesComponent', () => {
   const refusal = (message: string) => new HttpErrorResponse({ status: 409, error: { message } });
 
   function create(list = of([draft, sent, expired, accepted, refused])): ComponentFixture<QuotesComponent> {
-    quoteService = jasmine.createSpyObj('QuoteService', ['list', 'create', 'update', 'delete', 'send', 'decide', 'invoice', 'downloadPdf']);
+    quoteService = jasmine.createSpyObj('QuoteService', ['list', 'create', 'update', 'delete', 'send', 'decide', 'deposit', 'invoice',
+      'downloadPdf']);
     quoteService.list.and.returnValue(list);
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
@@ -160,6 +162,14 @@ describe('QuotesComponent', () => {
     component.decide(sent, false);
     expect(notifications.success).toHaveBeenCalledWith('quotes.refusedDone');
 
+    quoteService.deposit.and.returnValue(of({ id: 39, kind: 'DEPOSIT' } as Invoice));
+    component.deposit(accepted);
+    expect(component.quotes.find(item => item.id === 4)?.depositInvoiceId).toBe(39);
+    expect(notifications.success).toHaveBeenCalledWith('quotes.depositInvoiced');
+    quoteService.deposit.and.returnValue(throwError(() => refusal('The quote asks no deposit')));
+    component.deposit(sent);
+    expect(notifications.error).toHaveBeenCalledWith('quotes.errors.noDeposit');
+
     quoteService.invoice.and.returnValue(of({ id: 40 } as Invoice));
     component.invoice(accepted);
     expect(component.quotes.find(item => item.id === 4)?.invoiceId).toBe(40);
@@ -198,6 +208,7 @@ describe('QuotesComponent', () => {
 
   it('tells each refusal the server explains, and falls back otherwise', () => {
     expect(quoteErrorKey(refusal('Only a sent quote can be accepted or refused'), 'x')).toBe('quotes.errors.notSent');
+    expect(quoteErrorKey(refusal('Issue the deposit invoice before invoicing the balance'), 'x')).toBe('quotes.errors.depositDraft');
     expect(quoteErrorKey(refusal('Something else'), 'x')).toBe('x');
     expect(quoteErrorKey(new HttpErrorResponse({ status: 500 }), 'x')).toBe('x');
     expect(quoteErrorKey(null, 'x')).toBe('x');

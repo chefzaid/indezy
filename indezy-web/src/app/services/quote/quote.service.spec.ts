@@ -21,6 +21,8 @@ describe('QuoteService', () => {
     expect(http.expectOne(call => call.url.endsWith('/quotes/4/send')).request.body).toEqual({ issueDate: '2026-11-14' });
     service.decide(4, false).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/quotes/4/decision')).request.body).toEqual({ accepted: false });
+    service.deposit(4).subscribe();
+    http.expectOne(call => call.method === 'POST' && call.url.endsWith('/quotes/4/deposit'));
     service.invoice(4).subscribe();
     http.expectOne(call => call.method === 'POST' && call.url.endsWith('/quotes/4/invoice'));
     service.downloadPdf(4).subscribe();

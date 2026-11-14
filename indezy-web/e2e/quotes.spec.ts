@@ -6,7 +6,7 @@ import { settleDialog } from './helpers/dialog';
 
 const base = { status: 'DRAFT', expired: false, number: null, clientId: 3, clientName: 'Acme', projectId: null, projectRole: null,
   issueDate: null, validityDays: 30, validUntil: null, depositPercent: null, language: 'FR', notes: null, lines: [], vat: 0,
-  decidedOn: null, invoiceId: null, createdAt: '2026-11-14T10:00:00' };
+  decidedOn: null, invoiceId: null, depositInvoiceId: null, createdAt: '2026-11-14T10:00:00' };
 
 for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
   test(`writes, sends, accepts and invoices a quote (${language}, ${width}px)`, async ({ page }) => {
@@ -33,7 +33,13 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     });
     await page.route('**/api/quotes/2/decision', route => {
       calls.push(route.request().postDataJSON());
-      return route.fulfill({ json: { ...quotes[0], status: 'ACCEPTED', number: 'D2026-0002', decidedOn: '2026-11-14' } });
+      quotes[0] = { ...quotes[0], status: 'ACCEPTED', number: 'D2026-0002', decidedOn: '2026-11-14' };
+      return route.fulfill({ json: quotes[0] });
+    });
+    await page.route('**/api/quotes/2/deposit', route => {
+      calls.push('deposit');
+      quotes[0] = { ...quotes[0], depositInvoiceId: 39 };
+      return route.fulfill({ status: 201, json: { id: 39, kind: 'DEPOSIT', status: 'DRAFT', quoteNumber: 'D2026-0002' } });
     });
     await page.route('**/api/quotes/2/invoice', route => {
       calls.push('invoice');
@@ -75,12 +81,19 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(page.locator('[data-quotes-acceptance]')).toHaveText('50 %');
 
     await quote.getByRole('button', { name: en ? /Actions for/ : /Actions/ }).click();
+    await page.locator('[data-deposit-quote]').click();
+    await expect(page).toHaveURL(/\/invoices$/);
+
+    // Once the deposit is invoiced, only the balance is left to invoice.
+    await page.goto('/quotes');
+    await quote.getByRole('button', { name: en ? /Actions for/ : /Actions/ }).click();
+    await expect(page.locator('[data-deposit-quote]')).toHaveCount(0);
     await page.locator('[data-invoice-quote]').click();
     await expect(page).toHaveURL(/\/invoices$/);
 
     expect(calls[0]).toEqual({ clientId: 3, projectId: null, language: 'FR', notes: null, validityDays: 15, depositPercent: 30,
       lines: [{ description: en ? 'Architecture audit' : "Audit de l'architecture", quantity: 5, unitPrice: 800, vatRate: 0 }] });
-    expect(calls.slice(1)).toEqual(['send', { accepted: true }, 'invoice']);
+    expect(calls.slice(1)).toEqual(['send', { accepted: true }, 'deposit', 'invoice']);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 }

@@ -578,7 +578,10 @@ says how it really pays, from its paid invoices: "Pays in 52 days on average, 12
 
 - **From an activity report**: a month with days worked, billed to the mission's ESN (else its client) in that client's
   report language, with the days at the daily rate. A rejected month cannot be invoiced, and a month only once.
-- **By hand** (**New invoice**): a client, optionally a mission, a period, the language and up to 50 lines.
+- **By hand** (**New invoice**): a client, optionally a mission, a period, the language and up to 50 lines. A line with
+  a negative quantity takes off (a discount, a deposit already invoiced); its price is never negative, as EN 16931
+  asks, a quantity is never zero, and an invoice totalling less than zero is not issued (a credit note does that).
+- **From a quote** (see [Quotes](#quotes)): its deposit invoice, then its final invoice.
 
 A draft changes freely and its PDF says it is not an invoice. **Issuing** needs a complete
 [billing identity](#billing-identity) and the client's address, takes a date (never later than today, never before the
@@ -600,8 +603,12 @@ next quote number, apart from the invoices' (`D<year>-0001`), sets the day it ho
 buyer and the payment term. The PDF states the VAT or its exemption, how long the offer holds, the deposit and its
 amount, the payment term, the late payment penalties, that the quote is free, and a box for the client's signature
 preceded by "Bon pour accord". A sent quote is then **Accepted by the client** or **Refused by the client**, and reads
-**Expired** past its validity until then; **Create the invoice** drafts, once, the invoice of an accepted quote with its
-lines, client, mission and language, stating "Selon devis N° …". The page totals the sent quotes awaiting an answer and
+**Expired** past its validity until then. An accepted quote that asks a deposit gets **Invoice the deposit**: a draft
+**deposit invoice** (facture d'acompte, Factur-X type 386) of that share of the amount before VAT, one line per VAT rate
+of the quote, numbered with the other invoices once issued. **Invoice the balance** then drafts, once, the final invoice
+with the quote's lines, client, mission and language, stating "Selon devis N° …", less each issued deposit invoice line
+for line ("Acompte facturé N° … du …", quantity −1); it waits until the deposit invoice is issued, a credited deposit is
+not taken off, and deleting the draft lets the quote be invoiced again. The page totals the sent quotes awaiting an answer and
 the share of answered quotes accepted. Quotes are part of the data export.
 
 ### Billing Identity

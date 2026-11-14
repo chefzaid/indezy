@@ -79,10 +79,13 @@
               <button mat-menu-item type="button" (click)="decide(quote, true)" data-accept-quote><mat-icon>thumb_up</mat-icon>{{ 'quotes.accept' | translate }}</button>
               <button mat-menu-item type="button" (click)="decide(quote, false)" data-refuse-quote><mat-icon>thumb_down</mat-icon>{{ 'quotes.refuse' | translate }}</button>
             }
+            @if (quote.status === 'ACCEPTED' && quote.depositPercent && !quote.depositInvoiceId && !quote.invoiceId) {
+              <button mat-menu-item type="button" (click)="deposit(quote)" data-deposit-quote><mat-icon>savings</mat-icon>{{ 'quotes.invoiceDeposit' | translate }}</button>
+            }
             @if (quote.status === 'ACCEPTED' && !quote.invoiceId) {
               <button mat-menu-item type="button" (click)="invoice(quote)" data-invoice-quote><mat-icon>receipt_long</mat-icon>{{ 'quotes.invoice' | translate }}</button>
             }
-            @if (quote.invoiceId) {
+            @if (quote.invoiceId || quote.depositInvoiceId) {
               <a mat-menu-item routerLink="/invoices"><mat-icon>receipt_long</mat-icon>{{ 'quotes.openInvoices' | translate }}</a>
             }
             <button mat-menu-item type="button" (click)="download(quote)"><mat-icon>picture_as_pdf</mat-icon>{{ 'invoices.pdf' | translate }}</button>

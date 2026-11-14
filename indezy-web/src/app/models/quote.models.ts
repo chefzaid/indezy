@@ -27,8 +27,9 @@ export interface Quote {
   total: number;
   /** The day the client accepted or refused it. */
   decidedOn: string | null;
-  /** The invoice billing it once accepted. */
+  /** The final invoice billing it once accepted, and its deposit invoice. */
   invoiceId: number | null;
+  depositInvoiceId: number | null;
   createdAt: string;
 }
 

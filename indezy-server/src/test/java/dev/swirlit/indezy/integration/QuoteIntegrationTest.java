@@ -12,8 +12,11 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,16 +79,40 @@ class QuoteIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.PUT, quote + "/decision", Map.of("accepted", false), String.class).getStatusCode())
             .isEqualTo(HttpStatus.CONFLICT);
         assertThat(call(bob, HttpMethod.POST, quote + "/invoice", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        Map<String, Object> invoice = call(alice, HttpMethod.POST, quote + "/invoice", null, Map.class).getBody();
-        assertThat(invoice).containsEntry("status", "DRAFT").containsEntry("quoteNumber", number).containsEntry("projectId", (int) project)
-            .containsEntry("total", 4000.0);
-        assertThat((List<Map<String, Object>>) invoice.get("lines")).singleElement()
-            .satisfies(line -> assertThat(line).containsEntry("description", "Audit de l'architecture"));
+
+        // Its deposit first, once: 30 % of the amount before VAT, to issue before the balance is invoiced.
+        assertThat(call(bob, HttpMethod.POST, quote + "/deposit", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Map<String, Object> deposit = call(alice, HttpMethod.POST, quote + "/deposit", null, Map.class).getBody();
+        assertThat(deposit).containsEntry("kind", "DEPOSIT").containsEntry("status", "DRAFT").containsEntry("quoteNumber", number)
+            .containsEntry("total", 1200.0);
+        assertThat((List<Map<String, Object>>) deposit.get("lines")).singleElement().satisfies(line -> assertThat(line)
+            .containsEntry("description", "Acompte de 30 % sur le devis N° " + number).containsEntry("quantity", 1.0)
+            .containsEntry("unitPrice", 1200.0));
+        assertThat(call(alice, HttpMethod.POST, quote + "/deposit", null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(call(alice, HttpMethod.POST, quote + "/invoice", null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        String depositNumber = (String) call(alice, HttpMethod.POST, "/invoices/" + deposit.get("id") + "/issue", null, Map.class).getBody()
+            .get("number");
+        assertThat(text(call(alice, HttpMethod.GET, "/invoices/" + deposit.get("id") + "/pdf", null, byte[].class)))
+            .contains("Facture d'acompte").contains("Selon devis N° " + number);
+
+        // Then the balance, once: the quote's lines less the deposit invoiced.
+        Map<String, Object> invoice = call(alice, HttpMethod.POST, quote + "/invoice", null, Map.class).getBody();
+        assertThat(invoice).containsEntry("kind", "INVOICE").containsEntry("status", "DRAFT").containsEntry("quoteNumber", number)
+            .containsEntry("projectId", (int) project).containsEntry("total", 2800.0);
+        assertThat((List<Map<String, Object>>) invoice.get("lines")).hasSize(2).last().satisfies(line -> assertThat(line)
+            .containsEntry("description", "Acompte facturé N° " + depositNumber + " du " + longDate(today())).containsEntry("quantity", -1.0)
+            .containsEntry("unitPrice", 1200.0));
+        assertThat(call(alice, HttpMethod.POST, quote + "/invoice", null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(alice, HttpMethod.POST, quote + "/deposit", null, String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/quotes", null, List.class).getBody()).singleElement()
-            .satisfies(listed -> assertThat(listed).containsEntry("invoiceId", invoice.get("id")));
+            .satisfies(listed -> assertThat(listed).containsEntry("invoiceId", invoice.get("id")).containsEntry("depositInvoiceId", deposit.get("id")));
         String invoicePdf = text(call(alice, HttpMethod.GET, "/invoices/" + invoice.get("id") + "/pdf", null, byte[].class));
-        assertThat(invoicePdf).contains("Selon devis N° " + number);
+        assertThat(invoicePdf).contains("Selon devis N° " + number).contains("Acompte facturé N° " + depositNumber);
+        // A deleted draft of the balance lets the quote be invoiced again.
+        call(alice, HttpMethod.DELETE, "/invoices/" + invoice.get("id"), null, String.class);
+        assertThat(call(alice, HttpMethod.GET, "/quotes", null, List.class).getBody().getFirst()).asInstanceOf(
+            org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("invoiceId", null);
+        assertThat(call(alice, HttpMethod.POST, quote + "/invoice", null, Map.class).getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         // Another quote, numbered next, refused.
         Map<String, Object> other = call(alice, HttpMethod.POST, "/quotes", Map.of("clientId", aliceClientId, "language", "EN",
@@ -109,12 +136,18 @@ class QuoteIntegrationTest extends TwoAccountsIntegrationTest {
             String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(call(alice, HttpMethod.POST, "/quotes", Map.of("clientId", aliceClientId, "projectId", 999_999, "lines", List.of(LINE)),
             String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.POST, "/quotes", Map.of("clientId", aliceClientId, "lines", List.of(Map.of("description", "Rien",
+            "quantity", 0, "unitPrice", 800, "vatRate", 0))), String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         long id = idOf(call(alice, HttpMethod.POST, "/quotes", Map.of("clientId", aliceClientId, "lines", List.of(LINE)), Map.class));
         assertThat(call(alice, HttpMethod.PUT, "/quotes/" + id, Map.of("clientId", aliceClientId, "validityDays", 60,
             "lines", List.of(LINE, LINE)), Map.class).getBody()).containsEntry("validityDays", 60).containsEntry("total", 8000.0);
         assertThat(call(bob, HttpMethod.DELETE, "/quotes/" + id, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(call(alice, HttpMethod.DELETE, "/quotes/" + id, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(call(alice, HttpMethod.GET, "/quotes", null, List.class).getBody()).isEmpty();
+    }
+
+    private static String longDate(LocalDate date) {
+        return date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.FRANCE));
     }
 
     private static LocalDate today() {

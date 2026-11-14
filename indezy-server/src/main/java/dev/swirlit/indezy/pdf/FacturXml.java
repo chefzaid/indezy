@@ -55,7 +55,7 @@ final class FacturXml {
         open("rsm:ExchangedDocumentContext").open("ram:GuidelineSpecifiedDocumentContextParameter").text("ram:ID", PROFILE)
             .close("ram:GuidelineSpecifiedDocumentContextParameter").close("rsm:ExchangedDocumentContext");
 
-        open("rsm:ExchangedDocument").text("ram:ID", invoice.getNumber()).text("ram:TypeCode", invoice.isCreditNote() ? "381" : "380");
+        open("rsm:ExchangedDocument").text("ram:ID", invoice.getNumber()).text("ram:TypeCode", invoice.isCreditNote() ? "381" : invoice.isDeposit() ? "386" : "380");
         date("ram:IssueDateTime", "udt", invoice.getIssueDate());
         if (invoice.getNotes() != null) {
             open("ram:IncludedNote").text("ram:Content", invoice.getNotes()).close("ram:IncludedNote");

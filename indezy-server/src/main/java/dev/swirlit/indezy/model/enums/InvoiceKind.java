@@ -1,7 +1,9 @@
 package dev.swirlit.indezy.model.enums;
 
-/** An invoice, or a credit note (avoir) correcting or cancelling an issued one. */
+/** An invoice, a credit note (avoir) correcting or cancelling an issued one, or a deposit invoice (facture d'acompte) of a quote. */
 public enum InvoiceKind {
     INVOICE,
-    CREDIT_NOTE
+    CREDIT_NOTE,
+    /** The deposit an accepted quote asks, which the quote's final invoice then takes off. */
+    DEPOSIT
 }

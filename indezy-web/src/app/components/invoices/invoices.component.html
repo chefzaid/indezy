@@ -80,8 +80,13 @@
             <span class="number">
               @if (invoice.kind === 'CREDIT_NOTE') {
                 <span class="kind">{{ 'invoices.creditNote' | translate }}</span>
+              } @else if (invoice.kind === 'DEPOSIT') {
+                <span class="kind deposit">{{ 'invoices.depositInvoice' | translate }}</span>
               }
               {{ invoice.number ?? ('invoices.draft' | translate) }}
+              @if (invoice.quoteNumber) {
+                <span class="credits">{{ 'invoices.forQuote' | translate: { number: invoice.quoteNumber } }}</span>
+              }
               @if (invoice.creditedNumber) {
                 <span class="credits">{{ 'invoices.credits' | translate: { number: invoice.creditedNumber } }}</span>
               }

@@ -126,4 +126,8 @@ public class Invoice extends BaseEntity {
     public boolean isCreditNote() {
         return kind == InvoiceKind.CREDIT_NOTE;
     }
+
+    public boolean isDeposit() {
+        return kind == InvoiceKind.DEPOSIT;
+    }
 }

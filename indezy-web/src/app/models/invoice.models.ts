@@ -2,10 +2,10 @@ import { ActivityReportStatus, DocumentLanguage } from './activity-report.models
 
 export type InvoiceStatus = 'DRAFT' | 'ISSUED' | 'PAID' | 'CREDITED';
 
-/** An invoice, or a credit note (avoir) correcting or cancelling an issued one. */
-export type InvoiceKind = 'INVOICE' | 'CREDIT_NOTE';
+/** An invoice, a credit note (avoir) correcting or cancelling an issued one, or the deposit invoice (facture d'acompte) of a quote. */
+export type InvoiceKind = 'INVOICE' | 'CREDIT_NOTE' | 'DEPOSIT';
 
-/** A line: days (or any quantity) at a price before VAT, with its VAT rate in percent. */
+/** A line: days (or any quantity) at a price before VAT, with its VAT rate in percent; a negative quantity takes off. */
 export interface InvoiceLine {
   description: string;
   quantity: number;

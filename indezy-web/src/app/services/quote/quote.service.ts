@@ -36,7 +36,12 @@ export class QuoteService {
     return this.http.put<Quote>(`${this.API_URL}/${id}/decision`, { accepted });
   }
 
-  /** A draft invoice of an accepted quote. */
+  /** The draft deposit invoice of an accepted quote that asks one. */
+  deposit(id: number): Observable<Invoice> {
+    return this.http.post<Invoice>(`${this.API_URL}/${id}/deposit`, null);
+  }
+
+  /** A draft invoice of an accepted quote, less its issued deposit. */
   invoice(id: number): Observable<Invoice> {
     return this.http.post<Invoice>(`${this.API_URL}/${id}/invoice`, null);
   }

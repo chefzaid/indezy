@@ -77,6 +77,13 @@ public class QuoteController {
         return quotes.invoice(workspace(), id);
     }
 
+    @Operation(summary = "Draft the deposit invoice of an accepted quote that asks one")
+    @PostMapping("/{id}/deposit")
+    @ResponseStatus(HttpStatus.CREATED)
+    public InvoiceDtos.Invoice deposit(@PathVariable Long id) {
+        return quotes.deposit(workspace(), id);
+    }
+
     @Operation(summary = "The quote as a PDF")
     @GetMapping("/{id}/pdf")
     public ResponseEntity<byte[]> pdf(@PathVariable Long id) {

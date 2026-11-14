@@ -38,11 +38,15 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.time.format.TextStyle;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -176,19 +180,59 @@ public class InvoiceService {
         return toDto(invoices.save(invoice));
     }
 
-    /** A draft billing an accepted quote: its client, mission, language and lines, stating the quote's number. */
+    /**
+     * A draft billing an accepted quote: its client, mission, language and lines, stating the quote's number, less each
+     * issued deposit invoice of the quote, line for line (a credited one is not taken off).
+     */
     @Transactional
     public InvoiceDtos.Invoice fromQuote(Long freelanceId, Quote quote) {
+        List<Invoice> deposits = invoices.findByQuoteId(quote.getId()).stream()
+            .filter(invoice -> invoice.isDeposit() && invoice.getStatus() != InvoiceStatus.CREDITED).toList();
+        if (deposits.stream().anyMatch(deposit -> deposit.getStatus() == InvoiceStatus.DRAFT)) {
+            throw new InvalidStateException("Issue the deposit invoice before invoicing the balance");
+        }
+        List<InvoiceLine> lines = new ArrayList<>(quote.getLines());
+        boolean english = quote.getLanguage() == DocumentLanguage.EN;
+        for (Invoice deposit : deposits) {
+            String date = deposit.getIssueDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(quote.getLanguage().locale()));
+            String description = english ? "Deposit invoiced, No. " + deposit.getNumber() + " of " + date :
+                "Acompte facturé N° " + deposit.getNumber() + " du " + date;
+            deposit.getLines().forEach(line -> lines.add(new InvoiceLine(description, BigDecimal.ONE.negate().setScale(2), line.getUnitPrice(),
+                line.getVatRate())));
+        }
+        return toDto(invoices.save(billing(freelanceId, quote, InvoiceKind.INVOICE, lines)));
+    }
+
+    /**
+     * The deposit invoice of an accepted quote: its share of the quote's amount before VAT, one line per VAT rate the
+     * quote's lines have, so the deposit bears their VAT as they do.
+     */
+    @Transactional
+    public InvoiceDtos.Invoice depositFromQuote(Long freelanceId, Quote quote) {
+        BigDecimal share = BigDecimal.valueOf(quote.getDepositPercent()).divide(BigDecimal.valueOf(100));
+        Map<BigDecimal, BigDecimal> byRate = quote.getLines().stream().collect(Collectors.groupingBy(InvoiceLine::getVatRate,
+            TreeMap::new, Collectors.reducing(BigDecimal.ZERO, InvoiceTotals::lineAmount, BigDecimal::add)));
+        boolean english = quote.getLanguage() == DocumentLanguage.EN;
+        String description = english ? quote.getDepositPercent() + "% deposit on quote No. " + quote.getNumber() :
+            "Acompte de " + quote.getDepositPercent() + " % sur le devis N° " + quote.getNumber();
+        List<InvoiceLine> lines = byRate.entrySet().stream().map(rate -> new InvoiceLine(byRate.size() == 1 ? description :
+                description + (english ? " — VAT " : " — TVA ") + rate.getKey().stripTrailingZeros().toPlainString() + " %",
+            BigDecimal.ONE.setScale(2), rate.getValue().multiply(share).setScale(2, RoundingMode.HALF_UP), rate.getKey())).toList();
+        return toDto(invoices.save(billing(freelanceId, quote, InvoiceKind.DEPOSIT, lines)));
+    }
+
+    private static Invoice billing(Long freelanceId, Quote quote, InvoiceKind kind, List<InvoiceLine> lines) {
         Invoice invoice = new Invoice();
         invoice.setFreelanceId(freelanceId);
+        invoice.setKind(kind);
         invoice.setQuoteId(quote.getId());
         invoice.setQuoteNumber(quote.getNumber());
         invoice.setClientId(quote.getClientId());
         invoice.setProjectId(quote.getProjectId());
         invoice.setProjectRole(quote.getProjectRole());
         invoice.setLanguage(quote.getLanguage());
-        invoice.setLines(quote.getLines());
-        return toDto(invoices.save(invoice));
+        invoice.setLines(lines);
+        return invoice;
     }
 
     /** A saved month with days worked that was not rejected. */
@@ -265,6 +309,9 @@ public class InvoiceService {
         invoices.findLatestIssueDate(freelanceId).filter(issued::isBefore).ifPresent(latest -> {
             throw new InvalidStateException("An invoice cannot be dated before the last one issued, on " + latest);
         });
+        if (!invoice.isCreditNote() && InvoiceTotals.of(invoice.getLines()).total().signum() < 0) {
+            throw new InvalidStateException("An invoice cannot total less than zero: issue a credit note instead");
+        }
         Invoice credited = invoice.isCreditNote() ? creditable(freelanceId, invoice) : null;
         invoice.setNumber(nextNumber(freelanceId, issued.getYear(), seller.invoicePrefix()));
         invoice.setIssueDate(issued);
@@ -371,8 +418,16 @@ public class InvoiceService {
         invoice.setPeriodEnd(draft.periodEnd());
         invoice.setLanguage(Objects.requireNonNullElse(draft.language(), DocumentLanguage.FR));
         invoice.setNotes(draft.notes() == null || draft.notes().isBlank() ? null : draft.notes().strip());
-        invoice.setLines(draft.lines().stream().map(line -> new InvoiceLine(line.description().strip(), line.quantity().setScale(2),
-            line.unitPrice().setScale(2), line.vatRate().setScale(2))).toList());
+        invoice.setLines(lines(draft.lines()));
+    }
+
+    /** The lines as written, trimmed and to the cent; a quantity of zero bills nothing and is refused. */
+    static List<InvoiceLine> lines(List<InvoiceDtos.Line> lines) {
+        if (lines.stream().anyMatch(line -> line.quantity().signum() == 0)) {
+            throw new IllegalArgumentException("A line's quantity cannot be zero");
+        }
+        return lines.stream().map(line -> new InvoiceLine(line.description().strip(), line.quantity().setScale(2),
+            line.unitPrice().setScale(2), line.vatRate().setScale(2))).toList();
     }
 
     private Invoice invoice(Long freelanceId, Long id) {
@@ -418,7 +473,7 @@ public class InvoiceService {
             clients.findById(invoice.getClientId()).map(Client::getCompanyName).orElse(null);
         boolean overdue = !invoice.isCreditNote() && invoice.getStatus() == InvoiceStatus.ISSUED && invoice.getDueDate() != null &&
             invoice.getDueDate().isBefore(LocalDate.now(clock.withZone(PARIS)));
-        return new InvoiceDtos.Invoice(invoice.getId(), invoice.isCreditNote() ? InvoiceKind.CREDIT_NOTE : InvoiceKind.INVOICE,
+        return new InvoiceDtos.Invoice(invoice.getId(), Objects.requireNonNullElse(invoice.getKind(), InvoiceKind.INVOICE),
             invoice.getNumber(), invoice.getStatus(), overdue, invoice.getCreditedInvoiceId(), invoice.getCreditedNumber(), invoice.getQuoteId(),
             invoice.getQuoteNumber(), invoice.getClientId(), clientName,
             invoice.getProjectId(), invoice.getProjectRole(), invoice.getActivityReportId(), invoice.getIssueDate(), invoice.getDueDate(),

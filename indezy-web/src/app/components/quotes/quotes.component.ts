@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, forkJoin } from 'rxjs';
 
-import { BillingIdentity, ClientDto, Quote, QuoteDraft } from '../../models';
+import { BillingIdentity, ClientDto, Invoice, Quote, QuoteDraft } from '../../models';
 import { AuthService } from '../../services/auth/auth.service';
 import { BillingService } from '../../services/billing/billing.service';
 import { ClientService } from '../../services/client/client.service';
@@ -119,12 +119,22 @@ export class QuotesComponent implements OnInit {
     this.apply(this.quoteService.decide(quote.id, accepted), accepted ? 'quotes.acceptedDone' : 'quotes.refusedDone');
   }
 
-  /** Drafts the invoice of an accepted quote, then opens the invoices to review and issue it. */
+  /** Drafts the final invoice of an accepted quote, less its issued deposit, then opens the invoices to review and issue it. */
   invoice(quote: Quote): void {
-    this.quoteService.invoice(quote.id).subscribe({
+    this.bill(this.quoteService.invoice(quote.id), invoice => ({ ...quote, invoiceId: invoice.id }), 'quotes.invoiced');
+  }
+
+  /** Drafts the deposit invoice of an accepted quote, then opens the invoices to issue it. */
+  deposit(quote: Quote): void {
+    this.bill(this.quoteService.deposit(quote.id), invoice => ({ ...quote, depositInvoiceId: invoice.id }), 'quotes.depositInvoiced');
+  }
+
+  private bill(request: Observable<Invoice>, billed: (invoice: Invoice) => Quote, successKey: string): void {
+    request.subscribe({
       next: invoice => {
-        this.quotes = this.quotes.map(item => item.id === quote.id ? { ...item, invoiceId: invoice.id } : item);
-        this.notifications.success('quotes.invoiced');
+        const changed = billed(invoice);
+        this.quotes = this.quotes.map(item => item.id === changed.id ? changed : item);
+        this.notifications.success(successKey);
         this.router.navigate(['/invoices']);
       },
       error: (error: HttpErrorResponse) => this.notifications.error(quoteErrorKey(error, 'quotes.saveError'))

@@ -24,10 +24,14 @@ public final class InvoiceDtos {
     private InvoiceDtos() {
     }
 
-    /** A line: days (or any quantity) at a price before VAT, with its VAT rate in percent (0 when exempt). */
+    /**
+     * A line: days (or any quantity) at a price before VAT, with its VAT rate in percent (0 when exempt). A negative
+     * quantity takes off, as a discount or a deposit already invoiced; the price itself is never negative (rule BR-27 of
+     * EN 16931), and a quantity is never zero.
+     */
     public record Line(
         @NotBlank @Size(max = 300) String description,
-        @NotNull @DecimalMin("0.01") @DecimalMax("9999") @Digits(integer = 4, fraction = 2) BigDecimal quantity,
+        @NotNull @DecimalMin("-9999") @DecimalMax("9999") @Digits(integer = 4, fraction = 2) BigDecimal quantity,
         @NotNull @DecimalMin("0") @DecimalMax("999999") @Digits(integer = 6, fraction = 2) BigDecimal unitPrice,
         @NotNull @DecimalMin("0") @DecimalMax("30") @Digits(integer = 2, fraction = 2) BigDecimal vatRate) {
     }

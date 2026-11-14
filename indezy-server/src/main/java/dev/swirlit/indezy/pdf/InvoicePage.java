@@ -31,7 +31,8 @@ final class InvoicePage extends BillingPage {
     }
 
     private String heading() {
-        return (invoice.isCreditNote() ? InvoiceLabel.CREDIT_TITLE : InvoiceLabel.TITLE).in(language);
+        InvoiceLabel title = invoice.isCreditNote() ? InvoiceLabel.CREDIT_TITLE : invoice.isDeposit() ? InvoiceLabel.DEPOSIT_TITLE : InvoiceLabel.TITLE;
+        return title.in(language);
     }
 
     @Override

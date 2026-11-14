@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -25,6 +25,11 @@ export interface InvoiceDraftDialogData {
 }
 
 const MAX_LINES = 50;
+
+/** A quantity of zero bills nothing: a negative one takes off, as a discount or a deposit already invoiced. */
+function nonZero(control: AbstractControl): ValidationErrors | null {
+  return Number(control.value) === 0 ? { zero: true } : null;
+}
 
 /**
  * Writes a draft invoice or quote: the client, optionally its mission, the language, notes and lines, with live totals; an
@@ -104,7 +109,7 @@ export class InvoiceDraftDialogComponent implements OnInit {
   addLine(line?: InvoiceLine): void {
     this.lines.push(this.fb.group({
       description: [line?.description ?? '', [Validators.required, Validators.maxLength(300)]],
-      quantity: [line?.quantity ?? 1, [Validators.required, Validators.min(0.01), Validators.max(9999)]],
+      quantity: [line?.quantity ?? 1, [Validators.required, Validators.min(-9999), Validators.max(9999), nonZero]],
       unitPrice: [line?.unitPrice ?? null, [Validators.required, Validators.min(0), Validators.max(999999)]],
       vatRate: [line?.vatRate ?? this.data.vatRate, [Validators.required, Validators.min(0), Validators.max(30)]]
     }));

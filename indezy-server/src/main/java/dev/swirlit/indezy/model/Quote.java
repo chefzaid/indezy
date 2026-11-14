@@ -84,10 +84,6 @@ public class Quote extends BaseEntity {
     @Column(name = "decided_on")
     private LocalDate decidedOn;
 
-    /** The invoice billing it once accepted. */
-    @Column(name = "invoice_id")
-    private Long invoiceId;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "quote_lines", joinColumns = @JoinColumn(name = "quote_id"))
     @OrderColumn(name = "position")

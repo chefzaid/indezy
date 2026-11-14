@@ -20,6 +20,10 @@
   .kind {
     margin-right: 6px;
     color: var(--app-danger);
+
+    &.deposit {
+      color: var(--app-link);
+    }
   }
 
   .credits {

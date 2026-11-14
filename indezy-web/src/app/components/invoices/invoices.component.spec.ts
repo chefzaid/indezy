@@ -74,6 +74,14 @@ describe('InvoicesComponent', () => {
     reports = [];
   });
 
+  it('marks a quote\'s deposit invoice and names the quote an invoice bills', () => {
+    const fixture = create(of([invoice(6, { kind: 'DEPOSIT', quoteNumber: 'D2026-0001', number: 'F2026-0006', status: 'ISSUED' })]));
+    const row: HTMLElement = fixture.nativeElement.querySelector('[data-invoice="6"]');
+    expect(row.querySelector('.kind.deposit')?.textContent).toContain('Deposit invoice');
+    expect(row.textContent).toContain('quote D2026-0001');
+    expect(fixture.componentInstance.outstanding).toBe(1000);
+  });
+
   it('lists the invoices with what is owed and overdue, filtered by status', () => {
     const fixture = create();
     const component = fixture.componentInstance;

@@ -103,6 +103,16 @@ describe('InvoiceDraftDialogComponent', () => {
     const component = create();
     component.save();
     expect(close).not.toHaveBeenCalled();
+    // A negative quantity takes off; none bills nothing.
+    component.form.patchValue({ clientId: 3 });
+    component.lines.at(0).patchValue({ description: 'Remise', quantity: 0, unitPrice: 100 });
+    component.save();
+    expect(close).not.toHaveBeenCalled();
+    component.lines.at(0).patchValue({ quantity: -1 });
+    expect(component.totals.excludingVat).toBe(-100);
+    component.save();
+    expect(close).toHaveBeenCalledWith(jasmine.objectContaining({ lines: [jasmine.objectContaining({ quantity: -1 })] }));
+    close.calls.reset();
     for (let index = 1; index < 50; index++) {
       component.addLine();
     }
