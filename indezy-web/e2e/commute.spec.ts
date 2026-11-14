@@ -23,7 +23,9 @@ for (const width of [1280, 390]) {
     await page.route('**/api/commute/projects/1*', route => {
       modes.push(new URL(route.request().url()).searchParams.get('travelMode')!);
       return route.fulfill({ json: [
-        { project: projects[1], commute: commute(2, { remote: true, onsiteDaysPerMonth: 0, monthlySeconds: 0 }) },
+        // A remote mission's trip is looked up too; it counts no day on site, so it costs nothing a month.
+        { project: projects[1], commute: commute(2, { remote: true, onsiteDaysPerMonth: 0, monthlySeconds: 0, durationInSeconds: 2400,
+          durationText: '40 mins', distanceText: '30 km' }) },
         { project: projects[2], commute: commute(3, { onsiteDaysPerMonth: 8, durationInSeconds: 3600, durationText: '1 hour',
           distanceText: '60 km', monthlySeconds: 57600 }) },
         { project: projects[0], commute: commute(1, { durationInSeconds: 1800, durationText: '30 mins', distanceText: '20 km',
@@ -48,18 +50,19 @@ for (const width of [1280, 390]) {
     }
     await expect(titles).toHaveText(['Kafka engineer', 'Go developer', 'Java developer', 'SRE', 'Data engineer']);
     // Issou to Montrouge by car: some 50 minutes off-peak, 1 h 45 at rush hour, which the month counts.
-    await expect(page.locator('[data-commute="5"]')).toContainText('≈ 50 min');
-    await expect(page.locator('[data-commute="5"]')).toContainText('≈ 1 h 45 at rush hour');
+    await expect(page.locator('[data-commute="5"] [data-commute-car]')).toHaveText('≈ 50 min – 1 h 45 by car');
     await expect(page.locator('[data-commute="5"]')).toContainText('estimate');
+    await expect(page.locator('[data-commute="5"]')).toContainText('70 h a month there and back at rush hour (20 days on site)');
     await expect(page.locator('[data-commute="5"] [data-commute-beyond]')).toContainText('Longer than your longest commute');
     await expect(page.locator('[data-commute="3"] [data-commute-beyond]')).toHaveCount(0);
-    await expect(page.locator('[data-commute="2"]')).toContainText('Remote: no commute');
-    await expect(page.locator('[data-commute="3"]')).toContainText('1 hour');
-    await expect(page.locator('[data-commute="3"]')).toContainText('(60 km)');
+    await expect(page.locator('[data-commute="2"] [data-commute-car]')).toHaveText('40 min by car');
+    await expect(page.locator('[data-commute="2"]')).toContainText('Remote: no day on site');
+    await expect(page.locator('[data-commute="3"] [data-commute-transit]')).toHaveText('1 h 00 by transit');
     await expect(page.locator('[data-commute="3"]')).toContainText('· 16 h a month there and back at rush hour (8 days on site)');
     await expect(page.locator('[data-commute="1"]')).toContainText('20 h a month there and back at rush hour (20 days on site)');
     await expect(page.locator('[data-commute="4"]')).toContainText('The client has no address.');
-    expect(modes).toEqual(['DRIVING']);
+    // The cards show both ways there: the list asks for each mode.
+    expect([...modes].sort()).toEqual(['DRIVING', 'TRANSIT']);
     const audit = await new AxeBuilder({ page }).include('.project-list-container').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
