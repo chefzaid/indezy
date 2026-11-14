@@ -1,21 +1,28 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
+import dev.swirlit.indezy.exception.InvalidStateException;
+import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.NetworkFollow;
 import dev.swirlit.indezy.model.NetworkMember;
+import dev.swirlit.indezy.model.NetworkRestriction;
+import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
+import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Members following members (see docs/features.md#member-network): a member's page with its counts and the skills it
- * shares with the viewer, following and unfollowing, the lists of followers and following, and removing a follower.
+ * shares with the viewer, following and unfollowing, the lists of followers and following, removing a follower, and
+ * muting or blocking a member.
  * Members who left the network leave every count and list while they are away.
  */
 @Service
@@ -24,19 +31,23 @@ public class NetworkFollowService {
 
     private final NetworkService network;
     private final NetworkFollowRepository follows;
+    private final NetworkRestrictionRepository restrictions;
 
     @Transactional(readOnly = true)
     public NetworkDtos.MemberPage page(Long viewerId, String handle) {
         NetworkMember viewer = network.requireMember(viewerId);
-        return page(viewer, network.activeMember(handle));
+        return page(viewer, visible(viewer, handle));
     }
 
     @Transactional
     public NetworkDtos.MemberPage follow(Long viewerId, String handle) {
         NetworkMember viewer = network.requireMember(viewerId);
-        NetworkMember member = network.activeMember(handle);
+        NetworkMember member = visible(viewer, handle);
         if (viewer.getUserId().equals(member.getUserId())) {
             throw new IllegalArgumentException("A member cannot follow themselves");
+        }
+        if (restricted(viewerId, member.getUserId(), NetworkRestrictionKind.BLOCK)) {
+            throw new InvalidStateException("Unblock this member to follow them");
         }
         if (follows.findByFollowerIdAndFollowedId(viewerId, member.getUserId()).isEmpty()) {
             NetworkFollow follow = new NetworkFollow();
@@ -65,14 +76,82 @@ public class NetworkFollowService {
 
     @Transactional(readOnly = true)
     public List<NetworkDtos.MemberCard> followers(Long viewerId, String handle) {
-        network.requireMember(viewerId);
-        return follows.followers(network.activeMember(handle).getUserId()).stream().map(network::card).toList();
+        NetworkMember viewer = network.requireMember(viewerId);
+        return seen(viewerId, follows.followers(visible(viewer, handle).getUserId()));
     }
 
     @Transactional(readOnly = true)
     public List<NetworkDtos.MemberCard> following(Long viewerId, String handle) {
+        NetworkMember viewer = network.requireMember(viewerId);
+        return seen(viewerId, follows.following(visible(viewer, handle).getUserId()));
+    }
+
+    /** Mutes a member, or no longer: their posts are hidden from the viewer, who still follows them. */
+    @Transactional
+    public NetworkDtos.MemberPage mute(Long viewerId, String handle, boolean muted) {
+        return restrict(viewerId, handle, NetworkRestrictionKind.MUTE, muted);
+    }
+
+    /**
+     * Blocks a member, or no longer: neither follows the other any more, nor can, and the blocked member no longer finds
+     * the viewer's page. The blocked member is not told.
+     */
+    @Transactional
+    public NetworkDtos.MemberPage block(Long viewerId, String handle, boolean blocked) {
+        NetworkDtos.MemberPage page = restrict(viewerId, handle, NetworkRestrictionKind.BLOCK, blocked);
+        if (blocked) {
+            Long memberId = network.activeMember(handle).getUserId();
+            follows.findByFollowerIdAndFollowedId(viewerId, memberId).ifPresent(follows::delete);
+            follows.findByFollowerIdAndFollowedId(memberId, viewerId).ifPresent(follows::delete);
+            return page(network.requireMember(viewerId), network.activeMember(handle));
+        }
+        return page;
+    }
+
+    /** The members the viewer mutes and blocks. */
+    @Transactional(readOnly = true)
+    public NetworkDtos.Restrictions restrictions(Long viewerId) {
         network.requireMember(viewerId);
-        return follows.following(network.activeMember(handle).getUserId()).stream().map(network::card).toList();
+        return new NetworkDtos.Restrictions(restrictions.targets(viewerId, NetworkRestrictionKind.MUTE).stream().map(network::card).toList(),
+            restrictions.targets(viewerId, NetworkRestrictionKind.BLOCK).stream().map(network::card).toList());
+    }
+
+    private NetworkDtos.MemberPage restrict(Long viewerId, String handle, NetworkRestrictionKind kind, boolean on) {
+        NetworkMember viewer = network.requireMember(viewerId);
+        NetworkMember member = visible(viewer, handle);
+        if (viewer.getUserId().equals(member.getUserId())) {
+            throw new IllegalArgumentException("A member cannot mute or block themselves");
+        }
+        Optional<NetworkRestriction> existing = restrictions.findByOwnerIdAndTargetIdAndKind(viewerId, member.getUserId(), kind);
+        if (on && existing.isEmpty()) {
+            NetworkRestriction restriction = new NetworkRestriction();
+            restriction.setOwnerId(viewerId);
+            restriction.setTargetId(member.getUserId());
+            restriction.setKind(kind);
+            restrictions.save(restriction);
+        } else if (!on) {
+            existing.ifPresent(restrictions::delete);
+        }
+        return page(viewer, member);
+    }
+
+    /** The member holding the handle, unless they block the viewer: then, as for an unknown handle, none is found. */
+    private NetworkMember visible(NetworkMember viewer, String handle) {
+        NetworkMember member = network.activeMember(handle);
+        if (restricted(member.getUserId(), viewer.getUserId(), NetworkRestrictionKind.BLOCK)) {
+            throw new ResourceNotFoundException(NetworkService.NOT_FOUND);
+        }
+        return member;
+    }
+
+    private boolean restricted(Long ownerId, Long targetId, NetworkRestrictionKind kind) {
+        return restrictions.findByOwnerIdAndTargetIdAndKind(ownerId, targetId, kind).isPresent();
+    }
+
+    /** The members' cards, but those blocking the viewer or blocked by them. */
+    private List<NetworkDtos.MemberCard> seen(Long viewerId, List<NetworkMember> members) {
+        Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(viewerId));
+        return members.stream().filter(member -> !blocked.contains(member.getUserId())).map(network::card).toList();
     }
 
     private NetworkDtos.MemberPage page(NetworkMember viewer, NetworkMember member) {
@@ -85,6 +164,8 @@ public class NetworkFollowService {
             .toList();
         return new NetworkDtos.MemberPage(card, follows.followers(member.getUserId()).size(), follows.following(member.getUserId()).size(),
             shared, follows.findByFollowerIdAndFollowedId(viewer.getUserId(), member.getUserId()).isPresent(),
-            follows.findByFollowerIdAndFollowedId(member.getUserId(), viewer.getUserId()).isPresent(), own);
+            follows.findByFollowerIdAndFollowedId(member.getUserId(), viewer.getUserId()).isPresent(), own,
+            restricted(viewer.getUserId(), member.getUserId(), NetworkRestrictionKind.MUTE),
+            restricted(viewer.getUserId(), member.getUserId(), NetworkRestrictionKind.BLOCK));
     }
 }

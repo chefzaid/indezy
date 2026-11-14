@@ -188,6 +188,11 @@ you** when they do, and **Follow** / **Unfollow**. On their own page a member **
 told. A member who left the network leaves every count and list while away, and a visitor who has not joined is asked
 to join first.
 
+From a member's page, **Mute** hides their posts while the follow stays, and **Block** (once confirmed) ends both
+follows, keeps either from following the other, takes each out of the lists the other reads, and hides the blocker's
+page from the blocked member, as if no member held the handle; the blocked member is not told. **Profile → Network**
+lists the members muted and blocked, each to unmute or unblock.
+
 ## Projects And Opportunities
 
 **Opportunities** (`/projects`) lists the workspace's opportunities and missions. Beyond the role, stage, description,

@@ -1429,7 +1429,11 @@
         "notActive": "The registry has no active establishment with this SIRET.",
         "someoneElse": "The registry names someone else for this SIRET.",
         "unavailable": "The company registry could not be reached. Try again later."
-      }
+      },
+      "restrictionsTitle": "Muted and blocked members",
+      "noRestrictions": "You mute and block no member.",
+      "mutedList": "Muted",
+      "blockedList": "Blocked"
     }
   },
   "errors": {
@@ -3239,7 +3243,19 @@
       "removeFollower": "Remove",
       "followerRemoved": "Follower removed",
       "followError": "This could not be changed. Try again in a moment.",
-      "listError": "This list could not be loaded."
+      "listError": "This list could not be loaded.",
+      "more": "More actions",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "block": "Block",
+      "unblock": "Unblock",
+      "blockConfirm": "Block {{name}}? Neither of you will follow the other any more, and {{name}} will no longer find your page. {{name}} is not told.",
+      "mutedDone": "Muted: their posts will be hidden, you still follow them",
+      "unmutedDone": "No longer muted",
+      "blockedDone": "Blocked",
+      "unblockedDone": "No longer blocked",
+      "blockedNote": "You block this member.",
+      "mutedNote": "Muted"
     }
   }
 }

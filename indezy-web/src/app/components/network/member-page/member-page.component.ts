@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, map, switchMap } from 'rxjs';
@@ -11,6 +12,7 @@ import { Observable, map, switchMap } from 'rxjs';
 import { MemberCard, MemberPage } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MemberCardComponent } from '../member-card/member-card.component';
 
 /** Which list of the page is open. */
@@ -22,7 +24,7 @@ export type MemberList = 'followers' | 'following';
  */
 @Component({
   selector: 'app-member-page',
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslateModule, MemberCardComponent],
+  imports: [RouterLink, MatButtonModule, MatIconModule, MatMenuModule, MatProgressSpinnerModule, TranslateModule, MemberCardComponent],
   templateUrl: './member-page.component.html',
   styleUrls: ['./member-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -31,6 +33,7 @@ export class MemberPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly network = inject(NetworkService);
   private readonly notifications = inject(NotificationService);
+  private readonly confirm = inject(ConfirmDialogService);
   private readonly changes = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -88,6 +91,43 @@ export class MemberPageComponent implements OnInit {
     (list === 'followers' ? this.network.followers(handle) : this.network.following(handle)).subscribe({
       next: members => this.members = members,
       error: () => this.notifications.error('network.page.listError')
+    });
+  }
+
+  /** Mutes the member, or no longer. */
+  toggleMute(): void {
+    const page = this.page!;
+    this.network.mute(page.card.handle, !page.muted).subscribe({
+      next: updated => {
+        this.page = updated;
+        this.notifications.success(updated.muted ? 'network.page.mutedDone' : 'network.page.unmutedDone');
+      },
+      error: () => this.notifications.error('network.page.followError')
+    });
+  }
+
+  /** Blocks the member once confirmed, or unblocks them. */
+  toggleBlock(): void {
+    const page = this.page!;
+    const block = (): void => {
+      this.network.block(page.card.handle, !page.blocked).subscribe({
+        next: updated => {
+          this.page = updated;
+          this.list = null;
+          this.notifications.success(updated.blocked ? 'network.page.blockedDone' : 'network.page.unblockedDone');
+        },
+        error: () => this.notifications.error('network.page.followError')
+      });
+    };
+    if (page.blocked) {
+      block();
+      return;
+    }
+    this.confirm.confirm({ messageKey: 'network.page.blockConfirm', messageParams: { name: page.card.firstName }, confirmKey: 'network.page.block',
+      danger: true }).subscribe(confirmed => {
+      if (confirmed) {
+        block();
+      }
     });
   }
 

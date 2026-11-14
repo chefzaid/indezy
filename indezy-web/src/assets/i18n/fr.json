@@ -1429,7 +1429,11 @@
         "notActive": "Le registre n'a aucun établissement actif avec ce SIRET.",
         "someoneElse": "Le registre nomme quelqu'un d'autre pour ce SIRET.",
         "unavailable": "Le registre des entreprises n'a pas pu être consulté. Réessayez plus tard."
-      }
+      },
+      "restrictionsTitle": "Membres masqués et bloqués",
+      "noRestrictions": "Vous ne masquez ni ne bloquez aucun membre.",
+      "mutedList": "Masqués",
+      "blockedList": "Bloqués"
     }
   },
   "errors": {
@@ -3239,7 +3243,19 @@
       "removeFollower": "Retirer",
       "followerRemoved": "Abonné retiré",
       "followError": "Le changement n'a pas pu être fait. Réessayez dans un instant.",
-      "listError": "Cette liste n'a pas pu être chargée."
+      "listError": "Cette liste n'a pas pu être chargée.",
+      "more": "Plus d'actions",
+      "mute": "Masquer",
+      "unmute": "Ne plus masquer",
+      "block": "Bloquer",
+      "unblock": "Débloquer",
+      "blockConfirm": "Bloquer {{name}} ? Aucun de vous ne suivra plus l'autre, et {{name}} ne trouvera plus votre page. {{name}} n'en est pas averti.",
+      "mutedDone": "Masqué : ses publications seront cachées, vous le suivez toujours",
+      "unmutedDone": "N'est plus masqué",
+      "blockedDone": "Bloqué",
+      "unblockedDone": "Débloqué",
+      "blockedNote": "Vous bloquez ce membre.",
+      "mutedNote": "Masqué"
     }
   }
 }

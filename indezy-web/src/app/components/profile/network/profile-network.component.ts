@@ -11,7 +11,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, debounceTime, distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs';
 
-import { HANDLE_PATTERN, NetworkAvailability, NetworkFields, NetworkMembership } from '../../../models';
+import { HANDLE_PATTERN, MemberCard, NetworkAvailability, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -58,6 +58,7 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder).nonNullable;
 
   readonly fieldNames = CARD_FIELDS;
+  readonly restrictionKinds = ['muted', 'blocked'] as const;
   readonly form = this.fb.group({
     handle: ['', [Validators.required, Validators.pattern(HANDLE_PATTERN)]],
     fields: this.fb.group({ photo: true, headline: true, stack: true, location: true, availability: true, languages: true, remote: false }),
@@ -71,6 +72,8 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
     return mode === 'AVAILABLE' || mode === 'ON_MISSION';
   }
   membership: NetworkMembership | null = null;
+  /** The members muted and blocked, to undo either; read once joined. */
+  restrictions: NetworkRestrictions | null = null;
   isSaving = false;
   isVerifying = false;
 
@@ -157,7 +160,25 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
       });
   }
 
+  /** Stops muting or blocking a member listed here. */
+  lift(kind: 'muted' | 'blocked', member: MemberCard): void {
+    const request = kind === 'muted' ? this.network.mute(member.handle, false) : this.network.block(member.handle, false);
+    request.subscribe({
+      next: () => {
+        this.restrictions = { ...this.restrictions!, [kind]: this.restrictions![kind].filter(item => item.handle !== member.handle) };
+        this.notifications.success(kind === 'muted' ? 'network.page.unmutedDone' : 'network.page.unblockedDone');
+      },
+      error: () => this.notifications.error('profile.network.saveError')
+    });
+  }
+
   private show(membership: NetworkMembership): void {
+    if (membership.joined && !this.restrictions) {
+      this.network.restrictions().pipe(takeUntil(this.destroy$)).subscribe({
+        next: restrictions => this.restrictions = restrictions,
+        error: () => this.restrictions = null
+      });
+    }
     this.membership = membership;
     this.form.setValue({ handle: membership.handle, fields: membership.fields,
       availability: { mode: membership.availability.mode, date: membership.availability.date ?? '' } }, { emitEvent: false });

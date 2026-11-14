@@ -8,6 +8,7 @@ import { of, throwError } from 'rxjs';
 import { MemberCard, MemberPage } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MemberPageComponent } from './member-page.component';
 import en from '../../../../assets/i18n/en.json';
 
@@ -18,17 +19,21 @@ describe('MemberPageComponent', () => {
     avatar: null, headline: 'Architecte Java', stack: ['Java'], city: 'Lyon', remote: false, availability: 'ON_MISSION',
     availabilityDate: '2027-03-31', languages: [], verified: false, ...changes });
   const page: MemberPage = { card: card('camille'), followers: 2, following: 1, sharedSkills: ['Java'], followed: false, followsYou: true,
-    own: false };
+    own: false, muted: false, blocked: false };
+  let confirm: jasmine.SpyObj<ConfirmDialogService>;
 
   function create(read = of(page)): ComponentFixture<MemberPageComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['page', 'follow', 'unfollow', 'followers', 'following', 'removeFollower']);
+    network = jasmine.createSpyObj('NetworkService', ['page', 'follow', 'unfollow', 'followers', 'following', 'removeFollower', 'mute',
+      'block']);
+    confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     network.page.and.returnValue(read);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
       imports: [MemberPageComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ handle: 'camille' })) } },
-        { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications }]
+        { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
+        { provide: ConfirmDialogService, useValue: confirm }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
@@ -81,6 +86,42 @@ describe('MemberPageComponent', () => {
     network.following.and.returnValue(throwError(() => new Error('down')));
     component.show('following');
     expect(notifications.error).toHaveBeenCalledWith('network.page.listError');
+  });
+
+  it('mutes and blocks the member, the block once confirmed, and unblocks them', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    network.mute.and.returnValue(of({ ...page, muted: true }));
+    component.toggleMute();
+    expect(network.mute).toHaveBeenCalledWith('camille', true);
+    expect(notifications.success).toHaveBeenCalledWith('network.page.mutedDone');
+    network.mute.and.returnValue(of(page));
+    component.toggleMute();
+    expect(network.mute).toHaveBeenCalledWith('camille', false);
+    network.mute.and.returnValue(throwError(() => new Error('down')));
+    component.toggleMute();
+    expect(notifications.error).toHaveBeenCalledWith('network.page.followError');
+
+    confirm.confirm.and.returnValue(of(false));
+    component.toggleBlock();
+    expect(network.block).not.toHaveBeenCalled();
+    confirm.confirm.and.returnValue(of(true));
+    network.block.and.returnValue(of({ ...page, blocked: true, muted: true, followed: false }));
+    component.toggleBlock();
+    fixture.detectChanges();
+    expect(network.block).toHaveBeenCalledWith('camille', true);
+    expect(element.querySelector('[data-blocked]')).not.toBeNull();
+    expect(element.querySelector('[data-muted]')).not.toBeNull();
+    expect(element.querySelector('[data-follow]')).toBeNull();
+    network.block.and.returnValue(of(page));
+    component.toggleBlock();
+    expect(network.block).toHaveBeenCalledWith('camille', false);
+    expect(confirm.confirm).toHaveBeenCalledTimes(2);
+    expect(notifications.success).toHaveBeenCalledWith('network.page.unblockedDone');
+    network.block.and.returnValue(throwError(() => new Error('down')));
+    component.toggleBlock();
+    expect(notifications.error).toHaveBeenCalledTimes(2);
   });
 
   it('refreshes the followers listed once the viewer follows', () => {

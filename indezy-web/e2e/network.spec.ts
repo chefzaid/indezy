@@ -34,6 +34,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       }
       return route.fulfill({ json: membership });
     });
+    await page.route('**/api/network/restrictions', route => route.fulfill({ json: { muted: [], blocked: [] } }));
     await page.route('**/api/network/handles/*', route => {
       const handle = decodeURIComponent(route.request().url().split('/').at(-1)!);
       return route.fulfill({ json: { handle, available: handle !== 'taken' } });
@@ -90,7 +91,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
     const leo = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: 'Data engineer', stack: ['Kafka', 'Spark'],
       city: 'Nantes', remote: true, availability: 'AVAILABLE', availabilityDate: '2026-12-02', languages: ['Français'], verified: true };
-    let memberPage = { card: leo, followers: 4, following: 2, sharedSkills: ['Kafka'], followed: false, followsYou: true, own: false };
+    let memberPage = { card: leo, followers: 4, following: 2, sharedSkills: ['Kafka'], followed: false, followsYou: true, own: false,
+      muted: false, blocked: false };
     await page.route('**/api/network/members/leo_m/page', route => route.fulfill({ json: memberPage }));
     await page.route('**/api/network/members/leo_m/follow', route => {
       memberPage = { ...memberPage, followed: route.request().method() === 'PUT', followers: route.request().method() === 'PUT' ? 5 : 4 };
@@ -115,6 +117,21 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const audit = await new AxeBuilder({ page }).include('app-member-page').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
+    // Blocking ends the follow and replaces Follow by a note; unblocking brings Follow back.
+    await page.route('**/api/network/members/leo_m/block', route => {
+      const blocked = route.request().method() === 'PUT';
+      memberPage = { ...memberPage, blocked, followed: false, followsYou: false };
+      return route.fulfill({ json: memberPage });
+    });
+    await page.locator('[data-member-more]').click();
+    await page.locator('[data-block]').click();
+    await page.getByRole('dialog').getByRole('button', { name: en ? 'Block' : 'Bloquer' }).click();
+    await expect(page.locator('[data-blocked]')).toBeVisible();
+    await expect(page.locator('[data-follow]')).toHaveCount(0);
+    await page.locator('[data-member-more]').click();
+    await page.locator('[data-block]').click();
+    await expect(page.locator('[data-follow]')).toContainText(en ? 'Follow' : 'Suivre');
   });
 }
 

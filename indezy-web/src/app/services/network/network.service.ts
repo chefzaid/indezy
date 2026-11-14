@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MemberCard, MemberPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership } from '../../models';
+import { MemberCard, MemberPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -56,6 +56,22 @@ export class NetworkService {
 
   following(handle: string): Observable<MemberCard[]> {
     return this.http.get<MemberCard[]>(`${this.member$(handle)}/following`);
+  }
+
+  /** Mutes a member, or no longer. */
+  mute(handle: string, muted: boolean): Observable<MemberPage> {
+    const url = `${this.member$(handle)}/mute`;
+    return muted ? this.http.put<MemberPage>(url, null) : this.http.delete<MemberPage>(url);
+  }
+
+  /** Blocks a member, or no longer. */
+  block(handle: string, blocked: boolean): Observable<MemberPage> {
+    const url = `${this.member$(handle)}/block`;
+    return blocked ? this.http.put<MemberPage>(url, null) : this.http.delete<MemberPage>(url);
+  }
+
+  restrictions(): Observable<NetworkRestrictions> {
+    return this.http.get<NetworkRestrictions>(`${this.API_URL}/restrictions`);
   }
 
   /** Stops a member following the viewer. */

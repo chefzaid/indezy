@@ -54,6 +54,16 @@ export interface MemberPage {
   followed: boolean;
   followsYou: boolean;
   own: boolean;
+  /** The viewer mutes them: their posts are hidden, the follow stays. */
+  muted: boolean;
+  /** The viewer blocks them: no follow either way, and the viewer's page hidden from them. */
+  blocked: boolean;
+}
+
+/** The members the viewer mutes and blocks. */
+export interface NetworkRestrictions {
+  muted: MemberCard[];
+  blocked: MemberCard[];
 }
 
 /** The account's membership: whether it joined, its handle (a suggested one before), its fields and its card once joined. */

@@ -99,6 +99,36 @@ public class NetworkController {
         return follows.following(SecurityUtils.getCurrentUserId(), handle);
     }
 
+    @Operation(summary = "Mute a member: their posts are hidden, the follow stays")
+    @PutMapping("/members/{handle}/mute")
+    public NetworkDtos.MemberPage mute(@PathVariable String handle) {
+        return follows.mute(SecurityUtils.getCurrentUserId(), handle, true);
+    }
+
+    @Operation(summary = "Stop muting a member")
+    @DeleteMapping("/members/{handle}/mute")
+    public NetworkDtos.MemberPage unmute(@PathVariable String handle) {
+        return follows.mute(SecurityUtils.getCurrentUserId(), handle, false);
+    }
+
+    @Operation(summary = "Block a member: no follow either way, and the viewer's page hidden from them")
+    @PutMapping("/members/{handle}/block")
+    public NetworkDtos.MemberPage block(@PathVariable String handle) {
+        return follows.block(SecurityUtils.getCurrentUserId(), handle, true);
+    }
+
+    @Operation(summary = "Stop blocking a member")
+    @DeleteMapping("/members/{handle}/block")
+    public NetworkDtos.MemberPage unblock(@PathVariable String handle) {
+        return follows.block(SecurityUtils.getCurrentUserId(), handle, false);
+    }
+
+    @Operation(summary = "The members the viewer mutes and blocks")
+    @GetMapping("/restrictions")
+    public NetworkDtos.Restrictions restrictions() {
+        return follows.restrictions(SecurityUtils.getCurrentUserId());
+    }
+
     @Operation(summary = "Stop a member following the viewer")
     @DeleteMapping("/followers/{handle}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

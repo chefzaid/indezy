@@ -40,12 +40,22 @@ public final class NetworkDtos {
     public record HandleAvailability(String handle, boolean available) {
     }
 
+    /** The members the viewer mutes and blocks, to undo either. */
+    public record Restrictions(List<MemberCard> muted, List<MemberCard> blocked) {
+
+        public Restrictions {
+            muted = List.copyOf(muted);
+            blocked = List.copyOf(blocked);
+        }
+    }
+
     /**
      * A member's page as a member sees it: the card, how many members follow them and they follow, the skills they share
-     * with the viewer, whether the viewer follows them and they follow the viewer, and whether it is the viewer's own.
+     * with the viewer, whether the viewer follows them and they follow the viewer, whether it is the viewer's own, and
+     * whether the viewer mutes or blocks them.
      */
     public record MemberPage(MemberCard card, int followers, int following, List<String> sharedSkills, boolean followed,
-                             boolean followsYou, boolean own) {
+                             boolean followsYou, boolean own, boolean muted, boolean blocked) {
 
         public MemberPage {
             sharedSkills = List.copyOf(sharedSkills);

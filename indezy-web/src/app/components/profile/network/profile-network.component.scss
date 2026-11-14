@@ -81,6 +81,47 @@
   gap: 8px;
 }
 
+.restrictions {
+  margin-top: 24px;
+
+  h3,
+  h4 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+  }
+
+  h4 {
+    margin-top: 12px;
+    font-size: 0.875rem;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--app-border);
+  }
+
+  a {
+    color: var(--app-link);
+  }
+
+  .handle,
+  .empty {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+}
+
 .preview {
   margin-top: 24px;
 

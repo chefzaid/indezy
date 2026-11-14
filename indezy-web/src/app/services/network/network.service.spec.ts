@@ -33,6 +33,16 @@ describe('NetworkService', () => {
     http.expectOne(call => call.url.endsWith('/network/members/camille/followers'));
     service.following('camille').subscribe();
     http.expectOne(call => call.url.endsWith('/network/members/camille/following'));
+    service.mute('leo', true).subscribe();
+    http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/members/leo/mute'));
+    service.mute('leo', false).subscribe();
+    http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/members/leo/mute'));
+    service.block('leo', true).subscribe();
+    http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/members/leo/block'));
+    service.block('leo', false).subscribe();
+    http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/members/leo/block'));
+    service.restrictions().subscribe();
+    http.expectOne(call => call.url.endsWith('/network/restrictions'));
     service.removeFollower('leo').subscribe();
     http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/followers/leo'));
     http.verify();

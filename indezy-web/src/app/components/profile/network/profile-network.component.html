@@ -68,6 +68,30 @@
   </div>
 </form>
 
+@if (membership?.joined && restrictions) {
+  <section class="restrictions" data-network-restrictions>
+    <h3>{{ 'profile.network.restrictionsTitle' | translate }}</h3>
+    @if (restrictions.muted.length === 0 && restrictions.blocked.length === 0) {
+      <p class="empty">{{ 'profile.network.noRestrictions' | translate }}</p>
+    }
+    @for (kind of restrictionKinds; track kind) {
+      @if (restrictions[kind].length) {
+        <h4>{{ 'profile.network.' + kind + 'List' | translate }}</h4>
+        <ul>
+          @for (member of restrictions[kind]; track member.handle) {
+            <li>
+              <a [routerLink]="['/m', member.handle]">{{ member.firstName }} {{ member.lastName }} <span class="handle">&#64;{{ member.handle }}</span></a>
+              <button mat-button type="button" (click)="lift(kind, member)" [attr.data-lift]="kind + ':' + member.handle">
+                {{ (kind === 'muted' ? 'network.page.unmute' : 'network.page.unblock') | translate }}
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    }
+  </section>
+}
+
 @if (membership?.card; as card) {
   <section class="preview" data-network-preview>
     <h3>{{ 'profile.network.preview' | translate }}</h3>

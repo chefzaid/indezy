@@ -37,6 +37,12 @@
   gap: 8px;
 }
 
+.blocked-note,
+.muted-note {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
 .follows-you {
   padding: 2px 10px;
   border-radius: 12px;

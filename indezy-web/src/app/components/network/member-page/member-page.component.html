@@ -17,11 +17,29 @@
         <span class="follows-you" data-follows-you>{{ 'network.page.followsYou' | translate }}</span>
       }
       @if (!page.own) {
-        <button mat-flat-button type="button" (click)="toggleFollow()" [disabled]="isFollowing" data-follow
-          [attr.aria-pressed]="page.followed">
-          <mat-icon>{{ page.followed ? 'person_remove' : 'person_add' }}</mat-icon>
-          {{ (page.followed ? 'network.page.unfollow' : 'network.page.follow') | translate }}
+        @if (page.blocked) {
+          <span class="blocked-note" data-blocked>{{ 'network.page.blockedNote' | translate }}</span>
+        } @else {
+          <button mat-flat-button type="button" (click)="toggleFollow()" [disabled]="isFollowing" data-follow
+            [attr.aria-pressed]="page.followed">
+            <mat-icon>{{ page.followed ? 'person_remove' : 'person_add' }}</mat-icon>
+            {{ (page.followed ? 'network.page.unfollow' : 'network.page.follow') | translate }}
+          </button>
+        }
+        @if (page.muted) {
+          <span class="muted-note" data-muted>{{ 'network.page.mutedNote' | translate }}</span>
+        }
+        <button mat-icon-button type="button" [matMenuTriggerFor]="more" [attr.aria-label]="'network.page.more' | translate" data-member-more>
+          <mat-icon>more_vert</mat-icon>
         </button>
+        <mat-menu #more="matMenu">
+          <button mat-menu-item type="button" (click)="toggleMute()" data-mute>
+            <mat-icon>{{ page.muted ? 'volume_up' : 'volume_off' }}</mat-icon>{{ (page.muted ? 'network.page.unmute' : 'network.page.mute') | translate }}
+          </button>
+          <button mat-menu-item type="button" (click)="toggleBlock()" data-block>
+            <mat-icon>block</mat-icon>{{ (page.blocked ? 'network.page.unblock' : 'network.page.block') | translate }}
+          </button>
+        </mat-menu>
       }
     </div>
 

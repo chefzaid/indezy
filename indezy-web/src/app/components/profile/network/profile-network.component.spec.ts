@@ -5,7 +5,7 @@ import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { MemberCard, NetworkMembership } from '../../../models';
+import { MemberCard, MemberPage, NetworkMembership } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -25,8 +25,9 @@ describe('ProfileNetworkComponent', () => {
   const member: NetworkMembership = { joined: true, handle: 'camille', fields, availability: auto, card };
 
   function create(membership = of(outside)): ComponentFixture<ProfileNetworkComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['membership', 'join', 'leave', 'handle', 'verify']);
+    network = jasmine.createSpyObj('NetworkService', ['membership', 'join', 'leave', 'handle', 'verify', 'restrictions', 'mute', 'block']);
     network.membership.and.returnValue(membership);
+    network.restrictions.and.returnValue(of({ muted: [], blocked: [] }));
     network.handle.and.returnValue(of({ handle: 'x', available: true }));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
@@ -127,6 +128,32 @@ describe('ProfileNetworkComponent', () => {
     expect(notifications.success).toHaveBeenCalledWith('profile.network.verifiedDone');
     expect(element.querySelector('[data-network-verify]')).toBeNull();
     expect(element.querySelector('[data-card-verified]')).not.toBeNull();
+  });
+
+  it('lists the members muted and blocked, and lifts either', () => {
+    const fixture = create(of(member));
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    fixture.detectChanges();
+    expect(element.querySelector('[data-network-restrictions]')?.textContent).toContain('You mute and block no member.');
+    const leo = { ...card, handle: 'leo_m', firstName: 'Léo' };
+    const ines = { ...card, handle: 'ines_b', firstName: 'Inès' };
+    component.restrictions = { muted: [leo], blocked: [ines] };
+    fixture.detectChanges();
+    expect(element.querySelector('[data-lift="muted:leo_m"]')).not.toBeNull();
+    network.mute.and.returnValue(of({} as MemberPage));
+    (element.querySelector('[data-lift="muted:leo_m"]') as HTMLButtonElement).click();
+    expect(network.mute).toHaveBeenCalledWith('leo_m', false);
+    expect(component.restrictions.muted).toEqual([]);
+    network.block.and.returnValue(of({} as MemberPage));
+    component.lift('blocked', ines);
+    expect(network.block).toHaveBeenCalledWith('ines_b', false);
+    expect(notifications.success).toHaveBeenCalledWith('network.page.unblockedDone');
+    network.block.and.returnValue(throwError(() => new Error('down')));
+    component.restrictions = { muted: [], blocked: [ines] };
+    component.lift('blocked', ines);
+    expect(component.restrictions.blocked.length).toBe(1);
+    expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');
   });
 
   it('leaves once confirmed, keeping the handle, and says when the membership cannot be read', () => {
