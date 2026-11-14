@@ -53,6 +53,21 @@ class PublicProfileServiceTest {
         assertThat(profile.availableNow()).isFalse();
         assertThat(profile.avatar()).isEqualTo("https://cdn.example/alice.png");
         assertThat(profile.toString()).doesNotContain("Alice");
+        assertThat(profile.certifications()).isEmpty();
+    }
+
+    @Test
+    void showsTheValidCertificationsOfTheTrainingRecord() {
+        Freelance freelance = new Freelance();
+        freelance.setId(5L);
+        when(freelances.findByEmail("alice@example.com")).thenReturn(Optional.of(freelance));
+        TrainingService trainings = org.mockito.Mockito.mock(TrainingService.class);
+        when(trainings.validCertifications(5L)).thenReturn(java.util.List.of("CKA", "PSM I"));
+        service.setTrainings(trainings);
+
+        assertThat(service.view("alice").certifications()).containsExactly("CKA", "PSM I");
+        when(freelances.findByEmail("alice@example.com")).thenReturn(Optional.empty());
+        assertThat(service.view("alice").certifications()).isEmpty();
     }
 
     @Test

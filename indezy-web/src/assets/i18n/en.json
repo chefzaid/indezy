@@ -220,7 +220,8 @@
       "percentUsed": "{{percent}} % used",
       "expiringDocuments": "Documents to renew",
       "expiresInDays": "expires in {{days}} days",
-      "expiredDaysAgo": "expired {{days}} days ago"
+      "expiredDaysAgo": "expired {{days}} days ago",
+      "trainingFundingDue": "Training funding to request"
     },
     "estimatedRevenueHint": "Value of your accepted missions over their whole duration: daily rate × working days (218 a year when the mission states none), up to its end or the day it was ended.",
     "forecastRevenueHint": "What your accepted missions will still bring, from today to their end: all of their value before they start, nothing once over.",
@@ -2409,7 +2410,8 @@
     "years": "{{count}} yr",
     "languages": "Languages",
     "links": "Links",
-    "website": "Website"
+    "website": "Website",
+    "certifications": "Certifications"
   },
   "admin": {
     "title": "Admin",
@@ -2956,5 +2958,54 @@
     "loadError": "The missions could not be loaded",
     "kilometres": "Professional kilometres",
     "kilometresError": "The kilometres could not be exported."
+  },
+  "trainings": {
+    "title": "Trainings and certifications",
+    "add": "Add a training",
+    "addTitle": "Add a training",
+    "editTitle": "Change the training",
+    "none": "No training recorded yet: add the ones you followed or plan, with their certification and their funding.",
+    "hours": "{{hours}} h",
+    "askBy": "ask by {{date}}",
+    "actions": "Actions for {{title}}",
+    "certificationHint": "Optional. A valid certification shows on your public profile.",
+    "deadlineHint": "The fund's own deadline for the year (FIF PL, AGEFICE: check their current rules).",
+    "noFund": "No funding asked",
+    "endsBeforeStart": "A training ends on or after its start.",
+    "invalid": "Check the fields: a title is required, hours are whole, amounts have at most two decimals.",
+    "deleteTitle": "Delete the training?",
+    "deleteMessage": "\"{{title}}\" and its funding details will be deleted.",
+    "loadError": "The trainings could not be loaded.",
+    "saveError": "The training could not be saved.",
+    "deleteError": "The training could not be deleted.",
+    "fields": {
+      "title": "Training",
+      "provider": "Provider",
+      "startsOn": "Starts on",
+      "endsOn": "Ends on",
+      "hours": "Hours",
+      "cost": "Cost",
+      "certification": "Certification",
+      "certifiedOn": "Certified on",
+      "certificationExpiresOn": "Certification expires on",
+      "fund": "Funding asked to",
+      "fundingStatus": "Funding",
+      "fundingDeadline": "Request deadline",
+      "fundedAmount": "Amount funded",
+      "notes": "Notes"
+    },
+    "funds": {
+      "FIF_PL": "FIF PL",
+      "AGEFICE": "AGEFICE",
+      "OPCO": "OPCO",
+      "OTHER": "Another body"
+    },
+    "statuses": {
+      "TO_REQUEST": "To request",
+      "REQUESTED": "Requested",
+      "ACCEPTED": "Accepted",
+      "REFUSED": "Refused",
+      "PAID": "Paid"
+    }
   }
 }

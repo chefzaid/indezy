@@ -1,0 +1,54 @@
+// The look the Documents page gives its records: a card per document, link or training, with its validity badge.
+
+@mixin record-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 12px 8px 12px 16px;
+
+  .kind {
+    flex: none;
+    color: var(--app-link);
+  }
+
+  .text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+
+    h3 {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .file,
+    .dates {
+      font-size: 0.85rem;
+      color: var(--app-text-muted);
+      overflow-wrap: anywhere;
+    }
+  }
+}
+
+@mixin validity-badge {
+  flex: none;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: var(--app-subtle);
+
+  &.validity-VALID {
+    color: var(--app-positive);
+  }
+
+  &.validity-EXPIRING {
+    color: var(--app-warning);
+  }
+
+  &.validity-EXPIRED {
+    color: var(--app-danger);
+  }
+}

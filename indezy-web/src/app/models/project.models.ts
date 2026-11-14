@@ -198,6 +198,8 @@ export interface DashboardStatsDto {
   trends?: Trend[];
   /** Compliance documents expired or expiring within 30 days, the soonest first. */
   expiringDocuments?: ExpiringDocument[];
+  /** Trainings whose funding is still to ask with its deadline within 14 days or past, the soonest first. */
+  trainingFundingDue?: TrainingFundingDue[];
   /** Running purchase orders with 80 % of a ceiling used or more, the most used first. */
   purchaseOrderAlerts?: PurchaseOrderAlert[];
   /** Interview steps planned in the next seven days, soonest first. */
@@ -418,4 +420,11 @@ export interface ContractCheck {
   point: ContractPoint;
   checked: boolean;
   note?: string | null;
+}
+
+/** A training's funding request to send: its title and the fund's deadline. */
+export interface TrainingFundingDue {
+  trainingId: number;
+  title: string;
+  deadline: string;
 }

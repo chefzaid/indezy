@@ -11,6 +11,7 @@ import { NotificationService } from '../../services/notification/notification.se
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ComplianceComponent } from './compliance.component';
 import en from '../../../assets/i18n/en.json';
+import { TrainingService } from '../../services/training/training.service';
 
 describe('ComplianceComponent', () => {
   let service: jasmine.SpyObj<ComplianceService>;
@@ -39,7 +40,7 @@ describe('ComplianceComponent', () => {
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
       imports: [ComplianceComponent, TranslateModule.forRoot()],
-      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: ComplianceService, useValue: service }, { provide: ConfirmDialogService, useValue: confirm },
+      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: ComplianceService, useValue: service }, { provide: TrainingService, useValue: { list: () => of([]) } }, { provide: ConfirmDialogService, useValue: confirm },
         { provide: NotificationService, useValue: notifications }]
     });
     TestBed.overrideProvider(MatDialog, { useValue: dialog });

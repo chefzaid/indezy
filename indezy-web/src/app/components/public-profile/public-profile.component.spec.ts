@@ -50,6 +50,14 @@ describe('PublicProfileComponent', () => {
     expect(links.length).toBe(2);
     expect(links[0].getAttribute('rel')).toBe('noopener nofollow');
     expect((fixture.nativeElement as HTMLElement).querySelector('.avatar.initials')).not.toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-certifications]')).toBeNull();
+  });
+
+  it('lists the valid certifications', () => {
+    profiles.view.and.returnValue(of(profile({ certifications: ['CKA', 'PSM I'] })));
+    create();
+    const items = (fixture.nativeElement as HTMLElement).querySelectorAll('[data-certifications] li');
+    expect([...items].map(item => item.textContent?.replace('verified', '').trim())).toEqual(['CKA', 'PSM I']);
   });
 
   it('says when the freelancer is available, or that it is to ask, with the photo when there is one', () => {

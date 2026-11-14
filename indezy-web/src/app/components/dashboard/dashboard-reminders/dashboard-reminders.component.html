@@ -25,6 +25,21 @@
         }
       </section>
     }
+    @if (getTrainingFundingDue().length > 0) {
+      <section class="reminder-card accent-brown" data-training-funding-due>
+        <h3 class="reminder-title">
+          <mat-icon>school</mat-icon>
+          {{ 'dashboard.charts.trainingFundingDue' | translate }}
+          <span class="count">{{ getTrainingFundingDue().length }}</span>
+        </h3>
+        @for (training of getTrainingFundingDue(); track training.trainingId) {
+          <a class="reminder-row" routerLink="/documents">
+            <span class="primary">{{ training.title }}</span>
+            <span class="meta">{{ 'trainings.askBy' | translate:{ date: (training.deadline | date:'mediumDate') } }}</span>
+          </a>
+        }
+      </section>
+    }
     @if (getExpiringDocuments().length > 0) {
       <section class="reminder-card accent-brown" data-expiring-documents>
         <h3 class="reminder-title">

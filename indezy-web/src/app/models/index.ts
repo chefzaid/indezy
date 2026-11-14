@@ -28,5 +28,6 @@ export * from './billing.models';
 export * from './invoice.models';
 export * from './purchase-order.models';
 export * from './compliance.models';
+export * from './training.models';
 export * from './webhook.models';
 export * from './booking.models';

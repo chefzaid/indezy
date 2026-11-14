@@ -21,6 +21,8 @@ export interface PublicProfile {
   github?: string;
   availableFrom?: string;
   availableNow: boolean;
+  /** The training record's certifications still valid. */
+  certifications?: string[];
 }
 
 /** An address name built from a name: lower case, no accents, words joined by dashes, at most 40 characters. */

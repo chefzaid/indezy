@@ -1,0 +1,93 @@
+<h2 mat-dialog-title>{{ (training ? 'trainings.editTitle' : 'trainings.addTitle') | translate }}</h2>
+<form [formGroup]="form" (ngSubmit)="save()">
+  <mat-dialog-content class="fields">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'trainings.fields.title' | translate }}</mat-label>
+      <input matInput formControlName="title" maxlength="200" required data-training-title>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'trainings.fields.provider' | translate }}</mat-label>
+      <input matInput formControlName="provider" maxlength="200">
+    </mat-form-field>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'trainings.fields.startsOn' | translate }}</mat-label>
+        <input matInput type="date" formControlName="startsOn" data-training-start>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'trainings.fields.endsOn' | translate }}</mat-label>
+        <input matInput type="date" formControlName="endsOn" data-training-end>
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'trainings.fields.hours' | translate }}</mat-label>
+        <input matInput type="number" min="0" step="1" formControlName="hours">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'trainings.fields.cost' | translate }}</mat-label>
+        <input matInput inputmode="decimal" formControlName="cost" data-training-cost>
+        <span matTextSuffix>€</span>
+      </mat-form-field>
+    </div>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ 'trainings.fields.certification' | translate }}</mat-label>
+      <input matInput formControlName="certification" maxlength="200" data-training-certification>
+      <mat-hint>{{ 'trainings.certificationHint' | translate }}</mat-hint>
+    </mat-form-field>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'trainings.fields.certifiedOn' | translate }}</mat-label>
+        <input matInput type="date" formControlName="certifiedOn">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'trainings.fields.certificationExpiresOn' | translate }}</mat-label>
+        <input matInput type="date" formControlName="certificationExpiresOn" data-training-expires>
+      </mat-form-field>
+    </div>
+    <mat-form-field appearance="outline" data-training-fund>
+      <mat-label>{{ 'trainings.fields.fund' | translate }}</mat-label>
+      <mat-select formControlName="fund">
+        <mat-option [value]="null">{{ 'trainings.noFund' | translate }}</mat-option>
+        @for (fund of funds; track fund) {
+          <mat-option [value]="fund">{{ 'trainings.funds.' + fund | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    @if (form.controls.fund.value) {
+      <div class="row">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'trainings.fields.fundingStatus' | translate }}</mat-label>
+          <mat-select formControlName="fundingStatus" data-training-status>
+            @for (status of statuses; track status) {
+              <mat-option [value]="status">{{ 'trainings.statuses.' + status | translate }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'trainings.fields.fundingDeadline' | translate }}</mat-label>
+          <input matInput type="date" formControlName="fundingDeadline" data-training-deadline>
+          <mat-hint>{{ 'trainings.deadlineHint' | translate }}</mat-hint>
+        </mat-form-field>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'trainings.fields.fundedAmount' | translate }}</mat-label>
+        <input matInput inputmode="decimal" formControlName="fundedAmount">
+        <span matTextSuffix>€</span>
+      </mat-form-field>
+    }
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'trainings.fields.notes' | translate }}</mat-label>
+      <textarea matInput formControlName="notes" rows="2" maxlength="1000"></textarea>
+    </mat-form-field>
+    @if (form.touched && form.invalid) {
+      <p class="form-error" role="alert" data-training-error>
+        {{ (form.hasError('endsBeforeStart') ? 'trainings.endsBeforeStart' : 'trainings.invalid') | translate }}
+      </p>
+    }
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+    <button mat-flat-button color="primary" type="submit" data-save-training>{{ 'common.save' | translate }}</button>
+  </mat-dialog-actions>
+</form>

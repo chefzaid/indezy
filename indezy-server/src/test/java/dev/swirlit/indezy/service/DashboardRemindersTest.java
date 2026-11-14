@@ -164,6 +164,18 @@ class DashboardRemindersTest extends DashboardStatsTestSupport {
     }
 
     @Test
+    void getDashboardStats_ShouldPointOutTheTrainingFundingRequestsDue() {
+        when(projectRepository.findByFreelanceId(1L)).thenReturn(List.of());
+        assertThat(dashboardStatsService.getDashboardStats(1L, null).getTrainingFundingDue()).isEmpty();
+
+        TrainingService trainings = org.mockito.Mockito.mock(TrainingService.class);
+        List<DashboardStatsDto.TrainingFundingDue> due = List.of(new DashboardStatsDto.TrainingFundingDue(4L, "CKA", LocalDate.now()));
+        when(trainings.fundingDue(1L)).thenReturn(due);
+        dashboardStatsService.setTrainings(trainings);
+        assertThat(dashboardStatsService.getDashboardStats(1L, null).getTrainingFundingDue()).isEqualTo(due);
+    }
+
+    @Test
     void getDashboardStats_ShouldGiveARenewalsRateAgainstTheMarketOfItsFirstSkill() {
         LocalDate today = LocalDate.now();
         testProject.setStatus(ProjectStatus.WON);

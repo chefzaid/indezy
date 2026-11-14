@@ -94,6 +94,29 @@ class TrainingServiceTest {
     }
 
     @Test
+    void pointsOutTheFundingRequestsDueSoonestFirst() {
+        Training later = training(null, null);
+        later.setId(1L);
+        later.setFund(TrainingFund.FIF_PL);
+        later.setFundingStatus(FundingStatus.TO_REQUEST);
+        later.setFundingDeadline(TODAY.plusDays(10));
+        Training sooner = training(null, null);
+        sooner.setId(2L);
+        sooner.setFund(TrainingFund.AGEFICE);
+        sooner.setFundingStatus(FundingStatus.TO_REQUEST);
+        sooner.setFundingDeadline(TODAY.plusDays(2));
+        Training asked = training(null, null);
+        asked.setId(3L);
+        asked.setFund(TrainingFund.AGEFICE);
+        asked.setFundingStatus(FundingStatus.REQUESTED);
+        asked.setFundingDeadline(TODAY);
+        stored.addAll(List.of(later, sooner, asked));
+
+        assertThat(service.fundingDue(1L)).extracting(dev.swirlit.indezy.dto.DashboardStatsDto.TrainingFundingDue::trainingId)
+            .containsExactly(2L, 1L);
+    }
+
+    @Test
     void listsTheValidCertificationsOnceEach() {
         stored.addAll(List.of(training("AWS SAA", TODAY.plusYears(1)), training("PSM I", null), training("Old", TODAY.minusDays(1)),
             training(null, null), training("AWS SAA", TODAY.plusYears(2))));

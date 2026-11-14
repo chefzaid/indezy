@@ -33,6 +33,11 @@ class TrainingIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.POST, "/trainings", details, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 
         assertThat(call(alice, HttpMethod.GET, "/users/export", null, String.class).getBody()).contains("Certified Kubernetes Administrator");
+
+        // The valid certification shows on Alice's public profile once she shows it.
+        call(alice, HttpMethod.PUT, "/users/public-profile", Map.of("enabled", true, "slug", "alice-trainings"), Map.class);
+        assertThat(exchange("/public/profiles/alice-trainings", HttpMethod.GET, org.springframework.http.HttpEntity.EMPTY, Map.class)
+            .getBody()).containsEntry("certifications", List.of("CKA"));
         assertThat(call(alice, HttpMethod.DELETE, training, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(call(alice, HttpMethod.GET, "/trainings", null, List.class).getBody()).isEmpty();
     }

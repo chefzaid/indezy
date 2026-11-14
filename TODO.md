@@ -645,9 +645,9 @@ Money
 - [x] Billed days objective: a yearly target of billed days, set in the profile, against the days of the validated activity reports so far and the year's projection, beside the reversion rate calculator's workable days.
 
 Profile and reputation
-- [ ] Dossier de compétences built from the profile and the missions (no AI): summary, skills with levels and years, missions with client, role, dates and stack, as PDF in a few layouts ESNs ask for, in French or English; the AI item above tailors it to one opportunity.
+- [ ] Dossier de compétences built from the profile and the missions (no AI): summary, skills with levels and years, missions with client, role, dates and stack, as PDF in a few layouts ESNs ask for, in French or English; the AI item above tailors it to one opportunity. It lists the training record's valid certifications (`TrainingService.validCertifications`).
 - [ ] Testimonials: ask a client contact for a short recommendation through a link (no account), approve it, and show it on the public profile.
-- [ ] Training record: the trainings followed, their certificates and expiry, and the funding asked to the training fund of the freelancer's status (FIF PL for liberal professions, AGEFICE for traders), with the request deadlines; certifications appear on the public profile and the dossier de compétences. Partly done on 2026-11-09: the server keeps each workspace's trainings with their certification, its end and the funding asked (`/api/trainings`, in the data export); the page, the deadline reminder and the certifications on the public profile and the dossier remain.
+- [x] Training record: the trainings followed, their certificates and expiry, and the funding asked to the training fund of the freelancer's status (FIF PL for liberal professions, AGEFICE for traders), with the request deadlines; certifications appear on the public profile and the dossier de compétences. Done on 2026-11-14; the certifications join the dossier de compétences with that item: the Documents page's **Trainings and certifications** (`docs/features.md#training-record`), the dashboard's reminder of funding requests due, and the valid certifications on the public profile. The certificates themselves are stored as compliance documents.
 
 ### Market Intelligence
 

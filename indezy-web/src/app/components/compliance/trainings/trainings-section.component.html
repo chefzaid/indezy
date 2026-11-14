@@ -1,0 +1,60 @@
+<section aria-labelledby="trainings-title" data-trainings>
+  <div class="heading">
+    <h2 id="trainings-title">{{ 'trainings.title' | translate }}</h2>
+    <button mat-stroked-button type="button" (click)="add()" data-add-training>
+      <mat-icon>add</mat-icon>{{ 'trainings.add' | translate }}
+    </button>
+  </div>
+  @for (training of trainings; track training.id) {
+    <mat-card class="training" [attr.data-training]="training.id">
+      <mat-icon class="kind" aria-hidden="true">school</mat-icon>
+      <div class="text">
+        <h3>{{ training.title }}{{ training.provider ? ' · ' + training.provider : '' }}</h3>
+        <span class="dates">
+          @if (training.startsOn) {
+            {{ training.startsOn | date:'mediumDate' }}{{ training.endsOn && training.endsOn !== training.startsOn ? ' – ' + (training.endsOn | date:'mediumDate') : '' }}
+          }
+          @if (training.hours) {
+            · {{ 'trainings.hours' | translate:{ hours: training.hours } }}
+          }
+          @if (training.cost) {
+            · {{ training.cost | currency:'EUR':'symbol':'1.0-2' }}
+          }
+        </span>
+        @if (training.certification) {
+          <span class="dates" data-training-certificate>
+            {{ training.certification }}
+            @if (training.certificationExpiresOn) {
+              · {{ 'compliance.expires' | translate:{ date: (training.certificationExpiresOn | date:'mediumDate') } }}
+            }
+          </span>
+        }
+        @if (training.fund) {
+          <span class="dates" [class.due]="training.fundingDue" data-training-funding>
+            {{ 'trainings.funds.' + training.fund | translate }} · {{ 'trainings.statuses.' + training.fundingStatus | translate }}
+            @if (training.fundingDeadline && training.fundingStatus === 'TO_REQUEST') {
+              · {{ 'trainings.askBy' | translate:{ date: (training.fundingDeadline | date:'mediumDate') } }}
+            }
+            @if (training.fundedAmount) {
+              · {{ training.fundedAmount | currency:'EUR':'symbol':'1.0-2' }}
+            }
+          </span>
+        }
+      </div>
+      @if (training.certificationValidity) {
+        <span class="validity" [class]="'validity validity-' + training.certificationValidity" data-training-validity>
+          {{ 'compliance.validity.' + training.certificationValidity | translate }}
+        </span>
+      }
+      <button mat-icon-button type="button" [matMenuTriggerFor]="menu" [attr.aria-label]="'trainings.actions' | translate:{ title: training.title }">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item type="button" (click)="edit(training)"><mat-icon>edit</mat-icon><span>{{ 'common.edit' | translate }}</span></button>
+        <button mat-menu-item type="button" (click)="remove(training)"><mat-icon>delete</mat-icon><span>{{ 'common.delete' | translate }}</span></button>
+      </mat-menu>
+    </mat-card>
+  } @empty {
+    <p class="empty">{{ 'trainings.none' | translate }}</p>
+  }
+</section>

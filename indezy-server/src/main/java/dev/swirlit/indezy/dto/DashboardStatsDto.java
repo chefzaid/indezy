@@ -55,6 +55,8 @@ public class DashboardStatsDto {
     private List<Trend> trends;
     /** Compliance documents expired or expiring within 30 days, the soonest first. */
     private List<ExpiringDocument> expiringDocuments;
+    /** Trainings whose funding is still to ask with its deadline within 14 days or past, the soonest first. */
+    private List<TrainingFundingDue> trainingFundingDue;
     /** Purchase orders running today with 80 % of a ceiling used or more, the most used first. */
     private List<PurchaseOrderAlert> purchaseOrderAlerts;
     /** Interview steps planned in the next seven days, soonest first. */
@@ -342,5 +344,9 @@ public class DashboardStatsDto {
      * pace of its completed months (null in January).
      */
     public record BilledDays(int year, double billed, Integer target, Integer projected) {
+    }
+
+    /** A training's funding request to send: its title and the fund's deadline. */
+    public record TrainingFundingDue(Long trainingId, String title, LocalDate deadline) {
     }
 }

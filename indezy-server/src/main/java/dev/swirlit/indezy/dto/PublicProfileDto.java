@@ -22,11 +22,14 @@ public record PublicProfileDto(
     String linkedin,
     String github,
     LocalDate availableFrom,
-    boolean availableNow) {
+    boolean availableNow,
+    /** The certifications of the training record still valid, most recent first. */
+    List<String> certifications) {
 
     public PublicProfileDto {
         skills = List.copyOf(skills);
         languages = List.copyOf(languages);
+        certifications = certifications == null ? List.of() : List.copyOf(certifications);
     }
 
     public record Skill(String name, SkillLevel level, Integer years) {

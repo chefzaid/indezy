@@ -606,6 +606,17 @@ spreadsheet in the interface language.
 - **Share** picks a recipient, documents and a duration (7, 14 or 30 days); up to 20 links can be open. The link is
   shown once, its openings are counted, and **Revoke** closes it. The shared page needs no account.
 
+### Training Record
+
+The Documents page also keeps the **trainings** followed or planned: title and provider, dates, hours and cost, the
+certification obtained with its end (valid, expiring within 30 days, expired, or without end, as documents are), and the
+funding asked to the training fund (FIF PL for liberal professions, AGEFICE for traders, an OPCO or another body) with
+its status (to request, requested, accepted, refused, paid), the fund's deadline for the request and the amount funded.
+The deadline is typed from the fund's rules of the year, which Indezy does not encode. A request still to send within 14
+days of its deadline, or past it, is shown in red and listed in the dashboard's reminders; valid certifications appear on
+the [public profile](#public-profile). `GET`, `POST`, `PUT` and `DELETE` on `/api/trainings` keep them, 200 per
+workspace, and the account export carries them.
+
 ## Dashboard And Analytics
 
 The dashboard is scoped by the [season](#job-hunting-seasons) picker and switches to the [Kanban](#kanban-and-pipeline-view)

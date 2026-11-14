@@ -204,6 +204,15 @@ describe('DashboardRemindersComponent', () => {
     expect(rows(card)[2].querySelector('.meta')).toBeNull();
   });
 
+  it('lists the training funding requests to send, linking to the training record', () => {
+    const element = render({ trainingFundingDue: [{ trainingId: 4, title: 'CKA', deadline: '2026-11-20' }] });
+
+    expect(component.hasReminders()).toBe(true);
+    const card = element.querySelector<HTMLElement>('[data-training-funding-due]')!;
+    expect(rows(card).map(row => row.getAttribute('href'))).toEqual(['/documents']);
+    expect(rows(card)[0].textContent).toContain('CKA');
+  });
+
   it('lists the compliance documents to renew, linking to the vault', () => {
     const element = render({
       expiringDocuments: [

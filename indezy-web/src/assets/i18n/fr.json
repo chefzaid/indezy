@@ -220,7 +220,8 @@
       "percentUsed": "{{percent}} % consommé",
       "expiringDocuments": "Documents à renouveler",
       "expiresInDays": "expire dans {{days}} jours",
-      "expiredDaysAgo": "expiré depuis {{days}} jours"
+      "expiredDaysAgo": "expiré depuis {{days}} jours",
+      "trainingFundingDue": "Prises en charge de formation à demander"
     },
     "estimatedRevenueHint": "Valeur de vos missions acceptées sur toute leur durée : TJM × jours travaillés (218 par an quand la mission n'en indique pas), jusqu'à sa fin ou au jour où elle a été terminée.",
     "forecastRevenueHint": "Ce que vos missions acceptées rapporteront encore, d'aujourd'hui à leur fin : toute leur valeur avant qu'elles commencent, rien une fois finies.",
@@ -2409,7 +2410,8 @@
     "years": "{{count}} an(s)",
     "languages": "Langues",
     "links": "Liens",
-    "website": "Site web"
+    "website": "Site web",
+    "certifications": "Certifications"
   },
   "admin": {
     "title": "Administration",
@@ -2956,5 +2958,54 @@
     "loadError": "Les missions n'ont pas pu être chargées",
     "kilometres": "Kilomètres professionnels",
     "kilometresError": "Les kilomètres n'ont pas pu être exportés."
+  },
+  "trainings": {
+    "title": "Formations et certifications",
+    "add": "Ajouter une formation",
+    "addTitle": "Ajouter une formation",
+    "editTitle": "Modifier la formation",
+    "none": "Aucune formation pour l'instant : ajoutez celles suivies ou prévues, avec leur certification et leur prise en charge.",
+    "hours": "{{hours}} h",
+    "askBy": "à demander avant le {{date}}",
+    "actions": "Actions pour {{title}}",
+    "certificationHint": "Facultatif. Une certification valide s'affiche sur votre profil public.",
+    "deadlineHint": "La date limite du fonds pour l'année (FIF PL, AGEFICE : vérifiez leurs règles en vigueur).",
+    "noFund": "Pas de prise en charge demandée",
+    "endsBeforeStart": "Une formation se termine le jour de son début ou après.",
+    "invalid": "Vérifiez les champs : le titre est obligatoire, les heures sont entières, les montants ont au plus deux décimales.",
+    "deleteTitle": "Supprimer la formation ?",
+    "deleteMessage": "« {{title}} » et sa prise en charge seront supprimées.",
+    "loadError": "Les formations n'ont pas pu être chargées.",
+    "saveError": "La formation n'a pas pu être enregistrée.",
+    "deleteError": "La formation n'a pas pu être supprimée.",
+    "fields": {
+      "title": "Formation",
+      "provider": "Organisme",
+      "startsOn": "Début",
+      "endsOn": "Fin",
+      "hours": "Heures",
+      "cost": "Coût",
+      "certification": "Certification",
+      "certifiedOn": "Certifié le",
+      "certificationExpiresOn": "Certification valable jusqu'au",
+      "fund": "Prise en charge demandée à",
+      "fundingStatus": "Prise en charge",
+      "fundingDeadline": "Date limite de la demande",
+      "fundedAmount": "Montant pris en charge",
+      "notes": "Notes"
+    },
+    "funds": {
+      "FIF_PL": "FIF PL",
+      "AGEFICE": "AGEFICE",
+      "OPCO": "OPCO",
+      "OTHER": "Autre organisme"
+    },
+    "statuses": {
+      "TO_REQUEST": "À demander",
+      "REQUESTED": "Demandée",
+      "ACCEPTED": "Acceptée",
+      "REFUSED": "Refusée",
+      "PAID": "Versée"
+    }
   }
 }

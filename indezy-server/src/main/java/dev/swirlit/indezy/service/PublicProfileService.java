@@ -11,14 +11,17 @@ import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A freelancer's public profile: turned on and named by its owner, shown to anyone with its link while it is on. The
@@ -35,6 +38,13 @@ public class PublicProfileService {
     private final UserRepository users;
     private final FreelanceRepository freelances;
     private final Clock clock;
+    private TrainingService trainings;
+
+    /** Optional: without the training record, the page shows no certification. */
+    @Autowired(required = false)
+    void setTrainings(TrainingService trainings) {
+        this.trainings = trainings;
+    }
 
     @Transactional(readOnly = true)
     public PublicProfileSettingsDto settings(Long userId) {
@@ -63,7 +73,8 @@ public class PublicProfileService {
         User user = users.findByPublicProfileSlug(slug.toLowerCase(Locale.ROOT))
             .filter(owner -> owner.getPublicProfileEnabled() && owner.getDeletedAt() == null)
             .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
-        LocalDate available = freelances.findByEmail(user.getEmail()).map(Freelance::getAvailabilityDate).orElse(null);
+        Optional<Freelance> freelance = freelances.findByEmail(user.getEmail());
+        LocalDate available = freelance.map(Freelance::getAvailabilityDate).orElse(null);
         Map<String, SkillDetail> details = user.getSkillDetails();
         return new PublicProfileDto(user.getFirstName(), user.getLastName(), user.getPosition(), user.getCity(), user.getBio(),
             user.getAvatarImage() != null ? user.getAvatarImage() : webLink(user.getAvatar()),
@@ -72,7 +83,17 @@ public class PublicProfileService {
                 return new PublicProfileDto.Skill(skill, detail == null ? null : detail.getLevel(), detail == null ? null : detail.getYears());
             }).toList(),
             user.getLanguages(), webLink(user.getWebsite()), webLink(user.getLinkedin()), webLink(user.getGithub()),
-            available, available != null && !available.isAfter(LocalDate.now(clock.withZone(PARIS))));
+            available, available != null && !available.isAfter(LocalDate.now(clock.withZone(PARIS))),
+            certifications(freelance));
+    }
+
+    /** The training record's valid certifications; none without a workspace or a training record. */
+    private List<String> certifications(Optional<Freelance> freelance) {
+        TrainingService record = trainings;
+        if (record == null || freelance.isEmpty()) {
+            return List.of();
+        }
+        return record.validCertifications(freelance.get().getId());
     }
 
     /** A link shown on the page only when it is a web address, never a script or another scheme. */

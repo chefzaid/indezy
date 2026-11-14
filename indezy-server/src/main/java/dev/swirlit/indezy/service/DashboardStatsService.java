@@ -55,6 +55,7 @@ public class DashboardStatsService {
     private final ComplianceDocumentService complianceDocumentService;
     private final BilledDaysService billedDaysService;
     private OfferRateBenchmarkService benchmarks;
+    private TrainingService trainings;
 
     /** Notice period applied when the freelance has not configured one. */
     private static final int DEFAULT_NOTICE_PERIOD_DAYS = 30;
@@ -171,6 +172,7 @@ public class DashboardStatsService {
             .overdueInvoices(invoiceService.overdue(freelanceId))
             .purchaseOrderAlerts(purchaseOrderService.alerts(freelanceId))
             .expiringDocuments(complianceDocumentService.expiring(freelanceId))
+            .trainingFundingDue(trainings == null ? List.of() : trainings.fundingDue(freelanceId))
             .skillTrends(DashboardAnalytics.buildSkillTrends(projects))
             .processDurations(DashboardAnalytics.buildProcessDurations(projects, signatures))
             .trends(DashboardTrends.build(projects, heatmapSteps, signatures, today))
@@ -223,6 +225,12 @@ public class DashboardStatsService {
                 .count(entry.getValue())
                 .build())
             .toList();
+    }
+
+    /** Optional: without the training record, no funding request is pointed out. */
+    @Autowired(required = false)
+    void setTrainings(TrainingService trainings) {
+        this.trainings = trainings;
     }
 
     /** Optional: without the offer feed's medians, renewals come without the market. */

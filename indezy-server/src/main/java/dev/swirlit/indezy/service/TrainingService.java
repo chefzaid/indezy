@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.ComplianceDtos;
+import dev.swirlit.indezy.dto.DashboardStatsDto;
 import dev.swirlit.indezy.dto.TrainingDtos;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.Training;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -63,6 +65,16 @@ public class TrainingService {
     @Transactional
     public void delete(Long freelanceId, Long id) {
         trainings.delete(owned(freelanceId, id));
+    }
+
+    /** The funding requests still to send with their deadline within {@value #FUNDING_DUE_DAYS} days or past, soonest first. */
+    @Transactional(readOnly = true)
+    public List<DashboardStatsDto.TrainingFundingDue> fundingDue(Long freelanceId) {
+        return list(freelanceId).stream()
+            .filter(TrainingDtos.Training::fundingDue)
+            .sorted(Comparator.comparing(TrainingDtos.Training::fundingDeadline))
+            .map(training -> new DashboardStatsDto.TrainingFundingDue(training.id(), training.title(), training.fundingDeadline()))
+            .toList();
     }
 
     /** The certifications still valid, for the public profile: name and end, most recent first. */

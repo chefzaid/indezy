@@ -68,6 +68,17 @@
           </section>
         }
 
+        @if (profile.certifications?.length) {
+          <section data-certifications>
+            <h2>{{ 'publicProfile.certifications' | translate }}</h2>
+            <ul class="certifications">
+              @for (certification of profile.certifications; track certification) {
+                <li><mat-icon aria-hidden="true">verified</mat-icon>{{ certification }}</li>
+              }
+            </ul>
+          </section>
+        }
+
         @if (profile.languages.length) {
           <section>
             <h2>{{ 'publicProfile.languages' | translate }}</h2>

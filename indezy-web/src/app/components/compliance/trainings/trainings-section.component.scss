@@ -1,0 +1,42 @@
+@use '../records';
+
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 24px 0 12px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.training {
+  @include records.record-card;
+
+  .text .due {
+    color: var(--app-danger);
+    font-weight: 500;
+  }
+}
+
+.validity {
+  @include records.validity-badge;
+}
+
+@media (max-width: 599px) {
+  .training {
+    flex-wrap: wrap;
+
+    .validity {
+      order: 3;
+      margin-left: 36px;
+    }
+  }
+}
+
+.empty {
+  color: var(--app-text-muted);
+}
