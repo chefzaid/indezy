@@ -25,7 +25,8 @@ class AdminIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.PUT, "/admin/features/DATA_IMPORT", Map.of("enabled", false), String.class).getStatusCode())
             .isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(call(bob, HttpMethod.GET, "/users/capabilities", null, Map.class).getBody()).containsEntry("admin", false)
-            .containsEntry("features", Map.of("OFFER_FEED", true, "PUBLIC_PROFILES", true, "DATA_IMPORT", true, "YEARLY_REVIEW", true));
+            .containsEntry("features", Map.of("OFFER_FEED", true, "PUBLIC_PROFILES", true, "DATA_IMPORT", true, "YEARLY_REVIEW", true,
+                "SOCIAL_NETWORK", false));
 
         Account chief = chief();
         assertThat(call(chief, HttpMethod.GET, "/users/capabilities", null, Map.class).getBody()).containsEntry("admin", true);

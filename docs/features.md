@@ -159,6 +159,17 @@ optionally their title), agreeing to be named with it; the link is shown once, s
 once. A received testimonial waits **To review** until **Show on my public page** puts it on `/p/<address>`, under
 **Testimonials**; **Hide** takes it off and deleting it closes its link. Testimonials are part of the data export.
 
+### Member Network
+
+The member network is off until an administrator turns it on (**Admin → Features → Member network**, the only feature
+off by default). Then **Profile → Network** joins it, a choice each account makes: a handle unique among members
+(`@camille_d`, 3 to 30 lower-case letters, digits or underscores, starting with a letter; offered from the first name,
+said taken while typing, and never one that would pass for Indezy, such as `@admin` or `@support`), and a **member
+card** built from the profile: the name, then the photo, headline, skills, city, availability and languages, each shown
+or hidden, and whether the member works remotely. Only members see members' cards (`GET /api/network/members/<handle>`).
+**Leave the network** hides the card at once and keeps the handle the account's for its return. The membership is part
+of the data export.
+
 ## Projects And Opportunities
 
 **Opportunities** (`/projects`) lists the workspace's opportunities and missions. Beyond the role, stage, description,
@@ -778,8 +789,9 @@ out forgets everything.
 - **Overview**: accounts, sign-ups of the last 30 days, disabled accounts and each feature's use.
 - **Accounts**: search by email or name; **Disable** signs an account out and refuses its sign-ins until **Enable**,
   keeping its data. An administrator cannot be disabled.
-- **Features**: turns the **Offer feed**, **Public profiles**, **Data import** or **Yearly review** off or on for every
-  account without a redeploy, within 30 seconds; a feature off leaves the menu and its API refuses requests.
+- **Features**: turns the **Offer feed**, **Public profiles**, **Data import**, **Yearly review** or **Member network**
+  off or on for every account without a redeploy, within 30 seconds; a feature off leaves the menu and its API refuses
+  requests. Each is on until turned off, but the member network, off until turned on.
 
 ## Internationalization
 

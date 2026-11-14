@@ -1,0 +1,43 @@
+<form [formGroup]="form" (ngSubmit)="save()" class="network-form" data-profile-network>
+  <p class="intro">{{ 'profile.network.intro' | translate }}</p>
+  @if (membership?.joined) {
+    <p class="status joined" data-network-joined>{{ 'profile.network.member' | translate: { handle: membership!.handle } }}</p>
+  } @else {
+    <p class="status">{{ 'profile.network.notMember' | translate }}</p>
+  }
+
+  <mat-form-field appearance="outline" class="handle-field">
+    <mat-label>{{ 'profile.network.handle' | translate }}</mat-label>
+    <span matTextPrefix class="prefix">&#64;</span>
+    <input matInput formControlName="handle" data-network-handle maxlength="30" autocomplete="off" spellcheck="false">
+    <mat-hint>{{ 'profile.network.handleHint' | translate }}</mat-hint>
+    @if (form.controls.handle.hasError('taken')) {
+      <mat-error>{{ 'profile.network.taken' | translate }}</mat-error>
+    } @else {
+      <mat-error>{{ 'profile.network.handleInvalid' | translate }}</mat-error>
+    }
+  </mat-form-field>
+
+  <fieldset formGroupName="fields" class="fields">
+    <legend>{{ 'profile.network.fieldsTitle' | translate }}</legend>
+    @for (field of fieldNames; track field) {
+      <mat-slide-toggle [formControlName]="field" [attr.data-network-field]="field">{{ 'profile.network.fields.' + field | translate }}</mat-slide-toggle>
+    }
+  </fieldset>
+
+  <div class="actions">
+    @if (membership?.joined) {
+      <button mat-stroked-button type="button" (click)="leave()" data-network-leave>{{ 'profile.network.leave' | translate }}</button>
+    }
+    <button mat-flat-button type="submit" [disabled]="isSaving" data-network-save>
+      {{ (membership?.joined ? 'common.save' : 'profile.network.join') | translate }}
+    </button>
+  </div>
+</form>
+
+@if (membership?.card; as card) {
+  <section class="preview" data-network-preview>
+    <h3>{{ 'profile.network.preview' | translate }}</h3>
+    <app-member-card [card]="card"></app-member-card>
+  </section>
+}

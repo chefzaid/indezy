@@ -1018,7 +1018,8 @@
       "account": "Account",
       "emails": "Emails",
       "publicPage": "Public profile",
-      "billing": "Billing"
+      "billing": "Billing",
+      "network": "Network"
     },
     "themes": {
       "light": "Light",
@@ -1381,6 +1382,34 @@
         "APPROVED": "Shown",
         "HIDDEN": "Hidden"
       }
+    },
+    "network": {
+      "intro": "Join the member network of freelancers on Indezy: members see your card, and soon follow you and read your posts. You choose what your card shows, and leaving hides it at once.",
+      "member": "You are a member, as @{{handle}}.",
+      "notMember": "You are not a member.",
+      "handle": "Handle",
+      "handleHint": "3 to 30 lower-case letters, digits or underscores, starting with a letter.",
+      "handleInvalid": "3 to 30 lower-case letters, digits or underscores, starting with a letter.",
+      "taken": "Another member holds this handle.",
+      "fieldsTitle": "Your card shows",
+      "fields": {
+        "photo": "Your photo",
+        "headline": "Your headline",
+        "stack": "Your skills",
+        "location": "Your city",
+        "availability": "Your availability",
+        "languages": "Your languages",
+        "remote": "That you work remotely"
+      },
+      "join": "Join the network",
+      "leave": "Leave the network",
+      "leaveConfirm": "Leave the network? Your card is hidden at once; your handle stays yours if you come back.",
+      "joined": "Welcome to the network",
+      "saved": "Your card is saved",
+      "left": "You left the network",
+      "preview": "Your card, as members see it",
+      "loadError": "Your membership could not be loaded",
+      "saveError": "Your membership could not be saved"
     }
   },
   "errors": {
@@ -2537,6 +2566,10 @@
       "YEARLY_REVIEW": {
         "name": "Yearly review",
         "description": "The year's summary of missions, revenue and days worked, and its PDF."
+      },
+      "SOCIAL_NETWORK": {
+        "name": "Member network",
+        "description": "Members follow each other, post and write to each other. Off until turned on."
       }
     },
     "featureOn": "Feature turned on",
@@ -3156,5 +3189,14 @@
     },
     "invoiceDeposit": "Invoice the deposit",
     "depositInvoiced": "Deposit invoice drafted: issue it, then invoice the balance once the work is done"
+  },
+  "network": {
+    "card": {
+      "remote": "Remote",
+      "availableNow": "Available now",
+      "availableFrom": "Available from {{date}}",
+      "stack": "Skills",
+      "languages": "Speaks {{languages}}"
+    }
   }
 }

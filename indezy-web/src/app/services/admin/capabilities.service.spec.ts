@@ -11,7 +11,7 @@ describe('CapabilitiesService', () => {
   const url = `${environment.apiUrl}/users/capabilities`;
   const adminWithoutOffers: Capabilities = {
     admin: true,
-    features: { OFFER_FEED: false, PUBLIC_PROFILES: true, DATA_IMPORT: true, YEARLY_REVIEW: true }
+    features: { OFFER_FEED: false, PUBLIC_PROFILES: true, DATA_IMPORT: true, YEARLY_REVIEW: true, SOCIAL_NETWORK: true }
   };
   let http: HttpTestingController;
   let service: CapabilitiesService;
@@ -24,7 +24,7 @@ describe('CapabilitiesService', () => {
 
   afterEach(() => http.verify());
 
-  it('turns every feature on and the admin console off before the first read', () => {
+  it('turns every feature on but the member network, and the admin console off, before the first read', () => {
     expect(service.snapshot()).toEqual(DEFAULT_CAPABILITIES);
   });
 

@@ -1,5 +1,5 @@
 /** Features an administrator can turn off without redeploying. */
-export type FeatureFlag = 'OFFER_FEED' | 'PUBLIC_PROFILES' | 'DATA_IMPORT' | 'YEARLY_REVIEW';
+export type FeatureFlag = 'OFFER_FEED' | 'PUBLIC_PROFILES' | 'DATA_IMPORT' | 'YEARLY_REVIEW' | 'SOCIAL_NETWORK';
 
 /** What the signed-in account may open. */
 export interface Capabilities {

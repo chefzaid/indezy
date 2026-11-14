@@ -1,0 +1,56 @@
+.network-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 560px;
+}
+
+.intro,
+.status {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.status.joined {
+  color: var(--app-chip-positive-text);
+  font-weight: 500;
+}
+
+.handle-field {
+  width: 100%;
+
+  .prefix {
+    color: var(--text-secondary);
+    margin-right: 2px;
+  }
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.preview {
+  margin-top: 24px;
+
+  h3 {
+    margin: 0 0 12px;
+    font-size: 1rem;
+  }
+}

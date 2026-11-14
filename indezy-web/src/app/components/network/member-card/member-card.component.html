@@ -1,0 +1,39 @@
+<article class="member-card" [attr.data-member-card]="card.handle">
+  <div class="identity">
+    @if (card.avatar) {
+      <img class="photo" [src]="card.avatar" alt="" width="56" height="56">
+    } @else {
+      <span class="photo initials" aria-hidden="true">{{ initials }}</span>
+    }
+    <div>
+      <h3 class="name">{{ card.firstName }} {{ card.lastName }}</h3>
+      <span class="handle">&#64;{{ card.handle }}</span>
+    </div>
+  </div>
+  @if (card.headline) {
+    <p class="headline">{{ card.headline }}</p>
+  }
+  <ul class="facts">
+    @if (card.city) {
+      <li><mat-icon aria-hidden="true">place</mat-icon>{{ card.city }}</li>
+    }
+    @if (card.remote) {
+      <li><mat-icon aria-hidden="true">home_work</mat-icon>{{ 'network.card.remote' | translate }}</li>
+    }
+    @if (card.availableNow) {
+      <li class="available"><mat-icon aria-hidden="true">event_available</mat-icon>{{ 'network.card.availableNow' | translate }}</li>
+    } @else if (card.availableFrom) {
+      <li><mat-icon aria-hidden="true">event</mat-icon>{{ 'network.card.availableFrom' | translate: { date: (card.availableFrom | date:'longDate') } }}</li>
+    }
+  </ul>
+  @if (card.stack.length) {
+    <ul class="tags" [attr.aria-label]="'network.card.stack' | translate">
+      @for (skill of card.stack; track skill) {
+        <li>{{ skill }}</li>
+      }
+    </ul>
+  }
+  @if (card.languages.length) {
+    <p class="languages">{{ 'network.card.languages' | translate: { languages: card.languages.join(', ') } }}</p>
+  }
+</article>

@@ -65,7 +65,7 @@ public class FeatureFlagService {
     private synchronized void read() {
         Map<FeatureFlag, Boolean> read = new EnumMap<>(FeatureFlag.class);
         for (FeatureFlag flag : FeatureFlag.values()) {
-            read.put(flag, true);
+            read.put(flag, flag.enabledByDefault());
         }
         states.findAll().forEach(state -> read.put(state.getFlag(), state.isEnabled()));
         snapshot = Map.copyOf(read);

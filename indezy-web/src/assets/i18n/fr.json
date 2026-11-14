@@ -1018,7 +1018,8 @@
       "account": "Compte",
       "emails": "E-mails",
       "publicPage": "Profil public",
-      "billing": "Facturation"
+      "billing": "Facturation",
+      "network": "Réseau"
     },
     "themes": {
       "light": "Clair",
@@ -1381,6 +1382,34 @@
         "APPROVED": "Affichée",
         "HIDDEN": "Masquée"
       }
+    },
+    "network": {
+      "intro": "Rejoignez le réseau des freelances d'Indezy : les membres voient votre carte, et bientôt vous suivent et lisent vos publications. Vous choisissez ce que montre votre carte, et la quitter la masque aussitôt.",
+      "member": "Vous êtes membre, sous @{{handle}}.",
+      "notMember": "Vous n'êtes pas membre.",
+      "handle": "Identifiant",
+      "handleHint": "3 à 30 lettres minuscules, chiffres ou tirets bas, commençant par une lettre.",
+      "handleInvalid": "3 à 30 lettres minuscules, chiffres ou tirets bas, commençant par une lettre.",
+      "taken": "Un autre membre a déjà cet identifiant.",
+      "fieldsTitle": "Votre carte montre",
+      "fields": {
+        "photo": "Votre photo",
+        "headline": "Votre titre",
+        "stack": "Vos compétences",
+        "location": "Votre ville",
+        "availability": "Votre disponibilité",
+        "languages": "Vos langues",
+        "remote": "Que vous travaillez à distance"
+      },
+      "join": "Rejoindre le réseau",
+      "leave": "Quitter le réseau",
+      "leaveConfirm": "Quitter le réseau ? Votre carte est masquée aussitôt ; votre identifiant reste le vôtre si vous revenez.",
+      "joined": "Bienvenue dans le réseau",
+      "saved": "Votre carte est enregistrée",
+      "left": "Vous avez quitté le réseau",
+      "preview": "Votre carte, telle que la voient les membres",
+      "loadError": "Votre adhésion n'a pas pu être chargée",
+      "saveError": "Votre adhésion n'a pas pu être enregistrée"
     }
   },
   "errors": {
@@ -2537,6 +2566,10 @@
       "YEARLY_REVIEW": {
         "name": "Bilan annuel",
         "description": "Le résumé de l'année : missions, chiffre d'affaires, jours travaillés, et son PDF."
+      },
+      "SOCIAL_NETWORK": {
+        "name": "Réseau des membres",
+        "description": "Les membres se suivent, publient et s'écrivent. Désactivé tant qu'il n'est pas activé."
       }
     },
     "featureOn": "Fonctionnalité activée",
@@ -3156,5 +3189,14 @@
     },
     "invoiceDeposit": "Facturer l'acompte",
     "depositInvoiced": "Facture d'acompte rédigée : émettez-la, puis facturez le solde une fois la prestation livrée"
+  },
+  "network": {
+    "card": {
+      "remote": "À distance",
+      "availableNow": "Disponible maintenant",
+      "availableFrom": "Disponible le {{date}}",
+      "stack": "Compétences",
+      "languages": "Parle {{languages}}"
+    }
   }
 }

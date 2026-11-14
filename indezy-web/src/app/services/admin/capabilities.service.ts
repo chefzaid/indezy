@@ -4,10 +4,13 @@ import { BehaviorSubject, Observable, catchError, map, of, take, tap } from 'rxj
 import { environment } from '../../../environments/environment';
 import { Capabilities, FeatureFlag } from '../../models';
 
-/** Every feature on and no admin console: what an account sees until its capabilities are read, or when they cannot be. */
+/**
+ * Every feature on but the member network, off until an administrator opens it, and no admin console: what an account
+ * sees until its capabilities are read, or when they cannot be.
+ */
 export const DEFAULT_CAPABILITIES: Capabilities = {
   admin: false,
-  features: { OFFER_FEED: true, PUBLIC_PROFILES: true, DATA_IMPORT: true, YEARLY_REVIEW: true }
+  features: { OFFER_FEED: true, PUBLIC_PROFILES: true, DATA_IMPORT: true, YEARLY_REVIEW: true, SOCIAL_NETWORK: false }
 };
 
 /** What the signed-in account may open: the admin console, and the features an administrator left on. */

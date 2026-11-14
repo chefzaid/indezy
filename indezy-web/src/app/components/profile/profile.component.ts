@@ -25,6 +25,7 @@ import { saveBlob } from '../../shared/utils/download-file';
 import { rejectedPasswordField } from './password-rejection';
 import { ProfileDataImportComponent } from './data-import/profile-data-import.component';
 import { ProfilePublicPageComponent } from './public-page/profile-public-page.component';
+import { ProfileNetworkComponent } from './network/profile-network.component';
 import { CapabilitiesService } from '../../services/admin/capabilities.service';
 import { ProfileSessionsComponent } from './sessions/profile-sessions.component';
 import { ProfileApiTokensComponent } from './api-tokens/profile-api-tokens.component';
@@ -37,7 +38,7 @@ import { DossierButtonComponent } from './dossier-button/dossier-button.componen
 @Component({
     selector: 'app-profile',
     imports: [DossierButtonComponent, PageHeaderComponent, 
-    ProfileDataImportComponent, ProfilePublicPageComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
+    ProfileDataImportComponent, ProfilePublicPageComponent, ProfileNetworkComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
     ProfileWebhooksComponent,
     ProfileNotificationsComponent, ProfileBillingComponent, ProfilePersonalInfoComponent,
     BlockedPublishersComponent, EmailTemplatesSettingsComponent, ReactiveFormsModule, FormsModule, TranslateModule,

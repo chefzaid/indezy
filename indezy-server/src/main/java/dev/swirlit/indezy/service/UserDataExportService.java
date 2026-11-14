@@ -46,6 +46,7 @@ public class UserDataExportService {
     private final BillingIdentityService billingIdentityService;
     private final InvoiceService invoiceService;
     private final QuoteService quoteService;
+    private final NetworkService networkService;
     private final PurchaseOrderService purchaseOrderService;
     private final ComplianceDocumentService complianceDocumentService;
     private final CompliancePackService compliancePackService;
@@ -62,6 +63,7 @@ public class UserDataExportService {
         Map<String, Object> export = new LinkedHashMap<>();
         export.put("profile", userService.getUserProfile(userId));
         export.put("publicProfile", publicProfileService.settings(userId));
+        export.put("networkMembership", networkService.membership(userId));
         // Employment status, notice period, reversion and tax rates: the workspace's own record.
         export.put("freelance", freelanceService.findById(freelanceId));
         export.put("billing", billingIdentityService.get(freelanceId));

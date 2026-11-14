@@ -273,6 +273,17 @@
           </div>
         </mat-tab>
         }
+        @if (capabilities.snapshot().features.SOCIAL_NETWORK) {
+        <mat-tab [label]="'profile.tabs.network' | translate">
+          <div class="tab-content">
+            <mat-card class="form-section">
+              <mat-card-content>
+                <app-profile-network></app-profile-network>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
+        }
         <mat-tab [label]="'profile.tabs.account' | translate">
           <div class="tab-content">
             <mat-card class="form-section">

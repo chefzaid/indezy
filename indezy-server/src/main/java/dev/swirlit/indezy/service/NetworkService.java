@@ -1,0 +1,161 @@
+package dev.swirlit.indezy.service;
+
+import dev.swirlit.indezy.constants.ErrorMessages;
+import dev.swirlit.indezy.dto.NetworkDtos;
+import dev.swirlit.indezy.exception.InvalidStateException;
+import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.Freelance;
+import dev.swirlit.indezy.model.NetworkMember;
+import dev.swirlit.indezy.model.User;
+import dev.swirlit.indezy.repository.FreelanceRepository;
+import dev.swirlit.indezy.repository.NetworkMemberRepository;
+import dev.swirlit.indezy.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.text.Normalizer;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
+
+/**
+ * The member network (see docs/features.md#member-network): joining is each account's choice, with a handle unique among
+ * members and a member card built from the profile, each field shown or hidden. Leaving hides the card at once; the
+ * handle stays the account's for its return. Only members see members.
+ */
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class NetworkService {
+
+    static final String NOT_FOUND = "No member with this handle";
+    /** Handles that would pass for Indezy itself, or for a page. */
+    static final Set<String> RESERVED = Set.of("admin", "administrator", "indezy", "support", "help", "moderator", "moderation",
+        "network", "settings", "system", "root", "null", "undefined", "me", "you", "team", "staff", "official");
+    private static final java.util.regex.Pattern HANDLE = java.util.regex.Pattern.compile(NetworkDtos.HANDLE);
+    private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
+    private static final NetworkDtos.Fields ALL_SHOWN = new NetworkDtos.Fields(true, true, true, true, true, true, false);
+
+    private final NetworkMemberRepository members;
+    private final UserRepository users;
+    private final FreelanceRepository freelances;
+    private final Clock clock;
+
+    @Transactional(readOnly = true)
+    public NetworkDtos.Membership membership(Long userId) {
+        User user = user(userId);
+        return members.findByUserId(userId).filter(NetworkMember::isActive).map(member -> membership(member, user))
+            .orElseGet(() -> new NetworkDtos.Membership(false, members.findByUserId(userId).map(NetworkMember::getHandle)
+                .orElseGet(() -> suggestion(user)), members.findByUserId(userId).map(NetworkService::fields).orElse(ALL_SHOWN), null));
+    }
+
+    /** Joins with the handle and the fields chosen, or changes them; a handle another member holds is refused. */
+    @Transactional
+    public NetworkDtos.Membership join(Long userId, NetworkDtos.Join request) {
+        User user = user(userId);
+        String handle = request.handle();
+        if (!available(userId, handle)) {
+            throw new InvalidStateException("The handle @" + handle + " is already taken");
+        }
+        NetworkMember member = members.findByUserId(userId).orElseGet(NetworkMember::new);
+        if (member.getId() == null || !member.isActive()) {
+            member.setJoinedAt(clock.instant());
+            log.info("Account {} joined the network", userId);
+        }
+        member.setUserId(userId);
+        member.setHandle(handle);
+        member.setActive(true);
+        NetworkDtos.Fields fields = request.fields();
+        member.setShowPhoto(fields.photo());
+        member.setShowHeadline(fields.headline());
+        member.setShowStack(fields.stack());
+        member.setShowLocation(fields.location());
+        member.setShowAvailability(fields.availability());
+        member.setShowLanguages(fields.languages());
+        member.setRemote(fields.remote());
+        return membership(members.save(member), user);
+    }
+
+    /** Leaves: the card is no longer shown to anyone. */
+    @Transactional
+    public void leave(Long userId) {
+        members.findByUserId(userId).filter(NetworkMember::isActive).ifPresent(member -> {
+            member.setActive(false);
+            log.info("Account {} left the network", userId);
+        });
+    }
+
+    /** Whether the account can take the handle: well formed, not reserved, and no other member's. */
+    @Transactional(readOnly = true)
+    public NetworkDtos.HandleAvailability availability(Long userId, String handle) {
+        String normalized = handle == null ? "" : handle.strip().toLowerCase(Locale.ROOT);
+        return new NetworkDtos.HandleAvailability(normalized, available(userId, normalized));
+    }
+
+    /** A member's card, for members only; a former member, like an unknown handle, is not found. */
+    @Transactional(readOnly = true)
+    public NetworkDtos.MemberCard card(Long viewerId, String handle) {
+        if (members.findByUserId(viewerId).filter(NetworkMember::isActive).isEmpty()) {
+            throw new InvalidStateException("Join the network to see its members");
+        }
+        NetworkMember member = members.findByHandle(handle.toLowerCase(Locale.ROOT)).filter(NetworkMember::isActive)
+            .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
+        User user = users.findById(member.getUserId()).filter(owner -> owner.getDeletedAt() == null)
+            .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
+        return card(member, user);
+    }
+
+    private boolean available(Long userId, String handle) {
+        return HANDLE.matcher(handle).matches() && !RESERVED.contains(handle) &&
+            members.findByHandle(handle).filter(holder -> !holder.getUserId().equals(userId)).isEmpty();
+    }
+
+    /** The first name as a handle, then with the last name's initial or a number until one is free. */
+    private String suggestion(User user) {
+        String first = plain(user.getFirstName());
+        String base = first.length() >= 3 && Character.isLetter(first.charAt(0)) ? first : "member" + first;
+        String last = plain(user.getLastName());
+        return Stream.concat(Stream.of(base, last.isEmpty() ? base : base + "_" + last.charAt(0)),
+                Stream.iterate(2, number -> number + 1).limit(98).map(number -> base + number))
+            .map(candidate -> candidate.length() > NetworkMember.HANDLE_MAX ? candidate.substring(0, NetworkMember.HANDLE_MAX) : candidate)
+            .filter(candidate -> available(user.getId(), candidate)).findFirst().orElse("member" + user.getId());
+    }
+
+    /** Lower-case letters and digits alone, accents dropped ({@code Léa-Marie} reads {@code leamarie}). */
+    private static String plain(String name) {
+        String stripped = Normalizer.normalize(name == null ? "" : name, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+        return stripped.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
+    }
+
+    private NetworkDtos.Membership membership(NetworkMember member, User user) {
+        return new NetworkDtos.Membership(true, member.getHandle(), fields(member), card(member, user));
+    }
+
+    private static NetworkDtos.Fields fields(NetworkMember member) {
+        return new NetworkDtos.Fields(member.isShowPhoto(), member.isShowHeadline(), member.isShowStack(), member.isShowLocation(),
+            member.isShowAvailability(), member.isShowLanguages(), member.isRemote());
+    }
+
+    private NetworkDtos.MemberCard card(NetworkMember member, User user) {
+        Optional<Freelance> freelance = freelances.findByEmail(user.getEmail());
+        LocalDate available = member.isShowAvailability() ? freelance.map(Freelance::getAvailabilityDate).orElse(null) : null;
+        String avatar = user.getAvatarImage() != null ? user.getAvatarImage() : PublicProfileService.webLink(user.getAvatar());
+        return new NetworkDtos.MemberCard(member.getHandle(), user.getFirstName(), user.getLastName(), member.isShowPhoto() ? avatar : null,
+            member.isShowHeadline() ? user.getPosition() : null, member.isShowStack() ? user.getSkills() : List.of(),
+            member.isShowLocation() ? user.getCity() : null, member.isRemote(), available,
+            available != null && !available.isAfter(LocalDate.now(clock.withZone(PARIS))),
+            member.isShowLanguages() ? user.getLanguages() : List.of());
+    }
+
+    private User user(Long userId) {
+        return users.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.USER_NOT_FOUND, userId)));
+    }
+}

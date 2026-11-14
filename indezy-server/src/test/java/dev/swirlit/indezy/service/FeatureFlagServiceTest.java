@@ -44,7 +44,7 @@ class FeatureFlagServiceTest {
     };
 
     @Test
-    void keepsEveryFeatureOnUntilTurnedOffAndReadsTheStatesEveryThirtySeconds() {
+    void keepsEachFeatureAtItsDefaultUntilSetAndReadsTheStatesEveryThirtySeconds() {
         FeatureFlagStateRepository states = mock(FeatureFlagStateRepository.class);
         List<FeatureFlagState> rows = new ArrayList<>();
         when(states.findAll()).thenReturn(rows);
@@ -55,7 +55,9 @@ class FeatureFlagServiceTest {
         });
         FeatureFlagService flags = new FeatureFlagService(states, clock);
 
-        assertThat(flags.all()).hasSize(FeatureFlag.values().length).allSatisfy((flag, enabled) -> assertThat(enabled).isTrue());
+        // Each feature is on until turned off, but the member network, off until turned on.
+        assertThat(flags.all()).hasSize(FeatureFlag.values().length)
+            .allSatisfy((flag, enabled) -> assertThat(enabled).isEqualTo(flag != FeatureFlag.SOCIAL_NETWORK));
         flags.set(FeatureFlag.DATA_IMPORT, false);
         assertThat(flags.isEnabled(FeatureFlag.DATA_IMPORT)).isFalse();
         verify(states, times(2)).findAll();
