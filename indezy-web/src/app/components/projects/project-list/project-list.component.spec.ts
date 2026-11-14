@@ -378,8 +378,13 @@ describe('ProjectListComponent', () => {
     element.querySelector<HTMLInputElement>('.select-page input')!.click();
     expect(component.selection.ids.sort()).toEqual([1, 2, 3]);
 
-    projectService.getByFreelanceId.and.returnValue(of(many(2)));
+    const reload = new Subject<ProjectDto[]>();
+    projectService.getByFreelanceId.and.returnValue(reload);
     fixture.debugElement.query(By.css('app-project-selection-bar')).triggerEventHandler('done');
+    fixture.detectChanges();
+    expect(component.isLoading).toBeFalse();
+    expect(element.querySelector('app-project-selection-bar')).not.toBeNull();
+    reload.next(many(2));
     expect(component.selection.ids.sort()).toEqual([1, 2]);
     fixture.debugElement.query(By.css('app-project-selection-bar')).triggerEventHandler('clear');
     fixture.detectChanges();

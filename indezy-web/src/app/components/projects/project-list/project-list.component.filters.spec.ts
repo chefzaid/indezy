@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { provideRouter } from '@angular/router';
+import { By } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
 import { EMPTY, of, throwError } from 'rxjs';
 import { FreelanceDto, ProjectDto, ProjectStatus } from '../../../models';
@@ -14,6 +15,7 @@ import { SeasonService } from '../../../services/season/season.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { KeyboardShortcutsService } from '../../../shared/shortcuts/keyboard-shortcuts.service';
 import { ProjectListComponent } from './project-list.component';
+import { ProjectAdvancedFiltersComponent } from './advanced-filters/project-advanced-filters.component';
 
 describe('ProjectListComponent filters, commute and reversion rate', () => {
   const missions: ProjectDto[] = [
@@ -59,6 +61,10 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
     fixture.componentInstance.filtersExpanded = true;
     fixture.detectChanges();
     return fixture;
+  }
+
+  function advancedFilters(fixture: ComponentFixture<ProjectListComponent>): ProjectAdvancedFiltersComponent {
+    return fixture.debugElement.query(By.directive(ProjectAdvancedFiltersComponent)).componentInstance;
   }
 
   function titles(fixture: ComponentFixture<ProjectListComponent>): string[] {
@@ -145,16 +151,17 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
     it('adds each technology once and removes it', () => {
       const fixture = create();
       const component = fixture.componentInstance;
+      const filters = advancedFilters(fixture);
 
-      component.addTechStack('Docker');
-      component.addTechStack('Angular');
-      component.addTechStack('Docker');
+      filters.addTechStack('Docker');
+      filters.addTechStack('Angular');
+      filters.addTechStack('Docker');
       expect(component.filterForm.value.selectedTechStack).toEqual(['Docker', 'Angular']);
       expect(titles(fixture)).toEqual(['Développeur Angular', 'Lead Python']);
       expect(text(fixture)).toContain('Docker');
 
-      component.removeTechStack('Docker');
-      component.removeTechStack('React');
+      filters.removeTechStack('Docker');
+      filters.removeTechStack('React');
       expect(component.filterForm.value.selectedTechStack).toEqual(['Angular']);
       expect(titles(fixture)).toEqual(['Développeur Angular']);
     });
@@ -162,11 +169,12 @@ describe('ProjectListComponent filters, commute and reversion rate', () => {
     it('treats a missing technology selection as none', () => {
       const fixture = create();
       const component = fixture.componentInstance;
+      const filters = advancedFilters(fixture);
       component.filterForm.get('selectedTechStack')!.setValue(null);
 
-      component.removeTechStack('Java');
+      filters.removeTechStack('Java');
       expect(component.filterForm.value.selectedTechStack).toBeNull();
-      component.addTechStack('Java');
+      filters.addTechStack('Java');
       expect(component.filterForm.value.selectedTechStack).toEqual(['Java']);
     });
   });

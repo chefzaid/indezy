@@ -35,15 +35,18 @@ for (const { language, width, theme } of [{ language: 'en', width: 1280, theme: 
   });
 }
 
-test('shows no commute for a remote opportunity', async ({ page }) => {
+test('shows a remote opportunity\'s trips without a month on site', async ({ page }) => {
   await mockWorkspaceSession(page, 'en');
   await mockWorkspaceData(page, 'en');
   await page.route('**/api/commute/project/42', route => route.fulfill({ json: [
     { ...trip, travelMode: 'DRIVING', remote: true, onsiteDaysPerMonth: 0, monthlySeconds: 0 },
     { ...trip, travelMode: 'TRANSIT', remote: true, onsiteDaysPerMonth: 0, monthlySeconds: 0 }] }));
   await page.goto('/projects/42');
-  await expect(page.locator('[data-payment-delay], .header-card').first()).toBeVisible();
-  await expect(page.locator('[data-project-commute]')).toHaveCount(0);
+  const card = page.locator('[data-project-commute]');
+  await expect(card.locator('[data-commute-remote]')).toBeVisible();
+  await expect(card.locator('[data-commute-mode]')).toHaveCount(2);
+  await expect(card.locator('.month')).toHaveCount(0);
+  await expect(card.locator('[data-effective-rate]')).toHaveCount(0);
 });
 
 test('chips each Kanban card with its drive at rush hour', async ({ page }) => {
@@ -56,7 +59,7 @@ test('chips each Kanban card with its drive at rush hour', async ({ page }) => {
   await page.getByRole('radio', { name: /Kanban/ }).click();
   const chip = page.locator('[data-card-commute]');
   await expect(chip).toHaveCount(1);
-  await expect(chip).toContainText('≈ 1 h 45');
+  await expect(chip).toContainText('≈ 50 min – 1 h 45');
   await expect(chip).toHaveClass(/beyond/);
   await expect(chip).toContainText('longer than your longest commute');
   const audit = await new AxeBuilder({ page }).include('app-kanban-board').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -117,6 +120,7 @@ test('records where a mission is worked and shows it on its page', async ({ page
   await page.route('**/api/projects/42', async route => {
     if (route.request().method() === 'PUT') {
       mission = { ...mission, ...route.request().postDataJSON() };
+      mission['place'] = mission['workAddress'];
     }
     return route.fulfill({ json: mission });
   });
@@ -124,5 +128,5 @@ test('records where a mission is worked and shows it on its page', async ({ page
   await page.locator('[data-work-address]').fill('Tour First, La Défense');
   await page.locator('.form-actions button[color="primary"]').click();
   await expect.poll(() => mission['workAddress']).toBe('Tour First, La Défense');
-  await expect(page.locator('.info-item[data-work-address]')).toContainText('Tour First, La Défense');
+  await expect(page.locator('.info-item[data-place]')).toContainText('Tour First, La Défense');
 });

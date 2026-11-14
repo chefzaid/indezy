@@ -37,46 +37,15 @@ import {
   sortProjects
 } from '../../../services/project/project-filter.util';
 import { ProjectDto, User, FreelanceDto, ProjectStatus, PROJECT_STATUS_COLORS, DEFAULT_DAYS_PER_YEAR } from '../../../models';
-import { TravelMode, ProjectCommuteDto, CommuteInfoDto, CommuteUnavailable } from '../../../models/commute.models';
+import { TravelMode, CommuteInfoDto } from '../../../models/commute.models';
 import { KeyboardShortcutsService } from '../../../shared/shortcuts/keyboard-shortcuts.service';
 import { saveBlob } from '../../../shared/utils/download-file';
 import { IdSelection } from '../../../shared/utils/id-selection';
 import { filtersFromParams, filtersToParams } from '../../../services/project/project-filter-url';
 import { ProjectSelectionBarComponent } from '../../project-selection-bar/project-selection-bar.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { commuteDistance, commuteRange } from '../../../shared/utils/trip-time';
-
-/** What an opportunity's card shows of its commute: the distance and both ways' trips, or why there is none. */
-export interface CardCommute {
-  distance: string | null;
-  car: string | null;
-  transit: string | null;
-  estimated: boolean;
-  unavailable: CommuteUnavailable | null;
-}
-
-function byProject(results: ProjectCommuteDto[]): Map<number, CommuteInfoDto> {
-  return new Map(results.filter(result => result.commute && result.project.id)
-    .map(result => [result.project.id!, result.commute!] as const));
-}
-
-/** Each opportunity's card commute from its trips by car and by public transport. */
-function cardCommutes(car: Map<number, CommuteInfoDto>, transit: Map<number, CommuteInfoDto>): Map<number, CardCommute> {
-  const cards = new Map<number, CardCommute>();
-  for (const id of new Set([...car.keys(), ...transit.keys()])) {
-    const byCar = car.get(id);
-    const byTransit = transit.get(id);
-    const known = [byCar, byTransit].filter(trip => commuteRange(trip) !== null);
-    cards.set(id, {
-      distance: commuteDistance(byCar) ?? commuteDistance(byTransit),
-      car: commuteRange(byCar),
-      transit: commuteRange(byTransit),
-      estimated: known.some(trip => trip!.estimated),
-      unavailable: known.length > 0 ? null : (byCar?.unavailable ?? byTransit?.unavailable ?? 'LOOKUP_FAILED')
-    });
-  }
-  return cards;
-}
+import { CardCommute, byProject, cardCommutes } from './project-list-commutes';
+import { ProjectAdvancedFiltersComponent } from './advanced-filters/project-advanced-filters.component';
 
 @Component({
     selector: 'app-project-list',
@@ -101,7 +70,8 @@ function cardCommutes(car: Map<number, CommuteInfoDto>, transit: Map<number, Com
         MatTooltipModule,
         MatPaginatorModule,
         TranslateModule,
-        ProjectSelectionBarComponent
+        ProjectSelectionBarComponent,
+        ProjectAdvancedFiltersComponent
     ],
     templateUrl: './project-list.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -168,10 +138,6 @@ export class ProjectListComponent implements OnInit {
     { value: '12+', labelKey: 'projects.durations.12+' }
   ];
 
-  techStackOptions = [
-    'Angular', 'React', 'Vue.js', 'Node.js', 'Python', 'Java', 'C#', 'PHP',
-    'PostgreSQL', 'MongoDB', 'MySQL', 'Docker', 'Kubernetes', 'AWS', 'Azure'
-  ];
 
   sortOptions = [
     { value: 'startDate', labelKey: 'projects.startDate' },
@@ -239,12 +205,13 @@ export class ProjectListComponent implements OnInit {
     this.loadFreelanceProfile();
   }
 
-  loadProjects(): void {
+  /** Loads the opportunities; quietly after a bulk action, so the list and its selection bar stay in place meanwhile. */
+  loadProjects(quiet = false): void {
     if (!this.currentUser?.id) {
       return;
     }
 
-    this.isLoading = true;
+    this.isLoading = !quiet;
     this.projectService.getByFreelanceId(this.currentUser.id).subscribe({
       next: (projects) => {
         this.projects = projects;
@@ -317,20 +284,6 @@ export class ProjectListComponent implements OnInit {
 
   toggleFilters(): void {
     this.filtersExpanded = !this.filtersExpanded;
-  }
-
-  addTechStack(tech: string): void {
-    const selectedTechStack: string[] = this.filterForm.get('selectedTechStack')?.value || [];
-    if (!selectedTechStack.includes(tech)) {
-      this.filterForm.get('selectedTechStack')?.setValue([...selectedTechStack, tech]);
-    }
-  }
-
-  removeTechStack(tech: string): void {
-    const selectedTechStack: string[] = this.filterForm.get('selectedTechStack')?.value || [];
-    if (selectedTechStack.includes(tech)) {
-      this.filterForm.get('selectedTechStack')?.setValue(selectedTechStack.filter(t => t !== tech));
-    }
   }
 
   getFilterCount(): number {

@@ -168,106 +168,7 @@
           }
         </div>
 
-        <!-- Advanced Filters -->
-        <mat-expansion-panel class="advanced-filters">
-          <mat-expansion-panel-header>
-            <mat-panel-title>{{ 'common.advancedFilters' | translate }}</mat-panel-title>
-          </mat-expansion-panel-header>
-
-          <div class="advanced-filter-content">
-            <!-- Date Filters -->
-            <div class="filter-group">
-              <h4>{{ 'projects.dates' | translate }}</h4>
-              <div class="filter-row">
-                <mat-form-field appearance="outline" class="filter-field">
-                  <mat-label>{{ 'projects.startAfter' | translate }}</mat-label>
-                  <input aria-label="{{ 'projects.startAfter' | translate }}" matInput [matDatepicker]="startFromPicker" formControlName="startDateFrom">
-                  <mat-datepicker-toggle matIconSuffix [for]="startFromPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #startFromPicker></mat-datepicker>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="filter-field">
-                  <mat-label>{{ 'projects.startBefore' | translate }}</mat-label>
-                  <input aria-label="{{ 'projects.startBefore' | translate }}" matInput [matDatepicker]="startToPicker" formControlName="startDateTo">
-                  <mat-datepicker-toggle matIconSuffix [for]="startToPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #startToPicker></mat-datepicker>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="filter-field">
-                  <mat-label>{{ 'projects.endAfter' | translate }}</mat-label>
-                  <input aria-label="{{ 'projects.endAfter' | translate }}" matInput [matDatepicker]="endFromPicker" formControlName="endDateFrom">
-                  <mat-datepicker-toggle matIconSuffix [for]="endFromPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #endFromPicker></mat-datepicker>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="filter-field">
-                  <mat-label>{{ 'projects.endBefore' | translate }}</mat-label>
-                  <input aria-label="{{ 'projects.endBefore' | translate }}" matInput [matDatepicker]="endToPicker" formControlName="endDateTo">
-                  <mat-datepicker-toggle matIconSuffix [for]="endToPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #endToPicker></mat-datepicker>
-                </mat-form-field>
-              </div>
-            </div>
-
-            <mat-divider></mat-divider>
-
-            <!-- Location and Client Filters -->
-            <div class="filter-group">
-              <h4>{{ 'projects.client' | translate }}</h4>
-              <div class="filter-row">
-                <mat-form-field appearance="outline" class="filter-field">
-                  <mat-label>{{ 'projects.client' | translate }}</mat-label>
-                  <input aria-label="{{ 'projects.client' | translate }}" matInput formControlName="client" [placeholder]="'projects.clientPlaceholder' | translate">
-                  <mat-icon matPrefix>business</mat-icon>
-                </mat-form-field>
-
-              </div>
-            </div>
-
-            <mat-divider></mat-divider>
-
-            <!-- Technology Stack Filter -->
-            <div class="filter-group">
-              <h4>{{ 'projects.technologies' | translate }}</h4>
-              <div class="tech-stack-section">
-                @if (filterForm.get('selectedTechStack')?.value?.length > 0) {
-                  <div class="selected-tech-chips">
-                    <mat-chip-set>
-                      @for (tech of filterForm.get('selectedTechStack')?.value; track tech) {
-                        <mat-chip
-                          (removed)="removeTechStack(tech)">
-                          {{ tech }}
-                          <button matChipRemove [attr.aria-label]="'common.removeItem' | translate:{ item: tech }">
-                            <mat-icon>cancel</mat-icon>
-                          </button>
-                        </mat-chip>
-                      }
-                    </mat-chip-set>
-                  </div>
-                }
-
-                <mat-form-field appearance="outline" class="tech-select-field">
-                  <mat-label>{{ 'projects.addTechnology' | translate }}</mat-label>
-                  <mat-select (selectionChange)="addTechStack($event.value); $event.source.value = ''">
-                    @for (tech of techStackOptions; track tech) {
-                      <mat-option
-                        [value]="tech"
-                        [disabled]="filterForm.get('selectedTechStack')?.value?.includes(tech)">
-                        {{ tech }}
-                      </mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="filter-field">
-                  <mat-label>{{ 'projects.freeSearch' | translate }}</mat-label>
-                  <input aria-label="{{ 'projects.freeSearch' | translate }}" matInput formControlName="techStack" [placeholder]="'projects.freeSearchPlaceholder' | translate">
-                  <mat-icon matPrefix>code</mat-icon>
-                </mat-form-field>
-              </div>
-            </div>
-          </div>
-        </mat-expansion-panel>
+        <app-project-advanced-filters [form]="filterForm"></app-project-advanced-filters>
       </form>
     </mat-card-content>
     }
@@ -317,7 +218,7 @@
   <!-- Projects Grid -->
   @if (!isLoading && filteredProjects.length > 0) {
     @if (selection.size > 0) {
-      <app-project-selection-bar [projectIds]="selection.ids" (done)="loadProjects()" (clear)="selection.clear()">
+      <app-project-selection-bar [projectIds]="selection.ids" (done)="loadProjects(true)" (clear)="selection.clear()">
       </app-project-selection-bar>
     }
     <div class="results-summary">
