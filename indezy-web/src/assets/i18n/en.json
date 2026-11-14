@@ -1326,7 +1326,19 @@
     "kmRateError": "Enter an amount from 0 to 5 €, with at most two decimals, or leave blank.",
     "transitPassMonthly": "Monthly transport pass",
     "transitPassHint": "Optional. A Navigo or similar, spread over the days on site of a mission.",
-    "transitPassError": "Enter an amount from 0 to 1,000 €, with at most two decimals, or leave blank."
+    "transitPassError": "Enter an amount from 0 to 1,000 €, with at most two decimals, or leave blank.",
+    "dossier": {
+      "download": "Dossier de compétences",
+      "error": "The dossier could not be made.",
+      "NAMED": {
+        "FR": "In French, named",
+        "EN": "In English, named"
+      },
+      "ANONYMOUS": {
+        "FR": "In French, anonymized",
+        "EN": "In English, anonymized"
+      }
+    }
   },
   "errors": {
     "notFoundTitle": "404 - Page not found",

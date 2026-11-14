@@ -32,10 +32,11 @@ import { ProfileWebhooksComponent } from './webhooks/profile-webhooks.component'
 import { ProfileNotificationsComponent } from './notifications/profile-notifications.component';
 import { ProfileBillingComponent } from './billing/profile-billing.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { DossierButtonComponent } from './dossier-button/dossier-button.component';
 
 @Component({
     selector: 'app-profile',
-    imports: [PageHeaderComponent, 
+    imports: [DossierButtonComponent, PageHeaderComponent, 
     ProfileDataImportComponent, ProfilePublicPageComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
     ProfileWebhooksComponent,
     ProfileNotificationsComponent, ProfileBillingComponent, ProfilePersonalInfoComponent,

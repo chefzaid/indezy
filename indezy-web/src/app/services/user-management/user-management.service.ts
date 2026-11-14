@@ -84,6 +84,11 @@ export class UserManagementService {
     return this.http.post<boolean>(`${this.API_URL}/security/2fa/disable`, { code });
   }
 
+  /** The dossier de compétences as a PDF: named or anonymized, in French or English. */
+  downloadDossier(layout: 'NAMED' | 'ANONYMOUS', language: 'FR' | 'EN'): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/dossier`, { params: { layout, language }, responseType: 'blob' });
+  }
+
   exportUserData(): Observable<Blob> {
     return this.http.get(`${this.API_URL}/export`, { responseType: 'blob' });
   }

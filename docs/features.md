@@ -135,6 +135,15 @@ says when a spelling is already listed, suggests skills from aliases and offers 
 level and years); the profile match counts a skill once; the dashboard's skills in demand, the yearly review, the bulk
 **Add a tag** and tag renaming fold spellings together. The opportunities list's technology filter still compares text.
 
+### Dossier de Compétences
+
+**Dossier de compétences** on the Profile page downloads the profile as an A4 PDF, in French or English, named or
+anonymized: the name and title, the city and (named only) the email, phone, LinkedIn and website; the presentation as a
+summary; the skills with their level and years; the languages; the training record's valid certifications; then the
+won missions, the latest first, with their period ("depuis mars 2026" while one runs), their client (in the anonymized
+dossier "Client communiqué sur demande", and initials instead of the name), the description cut at 600 characters and
+the tech stack. Nothing in it is written by AI (`GET /api/users/dossier?layout=NAMED|ANONYMOUS&language=FR|EN`).
+
 ### Public Profile
 
 **Profile → Public profile** publishes, once turned on, a page at `/p/<address>` that anyone with the link can read:

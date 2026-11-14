@@ -1326,7 +1326,19 @@
     "kmRateError": "Saisissez un montant de 0 à 5 €, avec au plus deux décimales, ou laissez vide.",
     "transitPassMonthly": "Abonnement de transport mensuel",
     "transitPassHint": "Facultatif. Un Navigo ou équivalent, réparti sur les jours sur site d'une mission.",
-    "transitPassError": "Saisissez un montant de 0 à 1 000 €, avec au plus deux décimales, ou laissez vide."
+    "transitPassError": "Saisissez un montant de 0 à 1 000 €, avec au plus deux décimales, ou laissez vide.",
+    "dossier": {
+      "download": "Dossier de compétences",
+      "error": "Le dossier n'a pas pu être créé.",
+      "NAMED": {
+        "FR": "En français, nominatif",
+        "EN": "En anglais, nominatif"
+      },
+      "ANONYMOUS": {
+        "FR": "En français, anonymisé",
+        "EN": "En anglais, anonymisé"
+      }
+    }
   },
   "errors": {
     "notFoundTitle": "404 - Page non trouvée",
