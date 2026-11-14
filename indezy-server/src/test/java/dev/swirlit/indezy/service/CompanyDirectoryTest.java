@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CompanyDirectoryTest {
 
@@ -96,5 +97,27 @@ class CompanyDirectoryTest {
         assertThat(CompanyDirectory.street(null, "75001", "PARIS")).isNull();
         assertThat(CompanyDirectory.street("75001 PARIS", "75001", "PARIS")).isNull();
         assertThat(CompanyDirectory.street("3 rue X", null, null)).isEqualTo("3 rue X");
+    }
+
+    @Test
+    void readsWhoTheRegistryNamesForAnEstablishmentAfresh() {
+        answer = """
+            {"results": [{"siren": "552100554", "nom_complet": "ALICE TEST", "nature_juridique": "1000", "etat_administratif": "A",
+              "dirigeants": [{"nom": "MARTIN", "prenoms": "Paul", "type_dirigeant": "personne physique"},
+                             {"siren": "123456789", "nom": "HOLDING", "type_dirigeant": "personne morale"}],
+              "matching_etablissements": [{"siret": "55210055400012", "etat_administratif": "A"},
+                                          {"siret": "55210055400020", "etat_administratif": "F"}]}]}""";
+        assertThat(directory.registration("55210055400012")).contains(
+            new CompanyDirectory.Registration("552100554", true, true, List.of("Paul MARTIN", "ALICE TEST")));
+        assertThat(directory.registration("55210055400020")).hasValueSatisfying(found -> assertThat(found.establishmentActive()).isFalse());
+        assertThat(queries).last().isEqualTo("per_page=1&q=55210055400020");
+        assertThat(directory.registration("73282932000074")).isEmpty();
+        assertThat(directory.registration("not a siret")).isEmpty();
+        assertThat(directory.registration(null)).isEmpty();
+
+        status = 503;
+        assertThatThrownBy(() -> directory.registration("55210055400012")).isInstanceOf(CompanyDirectory.UnavailableException.class);
+        server.stop(0);
+        assertThatThrownBy(() -> directory.registration("55210055400012")).isInstanceOf(CompanyDirectory.UnavailableException.class);
     }
 }

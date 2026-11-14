@@ -4,6 +4,7 @@ import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.model.BillingIdentity;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.Project;
@@ -16,8 +17,10 @@ import dev.swirlit.indezy.repository.ProjectRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.text.Normalizer;
 import java.time.Clock;
@@ -54,6 +57,7 @@ public class NetworkService {
     private final UserRepository users;
     private final FreelanceRepository freelances;
     private final ProjectRepository projects;
+    private final CompanyDirectory directory;
     private final Clock clock;
 
     @Transactional(readOnly = true)
@@ -179,7 +183,48 @@ public class NetworkService {
         return new NetworkDtos.MemberCard(member.getHandle(), user.getFirstName(), user.getLastName(), member.isShowPhoto() ? avatar : null,
             member.isShowHeadline() ? user.getPosition() : null, member.isShowStack() ? user.getSkills() : List.of(),
             member.isShowLocation() ? user.getCity() : null, member.isRemote(), shown == null ? null : shown.mode(),
-            shown == null ? null : shown.date(), member.isShowLanguages() ? user.getLanguages() : List.of());
+            shown == null ? null : shown.date(), member.isShowLanguages() ? user.getLanguages() : List.of(),
+            member.getVerifiedSiret() != null && member.getVerifiedSiret().equals(siret(user).orElse(null)));
+    }
+
+    /** The SIRET of the account's billing identity, if it set one. */
+    Optional<String> siret(User user) {
+        return freelances.findByEmail(user.getEmail()).map(Freelance::getBilling).map(BillingIdentity::getSiret);
+    }
+
+    /**
+     * Verifies the member against the public registry: their billing SIRET must be an active establishment whose legal
+     * unit names them (the entrepreneur of an EI, an executive of a company), first and last name, accents and case aside.
+     */
+    @Transactional
+    public NetworkDtos.Membership verify(Long userId) {
+        NetworkMember member = requireMember(userId);
+        User user = user(userId);
+        String siret = siret(user).orElseThrow(() -> new InvalidStateException("Add your SIRET in Profile → Billing to be verified"));
+        CompanyDirectory.Registration registration;
+        try {
+            registration = directory.registration(siret)
+                .filter(found -> found.active() && found.establishmentActive())
+                .orElseThrow(() -> new InvalidStateException("The registry has no active establishment with this SIRET"));
+        } catch (CompanyDirectory.UnavailableException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage(), e);
+        }
+        String first = upper(user.getFirstName());
+        String last = upper(user.getLastName());
+        if (last.isEmpty() || registration.people().stream().map(NetworkService::upper)
+                .noneMatch(person -> person.contains(last) && (first.isEmpty() || person.contains(first)))) {
+            throw new InvalidStateException("The registry names someone else for this SIRET");
+        }
+        member.setVerifiedSiret(siret);
+        member.setVerifiedAt(clock.instant());
+        log.info("Account {} verified its SIRET for the network", userId);
+        return membership(member, user);
+    }
+
+    /** Upper-case letters and single spaces, accents dropped, to compare names as the registry writes them. */
+    private static String upper(String name) {
+        String stripped = Normalizer.normalize(name == null ? "" : name, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+        return stripped.toUpperCase(Locale.ROOT).replaceAll("[^A-Z]+", " ").strip();
     }
 
     /**

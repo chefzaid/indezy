@@ -26,7 +26,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
         membership = { joined: true, handle: body.handle, fields: body.fields, availability: body.availability, card: { handle: body.handle,
           firstName: 'Camille', lastName: 'Durand', avatar: null, headline: 'Architecte Java', stack: ['Java', 'Kafka'],
           city: body.fields.location ? 'Lyon' : null, remote: body.fields.remote, availability: body.availability.mode,
-          availabilityDate: body.availability.date, languages: [] } };
+          availabilityDate: body.availability.date, languages: [], verified: false } };
       } else if (method === 'DELETE') {
         calls.push('leave');
         membership = { ...membership, joined: false, card: null };
@@ -89,7 +89,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await mockWorkspaceSession(page, language);
     await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
     const leo = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: 'Data engineer', stack: ['Kafka', 'Spark'],
-      city: 'Nantes', remote: true, availability: 'AVAILABLE', availabilityDate: '2026-12-02', languages: ['Français'] };
+      city: 'Nantes', remote: true, availability: 'AVAILABLE', availabilityDate: '2026-12-02', languages: ['Français'], verified: true };
     let memberPage = { card: leo, followers: 4, following: 2, sharedSkills: ['Kafka'], followed: false, followsYou: true, own: false };
     await page.route('**/api/network/members/leo_m/page', route => route.fulfill({ json: memberPage }));
     await page.route('**/api/network/members/leo_m/follow', route => {
@@ -103,6 +103,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const card = page.locator('[data-member-card="leo_m"]');
     await expect(card).toContainText('Léo Martin');
     await expect(card).toContainText('@leo_m');
+    await expect(card.locator('[data-card-verified]')).toBeVisible();
     await expect(page.locator('[data-follows-you]')).toBeVisible();
     await expect(page.locator('[data-shared-skills]')).toContainText('Kafka');
     await page.locator('[data-follow]').click();

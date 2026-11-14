@@ -1419,7 +1419,17 @@
         "LISTENING": "À l'écoute"
       },
       "availableFrom": "À partir du",
-      "onMissionUntil": "Jusqu'au"
+      "onMissionUntil": "Jusqu'au",
+      "verifyIntro": "Montrez aux membres que vous êtes indépendant : le registre public des entreprises (INSEE Sirene) confirme que votre SIRET de facturation est une activité en cours à votre nom.",
+      "verify": "Vérifier avec mon SIRET",
+      "verified": "Freelance vérifié : le registre vous nomme pour votre SIRET.",
+      "verifiedDone": "Vous êtes vérifié",
+      "verifyErrors": {
+        "noSiret": "Ajoutez d'abord votre SIRET dans Profil → Facturation.",
+        "notActive": "Le registre n'a aucun établissement actif avec ce SIRET.",
+        "someoneElse": "Le registre nomme quelqu'un d'autre pour ce SIRET.",
+        "unavailable": "Le registre des entreprises n'a pas pu être consulté. Réessayez plus tard."
+      }
     }
   },
   "errors": {
@@ -3209,7 +3219,8 @@
       "languages": "Parle {{languages}}",
       "onMission": "En mission",
       "onMissionUntil": "En mission jusqu'en {{date}}",
-      "listening": "À l'écoute"
+      "listening": "À l'écoute",
+      "verified": "Freelance vérifié : le registre public des entreprises nomme ce membre pour son SIRET"
     },
     "page": {
       "notMember": "Rejoignez le réseau pour voir ses membres.",

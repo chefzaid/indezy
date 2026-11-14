@@ -51,8 +51,18 @@
 }
 
 .name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   margin: 0;
   font-size: 1rem;
+
+  .verified {
+    width: 18px;
+    height: 18px;
+    color: var(--mat-sys-primary);
+    font-size: 18px;
+  }
 }
 
 .handle,

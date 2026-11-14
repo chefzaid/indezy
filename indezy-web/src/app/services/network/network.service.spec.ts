@@ -15,6 +15,8 @@ describe('NetworkService', () => {
     service.join('camille', fields, availability).subscribe();
     expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/membership')).request.body)
       .toEqual({ handle: 'camille', fields, availability });
+    service.verify().subscribe();
+    http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/membership/verification'));
     service.leave().subscribe();
     http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/membership'));
     service.handle('cam ille').subscribe();

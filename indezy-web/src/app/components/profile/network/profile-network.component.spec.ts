@@ -18,13 +18,14 @@ describe('ProfileNetworkComponent', () => {
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
   const fields = { photo: true, headline: true, stack: true, location: true, availability: true, languages: true, remote: false };
   const card: MemberCard = { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null, headline: 'Architecte Java',
-    stack: ['Java', 'Kafka'], city: 'Lyon', remote: true, availability: 'AVAILABLE', availabilityDate: '2026-12-02', languages: ['Français'] };
+    stack: ['Java', 'Kafka'], city: 'Lyon', remote: true, availability: 'AVAILABLE', availabilityDate: '2026-12-02', languages: ['Français'],
+    verified: false };
   const auto = { mode: 'AUTO' as const, date: null };
   const outside: NetworkMembership = { joined: false, handle: 'camille', fields, availability: auto, card: null };
   const member: NetworkMembership = { joined: true, handle: 'camille', fields, availability: auto, card };
 
   function create(membership = of(outside)): ComponentFixture<ProfileNetworkComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['membership', 'join', 'leave', 'handle']);
+    network = jasmine.createSpyObj('NetworkService', ['membership', 'join', 'leave', 'handle', 'verify']);
     network.membership.and.returnValue(membership);
     network.handle.and.returnValue(of({ handle: 'x', available: true }));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -101,6 +102,32 @@ describe('ProfileNetworkComponent', () => {
     component.save();
     expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');
   }));
+
+  it('verifies the member with the registry, saying why it does not', () => {
+    const fixture = create(of(member));
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-network-verify]')).not.toBeNull();
+    const refusal = (status: number, message?: string) => throwError(() => new HttpErrorResponse({ status, error: { message } }));
+    const cases: [number, string | undefined, string][] = [
+      [409, 'Add your SIRET in Profile → Billing to be verified', 'profile.network.verifyErrors.noSiret'],
+      [409, 'The registry has no active establishment with this SIRET', 'profile.network.verifyErrors.notActive'],
+      [409, 'The registry names someone else for this SIRET', 'profile.network.verifyErrors.someoneElse'],
+      [503, undefined, 'profile.network.verifyErrors.unavailable'],
+      [409, 'Something else', 'profile.network.saveError']
+    ];
+    for (const [status, message, key] of cases) {
+      network.verify.and.returnValue(refusal(status, message));
+      component.verify();
+      expect(notifications.error).toHaveBeenCalledWith(key);
+    }
+    network.verify.and.returnValue(of({ ...member, card: { ...card, verified: true } }));
+    component.verify();
+    fixture.detectChanges();
+    expect(notifications.success).toHaveBeenCalledWith('profile.network.verifiedDone');
+    expect(element.querySelector('[data-network-verify]')).toBeNull();
+    expect(element.querySelector('[data-card-verified]')).not.toBeNull();
+  });
 
   it('leaves once confirmed, keeping the handle, and says when the membership cannot be read', () => {
     let fixture = create(of(member));

@@ -8,7 +8,13 @@
       }
     </span>
     <div>
-      <h3 class="name">{{ card.firstName }} {{ card.lastName }}</h3>
+      <h3 class="name">
+        {{ card.firstName }} {{ card.lastName }}
+        @if (card.verified) {
+          <mat-icon class="verified" data-card-verified [attr.aria-label]="'network.card.verified' | translate"
+            [title]="'network.card.verified' | translate">verified</mat-icon>
+        }
+      </h3>
       <span class="handle">&#64;{{ card.handle }}</span>
     </div>
   </div>

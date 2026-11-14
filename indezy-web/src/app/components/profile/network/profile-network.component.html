@@ -45,6 +45,19 @@
     }
   </div>
 
+  @if (membership?.joined) {
+    <div class="verification" data-network-verification>
+      @if (membership!.card?.verified) {
+        <p class="verified"><mat-icon aria-hidden="true">verified</mat-icon>{{ 'profile.network.verified' | translate }}</p>
+      } @else {
+        <p>{{ 'profile.network.verifyIntro' | translate }}</p>
+        <button mat-stroked-button type="button" (click)="verify()" [disabled]="isVerifying" data-network-verify>
+          {{ 'profile.network.verify' | translate }}
+        </button>
+      }
+    </div>
+  }
+
   <div class="actions">
     @if (membership?.joined) {
       <button mat-stroked-button type="button" (click)="leave()" data-network-leave>{{ 'profile.network.leave' | translate }}</button>

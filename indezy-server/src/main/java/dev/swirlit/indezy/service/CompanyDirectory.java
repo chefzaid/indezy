@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Looks companies up by name or SIREN in the French public directory, {@code recherche-entreprises.api.gouv.fr}, free and
@@ -110,6 +111,79 @@ public class CompanyDirectory {
             street(Json.text(office.path("adresse")), postalCode, city), postalCode, city,
             Json.text(result.path("activite_principale")), natureCode == null ? null : LEGAL_FORMS.getOrDefault(natureCode, natureCode),
             vatNumber(siren), "C".equals(Json.text(result.path("etat_administratif"))));
+    }
+
+    /**
+     * Who the registry names for an establishment: whether its legal unit and the establishment itself are active, and
+     * the people it names (the entrepreneur of an EI, the executives of a company), each "first names last name".
+     */
+    public record Registration(String siren, boolean active, boolean establishmentActive, List<String> people) {
+
+        public Registration {
+            people = List.copyOf(people);
+        }
+    }
+
+    /** The registry is down or answered an error: nothing can be said of the SIRET. */
+    public static final class UnavailableException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        public UnavailableException(Throwable cause) {
+            super("The company registry could not be reached", cause);
+        }
+    }
+
+    /**
+     * The registration of a SIRET, read afresh (a verification must not rest on a day-old answer); empty when the registry
+     * knows no such establishment, and an {@link UnavailableException} when it cannot be asked.
+     */
+    public Optional<Registration> registration(String siret) {
+        if (siret == null || !siret.matches("\\d{14}")) {
+            return Optional.empty();
+        }
+        try {
+            HttpRequest request = HttpRequest.newBuilder(URI.create(url + "/search?per_page=1&q=" + siret))
+                .timeout(TIMEOUT).header("User-Agent", userAgent).header("Accept", "application/json").GET().build();
+            HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() != 200) {
+                throw new IOException("directory answered " + response.statusCode());
+            }
+            String siren = siret.substring(0, SIREN_LENGTH);
+            for (JsonNode result : Json.parse(response.body()).path("results")) {
+                if (siren.equals(Json.text(result.path("siren")))) {
+                    return Optional.of(registration(siret, result));
+                }
+            }
+            return Optional.empty();
+        } catch (IOException e) {
+            log.warn("Registry lookup failed: {}", e.getClass().getSimpleName());
+            throw new UnavailableException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new UnavailableException(e);
+        }
+    }
+
+    private static Registration registration(String siret, JsonNode result) {
+        boolean active = "A".equals(Json.text(result.path("etat_administratif")));
+        boolean establishment = active;
+        for (JsonNode office : result.path("matching_etablissements")) {
+            if (siret.equals(Json.text(office.path("siret")))) {
+                establishment = "A".equals(Json.text(office.path("etat_administratif")));
+            }
+        }
+        List<String> people = new ArrayList<>();
+        for (JsonNode person : result.path("dirigeants")) {
+            String last = Json.text(person.path("nom"));
+            if (last != null && !"personne morale".equals(Json.text(person.path("type_dirigeant")))) {
+                String first = Json.text(person.path("prenoms"));
+                people.add(first == null ? last : first + " " + last);
+            }
+        }
+        if ("1000".equals(Json.text(result.path("nature_juridique"))) && Json.text(result.path("nom_complet")) != null) {
+            people.add(Json.text(result.path("nom_complet")));
+        }
+        return new Registration(Json.text(result.path("siren")), active, establishment, people);
     }
 
     /** The head office's street, without the postal code and town the directory appends. */

@@ -54,11 +54,12 @@ public final class NetworkDtos {
 
     /**
      * What members see of a member: the name always, the rest as the member chose; a hidden field is null or empty. The
-     * availability is a status (available, on a mission, open to hear of one) with the day it names, if any.
+     * availability is a status (available, on a mission, open to hear of one) with the day it names, if any; verified when
+     * the public registry names the member for their billing SIRET.
      */
     public record MemberCard(String handle, String firstName, String lastName, String avatar, String headline, List<String> stack,
                              String city, boolean remote, NetworkAvailability availability, LocalDate availabilityDate,
-                             List<String> languages) {
+                             List<String> languages, boolean verified) {
 
         public MemberCard {
             stack = List.copyOf(stack);

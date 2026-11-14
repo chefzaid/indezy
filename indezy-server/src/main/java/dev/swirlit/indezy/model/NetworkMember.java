@@ -63,6 +63,16 @@ public class NetworkMember extends BaseEntity {
     @Column(name = "availability_date")
     private LocalDate availabilityDate;
 
+    /**
+     * The SIRET the registry confirmed as the member's own business, and when: the card shows the verified badge while
+     * the billing identity keeps that SIRET.
+     */
+    @Column(name = "verified_siret", length = 14)
+    private String verifiedSiret;
+
+    @Column(name = "verified_at")
+    private Instant verifiedAt;
+
     /** Works remotely: the card says so beside, or instead of, the city. */
     @Column(name = "remote", nullable = false)
     private boolean remote;

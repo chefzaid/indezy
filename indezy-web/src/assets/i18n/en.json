@@ -1419,7 +1419,17 @@
         "LISTENING": "Open to offers"
       },
       "availableFrom": "From",
-      "onMissionUntil": "Until"
+      "onMissionUntil": "Until",
+      "verifyIntro": "Show members you are an independent: the public company registry (INSEE Sirene) is asked whether your billing SIRET is an active business in your name.",
+      "verify": "Verify with my SIRET",
+      "verified": "Verified freelancer: the registry names you for your SIRET.",
+      "verifiedDone": "You are verified",
+      "verifyErrors": {
+        "noSiret": "Add your SIRET in Profile → Billing first.",
+        "notActive": "The registry has no active establishment with this SIRET.",
+        "someoneElse": "The registry names someone else for this SIRET.",
+        "unavailable": "The company registry could not be reached. Try again later."
+      }
     }
   },
   "errors": {
@@ -3209,7 +3219,8 @@
       "languages": "Speaks {{languages}}",
       "onMission": "On a mission",
       "onMissionUntil": "On a mission until {{date}}",
-      "listening": "Open to offers"
+      "listening": "Open to offers",
+      "verified": "Verified freelancer: the public company registry names this member for their SIRET"
     },
     "page": {
       "notMember": "Join the network to see its members.",

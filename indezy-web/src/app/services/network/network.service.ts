@@ -21,6 +21,11 @@ export class NetworkService {
     return this.http.put<NetworkMembership>(`${this.API_URL}/membership`, { handle, fields, availability });
   }
 
+  /** Verifies the member against the public company registry, from the billing SIRET. */
+  verify(): Observable<NetworkMembership> {
+    return this.http.post<NetworkMembership>(`${this.API_URL}/membership/verification`, null);
+  }
+
   leave(): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/membership`);
   }

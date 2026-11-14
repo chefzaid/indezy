@@ -7,7 +7,8 @@ import en from '../../../../assets/i18n/en.json';
 
 describe('MemberCardComponent', () => {
   const base: MemberCard = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: 'https://example.com/leo.png',
-    headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [] };
+    headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [],
+    verified: false };
 
   function render(card: Partial<MemberCard>): HTMLElement {
     TestBed.resetTestingModule();
@@ -38,5 +39,7 @@ describe('MemberCardComponent', () => {
     expect(hidden.querySelector('[data-card-availability]')).toBeNull();
     expect(hidden.querySelector('.ring')?.classList).toContain('NONE');
     expect(hidden.querySelector('img.photo')?.getAttribute('src')).toBe('https://example.com/leo.png');
+    expect(hidden.querySelector('[data-card-verified]')).toBeNull();
+    expect(render({ verified: true }).querySelector('[data-card-verified]')?.getAttribute('aria-label')).toContain('Verified freelancer');
   });
 });

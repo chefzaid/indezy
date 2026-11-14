@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +48,13 @@ public class NetworkController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void leave() {
         network.leave(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Verify the member against the public company registry, from the billing SIRET",
+        description = "409 without a SIRET, for an establishment the registry does not have active or that names someone else; 503 when it cannot be asked")
+    @PostMapping("/membership/verification")
+    public NetworkDtos.Membership verify() {
+        return network.verify(SecurityUtils.getCurrentUserId());
     }
 
     @Operation(summary = "Whether a handle can be taken")

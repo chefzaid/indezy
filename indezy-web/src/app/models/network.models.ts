@@ -38,6 +38,8 @@ export interface MemberCard {
   availability: Exclude<NetworkAvailability, 'AUTO'> | null;
   availabilityDate: string | null;
   languages: string[];
+  /** The public registry names the member for their billing SIRET. */
+  verified: boolean;
 }
 
 /**

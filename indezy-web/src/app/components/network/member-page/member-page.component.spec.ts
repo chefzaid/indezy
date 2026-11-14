@@ -16,7 +16,7 @@ describe('MemberPageComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   const card = (handle: string, changes: Partial<MemberCard> = {}): MemberCard => ({ handle, firstName: 'Camille', lastName: 'Durand',
     avatar: null, headline: 'Architecte Java', stack: ['Java'], city: 'Lyon', remote: false, availability: 'ON_MISSION',
-    availabilityDate: '2027-03-31', languages: [], ...changes });
+    availabilityDate: '2027-03-31', languages: [], verified: false, ...changes });
   const page: MemberPage = { card: card('camille'), followers: 2, following: 1, sharedSkills: ['Java'], followed: false, followsYou: true,
     own: false };
 

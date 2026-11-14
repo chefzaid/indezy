@@ -54,6 +54,26 @@
   }
 }
 
+.verification {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+  }
+
+  .verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--mat-sys-primary);
+    font-weight: 500;
+  }
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

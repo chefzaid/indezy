@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -16,6 +17,23 @@ import { NotificationService } from '../../../services/notification/notification
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MemberCardComponent } from '../../network/member-card/member-card.component';
 
+/** Why the registry did not verify the member, in the interface language. */
+export function verificationErrorKey(error: HttpErrorResponse): string {
+  const message: unknown = error.error?.message;
+  if (error.status === 409 && typeof message === 'string') {
+    if (message.startsWith('Add your SIRET')) {
+      return 'profile.network.verifyErrors.noSiret';
+    }
+    if (message.startsWith('The registry has no active establishment')) {
+      return 'profile.network.verifyErrors.notActive';
+    }
+    if (message.startsWith('The registry names someone else')) {
+      return 'profile.network.verifyErrors.someoneElse';
+    }
+  }
+  return error.status === 503 ? 'profile.network.verifyErrors.unavailable' : 'profile.network.saveError';
+}
+
 /** The card's fields, in the order the tab lists them. */
 export const CARD_FIELDS: (keyof NetworkFields)[] = ['photo', 'headline', 'stack', 'location', 'availability', 'languages', 'remote'];
 
@@ -25,7 +43,7 @@ export const CARD_FIELDS: (keyof NetworkFields)[] = ['photo', 'headline', 'stack
  */
 @Component({
   selector: 'app-profile-network',
-  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatSlideToggleModule, TranslateModule,
+  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, MatSlideToggleModule, TranslateModule,
     MemberCardComponent],
   templateUrl: './profile-network.component.html',
   styleUrls: ['./profile-network.component.scss'],
@@ -54,6 +72,7 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
   }
   membership: NetworkMembership | null = null;
   isSaving = false;
+  isVerifying = false;
 
   ngOnInit(): void {
     this.network.membership().pipe(takeUntil(this.destroy$)).subscribe({
@@ -102,6 +121,22 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
           return;
         }
         this.notifications.error('profile.network.saveError');
+      }
+    });
+  }
+
+  /** Asks the public registry whether the billing SIRET is the member's own business; says why not when it is not. */
+  verify(): void {
+    this.isVerifying = true;
+    this.network.verify().pipe(takeUntil(this.destroy$)).subscribe({
+      next: membership => {
+        this.isVerifying = false;
+        this.show(membership);
+        this.notifications.success('profile.network.verifiedDone');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isVerifying = false;
+        this.notifications.error(verificationErrorKey(error));
       }
     });
   }

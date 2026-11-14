@@ -172,6 +172,13 @@ the profile's availability date ("Available from 2 December 2026", or now); or i
 day or now), on a mission (until a day), or **Open to offers**. A coloured ring around the photo tells it at a glance:
 green available, orange on a mission, indigo open to offers. Only members see members' cards
 (`GET /api/network/members/<handle>`).
+
+**Verify with my SIRET** shows members they talk to an independent and not to a recruiter posing as one: the public
+company registry (`recherche-entreprises.api.gouv.fr`, from INSEE Sirene; only the SIRET is sent, and the answer is read
+afresh) must have the billing SIRET as an active establishment whose legal unit names the member, first and last name,
+accents and case aside (the entrepreneur of an EI, an executive of a company). The card then bears a **verified** badge,
+which lapses once the billing identity holds another SIRET. Without a SIRET, an establishment closed or unknown, or
+another person named, the tab says so; when the registry cannot be reached, it asks to try later.
 **Leave the network** hides the card at once and keeps the handle the account's for its return. The membership is part
 of the data export.
 
