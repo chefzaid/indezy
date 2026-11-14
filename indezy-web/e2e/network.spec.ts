@@ -143,3 +143,34 @@ test('asks a visitor who is not a member to join before seeing members', async (
   await expect(page.locator('[data-member-problem="notMember"]')).toContainText('Join the network to see its members.');
   await expect(page.getByRole('link', { name: 'Join from Profile → Network' })).toHaveAttribute('href', '/profile');
 });
+
+for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
+  test(`finds members by skill and availability in the directory (${language}, ${width}px)`, async ({ page }) => {
+    const en = language === 'en';
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, language);
+    await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+    const member = (handle: string, firstName: string) => ({ handle, firstName, lastName: 'Martin', avatar: null, headline: 'Data engineer',
+      stack: ['Kafka'], city: 'Lyon', remote: true, availability: 'LISTENING', availabilityDate: null, languages: [], verified: false });
+    const asked: string[] = [];
+    await page.route('**/api/network/members?**', route => {
+      const query = new URL(route.request().url()).searchParams;
+      asked.push(query.toString());
+      const members = query.get('skill') === 'Kafka' ? [member('leo_m', 'Léo')] : [member('leo_m', 'Léo'), member('ines_b', 'Inès')];
+      return route.fulfill({ json: { members, total: members.length, page: 0, size: 20 } });
+    });
+
+    await page.goto('/network/members');
+    await expect(page.locator('[data-directory-count]')).toContainText(en ? 'Members found: 2' : 'Membres trouvés : 2');
+    await page.locator('[data-directory-skill]').fill('Kafka');
+    await page.locator('[data-directory-availability]').click();
+    await page.getByRole('option', { name: en ? 'Open to offers' : "À l'écoute" }).click();
+    await page.locator('[data-directory-search]').click();
+    await expect(page.locator('[data-directory-count]')).toContainText(en ? 'Members found: 1' : 'Membres trouvés : 1');
+    await expect(page.locator('[data-directory-member="leo_m"]')).toHaveAttribute('href', '/m/leo_m');
+    expect(asked.at(-1)).toBe('page=0&skill=Kafka&availability=LISTENING');
+    const audit = await new AxeBuilder({ page }).include('app-member-directory').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}

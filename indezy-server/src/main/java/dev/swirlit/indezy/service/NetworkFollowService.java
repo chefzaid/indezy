@@ -112,8 +112,9 @@ public class NetworkFollowService {
     @Transactional(readOnly = true)
     public NetworkDtos.Restrictions restrictions(Long viewerId) {
         network.requireMember(viewerId);
-        return new NetworkDtos.Restrictions(restrictions.targets(viewerId, NetworkRestrictionKind.MUTE).stream().map(network::card).toList(),
-            restrictions.targets(viewerId, NetworkRestrictionKind.BLOCK).stream().map(network::card).toList());
+        return new NetworkDtos.Restrictions(
+            restrictions.targets(viewerId, NetworkRestrictionKind.MUTE).stream().map(network::liveCard).flatMap(Optional::stream).toList(),
+            restrictions.targets(viewerId, NetworkRestrictionKind.BLOCK).stream().map(network::liveCard).flatMap(Optional::stream).toList());
     }
 
     private NetworkDtos.MemberPage restrict(Long viewerId, String handle, NetworkRestrictionKind kind, boolean on) {
@@ -151,7 +152,7 @@ public class NetworkFollowService {
     /** The members' cards, but those blocking the viewer or blocked by them. */
     private List<NetworkDtos.MemberCard> seen(Long viewerId, List<NetworkMember> members) {
         Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(viewerId));
-        return members.stream().filter(member -> !blocked.contains(member.getUserId())).map(network::card).toList();
+        return members.stream().filter(member -> !blocked.contains(member.getUserId())).map(network::liveCard).flatMap(Optional::stream).toList();
     }
 
     private NetworkDtos.MemberPage page(NetworkMember viewer, NetworkMember member) {

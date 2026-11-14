@@ -1,0 +1,62 @@
+<div class="directory-page">
+  <app-page-header icon="diversity_3" [title]="'network.directory.title' | translate" [subtitle]="'network.directory.subtitle' | translate">
+  </app-page-header>
+
+  @if (notMember) {
+    <section class="problem" data-directory-not-member>
+      <p>{{ 'network.directory.notMember' | translate }}</p>
+      <a mat-flat-button routerLink="/profile">{{ 'network.directory.join' | translate }}</a>
+    </section>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="search()" class="filters" data-directory-filters>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'network.directory.skill' | translate }}</mat-label>
+        <input matInput formControlName="skill" data-directory-skill maxlength="60">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'network.directory.city' | translate }}</mat-label>
+        <input matInput formControlName="city" data-directory-city maxlength="60">
+      </mat-form-field>
+      <mat-form-field appearance="outline" data-directory-availability>
+        <mat-label>{{ 'network.directory.availability' | translate }}</mat-label>
+        <mat-select formControlName="availability">
+          <mat-option [value]="null">{{ 'network.directory.any' | translate }}</mat-option>
+          @for (mode of availabilities; track mode) {
+            <mat-option [value]="mode">{{ 'network.directory.modes.' + mode | translate }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" data-directory-remote>
+        <mat-label>{{ 'network.directory.remote' | translate }}</mat-label>
+        <mat-select formControlName="remote">
+          <mat-option [value]="null">{{ 'network.directory.remoteAny' | translate }}</mat-option>
+          <mat-option [value]="true">{{ 'network.directory.remoteYes' | translate }}</mat-option>
+          <mat-option [value]="false">{{ 'network.directory.remoteNo' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-flat-button type="submit" data-directory-search>{{ 'network.directory.search' | translate }}</button>
+    </form>
+
+    @if (loading && !directory) {
+      <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+    } @else if (directory) {
+      <p class="count" data-directory-count aria-live="polite">{{ 'network.directory.count' | translate: { count: directory.total } }}</p>
+      @if (directory.members.length === 0) {
+        <p class="empty">{{ 'network.directory.none' | translate }}</p>
+      }
+      <ul class="results">
+        @for (member of directory.members; track member.handle) {
+          <li>
+            <a [routerLink]="['/m', member.handle]" class="result" [attr.data-directory-member]="member.handle">
+              <app-member-card [card]="member"></app-member-card>
+            </a>
+          </li>
+        }
+      </ul>
+      @if (directory.total > directory.size) {
+        <mat-paginator [length]="directory.total" [pageSize]="directory.size" [pageIndex]="directory.page" [hidePageSize]="true"
+          (page)="onPage($event)"></mat-paginator>
+      }
+    }
+  }
+</div>

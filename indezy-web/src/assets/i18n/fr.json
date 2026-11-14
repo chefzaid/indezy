@@ -85,7 +85,8 @@
     "invoices": "Factures",
     "documents": "Documents",
     "activityReports": "CRA",
-    "quotes": "Devis"
+    "quotes": "Devis",
+    "network": "Réseau"
   },
   "archive": {
     "title": "Archives",
@@ -3256,6 +3257,29 @@
       "unblockedDone": "Débloqué",
       "blockedNote": "Vous bloquez ce membre.",
       "mutedNote": "Masqué"
+    },
+    "directory": {
+      "title": "Membres",
+      "subtitle": "Les freelances du réseau, par compétence, ville, disponibilité ou travail à distance",
+      "skill": "Compétence",
+      "city": "Ville",
+      "availability": "Disponibilité",
+      "any": "Toutes",
+      "remote": "Travail à distance",
+      "remoteAny": "Indifférent",
+      "remoteYes": "À distance",
+      "remoteNo": "Sur site",
+      "search": "Rechercher",
+      "count": "Membres trouvés : {{count}}",
+      "none": "Aucun membre ne correspond.",
+      "loadError": "Les membres n'ont pas pu être chargés",
+      "notMember": "Rejoignez le réseau pour voir ses membres.",
+      "join": "Rejoindre depuis Profil → Réseau",
+      "modes": {
+        "AVAILABLE": "Disponible",
+        "ON_MISSION": "En mission",
+        "LISTENING": "À l'écoute"
+      }
     }
   }
 }

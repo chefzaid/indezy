@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MemberCard, MemberPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -32,6 +32,18 @@ export class NetworkService {
 
   handle(handle: string): Observable<{ handle: string; available: boolean }> {
     return this.http.get<{ handle: string; available: boolean }>(`${this.API_URL}/handles/${encodeURIComponent(handle)}`);
+  }
+
+  /** The members found by a skill, a city, an availability or remote work, 20 a page. */
+  directory(search: DirectorySearch): Observable<MemberDirectory> {
+    let params = new HttpParams().set('page', search.page ?? 0);
+    for (const key of ['skill', 'city', 'availability', 'remote'] as const) {
+      const value = search[key];
+      if (value !== null && value !== undefined && value !== '') {
+        params = params.set(key, String(value).trim());
+      }
+    }
+    return this.http.get<MemberDirectory>(`${this.API_URL}/members`, { params });
   }
 
   member(handle: string): Observable<MemberCard> {

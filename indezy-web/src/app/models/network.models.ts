@@ -60,6 +60,23 @@ export interface MemberPage {
   blocked: boolean;
 }
 
+/** What the member directory is asked for; every criterion is optional. */
+export interface DirectorySearch {
+  skill?: string | null;
+  city?: string | null;
+  availability?: Exclude<NetworkAvailability, 'AUTO'> | null;
+  remote?: boolean | null;
+  page?: number;
+}
+
+/** A page of the member directory, and how many members match in all. */
+export interface MemberDirectory {
+  members: MemberCard[];
+  total: number;
+  page: number;
+  size: number;
+}
+
 /** The members the viewer mutes and blocks. */
 export interface NetworkRestrictions {
   muted: MemberCard[];

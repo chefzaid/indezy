@@ -21,6 +21,11 @@ describe('NetworkService', () => {
     http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/membership'));
     service.handle('cam ille').subscribe();
     http.expectOne(call => call.url.endsWith('/network/handles/cam%20ille'));
+    service.directory({ skill: ' Kafka ', city: '', availability: 'LISTENING', remote: true, page: 2 }).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/members')).request.params.toString())
+      .toBe('page=2&skill=Kafka&availability=LISTENING&remote=true');
+    service.directory({}).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/members')).request.params.toString()).toBe('page=0');
     service.member('camille').subscribe();
     http.expectOne(call => call.url.endsWith('/network/members/camille'));
     service.page('camille').subscribe();

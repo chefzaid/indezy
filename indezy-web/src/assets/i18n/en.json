@@ -85,7 +85,8 @@
     "invoices": "Invoices",
     "documents": "Documents",
     "activityReports": "Timesheets",
-    "quotes": "Quotes"
+    "quotes": "Quotes",
+    "network": "Network"
   },
   "archive": {
     "title": "Archive",
@@ -3256,6 +3257,29 @@
       "unblockedDone": "No longer blocked",
       "blockedNote": "You block this member.",
       "mutedNote": "Muted"
+    },
+    "directory": {
+      "title": "Members",
+      "subtitle": "The freelancers of the member network, found by skill, city, availability or remote work",
+      "skill": "Skill",
+      "city": "City",
+      "availability": "Availability",
+      "any": "Any",
+      "remote": "Remote work",
+      "remoteAny": "Either",
+      "remoteYes": "Works remotely",
+      "remoteNo": "On site",
+      "search": "Search",
+      "count": "Members found: {{count}}",
+      "none": "No member matches.",
+      "loadError": "The members could not be loaded",
+      "notMember": "Join the network to see its members.",
+      "join": "Join from Profile → Network",
+      "modes": {
+        "AVAILABLE": "Available",
+        "ON_MISSION": "On a mission",
+        "LISTENING": "Open to offers"
+      }
     }
   }
 }

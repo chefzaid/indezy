@@ -516,7 +516,7 @@ Messaging
 
 Notifications and discovery
 - [ ] Notification centre (a bell in the toolbar): follows, follow requests, likes, comments, mentions, reposts and messages, grouped and marked read; each type in-app, by email or off in Profile → Notifications.
-- [ ] Member directory and search by skill, city, availability and remote work; tag pages (`/network/tags/kafka`) with the tag's posts, its members and the offer feed's open missions for that skill.
+- [ ] Member directory and search by skill, city, availability and remote work; tag pages (`/network/tags/kafka`) with the tag's posts, its members and the offer feed's open missions for that skill. Partly done on 2026-11-14: the directory and its search (`docs/features.md#member-network`); the tag pages come with posts and tags.
 - [ ] Global search (`Alt+Shift+F`) also finds members, posts and messages.
 
 Safety and moderation

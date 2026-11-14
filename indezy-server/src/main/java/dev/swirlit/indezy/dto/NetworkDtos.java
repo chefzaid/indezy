@@ -40,6 +40,14 @@ public final class NetworkDtos {
     public record HandleAvailability(String handle, boolean available) {
     }
 
+    /** A page of the member directory, and how many members match in all. */
+    public record Directory(List<MemberCard> members, int total, int page, int size) {
+
+        public Directory {
+            members = List.copyOf(members);
+        }
+    }
+
     /** The members the viewer mutes and blocks, to undo either. */
     public record Restrictions(List<MemberCard> muted, List<MemberCard> blocked) {
 

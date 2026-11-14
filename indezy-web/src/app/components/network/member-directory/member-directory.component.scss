@@ -1,0 +1,60 @@
+.directory-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0 12px;
+
+  mat-form-field {
+    flex: 1 1 180px;
+  }
+
+  button {
+    margin-top: 8px;
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.problem,
+.count,
+.empty {
+  color: var(--text-secondary);
+}
+
+.problem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 12px;
+
+  &:focus-visible,
+  &:hover {
+    outline: 2px solid var(--mat-sys-primary);
+  }
+}

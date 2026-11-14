@@ -193,6 +193,10 @@ follows, keeps either from following the other, takes each out of the lists the 
 page from the blocked member, as if no member held the handle; the blocked member is not told. **Profile → Network**
 lists the members muted and blocked, each to unmute or unblock.
 
+**Network** in the menu (`/network/members`) is the member directory: the members found by a skill, a city, an
+availability or remote work, 20 a page by last name, each card opening the member's page. It searches what each card
+shows only, so a hidden skill or city is never found, and leaves out the viewer and any member either one blocks.
+
 ## Projects And Opportunities
 
 **Opportunities** (`/projects`) lists the workspace's opportunities and missions. Beyond the role, stage, description,

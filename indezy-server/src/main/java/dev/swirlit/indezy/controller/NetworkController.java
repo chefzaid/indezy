@@ -1,6 +1,8 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
+import dev.swirlit.indezy.model.enums.NetworkAvailability;
+import dev.swirlit.indezy.service.NetworkDirectoryService;
 import dev.swirlit.indezy.service.NetworkFollowService;
 import dev.swirlit.indezy.service.NetworkService;
 import dev.swirlit.indezy.util.SecurityUtils;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,6 +33,7 @@ public class NetworkController {
 
     private final NetworkService network;
     private final NetworkFollowService follows;
+    private final NetworkDirectoryService directory;
 
     @Operation(summary = "Whether the account joined, its handle and what its card shows")
     @GetMapping("/membership")
@@ -61,6 +65,15 @@ public class NetworkController {
     @GetMapping("/handles/{handle}")
     public NetworkDtos.HandleAvailability handle(@PathVariable String handle) {
         return network.availability(SecurityUtils.getCurrentUserId(), handle);
+    }
+
+    @Operation(summary = "The member directory: members found by a skill, a city, an availability or remote work",
+        description = "On what each card shows only; 20 a page, by last name")
+    @GetMapping("/members")
+    public NetworkDtos.Directory directory(@RequestParam(required = false) String skill, @RequestParam(required = false) String city,
+                                           @RequestParam(required = false) NetworkAvailability availability,
+                                           @RequestParam(required = false) Boolean remote, @RequestParam(defaultValue = "0") int page) {
+        return directory.search(SecurityUtils.getCurrentUserId(), new NetworkDirectoryService.Search(skill, city, availability, remote, page));
     }
 
     @Operation(summary = "A member's card, for members", description = "409 until the account joins, 404 for a handle no member holds")

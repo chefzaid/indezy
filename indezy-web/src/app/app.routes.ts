@@ -131,6 +131,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'network/members',
+    loadComponent: () => import('./components/network/member-directory/member-directory.component').then(m => m.MemberDirectoryComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
     // A member's page in the member network, for members.
     path: 'm/:handle',
     loadComponent: () => import('./components/network/member-page/member-page.component').then(m => m.MemberPageComponent),

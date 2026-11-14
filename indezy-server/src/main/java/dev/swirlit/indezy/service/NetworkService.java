@@ -141,6 +141,11 @@ public class NetworkService {
         return card(member, user(member.getUserId()));
     }
 
+    /** The member's card, unless the account is gone or deleted. */
+    Optional<NetworkDtos.MemberCard> liveCard(NetworkMember member) {
+        return users.findById(member.getUserId()).filter(owner -> owner.getDeletedAt() == null).map(owner -> card(member, owner));
+    }
+
     private boolean available(Long userId, String handle) {
         return HANDLE.matcher(handle).matches() && !RESERVED.contains(handle) &&
             members.findByHandle(handle).filter(holder -> !holder.getUserId().equals(userId)).isEmpty();
