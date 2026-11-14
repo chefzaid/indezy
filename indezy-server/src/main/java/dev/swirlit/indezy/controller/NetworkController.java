@@ -158,6 +158,24 @@ public class NetworkController {
         posts.delete(SecurityUtils.getCurrentUserId(), id);
     }
 
+    @Operation(summary = "Like a post")
+    @PutMapping("/posts/{id}/like")
+    public NetworkDtos.Post like(@PathVariable Long id) {
+        return posts.like(SecurityUtils.getCurrentUserId(), id, true);
+    }
+
+    @Operation(summary = "Stop liking a post")
+    @DeleteMapping("/posts/{id}/like")
+    public NetworkDtos.Post unlike(@PathVariable Long id) {
+        return posts.like(SecurityUtils.getCurrentUserId(), id, false);
+    }
+
+    @Operation(summary = "The members who like a post, the latest first")
+    @GetMapping("/posts/{id}/likes")
+    public List<NetworkDtos.MemberCard> likers(@PathVariable Long id) {
+        return posts.likers(SecurityUtils.getCurrentUserId(), id);
+    }
+
     @Operation(summary = "The home feed: the viewer's posts and those of the members they follow, the newest first, 20 a page")
     @GetMapping("/feed")
     public NetworkDtos.Posts feed(@RequestParam(defaultValue = "0") int page) {

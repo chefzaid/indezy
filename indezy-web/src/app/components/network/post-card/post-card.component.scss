@@ -38,6 +38,31 @@ header button {
   white-space: pre-line;
 }
 
+footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 -8px -8px;
+
+  .liked {
+    color: var(--app-chip-danger-text);
+  }
+}
+
+.likers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+
+  a {
+    color: var(--app-link);
+  }
+}
+
 .mention {
   color: var(--app-link);
 }

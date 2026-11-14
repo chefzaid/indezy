@@ -85,4 +85,33 @@ class NetworkPostsIntegrationTest extends TwoAccountsIntegrationTest {
         call(alice, HttpMethod.DELETE, "/network/membership", null, String.class);
         assertThat(posts(bob, "/network/feed")).isEmpty();
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void likesAPostOnceAndListsWhoLikesIt() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        String aliceHandle = join(alice);
+        String bobHandle = join(bob);
+        Map<String, Object> posted = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "À aimer"), Map.class).getBody();
+        String like = "/network/posts/" + posted.get("id") + "/like";
+        assertThat(posted).containsEntry("likes", 0).containsEntry("liked", false);
+        assertThat(call(bob, HttpMethod.PUT, like, null, Map.class).getBody()).containsEntry("likes", 1).containsEntry("liked", true);
+        assertThat(call(bob, HttpMethod.PUT, like, null, Map.class).getBody()).containsEntry("likes", 1);
+        assertThat(call(alice, HttpMethod.PUT, like, null, Map.class).getBody()).containsEntry("likes", 2);
+        assertThat(posts(alice, "/network/feed")).singleElement().satisfies(post -> assertThat(post).containsEntry("likes", 2)
+            .containsEntry("liked", true));
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/network/posts/" + posted.get("id") + "/likes", null, List.class)
+            .getBody()).extracting(card -> card.get("handle")).containsExactly(aliceHandle, bobHandle);
+        assertThat(call(bob, HttpMethod.DELETE, like, null, Map.class).getBody()).containsEntry("likes", 1).containsEntry("liked", false);
+        assertThat(call(bob, HttpMethod.PUT, "/network/posts/999999/like", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
+        // A member Alice blocks can no longer like her posts nor read who likes them; a deleted post takes its likes along.
+        call(alice, HttpMethod.PUT, "/network/members/" + bobHandle + "/block", null, Map.class);
+        assertThat(call(bob, HttpMethod.PUT, like, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.GET, "/network/posts/" + posted.get("id") + "/likes", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.DELETE, "/network/posts/" + posted.get("id"), null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(call(alice, HttpMethod.PUT, like, null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }

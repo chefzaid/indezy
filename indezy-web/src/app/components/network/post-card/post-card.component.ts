@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,7 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { NetworkPost } from '../../../models';
+import { MemberCard, NetworkPost } from '../../../models';
+import { NetworkService } from '../../../services/network/network.service';
+import { NotificationService } from '../../../services/notification/notification.service';
 
 /** A piece of a post's text: plain text, a member mentioned, or a #tag. */
 export type PostSegment = { text: string } | { handle: string } | { tag: string };
@@ -45,7 +47,38 @@ export function segments(text: string): PostSegment[] {
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class PostCardComponent {
+  private readonly network = inject(NetworkService);
+  private readonly notifications = inject(NotificationService);
+
   @Input({ required: true }) post!: NetworkPost;
+  /** The members who like the post, once asked for. */
+  likers: MemberCard[] | null = null;
+  isLiking = false;
+
+  toggleLike(): void {
+    this.isLiking = true;
+    this.network.like(this.post.id, !this.post.liked).subscribe({
+      next: post => {
+        this.post = post;
+        this.isLiking = false;
+        if (this.likers) {
+          this.showLikers();
+        }
+      },
+      error: () => {
+        this.isLiking = false;
+        this.notifications.error('network.post.likeError');
+      }
+    });
+  }
+
+  /** Shows who likes the post, or hides the list. */
+  showLikers(): void {
+    this.network.likers(this.post.id).subscribe({
+      next: likers => this.likers = likers,
+      error: () => this.notifications.error('network.post.likeError')
+    });
+  }
   /** Asked to delete the post, its author's own. */
   @Output() readonly deleted = new EventEmitter<NetworkPost>();
 

@@ -43,8 +43,12 @@ public final class NetworkDtos {
     public record HandleAvailability(String handle, boolean available) {
     }
 
-    /** A post as members read it: its author's card, its text, the #tags it names, when it was posted, and whether it is the reader's. */
-    public record Post(Long id, MemberCard author, String text, List<String> tags, LocalDateTime createdAt, boolean own) {
+    /**
+     * A post as members read it: its author's card, its text, the #tags it names, when it was posted, whether it is the
+     * reader's, how many members like it and whether the reader does.
+     */
+    public record Post(Long id, MemberCard author, String text, List<String> tags, LocalDateTime createdAt, boolean own, int likes,
+                       boolean liked) {
 
         public Post {
             tags = List.copyOf(tags);

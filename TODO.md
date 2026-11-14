@@ -505,7 +505,7 @@ Follow
 - [ ] Indezy contacts who are members (matched on an email the member confirmed) offered to follow, without the contact being told.
 
 Likes
-- [ ] Like a post or a comment, with the count and the list of who liked; the author notified in groups ("Léa et 4 autres ont aimé votre publication").
+- [ ] Like a post or a comment, with the count and the list of who liked; the author notified in groups ("Léa et 4 autres ont aimé votre publication"). Partly done on 2026-11-14: liking a post, its count and who liked it (`docs/features.md#member-network`); a comment's like comes with comments, and the author's grouped notification with the notification centre.
 - [ ] A second reaction, **Utile**, for knowledge posts (answered questions, retours d'expérience), which ranks them in **For you** and on tag pages.
 - [ ] The week's most liked posts of each followed tag in the weekly digest email.
 

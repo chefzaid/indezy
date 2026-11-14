@@ -68,6 +68,9 @@ export interface NetworkPost {
   tags: string[];
   createdAt: string;
   own: boolean;
+  /** How many members like it, and whether the reader does. */
+  likes: number;
+  liked: boolean;
 }
 
 /** A page of posts, the newest first, and whether more follow. */

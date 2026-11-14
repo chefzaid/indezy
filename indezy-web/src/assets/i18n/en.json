@@ -3299,7 +3299,11 @@
       "more": "Show more"
     },
     "post": {
-      "actions": "Actions on the post"
+      "actions": "Actions on the post",
+      "like": "Like",
+      "liked": "Liked",
+      "likes": "Likes: {{count}}",
+      "likeError": "This could not be changed. Try again in a moment."
     }
   }
 }

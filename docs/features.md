@@ -197,7 +197,8 @@ lists the members muted and blocked, each to unmute or unblock.
 `@handle` links to the member's page and `#tag` names a skill or a city (each kept, lower-case, for the tag pages to
 come); then the reader's posts and those of the members they follow, the newest first, 20 at a time with **Show
 more**, but those of members muted or blocked either way, or away from the network. A member's page shows their posts
-too. A member deletes their own posts, and they are part of the data export. Images, documents and link previews wait
+too. **Like** a post, once, or no longer; its likes count opens who liked it (but members blocked either way). A member
+deletes their own posts, their likes going with them, and they are part of the data export. Images, documents and link previews wait
 on the choice of their store.
 
 **Members** on the feed (`/network/members`) is the member directory: the members found by a skill, a city, an

@@ -42,6 +42,16 @@ export class NetworkService {
     return this.http.delete<void>(`${this.API_URL}/posts/${id}`);
   }
 
+  /** Likes a post, or no longer; answers the post as the reader now reads it. */
+  like(id: number, liked: boolean): Observable<NetworkPost> {
+    const url = `${this.API_URL}/posts/${id}/like`;
+    return liked ? this.http.put<NetworkPost>(url, null) : this.http.delete<NetworkPost>(url);
+  }
+
+  likers(id: number): Observable<MemberCard[]> {
+    return this.http.get<MemberCard[]>(`${this.API_URL}/posts/${id}/likes`);
+  }
+
   /** The reader's posts and those of the members they follow, 20 a page. */
   feed(page = 0): Observable<NetworkPosts> {
     return this.http.get<NetworkPosts>(`${this.API_URL}/feed`, { params: { page } });

@@ -3299,7 +3299,11 @@
       "more": "Afficher plus"
     },
     "post": {
-      "actions": "Actions sur la publication"
+      "actions": "Actions sur la publication",
+      "like": "J'aime",
+      "liked": "Aimé",
+      "likes": "J'aime : {{count}}",
+      "likeError": "Le changement n'a pas pu être fait. Réessayez dans un instant."
     }
   }
 }

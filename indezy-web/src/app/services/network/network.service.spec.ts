@@ -28,6 +28,12 @@ describe('NetworkService', () => {
     expect(http.expectOne(call => call.url.endsWith('/network/members')).request.params.toString()).toBe('page=0');
     service.post('Bonjour').subscribe();
     expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/posts')).request.body).toEqual({ text: 'Bonjour' });
+    service.like(5, true).subscribe();
+    http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/5/like'));
+    service.like(5, false).subscribe();
+    http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/posts/5/like'));
+    service.likers(5).subscribe();
+    http.expectOne(call => call.url.endsWith('/network/posts/5/likes'));
     service.deletePost(5).subscribe();
     http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/posts/5'));
     service.feed().subscribe();
