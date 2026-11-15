@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.service.NetworkCommentService;
+import dev.swirlit.indezy.service.NetworkConfidentialityService;
 import dev.swirlit.indezy.service.NetworkDraftService;
 import dev.swirlit.indezy.service.NetworkPostService;
 import dev.swirlit.indezy.service.NetworkTagService;
@@ -40,6 +41,7 @@ public class NetworkPostController {
     private final NetworkCommentService comments;
     private final NetworkTagService tags;
     private final NetworkDraftService drafts;
+    private final NetworkConfidentialityService confidentiality;
 
     @Operation(summary = "Post to the network",
         description = "Text of up to 3,000 characters; its #tags are kept. 202 when the spam score holds it for review")
@@ -235,6 +237,13 @@ public class NetworkPostController {
     @GetMapping("/members/{handle}/posts")
     public NetworkDtos.Posts memberPosts(@PathVariable String handle, @RequestParam(defaultValue = "0") int page) {
         return posts.memberPosts(SecurityUtils.getCurrentUserId(), handle, page);
+    }
+
+    @Operation(summary = "Find the workspace's client, ESN and contact names in a text before it goes out",
+        description = "Reads only; the member decides to anonymize or to publish anyway")
+    @PostMapping("/confidentiality")
+    public List<NetworkDtos.ConfidentialMatch> confidentiality(@Valid @RequestBody NetworkDtos.ConfidentialityCheck request) {
+        return confidentiality.check(SecurityUtils.getCurrentUserId(), request.text());
     }
 
     /** 201 with what was published, or 202 when the spam score holds it for an administrator. */

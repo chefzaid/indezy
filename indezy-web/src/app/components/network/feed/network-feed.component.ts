@@ -11,6 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { MemberSuggestion, NetworkPost, isHeld } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
+import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -29,6 +30,7 @@ export const POST_MAX = 3000;
 })
 export class NetworkFeedComponent implements OnInit {
   private readonly network = inject(NetworkService);
+  private readonly confidentiality = inject(ConfidentialityGuardService);
   private readonly notifications = inject(NotificationService);
   private readonly confirm = inject(ConfirmDialogService);
   private readonly changes = inject(ChangeDetectorRef);
@@ -91,6 +93,21 @@ export class NetworkFeedComponent implements OnInit {
       return;
     }
     this.isPosting = true;
+    this.confidentiality.review(text).subscribe(choice => {
+      if (choice?.action === 'publish') {
+        this.postNow(choice.text);
+        return;
+      }
+      this.isPosting = false;
+      if (choice) {
+        this.draft.setValue(choice.text);
+        this.notifications.success('network.confidentiality.anonymized');
+      }
+    });
+  }
+
+  /** Posts the text checked for the workspace's names. */
+  private postNow(text: string): void {
     this.network.post(text).subscribe({
       next: post => {
         this.isPosting = false;

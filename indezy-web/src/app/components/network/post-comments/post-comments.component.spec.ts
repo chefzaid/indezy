@@ -9,6 +9,7 @@ import { MemberCard, NetworkComment, NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
 import { PostCommentsComponent } from './post-comments.component';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 
@@ -16,6 +17,7 @@ describe('PostCommentsComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
+  let guard: jasmine.SpyObj<ConfidentialityGuardService>;
   const member = (handle: string): MemberCard => ({ handle, firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [],
     city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false });
   const comment = (id: number, changes: Partial<NetworkComment> = {}): NetworkComment => ({ id, author: member('leo_m'), text: `Comment ${id}`,
@@ -29,11 +31,13 @@ describe('PostCommentsComponent', () => {
     network.comments.and.returnValue(of(read));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
+    guard = jasmine.createSpyObj('ConfidentialityGuardService', ['review']);
+    guard.review.and.callFake((text: string) => of({ action: 'publish' as const, text }));
     TestBed.configureTestingModule({
       imports: [PostCommentsComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
-        { provide: ConfirmDialogService, useValue: confirm }]
+        { provide: ConfirmDialogService, useValue: confirm }, { provide: ConfidentialityGuardService, useValue: guard }]
     });
     const fixture = TestBed.createComponent(PostCommentsComponent);
     fixture.componentRef.setInput('post', postShown);
@@ -95,6 +99,15 @@ describe('PostCommentsComponent', () => {
     component.draft.setValue('Sous le post');
     component.send();
     expect(network.comment).toHaveBeenCalledWith(9, 'Sous le post', null);
+    guard.review.and.returnValue(of({ action: 'edit' as const, text: 'Avec un contact' }));
+    component.draft.setValue('Avec Hélène Durand');
+    component.send();
+    expect(component.draft.value).toBe('Avec un contact');
+    expect(component.isSending).toBeFalse();
+    guard.review.and.returnValue(of(null));
+    component.send();
+    expect(component.isSending).toBeFalse();
+    guard.review.and.callFake((text: string) => of({ action: 'publish' as const, text }));
     network.comments.calls.reset();
     network.comment.and.returnValue(of({ held: true }));
     component.draft.setValue('Achetez');

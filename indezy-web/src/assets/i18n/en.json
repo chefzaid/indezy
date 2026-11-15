@@ -3540,6 +3540,24 @@
         "IMPERSONATION": "Impersonation",
         "OTHER": "Something else"
       }
+    },
+    "confidentiality": {
+      "title": "Before it goes out",
+      "intro": "This text names your workspace’s clients or contacts. Anonymize it, or publish it anyway.",
+      "anonymize": "Anonymize",
+      "publishAnyway": "Publish anyway",
+      "anonymized": "Names replaced: read the text again, then publish",
+      "kinds": {
+        "CLIENT": "client",
+        "ESN": "ESN",
+        "CONTACT": "contact"
+      },
+      "replacements": {
+        "CLIENT_CITY": "a client in {{city}}",
+        "CLIENT": "a client",
+        "ESN": "a consultancy",
+        "CONTACT": "a contact"
+      }
     }
   }
 }

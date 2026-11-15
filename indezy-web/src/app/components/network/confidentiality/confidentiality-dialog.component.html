@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>{{ 'network.confidentiality.title' | translate }}</h2>
+<mat-dialog-content>
+  <p>{{ 'network.confidentiality.intro' | translate }}</p>
+  <ul class="found" data-confidential-found>
+    @for (match of data.matches; track match.found) {
+      <li [attr.data-confidential]="match.found">
+        <span class="name">{{ match.found }}</span>
+        <span class="kind"> · {{ 'network.confidentiality.kinds.' + match.kind | translate }} → {{ replacement(match) }}</span>
+      </li>
+    }
+  </ul>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close data-confidential-cancel>{{ 'common.cancel' | translate }}</button>
+  <button mat-stroked-button type="button" (click)="publishAnyway()" data-confidential-publish>{{ 'network.confidentiality.publishAnyway' | translate }}</button>
+  <button mat-flat-button type="button" (click)="anonymize()" data-confidential-anonymize>{{ 'network.confidentiality.anonymize' | translate }}</button>
+</mat-dialog-actions>

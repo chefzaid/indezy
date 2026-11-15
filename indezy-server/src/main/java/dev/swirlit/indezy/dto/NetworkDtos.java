@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.dto;
 
+import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import jakarta.validation.Valid;
@@ -292,6 +293,31 @@ public final class NetworkDtos {
         @Override
         public String toString() {
             return "DigestPost[tag=" + tag + ", likes=" + likes + "]";
+        }
+    }
+
+    /** What a confidential name in a text is. */
+    public enum ConfidentialKind {
+        CLIENT,
+        ESN,
+        CONTACT
+    }
+
+    /** The text to check before it goes out. */
+    public record ConfidentialityCheck(@NotNull @Size(max = NetworkPost.TEXT_MAX) String text) {
+
+        @Override
+        public String toString() {
+            return "ConfidentialityCheck[length=" + (text == null ? 0 : text.length()) + "]";
+        }
+    }
+
+    /** A name of the workspace found in the text, as written there, with its kind and, for a client, its city. */
+    public record ConfidentialMatch(String found, ConfidentialKind kind, String city) {
+
+        @Override
+        public String toString() {
+            return "ConfidentialMatch[kind=" + kind + "]";
         }
     }
 }

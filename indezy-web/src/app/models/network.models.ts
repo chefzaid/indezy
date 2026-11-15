@@ -271,3 +271,11 @@ export interface NetworkMembership {
   /** Only the followers the member approves read their posts. */
   privateCard: boolean;
 }
+
+/** A name of the workspace found in a text about to go out, as written there. */
+export interface ConfidentialMatch {
+  found: string;
+  kind: 'CLIENT' | 'ESN' | 'CONTACT';
+  /** A client's city, to anonymize it as "a client in Paris". */
+  city: string | null;
+}

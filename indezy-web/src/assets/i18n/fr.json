@@ -3540,6 +3540,24 @@
         "IMPERSONATION": "Usurpation d’identité",
         "OTHER": "Autre chose"
       }
+    },
+    "confidentiality": {
+      "title": "Avant publication",
+      "intro": "Ce texte cite des clients ou des contacts de votre espace. Anonymisez-le ou publiez-le quand même.",
+      "anonymize": "Anonymiser",
+      "publishAnyway": "Publier quand même",
+      "anonymized": "Noms remplacés : relisez le texte, puis publiez",
+      "kinds": {
+        "CLIENT": "client",
+        "ESN": "ESN",
+        "CONTACT": "contact"
+      },
+      "replacements": {
+        "CLIENT_CITY": "un client à {{city}}",
+        "CLIENT": "un client",
+        "ESN": "une ESN",
+        "CONTACT": "un contact"
+      }
     }
   }
 }

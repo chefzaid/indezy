@@ -9,6 +9,7 @@ import { MemberPage, MemberSuggestion, NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
 import { NetworkFeedComponent } from './network-feed.component';
 import en from '../../../../assets/i18n/en.json';
 
@@ -16,6 +17,7 @@ describe('NetworkFeedComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
+  let guard: jasmine.SpyObj<ConfidentialityGuardService>;
   const post = (id: number, own = false): NetworkPost => ({ id, text: `Post ${id}`, tags: [], createdAt: '2026-11-14T10:00:00', own, likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false,
     author: { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [], city: null, remote: false,
       availability: null, availabilityDate: null, languages: [], verified: false } });
@@ -32,11 +34,13 @@ describe('NetworkFeedComponent', () => {
       suggestion('zoe_l', 'SAME_CITY'), suggestion('jade_k', 'FOLLOWED_BY', 1), suggestion('marc_c', 'CONTACT')]));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
+    guard = jasmine.createSpyObj('ConfidentialityGuardService', ['review']);
+    guard.review.and.callFake((text: string) => of({ action: 'publish' as const, text }));
     TestBed.configureTestingModule({
       imports: [NetworkFeedComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
-        { provide: ConfirmDialogService, useValue: confirm }]
+        { provide: ConfirmDialogService, useValue: confirm }, { provide: ConfidentialityGuardService, useValue: guard }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
@@ -66,6 +70,18 @@ describe('NetworkFeedComponent', () => {
     expect(network.post).toHaveBeenCalledWith('Bonjour #Kafka');
     expect(component.posts[0].id).toBe(9);
     expect(component.draft.value).toBe('');
+    guard.review.and.returnValue(of({ action: 'edit' as const, text: 'Chez un client à Paris' }));
+    component.draft.setValue('Chez Société Générale');
+    component.publish();
+    expect(component.draft.value).toBe('Chez un client à Paris');
+    expect(notifications.success).toHaveBeenCalledWith('network.confidentiality.anonymized');
+    expect(component.isPosting).toBeFalse();
+    guard.review.and.returnValue(of(null));
+    network.post.calls.reset();
+    component.publish();
+    expect(network.post).not.toHaveBeenCalled();
+    expect(component.draft.value).toBe('Chez un client à Paris');
+    guard.review.and.callFake((text: string) => of({ action: 'publish' as const, text }));
     network.post.and.returnValue(of({ held: true }));
     component.draft.setValue('Achetez');
     component.publish();

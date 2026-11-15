@@ -227,6 +227,11 @@ undone; nothing comes from a member either one blocks, and **Profile → Network
 (matched on the email the member signs in with, the contact never told), followed by members the reader follows ("Followed by Léo and 2 other members you follow"), sharing skills with the reader's card ("Also on Kafka"),
 or in the same city, the strongest first, on what the cards show only; following one reads the feed again.
 
+Before a post or a comment goes out, the names of the workspace's clients, ESNs and contacts found in its text (accents
+and case aside, as whole words) are listed: **Anonymize** replaces each ("un client à Paris", "une ESN", "un contact")
+and leaves the text to read again before publishing, **Publish anyway** publishes it as written. The check only reads
+the workspace; nothing of it is published or kept.
+
 **Private card** (Profile → Network) makes a member approve who follows them: **Follow** on their page reads **Ask to
 follow** and sends a request, told to them and listed under **Requests to follow** to **Approve** (the member then
 follows, and is told) or **Decline** (untold); **Request sent** withdraws it. The card stays visible to members, but its

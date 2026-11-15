@@ -13,6 +13,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { NetworkComment, NetworkPost, isHeld } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
+import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -33,6 +34,7 @@ export const COMMENT_MAX = 1500;
 })
 export class PostCommentsComponent implements OnInit {
   private readonly network = inject(NetworkService);
+  private readonly confidentiality = inject(ConfidentialityGuardService);
   private readonly dialog = inject(MatDialog);
   private readonly notifications = inject(NotificationService);
   private readonly confirm = inject(ConfirmDialogService);
@@ -73,6 +75,21 @@ export class PostCommentsComponent implements OnInit {
       return;
     }
     this.isSending = true;
+    this.confidentiality.review(text).subscribe(choice => {
+      if (choice?.action === 'publish') {
+        this.commentNow(choice.text);
+        return;
+      }
+      this.isSending = false;
+      if (choice) {
+        this.draft.setValue(choice.text);
+        this.notifications.success('network.confidentiality.anonymized');
+      }
+    });
+  }
+
+  /** Comments the text checked for the workspace's names. */
+  private commentNow(text: string): void {
     this.network.comment(this.post.id, text, this.replyTo?.id ?? null).subscribe({
       next: answer => {
         this.isSending = false;
