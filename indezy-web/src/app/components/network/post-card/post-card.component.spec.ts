@@ -12,7 +12,7 @@ import { ReportDialogComponent } from '../report-dialog/report-dialog.component'
 
 describe('PostCardComponent', () => {
   const post: NetworkPost = { id: 4, text: 'Merci @leo_m pour #Kafka !\n<b>pas du HTML</b> mail@example.com', tags: ['kafka'],
-    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
+    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
       headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false } };
 
   it('splits the text into plain text, mentions and tags, leaving an address or a word alone', () => {
@@ -27,7 +27,7 @@ describe('PostCardComponent', () => {
 
   function configure(): void {
     network = jasmine.createSpyObj('NetworkService', ['like', 'likers', 'closeComments', 'comments', 'editPost', 'postVersions', 'bookmark',
-      'repost', 'repostsOff']);
+      'repost', 'repostsOff', 'vote']);
     network.comments.and.returnValue(of([]));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({ imports: [PostCardComponent, TranslateModule.forRoot()], providers: [provideRouter([]),
@@ -235,5 +235,32 @@ describe('PostCardComponent', () => {
     fixture.componentRef.setInput('post', post);
     fixture.detectChanges();
     expect(element.querySelector('[data-post-kind-badge]')).toBeNull();
+  });
+
+  it('lets the reader vote in a poll, then shows the shares, the reader\'s choice and when it closes', () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    const open = { choices: [{ text: 'IntelliJ', votes: null }, { text: 'Vim', votes: null }], endsAt: '2026-11-18T10:00:00Z',
+      closed: false, myChoice: null, total: null };
+    fixture.componentRef.setInput('post', { ...post, own: false, kind: 'POLL', poll: open });
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelectorAll('[data-poll-vote]').length).toBe(2);
+    const counted = { ...open, choices: [{ text: 'IntelliJ', votes: 1 }, { text: 'Vim', votes: 2 }], myChoice: 1, total: 3 };
+    network.vote.and.returnValue(of({ ...post, own: false, kind: 'POLL', poll: counted }));
+    (element.querySelector('[data-poll-vote="1"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(network.vote).toHaveBeenCalledWith(4, 1);
+    expect(element.querySelector('[data-poll-result="1"]')?.getAttribute('aria-pressed')).toBe('true');
+    expect(element.querySelector('[data-poll-result="1"]')?.textContent).toContain('67 %');
+    expect(fixture.componentInstance.share({ ...counted, total: 0 }, 0)).toBe(0);
+    network.vote.and.returnValue(throwError(() => new Error('down')));
+    fixture.componentInstance.vote(0);
+    expect(notifications.error).toHaveBeenCalledWith('network.poll.voteError');
+    expect(fixture.componentInstance.isVoting).toBeFalse();
+    fixture.componentRef.setInput('post', { ...post, kind: 'POLL', poll: { ...counted, closed: true } });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-poll-closed]')).not.toBeNull();
+    expect((element.querySelector('[data-poll-result="0"]') as HTMLButtonElement).disabled).toBeTrue();
   });
 });

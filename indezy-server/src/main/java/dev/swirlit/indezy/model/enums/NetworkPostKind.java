@@ -11,5 +11,7 @@ public enum NetworkPostKind {
     /** A question, marked answered when the author picks a reply. */
     QUESTION,
     /** What a mission, an ESN's process or a tool taught. */
-    EXPERIENCE
+    EXPERIENCE,
+    /** Two to four choices, open one to seven days. */
+    POLL
 }

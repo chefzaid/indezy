@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.service.NetworkCommentService;
 import dev.swirlit.indezy.service.NetworkConfidentialityService;
 import dev.swirlit.indezy.service.NetworkDraftService;
+import dev.swirlit.indezy.service.NetworkPollService;
 import dev.swirlit.indezy.service.NetworkPostService;
 import dev.swirlit.indezy.service.NetworkTagService;
 import dev.swirlit.indezy.util.SecurityUtils;
@@ -42,6 +43,7 @@ public class NetworkPostController {
     private final NetworkTagService tags;
     private final NetworkDraftService drafts;
     private final NetworkConfidentialityService confidentiality;
+    private final NetworkPollService pollVotes;
 
     @Operation(summary = "Post to the network",
         description = "Text of up to 3,000 characters; its #tags are kept. 202 when the spam score holds it for review")
@@ -176,6 +178,12 @@ public class NetworkPostController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void closeComments(@PathVariable Long id, @RequestParam boolean closed) {
         comments.close(SecurityUtils.getCurrentUserId(), id, closed);
+    }
+
+    @Operation(summary = "Vote in a poll, or change one's vote", description = "While it is open; the choice counts from 0")
+    @PutMapping("/posts/{id}/vote")
+    public NetworkDtos.Post vote(@PathVariable Long id, @RequestParam int choice) {
+        return pollVotes.vote(SecurityUtils.getCurrentUserId(), id, choice);
     }
 
     @Operation(summary = "Pick a comment under one's own question as its answer", description = "None (no commentId) to clear it")

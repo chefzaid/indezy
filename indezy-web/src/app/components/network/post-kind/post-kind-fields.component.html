@@ -46,3 +46,30 @@
     </mat-form-field>
   </div>
 }
+@if (kind.value === 'POLL') {
+  <div class="facts" data-composer-poll>
+    @for (choice of choices.controls; track $index; let index = $index) {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'network.poll.choice' | translate: { number: index + 1 } }}</mat-label>
+        <input matInput [formControl]="choice" maxlength="80" [attr.data-poll-choice]="index">
+        @if (choices.length > 2) {
+          <button mat-icon-button matSuffix type="button" (click)="removeChoice(index)" [attr.aria-label]="'network.poll.remove' | translate"
+            [attr.data-poll-remove]="index">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+    }
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'network.poll.days' | translate }}</mat-label>
+      <mat-select [formControl]="days" data-poll-days>
+        @for (option of dayOptions; track option) {
+          <mat-option [value]="option">{{ 'network.poll.daysValue' | translate: { days: option } }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    @if (choices.length < 4) {
+      <button mat-stroked-button type="button" (click)="addChoice()" data-poll-add>{{ 'network.poll.add' | translate }}</button>
+    }
+  </div>
+}

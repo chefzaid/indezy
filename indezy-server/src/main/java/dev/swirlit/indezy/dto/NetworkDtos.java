@@ -60,7 +60,7 @@ public final class NetworkDtos {
      */
     public record Post(Long id, MemberCard author, String text, List<String> tags, LocalDateTime createdAt, boolean own, int likes,
                        boolean liked, int comments, boolean commentsClosed, boolean edited, boolean bookmarked, Original repostOf,
-                       int reposts, boolean repostsOff, NetworkPostKind kind, PostDetails details, Long answerCommentId) {
+                       int reposts, boolean repostsOff, NetworkPostKind kind, PostDetails details, Long answerCommentId, Poll poll) {
 
         public Post {
             tags = List.copyOf(tags);
@@ -118,16 +118,38 @@ public final class NetworkDtos {
     }
 
     /** A new post: its text, paragraphs kept. */
-    public record NewPost(@NotBlank @Size(max = 3000) String text, NetworkPostKind kind, @Valid PostDetails details) {
+    public record NewPost(@NotBlank @Size(max = 3000) String text, NetworkPostKind kind, @Valid PostDetails details, @Valid NewPoll poll) {
 
         public NewPost(String text) {
-            this(text, null, null);
+            this(text, null, null, null);
         }
 
         @Override
         public String toString() {
             return "NewPost[length=" + (text == null ? 0 : text.length()) + ", kind=" + kind + "]";
         }
+    }
+
+    /** A poll's two to four choices and how many days it stays open. */
+    public record NewPoll(@NotNull @Size(min = 2, max = 4) List<@NotBlank @Size(max = 80) String> choices, @NotNull @Min(1) @Max(7) Integer days) {
+
+        public NewPoll {
+            choices = choices == null ? null : List.copyOf(choices);
+        }
+    }
+
+    /**
+     * A poll as its reader sees it: each choice with its votes once the reader voted, the poll closed or it is theirs (none
+     * before), when it closes, and the reader's own choice.
+     */
+    public record Poll(List<PollChoice> choices, Instant endsAt, boolean closed, Integer myChoice, Integer total) {
+
+        public Poll {
+            choices = List.copyOf(choices);
+        }
+    }
+
+    public record PollChoice(String text, Integer votes) {
     }
 
     /** The facts of a mission to pass on or of an availability: the role, the daily rate range, where, when, the client if named. */

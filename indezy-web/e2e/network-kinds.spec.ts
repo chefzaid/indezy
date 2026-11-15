@@ -41,7 +41,47 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(card.locator('[data-fact-rate]')).toContainText('600–700 €');
     await expect(card.locator('[data-post-facts]')).toContainText('Java, Kafka');
     expect(posted).toEqual([{ text: 'Je ne peux pas la prendre', kind: 'MISSION', details: { role: 'Lead Java', rateMin: 600, rateMax: 700,
-      city: 'Lyon', remoteDays: null, start: null, client: null, stack: ['Java', 'Kafka'] } }]);
+      city: 'Lyon', remoteDays: null, start: null, client: null, stack: ['Java', 'Kafka'] }, poll: null }]);
     await expect(page.locator('[data-post-facts]')).toHaveCount(1);
   });
 }
+
+test('asks a poll and votes in another member\'s', async ({ page }) => {
+  await mockWorkspaceSession(page, 'en');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  const author = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [], city: null,
+    remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
+  const poll = (votes: (number | null)[], myChoice: number | null) => ({ choices: ['IntelliJ', 'VS Code'].map((text, index) =>
+    ({ text, votes: votes[index] })), endsAt: '2026-11-18T10:00:00Z', closed: false, myChoice,
+    total: votes[0] === null ? null : votes.reduce((sum: number, count) => sum + (count ?? 0), 0) });
+  const post = (votes: (number | null)[], myChoice: number | null) => ({ id: 5, text: 'Quel IDE ?', tags: [], createdAt: '2026-11-15T09:00:00',
+    own: false, likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0,
+    repostsOff: false, kind: 'POLL', details: null, answerCommentId: null, poll: poll(votes, myChoice), author });
+  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [post([null, null], null)], page: 0, more: false } }));
+  await page.route('**/api/network/posts/5/vote?**', route => route.fulfill({ json: post([1, 3], 1) }));
+  const posted: Record<string, unknown>[] = [];
+  await page.route('**/api/network/posts', route => {
+    posted.push(route.request().postDataJSON());
+    return route.fulfill({ status: 202, json: { held: true } });
+  });
+
+  await page.goto('/network');
+  await page.locator('[data-post="5"] [data-poll-vote="1"]').click();
+  await expect(page.locator('[data-post="5"] [data-poll-result="1"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-post="5"] [data-poll-result="1"]')).toContainText('75 %');
+  await expect(page.locator('[data-post="5"] [data-post-poll]')).toContainText('4 votes');
+
+  await page.locator('[data-composer-text]').fill('Votre langage préféré ?');
+  await page.locator('[data-post-kind]').click();
+  await page.locator('[data-post-kind-option="POLL"]').click();
+  await page.locator('[data-poll-choice="0"]').fill('Java');
+  await page.locator('[data-poll-choice="1"]').fill('Kotlin');
+  await page.locator('[data-poll-add]').click();
+  await page.locator('[data-poll-choice="2"]').fill('Scala');
+  const audit = await new AxeBuilder({ page }).include('app-network-feed').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  await page.locator('[data-publish]').click();
+  await expect(page.getByText('Held for review')).toBeVisible();
+  expect(posted).toEqual([{ text: 'Votre langage préféré ?', kind: 'POLL', details: null,
+    poll: { choices: ['Java', 'Kotlin', 'Scala'], days: 3 } }]);
+});

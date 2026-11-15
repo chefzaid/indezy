@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions, ReportReason, ReportTarget, HeldForReview, ConfidentialMatch, PostDetails, PostKind } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions, ReportReason, ReportTarget, HeldForReview, ConfidentialMatch, NewPoll, PostDetails, PostKind } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -35,8 +35,14 @@ export class NetworkService {
   }
 
   /** Posts the text, of a kind with its facts; the spam score may hold it for review. */
-  post(text: string, kind: PostKind = 'POST', details: PostDetails | null = null): Observable<NetworkPost | HeldForReview> {
-    return this.http.post<NetworkPost | HeldForReview>(`${this.API_URL}/posts`, { text, kind, details });
+  post(text: string, kind: PostKind = 'POST', details: PostDetails | null = null, poll: NewPoll | null = null):
+    Observable<NetworkPost | HeldForReview> {
+    return this.http.post<NetworkPost | HeldForReview>(`${this.API_URL}/posts`, { text, kind, details, poll });
+  }
+
+  /** Votes in a poll, or changes the vote, while it is open. */
+  vote(postId: number, choice: number): Observable<NetworkPost> {
+    return this.http.put<NetworkPost>(`${this.API_URL}/posts/${postId}/vote`, null, { params: new HttpParams().set('choice', choice) });
   }
 
   /** Picks a comment under the reader's own question as its answer, or none. */

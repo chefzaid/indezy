@@ -3586,7 +3586,19 @@
       "answered": "Answered",
       "answer": "Answer",
       "markAnswer": "Mark as the answer",
-      "unmarkAnswer": "No longer the answer"
+      "unmarkAnswer": "No longer the answer",
+      "POLL": "Poll"
+    },
+    "poll": {
+      "choice": "Choice {{number}}",
+      "remove": "Remove this choice",
+      "add": "Add a choice",
+      "days": "Open for",
+      "daysValue": "{{days}} days",
+      "votes": "{{count}} votes",
+      "closed": "Closed",
+      "closes": "Closes {{date}}",
+      "voteError": "The vote could not be saved"
     }
   }
 }

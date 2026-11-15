@@ -3586,7 +3586,19 @@
       "answered": "Résolue",
       "answer": "Réponse",
       "markAnswer": "Marquer comme réponse",
-      "unmarkAnswer": "Ne plus marquer comme réponse"
+      "unmarkAnswer": "Ne plus marquer comme réponse",
+      "POLL": "Sondage"
+    },
+    "poll": {
+      "choice": "Choix {{number}}",
+      "remove": "Retirer ce choix",
+      "add": "Ajouter un choix",
+      "days": "Ouvert pendant",
+      "daysValue": "{{days}} jours",
+      "votes": "{{count}} votes",
+      "closed": "Terminé",
+      "closes": "Se termine le {{date}}",
+      "voteError": "Le vote n’a pas pu être enregistré"
     }
   }
 }

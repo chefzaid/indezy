@@ -93,6 +93,8 @@ export interface NetworkPost {
   details: PostDetails | null;
   /** The reply a question's author picked as its answer. */
   answerCommentId: number | null;
+  /** A poll's choices and, once shown, their votes. */
+  poll: Poll | null;
 }
 
 /** The post a repost reposts, as the reader can read it. */
@@ -286,8 +288,8 @@ export interface ConfidentialMatch {
   city: string | null;
 }
 
-export type PostKind = 'POST' | 'MISSION' | 'AVAILABLE' | 'QUESTION' | 'EXPERIENCE';
-export const POST_KINDS: readonly PostKind[] = ['POST', 'MISSION', 'AVAILABLE', 'QUESTION', 'EXPERIENCE'];
+export type PostKind = 'POST' | 'MISSION' | 'AVAILABLE' | 'QUESTION' | 'EXPERIENCE' | 'POLL';
+export const POST_KINDS: readonly PostKind[] = ['POST', 'MISSION', 'AVAILABLE', 'QUESTION', 'EXPERIENCE', 'POLL'];
 
 /** The facts of a mission to pass on or of an availability. */
 export interface PostDetails {
@@ -301,4 +303,19 @@ export interface PostDetails {
   /** The client, only when the author names it. */
   client: string | null;
   stack: string[];
+}
+
+/** A new poll: two to four choices, open one to seven days. */
+export interface NewPoll {
+  choices: string[];
+  days: number;
+}
+
+/** A poll as its reader sees it: the votes once they voted, it closed or it is theirs (null before). */
+export interface Poll {
+  choices: { text: string; votes: number | null }[];
+  endsAt: string;
+  closed: boolean;
+  myChoice: number | null;
+  total: number | null;
 }

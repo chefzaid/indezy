@@ -63,6 +63,14 @@ public class NetworkPost extends BaseEntity {
     @Embedded
     private NetworkPostDetails details;
 
+    /** A poll's choices, one a line. */
+    @Column(name = "poll_choices", length = 400)
+    private String pollChoices;
+
+    /** When a poll closes. */
+    @Column(name = "poll_ends_at")
+    private Instant pollEndsAt;
+
     /** The reply a question's author picked as its answer. */
     @Column(name = "answer_comment_id")
     private Long answerCommentId;

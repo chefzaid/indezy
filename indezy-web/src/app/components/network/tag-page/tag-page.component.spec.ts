@@ -15,7 +15,7 @@ describe('TagPageComponent', () => {
   const leo: MemberCard = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: ['Kafka'], city: null,
     remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
   const post = (id: number): NetworkPost => ({ id, text: `#kafka ${id}`, tags: ['kafka'], createdAt: '2026-11-14T10:00:00', own: false,
-    likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, author: leo });
+    likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, author: leo });
   const page: TagPage = { tag: 'kafka', followed: false, posts: { posts: [post(2)], page: 0, more: true }, members: [leo] };
 
   function create(answer = of(page)): ComponentFixture<TagPageComponent> {

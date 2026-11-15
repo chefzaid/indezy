@@ -175,3 +175,64 @@ footer {
     overflow-wrap: anywhere;
   }
 }
+
+.poll {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0;
+
+  .poll-choice {
+    justify-content: flex-start;
+  }
+
+  .poll-result {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    overflow: hidden;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: default;
+    }
+
+    &.mine {
+      border-color: var(--mat-sys-primary);
+      font-weight: 600;
+    }
+
+    .bar {
+      position: absolute;
+      inset: 0 auto 0 0;
+      background: var(--mat-sys-secondary-container);
+      z-index: 0;
+    }
+
+    .label,
+    .share {
+      position: relative;
+      z-index: 1;
+    }
+
+    .label {
+      flex: 1;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .poll-meta {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+  }
+}

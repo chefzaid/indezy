@@ -73,6 +73,34 @@
       }
     </dl>
   }
+  @if (post.poll; as poll) {
+    <div class="poll" data-post-poll>
+      @for (choice of poll.choices; track $index; let index = $index) {
+        @if (choice.votes === null) {
+          <button mat-stroked-button type="button" class="poll-choice" (click)="vote(index)" [disabled]="isVoting" [attr.data-poll-vote]="index">
+            {{ choice.text }}
+          </button>
+        } @else {
+          <button type="button" class="poll-result" [class.mine]="poll.myChoice === index" (click)="vote(index)"
+            [disabled]="poll.closed || isVoting || post.own" [attr.aria-pressed]="poll.myChoice === index" [attr.data-poll-result]="index">
+            <span class="bar" [style.width.%]="share(poll, index)"></span>
+            <span class="label">{{ choice.text }}</span>
+            <span class="share">{{ share(poll, index) }} %</span>
+          </button>
+        }
+      }
+      <p class="poll-meta">
+        @if (poll.total !== null) {
+          {{ 'network.poll.votes' | translate: { count: poll.total } }} ·
+        }
+        @if (poll.closed) {
+          <span data-poll-closed>{{ 'network.poll.closed' | translate }}</span>
+        } @else {
+          {{ 'network.poll.closes' | translate: { date: (poll.endsAt | date:'short') } }}
+        }
+      </p>
+    </div>
+  }
   @if (versions) {
     <ul class="versions" data-post-versions>
       @for (version of versions; track $index) {

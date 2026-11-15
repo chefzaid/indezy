@@ -1,11 +1,13 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { POST_KINDS, PostDetails, PostKind } from '../../../models';
+import { NewPoll, POST_KINDS, PostDetails, PostKind } from '../../../models';
 
 /** The highest daily rate a post names, in euros. */
 export const RATE_MAX = 5000;
@@ -17,7 +19,7 @@ export const RATE_MAX = 5000;
  */
 @Component({
   selector: 'app-post-kind-fields',
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, TranslateModule],
+  imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, TranslateModule],
   templateUrl: './post-kind-fields.component.html',
   styles: [`.kind { width: 260px; max-width: 100%; } .facts { display: flex; flex-wrap: wrap; gap: 0 12px; }
     .facts mat-form-field { flex: 1 1 160px; }`],
@@ -37,14 +39,22 @@ export class PostKindFieldsComponent {
     client: new FormControl('', { nonNullable: true, validators: Validators.maxLength(100) }),
     stack: new FormControl('', { nonNullable: true })
   });
+  /** A poll's two to four choices, and the days it stays open. */
+  readonly choices = new FormArray([this.choice(), this.choice()]);
+  readonly days = new FormControl(3, { nonNullable: true });
+  readonly dayOptions = [1, 2, 3, 4, 5, 6, 7];
 
   /** Whether the kind carries facts. */
   get withFacts(): boolean {
     return this.kind.value === 'MISSION' || this.kind.value === 'AVAILABLE';
   }
 
-  /** Whether the facts are complete for the kind: a mission's role, an availability's start, the rates in order. */
+  /** Whether the facts are complete for the kind: a mission's role, an availability's start, the rates in order, a poll's choices. */
   get valid(): boolean {
+    if (this.kind.value === 'POLL') {
+      const filled = this.choices.getRawValue().map(choice => choice.trim().toLowerCase()).filter(choice => choice !== '');
+      return this.choices.valid && filled.length >= 2 && new Set(filled).size === filled.length;
+    }
     if (!this.withFacts) {
       return true;
     }
@@ -65,8 +75,36 @@ export class PostKindFieldsComponent {
       stack: value.stack.split(',').map(skill => skill.trim()).filter(skill => skill !== '').slice(0, 10) };
   }
 
+  /** The poll to post; none for another kind. */
+  poll(): NewPoll | null {
+    if (this.kind.value !== 'POLL') {
+      return null;
+    }
+    return { choices: this.choices.getRawValue().map(choice => choice.trim()).filter(choice => choice !== ''), days: this.days.value };
+  }
+
+  addChoice(): void {
+    if (this.choices.length < 4) {
+      this.choices.push(this.choice());
+    }
+  }
+
+  removeChoice(index: number): void {
+    if (this.choices.length > 2) {
+      this.choices.removeAt(index);
+    }
+  }
+
   reset(): void {
     this.kind.setValue('POST');
     this.details.reset();
+    this.choices.clear();
+    this.choices.push(this.choice());
+    this.choices.push(this.choice());
+    this.days.setValue(3);
+  }
+
+  private choice(): FormControl<string> {
+    return new FormControl('', { nonNullable: true, validators: Validators.maxLength(80) });
   }
 }

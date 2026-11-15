@@ -11,7 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { MemberCard, NetworkPost, NetworkPostVersion, POST_EDIT_WINDOW, PostDetails } from '../../../models';
+import { MemberCard, NetworkPost, NetworkPostVersion, POST_EDIT_WINDOW, Poll, PostDetails } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -64,6 +64,7 @@ export class PostCardComponent {
   /** The members who like the post, once asked for. */
   likers: MemberCard[] | null = null;
   isLiking = false;
+  isVoting = false;
   /** Whether the comments are open under the post. */
   showComments = false;
   /** The text being written while the author edits the post; none otherwise. */
@@ -214,5 +215,25 @@ export class PostCardComponent {
     }
     return facts.rateMin !== null ? this.translate.instant('network.kinds.rateFrom', { rate: facts.rateMin }) :
       this.translate.instant('network.kinds.rateUpTo', { rate: facts.rateMax });
+  }
+
+  /** Votes for a choice of the poll, or changes the vote. */
+  vote(choice: number): void {
+    this.isVoting = true;
+    this.network.vote(this.post.id, choice).subscribe({
+      next: updated => {
+        this.isVoting = false;
+        this.post = updated;
+      },
+      error: () => {
+        this.isVoting = false;
+        this.notifications.error('network.poll.voteError');
+      }
+    });
+  }
+
+  /** The share of the votes a choice has, in whole percents. */
+  share(poll: Poll, index: number): number {
+    return poll.total ? Math.round(100 * (poll.choices[index].votes ?? 0) / poll.total) : 0;
   }
 }

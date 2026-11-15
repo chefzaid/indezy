@@ -112,7 +112,7 @@ export class NetworkFeedComponent implements OnInit {
   /** Posts the text checked for the workspace's names. */
   private postNow(text: string): void {
     const kind = this.kindFields?.kind.value ?? 'POST';
-    this.network.post(text, kind, this.kindFields?.facts() ?? null).subscribe({
+    this.network.post(text, kind, this.kindFields?.facts() ?? null, this.kindFields?.poll() ?? null).subscribe({
       next: post => {
         this.isPosting = false;
         this.draft.reset('');

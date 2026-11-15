@@ -51,4 +51,36 @@ describe('PostKindFieldsComponent', () => {
     expect(component.kind.value).toBe('POST');
     expect(component.details.getRawValue().role).toBe('');
   });
+
+  it('takes two to four distinct choices for a poll, and its days', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    expect(component.poll()).toBeNull();
+    component.kind.setValue('POLL');
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelectorAll('[data-poll-choice]').length).toBe(2);
+    expect(element.querySelector('[data-poll-remove]')).toBeNull();
+    expect(component.valid).toBeFalse();
+    component.choices.setValue(['IntelliJ', ' intellij ']);
+    expect(component.valid).toBeFalse();
+    component.choices.setValue(['IntelliJ', 'VS Code']);
+    expect(component.valid).toBeTrue();
+    (element.querySelector('[data-poll-add]') as HTMLButtonElement).click();
+    component.addChoice();
+    component.addChoice();
+    fixture.detectChanges();
+    expect(component.choices.length).toBe(4);
+    expect(element.querySelector('[data-poll-add]')).toBeNull();
+    component.choices.at(2).setValue(' Vim ');
+    component.days.setValue(5);
+    expect(component.poll()).toEqual({ choices: ['IntelliJ', 'VS Code', 'Vim'], days: 5 });
+    (element.querySelector('[data-poll-remove="3"]') as HTMLButtonElement).click();
+    component.removeChoice(0);
+    component.removeChoice(0);
+    expect(component.choices.length).toBe(2);
+    component.reset();
+    expect(component.choices.getRawValue()).toEqual(['', '']);
+    expect(component.days.value).toBe(3);
+  });
 });
