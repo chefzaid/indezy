@@ -72,6 +72,9 @@
         <div><dt>{{ 'network.kinds.stack' | translate }}</dt><dd>{{ facts.stack.join(', ') }}</dd></div>
       }
     </dl>
+    @if (post.kind === 'MISSION') {
+      <app-mission-take [post]="post"></app-mission-take>
+    }
   }
   @if (post.poll; as poll) {
     <div class="poll" data-post-poll>

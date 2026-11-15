@@ -16,6 +16,7 @@ import { NetworkService } from '../../../services/network/network.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PostCommentsComponent } from '../post-comments/post-comments.component';
+import { MissionTakeComponent } from '../mission-take/mission-take.component';
 
 /** A piece of a post's text: plain text, a member mentioned, or a #tag. */
 export type PostSegment = { text: string } | { handle: string } | { tag: string };
@@ -48,7 +49,7 @@ export function segments(text: string): PostSegment[] {
 /** A post: its author (opening their page), when it was posted, its text with mentions and tags, and its own actions. */
 @Component({
   selector: 'app-post-card',
-  imports: [DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
+  imports: [MissionTakeComponent, DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
     TranslateModule, PostCommentsComponent],
   templateUrl: './post-card.component.html',
   styleUrls: ['./post-card.component.scss'],

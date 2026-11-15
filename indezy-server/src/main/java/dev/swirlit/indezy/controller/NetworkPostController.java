@@ -1,9 +1,11 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
+import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.service.NetworkCommentService;
 import dev.swirlit.indezy.service.NetworkConfidentialityService;
 import dev.swirlit.indezy.service.NetworkDraftService;
+import dev.swirlit.indezy.service.NetworkPipelineService;
 import dev.swirlit.indezy.service.NetworkPollService;
 import dev.swirlit.indezy.service.NetworkPostService;
 import dev.swirlit.indezy.service.NetworkTagService;
@@ -44,6 +46,7 @@ public class NetworkPostController {
     private final NetworkDraftService drafts;
     private final NetworkConfidentialityService confidentiality;
     private final NetworkPollService pollVotes;
+    private final NetworkPipelineService pipeline;
 
     @Operation(summary = "Post to the network",
         description = "Text of up to 3,000 characters; its #tags are kept. 202 when the spam score holds it for review")
@@ -178,6 +181,19 @@ public class NetworkPostController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void closeComments(@PathVariable Long id, @RequestParam boolean closed) {
         comments.close(SecurityUtils.getCurrentUserId(), id, closed);
+    }
+
+    @Operation(summary = "Add a mission passed on to one's pipeline", description = "Once; named lets its author see who took it")
+    @PostMapping("/posts/{id}/pipeline")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProjectDto take(@PathVariable Long id, @RequestParam(defaultValue = "false") boolean named) {
+        return pipeline.take(SecurityUtils.getCurrentUserId(), id, named);
+    }
+
+    @Operation(summary = "The members who took one's own mission and let them know")
+    @GetMapping("/posts/{id}/takers")
+    public List<NetworkDtos.MemberCard> takers(@PathVariable Long id) {
+        return pipeline.takers(SecurityUtils.getCurrentUserId(), id);
     }
 
     @Operation(summary = "Vote in a poll, or change one's vote", description = "While it is open; the choice counts from 0")

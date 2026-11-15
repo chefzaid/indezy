@@ -3599,6 +3599,18 @@
       "closed": "Terminé",
       "closes": "Se termine le {{date}}",
       "voteError": "Le vote n’a pas pu être enregistré"
+    },
+    "pipeline": {
+      "add": "Ajouter à mon pipeline",
+      "addNamed": "Ajouter, et dire à @{{handle}} que c’est moi",
+      "addQuiet": "Ajouter sans le dire",
+      "added": "Ajoutée à votre pipeline en Premier contact",
+      "already": "Cette mission est déjà dans votre pipeline",
+      "error": "La mission n’a pas pu être ajoutée",
+      "inPipeline": "Dans votre pipeline",
+      "open": "Ouvrir l’opportunité",
+      "takenBy": "Reprise par {{count}} membres",
+      "noneNamed": "Personne ne vous a dit qui il était."
     }
   }
 }

@@ -85,3 +85,29 @@ test('asks a poll and votes in another member\'s', async ({ page }) => {
   expect(posted).toEqual([{ text: 'Votre langage préféré ?', kind: 'POLL', details: null,
     poll: { choices: ['Java', 'Kotlin', 'Scala'], days: 3 } }]);
 });
+
+test('adds another member\'s mission to the pipeline, letting them know', async ({ page }) => {
+  await mockWorkspaceSession(page, 'en');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  const author = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [], city: null,
+    remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
+  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [{ id: 6, text: 'Je ne peux pas la prendre', tags: [],
+    createdAt: '2026-11-15T09:00:00', own: false, likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false,
+    repostOf: null, reposts: 0, repostsOff: false, kind: 'MISSION', details: { role: 'Lead Java', rateMin: 600, rateMax: 700, city: 'Lyon',
+      remoteDays: 2, start: null, client: null, stack: [] }, answerCommentId: null, poll: null, taken: { count: null, mine: false },
+    author }], page: 0, more: false } }));
+  const takes: string[] = [];
+  await page.route('**/api/network/posts/6/pipeline?**', route => {
+    takes.push(new URL(route.request().url()).searchParams.get('named')!);
+    return route.fulfill({ status: 201, json: { id: 42, role: 'Lead Java', status: 'CONTACT' } });
+  });
+
+  await page.goto('/network');
+  await page.locator('[data-post="6"] [data-mission-add]').click();
+  await page.locator('[data-mission-add-named]').click();
+  await expect(page.locator('[data-post="6"] [data-mission-taken]')).toContainText('In your pipeline');
+  await expect(page.locator('[data-post="6"] [data-mission-open]')).toHaveAttribute('href', '/projects/42');
+  expect(takes).toEqual(['true']);
+  const audit = await new AxeBuilder({ page }).include('[data-post="6"]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+});

@@ -3599,6 +3599,18 @@
       "closed": "Closed",
       "closes": "Closes {{date}}",
       "voteError": "The vote could not be saved"
+    },
+    "pipeline": {
+      "add": "Add to my pipeline",
+      "addNamed": "Add, and let @{{handle}} know it’s me",
+      "addQuiet": "Add without telling",
+      "added": "Added to your pipeline at Contact",
+      "already": "This mission is already in your pipeline",
+      "error": "The mission could not be added",
+      "inPipeline": "In your pipeline",
+      "open": "Open the opportunity",
+      "takenBy": "Taken by {{count}} members",
+      "noneNamed": "None let you know who they are."
     }
   }
 }

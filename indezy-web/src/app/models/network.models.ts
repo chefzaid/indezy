@@ -95,6 +95,8 @@ export interface NetworkPost {
   answerCommentId: number | null;
   /** A poll's choices and, once shown, their votes. */
   poll: Poll | null;
+  /** A mission passed on: how many took it into their pipeline (to its author only), and whether the reader did. */
+  taken: { count: number | null; mine: boolean } | null;
 }
 
 /** The post a repost reposts, as the reader can read it. */

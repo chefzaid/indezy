@@ -1,0 +1,31 @@
+<div class="take" data-mission-take>
+  @if (post.own) {
+    <button mat-button type="button" (click)="toggleTakers()" [attr.aria-expanded]="takers !== null" data-mission-takers>
+      <mat-icon>move_to_inbox</mat-icon>{{ 'network.pipeline.takenBy' | translate: { count: post.taken?.count ?? 0 } }}
+    </button>
+  } @else if (post.taken?.mine) {
+    <span data-mission-taken><mat-icon aria-hidden="true">check</mat-icon>{{ 'network.pipeline.inPipeline' | translate }}</span>
+    @if (projectId) {
+      <a mat-button [routerLink]="['/projects', projectId]" data-mission-open>{{ 'network.pipeline.open' | translate }}</a>
+    }
+  } @else {
+    <button mat-stroked-button type="button" [matMenuTriggerFor]="how" [disabled]="taking" data-mission-add>
+      <mat-icon>add_task</mat-icon>{{ 'network.pipeline.add' | translate }}
+    </button>
+    <mat-menu #how="matMenu">
+      <button mat-menu-item type="button" (click)="take(true)" data-mission-add-named>
+        {{ 'network.pipeline.addNamed' | translate: { handle: post.author.handle } }}
+      </button>
+      <button mat-menu-item type="button" (click)="take(false)" data-mission-add-quiet>{{ 'network.pipeline.addQuiet' | translate }}</button>
+    </mat-menu>
+  }
+</div>
+@if (takers) {
+  <ul class="takers" data-mission-takers-list>
+    @for (member of takers; track member.handle) {
+      <li><a [routerLink]="['/m', member.handle]">{{ member.firstName }} {{ member.lastName }}</a></li>
+    } @empty {
+      <li>{{ 'network.pipeline.noneNamed' | translate }}</li>
+    }
+  </ul>
+}
