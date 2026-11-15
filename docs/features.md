@@ -207,6 +207,11 @@ texts. **Save** keeps a post in the reader's private **Saved** list (`/network/s
 filtered by the tags of the posts saved; a post taken off, deleted or from a member blocked either way leaves it.
 **Repost** shares a post with an optional comment, the original shown inside it (a repost of a repost reposts the
 original; once the original is gone or out of reach, the repost says so); a post's author turns its reposts off.
+**For you**, the feed's second tab, gathers the posts of the last 30 days from every member the reader can read (but
+their own and those muted), ranked by what they share with the reader (3 points a tag they follow, 2 a tag among the
+skills their card shows, 2 the author in their city) and by the members who found them useful (1 each, 5 at most) and
+liked them (half each, 5 at most), the whole divided by 1 plus a third of the post's age in days.
+
 **Useful**, the second reaction meant for questions answered and retours d'expérience, marks another member's post
 once, its count shown, and a tag's page lists its posts **Newest** or **Most useful** first. **Like** a post, once, or no longer; its likes count opens who liked it (but members blocked either way). A member
 deletes their own posts, their likes and comments going with them, and they are part of the data export.

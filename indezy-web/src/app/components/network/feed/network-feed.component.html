@@ -86,6 +86,11 @@
       </section>
     }
 
+    <mat-button-toggle-group class="tabs" [value]="tab" (change)="show($event.value)" [attr.aria-label]="'network.feed.tabs' | translate"
+      hideSingleSelectionIndicator data-feed-tabs>
+      <mat-button-toggle value="following" data-feed-tab-following>{{ 'network.feed.following' | translate }}</mat-button-toggle>
+      <mat-button-toggle value="forYou" data-feed-tab-for-you>{{ 'network.feed.forYou' | translate }}</mat-button-toggle>
+    </mat-button-toggle-group>
     @if (loading) {
       <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
     } @else {

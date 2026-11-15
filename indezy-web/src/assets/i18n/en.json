@@ -3383,7 +3383,10 @@
       "more": "Show more",
       "saved": "Saved",
       "tooManyPosts": "You have posted a lot this hour: try again later.",
-      "held": "Held for review: the moderators publish it once they have looked at it"
+      "held": "Held for review: the moderators publish it once they have looked at it",
+      "tabs": "Feed",
+      "following": "Following",
+      "forYou": "For you"
     },
     "post": {
       "actions": "Actions on the post",

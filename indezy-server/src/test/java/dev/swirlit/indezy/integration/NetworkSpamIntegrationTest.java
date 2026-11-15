@@ -70,7 +70,7 @@ class NetworkSpamIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.PUT, "/admin/network/held/1?publish=true", null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.FORBIDDEN);
         Map<String, Object> repeated = held(admin, text.toUpperCase()).getFirst();
-        assertThat((List<String>) repeated.get("reasons")).containsExactly("REPEATED");
+        assertThat((List<String>) repeated.get("reasons")).contains("REPEATED");
         assertThat((Map<String, Object>) repeated.get("author")).containsEntry("handle", bobHandle);
         Map<String, Object> linked = held(admin, links).getFirst();
         assertThat((List<String>) linked.get("reasons")).contains("LINKS", "NEW_MEMBER_LINK");

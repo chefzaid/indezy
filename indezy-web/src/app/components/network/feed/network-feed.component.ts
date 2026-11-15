@@ -3,6 +3,7 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -24,7 +25,7 @@ export const POST_MAX = 3000;
 /** The home feed (`/network`): writing a post, then the reader's posts and those of the members they follow, newest first. */
 @Component({
   selector: 'app-network-feed',
-  imports: [PostKindFieldsComponent, PageHeaderComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [MatButtonToggleModule, PostKindFieldsComponent, PageHeaderComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslateModule, PostCardComponent],
   templateUrl: './network-feed.component.html',
   styleUrls: ['./network-feed.component.scss'],
@@ -86,8 +87,21 @@ export class NetworkFeedComponent implements OnInit {
     });
   }
 
+  /** Which tab of the feed is shown: the members and tags followed, or For you. */
+  tab: 'following' | 'forYou' = 'following';
+
+  /** Shows the other tab, from its first page. */
+  show(tab: 'following' | 'forYou'): void {
+    if (tab === this.tab) {
+      return;
+    }
+    this.tab = tab;
+    this.loading = true;
+    this.load(0);
+  }
+
   load(page: number): void {
-    this.network.feed(page).subscribe({
+    (this.tab === 'forYou' ? this.network.forYou(page) : this.network.feed(page)).subscribe({
       next: found => {
         this.posts = page === 0 ? found.posts : [...this.posts, ...found.posts];
         this.page = found.page;

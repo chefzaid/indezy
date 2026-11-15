@@ -5,6 +5,7 @@ import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.service.NetworkCommentService;
 import dev.swirlit.indezy.service.NetworkConfidentialityService;
 import dev.swirlit.indezy.service.NetworkDraftService;
+import dev.swirlit.indezy.service.NetworkForYouService;
 import dev.swirlit.indezy.service.NetworkPipelineService;
 import dev.swirlit.indezy.service.NetworkPollService;
 import dev.swirlit.indezy.service.NetworkPostService;
@@ -49,6 +50,7 @@ public class NetworkPostController {
     private final NetworkPollService pollVotes;
     private final NetworkPipelineService pipeline;
     private final NetworkUsefulService usefuls;
+    private final NetworkForYouService forYou;
 
     @Operation(summary = "Post to the network",
         description = "Text of up to 3,000 characters; its #tags are kept. 202 when the spam score holds it for review")
@@ -271,6 +273,12 @@ public class NetworkPostController {
     @DeleteMapping("/tags/{tag}/follow")
     public List<String> unfollowTag(@PathVariable String tag) {
         return tags.follow(SecurityUtils.getCurrentUserId(), tag, false);
+    }
+
+    @Operation(summary = "For you: the recent posts of every member the reader can read, ranked by what they share with the reader")
+    @GetMapping("/feed/for-you")
+    public NetworkDtos.Posts forYou(@RequestParam(defaultValue = "0") int page) {
+        return forYou.forYou(SecurityUtils.getCurrentUserId(), page);
     }
 
     @Operation(summary = "The home feed: the viewer's posts, those of the members and tags they follow, the newest first, 20 a page")

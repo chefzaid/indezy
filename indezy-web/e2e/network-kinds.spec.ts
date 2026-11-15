@@ -111,3 +111,23 @@ test('adds another member\'s mission to the pipeline, letting them know', async 
   const audit = await new AxeBuilder({ page }).include('[data-post="6"]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(audit.violations.map(violation => violation.id)).toEqual([]);
 });
+
+test('switches the feed to For you and back', async ({ page }) => {
+  await mockWorkspaceSession(page, 'fr');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  const author = { handle: 'ines_b', firstName: 'Inès', lastName: 'Bernard', avatar: null, headline: null, stack: [], city: null,
+    remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
+  const post = (id: number, text: string) => ({ id, text, tags: [], createdAt: '2026-11-15T09:00:00', own: false, likes: 0, liked: false,
+    comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST',
+    details: null, answerCommentId: null, poll: null, taken: null, useful: { count: 0, mine: false }, author });
+  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [post(1, 'Suivi')], page: 0, more: false } }));
+  await page.route('**/api/network/feed/for-you?**', route => route.fulfill({ json: { posts: [post(2, 'Pour vous')], page: 0, more: false } }));
+
+  await page.goto('/network');
+  await expect(page.locator('[data-post="1"]')).toBeVisible();
+  await page.locator('[data-feed-tab-for-you]').click();
+  await expect(page.locator('[data-post="2"]')).toContainText('Pour vous');
+  await expect(page.locator('[data-post="1"]')).toHaveCount(0);
+  await page.locator('[data-feed-tab-following]').click();
+  await expect(page.locator('[data-post="1"]')).toBeVisible();
+});

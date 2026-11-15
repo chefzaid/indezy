@@ -169,6 +169,11 @@ export class NetworkService {
   feed(page = 0): Observable<NetworkPosts> {
     return this.http.get<NetworkPosts>(`${this.API_URL}/feed`, { params: { page } });
   }
+  /** For you: the recent posts of every member the reader can read, ranked by what they share with the reader. */
+  forYou(page = 0): Observable<NetworkPosts> {
+    return this.http.get<NetworkPosts>(`${this.API_URL}/feed/for-you`, { params: { page } });
+  }
+
 
   memberPosts(handle: string, page = 0): Observable<NetworkPosts> {
     return this.http.get<NetworkPosts>(`${this.member$(handle)}/posts`, { params: { page } });

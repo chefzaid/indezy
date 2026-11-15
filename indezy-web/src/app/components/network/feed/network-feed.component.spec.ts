@@ -27,7 +27,7 @@ describe('NetworkFeedComponent', () => {
       city: 'Lyon' } });
 
   function create(feed = of({ posts: [post(2), post(1, true)], page: 0, more: true })): ComponentFixture<NetworkFeedComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft']);
+    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft', 'forYou']);
     network.feed.and.returnValue(feed);
     network.followedTags.and.returnValue(of(['kafka']));
     network.suggestions.and.returnValue(of([suggestion('ines_b', 'FOLLOWED_BY', 3), suggestion('paul_d', 'SAME_STACK'),
@@ -171,5 +171,20 @@ describe('NetworkFeedComponent', () => {
     expect(fixture.componentInstance.draft.value).toBe('Une mission que je ne prends pas.');
     expect(fixture.componentInstance.shared?.kind).toBe('MISSION');
     expect((history.state as Record<string, unknown>)['networkShare']).toBeNull();
+  });
+
+  it('shows For you, ranked by the server, and the members followed again', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    network.forYou.and.returnValue(of({ posts: [post(9)], page: 0, more: false }));
+    component.show('forYou');
+    expect(network.forYou).toHaveBeenCalledWith(0);
+    expect(component.posts.map(found => found.id)).toEqual([9]);
+    expect(component.more).toBeFalse();
+    component.show('forYou');
+    expect(network.forYou).toHaveBeenCalledTimes(1);
+    network.feed.calls.reset();
+    component.show('following');
+    expect(network.feed).toHaveBeenCalledWith(0);
   });
 });

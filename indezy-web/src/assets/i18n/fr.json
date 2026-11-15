@@ -3383,7 +3383,10 @@
       "more": "Afficher plus",
       "saved": "Enregistrés",
       "tooManyPosts": "Vous avez beaucoup publié cette heure-ci : réessayez plus tard.",
-      "held": "Retenu pour vérification : les modérateurs le publieront après l’avoir examiné"
+      "held": "Retenu pour vérification : les modérateurs le publieront après l’avoir examiné",
+      "tabs": "Fil",
+      "following": "Abonnements",
+      "forYou": "Pour vous"
     },
     "post": {
       "actions": "Actions sur la publication",

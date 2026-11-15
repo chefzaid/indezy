@@ -226,7 +226,7 @@ public class NetworkPostService {
         return page(posts.findByAuthorIdInOrderByCreatedAtDescIdDesc(authors, PageRequest.of(Math.max(0, page), PAGE_SIZE)), readerId);
     }
 
-    private NetworkDtos.Posts page(Page<NetworkPost> found, Long readerId) {
+    NetworkDtos.Posts page(Page<NetworkPost> found, Long readerId) {
         Map<Long, Optional<NetworkDtos.MemberCard>> cards = new HashMap<>();
         List<Long> ids = found.getContent().stream().map(NetworkPost::getId).toList();
         Map<Long, List<NetworkLike>> liked = likes.findByPostIdIn(ids).stream().collect(Collectors.groupingBy(NetworkLike::getPostId));
