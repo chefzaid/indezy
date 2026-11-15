@@ -10,13 +10,14 @@ import { AdminService } from '../../services/admin/admin.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { AdminAccountsComponent } from './admin-accounts.component';
 import { AdminFeaturesComponent } from './admin-features.component';
+import { AdminModerationComponent } from './admin-moderation.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
-/** The admin console: how Indezy is used, its accounts, and the features turned on or off for everyone. */
+/** The admin console: how Indezy is used, its accounts, the features turned on or off for everyone, and the network's moderation. */
 @Component({
   selector: 'app-admin',
   imports: [PageHeaderComponent, MatCardModule, MatProgressSpinnerModule, MatTabsModule, TranslateModule,
-    AdminAccountsComponent, AdminFeaturesComponent],
+    AdminAccountsComponent, AdminFeaturesComponent, AdminModerationComponent],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

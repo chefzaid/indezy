@@ -22,5 +22,7 @@ public enum AccountEventType {
     /** A contact erased on their request; the detail names the contact by id only. */
     CONTACT_ERASED,
     /** Contacts anonymized after the retention period; the detail gives how many. */
-    CONTACTS_ANONYMIZED
+    CONTACTS_ANONYMIZED,
+    /** The network's moderators sanctioned the account; the detail names the outcome. */
+    NETWORK_SANCTIONED
 }

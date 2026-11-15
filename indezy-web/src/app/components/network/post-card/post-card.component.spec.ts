@@ -8,6 +8,7 @@ import { NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PostCardComponent, segments } from './post-card.component';
+import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 
 describe('PostCardComponent', () => {
   const post: NetworkPost = { id: 4, text: 'Merci @leo_m pour #Kafka !\n<b>pas du HTML</b> mail@example.com', tags: ['kafka'],
@@ -196,6 +197,16 @@ describe('PostCardComponent', () => {
     expect(deleted).toHaveBeenCalledWith(post);
     fixture.componentRef.setInput('post', { ...post, own: false });
     fixture.detectChanges();
-    expect(element.querySelector('[data-post-actions]')).toBeNull();
+    expect(element.querySelector('[data-post-actions]')).not.toBeNull();
+  });
+
+  it('reports another member\'s post to the moderators', () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', { ...post, own: false });
+    fixture.detectChanges();
+    const open = spyOn(ReportDialogComponent, 'open').and.returnValue(of(true));
+    fixture.componentInstance.report();
+    expect(open).toHaveBeenCalledWith(jasmine.anything(), { target: 'posts', id: 4 });
   });
 });

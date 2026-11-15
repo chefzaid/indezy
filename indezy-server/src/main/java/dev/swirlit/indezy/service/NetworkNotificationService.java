@@ -47,6 +47,10 @@ public class NetworkNotificationService {
     /** Kinds told once per member and post (or once per member for a follow), whatever happens after. */
     private static final Set<NetworkNotificationType> ONCE = EnumSet.of(NetworkNotificationType.FOLLOW, NetworkNotificationType.LIKE,
         NetworkNotificationType.REPOST);
+    /** The moderators' word, told whatever the settings, by no member. */
+    static final Set<NetworkNotificationType> MODERATION = EnumSet.of(NetworkNotificationType.WARNED,
+        NetworkNotificationType.CONTENT_REMOVED, NetworkNotificationType.SUSPENDED, NetworkNotificationType.REPORT_ACTED,
+        NetworkNotificationType.REPORT_DISMISSED);
 
     private final NetworkService network;
     private final NetworkMemberRepository members;
@@ -72,6 +76,15 @@ public class NetworkNotificationService {
         notification.setActorId(actorId);
         notification.setType(type);
         notification.setPostId(postId);
+        notifications.save(notification);
+    }
+
+    /** Tells a member the moderators' decision; kept as by themselves, since no member acted. */
+    void moderation(Long recipientId, NetworkNotificationType type) {
+        NetworkNotification notification = new NetworkNotification();
+        notification.setRecipientId(recipientId);
+        notification.setActorId(recipientId);
+        notification.setType(type);
         notifications.save(notification);
     }
 
@@ -101,9 +114,13 @@ public class NetworkNotificationService {
         Map<Long, Optional<NetworkDtos.MemberCard>> cards = new LinkedHashMap<>();
         Map<Long, String> excerpts = new LinkedHashMap<>();
         return groups.values().stream().map(group -> {
+            NetworkNotification latest = group.getFirst();
+            if (MODERATION.contains(latest.getType())) {
+                return new NetworkDtos.NotificationGroup(latest.getType(), null, null, List.of(), group.size(), latest.getCreatedAt(),
+                    latest.isRead());
+            }
             List<NetworkDtos.MemberCard> actors = group.stream().map(NetworkNotification::getActorId).distinct()
                 .map(actor -> cards.computeIfAbsent(actor, this::card)).flatMap(Optional::stream).toList();
-            NetworkNotification latest = group.getFirst();
             String excerpt = latest.getPostId() == null ? null : excerpts.computeIfAbsent(latest.getPostId(), this::excerpt);
             return actors.isEmpty() ? null : new NetworkDtos.NotificationGroup(latest.getType(), latest.getPostId(), excerpt,
                 actors.stream().limit(ACTORS_SHOWN).toList(), actors.size(), latest.getCreatedAt(), latest.isRead());
@@ -131,7 +148,7 @@ public class NetworkNotificationService {
     @Transactional
     public NetworkDtos.NotificationSettings saveSettings(Long userId, NetworkDtos.NotificationSettings settings) {
         NetworkMember member = network.requireMember(userId);
-        member.setNotificationsOff(settings.off().stream().distinct().sorted().map(Enum::name).collect(Collectors.joining(",")));
+        member.setNotificationsOff(settings.off().stream().filter(type -> !MODERATION.contains(type)).distinct().sorted().map(Enum::name).collect(Collectors.joining(",")));
         members.save(member);
         return settings(userId);
     }

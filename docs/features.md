@@ -225,6 +225,16 @@ undone; nothing comes from a member either one blocks, and **Profile → Network
 (matched on the email the member signs in with, the contact never told), followed by members the reader follows ("Followed by Léo and 2 other members you follow"), sharing skills with the reader's card ("Also on Kafka"),
 or in the same city, the strongest first, on what the cards show only; following one reads the feed again.
 
+**Report** (a post's or a comment's menu, or a member's page) sends it to the moderators with a reason (spam,
+harassment, hate, misleading, confidential information, impersonation, something else) and, if wanted, a few words,
+once while the report is open; the member reported is not told who reported them. In **Admin → Moderation** an
+administrator reads the open reports, the oldest first, with the text as it read and how many reports name the same
+target, and **dismisses**, **warns**, **removes** the post or the comment, **suspends** (1 to 90 days, 7 by default:
+no posting, commenting, reposting, following or reporting meanwhile) or **bans** (the membership ends and the account
+cannot join again). The decision falls on every open report of the same target; the author is told of a warning, a
+removal or a suspension, and each reporter whether the moderators acted, in their notifications. Decided reports stay,
+with the moderator's note, under **Latest decisions**, and a sanction is in the account's activity log.
+
 **Members** on the feed (`/network/members`) is the member directory: the members found by a skill, a city, an
 availability or remote work, 20 a page by last name, each card opening the member's page. It searches what each card
 shows only, so a hidden skill or city is never found, and leaves out the viewer and any member either one blocks.
@@ -848,6 +858,7 @@ out forgets everything.
 - **Overview**: accounts, sign-ups of the last 30 days, disabled accounts and each feature's use.
 - **Accounts**: search by email or name; **Disable** signs an account out and refuses its sign-ins until **Enable**,
   keeping its data. An administrator cannot be disabled.
+- **Moderation**: the member network's reports, decided as [Member Network](#member-network) tells.
 - **Features**: turns the **Offer feed**, **Public profiles**, **Data import**, **Yearly review** or **Member network**
   off or on for every account without a redeploy, within 30 seconds; a feature off leaves the menu and its API refuses
   requests. Each is on until turned off, but the member network, off until turned on.

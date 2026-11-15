@@ -14,8 +14,12 @@
             @if (!group.read) {
               <span class="cdk-visually-hidden">{{ 'network.notices.unread' | translate }}</span>
             }
-            <a [routerLink]="['/m', group.actors[0].handle]">{{ who(group).key | translate: who(group).params }}</a>
-            {{ (group.count > 1 ? 'network.notices.typesMany.' : 'network.notices.types.') + group.type | translate }}
+            @if (moderation(group)) {
+              {{ 'network.notices.moderation.' + group.type | translate }}
+            } @else {
+              <a [routerLink]="['/m', group.actors[0].handle]">{{ who(group).key | translate: who(group).params }}</a>
+              {{ (group.count > 1 ? 'network.notices.typesMany.' : 'network.notices.types.') + group.type | translate }}
+            }
           </p>
           @if (group.postExcerpt) {
             <p class="excerpt">« {{ group.postExcerpt }} »</p>

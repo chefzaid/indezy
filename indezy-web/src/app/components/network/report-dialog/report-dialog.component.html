@@ -1,0 +1,26 @@
+<h2 mat-dialog-title>{{ 'network.report.title.' + subject.target | translate }}</h2>
+<mat-dialog-content>
+  <p class="hint">{{ 'network.report.hint' | translate }}</p>
+  <form class="report-form" [formGroup]="form" (ngSubmit)="send()" id="report-form" data-report-form>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'network.report.reason' | translate }}</mat-label>
+      <mat-select formControlName="reason" data-report-reason>
+        @for (reason of reasons; track reason) {
+          <mat-option [value]="reason" [attr.data-report-option]="reason">{{ 'network.report.reasons.' + reason | translate }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.reason.hasError('required')) {
+        <mat-error>{{ 'network.report.reasonRequired' | translate }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'network.report.details' | translate }}</mat-label>
+      <textarea matInput formControlName="details" rows="3" maxlength="500" data-report-details></textarea>
+      <mat-hint align="end">{{ form.controls.details.value.length }} / 500</mat-hint>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button mat-flat-button type="submit" form="report-form" [disabled]="sending" data-report-send>{{ 'network.report.send' | translate }}</button>
+</mat-dialog-actions>

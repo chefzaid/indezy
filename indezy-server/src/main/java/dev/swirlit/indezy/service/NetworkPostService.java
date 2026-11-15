@@ -99,7 +99,11 @@ public class NetworkPostService {
     @Transactional
     public void delete(Long userId, Long postId) {
         network.requireMember(userId);
-        NetworkPost post = posts.findByIdAndAuthorId(postId, userId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
+        remove(posts.findByIdAndAuthorId(postId, userId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND)));
+    }
+
+    /** Deletes the post with its likes, comments, versions, saves and notifications: by its author or the moderators. */
+    void remove(NetworkPost post) {
         likes.deleteByPostId(post.getId());
         comments.deleteByPostId(post.getId());
         versions.deleteByPostId(post.getId());

@@ -80,4 +80,12 @@ public class NetworkMember extends BaseEntity {
     /** Works remotely: the card says so beside, or instead of, the city. */
     @Column(name = "remote", nullable = false)
     private boolean remote;
+
+    /** Until then, the moderators keep the member from posting, commenting, reposting, following and reporting. */
+    @Column(name = "suspended_until")
+    private Instant suspendedUntil;
+
+    /** When the moderators ended the membership: the account cannot join again. */
+    @Column(name = "banned_at")
+    private Instant bannedAt;
 }

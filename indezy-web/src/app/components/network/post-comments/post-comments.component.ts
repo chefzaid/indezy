@@ -7,11 +7,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { NetworkComment, NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
+import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
@@ -31,6 +33,7 @@ export const COMMENT_MAX = 1500;
 })
 export class PostCommentsComponent implements OnInit {
   private readonly network = inject(NetworkService);
+  private readonly dialog = inject(MatDialog);
   private readonly notifications = inject(NotificationService);
   private readonly confirm = inject(ConfirmDialogService);
 
@@ -102,5 +105,10 @@ export class PostCommentsComponent implements OnInit {
       next: () => this.load(),
       error: () => this.notifications.error('network.post.commentError')
     });
+  }
+
+  /** Reports another member's comment to the moderators. */
+  report(comment: NetworkComment): void {
+    ReportDialogComponent.open(this.dialog, { target: 'comments', id: comment.id }).subscribe();
   }
 }

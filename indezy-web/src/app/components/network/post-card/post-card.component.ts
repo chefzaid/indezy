@@ -7,11 +7,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { MemberCard, NetworkPost, NetworkPostVersion, POST_EDIT_WINDOW } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
+import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PostCommentsComponent } from '../post-comments/post-comments.component';
 
@@ -54,6 +56,7 @@ export function segments(text: string): PostSegment[] {
 })
 export class PostCardComponent {
   private readonly network = inject(NetworkService);
+  private readonly dialog = inject(MatDialog);
   private readonly notifications = inject(NotificationService);
 
   @Input({ required: true }) post!: NetworkPost;
@@ -196,5 +199,10 @@ export class PostCardComponent {
 
   tagOf(part: PostSegment): string | null {
     return 'tag' in part ? part.tag : null;
+  }
+
+  /** Reports another member's post to the moderators. */
+  report(): void {
+    ReportDialogComponent.open(this.dialog, { target: 'posts', id: this.post.id }).subscribe();
   }
 }

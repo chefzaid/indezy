@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { NetworkNotificationType, NotificationGroup } from '../../../models';
+import { MODERATION_NOTICES, NetworkNotificationType, NotificationGroup } from '../../../models';
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -12,7 +12,8 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 
 /** The icon of each kind of notification. */
 export const NOTICE_ICONS: Record<NetworkNotificationType, string> = {
-  FOLLOW: 'person_add', LIKE: 'favorite', COMMENT: 'chat_bubble', REPLY: 'reply', MENTION: 'alternate_email', REPOST: 'repeat'
+  FOLLOW: 'person_add', LIKE: 'favorite', COMMENT: 'chat_bubble', REPLY: 'reply', MENTION: 'alternate_email', REPOST: 'repeat',
+  WARNED: 'report', CONTENT_REMOVED: 'delete', SUSPENDED: 'timer_off', REPORT_ACTED: 'gavel', REPORT_DISMISSED: 'flag'
 };
 
 /**
@@ -48,6 +49,11 @@ export class NetworkNotificationsComponent implements OnInit {
       },
       error: () => this.notifications.error('network.notices.loadError')
     });
+  }
+
+  /** Whether the moderators, not a member, tell it. */
+  moderation(group: NotificationGroup): boolean {
+    return MODERATION_NOTICES.includes(group.type);
   }
 
   /** "Léo", "Léo and Inès", or "Léo and 3 others": who did it. */

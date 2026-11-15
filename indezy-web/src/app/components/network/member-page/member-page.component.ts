@@ -4,6 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
@@ -11,6 +12,7 @@ import { Observable, map, switchMap } from 'rxjs';
 
 import { MemberCard, MemberPage, NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
+import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MemberCardComponent } from '../member-card/member-card.component';
@@ -33,6 +35,7 @@ export type MemberList = 'followers' | 'following';
 export class MemberPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly network = inject(NetworkService);
+  private readonly dialog = inject(MatDialog);
   private readonly notifications = inject(NotificationService);
   private readonly confirm = inject(ConfirmDialogService);
   private readonly changes = inject(ChangeDetectorRef);
@@ -168,5 +171,10 @@ export class MemberPageComponent implements OnInit {
       },
       error: () => this.notifications.error('network.page.followError')
     });
+  }
+
+  /** Reports the member to the moderators. */
+  report(): void {
+    ReportDialogComponent.open(this.dialog, { target: 'members', id: this.page!.card.handle }).subscribe();
   }
 }

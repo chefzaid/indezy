@@ -13,5 +13,15 @@ public enum NetworkNotificationType {
     /** A member mentioned them in a post or a comment. */
     MENTION,
     /** A member reposted their post. */
-    REPOST
+    REPOST,
+    /** The moderators warned them about a post, a comment or their conduct. */
+    WARNED,
+    /** The moderators removed their post or comment. */
+    CONTENT_REMOVED,
+    /** The moderators suspended them for some days. */
+    SUSPENDED,
+    /** The moderators acted on a report they made. */
+    REPORT_ACTED,
+    /** The moderators found nothing against the rules in a report they made. */
+    REPORT_DISMISSED
 }

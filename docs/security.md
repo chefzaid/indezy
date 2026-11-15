@@ -192,8 +192,15 @@ The member network (`/api/network`) is off until an administrator turns it on (`
   city is never found;
 - a block is both ways: neither follows the other, nor reads the other's posts, comments or lists, and the blocker's
   page answers `404` to the blocked member as for an unknown handle; a muted member's posts leave the feed;
-- a member may post 10 times, comment 60 times and follow 100 members an hour (`NetworkLimits`); beyond, `429` with
-  `Retry-After`;
+- a member may post 10 times, comment 60 times, follow 100 members and report 20 times an hour (`NetworkLimits`);
+  beyond, `429` with `Retry-After`;
+- a member reports only what they can read (a post or a comment of a member blocking them, like an unknown one, is not
+  found), never themselves, and once while the report is open; the report keeps the text as it read, so the audit
+  trail survives the removal, and its details and the moderator's note leave the logs;
+- the moderation queue (`/api/admin/network/reports`) answers administrators only (`403` otherwise); a suspended member
+  is refused posting, commenting, reposting, following and reporting with `409` until the suspension ends, and a banned
+  account is out of the network and refused joining again; each sanction is recorded in the account's activity log
+  (`NETWORK_SANCTIONED`);
 - posts and comments are plain text: the page shows them as text nodes, `@handle` and `#tag` as links it builds, never
   HTML; their bodies leave the logs (`toString` gives the id or length only), as do the member cards';
 - the verification sends the billing SIRET alone to the public registry, read afresh;

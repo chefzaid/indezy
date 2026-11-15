@@ -10,6 +10,7 @@ import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { PostCommentsComponent } from './post-comments.component';
+import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 
 describe('PostCommentsComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
@@ -39,6 +40,14 @@ describe('PostCommentsComponent', () => {
     fixture.detectChanges();
     return fixture;
   }
+
+  it('reports another member\'s comment to the moderators', () => {
+    const fixture = create();
+    fixture.componentInstance.load();
+    const open = spyOn(ReportDialogComponent, 'open').and.returnValue(of(true));
+    fixture.componentInstance.report(comment(2));
+    expect(open).toHaveBeenCalledWith(jasmine.anything(), { target: 'comments', id: 2 });
+  });
 
   it('shows the comments with their replies and counts them, then comments and replies', () => {
     const fixture = create();

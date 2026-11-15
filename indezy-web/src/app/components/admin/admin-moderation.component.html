@@ -1,0 +1,63 @@
+<div class="moderation">
+  <p class="hint">{{ 'admin.moderation.hint' | translate }}</p>
+  @if (queue) {
+    <h3>{{ 'admin.moderation.open' | translate: { count: queue.openCount } }}</h3>
+    @for (report of queue.open; track report.id) {
+      <mat-card class="report" [attr.data-report]="report.id">
+        <div class="head">
+          <span class="type">{{ 'admin.moderation.targets.' + report.targetType | translate }}</span>
+          <span class="target">{{ who(report.target) }}</span>
+          <span class="reason">{{ 'network.report.reasons.' + report.reason | translate }}</span>
+          @if (report.openOnTarget > 1) {
+            <span class="count" data-report-count>{{ 'admin.moderation.openOnTarget' | translate: { count: report.openOnTarget } }}</span>
+          }
+        </div>
+        @if (report.excerpt) {
+          <blockquote class="excerpt" data-report-excerpt>{{ report.excerpt }}</blockquote>
+        }
+        @if (report.details) {
+          <p class="details">{{ report.details }}</p>
+        }
+        <p class="meta">{{ 'admin.moderation.reportedBy' | translate: { who: who(report.reporter), date: (report.createdAt | date:'short') } }}</p>
+        <div class="decision">
+          <mat-form-field appearance="outline" class="note" subscriptSizing="dynamic">
+            <mat-label>{{ 'admin.moderation.note' | translate }}</mat-label>
+            <input matInput maxlength="500" [value]="notes[report.id] ?? ''" (input)="setNote(report, $any($event.target).value)"
+              data-report-note>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="days" subscriptSizing="dynamic">
+            <mat-label>{{ 'admin.moderation.days' | translate }}</mat-label>
+            <input matInput type="number" min="1" max="90" [value]="daysOf(report)" (input)="setDays(report, $any($event.target).value)"
+              data-report-days>
+          </mat-form-field>
+          <div class="actions">
+            @for (outcome of outcomes(report); track outcome) {
+              <button mat-stroked-button type="button" [disabled]="deciding === report.id" (click)="decide(report, outcome)"
+                [class.danger]="outcome === 'BANNED'" [attr.data-decide]="outcome">
+                {{ 'admin.moderation.outcomes.' + outcome | translate }}
+              </button>
+            }
+          </div>
+        </div>
+      </mat-card>
+    } @empty {
+      <p class="empty" data-moderation-empty>{{ 'admin.moderation.empty' | translate }}</p>
+    }
+    @if (queue.resolved.length) {
+      <h3>{{ 'admin.moderation.resolved' | translate }}</h3>
+      <ul class="resolved" data-moderation-resolved>
+        @for (report of queue.resolved; track report.id) {
+          <li [attr.data-resolved]="report.id">
+            <span class="outcome">{{ 'admin.moderation.outcomes.' + report.outcome | translate }}</span>
+            {{ 'admin.moderation.targets.' + report.targetType | translate }} {{ who(report.target) }} ·
+            {{ 'network.report.reasons.' + report.reason | translate }} ·
+            {{ 'admin.moderation.decidedBy' | translate: { who: who(report.resolvedBy), date: (report.resolvedAt | date:'short') } }}
+            @if (report.note) {
+              <span class="note-text">— {{ report.note }}</span>
+            }
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>

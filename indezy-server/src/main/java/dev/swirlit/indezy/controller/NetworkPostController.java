@@ -1,0 +1,223 @@
+package dev.swirlit.indezy.controller;
+
+import dev.swirlit.indezy.dto.NetworkDtos;
+import dev.swirlit.indezy.service.NetworkCommentService;
+import dev.swirlit.indezy.service.NetworkDraftService;
+import dev.swirlit.indezy.service.NetworkPostService;
+import dev.swirlit.indezy.service.NetworkTagService;
+import dev.swirlit.indezy.util.SecurityUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+/** The member network's posts, comments, drafts and tags. Off until an administrator turns it on. */
+@RestController
+@RequestMapping("/network")
+@RequiredArgsConstructor
+@Tag(name = "Network posts", description = "Posts, comments, drafts and tags of the member network")
+public class NetworkPostController {
+
+    private final NetworkPostService posts;
+    private final NetworkCommentService comments;
+    private final NetworkTagService tags;
+    private final NetworkDraftService drafts;
+
+    @Operation(summary = "Post to the network", description = "Text of up to 3,000 characters; its #tags are kept")
+    @PostMapping("/posts")
+    @ResponseStatus(HttpStatus.CREATED)
+    public NetworkDtos.Post post(@Valid @RequestBody NetworkDtos.NewPost request) {
+        return posts.post(SecurityUtils.getCurrentUserId(), request);
+    }
+
+    @Operation(summary = "Edit one's own post", description = "In the 15 minutes after posting it (409 later); the earlier text is kept")
+    @PutMapping("/posts/{id}")
+    public NetworkDtos.Post editPost(@PathVariable Long id, @Valid @RequestBody NetworkDtos.NewPost request) {
+        return posts.edit(SecurityUtils.getCurrentUserId(), id, request);
+    }
+
+    @Operation(summary = "The earlier texts of an edited post, the latest first")
+    @GetMapping("/posts/{id}/versions")
+    public List<NetworkDtos.PostVersion> postVersions(@PathVariable Long id) {
+        return posts.versions(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "Repost a post, with an optional comment", description = "409 when its author turned reposts off")
+    @PostMapping("/posts/{id}/reposts")
+    @ResponseStatus(HttpStatus.CREATED)
+    public NetworkDtos.Post repost(@PathVariable Long id, @Valid @RequestBody NetworkDtos.NewRepost request) {
+        return posts.repost(SecurityUtils.getCurrentUserId(), id, request);
+    }
+
+    @Operation(summary = "Turn reposts of one's own post off, or on again")
+    @PutMapping("/posts/{id}/reposts-off")
+    public NetworkDtos.Post repostsOff(@PathVariable Long id, @RequestParam boolean off) {
+        return posts.repostsOff(SecurityUtils.getCurrentUserId(), id, off);
+    }
+
+    @Operation(summary = "One's drafts, the scheduled ones first by their time")
+    @GetMapping("/drafts")
+    public List<NetworkDtos.Draft> drafts() {
+        return drafts.list(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Keep a draft, or schedule it from a minute to 30 days ahead")
+    @PostMapping("/drafts")
+    @ResponseStatus(HttpStatus.CREATED)
+    public NetworkDtos.Draft createDraft(@Valid @RequestBody NetworkDtos.DraftRequest request) {
+        return drafts.create(SecurityUtils.getCurrentUserId(), request);
+    }
+
+    @Operation(summary = "Change a draft or its schedule")
+    @PutMapping("/drafts/{id}")
+    public NetworkDtos.Draft updateDraft(@PathVariable Long id, @Valid @RequestBody NetworkDtos.DraftRequest request) {
+        return drafts.update(SecurityUtils.getCurrentUserId(), id, request);
+    }
+
+    @Operation(summary = "Delete a draft")
+    @DeleteMapping("/drafts/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteDraft(@PathVariable Long id) {
+        drafts.delete(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "Publish a draft now")
+    @PostMapping("/drafts/{id}/publish")
+    @ResponseStatus(HttpStatus.CREATED)
+    public NetworkDtos.Post publishDraft(@PathVariable Long id) {
+        return drafts.publish(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "Delete one's own post")
+    @DeleteMapping("/posts/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePost(@PathVariable Long id) {
+        posts.delete(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "Like a post")
+    @PutMapping("/posts/{id}/like")
+    public NetworkDtos.Post like(@PathVariable Long id) {
+        return posts.like(SecurityUtils.getCurrentUserId(), id, true);
+    }
+
+    @Operation(summary = "Stop liking a post")
+    @DeleteMapping("/posts/{id}/like")
+    public NetworkDtos.Post unlike(@PathVariable Long id) {
+        return posts.like(SecurityUtils.getCurrentUserId(), id, false);
+    }
+
+    @Operation(summary = "The members who like a post, the latest first")
+    @GetMapping("/posts/{id}/likes")
+    public List<NetworkDtos.MemberCard> likers(@PathVariable Long id) {
+        return posts.likers(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "The comments under a post, each with its replies, the pinned one first")
+    @GetMapping("/posts/{id}/comments")
+    public List<NetworkDtos.Comment> comments(@PathVariable Long id) {
+        return comments.list(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "Comment a post, or reply to one of its comments", description = "409 once its author closed the comments")
+    @PostMapping("/posts/{id}/comments")
+    @ResponseStatus(HttpStatus.CREATED)
+    public NetworkDtos.Comment comment(@PathVariable Long id, @Valid @RequestBody NetworkDtos.NewComment request) {
+        return comments.comment(SecurityUtils.getCurrentUserId(), id, request);
+    }
+
+    @Operation(summary = "Delete one's own comment, and its replies")
+    @DeleteMapping("/comments/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComment(@PathVariable Long id) {
+        comments.delete(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "Hide a comment under one's own post, or show it again")
+    @PutMapping("/comments/{id}/hidden")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void hideComment(@PathVariable Long id, @RequestParam boolean hidden) {
+        comments.hide(SecurityUtils.getCurrentUserId(), id, hidden);
+    }
+
+    @Operation(summary = "Close the comments of one's own post, or open them again")
+    @PutMapping("/posts/{id}/comments-closed")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void closeComments(@PathVariable Long id, @RequestParam boolean closed) {
+        comments.close(SecurityUtils.getCurrentUserId(), id, closed);
+    }
+
+    @Operation(summary = "Pin a comment of one's own post above the others, or none")
+    @PutMapping("/posts/{id}/pinned-comment")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void pinComment(@PathVariable Long id, @RequestParam(required = false) Long commentId) {
+        comments.pin(SecurityUtils.getCurrentUserId(), id, commentId);
+    }
+
+    @Operation(summary = "Save a post to one's private list")
+    @PutMapping("/posts/{id}/bookmark")
+    public NetworkDtos.Post bookmark(@PathVariable Long id) {
+        return posts.bookmark(SecurityUtils.getCurrentUserId(), id, true);
+    }
+
+    @Operation(summary = "Take a post off one's private list")
+    @DeleteMapping("/posts/{id}/bookmark")
+    public NetworkDtos.Post unbookmark(@PathVariable Long id) {
+        return posts.bookmark(SecurityUtils.getCurrentUserId(), id, false);
+    }
+
+    @Operation(summary = "One's saved posts, the latest saved first, 20 a page, those naming a tag when one is given")
+    @GetMapping("/bookmarks")
+    public NetworkDtos.SavedPosts bookmarks(@RequestParam(required = false) String tag, @RequestParam(defaultValue = "0") int page) {
+        return posts.saved(SecurityUtils.getCurrentUserId(), tag, page);
+    }
+
+    @Operation(summary = "A tag's page: whether the viewer follows it, its posts (20 a page) and members whose cards show the skill")
+    @GetMapping("/tags/{tag}")
+    public NetworkDtos.TagPage tag(@PathVariable String tag, @RequestParam(defaultValue = "0") int page) {
+        return tags.page(SecurityUtils.getCurrentUserId(), tag, page);
+    }
+
+    @Operation(summary = "The tags the viewer follows")
+    @GetMapping("/tags")
+    public List<String> followedTags() {
+        return tags.followed(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Follow a tag: posts naming it reach the home feed")
+    @PutMapping("/tags/{tag}/follow")
+    public List<String> followTag(@PathVariable String tag) {
+        return tags.follow(SecurityUtils.getCurrentUserId(), tag, true);
+    }
+
+    @Operation(summary = "Stop following a tag")
+    @DeleteMapping("/tags/{tag}/follow")
+    public List<String> unfollowTag(@PathVariable String tag) {
+        return tags.follow(SecurityUtils.getCurrentUserId(), tag, false);
+    }
+
+    @Operation(summary = "The home feed: the viewer's posts, those of the members and tags they follow, the newest first, 20 a page")
+    @GetMapping("/feed")
+    public NetworkDtos.Posts feed(@RequestParam(defaultValue = "0") int page) {
+        return posts.feed(SecurityUtils.getCurrentUserId(), page);
+    }
+
+    @Operation(summary = "A member's posts, the newest first, 20 a page")
+    @GetMapping("/members/{handle}/posts")
+    public NetworkDtos.Posts memberPosts(@PathVariable String handle, @RequestParam(defaultValue = "0") int page) {
+        return posts.memberPosts(SecurityUtils.getCurrentUserId(), handle, page);
+    }
+}

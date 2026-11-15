@@ -10,12 +10,16 @@
         {{ 'network.post.edited' | translate }}
       </button>
     }
-    @if (post.own) {
-      <button mat-icon-button type="button" [matMenuTriggerFor]="actions" [attr.aria-label]="'network.post.actions' | translate"
-        data-post-actions>
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <mat-menu #actions="matMenu">
+    <button mat-icon-button type="button" [matMenuTriggerFor]="actions" [attr.aria-label]="'network.post.actions' | translate"
+      data-post-actions>
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #actions="matMenu">
+      @if (!post.own) {
+        <button mat-menu-item type="button" (click)="report()" data-post-report>
+          <mat-icon>flag</mat-icon>{{ 'network.report.action' | translate }}
+        </button>
+      } @else {
         @if (editable) {
           <button mat-menu-item type="button" (click)="startEditing()" data-post-edit>
             <mat-icon>edit</mat-icon>{{ 'network.post.edit' | translate }}
@@ -32,8 +36,8 @@
         <button mat-menu-item type="button" (click)="deleted.emit(post)" data-post-delete>
           <mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}
         </button>
-      </mat-menu>
-    }
+      }
+    </mat-menu>
   </header>
   @if (versions) {
     <ul class="versions" data-post-versions>

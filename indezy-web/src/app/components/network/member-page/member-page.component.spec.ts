@@ -10,6 +10,7 @@ import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MemberPageComponent } from './member-page.component';
+import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import en from '../../../../assets/i18n/en.json';
 
 describe('MemberPageComponent', () => {
@@ -91,6 +92,13 @@ describe('MemberPageComponent', () => {
     network.following.and.returnValue(throwError(() => new Error('down')));
     component.show('following');
     expect(notifications.error).toHaveBeenCalledWith('network.page.listError');
+  });
+
+  it('reports the member to the moderators', () => {
+    const fixture = create();
+    const open = spyOn(ReportDialogComponent, 'open').and.returnValue(of(true));
+    fixture.componentInstance.report();
+    expect(open).toHaveBeenCalledWith(jasmine.anything(), { target: 'members', id: 'camille' });
   });
 
   it('mutes and blocks the member, the block once confirmed, and unblocks them', () => {

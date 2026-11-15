@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions, ReportReason, ReportTarget } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -235,6 +235,11 @@ export class NetworkService {
   /** Stops a member following the viewer. */
   removeFollower(handle: string): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/followers/${encodeURIComponent(handle)}`);
+  }
+
+  /** Reports a post, a comment (by id) or a member (by handle) to the moderators. */
+  report(target: ReportTarget, id: number | string, reason: ReportReason, details: string | null): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/${target}/${encodeURIComponent(String(id))}/report`, { reason, details });
   }
 
   private member$(handle: string): string {

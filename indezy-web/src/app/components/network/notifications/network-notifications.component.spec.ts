@@ -51,6 +51,15 @@ describe('NetworkNotificationsComponent', () => {
     expect(notices.refresh).toHaveBeenCalled();
   });
 
+  it('tells the moderators\' word without a member', () => {
+    const element = create(of([{ ...group('SUSPENDED', 1), actors: [], postId: null, postExcerpt: null },
+      { ...group('REPORT_ACTED', 2, true), actors: [], postId: null, postExcerpt: null }]));
+    expect(element.querySelector('[data-notice="SUSPENDED"] p')?.textContent).toContain('The moderators suspended you');
+    expect(element.querySelector('[data-notice="SUSPENDED"] a')).toBeNull();
+    expect(element.querySelector('[data-notice="REPORT_ACTED"] p')?.textContent).toContain('acted on a report you made');
+    expect(element.querySelector('[data-notice="REPORT_ACTED"] mat-icon')?.textContent).toBe('gavel');
+  });
+
   it('marks nothing read when all is read, and says when there is nothing or it cannot be loaded', () => {
     let element = create(of([group('REPOST', 1, true)]));
     expect(network.readNotifications).not.toHaveBeenCalled();

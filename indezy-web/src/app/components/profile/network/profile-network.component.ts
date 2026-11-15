@@ -131,6 +131,10 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
       },
       error: (error: HttpErrorResponse) => {
         this.isSaving = false;
+        if (error.status === 409 && String(error.error?.message ?? '').startsWith('The moderators ended')) {
+          this.notifications.error('profile.network.banned');
+          return;
+        }
         if (error.status === 409) {
           this.form.controls.handle.setErrors({ taken: true });
           return;

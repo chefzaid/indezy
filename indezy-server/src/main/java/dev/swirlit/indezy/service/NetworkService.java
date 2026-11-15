@@ -45,6 +45,7 @@ import java.util.stream.Stream;
 public class NetworkService {
 
     static final String NOT_FOUND = "No member with this handle";
+    static final String BANNED = "The moderators ended this account's membership";
     /** Handles that would pass for Indezy itself, or for a page. */
     static final Set<String> RESERVED = Set.of("admin", "administrator", "indezy", "support", "help", "moderator", "moderation",
         "network", "settings", "system", "root", "null", "undefined", "me", "you", "team", "staff", "official");
@@ -78,6 +79,9 @@ public class NetworkService {
             throw new InvalidStateException("The handle @" + handle + " is already taken");
         }
         NetworkMember member = members.findByUserId(userId).orElseGet(NetworkMember::new);
+        if (member.getBannedAt() != null) {
+            throw new InvalidStateException(BANNED);
+        }
         if (member.getId() == null || !member.isActive()) {
             member.setJoinedAt(clock.instant());
             log.info("Account {} joined the network", userId);

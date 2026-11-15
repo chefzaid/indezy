@@ -39,6 +39,9 @@
           <button mat-menu-item type="button" (click)="toggleBlock()" data-block>
             <mat-icon>block</mat-icon>{{ (page.blocked ? 'network.page.unblock' : 'network.page.block') | translate }}
           </button>
+          <button mat-menu-item type="button" (click)="report()" data-member-report>
+            <mat-icon>flag</mat-icon>{{ 'network.report.action' | translate }}
+          </button>
         </mat-menu>
       }
     </div>

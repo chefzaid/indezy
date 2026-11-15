@@ -1197,7 +1197,17 @@
         "ACCOUNT_DISABLED": "Account disabled by an administrator",
         "ACCOUNT_ENABLED": "Account enabled again by an administrator",
         "API_TOKEN_CREATED": "API token \"{{name}}\" created",
-        "API_TOKEN_REVOKED": "API token \"{{name}}\" revoked"
+        "API_TOKEN_REVOKED": "API token \"{{name}}\" revoked",
+        "CONTACT_DATA_EXPORTED": "A contact’s data exported on their request",
+        "CONTACT_ERASED": "A contact erased on their request",
+        "CONTACTS_ANONYMIZED": "{{count}} contacts anonymized after the retention period",
+        "NETWORK_SANCTIONED": "Sanctioned by the network’s moderators: {{outcome}}"
+      },
+      "outcomes": {
+        "WARNED": "warned",
+        "REMOVED": "content removed",
+        "SUSPENDED": "suspended",
+        "BANNED": "banned"
       }
     },
     "apiTokens": {
@@ -1443,7 +1453,8 @@
         "REPLY": "When a member replies to your comment",
         "MENTION": "When a member mentions you",
         "REPOST": "When a member reposts your post"
-      }
+      },
+      "banned": "The moderators ended this account’s membership: it cannot join again."
     }
   },
   "errors": {
@@ -2538,7 +2549,8 @@
     "tabs": {
       "overview": "Overview",
       "accounts": "Accounts",
-      "features": "Features"
+      "features": "Features",
+      "moderation": "Moderation"
     },
     "accounts": "Accounts",
     "signups": "Sign-ups in the last 30 days",
@@ -2609,7 +2621,33 @@
     "featureOn": "Feature turned on",
     "featureOff": "Feature turned off",
     "loadError": "The admin console could not be loaded",
-    "saveError": "The change could not be saved"
+    "saveError": "The change could not be saved",
+    "moderation": {
+      "hint": "The reports of the member network, the oldest first. A decision falls on every open report of the same post, comment or member; the author is told of a sanction and each reporter of the outcome. The note stays in the audit trail and is never shown to members.",
+      "open": "Open reports ({{count}})",
+      "empty": "No open report.",
+      "resolved": "Latest decisions",
+      "openOnTarget": "{{count}} reports",
+      "reportedBy": "Reported by {{who}} on {{date}}",
+      "decidedBy": "decided by {{who}} on {{date}}",
+      "note": "Note for the audit trail",
+      "days": "Days of suspension",
+      "daysInvalid": "A suspension lasts from 1 to 90 days",
+      "decided": "Decision recorded",
+      "banConfirm": "Ban {{who}} from the network for good? They cannot join again.",
+      "targets": {
+        "POST": "Post",
+        "COMMENT": "Comment",
+        "MEMBER": "Member"
+      },
+      "outcomes": {
+        "DISMISSED": "Dismiss",
+        "WARNED": "Warn",
+        "REMOVED": "Remove",
+        "SUSPENDED": "Suspend",
+        "BANNED": "Ban"
+      }
+    }
   },
   "invoices": {
     "title": "Invoices",
@@ -3406,6 +3444,13 @@
         "REPLY": "replied to your comment",
         "MENTION": "mentioned you",
         "REPOST": "reposted your post"
+      },
+      "moderation": {
+        "WARNED": "The moderators warned you about a post, a comment or your conduct in the network.",
+        "CONTENT_REMOVED": "The moderators removed one of your posts or comments.",
+        "SUSPENDED": "The moderators suspended you: for some days you cannot post, comment, repost, follow or report.",
+        "REPORT_ACTED": "The moderators acted on a report you made. Thank you.",
+        "REPORT_DISMISSED": "The moderators found nothing against the rules in a report you made."
       }
     },
     "drafts": {
@@ -3425,6 +3470,32 @@
       "published": "Published",
       "deleteConfirm": "Delete this draft?",
       "loadError": "Your drafts could not be loaded"
+    },
+    "report": {
+      "action": "Report",
+      "hint": "The moderators will look at it; the member is not told who reported them. You will be told the outcome.",
+      "title": {
+        "posts": "Report this post",
+        "comments": "Report this comment",
+        "members": "Report this member"
+      },
+      "reason": "Reason",
+      "reasonRequired": "Choose a reason",
+      "details": "What is wrong (optional)",
+      "send": "Send the report",
+      "sent": "Report sent: the moderators will look at it",
+      "already": "You already reported this: the moderators will look at it",
+      "suspended": "You are suspended and cannot report for now",
+      "error": "The report could not be sent",
+      "reasons": {
+        "SPAM": "Spam or advertising",
+        "HARASSMENT": "Harassment",
+        "HATE": "Hate or discrimination",
+        "MISLEADING": "Misleading or a scam",
+        "CONFIDENTIAL": "Confidential information (client, rate, mission)",
+        "IMPERSONATION": "Impersonation",
+        "OTHER": "Something else"
+      }
     }
   }
 }

@@ -55,5 +55,10 @@
         <app-admin-features></app-admin-features>
       </ng-template>
     </mat-tab>
+    <mat-tab [label]="'admin.tabs.moderation' | translate">
+      <ng-template matTabContent>
+        <app-admin-moderation></app-admin-moderation>
+      </ng-template>
+    </mat-tab>
   </mat-tab-group>
 </div>

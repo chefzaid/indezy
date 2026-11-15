@@ -90,6 +90,11 @@ public class NetworkCommentService {
         network.requireMember(readerId);
         NetworkComment comment = comments.findById(commentId).filter(found -> found.getAuthorId().equals(readerId))
             .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
+        remove(comment);
+    }
+
+    /** Deletes the comment and its replies, unpinning it: by its author or the moderators. */
+    void remove(NetworkComment comment) {
         comments.deleteAll(comments.findByParentId(comment.getId()));
         postRepository.findById(comment.getPostId()).filter(post -> comment.getId().equals(post.getPinnedCommentId()))
             .ifPresent(post -> post.setPinnedCommentId(null));

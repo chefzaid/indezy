@@ -101,6 +101,10 @@ describe('ProfileNetworkComponent', () => {
     expect(component.form.controls.handle.hasError('taken')).toBeTrue();
     component.form.controls.handle.setValue('other_one');
     tick(300);
+    network.join.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409,
+      error: { message: "The moderators ended this account's membership" } })));
+    component.save();
+    expect(notifications.error).toHaveBeenCalledWith('profile.network.banned');
     network.join.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
     component.save();
     expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');

@@ -115,6 +115,9 @@ describe('ProfileSessionsComponent', () => {
     expect(component.describe(event(9, 'SIGN_IN_REFUSED', 'PASSWORD'))).toBe('Sign-in refused: wrong password');
     expect(component.eventIcon(event(9, 'PASSWORD_CHANGED'))).toBe('password');
     expect(component.describe(event(9, 'API_TOKEN_CREATED', 'Zapier'))).toBe('API token "Zapier" created');
+    expect(component.describe(event(9, 'NETWORK_SANCTIONED', 'SUSPENDED'))).toBe('Sanctioned by the network’s moderators: suspended');
+    expect(component.describe(event(9, 'CONTACTS_ANONYMIZED', '4'))).toBe('4 contacts anonymized after the retention period');
+    expect(component.eventIcon(event(9, 'NETWORK_SANCTIONED'))).toBe('gavel');
     expect(component.eventIcon({ ...event(9, 'PASSWORD_CHANGED'), type: 'SOMETHING_NEW' as never })).toBe('history');
   });
 

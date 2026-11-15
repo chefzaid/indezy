@@ -10,30 +10,32 @@
         @if (comment.hidden) {
           <span class="mark" data-comment-hidden>{{ 'network.post.hidden' | translate }}</span>
         }
-        @if (comment.own || post.own) {
-          <button mat-icon-button type="button" [matMenuTriggerFor]="actions" [attr.aria-label]="'network.post.commentActions' | translate"
-            data-comment-actions>
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #actions="matMenu">
-            @if (post.own && top) {
-              <button mat-menu-item type="button" (click)="pin(comment)" data-comment-pin>
-                <mat-icon>push_pin</mat-icon>{{ (comment.pinned ? 'network.post.unpin' : 'network.post.pin') | translate }}
-              </button>
-            }
-            @if (post.own) {
-              <button mat-menu-item type="button" (click)="hide(comment)" data-comment-hide>
-                <mat-icon>{{ comment.hidden ? 'visibility' : 'visibility_off' }}</mat-icon>
-                {{ (comment.hidden ? 'network.post.unhide' : 'network.post.hide') | translate }}
-              </button>
-            }
-            @if (comment.own) {
-              <button mat-menu-item type="button" (click)="remove(comment)" data-comment-delete>
-                <mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}
-              </button>
-            }
-          </mat-menu>
-        }
+        <button mat-icon-button type="button" [matMenuTriggerFor]="actions" [attr.aria-label]="'network.post.commentActions' | translate"
+          data-comment-actions>
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #actions="matMenu">
+          @if (post.own && top) {
+            <button mat-menu-item type="button" (click)="pin(comment)" data-comment-pin>
+              <mat-icon>push_pin</mat-icon>{{ (comment.pinned ? 'network.post.unpin' : 'network.post.pin') | translate }}
+            </button>
+          }
+          @if (post.own) {
+            <button mat-menu-item type="button" (click)="hide(comment)" data-comment-hide>
+              <mat-icon>{{ comment.hidden ? 'visibility' : 'visibility_off' }}</mat-icon>
+              {{ (comment.hidden ? 'network.post.unhide' : 'network.post.hide') | translate }}
+            </button>
+          }
+          @if (comment.own) {
+            <button mat-menu-item type="button" (click)="remove(comment)" data-comment-delete>
+              <mat-icon>delete</mat-icon>{{ 'common.delete' | translate }}
+            </button>
+          } @else {
+            <button mat-menu-item type="button" (click)="report(comment)" data-comment-report>
+              <mat-icon>flag</mat-icon>{{ 'network.report.action' | translate }}
+            </button>
+          }
+        </mat-menu>
       </div>
       <p class="text">{{ comment.text }}</p>
       @if (top && !post.commentsClosed) {

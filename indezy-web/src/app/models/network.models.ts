@@ -155,7 +155,50 @@ export interface MemberSuggestion {
 }
 
 /** What a network notification tells. */
-export type NetworkNotificationType = 'FOLLOW' | 'LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST';
+export type NetworkNotificationType = 'FOLLOW' | 'LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST' | 'WARNED' | 'CONTENT_REMOVED' |
+  'SUSPENDED' | 'REPORT_ACTED' | 'REPORT_DISMISSED';
+
+/** The moderators' word: told whatever the settings, with no member as its author. */
+export const MODERATION_NOTICES: readonly NetworkNotificationType[] = ['WARNED', 'CONTENT_REMOVED', 'SUSPENDED', 'REPORT_ACTED',
+  'REPORT_DISMISSED'];
+
+/** What a member reports to the moderators. */
+export type ReportTarget = 'posts' | 'comments' | 'members';
+export type ReportReason = 'SPAM' | 'HARASSMENT' | 'HATE' | 'MISLEADING' | 'CONFIDENTIAL' | 'IMPERSONATION' | 'OTHER';
+export const REPORT_REASONS: readonly ReportReason[] = ['SPAM', 'HARASSMENT', 'HATE', 'MISLEADING', 'CONFIDENTIAL', 'IMPERSONATION',
+  'OTHER'];
+export type ReportOutcome = 'DISMISSED' | 'WARNED' | 'REMOVED' | 'SUSPENDED' | 'BANNED';
+
+/** An account as the moderators see it. */
+export interface ReportParty {
+  accountId: number;
+  handle: string | null;
+  name: string | null;
+}
+
+/** A report in the moderation queue, open or decided. */
+export interface NetworkReport {
+  id: number;
+  targetType: 'POST' | 'COMMENT' | 'MEMBER';
+  targetId: number;
+  target: ReportParty;
+  excerpt: string | null;
+  reason: ReportReason;
+  details: string | null;
+  reporter: ReportParty;
+  createdAt: string;
+  openOnTarget: number;
+  outcome: ReportOutcome | null;
+  resolvedBy: ReportParty | null;
+  resolvedAt: string | null;
+  note: string | null;
+}
+
+export interface ModerationQueue {
+  open: NetworkReport[];
+  resolved: NetworkReport[];
+  openCount: number;
+}
 
 /** Notifications grouped as they read: one kind about one post, up to three of the members who did it, and how many did. */
 export interface NotificationGroup {

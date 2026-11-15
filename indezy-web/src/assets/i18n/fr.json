@@ -1197,7 +1197,17 @@
         "ACCOUNT_DISABLED": "Compte désactivé par un administrateur",
         "ACCOUNT_ENABLED": "Compte réactivé par un administrateur",
         "API_TOKEN_CREATED": "Jeton d'API « {{name}} » créé",
-        "API_TOKEN_REVOKED": "Jeton d'API « {{name}} » révoqué"
+        "API_TOKEN_REVOKED": "Jeton d'API « {{name}} » révoqué",
+        "CONTACT_DATA_EXPORTED": "Données d’un contact exportées à sa demande",
+        "CONTACT_ERASED": "Un contact effacé à sa demande",
+        "CONTACTS_ANONYMIZED": "{{count}} contacts anonymisés après la durée de conservation",
+        "NETWORK_SANCTIONED": "Sanction des modérateurs du réseau : {{outcome}}"
+      },
+      "outcomes": {
+        "WARNED": "avertissement",
+        "REMOVED": "contenu retiré",
+        "SUSPENDED": "suspension",
+        "BANNED": "exclusion"
       }
     },
     "apiTokens": {
@@ -1443,7 +1453,8 @@
         "REPLY": "Quand un membre répond à votre commentaire",
         "MENTION": "Quand un membre vous mentionne",
         "REPOST": "Quand un membre republie votre publication"
-      }
+      },
+      "banned": "Les modérateurs ont mis fin à l’adhésion de ce compte : il ne peut plus rejoindre le réseau."
     }
   },
   "errors": {
@@ -2538,7 +2549,8 @@
     "tabs": {
       "overview": "Vue d'ensemble",
       "accounts": "Comptes",
-      "features": "Fonctionnalités"
+      "features": "Fonctionnalités",
+      "moderation": "Modération"
     },
     "accounts": "Comptes",
     "signups": "Inscriptions sur 30 jours",
@@ -2609,7 +2621,33 @@
     "featureOn": "Fonctionnalité activée",
     "featureOff": "Fonctionnalité désactivée",
     "loadError": "La console d'administration n'a pas pu être chargée",
-    "saveError": "Le changement n'a pas pu être enregistré"
+    "saveError": "Le changement n'a pas pu être enregistré",
+    "moderation": {
+      "hint": "Les signalements du réseau des membres, les plus anciens d’abord. Une décision s’applique à tous les signalements ouverts de la même publication, du même commentaire ou du même membre ; l’auteur est informé d’une sanction et chaque auteur de signalement de la suite donnée. La note reste dans l’historique et n’est jamais montrée aux membres.",
+      "open": "Signalements ouverts ({{count}})",
+      "empty": "Aucun signalement ouvert.",
+      "resolved": "Dernières décisions",
+      "openOnTarget": "{{count}} signalements",
+      "reportedBy": "Signalé par {{who}} le {{date}}",
+      "decidedBy": "décidé par {{who}} le {{date}}",
+      "note": "Note pour l’historique",
+      "days": "Jours de suspension",
+      "daysInvalid": "Une suspension dure de 1 à 90 jours",
+      "decided": "Décision enregistrée",
+      "banConfirm": "Exclure définitivement {{who}} du réseau ? Ce compte ne pourra plus le rejoindre.",
+      "targets": {
+        "POST": "Publication",
+        "COMMENT": "Commentaire",
+        "MEMBER": "Membre"
+      },
+      "outcomes": {
+        "DISMISSED": "Classer",
+        "WARNED": "Avertir",
+        "REMOVED": "Retirer",
+        "SUSPENDED": "Suspendre",
+        "BANNED": "Exclure"
+      }
+    }
   },
   "invoices": {
     "title": "Factures",
@@ -3406,6 +3444,13 @@
         "REPLY": "ont répondu à votre commentaire",
         "MENTION": "vous ont mentionné",
         "REPOST": "ont republié votre publication"
+      },
+      "moderation": {
+        "WARNED": "Les modérateurs vous ont adressé un avertissement au sujet d’une publication, d’un commentaire ou de votre conduite dans le réseau.",
+        "CONTENT_REMOVED": "Les modérateurs ont retiré l’une de vos publications ou l’un de vos commentaires.",
+        "SUSPENDED": "Les modérateurs vous ont suspendu : pendant quelques jours, vous ne pouvez ni publier, ni commenter, ni republier, ni suivre, ni signaler.",
+        "REPORT_ACTED": "Les modérateurs ont donné suite à l’un de vos signalements. Merci.",
+        "REPORT_DISMISSED": "Les modérateurs n’ont rien relevé de contraire aux règles dans l’un de vos signalements."
       }
     },
     "drafts": {
@@ -3425,6 +3470,32 @@
       "published": "Publié",
       "deleteConfirm": "Supprimer ce brouillon ?",
       "loadError": "Vos brouillons n'ont pas pu être chargés"
+    },
+    "report": {
+      "action": "Signaler",
+      "hint": "Les modérateurs examineront le signalement ; le membre ne sait pas qui l’a signalé. Vous serez informé de la suite donnée.",
+      "title": {
+        "posts": "Signaler cette publication",
+        "comments": "Signaler ce commentaire",
+        "members": "Signaler ce membre"
+      },
+      "reason": "Motif",
+      "reasonRequired": "Choisissez un motif",
+      "details": "Ce qui ne va pas (facultatif)",
+      "send": "Envoyer le signalement",
+      "sent": "Signalement envoyé : les modérateurs vont l’examiner",
+      "already": "Vous avez déjà signalé ceci : les modérateurs vont l’examiner",
+      "suspended": "Vous êtes suspendu et ne pouvez pas signaler pour le moment",
+      "error": "Le signalement n’a pas pu être envoyé",
+      "reasons": {
+        "SPAM": "Spam ou publicité",
+        "HARASSMENT": "Harcèlement",
+        "HATE": "Haine ou discrimination",
+        "MISLEADING": "Trompeur ou arnaque",
+        "CONFIDENTIAL": "Information confidentielle (client, TJM, mission)",
+        "IMPERSONATION": "Usurpation d’identité",
+        "OTHER": "Autre chose"
+      }
     }
   }
 }
