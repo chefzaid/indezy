@@ -3,6 +3,8 @@ package dev.swirlit.indezy.integration;
 import dev.swirlit.indezy.mail.Email;
 import dev.swirlit.indezy.mail.MailException;
 import dev.swirlit.indezy.mail.ResendMailer;
+import dev.swirlit.indezy.model.enums.FeatureFlag;
+import dev.swirlit.indezy.service.FeatureFlagService;
 import dev.swirlit.indezy.service.WeeklyDigestService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -19,6 +21,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,6 +43,9 @@ class WeeklyDigestIntegrationTest extends OfferIntegrationTestSupport {
 
     @Autowired
     private WeeklyDigestService digests;
+
+    @Autowired
+    private FeatureFlagService flags;
 
     @Test
     @SuppressWarnings("unchecked")
@@ -101,7 +107,7 @@ class WeeklyDigestIntegrationTest extends OfferIntegrationTestSupport {
             users.save(user);
         });
         Map<String, Object> settings = new HashMap<>(call(alice, HttpMethod.GET, "/users/notifications", null).getBody());
-        assertThat((List<String>) settings.get("weeklyDigestSections")).hasSize(7);
+        assertThat((List<String>) settings.get("weeklyDigestSections")).hasSize(8);
         settings.put("weeklyReports", true);
         settings.put("weeklyDigestSections", List.of("PIPELINE", "MISSIONS_ENDING"));
         assertThat((List<String>) call(alice, HttpMethod.PUT, "/users/notifications", settings).getBody().get("weeklyDigestSections"))
@@ -127,5 +133,46 @@ class WeeklyDigestIntegrationTest extends OfferIntegrationTestSupport {
         assertThat(digests.send(LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).plusWeeks(1))).isEqualTo(1);
         verify(mailer).send(sent.capture());
         assertThat(sent.getValue().text()).contains("new offer").doesNotContain("open opportunities", "Technical interview");
+    }
+
+    @Test
+    void tellsAliceTheWeeksMostLikedPostOfTheTagsSheFollows() throws Exception {
+        when(mailer.configured()).thenReturn(true);
+        when(mailer.send(any())).thenReturn("49a3999c");
+        users.findByEmail(alice.email()).ifPresent(user -> {
+            user.setLanguagePreference("en");
+            users.save(user);
+        });
+        call(alice, HttpMethod.PUT, "/users/notifications", Map.of("weeklyReports", true, "weeklyDigestSections", List.of("NETWORK_TAGS")));
+        LocalDate week = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        // The network off: nothing to say (each empty week is still claimed, so each try is a week later).
+        digests.send(week);
+        verify(mailer, never()).send(org.mockito.ArgumentMatchers.argThat(email -> email.to().equals(alice.email())));
+
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        try {
+            Account carol = register("Carol");
+            for (Account member : List.of(alice, bob, carol)) {
+                call(member, HttpMethod.PUT, "/network/membership", Map.of("handle", "m_" + UUID.randomUUID().toString().substring(0, 8)
+                    .replace("-", ""), "fields", Map.of("photo", true, "headline", true, "stack", true, "location", true,
+                    "availability", true, "languages", true, "remote", false)));
+            }
+            String tag = "t" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+            digests.send(week.plusWeeks(1));
+            verify(mailer, never()).send(org.mockito.ArgumentMatchers.argThat(email -> email.to().equals(alice.email())));
+            assertThat(call(alice, HttpMethod.PUT, "/network/tags/" + tag + "/follow", null, List.class).getBody()).contains(tag);
+            Object liked = call(bob, HttpMethod.POST, "/network/posts", Map.of("text", "Retour sur #" + tag + " en production")).getBody().get("id");
+            call(carol, HttpMethod.POST, "/network/posts", Map.of("text", "Sans J'aime #" + tag));
+            call(carol, HttpMethod.PUT, "/network/posts/" + liked + "/like", null);
+
+            assertThat(digests.send(week.plusWeeks(2))).isPositive();
+            ArgumentCaptor<Email> sent = ArgumentCaptor.forClass(Email.class);
+            verify(mailer, org.mockito.Mockito.atLeastOnce()).send(sent.capture());
+            Email toAlice = sent.getAllValues().stream().filter(email -> email.to().equals(alice.email())).findFirst().orElseThrow();
+            assertThat(toAlice.text()).contains("Most liked in the tags you follow", "#" + tag + " · Bob",
+                "\"Retour sur #" + tag + " en production\" (1 likes)", "/network/tags/" + tag).doesNotContain("Sans J'aime");
+        } finally {
+            flags.set(FeatureFlag.SOCIAL_NETWORK, false);
+        }
     }
 }

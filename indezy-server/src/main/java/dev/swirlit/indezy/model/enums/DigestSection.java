@@ -8,5 +8,7 @@ public enum DigestSection {
     FOLLOW_UPS,
     QUIET_OPPORTUNITIES,
     MISSIONS_ENDING,
-    OFFERS
+    OFFERS,
+    /** The week's most liked post of each tag followed in the member network. */
+    NETWORK_TAGS
 }

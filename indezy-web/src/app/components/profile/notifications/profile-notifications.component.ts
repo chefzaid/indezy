@@ -8,6 +8,7 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DIGEST_SECTIONS, DigestSection, UserNotificationSettings } from '../../../models/user-management.models';
+import { CapabilitiesService } from '../../../services/admin/capabilities.service';
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { OfferAlertsService } from '../../../services/offer/offer-alerts.service';
@@ -27,8 +28,15 @@ export class ProfileNotificationsComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly offerAlerts = inject(OfferAlertsService);
 
+  private readonly capabilities = inject(CapabilitiesService);
+
   settings?: UserNotificationSettings;
-  readonly sections = DIGEST_SECTIONS;
+
+  /** The sections offered: the network's while the member network is on. */
+  get sections(): DigestSection[] {
+    const network = this.capabilities.snapshot().features.SOCIAL_NETWORK === true;
+    return DIGEST_SECTIONS.filter(section => section !== 'NETWORK_TAGS' || network);
+  }
 
   ngOnInit(): void {
     this.users.getNotificationSettings().subscribe({
@@ -44,7 +52,7 @@ export class ProfileNotificationsComponent implements OnInit {
 
   /** Keeps or leaves out one section of the digest, the last one kept staying. Put back when it cannot be saved. */
   sectionChanged(section: DigestSection, change: MatCheckboxChange): void {
-    const kept = this.sections.filter(item => item === section ? change.checked : this.kept(item));
+    const kept = DIGEST_SECTIONS.filter(item => item === section ? change.checked : this.kept(item));
     this.save({ weeklyDigestSections: kept }, () => change.source.checked = !change.checked);
   }
 

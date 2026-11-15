@@ -1,11 +1,14 @@
 package dev.swirlit.indezy.mail;
 
 import dev.swirlit.indezy.dto.DashboardStatsDto;
+import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.dto.OfferDto;
 import dev.swirlit.indezy.model.enums.DigestSection;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import org.springframework.stereotype.Component;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -81,16 +84,17 @@ public class WeeklyDigestComposer {
 
     /** One account's week: its dashboard, the matching offers found in the last 7 days and how many there are. */
     public record Digest(Long userId, String firstName, String recipient, DocumentLanguage language, String token, LocalDate week,
-                         Week stats, List<OfferDto> offers, long offersFound) {
+                         Week stats, List<OfferDto> offers, long offersFound, List<NetworkDtos.DigestPost> networkPosts) {
 
         public Digest {
             offers = List.copyOf(offers);
+            networkPosts = List.copyOf(networkPosts);
         }
 
         /** Whether it has anything to say: a digest of an empty week is not sent. */
         public boolean isEmpty() {
             return stats.interviews().isEmpty() && stats.followUps().isEmpty() && stats.stale().isEmpty() && stats.ending().isEmpty() &&
-                stats.overdueInvoices().isEmpty() && offersFound == 0 && stats.open() == 0;
+                stats.overdueInvoices().isEmpty() && offersFound == 0 && stats.open() == 0 && networkPosts.isEmpty();
         }
 
         @Override
@@ -144,6 +148,11 @@ public class WeeklyDigestComposer {
                 text.append(WeeklyDigestLabel.MORE.format(language, more)).append("\n\n");
             }
         }
+
+        List<NetworkDtos.DigestPost> popular = digest.networkPosts();
+        section(html, text, WeeklyDigestLabel.NETWORK.in(language), popular.stream()
+            .map(post -> WeeklyDigestLabel.NETWORK_LINE.format(language, post.tag(), post.author(), post.excerpt(), post.likes())).toList(),
+            line -> properties.appUrl() + "/network/tags/" + URLEncoder.encode(popular.get(line).tag(), StandardCharsets.UTF_8));
 
         String app = properties.appUrl() + "/dashboard";
         html.append("<p style=\"margin:24px 0\"><a href=\"").append(escape(app)).append("\" style=\"color:").append(ACCENT).append("\">")

@@ -1047,7 +1047,8 @@
         "FOLLOW_UPS": "Relances à faire",
         "QUIET_OPPORTUNITIES": "Opportunités sans nouvelles",
         "MISSIONS_ENDING": "Missions qui se terminent",
-        "OFFERS": "Nouvelles offres correspondant à votre profil"
+        "OFFERS": "Nouvelles offres correspondant à votre profil",
+        "NETWORK_TAGS": "Publications les plus aimées des étiquettes suivies (réseau des membres)"
       },
       "bookingTitle": "Appels réservés",
       "booking": "M'envoyer chaque appel réservé par e-mail",

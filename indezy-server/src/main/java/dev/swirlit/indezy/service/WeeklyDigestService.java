@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.service;
 
+import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.dto.OfferPageDto;
 import dev.swirlit.indezy.dto.OfferSearchRequest;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DigestSection;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.model.enums.FeatureFlag;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import dev.swirlit.indezy.util.Tokens;
@@ -26,6 +28,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
@@ -60,6 +63,8 @@ public class WeeklyDigestService {
     private final DashboardStatsService dashboard;
     private final OfferSearchService offers;
     private final WeeklyDigestComposer composer;
+    private final NetworkTagService tags;
+    private final FeatureFlagService flags;
     private final ResendMailer mailer;
     private final TransactionTemplate transactions;
     private final Clock clock;
@@ -152,8 +157,16 @@ public class WeeklyDigestService {
         WeeklyDigestComposer.Digest digest = new WeeklyDigestComposer.Digest(user.getId(), user.getFirstName(), user.getEmail(),
             "en".equalsIgnoreCase(user.getLanguagePreference()) ? DocumentLanguage.EN : DocumentLanguage.FR, user.getWeeklyDigestToken(),
             week, WeeklyDigestComposer.Week.of(dashboard.getDashboardStats(freelance.getId(), null)).only(kept), found.content(),
-            found.totalElements());
+            found.totalElements(), networkPosts(user.getId(), kept, now));
         return digest.isEmpty() ? null : new Claim(composer.compose(digest), previous);
+    }
+
+    /** The week's most liked post of each tag followed, while the member network is on and the section kept. */
+    private List<NetworkDtos.DigestPost> networkPosts(Long userId, Set<DigestSection> kept, Instant now) {
+        if (!kept.contains(DigestSection.NETWORK_TAGS) || !flags.isEnabled(FeatureFlag.SOCIAL_NETWORK)) {
+            return List.of();
+        }
+        return tags.weekTop(userId, LocalDateTime.ofInstant(now.minus(OFFERS_SINCE), ZoneId.systemDefault()), WeeklyDigestComposer.ITEMS);
     }
 
     /** The offers found in the last 7 days that match the profile, best match first; none without profile skills. */

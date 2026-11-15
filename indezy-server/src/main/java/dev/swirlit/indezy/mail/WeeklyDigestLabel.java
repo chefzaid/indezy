@@ -21,6 +21,8 @@ enum WeeklyDigestLabel {
     OFFERS_ONE("1 nouvelle offre correspond à votre profil", "1 new offer matches your profile"),
     OFFERS_MANY("%d nouvelles offres correspondent à votre profil", "%d new offers match your profile"),
     MORE("Et %d de plus", "And %d more"),
+    NETWORK("Les plus aimées des étiquettes que vous suivez", "Most liked in the tags you follow"),
+    NETWORK_LINE("#%s · %s : « %s » (%d J'aime)", "#%s · %s: \"%s\" (%d likes)"),
     OPEN("Ouvrir Indezy", "Open Indezy"),
     WHY("Vous recevez ce résumé car vous l'avez activé dans Profil → Notifications.",
         "You receive this digest because you turned it on in Profile → Notifications."),

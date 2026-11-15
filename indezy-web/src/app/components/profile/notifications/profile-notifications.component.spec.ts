@@ -9,6 +9,7 @@ import { DIGEST_SECTIONS, UserNotificationSettings } from '../../../models/user-
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { OfferAlertsService } from '../../../services/offer/offer-alerts.service';
+import { CapabilitiesService, DEFAULT_CAPABILITIES } from '../../../services/admin/capabilities.service';
 import { ProfileNotificationsComponent } from './profile-notifications.component';
 import en from '../../../../assets/i18n/en.json';
 
@@ -120,6 +121,19 @@ describe('ProfileNotificationsComponent', () => {
     expect(users.updateNotificationSettings).toHaveBeenCalledWith({ weeklyDigestSections: ['INTERVIEWS', 'OFFERS'] });
     expect(failed.source.checked).toBeFalse();
     expect(fixture.componentInstance.settings!.weeklyDigestSections).toEqual(['OFFERS']);
+  });
+
+  it('offers the network\'s section while the member network is on, keeping it when another changes', () => {
+    const fixture = create(of({ ...settings, weeklyReports: true, weeklyDigestSections: ['PIPELINE', 'NETWORK_TAGS'] }));
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-digest-section="NETWORK_TAGS"]')).toBeNull();
+    users.updateNotificationSettings.and.returnValue(of({ ...settings, weeklyReports: true, weeklyDigestSections: ['NETWORK_TAGS'] }));
+    fixture.componentInstance.sectionChanged('PIPELINE', { checked: false, source: { checked: false } as MatCheckbox });
+    expect(users.updateNotificationSettings).toHaveBeenCalledWith({ weeklyDigestSections: ['NETWORK_TAGS'] });
+    spyOn(TestBed.inject(CapabilitiesService), 'snapshot').and.returnValue({ admin: false,
+      features: { ...DEFAULT_CAPABILITIES.features, SOCIAL_NETWORK: true } });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-digest-section="NETWORK_TAGS"]')?.textContent).toContain('Most liked posts of the tags you follow');
   });
 
   it('turns the emails of booked calls off', () => {

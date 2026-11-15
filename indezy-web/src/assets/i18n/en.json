@@ -1047,7 +1047,8 @@
         "FOLLOW_UPS": "Follow-ups due",
         "QUIET_OPPORTUNITIES": "Opportunities gone quiet",
         "MISSIONS_ENDING": "Missions ending",
-        "OFFERS": "New offers matching your profile"
+        "OFFERS": "New offers matching your profile",
+        "NETWORK_TAGS": "Most liked posts of the tags you follow (member network)"
       },
       "bookingTitle": "Booked calls",
       "booking": "Email me each call booked",

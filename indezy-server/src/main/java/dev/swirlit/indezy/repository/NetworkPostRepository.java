@@ -30,4 +30,9 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
             "and p.authorId not in :excluded")
     Page<NetworkPost> feed(@Param("authors") Collection<Long> authors, @Param("tags") Collection<String> tags,
                            @Param("excluded") Collection<Long> excluded, Pageable page);
+
+    /** The posts naming one of these tags since then, with their tags. */
+    @Query("select distinct p from NetworkPost p join fetch p.tags t where p.id in " +
+        "(select q.id from NetworkPost q join q.tags u where u in :tags and q.createdAt >= :since)")
+    List<NetworkPost> taggedSince(@Param("tags") Collection<String> tags, @Param("since") LocalDateTime since);
 }

@@ -507,7 +507,7 @@ Follow
 Likes
 - [x] Like a post or a comment, with the count and the list of who liked; the author notified in groups ("Léa et 4 autres ont aimé votre publication"). Partly done on 2026-11-14: liking a post, its count and who liked it (`docs/features.md#member-network`); a comment's like comes with comments, and the author's grouped notification with the notification centre. Done on 2026-11-15: a comment is liked too, its count shown under it, its writer told in groups (`COMMENT_LIKE`).
 - [ ] A second reaction, **Utile**, for knowledge posts (answered questions, retours d'expérience), which ranks them in **For you** and on tag pages.
-- [ ] The week's most liked posts of each followed tag in the weekly digest email.
+- [x] The week's most liked posts of each followed tag in the weekly digest email. Done on 2026-11-15: a **Network** section of the weekly digest gives the week's most liked post of each followed tag, up to five, and Profile → Notifications leaves it out (`docs/features.md#weekly-digest`).
 
 Messaging
 - [ ] One-to-one conversations, open only when the recipient follows the sender. When the recipient stops following, past messages stay readable and new ones are refused, the sender seeing why.

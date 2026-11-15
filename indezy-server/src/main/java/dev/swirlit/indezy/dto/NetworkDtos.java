@@ -284,4 +284,13 @@ public final class NetworkDtos {
             return "MemberCard[handle=" + handle + "]";
         }
     }
+
+    /** A followed tag's most liked post of the week, as the weekly digest tells it: the author's name and its first words. */
+    public record DigestPost(String tag, String author, String excerpt, long likes) {
+
+        @Override
+        public String toString() {
+            return "DigestPost[tag=" + tag + ", likes=" + likes + "]";
+        }
+    }
 }
