@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, ViewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
@@ -12,6 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MemberSuggestion, NetworkPost, isHeld } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
+import { PostKindFieldsComponent } from '../post-kind/post-kind-fields.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -22,7 +23,7 @@ export const POST_MAX = 3000;
 /** The home feed (`/network`): writing a post, then the reader's posts and those of the members they follow, newest first. */
 @Component({
   selector: 'app-network-feed',
-  imports: [PageHeaderComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [PostKindFieldsComponent, PageHeaderComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslateModule, PostCardComponent],
   templateUrl: './network-feed.component.html',
   styleUrls: ['./network-feed.component.scss'],
@@ -36,6 +37,8 @@ export class NetworkFeedComponent implements OnInit {
   private readonly changes = inject(ChangeDetectorRef);
 
   readonly max = POST_MAX;
+  /** What the post is, and the facts of a mission or an availability. */
+  @ViewChild('kindFields') kindFields?: PostKindFieldsComponent;
   readonly draft = new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(POST_MAX)] });
   posts: NetworkPost[] = [];
   page = 0;
@@ -108,10 +111,12 @@ export class NetworkFeedComponent implements OnInit {
 
   /** Posts the text checked for the workspace's names. */
   private postNow(text: string): void {
-    this.network.post(text).subscribe({
+    const kind = this.kindFields?.kind.value ?? 'POST';
+    this.network.post(text, kind, this.kindFields?.facts() ?? null).subscribe({
       next: post => {
         this.isPosting = false;
         this.draft.reset('');
+        this.kindFields?.reset();
         if (isHeld(post)) {
           this.notifications.success('network.feed.held');
           return;

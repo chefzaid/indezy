@@ -3558,6 +3558,35 @@
         "ESN": "une ESN",
         "CONTACT": "un contact"
       }
+    },
+    "kinds": {
+      "label": "Type de publication",
+      "POST": "Publication",
+      "MISSION": "Mission à transmettre",
+      "AVAILABLE": "Disponible",
+      "QUESTION": "Question",
+      "EXPERIENCE": "Retour d’expérience",
+      "role": "Poste",
+      "roleWanted": "Poste recherché",
+      "start": "Démarrage",
+      "availableFrom": "Disponible à partir du",
+      "rateMin": "TJM minimum (€)",
+      "rateMax": "TJM maximum (€)",
+      "rate": "TJM",
+      "rateFrom": "à partir de {{rate}} €",
+      "rateUpTo": "jusqu’à {{rate}} €",
+      "city": "Ville",
+      "remoteDays": "Jours de télétravail par semaine",
+      "remote": "Télétravail",
+      "remoteValue": "{{days}} jours par semaine",
+      "client": "Client",
+      "clientHint": "Masqué sauf si vous le nommez",
+      "stack": "Compétences",
+      "stackHint": "Séparées par des virgules",
+      "answered": "Résolue",
+      "answer": "Réponse",
+      "markAnswer": "Marquer comme réponse",
+      "unmarkAnswer": "Ne plus marquer comme réponse"
     }
   }
 }

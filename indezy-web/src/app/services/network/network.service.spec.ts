@@ -27,7 +27,7 @@ describe('NetworkService', () => {
     service.directory({}).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/members')).request.params.toString()).toBe('page=0');
     service.post('Bonjour').subscribe();
-    expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/posts')).request.body).toEqual({ text: 'Bonjour' });
+    expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/posts')).request.body).toEqual({ text: 'Bonjour', kind: 'POST', details: null });
     service.like(5, true).subscribe();
     http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/5/like'));
     service.like(5, false).subscribe();

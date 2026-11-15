@@ -178,6 +178,13 @@ public class NetworkPostController {
         comments.close(SecurityUtils.getCurrentUserId(), id, closed);
     }
 
+    @Operation(summary = "Pick a comment under one's own question as its answer", description = "None (no commentId) to clear it")
+    @PutMapping("/posts/{id}/answer")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void answer(@PathVariable Long id, @RequestParam(required = false) Long commentId) {
+        comments.answer(SecurityUtils.getCurrentUserId(), id, commentId);
+    }
+
     @Operation(summary = "Pin a comment of one's own post above the others, or none")
     @PutMapping("/posts/{id}/pinned-comment")
     @ResponseStatus(HttpStatus.NO_CONTENT)

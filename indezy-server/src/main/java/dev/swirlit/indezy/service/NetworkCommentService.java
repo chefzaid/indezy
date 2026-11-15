@@ -7,6 +7,7 @@ import dev.swirlit.indezy.model.NetworkComment;
 import dev.swirlit.indezy.model.NetworkCommentLike;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
+import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import dev.swirlit.indezy.repository.NetworkCommentLikeRepository;
 import dev.swirlit.indezy.repository.NetworkCommentRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
@@ -146,8 +147,14 @@ public class NetworkCommentService {
         replies.forEach(reply -> ids.add(reply.getId()));
         likes.deleteByCommentIdIn(ids);
         comments.deleteAll(replies);
-        postRepository.findById(comment.getPostId()).filter(post -> comment.getId().equals(post.getPinnedCommentId()))
-            .ifPresent(post -> post.setPinnedCommentId(null));
+        postRepository.findById(comment.getPostId()).ifPresent(post -> {
+            if (comment.getId().equals(post.getPinnedCommentId())) {
+                post.setPinnedCommentId(null);
+            }
+            if (comment.getId().equals(post.getAnswerCommentId())) {
+                post.setAnswerCommentId(null);
+            }
+        });
         comments.delete(comment);
     }
 
@@ -178,6 +185,21 @@ public class NetworkCommentService {
                 .orElseThrow(() -> new IllegalArgumentException("Only a comment under the post itself can be pinned"));
         }
         post.setPinnedCommentId(commentId);
+    }
+
+    /** Picks a comment under the reader's own question as its answer, or none: the question then reads as answered. */
+    @Transactional
+    public void answer(Long readerId, Long postId, Long commentId) {
+        network.requireMember(readerId);
+        NetworkPost post = own(readerId, postId);
+        if (post.getKind() != NetworkPostKind.QUESTION) {
+            throw new InvalidStateException("Only a question has an answer");
+        }
+        if (commentId != null) {
+            comments.findById(commentId).filter(comment -> comment.getPostId().equals(postId) && comment.getParentId() == null)
+                .orElseThrow(() -> new IllegalArgumentException("The answer is a comment under the question itself"));
+        }
+        post.setAnswerCommentId(commentId);
     }
 
     private NetworkPost own(Long readerId, Long postId) {

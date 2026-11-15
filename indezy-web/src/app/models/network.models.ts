@@ -87,6 +87,12 @@ export interface NetworkPost {
   /** How many reposts it has, and whether its author turned them off. */
   reposts: number;
   repostsOff: boolean;
+  /** What the post is: a plain post, a mission to pass on, an availability, a question, a retour d'expérience. */
+  kind: PostKind;
+  /** The facts of a mission or an availability. */
+  details: PostDetails | null;
+  /** The reply a question's author picked as its answer. */
+  answerCommentId: number | null;
 }
 
 /** The post a repost reposts, as the reader can read it. */
@@ -278,4 +284,21 @@ export interface ConfidentialMatch {
   kind: 'CLIENT' | 'ESN' | 'CONTACT';
   /** A client's city, to anonymize it as "a client in Paris". */
   city: string | null;
+}
+
+export type PostKind = 'POST' | 'MISSION' | 'AVAILABLE' | 'QUESTION' | 'EXPERIENCE';
+export const POST_KINDS: readonly PostKind[] = ['POST', 'MISSION', 'AVAILABLE', 'QUESTION', 'EXPERIENCE'];
+
+/** The facts of a mission to pass on or of an availability. */
+export interface PostDetails {
+  role: string | null;
+  rateMin: number | null;
+  rateMax: number | null;
+  city: string | null;
+  remoteDays: number | null;
+  /** When the mission starts, or the author is available (ISO date). */
+  start: string | null;
+  /** The client, only when the author names it. */
+  client: string | null;
+  stack: string[];
 }

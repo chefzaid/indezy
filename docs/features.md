@@ -210,6 +210,12 @@ original; once the original is gone or out of reach, the repost says so); a post
 **Like** a post, once, or no longer; its likes count opens who liked it (but members blocked either way). A member
 deletes their own posts, their likes and comments going with them, and they are part of the data export.
 
+A post is of a kind, chosen in the composer, each with its card: a plain **Post**, a **Mission to pass on** (its role,
+required, and the daily rate range, city, remote days a week, start, skills and, only if the author names it, the
+client), **Available** (the start, required, the rate range and skills), a **Question**, whose author marks one reply as
+**the answer** (the question then reads **Answered**), or a **Retour d'expérience**. A post the spam score held is
+published as a plain post; drafts are plain posts.
+
 **Comments** open under a post: comments and, under each, replies (one level), the oldest first. Each writer deletes
 their own comment, its replies going with it. The post's author **pins** one comment on top, **hides** one (then only
 the author sees it, marked hidden) or **closes** the comments, after which none is added. A member likes a comment, once,

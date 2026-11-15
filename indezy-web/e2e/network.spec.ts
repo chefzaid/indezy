@@ -231,7 +231,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(mine).toContainText('Merci');
     await expect(mine.locator('.mention')).toHaveAttribute('href', '/m/leo_m');
     await expect(page.locator('[data-post]').first()).toHaveAttribute('data-post', '2');
-    expect(posted).toEqual([{ text: 'Merci @leo_m pour le retour sur #Kafka' }]);
+    expect(posted).toEqual([{ text: 'Merci @leo_m pour le retour sur #Kafka', kind: 'POST', details: null }]);
     await expect(page.locator('[data-feed-members]')).toHaveAttribute('href', '/network/members');
     const audit = await new AxeBuilder({ page }).include('app-network-feed').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);

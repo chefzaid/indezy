@@ -1,9 +1,13 @@
 package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.model.NetworkPost;
+import dev.swirlit.indezy.model.NetworkPostDetails;
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
+import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -56,7 +60,7 @@ public final class NetworkDtos {
      */
     public record Post(Long id, MemberCard author, String text, List<String> tags, LocalDateTime createdAt, boolean own, int likes,
                        boolean liked, int comments, boolean commentsClosed, boolean edited, boolean bookmarked, Original repostOf,
-                       int reposts, boolean repostsOff) {
+                       int reposts, boolean repostsOff, NetworkPostKind kind, PostDetails details, Long answerCommentId) {
 
         public Post {
             tags = List.copyOf(tags);
@@ -114,11 +118,28 @@ public final class NetworkDtos {
     }
 
     /** A new post: its text, paragraphs kept. */
-    public record NewPost(@NotBlank @Size(max = 3000) String text) {
+    public record NewPost(@NotBlank @Size(max = 3000) String text, NetworkPostKind kind, @Valid PostDetails details) {
+
+        public NewPost(String text) {
+            this(text, null, null);
+        }
 
         @Override
         public String toString() {
-            return "NewPost[length=" + (text == null ? 0 : text.length()) + "]";
+            return "NewPost[length=" + (text == null ? 0 : text.length()) + ", kind=" + kind + "]";
+        }
+    }
+
+    /** The facts of a mission to pass on or of an availability: the role, the daily rate range, where, when, the client if named. */
+    public record PostDetails(@Size(max = NetworkPostDetails.FIELD_MAX) String role, @Min(0) @Max(RATE_MAX) Integer rateMin,
+                              @Min(0) @Max(RATE_MAX) Integer rateMax, @Size(max = NetworkPostDetails.FIELD_MAX) String city,
+                              @Min(0) @Max(5) Integer remoteDays, LocalDate start, @Size(max = NetworkPostDetails.FIELD_MAX) String client,
+                              @Size(max = 10) List<@NotBlank @Size(max = 40) String> stack) {
+
+        public static final int RATE_MAX = 5000;
+
+        public PostDetails {
+            stack = stack == null ? List.of() : List.copyOf(stack);
         }
     }
 

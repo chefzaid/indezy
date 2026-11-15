@@ -134,3 +134,44 @@ footer {
   color: var(--mat-sys-primary);
   font-weight: 500;
 }
+
+.kind-line {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 4px 0 0;
+}
+
+.kind-badge,
+.answered {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+
+.answered {
+  background: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 4px 16px;
+  margin: 8px 0;
+
+  dt {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}

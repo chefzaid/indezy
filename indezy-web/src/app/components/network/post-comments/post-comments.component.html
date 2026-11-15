@@ -7,6 +7,9 @@
         @if (comment.pinned) {
           <span class="mark" data-comment-pinned><mat-icon aria-hidden="true">push_pin</mat-icon>{{ 'network.post.pinned' | translate }}</span>
         }
+        @if (comment.id === post.answerCommentId) {
+          <span class="mark answer" data-comment-answer><mat-icon aria-hidden="true">check_circle</mat-icon>{{ 'network.kinds.answer' | translate }}</span>
+        }
         @if (comment.hidden) {
           <span class="mark" data-comment-hidden>{{ 'network.post.hidden' | translate }}</span>
         }
@@ -16,6 +19,12 @@
         </button>
         <mat-menu #actions="matMenu">
           @if (post.own && top) {
+            @if (post.kind === 'QUESTION') {
+              <button mat-menu-item type="button" (click)="markAnswer(comment)" data-comment-mark-answer>
+                <mat-icon>check_circle</mat-icon>
+                {{ (comment.id === post.answerCommentId ? 'network.kinds.unmarkAnswer' : 'network.kinds.markAnswer') | translate }}
+              </button>
+            }
             <button mat-menu-item type="button" (click)="pin(comment)" data-comment-pin>
               <mat-icon>push_pin</mat-icon>{{ (comment.pinned ? 'network.post.unpin' : 'network.post.pin') | translate }}
             </button>

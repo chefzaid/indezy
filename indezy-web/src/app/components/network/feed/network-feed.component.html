@@ -38,15 +38,18 @@
         <mat-hint align="end">{{ draft.value.length }} / {{ max }}</mat-hint>
       </mat-form-field>
       <p class="hint">{{ 'network.feed.composeHint' | translate }}</p>
+      <app-post-kind-fields #kindFields></app-post-kind-fields>
       <div class="actions">
         <mat-form-field appearance="outline" class="schedule" subscriptSizing="dynamic">
           <mat-label>{{ 'network.drafts.scheduleAt' | translate }}</mat-label>
           <input matInput type="datetime-local" [formControl]="scheduleAt" data-schedule-at>
         </mat-form-field>
-        <button mat-stroked-button type="button" (click)="keep()" [disabled]="isPosting || !draft.value.trim()" data-keep-draft>
+        <button mat-stroked-button type="button" (click)="keep()" [disabled]="isPosting || !draft.value.trim() || kindFields.kind.value !== 'POST'"
+          data-keep-draft>
           {{ (scheduleAt.value ? 'network.drafts.schedule' : 'network.drafts.keep') | translate }}
         </button>
-        <button mat-flat-button type="submit" [disabled]="isPosting || !draft.value.trim() || !!scheduleAt.value" data-publish>
+        <button mat-flat-button type="submit" [disabled]="isPosting || !draft.value.trim() || !!scheduleAt.value || !kindFields.valid"
+          data-publish>
           {{ 'network.feed.publish' | translate }}
         </button>
       </div>

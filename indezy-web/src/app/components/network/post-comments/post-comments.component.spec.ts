@@ -23,11 +23,11 @@ describe('PostCommentsComponent', () => {
   const comment = (id: number, changes: Partial<NetworkComment> = {}): NetworkComment => ({ id, author: member('leo_m'), text: `Comment ${id}`,
     createdAt: '2026-11-14T10:00:00', own: false, hidden: false, pinned: false, likes: 0, liked: false, replies: [], ...changes });
   const post: NetworkPost = { id: 9, author: member('camille'), text: 'Post', tags: [], createdAt: '2026-11-14T09:00:00', own: true,
-    likes: 0, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false };
+    likes: 0, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null };
   const read = [comment(1, { pinned: true, replies: [comment(3, { own: true })] }), comment(2, { hidden: true })];
 
   function create(postShown = post): ComponentFixture<PostCommentsComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['comments', 'comment', 'deleteComment', 'hideComment', 'pinComment', 'likeComment']);
+    network = jasmine.createSpyObj('NetworkService', ['comments', 'comment', 'deleteComment', 'hideComment', 'pinComment', 'likeComment', 'answer']);
     network.comments.and.returnValue(of(read));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
@@ -161,5 +161,25 @@ describe('PostCommentsComponent', () => {
     expect(element.querySelector('[data-comments-closed]')).not.toBeNull();
     expect(element.querySelector('[data-comment-form]')).toBeNull();
     expect(element.querySelector('[data-comment-reply]')).toBeNull();
+  });
+
+  it('lets a question\'s author mark a reply as its answer, or no longer', () => {
+    const question = { ...post, kind: 'QUESTION' as const, answerCommentId: null };
+    const fixture = create(question);
+    const component = fixture.componentInstance;
+    component.load();
+    fixture.detectChanges();
+    network.answer.and.returnValue(of(undefined));
+    component.markAnswer(comment(1));
+    expect(network.answer).toHaveBeenCalledWith(9, 1);
+    expect(component.post.answerCommentId).toBe(1);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-comment="1"] [data-comment-answer]')).not.toBeNull();
+    component.markAnswer(comment(1));
+    expect(network.answer).toHaveBeenCalledWith(9, null);
+    expect(component.post.answerCommentId).toBeNull();
+    network.answer.and.returnValue(throwError(() => new Error('down')));
+    component.markAnswer(comment(2));
+    expect(notifications.error).toHaveBeenCalledWith('network.post.commentError');
   });
 });

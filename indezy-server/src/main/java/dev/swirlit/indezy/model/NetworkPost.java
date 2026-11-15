@@ -2,7 +2,11 @@ package dev.swirlit.indezy.model;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
@@ -50,10 +54,27 @@ public class NetworkPost extends BaseEntity {
     @Column(name = "pinned_comment_id")
     private Long pinnedCommentId;
 
+    /** What the post is; none (null) reads as a plain post. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "kind", length = 20)
+    private NetworkPostKind kind;
+
+    /** The facts of a mission or an availability. */
+    @Embedded
+    private NetworkPostDetails details;
+
+    /** The reply a question's author picked as its answer. */
+    @Column(name = "answer_comment_id")
+    private Long answerCommentId;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "network_post_tags", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "tag", length = 40)
     private Set<String> tags = new LinkedHashSet<>();
+
+    public NetworkPostKind getKind() {
+        return kind == null ? NetworkPostKind.POST : kind;
+    }
 
     public Set<String> getTags() {
         return tags != null ? new LinkedHashSet<>(tags) : new LinkedHashSet<>();

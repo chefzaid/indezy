@@ -9,9 +9,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { MemberCard, NetworkPost, NetworkPostVersion, POST_EDIT_WINDOW } from '../../../models';
+import { MemberCard, NetworkPost, NetworkPostVersion, POST_EDIT_WINDOW, PostDetails } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -58,6 +58,7 @@ export class PostCardComponent {
   private readonly network = inject(NetworkService);
   private readonly dialog = inject(MatDialog);
   private readonly notifications = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   @Input({ required: true }) post!: NetworkPost;
   /** The members who like the post, once asked for. */
@@ -204,5 +205,14 @@ export class PostCardComponent {
   /** Reports another member's post to the moderators. */
   report(): void {
     ReportDialogComponent.open(this.dialog, { target: 'posts', id: this.post.id }).subscribe();
+  }
+
+  /** The daily rate range as read: "600–700 €", "from 600 €", "up to 700 €". */
+  rate(facts: PostDetails): string {
+    if (facts.rateMin !== null && facts.rateMax !== null) {
+      return facts.rateMin === facts.rateMax ? `${facts.rateMin} €` : `${facts.rateMin}–${facts.rateMax} €`;
+    }
+    return facts.rateMin !== null ? this.translate.instant('network.kinds.rateFrom', { rate: facts.rateMin }) :
+      this.translate.instant('network.kinds.rateUpTo', { rate: facts.rateMax });
   }
 }

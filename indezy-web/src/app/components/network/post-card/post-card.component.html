@@ -39,6 +39,40 @@
       }
     </mat-menu>
   </header>
+  @if (post.kind && post.kind !== 'POST') {
+    <p class="kind-line">
+      <span class="kind-badge" [attr.data-post-kind-badge]="post.kind">{{ 'network.kinds.' + post.kind | translate }}</span>
+      @if (post.kind === 'QUESTION' && post.answerCommentId) {
+        <span class="answered" data-post-answered>{{ 'network.kinds.answered' | translate }}</span>
+      }
+    </p>
+  }
+  @if (post.details; as facts) {
+    <dl class="facts" data-post-facts>
+      @if (facts.role) {
+        <div><dt>{{ (post.kind === 'MISSION' ? 'network.kinds.role' : 'network.kinds.roleWanted') | translate }}</dt><dd>{{ facts.role }}</dd></div>
+      }
+      @if (facts.rateMin !== null || facts.rateMax !== null) {
+        <div><dt>{{ 'network.kinds.rate' | translate }}</dt><dd data-fact-rate>{{ rate(facts) }}</dd></div>
+      }
+      @if (facts.city) {
+        <div><dt>{{ 'network.kinds.city' | translate }}</dt><dd>{{ facts.city }}</dd></div>
+      }
+      @if (facts.remoteDays !== null) {
+        <div><dt>{{ 'network.kinds.remote' | translate }}</dt><dd>{{ 'network.kinds.remoteValue' | translate: { days: facts.remoteDays } }}</dd></div>
+      }
+      @if (facts.start) {
+        <div><dt>{{ (post.kind === 'MISSION' ? 'network.kinds.start' : 'network.kinds.availableFrom') | translate }}</dt>
+          <dd>{{ facts.start | date:'longDate' }}</dd></div>
+      }
+      @if (facts.client) {
+        <div><dt>{{ 'network.kinds.client' | translate }}</dt><dd>{{ facts.client }}</dd></div>
+      }
+      @if (facts.stack.length) {
+        <div><dt>{{ 'network.kinds.stack' | translate }}</dt><dd>{{ facts.stack.join(', ') }}</dd></div>
+      }
+    </dl>
+  }
   @if (versions) {
     <ul class="versions" data-post-versions>
       @for (version of versions; track $index) {

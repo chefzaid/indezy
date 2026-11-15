@@ -3558,6 +3558,35 @@
         "ESN": "a consultancy",
         "CONTACT": "a contact"
       }
+    },
+    "kinds": {
+      "label": "Kind of post",
+      "POST": "Post",
+      "MISSION": "Mission to pass on",
+      "AVAILABLE": "Available",
+      "QUESTION": "Question",
+      "EXPERIENCE": "Retour d’expérience",
+      "role": "Role",
+      "roleWanted": "Role sought",
+      "start": "Starts",
+      "availableFrom": "Available from",
+      "rateMin": "Lowest daily rate (€)",
+      "rateMax": "Highest daily rate (€)",
+      "rate": "Daily rate",
+      "rateFrom": "from {{rate}} €",
+      "rateUpTo": "up to {{rate}} €",
+      "city": "City",
+      "remoteDays": "Remote days a week",
+      "remote": "Remote",
+      "remoteValue": "{{days}} days a week",
+      "client": "Client",
+      "clientHint": "Left out unless you name it",
+      "stack": "Skills",
+      "stackHint": "Separated by commas",
+      "answered": "Answered",
+      "answer": "Answer",
+      "markAnswer": "Mark as the answer",
+      "unmarkAnswer": "No longer the answer"
     }
   }
 }

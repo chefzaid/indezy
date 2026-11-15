@@ -12,7 +12,7 @@ import { ReportDialogComponent } from '../report-dialog/report-dialog.component'
 
 describe('PostCardComponent', () => {
   const post: NetworkPost = { id: 4, text: 'Merci @leo_m pour #Kafka !\n<b>pas du HTML</b> mail@example.com', tags: ['kafka'],
-    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
+    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
       headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false } };
 
   it('splits the text into plain text, mentions and tags, leaving an address or a word alone', () => {
@@ -208,5 +208,32 @@ describe('PostCardComponent', () => {
     const open = spyOn(ReportDialogComponent, 'open').and.returnValue(of(true));
     fixture.componentInstance.report();
     expect(open).toHaveBeenCalledWith(jasmine.anything(), { target: 'posts', id: 4 });
+  });
+
+  it('shows a mission\'s kind and facts, and a question as answered', () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    const details = { role: 'Lead Java', rateMin: 600, rateMax: 700, city: 'Lyon', remoteDays: 2, start: '2027-01-04', client: 'Acme',
+      stack: ['Java', 'Kafka'] };
+    fixture.componentRef.setInput('post', { ...post, kind: 'MISSION', details });
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-post-kind-badge="MISSION"]')).not.toBeNull();
+    const facts = element.querySelector('[data-post-facts]')!;
+    expect(facts.textContent).toContain('Lead Java');
+    expect(facts.querySelector('[data-fact-rate]')?.textContent).toContain('600–700 €');
+    expect(facts.textContent).toContain('Acme');
+    expect(facts.textContent).toContain('Java, Kafka');
+    const component = fixture.componentInstance;
+    expect(component.rate({ ...details, rateMax: 600, rateMin: 600 })).toBe('600 €');
+    expect(component.rate({ ...details, rateMax: null })).toBe('network.kinds.rateFrom');
+    expect(component.rate({ ...details, rateMin: null })).toBe('network.kinds.rateUpTo');
+    fixture.componentRef.setInput('post', { ...post, kind: 'QUESTION', answerCommentId: 3 });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-post-answered]')).not.toBeNull();
+    expect(element.querySelector('[data-post-facts]')).toBeNull();
+    fixture.componentRef.setInput('post', post);
+    fixture.detectChanges();
+    expect(element.querySelector('[data-post-kind-badge]')).toBeNull();
   });
 });

@@ -146,6 +146,15 @@ export class PostCommentsComponent implements OnInit {
     });
   }
 
+  /** Marks a reply as the answer to the reader's question, or no longer. */
+  markAnswer(comment: NetworkComment): void {
+    const answer = comment.id === this.post.answerCommentId ? null : comment.id;
+    this.network.answer(this.post.id, answer).subscribe({
+      next: () => this.post.answerCommentId = answer,
+      error: () => this.notifications.error('network.post.commentError')
+    });
+  }
+
   /** Reports another member's comment to the moderators. */
   report(comment: NetworkComment): void {
     ReportDialogComponent.open(this.dialog, { target: 'comments', id: comment.id }).subscribe();

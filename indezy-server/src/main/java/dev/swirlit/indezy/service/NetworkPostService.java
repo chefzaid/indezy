@@ -9,9 +9,11 @@ import dev.swirlit.indezy.model.NetworkCommentLike;
 import dev.swirlit.indezy.model.NetworkLike;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkPost;
+import dev.swirlit.indezy.model.NetworkPostDetails;
 import dev.swirlit.indezy.model.NetworkPostVersion;
 import dev.swirlit.indezy.model.NetworkTagFollow;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
+import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
 import dev.swirlit.indezy.repository.NetworkBookmarkRepository;
 import dev.swirlit.indezy.repository.NetworkCommentLikeRepository;
@@ -91,15 +93,23 @@ public class NetworkPostService {
         network.requireMember(userId);
         limits.post(userId);
         String text = request.text().strip();
-        return spam.hold(userId, null, null, text) ? Optional.empty() : Optional.of(publish(userId, text));
+        NetworkPostKind kind = request.kind() == null ? NetworkPostKind.POST : request.kind();
+        NetworkPostDetails details = NetworkPostKinds.details(kind, request.details());
+        return spam.hold(userId, null, null, text) ? Optional.empty() : Optional.of(publish(userId, text, kind, details));
     }
 
-    /** Publishes the member's post: posted, or let go by an administrator once held. */
+    /** Publishes the member's post: posted, or let go by an administrator once held (then as a plain post). */
     NetworkDtos.Post publish(Long userId, String text) {
+        return publish(userId, text, NetworkPostKind.POST, null);
+    }
+
+    private NetworkDtos.Post publish(Long userId, String text, NetworkPostKind kind, NetworkPostDetails details) {
         NetworkMember author = network.requireMember(userId);
         NetworkPost post = new NetworkPost();
         post.setAuthorId(userId);
         post.setText(text);
+        post.setKind(kind);
+        post.setDetails(details);
         post.setTags(tags(post.getText()));
         posts.save(post);
         notices.mentions(post.getText(), userId, post.getId());
@@ -239,7 +249,7 @@ public class NetworkPostService {
         return new NetworkDtos.Post(post.getId(), author, post.getText(), List.copyOf(post.getTags()), post.getCreatedAt(),
             post.getAuthorId().equals(readerId), postLikes.size(), postLikes.stream().anyMatch(like -> like.getUserId().equals(readerId)),
             seen.comments(), post.isCommentsClosed(), post.getEditedAt() != null, seen.bookmarked(), seen.original(), seen.reposts(),
-            post.isRepostsOff());
+            post.isRepostsOff(), post.getKind(), NetworkPostKinds.toDto(post.getDetails()), post.getAnswerCommentId());
     }
 
     /** The originals of the reposts among these posts, as the reader can read them, by the reposts' ids. */
