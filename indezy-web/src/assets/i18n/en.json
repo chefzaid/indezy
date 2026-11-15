@@ -3428,7 +3428,8 @@
       "repostsOn": "Allow reposts",
       "repostsOffError": "Its author turned reposts off for this post.",
       "originalGone": "The original post is no longer available.",
-      "commentLikes": "Likes on this comment:"
+      "commentLikes": "Likes on this comment:",
+      "useful": "Useful ({{count}})"
     },
     "savedPosts": {
       "title": "Saved posts",
@@ -3448,7 +3449,10 @@
       "noMembers": "No member shows this skill.",
       "loadError": "This tag could not be loaded",
       "followError": "This could not be changed. Try again in a moment.",
-      "subtitle": "Posts naming this tag, and the members whose cards show the skill"
+      "subtitle": "Posts naming this tag, and the members whose cards show the skill",
+      "order": "Order of the posts",
+      "recent": "Newest",
+      "mostUseful": "Most useful"
     },
     "suggestions": {
       "title": "Members to follow",

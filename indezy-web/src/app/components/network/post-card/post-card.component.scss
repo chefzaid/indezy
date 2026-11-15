@@ -236,3 +236,17 @@ footer {
     color: var(--text-secondary);
   }
 }
+
+.useful-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}

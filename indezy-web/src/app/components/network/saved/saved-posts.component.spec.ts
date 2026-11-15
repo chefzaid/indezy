@@ -13,7 +13,7 @@ describe('SavedPostsComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   const post = (id: number, tags: string[] = []): NetworkPost => ({ id, text: `Post ${id}`, tags, createdAt: '2026-11-14T10:00:00', own: false,
-    likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: true, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, author: { handle: 'leo_m', firstName: 'Léo',
+    likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: true, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, useful: null, author: { handle: 'leo_m', firstName: 'Léo',
       lastName: 'Martin', avatar: null, headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null,
       languages: [], verified: false } });
 
@@ -47,7 +47,7 @@ describe('SavedPostsComponent', () => {
     expect(component.posts.map(item => item.id)).toEqual([2]);
     component.changed({ ...post(2), bookmarked: true });
     expect(component.posts.length).toBe(1);
-    component.changed({ ...post(2), bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null });
+    component.changed({ ...post(2), bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, useful: null });
     fixture.detectChanges();
     expect(element.querySelector('[data-saved-empty]')).not.toBeNull();
     network.saved.and.returnValue(throwError(() => new Error('down')));

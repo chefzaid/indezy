@@ -9,6 +9,7 @@ import dev.swirlit.indezy.service.NetworkPipelineService;
 import dev.swirlit.indezy.service.NetworkPollService;
 import dev.swirlit.indezy.service.NetworkPostService;
 import dev.swirlit.indezy.service.NetworkTagService;
+import dev.swirlit.indezy.service.NetworkUsefulService;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,6 +48,7 @@ public class NetworkPostController {
     private final NetworkConfidentialityService confidentiality;
     private final NetworkPollService pollVotes;
     private final NetworkPipelineService pipeline;
+    private final NetworkUsefulService usefuls;
 
     @Operation(summary = "Post to the network",
         description = "Text of up to 3,000 characters; its #tags are kept. 202 when the spam score holds it for review")
@@ -196,6 +198,18 @@ public class NetworkPostController {
         return pipeline.takers(SecurityUtils.getCurrentUserId(), id);
     }
 
+    @Operation(summary = "Find a post useful", description = "The second reaction, once; never on one's own post")
+    @PutMapping("/posts/{id}/useful")
+    public NetworkDtos.Post useful(@PathVariable Long id) {
+        return usefuls.useful(SecurityUtils.getCurrentUserId(), id, true);
+    }
+
+    @Operation(summary = "No longer find a post useful")
+    @DeleteMapping("/posts/{id}/useful")
+    public NetworkDtos.Post notUseful(@PathVariable Long id) {
+        return usefuls.useful(SecurityUtils.getCurrentUserId(), id, false);
+    }
+
     @Operation(summary = "Vote in a poll, or change one's vote", description = "While it is open; the choice counts from 0")
     @PutMapping("/posts/{id}/vote")
     public NetworkDtos.Post vote(@PathVariable Long id, @RequestParam int choice) {
@@ -236,8 +250,9 @@ public class NetworkPostController {
 
     @Operation(summary = "A tag's page: whether the viewer follows it, its posts (20 a page) and members whose cards show the skill")
     @GetMapping("/tags/{tag}")
-    public NetworkDtos.TagPage tag(@PathVariable String tag, @RequestParam(defaultValue = "0") int page) {
-        return tags.page(SecurityUtils.getCurrentUserId(), tag, page);
+    public NetworkDtos.TagPage tag(@PathVariable String tag, @RequestParam(defaultValue = "0") int page,
+                                   @RequestParam(defaultValue = "recent") String sort) {
+        return tags.page(SecurityUtils.getCurrentUserId(), tag, page, "useful".equals(sort));
     }
 
     @Operation(summary = "The tags the viewer follows")

@@ -12,7 +12,7 @@ import { ReportDialogComponent } from '../report-dialog/report-dialog.component'
 
 describe('PostCardComponent', () => {
   const post: NetworkPost = { id: 4, text: 'Merci @leo_m pour #Kafka !\n<b>pas du HTML</b> mail@example.com', tags: ['kafka'],
-    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
+    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, useful: null, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
       headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false } };
 
   it('splits the text into plain text, mentions and tags, leaving an address or a word alone', () => {
@@ -27,7 +27,7 @@ describe('PostCardComponent', () => {
 
   function configure(): void {
     network = jasmine.createSpyObj('NetworkService', ['like', 'likers', 'closeComments', 'comments', 'editPost', 'postVersions', 'bookmark',
-      'repost', 'repostsOff', 'vote']);
+      'repost', 'repostsOff', 'vote', 'useful']);
     network.comments.and.returnValue(of([]));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({ imports: [PostCardComponent, TranslateModule.forRoot()], providers: [provideRouter([]),
@@ -262,5 +262,27 @@ describe('PostCardComponent', () => {
     fixture.detectChanges();
     expect(element.querySelector('[data-poll-closed]')).not.toBeNull();
     expect((element.querySelector('[data-poll-result="0"]') as HTMLButtonElement).disabled).toBeTrue();
+  });
+
+  it('finds another member\'s post useful, or no longer, and shows its own count to the author', () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', { ...post, own: false, useful: { count: 2, mine: false } });
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-useful]')?.textContent).toContain('network.post.useful');
+    network.useful.and.returnValue(of({ ...post, own: false, useful: { count: 3, mine: true } }));
+    (element.querySelector('[data-useful]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(network.useful).toHaveBeenCalledWith(4, true);
+    expect(element.querySelector('[data-useful]')?.getAttribute('aria-pressed')).toBe('true');
+    network.useful.and.returnValue(throwError(() => new Error('down')));
+    fixture.componentInstance.toggleUseful();
+    expect(network.useful).toHaveBeenCalledWith(4, false);
+    expect(notifications.error).toHaveBeenCalledWith('network.post.likeError');
+    fixture.componentRef.setInput('post', { ...post, useful: { count: 2, mine: false } });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-useful]')).toBeNull();
+    expect(element.querySelector('[data-useful-count]')).not.toBeNull();
   });
 });

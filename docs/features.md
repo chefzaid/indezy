@@ -207,7 +207,8 @@ texts. **Save** keeps a post in the reader's private **Saved** list (`/network/s
 filtered by the tags of the posts saved; a post taken off, deleted or from a member blocked either way leaves it.
 **Repost** shares a post with an optional comment, the original shown inside it (a repost of a repost reposts the
 original; once the original is gone or out of reach, the repost says so); a post's author turns its reposts off.
-**Like** a post, once, or no longer; its likes count opens who liked it (but members blocked either way). A member
+**Useful**, the second reaction meant for questions answered and retours d'expérience, marks another member's post
+once, its count shown, and a tag's page lists its posts **Newest** or **Most useful** first. **Like** a post, once, or no longer; its likes count opens who liked it (but members blocked either way). A member
 deletes their own posts, their likes and comments going with them, and they are part of the data export.
 
 A post is of a kind, chosen in the composer, each with its card: a plain **Post**, a **Mission to pass on** (its role,

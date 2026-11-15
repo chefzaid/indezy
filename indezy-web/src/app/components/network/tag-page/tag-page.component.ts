@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnIn
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { map, switchMap } from 'rxjs';
@@ -15,7 +16,7 @@ import { PostCardComponent } from '../post-card/post-card.component';
 /** A tag's page (`/network/tags/<tag>`): following it, the posts naming it and the members whose cards show the skill. */
 @Component({
   selector: 'app-tag-page',
-  imports: [PageHeaderComponent, RouterLink, MatButtonModule, MatIconModule, TranslateModule, PostCardComponent],
+  imports: [MatButtonToggleModule, PageHeaderComponent, RouterLink, MatButtonModule, MatIconModule, TranslateModule, PostCardComponent],
   templateUrl: './tag-page.component.html',
   styleUrls: ['./tag-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -29,6 +30,8 @@ export class TagPageComponent implements OnInit {
 
   page: TagPage | null = null;
   posts: NetworkPost[] = [];
+  /** The posts the newest first, or the most found useful first. */
+  sort: 'recent' | 'useful' = 'recent';
 
   ngOnInit(): void {
     this.route.paramMap.pipe(map(params => params.get('tag') ?? ''), switchMap(tag => this.network.tagPage(tag)),
@@ -39,11 +42,23 @@ export class TagPageComponent implements OnInit {
   }
 
   more(): void {
-    this.network.tagPage(this.page!.tag, this.page!.posts.page + 1).subscribe({
+    this.network.tagPage(this.page!.tag, this.page!.posts.page + 1, this.sort).subscribe({
       next: page => {
         this.posts = [...this.posts, ...page.posts.posts];
         this.page = page;
       },
+      error: () => this.notifications.error('network.tags.loadError')
+    });
+  }
+
+  /** Lists the posts in the other order, from the first page. */
+  order(sort: 'recent' | 'useful'): void {
+    if (sort === this.sort) {
+      return;
+    }
+    this.sort = sort;
+    this.network.tagPage(this.page!.tag, 0, sort).subscribe({
+      next: page => this.show(page),
       error: () => this.notifications.error('network.tags.loadError')
     });
   }

@@ -50,6 +50,12 @@ export class NetworkService {
     return this.http.get<MemberCard[]>(`${this.API_URL}/posts/${postId}/takers`);
   }
 
+  /** Finds a post useful, or no longer: the second reaction, for knowledge posts. */
+  useful(postId: number, useful: boolean): Observable<NetworkPost> {
+    const url = `${this.API_URL}/posts/${postId}/useful`;
+    return useful ? this.http.put<NetworkPost>(url, null) : this.http.delete<NetworkPost>(url);
+  }
+
   /** Votes in a poll, or changes the vote, while it is open. */
   vote(postId: number, choice: number): Observable<NetworkPost> {
     return this.http.put<NetworkPost>(`${this.API_URL}/posts/${postId}/vote`, null, { params: new HttpParams().set('choice', choice) });
@@ -168,8 +174,9 @@ export class NetworkService {
     return this.http.get<NetworkPosts>(`${this.member$(handle)}/posts`, { params: { page } });
   }
 
-  tagPage(tag: string, page = 0): Observable<TagPage> {
-    return this.http.get<TagPage>(`${this.API_URL}/tags/${encodeURIComponent(tag)}`, { params: { page } });
+  /** A tag's page, its posts the newest first or the most found useful first. */
+  tagPage(tag: string, page = 0, sort: 'recent' | 'useful' = 'recent'): Observable<TagPage> {
+    return this.http.get<TagPage>(`${this.API_URL}/tags/${encodeURIComponent(tag)}`, { params: { page, sort } });
   }
 
   followedTags(): Observable<string[]> {

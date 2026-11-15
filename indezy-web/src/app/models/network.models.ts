@@ -97,6 +97,8 @@ export interface NetworkPost {
   poll: Poll | null;
   /** A mission passed on: how many took it into their pipeline (to its author only), and whether the reader did. */
   taken: { count: number | null; mine: boolean } | null;
+  /** How many members found it useful, and whether the reader did. */
+  useful: { count: number; mine: boolean } | null;
 }
 
 /** The post a repost reposts, as the reader can read it. */

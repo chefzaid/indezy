@@ -153,6 +153,16 @@
         {{ (post.reposts ? 'network.post.reposts' : 'network.post.repost') | translate: { count: post.reposts } }}
       </button>
     }
+    @if (!post.own) {
+      <button mat-button type="button" (click)="toggleUseful()" [attr.aria-pressed]="post.useful?.mine ?? false" data-useful
+        [class.liked]="post.useful?.mine">
+        <mat-icon>{{ post.useful?.mine ? 'lightbulb' : 'lightbulb_outline' }}</mat-icon>
+        {{ 'network.post.useful' | translate: { count: post.useful?.count ?? 0 } }}
+      </button>
+    } @else if (post.useful?.count) {
+      <span class="useful-count" data-useful-count><mat-icon aria-hidden="true">lightbulb</mat-icon>
+        {{ 'network.post.useful' | translate: { count: post.useful?.count } }}</span>
+    }
     <button mat-button type="button" (click)="toggleBookmark()" [attr.aria-pressed]="post.bookmarked" data-bookmark>
       <mat-icon>{{ post.bookmarked ? 'bookmark' : 'bookmark_border' }}</mat-icon>
       {{ (post.bookmarked ? 'network.post.saved' : 'network.post.save') | translate }}

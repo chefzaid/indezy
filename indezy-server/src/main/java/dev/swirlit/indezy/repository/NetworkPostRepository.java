@@ -40,4 +40,10 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
 
     /** The latest posts, the newest first. */
     List<NetworkPost> findAllByOrderByCreatedAtDescIdDesc(Pageable page);
+
+    /** A tag's posts but those of the excluded authors, the most found useful first, then the newest. */
+    @Query(value = "select p from NetworkPost p join p.tags t where t = :tag and p.authorId not in :excluded " +
+        "order by (select count(u) from NetworkUseful u where u.postId = p.id) desc, p.createdAt desc, p.id desc",
+        countQuery = "select count(p) from NetworkPost p join p.tags t where t = :tag and p.authorId not in :excluded")
+    Page<NetworkPost> tagByUseful(@Param("tag") String tag, @Param("excluded") Collection<Long> excluded, Pageable page);
 }

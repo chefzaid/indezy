@@ -218,6 +218,14 @@ export class PostCardComponent {
       this.translate.instant('network.kinds.rateUpTo', { rate: facts.rateMax });
   }
 
+  /** Finds the post useful, or no longer. */
+  toggleUseful(): void {
+    this.network.useful(this.post.id, !(this.post.useful?.mine ?? false)).subscribe({
+      next: updated => this.post = updated,
+      error: () => this.notifications.error('network.post.likeError')
+    });
+  }
+
   /** Votes for a choice of the poll, or changes the vote. */
   vote(choice: number): void {
     this.isVoting = true;

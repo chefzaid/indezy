@@ -51,11 +51,11 @@ public class NetworkTagService {
     private final NetworkFollowService memberFollows;
 
     @Transactional(readOnly = true)
-    public NetworkDtos.TagPage page(Long userId, String tag, int page) {
+    public NetworkDtos.TagPage page(Long userId, String tag, int page, boolean byUseful) {
         String name = normalized(tag);
         List<NetworkDtos.MemberCard> shown = directory.search(userId, new NetworkDirectoryService.Search(name, null, null, null, 0))
             .members().stream().limit(MEMBERS_SHOWN).toList();
-        return new NetworkDtos.TagPage(name, follows.findByUserIdAndTag(userId, name).isPresent(), posts.tagPosts(userId, name, page), shown);
+        return new NetworkDtos.TagPage(name, follows.findByUserIdAndTag(userId, name).isPresent(), posts.tagPosts(userId, name, page, byUseful), shown);
     }
 
     /** Follows a tag, or no longer; answers the tags the member follows, in order. */

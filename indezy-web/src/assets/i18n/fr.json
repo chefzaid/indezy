@@ -3428,7 +3428,8 @@
       "repostsOn": "Autoriser les republications",
       "repostsOffError": "Son auteur a interdit les republications de cette publication.",
       "originalGone": "La publication d'origine n'est plus disponible.",
-      "commentLikes": "Mentions J’aime du commentaire :"
+      "commentLikes": "Mentions J’aime du commentaire :",
+      "useful": "Utile ({{count}})"
     },
     "savedPosts": {
       "title": "Publications enregistrées",
@@ -3448,7 +3449,10 @@
       "noMembers": "Aucun membre n'affiche cette compétence.",
       "loadError": "Ce tag n'a pas pu être chargé",
       "followError": "Le changement n'a pas pu être fait. Réessayez dans un instant.",
-      "subtitle": "Les publications qui nomment ce tag, et les membres dont la carte affiche la compétence"
+      "subtitle": "Les publications qui nomment ce tag, et les membres dont la carte affiche la compétence",
+      "order": "Ordre des publications",
+      "recent": "Plus récentes",
+      "mostUseful": "Plus utiles"
     },
     "suggestions": {
       "title": "Membres à suivre",

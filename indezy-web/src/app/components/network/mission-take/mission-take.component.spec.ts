@@ -19,7 +19,7 @@ describe('MissionTakeComponent', () => {
   const mission: NetworkPost = { id: 5, author, text: 'Mission', tags: [], createdAt: '2026-11-15T09:00:00', own: false, likes: 0,
     liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false,
     kind: 'MISSION', details: { role: 'Lead Java', rateMin: null, rateMax: null, city: null, remoteDays: null, start: null, client: null,
-      stack: [] }, answerCommentId: null, poll: null, taken: { count: null, mine: false } };
+      stack: [] }, answerCommentId: null, poll: null, taken: { count: null, mine: false }, useful: null };
 
   function create(post = mission) {
     network = jasmine.createSpyObj('NetworkService', ['take', 'takers']);
