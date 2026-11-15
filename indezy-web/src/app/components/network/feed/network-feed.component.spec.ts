@@ -25,7 +25,7 @@ describe('NetworkFeedComponent', () => {
       city: 'Lyon' } });
 
   function create(feed = of({ posts: [post(2), post(1, true)], page: 0, more: true })): ComponentFixture<NetworkFeedComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow']);
+    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft']);
     network.feed.and.returnValue(feed);
     network.followedTags.and.returnValue(of(['kafka']));
     network.suggestions.and.returnValue(of([suggestion('ines_b', 'FOLLOWED_BY', 3), suggestion('paul_d', 'SAME_STACK'),
@@ -84,6 +84,30 @@ describe('NetworkFeedComponent', () => {
     network.deletePost.and.returnValue(throwError(() => new Error('down')));
     component.remove(post(2));
     expect(notifications.error).toHaveBeenCalledTimes(3);
+  });
+
+  it('keeps the text as a draft, or schedules it at the time chosen', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    component.keep();
+    expect(network.createDraft).not.toHaveBeenCalled();
+    network.createDraft.and.returnValue(of({ id: 1, text: 'Plus tard', scheduledAt: null, updatedAt: '2026-11-14T10:00:00' }));
+    component.draft.setValue(' Plus tard ');
+    component.keep();
+    expect(network.createDraft).toHaveBeenCalledWith('Plus tard', null);
+    expect(notifications.success).toHaveBeenCalledWith('network.drafts.keptDone');
+    component.draft.setValue('Lundi');
+    component.scheduleAt.setValue('2026-11-16T09:00');
+    component.keep();
+    expect(network.createDraft).toHaveBeenCalledWith('Lundi', new Date('2026-11-16T09:00').toISOString());
+    expect(notifications.success).toHaveBeenCalledWith('network.drafts.scheduledDone');
+    expect(component.scheduleAt.value).toBe('');
+    for (const [status, key] of [[400, 'network.drafts.scheduleError'], [500, 'network.drafts.saveError']] as const) {
+      network.createDraft.and.returnValue(throwError(() => new HttpErrorResponse({ status })));
+      component.draft.setValue('Encore');
+      component.keep();
+      expect(notifications.error).toHaveBeenCalledWith(key);
+    }
   });
 
   it('suggests members to follow with their reason, and follows one', () => {

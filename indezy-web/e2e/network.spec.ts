@@ -320,3 +320,35 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
   });
 }
+
+test('keeps a draft from the feed, then publishes it from the drafts', async ({ page }) => {
+  await mockWorkspaceSession(page, 'en');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+  let drafts: Record<string, unknown>[] = [];
+  const asked: unknown[] = [];
+  await page.route('**/api/network/drafts', route => {
+    if (route.request().method() === 'POST') {
+      const body = route.request().postDataJSON();
+      asked.push(body);
+      drafts = [{ id: 5, text: body.text, scheduledAt: body.scheduledAt, updatedAt: '2026-11-14T10:00:00' }];
+      return route.fulfill({ status: 201, json: drafts[0] });
+    }
+    return route.fulfill({ json: drafts });
+  });
+  await page.route('**/api/network/drafts/5/publish', route => {
+    asked.push('publish');
+    return route.fulfill({ status: 201, json: {} });
+  });
+  await page.goto('/network');
+  await page.locator('[data-composer-text]').fill('À relire avant lundi');
+  await page.locator('[data-keep-draft]').click();
+  await expect(page.locator('[data-composer-text]')).toHaveValue('');
+  await page.locator('[data-feed-drafts]').click();
+  await expect(page.locator('[data-draft="5"]')).toContainText('À relire avant lundi');
+  const audit = await new AxeBuilder({ page }).include('app-network-drafts').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  await page.locator('[data-draft="5"] [data-draft-publish]').click();
+  await expect(page.locator('[data-draft="5"]')).toHaveCount(0);
+  expect(asked).toEqual([{ text: 'À relire avant lundi', scheduledAt: null }, 'publish']);
+});

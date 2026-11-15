@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -141,6 +142,24 @@ public final class NetworkDtos {
         @Override
         public String toString() {
             return "PostVersion[replacedAt=" + replacedAt + "]";
+        }
+    }
+
+    /** A draft of the member's: its text, and when it is published on its own, if it is scheduled. */
+    public record Draft(Long id, String text, Instant scheduledAt, LocalDateTime updatedAt) {
+
+        @Override
+        public String toString() {
+            return "Draft[id=" + id + "]";
+        }
+    }
+
+    /** A draft to keep: its text, and when to publish it on its own, from a minute to 30 days ahead; none to keep it. */
+    public record DraftRequest(@NotBlank @Size(max = 3000) String text, Instant scheduledAt) {
+
+        @Override
+        public String toString() {
+            return "DraftRequest[length=" + (text == null ? 0 : text.length()) + "]";
         }
     }
 

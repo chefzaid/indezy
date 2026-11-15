@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
 import dev.swirlit.indezy.service.NetworkCommentService;
 import dev.swirlit.indezy.service.NetworkDirectoryService;
+import dev.swirlit.indezy.service.NetworkDraftService;
 import dev.swirlit.indezy.service.NetworkFollowService;
 import dev.swirlit.indezy.service.NetworkNotificationService;
 import dev.swirlit.indezy.service.NetworkPostService;
@@ -45,6 +46,7 @@ public class NetworkController {
     private final NetworkTagService tags;
     private final NetworkSuggestionService suggestions;
     private final NetworkNotificationService notices;
+    private final NetworkDraftService drafts;
 
     @Operation(summary = "Whether the account joined, its handle and what its card shows")
     @GetMapping("/membership")
@@ -189,6 +191,39 @@ public class NetworkController {
     @PutMapping("/posts/{id}/reposts-off")
     public NetworkDtos.Post repostsOff(@PathVariable Long id, @RequestParam boolean off) {
         return posts.repostsOff(SecurityUtils.getCurrentUserId(), id, off);
+    }
+
+    @Operation(summary = "One's drafts, the scheduled ones first by their time")
+    @GetMapping("/drafts")
+    public List<NetworkDtos.Draft> drafts() {
+        return drafts.list(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Keep a draft, or schedule it from a minute to 30 days ahead")
+    @PostMapping("/drafts")
+    @ResponseStatus(HttpStatus.CREATED)
+    public NetworkDtos.Draft createDraft(@Valid @RequestBody NetworkDtos.DraftRequest request) {
+        return drafts.create(SecurityUtils.getCurrentUserId(), request);
+    }
+
+    @Operation(summary = "Change a draft or its schedule")
+    @PutMapping("/drafts/{id}")
+    public NetworkDtos.Draft updateDraft(@PathVariable Long id, @Valid @RequestBody NetworkDtos.DraftRequest request) {
+        return drafts.update(SecurityUtils.getCurrentUserId(), id, request);
+    }
+
+    @Operation(summary = "Delete a draft")
+    @DeleteMapping("/drafts/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteDraft(@PathVariable Long id) {
+        drafts.delete(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "Publish a draft now")
+    @PostMapping("/drafts/{id}/publish")
+    @ResponseStatus(HttpStatus.CREATED)
+    public NetworkDtos.Post publishDraft(@PathVariable Long id) {
+        return drafts.publish(SecurityUtils.getCurrentUserId(), id);
     }
 
     @Operation(summary = "Delete one's own post")

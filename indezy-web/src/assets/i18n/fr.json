@@ -3406,6 +3406,24 @@
         "MENTION": "vous ont mentionné",
         "REPOST": "ont republié votre publication"
       }
+    },
+    "drafts": {
+      "title": "Brouillons",
+      "subtitle": "Vos brouillons, et les publications programmées qui paraîtront seules",
+      "keep": "Garder en brouillon",
+      "schedule": "Programmer",
+      "scheduleAt": "Publier seul le",
+      "keptDone": "Brouillon gardé",
+      "scheduledDone": "Publication programmée",
+      "scheduleError": "Une publication se programme d'une minute à 30 jours à l'avance.",
+      "saveError": "Le brouillon n'a pas pu être enregistré",
+      "empty": "Aucun brouillon. Gardez ou programmez une publication depuis le fil.",
+      "scheduledFor": "Paraît seul le {{date}}",
+      "kept": "Gardé le {{date}}",
+      "publish": "Publier maintenant",
+      "published": "Publié",
+      "deleteConfirm": "Supprimer ce brouillon ?",
+      "loadError": "Vos brouillons n'ont pas pu être chargés"
     }
   }
 }

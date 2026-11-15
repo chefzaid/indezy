@@ -4,6 +4,10 @@
       <mat-icon>notifications</mat-icon>
       {{ 'network.notices.title' | translate }}
     </a>
+    <a mat-stroked-button routerLink="/network/drafts" data-feed-drafts>
+      <mat-icon>edit_note</mat-icon>
+      {{ 'network.drafts.title' | translate }}
+    </a>
     <a mat-stroked-button routerLink="/network/saved" data-feed-saved>
       <mat-icon>bookmarks</mat-icon>
       {{ 'network.feed.saved' | translate }}
@@ -35,7 +39,14 @@
       </mat-form-field>
       <p class="hint">{{ 'network.feed.composeHint' | translate }}</p>
       <div class="actions">
-        <button mat-flat-button type="submit" [disabled]="isPosting || !draft.value.trim()" data-publish>
+        <mat-form-field appearance="outline" class="schedule" subscriptSizing="dynamic">
+          <mat-label>{{ 'network.drafts.scheduleAt' | translate }}</mat-label>
+          <input matInput type="datetime-local" [formControl]="scheduleAt" data-schedule-at>
+        </mat-form-field>
+        <button mat-stroked-button type="button" (click)="keep()" [disabled]="isPosting || !draft.value.trim()" data-keep-draft>
+          {{ (scheduleAt.value ? 'network.drafts.schedule' : 'network.drafts.keep') | translate }}
+        </button>
+        <button mat-flat-button type="submit" [disabled]="isPosting || !draft.value.trim() || !!scheduleAt.value" data-publish>
           {{ 'network.feed.publish' | translate }}
         </button>
       </div>

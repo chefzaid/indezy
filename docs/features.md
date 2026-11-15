@@ -198,7 +198,9 @@ lists the members muted and blocked, each to unmute or unblock.
 (`/network/tags/<tag>`): the posts naming it, the members whose cards show the skill, and **Follow the tag**. The feed
 then holds the reader's posts, those of the members they follow and those naming a tag they follow (listed above
 it), the newest first, 20 at a time with **Show
-more**, but those of members muted or blocked either way, or away from the network. A member's page shows their posts
+more**, but those of members muted or blocked either way, or away from the network. **Keep as draft** keeps the text
+for later, and with a time (a minute to 30 days ahead) **Schedule** publishes it on its own within a minute of that
+time; **Drafts** (`/network/drafts`) lists them, the scheduled first, each to publish now or delete (50 at most). A member's page shows their posts
 too. Its author **edits** a post in the 15 minutes after posting it; it then reads **edited**, which opens its earlier
 texts. **Save** keeps a post in the reader's private **Saved** list (`/network/saved`), the latest saved first and
 filtered by the tags of the posts saved; a post taken off, deleted or from a member blocked either way leaves it.

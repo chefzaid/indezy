@@ -51,6 +51,17 @@ describe('NetworkService', () => {
     expect(http.expectOne(call => call.url.endsWith('/network/posts/5/pinned-comment')).request.params.keys()).toEqual([]);
     service.editPost(5, 'Revu').subscribe();
     expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/5')).request.body).toEqual({ text: 'Revu' });
+    service.drafts().subscribe();
+    http.expectOne(call => call.method === 'GET' && call.url.endsWith('/network/drafts'));
+    service.createDraft('Plus tard', '2026-11-16T08:00:00.000Z').subscribe();
+    expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/drafts')).request.body)
+      .toEqual({ text: 'Plus tard', scheduledAt: '2026-11-16T08:00:00.000Z' });
+    service.updateDraft(2, 'Relu', null).subscribe();
+    http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/drafts/2'));
+    service.deleteDraft(2).subscribe();
+    http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/drafts/2'));
+    service.publishDraft(2).subscribe();
+    http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/drafts/2/publish'));
     service.repost(5, 'À lire').subscribe();
     expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/posts/5/reposts')).request.body).toEqual({ text: 'À lire' });
     service.repostsOff(5, true).subscribe();

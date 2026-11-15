@@ -1,0 +1,26 @@
+<div class="drafts-page">
+  <app-page-header icon="edit_note" [title]="'network.drafts.title' | translate" [subtitle]="'network.drafts.subtitle' | translate">
+  </app-page-header>
+
+  @if (loaded && drafts.length === 0) {
+    <p class="empty" data-drafts-empty>{{ 'network.drafts.empty' | translate }}</p>
+  }
+  <ul class="drafts">
+    @for (draft of drafts; track draft.id) {
+      <li [attr.data-draft]="draft.id">
+        <p class="when">
+          @if (draft.scheduledAt) {
+            {{ 'network.drafts.scheduledFor' | translate: { date: (draft.scheduledAt | date:'medium') } }}
+          } @else {
+            {{ 'network.drafts.kept' | translate: { date: (draft.updatedAt | date:'medium') } }}
+          }
+        </p>
+        <p class="text">{{ draft.text }}</p>
+        <div class="actions">
+          <button mat-button type="button" (click)="remove(draft)" data-draft-delete>{{ 'common.delete' | translate }}</button>
+          <button mat-flat-button type="button" (click)="publish(draft)" data-draft-publish>{{ 'network.drafts.publish' | translate }}</button>
+        </div>
+      </li>
+    }
+  </ul>
+</div>

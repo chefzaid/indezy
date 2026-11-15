@@ -1,0 +1,45 @@
+.drafts-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 720px;
+}
+
+.empty,
+.when {
+  color: var(--text-secondary);
+}
+
+.drafts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 12px 16px;
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+  }
+
+  p {
+    margin: 0 0 8px;
+  }
+
+  .when {
+    font-size: 0.8125rem;
+  }
+
+  .text {
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}

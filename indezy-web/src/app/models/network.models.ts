@@ -130,6 +130,14 @@ export interface NetworkComment {
   replies: NetworkComment[];
 }
 
+/** A draft of the reader's: its text, and when it is published on its own, if scheduled. */
+export interface NetworkDraft {
+  id: number;
+  text: string;
+  scheduledAt: string | null;
+  updatedAt: string;
+}
+
 /** A page of posts, the newest first, and whether more follow. */
 export interface NetworkPosts {
   posts: NetworkPost[];

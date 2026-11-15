@@ -3406,6 +3406,24 @@
         "MENTION": "mentioned you",
         "REPOST": "reposted your post"
       }
+    },
+    "drafts": {
+      "title": "Drafts",
+      "subtitle": "Your drafts, and the posts scheduled to publish on their own",
+      "keep": "Keep as draft",
+      "schedule": "Schedule",
+      "scheduleAt": "Publish on its own at",
+      "keptDone": "Draft kept",
+      "scheduledDone": "Post scheduled",
+      "scheduleError": "A post is scheduled from a minute to 30 days ahead.",
+      "saveError": "The draft could not be saved",
+      "empty": "No draft. Keep or schedule a post from the feed.",
+      "scheduledFor": "Publishes on its own {{date}}",
+      "kept": "Kept {{date}}",
+      "publish": "Publish now",
+      "published": "Published",
+      "deleteConfirm": "Delete this draft?",
+      "loadError": "Your drafts could not be loaded"
     }
   }
 }

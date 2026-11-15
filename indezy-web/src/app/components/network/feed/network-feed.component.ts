@@ -105,6 +105,31 @@ export class NetworkFeedComponent implements OnInit {
     });
   }
 
+  /** The time chosen to publish the post on its own, as a local date and time; none to post now or keep a draft. */
+  readonly scheduleAt = new FormControl('', { nonNullable: true });
+
+  /** Keeps the text as a draft, scheduled when a time is chosen. */
+  keep(): void {
+    const text = this.draft.value.trim();
+    if (!text || this.isPosting) {
+      return;
+    }
+    const at = this.scheduleAt.value ? new Date(this.scheduleAt.value).toISOString() : null;
+    this.isPosting = true;
+    this.network.createDraft(text, at).subscribe({
+      next: () => {
+        this.isPosting = false;
+        this.draft.reset('');
+        this.scheduleAt.reset('');
+        this.notifications.success(at ? 'network.drafts.scheduledDone' : 'network.drafts.keptDone');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isPosting = false;
+        this.notifications.error(error.status === 400 ? 'network.drafts.scheduleError' : 'network.drafts.saveError');
+      }
+    });
+  }
+
   remove(post: NetworkPost): void {
     this.confirm.confirm({ messageKey: 'network.feed.deleteConfirm', confirmKey: 'common.delete', danger: true }).subscribe(confirmed => {
       if (!confirmed) {

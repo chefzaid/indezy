@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -41,6 +41,27 @@ export class NetworkService {
   /** Changes the text of the reader's own post, in the 15 minutes after posting it. */
   editPost(id: number, text: string): Observable<NetworkPost> {
     return this.http.put<NetworkPost>(`${this.API_URL}/posts/${id}`, { text });
+  }
+
+  drafts(): Observable<NetworkDraft[]> {
+    return this.http.get<NetworkDraft[]>(`${this.API_URL}/drafts`);
+  }
+
+  /** Keeps a draft, scheduled when a time is given. */
+  createDraft(text: string, scheduledAt: string | null): Observable<NetworkDraft> {
+    return this.http.post<NetworkDraft>(`${this.API_URL}/drafts`, { text, scheduledAt });
+  }
+
+  updateDraft(id: number, text: string, scheduledAt: string | null): Observable<NetworkDraft> {
+    return this.http.put<NetworkDraft>(`${this.API_URL}/drafts/${id}`, { text, scheduledAt });
+  }
+
+  deleteDraft(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/drafts/${id}`);
+  }
+
+  publishDraft(id: number): Observable<NetworkPost> {
+    return this.http.post<NetworkPost>(`${this.API_URL}/drafts/${id}/publish`, null);
   }
 
   /** Reposts a post, with an optional comment. */
