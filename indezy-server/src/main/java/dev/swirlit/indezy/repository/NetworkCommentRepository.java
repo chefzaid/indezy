@@ -19,6 +19,8 @@ public interface NetworkCommentRepository extends JpaRepository<NetworkComment, 
 
     List<NetworkComment> findByParentId(Long parentId);
 
+    List<NetworkComment> findByAuthorIdOrderByCreatedAtAsc(Long authorId);
+
     long countByAuthorIdAndCreatedAtAfter(Long authorId, LocalDateTime since);
 
     @Modifying

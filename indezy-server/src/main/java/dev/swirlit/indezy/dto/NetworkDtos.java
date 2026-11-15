@@ -186,6 +186,31 @@ public final class NetworkDtos {
         }
     }
 
+    /**
+     * What the account did on the network, for its data export: its comments (with the post they answer), the posts it
+     * liked and saved, the members it follows (by handle) and the tags it follows.
+     */
+    public record Activity(List<ExportedComment> comments, List<Long> likedPosts, List<Long> savedPosts, List<String> following,
+                           List<String> tags) {
+
+        public Activity {
+            comments = List.copyOf(comments);
+            likedPosts = List.copyOf(likedPosts);
+            savedPosts = List.copyOf(savedPosts);
+            following = List.copyOf(following);
+            tags = List.copyOf(tags);
+        }
+    }
+
+    /** A comment the account wrote, for its data export. */
+    public record ExportedComment(Long postId, Long replyTo, String text, LocalDateTime createdAt) {
+
+        @Override
+        public String toString() {
+            return "ExportedComment[postId=" + postId + "]";
+        }
+    }
+
     /** A page of the member directory, and how many members match in all. */
     public record Directory(List<MemberCard> members, int total, int page, int size) {
 

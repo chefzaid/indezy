@@ -66,6 +66,7 @@ public class UserDataExportService {
         export.put("publicProfile", publicProfileService.settings(userId));
         export.put("networkMembership", networkService.membership(userId));
         export.put("networkPosts", networkPostService.export(userId));
+        export.put("networkActivity", networkPostService.activity(userId));
         // Employment status, notice period, reversion and tax rates: the workspace's own record.
         export.put("freelance", freelanceService.findById(freelanceId));
         export.put("billing", billingIdentityService.get(freelanceId));

@@ -152,6 +152,19 @@ public class NetworkPostService {
             .map(post -> toDto(post, null, userId, List.of(), Seen.NOTHING)).toList();
     }
 
+    /** What the account did on the network beyond its posts, for its data export. */
+    @Transactional(readOnly = true)
+    public NetworkDtos.Activity activity(Long userId) {
+        return new NetworkDtos.Activity(
+            comments.findByAuthorIdOrderByCreatedAtAsc(userId).stream()
+                .map(comment -> new NetworkDtos.ExportedComment(comment.getPostId(), comment.getParentId(), comment.getText(), comment.getCreatedAt()))
+                .toList(),
+            likes.findByUserIdOrderByCreatedAtAsc(userId).stream().map(NetworkLike::getPostId).toList(),
+            bookmarks.findByUserIdOrderByCreatedAtDescIdDesc(userId).stream().map(NetworkBookmark::getPostId).toList(),
+            followRepository.following(userId).stream().map(NetworkMember::getHandle).toList(),
+            tagFollows.findByUserIdOrderByTagAsc(userId).stream().map(NetworkTagFollow::getTag).toList());
+    }
+
     private NetworkDtos.Posts page(Collection<Long> authors, Long readerId, int page) {
         return page(posts.findByAuthorIdInOrderByCreatedAtDescIdDesc(authors, PageRequest.of(Math.max(0, page), PAGE_SIZE)), readerId);
     }

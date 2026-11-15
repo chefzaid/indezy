@@ -531,7 +531,7 @@ Safety and moderation
 - [ ] Storage of the posts' and messages' files. Options: in the database as attachments and documents are today (one store, backed up with the database, but backups grow with every image) or in an object store (streamed and cheaper per gigabyte, but a bucket and its own backup to run); thumbnails made once either way. Waits on **Member network files** in Needs Input.
 
 Data, privacy and quality
-- [ ] The account export (`GET /api/users/export`) adds the member card, posts, comments, likes, follows and messages sent; deleting the account deletes its posts and comments and keeps its messages for the other side, signed "Ancien membre".
+- [ ] The account export (`GET /api/users/export`) adds the member card, posts, comments, likes, follows and messages sent; deleting the account deletes its posts and comments and keeps its messages for the other side, signed "Ancien membre". Partly done on 2026-11-14: the membership and card settings, posts, comments, likes, saves and follows of members and tags (`docs/security.md#member-network`); messages come with conversations, and deleting the account's posts and comments with account deletion.
 - [ ] Phone layout of the feed, member pages and conversations (composer at the bottom, swipe to reply), keyboard access and an axe audit in both themes, in French and English.
 - [ ] Tests: integration tests on two real accounts for the messaging rule, blocks and private cards; Playwright scenarios posting with an image and a document, liking, following and messaging.
 

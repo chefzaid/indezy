@@ -74,6 +74,9 @@ class NetworkCommentsIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/network/feed", null, Map.class).getBody().get("posts"))
             .singleElement().satisfies(found -> assertThat(found).containsEntry("comments", 3).containsEntry("commentsClosed", false));
 
+        String export = call(bob, HttpMethod.GET, "/users/export", null, String.class).getBody();
+        assertThat(export).contains("\"networkActivity\"").contains("Première réponse");
+
         // Alice pins her comment on top, hides Bob's (then only she sees it, marked hidden), and closes the comments.
         assertThat(call(bob, HttpMethod.PUT, "/network/posts/" + post + "/pinned-comment?commentId=" + second.get("id"), null, String.class)
             .getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);

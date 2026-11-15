@@ -197,8 +197,9 @@ The member network (`/api/network`) is off until an administrator turns it on (`
 - posts and comments are plain text: the page shows them as text nodes, `@handle` and `#tag` as links it builds, never
   HTML; their bodies leave the logs (`toString` gives the id or length only), as do the member cards';
 - the verification sends the billing SIRET alone to the public registry, read afresh;
-- deleting a post deletes its likes, comments, earlier texts and saves; the account export holds the membership and
-  the posts.
+- deleting a post deletes its likes, comments, earlier texts, saves and notifications; the account export holds the
+  membership, the posts and what the account did (`networkActivity`: its comments, the posts it liked and saved, the
+  members and tags it follows).
 
 ## Password Storage
 ## Password Storage
@@ -278,7 +279,7 @@ Indezy stores personal and commercially sensitive information:
 Account deletion and data portability:
 
 - accounts are not deleted from the application: identities live in Keycloak, and an account whose `User.deletedAt` is set can no longer sign in (`AuthService` rejects it with the generic invalid-credentials error)
-- `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact, source and activity report they own, downloaded as an attachment, with dates in ISO-8601. It also lists the job offers the workspace saved, hid, opened or imported (`jobOffers`), the opportunities' journal notes (`projectNotes`), the job-hunting seasons (`seasons`), the quotes (`quotes`), the network membership (`networkMembership`), the testimonials asked and received (`testimonials`) and the workspace's freelance record (`freelance`: employment status, notice period, reversion and income tax rates).
+- `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact, source and activity report they own, downloaded as an attachment, with dates in ISO-8601. It also lists the job offers the workspace saved, hid, opened or imported (`jobOffers`), the opportunities' journal notes (`projectNotes`), the job-hunting seasons (`seasons`), the quotes (`quotes`), the network membership, posts and activity (`networkMembership`, `networkPosts`, `networkActivity`), the testimonials asked and received (`testimonials`) and the workspace's freelance record (`freelance`: employment status, notice period, reversion and income tax rates).
 - `GET /api/public/profiles/{slug}` is read without a token, like every `/api/public` path (the ingress lets it past the SSO): it answers only profiles their owner turned on, the same `404` for a hidden profile and an unknown address, no email, phone, address or workspace record, and only `http(s)` links, so a `javascript:` link saved on the profile is never served. Its `toString` prints nothing about the person.
 - `POST /api/users/import/preview` and `POST /api/users/import` bring an export into the signed-in account's own workspace only, whatever ids or workspace the file names: every record is created afresh under the caller's workspace through the same services and validation as the API, references are remapped to the records just created or matched, and the upload is bounded by the 10 MB multipart limit. The report lists records by name, and its `toString` (logged at DEBUG) prints statuses only. The profile comes from the signed-in account and every other section from its workspace, found through the account's email like every other resource (`AccessGuard`), never from the account id: account and workspace ids are numbered separately.
 

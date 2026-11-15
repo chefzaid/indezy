@@ -15,6 +15,8 @@ public interface NetworkLikeRepository extends JpaRepository<NetworkLike, Long> 
 
     Optional<NetworkLike> findByPostIdAndUserId(Long postId, Long userId);
 
+    List<NetworkLike> findByUserIdOrderByCreatedAtAsc(Long userId);
+
     /** The likes of these posts: how many each has, and which the reader gave, are read from them. */
     List<NetworkLike> findByPostIdIn(Collection<Long> postIds);
 
