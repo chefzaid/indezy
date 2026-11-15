@@ -12,7 +12,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 
 /** The icon of each kind of notification. */
 export const NOTICE_ICONS: Record<NetworkNotificationType, string> = {
-  FOLLOW: 'person_add', LIKE: 'favorite', COMMENT: 'chat_bubble', REPLY: 'reply', MENTION: 'alternate_email', REPOST: 'repeat',
+  FOLLOW: 'person_add', LIKE: 'favorite', COMMENT_LIKE: 'favorite', COMMENT: 'chat_bubble', REPLY: 'reply', MENTION: 'alternate_email', REPOST: 'repeat',
   WARNED: 'report', CONTENT_REMOVED: 'delete', SUSPENDED: 'timer_off', REPORT_ACTED: 'gavel', REPORT_DISMISSED: 'flag'
 };
 

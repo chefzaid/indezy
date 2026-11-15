@@ -5,6 +5,7 @@ import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.NetworkBookmark;
 import dev.swirlit.indezy.model.NetworkComment;
+import dev.swirlit.indezy.model.NetworkCommentLike;
 import dev.swirlit.indezy.model.NetworkLike;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkPost;
@@ -13,6 +14,7 @@ import dev.swirlit.indezy.model.NetworkTagFollow;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
 import dev.swirlit.indezy.repository.NetworkBookmarkRepository;
+import dev.swirlit.indezy.repository.NetworkCommentLikeRepository;
 import dev.swirlit.indezy.repository.NetworkCommentRepository;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
 import dev.swirlit.indezy.repository.NetworkLikeRepository;
@@ -72,6 +74,7 @@ public class NetworkPostService {
     private final NetworkFollowRepository followRepository;
     private final NetworkRestrictionRepository restrictions;
     private final NetworkLikeRepository likes;
+    private final NetworkCommentLikeRepository commentLikes;
     private final NetworkCommentRepository comments;
     private final NetworkPostVersionRepository versions;
     private final NetworkBookmarkRepository bookmarks;
@@ -105,6 +108,7 @@ public class NetworkPostService {
     /** Deletes the post with its likes, comments, versions, saves and notifications: by its author or the moderators. */
     void remove(NetworkPost post) {
         likes.deleteByPostId(post.getId());
+        commentLikes.deleteByPostId(post.getId());
         comments.deleteByPostId(post.getId());
         versions.deleteByPostId(post.getId());
         bookmarks.deleteByPostId(post.getId());
@@ -164,6 +168,7 @@ public class NetworkPostService {
                 .map(comment -> new NetworkDtos.ExportedComment(comment.getPostId(), comment.getParentId(), comment.getText(), comment.getCreatedAt()))
                 .toList(),
             likes.findByUserIdOrderByCreatedAtAsc(userId).stream().map(NetworkLike::getPostId).toList(),
+            commentLikes.findByUserIdOrderByCreatedAtAsc(userId).stream().map(NetworkCommentLike::getCommentId).toList(),
             bookmarks.findByUserIdOrderByCreatedAtDescIdDesc(userId).stream().map(NetworkBookmark::getPostId).toList(),
             followRepository.following(userId).stream().map(NetworkMember::getHandle).toList(),
             tagFollows.findByUserIdOrderByTagAsc(userId).stream().map(NetworkTagFollow::getTag).toList());

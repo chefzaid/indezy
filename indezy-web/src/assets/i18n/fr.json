@@ -1449,6 +1449,7 @@
       "notices": {
         "FOLLOW": "Quand un membre vous suit",
         "LIKE": "Quand un membre aime votre publication",
+        "COMMENT_LIKE": "Quand un membre aime votre commentaire",
         "COMMENT": "Quand un membre commente votre publication",
         "REPLY": "Quand un membre répond à votre commentaire",
         "MENTION": "Quand un membre vous mentionne",
@@ -3390,7 +3391,8 @@
       "repostsOff": "Interdire les republications",
       "repostsOn": "Autoriser les republications",
       "repostsOffError": "Son auteur a interdit les republications de cette publication.",
-      "originalGone": "La publication d'origine n'est plus disponible."
+      "originalGone": "La publication d'origine n'est plus disponible.",
+      "commentLikes": "Mentions J’aime du commentaire :"
     },
     "savedPosts": {
       "title": "Publications enregistrées",
@@ -3432,6 +3434,7 @@
       "types": {
         "FOLLOW": "vous suit désormais",
         "LIKE": "a aimé votre publication",
+        "COMMENT_LIKE": "a aimé votre commentaire",
         "COMMENT": "a commenté votre publication",
         "REPLY": "a répondu à votre commentaire",
         "MENTION": "vous a mentionné",
@@ -3440,6 +3443,7 @@
       "typesMany": {
         "FOLLOW": "vous suivent désormais",
         "LIKE": "ont aimé votre publication",
+        "COMMENT_LIKE": "ont aimé votre commentaire",
         "COMMENT": "ont commenté votre publication",
         "REPLY": "ont répondu à votre commentaire",
         "MENTION": "vous ont mentionné",

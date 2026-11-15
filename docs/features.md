@@ -211,14 +211,15 @@ deletes their own posts, their likes and comments going with them, and they are 
 
 **Comments** open under a post: comments and, under each, replies (one level), the oldest first. Each writer deletes
 their own comment, its replies going with it. The post's author **pins** one comment on top, **hides** one (then only
-the author sees it, marked hidden) or **closes** the comments, after which none is added. Comments between members who
+the author sees it, marked hidden) or **closes** the comments, after which none is added. A member likes a comment, once,
+its count shown under it. Comments between members who
 block each other, and those of members away from the network, are not shown. Images, documents and link previews wait
 on the choice of their store.
 
 **Notifications** (`/network/notifications`, counted on **Network** in the menu, read again every minute) tell a
-member who followed them, liked, commented or reposted their post, replied to their comment or mentioned them by
+member who followed them, liked, commented or reposted their post, liked or replied to their comment or mentioned them by
 `@handle`, grouped as they read ("Léo and 2 others liked your post", with the post's first words), the newest first.
-Opening the page marks them read. A follow, a like and a repost are told once per member, however often they are
+Opening the page marks them read. A follow, a like (of a post, or of a comment under it) and a repost are told once per member, however often they are
 undone; nothing comes from a member either one blocks, and **Profile → Network** turns each kind off.
 
 **Members to follow**, above the feed, are up to ten members each with its reason: one of the reader's Indezy contacts

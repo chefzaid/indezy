@@ -139,6 +139,18 @@ public class NetworkPostController {
         return comments.comment(SecurityUtils.getCurrentUserId(), id, request);
     }
 
+    @Operation(summary = "Like a comment the reader sees", description = "Once; its writer is told")
+    @PutMapping("/comments/{id}/like")
+    public NetworkDtos.Comment likeComment(@PathVariable Long id) {
+        return comments.like(SecurityUtils.getCurrentUserId(), id, true);
+    }
+
+    @Operation(summary = "No longer like a comment")
+    @DeleteMapping("/comments/{id}/like")
+    public NetworkDtos.Comment unlikeComment(@PathVariable Long id) {
+        return comments.like(SecurityUtils.getCurrentUserId(), id, false);
+    }
+
     @Operation(summary = "Delete one's own comment, and its replies")
     @DeleteMapping("/comments/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

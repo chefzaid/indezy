@@ -495,7 +495,7 @@ Feed
 - [x] Editing for 15 minutes, then marked "modifié" with the earlier versions kept; deleting a post removes its likes, comments and files. Done on 2026-11-14 (`docs/features.md#member-network`); a post's files go with it once posts carry files.
 - [ ] Bookmarks: posts and documents saved to a private **Enregistrés** list, filtered by tag. Partly done on 2026-11-14: posts saved and filtered by tag (`docs/features.md#member-network`); documents join once posts carry files.
 - [x] Drafts and scheduled posts (published at a set time, for instance Monday 9:00). Done on 2026-11-14 (`docs/features.md#member-network`).
-- [ ] Repost with a comment, the original author notified and able to turn reposts off on a post. Partly done on 2026-11-14: reposting with an optional comment and turning reposts off (`docs/features.md#member-network`); the original author's notification comes with the notification centre.
+- [x] Repost with a comment, the original author notified and able to turn reposts off on a post. Partly done on 2026-11-14: reposting with an optional comment and turning reposts off (`docs/features.md#member-network`); the original author's notification comes with the notification centre. Done on 2026-11-15: the original author is told in the notification centre (`REPOST`).
 
 Follow
 - [x] Follow and unfollow members; lists of followers and following; remove a follower; mute a member (posts hidden, still followed) or block one (no follow, no message, no posts seen, both ways). Partly done on 2026-11-14: following and unfollowing, the lists of followers and following, and removing a follower; done the same day with muting and blocking (`docs/features.md#member-network`), muting taking effect on the posts once they come.
@@ -505,7 +505,7 @@ Follow
 - [x] Indezy contacts who are members (matched on an email the member confirmed) offered to follow, without the contact being told. Done on 2026-11-15 (`docs/features.md#member-network`): matched on the email each member signs in with, ranked first among the members to follow.
 
 Likes
-- [ ] Like a post or a comment, with the count and the list of who liked; the author notified in groups ("Léa et 4 autres ont aimé votre publication"). Partly done on 2026-11-14: liking a post, its count and who liked it (`docs/features.md#member-network`); a comment's like comes with comments, and the author's grouped notification with the notification centre.
+- [x] Like a post or a comment, with the count and the list of who liked; the author notified in groups ("Léa et 4 autres ont aimé votre publication"). Partly done on 2026-11-14: liking a post, its count and who liked it (`docs/features.md#member-network`); a comment's like comes with comments, and the author's grouped notification with the notification centre. Done on 2026-11-15: a comment is liked too, its count shown under it, its writer told in groups (`COMMENT_LIKE`).
 - [ ] A second reaction, **Utile**, for knowledge posts (answered questions, retours d'expérience), which ranks them in **For you** and on tag pages.
 - [ ] The week's most liked posts of each followed tag in the weekly digest email.
 

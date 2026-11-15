@@ -204,9 +204,10 @@ The member network (`/api/network`) is off until an administrator turns it on (`
 - posts and comments are plain text: the page shows them as text nodes, `@handle` and `#tag` as links it builds, never
   HTML; their bodies leave the logs (`toString` gives the id or length only), as do the member cards';
 - the verification sends the billing SIRET alone to the public registry, read afresh;
-- deleting a post deletes its likes, comments, earlier texts, saves and notifications; the account export holds the
-  membership, the posts and what the account did (`networkActivity`: its comments, the posts it liked and saved, the
-  members and tags it follows).
+- deleting a post deletes its likes, comments (with their likes), earlier texts, saves and notifications, and deleting a
+  comment its replies and their likes; the account export holds the membership, the posts and what the account did
+  (`networkActivity`: its comments, the posts and comments it liked, the posts it saved, the members and tags it
+  follows).
 
 ## Password Storage
 ## Password Storage

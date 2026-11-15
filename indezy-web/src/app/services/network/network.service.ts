@@ -109,6 +109,11 @@ export class NetworkService {
     return this.http.post<NetworkComment>(`${this.API_URL}/posts/${postId}/comments`, { text, parentId });
   }
 
+  likeComment(id: number, liked: boolean): Observable<NetworkComment> {
+    const url = `${this.API_URL}/comments/${id}/like`;
+    return liked ? this.http.put<NetworkComment>(url, null) : this.http.delete<NetworkComment>(url);
+  }
+
   deleteComment(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/comments/${id}`);
   }

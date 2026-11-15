@@ -46,7 +46,7 @@ public class NetworkNotificationService {
     private static final Pattern MENTION = Pattern.compile("(?<![\\p{L}\\p{N}_@.])@([a-z][a-z0-9_]{2,29})");
     /** Kinds told once per member and post (or once per member for a follow), whatever happens after. */
     private static final Set<NetworkNotificationType> ONCE = EnumSet.of(NetworkNotificationType.FOLLOW, NetworkNotificationType.LIKE,
-        NetworkNotificationType.REPOST);
+        NetworkNotificationType.COMMENT_LIKE, NetworkNotificationType.REPOST);
     /** The moderators' word, told whatever the settings, by no member. */
     static final Set<NetworkNotificationType> MODERATION = EnumSet.of(NetworkNotificationType.WARNED,
         NetworkNotificationType.CONTENT_REMOVED, NetworkNotificationType.SUSPENDED, NetworkNotificationType.REPORT_ACTED,

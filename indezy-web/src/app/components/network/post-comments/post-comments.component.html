@@ -38,9 +38,16 @@
         </mat-menu>
       </div>
       <p class="text">{{ comment.text }}</p>
-      @if (top && !post.commentsClosed) {
-        <button mat-button type="button" class="reply" (click)="replyTo = comment" data-comment-reply>{{ 'network.post.reply' | translate }}</button>
-      }
+      <div class="actions">
+        <button mat-button type="button" class="like" (click)="toggleLike(comment)" [disabled]="liking === comment.id"
+          [attr.aria-pressed]="comment.liked" [class.liked]="comment.liked" data-comment-like>
+          <mat-icon aria-hidden="true">{{ comment.liked ? 'favorite' : 'favorite_border' }}</mat-icon>
+          <span class="cdk-visually-hidden">{{ 'network.post.commentLikes' | translate }}</span>{{ comment.likes }}
+        </button>
+        @if (top && !post.commentsClosed) {
+          <button mat-button type="button" class="reply" (click)="replyTo = comment" data-comment-reply>{{ 'network.post.reply' | translate }}</button>
+        }
+      </div>
     </div>
   </ng-template>
 

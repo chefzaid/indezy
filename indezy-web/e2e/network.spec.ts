@@ -210,7 +210,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/network/posts/1/comments', route => {
       if (route.request().method() === 'POST') {
         thread = [{ id: 11, author: author('camille', 'Camille'), text: route.request().postDataJSON().text, createdAt: '2026-11-14T10:05:00',
-          own: true, hidden: false, pinned: false, replies: [] }];
+          own: true, hidden: false, pinned: false, likes: 0, liked: false, replies: [] }];
         return route.fulfill({ status: 201, json: thread[0] });
       }
       return route.fulfill({ json: thread });
@@ -220,6 +220,10 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.locator('[data-post="1"] [data-comment-send]').click();
     await expect(page.locator('[data-post="1"] [data-comment="11"]')).toContainText('Bienvenue !');
     await expect(page.locator('[data-post="1"] [data-show-comments]')).toContainText(en ? 'Comments: 1' : 'Commentaires : 1');
+    await page.route('**/api/network/comments/11/like', route => route.fulfill({ json: { ...thread[0], likes: 1, liked: true } }));
+    await page.locator('[data-comment="11"] [data-comment-like]').click();
+    await expect(page.locator('[data-comment="11"] [data-comment-like]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-comment="11"] [data-comment-like]')).toContainText('1');
     await expect(page.locator('[data-publish]')).toBeDisabled();
     await page.locator('[data-composer-text]').fill('Merci @leo_m pour le retour sur #Kafka');
     await page.locator('[data-publish]').click();

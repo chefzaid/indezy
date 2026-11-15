@@ -127,6 +127,8 @@ export interface NetworkComment {
   /** Hidden by the post's author: only they see it. */
   hidden: boolean;
   pinned: boolean;
+  likes: number;
+  liked: boolean;
   replies: NetworkComment[];
 }
 
@@ -155,7 +157,7 @@ export interface MemberSuggestion {
 }
 
 /** What a network notification tells. */
-export type NetworkNotificationType = 'FOLLOW' | 'LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST' | 'WARNED' | 'CONTENT_REMOVED' |
+export type NetworkNotificationType = 'FOLLOW' | 'LIKE' | 'COMMENT_LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST' | 'WARNED' | 'CONTENT_REMOVED' |
   'SUSPENDED' | 'REPORT_ACTED' | 'REPORT_DISMISSED';
 
 /** The moderators' word: told whatever the settings, with no member as its author. */

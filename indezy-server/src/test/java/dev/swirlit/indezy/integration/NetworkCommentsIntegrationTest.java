@@ -109,4 +109,43 @@ class NetworkCommentsIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.GET, "/network/posts/" + post + "/comments", null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void likesAComment_OnceAndNoLonger_TellingItsWriter() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        join(alice);
+        join(bob);
+        Object post = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Un retour ?"), Map.class).getBody().get("id");
+        Map<String, Object> first = comment(alice, post, "Mon avis", null);
+        Map<String, Object> reply = comment(alice, post, "Et une précision", first.get("id"));
+        Object id = first.get("id");
+
+        Map<String, Object> liked = call(bob, HttpMethod.PUT, "/network/comments/" + id + "/like", null, Map.class).getBody();
+        assertThat(liked).containsEntry("likes", 1).containsEntry("liked", true);
+        assertThat(call(bob, HttpMethod.PUT, "/network/comments/" + id + "/like", null, Map.class).getBody()).containsEntry("likes", 1);
+        call(bob, HttpMethod.PUT, "/network/comments/" + reply.get("id") + "/like", null, Map.class);
+        assertThat(comments(alice, post)).singleElement().satisfies(top -> {
+            assertThat(top).containsEntry("likes", 1).containsEntry("liked", false);
+            assertThat((List<Map<String, Object>>) top.get("replies")).singleElement()
+                .satisfies(answer -> assertThat(answer).containsEntry("likes", 1));
+        });
+        assertThat(call(alice, HttpMethod.GET, "/network/notifications", null, List.class).getBody())
+            .anySatisfy(group -> assertThat((Map<String, Object>) group).containsEntry("type", "COMMENT_LIKE").containsEntry("count", 1));
+        assertThat(call(bob, HttpMethod.GET, "/users/export", null, String.class).getBody())
+            .containsPattern("\"likedComments\"\\s*:\\s*\\[\\s*" + id + "\\b");
+        assertThat(call(bob, HttpMethod.DELETE, "/network/comments/" + id + "/like", null, Map.class).getBody())
+            .containsEntry("likes", 0).containsEntry("liked", false);
+
+        // A comment hidden from Bob, or unknown, cannot be liked; deleting it takes its likes along.
+        call(alice, HttpMethod.PUT, "/network/comments/" + id + "/hidden?hidden=true", null, String.class);
+        assertThat(call(bob, HttpMethod.PUT, "/network/comments/" + id + "/like", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(bob, HttpMethod.PUT, "/network/comments/999999999/like", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.DELETE, "/network/comments/" + id, null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(call(bob, HttpMethod.GET, "/users/export", null, String.class).getBody())
+            .containsPattern("\"likedComments\"\\s*:\\s*\\[\\s*]");
+    }
 }

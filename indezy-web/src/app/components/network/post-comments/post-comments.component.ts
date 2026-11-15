@@ -46,6 +46,8 @@ export class PostCommentsComponent implements OnInit {
   comments: NetworkComment[] = [];
   /** The comment being answered; none to comment the post itself. */
   replyTo: NetworkComment | null = null;
+  /** The comment whose like is being saved. */
+  liking: number | null = null;
   isSending = false;
 
   ngOnInit(): void {
@@ -81,6 +83,22 @@ export class PostCommentsComponent implements OnInit {
       error: (error: HttpErrorResponse) => {
         this.isSending = false;
         this.notifications.error(error.status === 429 ? 'network.post.tooManyComments' : 'network.post.commentError');
+      }
+    });
+  }
+
+  /** Likes the comment, or no longer, keeping its place in the thread. */
+  toggleLike(comment: NetworkComment): void {
+    this.liking = comment.id;
+    this.network.likeComment(comment.id, !comment.liked).subscribe({
+      next: updated => {
+        this.liking = null;
+        comment.likes = updated.likes;
+        comment.liked = updated.liked;
+      },
+      error: () => {
+        this.liking = null;
+        this.notifications.error('network.post.likeError');
       }
     });
   }

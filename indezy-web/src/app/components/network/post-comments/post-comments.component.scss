@@ -68,8 +68,15 @@
     white-space: pre-line;
   }
 
-  .reply {
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     margin-left: -8px;
+  }
+
+  .like.liked mat-icon {
+    color: var(--mat-sys-error);
   }
 }
 

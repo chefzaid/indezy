@@ -1449,6 +1449,7 @@
       "notices": {
         "FOLLOW": "When a member follows you",
         "LIKE": "When a member likes your post",
+        "COMMENT_LIKE": "When a member likes your comment",
         "COMMENT": "When a member comments your post",
         "REPLY": "When a member replies to your comment",
         "MENTION": "When a member mentions you",
@@ -3390,7 +3391,8 @@
       "repostsOff": "Turn reposts off",
       "repostsOn": "Allow reposts",
       "repostsOffError": "Its author turned reposts off for this post.",
-      "originalGone": "The original post is no longer available."
+      "originalGone": "The original post is no longer available.",
+      "commentLikes": "Likes on this comment:"
     },
     "savedPosts": {
       "title": "Saved posts",
@@ -3432,6 +3434,7 @@
       "types": {
         "FOLLOW": "started following you",
         "LIKE": "liked your post",
+        "COMMENT_LIKE": "liked your comment",
         "COMMENT": "commented your post",
         "REPLY": "replied to your comment",
         "MENTION": "mentioned you",
@@ -3440,6 +3443,7 @@
       "typesMany": {
         "FOLLOW": "started following you",
         "LIKE": "liked your post",
+        "COMMENT_LIKE": "liked your comment",
         "COMMENT": "commented your post",
         "REPLY": "replied to your comment",
         "MENTION": "mentioned you",

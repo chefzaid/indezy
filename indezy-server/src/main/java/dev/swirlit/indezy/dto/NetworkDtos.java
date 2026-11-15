@@ -72,7 +72,7 @@ public final class NetworkDtos {
      * author sees, marked so; the pinned one first.
      */
     public record Comment(Long id, MemberCard author, String text, LocalDateTime createdAt, boolean own, boolean hidden, boolean pinned,
-                          List<Comment> replies) {
+                          int likes, boolean liked, List<Comment> replies) {
 
         public Comment {
             replies = List.copyOf(replies);
@@ -212,12 +212,13 @@ public final class NetworkDtos {
      * What the account did on the network, for its data export: its comments (with the post they answer), the posts it
      * liked and saved, the members it follows (by handle) and the tags it follows.
      */
-    public record Activity(List<ExportedComment> comments, List<Long> likedPosts, List<Long> savedPosts, List<String> following,
-                           List<String> tags) {
+    public record Activity(List<ExportedComment> comments, List<Long> likedPosts, List<Long> likedComments, List<Long> savedPosts,
+                           List<String> following, List<String> tags) {
 
         public Activity {
             comments = List.copyOf(comments);
             likedPosts = List.copyOf(likedPosts);
+            likedComments = List.copyOf(likedComments);
             savedPosts = List.copyOf(savedPosts);
             following = List.copyOf(following);
             tags = List.copyOf(tags);

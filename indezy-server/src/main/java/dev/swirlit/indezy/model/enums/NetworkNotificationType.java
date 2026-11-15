@@ -6,6 +6,8 @@ public enum NetworkNotificationType {
     FOLLOW,
     /** A member liked their post. */
     LIKE,
+    /** A member liked their comment. */
+    COMMENT_LIKE,
     /** A member commented their post. */
     COMMENT,
     /** A member replied to their comment. */

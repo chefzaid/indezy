@@ -76,7 +76,7 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
   restrictions: NetworkRestrictions | null = null;
   isSaving = false;
   isVerifying = false;
-  readonly noticeTypes: NetworkNotificationType[] = ['FOLLOW', 'LIKE', 'COMMENT', 'REPLY', 'MENTION', 'REPOST'];
+  readonly noticeTypes: NetworkNotificationType[] = ['FOLLOW', 'LIKE', 'COMMENT_LIKE', 'COMMENT', 'REPLY', 'MENTION', 'REPOST'];
   /** The kinds of notification turned off; read once joined. */
   noticesOff: NetworkNotificationType[] | null = null;
 

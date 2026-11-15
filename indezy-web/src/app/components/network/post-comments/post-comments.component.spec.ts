@@ -19,13 +19,13 @@ describe('PostCommentsComponent', () => {
   const member = (handle: string): MemberCard => ({ handle, firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [],
     city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false });
   const comment = (id: number, changes: Partial<NetworkComment> = {}): NetworkComment => ({ id, author: member('leo_m'), text: `Comment ${id}`,
-    createdAt: '2026-11-14T10:00:00', own: false, hidden: false, pinned: false, replies: [], ...changes });
+    createdAt: '2026-11-14T10:00:00', own: false, hidden: false, pinned: false, likes: 0, liked: false, replies: [], ...changes });
   const post: NetworkPost = { id: 9, author: member('camille'), text: 'Post', tags: [], createdAt: '2026-11-14T09:00:00', own: true,
     likes: 0, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false };
   const read = [comment(1, { pinned: true, replies: [comment(3, { own: true })] }), comment(2, { hidden: true })];
 
   function create(postShown = post): ComponentFixture<PostCommentsComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['comments', 'comment', 'deleteComment', 'hideComment', 'pinComment']);
+    network = jasmine.createSpyObj('NetworkService', ['comments', 'comment', 'deleteComment', 'hideComment', 'pinComment', 'likeComment']);
     network.comments.and.returnValue(of(read));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
@@ -40,6 +40,28 @@ describe('PostCommentsComponent', () => {
     fixture.detectChanges();
     return fixture;
   }
+
+  it('likes a comment, or no longer, in place, and says when it cannot', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    component.load();
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    const target = component.comments[0];
+    network.likeComment.and.returnValue(of({ ...target, likes: 3, liked: true }));
+    (element.querySelector(`[data-comment="${target.id}"] [data-comment-like]`) as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(network.likeComment).toHaveBeenCalledWith(target.id, true);
+    const button = element.querySelector(`[data-comment="${target.id}"] [data-comment-like]`)!;
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    expect(button.textContent).toContain('3');
+    expect(component.liking).toBeNull();
+    network.likeComment.and.returnValue(throwError(() => new Error('down')));
+    component.toggleLike(target);
+    expect(network.likeComment).toHaveBeenCalledWith(target.id, false);
+    expect(notifications.error).toHaveBeenCalledWith('network.post.likeError');
+    expect(target.liked).toBeTrue();
+  });
 
   it('reports another member\'s comment to the moderators', () => {
     const fixture = create();
