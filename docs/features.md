@@ -221,8 +221,8 @@ member who followed them, liked, commented or reposted their post, replied to th
 Opening the page marks them read. A follow, a like and a repost are told once per member, however often they are
 undone; nothing comes from a member either one blocks, and **Profile → Network** turns each kind off.
 
-**Members to follow**, above the feed, are up to ten members each with its reason: followed by members the reader
-follows ("Followed by Léo and 2 other members you follow"), sharing skills with the reader's card ("Also on Kafka"),
+**Members to follow**, above the feed, are up to ten members each with its reason: one of the reader's Indezy contacts
+(matched on the email the member signs in with, the contact never told), followed by members the reader follows ("Followed by Léo and 2 other members you follow"), sharing skills with the reader's card ("Also on Kafka"),
 or in the same city, the strongest first, on what the cards show only; following one reads the feed again.
 
 **Members** on the feed (`/network/members`) is the member directory: the members found by a skill, a city, an

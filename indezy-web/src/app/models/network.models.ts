@@ -145,10 +145,10 @@ export interface NetworkPosts {
   more: boolean;
 }
 
-/** A member to follow, and why: followed by members the reader follows, the same skills, or the same city. */
+/** A member to follow, and why: one of the reader's contacts, followed by members the reader follows, the same skills or city. */
 export interface MemberSuggestion {
   card: MemberCard;
-  reason: 'FOLLOWED_BY' | 'SAME_STACK' | 'SAME_CITY';
+  reason: 'CONTACT' | 'FOLLOWED_BY' | 'SAME_STACK' | 'SAME_CITY';
   followedBy: number;
   followedByName: string | null;
   sharedSkills: string[];

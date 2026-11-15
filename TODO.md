@@ -502,7 +502,7 @@ Follow
 - [ ] Private card: follow requests the member approves, so only approved followers see the posts.
 - [x] Follow tags (#kafka, #sap-fico, #lyon), each feeding the home feed. Done on 2026-11-14 (`docs/features.md#member-network`).
 - [ ] Members to follow, each with its reason: same stack, same city, followed by members you follow, or in the same ESN's process (both had an opportunity with that ESN, only between members who allow it). Partly done on 2026-11-14: followed by members you follow, same stack and same city (`docs/features.md#member-network`); the shared ESN process needs a setting each member turns on, and waits.
-- [ ] Indezy contacts who are members (matched on an email the member confirmed) offered to follow, without the contact being told.
+- [x] Indezy contacts who are members (matched on an email the member confirmed) offered to follow, without the contact being told. Done on 2026-11-15 (`docs/features.md#member-network`): matched on the email each member signs in with, ranked first among the members to follow.
 
 Likes
 - [ ] Like a post or a comment, with the count and the list of who liked; the author notified in groups ("Léa et 4 autres ont aimé votre publication"). Partly done on 2026-11-14: liking a post, its count and who liked it (`docs/features.md#member-network`); a comment's like comes with comments, and the author's grouped notification with the notification centre.

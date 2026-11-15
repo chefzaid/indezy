@@ -93,6 +93,11 @@ class NetworkDirectoryIntegrationTest extends TwoAccountsIntegrationTest {
         String sameCity = join(register("erin"), city, List.of("Autre"), ALL_SHOWN, Map.of("mode", "AUTO"));
         call(alice, HttpMethod.PUT, "/network/members/" + friend + "/follow", null, Map.class);
         call(carol, HttpMethod.PUT, "/network/members/" + friendOfFriend + "/follow", null, Map.class);
+        // A contact of Alice's workspace who is a member, matched on the email they sign in with.
+        String frankEmail = "frank." + run + "@example.com";
+        String contact = join(registerAs(frankEmail), "Ailleurs", List.of("Autre"), ALL_SHOWN, Map.of("mode", "AUTO"));
+        call(alice, HttpMethod.POST, "/contacts", Map.of("firstName", "Frank", "lastName", "Contact", "email", frankEmail.toUpperCase(),
+            "clientId", aliceClientId), Map.class);
 
         List<Map<String, Object>> suggested = call(alice, HttpMethod.GET, "/network/suggestions", null, List.class).getBody();
         Map<String, Map<String, Object>> byHandle = new HashMap<>();
@@ -103,5 +108,7 @@ class NetworkDirectoryIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(byHandle.get(sameStack)).containsEntry("reason", "SAME_STACK").containsEntry("sharedSkills", List.of(skill));
         assertThat(byHandle.get(sameCity)).containsEntry("reason", "SAME_CITY");
         assertThat(suggested.indexOf(byHandle.get(friendOfFriend))).isLessThan(suggested.indexOf(byHandle.get(sameCity)));
+        assertThat(suggested.getFirst()).containsEntry("reason", "CONTACT");
+        assertThat((Map<String, Object>) suggested.getFirst().get("card")).containsEntry("handle", contact);
     }
 }

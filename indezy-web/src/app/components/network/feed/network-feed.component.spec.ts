@@ -29,7 +29,7 @@ describe('NetworkFeedComponent', () => {
     network.feed.and.returnValue(feed);
     network.followedTags.and.returnValue(of(['kafka']));
     network.suggestions.and.returnValue(of([suggestion('ines_b', 'FOLLOWED_BY', 3), suggestion('paul_d', 'SAME_STACK'),
-      suggestion('zoe_l', 'SAME_CITY'), suggestion('jade_k', 'FOLLOWED_BY', 1)]));
+      suggestion('zoe_l', 'SAME_CITY'), suggestion('jade_k', 'FOLLOWED_BY', 1), suggestion('marc_c', 'CONTACT')]));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     TestBed.configureTestingModule({
@@ -118,10 +118,11 @@ describe('NetworkFeedComponent', () => {
     expect(text('jade_k')).toBe('Followed by Léo, whom you follow');
     expect(text('paul_d')).toBe('Also on Kafka');
     expect(text('zoe_l')).toBe('Also in Lyon');
+    expect(text('marc_c')).toBe('In your contacts');
     network.follow.and.returnValue(of({} as MemberPage));
     (element.querySelector('[data-suggestion="paul_d"] [data-suggestion-follow]') as HTMLButtonElement).click();
     expect(network.follow).toHaveBeenCalledWith('paul_d');
-    expect(fixture.componentInstance.suggestions.length).toBe(3);
+    expect(fixture.componentInstance.suggestions.length).toBe(4);
     expect(network.feed).toHaveBeenCalledTimes(2);
     network.follow.and.returnValue(throwError(() => new HttpErrorResponse({ status: 429 })));
     fixture.componentInstance.follow(fixture.componentInstance.suggestions[0]);

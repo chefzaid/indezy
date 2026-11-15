@@ -3379,7 +3379,8 @@
       "sameStack": "Also on {{skills}}",
       "sameCity": "Also in {{city}}",
       "followedByOne": "Followed by {{name}}, whom you follow",
-      "followedByMany": "Followed by {{name}} and {{others}} other members you follow"
+      "followedByMany": "Followed by {{name}} and {{others}} other members you follow",
+      "contact": "In your contacts"
     },
     "notices": {
       "title": "Notifications",

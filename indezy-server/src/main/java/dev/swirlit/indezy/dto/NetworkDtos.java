@@ -171,8 +171,11 @@ public final class NetworkDtos {
         }
     }
 
-    /** Why a member is suggested: members the viewer follows follow them, they share skills, or the same city. */
-    public enum SuggestionReason { FOLLOWED_BY, SAME_STACK, SAME_CITY }
+    /**
+     * Why a member is suggested: one of the viewer's Indezy contacts, followed by members the viewer follows, sharing
+     * skills, or in the same city.
+     */
+    public enum SuggestionReason { CONTACT, FOLLOWED_BY, SAME_STACK, SAME_CITY }
 
     /**
      * A member to follow and why: how many members the viewer follows follow them (and one's name), the skills shared,

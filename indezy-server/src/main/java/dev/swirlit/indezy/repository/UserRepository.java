@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +19,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * Find user by email address
      */
     Optional<User> findByEmail(String email);
+
+    /** The accounts holding one of these emails, compared lower-case. */
+    @Query("select u from User u where lower(u.email) in :emails")
+    List<User> findByEmailsIgnoringCase(@Param("emails") Collection<String> emails);
 
 
     /** Accounts whose email or name holds the text, case aside, newest first. */
