@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -143,6 +143,27 @@ export class NetworkService {
       }
     }
     return this.http.get<MemberDirectory>(`${this.API_URL}/members`, { params });
+  }
+
+  notifications(): Observable<NotificationGroup[]> {
+    return this.http.get<NotificationGroup[]>(`${this.API_URL}/notifications`);
+  }
+
+  unreadNotifications(): Observable<{ unread: number }> {
+    return this.http.get<{ unread: number }>(`${this.API_URL}/notifications/unread`);
+  }
+
+  readNotifications(): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/notifications/read`, null);
+  }
+
+  /** The kinds of notification the reader turned off. */
+  notificationSettings(): Observable<{ off: NetworkNotificationType[] }> {
+    return this.http.get<{ off: NetworkNotificationType[] }>(`${this.API_URL}/notifications/settings`);
+  }
+
+  saveNotificationSettings(off: NetworkNotificationType[]): Observable<{ off: NetworkNotificationType[] }> {
+    return this.http.put<{ off: NetworkNotificationType[] }>(`${this.API_URL}/notifications/settings`, { off });
   }
 
   /** Members to follow, each with its reason. */

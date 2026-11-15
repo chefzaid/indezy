@@ -1434,7 +1434,16 @@
       "restrictionsTitle": "Muted and blocked members",
       "noRestrictions": "You mute and block no member.",
       "mutedList": "Muted",
-      "blockedList": "Blocked"
+      "blockedList": "Blocked",
+      "noticesTitle": "Notifications",
+      "notices": {
+        "FOLLOW": "When a member follows you",
+        "LIKE": "When a member likes your post",
+        "COMMENT": "When a member comments your post",
+        "REPLY": "When a member replies to your comment",
+        "MENTION": "When a member mentions you",
+        "REPOST": "When a member reposts your post"
+      }
     }
   },
   "errors": {
@@ -3371,6 +3380,32 @@
       "sameCity": "Also in {{city}}",
       "followedByOne": "Followed by {{name}}, whom you follow",
       "followedByMany": "Followed by {{name}} and {{others}} other members you follow"
+    },
+    "notices": {
+      "title": "Notifications",
+      "subtitle": "What members did that concerns you",
+      "empty": "No notification yet.",
+      "loadError": "The notifications could not be loaded",
+      "unread": "Unread:",
+      "one": "{{name}}",
+      "two": "{{name}} and {{other}}",
+      "many": "{{name}} and {{others}} others",
+      "types": {
+        "FOLLOW": "started following you",
+        "LIKE": "liked your post",
+        "COMMENT": "commented your post",
+        "REPLY": "replied to your comment",
+        "MENTION": "mentioned you",
+        "REPOST": "reposted your post"
+      },
+      "typesMany": {
+        "FOLLOW": "started following you",
+        "LIKE": "liked your post",
+        "COMMENT": "commented your post",
+        "REPLY": "replied to your comment",
+        "MENTION": "mentioned you",
+        "REPOST": "reposted your post"
+      }
     }
   }
 }

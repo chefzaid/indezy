@@ -146,6 +146,20 @@ export interface MemberSuggestion {
   sharedSkills: string[];
 }
 
+/** What a network notification tells. */
+export type NetworkNotificationType = 'FOLLOW' | 'LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST';
+
+/** Notifications grouped as they read: one kind about one post, up to three of the members who did it, and how many did. */
+export interface NotificationGroup {
+  type: NetworkNotificationType;
+  postId: number | null;
+  postExcerpt: string | null;
+  actors: MemberCard[];
+  count: number;
+  latestAt: string;
+  read: boolean;
+}
+
 /** What the member directory is asked for; every criterion is optional. */
 export interface DirectorySearch {
   skill?: string | null;

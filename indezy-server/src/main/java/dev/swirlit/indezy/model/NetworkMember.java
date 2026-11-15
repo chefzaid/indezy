@@ -73,6 +73,10 @@ public class NetworkMember extends BaseEntity {
     @Column(name = "verified_at")
     private Instant verifiedAt;
 
+    /** The kinds of notification the member turned off, comma-separated ({@code LIKE,REPOST}); none when empty. */
+    @Column(name = "notifications_off", length = 100)
+    private String notificationsOff;
+
     /** Works remotely: the card says so beside, or instead of, the city. */
     @Column(name = "remote", nullable = false)
     private boolean remote;

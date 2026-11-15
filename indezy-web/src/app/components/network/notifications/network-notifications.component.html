@@ -1,0 +1,28 @@
+<div class="notices-page">
+  <app-page-header icon="notifications" [title]="'network.notices.title' | translate" [subtitle]="'network.notices.subtitle' | translate">
+  </app-page-header>
+
+  @if (loaded && groups.length === 0) {
+    <p class="empty" data-notices-empty>{{ 'network.notices.empty' | translate }}</p>
+  }
+  <ul class="notices">
+    @for (group of groups; track $index) {
+      <li [class.unread]="!group.read" [attr.data-notice]="group.type">
+        <mat-icon aria-hidden="true">{{ icons[group.type] }}</mat-icon>
+        <div class="body">
+          <p>
+            @if (!group.read) {
+              <span class="cdk-visually-hidden">{{ 'network.notices.unread' | translate }}</span>
+            }
+            <a [routerLink]="['/m', group.actors[0].handle]">{{ who(group).key | translate: who(group).params }}</a>
+            {{ (group.count > 1 ? 'network.notices.typesMany.' : 'network.notices.types.') + group.type | translate }}
+          </p>
+          @if (group.postExcerpt) {
+            <p class="excerpt">« {{ group.postExcerpt }} »</p>
+          }
+          <time [attr.datetime]="group.latestAt">{{ group.latestAt | date:'short' }}</time>
+        </div>
+      </li>
+    }
+  </ul>
+</div>

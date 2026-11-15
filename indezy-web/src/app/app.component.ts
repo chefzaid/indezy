@@ -21,6 +21,7 @@ import { LogoComponent } from './shared/components/logo/logo.component';
 import { UserManagementService } from './services/user-management/user-management.service';
 import { KeyboardShortcutsService } from './shared/shortcuts/keyboard-shortcuts.service';
 import { OfferAlertsService } from './services/offer/offer-alerts.service';
+import { NetworkNoticesService } from './services/network/network-notices.service';
 import { CapabilitiesService } from './services/admin/capabilities.service';
 import { FeatureFlag } from './models';
 
@@ -73,6 +74,7 @@ export class AppComponent implements OnInit {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly userManagementService = inject(UserManagementService);
   private readonly offerAlerts = inject(OfferAlertsService);
+  private readonly networkNotices = inject(NetworkNoticesService);
   private readonly capabilities = inject(CapabilitiesService);
   readonly themeService = inject(ThemeService);
   readonly connectivity = inject(ConnectivityService);
@@ -93,7 +95,7 @@ export class AppComponent implements OnInit {
     { labelKey: 'nav.clients', route: '/clients', icon: 'business' },
     { labelKey: 'nav.contacts', route: '/contacts', icon: 'contacts' },
     { labelKey: 'nav.sources', route: '/sources', icon: 'source' },
-    { labelKey: 'nav.network', route: '/network', icon: 'diversity_3', feature: 'SOCIAL_NETWORK' },
+    { labelKey: 'nav.network', route: '/network', icon: 'diversity_3', badge$: this.networkNotices.unread$, feature: 'SOCIAL_NETWORK' },
     { labelKey: 'nav.review', route: '/review', icon: 'auto_graph', feature: 'YEARLY_REVIEW' },
     { labelKey: 'nav.activityReports', route: '/activity-reports', icon: 'edit_calendar' },
     { labelKey: 'nav.invoices', route: '/invoices', icon: 'receipt_long' },
@@ -139,10 +141,14 @@ export class AppComponent implements OnInit {
           if (capabilities.features.OFFER_FEED !== false) {
             this.startOfferAlertsIfWanted();
           }
+          if (capabilities.features.SOCIAL_NETWORK === true) {
+            this.networkNotices.start();
+          }
         });
       } else {
         this.capabilities.clear();
         this.offerAlerts.stop();
+        this.networkNotices.stop();
       }
     });
     this.breakpointObserver.observe(AppComponent.COMPACT_LAYOUT_QUERY)

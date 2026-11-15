@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
+import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -162,6 +163,26 @@ public final class NetworkDtos {
 
         public Suggestion {
             sharedSkills = List.copyOf(sharedSkills);
+        }
+    }
+
+    /**
+     * Notifications grouped as they read: one kind about one post (or one kind of follow) with up to three of the members
+     * who did it, how many did, when the latest did, and whether the group was read.
+     */
+    public record NotificationGroup(NetworkNotificationType type, Long postId, String postExcerpt,
+                                    List<MemberCard> actors, int count, LocalDateTime latestAt, boolean read) {
+
+        public NotificationGroup {
+            actors = List.copyOf(actors);
+        }
+    }
+
+    /** The kinds of notification the member turned off. */
+    public record NotificationSettings(@NotNull List<NetworkNotificationType> off) {
+
+        public NotificationSettings {
+            off = off == null ? null : List.copyOf(off);
         }
     }
 

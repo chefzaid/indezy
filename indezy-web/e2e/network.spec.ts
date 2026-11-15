@@ -287,3 +287,36 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 }
+
+for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
+  test(`reads the notifications grouped, the badge counting the unread (${language}, ${width}px)`, async ({ page }) => {
+    const en = language === 'en';
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, language);
+    await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+    const member = (handle: string, firstName: string) => ({ handle, firstName, lastName: 'Martin', avatar: null, headline: null, stack: [],
+      city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false });
+    let unread = 4;
+    await page.route('**/api/network/notifications/unread', route => route.fulfill({ json: { unread } }));
+    await page.route('**/api/network/notifications/read', route => {
+      unread = 0;
+      return route.fulfill({ status: 204 });
+    });
+    await page.route('**/api/network/notifications', route => route.fulfill({ json: [
+      { type: 'LIKE', postId: 4, postExcerpt: 'Une question sur Kafka', actors: [member('leo_m', 'Léo'), member('ines_b', 'Inès')], count: 3,
+        latestAt: '2026-11-14T10:00:00', read: false },
+      { type: 'FOLLOW', postId: null, postExcerpt: null, actors: [member('paul_d', 'Paul')], count: 1, latestAt: '2026-11-13T10:00:00', read: true }] }));
+
+    if (width > 600) {
+      // The side menu shows on wide screens: its Network entry counts the unread notifications.
+      await page.goto('/dashboard');
+      await expect(page.getByRole('link', { name: en ? /Network/ : /Réseau/ }).first()).toContainText('4');
+    }
+    await page.goto('/network/notifications');
+    await expect(page.locator('[data-notice="LIKE"]')).toContainText(en ? 'Léo and 2 others liked your post' : 'Léo et 2 autres ont aimé votre publication');
+    await expect(page.locator('[data-notice="FOLLOW"]')).toContainText(en ? 'Paul started following you' : 'Paul vous suit désormais');
+    await expect.poll(() => unread).toBe(0);
+    const audit = await new AxeBuilder({ page }).include('app-network-notifications').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  });
+}

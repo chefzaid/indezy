@@ -79,6 +79,17 @@ describe('NetworkService', () => {
     expect(http.expectOne(call => call.url.endsWith('/network/feed')).request.params.get('page')).toBe('0');
     service.memberPosts('leo', 2).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/members/leo/posts')).request.params.get('page')).toBe('2');
+    service.notifications().subscribe();
+    http.expectOne(call => call.method === 'GET' && call.url.endsWith('/network/notifications'));
+    service.unreadNotifications().subscribe();
+    http.expectOne(call => call.url.endsWith('/network/notifications/unread'));
+    service.readNotifications().subscribe();
+    http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/notifications/read'));
+    service.notificationSettings().subscribe();
+    http.expectOne(call => call.method === 'GET' && call.url.endsWith('/network/notifications/settings'));
+    service.saveNotificationSettings(['LIKE']).subscribe();
+    expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/notifications/settings')).request.body)
+      .toEqual({ off: ['LIKE'] });
     service.suggestions().subscribe();
     http.expectOne(call => call.url.endsWith('/network/suggestions'));
     service.member('camille').subscribe();

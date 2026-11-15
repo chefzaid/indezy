@@ -5,6 +5,7 @@ import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.NetworkComment;
 import dev.swirlit.indezy.model.NetworkPost;
+import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.repository.NetworkCommentRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
@@ -38,6 +39,7 @@ public class NetworkCommentService {
     private final NetworkCommentRepository comments;
     private final NetworkRestrictionRepository restrictions;
     private final NetworkLimits limits;
+    private final NetworkNotificationService notices;
 
     /** The comments the reader sees under a post they can read, each with its replies. */
     @Transactional(readOnly = true)
@@ -64,10 +66,9 @@ public class NetworkCommentService {
         if (post.isCommentsClosed()) {
             throw new InvalidStateException("Comments are closed on this post");
         }
-        if (request.parentId() != null) {
-            comments.findById(request.parentId()).filter(parent -> parent.getPostId().equals(postId) && parent.getParentId() == null)
-                .orElseThrow(() -> new IllegalArgumentException("A reply answers a comment under the same post"));
-        }
+        Optional<NetworkComment> parent = request.parentId() == null ? Optional.empty() : Optional.of(comments.findById(request.parentId())
+            .filter(found -> found.getPostId().equals(postId) && found.getParentId() == null)
+            .orElseThrow(() -> new IllegalArgumentException("A reply answers a comment under the same post")));
         limits.comment(readerId);
         NetworkComment comment = new NetworkComment();
         comment.setPostId(postId);
@@ -75,6 +76,11 @@ public class NetworkCommentService {
         comment.setParentId(request.parentId());
         comment.setText(request.text().strip());
         comments.save(comment);
+        parent.ifPresent(answered -> notices.notify(answered.getAuthorId(), readerId, NetworkNotificationType.REPLY, postId));
+        if (parent.map(answered -> !answered.getAuthorId().equals(post.getAuthorId())).orElse(true)) {
+            notices.notify(post.getAuthorId(), readerId, NetworkNotificationType.COMMENT, postId);
+        }
+        notices.mentions(comment.getText(), readerId, postId);
         return toDto(post, comment, readerId, new HashMap<>(), List.of());
     }
 

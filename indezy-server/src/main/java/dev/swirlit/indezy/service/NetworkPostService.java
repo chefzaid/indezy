@@ -10,12 +10,14 @@ import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkPostVersion;
 import dev.swirlit.indezy.model.NetworkTagFollow;
+import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
 import dev.swirlit.indezy.repository.NetworkBookmarkRepository;
 import dev.swirlit.indezy.repository.NetworkCommentRepository;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
 import dev.swirlit.indezy.repository.NetworkLikeRepository;
 import dev.swirlit.indezy.repository.NetworkMemberRepository;
+import dev.swirlit.indezy.repository.NetworkNotificationRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
 import dev.swirlit.indezy.repository.NetworkPostVersionRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
@@ -76,6 +78,8 @@ public class NetworkPostService {
     private final NetworkTagFollowRepository tagFollows;
     private final Clock clock;
     private final NetworkLimits limits;
+    private final NetworkNotificationService notices;
+    private final NetworkNotificationRepository notificationRepository;
 
     @Transactional
     public NetworkDtos.Post post(Long userId, NetworkDtos.NewPost request) {
@@ -86,6 +90,7 @@ public class NetworkPostService {
         post.setText(request.text().strip());
         post.setTags(tags(post.getText()));
         posts.save(post);
+        notices.mentions(post.getText(), userId, post.getId());
         log.info("Member {} posted {}", userId, post.getId());
         return toDto(post, network.card(author), userId, List.of(), Seen.NOTHING);
     }
@@ -99,6 +104,7 @@ public class NetworkPostService {
         comments.deleteByPostId(post.getId());
         versions.deleteByPostId(post.getId());
         bookmarks.deleteByPostId(post.getId());
+        notificationRepository.deleteByPostId(post.getId());
         posts.delete(post);
     }
 
@@ -238,6 +244,8 @@ public class NetworkPostService {
         repost.setText(request.text() == null ? "" : request.text().strip());
         repost.setTags(tags(repost.getText()));
         posts.save(repost);
+        notices.notify(original.getAuthorId(), userId, NetworkNotificationType.REPOST, original.getId());
+        notices.mentions(repost.getText(), userId, repost.getId());
         return reread(repost, userId);
     }
 
@@ -336,6 +344,7 @@ public class NetworkPostService {
             like.setPostId(postId);
             like.setUserId(userId);
             likes.save(like);
+            notices.notify(post.getAuthorId(), userId, NetworkNotificationType.LIKE, postId);
         } else if (!liked) {
             existing.ifPresent(likes::delete);
         }

@@ -519,7 +519,7 @@ Messaging
 - [ ] Group conversations of up to 20 members who all follow the creator, for a collective or a mission team (a step toward the Teams tier's shared pipelines).
 
 Notifications and discovery
-- [ ] Notification centre (a bell in the toolbar): follows, follow requests, likes, comments, mentions, reposts and messages, grouped and marked read; each type in-app, by email or off in Profile → Notifications.
+- [ ] Notification centre (a bell in the toolbar): follows, follow requests, likes, comments, mentions, reposts and messages, grouped and marked read; each type in-app, by email or off in Profile → Notifications. Partly done on 2026-11-14: in-app follows, likes, comments, replies, mentions and reposts, grouped, marked read and counted on **Network** in the menu, each kind turned off in Profile → Network (`docs/features.md#member-network`); email by kind, follow requests and messages remain.
 - [ ] Member directory and search by skill, city, availability and remote work; tag pages (`/network/tags/kafka`) with the tag's posts, its members and the offer feed's open missions for that skill. Partly done on 2026-11-14: the directory and its search (`docs/features.md#member-network`); the tag pages come with posts and tags. The tag pages followed the same day, with their posts and members; the offer feed's open missions for the skill remain.
 - [ ] Global search (`Alt+Shift+F`) also finds members, posts and messages.
 

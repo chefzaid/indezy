@@ -1434,7 +1434,16 @@
       "restrictionsTitle": "Membres masqués et bloqués",
       "noRestrictions": "Vous ne masquez ni ne bloquez aucun membre.",
       "mutedList": "Masqués",
-      "blockedList": "Bloqués"
+      "blockedList": "Bloqués",
+      "noticesTitle": "Notifications",
+      "notices": {
+        "FOLLOW": "Quand un membre vous suit",
+        "LIKE": "Quand un membre aime votre publication",
+        "COMMENT": "Quand un membre commente votre publication",
+        "REPLY": "Quand un membre répond à votre commentaire",
+        "MENTION": "Quand un membre vous mentionne",
+        "REPOST": "Quand un membre republie votre publication"
+      }
     }
   },
   "errors": {
@@ -3371,6 +3380,32 @@
       "sameCity": "Aussi à {{city}}",
       "followedByOne": "Suivi par {{name}}, que vous suivez",
       "followedByMany": "Suivi par {{name}} et {{others}} autres membres que vous suivez"
+    },
+    "notices": {
+      "title": "Notifications",
+      "subtitle": "Ce que les membres ont fait qui vous concerne",
+      "empty": "Aucune notification pour l'instant.",
+      "loadError": "Les notifications n'ont pas pu être chargées",
+      "unread": "Non lue :",
+      "one": "{{name}}",
+      "two": "{{name}} et {{other}}",
+      "many": "{{name}} et {{others}} autres",
+      "types": {
+        "FOLLOW": "vous suit désormais",
+        "LIKE": "a aimé votre publication",
+        "COMMENT": "a commenté votre publication",
+        "REPLY": "a répondu à votre commentaire",
+        "MENTION": "vous a mentionné",
+        "REPOST": "a republié votre publication"
+      },
+      "typesMany": {
+        "FOLLOW": "vous suivent désormais",
+        "LIKE": "ont aimé votre publication",
+        "COMMENT": "ont commenté votre publication",
+        "REPLY": "ont répondu à votre commentaire",
+        "MENTION": "vous ont mentionné",
+        "REPOST": "ont republié votre publication"
+      }
     }
   }
 }

@@ -6,6 +6,7 @@ import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.NetworkFollow;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkRestriction;
+import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
@@ -33,6 +34,7 @@ public class NetworkFollowService {
     private final NetworkFollowRepository follows;
     private final NetworkRestrictionRepository restrictions;
     private final NetworkLimits limits;
+    private final NetworkNotificationService notices;
 
     @Transactional(readOnly = true)
     public NetworkDtos.MemberPage page(Long viewerId, String handle) {
@@ -56,6 +58,7 @@ public class NetworkFollowService {
             follow.setFollowerId(viewerId);
             follow.setFollowedId(member.getUserId());
             follows.save(follow);
+            notices.notify(member.getUserId(), viewerId, NetworkNotificationType.FOLLOW, null);
         }
         return page(viewer, member);
     }

@@ -11,7 +11,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, debounceTime, distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs';
 
-import { HANDLE_PATTERN, MemberCard, NetworkAvailability, NetworkFields, NetworkMembership, NetworkRestrictions } from '../../../models';
+import { HANDLE_PATTERN, MemberCard, NetworkAvailability, NetworkFields, NetworkMembership, NetworkNotificationType, NetworkRestrictions } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -76,6 +76,18 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
   restrictions: NetworkRestrictions | null = null;
   isSaving = false;
   isVerifying = false;
+  readonly noticeTypes: NetworkNotificationType[] = ['FOLLOW', 'LIKE', 'COMMENT', 'REPLY', 'MENTION', 'REPOST'];
+  /** The kinds of notification turned off; read once joined. */
+  noticesOff: NetworkNotificationType[] | null = null;
+
+  /** Turns a kind of notification on or off. */
+  toggleNotice(type: NetworkNotificationType, on: boolean): void {
+    const off = on ? this.noticesOff!.filter(item => item !== type) : [...this.noticesOff!, type];
+    this.network.saveNotificationSettings(off).subscribe({
+      next: settings => this.noticesOff = settings.off,
+      error: () => this.notifications.error('profile.network.saveError')
+    });
+  }
 
   ngOnInit(): void {
     this.network.membership().pipe(takeUntil(this.destroy$)).subscribe({
@@ -173,6 +185,12 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
   }
 
   private show(membership: NetworkMembership): void {
+    if (membership.joined && !this.noticesOff) {
+      this.network.notificationSettings().pipe(takeUntil(this.destroy$)).subscribe({
+        next: settings => this.noticesOff = settings.off,
+        error: () => this.noticesOff = null
+      });
+    }
     if (membership.joined && !this.restrictions) {
       this.network.restrictions().pipe(takeUntil(this.destroy$)).subscribe({
         next: restrictions => this.restrictions = restrictions,

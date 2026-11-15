@@ -213,6 +213,12 @@ the author sees it, marked hidden) or **closes** the comments, after which none 
 block each other, and those of members away from the network, are not shown. Images, documents and link previews wait
 on the choice of their store.
 
+**Notifications** (`/network/notifications`, counted on **Network** in the menu, read again every minute) tell a
+member who followed them, liked, commented or reposted their post, replied to their comment or mentioned them by
+`@handle`, grouped as they read ("Léo and 2 others liked your post", with the post's first words), the newest first.
+Opening the page marks them read. A follow, a like and a repost are told once per member, however often they are
+undone; nothing comes from a member either one blocks, and **Profile → Network** turns each kind off.
+
 **Members to follow**, above the feed, are up to ten members each with its reason: followed by members the reader
 follows ("Followed by Léo and 2 other members you follow"), sharing skills with the reader's card ("Also on Kafka"),
 or in the same city, the strongest first, on what the cards show only; following one reads the feed again.

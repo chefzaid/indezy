@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.enums.NetworkAvailability;
 import dev.swirlit.indezy.service.NetworkCommentService;
 import dev.swirlit.indezy.service.NetworkDirectoryService;
 import dev.swirlit.indezy.service.NetworkFollowService;
+import dev.swirlit.indezy.service.NetworkNotificationService;
 import dev.swirlit.indezy.service.NetworkPostService;
 import dev.swirlit.indezy.service.NetworkService;
 import dev.swirlit.indezy.service.NetworkSuggestionService;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /** The member network: joining, the member card, and the handles. Off until an administrator turns it on. */
 @RestController
@@ -42,6 +44,7 @@ public class NetworkController {
     private final NetworkCommentService comments;
     private final NetworkTagService tags;
     private final NetworkSuggestionService suggestions;
+    private final NetworkNotificationService notices;
 
     @Operation(summary = "Whether the account joined, its handle and what its card shows")
     @GetMapping("/membership")
@@ -306,6 +309,37 @@ public class NetworkController {
     @GetMapping("/members/{handle}/posts")
     public NetworkDtos.Posts memberPosts(@PathVariable String handle, @RequestParam(defaultValue = "0") int page) {
         return posts.memberPosts(SecurityUtils.getCurrentUserId(), handle, page);
+    }
+
+    @Operation(summary = "The viewer's notifications, grouped, the newest first")
+    @GetMapping("/notifications")
+    public List<NetworkDtos.NotificationGroup> notifications() {
+        return notices.list(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "How many of the viewer's notifications are unread")
+    @GetMapping("/notifications/unread")
+    public Map<String, Long> unreadNotifications() {
+        return Map.of("unread", notices.unread(SecurityUtils.getCurrentUserId()));
+    }
+
+    @Operation(summary = "Mark the viewer's notifications read")
+    @PostMapping("/notifications/read")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void readNotifications() {
+        notices.markRead(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "The kinds of notification the viewer turned off")
+    @GetMapping("/notifications/settings")
+    public NetworkDtos.NotificationSettings notificationSettings() {
+        return notices.settings(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Turn kinds of notification off, and the others on")
+    @PutMapping("/notifications/settings")
+    public NetworkDtos.NotificationSettings saveNotificationSettings(@Valid @RequestBody NetworkDtos.NotificationSettings settings) {
+        return notices.saveSettings(SecurityUtils.getCurrentUserId(), settings);
     }
 
     @Operation(summary = "Stop a member following the viewer")
