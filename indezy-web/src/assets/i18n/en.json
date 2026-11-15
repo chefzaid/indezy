@@ -3615,7 +3615,8 @@
     "share": {
       "action": "Share to the network",
       "offerIntro": "A mission spotted for whoever it suits:",
-      "declinedIntro": "A mission I am not taking, for whoever it suits."
+      "declinedIntro": "A mission I am not taking, for whoever it suits.",
+      "signed": "Mission signed: {{role}}. On to the next one!"
     }
   }
 }

@@ -22,3 +22,8 @@ export function projectShare(project: ProjectDto, intro: string): NetworkShare {
   return { text: intro, kind: 'MISSION', details: facts(project.role.slice(0, 100), null, project.dailyRate || null,
     project.workAddress ?? null, remote, project.startDate ?? null, stack) };
 }
+
+/** A milestone ("Mission signée"), as a plain post whose text never names the client. */
+export function milestoneShare(text: string): NetworkShare {
+  return { text, kind: 'POST', details: null };
+}

@@ -91,6 +91,8 @@
           <app-project-archive-action [project]="project" (changed)="project = $event"></app-project-archive-action>
           @if (project.status === 'LOST') {
             <app-share-to-network [build]="networkShare"></app-share-to-network>
+          } @else if (project.status === 'WON') {
+            <app-share-to-network [build]="signedShare"></app-share-to-network>
           }
           <button mat-button color="warn" (click)="onDelete()">
             <mat-icon>delete</mat-icon>

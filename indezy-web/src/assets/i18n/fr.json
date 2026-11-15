@@ -3615,7 +3615,8 @@
     "share": {
       "action": "Partager sur le réseau",
       "offerIntro": "Une mission repérée, pour qui elle conviendra :",
-      "declinedIntro": "Une mission que je ne prends pas, pour qui elle conviendra."
+      "declinedIntro": "Une mission que je ne prends pas, pour qui elle conviendra.",
+      "signed": "Mission signée : {{role}}. Place à la suite !"
     }
   }
 }

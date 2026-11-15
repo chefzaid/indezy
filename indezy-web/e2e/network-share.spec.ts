@@ -32,3 +32,23 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
 }
+
+test('shares a signed mission as a milestone, its client left out', async ({ page }) => {
+  await mockWorkspaceSession(page, 'en');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: 'light', language: 'en' } }));
+  await page.route('**/api/users/profile', route => route.fulfill({ json: { id: 1, skills: [] } }));
+  await page.route('**/api/freelances/1', route => route.fulfill({ json: { id: 1 } }));
+  await page.route('**/api/seasons/by-freelance/1', route => route.fulfill({ json: [] }));
+  await page.route('**/api/projects/stats/dashboard/1*', route => route.fulfill({ json: emptyDashboardStats }));
+  await page.route('**/api/projects/42', route => route.fulfill({ json: { id: 42, role: 'Lead Java', status: 'WON', clientId: 3,
+    clientName: 'Acme', dailyRate: 700, freelanceId: 1 } }));
+  await page.route('**/api/projects/42/notes', route => route.fulfill({ json: [] }));
+  await page.route('**/api/interview-steps/**', route => route.fulfill({ json: [] }));
+  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+
+  await page.goto('/projects/42');
+  await page.locator('[data-share-to-network]').click();
+  await expect(page.locator('[data-composer-text]')).toHaveValue('Mission signed: Lead Java. On to the next one!');
+  await expect(page.locator('[data-composer-text]')).not.toHaveValue(/Acme/);
+});

@@ -221,7 +221,8 @@ opportunity at Contact, filled from its facts (role, rate, remote days, start, p
 client the one named or else the workspace's **Client confidentiel**, its source **Indezy @author**; telling the author
 or not. Its author sees how many members took it, and who among those who chose to tell. **Share to the network**, on an
 offer's page and on a declined opportunity's page, opens the feed with such a mission filled in from it (an offer's link
-included), its publisher or client left out, to read again before publishing.
+included), its publisher or client left out, to read again before publishing; on a won opportunity, it shares the
+**Mission signed** milestone, its role only.
 
 **Comments** open under a post: comments and, under each, replies (one level), the oldest first. Each writer deletes
 their own comment, its replies going with it. The post's author **pins** one comment on top, **hides** one (then only

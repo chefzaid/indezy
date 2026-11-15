@@ -1,5 +1,5 @@
 import { Offer, ProjectDto } from '../../../models';
-import { offerShare, projectShare } from './network-shares';
+import { milestoneShare, offerShare, projectShare } from './network-shares';
 
 describe('network shares', () => {
   it('passes an offer on as a mission with its link, its publisher left out', () => {
@@ -20,5 +20,9 @@ describe('network shares', () => {
     expect(projectShare({ ...project, dailyRate: 0, remoteDaysPerMonth: undefined, techStack: undefined,
       workAddress: undefined, startDate: undefined } as ProjectDto, '').details).toEqual(jasmine.objectContaining({ rateMax: null,
       remoteDays: null, city: null, start: null, stack: [] }));
+  });
+
+  it('shares a milestone as a plain post', () => {
+    expect(milestoneShare('Mission signée : Lead Java.')).toEqual({ text: 'Mission signée : Lead Java.', kind: 'POST', details: null });
   });
 });

@@ -16,7 +16,7 @@ import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NetworkShare, ShareToNetworkComponent } from '../../network/share/share-to-network.component';
-import { projectShare } from '../../network/share/network-shares';
+import { milestoneShare, projectShare } from '../../network/share/network-shares';
 
 import { ProjectService } from '../../../services/project/project.service';
 import {
@@ -98,6 +98,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   project?: ProjectDto;
   /** A declined opportunity as a mission to pass on in the network, its client left out. */
   readonly networkShare = (): NetworkShare => projectShare(this.project!, this.translate.instant('network.share.declinedIntro'));
+  /** A won opportunity as a milestone, "Mission signée", its client left out. */
+  readonly signedShare = (): NetworkShare => milestoneShare(this.translate.instant('network.share.signed', { role: this.project!.role }));
   isLoading = false;
   projectId?: number;
 
