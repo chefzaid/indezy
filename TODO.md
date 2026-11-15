@@ -495,7 +495,7 @@ Feed
 - [x] Editing for 15 minutes, then marked "modifié" with the earlier versions kept; deleting a post removes its likes, comments and files. Done on 2026-11-14 (`docs/features.md#member-network`); a post's files go with it once posts carry files.
 - [ ] Bookmarks: posts and documents saved to a private **Enregistrés** list, filtered by tag. Partly done on 2026-11-14: posts saved and filtered by tag (`docs/features.md#member-network`); documents join once posts carry files.
 - [ ] Drafts and scheduled posts (published at a set time, for instance Monday 9:00).
-- [ ] Repost with a comment, the original author notified and able to turn reposts off on a post.
+- [ ] Repost with a comment, the original author notified and able to turn reposts off on a post. Partly done on 2026-11-14: reposting with an optional comment and turning reposts off (`docs/features.md#member-network`); the original author's notification comes with the notification centre.
 
 Follow
 - [x] Follow and unfollow members; lists of followers and following; remove a follower; mute a member (posts hidden, still followed) or block one (no follow, no message, no posts seen, both ways). Partly done on 2026-11-14: following and unfollowing, the lists of followers and following, and removing a follower; done the same day with muting and blocking (`docs/features.md#member-network`), muting taking effect on the posts once they come.

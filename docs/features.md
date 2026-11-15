@@ -202,6 +202,8 @@ more**, but those of members muted or blocked either way, or away from the netwo
 too. Its author **edits** a post in the 15 minutes after posting it; it then reads **edited**, which opens its earlier
 texts. **Save** keeps a post in the reader's private **Saved** list (`/network/saved`), the latest saved first and
 filtered by the tags of the posts saved; a post taken off, deleted or from a member blocked either way leaves it.
+**Repost** shares a post with an optional comment, the original shown inside it (a repost of a repost reposts the
+original; once the original is gone or out of reach, the repost says so); a post's author turns its reposts off.
 **Like** a post, once, or no longer; its likes count opens who liked it (but members blocked either way). A member
 deletes their own posts, their likes and comments going with them, and they are part of the data export.
 

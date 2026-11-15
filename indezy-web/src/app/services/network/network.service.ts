@@ -43,6 +43,16 @@ export class NetworkService {
     return this.http.put<NetworkPost>(`${this.API_URL}/posts/${id}`, { text });
   }
 
+  /** Reposts a post, with an optional comment. */
+  repost(id: number, text: string): Observable<NetworkPost> {
+    return this.http.post<NetworkPost>(`${this.API_URL}/posts/${id}/reposts`, { text });
+  }
+
+  /** Turns reposts of the reader's own post off, or on again. */
+  repostsOff(id: number, off: boolean): Observable<NetworkPost> {
+    return this.http.put<NetworkPost>(`${this.API_URL}/posts/${id}/reposts-off`, null, { params: { off } });
+  }
+
   /** Saves a post to the reader's private list, or takes it off. */
   bookmark(id: number, saved: boolean): Observable<NetworkPost> {
     const url = `${this.API_URL}/posts/${id}/bookmark`;

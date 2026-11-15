@@ -175,6 +175,19 @@ public class NetworkController {
         return posts.versions(SecurityUtils.getCurrentUserId(), id);
     }
 
+    @Operation(summary = "Repost a post, with an optional comment", description = "409 when its author turned reposts off")
+    @PostMapping("/posts/{id}/reposts")
+    @ResponseStatus(HttpStatus.CREATED)
+    public NetworkDtos.Post repost(@PathVariable Long id, @Valid @RequestBody NetworkDtos.NewRepost request) {
+        return posts.repost(SecurityUtils.getCurrentUserId(), id, request);
+    }
+
+    @Operation(summary = "Turn reposts of one's own post off, or on again")
+    @PutMapping("/posts/{id}/reposts-off")
+    public NetworkDtos.Post repostsOff(@PathVariable Long id, @RequestParam boolean off) {
+        return posts.repostsOff(SecurityUtils.getCurrentUserId(), id, off);
+    }
+
     @Operation(summary = "Delete one's own post")
     @DeleteMapping("/posts/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

@@ -46,10 +46,13 @@ public final class NetworkDtos {
     /**
      * A post as members read it: its author's card, its text, the #tags it names, when it was posted, whether it is the
      * reader's, how many members like it and whether the reader does, how many comments the reader sees under it and
-     * whether its author closed them, whether its author edited it, and whether the reader saved it.
+     * whether its author closed them, whether its author edited it, whether the reader saved it; for a repost, the post it
+     * reposts (null when that is gone or out of the reader's reach); how many reposts it has and whether its author turned
+     * them off.
      */
     public record Post(Long id, MemberCard author, String text, List<String> tags, LocalDateTime createdAt, boolean own, int likes,
-                       boolean liked, int comments, boolean commentsClosed, boolean edited, boolean bookmarked) {
+                       boolean liked, int comments, boolean commentsClosed, boolean edited, boolean bookmarked, Original repostOf,
+                       int reposts, boolean repostsOff) {
 
         public Post {
             tags = List.copyOf(tags);
@@ -85,6 +88,24 @@ public final class NetworkDtos {
         @Override
         public String toString() {
             return "NewComment[length=" + (text == null ? 0 : text.length()) + "]";
+        }
+    }
+
+    /** The post a repost reposts, as the reader can read it: its author, text and date; unavailable when gone or out of reach. */
+    public record Original(Long id, MemberCard author, String text, LocalDateTime createdAt, boolean available) {
+
+        @Override
+        public String toString() {
+            return "Original[id=" + id + "]";
+        }
+    }
+
+    /** A repost: an optional comment of up to 3,000 characters. */
+    public record NewRepost(@Size(max = 3000) String text) {
+
+        @Override
+        public String toString() {
+            return "NewRepost[length=" + (text == null ? 0 : text.length()) + "]";
         }
     }
 

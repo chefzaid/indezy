@@ -21,6 +21,10 @@
             <mat-icon>edit</mat-icon>{{ 'network.post.edit' | translate }}
           </button>
         }
+        <button mat-menu-item type="button" (click)="toggleRepostsOff()" data-post-reposts-off>
+          <mat-icon>{{ post.repostsOff ? 'repeat' : 'repeat_one' }}</mat-icon>
+          {{ (post.repostsOff ? 'network.post.repostsOn' : 'network.post.repostsOff') | translate }}
+        </button>
         <button mat-menu-item type="button" (click)="toggleClosed()" data-post-close-comments>
           <mat-icon>{{ post.commentsClosed ? 'chat' : 'speaker_notes_off' }}</mat-icon>
           {{ (post.commentsClosed ? 'network.post.open' : 'network.post.close') | translate }}
@@ -37,6 +41,17 @@
         <li><span class="replaced">{{ 'network.post.replacedAt' | translate: { date: (version.replacedAt | date:'short') } }}</span>{{ version.text }}</li>
       }
     </ul>
+  }
+  @if (post.repostOf; as original) {
+    @if (original.available) {
+      <blockquote class="original" [attr.data-original]="original.id">
+        <a [routerLink]="['/m', original.author!.handle]" class="author">{{ original.author!.firstName }} {{ original.author!.lastName }}</a>
+        <time [attr.datetime]="original.createdAt">{{ original.createdAt | date:'medium' }}</time>
+        <p>{{ original.text }}</p>
+      </blockquote>
+    } @else {
+      <p class="original gone" data-original-gone>{{ 'network.post.originalGone' | translate }}</p>
+    }
   }
   @if (editing) {
     <form class="edit" (submit)="$event.preventDefault(); saveEdit()" data-post-edit-form>
@@ -62,6 +77,13 @@
       <mat-icon>chat_bubble_outline</mat-icon>
       {{ (post.comments ? 'network.post.comments' : 'network.post.comment') | translate: { count: post.comments } }}
     </button>
+    @if (!post.repostsOff) {
+      <button mat-button type="button" (click)="reposting ? reposting = null : startReposting()" [attr.aria-expanded]="reposting !== null"
+        data-repost>
+        <mat-icon>repeat</mat-icon>
+        {{ (post.reposts ? 'network.post.reposts' : 'network.post.repost') | translate: { count: post.reposts } }}
+      </button>
+    }
     <button mat-button type="button" (click)="toggleBookmark()" [attr.aria-pressed]="post.bookmarked" data-bookmark>
       <mat-icon>{{ post.bookmarked ? 'bookmark' : 'bookmark_border' }}</mat-icon>
       {{ (post.bookmarked ? 'network.post.saved' : 'network.post.save') | translate }}
@@ -72,6 +94,18 @@
       </button>
     }
   </footer>
+  @if (reposting) {
+    <form class="edit" (submit)="$event.preventDefault(); repost()" data-repost-form>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'network.post.repostComment' | translate }}</mat-label>
+        <textarea matInput [formControl]="reposting" rows="2" maxlength="3000" data-repost-text></textarea>
+      </mat-form-field>
+      <div class="actions">
+        <button mat-button type="button" (click)="reposting = null">{{ 'network.post.cancel' | translate }}</button>
+        <button mat-flat-button type="submit" data-repost-send>{{ 'network.post.repostSend' | translate }}</button>
+      </div>
+    </form>
+  }
   @if (likers) {
     <ul class="likers" data-likers>
       @for (member of likers; track member.handle) {

@@ -78,6 +78,20 @@ export interface NetworkPost {
   edited: boolean;
   /** The reader saved it to their private list. */
   bookmarked: boolean;
+  /** For a repost, the post it reposts; unavailable once gone or out of the reader's reach. */
+  repostOf: NetworkOriginal | null;
+  /** How many reposts it has, and whether its author turned them off. */
+  reposts: number;
+  repostsOff: boolean;
+}
+
+/** The post a repost reposts, as the reader can read it. */
+export interface NetworkOriginal {
+  id: number;
+  author: MemberCard | null;
+  text: string | null;
+  createdAt: string | null;
+  available: boolean;
 }
 
 /** A tag's page: whether the reader follows it, its posts, and members whose cards show the skill. */

@@ -34,6 +34,14 @@ public class NetworkPost extends BaseEntity {
     @Column(name = "edited_at")
     private Instant editedAt;
 
+    /** The post it reposts; its own text, which may be empty, comments it. */
+    @Column(name = "repost_of_id")
+    private Long repostOfId;
+
+    /** Its author turned reposts off: none can be made of it. */
+    @Column(name = "reposts_off", nullable = false)
+    private boolean repostsOff;
+
     /** No new comment once its author closes them. */
     @Column(name = "comments_closed", nullable = false)
     private boolean commentsClosed;

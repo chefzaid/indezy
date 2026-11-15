@@ -151,6 +151,36 @@ export class PostCardComponent {
   @Output() readonly deleted = new EventEmitter<NetworkPost>();
   /** Told once the reader saves the post or takes it off their list. */
   @Output() readonly unsaved = new EventEmitter<NetworkPost>();
+  /** Told of the repost the reader just made of the post. */
+  @Output() readonly reposted = new EventEmitter<NetworkPost>();
+  /** The comment being written while the reader reposts the post; none otherwise. */
+  reposting: FormControl<string> | null = null;
+
+  startReposting(): void {
+    this.reposting = new FormControl('', { nonNullable: true, validators: [Validators.maxLength(3000)] });
+  }
+
+  /** Reposts the post with the comment written, if any. */
+  repost(): void {
+    this.network.repost(this.post.id, this.reposting?.value.trim() ?? '').subscribe({
+      next: repost => {
+        this.reposting = null;
+        this.post = { ...this.post, reposts: this.post.reposts + 1 };
+        this.notifications.success('network.post.repostedDone');
+        this.reposted.emit(repost);
+      },
+      error: (error: HttpErrorResponse) => this.notifications.error(error.status === 409 ? 'network.post.repostsOffError' :
+        error.status === 429 ? 'network.feed.tooManyPosts' : 'network.post.editError')
+    });
+  }
+
+  /** Turns reposts of the reader's own post off, or on again. */
+  toggleRepostsOff(): void {
+    this.network.repostsOff(this.post.id, !this.post.repostsOff).subscribe({
+      next: post => this.post = post,
+      error: () => this.notifications.error('network.post.editError')
+    });
+  }
 
   get parts(): PostSegment[] {
     return segments(this.post.text);

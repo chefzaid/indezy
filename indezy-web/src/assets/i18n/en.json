@@ -3334,7 +3334,16 @@
       "editError": "The post could not be changed.",
       "save": "Save",
       "saved": "Saved",
-      "tooManyComments": "You have commented a lot this hour: try again later."
+      "tooManyComments": "You have commented a lot this hour: try again later.",
+      "repost": "Repost",
+      "reposts": "Reposts: {{count}}",
+      "repostComment": "Add a comment (optional)",
+      "repostSend": "Repost",
+      "repostedDone": "Reposted",
+      "repostsOff": "Turn reposts off",
+      "repostsOn": "Allow reposts",
+      "repostsOffError": "Its author turned reposts off for this post.",
+      "originalGone": "The original post is no longer available."
     },
     "savedPosts": {
       "title": "Saved posts",

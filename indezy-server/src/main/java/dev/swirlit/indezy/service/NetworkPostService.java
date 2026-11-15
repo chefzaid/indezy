@@ -38,6 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -86,7 +87,7 @@ public class NetworkPostService {
         post.setTags(tags(post.getText()));
         posts.save(post);
         log.info("Member {} posted {}", userId, post.getId());
-        return toDto(post, network.card(author), userId, List.of(), 0, false);
+        return toDto(post, network.card(author), userId, List.of(), Seen.NOTHING);
     }
 
     /** Deletes the reader's own post; another member's, like an unknown one, is not found. */
@@ -142,7 +143,7 @@ public class NetworkPostService {
     @Transactional(readOnly = true)
     public List<NetworkDtos.Post> export(Long userId) {
         return posts.findByAuthorIdInOrderByCreatedAtDescIdDesc(List.of(userId), Pageable.unpaged()).stream()
-            .map(post -> toDto(post, null, userId, List.of(), 0, false)).toList();
+            .map(post -> toDto(post, null, userId, List.of(), Seen.NOTHING)).toList();
     }
 
     private NetworkDtos.Posts page(Collection<Long> authors, Long readerId, int page) {
@@ -157,10 +158,13 @@ public class NetworkPostService {
             .collect(Collectors.groupingBy(NetworkComment::getPostId));
         Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(readerId));
         Set<Long> saved = bookmarks.findByUserIdAndPostIdIn(readerId, ids).stream().map(NetworkBookmark::getPostId).collect(Collectors.toSet());
+        Map<Long, NetworkDtos.Original> originals = originals(found.getContent(), blocked);
+        Map<Long, Integer> reposts = repostCounts(ids);
         List<NetworkDtos.Post> shown = found.getContent().stream()
             .map(post -> cards.computeIfAbsent(post.getAuthorId(), this::authorCard)
                 .map(card -> toDto(post, card, readerId, liked.getOrDefault(post.getId(), List.of()),
-                    seenComments(post, readerId, blocked, commented.getOrDefault(post.getId(), List.of())), saved.contains(post.getId()))))
+                    new Seen(seenComments(post, readerId, blocked, commented.getOrDefault(post.getId(), List.of())), saved.contains(post.getId()),
+                        originals.get(post.getId()), reposts.getOrDefault(post.getId(), 0)))))
             .flatMap(Optional::stream).toList();
         return new NetworkDtos.Posts(shown, found.getNumber(), found.hasNext());
     }
@@ -180,18 +184,79 @@ public class NetworkPostService {
         return members.findByUserId(authorId).filter(NetworkMember::isActive).flatMap(network::liveCard);
     }
 
+    /** What a post shows its reader beyond itself: the comments they see, whether they saved it, its original and reposts. */
+    private record Seen(int comments, boolean bookmarked, NetworkDtos.Original original, int reposts) {
+
+        static final Seen NOTHING = new Seen(0, false, null, 0);
+    }
+
     private static NetworkDtos.Post toDto(NetworkPost post, NetworkDtos.MemberCard author, Long readerId, List<NetworkLike> postLikes,
-                                          int seenComments, boolean bookmarked) {
+                                          Seen seen) {
         return new NetworkDtos.Post(post.getId(), author, post.getText(), List.copyOf(post.getTags()), post.getCreatedAt(),
             post.getAuthorId().equals(readerId), postLikes.size(), postLikes.stream().anyMatch(like -> like.getUserId().equals(readerId)),
-            seenComments, post.isCommentsClosed(), post.getEditedAt() != null, bookmarked);
+            seen.comments(), post.isCommentsClosed(), post.getEditedAt() != null, seen.bookmarked(), seen.original(), seen.reposts(),
+            post.isRepostsOff());
+    }
+
+    /** The originals of the reposts among these posts, as the reader can read them, by the reposts' ids. */
+    private Map<Long, NetworkDtos.Original> originals(List<NetworkPost> shown, Set<Long> blocked) {
+        Set<Long> ids = shown.stream().map(NetworkPost::getRepostOfId).filter(Objects::nonNull).collect(Collectors.toSet());
+        Map<Long, NetworkPost> found = posts.findAllById(ids).stream().collect(Collectors.toMap(NetworkPost::getId, post -> post));
+        Map<Long, NetworkDtos.Original> originals = new HashMap<>();
+        for (NetworkPost post : shown) {
+            if (post.getRepostOfId() != null) {
+                NetworkPost original = found.get(post.getRepostOfId());
+                Optional<NetworkDtos.MemberCard> author = original == null || blocked.contains(original.getAuthorId()) ? Optional.empty() :
+                    authorCard(original.getAuthorId());
+                originals.put(post.getId(), author.map(card -> new NetworkDtos.Original(original.getId(), card, original.getText(),
+                    original.getCreatedAt(), true)).orElseGet(() -> new NetworkDtos.Original(post.getRepostOfId(), null, null, null, false)));
+            }
+        }
+        return originals;
+    }
+
+    /** How many reposts each of these posts has. */
+    private Map<Long, Integer> repostCounts(Collection<Long> ids) {
+        return posts.findByRepostOfIdIn(ids).stream().collect(Collectors.groupingBy(NetworkPost::getRepostOfId, Collectors.summingInt(post -> 1)));
+    }
+
+    /**
+     * Reposts a post the reader can read, with an optional comment; a repost of a repost reposts its original. Refused
+     * when the original's author turned reposts off.
+     */
+    @Transactional
+    public NetworkDtos.Post repost(Long userId, Long postId, NetworkDtos.NewRepost request) {
+        NetworkPost read = readable(userId, postId);
+        NetworkPost original = read.getRepostOfId() == null ? read : readable(userId, read.getRepostOfId());
+        if (original.isRepostsOff()) {
+            throw new InvalidStateException("Its author turned reposts off for this post");
+        }
+        limits.post(userId);
+        NetworkPost repost = new NetworkPost();
+        repost.setAuthorId(userId);
+        repost.setRepostOfId(original.getId());
+        repost.setText(request.text() == null ? "" : request.text().strip());
+        repost.setTags(tags(repost.getText()));
+        posts.save(repost);
+        return reread(repost, userId);
+    }
+
+    /** Turns reposts of the reader's own post off, or on again. */
+    @Transactional
+    public NetworkDtos.Post repostsOff(Long userId, Long postId, boolean off) {
+        network.requireMember(userId);
+        NetworkPost post = posts.findByIdAndAuthorId(postId, userId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
+        post.setRepostsOff(off);
+        return reread(post, userId);
     }
 
     /** A single post as the reader now reads it. */
     private NetworkDtos.Post reread(NetworkPost post, Long readerId) {
+        Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(readerId));
         return toDto(post, authorCard(post.getAuthorId()).orElseThrow(), readerId, likes.findByPostIdIn(List.of(post.getId())),
-            seenComments(post, readerId, Set.copyOf(restrictions.blockedEitherWay(readerId)), comments.findByPostIdIn(List.of(post.getId()))),
-            bookmarks.findByUserIdAndPostId(readerId, post.getId()).isPresent());
+            new Seen(seenComments(post, readerId, blocked, comments.findByPostIdIn(List.of(post.getId()))),
+                bookmarks.findByUserIdAndPostId(readerId, post.getId()).isPresent(), originals(List.of(post), blocked).get(post.getId()),
+                repostCounts(List.of(post.getId())).getOrDefault(post.getId(), 0)));
     }
 
     /** Saves a post the reader can read to their private list, or takes it off. */

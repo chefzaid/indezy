@@ -51,6 +51,10 @@ describe('NetworkService', () => {
     expect(http.expectOne(call => call.url.endsWith('/network/posts/5/pinned-comment')).request.params.keys()).toEqual([]);
     service.editPost(5, 'Revu').subscribe();
     expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/5')).request.body).toEqual({ text: 'Revu' });
+    service.repost(5, 'À lire').subscribe();
+    expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/posts/5/reposts')).request.body).toEqual({ text: 'À lire' });
+    service.repostsOff(5, true).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/posts/5/reposts-off')).request.params.get('off')).toBe('true');
     service.bookmark(5, true).subscribe();
     http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/5/bookmark'));
     service.bookmark(5, false).subscribe();

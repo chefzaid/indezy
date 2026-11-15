@@ -188,4 +188,36 @@ class NetworkPostsIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(refused.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
         assertThat(refused.getHeaders().getFirst("Retry-After")).isEqualTo("3600");
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void repostsAPostWithACommentUntilItsAuthorTurnsRepostsOff() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        join(alice);
+        join(bob);
+        Map<String, Object> original = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "À partager"), Map.class).getBody();
+        String reposts = "/network/posts/" + original.get("id") + "/reposts";
+        Map<String, Object> repost = call(bob, HttpMethod.POST, reposts, Map.of("text", "À lire #kafka"), Map.class).getBody();
+        assertThat(repost).containsEntry("text", "À lire #kafka").containsEntry("tags", List.of("kafka"));
+        assertThat((Map<String, Object>) repost.get("repostOf")).containsEntry("id", original.get("id")).containsEntry("available", true)
+            .containsEntry("text", "À partager");
+        // A repost of the repost reposts the original, without a comment.
+        Map<String, Object> again = call(alice, HttpMethod.POST, "/network/posts/" + repost.get("id") + "/reposts", Map.of(), Map.class)
+            .getBody();
+        assertThat(again).containsEntry("text", "");
+        assertThat((Map<String, Object>) again.get("repostOf")).containsEntry("id", original.get("id"));
+        assertThat(posts(alice, "/network/feed")).filteredOn(post -> post.get("id").equals(original.get("id"))).singleElement()
+            .satisfies(post -> assertThat(post).containsEntry("reposts", 2).containsEntry("repostsOff", false));
+
+        assertThat(call(bob, HttpMethod.PUT, "/network/posts/" + original.get("id") + "/reposts-off?off=true", null, String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(alice, HttpMethod.PUT, "/network/posts/" + original.get("id") + "/reposts-off?off=true", null, Map.class).getBody())
+            .containsEntry("repostsOff", true);
+        assertThat(call(bob, HttpMethod.POST, reposts, Map.of(), String.class).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+
+        // The original deleted, its reposts stay, saying it is no longer there.
+        call(alice, HttpMethod.DELETE, "/network/posts/" + original.get("id"), null, String.class);
+        assertThat(posts(bob, "/network/feed")).filteredOn(post -> post.get("id").equals(repost.get("id"))).singleElement()
+            .satisfies(post -> assertThat((Map<String, Object>) post.get("repostOf")).containsEntry("available", false));
+    }
 }

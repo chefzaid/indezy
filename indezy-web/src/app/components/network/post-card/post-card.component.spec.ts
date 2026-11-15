@@ -11,7 +11,7 @@ import { PostCardComponent, segments } from './post-card.component';
 
 describe('PostCardComponent', () => {
   const post: NetworkPost = { id: 4, text: 'Merci @leo_m pour #Kafka !\n<b>pas du HTML</b> mail@example.com', tags: ['kafka'],
-    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
+    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
       headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false } };
 
   it('splits the text into plain text, mentions and tags, leaving an address or a word alone', () => {
@@ -25,7 +25,8 @@ describe('PostCardComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
 
   function configure(): void {
-    network = jasmine.createSpyObj('NetworkService', ['like', 'likers', 'closeComments', 'comments', 'editPost', 'postVersions', 'bookmark']);
+    network = jasmine.createSpyObj('NetworkService', ['like', 'likers', 'closeComments', 'comments', 'editPost', 'postVersions', 'bookmark',
+      'repost', 'repostsOff']);
     network.comments.and.returnValue(of([]));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({ imports: [PostCardComponent, TranslateModule.forRoot()], providers: [provideRouter([]),
@@ -137,6 +138,43 @@ describe('PostCardComponent', () => {
     network.bookmark.and.returnValue(throwError(() => new Error('down')));
     fixture.componentInstance.toggleBookmark();
     expect(notifications.error).toHaveBeenCalledWith('network.post.likeError');
+  });
+
+  it('reposts with a comment, shows the original or that it is gone, and turns reposts off', () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', { ...post, repostOf: { id: 1, author: post.author, text: 'Original', createdAt: '2026-11-13T10:00:00',
+      available: true } });
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-original="1"]')?.textContent).toContain('Original');
+    const reposted = jasmine.createSpy('reposted');
+    component.reposted.subscribe(reposted);
+    (element.querySelector('[data-repost]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    component.reposting!.setValue(' À lire ');
+    network.repost.and.returnValue(of({ ...post, id: 8 }));
+    component.repost();
+    expect(network.repost).toHaveBeenCalledWith(4, 'À lire');
+    expect(reposted).toHaveBeenCalledWith(jasmine.objectContaining({ id: 8 }));
+    expect(component.post.reposts).toBe(1);
+    expect(component.reposting).toBeNull();
+    for (const [status, key] of [[409, 'network.post.repostsOffError'], [429, 'network.feed.tooManyPosts'], [500, 'network.post.editError']] as const) {
+      network.repost.and.returnValue(throwError(() => new HttpErrorResponse({ status })));
+      component.repost();
+      expect(notifications.error).toHaveBeenCalledWith(key);
+    }
+    network.repostsOff.and.returnValue(of({ ...post, repostsOff: true }));
+    component.toggleRepostsOff();
+    fixture.detectChanges();
+    expect(network.repostsOff).toHaveBeenCalledWith(4, true);
+    expect(element.querySelector('[data-repost]')).toBeNull();
+    network.repostsOff.and.returnValue(throwError(() => new Error('down')));
+    component.toggleRepostsOff();
+    fixture.componentRef.setInput('post', { ...post, repostOf: { id: 1, author: null, text: null, createdAt: null, available: false } });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-original-gone]')).not.toBeNull();
   });
 
   it('links the author and the members mentioned, shows the text as text, and lets its author delete it', () => {

@@ -3334,7 +3334,16 @@
       "editError": "La publication n'a pas pu être modifiée.",
       "save": "Enregistrer",
       "saved": "Enregistré",
-      "tooManyComments": "Vous avez beaucoup commenté cette heure-ci : réessayez plus tard."
+      "tooManyComments": "Vous avez beaucoup commenté cette heure-ci : réessayez plus tard.",
+      "repost": "Republier",
+      "reposts": "Republications : {{count}}",
+      "repostComment": "Ajouter un commentaire (facultatif)",
+      "repostSend": "Republier",
+      "repostedDone": "Republié",
+      "repostsOff": "Interdire les republications",
+      "repostsOn": "Autoriser les republications",
+      "repostsOffError": "Son auteur a interdit les republications de cette publication.",
+      "originalGone": "La publication d'origine n'est plus disponible."
     },
     "savedPosts": {
       "title": "Publications enregistrées",
