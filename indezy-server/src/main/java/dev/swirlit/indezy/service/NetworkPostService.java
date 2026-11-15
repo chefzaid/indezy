@@ -137,6 +137,7 @@ public class NetworkPostService {
         followRepository.following(userId).forEach(member -> authors.add(member.getUserId()));
         Set<Long> excluded = new HashSet<>(restrictions.blockedEitherWay(userId));
         restrictions.targets(userId, NetworkRestrictionKind.MUTE).forEach(member -> excluded.add(member.getUserId()));
+        excluded.addAll(follows.locked(userId));
         authors.removeAll(excluded);
         List<String> tags = tagFollows.findByUserIdOrderByTagAsc(userId).stream().map(NetworkTagFollow::getTag).toList();
         // An empty IN list is not valid everywhere: a value no row holds stands in for none.
@@ -151,14 +152,18 @@ public class NetworkPostService {
         network.requireMember(userId);
         Set<Long> excluded = new HashSet<>(restrictions.blockedEitherWay(userId));
         restrictions.targets(userId, NetworkRestrictionKind.MUTE).forEach(member -> excluded.add(member.getUserId()));
+        excluded.addAll(follows.locked(userId));
         return page(posts.feed(List.of(-1L), List.of(tag), excluded.isEmpty() ? List.of(-1L) : excluded,
             PageRequest.of(Math.max(0, page), PAGE_SIZE)), userId);
     }
 
-    /** A member's posts, for the members their page shows to. */
+    /** A member's posts, for the members their page shows to; none of a private card to a member not following it. */
     @Transactional(readOnly = true)
     public NetworkDtos.Posts memberPosts(Long viewerId, String handle, int page) {
         NetworkMember member = follows.visible(network.requireMember(viewerId), handle);
+        if (follows.locked(viewerId).contains(member.getUserId())) {
+            return new NetworkDtos.Posts(List.of(), Math.max(0, page), false);
+        }
         return page(List.of(member.getUserId()), viewerId, page);
     }
 
@@ -195,7 +200,9 @@ public class NetworkPostService {
             .collect(Collectors.groupingBy(NetworkComment::getPostId));
         Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(readerId));
         Set<Long> saved = bookmarks.findByUserIdAndPostIdIn(readerId, ids).stream().map(NetworkBookmark::getPostId).collect(Collectors.toSet());
-        Map<Long, NetworkDtos.Original> originals = originals(found.getContent(), blocked);
+        Set<Long> unseen = new HashSet<>(blocked);
+        unseen.addAll(follows.locked(readerId));
+        Map<Long, NetworkDtos.Original> originals = originals(found.getContent(), unseen);
         Map<Long, Integer> reposts = repostCounts(ids);
         List<NetworkDtos.Post> shown = found.getContent().stream()
             .map(post -> cards.computeIfAbsent(post.getAuthorId(), this::authorCard)
@@ -321,7 +328,8 @@ public class NetworkPostService {
     @Transactional(readOnly = true)
     public NetworkDtos.SavedPosts saved(Long userId, String tag, int page) {
         network.requireMember(userId);
-        Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(userId));
+        Set<Long> blocked = new HashSet<>(restrictions.blockedEitherWay(userId));
+        blocked.addAll(follows.locked(userId));
         List<NetworkPost> readable = bookmarks.findByUserIdOrderByCreatedAtDescIdDesc(userId).stream()
             .map(bookmark -> posts.findById(bookmark.getPostId())).flatMap(Optional::stream)
             .filter(post -> !blocked.contains(post.getAuthorId()) && authorCard(post.getAuthorId()).isPresent()).toList();
@@ -391,11 +399,12 @@ public class NetworkPostService {
             .flatMap(Optional::stream).toList();
     }
 
-    /** A post the reader can read: its author in the network, neither blocking the other; not found otherwise. */
+    /** A post the reader can read: its author in the network, neither blocking the other, nor private to them; not found otherwise. */
     NetworkPost readable(Long userId, Long postId) {
         network.requireMember(userId);
         NetworkPost post = posts.findById(postId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
-        if (authorCard(post.getAuthorId()).isEmpty() || restrictions.blockedEitherWay(userId).contains(post.getAuthorId())) {
+        if (authorCard(post.getAuthorId()).isEmpty() || restrictions.blockedEitherWay(userId).contains(post.getAuthorId()) ||
+            follows.locked(userId).contains(post.getAuthorId())) {
             throw new ResourceNotFoundException(NOT_FOUND);
         }
         return post;

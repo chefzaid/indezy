@@ -97,6 +97,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/profile/data-import/profile-data-import.component',
   'components/profile/dossier-button/dossier-button.component',
   'components/profile/email-templates-settings/email-templates-settings.component',
+  'components/profile/network/follow-requests/profile-follow-requests.component',
   'components/profile/network/profile-network.component',
   'components/profile/notifications/profile-notifications.component',
   'components/profile/password-rejection',

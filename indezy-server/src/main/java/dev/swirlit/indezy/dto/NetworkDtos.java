@@ -26,7 +26,8 @@ public final class NetworkDtos {
      * The account's membership: whether it joined, its handle (a suggested one before joining), the card's fields shown,
      * and the card as members see it (null before joining).
      */
-    public record Membership(boolean joined, String handle, Fields fields, Availability availability, MemberCard card) {
+    public record Membership(boolean joined, String handle, Fields fields, Availability availability, MemberCard card,
+                             boolean privateCard) {
     }
 
     /** How the card tells the availability: from the won missions, or set by hand with the day it names, if any. */
@@ -257,7 +258,7 @@ public final class NetworkDtos {
      * whether the viewer mutes or blocks them.
      */
     public record MemberPage(MemberCard card, int followers, int following, List<String> sharedSkills, boolean followed,
-                             boolean followsYou, boolean own, boolean muted, boolean blocked) {
+                             boolean followsYou, boolean own, boolean muted, boolean blocked, boolean privateCard, boolean requested) {
 
         public MemberPage {
             sharedSkills = List.copyOf(sharedSkills);

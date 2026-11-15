@@ -21,12 +21,13 @@ describe('ProfileNetworkComponent', () => {
     stack: ['Java', 'Kafka'], city: 'Lyon', remote: true, availability: 'AVAILABLE', availabilityDate: '2026-12-02', languages: ['Français'],
     verified: false };
   const auto = { mode: 'AUTO' as const, date: null };
-  const outside: NetworkMembership = { joined: false, handle: 'camille', fields, availability: auto, card: null };
-  const member: NetworkMembership = { joined: true, handle: 'camille', fields, availability: auto, card };
+  const outside: NetworkMembership = { joined: false, handle: 'camille', fields, availability: auto, card: null, privateCard: false };
+  const member: NetworkMembership = { joined: true, handle: 'camille', fields, availability: auto, card, privateCard: false };
 
   function create(membership = of(outside)): ComponentFixture<ProfileNetworkComponent> {
     network = jasmine.createSpyObj('NetworkService', ['membership', 'join', 'leave', 'handle', 'verify', 'restrictions', 'mute', 'block',
-      'notificationSettings', 'saveNotificationSettings']);
+      'notificationSettings', 'saveNotificationSettings', 'followRequests']);
+    network.followRequests.and.returnValue(of([]));
     network.notificationSettings.and.returnValue(of({ off: ['REPOST'] }));
     network.membership.and.returnValue(membership);
     network.restrictions.and.returnValue(of({ muted: [], blocked: [] }));

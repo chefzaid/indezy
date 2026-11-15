@@ -1,0 +1,19 @@
+<section class="restrictions" data-network-private>
+  <h3>{{ 'profile.network.privateTitle' | translate }}</h3>
+  <mat-slide-toggle [checked]="membership.privateCard" [disabled]="saving" (change)="setPrivate($event.checked)" data-private-toggle>
+    {{ 'profile.network.privateLabel' | translate }}
+  </mat-slide-toggle>
+  <p class="empty">{{ 'profile.network.privateHint' | translate }}</p>
+  @if (requests.length) {
+    <h4>{{ 'profile.network.requestsTitle' | translate: { count: requests.length } }}</h4>
+    <ul>
+      @for (member of requests; track member.handle) {
+        <li [attr.data-follow-request]="member.handle">
+          <a [routerLink]="['/m', member.handle]">{{ member.firstName }} {{ member.lastName }} <span class="handle">&#64;{{ member.handle }}</span></a>
+          <button mat-button type="button" (click)="answer(member, true)" data-request-approve>{{ 'profile.network.approve' | translate }}</button>
+          <button mat-button type="button" (click)="answer(member, false)" data-request-decline>{{ 'profile.network.decline' | translate }}</button>
+        </li>
+      }
+    </ul>
+  }
+</section>

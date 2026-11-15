@@ -227,6 +227,11 @@ undone; nothing comes from a member either one blocks, and **Profile → Network
 (matched on the email the member signs in with, the contact never told), followed by members the reader follows ("Followed by Léo and 2 other members you follow"), sharing skills with the reader's card ("Also on Kafka"),
 or in the same city, the strongest first, on what the cards show only; following one reads the feed again.
 
+**Private card** (Profile → Network) makes a member approve who follows them: **Follow** on their page reads **Ask to
+follow** and sends a request, told to them and listed under **Requests to follow** to **Approve** (the member then
+follows, and is told) or **Decline** (untold); **Request sent** withdraws it. The card stays visible to members, but its
+posts reach only its followers. Turning the card public again approves every request waiting.
+
 **Report** (a post's or a comment's menu, or a member's page) sends it to the moderators with a reason (spam,
 harassment, hate, misleading, confidential information, impersonation, something else) and, if wanted, a few words,
 once while the report is open; the member reported is not told who reported them. In **Admin → Moderation** an

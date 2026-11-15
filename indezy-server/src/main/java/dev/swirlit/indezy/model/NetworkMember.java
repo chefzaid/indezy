@@ -88,4 +88,12 @@ public class NetworkMember extends BaseEntity {
     /** When the moderators ended the membership: the account cannot join again. */
     @Column(name = "banned_at")
     private Instant bannedAt;
+
+    /** Only the followers the member approves see their posts; none (null) reads as public. */
+    @Column(name = "private_card")
+    private Boolean privateCard;
+
+    public boolean isPrivate() {
+        return Boolean.TRUE.equals(privateCard);
+    }
 }

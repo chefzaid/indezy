@@ -48,6 +48,7 @@ public class NetworkTagService {
     private final NetworkPostRepository postRepository;
     private final NetworkLikeRepository likes;
     private final NetworkRestrictionRepository restrictions;
+    private final NetworkFollowService memberFollows;
 
     @Transactional(readOnly = true)
     public NetworkDtos.TagPage page(Long userId, String tag, int page) {
@@ -94,7 +95,8 @@ public class NetworkTagService {
         if (tags.isEmpty()) {
             return List.of();
         }
-        Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(userId));
+        Set<Long> blocked = new HashSet<>(restrictions.blockedEitherWay(userId));
+        blocked.addAll(memberFollows.locked(userId));
         Map<Long, Optional<NetworkDtos.MemberCard>> authors = new HashMap<>();
         List<NetworkPost> found = postRepository.taggedSince(tags, since).stream()
             .filter(post -> !post.getAuthorId().equals(userId) && !blocked.contains(post.getAuthorId()))

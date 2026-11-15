@@ -58,6 +58,10 @@ export interface MemberPage {
   muted: boolean;
   /** The viewer blocks them: no follow either way, and the viewer's page hidden from them. */
   blocked: boolean;
+  /** Their card is private: following asks them, and only their followers read their posts. */
+  privateCard: boolean;
+  /** The viewer asked to follow them and waits for their answer. */
+  requested: boolean;
 }
 
 /** A post as members read it. */
@@ -157,7 +161,7 @@ export interface MemberSuggestion {
 }
 
 /** What a network notification tells. */
-export type NetworkNotificationType = 'FOLLOW' | 'LIKE' | 'COMMENT_LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST' | 'WARNED' | 'CONTENT_REMOVED' |
+export type NetworkNotificationType = 'FOLLOW' | 'FOLLOW_REQUEST' | 'FOLLOW_ACCEPTED' | 'LIKE' | 'COMMENT_LIKE' | 'COMMENT' | 'REPLY' | 'MENTION' | 'REPOST' | 'WARNED' | 'CONTENT_REMOVED' |
   'SUSPENDED' | 'REPORT_ACTED' | 'REPORT_DISMISSED';
 
 /** The moderators' word: told whatever the settings, with no member as its author. */
@@ -264,4 +268,6 @@ export interface NetworkMembership {
   fields: NetworkFields;
   availability: NetworkAvailabilitySetting;
   card: MemberCard | null;
+  /** Only the followers the member approves read their posts. */
+  privateCard: boolean;
 }

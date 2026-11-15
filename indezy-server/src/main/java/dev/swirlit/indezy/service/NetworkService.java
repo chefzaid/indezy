@@ -67,7 +67,8 @@ public class NetworkService {
         return members.findByUserId(userId).filter(NetworkMember::isActive).map(member -> membership(member, user))
             .orElseGet(() -> new NetworkDtos.Membership(false, members.findByUserId(userId).map(NetworkMember::getHandle)
                 .orElseGet(() -> suggestion(user)), members.findByUserId(userId).map(NetworkService::fields).orElse(ALL_SHOWN),
-                members.findByUserId(userId).map(NetworkService::availability).orElse(AUTO), null));
+                members.findByUserId(userId).map(NetworkService::availability).orElse(AUTO), null,
+                members.findByUserId(userId).map(NetworkMember::isPrivate).orElse(false)));
     }
 
     /** Joins with the handle and the fields chosen, or changes them; a handle another member holds is refused. */
@@ -173,7 +174,8 @@ public class NetworkService {
     }
 
     private NetworkDtos.Membership membership(NetworkMember member, User user) {
-        return new NetworkDtos.Membership(true, member.getHandle(), fields(member), availability(member), card(member, user));
+        return new NetworkDtos.Membership(true, member.getHandle(), fields(member), availability(member), card(member, user),
+            member.isPrivate());
     }
 
     private static NetworkDtos.Availability availability(NetworkMember member) {

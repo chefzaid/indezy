@@ -4,6 +4,10 @@ package dev.swirlit.indezy.model.enums;
 public enum NetworkNotificationType {
     /** A member followed them. */
     FOLLOW,
+    /** A member asked to follow them, their card being private. */
+    FOLLOW_REQUEST,
+    /** A member approved their request to follow. */
+    FOLLOW_ACCEPTED,
     /** A member liked their post. */
     LIKE,
     /** A member liked their comment. */

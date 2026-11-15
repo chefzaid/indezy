@@ -21,9 +21,9 @@
           <span class="blocked-note" data-blocked>{{ 'network.page.blockedNote' | translate }}</span>
         } @else {
           <button mat-flat-button type="button" (click)="toggleFollow()" [disabled]="isFollowing" data-follow
-            [attr.aria-pressed]="page.followed">
-            <mat-icon>{{ page.followed ? 'person_remove' : 'person_add' }}</mat-icon>
-            {{ (page.followed ? 'network.page.unfollow' : 'network.page.follow') | translate }}
+            [attr.aria-pressed]="page.followed || page.requested">
+            <mat-icon>{{ page.followed ? 'person_remove' : page.requested ? 'schedule' : 'person_add' }}</mat-icon>
+            {{ followLabel(page) | translate }}
           </button>
         }
         @if (page.muted) {
@@ -92,7 +92,9 @@
 
     <section class="member-posts" data-member-posts>
       <h2>{{ 'network.page.posts' | translate }}</h2>
-      @if (posts.length === 0) {
+      @if (page.privateCard && !page.followed && !page.own) {
+        <p class="empty" data-posts-private>{{ 'network.page.privatePosts' | translate: { name: page.card.firstName } }}</p>
+      } @else if (posts.length === 0) {
         <p class="empty">{{ 'network.page.noPosts' | translate }}</p>
       }
       <ul class="posts">

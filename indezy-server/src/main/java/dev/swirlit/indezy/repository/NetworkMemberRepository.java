@@ -13,4 +13,7 @@ public interface NetworkMemberRepository extends JpaRepository<NetworkMember, Lo
     Optional<NetworkMember> findByHandle(String handle);
 
     List<NetworkMember> findByActiveTrue();
+
+    /** The members in the network whose card is private. */
+    List<NetworkMember> findByActiveTrueAndPrivateCardTrue();
 }

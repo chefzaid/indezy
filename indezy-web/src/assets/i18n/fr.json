@@ -1449,6 +1449,8 @@
       "noticesTitle": "Notifications",
       "notices": {
         "FOLLOW": "Quand un membre vous suit",
+        "FOLLOW_REQUEST": "Quand un membre demande à vous suivre",
+        "FOLLOW_ACCEPTED": "Quand un membre accepte votre demande d’abonnement",
         "LIKE": "Quand un membre aime votre publication",
         "COMMENT_LIKE": "Quand un membre aime votre commentaire",
         "COMMENT": "Quand un membre commente votre publication",
@@ -1456,7 +1458,17 @@
         "MENTION": "Quand un membre vous mentionne",
         "REPOST": "Quand un membre republie votre publication"
       },
-      "banned": "Les modérateurs ont mis fin à l’adhésion de ce compte : il ne peut plus rejoindre le réseau."
+      "banned": "Les modérateurs ont mis fin à l’adhésion de ce compte : il ne peut plus rejoindre le réseau.",
+      "privateTitle": "Carte privée",
+      "privateLabel": "Accepter qui me suit",
+      "privateHint": "Vous suivre vous demande alors d’abord votre accord, et seuls vos abonnés lisent vos publications. Votre carte reste visible des membres. La désactiver accepte toutes les demandes en attente.",
+      "requestsTitle": "Demandes d’abonnement ({{count}})",
+      "approve": "Accepter",
+      "decline": "Refuser",
+      "privateOn": "Votre carte est privée",
+      "privateOff": "Votre carte est publique : les demandes en attente sont acceptées",
+      "requestApproved": "Demande acceptée",
+      "requestDeclined": "Demande refusée"
     }
   },
   "errors": {
@@ -3327,7 +3339,10 @@
       "mutedNote": "Masqué",
       "posts": "Publications",
       "noPosts": "Aucune publication pour l'instant.",
-      "tooManyFollows": "Vous avez suivi beaucoup de membres cette heure-ci : réessayez plus tard."
+      "tooManyFollows": "Vous avez suivi beaucoup de membres cette heure-ci : réessayez plus tard.",
+      "requested": "Demande envoyée",
+      "askToFollow": "Demander à suivre",
+      "privatePosts": "La carte de {{name}} est privée : seuls les abonnés qu’elle ou il accepte lisent ses publications."
     },
     "directory": {
       "title": "Membres",
@@ -3454,6 +3469,8 @@
       "many": "{{name}} et {{others}} autres",
       "types": {
         "FOLLOW": "vous suit désormais",
+        "FOLLOW_REQUEST": "demande à vous suivre",
+        "FOLLOW_ACCEPTED": "a accepté votre demande d’abonnement",
         "LIKE": "a aimé votre publication",
         "COMMENT_LIKE": "a aimé votre commentaire",
         "COMMENT": "a commenté votre publication",
@@ -3463,6 +3480,8 @@
       },
       "typesMany": {
         "FOLLOW": "vous suivent désormais",
+        "FOLLOW_REQUEST": "demandent à vous suivre",
+        "FOLLOW_ACCEPTED": "ont accepté votre demande d’abonnement",
         "LIKE": "ont aimé votre publication",
         "COMMENT_LIKE": "ont aimé votre commentaire",
         "COMMENT": "ont commenté votre publication",

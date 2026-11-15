@@ -68,6 +68,10 @@
   </div>
 </form>
 
+@if (membership?.joined) {
+  <app-profile-follow-requests [membership]="membership!" (changed)="membership = $event"></app-profile-follow-requests>
+}
+
 @if (membership?.joined && noticesOff) {
   <section class="restrictions" data-network-notices>
     <h3>{{ 'profile.network.noticesTitle' | translate }}</h3>

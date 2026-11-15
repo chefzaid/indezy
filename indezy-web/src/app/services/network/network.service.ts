@@ -247,6 +247,22 @@ export class NetworkService {
     return this.http.post<void>(`${this.API_URL}/${target}/${encodeURIComponent(String(id))}/report`, { reason, details });
   }
 
+  /** Turns the member's card private, or public again, approving every request waiting. */
+  setPrivate(privateCard: boolean): Observable<NetworkMembership> {
+    return this.http.put<NetworkMembership>(`${this.API_URL}/membership/private`, null, { params: new HttpParams().set('private', privateCard) });
+  }
+
+  /** The members asking to follow the member. */
+  followRequests(): Observable<MemberCard[]> {
+    return this.http.get<MemberCard[]>(`${this.API_URL}/follow-requests`);
+  }
+
+  /** Approves a member's request to follow, or declines it; answers the requests left. */
+  answerFollowRequest(handle: string, approve: boolean): Observable<MemberCard[]> {
+    const url = `${this.API_URL}/follow-requests/${encodeURIComponent(handle)}`;
+    return approve ? this.http.put<MemberCard[]>(url, null) : this.http.delete<MemberCard[]>(url);
+  }
+
   private member$(handle: string): string {
     return `${this.API_URL}/members/${encodeURIComponent(handle)}`;
   }

@@ -20,7 +20,7 @@ describe('MemberPageComponent', () => {
     avatar: null, headline: 'Architecte Java', stack: ['Java'], city: 'Lyon', remote: false, availability: 'ON_MISSION',
     availabilityDate: '2027-03-31', languages: [], verified: false, ...changes });
   const page: MemberPage = { card: card('camille'), followers: 2, following: 1, sharedSkills: ['Java'], followed: false, followsYou: true,
-    own: false, muted: false, blocked: false };
+    own: false, muted: false, blocked: false, privateCard: false, requested: false };
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
 
   function create(read = of(page)): ComponentFixture<MemberPageComponent> {
@@ -92,6 +92,24 @@ describe('MemberPageComponent', () => {
     network.following.and.returnValue(throwError(() => new Error('down')));
     component.show('following');
     expect(notifications.error).toHaveBeenCalledWith('network.page.listError');
+  });
+
+  it('asks to follow a private card, withdraws the request, and says its posts are for its followers', () => {
+    const fixture = create(of({ ...page, privateCard: true }));
+    const element: HTMLElement = fixture.nativeElement;
+    const button = () => element.querySelector('[data-follow]') as HTMLButtonElement;
+    expect(button().textContent).toContain('Ask to follow');
+    expect(element.querySelector('[data-posts-private]')?.textContent).toContain('Camille');
+    network.follow.and.returnValue(of({ ...page, privateCard: true, requested: true }));
+    button().click();
+    fixture.detectChanges();
+    expect(network.follow).toHaveBeenCalledWith('camille');
+    expect(button().textContent).toContain('Request sent');
+    expect(button().getAttribute('aria-pressed')).toBe('true');
+    network.unfollow.and.returnValue(of({ ...page, privateCard: true }));
+    button().click();
+    expect(network.unfollow).toHaveBeenCalledWith('camille');
+    expect(fixture.componentInstance.followLabel({ ...page, privateCard: true, followed: true })).toBe('network.page.unfollow');
   });
 
   it('reports the member to the moderators', () => {

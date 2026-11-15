@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,7 +25,8 @@ import java.util.stream.Stream;
 
 /**
  * The member network in the global search (see docs/features.md#keyboard-shortcuts): the members whose card shows every word
- * typed, by what it shows only, and the latest posts holding every word, but those of members blocked either way or away;
+ * typed, by what it shows only, and the latest posts holding every word, but those of members blocked either way, away or
+ * private to the reader;
  * nothing while the network is off or the account is not a member.
  */
 @Service
@@ -41,6 +43,7 @@ public class NetworkSearchService {
     private final NetworkMemberRepository members;
     private final NetworkPostRepository postRepository;
     private final NetworkRestrictionRepository restrictions;
+    private final NetworkFollowService follows;
 
     /** What the network holds for these words: members, then posts, at most {@code max} of each; nothing for no account. */
     public Found search(Long userId, List<String> words, int max) {
@@ -53,9 +56,11 @@ public class NetworkSearchService {
             .flatMap(member -> network.liveCard(member).map(card -> new Seen(member.getId(), card)).stream())
             .sorted(Comparator.comparing((Seen seen) -> seen.card().lastName(), Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
             .map(seen -> memberHit(words, seen)).filter(Objects::nonNull).limit(max).toList();
+        Set<Long> unread = new HashSet<>(blocked);
+        unread.addAll(follows.locked(userId));
         Map<Long, Optional<NetworkDtos.MemberCard>> authors = new HashMap<>();
         List<Hit> postHits = postRepository.findAllByOrderByCreatedAtDescIdDesc(PageRequest.of(0, POSTS_SEARCHED)).stream()
-            .filter(post -> !blocked.contains(post.getAuthorId()) && GlobalSearchService.containsAll(post.getText(), words))
+            .filter(post -> !unread.contains(post.getAuthorId()) && GlobalSearchService.containsAll(post.getText(), words))
             .map(post -> authors.computeIfAbsent(post.getAuthorId(), posts::authorCard).map(author -> postHit(words, post, author)))
             .flatMap(Optional::stream).limit(max).toList();
         return new Found(memberHits, postHits);

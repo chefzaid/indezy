@@ -15,6 +15,7 @@ import { HANDLE_PATTERN, MemberCard, NetworkAvailability, NetworkFields, Network
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { ProfileFollowRequestsComponent } from './follow-requests/profile-follow-requests.component';
 import { MemberCardComponent } from '../../network/member-card/member-card.component';
 
 /** Why the registry did not verify the member, in the interface language. */
@@ -44,7 +45,7 @@ export const CARD_FIELDS: (keyof NetworkFields)[] = ['photo', 'headline', 'stack
 @Component({
   selector: 'app-profile-network',
   imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, MatSlideToggleModule, TranslateModule,
-    MemberCardComponent],
+    MemberCardComponent, ProfileFollowRequestsComponent],
   templateUrl: './profile-network.component.html',
   styleUrls: ['./profile-network.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -76,7 +77,8 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
   restrictions: NetworkRestrictions | null = null;
   isSaving = false;
   isVerifying = false;
-  readonly noticeTypes: NetworkNotificationType[] = ['FOLLOW', 'LIKE', 'COMMENT_LIKE', 'COMMENT', 'REPLY', 'MENTION', 'REPOST'];
+  readonly noticeTypes: NetworkNotificationType[] = ['FOLLOW', 'FOLLOW_REQUEST', 'FOLLOW_ACCEPTED', 'LIKE', 'COMMENT_LIKE',
+    'COMMENT', 'REPLY', 'MENTION', 'REPOST'];
   /** The kinds of notification turned off; read once joined. */
   noticesOff: NetworkNotificationType[] | null = null;
 

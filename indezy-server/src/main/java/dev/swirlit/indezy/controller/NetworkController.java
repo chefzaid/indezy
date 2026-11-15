@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
 import dev.swirlit.indezy.service.NetworkDirectoryService;
+import dev.swirlit.indezy.service.NetworkFollowRequestService;
 import dev.swirlit.indezy.service.NetworkFollowService;
 import dev.swirlit.indezy.service.NetworkNotificationService;
 import dev.swirlit.indezy.service.NetworkService;
@@ -36,6 +37,7 @@ public class NetworkController {
 
     private final NetworkService network;
     private final NetworkFollowService follows;
+    private final NetworkFollowRequestService followRequests;
     private final NetworkDirectoryService directory;
     private final NetworkSuggestionService suggestions;
     private final NetworkNotificationService notices;
@@ -189,5 +191,30 @@ public class NetworkController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeFollower(@PathVariable String handle) {
         follows.removeFollower(SecurityUtils.getCurrentUserId(), handle);
+    }
+
+    @Operation(summary = "Turn the member's card private, or public again",
+        description = "Private: following asks the member, and only their followers read their posts. Public again approves every request")
+    @PutMapping("/membership/private")
+    public NetworkDtos.Membership setPrivate(@RequestParam("private") boolean privateCard) {
+        return followRequests.setPrivate(SecurityUtils.getCurrentUserId(), privateCard);
+    }
+
+    @Operation(summary = "The members asking to follow the member, the oldest first")
+    @GetMapping("/follow-requests")
+    public List<NetworkDtos.MemberCard> followRequests() {
+        return followRequests.requests(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Approve a member's request to follow", description = "They follow, and are told")
+    @PutMapping("/follow-requests/{handle}")
+    public List<NetworkDtos.MemberCard> approveFollowRequest(@PathVariable String handle) {
+        return followRequests.answer(SecurityUtils.getCurrentUserId(), handle, true);
+    }
+
+    @Operation(summary = "Decline a member's request to follow", description = "They are not told")
+    @DeleteMapping("/follow-requests/{handle}")
+    public List<NetworkDtos.MemberCard> declineFollowRequest(@PathVariable String handle) {
+        return followRequests.answer(SecurityUtils.getCurrentUserId(), handle, false);
     }
 }

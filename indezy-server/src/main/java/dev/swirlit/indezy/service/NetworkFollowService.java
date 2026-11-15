@@ -4,16 +4,20 @@ import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.NetworkFollow;
+import dev.swirlit.indezy.model.NetworkFollowRequest;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkRestriction;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
+import dev.swirlit.indezy.repository.NetworkFollowRequestRepository;
+import dev.swirlit.indezy.repository.NetworkMemberRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -32,6 +36,8 @@ public class NetworkFollowService {
 
     private final NetworkService network;
     private final NetworkFollowRepository follows;
+    private final NetworkFollowRequestRepository requests;
+    private final NetworkMemberRepository members;
     private final NetworkRestrictionRepository restrictions;
     private final NetworkLimits limits;
     private final NetworkNotificationService notices;
@@ -52,7 +58,16 @@ public class NetworkFollowService {
         if (restricted(viewerId, member.getUserId(), NetworkRestrictionKind.BLOCK)) {
             throw new InvalidStateException("Unblock this member to follow them");
         }
-        if (follows.findByFollowerIdAndFollowedId(viewerId, member.getUserId()).isEmpty()) {
+        if (member.isPrivate() && follows.findByFollowerIdAndFollowedId(viewerId, member.getUserId()).isEmpty()) {
+            if (requests.findByRequesterIdAndMemberId(viewerId, member.getUserId()).isEmpty()) {
+                limits.follow(viewerId);
+                NetworkFollowRequest request = new NetworkFollowRequest();
+                request.setRequesterId(viewerId);
+                request.setMemberId(member.getUserId());
+                requests.save(request);
+                notices.notify(member.getUserId(), viewerId, NetworkNotificationType.FOLLOW_REQUEST, null);
+            }
+        } else if (follows.findByFollowerIdAndFollowedId(viewerId, member.getUserId()).isEmpty()) {
             limits.follow(viewerId);
             NetworkFollow follow = new NetworkFollow();
             follow.setFollowerId(viewerId);
@@ -68,6 +83,7 @@ public class NetworkFollowService {
         NetworkMember viewer = network.requireMember(viewerId);
         NetworkMember member = network.activeMember(handle);
         follows.findByFollowerIdAndFollowedId(viewerId, member.getUserId()).ifPresent(follows::delete);
+        requests.findByRequesterIdAndMemberId(viewerId, member.getUserId()).ifPresent(requests::delete);
         return page(viewer, member);
     }
 
@@ -108,6 +124,8 @@ public class NetworkFollowService {
             Long memberId = network.activeMember(handle).getUserId();
             follows.findByFollowerIdAndFollowedId(viewerId, memberId).ifPresent(follows::delete);
             follows.findByFollowerIdAndFollowedId(memberId, viewerId).ifPresent(follows::delete);
+            requests.findByRequesterIdAndMemberId(viewerId, memberId).ifPresent(requests::delete);
+            requests.findByRequesterIdAndMemberId(memberId, viewerId).ifPresent(requests::delete);
             return page(network.requireMember(viewerId), network.activeMember(handle));
         }
         return page;
@@ -155,9 +173,9 @@ public class NetworkFollowService {
     }
 
     /** The members' cards, but those blocking the viewer or blocked by them. */
-    private List<NetworkDtos.MemberCard> seen(Long viewerId, List<NetworkMember> members) {
+    private List<NetworkDtos.MemberCard> seen(Long viewerId, List<NetworkMember> listed) {
         Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(viewerId));
-        return members.stream().filter(member -> !blocked.contains(member.getUserId())).map(network::liveCard).flatMap(Optional::stream).toList();
+        return listed.stream().filter(member -> !blocked.contains(member.getUserId())).map(network::liveCard).flatMap(Optional::stream).toList();
     }
 
     private NetworkDtos.MemberPage page(NetworkMember viewer, NetworkMember member) {
@@ -172,6 +190,22 @@ public class NetworkFollowService {
             shared, follows.findByFollowerIdAndFollowedId(viewer.getUserId(), member.getUserId()).isPresent(),
             follows.findByFollowerIdAndFollowedId(member.getUserId(), viewer.getUserId()).isPresent(), own,
             restricted(viewer.getUserId(), member.getUserId(), NetworkRestrictionKind.MUTE),
-            restricted(viewer.getUserId(), member.getUserId(), NetworkRestrictionKind.BLOCK));
+            restricted(viewer.getUserId(), member.getUserId(), NetworkRestrictionKind.BLOCK), member.isPrivate(),
+            requests.findByRequesterIdAndMemberId(viewer.getUserId(), member.getUserId()).isPresent());
+    }
+
+    /**
+     * The members whose posts the reader may not read: those in the network with a private card the reader neither holds
+     * nor follows.
+     */
+    Set<Long> locked(Long readerId) {
+        Set<Long> locked = new HashSet<>();
+        members.findByActiveTrueAndPrivateCardTrue().forEach(member -> locked.add(member.getUserId()));
+        if (locked.isEmpty()) {
+            return locked;
+        }
+        locked.remove(readerId);
+        follows.following(readerId).forEach(member -> locked.remove(member.getUserId()));
+        return locked;
     }
 }

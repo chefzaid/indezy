@@ -1449,6 +1449,8 @@
       "noticesTitle": "Notifications",
       "notices": {
         "FOLLOW": "When a member follows you",
+        "FOLLOW_REQUEST": "When a member asks to follow you",
+        "FOLLOW_ACCEPTED": "When a member accepts your request to follow",
         "LIKE": "When a member likes your post",
         "COMMENT_LIKE": "When a member likes your comment",
         "COMMENT": "When a member comments your post",
@@ -1456,7 +1458,17 @@
         "MENTION": "When a member mentions you",
         "REPOST": "When a member reposts your post"
       },
-      "banned": "The moderators ended this account’s membership: it cannot join again."
+      "banned": "The moderators ended this account’s membership: it cannot join again.",
+      "privateTitle": "Private card",
+      "privateLabel": "Approve who follows me",
+      "privateHint": "Following you then asks you first, and only your followers read your posts. Your card stays visible to members. Turning it off approves every request waiting.",
+      "requestsTitle": "Requests to follow ({{count}})",
+      "approve": "Approve",
+      "decline": "Decline",
+      "privateOn": "Your card is private",
+      "privateOff": "Your card is public: the requests waiting are approved",
+      "requestApproved": "Request approved",
+      "requestDeclined": "Request declined"
     }
   },
   "errors": {
@@ -3327,7 +3339,10 @@
       "mutedNote": "Muted",
       "posts": "Posts",
       "noPosts": "No post yet.",
-      "tooManyFollows": "You have followed many members this hour: try again later."
+      "tooManyFollows": "You have followed many members this hour: try again later.",
+      "requested": "Request sent",
+      "askToFollow": "Ask to follow",
+      "privatePosts": "{{name}}’s card is private: only the followers they approve read their posts."
     },
     "directory": {
       "title": "Members",
@@ -3454,6 +3469,8 @@
       "many": "{{name}} and {{others}} others",
       "types": {
         "FOLLOW": "started following you",
+        "FOLLOW_REQUEST": "asked to follow you",
+        "FOLLOW_ACCEPTED": "accepted your request to follow",
         "LIKE": "liked your post",
         "COMMENT_LIKE": "liked your comment",
         "COMMENT": "commented your post",
@@ -3463,6 +3480,8 @@
       },
       "typesMany": {
         "FOLLOW": "started following you",
+        "FOLLOW_REQUEST": "asked to follow you",
+        "FOLLOW_ACCEPTED": "accepted your request to follow",
         "LIKE": "liked your post",
         "COMMENT_LIKE": "liked your comment",
         "COMMENT": "commented your post",

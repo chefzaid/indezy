@@ -193,6 +193,10 @@ The member network (`/api/network`) is off until an administrator turns it on (`
   city is never found;
 - a block is both ways: neither follows the other, nor reads the other's posts, comments or lists, and the blocker's
   page answers `404` to the blocked member as for an unknown handle; a muted member's posts leave the feed;
+- a private card's posts are read by its followers and its member only: every read of posts (feed, tag pages, a member's
+  posts, saved posts, a repost's original, a post's comments and likes, the digest, the global search) leaves out the
+  private members the reader does not follow (`NetworkFollowService.locked`), and a single post of theirs is not found;
+  a follow request counts against the follow limit;
 - a member may post 10 times, comment 60 times, follow 100 members and report 20 times an hour (`NetworkLimits`);
   beyond, `429` with `Retry-After`;
 - a post or a comment is scored before it goes out (`NetworkSpamFilter`): 2 points for 3 links or more, 1 for a link

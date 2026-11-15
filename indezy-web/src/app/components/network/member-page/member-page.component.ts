@@ -73,9 +73,21 @@ export class MemberPageComponent implements OnInit {
     });
   }
 
+  /** Follow, Ask to follow a private card, Request sent (to withdraw it), or Unfollow. */
+  followLabel(page: MemberPage): string {
+    if (page.followed) {
+      return 'network.page.unfollow';
+    }
+    if (page.requested) {
+      return 'network.page.requested';
+    }
+    return page.privateCard ? 'network.page.askToFollow' : 'network.page.follow';
+  }
+
   toggleFollow(): void {
     const page = this.page!;
-    const request: Observable<MemberPage> = page.followed ? this.network.unfollow(page.card.handle) : this.network.follow(page.card.handle);
+    const request: Observable<MemberPage> = page.followed || page.requested ? this.network.unfollow(page.card.handle) :
+      this.network.follow(page.card.handle);
     this.isFollowing = true;
     request.subscribe({
       next: updated => {
