@@ -38,6 +38,7 @@
       (withdrawApplication)="actions.withdrawApplication($event)">
     </app-offer-card>
     <div class="page-actions">
+      <app-share-to-network [build]="networkShare"></app-share-to-network>
       <button mat-stroked-button type="button" (click)="copyLink()" data-copy-offer-link>
         <mat-icon>link</mat-icon>{{ 'offers.share.copy' | translate }}
       </button>

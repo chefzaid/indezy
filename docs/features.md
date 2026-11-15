@@ -219,7 +219,9 @@ they voted, it closed or it is theirs. A post the spam score held is
 published as a plain post; drafts are plain posts. **Add to my pipeline** on another member's mission creates the
 opportunity at Contact, filled from its facts (role, rate, remote days, start, place, skills, the post's text), its
 client the one named or else the workspace's **Client confidentiel**, its source **Indezy @author**; telling the author
-or not. Its author sees how many members took it, and who among those who chose to tell.
+or not. Its author sees how many members took it, and who among those who chose to tell. **Share to the network**, on an
+offer's page and on a declined opportunity's page, opens the feed with such a mission filled in from it (an offer's link
+included), its publisher or client left out, to read again before publishing.
 
 **Comments** open under a post: comments and, under each, replies (one level), the oldest first. Each writer deletes
 their own comment, its replies going with it. The post's author **pins** one comment on top, **hides** one (then only

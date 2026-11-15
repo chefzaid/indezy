@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,7 +25,10 @@ export const RATE_MAX = 5000;
     .facts mat-form-field { flex: 1 1 160px; }`],
   changeDetection: ChangeDetectionStrategy.Eager
 })
-export class PostKindFieldsComponent {
+export class PostKindFieldsComponent implements OnInit {
+  /** A kind and its facts to start from, as when sharing from elsewhere in the app. */
+  @Input() initial: { kind: PostKind; details: PostDetails | null } | null = null;
+
   readonly kinds = POST_KINDS;
   readonly rateMax = RATE_MAX;
   readonly kind = new FormControl<PostKind>('POST', { nonNullable: true });
@@ -43,6 +46,18 @@ export class PostKindFieldsComponent {
   readonly choices = new FormArray([this.choice(), this.choice()]);
   readonly days = new FormControl(3, { nonNullable: true });
   readonly dayOptions = [1, 2, 3, 4, 5, 6, 7];
+
+  ngOnInit(): void {
+    if (!this.initial) {
+      return;
+    }
+    this.kind.setValue(this.initial.kind);
+    const facts = this.initial.details;
+    if (facts) {
+      this.details.setValue({ role: facts.role ?? '', rateMin: facts.rateMin, rateMax: facts.rateMax, city: facts.city ?? '',
+        remoteDays: facts.remoteDays, start: facts.start ?? '', client: facts.client ?? '', stack: facts.stack.join(', ') });
+    }
+  }
 
   /** Whether the kind carries facts. */
   get withFacts(): boolean {

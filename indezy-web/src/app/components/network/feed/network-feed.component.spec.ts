@@ -164,4 +164,12 @@ describe('NetworkFeedComponent', () => {
     fixture = create(of({ posts: [], page: 0, more: false }));
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-feed-empty]')).not.toBeNull();
   });
+
+  it('fills the composer with what another page shared, once', () => {
+    history.replaceState({ networkShare: { text: 'Une mission que je ne prends pas.', kind: 'MISSION', details: null } }, '');
+    const fixture = create();
+    expect(fixture.componentInstance.draft.value).toBe('Une mission que je ne prends pas.');
+    expect(fixture.componentInstance.shared?.kind).toBe('MISSION');
+    expect((history.state as Record<string, unknown>)['networkShare']).toBeNull();
+  });
 });

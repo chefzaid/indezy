@@ -13,6 +13,7 @@ import { MemberSuggestion, NetworkPost, isHeld } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
 import { PostKindFieldsComponent } from '../post-kind/post-kind-fields.component';
+import { NetworkShare, SHARE_STATE } from '../share/share-to-network.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -52,9 +53,25 @@ export class NetworkFeedComponent implements OnInit {
   suggestions: MemberSuggestion[] = [];
 
   ngOnInit(): void {
+    this.prefill();
     this.load(0);
     this.network.followedTags().subscribe({ next: tags => this.tags = tags, error: () => this.tags = [] });
     this.network.suggestions().subscribe({ next: suggestions => this.suggestions = suggestions, error: () => this.suggestions = [] });
+  }
+
+  /** A draft shared from elsewhere in the app, read once: the text, and the kind with its facts. */
+  shared: NetworkShare | null = null;
+
+  /** Fills the composer with what another page shared, to read again before publishing. */
+  private prefill(): void {
+    const state = history.state as Record<string, unknown> | null;
+    const share = state?.[SHARE_STATE] as NetworkShare | undefined;
+    if (!share) {
+      return;
+    }
+    this.shared = share;
+    this.draft.setValue(share.text.slice(0, POST_MAX));
+    history.replaceState({ ...state, [SHARE_STATE]: null }, '');
   }
 
   /** Follows a suggested member, who leaves the suggestions, and reads the feed again with their posts. */

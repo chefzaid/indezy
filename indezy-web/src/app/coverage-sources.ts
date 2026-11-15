@@ -73,6 +73,8 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/network/post-kind/post-kind-fields.component',
   'components/network/report-dialog/report-dialog.component',
   'components/network/saved/saved-posts.component',
+  'components/network/share/network-shares',
+  'components/network/share/share-to-network.component',
   'components/network/tag-page/tag-page.component',
   'components/offers/offer-apply-dialog/offer-apply-dialog.component',
   'components/offers/offer-bar-chart/offer-bar-chart.component',

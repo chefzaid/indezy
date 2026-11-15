@@ -38,7 +38,7 @@
         <mat-hint align="end">{{ draft.value.length }} / {{ max }}</mat-hint>
       </mat-form-field>
       <p class="hint">{{ 'network.feed.composeHint' | translate }}</p>
-      <app-post-kind-fields #kindFields></app-post-kind-fields>
+      <app-post-kind-fields #kindFields [initial]="shared"></app-post-kind-fields>
       <div class="actions">
         <mat-form-field appearance="outline" class="schedule" subscriptSizing="dynamic">
           <mat-label>{{ 'network.drafts.scheduleAt' | translate }}</mat-label>

@@ -3611,6 +3611,11 @@
       "open": "Ouvrir l’opportunité",
       "takenBy": "Reprise par {{count}} membres",
       "noneNamed": "Personne ne vous a dit qui il était."
+    },
+    "share": {
+      "action": "Partager sur le réseau",
+      "offerIntro": "Une mission repérée, pour qui elle conviendra :",
+      "declinedIntro": "Une mission que je ne prends pas, pour qui elle conviendra."
     }
   }
 }

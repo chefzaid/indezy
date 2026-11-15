@@ -15,6 +15,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NetworkShare, ShareToNetworkComponent } from '../../network/share/share-to-network.component';
+import { projectShare } from '../../network/share/network-shares';
 
 import { ProjectService } from '../../../services/project/project.service';
 import {
@@ -63,7 +65,7 @@ import { CompanyHealthComponent } from '../../../shared/components/company-healt
 @Component({
     selector: 'app-project-detail',
     imports: [CompanyHealthComponent, ProjectCommuteComponent, ContractChecklistComponent, NonSolicitationNoticeComponent, PaymentDelayComponent,
-        ProjectLinkComponent,
+        ProjectLinkComponent, ShareToNetworkComponent,
         ProjectResourcesComponent,
         ActivityReportCardComponent,
         PurchaseOrdersCardComponent,
@@ -94,6 +96,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   @ViewChild('statusTrigger') private statusTrigger?: MatMenuTrigger;
   private readonly injector = inject(Injector);
   project?: ProjectDto;
+  /** A declined opportunity as a mission to pass on in the network, its client left out. */
+  readonly networkShare = (): NetworkShare => projectShare(this.project!, this.translate.instant('network.share.declinedIntro'));
   isLoading = false;
   projectId?: number;
 

@@ -3611,6 +3611,11 @@
       "open": "Open the opportunity",
       "takenBy": "Taken by {{count}} members",
       "noneNamed": "None let you know who they are."
+    },
+    "share": {
+      "action": "Share to the network",
+      "offerIntro": "A mission spotted for whoever it suits:",
+      "declinedIntro": "A mission I am not taking, for whoever it suits."
     }
   }
 }

@@ -83,4 +83,26 @@ describe('PostKindFieldsComponent', () => {
     expect(component.choices.getRawValue()).toEqual(['', '']);
     expect(component.days.value).toBe(3);
   });
+
+  it('starts from a kind and facts shared from elsewhere', () => {
+    TestBed.configureTestingModule({
+      imports: [PostKindFieldsComponent, TranslateModule.forRoot()],
+      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }]
+    });
+    const fixture = TestBed.createComponent(PostKindFieldsComponent);
+    fixture.componentRef.setInput('initial', { kind: 'MISSION', details: { role: 'Lead Java', rateMin: null, rateMax: 700, city: null,
+      remoteDays: 2, start: null, client: null, stack: ['Java', 'Kafka'] } });
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    expect(component.kind.value).toBe('MISSION');
+    expect(component.facts()).toEqual({ role: 'Lead Java', rateMin: null, rateMax: 700, city: null, remoteDays: 2, start: null,
+      client: null, stack: ['Java', 'Kafka'] });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ imports: [PostKindFieldsComponent, TranslateModule.forRoot()],
+      providers: [{ provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }] });
+    const plain = TestBed.createComponent(PostKindFieldsComponent);
+    plain.componentRef.setInput('initial', { kind: 'QUESTION', details: null });
+    plain.detectChanges();
+    expect(plain.componentInstance.kind.value).toBe('QUESTION');
+  });
 });

@@ -15,6 +15,8 @@ import { NotificationService } from '../../../services/notification/notification
 import { OfferService } from '../../../services/offer/offer.service';
 import { OfferShareService } from '../../../services/offer/offer-share.service';
 import { OfferCardComponent } from '../offer-card/offer-card.component';
+import { NetworkShare, ShareToNetworkComponent } from '../../network/share/share-to-network.component';
+import { offerShare } from '../../network/share/network-shares';
 import { OfferActions, OfferActionsHost } from '../offer-feed/offer-actions';
 
 /**
@@ -24,7 +26,7 @@ import { OfferActions, OfferActionsHost } from '../offer-feed/offer-actions';
 @Component({
   selector: 'app-offer-page',
   imports: [DatePipe, RouterModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, TranslateModule,
-    OfferCardComponent],
+    OfferCardComponent, ShareToNetworkComponent],
   templateUrl: './offer-page.component.html',
   styleUrls: ['./offer-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -95,6 +97,9 @@ export class OfferPageComponent implements OnInit, OfferActionsHost {
   describe(change: OfferChange): string {
     return describeOfferChange(change, this.translate, this.locale);
   }
+
+  /** The offer as a mission to pass on in the network, its publisher left out. */
+  readonly networkShare = (): NetworkShare => offerShare(this.offer!, this.translate.instant('network.share.offerIntro'));
 
   copyLink(): void {
     if (this.offer) {
