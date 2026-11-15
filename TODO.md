@@ -521,7 +521,7 @@ Messaging
 Notifications and discovery
 - [ ] Notification centre (a bell in the toolbar): follows, follow requests, likes, comments, mentions, reposts and messages, grouped and marked read; each type in-app, by email or off in Profile → Notifications. Partly done on 2026-11-14: in-app follows, likes, comments, replies, mentions and reposts, grouped, marked read and counted on **Network** in the menu, each kind turned off in Profile → Network (`docs/features.md#member-network`); email by kind, follow requests and messages remain.
 - [ ] Member directory and search by skill, city, availability and remote work; tag pages (`/network/tags/kafka`) with the tag's posts, its members and the offer feed's open missions for that skill. Partly done on 2026-11-14: the directory and its search (`docs/features.md#member-network`); the tag pages come with posts and tags. The tag pages followed the same day, with their posts and members; the offer feed's open missions for the skill remain.
-- [ ] Global search (`Alt+Shift+F`) also finds members, posts and messages.
+- [ ] Global search (`Alt+Shift+F`) also finds members, posts and messages. Partly done on 2026-11-15: the global search (`Alt+Shift+S`) finds members by what their card shows and posts among the latest 1,000 (`docs/features.md#keyboard-shortcuts`), and API tokens no longer read the network; messages come with conversations.
 
 Safety and moderation
 - [ ] Confidentiality check before a post, a document or a message goes out: the workspace's client, ESN and contact names found in the text or in the documents' text are highlighted, with **Anonymiser** ("une banque à Paris", "une ESN") or **Publier quand même**.

@@ -17,14 +17,14 @@ import java.util.Set;
 
 /**
  * Keeps personal API tokens read-only: they read the workspace (GET), never write, and never reach the account, its
- * sessions and tokens, sign-in or the admin console. A token with scopes reads only the paths of those scopes
+ * sessions and tokens, sign-in, the admin console or the member network, whose members and posts are not the workspace's. A token with scopes reads only the paths of those scopes
  * ({@link ApiTokenScope}); a path of no scope needs a token without any.
  */
 @Configuration
 public class ApiTokenScopeInterceptor implements HandlerInterceptor, WebMvcConfigurer {
 
     private static final Set<String> READ_METHODS = Set.of("GET", "HEAD");
-    private static final List<String> ACCOUNT_PATHS = List.of("/users", "/admin", "/auth");
+    private static final List<String> ACCOUNT_PATHS = List.of("/users", "/admin", "/auth", "/network");
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

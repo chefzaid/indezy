@@ -26,7 +26,9 @@ const KINDS: { kind: Kind; icon: string; link: (hit: SearchHit) => (string | num
   { kind: 'projects', icon: 'work', link: hit => ['/projects', hit.id] },
   { kind: 'clients', icon: 'business', link: hit => ['/clients', hit.id] },
   { kind: 'contacts', icon: 'person', link: hit => ['/contacts', hit.id] },
-  { kind: 'notes', icon: 'sticky_note_2', link: hit => ['/projects', hit.projectId ?? hit.id] }
+  { kind: 'notes', icon: 'sticky_note_2', link: hit => ['/projects', hit.projectId ?? hit.id] },
+  { kind: 'members', icon: 'diversity_3', link: hit => ['/m', hit.handle ?? ''] },
+  { kind: 'posts', icon: 'forum', link: hit => ['/m', hit.handle ?? ''] }
 ];
 
 /**
@@ -75,7 +77,7 @@ export class GlobalSearchDialogComponent implements OnInit {
     ).subscribe(result => {
       this.loading = false;
       this.result = result;
-      this.options = result ? KINDS.flatMap(({ kind, link }) => result[kind].map(hit => ({ kind, hit, link: link(hit) }))) : [];
+      this.options = result ? KINDS.flatMap(({ kind, link }) => (result[kind] ?? []).map(hit => ({ kind, hit, link: link(hit) }))) : [];
       this.active = 0;
     });
   }

@@ -20,7 +20,9 @@ for (const language of ['en', 'fr']) {
         projects: [{ id: 4, title: 'Développeur Kafka', subtitle: 'Société Générale' }],
         clients: [],
         contacts: [{ id: 7, title: 'Hélène Durand', subtitle: 'Société Générale' }],
-        notes: [{ id: 9, title: 'Développeur Kafka', excerpt: 'Appel avec Hélène : la mission démarre en janvier.', projectId: 4 }]
+        notes: [{ id: 9, title: 'Développeur Kafka', excerpt: 'Appel avec Hélène : la mission démarre en janvier.', projectId: 4 }],
+        members: [{ id: 12, title: 'Hélène Martin', subtitle: '@helene_m', handle: 'helene_m' }],
+        posts: []
       } });
     });
     await page.route('**/api/contacts/7', route => route.fulfill({ json: { id: 7, firstName: 'Hélène', lastName: 'Durand',
@@ -38,8 +40,9 @@ for (const language of ['en', 'fr']) {
     const input = dialog.getByRole('combobox');
     await expect(input).toBeFocused();
     await input.fill('helene');
-    await expect(dialog.getByRole('option')).toHaveCount(3);
-    await expect(dialog.locator('mark')).toHaveText(['Hélène', 'Hélène']);
+    await expect(dialog.getByRole('option')).toHaveCount(4);
+    await expect(dialog.locator('mark')).toHaveText(['Hélène', 'Hélène', 'Hélène', 'helene']);
+    await expect(dialog.getByRole('group', { name: en ? 'Members' : 'Membres' })).toContainText('Martin');
     expect(queries).toEqual(['helene']);
     await dialog.screenshot({ path: test.info().outputPath('search.png') });
 

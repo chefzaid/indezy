@@ -844,7 +844,9 @@ type, usefulness) and the archive. The global search is under [Keyboard Shortcut
 `Alt+Shift+H` (or the account menu) shows the shortcuts: `Alt+Shift+N` new opportunity, `Alt+Shift+F` opportunities
 search, `Alt+Shift+M` stage menu of the current opportunity or focused card, and `Alt+Shift+S` (or the top bar's
 button) the **global search**: words of two characters or more found in one field of an opportunity, client, contact or
-journal note, accents and case aside, up to 8 hits of each kind, highlighted. In the offer feed, `J` / `K` move between
+journal note, accents and case aside, up to 8 hits of each kind, highlighted; while the member network is on, a member
+also finds members (by what their card shows) and posts (among the latest 1,000), but those of members blocked either
+way, each opening the member's page. In the offer feed, `J` / `K` move between
 offers, `O` opens, `S` saves, `H` hides, `A` adds to the pipeline, `D` shows details, `N` opens the note and `X` selects.
 Shortcuts never run in editable fields, menus or dialogs. Every page works from the keyboard alone.
 

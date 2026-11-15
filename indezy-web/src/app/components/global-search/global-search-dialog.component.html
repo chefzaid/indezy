@@ -22,7 +22,7 @@
       @if (optionsOf(group.kind).length) {
         <div role="group" class="search-group" [attr.aria-labelledby]="'global-search-' + group.kind">
           <h3 [id]="'global-search-' + group.kind">{{ 'globalSearch.kinds.' + group.kind | translate }}</h3>
-          @for (option of optionsOf(group.kind); track option.hit.id) {
+          @for (option of optionsOf(group.kind); track option.link.join('/') + ':' + option.hit.id) {
             <div role="option" class="search-option" [id]="'global-search-option-' + indexOf(option)"
               [class.active]="indexOf(option) === active" [attr.aria-selected]="indexOf(option) === active"
               (click)="open(option)" (mouseenter)="active = indexOf(option)">

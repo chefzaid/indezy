@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,12 @@ public final class SecurityUtils {
         }
         throw new AuthenticationCredentialsNotFoundException(
                 "No authenticated user found in the security context");
+    }
+
+    /** The id of the signed-in user, if any. */
+    public static Optional<Long> findCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.getPrincipal() instanceof Long userId ? Optional.of(userId) : Optional.empty();
     }
 
     /** The id of the session the current request's token belongs to, or null outside an authenticated request. */

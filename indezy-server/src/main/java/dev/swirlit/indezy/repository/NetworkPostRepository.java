@@ -37,4 +37,7 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
     List<NetworkPost> taggedSince(@Param("tags") Collection<String> tags, @Param("since") LocalDateTime since);
 
     List<NetworkPost> findByAuthorIdAndCreatedAtAfter(Long authorId, LocalDateTime since);
+
+    /** The latest posts, the newest first. */
+    List<NetworkPost> findAllByOrderByCreatedAtDescIdDesc(Pageable page);
 }

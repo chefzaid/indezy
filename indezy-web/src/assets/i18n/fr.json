@@ -2419,7 +2419,9 @@
       "projects": "Opportunités",
       "clients": "Clients",
       "contacts": "Contacts",
-      "notes": "Notes"
+      "notes": "Notes",
+      "members": "Membres",
+      "posts": "Publications"
     }
   },
   "review": {

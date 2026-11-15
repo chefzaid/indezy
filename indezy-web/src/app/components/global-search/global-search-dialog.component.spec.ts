@@ -18,7 +18,9 @@ describe('GlobalSearchDialogComponent', () => {
     projects: [{ id: 4, title: 'Développeur Kafka', subtitle: 'Société Générale', excerpt: 'Flux Kafka temps réel' }],
     clients: [],
     contacts: [{ id: 7, title: 'Hélène Durand', subtitle: 'Société Générale' }],
-    notes: [{ id: 9, title: 'Développeur Kafka', excerpt: 'Appel avec Hélène', projectId: 4 }]
+    notes: [{ id: 9, title: 'Développeur Kafka', excerpt: 'Appel avec Hélène', projectId: 4 }],
+    members: [],
+    posts: []
   };
 
   function create(): void {
@@ -97,9 +99,30 @@ describe('GlobalSearchDialogComponent', () => {
     expect(component.active).toBe(1);
   }));
 
+  it('lists the network\'s members and posts, each opening the member\'s page', fakeAsync(() => {
+    create();
+    search.search.and.returnValue(of({ ...found, projects: [], contacts: [], notes: [],
+      members: [{ id: 12, title: 'Léo Martin', subtitle: '@leo_m', excerpt: 'Kafka', handle: 'leo_m' }],
+      posts: [{ id: 3, title: 'Inès B', subtitle: '@ines_b', excerpt: 'Retour sur Kafka', handle: 'ines_b' }] }));
+    type('kafka');
+    expect(Array.from(element().querySelectorAll('.search-group h3')).map(h => h.textContent!.trim()))
+      .toEqual(['globalSearch.kinds.members', 'globalSearch.kinds.posts']);
+    element().querySelectorAll<HTMLElement>('[role="option"]')[0].click();
+    expect(navigate).toHaveBeenCalledWith(['/m', 'leo_m']);
+    component.open(component.options[1]);
+    expect(navigate).toHaveBeenCalledWith(['/m', 'ines_b']);
+  }));
+
+  it('reads an answer without the network\'s kinds', fakeAsync(() => {
+    create();
+    search.search.and.returnValue(of({ projects: found.projects, clients: [], contacts: [], notes: [] } as unknown as GlobalSearchResult));
+    type('kafka');
+    expect(component.options.length).toBe(1);
+  }));
+
   it('says when nothing was found or the search failed, and ignores keys without hits', fakeAsync(() => {
     create();
-    search.search.and.returnValues(of({ projects: [], clients: [], contacts: [], notes: [] }), throwError(() => new Error('down')));
+    search.search.and.returnValues(of({ projects: [], clients: [], contacts: [], notes: [], members: [], posts: [] }), throwError(() => new Error('down')));
 
     type('zzz');
     expect(element().textContent).toContain('globalSearch.empty');

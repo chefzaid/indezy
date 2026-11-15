@@ -39,8 +39,10 @@ public class GlobalSearchService {
     private final ClientRepository clients;
     private final ContactRepository contacts;
     private final ProjectNoteRepository notes;
+    private final NetworkSearchService networkSearch;
 
-    public GlobalSearchResultDto search(Long freelanceId, String query) {
+    /** The workspace's records holding every word, and, for its member, the network's members and posts. */
+    public GlobalSearchResultDto search(Long freelanceId, Long userId, String query) {
         List<String> words = words(query);
         String typed = query == null ? "" : query.strip();
         if (typed.length() < MIN_QUERY || typed.length() > MAX_QUERY || words.isEmpty()) {
@@ -66,7 +68,8 @@ public class GlobalSearchService {
         List<Hit> noteHits = notes.findByFreelanceId(freelanceId).stream()
             .map(note -> noteHit(words, note))
             .filter(Objects::nonNull).limit(HITS_PER_KIND).toList();
-        return new GlobalSearchResultDto(projectHits, clientHits, contactHits, noteHits);
+        NetworkSearchService.Found network = networkSearch.search(userId, words, HITS_PER_KIND);
+        return new GlobalSearchResultDto(projectHits, clientHits, contactHits, noteHits, network.members(), network.posts());
     }
 
     /**
