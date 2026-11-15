@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { MemberSuggestion, NetworkPost } from '../../../models';
+import { MemberSuggestion, NetworkPost, isHeld } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -94,8 +94,12 @@ export class NetworkFeedComponent implements OnInit {
     this.network.post(text).subscribe({
       next: post => {
         this.isPosting = false;
-        this.posts = [post, ...this.posts];
         this.draft.reset('');
+        if (isHeld(post)) {
+          this.notifications.success('network.feed.held');
+          return;
+        }
+        this.posts = [post, ...this.posts];
         this.notifications.success('network.feed.posted');
       },
       error: (error: HttpErrorResponse) => {

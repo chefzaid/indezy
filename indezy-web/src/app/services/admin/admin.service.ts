@@ -42,4 +42,9 @@ export class AdminService {
   decide(id: number, outcome: ReportOutcome, note: string | null, days: number | null): Observable<ModerationQueue> {
     return this.http.put<ModerationQueue>(`${this.API_URL}/network/reports/${id}`, { outcome, note, days });
   }
+
+  /** Publishes or rejects a post or a comment the spam score held. */
+  release(id: number, publish: boolean): Observable<ModerationQueue> {
+    return this.http.put<ModerationQueue>(`${this.API_URL}/network/held/${id}`, null, { params: new HttpParams().set('publish', publish) });
+  }
 }

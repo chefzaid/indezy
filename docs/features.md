@@ -235,7 +235,9 @@ target, and **dismisses**, **warns**, **removes** the post or the comment, **sus
 no posting, commenting, reposting, following or reporting meanwhile) or **bans** (the membership ends and the account
 cannot join again). The decision falls on every open report of the same target; the author is told of a warning, a
 removal or a suspension, and each reporter whether the moderators acted, in their notifications. Decided reports stay,
-with the moderator's note, under **Latest decisions**, and a sanction is in the account's activity log.
+with the moderator's note, under **Latest decisions**, and a sanction is in the account's activity log. A post or a
+comment that looks like spam (see [Security](./security.md#member-network)) is held instead of published, its author
+told so; **Moderation** lists what is held, with why, to **Publish** as its author's or **Reject**.
 
 **Members** on the feed (`/network/members`) is the member directory: the members found by a skill, a city, an
 availability or remote work, 20 a page by last name, each card opening the member's page. It searches what each card

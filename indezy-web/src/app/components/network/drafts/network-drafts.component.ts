@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { NetworkDraft } from '../../../models';
+import { NetworkDraft, isHeld } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -39,9 +39,9 @@ export class NetworkDraftsComponent implements OnInit {
 
   publish(draft: NetworkDraft): void {
     this.network.publishDraft(draft.id).subscribe({
-      next: () => {
+      next: answer => {
         this.drafts = this.drafts.filter(item => item.id !== draft.id);
-        this.notifications.success('network.drafts.published');
+        this.notifications.success(isHeld(answer) ? 'network.feed.held' : 'network.drafts.published');
       },
       error: () => this.notifications.error('network.feed.postError')
     });

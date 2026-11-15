@@ -95,6 +95,13 @@ describe('PostCommentsComponent', () => {
     component.draft.setValue('Sous le post');
     component.send();
     expect(network.comment).toHaveBeenCalledWith(9, 'Sous le post', null);
+    network.comments.calls.reset();
+    network.comment.and.returnValue(of({ held: true }));
+    component.draft.setValue('Achetez');
+    component.send();
+    expect(notifications.success).toHaveBeenCalledWith('network.feed.held');
+    expect(network.comments).not.toHaveBeenCalled();
+    expect(component.draft.value).toBe('');
     network.comment.and.returnValue(throwError(() => new Error('down')));
     component.draft.setValue('Encore');
     component.send();

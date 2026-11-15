@@ -43,6 +43,32 @@
     } @empty {
       <p class="empty" data-moderation-empty>{{ 'admin.moderation.empty' | translate }}</p>
     }
+    @if (queue.held.length) {
+      <h3>{{ 'admin.moderation.held' | translate: { count: queue.held.length } }}</h3>
+      <p class="hint">{{ 'admin.moderation.heldHint' | translate }}</p>
+      @for (item of queue.held; track item.id) {
+        <mat-card class="report" [attr.data-held]="item.id">
+          <div class="head">
+            <span class="type">{{ (item.postId ? 'admin.moderation.heldComment' : 'admin.moderation.heldPost') | translate }}</span>
+            <span class="target">{{ who(item.author) }}</span>
+            @for (reason of item.reasons; track reason) {
+              <span class="reason">{{ 'admin.moderation.reasons.' + reason | translate }}</span>
+            }
+          </div>
+          <blockquote class="excerpt" data-held-text>{{ item.text }}</blockquote>
+          <p class="meta">{{ 'admin.moderation.heldBy' | translate: { who: who(item.author), date: (item.createdAt | date:'short') } }}</p>
+          <div class="actions">
+            <button mat-stroked-button type="button" [disabled]="releasing === item.id" (click)="release(item, true)" data-release="publish">
+              {{ 'admin.moderation.publish' | translate }}
+            </button>
+            <button mat-stroked-button type="button" class="danger" [disabled]="releasing === item.id" (click)="release(item, false)"
+              data-release="reject">
+              {{ 'admin.moderation.reject' | translate }}
+            </button>
+          </div>
+        </mat-card>
+      }
+    }
     @if (queue.resolved.length) {
       <h3>{{ 'admin.moderation.resolved' | translate }}</h3>
       <ul class="resolved" data-moderation-resolved>

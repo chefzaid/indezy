@@ -17,6 +17,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
     await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [post], page: 0, more: false } }));
     const reports: unknown[] = [];
+    await page.route('**/api/network/posts', route => route.fulfill({ status: 202, json: { held: true } }));
     await page.route('**/api/network/posts/1/report', route => {
       reports.push(route.request().postDataJSON());
       return route.fulfill({ status: 204 });
@@ -39,6 +40,12 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await dialog.locator('[data-report-send]').click();
     await expect(page.getByRole('dialog')).toHaveCount(0);
     expect(reports).toEqual([{ reason: 'SPAM', details: 'Publicité' }]);
+
+    // A post the spam score holds is not shown, and its author is told why.
+    await page.locator('[data-composer-text]').fill('Voir https://a.example https://b.example https://c.example');
+    await page.locator('[data-publish]').click();
+    await expect(page.getByText(en ? 'Held for review' : 'Retenu pour vérification')).toBeVisible();
+    await expect(page.locator('[data-post]')).toHaveCount(1);
   });
 }
 
@@ -53,13 +60,21 @@ for (const width of [1280, 390]) {
     const open = { id: 7, targetType: 'POST', targetId: 1, target: { accountId: 3, handle: 'leo_m', name: 'Léo Durand' },
       excerpt: 'Achetez mes formations', reason: 'SPAM', details: 'Publicité', reporter: { accountId: 4, handle: 'ines_b', name: 'Inès B' },
       createdAt: '2026-11-14T10:00:00', openOnTarget: 2, outcome: null, resolvedBy: null, resolvedAt: null, note: null };
-    let queue: Record<string, unknown> = { open: [open], resolved: [], openCount: 1 };
+    const held = { id: 5, author: { accountId: 6, handle: 'paul_d', name: 'Paul D' }, postId: null,
+      text: 'Voir https://a.example https://b.example https://c.example', reasons: ['LINKS', 'NEW_MEMBER_LINK'],
+      createdAt: '2026-11-14T12:00:00' };
+    let queue: Record<string, unknown> = { open: [open], resolved: [], openCount: 1, held: [held] };
     const decisions: unknown[] = [];
     await page.route('**/api/admin/network/reports', route => route.fulfill({ json: queue }));
     await page.route('**/api/admin/network/reports/7', route => {
       decisions.push(route.request().postDataJSON());
       queue = { open: [], resolved: [{ ...open, outcome: 'REMOVED', resolvedBy: { accountId: 9, handle: null, name: 'Chief Admin' },
-        resolvedAt: '2026-11-14T11:00:00Z', note: 'Spam commercial' }], openCount: 0 };
+        resolvedAt: '2026-11-14T11:00:00Z', note: 'Spam commercial' }], openCount: 0, held: [held] };
+      return route.fulfill({ json: queue });
+    });
+    await page.route('**/api/admin/network/held/5?publish=true', route => {
+      decisions.push('publish held');
+      queue = { ...queue, held: [] };
       return route.fulfill({ json: queue });
     });
 
@@ -76,6 +91,9 @@ for (const width of [1280, 390]) {
     await report.locator('[data-decide="REMOVED"]').click();
     await expect(page.locator('[data-moderation-empty]')).toBeVisible();
     await expect(page.locator('[data-resolved="7"]')).toContainText('Chief Admin');
-    expect(decisions).toEqual([{ outcome: 'REMOVED', note: 'Spam commercial', days: null }]);
+    await expect(page.locator('[data-held="5"]')).toContainText('many links');
+    await page.locator('[data-held="5"] [data-release="publish"]').click();
+    await expect(page.locator('[data-held="5"]')).toHaveCount(0);
+    expect(decisions).toEqual([{ outcome: 'REMOVED', note: 'Spam commercial', days: null }, 'publish held']);
   });
 }

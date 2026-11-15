@@ -50,11 +50,25 @@ public final class NetworkModerationDtos {
     }
 
     /** The open reports, the oldest first, and the latest decisions. */
-    public record Queue(List<Report> open, List<Report> resolved, long openCount) {
+    public record Queue(List<Report> open, List<Report> resolved, long openCount, List<Held> held) {
 
         public Queue {
             open = List.copyOf(open);
             resolved = List.copyOf(resolved);
+            held = List.copyOf(held);
+        }
+    }
+
+    /** A post, or a comment under a post, the spam score held, with why. */
+    public record Held(Long id, Party author, Long postId, String text, List<String> reasons, LocalDateTime createdAt) {
+
+        public Held {
+            reasons = List.copyOf(reasons);
+        }
+
+        @Override
+        public String toString() {
+            return "Held[id=" + id + ", postId=" + postId + ", reasons=" + reasons + "]";
         }
     }
 

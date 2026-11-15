@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /** The member network's posts, comments, drafts and tags. Off until an administrator turns it on. */
 @RestController
@@ -31,16 +34,18 @@ import java.util.List;
 @Tag(name = "Network posts", description = "Posts, comments, drafts and tags of the member network")
 public class NetworkPostController {
 
+    private static final Map<String, Boolean> HELD = Map.of("held", true);
+
     private final NetworkPostService posts;
     private final NetworkCommentService comments;
     private final NetworkTagService tags;
     private final NetworkDraftService drafts;
 
-    @Operation(summary = "Post to the network", description = "Text of up to 3,000 characters; its #tags are kept")
+    @Operation(summary = "Post to the network",
+        description = "Text of up to 3,000 characters; its #tags are kept. 202 when the spam score holds it for review")
     @PostMapping("/posts")
-    @ResponseStatus(HttpStatus.CREATED)
-    public NetworkDtos.Post post(@Valid @RequestBody NetworkDtos.NewPost request) {
-        return posts.post(SecurityUtils.getCurrentUserId(), request);
+    public ResponseEntity<Object> post(@Valid @RequestBody NetworkDtos.NewPost request) {
+        return createdOrHeld(posts.post(SecurityUtils.getCurrentUserId(), request));
     }
 
     @Operation(summary = "Edit one's own post", description = "In the 15 minutes after posting it (409 later); the earlier text is kept")
@@ -94,11 +99,10 @@ public class NetworkPostController {
         drafts.delete(SecurityUtils.getCurrentUserId(), id);
     }
 
-    @Operation(summary = "Publish a draft now")
+    @Operation(summary = "Publish a draft now", description = "202 when the spam score holds it for review")
     @PostMapping("/drafts/{id}/publish")
-    @ResponseStatus(HttpStatus.CREATED)
-    public NetworkDtos.Post publishDraft(@PathVariable Long id) {
-        return drafts.publish(SecurityUtils.getCurrentUserId(), id);
+    public ResponseEntity<Object> publishDraft(@PathVariable Long id) {
+        return createdOrHeld(drafts.publish(SecurityUtils.getCurrentUserId(), id));
     }
 
     @Operation(summary = "Delete one's own post")
@@ -132,11 +136,11 @@ public class NetworkPostController {
         return comments.list(SecurityUtils.getCurrentUserId(), id);
     }
 
-    @Operation(summary = "Comment a post, or reply to one of its comments", description = "409 once its author closed the comments")
+    @Operation(summary = "Comment a post, or reply to one of its comments",
+        description = "409 once its author closed the comments; 202 when the spam score holds it for review")
     @PostMapping("/posts/{id}/comments")
-    @ResponseStatus(HttpStatus.CREATED)
-    public NetworkDtos.Comment comment(@PathVariable Long id, @Valid @RequestBody NetworkDtos.NewComment request) {
-        return comments.comment(SecurityUtils.getCurrentUserId(), id, request);
+    public ResponseEntity<Object> comment(@PathVariable Long id, @Valid @RequestBody NetworkDtos.NewComment request) {
+        return createdOrHeld(comments.comment(SecurityUtils.getCurrentUserId(), id, request));
     }
 
     @Operation(summary = "Like a comment the reader sees", description = "Once; its writer is told")
@@ -231,5 +235,11 @@ public class NetworkPostController {
     @GetMapping("/members/{handle}/posts")
     public NetworkDtos.Posts memberPosts(@PathVariable String handle, @RequestParam(defaultValue = "0") int page) {
         return posts.memberPosts(SecurityUtils.getCurrentUserId(), handle, page);
+    }
+
+    /** 201 with what was published, or 202 when the spam score holds it for an administrator. */
+    private static ResponseEntity<Object> createdOrHeld(Optional<?> published) {
+        return published.<ResponseEntity<Object>>map(body -> ResponseEntity.status(HttpStatus.CREATED).body(body))
+            .orElseGet(() -> ResponseEntity.accepted().body(HELD));
     }
 }

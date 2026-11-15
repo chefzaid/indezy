@@ -2648,7 +2648,24 @@
         "REMOVED": "Remove",
         "SUSPENDED": "Suspend",
         "BANNED": "Ban"
-      }
+      },
+      "held": "Held by the spam score ({{count}})",
+      "heldHint": "Not published until you let it go. Publish puts it out as its author’s; Reject deletes it and tells the author.",
+      "heldComment": "Comment",
+      "heldPost": "Post",
+      "publish": "Publish",
+      "reject": "Reject",
+      "heldBy": "By {{who}} on {{date}}",
+      "reasons": {
+        "LINKS": "many links",
+        "NEW_MEMBER_LINK": "a link from a new member",
+        "REPEATED": "repeated text",
+        "MENTIONS": "many mentions",
+        "SHOUTING": "shouting"
+      },
+      "released": "Published",
+      "rejected": "Rejected",
+      "stale": "It can no longer be published: reject it"
     }
   },
   "invoices": {
@@ -3348,7 +3365,8 @@
       "empty": "No post yet. Follow members from the directory to read theirs, or write the first one.",
       "more": "Show more",
       "saved": "Saved",
-      "tooManyPosts": "You have posted a lot this hour: try again later."
+      "tooManyPosts": "You have posted a lot this hour: try again later.",
+      "held": "Held for review: the moderators publish it once they have looked at it"
     },
     "post": {
       "actions": "Actions on the post",

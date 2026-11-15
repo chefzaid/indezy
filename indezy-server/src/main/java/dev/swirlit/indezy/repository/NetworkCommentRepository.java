@@ -26,4 +26,6 @@ public interface NetworkCommentRepository extends JpaRepository<NetworkComment, 
     @Modifying
     @Query("delete from NetworkComment c where c.postId = :postId")
     void deleteByPostId(@Param("postId") Long postId);
+
+    List<NetworkComment> findByAuthorIdAndCreatedAtAfter(Long authorId, LocalDateTime since);
 }

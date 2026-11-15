@@ -2648,7 +2648,24 @@
         "REMOVED": "Retirer",
         "SUSPENDED": "Suspendre",
         "BANNED": "Exclure"
-      }
+      },
+      "held": "Retenus par le score anti-spam ({{count}})",
+      "heldHint": "Rien n’est publié tant que vous ne l’avez pas laissé passer. Publier le met en ligne au nom de son auteur ; Rejeter le supprime et en informe l’auteur.",
+      "heldComment": "Commentaire",
+      "heldPost": "Publication",
+      "publish": "Publier",
+      "reject": "Rejeter",
+      "heldBy": "Par {{who}} le {{date}}",
+      "reasons": {
+        "LINKS": "beaucoup de liens",
+        "NEW_MEMBER_LINK": "un lien d’un nouveau membre",
+        "REPEATED": "texte répété",
+        "MENTIONS": "beaucoup de mentions",
+        "SHOUTING": "majuscules"
+      },
+      "released": "Publié",
+      "rejected": "Rejeté",
+      "stale": "Il ne peut plus être publié : rejetez-le"
     }
   },
   "invoices": {
@@ -3348,7 +3365,8 @@
       "empty": "Aucune publication pour l'instant. Suivez des membres depuis l'annuaire pour lire les leurs, ou écrivez la première.",
       "more": "Afficher plus",
       "saved": "Enregistrés",
-      "tooManyPosts": "Vous avez beaucoup publié cette heure-ci : réessayez plus tard."
+      "tooManyPosts": "Vous avez beaucoup publié cette heure-ci : réessayez plus tard.",
+      "held": "Retenu pour vérification : les modérateurs le publieront après l’avoir examiné"
     },
     "post": {
       "actions": "Actions sur la publication",

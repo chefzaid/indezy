@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, Subject, of, switchMap, takeUntil } from 'rxjs';
 
-import { ModerationQueue, NetworkReport, ReportOutcome, ReportParty } from '../../models';
+import { HeldItem, ModerationQueue, NetworkReport, ReportOutcome, ReportParty } from '../../models';
 import { AdminService } from '../../services/admin/admin.service';
 import { NotificationService } from '../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
@@ -18,8 +19,8 @@ export const DEFAULT_SUSPENSION_DAYS = 7;
 
 /**
  * The moderation queue of the member network: the open reports, the oldest first, each decided with a note for the
- * audit trail (dismiss, warn, remove, suspend, ban), the decision falling on every open report of the same target; then
- * the latest decisions.
+ * audit trail (dismiss, warn, remove, suspend, ban), the decision falling on every open report of the same target; the
+ * posts and comments the spam score held, to publish or reject; then the latest decisions.
  */
 @Component({
   selector: 'app-admin-moderation',
@@ -39,6 +40,7 @@ export class AdminModerationComponent implements OnInit, OnDestroy {
   readonly notes: Record<number, string> = {};
   readonly days: Record<number, number> = {};
   deciding: number | null = null;
+  releasing: number | null = null;
 
   ngOnInit(): void {
     this.admin.reports().pipe(takeUntil(this.destroy$)).subscribe({
@@ -107,6 +109,22 @@ export class AdminModerationComponent implements OnInit, OnDestroy {
       error: () => {
         this.deciding = null;
         this.notifications.error('admin.saveError');
+      }
+    });
+  }
+
+  /** Publishes a held post or comment as its author's, or rejects it, telling the author. */
+  release(item: HeldItem, publish: boolean): void {
+    this.releasing = item.id;
+    this.admin.release(item.id, publish).pipe(takeUntil(this.destroy$)).subscribe({
+      next: queue => {
+        this.releasing = null;
+        this.queue = queue;
+        this.notifications.success(publish ? 'admin.moderation.released' : 'admin.moderation.rejected');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.releasing = null;
+        this.notifications.error(error.status === 409 ? 'admin.moderation.stale' : 'admin.saveError');
       }
     });
   }

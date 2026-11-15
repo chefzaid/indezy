@@ -66,6 +66,12 @@ describe('NetworkFeedComponent', () => {
     expect(network.post).toHaveBeenCalledWith('Bonjour #Kafka');
     expect(component.posts[0].id).toBe(9);
     expect(component.draft.value).toBe('');
+    network.post.and.returnValue(of({ held: true }));
+    component.draft.setValue('Achetez');
+    component.publish();
+    expect(notifications.success).toHaveBeenCalledWith('network.feed.held');
+    expect(component.posts[0].id).toBe(9);
+    expect(component.draft.value).toBe('');
     network.post.and.returnValue(throwError(() => new Error('down')));
     component.draft.setValue('Again');
     component.publish();

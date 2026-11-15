@@ -35,4 +35,6 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
     @Query("select distinct p from NetworkPost p join fetch p.tags t where p.id in " +
         "(select q.id from NetworkPost q join q.tags u where u in :tags and q.createdAt >= :since)")
     List<NetworkPost> taggedSince(@Param("tags") Collection<String> tags, @Param("since") LocalDateTime since);
+
+    List<NetworkPost> findByAuthorIdAndCreatedAtAfter(Long authorId, LocalDateTime since);
 }

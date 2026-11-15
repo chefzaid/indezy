@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.NetworkModerationDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.NetworkComment;
+import dev.swirlit.indezy.model.NetworkHeld;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkReport;
@@ -13,6 +14,7 @@ import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.model.enums.NetworkReportOutcome;
 import dev.swirlit.indezy.model.enums.NetworkReportTarget;
 import dev.swirlit.indezy.repository.NetworkCommentRepository;
+import dev.swirlit.indezy.repository.NetworkHeldRepository;
 import dev.swirlit.indezy.repository.NetworkMemberRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
 import dev.swirlit.indezy.repository.NetworkReportRepository;
@@ -53,6 +55,7 @@ public class NetworkModerationService {
     private final NetworkNotificationService notices;
     private final NetworkLimits limits;
     private final NetworkReportRepository reports;
+    private final NetworkHeldRepository held;
     private final NetworkPostRepository posts;
     private final NetworkCommentRepository comments;
     private final NetworkMemberRepository members;
@@ -117,7 +120,37 @@ public class NetworkModerationService {
             open.stream().map(report -> toDto(report, openOnTarget.get(key(report)), parties)).toList(),
             reports.findByOutcomeIsNotNullOrderByResolvedAtDescIdDesc(PageRequest.of(0, SHOWN)).stream()
                 .map(report -> toDto(report, 0, parties)).toList(),
-            reports.countByOutcomeIsNull());
+            reports.countByOutcomeIsNull(),
+            held.findAllByOrderByCreatedAtAscIdAsc(PageRequest.of(0, SHOWN)).stream().map(kept -> new NetworkModerationDtos.Held(kept.getId(),
+                parties.computeIfAbsent(kept.getAuthorId(), this::party), kept.getPostId(), kept.getText(),
+                List.of(kept.getReasons().split(",")), kept.getCreatedAt())).toList());
+    }
+
+    /**
+     * Lets a held post or comment go, published as its author's now, or rejects it, telling the author it was removed;
+     * either way it leaves the queue. One that can no longer be published (its author or its post gone, the comments
+     * closed) is refused: reject it.
+     */
+    @Transactional
+    public NetworkModerationDtos.Queue release(Long adminId, Long heldId, boolean publish) {
+        NetworkHeld kept = held.findById(heldId).orElseThrow(() -> new ResourceNotFoundException("Nothing held with this id"));
+        if (publish) {
+            try {
+                if (kept.getPostId() == null) {
+                    postService.publish(kept.getAuthorId(), kept.getText());
+                } else {
+                    commentService.publish(kept.getAuthorId(), kept.getPostId(), kept.getParentId(), kept.getText());
+                }
+            } catch (ResourceNotFoundException | InvalidStateException | IllegalArgumentException e) {
+                throw new InvalidStateException("It can no longer be published: reject it");
+            }
+        } else {
+            notices.moderation(kept.getAuthorId(), NetworkNotificationType.CONTENT_REMOVED);
+            events.record(kept.getAuthorId(), AccountEventType.NETWORK_SANCTIONED, NetworkReportOutcome.REMOVED.name());
+        }
+        held.delete(kept);
+        log.info("Administrator {} {} held {} of member {}", adminId, publish ? "published" : "rejected", heldId, kept.getAuthorId());
+        return queue();
     }
 
     /**

@@ -40,6 +40,10 @@ describe('NetworkDraftsComponent', () => {
     (element.querySelector('[data-draft="2"] [data-draft-publish]') as HTMLButtonElement).click();
     expect(network.publishDraft).toHaveBeenCalledWith(2);
     expect(component.drafts.map(draft => draft.id)).toEqual([1]);
+    network.publishDraft.and.returnValue(of({ held: true }));
+    component.publish(drafts[1]);
+    expect(notifications.success).toHaveBeenCalledWith('network.feed.held');
+    expect(component.drafts).toEqual([]);
     network.publishDraft.and.returnValue(throwError(() => new Error('down')));
     component.publish(drafts[1]);
     expect(notifications.error).toHaveBeenCalledWith('network.feed.postError');

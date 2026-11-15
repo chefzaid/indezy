@@ -194,6 +194,11 @@ The member network (`/api/network`) is off until an administrator turns it on (`
   page answers `404` to the blocked member as for an unknown handle; a muted member's posts leave the feed;
 - a member may post 10 times, comment 60 times, follow 100 members and report 20 times an hour (`NetworkLimits`);
   beyond, `429` with `Retry-After`;
+- a post or a comment is scored before it goes out (`NetworkSpamFilter`): 2 points for 3 links or more, 1 for a link
+  from a member who joined in the last day, 3 for the same text (case and spaces aside) as one of the author's posts,
+  comments or held texts of the last day, 1 for 5 mentions or more, 1 for 30 letters or more mostly in capitals; at 3
+  points it is held (`202`, nothing published) until an administrator publishes it as its author's or rejects it, the
+  author then told it was removed and the rejection recorded in their activity log;
 - a member reports only what they can read (a post or a comment of a member blocking them, like an unknown one, is not
   found), never themselves, and once while the report is open; the report keeps the text as it read, so the audit
   trail survives the removal, and its details and the moderator's note leave the logs;

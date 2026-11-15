@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -60,5 +61,13 @@ public class NetworkModerationController {
         Long adminId = SecurityUtils.getCurrentUserId();
         admin.requireAdmin(adminId);
         return moderation.decide(adminId, id, decision);
+    }
+
+    @Operation(summary = "Publish or reject a post or a comment the spam score held")
+    @PutMapping("/admin/network/held/{id}")
+    public NetworkModerationDtos.Queue release(@PathVariable Long id, @RequestParam boolean publish) {
+        Long adminId = SecurityUtils.getCurrentUserId();
+        admin.requireAdmin(adminId);
+        return moderation.release(adminId, id, publish);
     }
 }

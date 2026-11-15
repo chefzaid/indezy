@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions, ReportReason, ReportTarget } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions, ReportReason, ReportTarget, HeldForReview } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -34,8 +34,8 @@ export class NetworkService {
     return this.http.get<{ handle: string; available: boolean }>(`${this.API_URL}/handles/${encodeURIComponent(handle)}`);
   }
 
-  post(text: string): Observable<NetworkPost> {
-    return this.http.post<NetworkPost>(`${this.API_URL}/posts`, { text });
+  post(text: string): Observable<NetworkPost | HeldForReview> {
+    return this.http.post<NetworkPost | HeldForReview>(`${this.API_URL}/posts`, { text });
   }
 
   /** Changes the text of the reader's own post, in the 15 minutes after posting it. */
@@ -60,8 +60,8 @@ export class NetworkService {
     return this.http.delete<void>(`${this.API_URL}/drafts/${id}`);
   }
 
-  publishDraft(id: number): Observable<NetworkPost> {
-    return this.http.post<NetworkPost>(`${this.API_URL}/drafts/${id}/publish`, null);
+  publishDraft(id: number): Observable<NetworkPost | HeldForReview> {
+    return this.http.post<NetworkPost | HeldForReview>(`${this.API_URL}/drafts/${id}/publish`, null);
   }
 
   /** Reposts a post, with an optional comment. */
@@ -104,9 +104,9 @@ export class NetworkService {
     return this.http.get<NetworkComment[]>(`${this.API_URL}/posts/${postId}/comments`);
   }
 
-  /** Comments a post, or replies to one of its comments. */
-  comment(postId: number, text: string, parentId: number | null = null): Observable<NetworkComment> {
-    return this.http.post<NetworkComment>(`${this.API_URL}/posts/${postId}/comments`, { text, parentId });
+  /** Comments a post, or replies to one of its comments; the spam score may hold it for review. */
+  comment(postId: number, text: string, parentId: number | null = null): Observable<NetworkComment | HeldForReview> {
+    return this.http.post<NetworkComment | HeldForReview>(`${this.API_URL}/posts/${postId}/comments`, { text, parentId });
   }
 
   likeComment(id: number, liked: boolean): Observable<NetworkComment> {

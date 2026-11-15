@@ -81,16 +81,25 @@ public class NetworkPostService {
     private final NetworkTagFollowRepository tagFollows;
     private final Clock clock;
     private final NetworkLimits limits;
+    private final NetworkSpamFilter spam;
     private final NetworkNotificationService notices;
     private final NetworkNotificationRepository notificationRepository;
 
+    /** Posts the text, unless the spam score holds it for review: then nothing is published yet. */
     @Transactional
-    public NetworkDtos.Post post(Long userId, NetworkDtos.NewPost request) {
-        NetworkMember author = network.requireMember(userId);
+    public Optional<NetworkDtos.Post> post(Long userId, NetworkDtos.NewPost request) {
+        network.requireMember(userId);
         limits.post(userId);
+        String text = request.text().strip();
+        return spam.hold(userId, null, null, text) ? Optional.empty() : Optional.of(publish(userId, text));
+    }
+
+    /** Publishes the member's post: posted, or let go by an administrator once held. */
+    NetworkDtos.Post publish(Long userId, String text) {
+        NetworkMember author = network.requireMember(userId);
         NetworkPost post = new NetworkPost();
         post.setAuthorId(userId);
-        post.setText(request.text().strip());
+        post.setText(text);
         post.setTags(tags(post.getText()));
         posts.save(post);
         notices.mentions(post.getText(), userId, post.getId());

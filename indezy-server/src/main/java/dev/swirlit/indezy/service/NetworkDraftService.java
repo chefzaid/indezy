@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A member's drafts (see docs/features.md#member-network): kept to publish by hand, or scheduled, then published on their
@@ -79,11 +80,11 @@ public class NetworkDraftService {
         drafts.delete(own(userId, id));
     }
 
-    /** Publishes a draft now, as an ordinary post. */
+    /** Publishes a draft now, as an ordinary post; none when the spam score holds it for review. */
     @Transactional
-    public NetworkDtos.Post publish(Long userId, Long id) {
+    public Optional<NetworkDtos.Post> publish(Long userId, Long id) {
         NetworkDraft draft = own(userId, id);
-        NetworkDtos.Post post = posts.post(userId, new NetworkDtos.NewPost(draft.getText()));
+        Optional<NetworkDtos.Post> post = posts.post(userId, new NetworkDtos.NewPost(draft.getText()));
         drafts.delete(draft);
         return post;
     }

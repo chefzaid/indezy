@@ -196,10 +196,31 @@ export interface NetworkReport {
   note: string | null;
 }
 
+/** A post, or a comment under a post, the spam score held for review. */
+export interface HeldItem {
+  id: number;
+  author: ReportParty;
+  postId: number | null;
+  text: string;
+  reasons: string[];
+  createdAt: string;
+}
+
 export interface ModerationQueue {
   open: NetworkReport[];
   resolved: NetworkReport[];
   openCount: number;
+  held: HeldItem[];
+}
+
+/** The answer to a post or a comment the spam score held for review instead of publishing it. */
+export interface HeldForReview {
+  held: true;
+}
+
+/** Whether the answer says the text was held for review. */
+export function isHeld(answer: unknown): answer is HeldForReview {
+  return typeof answer === 'object' && answer !== null && (answer as { held?: unknown }).held === true;
 }
 
 /** Notifications grouped as they read: one kind about one post, up to three of the members who did it, and how many did. */

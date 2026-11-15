@@ -11,7 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { NetworkComment, NetworkPost } from '../../../models';
+import { NetworkComment, NetworkPost, isHeld } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -74,10 +74,14 @@ export class PostCommentsComponent implements OnInit {
     }
     this.isSending = true;
     this.network.comment(this.post.id, text, this.replyTo?.id ?? null).subscribe({
-      next: () => {
+      next: answer => {
         this.isSending = false;
         this.draft.reset('');
         this.replyTo = null;
+        if (isHeld(answer)) {
+          this.notifications.success('network.feed.held');
+          return;
+        }
         this.load();
       },
       error: (error: HttpErrorResponse) => {

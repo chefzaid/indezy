@@ -43,6 +43,7 @@ public class NetworkCommentService {
     private final NetworkCommentLikeRepository likes;
     private final NetworkRestrictionRepository restrictions;
     private final NetworkLimits limits;
+    private final NetworkSpamFilter spam;
     private final NetworkNotificationService notices;
 
     /** The comments the reader sees under a post they can read, each with its replies. */
@@ -64,22 +65,39 @@ public class NetworkCommentService {
             .toList();
     }
 
-    /** Comments a post the reader can read, or replies to one of its comments, unless its author closed the comments. */
+    /**
+     * Comments a post the reader can read, or replies to one of its comments, unless its author closed the comments or the
+     * spam score holds it for review: then nothing is published yet.
+     */
     @Transactional
-    public NetworkDtos.Comment comment(Long readerId, Long postId, NetworkDtos.NewComment request) {
+    public Optional<NetworkDtos.Comment> comment(Long readerId, Long postId, NetworkDtos.NewComment request) {
+        check(readerId, postId, request.parentId());
+        limits.comment(readerId);
+        String text = request.text().strip();
+        return spam.hold(readerId, postId, request.parentId(), text) ? Optional.empty() :
+            Optional.of(publish(readerId, postId, request.parentId(), text));
+    }
+
+    /** The post the reader can comment, the comments open, and the comment answered under the same post, if any. */
+    private Optional<NetworkComment> check(Long readerId, Long postId, Long parentId) {
         NetworkPost post = posts.readable(readerId, postId);
         if (post.isCommentsClosed()) {
             throw new InvalidStateException("Comments are closed on this post");
         }
-        Optional<NetworkComment> parent = request.parentId() == null ? Optional.empty() : Optional.of(comments.findById(request.parentId())
+        return parentId == null ? Optional.empty() : Optional.of(comments.findById(parentId)
             .filter(found -> found.getPostId().equals(postId) && found.getParentId() == null)
             .orElseThrow(() -> new IllegalArgumentException("A reply answers a comment under the same post")));
-        limits.comment(readerId);
+    }
+
+    /** Publishes the member's comment: written, or let go by an administrator once held, while the post still takes it. */
+    NetworkDtos.Comment publish(Long readerId, Long postId, Long parentId, String text) {
+        Optional<NetworkComment> parent = check(readerId, postId, parentId);
+        NetworkPost post = posts.readable(readerId, postId);
         NetworkComment comment = new NetworkComment();
         comment.setPostId(postId);
         comment.setAuthorId(readerId);
-        comment.setParentId(request.parentId());
-        comment.setText(request.text().strip());
+        comment.setParentId(parentId);
+        comment.setText(text);
         comments.save(comment);
         parent.ifPresent(answered -> notices.notify(answered.getAuthorId(), readerId, NetworkNotificationType.REPLY, postId));
         if (parent.map(answered -> !answered.getAuthorId().equals(post.getAuthorId())).orElse(true)) {
