@@ -9,6 +9,7 @@ for (const width of [1280, 390]) {
     await mockWorkspaceSession(page, 'en');
     await mockWorkspaceData(page, 'en');
     let settings = { weeklyReports: false, weeklyDigestSections: ['PIPELINE', 'OVERDUE_INVOICES', 'INTERVIEWS', 'FOLLOW_UPS', 'QUIET_OPPORTUNITIES', 'MISSIONS_ENDING', 'OFFERS'], bookingEmails: true,
+      messageEmails: true,
       newOffersBadge: true, emailsAvailable: true };
     const saved: unknown[] = [];
     await page.route('**/api/offers/searches/alerts', route => route.fulfill({ json: { newOffers: 4 } }));
@@ -26,7 +27,8 @@ for (const width of [1280, 390]) {
     }
     await page.getByRole('tab', { name: 'Notifications' }).click();
     const card = page.locator('[data-notifications]');
-    await expect(card.getByRole('switch')).toHaveCount(3);
+    // The weekly digest, booked calls, network messages (the network is on) and the new offers badge.
+    await expect(card.getByRole('switch')).toHaveCount(4);
     const audit = await new AxeBuilder({ page }).include('[data-notifications]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     await card.getByRole('switch', { name: 'Email me a weekly digest' }).click();

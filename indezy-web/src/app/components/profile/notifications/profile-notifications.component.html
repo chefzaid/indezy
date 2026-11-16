@@ -36,6 +36,16 @@
           <a routerLink="/calendar">{{ 'profile.notifications.bookingLink' | translate }}</a>
         </p>
       </div>
+      @if (network) {
+        <mat-divider></mat-divider>
+        <div class="notification-item">
+          <h3><mat-icon aria-hidden="true">chat</mat-icon>{{ 'profile.notifications.messagesTitle' | translate }}</h3>
+          <mat-slide-toggle [checked]="settings.messageEmails" (change)="changed('messageEmails', $event)" data-switch="messageEmails">
+            {{ 'profile.notifications.messages' | translate }}
+          </mat-slide-toggle>
+          <p class="notification-description">{{ 'profile.notifications.messagesDesc' | translate }}</p>
+        </div>
+      }
       <mat-divider></mat-divider>
       <div class="notification-item">
         <h3><mat-icon aria-hidden="true">travel_explore</mat-icon>{{ 'profile.notifications.offersTitle' | translate }}</h3>

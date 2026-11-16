@@ -34,6 +34,18 @@ public interface NetworkMessageRepository extends JpaRepository<NetworkMessage, 
 
     List<NetworkMessage> findByConversationIdOrderByIdAsc(Long conversationId);
 
+    /** How many messages others sent in a conversation between the two times, the deleted aside. */
+    @Query("select count(m) from NetworkMessage m where m.conversationId = :conversationId and m.senderId <> :readerId " +
+        "and m.deletedAt is null and (:after is null or m.createdAt > :after) and m.createdAt <= :before")
+    long between(@Param("conversationId") Long conversationId, @Param("readerId") Long readerId, @Param("after") LocalDateTime after,
+                 @Param("before") LocalDateTime before);
+
+    /** When the latest of those messages was sent. */
+    @Query("select max(m.createdAt) from NetworkMessage m where m.conversationId = :conversationId and m.senderId <> :readerId " +
+        "and m.deletedAt is null and (:after is null or m.createdAt > :after) and m.createdAt <= :before")
+    LocalDateTime latestBetween(@Param("conversationId") Long conversationId, @Param("readerId") Long readerId,
+                                @Param("after") LocalDateTime after, @Param("before") LocalDateTime before);
+
     long countBySenderIdAndCreatedAtAfter(Long senderId, LocalDateTime since);
 
     List<NetworkMessage> findBySenderIdOrderByCreatedAtAsc(Long senderId);

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Sends the weekly digests that are due every quarter of an hour, so a replica restarting on Monday morning still sends
- * them, and the emails of the calls booked through the booking link every minute: off in tests and in the one-off
+ * them, the emails of the calls booked through the booking link every minute, and those of the network's unread messages: off in tests and in the one-off
  * schema-migration and seed runs, like the saved searches' emails.
  */
 @Component
@@ -17,11 +17,22 @@ public class WeeklyDigestScheduler {
 
     private final WeeklyDigestService digests;
     private final BookingNoticeService bookingNotices;
+    private final NetworkMessageEmailService messageEmails;
 
     @Scheduled(initialDelayString = "PT3M", fixedDelayString = "PT15M")
     public void sendDue() {
         try {
             digests.sendDue();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /** Emails the member network's messages still unread after an hour, every quarter of an hour. */
+    @Scheduled(initialDelayString = "PT4M", fixedDelayString = "PT15M")
+    public void sendMessageEmails() {
+        try {
+            messageEmails.sendDue();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

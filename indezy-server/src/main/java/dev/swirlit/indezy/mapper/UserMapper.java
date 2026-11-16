@@ -63,6 +63,7 @@ public interface UserMapper {
     @Mapping(target = "weeklyReports", expression = "java(Boolean.TRUE.equals(user.getWeeklyReports()))")
     @Mapping(target = "newOffersBadge", expression = "java(!Boolean.FALSE.equals(user.getNewOffersBadge()))")
     @Mapping(target = "bookingEmails", expression = "java(!Boolean.FALSE.equals(user.getBookingEmails()))")
+    @Mapping(target = "messageEmails", expression = "java(!Boolean.FALSE.equals(user.getMessageEmails()))")
     @Mapping(target = "emailsAvailable", ignore = true)
     UserNotificationSettingsDto toNotificationSettingsDto(User user);
 

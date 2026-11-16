@@ -17,7 +17,7 @@ describe('ProfileNotificationsComponent', () => {
   let users: jasmine.SpyObj<UserManagementService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let alerts: jasmine.SpyObj<OfferAlertsService>;
-  const settings: UserNotificationSettings = { weeklyReports: false, weeklyDigestSections: [...DIGEST_SECTIONS], bookingEmails: true,
+  const settings: UserNotificationSettings = { weeklyReports: false, weeklyDigestSections: [...DIGEST_SECTIONS], bookingEmails: true, messageEmails: true,
     newOffersBadge: true, emailsAvailable: true };
 
   function create(read = of(settings)): ComponentFixture<ProfileNotificationsComponent> {
@@ -51,7 +51,7 @@ describe('ProfileNotificationsComponent', () => {
     const fixture = create(of({ ...settings, emailsAvailable: false }));
     const element: HTMLElement = fixture.nativeElement;
 
-    expect(element.querySelectorAll('[data-switch]').length).toBe(3);
+    expect(element.querySelectorAll('[data-switch]').length).toBe(4);
     expect(element.querySelector('[data-digest-sections]')).toBeNull();
     expect(element.querySelector('a[href="/calendar"]')).not.toBeNull();
     expect(element.textContent).toContain('Email me a weekly digest');
@@ -136,6 +136,22 @@ describe('ProfileNotificationsComponent', () => {
     snapshot.and.returnValue({ admin: false, features: { ...DEFAULT_CAPABILITIES.features, SOCIAL_NETWORK: true } });
     fixture.detectChanges();
     expect(element.querySelector('[data-digest-section="NETWORK_TAGS"]')?.textContent).toContain('Most liked posts of the tags you follow');
+  });
+
+  it('offers the unread messages email while the network is on, and turns it off', () => {
+    const fixture = create();
+    const element: HTMLElement = fixture.nativeElement;
+    const snapshot = spyOn(TestBed.inject(CapabilitiesService), 'snapshot').and.returnValue({ admin: false,
+      features: { ...DEFAULT_CAPABILITIES.features, SOCIAL_NETWORK: false } });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-switch="messageEmails"]')).toBeNull();
+    snapshot.and.returnValue({ admin: false, features: { ...DEFAULT_CAPABILITIES.features, SOCIAL_NETWORK: true } });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-switch="messageEmails"]')?.textContent).toContain('Email me the messages unread for an hour');
+    users.updateNotificationSettings.and.returnValue(of({ ...settings, messageEmails: false }));
+    fixture.componentInstance.changed('messageEmails', change(false));
+    expect(users.updateNotificationSettings).toHaveBeenCalledWith({ messageEmails: false });
+    expect(fixture.componentInstance.settings?.messageEmails).toBeFalse();
   });
 
   it('turns the emails of booked calls off', () => {

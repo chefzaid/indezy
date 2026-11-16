@@ -1053,7 +1053,10 @@
       "bookingTitle": "Appels réservés",
       "booking": "M'envoyer chaque appel réservé par e-mail",
       "bookingDesc": "Dès qu'un recruteur réserve un appel par votre lien de réservation, avec ses coordonnées et son message. Le lien se règle sous le",
-      "bookingLink": "calendrier"
+      "bookingLink": "calendrier",
+      "messagesTitle": "Messages du réseau",
+      "messages": "M'envoyer par e-mail les messages non lus depuis une heure",
+      "messagesDesc": "Un seul e-mail pour toutes vos conversations, au plus toutes les trois heures : qui a écrit et combien de messages, jamais leur texte. Une conversation en sourdine n'en envoie aucun."
     },
     "errors": {
       "loadingProfile": "Erreur lors du chargement du profil",

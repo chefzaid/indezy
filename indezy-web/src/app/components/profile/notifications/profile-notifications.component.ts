@@ -13,7 +13,7 @@ import { UserManagementService } from '../../../services/user-management/user-ma
 import { NotificationService } from '../../../services/notification/notification.service';
 import { OfferAlertsService } from '../../../services/offer/offer-alerts.service';
 
-type Switch = 'weeklyReports' | 'newOffersBadge' | 'bookingEmails';
+type Switch = 'weeklyReports' | 'newOffersBadge' | 'bookingEmails' | 'messageEmails';
 
 /** Which notifications the account gets, each saved as soon as it is switched. */
 @Component({
@@ -31,6 +31,11 @@ export class ProfileNotificationsComponent implements OnInit {
   private readonly capabilities = inject(CapabilitiesService);
 
   settings?: UserNotificationSettings;
+
+  /** Whether the member network is on: its messages email is offered then. */
+  get network(): boolean {
+    return this.capabilities.snapshot().features.SOCIAL_NETWORK === true;
+  }
 
   /** The sections offered: the network's while the member network is on. */
   get sections(): DigestSection[] {

@@ -1053,7 +1053,10 @@
       "bookingTitle": "Booked calls",
       "booking": "Email me each call booked",
       "bookingDesc": "As soon as a recruiter books a call through your booking link, with their details and message. The link is set up under the",
-      "bookingLink": "calendar"
+      "bookingLink": "calendar",
+      "messagesTitle": "Network messages",
+      "messages": "Email me the messages unread for an hour",
+      "messagesDesc": "One email for all your conversations, at most every three hours: who wrote and how many messages, never their text. A muted conversation sends none."
     },
     "errors": {
       "loadingProfile": "Error loading profile",

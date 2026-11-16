@@ -77,8 +77,9 @@ a call booked. Up to 5 per workspace, each an HTTPS address on a public host; it
 ### Notifications
 
 **Profile → Notifications** switches, each saved at once: the [weekly digest](#weekly-digest) (email, off by default,
-each section kept or left out), an email for each call booked through the [booking link](#booking-link) (on), and the
-count of the saved searches' new offers beside **Offers** in the menu (on). Interview, follow-up and quiet-opportunity
+each section kept or left out), an email for each call booked through the [booking link](#booking-link) (on), an email
+for the [member network](#member-network)'s messages unread for an hour (on, while the network is on), and the count of
+the saved searches' new offers beside **Offers** in the menu (on). Interview, follow-up and quiet-opportunity
 reminders always show on the dashboard; saved searches set their own [emails](#saved-search-emails). The tab says when
 the server cannot send email.
 
@@ -266,7 +267,9 @@ sender within 15 minutes. **Mute** keeps a conversation out of the unread count;
 until a new message comes. **Search messages**, above the list, finds the reader's messages holding what is typed (two
 characters or more, case aside), the latest first, each opening its conversation. Another member's message is
 reported like a post (**Report**, with a reason): its text goes to the moderators, who can remove it for both sides.
-**Download as PDF**, in a conversation's menu, gives the whole conversation (each message with its sender and time, the
+Messages still unread an hour after they came are emailed: one email for all the reader's conversations, at most every
+three hours, saying who wrote and how many messages, never their text; a muted conversation sends none, and the email's
+one-click unsubscribe, like **Profile → Notifications**, stops them. **Download as PDF**, in a conversation's menu, gives the whole conversation (each message with its sender and time, the
 message it replies to, edited or deleted) in the page's language. The account export includes the messages sent.
 
 **Notifications** (`/network/notifications`, counted on **Network** in the menu, read again every minute) tell a

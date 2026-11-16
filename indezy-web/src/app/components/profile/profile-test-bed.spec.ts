@@ -29,7 +29,7 @@ export const profile: UserProfile = {
 export const preferences: UserPreferences = { theme: 'dark', language: 'fr', inactivityDays: 30 };
 
 export const notificationSettings: UserNotificationSettings = { weeklyReports: true, weeklyDigestSections: ['PIPELINE'],
-  bookingEmails: true, newOffersBadge: true, emailsAvailable: true };
+  bookingEmails: true, messageEmails: true, newOffersBadge: true, emailsAvailable: true };
 
 export interface ProfileTestBed {
   users: jasmine.SpyObj<UserManagementService>;

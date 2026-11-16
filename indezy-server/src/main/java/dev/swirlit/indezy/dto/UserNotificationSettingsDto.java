@@ -14,6 +14,8 @@ public class UserNotificationSettingsDto {
     private Set<DigestSection> weeklyDigestSections;
     /** An email for each call a recruiter books through the booking link. */
     private Boolean bookingEmails;
+    /** An email when member network messages stay unread for an hour. */
+    private Boolean messageEmails;
     /** The count of the saved searches' new offers next to Offers in the menu. */
     private Boolean newOffersBadge;
     /** Whether this deployment can send emails at all; read-only. */

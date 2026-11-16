@@ -108,7 +108,7 @@ describe('AppComponent offer alerts', () => {
         { provide: CapabilitiesService, useValue: capabilitiesService },
         { provide: UserManagementService, useValue: {
           getNotificationSettings: () => badge === 'error' ? throwError(() => new Error('offline')) :
-            of({ weeklyReports: false, weeklyDigestSections: [], bookingEmails: true, newOffersBadge: badge, emailsAvailable: true }),
+            of({ weeklyReports: false, weeklyDigestSections: [], bookingEmails: true, messageEmails: true, newOffersBadge: badge, emailsAvailable: true }),
           getUserPreferences: () => of({})
         } },
         provideHttpClient(),

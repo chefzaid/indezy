@@ -29,6 +29,10 @@ public class NetworkConversationMember extends BaseEntity {
     @Column(name = "last_read_at")
     private LocalDateTime lastReadAt;
 
+    /** Until when its unread messages were emailed to the member; none while none was. */
+    @Column(name = "emailed_until")
+    private LocalDateTime emailedUntil;
+
     /** Its messages count in no unread total and no email; none (null) reads as not muted. */
     @Column(name = "muted")
     private Boolean muted;

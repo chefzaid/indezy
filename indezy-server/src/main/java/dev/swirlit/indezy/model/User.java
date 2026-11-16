@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -212,6 +213,18 @@ public class User extends BaseEntity {
     /** Whether a call booked through the booking link is emailed to the account; a null column reads as on. */
     @Column(name = "booking_emails")
     private Boolean bookingEmails = true;
+
+    /** Whether messages unread after an hour are emailed to the member; a null column reads as on. */
+    @Column(name = "message_emails")
+    private Boolean messageEmails = true;
+
+    /** The unread messages email's one-click unsubscribe token, set when the first one is sent. */
+    @Column(name = "message_email_token", unique = true, length = 64)
+    private String messageEmailToken;
+
+    /** When the latest unread messages email was sent, so at most one goes every three hours. */
+    @Column(name = "message_email_sent_at")
+    private Instant messageEmailSentAt;
 
     /** Whether the menu counts the new offers of the saved searches (in-app); a null column reads as on. */
     @Column(name = "new_offers_badge")

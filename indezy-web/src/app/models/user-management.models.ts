@@ -63,6 +63,8 @@ export interface UserNotificationSettings {
   bookingEmails: boolean;
   /** The count of the saved searches' new offers next to Offers in the menu. */
   newOffersBadge: boolean;
+  /** An email when member network messages stay unread for an hour. */
+  messageEmails: boolean;
   /** Whether this deployment can send emails at all; read-only. */
   emailsAvailable: boolean;
 }

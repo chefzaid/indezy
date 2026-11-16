@@ -43,4 +43,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<Long> findIdsDueForWeeklyDigest(@Param("week") LocalDate week);
 
     Optional<User> findByWeeklyDigestToken(String token);
+
+    Optional<User> findByMessageEmailToken(String token);
 }
