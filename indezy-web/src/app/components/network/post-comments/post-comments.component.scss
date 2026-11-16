@@ -17,14 +17,40 @@
 }
 
 .replies {
-  margin: 8px 0 0 24px;
-  padding-left: 12px;
-  border-left: 2px solid var(--app-border);
+  margin: 6px 0 0 42px;
 }
 
+// A comment: the avatar beside a bubble holding the name, the time and the text; its actions under the bubble.
 .comment {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
   &.hidden {
     opacity: 0.7;
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .bubble {
+    align-self: flex-start;
+    max-width: 100%;
+    padding: 6px 4px 8px 12px;
+    border-radius: 4px 16px 16px 16px;
+    background: var(--app-subtle);
+  }
+
+  .more {
+    --mat-icon-button-state-layer-size: 28px;
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+    margin-left: auto;
   }
 
   .head {
@@ -35,9 +61,14 @@
   }
 
   .author {
-    color: var(--app-link);
-    font-size: 0.875rem;
-    font-weight: 500;
+    color: var(--app-text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   time,
@@ -71,8 +102,21 @@
   .actions {
     display: flex;
     align-items: center;
-    gap: 4px;
-    margin-left: -8px;
+    gap: 2px;
+    margin: 2px 0 0 4px;
+
+    button {
+      --mat-button-text-container-height: 28px;
+      --mat-button-text-horizontal-padding: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
   }
 
   .like.liked mat-icon {
@@ -89,6 +133,7 @@
 .composer {
   display: flex;
   flex-direction: column;
+  margin-top: 4px;
 
   mat-form-field {
     width: 100%;

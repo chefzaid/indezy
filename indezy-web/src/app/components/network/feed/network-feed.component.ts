@@ -3,20 +3,22 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { AsyncPipe } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { MemberSuggestion, NetworkPost, isHeld } from '../../../models';
+import { MemberCard, MemberSuggestion, NetworkPost, isHeld } from '../../../models';
+import { NetworkNoticesService } from '../../../services/network/network-notices.service';
+import { MemberAvatarComponent } from '../avatar/member-avatar.component';
 import { NetworkService } from '../../../services/network/network.service';
 import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
 import { PostKindFieldsComponent } from '../post-kind/post-kind-fields.component';
 import { NetworkShare, SHARE_STATE } from '../share/share-to-network.component';
 import { NotificationService } from '../../../services/notification/notification.service';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { PostCardComponent } from '../post-card/post-card.component';
 
@@ -25,7 +27,7 @@ export const POST_MAX = 3000;
 /** The home feed (`/network`): writing a post, then the reader's posts and those of the members they follow, newest first. */
 @Component({
   selector: 'app-network-feed',
-  imports: [MatButtonToggleModule, PostKindFieldsComponent, PageHeaderComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [AsyncPipe, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslateModule, PostCardComponent],
   templateUrl: './network-feed.component.html',
   styleUrls: ['./network-feed.component.scss'],
@@ -37,6 +39,9 @@ export class NetworkFeedComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly confirm = inject(ConfirmDialogService);
   private readonly changes = inject(ChangeDetectorRef);
+  private readonly translate = inject(TranslateService);
+  /** The notifications not read yet, counted beside Notifications. */
+  readonly unread$ = inject(NetworkNoticesService).unread$;
 
   readonly max = POST_MAX;
   /** What the post is, and the facts of a mission or an availability. */
@@ -52,12 +57,40 @@ export class NetworkFeedComponent implements OnInit {
   tags: string[] = [];
   /** Members to follow, each with its reason. */
   suggestions: MemberSuggestion[] = [];
+  /** The reader's own card, for the composer's avatar and their page. */
+  me: MemberCard | null = null;
+  /** Whether the composer shows the time to publish the post on its own. */
+  scheduling = false;
 
   ngOnInit(): void {
     this.prefill();
     this.load(0);
     this.network.followedTags().subscribe({ next: tags => this.tags = tags, error: () => this.tags = [] });
     this.network.suggestions().subscribe({ next: suggestions => this.suggestions = suggestions, error: () => this.suggestions = [] });
+    this.network.membership().subscribe({ next: membership => this.me = membership.card, error: () => this.me = null });
+  }
+
+  /** Why a member is suggested, in words. */
+  reason(suggestion: MemberSuggestion): string {
+    switch (suggestion.reason) {
+      case 'CONTACT':
+        return this.translate.instant('network.suggestions.contact');
+      case 'FOLLOWED_BY':
+        return this.translate.instant(suggestion.followedBy > 1 ? 'network.suggestions.followedByMany' : 'network.suggestions.followedByOne',
+          { name: suggestion.followedByName, others: suggestion.followedBy - 1 });
+      case 'SAME_STACK':
+        return this.translate.instant('network.suggestions.sameStack', { skills: suggestion.sharedSkills.join(', ') });
+      default:
+        return this.translate.instant('network.suggestions.sameCity', { city: suggestion.card.city });
+    }
+  }
+
+  /** Shows the time to publish on its own, or hides it, the time then forgotten. */
+  toggleScheduling(): void {
+    this.scheduling = !this.scheduling;
+    if (!this.scheduling) {
+      this.scheduleAt.reset('');
+    }
   }
 
   /** A draft shared from elsewhere in the app, read once: the text, and the kind with its facts. */
@@ -178,6 +211,7 @@ export class NetworkFeedComponent implements OnInit {
         this.isPosting = false;
         this.draft.reset('');
         this.scheduleAt.reset('');
+        this.scheduling = false;
         this.notifications.success(at ? 'network.drafts.scheduledDone' : 'network.drafts.keptDone');
       },
       error: (error: HttpErrorResponse) => {

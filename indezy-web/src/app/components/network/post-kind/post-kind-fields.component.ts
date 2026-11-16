@@ -12,6 +12,10 @@ import { NewPoll, POST_KINDS, PostDetails, PostKind } from '../../../models';
 /** The highest daily rate a post names, in euros. */
 export const RATE_MAX = 5000;
 
+/** The icon of each kind of post. */
+export const POST_KIND_ICONS: Record<PostKind, string> = { POST: 'edit_note', MISSION: 'work_outline', AVAILABLE: 'event_available',
+  QUESTION: 'help_outline', EXPERIENCE: 'lightbulb', POLL: 'poll' };
+
 /**
  * The composer's choice of what a post is, and the facts a mission to pass on or an availability carries: the role (a
  * mission names it), the rate range, the city, remote days, the start (an availability names it), the client if named
@@ -21,8 +25,18 @@ export const RATE_MAX = 5000;
   selector: 'app-post-kind-fields',
   imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, TranslateModule],
   templateUrl: './post-kind-fields.component.html',
-  styles: [`.kind { width: 260px; max-width: 100%; } .facts { display: flex; flex-wrap: wrap; gap: 0 12px; }
-    .facts mat-form-field { flex: 1 1 160px; }`],
+  styles: [`.kinds { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px; }
+    .kind-chip { display: inline-flex; flex: none; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--app-border);
+      border-radius: 999px; background: transparent; color: var(--app-text-muted); font: inherit; font-size: 0.8125rem; font-weight: 500;
+      cursor: pointer; transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease; }
+    .kind-chip mat-icon { width: 18px; height: 18px; font-size: 18px; }
+    .kind-chip:hover { background: var(--app-hover); color: var(--app-text); }
+    .kind-chip:focus-visible { outline: 2px solid var(--app-link); outline-offset: 2px; }
+    .kind-chip.selected { border-color: transparent; background: var(--app-selected-bg); color: var(--app-link); }
+    .facts { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 12px; padding: 12px; border-radius: 12px;
+      background: var(--app-subtle); }
+    .facts mat-form-field { flex: 1 1 220px; min-width: 0; }
+    .facts > button { margin-bottom: 16px; }`],
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class PostKindFieldsComponent implements OnInit {
@@ -30,6 +44,8 @@ export class PostKindFieldsComponent implements OnInit {
   @Input() initial: { kind: PostKind; details: PostDetails | null } | null = null;
 
   readonly kinds = POST_KINDS;
+  /** The icon of each kind of post, on its chip and its card. */
+  readonly icons = POST_KIND_ICONS;
   readonly rateMax = RATE_MAX;
   readonly kind = new FormControl<PostKind>('POST', { nonNullable: true });
   readonly details = new FormGroup({

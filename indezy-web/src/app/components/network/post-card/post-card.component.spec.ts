@@ -70,7 +70,8 @@ describe('PostCardComponent', () => {
     fixture.detectChanges();
     const component = fixture.componentInstance;
     const element: HTMLElement = fixture.nativeElement;
-    expect(element.querySelector('[data-show-comments]')?.textContent).toContain('network.post.comments');
+    expect(element.querySelector('[data-comment-count]')?.textContent).toContain('network.post.comments');
+    expect(element.querySelector('[data-show-comments]')?.textContent).toContain('network.post.comment');
     (element.querySelector('[data-show-comments]') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(element.querySelector('app-post-comments')).not.toBeNull();

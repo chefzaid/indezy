@@ -1,110 +1,149 @@
-<div class="feed-page">
-  <app-page-header icon="diversity_3" [title]="'network.feed.title' | translate" [subtitle]="'network.feed.subtitle' | translate">
-    <a mat-stroked-button routerLink="/network/notifications" data-feed-notifications>
-      <mat-icon>notifications</mat-icon>
-      {{ 'network.notices.title' | translate }}
-    </a>
-    <a mat-stroked-button routerLink="/network/drafts" data-feed-drafts>
-      <mat-icon>edit_note</mat-icon>
-      {{ 'network.drafts.title' | translate }}
-    </a>
-    <a mat-stroked-button routerLink="/network/saved" data-feed-saved>
-      <mat-icon>bookmarks</mat-icon>
-      {{ 'network.feed.saved' | translate }}
-    </a>
-    <a mat-stroked-button routerLink="/network/members" data-feed-members>
-      <mat-icon>group</mat-icon>
-      {{ 'network.feed.members' | translate }}
-    </a>
-  </app-page-header>
+<div class="network-layout" data-network-layout>
+  <aside class="side-nav" [attr.aria-label]="'network.feed.title' | translate">
+    <nav class="nav-links">
+      <a routerLink="/network" class="nav-link active" aria-current="page">
+        <mat-icon>home</mat-icon><span>{{ 'network.nav.home' | translate }}</span>
+      </a>
+      <a routerLink="/network/notifications" class="nav-link" data-feed-notifications>
+        <mat-icon>notifications</mat-icon><span>{{ 'network.notices.title' | translate }}</span>
+        @if (unread$ | async; as unread) {
+          <span class="count" data-feed-unread>{{ unread > 99 ? '99+' : unread }}</span>
+        }
+      </a>
+      <a routerLink="/network/members" class="nav-link" data-feed-members>
+        <mat-icon>group</mat-icon><span>{{ 'network.feed.members' | translate }}</span>
+      </a>
+      <a routerLink="/network/saved" class="nav-link" data-feed-saved>
+        <mat-icon>bookmarks</mat-icon><span>{{ 'network.feed.saved' | translate }}</span>
+      </a>
+      <a routerLink="/network/drafts" class="nav-link" data-feed-drafts>
+        <mat-icon>edit_note</mat-icon><span>{{ 'network.drafts.title' | translate }}</span>
+      </a>
+      @if (me) {
+        <a [routerLink]="['/m', me.handle]" class="nav-link" data-feed-me>
+          <mat-icon>account_circle</mat-icon><span>{{ 'network.nav.myPage' | translate }}</span>
+        </a>
+      }
+    </nav>
+    @if (tags.length) {
+      <section class="side-card tags-card">
+        <h2>{{ 'network.tags.followed' | translate }}</h2>
+        <nav class="followed-tags" [attr.aria-label]="'network.tags.followed' | translate" data-followed-tags>
+          @for (tag of tags; track tag) {
+            <a [routerLink]="['/network/tags', tag]">#{{ tag }}</a>
+          }
+        </nav>
+      </section>
+    }
+  </aside>
+
+  <header class="feed-header">
+    <h1>{{ 'network.feed.title' | translate }}</h1>
+    <p>{{ 'network.feed.subtitle' | translate }}</p>
+  </header>
 
   @if (notMember) {
-    <section class="problem" data-feed-not-member>
+    <section class="problem card compose-area" data-feed-not-member>
+      <mat-icon aria-hidden="true">diversity_3</mat-icon>
       <p>{{ 'network.directory.notMember' | translate }}</p>
       <a mat-flat-button routerLink="/profile">{{ 'network.directory.join' | translate }}</a>
     </section>
   } @else {
-    @if (tags.length) {
-      <nav class="followed-tags" [attr.aria-label]="'network.tags.followed' | translate" data-followed-tags>
-        @for (tag of tags; track tag) {
-          <a [routerLink]="['/network/tags', tag]">#{{ tag }}</a>
+    <form class="composer card compose-area" (submit)="$event.preventDefault(); publish()" data-composer>
+      <div class="composer-main">
+        @if (me) {
+          <app-member-avatar [subject]="me" [size]="44"></app-member-avatar>
+        } @else {
+          <span class="avatar-placeholder" aria-hidden="true"><mat-icon>person</mat-icon></span>
         }
-      </nav>
-    }
-    <form class="composer" (submit)="$event.preventDefault(); publish()" data-composer>
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'network.feed.compose' | translate }}</mat-label>
-        <textarea matInput [formControl]="draft" rows="3" [maxlength]="max" data-composer-text></textarea>
-        <mat-hint align="end">{{ draft.value.length }} / {{ max }}</mat-hint>
-      </mat-form-field>
-      <p class="hint">{{ 'network.feed.composeHint' | translate }}</p>
-      <app-post-kind-fields #kindFields [initial]="shared"></app-post-kind-fields>
-      <div class="actions">
-        <mat-form-field appearance="outline" class="schedule" subscriptSizing="dynamic">
-          <mat-label>{{ 'network.drafts.scheduleAt' | translate }}</mat-label>
-          <input matInput type="datetime-local" [formControl]="scheduleAt" data-schedule-at>
-        </mat-form-field>
-        <button mat-stroked-button type="button" (click)="keep()" [disabled]="isPosting || !draft.value.trim() || kindFields.kind.value !== 'POST'"
-          data-keep-draft>
-          {{ (scheduleAt.value ? 'network.drafts.schedule' : 'network.drafts.keep') | translate }}
+        <div class="composer-body">
+          <textarea class="composer-text" [formControl]="draft" rows="2" [maxlength]="max" data-composer-text
+            [attr.aria-label]="'network.feed.compose' | translate" [placeholder]="'network.feed.composePlaceholder' | translate"></textarea>
+          <span class="hint">{{ 'network.feed.composeHint' | translate }}</span>
+          <app-post-kind-fields #kindFields [initial]="shared"></app-post-kind-fields>
+          @if (scheduling) {
+            <mat-form-field appearance="outline" class="schedule" subscriptSizing="dynamic">
+              <mat-label>{{ 'network.drafts.scheduleAt' | translate }}</mat-label>
+              <input matInput type="datetime-local" [formControl]="scheduleAt" data-schedule-at>
+            </mat-form-field>
+          }
+        </div>
+      </div>
+      <div class="composer-bar">
+        <span class="counter" [class.near]="draft.value.length > max - 200" aria-live="polite">{{ draft.value.length }} / {{ max }}</span>
+        <button mat-icon-button type="button" (click)="toggleScheduling()" [attr.aria-pressed]="scheduling"
+          [attr.aria-label]="'network.drafts.scheduleAt' | translate" [matTooltip]="'network.drafts.scheduleAt' | translate" data-schedule-toggle>
+          <mat-icon>schedule</mat-icon>
         </button>
-        <button mat-flat-button type="submit" [disabled]="isPosting || !draft.value.trim() || !!scheduleAt.value || !kindFields.valid"
+        <button mat-button type="button" (click)="keep()" [disabled]="isPosting || !draft.value.trim() || kindFields.kind.value !== 'POST'"
+          data-keep-draft>
+          <mat-icon>{{ scheduleAt.value ? 'schedule_send' : 'save_as' }}</mat-icon>
+          <span class="label">{{ (scheduleAt.value ? 'network.drafts.schedule' : 'network.drafts.keep') | translate }}</span>
+        </button>
+        <button mat-flat-button type="submit" class="publish" [disabled]="isPosting || !draft.value.trim() || !!scheduleAt.value || !kindFields.valid"
           data-publish>
           {{ 'network.feed.publish' | translate }}
         </button>
       </div>
     </form>
+  }
 
+  <main class="feed-column">
+    @if (!notMember) {
+      <div class="tabs" role="tablist" [attr.aria-label]="'network.feed.tabs' | translate" data-feed-tabs>
+        <button type="button" role="tab" class="tab" [class.active]="tab === 'following'" [attr.aria-selected]="tab === 'following'"
+          (click)="show('following')" data-feed-tab-following>{{ 'network.feed.following' | translate }}</button>
+        <button type="button" role="tab" class="tab" [class.active]="tab === 'forYou'" [attr.aria-selected]="tab === 'forYou'"
+          (click)="show('forYou')" data-feed-tab-for-you>{{ 'network.feed.forYou' | translate }}</button>
+      </div>
+
+      @if (loading) {
+        <ul class="posts" aria-hidden="true">
+          @for (ghost of [1, 2, 3]; track ghost) {
+            <li class="card skeleton"><span class="bone avatar"></span><span class="bone line"></span><span class="bone line short"></span></li>
+          }
+        </ul>
+        <span class="cdk-visually-hidden" role="status">{{ 'common.loading' | translate }}</span>
+      } @else {
+        @if (posts.length === 0) {
+          <section class="empty card" data-feed-empty>
+            <mat-icon aria-hidden="true">forum</mat-icon>
+            <p>{{ 'network.feed.empty' | translate }}</p>
+          </section>
+        }
+        <ul class="posts">
+          @for (post of posts; track post.id) {
+            <li><app-post-card [post]="post" (deleted)="remove($event)" (reposted)="posts = [$event].concat(posts)"></app-post-card></li>
+          }
+        </ul>
+        @if (more) {
+          <button mat-stroked-button type="button" class="more" (click)="load(page + 1)" data-feed-more>{{ 'network.feed.more' | translate }}</button>
+        }
+      }
+    }
+  </main>
+
+  <aside class="side-extra">
     @if (suggestions.length) {
-      <section class="suggestions" data-suggestions>
+      <section class="side-card suggestions" data-suggestions>
         <h2>{{ 'network.suggestions.title' | translate }}</h2>
         <ul>
           @for (suggestion of suggestions; track suggestion.card.handle) {
             <li [attr.data-suggestion]="suggestion.card.handle">
-              <a [routerLink]="['/m', suggestion.card.handle]">{{ suggestion.card.firstName }} {{ suggestion.card.lastName }}</a>
-              <span class="why">
-                @switch (suggestion.reason) {
-                  @case ('CONTACT') {
-                    {{ 'network.suggestions.contact' | translate }}
-                  }
-                  @case ('FOLLOWED_BY') {
-                    {{ (suggestion.followedBy > 1 ? 'network.suggestions.followedByMany' : 'network.suggestions.followedByOne')
-                      | translate: { name: suggestion.followedByName, others: suggestion.followedBy - 1 } }}
-                  }
-                  @case ('SAME_STACK') {
-                    {{ 'network.suggestions.sameStack' | translate: { skills: suggestion.sharedSkills.join(', ') } }}
-                  }
-                  @default {
-                    {{ 'network.suggestions.sameCity' | translate: { city: suggestion.card.city } }}
-                  }
-                }
-              </span>
+              <app-member-avatar [subject]="suggestion.card" [size]="40"></app-member-avatar>
+              <div class="who">
+                <a [routerLink]="['/m', suggestion.card.handle]">{{ suggestion.card.firstName }} {{ suggestion.card.lastName }}</a>
+                <span class="why">{{ reason(suggestion) }}</span>
+              </div>
               <button mat-stroked-button type="button" (click)="follow(suggestion)" data-suggestion-follow>{{ 'network.page.follow' | translate }}</button>
             </li>
           }
         </ul>
       </section>
     }
-
-    <mat-button-toggle-group class="tabs" [value]="tab" (change)="show($event.value)" [attr.aria-label]="'network.feed.tabs' | translate"
-      hideSingleSelectionIndicator data-feed-tabs>
-      <mat-button-toggle value="following" data-feed-tab-following>{{ 'network.feed.following' | translate }}</mat-button-toggle>
-      <mat-button-toggle value="forYou" data-feed-tab-for-you>{{ 'network.feed.forYou' | translate }}</mat-button-toggle>
-    </mat-button-toggle-group>
-    @if (loading) {
-      <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
-    } @else {
-      @if (posts.length === 0) {
-        <p class="empty" data-feed-empty>{{ 'network.feed.empty' | translate }}</p>
-      }
-      <ul class="posts">
-        @for (post of posts; track post.id) {
-          <li><app-post-card [post]="post" (deleted)="remove($event)" (reposted)="posts = [$event].concat(posts)"></app-post-card></li>
-        }
-      </ul>
-      @if (more) {
-        <button mat-stroked-button type="button" (click)="load(page + 1)" data-feed-more>{{ 'network.feed.more' | translate }}</button>
-      }
-    }
-  }
+    <section class="side-card about">
+      <h2>{{ 'network.nav.aboutTitle' | translate }}</h2>
+      <p>{{ 'network.nav.about' | translate }}</p>
+    </section>
+  </aside>
 </div>

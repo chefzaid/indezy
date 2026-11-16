@@ -15,6 +15,8 @@ import { NetworkComment, NetworkPost, isHeld } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
+import { MemberAvatarComponent } from '../avatar/member-avatar.component';
+import { TimeAgoPipe } from '../time-ago/time-ago.pipe';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
@@ -26,7 +28,7 @@ export const COMMENT_MAX = 1500;
  */
 @Component({
   selector: 'app-post-comments',
-  imports: [DatePipe, NgTemplateOutlet, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
+  imports: [MemberAvatarComponent, TimeAgoPipe, DatePipe, NgTemplateOutlet, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
     TranslateModule],
   templateUrl: './post-comments.component.html',
   styleUrls: ['./post-comments.component.scss'],

@@ -1,113 +1,522 @@
+// A post as social feeds show one: the author beside their avatar, the text, its facts or poll, the counts, then the actions.
 .post {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px;
+  gap: 12px;
+  padding: 16px 16px 4px;
   border: 1px solid var(--app-border);
-  border-radius: 12px;
-  background: var(--mat-sys-surface-container-low);
+  border-radius: 16px;
+  background: var(--app-surface);
+  box-shadow: 0 1px 2px rgba(15, 12, 40, 0.04);
+  transition: box-shadow 150ms ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(15, 12, 40, 0.07);
+  }
 }
 
 header {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 4px 12px;
+  gap: 10px;
+  min-width: 0;
 }
 
-.author {
-  color: var(--app-link);
-  font-weight: 500;
+.avatar-link {
+  display: inline-flex;
+  flex: none;
   text-decoration: none;
 }
 
-.handle,
-time {
-  color: var(--text-secondary);
-  font-size: 0.8125rem;
-  font-weight: 400;
+.byline {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 
-header button {
-  margin-left: auto;
+.names {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.author {
+  overflow: hidden;
+  color: var(--app-text);
+  font-weight: 600;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.verified {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  color: var(--app-link);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  color: var(--app-text-muted);
+  font-size: 0.8125rem;
+}
+
+.handle {
+  overflow: hidden;
+  max-width: 160px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.edited {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+
+.more {
+  flex: none;
+  margin-right: -8px;
+}
+
+.kind-badge,
+.answered {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+.kind-badge {
+  background: var(--app-chip-indigo-bg);
+  color: var(--app-chip-indigo-text);
+
+  &[data-kind='MISSION'] {
+    background: var(--app-chip-accent-bg);
+    color: var(--app-chip-accent-text);
+  }
+
+  &[data-kind='AVAILABLE'] {
+    background: var(--app-chip-positive-bg);
+    color: var(--app-chip-positive-text);
+  }
+
+  &[data-kind='QUESTION'] {
+    background: var(--app-chip-warning-bg);
+    color: var(--app-chip-warning-text);
+  }
+
+  &[data-kind='EXPERIENCE'] {
+    background: var(--app-chip-info-bg);
+    color: var(--app-chip-info-text);
+  }
+}
+
+.answered {
+  background: var(--app-chip-positive-bg);
+  color: var(--app-chip-positive-text);
 }
 
 .text {
   margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
   overflow-wrap: anywhere;
   white-space: pre-line;
 }
 
-footer {
+.mention,
+.tag {
+  color: var(--app-link);
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.versions {
+  margin: 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--app-border);
+  list-style: none;
+  font-size: 0.875rem;
+
+  li {
+    margin: 4px 0;
+    white-space: pre-line;
+  }
+
+  .replaced {
+    display: block;
+    color: var(--app-text-muted);
+    font-size: 0.75rem;
+  }
+}
+
+// A mission's or an availability's facts: its role as a title, then chips.
+.facts-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-subtle);
+
+  &.mission {
+    border-left: 4px solid var(--app-accent);
+  }
+}
+
+.facts-title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.facts {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin: 0 -8px -8px;
+  gap: 6px 8px;
+  margin: 0;
 
-  .liked {
-    color: var(--app-chip-danger-text);
+  .fact {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid var(--app-border);
+    border-radius: 999px;
+    background: var(--app-surface);
+    font-size: 0.8125rem;
+  }
+
+  dt {
+    display: inline-flex;
+    align-items: center;
+    color: var(--app-text-muted);
+
+    span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
+
+  dd {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .skill {
+    padding: 0 6px;
+    border-radius: 6px;
+    background: var(--app-chip-indigo-bg);
+    color: var(--app-chip-indigo-text);
+    font-size: 0.75rem;
+  }
+}
+
+.sr-only-fact {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+// Polls: choices as pills, then bars once the votes show.
+.poll {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .poll-choice,
+  .poll-result {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--app-border);
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 500;
+    text-align: left;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 120ms ease, background-color 120ms ease;
+
+    &:disabled {
+      cursor: default;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--app-link);
+      outline-offset: 2px;
+    }
+  }
+
+  .poll-choice {
+    border-color: var(--app-link);
+    color: var(--app-link);
+
+    &:hover:not(:disabled) {
+      background: var(--app-selected-bg);
+    }
+  }
+
+  .poll-result {
+    &.mine {
+      border-color: var(--app-link);
+      font-weight: 700;
+    }
+
+    .bar {
+      position: absolute;
+      inset: 0 auto 0 0;
+      background: var(--app-selected-bg);
+      z-index: 0;
+      transition: width 300ms ease;
+    }
+
+    .label,
+    .share {
+      position: relative;
+      z-index: 1;
+    }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      overflow-wrap: anywhere;
+
+      mat-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+        color: var(--app-link);
+      }
+    }
+
+    .share {
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  .poll-meta {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--app-text-muted);
+  }
+}
+
+.original {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-subtle);
+
+  .original-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  time {
+    color: var(--app-text-muted);
+    font-size: 0.75rem;
+  }
+
+  p {
+    margin: 0;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+
+  &.gone {
+    color: var(--app-text-muted);
+    font-style: italic;
+  }
+}
+
+// The counts: who liked it, how many comments and reposts.
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--app-text-muted);
+  font-size: 0.8125rem;
+
+  .spacer {
+    flex: 1;
+  }
+
+  .stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--app-link);
+      text-decoration: underline;
+    }
+  }
+
+  .heart {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--app-danger);
+
+    mat-icon {
+      width: 12px;
+      height: 12px;
+      font-size: 12px;
+      color: var(--app-surface);
+    }
   }
 }
 
 .likers {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 12px;
+  gap: 6px 12px;
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
 
   a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     color: var(--app-link);
+    text-decoration: none;
   }
 }
 
-.edited {
-  min-width: 0;
-  padding: 0 4px;
-  color: var(--text-secondary);
-  font-size: 0.8125rem;
-}
-
-.original {
-  margin: 0;
-  padding: 8px 12px;
-  border-left: 3px solid var(--mat-sys-primary);
-  background: var(--mat-sys-surface-container);
-  border-radius: 0 8px 8px 0;
-
-  p {
-    margin: 4px 0 0;
-    overflow-wrap: anywhere;
-    white-space: pre-line;
-  }
-
-  time {
-    margin-left: 8px;
-  }
-
-  &.gone {
-    color: var(--text-secondary);
-    font-style: italic;
-  }
-}
-
-.versions {
+// The actions, spread evenly under a line; their names give way to the icons on a phone.
+.action-bar {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 0;
-  padding: 8px 12px;
-  border-left: 2px solid var(--app-border);
-  list-style: none;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  white-space: pre-line;
+  margin: 0 -8px;
+  padding: 2px 0;
+  border-top: 1px solid var(--app-border);
+}
 
-  .replaced {
-    display: block;
-    font-size: 0.75rem;
+.action {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 6px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+
+  mat-icon {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+
+  .label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover:not(:disabled):not(.static) {
+    background: var(--app-hover);
+    color: var(--app-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: -2px;
+  }
+
+  &.static {
+    cursor: default;
+  }
+
+  &.like.on {
+    color: var(--app-danger);
+  }
+
+  &.useful.on {
+    color: var(--app-highlight);
+  }
+
+  &.save.on {
+    color: var(--app-link);
   }
 }
 
@@ -126,127 +535,25 @@ footer {
   }
 }
 
-.mention {
-  color: var(--app-link);
-}
-
-.tag {
-  color: var(--mat-sys-primary);
-  font-weight: 500;
-}
-
-.kind-line {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin: 4px 0 0;
-}
-
-.kind-badge,
-.answered {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--mat-sys-secondary-container);
-  color: var(--mat-sys-on-secondary-container);
-}
-
-.answered {
-  background: var(--mat-sys-tertiary-container);
-  color: var(--mat-sys-on-tertiary-container);
-}
-
-.facts {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 4px 16px;
-  margin: 8px 0;
-
-  dt {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+@media (max-width: 599.98px) {
+  .post {
+    padding: 12px 12px 2px;
+    border-radius: 12px;
   }
 
-  dd {
-    margin: 0;
-    overflow-wrap: anywhere;
-  }
-}
-
-.poll {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 8px 0;
-
-  .poll-choice {
-    justify-content: flex-start;
-  }
-
-  .poll-result {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 36px;
-    padding: 0 12px;
-    border: 1px solid var(--mat-sys-outline-variant);
-    border-radius: 8px;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    text-align: left;
+  .kind-badge .kind-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
     overflow: hidden;
-    cursor: pointer;
-
-    &:disabled {
-      cursor: default;
-    }
-
-    &.mine {
-      border-color: var(--mat-sys-primary);
-      font-weight: 600;
-    }
-
-    .bar {
-      position: absolute;
-      inset: 0 auto 0 0;
-      background: var(--mat-sys-secondary-container);
-      z-index: 0;
-    }
-
-    .label,
-    .share {
-      position: relative;
-      z-index: 1;
-    }
-
-    .label {
-      flex: 1;
-      overflow-wrap: anywhere;
-    }
+    clip: rect(0 0 0 0);
   }
 
-  .poll-meta {
-    margin: 0;
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-  }
-}
-
-.useful-count {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+  .action .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
   }
 }

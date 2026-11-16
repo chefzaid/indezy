@@ -3386,7 +3386,8 @@
       "held": "Held for review: the moderators publish it once they have looked at it",
       "tabs": "Feed",
       "following": "Following",
-      "forYou": "For you"
+      "forYou": "For you",
+      "composePlaceholder": "What’s new? A mission to pass on, a question, a lesson learned…"
     },
     "post": {
       "actions": "Actions on the post",
@@ -3624,6 +3625,15 @@
       "offerIntro": "A mission spotted for whoever it suits:",
       "declinedIntro": "A mission I am not taking, for whoever it suits.",
       "signed": "Mission signed: {{role}}. On to the next one!"
+    },
+    "nav": {
+      "home": "Home",
+      "myPage": "My page",
+      "aboutTitle": "The member network",
+      "about": "Freelancers sharing missions, questions and what they learned. Only members see members; your card shows what you chose in Profile → Network."
+    },
+    "time": {
+      "now": "now"
     }
   }
 }

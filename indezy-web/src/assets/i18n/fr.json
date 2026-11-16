@@ -3386,7 +3386,8 @@
       "held": "Retenu pour vérification : les modérateurs le publieront après l’avoir examiné",
       "tabs": "Fil",
       "following": "Abonnements",
-      "forYou": "Pour vous"
+      "forYou": "Pour vous",
+      "composePlaceholder": "Quoi de neuf ? Une mission à transmettre, une question, un retour…"
     },
     "post": {
       "actions": "Actions sur la publication",
@@ -3624,6 +3625,15 @@
       "offerIntro": "Une mission repérée, pour qui elle conviendra :",
       "declinedIntro": "Une mission que je ne prends pas, pour qui elle conviendra.",
       "signed": "Mission signée : {{role}}. Place à la suite !"
+    },
+    "nav": {
+      "home": "Accueil",
+      "myPage": "Ma page",
+      "aboutTitle": "Le réseau des membres",
+      "about": "Des freelances qui partagent missions, questions et retours d’expérience. Seuls les membres voient les membres ; votre carte montre ce que vous avez choisi dans Profil → Réseau."
+    },
+    "time": {
+      "now": "à l’instant"
     }
   }
 }

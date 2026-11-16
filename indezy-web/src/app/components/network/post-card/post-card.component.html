@@ -1,18 +1,38 @@
 <article class="post" [attr.data-post]="post.id">
   <header>
-    <a [routerLink]="['/m', post.author.handle]" class="author">
-      {{ post.author.firstName }} {{ post.author.lastName }}
-      <span class="handle">&#64;{{ post.author.handle }}</span>
+    <a [routerLink]="['/m', post.author.handle]" class="avatar-link" tabindex="-1" aria-hidden="true">
+      <app-member-avatar [subject]="post.author" [size]="44"></app-member-avatar>
     </a>
-    <time [attr.datetime]="post.createdAt">{{ post.createdAt | date:'medium' }}</time>
-    @if (post.edited) {
-      <button mat-button type="button" class="edited" (click)="toggleVersions()" [attr.aria-expanded]="versions !== null" data-post-edited>
-        {{ 'network.post.edited' | translate }}
-      </button>
+    <div class="byline">
+      <div class="names">
+        <a [routerLink]="['/m', post.author.handle]" class="author">{{ post.author.firstName }} {{ post.author.lastName }}</a>
+        @if (post.author.verified) {
+          <mat-icon class="verified" [attr.aria-label]="'network.card.verified' | translate" data-post-verified>verified</mat-icon>
+        }
+      </div>
+      <div class="meta">
+        <span class="handle">&#64;{{ post.author.handle }}</span>
+        <span aria-hidden="true">·</span>
+        <time [attr.datetime]="post.createdAt" [title]="post.createdAt | date:'medium'">{{ post.createdAt | timeAgo }}</time>
+        @if (post.edited) {
+          <span aria-hidden="true">·</span>
+          <button type="button" class="edited" (click)="toggleVersions()" [attr.aria-expanded]="versions !== null" data-post-edited>
+            {{ 'network.post.edited' | translate }}
+          </button>
+        }
+      </div>
+    </div>
+    @if (post.kind && post.kind !== 'POST') {
+      <span class="kind-badge" [attr.data-kind]="post.kind" [attr.data-post-kind-badge]="post.kind">
+        <mat-icon aria-hidden="true">{{ kindIcons[post.kind] }}</mat-icon><span class="kind-name">{{ 'network.kinds.' + post.kind | translate }}</span>
+      </span>
     }
-    <button mat-icon-button type="button" [matMenuTriggerFor]="actions" [attr.aria-label]="'network.post.actions' | translate"
+    @if (post.kind === 'QUESTION' && post.answerCommentId) {
+      <span class="answered" data-post-answered><mat-icon aria-hidden="true">check_circle</mat-icon>{{ 'network.kinds.answered' | translate }}</span>
+    }
+    <button mat-icon-button type="button" class="more" [matMenuTriggerFor]="actions" [attr.aria-label]="'network.post.actions' | translate"
       data-post-actions>
-      <mat-icon>more_vert</mat-icon>
+      <mat-icon>more_horiz</mat-icon>
     </button>
     <mat-menu #actions="matMenu">
       @if (!post.own) {
@@ -39,55 +59,88 @@
       }
     </mat-menu>
   </header>
-  @if (post.kind && post.kind !== 'POST') {
-    <p class="kind-line">
-      <span class="kind-badge" [attr.data-post-kind-badge]="post.kind">{{ 'network.kinds.' + post.kind | translate }}</span>
-      @if (post.kind === 'QUESTION' && post.answerCommentId) {
-        <span class="answered" data-post-answered>{{ 'network.kinds.answered' | translate }}</span>
-      }
-    </p>
+
+  @if (editing) {
+    <form class="edit" (submit)="$event.preventDefault(); saveEdit()" data-post-edit-form>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'network.post.editLabel' | translate }}</mat-label>
+        <textarea matInput [formControl]="editing" rows="3" maxlength="3000" data-post-edit-text></textarea>
+      </mat-form-field>
+      <div class="actions">
+        <button mat-button type="button" (click)="editing = null">{{ 'network.post.cancel' | translate }}</button>
+        <button mat-flat-button type="submit" [disabled]="!editing.value.trim()" data-post-edit-save>{{ 'common.save' | translate }}</button>
+      </div>
+    </form>
+  } @else if (post.text) {
+    <p class="text">@for (part of parts; track $index) {@if (handleOf(part); as handle) {<a [routerLink]="['/m', handle]" class="mention">&#64;{{ handle }}</a>} @else if (tagOf(part); as tag) {<a [routerLink]="['/network/tags', tag.toLowerCase()]" class="tag">#{{ tag }}</a>} @else {{{ textOf(part) }}}}</p>
   }
+
+  @if (versions) {
+    <ul class="versions" data-post-versions>
+      @for (version of versions; track $index) {
+        <li><span class="replaced">{{ 'network.post.replacedAt' | translate: { date: (version.replacedAt | date:'short') } }}</span>{{ version.text }}</li>
+      }
+    </ul>
+  }
+
   @if (post.details; as facts) {
-    <dl class="facts" data-post-facts>
+    <div class="facts-card" [class.mission]="post.kind === 'MISSION'">
       @if (facts.role) {
-        <div><dt>{{ (post.kind === 'MISSION' ? 'network.kinds.role' : 'network.kinds.roleWanted') | translate }}</dt><dd>{{ facts.role }}</dd></div>
+        <p class="facts-title">{{ facts.role }}</p>
       }
-      @if (facts.rateMin !== null || facts.rateMax !== null) {
-        <div><dt>{{ 'network.kinds.rate' | translate }}</dt><dd data-fact-rate>{{ rate(facts) }}</dd></div>
+      <dl class="facts" data-post-facts>
+        @if (facts.role) {
+          <div class="sr-only-fact"><dt>{{ (post.kind === 'MISSION' ? 'network.kinds.role' : 'network.kinds.roleWanted') | translate }}</dt><dd>{{ facts.role }}</dd></div>
+        }
+        @if (facts.rateMin !== null || facts.rateMax !== null) {
+          <div class="fact"><dt><mat-icon aria-hidden="true">payments</mat-icon><span>{{ 'network.kinds.rate' | translate }}</span></dt>
+            <dd data-fact-rate>{{ rate(facts) }}</dd></div>
+        }
+        @if (facts.city) {
+          <div class="fact"><dt><mat-icon aria-hidden="true">place</mat-icon><span>{{ 'network.kinds.city' | translate }}</span></dt>
+            <dd>{{ facts.city }}</dd></div>
+        }
+        @if (facts.remoteDays !== null) {
+          <div class="fact"><dt><mat-icon aria-hidden="true">home_work</mat-icon><span>{{ 'network.kinds.remote' | translate }}</span></dt>
+            <dd>{{ 'network.kinds.remoteValue' | translate: { days: facts.remoteDays } }}</dd></div>
+        }
+        @if (facts.start) {
+          <div class="fact"><dt><mat-icon aria-hidden="true">event</mat-icon>
+            <span>{{ (post.kind === 'MISSION' ? 'network.kinds.start' : 'network.kinds.availableFrom') | translate }}</span></dt>
+            <dd>{{ facts.start | date:'longDate' }}</dd></div>
+        }
+        @if (facts.client) {
+          <div class="fact"><dt><mat-icon aria-hidden="true">business</mat-icon><span>{{ 'network.kinds.client' | translate }}</span></dt>
+            <dd>{{ facts.client }}</dd></div>
+        }
+        @if (facts.stack.length) {
+          <div class="fact stack"><dt><mat-icon aria-hidden="true">code</mat-icon><span>{{ 'network.kinds.stack' | translate }}</span></dt>
+            <dd>@for (skill of facts.stack; track skill) {<span class="skill">{{ skill }}</span>}<span class="sr-only-fact">{{ facts.stack.join(', ') }}</span></dd></div>
+        }
+      </dl>
+      @if (post.kind === 'MISSION') {
+        <app-mission-take [post]="post"></app-mission-take>
       }
-      @if (facts.city) {
-        <div><dt>{{ 'network.kinds.city' | translate }}</dt><dd>{{ facts.city }}</dd></div>
-      }
-      @if (facts.remoteDays !== null) {
-        <div><dt>{{ 'network.kinds.remote' | translate }}</dt><dd>{{ 'network.kinds.remoteValue' | translate: { days: facts.remoteDays } }}</dd></div>
-      }
-      @if (facts.start) {
-        <div><dt>{{ (post.kind === 'MISSION' ? 'network.kinds.start' : 'network.kinds.availableFrom') | translate }}</dt>
-          <dd>{{ facts.start | date:'longDate' }}</dd></div>
-      }
-      @if (facts.client) {
-        <div><dt>{{ 'network.kinds.client' | translate }}</dt><dd>{{ facts.client }}</dd></div>
-      }
-      @if (facts.stack.length) {
-        <div><dt>{{ 'network.kinds.stack' | translate }}</dt><dd>{{ facts.stack.join(', ') }}</dd></div>
-      }
-    </dl>
-    @if (post.kind === 'MISSION') {
-      <app-mission-take [post]="post"></app-mission-take>
-    }
+    </div>
   }
+
   @if (post.poll; as poll) {
     <div class="poll" data-post-poll>
       @for (choice of poll.choices; track $index; let index = $index) {
         @if (choice.votes === null) {
-          <button mat-stroked-button type="button" class="poll-choice" (click)="vote(index)" [disabled]="isVoting" [attr.data-poll-vote]="index">
+          <button type="button" class="poll-choice" (click)="vote(index)" [disabled]="isVoting" [attr.data-poll-vote]="index">
             {{ choice.text }}
           </button>
         } @else {
           <button type="button" class="poll-result" [class.mine]="poll.myChoice === index" (click)="vote(index)"
             [disabled]="poll.closed || isVoting || post.own" [attr.aria-pressed]="poll.myChoice === index" [attr.data-poll-result]="index">
             <span class="bar" [style.width.%]="share(poll, index)"></span>
-            <span class="label">{{ choice.text }}</span>
+            <span class="label">
+              @if (poll.myChoice === index) {
+                <mat-icon aria-hidden="true">check_circle</mat-icon>
+              }
+              {{ choice.text }}
+            </span>
             <span class="share">{{ share(poll, index) }} %</span>
           </button>
         }
@@ -104,75 +157,82 @@
       </p>
     </div>
   }
-  @if (versions) {
-    <ul class="versions" data-post-versions>
-      @for (version of versions; track $index) {
-        <li><span class="replaced">{{ 'network.post.replacedAt' | translate: { date: (version.replacedAt | date:'short') } }}</span>{{ version.text }}</li>
-      }
-    </ul>
-  }
+
   @if (post.repostOf; as original) {
     @if (original.available) {
       <blockquote class="original" [attr.data-original]="original.id">
-        <a [routerLink]="['/m', original.author!.handle]" class="author">{{ original.author!.firstName }} {{ original.author!.lastName }}</a>
-        <time [attr.datetime]="original.createdAt">{{ original.createdAt | date:'medium' }}</time>
+        <div class="original-head">
+          <app-member-avatar [subject]="original.author!" [size]="24"></app-member-avatar>
+          <a [routerLink]="['/m', original.author!.handle]" class="author">{{ original.author!.firstName }} {{ original.author!.lastName }}</a>
+          <time [attr.datetime]="original.createdAt" [title]="original.createdAt | date:'medium'">{{ original.createdAt | timeAgo }}</time>
+        </div>
         <p>{{ original.text }}</p>
       </blockquote>
     } @else {
       <p class="original gone" data-original-gone>{{ 'network.post.originalGone' | translate }}</p>
     }
   }
-  @if (editing) {
-    <form class="edit" (submit)="$event.preventDefault(); saveEdit()" data-post-edit-form>
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'network.post.editLabel' | translate }}</mat-label>
-        <textarea matInput [formControl]="editing" rows="3" maxlength="3000" data-post-edit-text></textarea>
-      </mat-form-field>
-      <div class="actions">
-        <button mat-button type="button" (click)="editing = null">{{ 'network.post.cancel' | translate }}</button>
-        <button mat-flat-button type="submit" [disabled]="!editing.value.trim()" data-post-edit-save>{{ 'common.save' | translate }}</button>
-      </div>
-    </form>
-  } @else {
-  <p class="text">@for (part of parts; track $index) {@if (handleOf(part); as handle) {<a [routerLink]="['/m', handle]" class="mention">&#64;{{ handle }}</a>} @else if (tagOf(part); as tag) {<a [routerLink]="['/network/tags', tag.toLowerCase()]" class="tag">#{{ tag }}</a>} @else {{{ textOf(part) }}}}</p>
+
+  @if (post.likes > 0 || post.comments > 0 || post.reposts > 0) {
+    <div class="stats">
+      @if (post.likes > 0) {
+        <button type="button" class="stat" (click)="likers ? likers = null : showLikers()" [attr.aria-expanded]="likers !== null" data-likes>
+          <span class="heart" aria-hidden="true"><mat-icon>favorite</mat-icon></span>{{ 'network.post.likes' | translate: { count: post.likes } }}
+        </button>
+      }
+      <span class="spacer"></span>
+      @if (post.comments > 0) {
+        <button type="button" class="stat" (click)="showComments = !showComments" data-comment-count>
+          {{ 'network.post.comments' | translate: { count: post.comments } }}
+        </button>
+      }
+      @if (post.reposts > 0) {
+        <span class="stat-text">{{ 'network.post.reposts' | translate: { count: post.reposts } }}</span>
+      }
+    </div>
   }
-  <footer>
-    <button mat-button type="button" (click)="toggleLike()" [disabled]="isLiking" [attr.aria-pressed]="post.liked" data-like
-      [class.liked]="post.liked">
+  @if (likers) {
+    <ul class="likers" data-likers>
+      @for (member of likers; track member.handle) {
+        <li><a [routerLink]="['/m', member.handle]"><app-member-avatar [subject]="member" [size]="24"></app-member-avatar>
+          {{ member.firstName }} {{ member.lastName }}</a></li>
+      }
+    </ul>
+  }
+
+  <footer class="action-bar">
+    <button type="button" class="action like" (click)="toggleLike()" [disabled]="isLiking" [attr.aria-pressed]="post.liked" data-like
+      [class.on]="post.liked">
       <mat-icon>{{ post.liked ? 'favorite' : 'favorite_border' }}</mat-icon>
-      {{ (post.liked ? 'network.post.liked' : 'network.post.like') | translate }}
+      <span class="label">{{ (post.liked ? 'network.post.liked' : 'network.post.like') | translate }}</span>
     </button>
-    <button mat-button type="button" (click)="showComments = !showComments" [attr.aria-expanded]="showComments" data-show-comments>
+    <button type="button" class="action" (click)="showComments = !showComments" [attr.aria-expanded]="showComments" data-show-comments>
       <mat-icon>chat_bubble_outline</mat-icon>
-      {{ (post.comments ? 'network.post.comments' : 'network.post.comment') | translate: { count: post.comments } }}
+      <span class="label">{{ 'network.post.comment' | translate }}</span>
     </button>
     @if (!post.repostsOff) {
-      <button mat-button type="button" (click)="reposting ? reposting = null : startReposting()" [attr.aria-expanded]="reposting !== null"
+      <button type="button" class="action" (click)="reposting ? reposting = null : startReposting()" [attr.aria-expanded]="reposting !== null"
         data-repost>
         <mat-icon>repeat</mat-icon>
-        {{ (post.reposts ? 'network.post.reposts' : 'network.post.repost') | translate: { count: post.reposts } }}
+        <span class="label">{{ 'network.post.repost' | translate }}</span>
       </button>
     }
     @if (!post.own) {
-      <button mat-button type="button" (click)="toggleUseful()" [attr.aria-pressed]="post.useful?.mine ?? false" data-useful
-        [class.liked]="post.useful?.mine">
+      <button type="button" class="action useful" (click)="toggleUseful()" [attr.aria-pressed]="post.useful?.mine ?? false" data-useful
+        [class.on]="post.useful?.mine">
         <mat-icon>{{ post.useful?.mine ? 'lightbulb' : 'lightbulb_outline' }}</mat-icon>
-        {{ 'network.post.useful' | translate: { count: post.useful?.count ?? 0 } }}
+        <span class="label">{{ 'network.post.useful' | translate: { count: post.useful?.count ?? 0 } }}</span>
       </button>
     } @else if (post.useful?.count) {
-      <span class="useful-count" data-useful-count><mat-icon aria-hidden="true">lightbulb</mat-icon>
-        {{ 'network.post.useful' | translate: { count: post.useful?.count } }}</span>
+      <span class="action static" data-useful-count><mat-icon aria-hidden="true">lightbulb</mat-icon>
+        <span class="label">{{ 'network.post.useful' | translate: { count: post.useful.count } }}</span></span>
     }
-    <button mat-button type="button" (click)="toggleBookmark()" [attr.aria-pressed]="post.bookmarked" data-bookmark>
+    <button type="button" class="action save" (click)="toggleBookmark()" [attr.aria-pressed]="post.bookmarked" data-bookmark [class.on]="post.bookmarked">
       <mat-icon>{{ post.bookmarked ? 'bookmark' : 'bookmark_border' }}</mat-icon>
-      {{ (post.bookmarked ? 'network.post.saved' : 'network.post.save') | translate }}
+      <span class="label">{{ (post.bookmarked ? 'network.post.saved' : 'network.post.save') | translate }}</span>
     </button>
-    @if (post.likes > 0) {
-      <button mat-button type="button" (click)="likers ? likers = null : showLikers()" [attr.aria-expanded]="likers !== null" data-likes>
-        {{ 'network.post.likes' | translate: { count: post.likes } }}
-      </button>
-    }
   </footer>
+
   @if (reposting) {
     <form class="edit" (submit)="$event.preventDefault(); repost()" data-repost-form>
       <mat-form-field appearance="outline">
@@ -184,13 +244,6 @@
         <button mat-flat-button type="submit" data-repost-send>{{ 'network.post.repostSend' | translate }}</button>
       </div>
     </form>
-  }
-  @if (likers) {
-    <ul class="likers" data-likers>
-      @for (member of likers; track member.handle) {
-        <li><a [routerLink]="['/m', member.handle]">{{ member.firstName }} {{ member.lastName }}</a></li>
-      }
-    </ul>
   }
   @if (showComments) {
     <app-post-comments [post]="post" (counted)="post = { ...post, comments: $event }"></app-post-comments>

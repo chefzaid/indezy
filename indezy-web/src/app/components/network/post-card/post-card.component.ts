@@ -17,6 +17,9 @@ import { ReportDialogComponent } from '../report-dialog/report-dialog.component'
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PostCommentsComponent } from '../post-comments/post-comments.component';
 import { MissionTakeComponent } from '../mission-take/mission-take.component';
+import { MemberAvatarComponent } from '../avatar/member-avatar.component';
+import { TimeAgoPipe } from '../time-ago/time-ago.pipe';
+import { POST_KIND_ICONS } from '../post-kind/post-kind-fields.component';
 
 /** A piece of a post's text: plain text, a member mentioned, or a #tag. */
 export type PostSegment = { text: string } | { handle: string } | { tag: string };
@@ -49,7 +52,7 @@ export function segments(text: string): PostSegment[] {
 /** A post: its author (opening their page), when it was posted, its text with mentions and tags, and its own actions. */
 @Component({
   selector: 'app-post-card',
-  imports: [MissionTakeComponent, DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
+  imports: [MemberAvatarComponent, TimeAgoPipe, MissionTakeComponent, DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
     TranslateModule, PostCommentsComponent],
   templateUrl: './post-card.component.html',
   styleUrls: ['./post-card.component.scss'],
@@ -65,6 +68,8 @@ export class PostCardComponent {
   /** The members who like the post, once asked for. */
   likers: MemberCard[] | null = null;
   isLiking = false;
+  /** The icon of each kind of post, on its badge. */
+  readonly kindIcons = POST_KIND_ICONS;
   isVoting = false;
   /** Whether the comments are open under the post. */
   showComments = false;

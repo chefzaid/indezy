@@ -196,7 +196,11 @@ follows, keeps either from following the other, takes each out of the lists the 
 page from the blocked member, as if no member held the handle; the blocked member is not told. **Profile → Network**
 lists the members muted and blocked, each to unmute or unblock.
 
-**Network** in the menu (`/network`) is the home feed: a post of up to 3,000 characters, paragraphs kept, where
+On wide screens the network's page has three columns: its navigation (Home, Notifications with the unread count,
+Members, Saved, Drafts, My page) and the tags followed, the feed, and the members to follow; two columns at medium
+widths and one on a phone, the navigation as a row of pills and the members to follow as a strip. Posts show their
+author's avatar (their photo, else their initials on a color their handle keeps) and how long ago they were posted,
+the full date on hover. **Network** in the menu (`/network`) is the home feed: a post of up to 3,000 characters, paragraphs kept, where
 `@handle` links to the member's page and `#tag` names a skill or a city, opening the tag's page
 (`/network/tags/<tag>`): the posts naming it, the members whose cards show the skill, and **Follow the tag**. The feed
 then holds the reader's posts, those of the members they follow and those naming a tag they follow (listed above

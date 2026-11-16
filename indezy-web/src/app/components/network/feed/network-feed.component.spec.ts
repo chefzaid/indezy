@@ -27,9 +27,12 @@ describe('NetworkFeedComponent', () => {
       city: 'Lyon' } });
 
   function create(feed = of({ posts: [post(2), post(1, true)], page: 0, more: true })): ComponentFixture<NetworkFeedComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft', 'forYou']);
+    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft', 'forYou', 'membership']);
     network.feed.and.returnValue(feed);
     network.followedTags.and.returnValue(of(['kafka']));
+    network.membership.and.returnValue(of({ joined: true, handle: 'camille', card: null, privateCard: false,
+      availability: { mode: 'AUTO', date: null }, fields: { photo: true, headline: true, stack: true, location: true, availability: true,
+        languages: true, remote: false } }));
     network.suggestions.and.returnValue(of([suggestion('ines_b', 'FOLLOWED_BY', 3), suggestion('paul_d', 'SAME_STACK'),
       suggestion('zoe_l', 'SAME_CITY'), suggestion('jade_k', 'FOLLOWED_BY', 1), suggestion('marc_c', 'CONTACT')]));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -186,5 +189,34 @@ describe('NetworkFeedComponent', () => {
     network.feed.calls.reset();
     component.show('following');
     expect(network.feed).toHaveBeenCalledWith(0);
+  });
+
+  it('says why each member is suggested, opens the time to publish on its own, and shows the reader\'s avatar', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const card = { handle: 'paul_d', firstName: 'Paul', lastName: 'Dupont', avatar: null, headline: null, stack: [], city: 'Lyon',
+      remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
+    const suggestion = (reason: MemberSuggestion['reason'], followedBy = 0): MemberSuggestion =>
+      ({ card, reason, followedBy, followedByName: 'Léo', sharedSkills: ['Kafka'] });
+    expect(component.reason(suggestion('CONTACT'))).toBe('In your contacts');
+    expect(component.reason(suggestion('FOLLOWED_BY', 1))).toBe('Followed by Léo, whom you follow');
+    expect(component.reason(suggestion('FOLLOWED_BY', 3))).toBe('Followed by Léo and 2 other members you follow');
+    expect(component.reason(suggestion('SAME_STACK'))).toBe('Also on Kafka');
+    expect(component.reason(suggestion('SAME_CITY'))).toBe('Also in Lyon');
+
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-schedule-at]')).toBeNull();
+    (element.querySelector('[data-schedule-toggle]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(element.querySelector('[data-schedule-at]')).not.toBeNull();
+    component.scheduleAt.setValue('2026-11-20T09:00');
+    component.toggleScheduling();
+    expect(component.scheduleAt.value).toBe('');
+    expect(component.scheduling).toBeFalse();
+
+    component.me = card;
+    fixture.detectChanges();
+    expect(element.querySelector('[data-composer] app-member-avatar')).not.toBeNull();
+    expect(element.querySelector('[data-feed-me]')?.getAttribute('href')).toBe('/m/paul_d');
   });
 });

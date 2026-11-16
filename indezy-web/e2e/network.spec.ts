@@ -221,7 +221,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.locator('[data-post="1"] [data-comment-text]').fill('Bienvenue !');
     await page.locator('[data-post="1"] [data-comment-send]').click();
     await expect(page.locator('[data-post="1"] [data-comment="11"]')).toContainText('Bienvenue !');
-    await expect(page.locator('[data-post="1"] [data-show-comments]')).toContainText(en ? 'Comments: 1' : 'Commentaires : 1');
+    await expect(page.locator('[data-post="1"] [data-comment-count]')).toContainText(en ? 'Comments: 1' : 'Commentaires : 1');
     await page.route('**/api/network/comments/11/like', route => route.fulfill({ json: { ...thread[0], likes: 1, liked: true } }));
     await page.locator('[data-comment="11"] [data-comment-like]').click();
     await expect(page.locator('[data-comment="11"] [data-comment-like]')).toHaveAttribute('aria-pressed', 'true');
