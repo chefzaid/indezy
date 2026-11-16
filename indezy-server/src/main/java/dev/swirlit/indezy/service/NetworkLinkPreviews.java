@@ -4,8 +4,8 @@ import dev.swirlit.indezy.model.NetworkLinkPreview;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
 import dev.swirlit.indezy.scraping.LinkPreviewReader;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
  * that link; a link out of reach leaves no card.
  */
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class NetworkLinkPreviews {
 
@@ -31,15 +32,8 @@ public class NetworkLinkPreviews {
     private final LinkPreviewReader reader;
     private final NetworkPostRepository posts;
     private final TransactionTemplate transactions;
-    private final TaskExecutor executor;
-
-    public NetworkLinkPreviews(LinkPreviewReader reader, NetworkPostRepository posts, TransactionTemplate transactions,
-                               @Qualifier("applicationTaskExecutor") TaskExecutor executor) {
-        this.reader = reader;
-        this.posts = posts;
-        this.transactions = transactions;
-        this.executor = executor;
-    }
+    /** Spring Boot's task executor, found by this name among the executors. */
+    private final TaskExecutor applicationTaskExecutor;
 
     /** The first link of a text; none without one. */
     static Optional<String> firstLink(String text) {
@@ -59,7 +53,7 @@ public class NetworkLinkPreviews {
         }
         post.setPreview(null);
         Long postId = post.getId();
-        Runnable read = () -> executor.execute(() -> attach(postId, link.get()));
+        Runnable read = () -> applicationTaskExecutor.execute(() -> attach(postId, link.get()));
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
