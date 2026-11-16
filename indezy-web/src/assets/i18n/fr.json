@@ -3342,7 +3342,9 @@
       "tooManyFollows": "Vous avez suivi beaucoup de membres cette heure-ci : réessayez plus tard.",
       "requested": "Demande envoyée",
       "askToFollow": "Demander à suivre",
-      "privatePosts": "La carte de {{name}} est privée : seuls les abonnés qu’elle ou il accepte lisent ses publications."
+      "privatePosts": "La carte de {{name}} est privée : seuls les abonnés qu’elle ou il accepte lisent ses publications.",
+      "editCard": "Modifier ma carte",
+      "tabs": "Publications et listes du membre"
     },
     "directory": {
       "title": "Membres",
@@ -3433,7 +3435,10 @@
       "repostsOffError": "Son auteur a interdit les republications de cette publication.",
       "originalGone": "La publication d'origine n'est plus disponible.",
       "commentLikes": "Mentions J’aime du commentaire :",
-      "useful": "Utile ({{count}})"
+      "useful": "Utile ({{count}})",
+      "copyLink": "Copier le lien",
+      "linkCopied": "Lien copié",
+      "linkCopyError": "Le lien n'a pas pu être copié"
     },
     "savedPosts": {
       "title": "Publications enregistrées",
@@ -3503,6 +3508,11 @@
         "SUSPENDED": "Les modérateurs vous ont suspendu : pendant quelques jours, vous ne pouvez ni publier, ni commenter, ni republier, ni suivre, ni signaler.",
         "REPORT_ACTED": "Les modérateurs ont donné suite à l’un de vos signalements. Merci.",
         "REPORT_DISMISSED": "Les modérateurs n’ont rien relevé de contraire aux règles dans l’un de vos signalements."
+      },
+      "periods": {
+        "today": "Aujourd’hui",
+        "week": "Cette semaine",
+        "earlier": "Plus tôt"
       }
     },
     "drafts": {
@@ -3634,6 +3644,10 @@
     },
     "time": {
       "now": "à l’instant"
+    },
+    "postPage": {
+      "back": "Retour au fil",
+      "missing": "Cette publication n’existe plus, ou vous ne pouvez pas la lire."
     }
   }
 }

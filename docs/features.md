@@ -185,9 +185,11 @@ another person named, the tab says so; when the registry cannot be reached, it a
 **Leave the network** hides the card at once and keeps the handle the account's for its return. The membership is part
 of the data export.
 
-A member's page, `/m/<handle>` (**See my page** on the Network tab for one's own), shows the card, the members following
-them and they follow (each list opening their pages), the skills on their card the viewer's card has too, **Follows
-you** when they do, and **Follow** / **Unfollow**. On their own page a member **removes** a follower, without them being
+A member's page, `/m/<handle>` (**See my page** on the Network tab for one's own), opens on a cover band in the
+member's color under their avatar, their name, the card, the skills on their card the viewer's card has too and
+**Follows you** when they do, with **Follow** / **Unfollow** and a menu (mute, block, report), or **Edit my card** on
+one's own page. Tabs show their posts, the members following them and the members they follow (each opening their
+page). On their own page a member **removes** a follower, without them being
 told. A member who left the network leaves every count and list while away, and a visitor who has not joined is asked
 to join first.
 
@@ -245,8 +247,13 @@ on the choice of their store.
 
 **Notifications** (`/network/notifications`, counted on **Network** in the menu, read again every minute) tell a
 member who followed them, liked, commented or reposted their post, liked or replied to their comment or mentioned them by
-`@handle`, grouped as they read ("Léo and 2 others liked your post", with the post's first words), the newest first.
-Opening the page marks them read. A follow, a like (of a post, or of a comment under it) and a repost are told once per member, however often they are
+`@handle`, grouped as they read ("Léo and 2 others liked your post", with the post's first words), the newest first, under
+**Today**, **This week** and **Earlier**; unread ones are tinted with a dot, and each opens the post, or the member for a
+follow. Opening the page marks them read.
+
+A post has its own page, `/network/posts/<id>`, with its comments open: its time on the card opens it, **Copy link** in
+its menu copies its address, and a notification or the global search lead there. The page says the post is gone when
+it was deleted, its author left, or the reader may not read it. A follow, a like (of a post, or of a comment under it) and a repost are told once per member, however often they are
 undone; nothing comes from a member either one blocks, and **Profile → Network** turns each kind off.
 
 **Members to follow**, above the feed, are up to ten members each with its reason: one of the reader's Indezy contacts
@@ -882,7 +889,7 @@ search, `Alt+Shift+M` stage menu of the current opportunity or focused card, and
 button) the **global search**: words of two characters or more found in one field of an opportunity, client, contact or
 journal note, accents and case aside, up to 8 hits of each kind, highlighted; while the member network is on, a member
 also finds members (by what their card shows) and posts (among the latest 1,000), but those of members blocked either
-way, each opening the member's page. In the offer feed, `J` / `K` move between
+way, each opening the member's page or the post's. In the offer feed, `J` / `K` move between
 offers, `O` opens, `S` saves, `H` hides, `A` adds to the pipeline, `D` shows details, `N` opens the note and `X` selects.
 Shortcuts never run in editable fields, menus or dialogs. Every page works from the keyboard alone.
 

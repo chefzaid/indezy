@@ -59,6 +59,12 @@ public class NetworkPostController {
         return createdOrHeld(posts.post(SecurityUtils.getCurrentUserId(), request));
     }
 
+    @Operation(summary = "One post, as its reader may read it", description = "404 when the reader cannot read it")
+    @GetMapping("/posts/{id}")
+    public NetworkDtos.Post one(@PathVariable Long id) {
+        return posts.one(SecurityUtils.getCurrentUserId(), id);
+    }
+
     @Operation(summary = "Edit one's own post", description = "In the 15 minutes after posting it (409 later); the earlier text is kept")
     @PutMapping("/posts/{id}")
     public NetworkDtos.Post editPost(@PathVariable Long id, @Valid @RequestBody NetworkDtos.NewPost request) {

@@ -61,6 +61,11 @@ export class NetworkService {
     return this.http.put<NetworkPost>(`${this.API_URL}/posts/${postId}/vote`, null, { params: new HttpParams().set('choice', choice) });
   }
 
+  /** One post, as the reader may read it. */
+  onePost(id: number): Observable<NetworkPost> {
+    return this.http.get<NetworkPost>(`${this.API_URL}/posts/${id}`);
+  }
+
   /** Picks a comment under the reader's own question as its answer, or none. */
   answer(postId: number, commentId: number | null): Observable<void> {
     const params = commentId === null ? new HttpParams() : new HttpParams().set('commentId', commentId);

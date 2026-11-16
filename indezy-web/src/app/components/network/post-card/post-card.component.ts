@@ -73,6 +73,11 @@ export class PostCardComponent {
   isVoting = false;
   /** Whether the comments are open under the post. */
   showComments = false;
+
+  /** Opens the comments at once, as a post's own page does. */
+  @Input() set commentsOpen(open: boolean) {
+    this.showComments = open;
+  }
   /** The text being written while the author edits the post; none otherwise. */
   editing: FormControl<string> | null = null;
   /** The post's earlier texts, once asked for. */
@@ -210,6 +215,13 @@ export class PostCardComponent {
   }
 
   /** Reports another member's post to the moderators. */
+  /** Copies the address of the post's own page, to share it. */
+  copyLink(): void {
+    const link = `${window.location.origin}/network/posts/${this.post.id}`;
+    navigator.clipboard.writeText(link).then(() => this.notifications.success('network.post.linkCopied'),
+      () => this.notifications.error('network.post.linkCopyError'));
+  }
+
   report(): void {
     ReportDialogComponent.open(this.dialog, { target: 'posts', id: this.post.id }).subscribe();
   }

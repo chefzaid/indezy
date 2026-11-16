@@ -6,7 +6,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, map, switchMap } from 'rxjs';
 
@@ -17,6 +16,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MemberCardComponent } from '../member-card/member-card.component';
 import { PostCardComponent } from '../post-card/post-card.component';
+import { MemberAvatarComponent, memberGradient } from '../avatar/member-avatar.component';
 
 /** Which list of the page is open. */
 export type MemberList = 'followers' | 'following';
@@ -27,7 +27,7 @@ export type MemberList = 'followers' | 'following';
  */
 @Component({
   selector: 'app-member-page',
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatMenuModule, MatProgressSpinnerModule, TranslateModule, MemberCardComponent, PostCardComponent],
+  imports: [MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
   templateUrl: './member-page.component.html',
   styleUrls: ['./member-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -102,6 +102,16 @@ export class MemberPageComponent implements OnInit {
         this.notifications.error(error.status === 429 ? 'network.page.tooManyFollows' : 'network.page.followError');
       }
     });
+  }
+
+  /** The cover band, in the member's color. */
+  get cover(): string {
+    return memberGradient(this.page?.card.handle ?? '', 120);
+  }
+
+  /** Back to the member's posts from a list. */
+  showPosts(): void {
+    this.list = null;
   }
 
   /** Opens a list, or closes it when open. */

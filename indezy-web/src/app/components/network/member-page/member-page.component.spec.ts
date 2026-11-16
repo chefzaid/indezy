@@ -94,6 +94,23 @@ describe('MemberPageComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('network.page.listError');
   });
 
+  it('links the viewer\'s own page to their card, colors the cover and goes back to the posts from a list', () => {
+    const fixture = create(of({ ...page, own: true }));
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-edit-card]')).not.toBeNull();
+    expect(component.cover).toContain('linear-gradient');
+    network.followers.and.returnValue(of([card('leo')]));
+    (element.querySelector('[data-followers]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(element.querySelector('[data-member-list="followers"] app-member-avatar')).not.toBeNull();
+    expect(element.querySelector('[data-member-posts]')).toBeNull();
+    (element.querySelector('[data-tab-posts]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(component.list).toBeNull();
+    expect(element.querySelector('[data-member-posts]')).not.toBeNull();
+  });
+
   it('asks to follow a private card, withdraws the request, and says its posts are for its followers', () => {
     const fixture = create(of({ ...page, privateCard: true }));
     const element: HTMLElement = fixture.nativeElement;

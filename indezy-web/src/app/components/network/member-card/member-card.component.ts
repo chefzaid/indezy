@@ -18,6 +18,8 @@ import { MemberCard } from '../../../models';
 })
 export class MemberCardComponent {
   @Input({ required: true }) card!: MemberCard;
+  /** Without its photo, name and handle, nor its frame: the details under a member page's own header. */
+  @Input() bare = false;
 
   readonly icons = { AVAILABLE: 'event_available', ON_MISSION: 'work', LISTENING: 'hearing' };
 

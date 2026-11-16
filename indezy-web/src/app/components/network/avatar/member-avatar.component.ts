@@ -14,6 +14,12 @@ const GRADIENTS = [
   ['#1d4ed8', '#4338ca'], ['#15803d', '#047857'], ['#7e22ce', '#a21caf'], ['#334155', '#475569']
 ];
 
+/** The gradient a member's handle always picks, for their avatar and their page's cover. */
+export function memberGradient(handle: string, angle = 135): string {
+  const [from, to] = GRADIENTS[MemberAvatarComponent.hash(handle) % GRADIENTS.length];
+  return `linear-gradient(${angle}deg, ${from}, ${to})`;
+}
+
 /** A member's round avatar: their photo, or their initials on a color their handle always picks. */
 @Component({
   selector: 'app-member-avatar',
@@ -39,8 +45,7 @@ export class MemberAvatarComponent {
   }
 
   get background(): string {
-    const [from, to] = GRADIENTS[MemberAvatarComponent.hash(this.subject.handle) % GRADIENTS.length];
-    return `linear-gradient(135deg, ${from}, ${to})`;
+    return memberGradient(this.subject.handle);
   }
 
   /** A small, stable number from the handle, so a member keeps their color. */

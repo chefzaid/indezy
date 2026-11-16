@@ -3,30 +3,59 @@
   </app-page-header>
 
   @if (loaded && groups.length === 0) {
-    <p class="empty" data-notices-empty>{{ 'network.notices.empty' | translate }}</p>
+    <section class="empty" data-notices-empty>
+      <mat-icon aria-hidden="true">notifications_none</mat-icon>
+      <p>{{ 'network.notices.empty' | translate }}</p>
+    </section>
   }
-  <ul class="notices">
-    @for (group of groups; track $index) {
-      <li [class.unread]="!group.read" [attr.data-notice]="group.type">
-        <mat-icon aria-hidden="true">{{ icons[group.type] }}</mat-icon>
-        <div class="body">
-          <p>
-            @if (!group.read) {
-              <span class="cdk-visually-hidden">{{ 'network.notices.unread' | translate }}</span>
-            }
-            @if (moderation(group)) {
-              {{ 'network.notices.moderation.' + group.type | translate }}
+  @for (section of sections; track section.key) {
+    <section class="period" [attr.data-period]="section.key">
+      <h2>{{ 'network.notices.periods.' + section.key | translate }}</h2>
+      <ul class="notices">
+        @for (group of section.groups; track $index) {
+          <li [class.unread]="!group.read" [attr.data-notice]="group.type">
+            <ng-template #row>
+              <span class="faces" aria-hidden="true">
+                <mat-icon class="kind" [attr.data-kind]="group.type">{{ icons[group.type] }}</mat-icon>
+                @if (moderation(group)) {
+                  <span class="system"><mat-icon>shield</mat-icon></span>
+                } @else {
+                  <app-member-avatar [subject]="group.actors[0]" [size]="44"></app-member-avatar>
+                }
+              </span>
+              <span class="body">
+                <p class="text">
+                  @if (!group.read) {
+                    <span class="cdk-visually-hidden">{{ 'network.notices.unread' | translate }}</span>
+                  }
+                  @if (moderation(group)) {
+                    {{ 'network.notices.moderation.' + group.type | translate }}
+                  } @else {
+                    <strong>{{ who(group).key | translate: who(group).params }}</strong>
+                    {{ (group.count > 1 ? 'network.notices.typesMany.' : 'network.notices.types.') + group.type | translate }}
+                  }
+                </p>
+                @if (group.postExcerpt) {
+                  <span class="excerpt">« {{ group.postExcerpt }} »</span>
+                }
+                <time [attr.datetime]="group.latestAt" [title]="group.latestAt | date:'medium'">{{ group.latestAt | timeAgo }}</time>
+              </span>
+              @if (!group.read) {
+                <span class="dot" aria-hidden="true"></span>
+              }
+            </ng-template>
+            @if (link(group); as target) {
+              <a class="row" [routerLink]="target" data-notice-link>
+                <ng-container *ngTemplateOutlet="row"></ng-container>
+              </a>
             } @else {
-              <a [routerLink]="['/m', group.actors[0].handle]">{{ who(group).key | translate: who(group).params }}</a>
-              {{ (group.count > 1 ? 'network.notices.typesMany.' : 'network.notices.types.') + group.type | translate }}
+              <div class="row">
+                <ng-container *ngTemplateOutlet="row"></ng-container>
+              </div>
             }
-          </p>
-          @if (group.postExcerpt) {
-            <p class="excerpt">« {{ group.postExcerpt }} »</p>
-          }
-          <time [attr.datetime]="group.latestAt">{{ group.latestAt | date:'short' }}</time>
-        </div>
-      </li>
-    }
-  </ul>
+          </li>
+        }
+      </ul>
+    </section>
+  }
 </div>

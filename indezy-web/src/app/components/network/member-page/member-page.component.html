@@ -1,8 +1,9 @@
 <div class="member-page">
   @if (loading) {
-    <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+    <section class="profile card skeleton" aria-hidden="true"><span class="cover"></span><span class="bone avatar"></span></section>
+    <span class="cdk-visually-hidden" role="status">{{ 'common.loading' | translate }}</span>
   } @else if (problem) {
-    <section class="problem" [attr.data-member-problem]="problem">
+    <section class="problem card" [attr.data-member-problem]="problem">
       <mat-icon aria-hidden="true">{{ problem === 'notMember' ? 'group_add' : 'person_off' }}</mat-icon>
       <p>{{ 'network.page.' + problem | translate }}</p>
       @if (problem === 'notMember') {
@@ -10,77 +11,107 @@
       }
     </section>
   } @else if (page) {
-    <app-member-card [card]="page.card"></app-member-card>
-
-    <div class="relation">
-      @if (page.followsYou) {
-        <span class="follows-you" data-follows-you>{{ 'network.page.followsYou' | translate }}</span>
+    <section class="profile card" [attr.data-member-card]="page.card.handle">
+      <div class="cover" [style.background]="cover"></div>
+      <div class="identity">
+        <app-member-avatar class="big" [subject]="page.card" [size]="112"></app-member-avatar>
+        <div class="actions">
+          @if (!page.own) {
+            @if (page.blocked) {
+              <span class="blocked-note" data-blocked>{{ 'network.page.blockedNote' | translate }}</span>
+            } @else {
+              <button mat-flat-button type="button" class="follow" [class.following]="page.followed || page.requested" (click)="toggleFollow()"
+                [disabled]="isFollowing" data-follow [attr.aria-pressed]="page.followed || page.requested">
+                <mat-icon>{{ page.followed ? 'how_to_reg' : page.requested ? 'schedule' : 'person_add' }}</mat-icon>
+                {{ followLabel(page) | translate }}
+              </button>
+            }
+            <button mat-stroked-button type="button" class="round" [matMenuTriggerFor]="more" [attr.aria-label]="'network.page.more' | translate"
+              data-member-more>
+              <mat-icon>more_horiz</mat-icon>
+            </button>
+            <mat-menu #more="matMenu">
+              <button mat-menu-item type="button" (click)="toggleMute()" data-mute>
+                <mat-icon>{{ page.muted ? 'volume_up' : 'volume_off' }}</mat-icon>{{ (page.muted ? 'network.page.unmute' : 'network.page.mute') | translate }}
+              </button>
+              <button mat-menu-item type="button" (click)="toggleBlock()" data-block>
+                <mat-icon>block</mat-icon>{{ (page.blocked ? 'network.page.unblock' : 'network.page.block') | translate }}
+              </button>
+              <button mat-menu-item type="button" (click)="report()" data-member-report>
+                <mat-icon>flag</mat-icon>{{ 'network.report.action' | translate }}
+              </button>
+            </mat-menu>
+          } @else {
+            <a mat-stroked-button routerLink="/profile" class="edit-profile" data-edit-card>
+              <mat-icon>edit</mat-icon>{{ 'network.page.editCard' | translate }}
+            </a>
+          }
+        </div>
+      </div>
+      <div class="names">
+        <h1>
+          {{ page.card.firstName }} {{ page.card.lastName }}
+          @if (page.card.verified) {
+            <mat-icon class="verified" data-card-verified [attr.aria-label]="'network.card.verified' | translate"
+              [title]="'network.card.verified' | translate">verified</mat-icon>
+          }
+          @if (page.privateCard) {
+            <mat-icon class="lock" [attr.aria-label]="'profile.network.privateTitle' | translate" [title]="'profile.network.privateTitle' | translate"
+              data-card-private>lock</mat-icon>
+          }
+        </h1>
+        <p class="handle">
+          &#64;{{ page.card.handle }}
+          @if (page.followsYou) {
+            <span class="follows-you" data-follows-you>{{ 'network.page.followsYou' | translate }}</span>
+          }
+          @if (page.muted) {
+            <span class="muted-note" data-muted>{{ 'network.page.mutedNote' | translate }}</span>
+          }
+        </p>
+      </div>
+      <app-member-card [card]="page.card" [bare]="true"></app-member-card>
+      @if (page.sharedSkills.length) {
+        <div class="shared" data-shared-skills>
+          <span class="shared-title">{{ 'network.page.shared' | translate }}</span>
+          @for (skill of page.sharedSkills; track skill) {
+            <span class="skill">{{ skill }}</span>
+          }
+        </div>
       }
-      @if (!page.own) {
-        @if (page.blocked) {
-          <span class="blocked-note" data-blocked>{{ 'network.page.blockedNote' | translate }}</span>
-        } @else {
-          <button mat-flat-button type="button" (click)="toggleFollow()" [disabled]="isFollowing" data-follow
-            [attr.aria-pressed]="page.followed || page.requested">
-            <mat-icon>{{ page.followed ? 'person_remove' : page.requested ? 'schedule' : 'person_add' }}</mat-icon>
-            {{ followLabel(page) | translate }}
-          </button>
-        }
-        @if (page.muted) {
-          <span class="muted-note" data-muted>{{ 'network.page.mutedNote' | translate }}</span>
-        }
-        <button mat-icon-button type="button" [matMenuTriggerFor]="more" [attr.aria-label]="'network.page.more' | translate" data-member-more>
-          <mat-icon>more_vert</mat-icon>
-        </button>
-        <mat-menu #more="matMenu">
-          <button mat-menu-item type="button" (click)="toggleMute()" data-mute>
-            <mat-icon>{{ page.muted ? 'volume_up' : 'volume_off' }}</mat-icon>{{ (page.muted ? 'network.page.unmute' : 'network.page.mute') | translate }}
-          </button>
-          <button mat-menu-item type="button" (click)="toggleBlock()" data-block>
-            <mat-icon>block</mat-icon>{{ (page.blocked ? 'network.page.unblock' : 'network.page.block') | translate }}
-          </button>
-          <button mat-menu-item type="button" (click)="report()" data-member-report>
-            <mat-icon>flag</mat-icon>{{ 'network.report.action' | translate }}
-          </button>
-        </mat-menu>
-      }
-    </div>
+    </section>
 
-    <div class="counts">
-      <button mat-stroked-button type="button" (click)="show('followers')" [attr.aria-pressed]="list === 'followers'" data-followers>
+    <div class="tabs" role="tablist" [attr.aria-label]="'network.page.tabs' | translate">
+      <button type="button" role="tab" class="tab" [class.active]="!list" [attr.aria-selected]="!list" (click)="showPosts()" data-tab-posts>
+        {{ 'network.page.posts' | translate }}
+      </button>
+      <button type="button" role="tab" class="tab" [class.active]="list === 'followers'" [attr.aria-selected]="list === 'followers'"
+        (click)="show('followers')" data-followers>
         {{ 'network.page.followers' | translate: { count: page.followers } }}
       </button>
-      <button mat-stroked-button type="button" (click)="show('following')" [attr.aria-pressed]="list === 'following'" data-following>
+      <button type="button" role="tab" class="tab" [class.active]="list === 'following'" [attr.aria-selected]="list === 'following'"
+        (click)="show('following')" data-following>
         {{ 'network.page.following' | translate: { count: page.following } }}
       </button>
     </div>
 
-    @if (page.sharedSkills.length) {
-      <section class="shared" data-shared-skills>
-        <h2>{{ 'network.page.shared' | translate }}</h2>
-        <ul class="tags">
-          @for (skill of page.sharedSkills; track skill) {
-            <li>{{ skill }}</li>
-          }
-        </ul>
-      </section>
-    }
-
     @if (list) {
-      <section class="members" [attr.data-member-list]="list">
-        <h2>{{ 'network.page.' + list + 'Title' | translate }}</h2>
+      <section class="members card" [attr.data-member-list]="list" [attr.aria-label]="'network.page.' + list + 'Title' | translate">
         @if (members.length === 0) {
           <p class="empty">{{ 'network.page.none' | translate }}</p>
         }
         <ul>
           @for (member of members; track member.handle) {
             <li>
-              <a [routerLink]="['/m', member.handle]">{{ member.firstName }} {{ member.lastName }} <span class="handle">&#64;{{ member.handle }}</span></a>
-              @if (member.headline) {
-                <span class="headline">{{ member.headline }}</span>
-              }
+              <app-member-avatar [subject]="member" [size]="44"></app-member-avatar>
+              <div class="who">
+                <a [routerLink]="['/m', member.handle]">{{ member.firstName }} {{ member.lastName }} <span class="handle">&#64;{{ member.handle }}</span></a>
+                @if (member.headline) {
+                  <span class="headline">{{ member.headline }}</span>
+                }
+              </div>
               @if (page.own && list === 'followers') {
-                <button mat-button type="button" (click)="removeFollower(member)" [attr.data-remove-follower]="member.handle">
+                <button mat-stroked-button type="button" (click)="removeFollower(member)" [attr.data-remove-follower]="member.handle">
                   {{ 'network.page.removeFollower' | translate }}
                 </button>
               }
@@ -88,23 +119,28 @@
           }
         </ul>
       </section>
-    }
-
-    <section class="member-posts" data-member-posts>
-      <h2>{{ 'network.page.posts' | translate }}</h2>
-      @if (page.privateCard && !page.followed && !page.own) {
-        <p class="empty" data-posts-private>{{ 'network.page.privatePosts' | translate: { name: page.card.firstName } }}</p>
-      } @else if (posts.length === 0) {
-        <p class="empty">{{ 'network.page.noPosts' | translate }}</p>
-      }
-      <ul class="posts">
-        @for (post of posts; track post.id) {
-          <li><app-post-card [post]="post" (deleted)="removePost($event)"></app-post-card></li>
+    } @else {
+      <section class="member-posts" data-member-posts [attr.aria-label]="'network.page.posts' | translate">
+        @if (page.privateCard && !page.followed && !page.own) {
+          <div class="empty card" data-posts-private>
+            <mat-icon aria-hidden="true">lock</mat-icon>
+            <p>{{ 'network.page.privatePosts' | translate: { name: page.card.firstName } }}</p>
+          </div>
+        } @else if (posts.length === 0) {
+          <div class="empty card">
+            <mat-icon aria-hidden="true">article</mat-icon>
+            <p>{{ 'network.page.noPosts' | translate }}</p>
+          </div>
         }
-      </ul>
-      @if (morePosts) {
-        <button mat-stroked-button type="button" (click)="loadPosts(postsPage + 1)" data-posts-more>{{ 'network.feed.more' | translate }}</button>
-      }
-    </section>
+        <ul class="posts">
+          @for (post of posts; track post.id) {
+            <li><app-post-card [post]="post" (deleted)="removePost($event)"></app-post-card></li>
+          }
+        </ul>
+        @if (morePosts) {
+          <button mat-stroked-button type="button" class="more-posts" (click)="loadPosts(postsPage + 1)" data-posts-more>{{ 'network.feed.more' | translate }}</button>
+        }
+      </section>
+    }
   }
 </div>

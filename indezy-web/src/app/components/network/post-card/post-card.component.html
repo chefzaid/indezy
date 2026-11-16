@@ -13,7 +13,9 @@
       <div class="meta">
         <span class="handle">&#64;{{ post.author.handle }}</span>
         <span aria-hidden="true">·</span>
-        <time [attr.datetime]="post.createdAt" [title]="post.createdAt | date:'medium'">{{ post.createdAt | timeAgo }}</time>
+        <a [routerLink]="['/network/posts', post.id]" class="permalink" data-post-permalink>
+          <time [attr.datetime]="post.createdAt" [title]="post.createdAt | date:'medium'">{{ post.createdAt | timeAgo }}</time>
+        </a>
         @if (post.edited) {
           <span aria-hidden="true">·</span>
           <button type="button" class="edited" (click)="toggleVersions()" [attr.aria-expanded]="versions !== null" data-post-edited>
@@ -35,6 +37,9 @@
       <mat-icon>more_horiz</mat-icon>
     </button>
     <mat-menu #actions="matMenu">
+      <button mat-menu-item type="button" (click)="copyLink()" data-post-copy-link>
+        <mat-icon>link</mat-icon>{{ 'network.post.copyLink' | translate }}
+      </button>
       @if (!post.own) {
         <button mat-menu-item type="button" (click)="report()" data-post-report>
           <mat-icon>flag</mat-icon>{{ 'network.report.action' | translate }}

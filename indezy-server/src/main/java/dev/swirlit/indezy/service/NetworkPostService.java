@@ -441,6 +441,12 @@ public class NetworkPostService {
             .flatMap(Optional::stream).toList();
     }
 
+    /** One post as its reader sees it, for its own page; not found when they cannot read it. */
+    @Transactional(readOnly = true)
+    public NetworkDtos.Post one(Long userId, Long postId) {
+        return reread(readable(userId, postId), userId);
+    }
+
     /** A post the reader can read: its author in the network, neither blocking the other, nor private to them; not found otherwise. */
     NetworkPost readable(Long userId, Long postId) {
         network.requireMember(userId);

@@ -3342,7 +3342,9 @@
       "tooManyFollows": "You have followed many members this hour: try again later.",
       "requested": "Request sent",
       "askToFollow": "Ask to follow",
-      "privatePosts": "{{name}}’s card is private: only the followers they approve read their posts."
+      "privatePosts": "{{name}}’s card is private: only the followers they approve read their posts.",
+      "editCard": "Edit my card",
+      "tabs": "The member’s posts and lists"
     },
     "directory": {
       "title": "Members",
@@ -3433,7 +3435,10 @@
       "repostsOffError": "Its author turned reposts off for this post.",
       "originalGone": "The original post is no longer available.",
       "commentLikes": "Likes on this comment:",
-      "useful": "Useful ({{count}})"
+      "useful": "Useful ({{count}})",
+      "copyLink": "Copy link",
+      "linkCopied": "Link copied",
+      "linkCopyError": "The link could not be copied"
     },
     "savedPosts": {
       "title": "Saved posts",
@@ -3503,6 +3508,11 @@
         "SUSPENDED": "The moderators suspended you: for some days you cannot post, comment, repost, follow or report.",
         "REPORT_ACTED": "The moderators acted on a report you made. Thank you.",
         "REPORT_DISMISSED": "The moderators found nothing against the rules in a report you made."
+      },
+      "periods": {
+        "today": "Today",
+        "week": "This week",
+        "earlier": "Earlier"
       }
     },
     "drafts": {
@@ -3634,6 +3644,10 @@
     },
     "time": {
       "now": "now"
+    },
+    "postPage": {
+      "back": "Back to the feed",
+      "missing": "This post is gone, or you cannot read it."
     }
   }
 }

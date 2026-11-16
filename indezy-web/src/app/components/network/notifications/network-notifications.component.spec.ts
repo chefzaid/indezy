@@ -70,4 +70,16 @@ describe('NetworkNotificationsComponent', () => {
     create(throwError(() => new Error('down')));
     expect(notifications.error).toHaveBeenCalledWith('network.notices.loadError');
   });
+
+  it('groups by period and leads to the post, the member, or nowhere for the moderators', () => {
+    const element = create();
+    const now = new Date('2026-11-15T12:00:00');
+    const at = (latestAt: string) => ({ ...group('LIKE', 1), latestAt });
+    const sections = NetworkNotificationsComponent.byPeriod([at('2026-11-15T08:00:00'), at('2026-11-12T08:00:00'), at('2026-10-01T08:00:00')],
+      now);
+    expect(sections.map(section => section.key)).toEqual(['today', 'week', 'earlier']);
+    expect(NetworkNotificationsComponent.byPeriod([at('2026-11-15T08:00:00')], now).map(section => section.key)).toEqual(['today']);
+    expect(element.querySelector('[data-notice="LIKE"] [data-notice-link]')?.getAttribute('href')).toBe('/network/posts/4');
+    expect(element.querySelector('[data-notice="FOLLOW"] [data-notice-link]')?.getAttribute('href')).toBe('/m/leo_m');
+  });
 });

@@ -211,6 +211,23 @@ describe('PostCardComponent', () => {
     expect(open).toHaveBeenCalledWith(jasmine.anything(), { target: 'posts', id: 4 });
   });
 
+  it('copies the address of the post\'s own page, or says it could not', async () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', post);
+    fixture.detectChanges();
+    const write = spyOn(navigator.clipboard, 'writeText').and.returnValue(Promise.resolve());
+    fixture.componentInstance.copyLink();
+    await fixture.whenStable();
+    expect(write).toHaveBeenCalledWith(`${window.location.origin}/network/posts/4`);
+    expect(notifications.success).toHaveBeenCalledWith('network.post.linkCopied');
+    write.and.returnValue(Promise.reject(new Error('denied')));
+    fixture.componentInstance.copyLink();
+    await fixture.whenStable();
+    await Promise.resolve();
+    expect(notifications.error).toHaveBeenCalledWith('network.post.linkCopyError');
+  });
+
   it('shows a mission\'s kind and facts, and a question as answered', () => {
     configure();
     const fixture = TestBed.createComponent(PostCardComponent);

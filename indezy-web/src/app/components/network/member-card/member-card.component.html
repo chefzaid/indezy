@@ -1,4 +1,5 @@
-<article class="member-card" [attr.data-member-card]="card.handle">
+<article class="member-card" [class.bare]="bare" [attr.data-member-card]="bare ? null : card.handle">
+  @if (!bare) {
   <div class="identity">
     <span class="ring" [class]="'ring ' + (card.availability ?? 'NONE')">
       @if (card.avatar) {
@@ -18,6 +19,7 @@
       <span class="handle">&#64;{{ card.handle }}</span>
     </div>
   </div>
+  }
   @if (card.headline) {
     <p class="headline">{{ card.headline }}</p>
   }

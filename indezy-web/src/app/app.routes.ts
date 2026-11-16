@@ -137,6 +137,12 @@ export const routes: Routes = [
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
   },
   {
+    // A post's own page, its comments open.
+    path: 'network/posts/:id',
+    loadComponent: () => import('./components/network/post-page/post-page.component').then(m => m.PostPageComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
     path: 'network/tags/:tag',
     loadComponent: () => import('./components/network/tag-page/tag-page.component').then(m => m.TagPageComponent),
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]

@@ -74,6 +74,11 @@ class NetworkPostsIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.GET, "/network/feed?page=1", null, Map.class).getBody()).containsEntry("page", 1)
             .containsEntry("more", false);
 
+        // A post has its own page, for whoever can read it; a deleted one, like one never written, is not found.
+        assertThat(call(bob, HttpMethod.GET, "/network/posts/" + second.get("id"), null, Map.class).getBody())
+            .containsEntry("id", second.get("id")).containsEntry("text", "Deuxième").containsEntry("own", false);
+        assertThat(call(bob, HttpMethod.GET, "/network/posts/999999999", null, String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
         // Only its author deletes a post; a member away hides theirs.
         assertThat(call(bob, HttpMethod.DELETE, "/network/posts/" + second.get("id"), null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.NOT_FOUND);
@@ -82,8 +87,12 @@ class NetworkPostsIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(posts(bob, "/network/feed")).extracting(post -> post.get("id")).containsExactly(posted.get("id"));
         assertThat(call(alice, HttpMethod.GET, "/users/export", null, String.class).getBody()).contains("\"networkPosts\"")
             .contains("Retour d'expérience").doesNotContain("Deuxième");
+        assertThat(call(bob, HttpMethod.GET, "/network/posts/" + second.get("id"), null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
         call(alice, HttpMethod.DELETE, "/network/membership", null, String.class);
         assertThat(posts(bob, "/network/feed")).isEmpty();
+        assertThat(call(bob, HttpMethod.GET, "/network/posts/" + posted.get("id"), null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test

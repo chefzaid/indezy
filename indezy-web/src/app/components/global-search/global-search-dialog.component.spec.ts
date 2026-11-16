@@ -110,7 +110,7 @@ describe('GlobalSearchDialogComponent', () => {
     element().querySelectorAll<HTMLElement>('[role="option"]')[0].click();
     expect(navigate).toHaveBeenCalledWith(['/m', 'leo_m']);
     component.open(component.options[1]);
-    expect(navigate).toHaveBeenCalledWith(['/m', 'ines_b']);
+    expect(navigate).toHaveBeenCalledWith(['/network/posts', 3]);
   }));
 
   it('reads an answer without the network\'s kinds', fakeAsync(() => {

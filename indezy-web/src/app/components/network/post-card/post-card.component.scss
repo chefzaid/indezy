@@ -79,6 +79,15 @@ header {
   white-space: nowrap;
 }
 
+.permalink {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .edited {
   padding: 0;
   border: none;
