@@ -271,7 +271,11 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const en = language === 'en';
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, language);
-    await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+    await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false,
+      features: { SOCIAL_NETWORK: true, OFFER_FEED: true } } }));
+    await page.route('**/api/offers?**', route => route.fulfill({ json: { content: [{ id: 41, site: 'FREEWORK', siteName: 'Free-Work',
+      url: 'https://example.test/41', title: 'Lead Kafka', city: 'Lyon', rateMin: 650, rateMax: 700 }], page: 0, size: 5, totalElements: 1,
+      totalPages: 1 } }));
     const leo = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: ['Kafka'], city: null,
       remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
     const post = { id: 3, text: 'Retour sur #Kafka', tags: ['kafka'], createdAt: '2026-11-13T09:00:00', own: false, likes: 0, liked: false,
@@ -289,6 +293,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.locator('[data-post="3"] .tag').click();
     await expect(page).toHaveURL(/\/network\/tags\/kafka$/);
     await expect(page.locator('[data-tag-members]')).toContainText('Léo Martin');
+    await expect(page.locator('[data-tag-mission="41"]')).toContainText('650–700 €');
+    await expect(page.locator('[data-tag-missions-all]')).toHaveAttribute('href', /skills=kafka/);
     await expect(page.locator('[data-tag-posts] [data-post="3"]')).toBeVisible();
     await page.locator('[data-follow-tag]').click();
     await expect(page.locator('[data-follow-tag]')).toContainText(en ? 'Unfollow the tag' : 'Ne plus suivre le tag');

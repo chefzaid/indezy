@@ -208,7 +208,8 @@ the full date on hover. On a phone, a one-line **What's new?** and a floating bu
 `@handle` links to the member's page and `#tag` names a skill or a city (typing either lists, under the text, the
 members whose handle or name starts with what follows, those followed first, or the tags in use, the most used first;
 the arrows move through them and Enter or Tab writes the one chosen), opening the tag's page
-(`/network/tags/<tag>`): the posts naming it, the members whose cards show the skill, and **Follow the tag**. The feed
+(`/network/tags/<tag>`): the posts naming it, the members whose cards show the skill, the offer feed's five newest open
+missions naming it (while the feed is on, with a link to them all), and **Follow the tag**. The feed
 then holds the reader's posts, those of the members they follow and those naming a tag they follow (listed above
 it), the newest first, 20 at a time, the next page coming as the reader nears the end (or with **Show more**), but
 those of members muted or blocked either way, or away from the network. Every minute, while the page is seen, the

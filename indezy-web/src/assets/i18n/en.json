@@ -3474,7 +3474,10 @@
       "subtitle": "Posts naming this tag, and the members whose cards show the skill",
       "order": "Order of the posts",
       "recent": "Newest",
-      "mostUseful": "Most useful"
+      "mostUseful": "Most useful",
+      "missions": "Open missions for #{{tag}}",
+      "noMissions": "No open mission names this skill right now.",
+      "allMissions": "See them all in the offer feed"
     },
     "suggestions": {
       "title": "Members to follow",

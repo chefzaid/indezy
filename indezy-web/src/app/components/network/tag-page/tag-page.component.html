@@ -1,42 +1,86 @@
 @if (page) {
   <div class="tag-page" [attr.data-tag-page]="page.tag">
     <app-page-header icon="tag" [title]="'#' + page.tag" [subtitle]="'network.tags.subtitle' | translate">
-      <button mat-flat-button type="button" (click)="toggleFollow()" [attr.aria-pressed]="page.followed" data-follow-tag>
-        <mat-icon>{{ page.followed ? 'remove' : 'add' }}</mat-icon>
+      <button mat-flat-button type="button" class="follow" [class.following]="page.followed" (click)="toggleFollow()"
+        [attr.aria-pressed]="page.followed" data-follow-tag>
+        <mat-icon>{{ page.followed ? 'check' : 'add' }}</mat-icon>
         {{ (page.followed ? 'network.tags.unfollow' : 'network.tags.follow') | translate }}
       </button>
     </app-page-header>
 
-    <section data-tag-members>
-      <h2>{{ 'network.tags.members' | translate }}</h2>
-      @if (page.members.length === 0) {
-        <p class="empty">{{ 'network.tags.noMembers' | translate }}</p>
-      }
-      <ul class="members">
-        @for (member of page.members; track member.handle) {
-          <li><a [routerLink]="['/m', member.handle]">{{ member.firstName }} {{ member.lastName }}</a></li>
+    <div class="columns">
+      <section class="main" data-tag-posts>
+        <div class="posts-head">
+          <h2>{{ 'network.tags.posts' | translate }}</h2>
+          <mat-button-toggle-group [value]="sort" (change)="order($event.value)" [attr.aria-label]="'network.tags.order' | translate"
+            hideSingleSelectionIndicator data-tag-order>
+            <mat-button-toggle value="recent" data-tag-order-recent>{{ 'network.tags.recent' | translate }}</mat-button-toggle>
+            <mat-button-toggle value="useful" data-tag-order-useful>{{ 'network.tags.mostUseful' | translate }}</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+        @if (posts.length === 0) {
+          <p class="empty card">{{ 'network.tags.noPosts' | translate }}</p>
         }
-      </ul>
-    </section>
+        <ul class="posts">
+          @for (post of posts; track post.id) {
+            <li><app-post-card [post]="post"></app-post-card></li>
+          }
+        </ul>
+        @if (page.posts.more) {
+          <button mat-stroked-button type="button" class="more" (click)="more()" data-tag-more>{{ 'network.feed.more' | translate }}</button>
+        }
+      </section>
 
-    <section data-tag-posts>
-      <h2>{{ 'network.tags.posts' | translate }}</h2>
-      <mat-button-toggle-group [value]="sort" (change)="order($event.value)" [attr.aria-label]="'network.tags.order' | translate"
-        hideSingleSelectionIndicator data-tag-order>
-        <mat-button-toggle value="recent" data-tag-order-recent>{{ 'network.tags.recent' | translate }}</mat-button-toggle>
-        <mat-button-toggle value="useful" data-tag-order-useful>{{ 'network.tags.mostUseful' | translate }}</mat-button-toggle>
-      </mat-button-toggle-group>
-      @if (posts.length === 0) {
-        <p class="empty">{{ 'network.tags.noPosts' | translate }}</p>
-      }
-      <ul class="posts">
-        @for (post of posts; track post.id) {
-          <li><app-post-card [post]="post"></app-post-card></li>
+      <aside class="side">
+        <section class="card" data-tag-members>
+          <h2>{{ 'network.tags.members' | translate }}</h2>
+          @if (page.members.length === 0) {
+            <p class="empty">{{ 'network.tags.noMembers' | translate }}</p>
+          }
+          <ul class="members">
+            @for (member of page.members; track member.handle) {
+              <li>
+                <a [routerLink]="['/m', member.handle]">
+                  <app-member-avatar [subject]="member" [size]="32"></app-member-avatar>
+                  <span class="who"><span class="name">{{ member.firstName }} {{ member.lastName }}</span>
+                    @if (member.headline) {
+                      <span class="headline">{{ member.headline }}</span>
+                    }
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
+        </section>
+
+        @if (missions !== null) {
+          <section class="card" data-tag-missions>
+            <h2>{{ 'network.tags.missions' | translate: { tag: page.tag } }}</h2>
+            @if (missions.length === 0) {
+              <p class="empty">{{ 'network.tags.noMissions' | translate }}</p>
+            }
+            <ul class="missions">
+              @for (offer of missions; track offer.id) {
+                <li>
+                  <a [routerLink]="['/offers', offer.id]" [attr.data-tag-mission]="offer.id">
+                    <span class="title">{{ offer.title }}</span>
+                    <span class="facts">
+                      @if (offer.rateMin || offer.rateMax) {
+                        <span>{{ rate(offer) }}</span>
+                      }
+                      @if (offer.city) {
+                        <span>{{ offer.city }}</span>
+                      }
+                      <span>{{ offer.siteName }}</span>
+                    </span>
+                  </a>
+                </li>
+              }
+            </ul>
+            <a class="all" routerLink="/offers" [queryParams]="allMissions" data-tag-missions-all>{{ 'network.tags.allMissions' | translate }}</a>
+          </section>
         }
-      </ul>
-      @if (page.posts.more) {
-        <button mat-stroked-button type="button" (click)="more()" data-tag-more>{{ 'network.feed.more' | translate }}</button>
-      }
-    </section>
+      </aside>
+    </div>
   </div>
 }

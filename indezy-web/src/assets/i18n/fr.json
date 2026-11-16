@@ -3474,7 +3474,10 @@
       "subtitle": "Les publications qui nomment ce tag, et les membres dont la carte affiche la compétence",
       "order": "Ordre des publications",
       "recent": "Plus récentes",
-      "mostUseful": "Plus utiles"
+      "mostUseful": "Plus utiles",
+      "missions": "Missions ouvertes pour #{{tag}}",
+      "noMissions": "Aucune mission ouverte ne cite cette compétence pour l'instant.",
+      "allMissions": "Les voir toutes dans le fil des offres"
     },
     "suggestions": {
       "title": "Membres à suivre",

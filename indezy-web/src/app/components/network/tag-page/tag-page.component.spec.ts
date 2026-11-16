@@ -2,9 +2,11 @@ import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
-import { MemberCard, NetworkPost, TagPage } from '../../../models';
+import { MemberCard, NetworkPost, Offer, OfferPage, TagPage } from '../../../models';
+import { OfferService } from '../../../services/offer/offer.service';
+import { CapabilitiesService, DEFAULT_CAPABILITIES } from '../../../services/admin/capabilities.service';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { TagPageComponent } from './tag-page.component';
@@ -18,7 +20,16 @@ describe('TagPageComponent', () => {
     likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, useful: null, reactions: [], myReaction: null, author: leo });
   const page: TagPage = { tag: 'kafka', followed: false, posts: { posts: [post(2)], page: 0, more: true }, members: [leo] };
 
-  function create(answer = of(page)): ComponentFixture<TagPageComponent> {
+  let offers: jasmine.SpyObj<OfferService>;
+  const offer = (id: number, changes: Partial<Offer> = {}): Offer => ({ id, site: 'FREEWORK', siteName: 'Free-Work',
+    url: `https://example.test/${id}`, title: `Lead Kafka ${id}`, city: 'Lyon', rateMin: 600, rateMax: 700, ...changes } as Offer);
+  const found = (content: Offer[]): OfferPage => ({ content, page: 0, size: 5, totalElements: content.length, totalPages: 1 } as OfferPage);
+
+  function create(answer = of(page), offerFeed = true,
+                  missions: Observable<OfferPage> = of(found([offer(1), offer(2, { rateMin: undefined, rateMax: 650, city: undefined })])))
+    : ComponentFixture<TagPageComponent> {
+    offers = jasmine.createSpyObj('OfferService', ['searchQuietly']);
+    offers.searchQuietly.and.returnValue(missions);
     network = jasmine.createSpyObj('NetworkService', ['tagPage', 'followTag']);
     network.tagPage.and.returnValue(answer);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -26,12 +37,37 @@ describe('TagPageComponent', () => {
       imports: [TagPageComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ tag: 'kafka' })) } },
-        { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications }]
+        { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
+        { provide: OfferService, useValue: offers }, { provide: CapabilitiesService, useValue: { snapshot: () => ({ admin: false,
+          features: { ...DEFAULT_CAPABILITIES.features, OFFER_FEED: offerFeed } }) } }]
     });
     const fixture = TestBed.createComponent(TagPageComponent);
     fixture.detectChanges();
     return fixture;
   }
+
+  it('lists the offer feed\'s newest missions naming the skill, with a link to all of them', () => {
+    const element: HTMLElement = create().nativeElement;
+    expect(offers.searchQuietly).toHaveBeenCalledWith(jasmine.objectContaining({ skills: ['kafka'], sort: 'NEWEST', size: 5 }));
+    const first = element.querySelector('[data-tag-mission="1"]')!;
+    expect(first.getAttribute('href')).toBe('/offers/1');
+    expect(first.textContent).toContain('600–700 €');
+    expect(element.querySelector('[data-tag-mission="2"]')?.textContent).toContain('650 €');
+    expect(element.querySelector('[data-tag-missions-all]')?.getAttribute('href')).toContain('skills=kafka');
+  });
+
+  it('leaves the missions out while the offer feed is off, or when they cannot be read', () => {
+    let element: HTMLElement = create(of(page), false).nativeElement;
+    expect(offers.searchQuietly).not.toHaveBeenCalled();
+    expect(element.querySelector('[data-tag-missions]')).toBeNull();
+    TestBed.resetTestingModule();
+    element = create(of(page), true, throwError(() => new Error('down'))).nativeElement;
+    expect(offers.searchQuietly).toHaveBeenCalled();
+    expect(element.querySelector('[data-tag-missions]')).toBeNull();
+    TestBed.resetTestingModule();
+    element = create(of(page), true, of(found([]))).nativeElement;
+    expect(element.querySelector('[data-tag-missions]')?.textContent).toContain('network.tags.noMissions');
+  });
 
   it('shows the tag\'s members and posts, pages through the posts and follows the tag', () => {
     const fixture = create();
