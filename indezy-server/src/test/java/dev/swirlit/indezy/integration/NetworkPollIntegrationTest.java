@@ -29,8 +29,8 @@ class NetworkPollIntegrationTest extends TwoAccountsIntegrationTest {
     private NetworkPostRepository posts;
 
     @AfterEach
-    void closeTheNetwork() {
-        flags.set(FeatureFlag.SOCIAL_NETWORK, false);
+    void reopenTheNetwork() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
     }
 
     private String join(Account account) {

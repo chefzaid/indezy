@@ -55,9 +55,8 @@ class FeatureFlagServiceTest {
         });
         FeatureFlagService flags = new FeatureFlagService(states, clock);
 
-        // Each feature is on until turned off, but the member network, off until turned on.
-        assertThat(flags.all()).hasSize(FeatureFlag.values().length)
-            .allSatisfy((flag, enabled) -> assertThat(enabled).isEqualTo(flag != FeatureFlag.SOCIAL_NETWORK));
+        // Each feature is on until turned off.
+        assertThat(flags.all()).hasSize(FeatureFlag.values().length).allSatisfy((flag, enabled) -> assertThat(enabled).isTrue());
         flags.set(FeatureFlag.DATA_IMPORT, false);
         assertThat(flags.isEnabled(FeatureFlag.DATA_IMPORT)).isFalse();
         verify(states, times(2)).findAll();

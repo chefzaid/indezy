@@ -36,8 +36,8 @@ class NetworkVerificationIntegrationTest extends TwoAccountsIntegrationTest {
     private CompanyDirectory directory;
 
     @AfterEach
-    void closeTheNetwork() {
-        flags.set(FeatureFlag.SOCIAL_NETWORK, false);
+    void reopenTheNetwork() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
     }
 
     private Map<String, Object> card() {

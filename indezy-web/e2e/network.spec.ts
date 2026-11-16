@@ -74,13 +74,15 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
   });
 }
 
-test('keeps the network out of the profile until an administrator opens it', async ({ page }) => {
+test('keeps the network out of the menu and the profile while an administrator turns it off', async ({ page }) => {
   await mockWorkspaceSession(page, 'en');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: false } } }));
   await page.route('**/api/users/profile', route => route.fulfill({ json: { id: 1, firstName: 'Camille', lastName: 'Durand',
     email: 'workspace@example.test' } }));
   await page.goto('/profile');
   await expect(page.getByRole('tab', { name: 'Billing' })).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Network' })).toHaveCount(0);
+  await expect(page.locator('a[href="/network"]')).toHaveCount(0);
 });
 
 for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {

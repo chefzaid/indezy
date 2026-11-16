@@ -30,8 +30,8 @@ class NetworkDraftsIntegrationTest extends TwoAccountsIntegrationTest {
     private NetworkDraftService drafts;
 
     @AfterEach
-    void closeTheNetwork() {
-        flags.set(FeatureFlag.SOCIAL_NETWORK, false);
+    void reopenTheNetwork() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
     }
 
     @SuppressWarnings("unchecked")

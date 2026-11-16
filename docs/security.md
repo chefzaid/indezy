@@ -76,8 +76,8 @@ Current backend rules:
 - `/admin/**` also requires an administrator, an account whose email `INDEZY_ADMIN_EMAILS` names (`AdminService`);
   anyone else receives `403`
 - a feature an administrator turned off answers `403` on its paths, public ones included (`FeatureFlagInterceptor`,
-  see [Admin Console And Feature Flags](./features.md#admin-console-and-feature-flags)); the member network (`/network`)
-  is off until turned on, and its cards answer only to members
+  see [Admin Console And Feature Flags](./features.md#admin-console-and-feature-flags)); the member network's cards
+  (`/network`) answer only to members
 
 These are the backend's rules. In production, every `/api` path except `/api/public` first passes the `indezy-sso`
 ForwardAuth Middleware (`indezy-api-ingress` in `infra/k8s/ingress.yaml`), so from the internet the actuator, OpenAPI and
@@ -185,7 +185,7 @@ the activity report links:
 
 ## Member Network
 
-The member network (`/api/network`) is off until an administrator turns it on (`SOCIAL_NETWORK`); then:
+The member network (`/api/network`) is on unless an administrator turns it off (`SOCIAL_NETWORK`); while on:
 
 - only members see members: every network endpoint but the membership's own answers `409` until the account joins, and
   a former member, like an unknown handle, is not found;

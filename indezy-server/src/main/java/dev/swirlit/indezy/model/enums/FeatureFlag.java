@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Features an administrator can turn off or on without redeploying, each with the API paths it answers on (below the
- * context path). Each is on until turned off, but the member network, off until turned on.
+ * context path). Each is on until turned off.
  */
 public enum FeatureFlag {
     // The unsubscribe links of saved search emails stay open under /public, whatever the feed's state.
@@ -12,7 +12,7 @@ public enum FeatureFlag {
     PUBLIC_PROFILES("/public/profiles", "/users/public-profile"),
     DATA_IMPORT("/users/import"),
     YEARLY_REVIEW("/projects/review"),
-    SOCIAL_NETWORK(false, "/network");
+    SOCIAL_NETWORK("/network");
 
     private final boolean enabledByDefault;
     private final List<String> paths;

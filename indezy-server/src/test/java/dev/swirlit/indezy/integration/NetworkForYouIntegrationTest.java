@@ -23,8 +23,8 @@ class NetworkForYouIntegrationTest extends TwoAccountsIntegrationTest {
     private FeatureFlagService flags;
 
     @AfterEach
-    void closeTheNetwork() {
-        flags.set(FeatureFlag.SOCIAL_NETWORK, false);
+    void reopenTheNetwork() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
     }
 
     private String join(Account account) {

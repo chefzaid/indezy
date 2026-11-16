@@ -162,8 +162,8 @@ once. A received testimonial waits **To review** until **Show on my public page*
 
 ### Member Network
 
-The member network is off until an administrator turns it on (**Admin → Features → Member network**, the only feature
-off by default). Then **Profile → Network** joins it, a choice each account makes: a handle unique among members
+The member network is on for everyone (**Network** in the menu), like every feature, unless an administrator turns it
+off (**Admin → Features → Member network**). **Profile → Network** joins it, a choice each account makes: a handle unique among members
 (`@camille_d`, 3 to 30 lower-case letters, digits or underscores, starting with a letter; offered from the first name,
 said taken while typing, and never one that would pass for Indezy, such as `@admin` or `@support`), and a **member
 card** built from the profile: the name, then the photo, headline, skills, city, availability and languages, each shown
@@ -897,7 +897,7 @@ out forgets everything.
 - **Moderation**: the member network's reports, decided as [Member Network](#member-network) tells.
 - **Features**: turns the **Offer feed**, **Public profiles**, **Data import**, **Yearly review** or **Member network**
   off or on for every account without a redeploy, within 30 seconds; a feature off leaves the menu and its API refuses
-  requests. Each is on until turned off, but the member network, off until turned on.
+  requests. Each is on until turned off.
 
 ## Internationalization
 

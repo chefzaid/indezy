@@ -10,7 +10,7 @@ import { Capabilities, FeatureFlag } from '../../models';
  */
 export const DEFAULT_CAPABILITIES: Capabilities = {
   admin: false,
-  features: { OFFER_FEED: true, PUBLIC_PROFILES: true, DATA_IMPORT: true, YEARLY_REVIEW: true, SOCIAL_NETWORK: false }
+  features: { OFFER_FEED: true, PUBLIC_PROFILES: true, DATA_IMPORT: true, YEARLY_REVIEW: true, SOCIAL_NETWORK: true }
 };
 
 /** What the signed-in account may open: the admin console, and the features an administrator left on. */

@@ -146,6 +146,7 @@ class WeeklyDigestIntegrationTest extends OfferIntegrationTestSupport {
         call(alice, HttpMethod.PUT, "/users/notifications", Map.of("weeklyReports", true, "weeklyDigestSections", List.of("NETWORK_TAGS")));
         LocalDate week = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         // The network off: nothing to say (each empty week is still claimed, so each try is a week later).
+        flags.set(FeatureFlag.SOCIAL_NETWORK, false);
         digests.send(week);
         verify(mailer, never()).send(org.mockito.ArgumentMatchers.argThat(email -> email.to().equals(alice.email())));
 
@@ -172,7 +173,7 @@ class WeeklyDigestIntegrationTest extends OfferIntegrationTestSupport {
             assertThat(toAlice.text()).contains("Most liked in the tags you follow", "#" + tag + " · Bob",
                 "\"Retour sur #" + tag + " en production\" (1 likes)", "/network/tags/" + tag).doesNotContain("Sans J'aime");
         } finally {
-            flags.set(FeatureFlag.SOCIAL_NETWORK, false);
+            flags.set(FeatureFlag.SOCIAL_NETWORK, true);
         }
     }
 }

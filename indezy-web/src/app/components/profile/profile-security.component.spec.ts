@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestimonialService } from '../../services/testimonial/testimonial.service';
 import { ContactService } from '../../services/contact/contact.service';
+import { NetworkService } from '../../services/network/network.service';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { provideRouter } from '@angular/router';
@@ -60,6 +61,9 @@ describe('ProfileComponent security', () => {
           apiTokens: () => of([]) } },
         { provide: WebhookService, useValue: { list: () => of([]) } },
         { provide: TestimonialService, useValue: { list: () => of([]) } },
+        { provide: NetworkService, useValue: { membership: () => of({ joined: false, handle: 'john', card: null, privateCard: false,
+          availability: { mode: 'AUTO', date: null }, fields: { photo: true, headline: true, stack: true, location: true,
+            availability: true, languages: true, remote: false } }), handle: () => of({ handle: 'john', available: true }) } },
         { provide: ContactService, useValue: { getForCurrentFreelance: () => of([]) } }
       ]
     });

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TestimonialService } from '../../services/testimonial/testimonial.service';
 import { ContactService } from '../../services/contact/contact.service';
+import { NetworkService } from '../../services/network/network.service';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { Router, provideRouter } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -69,7 +70,10 @@ export function profileTestBed(): ProfileTestBed {
           apiTokens: () => of([]) } },
           { provide: WebhookService, useValue: { list: () => of([]) } },
           { provide: TestimonialService, useValue: { list: () => of([]) } },
-          { provide: ContactService, useValue: { getForCurrentFreelance: () => of([]) } }
+          { provide: ContactService, useValue: { getForCurrentFreelance: () => of([]) } },
+          { provide: NetworkService, useValue: { membership: () => of({ joined: false, handle: 'john', card: null, privateCard: false,
+            availability: { mode: 'AUTO', date: null }, fields: { photo: true, headline: true, stack: true, location: true,
+              availability: true, languages: true, remote: false } }), handle: () => of({ handle: 'john', available: true }) } }
         ]
       });
       bed.navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);

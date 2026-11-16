@@ -28,8 +28,8 @@ class NetworkIntegrationTest extends TwoAccountsIntegrationTest {
     private FeatureFlagService flags;
 
     @AfterEach
-    void closeTheNetwork() {
-        flags.set(FeatureFlag.SOCIAL_NETWORK, false);
+    void reopenTheNetwork() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
     }
 
     private static String unique(String prefix) {
@@ -37,7 +37,8 @@ class NetworkIntegrationTest extends TwoAccountsIntegrationTest {
     }
 
     @Test
-    void staysClosedUntilAnAdministratorOpensIt() {
+    void staysClosedWhileAnAdministratorTurnsItOff() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, false);
         assertThat(call(alice, HttpMethod.GET, "/network/membership", null, String.class).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         flags.set(FeatureFlag.SOCIAL_NETWORK, true);
         assertThat(call(alice, HttpMethod.GET, "/network/membership", null, Map.class).getBody()).containsEntry("joined", false)

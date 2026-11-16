@@ -145,9 +145,10 @@ describe('AppComponent offer alerts', () => {
     user$.next({ id: 1, email: 'john@example.com', firstName: 'John', lastName: 'Doe' });
     fixture.detectChanges();
     expect(menuRoutes(fixture)).toEqual(['/dashboard', '/calendar', '/offers', '/projects', '/clients', '/contacts', '/sources',
-      '/review', '/activity-reports', '/invoices', '/quotes', '/documents', '/archive']);
+      '/network', '/review', '/activity-reports', '/invoices', '/quotes', '/documents', '/archive']);
 
-    capabilities = { admin: true, features: { ...DEFAULT_CAPABILITIES.features, OFFER_FEED: false, YEARLY_REVIEW: false } };
+    capabilities = { admin: true, features: { ...DEFAULT_CAPABILITIES.features, OFFER_FEED: false, YEARLY_REVIEW: false,
+      SOCIAL_NETWORK: false } };
     alerts.start.calls.reset();
     user$.next({ id: 2, email: 'chief@example.com', firstName: 'Chief', lastName: 'Admin' });
     fixture.detectChanges();
@@ -155,6 +156,7 @@ describe('AppComponent offer alerts', () => {
     expect(menuRoutes(fixture)).toContain('/admin');
     expect(menuRoutes(fixture)).not.toContain('/offers');
     expect(menuRoutes(fixture)).not.toContain('/review');
+    expect(menuRoutes(fixture)).not.toContain('/network');
 
     user$.next(null);
     fixture.detectChanges();

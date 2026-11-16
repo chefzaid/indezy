@@ -28,8 +28,8 @@ class NetworkDirectoryIntegrationTest extends TwoAccountsIntegrationTest {
     private FeatureFlagService flags;
 
     @AfterEach
-    void closeTheNetwork() {
-        flags.set(FeatureFlag.SOCIAL_NETWORK, false);
+    void reopenTheNetwork() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
     }
 
     private String join(Account account, String city, List<String> skills, Map<String, Object> fields, Map<String, Object> availability) {
