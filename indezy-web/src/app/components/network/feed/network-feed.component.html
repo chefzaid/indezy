@@ -10,6 +10,12 @@
           <span class="count" data-feed-unread>{{ unread > 99 ? '99+' : unread }}</span>
         }
       </a>
+      <a routerLink="/network/messages" class="nav-link" data-feed-messages>
+        <mat-icon>chat</mat-icon><span>{{ 'network.messages.title' | translate }}</span>
+        @if (unreadMessages$ | async; as unreadMessages) {
+          <span class="count" data-feed-unread-messages>{{ unreadMessages > 99 ? '99+' : unreadMessages }}</span>
+        }
+      </a>
       <a routerLink="/network/members" class="nav-link" data-feed-members>
         <mat-icon>group</mat-icon><span>{{ 'network.feed.members' | translate }}</span>
       </a>

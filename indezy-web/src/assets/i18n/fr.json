@@ -3673,6 +3673,47 @@
       "FUNNY": "Drôle",
       "SUPPORT": "Soutien",
       "WOW": "Waouh"
+    },
+    "messages": {
+      "title": "Messages",
+      "message": "Message",
+      "inbox": "Boîte de réception",
+      "archived": "Archivées",
+      "none": "Aucune conversation pour l'instant. Écrivez à un membre qui vous suit depuis sa page.",
+      "noneArchived": "Aucune conversation archivée.",
+      "pick": "Choisissez une conversation, ou écrivez à un membre qui vous suit depuis sa page.",
+      "noMessage": "Pas encore de message",
+      "youPrefix": "Vous :",
+      "you": "Vous",
+      "them": "{{name}}",
+      "deleted": "Message supprimé",
+      "edited": "modifié",
+      "older": "Messages précédents",
+      "first": "Dites bonjour à {{name}}.",
+      "missing": "Cette conversation n'existe plus, ou n'est plus à votre portée.",
+      "muted": "En sourdine",
+      "mute": "Mettre en sourdine",
+      "unmute": "Réactiver",
+      "archive": "Archiver",
+      "unarchive": "Remettre dans la boîte de réception",
+      "options": "Options de la conversation",
+      "reply": "Répondre",
+      "replyingTo": "En réponse à",
+      "editing": "Modification",
+      "write": "Écrire à {{name}}…",
+      "send": "Envoyer",
+      "deleteConfirm": "Supprimer ce message pour vous deux ?",
+      "closed": {
+        "NOT_FOLLOWED": "{{name}} ne vous suit pas : vous pouvez lire vos messages, pas en envoyer.",
+        "BLOCKED": "Aucun message entre vous et {{name}}.",
+        "LEFT": "{{name}} a quitté le réseau."
+      },
+      "loadError": "Les messages n'ont pas pu être chargés",
+      "sendError": "Le message n'a pas pu être envoyé",
+      "closedError": "Cette conversation est fermée aux nouveaux messages",
+      "tooMany": "Trop de messages : réessayez plus tard",
+      "changeError": "Cela n'a pas pu être modifié. Réessayez dans un instant.",
+      "openError": "La conversation n'a pas pu être ouverte"
     }
   }
 }

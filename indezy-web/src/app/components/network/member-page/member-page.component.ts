@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,6 +12,7 @@ import { Observable, map, switchMap } from 'rxjs';
 
 import { MemberCard, MemberPage, NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
+import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -27,7 +29,7 @@ export type MemberList = 'followers' | 'following';
  */
 @Component({
   selector: 'app-member-page',
-  imports: [MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
+  imports: [MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
   templateUrl: './member-page.component.html',
   styleUrls: ['./member-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -40,6 +42,8 @@ export class MemberPageComponent implements OnInit {
   private readonly confirm = inject(ConfirmDialogService);
   private readonly changes = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly messages = inject(NetworkMessagesService);
+  private readonly router = inject(Router);
 
   page: MemberPage | null = null;
   /** Why the page cannot be shown: the viewer is not a member yet, or no member holds the handle. */
@@ -48,6 +52,7 @@ export class MemberPageComponent implements OnInit {
   list: MemberList | null = null;
   members: MemberCard[] = [];
   isFollowing = false;
+  isOpening = false;
   posts: NetworkPost[] = [];
   postsPage = 0;
   morePosts = false;
@@ -192,6 +197,21 @@ export class MemberPageComponent implements OnInit {
         this.notifications.success('network.page.followerRemoved');
       },
       error: () => this.notifications.error('network.page.followError')
+    });
+  }
+
+  /** Opens the conversation with the member, who follows the viewer. */
+  message(): void {
+    this.isOpening = true;
+    this.messages.open(this.page!.card.handle).subscribe({
+      next: conversation => {
+        this.isOpening = false;
+        void this.router.navigate(['/network/messages', conversation.id]);
+      },
+      error: () => {
+        this.isOpening = false;
+        this.notifications.error('network.messages.openError');
+      }
     });
   }
 

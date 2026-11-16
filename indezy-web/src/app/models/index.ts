@@ -28,6 +28,7 @@ export * from './billing.models';
 export * from './invoice.models';
 export * from './quote.models';
 export * from './network.models';
+export * from './network-messages.models';
 export * from './purchase-order.models';
 export * from './compliance.models';
 export * from './training.models';

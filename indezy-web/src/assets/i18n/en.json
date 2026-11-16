@@ -3673,6 +3673,47 @@
       "FUNNY": "Funny",
       "SUPPORT": "Support",
       "WOW": "Wow"
+    },
+    "messages": {
+      "title": "Messages",
+      "message": "Message",
+      "inbox": "Inbox",
+      "archived": "Archived",
+      "none": "No conversation yet. Write to a member who follows you from their page.",
+      "noneArchived": "No archived conversation.",
+      "pick": "Choose a conversation, or write to a member who follows you from their page.",
+      "noMessage": "No message yet",
+      "youPrefix": "You:",
+      "you": "You",
+      "them": "{{name}}",
+      "deleted": "Message deleted",
+      "edited": "edited",
+      "older": "Earlier messages",
+      "first": "Say hello to {{name}}.",
+      "missing": "This conversation is gone, or out of your reach.",
+      "muted": "Muted",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "archive": "Archive",
+      "unarchive": "Move to the inbox",
+      "options": "Conversation options",
+      "reply": "Reply",
+      "replyingTo": "Replying to",
+      "editing": "Editing",
+      "write": "Write to {{name}}…",
+      "send": "Send",
+      "deleteConfirm": "Delete this message for both of you?",
+      "closed": {
+        "NOT_FOLLOWED": "{{name}} does not follow you: you can read your messages, not send new ones.",
+        "BLOCKED": "No message between you and {{name}}.",
+        "LEFT": "{{name}} left the network."
+      },
+      "loadError": "The messages could not be loaded",
+      "sendError": "The message could not be sent",
+      "closedError": "This conversation is closed to new messages",
+      "tooMany": "Too many messages: try again later",
+      "changeError": "This could not be changed. Try again in a moment.",
+      "openError": "The conversation could not be opened"
     }
   }
 }

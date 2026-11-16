@@ -1,0 +1,147 @@
+@if (missing) {
+  <section class="state" data-thread-missing>
+    <mat-icon aria-hidden="true">forum</mat-icon>
+    <p>{{ 'network.messages.missing' | translate }}</p>
+  </section>
+} @else if (conversation; as current) {
+  <header class="thread-head">
+    <ng-content select="[back]"></ng-content>
+    <a [routerLink]="['/m', current.with.handle]" class="who">
+      <app-member-avatar [subject]="current.with" [size]="40"></app-member-avatar>
+      <span class="names">
+        <span class="name">{{ current.with.firstName }} {{ current.with.lastName }}</span>
+        <span class="handle">&#64;{{ current.with.handle }}</span>
+      </span>
+    </a>
+    @if (current.muted) {
+      <mat-icon class="muted" [attr.aria-label]="'network.messages.muted' | translate" data-thread-muted>notifications_off</mat-icon>
+    }
+    <button mat-icon-button type="button" [matMenuTriggerFor]="options" [attr.aria-label]="'network.messages.options' | translate"
+      data-thread-options>
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #options="matMenu">
+      <button mat-menu-item type="button" (click)="set({ muted: !current.muted })" data-thread-mute>
+        <mat-icon>{{ current.muted ? 'notifications' : 'notifications_off' }}</mat-icon>
+        {{ (current.muted ? 'network.messages.unmute' : 'network.messages.mute') | translate }}
+      </button>
+      <button mat-menu-item type="button" (click)="set({ archived: !current.archived })" data-thread-archive>
+        <mat-icon>{{ current.archived ? 'unarchive' : 'archive' }}</mat-icon>
+        {{ (current.archived ? 'network.messages.unarchive' : 'network.messages.archive') | translate }}
+      </button>
+    </mat-menu>
+  </header>
+
+  <div class="scroller" #scroller data-thread-messages>
+    @if (more) {
+      <button mat-stroked-button type="button" class="older" (click)="loadOlder()" data-thread-older>{{ 'network.messages.older' | translate }}</button>
+    }
+    @if (messages.length === 0) {
+      <p class="first" data-thread-empty>{{ 'network.messages.first' | translate: { name: current.with.firstName } }}</p>
+    }
+    @for (day of days; track day.date) {
+      <div class="day" role="separator"><span>{{ day.date | date: 'fullDate' }}</span></div>
+      <ul class="messages">
+        @for (message of day.messages; track message.id) {
+          <li class="message" [class.mine]="message.mine" [attr.data-message]="message.id">
+            <div class="bubble" [class.deleted]="message.deleted">
+              @if (message.replyTo; as quoted) {
+                <span class="quote" data-message-quote>
+                  <span class="quote-who">{{ (quoted.mine ? 'network.messages.you' : 'network.messages.them') | translate: { name: current.with.firstName } }}</span>
+                  {{ quoted.deleted ? ('network.messages.deleted' | translate) : quoted.excerpt }}
+                </span>
+              }
+              @if (message.deleted) {
+                <span class="text">{{ 'network.messages.deleted' | translate }}</span>
+              } @else {
+                <span class="text">{{ message.text }}</span>
+              }
+              <span class="meta">
+                {{ message.sentAt | date: 'shortTime' }}
+                @if (message.edited && !message.deleted) {
+                  · {{ 'network.messages.edited' | translate }}
+                }
+              </span>
+            </div>
+            @if (!message.deleted) {
+              <div class="tools">
+                <button mat-icon-button type="button" class="tool" [matMenuTriggerFor]="reactionsMenu"
+                  [attr.aria-label]="'network.reactions.title' | translate" data-message-react>
+                  <mat-icon>add_reaction</mat-icon>
+                </button>
+                <mat-menu #reactionsMenu="matMenu" class="reaction-menu">
+                  @for (item of reactions; track item.reaction) {
+                    <button mat-menu-item type="button" (click)="react(message, item.reaction)" [attr.data-message-reaction]="item.reaction"
+                      [attr.aria-label]="'network.reactions.' + item.reaction | translate" [attr.aria-current]="message.myReaction === item.reaction">
+                      <span class="reaction-emoji" aria-hidden="true">{{ item.emoji }}</span>
+                    </button>
+                  }
+                </mat-menu>
+                @if (!current.closed) {
+                  <button mat-icon-button type="button" class="tool" (click)="reply(message)" [attr.aria-label]="'network.messages.reply' | translate"
+                    data-message-reply>
+                    <mat-icon>reply</mat-icon>
+                  </button>
+                }
+                @if (message.editable) {
+                  <button mat-icon-button type="button" class="tool" (click)="startEditing(message)" [attr.aria-label]="'network.post.edit' | translate"
+                    data-message-edit>
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button type="button" class="tool" (click)="remove(message)" [attr.aria-label]="'common.delete' | translate"
+                    data-message-delete>
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </div>
+            }
+            @if (message.reactions.length) {
+              <span class="reactions" data-message-reactions>
+                @for (count of message.reactions; track count.reaction) {
+                  <button type="button" class="reaction" [class.mine]="message.myReaction === count.reaction" (click)="react(message, count.reaction)"
+                    [attr.aria-pressed]="message.myReaction === count.reaction" [attr.aria-label]="('network.reactions.' + count.reaction | translate) + ' ' + count.count">
+                    <span aria-hidden="true">{{ emoji(count.reaction) }} {{ count.count }}</span>
+                  </button>
+                }
+              </span>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  @if (current.closed) {
+    <p class="closed" role="status" data-thread-closed>
+      <mat-icon aria-hidden="true">lock</mat-icon>
+      {{ 'network.messages.closed.' + current.closed | translate: { name: current.with.firstName } }}
+    </p>
+  }
+  @if (!current.closed || editing) {
+    <form class="composer" (submit)="$event.preventDefault(); submit()" data-thread-composer>
+      @if (replyTo || editing) {
+        <div class="context" data-thread-context>
+          <mat-icon aria-hidden="true">{{ editing ? 'edit' : 'reply' }}</mat-icon>
+          <span class="context-text">
+            {{ (editing ? 'network.messages.editing' : 'network.messages.replyingTo') | translate }}
+            <em>{{ (editing ?? replyTo)!.text }}</em>
+          </span>
+          <button mat-icon-button type="button" (click)="cancel()" [attr.aria-label]="'network.post.cancel' | translate" data-thread-cancel>
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+      <div class="write">
+        <textarea #field [formControl]="draft" rows="1" [maxlength]="max" (keydown)="onKeydown($event)" data-thread-text
+          [attr.aria-label]="'network.messages.write' | translate: { name: current.with.firstName }"
+          [placeholder]="'network.messages.write' | translate: { name: current.with.firstName }"></textarea>
+        <button mat-icon-button type="submit" class="send" [disabled]="sending || !draft.value.trim()"
+          [attr.aria-label]="(editing ? 'common.save' : 'network.messages.send') | translate" data-thread-send>
+          <mat-icon>{{ editing ? 'check' : 'send' }}</mat-icon>
+        </button>
+      </div>
+    </form>
+  }
+} @else if (loading) {
+  <div class="state" role="status"><span class="cdk-visually-hidden">{{ 'common.loading' | translate }}</span></div>
+}

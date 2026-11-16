@@ -1,0 +1,77 @@
+<div class="messages-page card" [class.open]="openId !== null" data-messages-page>
+  <section class="list-pane" [attr.aria-label]="'network.messages.title' | translate">
+    <header class="list-head">
+      <a routerLink="/network" class="back" [attr.aria-label]="'network.postPage.back' | translate">
+        <mat-icon>arrow_back</mat-icon>
+      </a>
+      <h1>{{ 'network.messages.title' | translate }}</h1>
+    </header>
+    <div class="tabs" role="tablist" [attr.aria-label]="'network.messages.title' | translate">
+      <button type="button" role="tab" class="tab" [class.active]="!archived" [attr.aria-selected]="!archived" (click)="showArchived(false)"
+        data-messages-inbox>{{ 'network.messages.inbox' | translate }}</button>
+      <button type="button" role="tab" class="tab" [class.active]="archived" [attr.aria-selected]="archived" (click)="showArchived(true)"
+        data-messages-archived>{{ 'network.messages.archived' | translate }}</button>
+    </div>
+
+    @if (notMember) {
+      <p class="empty" data-messages-not-member>{{ 'network.directory.notMember' | translate }}</p>
+    } @else if (loading) {
+      <span class="cdk-visually-hidden" role="status">{{ 'common.loading' | translate }}</span>
+    } @else if (conversations.length === 0) {
+      <div class="empty" data-messages-empty>
+        <mat-icon aria-hidden="true">chat</mat-icon>
+        <p>{{ (archived ? 'network.messages.noneArchived' : 'network.messages.none') | translate }}</p>
+      </div>
+    } @else {
+      <ul class="conversations">
+        @for (conversation of conversations; track conversation.id) {
+          <li>
+            <a [routerLink]="['/network/messages', conversation.id]" class="row" [class.active]="conversation.id === openId"
+              [class.unread]="conversation.unread > 0" [attr.aria-current]="conversation.id === openId ? 'page' : null"
+              [attr.data-conversation]="conversation.id">
+              <app-member-avatar [subject]="conversation.with" [size]="48"></app-member-avatar>
+              <span class="summary">
+                <span class="top">
+                  <span class="name">{{ conversation.with.firstName }} {{ conversation.with.lastName }}</span>
+                  @if (conversation.lastMessageAt) {
+                    <span class="when">{{ conversation.lastMessageAt | timeAgo }}</span>
+                  }
+                </span>
+                <span class="bottom">
+                  <span class="preview">
+                    @if (conversation.last; as last) {
+                      {{ last.mine ? ('network.messages.youPrefix' | translate) + ' ' : '' }}{{ last.deleted ? ('network.messages.deleted' | translate) : last.text }}
+                    } @else {
+                      {{ 'network.messages.noMessage' | translate }}
+                    }
+                  </span>
+                  @if (conversation.muted) {
+                    <mat-icon class="muted" [attr.aria-label]="'network.messages.muted' | translate">notifications_off</mat-icon>
+                  }
+                  @if (conversation.unread > 0) {
+                    <span class="count" data-conversation-unread>{{ conversation.unread > 99 ? '99+' : conversation.unread }}</span>
+                  }
+                </span>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="thread-pane">
+    @if (openId !== null) {
+      <app-message-thread [conversationId]="openId" (changed)="updated($event)">
+        <a back routerLink="/network/messages" class="thread-back" [attr.aria-label]="'network.messages.title' | translate">
+          <mat-icon>arrow_back</mat-icon>
+        </a>
+      </app-message-thread>
+    } @else {
+      <div class="pick" data-messages-pick>
+        <mat-icon aria-hidden="true">forum</mat-icon>
+        <p>{{ 'network.messages.pick' | translate }}</p>
+      </div>
+    }
+  </section>
+</div>

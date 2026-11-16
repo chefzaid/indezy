@@ -52,6 +52,8 @@ export class NetworkFeedComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   /** The notifications not read yet, counted beside Notifications. */
   readonly unread$ = inject(NetworkNoticesService).unread$;
+  /** The conversations with unread messages, counted beside Messages. */
+  readonly unreadMessages$ = inject(NetworkNoticesService).messages$;
 
   readonly max = POST_MAX;
   /** What the post is, and the facts of a mission or an availability. */

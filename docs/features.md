@@ -255,6 +255,16 @@ its count shown under it. Comments between members who
 block each other, and those of members away from the network, are not shown. Images, documents and link previews wait
 on the choice of their store.
 
+**Messages** (`/network/messages`, from the network's navigation, counted with the notifications on **Network** in the
+menu) holds one-to-one conversations. **Message** on a member's page opens one when the member follows the reader;
+once they stop following, either blocks the other or one leaves the network, the past stays readable but no new message
+goes, the conversation saying why. The list shows each conversation's latest message and how many are unread, the
+latest first, read again every 30 seconds; an open conversation asks for new messages every 10 seconds (real-time
+delivery waits on a decision, see TODO.md). In a conversation, Enter sends and Shift+Enter starts a new line; a
+message is replied to (quoting it), reacted to with one of the five reactions, and edited or deleted for both by its
+sender within 15 minutes. **Mute** keeps a conversation out of the unread count; **Archive** moves it to **Archived**
+until a new message comes. The account export includes the messages sent.
+
 **Notifications** (`/network/notifications`, counted on **Network** in the menu, read again every minute) tell a
 member who followed them, liked, commented or reposted their post, liked or replied to their comment or mentioned them by
 `@handle`, grouped as they read ("Léo and 2 others liked your post", with the post's first words), the newest first, under

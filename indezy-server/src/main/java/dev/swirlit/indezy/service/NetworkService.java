@@ -134,6 +134,16 @@ public class NetworkService {
             .orElseThrow(() -> new InvalidStateException("Join the network to see its members"));
     }
 
+    /** Whether the account is in the network. */
+    boolean isMember(Long userId) {
+        return members.findByUserId(userId).filter(NetworkMember::isActive).isPresent();
+    }
+
+    /** The account's handle, if it ever joined. */
+    Optional<String> handle(Long userId) {
+        return members.findByUserId(userId).map(NetworkMember::getHandle);
+    }
+
     /** The member holding the handle, still in the network and with an account; not found otherwise. */
     NetworkMember activeMember(String handle) {
         return members.findByHandle(handle.toLowerCase(Locale.ROOT)).filter(NetworkMember::isActive)

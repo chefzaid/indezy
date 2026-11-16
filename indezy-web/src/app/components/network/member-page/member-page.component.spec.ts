@@ -1,16 +1,17 @@
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { MemberCard, MemberPage } from '../../../models';
+import { Conversation, MemberCard, MemberPage } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MemberPageComponent } from './member-page.component';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
+import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import en from '../../../../assets/i18n/en.json';
 
 describe('MemberPageComponent', () => {
@@ -22,12 +23,14 @@ describe('MemberPageComponent', () => {
   const page: MemberPage = { card: card('camille'), followers: 2, following: 1, sharedSkills: ['Java'], followed: false, followsYou: true,
     own: false, muted: false, blocked: false, privateCard: false, requested: false };
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
+  let messages: jasmine.SpyObj<NetworkMessagesService>;
 
   function create(read = of(page)): ComponentFixture<MemberPageComponent> {
     network = jasmine.createSpyObj('NetworkService', ['page', 'follow', 'unfollow', 'followers', 'following', 'removeFollower', 'mute',
       'block', 'memberPosts', 'deletePost']);
     network.memberPosts.and.returnValue(of({ posts: [], page: 0, more: false }));
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
+    messages = jasmine.createSpyObj('NetworkMessagesService', ['open']);
     network.page.and.returnValue(read);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
@@ -35,7 +38,7 @@ describe('MemberPageComponent', () => {
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ handle: 'camille' })) } },
         { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
-        { provide: ConfirmDialogService, useValue: confirm }]
+        { provide: ConfirmDialogService, useValue: confirm }, { provide: NetworkMessagesService, useValue: messages }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
@@ -127,6 +130,23 @@ describe('MemberPageComponent', () => {
     button().click();
     expect(network.unfollow).toHaveBeenCalledWith('camille');
     expect(fixture.componentInstance.followLabel({ ...page, privateCard: true, followed: true })).toBe('network.page.unfollow');
+  });
+
+  it('writes to a member who follows the viewer, opening the conversation', () => {
+    const fixture = create();
+    const element: HTMLElement = fixture.nativeElement;
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    messages.open.and.returnValue(of({ id: 7 } as Conversation));
+    (element.querySelector('[data-message]') as HTMLButtonElement).click();
+    expect(messages.open).toHaveBeenCalledWith('camille');
+    expect(navigate).toHaveBeenCalledWith(['/network/messages', 7]);
+    messages.open.and.returnValue(throwError(() => new Error('down')));
+    fixture.componentInstance.message();
+    expect(fixture.componentInstance.isOpening).toBeFalse();
+    expect(notifications.error).toHaveBeenCalledWith('network.messages.openError');
+    fixture.componentInstance.page = { ...page, followsYou: false };
+    fixture.detectChanges();
+    expect(element.querySelector('[data-message]')).toBeNull();
   });
 
   it('reports the member to the moderators', () => {

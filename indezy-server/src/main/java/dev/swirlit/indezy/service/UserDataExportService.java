@@ -48,6 +48,7 @@ public class UserDataExportService {
     private final QuoteService quoteService;
     private final NetworkService networkService;
     private final NetworkPostService networkPostService;
+    private final NetworkConversationService networkConversationService;
     private final PurchaseOrderService purchaseOrderService;
     private final ComplianceDocumentService complianceDocumentService;
     private final CompliancePackService compliancePackService;
@@ -67,6 +68,7 @@ public class UserDataExportService {
         export.put("networkMembership", networkService.membership(userId));
         export.put("networkPosts", networkPostService.export(userId));
         export.put("networkActivity", networkPostService.activity(userId));
+        export.put("networkMessagesSent", networkConversationService.export(userId));
         // Employment status, notice period, reversion and tax rates: the workspace's own record.
         export.put("freelance", freelanceService.findById(freelanceId));
         export.put("billing", billingIdentityService.get(freelanceId));

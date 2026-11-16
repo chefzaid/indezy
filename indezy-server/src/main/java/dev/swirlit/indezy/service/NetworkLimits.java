@@ -71,7 +71,7 @@ public class NetworkLimits {
     }
 
     /** Refuses a member the moderators suspended, until the suspension ends. */
-    private void notSuspended(Long userId) {
+    void notSuspended(Long userId) {
         Instant until = members.findByUserId(userId).map(NetworkMember::getSuspendedUntil).orElse(null);
         if (until != null && until.isAfter(clock.instant())) {
             throw new InvalidStateException("The moderators suspended you until " + SUSPENSION_END.format(until));

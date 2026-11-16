@@ -1,0 +1,261 @@
+// Messages: the conversations on the left, the one open on the right; on a phone, one or the other.
+.messages-page {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  height: calc(100vh - 128px);
+  min-height: 420px;
+  max-width: 1080px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.card {
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  box-shadow: 0 1px 2px rgba(15, 12, 40, 0.04);
+}
+
+.list-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--app-border);
+}
+
+.list-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px 6px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+}
+
+.back,
+.thread-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--app-text-muted);
+
+  &:hover {
+    background: var(--app-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+  }
+}
+
+.thread-back {
+  display: none;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--app-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: -2px;
+  }
+
+  &.active {
+    border-bottom-color: var(--app-link);
+    color: var(--app-link);
+  }
+}
+
+.conversations {
+  flex: 1;
+  margin: 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    background: var(--app-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: -2px;
+  }
+
+  &.active {
+    background: var(--app-selected-bg);
+  }
+
+  &.unread .name,
+  &.unread .preview {
+    color: var(--app-text);
+    font-weight: 700;
+  }
+}
+
+.summary {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.top,
+.bottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.name {
+  flex: 1;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.when {
+  flex: none;
+  color: var(--app-text-muted);
+  font-size: 0.75rem;
+}
+
+.preview {
+  flex: 1;
+  overflow: hidden;
+  color: var(--app-text-muted);
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.muted {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  color: var(--app-text-muted);
+}
+
+.count {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: center;
+}
+
+.thread-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+
+  app-message-thread {
+    flex: 1;
+  }
+}
+
+.empty,
+.pick {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 16px;
+  color: var(--app-text-muted);
+  text-align: center;
+
+  mat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+    color: var(--app-link);
+  }
+
+  p {
+    margin: 0;
+    max-width: 320px;
+  }
+}
+
+// Narrower: the list or the conversation, a back arrow between them.
+@media (max-width: 899.98px) {
+  .messages-page {
+    grid-template-columns: minmax(0, 1fr);
+    height: calc(100vh - 104px);
+
+    .thread-pane {
+      display: none;
+    }
+
+    &.open {
+      .list-pane {
+        display: none;
+      }
+
+      .thread-pane {
+        display: flex;
+      }
+    }
+  }
+
+  .list-pane {
+    border-right: none;
+  }
+
+  .thread-back {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 599.98px) {
+  .messages-page {
+    margin: -8px -8px 0;
+    border-radius: 0;
+    border-width: 0;
+  }
+}

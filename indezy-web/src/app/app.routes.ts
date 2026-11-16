@@ -137,6 +137,17 @@ export const routes: Routes = [
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
   },
   {
+    // The reader's conversations, and the one open beside them.
+    path: 'network/messages',
+    loadComponent: () => import('./components/network/messages/messages-page.component').then(m => m.MessagesPageComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
+    path: 'network/messages/:id',
+    loadComponent: () => import('./components/network/messages/messages-page.component').then(m => m.MessagesPageComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
     // A post's own page, its comments open.
     path: 'network/posts/:id',
     loadComponent: () => import('./components/network/post-page/post-page.component').then(m => m.PostPageComponent),
