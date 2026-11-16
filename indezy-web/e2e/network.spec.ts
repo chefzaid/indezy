@@ -203,11 +203,12 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.goto('/network');
     await expect(page.locator('[data-suggestion="ines_b"]')).toContainText(en ? 'Also on Kafka' : 'Aussi sur Kafka');
     await expect(page.locator('[data-post="1"]')).toContainText('Bonjour à tous');
-    await page.route('**/api/network/posts/1/like', route => route.fulfill({ json: { id: 1, text: 'Bonjour à tous', tags: [],
-      createdAt: '2026-11-13T09:00:00', own: false, likes: 2, liked: true, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, author: author('leo_m', 'Léo') } }));
+    await page.route('**/api/network/posts/1/like**', route => route.fulfill({ json: { id: 1, text: 'Bonjour à tous', tags: [],
+      createdAt: '2026-11-13T09:00:00', own: false, likes: 2, liked: true, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, author: author('leo_m', 'Léo'),
+      myReaction: 'LIKE', reactions: [{ reaction: 'LIKE', count: 2 }] } }));
     await page.locator('[data-post="1"] [data-like]').click();
     await expect(page.locator('[data-post="1"] [data-like]')).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('[data-post="1"] [data-likes]')).toContainText(en ? 'Likes: 2' : "J'aime : 2");
+    await expect(page.locator('[data-post="1"] [data-likes]')).toContainText(en ? 'Reactions: 2' : 'Réactions : 2');
     let thread: Record<string, unknown>[] = [];
     await page.route('**/api/network/posts/1/comments', route => {
       if (route.request().method() === 'POST') {

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, TrendingTag, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions, ReportReason, ReportTarget, HeldForReview, ConfidentialMatch, NewPoll, PostDetails, PostKind, ProjectDto } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, TrendingTag, Reaction, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions, ReportReason, ReportTarget, HeldForReview, ConfidentialMatch, NewPoll, PostDetails, PostKind, ProjectDto } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -129,9 +129,10 @@ export class NetworkService {
   }
 
   /** Likes a post, or no longer; answers the post as the reader now reads it. */
-  like(id: number, liked: boolean): Observable<NetworkPost> {
+  /** Reacts to a post (a like by default), or takes the reaction back (null). */
+  react(id: number, reaction: Reaction | null): Observable<NetworkPost> {
     const url = `${this.API_URL}/posts/${id}/like`;
-    return liked ? this.http.put<NetworkPost>(url, null) : this.http.delete<NetworkPost>(url);
+    return reaction ? this.http.put<NetworkPost>(url, null, { params: { reaction } }) : this.http.delete<NetworkPost>(url);
   }
 
   comments(postId: number): Observable<NetworkComment[]> {

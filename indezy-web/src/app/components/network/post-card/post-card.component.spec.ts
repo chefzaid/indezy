@@ -12,7 +12,7 @@ import { ReportDialogComponent } from '../report-dialog/report-dialog.component'
 
 describe('PostCardComponent', () => {
   const post: NetworkPost = { id: 4, text: 'Merci @leo_m pour #Kafka !\n<b>pas du HTML</b> mail@example.com', tags: ['kafka'],
-    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, useful: null, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
+    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, useful: null, reactions: [], myReaction: null, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
       headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false } };
 
   it('splits the text into plain text, mentions and tags, leaving an address or a word alone', () => {
@@ -26,7 +26,7 @@ describe('PostCardComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
 
   function configure(): void {
-    network = jasmine.createSpyObj('NetworkService', ['like', 'likers', 'closeComments', 'comments', 'editPost', 'postVersions', 'bookmark',
+    network = jasmine.createSpyObj('NetworkService', ['react', 'likers', 'closeComments', 'comments', 'editPost', 'postVersions', 'bookmark',
       'repost', 'repostsOff', 'vote', 'useful']);
     network.comments.and.returnValue(of([]));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -45,18 +45,23 @@ describe('PostCardComponent', () => {
     (element.querySelector('[data-likes]') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(element.querySelector('[data-likers] a')?.getAttribute('href')).toBe('/m/camille');
-    network.like.and.returnValue(of({ ...post, likes: 3, liked: true }));
+    network.react.and.returnValue(of({ ...post, likes: 3, liked: true, myReaction: 'LIKE' as const,
+      reactions: [{ reaction: 'BRAVO' as const, count: 2 }, { reaction: 'LIKE' as const, count: 1 }] }));
     (element.querySelector('[data-like]') as HTMLButtonElement).click();
     fixture.detectChanges();
-    expect(network.like).toHaveBeenCalledWith(4, true);
-    expect(network.likers).toHaveBeenCalledTimes(2);
+    expect(network.react).toHaveBeenCalledWith(4, 'LIKE');
+    expect(network.likers).toHaveBeenCalledTimes(3);
     expect(element.querySelector('[data-like]')?.getAttribute('aria-pressed')).toBe('true');
+    expect(element.querySelector('[data-likes] .emojis')?.textContent).toBe('👏❤️');
     (element.querySelector('[data-likes]') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(element.querySelector('[data-likers]')).toBeNull();
-    network.like.and.returnValue(throwError(() => new Error('down')));
-    component.toggleLike();
-    expect(component.isLiking).toBeFalse();
+    network.react.and.returnValue(throwError(() => new Error('down')));
+    (element.querySelector('[data-like]') as HTMLButtonElement).click();
+    expect(component.post.myReaction).toBe('LIKE');
+    expect(component.topReactions()).toEqual(['👏', '❤️']);
+    component.post = { ...component.post, reactions: [] };
+    expect(component.topReactions()).toEqual(['❤️']);
     network.likers.and.returnValue(throwError(() => new Error('down')));
     component.showLikers();
     expect(notifications.error).toHaveBeenCalledWith('network.post.likeError');

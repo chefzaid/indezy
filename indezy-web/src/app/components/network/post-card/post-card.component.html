@@ -182,7 +182,8 @@
     <div class="stats">
       @if (post.likes > 0) {
         <button type="button" class="stat" (click)="likers ? likers = null : showLikers()" [attr.aria-expanded]="likers !== null" data-likes>
-          <span class="heart" aria-hidden="true"><mat-icon>favorite</mat-icon></span>{{ 'network.post.likes' | translate: { count: post.likes } }}
+          <span class="emojis" aria-hidden="true">@for (emoji of topReactions(); track $index) {<span>{{ emoji }}</span>}</span>
+          {{ 'network.post.likes' | translate: { count: post.likes } }}
         </button>
       }
       <span class="spacer"></span>
@@ -206,11 +207,7 @@
   }
 
   <footer class="action-bar">
-    <button type="button" class="action like" (click)="toggleLike()" [disabled]="isLiking" [attr.aria-pressed]="post.liked" data-like
-      [class.on]="post.liked">
-      <mat-icon>{{ post.liked ? 'favorite' : 'favorite_border' }}</mat-icon>
-      <span class="label">{{ (post.liked ? 'network.post.liked' : 'network.post.like') | translate }}</span>
-    </button>
+    <app-reaction-button [post]="post" (changed)="reacted($event)"></app-reaction-button>
     <button type="button" class="action" (click)="showComments = !showComments" [attr.aria-expanded]="showComments" data-show-comments>
       <mat-icon>chat_bubble_outline</mat-icon>
       <span class="label">{{ 'network.post.comment' | translate }}</span>

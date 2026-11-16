@@ -12,7 +12,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MentionsDirective } from '../mentions/mentions.directive';
 
-import { MemberCard, NetworkPost, NetworkPostVersion, POST_EDIT_WINDOW, Poll, PostDetails } from '../../../models';
+import { MemberCard, NetworkPost, NetworkPostVersion, POST_EDIT_WINDOW, Poll, PostDetails, REACTIONS } from '../../../models';
+import { ReactionButtonComponent } from './reaction-button.component';
 import { NetworkService } from '../../../services/network/network.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -53,10 +54,10 @@ export function segments(text: string): PostSegment[] {
 /** A post: its author (opening their page), when it was posted, its text with mentions and tags, and its own actions. */
 @Component({
   selector: 'app-post-card',
-  imports: [MentionsDirective, MemberAvatarComponent, TimeAgoPipe, MissionTakeComponent, DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
+  imports: [ReactionButtonComponent, MentionsDirective, MemberAvatarComponent, TimeAgoPipe, MissionTakeComponent, DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
     TranslateModule, PostCommentsComponent],
   templateUrl: './post-card.component.html',
-  styleUrls: ['./post-card.component.scss'],
+  styleUrls: ['./post-card.component.scss', './post-card-content.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class PostCardComponent {
@@ -68,7 +69,6 @@ export class PostCardComponent {
   @Input({ required: true }) post!: NetworkPost;
   /** The members who like the post, once asked for. */
   likers: MemberCard[] | null = null;
-  isLiking = false;
   /** The icon of each kind of post, on its badge. */
   readonly kindIcons = POST_KIND_ICONS;
   isVoting = false;
@@ -129,32 +129,34 @@ export class PostCardComponent {
     });
   }
 
-  toggleLike(): void {
-    this.isLiking = true;
-    this.network.like(this.post.id, !this.post.liked).subscribe({
+  /** Saves the post to the reader's private list, or takes it off. */
+  toggleBookmark(): void {
+    const before = this.post;
+    this.post = { ...before, bookmarked: !before.bookmarked };
+    this.network.bookmark(before.id, !before.bookmarked).subscribe({
       next: post => {
         this.post = post;
-        this.isLiking = false;
-        if (this.likers) {
-          this.showLikers();
-        }
+        this.unsaved.emit(post);
       },
       error: () => {
-        this.isLiking = false;
+        this.post = before;
         this.notifications.error('network.post.likeError');
       }
     });
   }
 
-  /** Saves the post to the reader's private list, or takes it off. */
-  toggleBookmark(): void {
-    this.network.bookmark(this.post.id, !this.post.bookmarked).subscribe({
-      next: post => {
-        this.post = post;
-        this.unsaved.emit(post);
-      },
-      error: () => this.notifications.error('network.post.likeError')
-    });
+  /** The post as the reader's reaction left it; the list of who reacted follows. */
+  reacted(post: NetworkPost): void {
+    this.post = post;
+    if (this.likers) {
+      this.showLikers();
+    }
+  }
+
+  /** The emoji of the most frequent reactions, three at most. */
+  topReactions(): string[] {
+    const shown = (this.post.reactions ?? []).slice(0, 3).map(item => REACTIONS.find(known => known.reaction === item.reaction)!.emoji);
+    return shown.length ? shown : ['❤️'];
   }
 
   /** Shows who likes the post, or hides the list. */
@@ -238,9 +240,15 @@ export class PostCardComponent {
 
   /** Finds the post useful, or no longer. */
   toggleUseful(): void {
-    this.network.useful(this.post.id, !(this.post.useful?.mine ?? false)).subscribe({
+    const before = this.post;
+    const mine = !(before.useful?.mine ?? false);
+    this.post = { ...before, useful: { count: (before.useful?.count ?? 0) + (mine ? 1 : -1), mine } };
+    this.network.useful(before.id, mine).subscribe({
       next: updated => this.post = updated,
-      error: () => this.notifications.error('network.post.likeError')
+      error: () => {
+        this.post = before;
+        this.notifications.error('network.post.likeError');
+      }
     });
   }
 

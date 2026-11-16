@@ -44,6 +44,36 @@ class NetworkPostsIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    void reactsOnceAMemberTheLatestReactionKept() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        join(alice);
+        join(bob);
+        Account carol = register("carol");
+        join(carol);
+        Object post = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Mission signée !"), Map.class).getBody().get("id");
+        String like = "/network/posts/" + post + "/like";
+
+        Map<String, Object> liked = call(bob, HttpMethod.PUT, like, null, Map.class).getBody();
+        assertThat(liked).containsEntry("likes", 1).containsEntry("liked", true).containsEntry("myReaction", "LIKE");
+        call(carol, HttpMethod.PUT, like + "?reaction=BRAVO", null, Map.class);
+        Map<String, Object> changed = call(bob, HttpMethod.PUT, like + "?reaction=BRAVO", null, Map.class).getBody();
+        assertThat(changed).containsEntry("likes", 2).containsEntry("myReaction", "BRAVO")
+            .containsEntry("reactions", List.of(Map.of("reaction", "BRAVO", "count", 2)));
+        call(alice, HttpMethod.PUT, like + "?reaction=WOW", null, Map.class);
+        Map<String, Object> read = call(alice, HttpMethod.GET, "/network/posts/" + post, null, Map.class).getBody();
+        assertThat(read).containsEntry("likes", 3).containsEntry("myReaction", "WOW")
+            .containsEntry("reactions", List.of(Map.of("reaction", "BRAVO", "count", 2), Map.of("reaction", "WOW", "count", 1)));
+        assertThat(call(bob, HttpMethod.PUT, like + "?reaction=ANGRY", null, String.class).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        // Changing the reaction tells the author once; taking it back leaves none.
+        assertThat((List<Map<String, Object>>) call(alice, HttpMethod.GET, "/network/notifications", null, List.class).getBody())
+            .filteredOn(group -> "LIKE".equals(group.get("type"))).singleElement().satisfies(group -> assertThat(group).containsEntry("count", 2));
+        Map<String, Object> taken = call(bob, HttpMethod.DELETE, like, null, Map.class).getBody();
+        assertThat(taken).containsEntry("likes", 2).containsEntry("liked", false).containsEntry("myReaction", null);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     void postsReadsTheFeedAndDeletes() {
         flags.set(FeatureFlag.SOCIAL_NETWORK, true);
         assertThat(call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Bonjour"), String.class).getStatusCode())

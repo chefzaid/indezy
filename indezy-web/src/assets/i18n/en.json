@@ -3401,7 +3401,7 @@
       "actions": "Actions on the post",
       "like": "Like",
       "liked": "Liked",
-      "likes": "Likes: {{count}}",
+      "likes": "Reactions: {{count}}",
       "likeError": "This could not be changed. Try again in a moment.",
       "comments": "Comments: {{count}}",
       "comment": "Comment",
@@ -3662,6 +3662,15 @@
     },
     "mentions": {
       "label": "Members and tags to insert"
+    },
+    "reactions": {
+      "title": "Reactions",
+      "more": "Hold, hover or press the up arrow for other reactions",
+      "LIKE": "Like",
+      "BRAVO": "Bravo",
+      "FUNNY": "Funny",
+      "SUPPORT": "Support",
+      "WOW": "Wow"
     }
   }
 }

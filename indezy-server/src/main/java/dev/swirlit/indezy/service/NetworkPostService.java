@@ -14,6 +14,7 @@ import dev.swirlit.indezy.model.NetworkPostVersion;
 import dev.swirlit.indezy.model.NetworkTagFollow;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.model.enums.NetworkPostKind;
+import dev.swirlit.indezy.model.enums.NetworkReaction;
 import dev.swirlit.indezy.repository.NetworkBookmarkRepository;
 import dev.swirlit.indezy.repository.NetworkCommentLikeRepository;
 import dev.swirlit.indezy.repository.NetworkCommentRepository;
@@ -40,6 +41,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -242,7 +244,16 @@ public class NetworkPostService {
             post.getAuthorId().equals(readerId), postLikes.size(), postLikes.stream().anyMatch(like -> like.getUserId().equals(readerId)),
             seen.comments(), post.isCommentsClosed(), post.getEditedAt() != null, seen.bookmarked(), seen.original(), seen.reposts(),
             post.isRepostsOff(), post.getKind(), NetworkPostKinds.toDto(post.getDetails()), post.getAnswerCommentId(), seen.poll(),
-            seen.taken(), seen.useful());
+            seen.taken(), seen.useful(), reactions(postLikes), postLikes.stream().filter(like -> like.getUserId().equals(readerId))
+            .map(NetworkLike::reactionOrLike).findFirst().orElse(null));
+    }
+
+    /** How many members reacted each way, the most frequent first. */
+    private static List<NetworkDtos.ReactionCount> reactions(List<NetworkLike> postLikes) {
+        Map<NetworkReaction, Long> counted = postLikes.stream()
+            .collect(Collectors.groupingBy(NetworkLike::reactionOrLike, () -> new EnumMap<>(NetworkReaction.class), Collectors.counting()));
+        return counted.entrySet().stream().sorted(Map.Entry.<NetworkReaction, Long>comparingByValue().reversed())
+            .map(entry -> new NetworkDtos.ReactionCount(entry.getKey(), entry.getValue().intValue())).toList();
     }
 
     /** The originals of the reposts among these posts, as the reader can read them, by the reposts' ids. */
@@ -380,16 +391,19 @@ public class NetworkPostService {
 
     /** Likes a post the reader can read, or no longer; returns it as the reader now reads it. */
     @Transactional
-    public NetworkDtos.Post like(Long userId, Long postId, boolean liked) {
+    public NetworkDtos.Post like(Long userId, Long postId, NetworkReaction reaction) {
         NetworkPost post = readable(userId, postId);
         Optional<NetworkLike> existing = likes.findByPostIdAndUserId(postId, userId);
-        if (liked && existing.isEmpty()) {
+        if (reaction != null && existing.isEmpty()) {
             NetworkLike like = new NetworkLike();
             like.setPostId(postId);
             like.setUserId(userId);
+            like.setReaction(reaction);
             likes.save(like);
             notices.notify(post.getAuthorId(), userId, NetworkNotificationType.LIKE, postId);
-        } else if (!liked) {
+        } else if (reaction != null) {
+            existing.get().setReaction(reaction);
+        } else {
             existing.ifPresent(likes::delete);
         }
         return reread(post, userId);

@@ -227,7 +227,10 @@ skills their card shows, 2 the author in their city) and by the members who foun
 liked them (half each, 5 at most), the whole divided by 1 plus a third of the post's age in days.
 
 **Useful**, the second reaction meant for questions answered and retours d'expérience, marks another member's post
-once, its count shown, and a tag's page lists its posts **Newest** or **Most useful** first. **Like** a post, once, or no longer; its likes count opens who liked it (but members blocked either way). A member
+once, its count shown, and a tag's page lists its posts **Newest** or **Most useful** first. **Like** a post, once, or no longer; a hover, a long press or the up arrow on **Like** offers the other reactions
+(❤️ Like, 👏 Bravo, 😄 Funny, 🤝 Support, 😮 Wow), a member keeping one, the latest. The counts line shows the most
+frequent reactions and how many there are, opening who reacted (but members blocked either way). A like, a reaction,
+**Useful** and **Save** show at once, coming back if the server refuses. A member
 deletes their own posts, their likes and comments going with them, and they are part of the data export.
 
 A post is of a kind, chosen in the composer, each with its card: a plain **Post**, a **Mission to pass on** (its role,

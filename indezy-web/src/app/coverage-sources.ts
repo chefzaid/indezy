@@ -72,6 +72,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/network/mission-take/mission-take.component',
   'components/network/notifications/network-notifications.component',
   'components/network/post-card/post-card.component',
+  'components/network/post-card/reaction-button.component',
   'components/network/post-comments/post-comments.component',
   'components/network/post-kind/post-kind-fields.component',
   'components/network/post-page/post-page.component',

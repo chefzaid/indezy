@@ -49,9 +49,10 @@ describe('NetworkService', () => {
     expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/posts')).request.body).toEqual({ text: 'Bonjour', kind: 'POST', details: null, poll: null });
     service.vote(5, 1).subscribe();
     expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/5/vote')).request.params.get('choice')).toBe('1');
-    service.like(5, true).subscribe();
-    http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/5/like'));
-    service.like(5, false).subscribe();
+    service.react(5, 'BRAVO').subscribe();
+    expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/5/like')).request.params.get('reaction'))
+      .toBe('BRAVO');
+    service.react(5, null).subscribe();
     http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/posts/5/like'));
     service.likers(5).subscribe();
     http.expectOne(call => call.url.endsWith('/network/posts/5/likes'));

@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.dto.ProjectDto;
+import dev.swirlit.indezy.model.enums.NetworkReaction;
 import dev.swirlit.indezy.service.NetworkCommentService;
 import dev.swirlit.indezy.service.NetworkConfidentialityService;
 import dev.swirlit.indezy.service.NetworkDraftService;
@@ -133,16 +134,16 @@ public class NetworkPostController {
         posts.delete(SecurityUtils.getCurrentUserId(), id);
     }
 
-    @Operation(summary = "Like a post")
+    @Operation(summary = "React to a post: like it, or another reaction; a member reacts once, the latest reaction kept")
     @PutMapping("/posts/{id}/like")
-    public NetworkDtos.Post like(@PathVariable Long id) {
-        return posts.like(SecurityUtils.getCurrentUserId(), id, true);
+    public NetworkDtos.Post like(@PathVariable Long id, @RequestParam(defaultValue = "LIKE") NetworkReaction reaction) {
+        return posts.like(SecurityUtils.getCurrentUserId(), id, reaction);
     }
 
     @Operation(summary = "Stop liking a post")
     @DeleteMapping("/posts/{id}/like")
     public NetworkDtos.Post unlike(@PathVariable Long id) {
-        return posts.like(SecurityUtils.getCurrentUserId(), id, false);
+        return posts.like(SecurityUtils.getCurrentUserId(), id, null);
     }
 
     @Operation(summary = "The members who like a post, the latest first")

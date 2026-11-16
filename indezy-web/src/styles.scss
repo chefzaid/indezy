@@ -396,3 +396,38 @@ html.dark-theme .status-dot {
 .season-select-panel .mat-mdc-option {
   min-height: 56px;
 }
+
+// A post's reactions: a row of emoji over its Like.
+.reaction-menu.mat-mdc-menu-panel {
+  min-width: 0;
+  border-radius: 999px;
+}
+
+.reaction-menu .mat-mdc-menu-content {
+  display: flex;
+  gap: 2px;
+  padding: 4px 6px;
+}
+
+.reaction-menu .mat-mdc-menu-item {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 8px;
+  border-radius: 999px;
+
+  .reaction-emoji {
+    display: inline-block;
+    font-size: 26px;
+    line-height: 1;
+    transition: transform 120ms ease;
+  }
+
+  &:hover .reaction-emoji,
+  &.cdk-keyboard-focused .reaction-emoji {
+    transform: scale(1.25);
+  }
+
+  &[aria-current='true'] {
+    background: var(--app-selected-bg);
+  }
+}

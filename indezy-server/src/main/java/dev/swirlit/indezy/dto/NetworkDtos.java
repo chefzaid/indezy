@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.NetworkPostDetails;
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.model.enums.NetworkPostKind;
+import dev.swirlit.indezy.model.enums.NetworkReaction;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -58,13 +59,18 @@ public final class NetworkDtos {
      * reposts (null when that is gone or out of the reader's reach); how many reposts it has and whether its author turned
      * them off.
      */
+    /** How many members reacted to a post this way. */
+    public record ReactionCount(NetworkReaction reaction, int count) {
+    }
+
     public record Post(Long id, MemberCard author, String text, List<String> tags, LocalDateTime createdAt, boolean own, int likes,
                        boolean liked, int comments, boolean commentsClosed, boolean edited, boolean bookmarked, Original repostOf,
                        int reposts, boolean repostsOff, NetworkPostKind kind, PostDetails details, Long answerCommentId, Poll poll,
-                       Taken taken, Useful useful) {
+                       Taken taken, Useful useful, List<ReactionCount> reactions, NetworkReaction myReaction) {
 
         public Post {
             tags = List.copyOf(tags);
+            reactions = List.copyOf(reactions);
         }
 
         // Spring MVC logs bodies through toString at DEBUG: not the text a member wrote.

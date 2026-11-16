@@ -99,6 +99,22 @@ export interface NetworkPost {
   taken: { count: number | null; mine: boolean } | null;
   /** How many members found it useful, and whether the reader did. */
   useful: { count: number; mine: boolean } | null;
+  /** How many members reacted each way, the most frequent first; `likes` counts them all. */
+  reactions: ReactionCount[];
+  /** The reader's reaction, if any. */
+  myReaction: Reaction | null;
+}
+
+/** How a member reacts to a post: a like, or another reaction. */
+export type Reaction = 'LIKE' | 'BRAVO' | 'FUNNY' | 'SUPPORT' | 'WOW';
+
+/** The reactions in the order they are offered, each with its emoji. */
+export const REACTIONS: readonly { reaction: Reaction; emoji: string }[] = [{ reaction: 'LIKE', emoji: '❤️' },
+  { reaction: 'BRAVO', emoji: '👏' }, { reaction: 'FUNNY', emoji: '😄' }, { reaction: 'SUPPORT', emoji: '🤝' }, { reaction: 'WOW', emoji: '😮' }];
+
+export interface ReactionCount {
+  reaction: Reaction;
+  count: number;
 }
 
 /** The post a repost reposts, as the reader can read it. */

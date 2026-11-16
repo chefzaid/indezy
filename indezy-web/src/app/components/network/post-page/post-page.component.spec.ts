@@ -17,7 +17,7 @@ describe('PostPageComponent', () => {
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
   const post = { id: 7, text: 'Bonjour', tags: [], createdAt: '2026-11-15T09:00:00', own: true, likes: 0, liked: false, comments: 0,
     commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST', details: null,
-    answerCommentId: null, poll: null, taken: null, useful: null, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand',
+    answerCommentId: null, poll: null, taken: null, useful: null, reactions: [], myReaction: null, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand',
       avatar: null, headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [],
       verified: false } } as NetworkPost;
 
