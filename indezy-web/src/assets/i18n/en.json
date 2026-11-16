@@ -3735,6 +3735,24 @@
       "cardRemote": "{{days}} remote days a month",
       "cardAlready": "This opportunity is already in your pipeline",
       "cardError": "The opportunity could not be added"
+    },
+    "groups": {
+      "new": "New group",
+      "newTitle": "New group",
+      "addTitle": "Add members to {{title}}",
+      "name": "Group name",
+      "hint": "Members who follow you, {{room}} at most.",
+      "filter": "Find a follower",
+      "noFollower": "No follower to add yet: a group gathers members who follow you.",
+      "create": "Create the group ({{count}})",
+      "add": "Add ({{count}})",
+      "size": "{{count}} members",
+      "addMembers": "Add members",
+      "rename": "Rename the group",
+      "leave": "Leave the group",
+      "leaveConfirm": "Leave {{title}}? You will no longer read it.",
+      "refused": "Every member of a group must follow you",
+      "error": "The group could not be changed"
     }
   }
 }

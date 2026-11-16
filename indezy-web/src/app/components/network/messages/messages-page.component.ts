@@ -1,7 +1,10 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { catchError, debounceTime, distinctUntilChanged, interval, of, switchMap } from 'rxjs';
@@ -13,11 +16,14 @@ import { NotificationService } from '../../../services/notification/notification
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
 import { TimeAgoPipe } from '../time-ago/time-ago.pipe';
 import { MessageThreadComponent } from './message-thread.component';
+import { GroupDialogComponent } from './group-dialog.component';
 
 /** How often the list of conversations is read again. */
 export const CONVERSATIONS_REFRESH_MS = 30_000;
 /** How long the search waits for the typing to pause. */
 export const SEARCH_DELAY_MS = 300;
+/** How many members a new group takes besides its creator. */
+const GROUP_ROOM = 19;
 
 /**
  * Messages (`/network/messages`, `/network/messages/<id>`): the reader's conversations, the latest first, beside the one
@@ -25,7 +31,7 @@ export const SEARCH_DELAY_MS = 300;
  */
 @Component({
   selector: 'app-messages-page',
-  imports: [ReactiveFormsModule, MemberAvatarComponent, MessageThreadComponent, TimeAgoPipe, RouterLink, MatIconModule, TranslateModule],
+  imports: [MatButtonModule, MatTooltipModule, ReactiveFormsModule, MemberAvatarComponent, MessageThreadComponent, TimeAgoPipe, RouterLink, MatIconModule, TranslateModule],
   templateUrl: './messages-page.component.html',
   styleUrls: ['./messages-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -36,6 +42,8 @@ export class MessagesPageComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
 
   conversations: Conversation[] = [];
   archived = false;
@@ -84,6 +92,28 @@ export class MessagesPageComponent implements OnInit {
         }
         this.changes.markForCheck();
       }
+    });
+  }
+
+  /** The reader left a group: it leaves the list, and the page goes back to it. */
+  left(id: number): void {
+    this.conversations = this.conversations.filter(item => item.id !== id);
+    void this.router.navigate(['/network/messages']);
+  }
+
+  /** Names a group and picks its members among the reader's followers, then opens it. */
+  newGroup(): void {
+    GroupDialogComponent.open(this.dialog, { title: null, present: [], room: GROUP_ROOM }).subscribe(choice => {
+      if (!choice) {
+        return;
+      }
+      this.api.createGroup(choice.title, choice.handles).subscribe({
+        next: group => {
+          this.updated(group);
+          void this.router.navigate(['/network/messages', group.id]);
+        },
+        error: (error: HttpErrorResponse) => this.notifications.error(error.status === 409 ? 'network.groups.refused' : 'network.groups.error')
+      });
     });
   }
 

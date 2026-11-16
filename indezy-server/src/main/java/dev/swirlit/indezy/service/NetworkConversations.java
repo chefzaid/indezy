@@ -19,7 +19,9 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * What conversations share (see docs/features.md#member-network): who is in one, who may still write in it, and how it
@@ -46,6 +48,46 @@ class NetworkConversations {
     NetworkConversationMember mine(Long readerId, Long conversationId) {
         return participants.findByConversationIdAndUserId(conversationId, readerId)
             .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
+    }
+
+    /**
+     * How a conversation reads for one of its members: between two, the other member (none when out of the reader's reach:
+     * left, or either blocks the other); a group, its name and its other members in reach.
+     */
+    record Seen(NetworkConversation conversation, Long otherId, NetworkDtos.MemberCard with, NetworkMessageDtos.Group group) {
+
+        /** The other member's name, or the group's. */
+        String label() {
+            return group != null ? group.title() : (with.firstName() + " " + with.lastName()).strip();
+        }
+
+        /** The other member's handle; none for a group. */
+        String handle() {
+            return with == null ? null : with.handle();
+        }
+    }
+
+    /** How the conversation reads for the reader; none when it is out of their reach. */
+    Optional<Seen> seen(Long readerId, NetworkConversation conversation) {
+        List<Long> everyone = participants.findByConversationId(conversation.getId()).stream().map(NetworkConversationMember::getUserId).toList();
+        // Never read by a member outside it, whatever its kind.
+        if (!everyone.contains(readerId)) {
+            return Optional.empty();
+        }
+        if (!conversation.isGroup()) {
+            Long other = everyone.stream().filter(userId -> !userId.equals(readerId)).findFirst().orElse(null);
+            return other == null ? Optional.empty() : visible(readerId, other).map(card -> new Seen(conversation, other, card, null));
+        }
+        Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(readerId));
+        List<NetworkDtos.MemberCard> others = everyone.stream().filter(userId -> !userId.equals(readerId) && !blocked.contains(userId))
+            .flatMap(userId -> card(userId).stream()).toList();
+        return Optional.of(new Seen(conversation, null, null, new NetworkMessageDtos.Group(conversation.getTitle(), others, everyone.size(),
+            network.handle(conversation.getCreatedBy()).orElse(null), conversation.getCreatedBy().equals(readerId))));
+    }
+
+    /** A member's card while they are in the network. */
+    Optional<NetworkDtos.MemberCard> card(Long userId) {
+        return members.findByUserId(userId).filter(NetworkMember::isActive).flatMap(network::liveCard);
     }
 
     /** The other member of a conversation between two. */
@@ -77,13 +119,15 @@ class NetworkConversations {
     }
 
     /** The conversation as its reader's list shows it. */
-    NetworkMessageDtos.Conversation view(NetworkConversation conversation, NetworkConversationMember mine, Long otherId,
-                                         NetworkDtos.MemberCard with, NetworkMessage last) {
+    NetworkMessageDtos.Conversation view(Seen seen, NetworkConversationMember mine, NetworkMessage last) {
+        NetworkConversation conversation = seen.conversation();
         NetworkMessageDtos.Preview preview = last == null ? null : new NetworkMessageDtos.Preview(last.getSenderId().equals(mine.getUserId()),
             last.isDeleted() ? "" : excerpt(last.getText()), last.isDeleted(), last.getCreatedAt());
         int unread = (int) messages.unread(conversation.getId(), mine.getUserId(), mine.getLastReadAt());
-        return new NetworkMessageDtos.Conversation(conversation.getId(), with, preview, unread, mine.isMuted(), mine.isArchived(),
-            closed(mine.getUserId(), otherId).orElse(null), conversation.getLastMessageAt());
+        // In a group, its members write while they are in it.
+        NetworkMessageDtos.Closed closed = seen.group() != null ? null : closed(mine.getUserId(), seen.otherId()).orElse(null);
+        return new NetworkMessageDtos.Conversation(conversation.getId(), seen.with(), seen.group(), preview, unread, mine.isMuted(),
+            mine.isArchived(), closed, conversation.getLastMessageAt());
     }
 
     /** Whether a message is still in its edit window. */

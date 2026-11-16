@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -73,12 +74,13 @@ public class NetworkMessageService {
     public NetworkMessageDtos.Message send(Long userId, Long conversationId, NetworkMessageDtos.NewMessage request) {
         network.requireMember(userId);
         NetworkConversation conversation = conversation(conversationId);
-        conversationService.view(conversation, userId);
+        NetworkConversations.Seen seen = conversationService.seen(conversation, userId);
         NetworkConversationMember mine = shared.mine(userId, conversationId);
-        Long other = shared.other(conversationId, userId);
-        shared.closed(userId, other).ifPresent(closed -> {
-            throw new InvalidStateException(NetworkConversationService.reason(closed));
-        });
+        if (!conversation.isGroup()) {
+            shared.closed(userId, seen.otherId()).ifPresent(closed -> {
+                throw new InvalidStateException(NetworkConversationService.reason(closed));
+            });
+        }
         limits.message(userId);
         String text = request.text() == null ? "" : request.text().strip();
         if (text.isEmpty() && request.opportunityId() == null) {
@@ -185,19 +187,23 @@ public class NetworkMessageService {
         if (words.length() < 2) {
             return List.of();
         }
-        Map<Long, NetworkDtos.MemberCard> reachable = new HashMap<>();
-        for (NetworkConversationMember participant : participants.findByUserId(userId)) {
-            Long other = shared.other(participant.getConversationId(), userId);
-            shared.visible(userId, other).ifPresent(card -> reachable.put(participant.getConversationId(), card));
-        }
+        Map<Long, NetworkConversations.Seen> reachable = new HashMap<>();
+        List<Long> mine = participants.findByUserId(userId).stream().map(NetworkConversationMember::getConversationId).toList();
+        conversations.findAllById(mine).forEach(conversation -> shared.seen(userId, conversation)
+            .ifPresent(seen -> reachable.put(conversation.getId(), seen)));
         if (reachable.isEmpty()) {
             return List.of();
         }
         String pattern = "%" + words.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
-        return messages.search(reachable.keySet(), pattern, PageRequest.of(0, SEARCHED)).stream()
-            .map(message -> new NetworkMessageDtos.Found(message.getConversationId(), reachable.get(message.getConversationId()),
-                message.getId(), message.getSenderId().equals(userId), NetworkConversations.excerpt(message.getText()),
-                message.getCreatedAt())).toList();
+        Map<Long, Optional<NetworkDtos.MemberCard>> senders = new HashMap<>();
+        return messages.search(reachable.keySet(), pattern, PageRequest.of(0, SEARCHED)).stream().map(message -> {
+            NetworkConversations.Seen seen = reachable.get(message.getConversationId());
+            boolean own = message.getSenderId().equals(userId);
+            NetworkDtos.MemberCard shown = seen.with() != null ? seen.with() : own ? null :
+                senders.computeIfAbsent(message.getSenderId(), shared::card).orElse(null);
+            return new NetworkMessageDtos.Found(message.getConversationId(), seen.label(), shown, message.getId(), own,
+                NetworkConversations.excerpt(message.getText()), message.getCreatedAt());
+        }).toList();
     }
 
     /**
@@ -238,6 +244,7 @@ public class NetworkMessageService {
     }
 
     private List<NetworkMessageDtos.Message> views(List<NetworkMessage> shown, Long readerId) {
+        Map<Long, Optional<NetworkDtos.MemberCard>> senders = new HashMap<>();
         List<Long> ids = shown.stream().map(NetworkMessage::getId).toList();
         Map<Long, List<NetworkMessageReaction>> reacted = ids.isEmpty() ? Map.of() : reactions.findByMessageIdIn(ids).stream()
             .collect(Collectors.groupingBy(NetworkMessageReaction::getMessageId));
@@ -251,7 +258,8 @@ public class NetworkMessageService {
                 original.getSenderId().equals(readerId), original.isDeleted() ? "" : NetworkConversations.excerpt(original.getText()),
                 original.isDeleted());
             boolean mine = message.getSenderId().equals(readerId);
-            return new NetworkMessageDtos.Message(message.getId(), mine, message.getText(), message.getCreatedAt(),
+            NetworkDtos.MemberCard from = mine ? null : senders.computeIfAbsent(message.getSenderId(), shared::card).orElse(null);
+            return new NetworkMessageDtos.Message(message.getId(), mine, from, message.getText(), message.getCreatedAt(),
                 message.getEditedAt() != null, message.isDeleted(), mine && shared.editable(message), reply, counts(given),
                 given.stream().filter(reaction -> reaction.getUserId().equals(readerId)).map(NetworkMessageReaction::getReaction)
                     .findFirst().orElse(null), card(message, mine));

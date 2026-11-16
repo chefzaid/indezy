@@ -258,7 +258,9 @@ block each other, and those of members away from the network, are not shown. Ima
 on the choice of their store.
 
 **Messages** (`/network/messages`, from the network's navigation, counted with the notifications on **Network** in the
-menu) holds one-to-one conversations. **Message** on a member's page opens one when the member follows the reader;
+menu) holds one-to-one conversations and groups. **New group** names a group and gathers up to 19 of the reader's
+followers (a group's members all follow its creator), for a collective or a mission team: every member writes in it,
+each message showing who wrote it; its creator renames it and adds members, and anyone leaves it, reading it no more. **Message** on a member's page opens one when the member follows the reader;
 once they stop following, either blocks the other or one leaves the network, the past stays readable but no new message
 goes, the conversation saying why. The list shows each conversation's latest message and how many are unread, the
 latest first, read again every 30 seconds; an open conversation asks for new messages every 10 seconds, and, as before

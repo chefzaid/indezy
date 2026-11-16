@@ -1,7 +1,7 @@
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
@@ -10,6 +10,7 @@ import { NetworkMessagesService } from '../../../services/network/network-messag
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { CONVERSATIONS_REFRESH_MS, MessagesPageComponent, SEARCH_DELAY_MS } from './messages-page.component';
+import { GroupDialogComponent } from './group-dialog.component';
 import en from '../../../../assets/i18n/en.json';
 
 describe('MessagesPageComponent', () => {
@@ -19,12 +20,12 @@ describe('MessagesPageComponent', () => {
   let fixture: ComponentFixture<MessagesPageComponent>;
   const conversation = (id: number, changes: Partial<Conversation> = {}): Conversation => ({ id, with: { handle: `member${id}`,
     firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [], city: null, remote: false, availability: null,
-    availabilityDate: null, languages: [], verified: false }, last: { mine: id === 2, text: `Bonjour ${id}`, deleted: false,
+    availabilityDate: null, languages: [], verified: false }, group: null, last: { mine: id === 2, text: `Bonjour ${id}`, deleted: false,
     sentAt: '2026-11-16T09:00:00' }, unread: id === 1 ? 2 : 0, muted: id === 2, archived: false, closed: null,
     lastMessageAt: `2026-11-16T0${9 - id}:00:00`, ...changes });
 
   function create(list = of([conversation(1), conversation(2)]), id: string | null = null): HTMLElement {
-    api = jasmine.createSpyObj('NetworkMessagesService', ['conversations', 'thread', 'read', 'search']);
+    api = jasmine.createSpyObj('NetworkMessagesService', ['conversations', 'thread', 'read', 'search', 'createGroup']);
     api.conversations.and.returnValue(list);
     api.thread.and.returnValue(of({ conversation: conversation(1), messages: [], more: false }));
     api.read.and.returnValue(of(conversation(1, { unread: 0 })));
@@ -89,7 +90,7 @@ describe('MessagesPageComponent', () => {
   it('searches the messages once two characters are typed, each found opening its conversation', fakeAsync(() => {
     const element = create();
     const component = fixture.componentInstance;
-    api.search.and.returnValue(of([{ conversationId: 1, with: conversation(1).with, messageId: 9, mine: true, excerpt: 'Une mission Kafka',
+    api.search.and.returnValue(of([{ conversationId: 1, title: 'Léo Martin', with: conversation(1).with, messageId: 9, mine: true, excerpt: 'Une mission Kafka',
       sentAt: '2026-11-16T09:00:00' }]));
     component.query.setValue('k');
     tick(SEARCH_DELAY_MS);
@@ -113,6 +114,36 @@ describe('MessagesPageComponent', () => {
     tick(SEARCH_DELAY_MS);
     fixture.detectChanges();
     expect(element.querySelectorAll('[data-conversation]').length).toBe(2);
+    discardPeriodicTasks();
+  }));
+
+  it('creates a group among the reader\'s followers and opens it, shows groups by their name, and leaves one', fakeAsync(() => {
+    const element = create(of([conversation(1), conversation(5, { with: null, group: { title: 'Mission Kafka', members: [], size: 3,
+      creator: 'camille', admin: true } })]));
+    const component = fixture.componentInstance;
+    expect(element.querySelector('[data-conversation="5"]')?.textContent).toContain('Mission Kafka');
+    expect(element.querySelector('[data-conversation="5"] .group-avatar')).not.toBeNull();
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    const open = spyOn(GroupDialogComponent, 'open').and.returnValue(of(undefined));
+    (element.querySelector('[data-messages-new-group]') as HTMLButtonElement).click();
+    expect(open).toHaveBeenCalledWith(jasmine.anything(), { title: null, present: [], room: 19 });
+    expect(api.createGroup).not.toHaveBeenCalled();
+    open.and.returnValue(of({ title: 'Équipe', handles: ['leo_m'] }));
+    api.createGroup.and.returnValue(of(conversation(9, { with: null, group: { title: 'Équipe', members: [], size: 2, creator: 'camille',
+      admin: true } })));
+    component.newGroup();
+    expect(api.createGroup).toHaveBeenCalledWith('Équipe', ['leo_m']);
+    expect(navigate).toHaveBeenCalledWith(['/network/messages', 9]);
+    expect(component.conversations[0].id).toBe(9);
+    api.createGroup.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+    component.newGroup();
+    expect(notifications.error).toHaveBeenCalledWith('network.groups.refused');
+    api.createGroup.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    component.newGroup();
+    expect(notifications.error).toHaveBeenCalledWith('network.groups.error');
+    component.left(5);
+    expect(component.conversations.map(item => item.id)).not.toContain(5);
+    expect(navigate).toHaveBeenCalledWith(['/network/messages']);
     discardPeriodicTasks();
   }));
 

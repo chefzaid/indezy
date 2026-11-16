@@ -1,6 +1,5 @@
 package dev.swirlit.indezy.service;
 
-import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.dto.NetworkMessageDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -96,18 +95,13 @@ public class NetworkConversationService {
             .stream().collect(Collectors.toMap(NetworkConversation::getId, Function.identity()));
         Map<Long, NetworkMessage> latest = found.isEmpty() ? Map.of() : messages.latest(found.keySet()).stream()
             .collect(Collectors.toMap(NetworkMessage::getConversationId, Function.identity()));
-        Map<Long, Long> others = new HashMap<>();
-        participants.findByConversationIdIn(found.keySet()).stream().filter(participant -> !participant.getUserId().equals(userId))
-            .forEach(participant -> others.put(participant.getConversationId(), participant.getUserId()));
         List<NetworkMessageDtos.Conversation> shown = new ArrayList<>();
         for (NetworkConversationMember participant : mine) {
             NetworkConversation conversation = found.get(participant.getConversationId());
-            Long other = others.get(participant.getConversationId());
-            if (conversation == null || other == null || conversation.getLastMessageAt() == null && !conversation.getCreatedBy().equals(userId)) {
+            if (conversation == null || conversation.getLastMessageAt() == null && !conversation.getCreatedBy().equals(userId)) {
                 continue;
             }
-            shared.visible(userId, other).ifPresent(card -> shown.add(shared.view(conversation, participant, other, card,
-                latest.get(conversation.getId()))));
+            shared.seen(userId, conversation).ifPresent(seen -> shown.add(shared.view(seen, participant, latest.get(conversation.getId()))));
         }
         shown.sort(Comparator.comparing((NetworkMessageDtos.Conversation conversation) -> Objects.requireNonNullElse(
             conversation.lastMessageAt(), LocalDateTime.MIN)).reversed());
@@ -123,7 +117,7 @@ public class NetworkConversationService {
         int count = 0;
         for (NetworkConversationMember participant : participants.findByUserId(userId)) {
             if (!participant.isMuted() && messages.unread(participant.getConversationId(), userId, participant.getLastReadAt()) > 0 &&
-                shared.visible(userId, shared.other(participant.getConversationId(), userId)).isPresent()) {
+                conversations.findById(participant.getConversationId()).flatMap(conversation -> shared.seen(userId, conversation)).isPresent()) {
                 count++;
             }
         }
@@ -158,20 +152,23 @@ public class NetworkConversationService {
         NetworkMember reader = network.requireMember(userId);
         NetworkConversation conversation = conversations.findById(conversationId)
             .orElseThrow(() -> new ResourceNotFoundException(NetworkConversations.NOT_FOUND));
-        NetworkMessageDtos.Conversation view = view(conversation, userId);
+        NetworkConversations.Seen seen = seen(conversation, userId);
         List<NetworkMessage> all = messages.findByConversationIdOrderByIdAsc(conversationId);
         Map<Long, NetworkMessage> byId = all.stream().collect(Collectors.toMap(NetworkMessage::getId, Function.identity()));
-        String withName = (view.with().firstName() + " " + view.with().lastName()).strip();
+        Map<Long, String> senders = new HashMap<>();
         List<ConversationPdfRenderer.Line> lines = all.stream().map(message -> {
             NetworkMessage replied = message.getReplyToId() == null ? null : byId.get(message.getReplyToId());
             String reply = replied == null ? null : replied.isDeleted() ? "…" : NetworkConversations.excerpt(replied.getText());
-            return new ConversationPdfRenderer.Line(message.getSenderId().equals(userId) ? null : withName, message.getCreatedAt(),
-                message.getText(), message.getEditedAt() != null, message.isDeleted(), reply);
+            String sender = message.getSenderId().equals(userId) ? null : senders.computeIfAbsent(message.getSenderId(), id -> shared.card(id)
+                .map(card -> (card.firstName() + " " + card.lastName()).strip()).orElse("—"));
+            return new ConversationPdfRenderer.Line(sender, message.getCreatedAt(), message.getText(), message.getEditedAt() != null,
+                message.isDeleted(), reply);
         }).toList();
         String readerName = network.liveCard(reader).map(card -> (card.firstName() + " " + card.lastName()).strip()).orElse(null);
         LocalDate today = LocalDate.now(clock);
-        byte[] content = pdf.render(new ConversationPdfRenderer.Conversation(readerName, withName, view.with().handle(), lines), language, today);
-        return new ActivityReportService.PdfFile("conversation-" + view.with().handle() + "-" + today + ".pdf", content);
+        byte[] content = pdf.render(new ConversationPdfRenderer.Conversation(readerName, seen.label(), seen.handle(), lines), language, today);
+        String name = seen.handle() != null ? seen.handle() : "group-" + conversationId;
+        return new ActivityReportService.PdfFile("conversation-" + name + "-" + today + ".pdf", content);
     }
 
     /** The messages the account sent, for its data export. */
@@ -183,14 +180,16 @@ public class NetworkConversationService {
             message.getText(), message.getCreatedAt(), message.isDeleted())).toList();
     }
 
-    /** The conversation as its reader sees it in the list; not found when its other member is out of their reach. */
+    /** The conversation as its reader sees it in the list; not found when it is out of their reach. */
     NetworkMessageDtos.Conversation view(NetworkConversation conversation, Long userId) {
         NetworkConversationMember mine = shared.mine(userId, conversation.getId());
-        Long other = shared.other(conversation.getId(), userId);
-        NetworkDtos.MemberCard card = shared.visible(userId, other)
-            .orElseThrow(() -> new ResourceNotFoundException(NetworkConversations.NOT_FOUND));
         NetworkMessage last = messages.latest(List.of(conversation.getId())).stream().findFirst().orElse(null);
-        return shared.view(conversation, mine, other, card, last);
+        return shared.view(seen(conversation, userId), mine, last);
+    }
+
+    /** How the conversation reads for the reader; not found when it is out of their reach. */
+    NetworkConversations.Seen seen(NetworkConversation conversation, Long userId) {
+        return shared.seen(userId, conversation).orElseThrow(() -> new ResourceNotFoundException(NetworkConversations.NOT_FOUND));
     }
 
     static String reason(NetworkMessageDtos.Closed closed) {
@@ -201,7 +200,12 @@ public class NetworkConversationService {
         };
     }
 
+    /** Who a message went to, for the export: the other member's handle, or the group's name. */
     private String handle(Long conversationId, Long userId) {
+        NetworkConversation conversation = conversations.findById(conversationId).orElse(null);
+        if (conversation == null || conversation.isGroup()) {
+            return conversation == null ? null : conversation.getTitle();
+        }
         return network.handle(shared.other(conversationId, userId)).orElse(null);
     }
 }

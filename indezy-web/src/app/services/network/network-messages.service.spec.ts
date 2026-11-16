@@ -21,6 +21,15 @@ describe('NetworkMessagesService', () => {
     expect(http.expectOne(call => call.url.endsWith('/network/conversations/4')).request.params.has('before')).toBeFalse();
     service.thread(4, 30).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/conversations/4')).request.params.get('before')).toBe('30');
+    service.createGroup('Mission Kafka', ['leo_m']).subscribe();
+    expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/groups')).request.body)
+      .toEqual({ title: 'Mission Kafka', handles: ['leo_m'] });
+    service.addMembers(4, ['ines_b']).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/groups/4/members')).request.body).toEqual({ handles: ['ines_b'] });
+    service.renameGroup(4, 'Équipe').subscribe();
+    expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/groups/4/title')).request.body).toEqual({ title: 'Équipe' });
+    service.leaveGroup(4).subscribe();
+    http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/groups/4/members/me'));
     service.search('kafka').subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/conversations/search')).request.params.get('q')).toBe('kafka');
     service.pdf(4, 'EN').subscribe();

@@ -69,6 +69,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/network/member-page/member-page.component',
   'components/network/mentions/mention-list.component',
   'components/network/mentions/mentions.directive',
+  'components/network/messages/group-dialog.component',
   'components/network/messages/message-thread.component',
   'components/network/messages/messages-page.component',
   'components/network/mission-take/mission-take.component',

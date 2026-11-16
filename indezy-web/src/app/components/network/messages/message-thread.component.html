@@ -6,13 +6,34 @@
 } @else if (conversation; as current) {
   <header class="thread-head">
     <ng-content select="[back]"></ng-content>
-    <a [routerLink]="['/m', current.with.handle]" class="who">
-      <app-member-avatar [subject]="current.with" [size]="40"></app-member-avatar>
-      <span class="names">
-        <span class="name">{{ current.with.firstName }} {{ current.with.lastName }}</span>
-        <span class="handle">&#64;{{ current.with.handle }}</span>
+    @if (current.with; as other) {
+      <a [routerLink]="['/m', other.handle]" class="who">
+        <app-member-avatar [subject]="other" [size]="40"></app-member-avatar>
+        <span class="names">
+          <span class="name">{{ other.firstName }} {{ other.lastName }}</span>
+          <span class="handle">&#64;{{ other.handle }}</span>
+        </span>
+      </a>
+    } @else if (current.group && renaming) {
+      <form class="who rename" (submit)="$event.preventDefault(); saveTitle()" data-group-rename-form>
+        <input #titleField [formControl]="renaming" maxlength="80" (keydown.escape)="renaming = null"
+          [attr.aria-label]="'network.groups.name' | translate" data-group-title-field>
+        <button mat-icon-button type="submit" [disabled]="renaming.invalid" [attr.aria-label]="'common.save' | translate" data-group-title-save>
+          <mat-icon>check</mat-icon>
+        </button>
+        <button mat-icon-button type="button" (click)="renaming = null" [attr.aria-label]="'network.post.cancel' | translate">
+          <mat-icon>close</mat-icon>
+        </button>
+      </form>
+    } @else if (current.group; as group) {
+      <span class="who" data-thread-group>
+        <span class="group-avatar" aria-hidden="true"><mat-icon>groups</mat-icon></span>
+        <span class="names">
+          <span class="name">{{ group.title }}</span>
+          <span class="handle" [matTooltip]="memberNames(group.members)">{{ 'network.groups.size' | translate: { count: group.size } }}</span>
+        </span>
       </span>
-    </a>
+    }
     @if (current.muted) {
       <mat-icon class="muted" [attr.aria-label]="'network.messages.muted' | translate" data-thread-muted>notifications_off</mat-icon>
     }
@@ -32,6 +53,19 @@
         <mat-icon>{{ current.archived ? 'unarchive' : 'archive' }}</mat-icon>
         {{ (current.archived ? 'network.messages.unarchive' : 'network.messages.archive') | translate }}
       </button>
+      @if (current.group; as group) {
+        @if (group.admin) {
+          <button mat-menu-item type="button" (click)="addMembers()" [disabled]="group.size >= 20" data-group-add>
+            <mat-icon>person_add</mat-icon>{{ 'network.groups.addMembers' | translate }}
+          </button>
+          <button mat-menu-item type="button" (click)="rename()" data-group-rename>
+            <mat-icon>edit</mat-icon>{{ 'network.groups.rename' | translate }}
+          </button>
+        }
+        <button mat-menu-item type="button" (click)="leave()" data-group-leave>
+          <mat-icon>logout</mat-icon>{{ 'network.groups.leave' | translate }}
+        </button>
+      }
     </mat-menu>
   </header>
 
@@ -40,7 +74,7 @@
       <button mat-stroked-button type="button" class="older" (click)="loadOlder()" data-thread-older>{{ 'network.messages.older' | translate }}</button>
     }
     @if (messages.length === 0) {
-      <p class="first" data-thread-empty>{{ 'network.messages.first' | translate: { name: current.with.firstName } }}</p>
+      <p class="first" data-thread-empty>{{ 'network.messages.first' | translate: { name: label } }}</p>
     }
     @for (day of days; track day.date) {
       <div class="day" role="separator"><span>{{ day.date | date: 'fullDate' }}</span></div>
@@ -48,9 +82,12 @@
         @for (message of day.messages; track message.id) {
           <li class="message" [class.mine]="message.mine" [attr.data-message]="message.id">
             <div class="bubble" [class.deleted]="message.deleted">
+              @if (current.group && message.from) {
+                <span class="sender" data-message-sender>{{ message.from.firstName }} {{ message.from.lastName }}</span>
+              }
               @if (message.replyTo; as quoted) {
                 <span class="quote" data-message-quote>
-                  <span class="quote-who">{{ (quoted.mine ? 'network.messages.you' : 'network.messages.them') | translate: { name: current.with.firstName } }}</span>
+                  <span class="quote-who">{{ (quoted.mine ? 'network.messages.you' : 'network.messages.them') | translate: { name: current.with?.firstName ?? '' } }}</span>
                   {{ quoted.deleted ? ('network.messages.deleted' | translate) : quoted.excerpt }}
                 </span>
               }
@@ -160,7 +197,7 @@
   @if (current.closed) {
     <p class="closed" role="status" data-thread-closed>
       <mat-icon aria-hidden="true">lock</mat-icon>
-      {{ 'network.messages.closed.' + current.closed | translate: { name: current.with.firstName } }}
+      {{ 'network.messages.closed.' + current.closed | translate: { name: label } }}
     </p>
   }
   @if (!current.closed || editing) {
@@ -197,8 +234,8 @@
           }
         </mat-menu>
         <textarea #field [formControl]="draft" rows="1" [maxlength]="max" (keydown)="onKeydown($event)" data-thread-text
-          [attr.aria-label]="'network.messages.write' | translate: { name: current.with.firstName }"
-          [placeholder]="'network.messages.write' | translate: { name: current.with.firstName }"></textarea>
+          [attr.aria-label]="'network.messages.write' | translate: { name: label }"
+          [placeholder]="'network.messages.write' | translate: { name: label }"></textarea>
         <button mat-icon-button type="submit" class="send" [disabled]="sending || !draft.value.trim()"
           [attr.aria-label]="(editing ? 'common.save' : 'network.messages.send') | translate" data-thread-send>
           <mat-icon>{{ editing ? 'check' : 'send' }}</mat-icon>

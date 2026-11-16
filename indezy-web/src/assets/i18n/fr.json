@@ -3735,6 +3735,24 @@
       "cardRemote": "{{days}} jours de télétravail par mois",
       "cardAlready": "Cette opportunité est déjà dans votre pipeline",
       "cardError": "L'opportunité n'a pas pu être ajoutée"
+    },
+    "groups": {
+      "new": "Nouveau groupe",
+      "newTitle": "Nouveau groupe",
+      "addTitle": "Ajouter des membres à {{title}}",
+      "name": "Nom du groupe",
+      "hint": "Des membres qui vous suivent, {{room}} au plus.",
+      "filter": "Trouver un abonné",
+      "noFollower": "Aucun abonné à ajouter pour l'instant : un groupe réunit des membres qui vous suivent.",
+      "create": "Créer le groupe ({{count}})",
+      "add": "Ajouter ({{count}})",
+      "size": "{{count}} membres",
+      "addMembers": "Ajouter des membres",
+      "rename": "Renommer le groupe",
+      "leave": "Quitter le groupe",
+      "leaveConfirm": "Quitter {{title}} ? Vous ne le lirez plus.",
+      "refused": "Chaque membre d'un groupe doit vous suivre",
+      "error": "Le groupe n'a pas pu être modifié"
     }
   }
 }

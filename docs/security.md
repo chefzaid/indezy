@@ -199,6 +199,8 @@ The member network (`/api/network`) is on unless an administrator turns it off (
   a follow request counts against the follow limit;
 - a member may post 10 times, comment 60 times, follow 100 members and report 20 times an hour (`NetworkLimits`), and
   send 200 messages an hour and open 20 conversations a day (`NetworkMessageLimits`); beyond, `429` with `Retry-After`;
+- a group gathers only members who follow its creator (`409` naming the first who does not), 20 at most, and only its
+  creator renames it or adds members; a member outside a conversation or a group reads, searches and downloads none of it;
 - a conversation opens only towards a member who follows the sender; once they stop following, either blocks the other
   or one leaves, new messages are refused (`409` with the reason); a conversation with a member who left or with whom
   either blocks the other is not found, nor is one the reader is not in; only a message's sender edits or deletes it,

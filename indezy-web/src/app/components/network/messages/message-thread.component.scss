@@ -51,6 +51,32 @@
   }
 }
 
+.rename input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--app-link);
+  border-radius: 10px;
+  outline: none;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-weight: 700;
+}
+
+.group-avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--mat-sys-primary), var(--app-accent));
+  color: var(--mat-sys-on-primary);
+}
+
 .scroller {
   flex: 1;
   min-height: 0;
@@ -237,6 +263,12 @@
       font-size: 16px;
     }
   }
+}
+
+.sender {
+  color: var(--app-link);
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .quote {

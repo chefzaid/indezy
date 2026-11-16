@@ -64,8 +64,9 @@ public class NetworkSearchService {
             .filter(post -> !unread.contains(post.getAuthorId()) && GlobalSearchService.containsAll(post.getText(), words))
             .map(post -> authors.computeIfAbsent(post.getAuthorId(), posts::authorCard).map(author -> postHit(words, post, author)))
             .flatMap(Optional::stream).limit(max).toList();
-        List<Hit> messageHits = messages.searchAll(userId, words, max).stream().map(found -> new Hit(found.conversationId(),
-            name(found.with()), "@" + found.with().handle(), found.excerpt(), null, found.with().handle())).toList();
+        List<Hit> messageHits = messages.searchAll(userId, words, max).stream().map(found -> new Hit(found.conversationId(), found.title(),
+            found.with() == null ? null : "@" + found.with().handle(), found.excerpt(), null, found.with() == null ? null : found.with().handle()))
+            .toList();
         return new Found(memberHits, postHits, messageHits);
     }
 

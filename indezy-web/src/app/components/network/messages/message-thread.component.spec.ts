@@ -12,6 +12,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MessageThreadComponent, THREAD_REFRESH_MS } from './message-thread.component';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
+import { GroupDialogComponent } from './group-dialog.component';
 import { ProjectService } from '../../../services/project/project.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
@@ -27,16 +28,16 @@ describe('MessageThreadComponent', () => {
   let fixture: ComponentFixture<MessageThreadComponent>;
   let emitted: Conversation[];
   const conversation: Conversation = { id: 4, with: { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null,
-    stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false }, last: null, unread: 1,
+    stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false }, group: null, last: null, unread: 1,
     muted: false, archived: false, closed: null, lastMessageAt: '2026-11-16T09:00:00' };
-  const message = (id: number, changes: Partial<Message> = {}): Message => ({ id, mine: false, text: `Message ${id}`,
+  const message = (id: number, changes: Partial<Message> = {}): Message => ({ id, mine: false, from: null, text: `Message ${id}`,
     sentAt: `2026-11-1${id < 3 ? 5 : 6}T09:0${id}:00`, edited: false, deleted: false, editable: false, replyTo: null, reactions: [],
     myReaction: null, card: null, ...changes });
   const thread = (messages: Message[], changes: Partial<MessageThread> = {}): MessageThread => ({ conversation, messages, more: false,
     ...changes });
 
   function create(first = of(thread([message(1), message(2), message(3, { mine: true, editable: true })], { more: true }))): HTMLElement {
-    api = jasmine.createSpyObj('NetworkMessagesService', ['thread', 'read', 'send', 'edit', 'remove', 'react', 'settings', 'pdf', 'take']);
+    api = jasmine.createSpyObj('NetworkMessagesService', ['thread', 'read', 'send', 'edit', 'remove', 'react', 'settings', 'pdf', 'take', 'addMembers', 'renameGroup', 'leaveGroup']);
     api.thread.and.returnValue(first);
     api.read.and.returnValue(of({ ...conversation, unread: 0 }));
     notices = jasmine.createSpyObj('NetworkNoticesService', ['refreshMessages']);
@@ -196,6 +197,64 @@ describe('MessageThreadComponent', () => {
     fixture.componentInstance.loadOpportunities();
     expect(fixture.componentInstance.opportunities).toEqual([]);
     expect(notifications.error).toHaveBeenCalledWith('network.messages.loadError');
+    discardPeriodicTasks();
+  }));
+
+  it('shows a group by its name, who wrote each message, and lets its creator add members, rename it, and anyone leave it', fakeAsync(() => {
+    const ines = { ...conversation.with!, handle: 'ines_b', firstName: 'Inès', lastName: 'Bernard' };
+    const group: Conversation = { ...conversation, with: null, group: { title: 'Mission Kafka', members: [conversation.with!, ines], size: 3,
+      creator: 'camille', admin: true } };
+    const element = create(of(thread([message(1, { from: ines }), message(3, { mine: true })], { conversation: group })));
+    const component = fixture.componentInstance;
+    const left: number[] = [];
+    component.left.subscribe(id => left.push(id));
+    expect(element.querySelector('[data-thread-group]')?.textContent).toContain('Mission Kafka');
+    expect(element.querySelector('[data-thread-group]')?.textContent).toContain('3 members');
+    expect(component.memberNames(group.group!.members)).toBe('Léo Martin, Inès Bernard');
+    expect(element.querySelector('[data-message="1"] [data-message-sender]')?.textContent).toContain('Inès Bernard');
+    expect(element.querySelector('[data-message="3"] [data-message-sender]')).toBeNull();
+    expect(element.querySelector('[data-thread-text]')?.getAttribute('placeholder')).toContain('Mission Kafka');
+
+    const open = spyOn(GroupDialogComponent, 'open').and.returnValue(of({ title: 'Mission Kafka', handles: ['paul_d'] }));
+    api.addMembers.and.returnValue(of({ ...group, group: { ...group.group!, size: 4 } }));
+    component.addMembers();
+    expect(open).toHaveBeenCalledWith(jasmine.anything(), { title: 'Mission Kafka', present: ['leo_m', 'ines_b'], room: 17 });
+    expect(api.addMembers).toHaveBeenCalledWith(4, ['paul_d']);
+    expect(component.conversation?.group?.size).toBe(4);
+    api.addMembers.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+    component.addMembers();
+    expect(notifications.error).toHaveBeenCalledWith('network.groups.refused');
+    open.and.returnValue(of(undefined));
+    component.addMembers();
+    expect(api.addMembers).toHaveBeenCalledTimes(2);
+
+    component.rename();
+    fixture.detectChanges();
+    tick();
+    expect(element.querySelector('[data-group-title-field]')).not.toBeNull();
+    component.renaming!.setValue(' ');
+    component.saveTitle();
+    expect(api.renameGroup).not.toHaveBeenCalled();
+    component.renaming!.setValue('Équipe Kafka');
+    api.renameGroup.and.returnValue(throwError(() => new Error('down')));
+    component.saveTitle();
+    expect(notifications.error).toHaveBeenCalledWith('network.groups.error');
+    api.renameGroup.and.returnValue(of({ ...group, group: { ...group.group!, title: 'Équipe Kafka' } }));
+    component.saveTitle();
+    fixture.detectChanges();
+    expect(component.renaming).toBeNull();
+    expect(element.querySelector('[data-thread-group]')?.textContent).toContain('Équipe Kafka');
+
+    confirm.confirm.and.returnValue(of(false));
+    component.leave();
+    expect(api.leaveGroup).not.toHaveBeenCalled();
+    confirm.confirm.and.returnValue(of(true));
+    api.leaveGroup.and.returnValue(throwError(() => new Error('down')));
+    component.leave();
+    expect(left).toEqual([]);
+    api.leaveGroup.and.returnValue(of(undefined));
+    component.leave();
+    expect(left).toEqual([4]);
     discardPeriodicTasks();
   }));
 

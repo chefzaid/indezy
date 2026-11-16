@@ -13,7 +13,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, interval } from 'rxjs';
 
-import { Conversation, MESSAGE_MAX, Message, ProjectDto, REACTIONS, Reaction } from '../../../models';
+import { Conversation, MESSAGE_MAX, MemberCard, Message, ProjectDto, REACTIONS, Reaction } from '../../../models';
+import { GroupDialogComponent } from './group-dialog.component';
 import { ProjectService } from '../../../services/project/project.service';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
@@ -29,6 +30,8 @@ import { saveBlob } from '../../../shared/utils/download-file';
 export const THREAD_REFRESH_MS = 10_000;
 /** How many of the reader's opportunities the share list offers. */
 const OPPORTUNITIES_SHOWN = 20;
+/** How many members a group has at most. */
+const GROUP_MAX = 20;
 
 /** A day of the conversation and its messages. */
 interface Day {
@@ -66,6 +69,11 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   @Input({ required: true }) conversationId!: number;
   /** The conversation as it now reads, for the list beside it. */
   @Output() readonly changed = new EventEmitter<Conversation>();
+  /** The group's name being changed; none while not renaming. */
+  renaming: FormControl<string> | null = null;
+  @ViewChild('titleField') titleField?: ElementRef<HTMLInputElement>;
+  /** The reader left this group. */
+  @Output() readonly left = new EventEmitter<number>();
   @ViewChild('scroller') scroller?: ElementRef<HTMLElement>;
   @ViewChild('field') field?: ElementRef<HTMLTextAreaElement>;
 
@@ -331,9 +339,76 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   downloadPdf(): void {
     const language = this.translate.currentLang === 'en' ? 'EN' : 'FR';
     this.api.pdf(this.conversationId, language).subscribe({
-      next: pdf => saveBlob(pdf, `conversation-${this.conversation?.with.handle ?? this.conversationId}.pdf`),
+      next: pdf => saveBlob(pdf, `conversation-${this.conversation?.with?.handle ?? this.conversationId}.pdf`),
       error: () => this.notifications.error('network.messages.pdfError')
     });
+  }
+
+  /** Who the reader writes to: the other member's first name, or the group's name. */
+  get label(): string {
+    return this.conversation?.group?.title ?? this.conversation?.with?.firstName ?? '';
+  }
+
+  memberNames(members: MemberCard[]): string {
+    return members.map(member => `${member.firstName} ${member.lastName}`).join(', ');
+  }
+
+  /** Adds members to the reader's own group, among their followers. */
+  addMembers(): void {
+    const group = this.conversation!.group!;
+    GroupDialogComponent.open(this.dialog, { title: group.title, present: group.members.map(member => member.handle),
+      room: GROUP_MAX - group.size }).subscribe(choice => {
+      if (choice) {
+        this.api.addMembers(this.conversationId, choice.handles).subscribe({
+          next: conversation => this.updatedGroup(conversation),
+          error: (error: HttpErrorResponse) => this.notifications.error(error.status === 409 ? 'network.groups.refused' : 'network.groups.error')
+        });
+      }
+    });
+  }
+
+  /** Starts renaming the reader's own group, in the header. */
+  rename(): void {
+    this.renaming = new FormControl(this.conversation!.group!.title, { nonNullable: true, validators: [Validators.required,
+      Validators.maxLength(80)] });
+    setTimeout(() => this.titleField?.nativeElement.focus());
+  }
+
+  /** Saves the group's new name; Escape or the cross keeps the old one. */
+  saveTitle(): void {
+    const title = this.renaming?.value.trim();
+    if (!title || this.renaming?.invalid) {
+      return;
+    }
+    this.api.renameGroup(this.conversationId, title).subscribe({
+      next: conversation => {
+        this.renaming = null;
+        this.updatedGroup(conversation);
+      },
+      error: () => this.notifications.error('network.groups.error')
+    });
+  }
+
+  /** Leaves the group once confirmed: the reader reads it no more. */
+  leave(): void {
+    this.confirm.confirm({ messageKey: 'network.groups.leaveConfirm', messageParams: { title: this.conversation!.group!.title },
+      confirmKey: 'network.groups.leave', danger: true }).subscribe(confirmed => {
+      if (confirmed) {
+        this.api.leaveGroup(this.conversationId).subscribe({
+          next: () => {
+            this.left.emit(this.conversationId);
+            this.notices.refreshMessages();
+          },
+          error: () => this.notifications.error('network.groups.error')
+        });
+      }
+    });
+  }
+
+  private updatedGroup(conversation: Conversation): void {
+    this.conversation = conversation;
+    this.changed.emit(conversation);
+    this.changes.markForCheck();
   }
 
   /** Mutes or archives the conversation, for the reader alone. */

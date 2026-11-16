@@ -10,6 +10,7 @@ import dev.swirlit.indezy.model.User;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.FeatureFlag;
 import dev.swirlit.indezy.repository.NetworkConversationMemberRepository;
+import dev.swirlit.indezy.repository.NetworkConversationRepository;
 import dev.swirlit.indezy.repository.NetworkMessageRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import dev.swirlit.indezy.util.Tokens;
@@ -53,6 +54,7 @@ public class NetworkMessageEmailService {
     private final NetworkService network;
     private final NetworkConversations shared;
     private final NetworkConversationMemberRepository participants;
+    private final NetworkConversationRepository conversations;
     private final NetworkMessageRepository messages;
     private final UserRepository users;
     private final NetworkMessageEmailComposer composer;
@@ -123,8 +125,8 @@ public class NetworkMessageEmailService {
             if (count == 0) {
                 continue;
             }
-            shared.visible(userId, shared.other(participant.getConversationId(), userId)).ifPresent(card -> {
-                waiting.add(new NetworkMessageEmailComposer.Waiting((card.firstName() + " " + card.lastName()).strip(), count));
+            conversations.findById(participant.getConversationId()).flatMap(conversation -> shared.seen(userId, conversation)).ifPresent(seen -> {
+                waiting.add(new NetworkMessageEmailComposer.Waiting(seen.label(), count));
                 previousUntil.put(participant.getId(), participant.getEmailedUntil());
                 participant.setEmailedUntil(messages.latestBetween(participant.getConversationId(), userId, after, before));
             });

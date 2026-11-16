@@ -37,6 +37,28 @@
   }
 }
 
+.new-group {
+  margin-left: auto;
+  color: var(--app-link);
+}
+
+.group-avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--mat-sys-primary), var(--app-accent));
+  color: var(--mat-sys-on-primary);
+
+  &.small {
+    width: 40px;
+    height: 40px;
+  }
+}
+
 .back,
 .thread-back {
   display: inline-flex;

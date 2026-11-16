@@ -5,6 +5,10 @@
         <mat-icon>arrow_back</mat-icon>
       </a>
       <h1>{{ 'network.messages.title' | translate }}</h1>
+      <button mat-icon-button type="button" class="new-group" (click)="newGroup()" [attr.aria-label]="'network.groups.new' | translate"
+        [matTooltip]="'network.groups.new' | translate" data-messages-new-group>
+        <mat-icon>group_add</mat-icon>
+      </button>
     </header>
     <div class="tabs" role="tablist" [attr.aria-label]="'network.messages.title' | translate">
       <button type="button" role="tab" class="tab" [class.active]="!archived" [attr.aria-selected]="!archived" (click)="showArchived(false)"
@@ -28,10 +32,14 @@
           @for (hit of found; track hit.messageId) {
             <li>
               <a [routerLink]="['/network/messages', hit.conversationId]" class="row" [attr.data-found-message]="hit.messageId">
-                <app-member-avatar [subject]="hit.with" [size]="40"></app-member-avatar>
+                @if (hit.with) {
+                  <app-member-avatar [subject]="hit.with" [size]="40"></app-member-avatar>
+                } @else {
+                  <span class="group-avatar small" aria-hidden="true"><mat-icon>groups</mat-icon></span>
+                }
                 <span class="summary">
                   <span class="top">
-                    <span class="name">{{ hit.with.firstName }} {{ hit.with.lastName }}</span>
+                    <span class="name">{{ hit.title }}</span>
                     <span class="when">{{ hit.sentAt | timeAgo }}</span>
                   </span>
                   <span class="preview found-text">{{ hit.mine ? ('network.messages.youPrefix' | translate) + ' ' : '' }}{{ hit.excerpt }}</span>
@@ -57,10 +65,14 @@
             <a [routerLink]="['/network/messages', conversation.id]" class="row" [class.active]="conversation.id === openId"
               [class.unread]="conversation.unread > 0" [attr.aria-current]="conversation.id === openId ? 'page' : null"
               [attr.data-conversation]="conversation.id">
-              <app-member-avatar [subject]="conversation.with" [size]="48"></app-member-avatar>
+              @if (conversation.with) {
+                <app-member-avatar [subject]="conversation.with" [size]="48"></app-member-avatar>
+              } @else {
+                <span class="group-avatar" aria-hidden="true"><mat-icon>groups</mat-icon></span>
+              }
               <span class="summary">
                 <span class="top">
-                  <span class="name">{{ conversation.with.firstName }} {{ conversation.with.lastName }}</span>
+                  <span class="name">{{ conversation.group?.title ?? conversation.with?.firstName + ' ' + conversation.with?.lastName }}</span>
                   @if (conversation.lastMessageAt) {
                     <span class="when">{{ conversation.lastMessageAt | timeAgo }}</span>
                   }
@@ -90,7 +102,7 @@
 
   <section class="thread-pane">
     @if (openId !== null) {
-      <app-message-thread [conversationId]="openId" (changed)="updated($event)">
+      <app-message-thread [conversationId]="openId" (changed)="updated($event)" (left)="left($event)">
         <a back routerLink="/network/messages" class="thread-back" [attr.aria-label]="'network.messages.title' | translate">
           <mat-icon>arrow_back</mat-icon>
         </a>

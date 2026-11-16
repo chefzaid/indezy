@@ -93,3 +93,37 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(thread.locator('[data-thread-text]')).toHaveAttribute('placeholder', en ? 'Write to Léo…' : 'Écrire à Léo…');
   });
 }
+
+test('creates a group among the followers and writes in it, each message showing who wrote it', async ({ page }) => {
+  await mockWorkspaceSession(page, 'en');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/network/conversations/unread', route => route.fulfill({ json: { conversations: 0 } }));
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille' } }));
+  const ines = { ...leo, handle: 'ines_b', firstName: 'Inès', lastName: 'Bernard' };
+  await page.route('**/api/network/members/camille/followers', route => route.fulfill({ json: [leo, ines] }));
+  const group = { id: 9, with: null, group: { title: 'Mission Kafka', members: [leo, ines], size: 3, creator: 'camille', admin: true },
+    last: null, unread: 0, muted: false, archived: false, closed: null, lastMessageAt: null };
+  let created: unknown = null;
+  await page.route('**/api/network/groups', route => {
+    created = route.request().postDataJSON();
+    return route.fulfill({ json: group });
+  });
+  await page.route('**/api/network/conversations?**', route => route.fulfill({ json: created ? [group] : [] }));
+  await page.route('**/api/network/conversations/9', route => route.fulfill({ json: { conversation: group, more: false,
+    messages: [message(1, false, 'Bonjour à tous', { from: ines })] } }));
+  await page.route('**/api/network/conversations/9/read', route => route.fulfill({ json: group }));
+
+  await page.goto('/network/messages');
+  await page.locator('[data-messages-new-group]').click();
+  const dialog = page.getByRole('dialog');
+  await dialog.locator('[data-group-title]').fill('Mission Kafka');
+  await dialog.locator('[data-group-choice="leo_m"]').click();
+  await dialog.locator('[data-group-choice="ines_b"]').click();
+  const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  await dialog.locator('[data-group-done]').click();
+  await expect(page).toHaveURL(/\/network\/messages\/9$/);
+  expect(created).toEqual({ title: 'Mission Kafka', handles: ['leo_m', 'ines_b'] });
+  await expect(page.locator('[data-thread-group]')).toContainText('3 members');
+  await expect(page.locator('[data-message="1"] [data-message-sender]')).toContainText('Inès Bernard');
+});

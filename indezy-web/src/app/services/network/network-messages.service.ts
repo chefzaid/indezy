@@ -22,6 +22,23 @@ export class NetworkMessagesService {
     return this.http.post<Conversation>(`${this.API_URL}/conversations`, { handle });
   }
 
+  /** Creates a group of members who all follow the reader. */
+  createGroup(title: string, handles: string[]): Observable<Conversation> {
+    return this.http.post<Conversation>(`${this.API_URL}/groups`, { title, handles });
+  }
+
+  addMembers(id: number, handles: string[]): Observable<Conversation> {
+    return this.http.post<Conversation>(`${this.API_URL}/groups/${id}/members`, { handles });
+  }
+
+  renameGroup(id: number, title: string): Observable<Conversation> {
+    return this.http.put<Conversation>(`${this.API_URL}/groups/${id}/title`, { title });
+  }
+
+  leaveGroup(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/groups/${id}/members/me`);
+  }
+
   /** The reader's messages holding what was typed, the latest first. */
   search(typed: string): Observable<FoundMessage[]> {
     return this.http.get<FoundMessage[]>(`${this.API_URL}/conversations/search`, { params: { q: typed } });

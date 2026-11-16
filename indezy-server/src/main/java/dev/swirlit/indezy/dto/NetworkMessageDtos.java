@@ -3,6 +3,7 @@ package dev.swirlit.indezy.dto;
 import dev.swirlit.indezy.model.NetworkMessage;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -25,9 +26,43 @@ public final class NetworkMessageDtos {
         LEFT
     }
 
-    /** A conversation in the list: the other member, its latest message, what is unread and whether a message can go. */
-    public record Conversation(Long id, NetworkDtos.MemberCard with, Preview last, int unread, boolean muted, boolean archived,
+    /**
+     * A conversation in the list: the other member (none for a group), the group, its latest message, what is unread and
+     * whether a message can go.
+     */
+    public record Conversation(Long id, NetworkDtos.MemberCard with, Group group, Preview last, int unread, boolean muted, boolean archived,
                                Closed closed, LocalDateTime lastMessageAt) {
+    }
+
+    /**
+     * A group as one of its members reads it: its name, its other members in reach, how many it has in all, its creator's
+     * handle, and whether the reader created it (who names it and adds members).
+     */
+    public record Group(String title, List<NetworkDtos.MemberCard> members, int size, String creator, boolean admin) {
+
+        public Group {
+            members = List.copyOf(members);
+        }
+    }
+
+    /** A new group: its name and the members, who all follow its creator, up to 19 besides them. */
+    public record NewGroup(@NotBlank @Size(max = 80) String title, @NotNull @Size(min = 1, max = 19) List<@NotBlank String> handles) {
+
+        public NewGroup {
+            handles = handles == null ? null : List.copyOf(handles);
+        }
+    }
+
+    /** Members added to a group, who all follow its creator. */
+    public record NewMembers(@NotNull @Size(min = 1, max = 19) List<@NotBlank String> handles) {
+
+        public NewMembers {
+            handles = handles == null ? null : List.copyOf(handles);
+        }
+    }
+
+    /** A group's new name. */
+    public record Rename(@NotBlank @Size(max = 80) String title) {
     }
 
     /** The latest message's first words. */
@@ -39,9 +74,10 @@ public final class NetworkMessageDtos {
         }
     }
 
-    /** A message as its reader reads it. */
-    public record Message(Long id, boolean mine, String text, LocalDateTime sentAt, boolean edited, boolean deleted, boolean editable,
-                          Reply replyTo, List<NetworkDtos.ReactionCount> reactions, NetworkReaction myReaction, Card card) {
+    /** A message as its reader reads it; {@code from} is its sender, none for the reader's own. */
+    public record Message(Long id, boolean mine, NetworkDtos.MemberCard from, String text, LocalDateTime sentAt, boolean edited,
+                          boolean deleted, boolean editable, Reply replyTo, List<NetworkDtos.ReactionCount> reactions,
+                          NetworkReaction myReaction, Card card) {
 
         public Message {
             reactions = List.copyOf(reactions);
@@ -108,8 +144,12 @@ public final class NetworkMessageDtos {
     public record Settings(Boolean muted, Boolean archived) {
     }
 
-    /** A message found by a search, with its conversation and the other member. */
-    public record Found(Long conversationId, NetworkDtos.MemberCard with, Long messageId, boolean mine, String excerpt, LocalDateTime sentAt) {
+    /**
+     * A message found by a search, with its conversation's name (the other member's, or the group's) and who to show beside
+     * it: the other member, or in a group the sender (none for the reader's own).
+     */
+    public record Found(Long conversationId, String title, NetworkDtos.MemberCard with, Long messageId, boolean mine, String excerpt,
+                        LocalDateTime sentAt) {
 
         @Override
         public String toString() {

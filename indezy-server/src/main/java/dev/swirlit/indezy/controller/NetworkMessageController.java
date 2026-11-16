@@ -5,6 +5,7 @@ import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
 import dev.swirlit.indezy.service.NetworkConversationService;
+import dev.swirlit.indezy.service.NetworkGroupService;
 import dev.swirlit.indezy.service.NetworkMessageService;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +36,7 @@ public class NetworkMessageController {
 
     private final NetworkConversationService conversations;
     private final NetworkMessageService messages;
+    private final NetworkGroupService groups;
 
     @Operation(summary = "The reader's conversations, the latest message first; the archived ones when asked")
     @GetMapping("/conversations")
@@ -53,6 +55,32 @@ public class NetworkMessageController {
     @GetMapping("/conversations/search")
     public List<NetworkMessageDtos.Found> search(@RequestParam(defaultValue = "") String q) {
         return messages.search(SecurityUtils.getCurrentUserId(), q);
+    }
+
+    @Operation(summary = "Create a group of up to 20 members who all follow the reader",
+        description = "409 naming the first member who does not follow the reader, or beyond 20 members")
+    @PostMapping("/groups")
+    public NetworkMessageDtos.Conversation createGroup(@Valid @RequestBody NetworkMessageDtos.NewGroup request) {
+        return groups.create(SecurityUtils.getCurrentUserId(), request);
+    }
+
+    @Operation(summary = "Add members to one's own group, who all follow its creator")
+    @PostMapping("/groups/{id}/members")
+    public NetworkMessageDtos.Conversation addMembers(@PathVariable Long id, @Valid @RequestBody NetworkMessageDtos.NewMembers request) {
+        return groups.addMembers(SecurityUtils.getCurrentUserId(), id, request);
+    }
+
+    @Operation(summary = "Rename one's own group")
+    @PutMapping("/groups/{id}/title")
+    public NetworkMessageDtos.Conversation renameGroup(@PathVariable Long id, @Valid @RequestBody NetworkMessageDtos.Rename request) {
+        return groups.rename(SecurityUtils.getCurrentUserId(), id, request);
+    }
+
+    @Operation(summary = "Leave a group: its messages stay for the others")
+    @DeleteMapping("/groups/{id}/members/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void leaveGroup(@PathVariable Long id) {
+        groups.leave(SecurityUtils.getCurrentUserId(), id);
     }
 
     @Operation(summary = "How many conversations have unread messages, the muted aside")
