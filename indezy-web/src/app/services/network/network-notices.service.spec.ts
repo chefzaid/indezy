@@ -1,20 +1,25 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { NetworkService } from './network.service';
 import { NetworkMessagesService } from './network-messages.service';
 import { NETWORK_NOTICES_REFRESH_MS, NetworkNoticesService } from './network-notices.service';
+import { NetworkEvent, NetworkStreamService } from './network-stream.service';
 
 describe('NetworkNoticesService', () => {
   let network: jasmine.SpyObj<NetworkService>;
   let messages: jasmine.SpyObj<NetworkMessagesService>;
+  let events: Subject<NetworkEvent>;
+  let stream: { events: Subject<NetworkEvent>; connected: boolean; start: jasmine.Spy; stop: jasmine.Spy };
 
   function create(): NetworkNoticesService {
     network = jasmine.createSpyObj<NetworkService>('NetworkService', ['unreadNotifications']);
     network.unreadNotifications.and.returnValue(of({ unread: 3 }));
     messages = jasmine.createSpyObj<NetworkMessagesService>('NetworkMessagesService', ['unread']);
     messages.unread.and.returnValue(of(2));
+    events = new Subject<NetworkEvent>();
+    stream = { events, connected: false, start: jasmine.createSpy('start'), stop: jasmine.createSpy('stop') };
     TestBed.configureTestingModule({ providers: [{ provide: NetworkService, useValue: network },
-      { provide: NetworkMessagesService, useValue: messages }] });
+      { provide: NetworkMessagesService, useValue: messages }, { provide: NetworkStreamService, useValue: stream }] });
     return TestBed.inject(NetworkNoticesService);
   }
 
@@ -49,5 +54,23 @@ describe('NetworkNoticesService', () => {
     expect(totals.at(-1)).toBe(3);
     service.stop();
     expect(totals.at(-1)).toBe(0);
+  }));
+
+  it('opens the stream and counts again as it tells, polling only while it is closed', fakeAsync(() => {
+    const service = create();
+    service.start();
+    expect(stream.start).toHaveBeenCalled();
+    stream.connected = true;
+    tick(NETWORK_NOTICES_REFRESH_MS);
+    expect(network.unreadNotifications).toHaveBeenCalledTimes(1);
+    events.next({ type: 'notice' });
+    expect(network.unreadNotifications).toHaveBeenCalledTimes(2);
+    expect(messages.unread).toHaveBeenCalledTimes(1);
+    events.next({ type: 'message', conversationId: 4 });
+    events.next({ type: 'read', conversationId: 4 });
+    events.next({ type: 'typing', conversationId: 4, name: 'Léo' });
+    expect(messages.unread).toHaveBeenCalledTimes(3);
+    service.stop();
+    expect(stream.stop).toHaveBeenCalled();
   }));
 });

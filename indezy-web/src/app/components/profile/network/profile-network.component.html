@@ -92,6 +92,19 @@
   </section>
 }
 
+@if (membership?.joined && messaging) {
+  <section class="restrictions" data-network-messaging>
+    <h3>{{ 'profile.network.messagingTitle' | translate }}</h3>
+    <p class="empty">{{ 'profile.network.messagingHint' | translate }}</p>
+    <mat-slide-toggle [checked]="messaging.readReceipts" (change)="setMessaging('readReceipts', $event.checked)" data-messaging="readReceipts">
+      {{ 'profile.network.readReceipts' | translate }}
+    </mat-slide-toggle>
+    <mat-slide-toggle [checked]="messaging.typing" (change)="setMessaging('typing', $event.checked)" data-messaging="typing">
+      {{ 'profile.network.typing' | translate }}
+    </mat-slide-toggle>
+  </section>
+}
+
 @if (membership?.joined && restrictions) {
   <section class="restrictions" data-network-restrictions>
     <h3>{{ 'profile.network.restrictionsTitle' | translate }}</h3>

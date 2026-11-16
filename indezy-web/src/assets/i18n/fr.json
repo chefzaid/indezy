@@ -1484,7 +1484,11 @@
         "OFF": "Désactivé",
         "APP": "Dans l'appli",
         "EMAIL": "E-mail aussi"
-      }
+      },
+      "messagingTitle": "Messages",
+      "messagingHint": "Chacun vaut dans les deux sens : désactivé, vous ne le voyez plus chez les autres non plus.",
+      "readReceipts": "Montrer quand je lis un message (Vu)",
+      "typing": "Montrer quand j’écris"
     }
   },
   "errors": {
@@ -3749,7 +3753,9 @@
       "cardStart": "à partir du {{date}}",
       "cardRemote": "{{days}} jours de télétravail par mois",
       "cardAlready": "Cette opportunité est déjà dans votre pipeline",
-      "cardError": "L'opportunité n'a pas pu être ajoutée"
+      "cardError": "L'opportunité n'a pas pu être ajoutée",
+      "seen": "Vu",
+      "typing": "{{name}} écrit…"
     },
     "groups": {
       "new": "Nouveau groupe",

@@ -1,4 +1,5 @@
-// The cards a message carries: an opportunity shared from the pipeline, and the preview of its first link.
+// The cards a message carries (an opportunity shared from the pipeline, the preview of its first link), and what shows
+// under the messages as it happens: read, and who is typing.
 .opportunity {
   display: flex;
   flex-direction: column;
@@ -116,5 +117,65 @@
     font-size: 0.8125rem;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+  }
+}
+
+.seen {
+  grid-column: 1 / -1;
+  justify-self: end;
+  color: var(--app-text-muted);
+  font-size: 0.75rem;
+}
+
+.typing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.8125rem;
+
+  .dots {
+    display: inline-flex;
+    gap: 3px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: var(--app-subtle);
+
+    span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: typing-dot 1.2s infinite ease-in-out;
+
+      &:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+
+      &:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+    }
+  }
+}
+
+@keyframes typing-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typing .dots span {
+    animation: none;
   }
 }

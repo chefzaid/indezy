@@ -7,11 +7,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
-import { catchError, debounceTime, distinctUntilChanged, interval, of, switchMap } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, interval, of, switchMap } from 'rxjs';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { Conversation, FoundMessage } from '../../../models';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
+import { NetworkStreamService } from '../../../services/network/network-stream.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
 import { TimeAgoPipe } from '../time-ago/time-ago.pipe';
@@ -20,6 +21,8 @@ import { GroupDialogComponent } from './group-dialog.component';
 
 /** How often the list of conversations is read again. */
 export const CONVERSATIONS_REFRESH_MS = 30_000;
+/** How long the list waits for a burst of events to end before reading itself again. */
+export const STREAM_SETTLE_MS = 300;
 /** How long the search waits for the typing to pause. */
 export const SEARCH_DELAY_MS = 300;
 /** How many members a new group takes besides its creator. */
@@ -44,6 +47,7 @@ export class MessagesPageComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
+  private readonly stream = inject(NetworkStreamService);
 
   conversations: Conversation[] = [];
   archived = false;
@@ -70,8 +74,11 @@ export class MessagesPageComponent implements OnInit {
       this.found = found;
       this.changes.markForCheck();
     });
+    // The list follows the stream; it polls only while the stream is closed.
+    this.stream.events.pipe(filter(event => event.type === 'message' || event.type === 'read'), debounceTime(STREAM_SETTLE_MS),
+      takeUntilDestroyed(this.destroyRef)).subscribe(() => this.load());
     interval(CONVERSATIONS_REFRESH_MS).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      if (!document.hidden) {
+      if (!document.hidden && !this.stream.connected) {
         this.load();
       }
     });

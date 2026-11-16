@@ -11,6 +11,7 @@ import dev.swirlit.indezy.model.NetworkMessage;
 import dev.swirlit.indezy.model.NetworkMessageReaction;
 import dev.swirlit.indezy.model.NetworkOpportunityCard;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
+import dev.swirlit.indezy.realtime.NetworkEvents;
 import dev.swirlit.indezy.repository.NetworkConversationMemberRepository;
 import dev.swirlit.indezy.repository.NetworkConversationRepository;
 import dev.swirlit.indezy.repository.NetworkMessageReactionRepository;
@@ -56,6 +57,7 @@ public class NetworkMessageService {
     private final NetworkMessageReactionRepository reactions;
     private final NetworkPipelineService pipeline;
     private final NetworkLinkPreviews previews;
+    private final NetworkEvents events;
     private final Clock clock;
 
     /** The conversation with a page of its messages before the given one (the latest with none), the oldest first. */
@@ -104,7 +106,9 @@ public class NetworkMessageService {
         conversation.setLastMessageAt(message.getCreatedAt() == null ? shared.now() : message.getCreatedAt());
         mine.setLastReadAt(conversation.getLastMessageAt());
         // A new message brings an archived conversation back to the list.
-        participants.findByConversationId(conversationId).forEach(participant -> participant.setArchived(null));
+        List<NetworkConversationMember> everyone = participants.findByConversationId(conversationId);
+        everyone.forEach(participant -> participant.setArchived(null));
+        events.message(everyone.stream().map(NetworkConversationMember::getUserId).toList(), conversationId);
         return views(List.of(message), userId).getFirst();
     }
 
@@ -115,6 +119,7 @@ public class NetworkMessageService {
         message.setText(request.text().strip());
         message.setEditedAt(clock.instant());
         previews.refresh(message);
+        changed(message);
         return views(List.of(message), userId).getFirst();
     }
 
@@ -127,6 +132,7 @@ public class NetworkMessageService {
         message.setPreview(null);
         message.setDeletedAt(clock.instant());
         reactions.deleteAll(reactions.findByMessageIdIn(List.of(messageId)));
+        changed(message);
         return views(List.of(message), userId).getFirst();
     }
 
@@ -148,6 +154,7 @@ public class NetworkMessageService {
             given.setReaction(reaction);
             reactions.save(given);
         }
+        changed(message);
         return views(List.of(message), userId).getFirst();
     }
 
@@ -178,6 +185,7 @@ public class NetworkMessageService {
             message.setPreview(null);
             message.setDeletedAt(clock.instant());
             reactions.deleteAll(reactions.findByMessageIdIn(List.of(messageId)));
+            changed(message);
         });
     }
 
@@ -246,6 +254,12 @@ public class NetworkMessageService {
             throw new InvalidStateException("A message can only be " + change + " in the 15 minutes after it is sent");
         }
         return message;
+    }
+
+    /** Tells the conversation's members that one of its messages changed. */
+    private void changed(NetworkMessage message) {
+        events.message(participants.findByConversationId(message.getConversationId()).stream().map(NetworkConversationMember::getUserId)
+            .toList(), message.getConversationId());
     }
 
     private List<NetworkMessageDtos.Message> views(List<NetworkMessage> shown, Long readerId) {

@@ -12,8 +12,10 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, debounceTime, distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs';
 
-import { HANDLE_PATTERN, MemberCard, NetworkAvailability, NetworkFields, NetworkMembership, NetworkNotificationType, NetworkRestrictions } from '../../../models';
+import { HANDLE_PATTERN, MemberCard, MessagingSettings, NetworkAvailability, NetworkFields, NetworkMembership, NetworkNotificationType,
+  NetworkRestrictions } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
+import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { ProfileFollowRequestsComponent } from './follow-requests/profile-follow-requests.component';
@@ -56,6 +58,7 @@ export type NoticeChannel = 'OFF' | 'APP' | 'EMAIL';
 })
 export class ProfileNetworkComponent implements OnInit, OnDestroy {
   private readonly network = inject(NetworkService);
+  private readonly messagesApi = inject(NetworkMessagesService);
   private readonly notifications = inject(NotificationService);
   private readonly confirm = inject(ConfirmDialogService);
   private readonly changes = inject(ChangeDetectorRef);
@@ -206,7 +209,34 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** Whether the member shows and sees read receipts and who is typing; read once joined. */
+  messaging: MessagingSettings | null = null;
+
+  /** Shows or hides read receipts, or who is typing, both ways. */
+  setMessaging(key: keyof MessagingSettings, on: boolean): void {
+    this.messagesApi.saveMessaging({ [key]: on }).subscribe({
+      next: settings => {
+        this.messaging = settings;
+        this.changes.markForCheck();
+      },
+      error: () => {
+        this.messaging = this.messaging ? { ...this.messaging } : null;
+        this.notifications.error('profile.network.saveError');
+        this.changes.markForCheck();
+      }
+    });
+  }
+
   private show(membership: NetworkMembership): void {
+    if (membership.joined && !this.messaging) {
+      this.messagesApi.messaging().pipe(takeUntil(this.destroy$)).subscribe({
+        next: settings => {
+          this.messaging = settings;
+          this.changes.markForCheck();
+        },
+        error: () => this.messaging = null
+      });
+    }
     if (membership.joined && !this.noticesOff) {
       this.network.notificationSettings().pipe(takeUntil(this.destroy$)).subscribe({
         next: settings => {

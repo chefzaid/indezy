@@ -96,6 +96,15 @@ The `scraping` package fills the shared offer feed from the job boards ([ADR 000
 5. Every night `OfferRetention` (04:15 Paris time) removes offers older than 90 days or expired, unless a workspace saved, applied to or imported them; the rate medians and suspicion flags are recomputed at 04:45 (`OfferRateBenchmarkService`, `OfferSuspicionService`).
 6. The feed (`OfferSearchService`), saved search counts, search suggestions and the market snapshot filter offers with the same specification (`JobOfferSpecifications`), and saved search emails read new offers through `OfferSearchService`; `OfferSiteRefresher` reads one site on request.
 
+### Network events
+
+What changes in the member network reaches the open pages as it happens ([ADR 0012](./adr/0012-network-events-over-server-sent-events.md)):
+
+1. A service saving a message, a read, a reaction, a group change or a notification calls `NetworkEvents`, which waits for the transaction to commit.
+2. `NetworkEventRelay` sends the event and the members it is for as a PostgreSQL `NOTIFY` on `indezy_network`, out of the request's thread; every replica listens on a connection of its own (on H2 the replica delivers at once).
+3. `NetworkEventHub` writes it to the members' streams open on that replica (`GET /api/network/stream`), with a heartbeat every 25 seconds.
+4. The page (`NetworkStreamService`) reads the stream with `fetch` and the token, and the menu's counts, the conversations and the open conversation read themselves again; they poll only while the stream is closed.
+
 ### Offer search at scale
 
 How the feed's query stays fast on PostgreSQL; the measurements are in [Testing](./testing.md#search-load-test):
@@ -142,6 +151,7 @@ NNNN-short-title.md
 | [0009: Collect Freelance Offers From Job Boards In The Backend](./adr/0009-collecting-job-offers.md) | Accepted |
 | [0010: Keep Opportunity Files In PostgreSQL](./adr/0010-attachments-in-postgresql.md) | Accepted |
 | [0011: Organizations For The Teams Tier](./adr/0011-organizations-for-the-teams-tier.md) | Proposed |
+| [0012: Network Events Over Server-Sent Events And PostgreSQL Notifications](./adr/0012-network-events-over-server-sent-events.md) | Accepted |
 
 ## Decisions Still Open
 

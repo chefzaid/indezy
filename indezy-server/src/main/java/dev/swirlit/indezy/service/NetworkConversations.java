@@ -127,7 +127,20 @@ class NetworkConversations {
         // In a group, its members write while they are in it.
         NetworkMessageDtos.Closed closed = seen.group() != null ? null : closed(mine.getUserId(), seen.otherId()).orElse(null);
         return new NetworkMessageDtos.Conversation(conversation.getId(), seen.with(), seen.group(), preview, unread, mine.isMuted(),
-            mine.isArchived(), closed, conversation.getLastMessageAt());
+            mine.isArchived(), closed, conversation.getLastMessageAt(), seenAt(seen, mine));
+    }
+
+    /** When the other member of a conversation between two last read it, while both show read receipts; none in a group. */
+    private LocalDateTime seenAt(Seen seen, NetworkConversationMember mine) {
+        if (seen.group() != null || seen.otherId() == null || !receipts(mine.getUserId()) || !receipts(seen.otherId())) {
+            return null;
+        }
+        return participants.findByConversationIdAndUserId(seen.conversation().getId(), seen.otherId())
+            .map(NetworkConversationMember::getLastReadAt).orElse(null);
+    }
+
+    private boolean receipts(Long userId) {
+        return members.findByUserId(userId).map(NetworkMember::showsReadReceipts).orElse(false);
     }
 
     /** Whether a message is still in its edit window. */

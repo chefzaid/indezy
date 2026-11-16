@@ -1484,7 +1484,11 @@
         "OFF": "Off",
         "APP": "In the app",
         "EMAIL": "Email too"
-      }
+      },
+      "messagingTitle": "Messages",
+      "messagingHint": "Each works both ways: turned off, you no longer see it from others either.",
+      "readReceipts": "Show when I read a message (Seen)",
+      "typing": "Show when I am typing"
     }
   },
   "errors": {
@@ -3749,7 +3753,9 @@
       "cardStart": "from {{date}}",
       "cardRemote": "{{days}} remote days a month",
       "cardAlready": "This opportunity is already in your pipeline",
-      "cardError": "The opportunity could not be added"
+      "cardError": "The opportunity could not be added",
+      "seen": "Seen",
+      "typing": "{{name}} is typing…"
     },
     "groups": {
       "new": "New group",

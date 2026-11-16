@@ -108,6 +108,22 @@ public class NetworkMember extends BaseEntity {
     @Column(name = "esn_suggestions")
     private Boolean esnSuggestions;
 
+    /** Whether the members the member writes to see when they read a message, and the member when they did; none reads as on. */
+    @Column(name = "read_receipts")
+    private Boolean readReceipts;
+
+    /** Whether the members the member writes to see them typing, and the member them; none reads as on. */
+    @Column(name = "typing_shown")
+    private Boolean typingShown;
+
+    public boolean showsReadReceipts() {
+        return !Boolean.FALSE.equals(readReceipts);
+    }
+
+    public boolean showsTyping() {
+        return !Boolean.FALSE.equals(typingShown);
+    }
+
     public boolean isEsnSuggestions() {
         return Boolean.TRUE.equals(esnSuggestions);
     }

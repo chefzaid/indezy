@@ -3,14 +3,15 @@ import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick } from
 import { HttpErrorResponse } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { Conversation, Message, MessageThread, ProjectDto } from '../../../models';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
-import { MessageThreadComponent, THREAD_REFRESH_MS } from './message-thread.component';
+import { MessageThreadComponent, THREAD_REFRESH_MS, TYPING_EVERY_MS, TYPING_SHOWN_MS } from './message-thread.component';
+import { NetworkEvent, NetworkStreamService } from '../../../services/network/network-stream.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { GroupDialogComponent } from './group-dialog.component';
 import { ProjectService } from '../../../services/project/project.service';
@@ -27,6 +28,8 @@ describe('MessageThreadComponent', () => {
   let guard: jasmine.SpyObj<ConfidentialityGuardService>;
   let fixture: ComponentFixture<MessageThreadComponent>;
   let emitted: Conversation[];
+  let events: Subject<NetworkEvent>;
+  let stream: { events: Observable<NetworkEvent>; connected: boolean };
   const conversation: Conversation = { id: 4, with: { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null,
     stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false }, group: null, last: null, unread: 1,
     muted: false, archived: false, closed: null, lastMessageAt: '2026-11-16T09:00:00' };
@@ -37,8 +40,11 @@ describe('MessageThreadComponent', () => {
     ...changes });
 
   function create(first = of(thread([message(1), message(2), message(3, { mine: true, editable: true })], { more: true }))): HTMLElement {
-    api = jasmine.createSpyObj('NetworkMessagesService', ['thread', 'read', 'send', 'edit', 'remove', 'react', 'settings', 'pdf', 'take', 'addMembers', 'renameGroup', 'leaveGroup']);
+    api = jasmine.createSpyObj('NetworkMessagesService', ['thread', 'read', 'send', 'edit', 'remove', 'react', 'settings', 'pdf', 'take', 'addMembers', 'renameGroup', 'leaveGroup', 'typing']);
     api.thread.and.returnValue(first);
+    api.typing.and.returnValue(of(undefined));
+    events = new Subject<NetworkEvent>();
+    stream = { events: events.asObservable(), connected: false };
     api.read.and.returnValue(of({ ...conversation, unread: 0 }));
     notices = jasmine.createSpyObj('NetworkNoticesService', ['refreshMessages']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -52,7 +58,7 @@ describe('MessageThreadComponent', () => {
         { provide: NetworkMessagesService, useValue: api }, { provide: NetworkNoticesService, useValue: notices },
         { provide: NotificationService, useValue: notifications }, { provide: ConfirmDialogService, useValue: confirm },
         { provide: ProjectService, useValue: projects }, { provide: AuthService, useValue: { getUser: () => ({ id: 3 }) } },
-        { provide: ConfidentialityGuardService, useValue: guard }]
+        { provide: ConfidentialityGuardService, useValue: guard }, { provide: NetworkStreamService, useValue: stream }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
@@ -113,6 +119,53 @@ describe('MessageThreadComponent', () => {
     expect(fixture.componentInstance.replyTo).toBeNull();
     swipe(1);
     expect(fixture.componentInstance.replyTo?.id).toBe(1);
+    discardPeriodicTasks();
+  }));
+
+  it('follows the stream: reads again when a message comes or is read, shows who is typing, and polls no more while open', fakeAsync(() => {
+    const element = create();
+    tick();
+    stream.connected = true;
+    tick(THREAD_REFRESH_MS);
+    expect(api.thread).toHaveBeenCalledTimes(1);
+
+    events.next({ type: 'typing', conversationId: 4, name: 'Léo' });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-thread-typing]')?.textContent).toContain('Léo is typing…');
+    events.next({ type: 'typing', conversationId: 9, name: 'Paul' });
+    tick(TYPING_SHOWN_MS);
+    fixture.detectChanges();
+    expect(element.querySelector('[data-thread-typing]')).toBeNull();
+
+    events.next({ type: 'typing', conversationId: 4, name: '' });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-thread-typing]')?.textContent).toContain(`${fixture.componentInstance.label} is typing…`);
+    api.thread.and.returnValue(of(thread([message(1), message(2), message(3, { mine: true })],
+      { conversation: { ...conversation, unread: 0, seenAt: '2026-11-16T09:05:00' } })));
+    events.next({ type: 'read', conversationId: 4 });
+    fixture.detectChanges();
+    expect(api.thread).toHaveBeenCalledTimes(2);
+    expect(element.querySelector('[data-thread-typing]')).toBeNull();
+    expect(element.querySelector('[data-message="3"] [data-message-seen]')?.textContent).toContain('Seen');
+    expect(element.querySelector('[data-message="1"] [data-message-seen]')).toBeNull();
+    discardPeriodicTasks();
+  }));
+
+  it('tells the others the reader is typing, every four seconds at most, never while editing', fakeAsync(() => {
+    create();
+    const component = fixture.componentInstance;
+    component.draft.setValue('B');
+    component.draft.setValue('Bo');
+    expect(api.typing).toHaveBeenCalledOnceWith(4);
+    tick(TYPING_EVERY_MS);
+    component.draft.setValue(' ');
+    component.editing = message(3, { mine: true });
+    component.draft.setValue('Changé');
+    expect(api.typing).toHaveBeenCalledTimes(1);
+    component.editing = null;
+    api.typing.and.returnValue(throwError(() => new Error('down')));
+    component.draft.setValue('Bonjour');
+    expect(api.typing).toHaveBeenCalledTimes(2);
     discardPeriodicTasks();
   }));
 

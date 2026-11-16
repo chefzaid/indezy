@@ -9,6 +9,7 @@ import dev.swirlit.indezy.repository.NetworkMemberRepository;
 import dev.swirlit.indezy.repository.NetworkNotificationRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
+import dev.swirlit.indezy.realtime.NetworkEvents;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,7 @@ public class NetworkNotificationService {
     private final NetworkNotificationRepository notifications;
     private final NetworkRestrictionRepository restrictions;
     private final NetworkPostRepository posts;
+    private final NetworkEvents events;
 
     /** Tells the recipient, unless it is the actor, they are away or turned the kind off, or a block stands between them. */
     void notify(Long recipientId, Long actorId, NetworkNotificationType type, Long postId) {
@@ -78,6 +80,7 @@ public class NetworkNotificationService {
         notification.setType(type);
         notification.setPostId(postId);
         notifications.save(notification);
+        events.notice(recipientId);
     }
 
     /** Tells a member the moderators' decision; kept as by themselves, since no member acted. */
@@ -87,6 +90,7 @@ public class NetworkNotificationService {
         notification.setActorId(recipientId);
         notification.setType(type);
         notifications.save(notification);
+        events.notice(recipientId);
     }
 
     /** Tells each member the text mentions by their @handle, up to {@value #MAX_MENTIONS}. */

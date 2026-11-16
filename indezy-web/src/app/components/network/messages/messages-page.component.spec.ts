@@ -3,13 +3,14 @@ import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick } from
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { BehaviorSubject, Subject, of, throwError } from 'rxjs';
 
 import { Conversation } from '../../../models';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
 import { NotificationService } from '../../../services/notification/notification.service';
-import { CONVERSATIONS_REFRESH_MS, MessagesPageComponent, SEARCH_DELAY_MS } from './messages-page.component';
+import { CONVERSATIONS_REFRESH_MS, MessagesPageComponent, SEARCH_DELAY_MS, STREAM_SETTLE_MS } from './messages-page.component';
+import { NetworkEvent, NetworkStreamService } from '../../../services/network/network-stream.service';
 import { GroupDialogComponent } from './group-dialog.component';
 import en from '../../../../assets/i18n/en.json';
 
@@ -18,6 +19,8 @@ describe('MessagesPageComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   let params: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let fixture: ComponentFixture<MessagesPageComponent>;
+  let events: Subject<NetworkEvent>;
+  let stream: { events: Subject<NetworkEvent>; connected: boolean };
   const conversation = (id: number, changes: Partial<Conversation> = {}): Conversation => ({ id, with: { handle: `member${id}`,
     firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [], city: null, remote: false, availability: null,
     availabilityDate: null, languages: [], verified: false }, group: null, last: { mine: id === 2, text: `Bonjour ${id}`, deleted: false,
@@ -31,12 +34,14 @@ describe('MessagesPageComponent', () => {
     api.read.and.returnValue(of(conversation(1, { unread: 0 })));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     params = new BehaviorSubject(convertToParamMap(id ? { id } : {}));
+    events = new Subject<NetworkEvent>();
+    stream = { events, connected: false };
     TestBed.configureTestingModule({
       imports: [MessagesPageComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: ActivatedRoute, useValue: { paramMap: params } }, { provide: NetworkMessagesService, useValue: api },
         { provide: NetworkNoticesService, useValue: jasmine.createSpyObj('NetworkNoticesService', ['refreshMessages']) },
-        { provide: NotificationService, useValue: notifications }]
+        { provide: NotificationService, useValue: notifications }, { provide: NetworkStreamService, useValue: stream }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
@@ -77,12 +82,23 @@ describe('MessagesPageComponent', () => {
 
     tick(CONVERSATIONS_REFRESH_MS);
     expect(api.conversations).toHaveBeenCalledTimes(2);
+    // While the stream is open, the list waits for its events, read once a burst of them ended.
+    stream.connected = true;
+    tick(CONVERSATIONS_REFRESH_MS);
+    expect(api.conversations).toHaveBeenCalledTimes(2);
+    events.next({ type: 'message', conversationId: 1 });
+    events.next({ type: 'read', conversationId: 1 });
+    events.next({ type: 'typing', conversationId: 1, name: 'Léo' });
+    tick(STREAM_SETTLE_MS);
+    expect(api.conversations).toHaveBeenCalledTimes(3);
+    stream.connected = false;
+    api.conversations.calls.reset();
     api.conversations.and.returnValue(of([]));
     component.showArchived(true);
     component.showArchived(true);
     fixture.detectChanges();
     expect(api.conversations).toHaveBeenCalledWith(true);
-    expect(api.conversations).toHaveBeenCalledTimes(3);
+    expect(api.conversations).toHaveBeenCalledTimes(1);
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-messages-empty]')?.textContent).toContain('No archived conversation.');
     discardPeriodicTasks();
   }));

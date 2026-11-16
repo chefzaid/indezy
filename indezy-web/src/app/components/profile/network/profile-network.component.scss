@@ -153,3 +153,8 @@
     font-size: 0.8125rem;
   }
 }
+
+[data-network-messaging] mat-slide-toggle {
+  display: block;
+  margin: 8px 0;
+}

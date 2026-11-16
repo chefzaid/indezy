@@ -7,6 +7,7 @@ import { of, throwError } from 'rxjs';
 
 import { MemberCard, MemberPage, NetworkMembership } from '../../../models';
 import { NetworkService, NoticeSettings } from '../../../services/network/network.service';
+import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { ProfileNetworkComponent } from './profile-network.component';
@@ -16,6 +17,7 @@ describe('ProfileNetworkComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
+  let messagesApi: jasmine.SpyObj<NetworkMessagesService>;
   const fields = { photo: true, headline: true, stack: true, location: true, availability: true, languages: true, remote: false };
   const card: MemberCard = { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null, headline: 'Architecte Java',
     stack: ['Java', 'Kafka'], city: 'Lyon', remote: true, availability: 'AVAILABLE', availabilityDate: '2026-12-02', languages: ['Français'],
@@ -34,10 +36,13 @@ describe('ProfileNetworkComponent', () => {
     network.handle.and.returnValue(of({ handle: 'x', available: true }));
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
+    messagesApi = jasmine.createSpyObj('NetworkMessagesService', ['messaging', 'saveMessaging']);
+    messagesApi.messaging.and.returnValue(of({ readReceipts: true, typing: true }));
     TestBed.configureTestingModule({
       imports: [ProfileNetworkComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: NetworkService, useValue: network },
-        { provide: NotificationService, useValue: notifications }, { provide: ConfirmDialogService, useValue: confirm }]
+        { provide: NotificationService, useValue: notifications }, { provide: ConfirmDialogService, useValue: confirm },
+        { provide: NetworkMessagesService, useValue: messagesApi }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
@@ -186,6 +191,22 @@ describe('ProfileNetworkComponent', () => {
     network.saveNotificationSettings.and.returnValue(throwError(() => new Error('down')));
     component.setChannel('FOLLOW', 'OFF');
     expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');
+  });
+
+  it('shows or hides read receipts and who is typing, saying when it cannot', () => {
+    const fixture = create(of(member));
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-messaging="readReceipts"] button')?.getAttribute('aria-checked')).toBe('true');
+    messagesApi.saveMessaging.and.returnValue(of({ readReceipts: false, typing: true }));
+    (element.querySelector('[data-messaging="readReceipts"] button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(messagesApi.saveMessaging).toHaveBeenCalledWith({ readReceipts: false });
+    expect(fixture.componentInstance.messaging).toEqual({ readReceipts: false, typing: true });
+    messagesApi.saveMessaging.and.returnValue(throwError(() => new Error('down')));
+    fixture.componentInstance.setMessaging('typing', false);
+    expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');
+    expect(fixture.componentInstance.messaging).toEqual({ readReceipts: false, typing: true });
   });
 
   it('leaves once confirmed, keeping the handle, and says when the membership cannot be read', () => {

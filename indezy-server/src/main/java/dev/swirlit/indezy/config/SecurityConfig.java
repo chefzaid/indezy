@@ -1,5 +1,6 @@
 package dev.swirlit.indezy.config;
 
+import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,8 @@ public class SecurityConfig {
             .exceptionHandling(handling -> handling.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
             .authorizeHttpRequests(authz -> {
                 authz
+                    // A stream's later dispatches (its timeout, its end) were authorized when it opened.
+                    .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                     // Public endpoints
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/public/**").permitAll()

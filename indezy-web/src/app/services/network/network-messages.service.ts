@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { Conversation, FoundMessage, Message, MessageThread, ProjectDto, Reaction } from '../../models';
+import { Conversation, FoundMessage, Message, MessageThread, MessagingSettings, ProjectDto, Reaction } from '../../models';
 
 /** Conversations between members and their messages. */
 @Injectable({
@@ -61,6 +61,20 @@ export class NetworkMessagesService {
 
   read(id: number): Observable<Conversation> {
     return this.http.put<Conversation>(`${this.API_URL}/conversations/${id}/read`, null);
+  }
+
+  /** Tells the conversation's other members the reader is typing. */
+  typing(id: number): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/conversations/${id}/typing`, null);
+  }
+
+  /** Whether the member shows and sees read receipts and who is typing. */
+  messaging(): Observable<MessagingSettings> {
+    return this.http.get<MessagingSettings>(`${this.API_URL}/messages/settings`);
+  }
+
+  saveMessaging(settings: Partial<MessagingSettings>): Observable<MessagingSettings> {
+    return this.http.put<MessagingSettings>(`${this.API_URL}/messages/settings`, settings);
   }
 
   settings(id: number, settings: { muted?: boolean; archived?: boolean }): Observable<Conversation> {

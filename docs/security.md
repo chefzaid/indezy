@@ -237,6 +237,13 @@ The member network (`/api/network`) is on unless an administrator turns it off (
   comment its replies and their likes; the account export holds the membership, the posts and what the account did
   (`networkActivity`: its comments, the posts and comments it liked, the posts it saved, the members and tags it
   follows), and the messages it sent (`networkMessagesSent`, with the recipient's handle).
+- the stream of what changes (`GET /api/network/stream`, server-sent events) opens with the bearer token for a member
+  only (`401` without one, `404` away from the network), and names only which conversation changed, who is typing by
+  first name, or that a notification came, never a message's text: the page reads what changed through the usual
+  endpoints and their rights; an event goes only to the conversation's members, typing only to those in reach (no block
+  either way) who show it while the writer shows it too, and read receipts only between two members who both show them;
+  a member holds 5 streams at most, each closed after 15 minutes; between replicas events travel as PostgreSQL
+  notifications inside the database, never over the network;
 
 ## Password Storage
 ## Password Storage

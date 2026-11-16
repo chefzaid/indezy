@@ -28,6 +28,9 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
         remoteDaysPerMonth: null, stack: ['Kafka'], takenProjectId: null }, preview: { url: 'https://blog.example.org/kafka', site: 'Le blog',
         title: 'Kafka en production', description: 'Un retour sur deux ans' } })] } }));
     await page.route('**/api/network/conversations/4/read', route => route.fulfill({ json: { ...conversation, unread: 0 } }));
+    // The stream tells that Léo is typing.
+    await page.route('**/api/network/stream', route => route.fulfill({ status: 200, contentType: 'text/event-stream',
+      body: 'event:ready\ndata:{}\n\nevent:typing\ndata:{"type":"typing","conversationId":4,"name":"Léo"}\n\n' }));
     await page.route('**/api/network/conversations/4/messages', route => {
       const body = route.request().postDataJSON();
       sent.push(body);
@@ -42,6 +45,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(page).toHaveURL(/\/network\/messages\/4$/);
     const thread = page.locator('app-message-thread');
     await expect(thread.locator('[data-message="1"]')).toContainText('Une mission Kafka ?');
+    await expect(thread.locator('[data-thread-typing]')).toContainText(en ? 'Léo is typing…' : 'Léo écrit…');
     if (width >= 900) {
       await expect(page.locator('[data-conversation="4"]')).toContainText('Léo Martin');
     } else {

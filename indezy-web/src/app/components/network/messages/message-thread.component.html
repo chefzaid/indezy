@@ -70,6 +70,7 @@
   </header>
 
   <div class="scroller" #scroller data-thread-messages>
+    @let seenMessage = seenId;
     @if (more) {
       <button mat-stroked-button type="button" class="older" (click)="loadOlder()" data-thread-older>{{ 'network.messages.older' | translate }}</button>
     }
@@ -197,9 +198,18 @@
                 }
               </span>
             }
+            @if (message.id === seenMessage) {
+              <span class="seen" data-message-seen>{{ 'network.messages.seen' | translate }}</span>
+            }
           </li>
         }
       </ul>
+    }
+    @if (typing !== null) {
+      <p class="typing" role="status" data-thread-typing>
+        <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+        {{ 'network.messages.typing' | translate: { name: typing || label } }}
+      </p>
     }
   </div>
 

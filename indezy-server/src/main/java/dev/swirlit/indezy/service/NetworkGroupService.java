@@ -10,6 +10,7 @@ import dev.swirlit.indezy.repository.NetworkConversationMemberRepository;
 import dev.swirlit.indezy.repository.NetworkConversationRepository;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
+import dev.swirlit.indezy.realtime.NetworkEvents;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ public class NetworkGroupService {
     private final NetworkConversationMemberRepository participants;
     private final NetworkFollowRepository followRepository;
     private final NetworkRestrictionRepository restrictions;
+    private final NetworkEvents events;
 
     /** Creates a group with its name and members, who all follow the reader. */
     @Transactional
@@ -54,6 +56,7 @@ public class NetworkGroupService {
         add(group, userId);
         added.forEach(member -> add(group, member));
         log.info("Member {} created group {} with {} members", userId, group.getId(), added.size() + 1);
+        changed(group.getId(), List.of());
         return conversationService.view(group, userId);
     }
 
@@ -68,6 +71,7 @@ public class NetworkGroupService {
             throw new InvalidStateException("A group has 20 members at most");
         }
         added.forEach(member -> add(group, member));
+        changed(groupId, List.of());
         return conversationService.view(group, userId);
     }
 
@@ -77,6 +81,7 @@ public class NetworkGroupService {
         network.requireMember(userId);
         NetworkConversation group = ownGroup(userId, groupId);
         group.setTitle(request.title().strip());
+        changed(groupId, List.of());
         return conversationService.view(group, userId);
     }
 
@@ -89,6 +94,7 @@ public class NetworkGroupService {
         participants.delete(participants.findByConversationIdAndUserId(group.getId(), userId)
             .orElseThrow(() -> new ResourceNotFoundException(NetworkConversations.NOT_FOUND)));
         log.info("Member {} left group {}", userId, groupId);
+        changed(groupId, List.of(userId));
     }
 
     /** A group the reader created; not found for another's or a conversation between two, refused once they left it. */
@@ -124,6 +130,13 @@ public class NetworkGroupService {
             throw new InvalidStateException("A group has 20 members at most");
         }
         return joining;
+    }
+
+    /** Tells the group's members, and those who just left it, that it changed. */
+    private void changed(Long groupId, List<Long> left) {
+        Set<Long> told = new LinkedHashSet<>(left);
+        participants.findByConversationId(groupId).forEach(participant -> told.add(participant.getUserId()));
+        events.message(told, groupId);
     }
 
     private void add(NetworkConversation group, Long userId) {

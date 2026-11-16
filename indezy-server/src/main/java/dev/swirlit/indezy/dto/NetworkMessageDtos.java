@@ -31,7 +31,7 @@ public final class NetworkMessageDtos {
      * whether a message can go.
      */
     public record Conversation(Long id, NetworkDtos.MemberCard with, Group group, Preview last, int unread, boolean muted, boolean archived,
-                               Closed closed, LocalDateTime lastMessageAt) {
+                               Closed closed, LocalDateTime lastMessageAt, LocalDateTime seenAt) {
     }
 
     /**
@@ -159,6 +159,10 @@ public final class NetworkMessageDtos {
 
     /** How many conversations have unread messages, the muted aside. */
     public record Unread(int conversations) {
+    }
+
+    /** Whether the member shows and sees read receipts and who is typing; each left as it is when not given. */
+    public record Messaging(Boolean readReceipts, Boolean typing) {
     }
 
     /** A message the account sent, for its data export. */

@@ -14,6 +14,14 @@ export interface Conversation {
   archived: boolean;
   closed: ConversationClosed | null;
   lastMessageAt: string | null;
+  /** When the other member of a conversation between two last read it, while both show read receipts. */
+  seenAt?: string | null;
+}
+
+/** Whether the member shows and sees read receipts and who is typing, both ways. */
+export interface MessagingSettings {
+  readReceipts: boolean;
+  typing: boolean;
 }
 
 /**

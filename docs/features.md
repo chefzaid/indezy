@@ -270,9 +270,12 @@ followers (a group's members all follow its creator), for a collective or a miss
 each message showing who wrote it; its creator renames it and adds members, and anyone leaves it, reading it no more. **Message** on a member's page opens one when the member follows the reader;
 once they stop following, either blocks the other or one leaves the network, the past stays readable but no new message
 goes, the conversation saying why. The list shows each conversation's latest message and how many are unread, the
-latest first, read again every 30 seconds; an open conversation asks for new messages every 10 seconds, and, as before
-a post, the workspace's client, ESN and contact names in a message are pointed out before it goes (real-time
-delivery waits on a decision, see TODO.md). In a conversation, Enter sends and Shift+Enter starts a new line; a
+latest first. New messages, reactions and reads reach the list, the open conversation and the counts on **Network** as
+they happen; while that stream is closed (it opens again by itself), the list is read again every 30 seconds and an
+open conversation every 10. Between two members, **Seen** shows under the latest of the reader's messages the other
+read, and "Léo is typing…" while they write; **Profile → Network** turns each off, both ways (off, the member no longer
+sees it from others either). As before a post, the workspace's client, ESN and contact names in a message are pointed
+out before it goes. In a conversation, Enter sends and Shift+Enter starts a new line; a
 message is replied to (quoting it; on a touch screen, by swiping it to the right), reacted to with one of the five reactions, and edited or deleted for both by its
 sender within 15 minutes. The briefcase beside the field shares one of the reader's opportunities as a card (role, daily
 rate, city, start, remote days, stack, never the client); its recipient **Adds it to their pipeline** in one click, at
@@ -286,7 +289,8 @@ three hours, saying who wrote and how many messages, never their text; a muted c
 one-click unsubscribe, like **Profile → Notifications**, stops them. **Download as PDF**, in a conversation's menu, gives the whole conversation (each message with its sender and time, the
 message it replies to, edited or deleted) in the page's language. The account export includes the messages sent.
 
-**Notifications** (`/network/notifications`, counted on **Network** in the menu, read again every minute) tell a
+**Notifications** (`/network/notifications`, counted on **Network** in the menu as they come, or every minute while the
+stream is closed) tell a
 member who followed them, liked, commented or reposted their post, liked or replied to their comment or mentioned them by
 `@handle`, grouped as they read ("Léo and 2 others liked your post", with the post's first words), the newest first, under
 **Today**, **This week** and **Earlier**; unread ones are tinted with a dot, and each opens the post, or the member for a

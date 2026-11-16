@@ -11,7 +11,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription, interval } from 'rxjs';
+import { Subscription, catchError, filter, interval, of, throttleTime } from 'rxjs';
 
 import { Conversation, MESSAGE_MAX, MemberCard, Message, ProjectDto, REACTIONS, Reaction } from '../../../models';
 import { GroupDialogComponent } from './group-dialog.component';
@@ -20,6 +20,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
+import { NetworkStreamService } from '../../../services/network/network-stream.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
@@ -27,8 +28,11 @@ import { ReportDialogComponent } from '../report-dialog/report-dialog.component'
 import { saveBlob } from '../../../shared/utils/download-file';
 import { SwipeReplyDirective } from '../../../shared/directives/swipe-reply.directive';
 
-/** How often an open conversation asks for new messages. */
+/** How often an open conversation asks for new messages, while the stream is closed. */
 export const THREAD_REFRESH_MS = 10_000;
+/** How often the others are told the reader is typing, and how long "is typing" shows after the last time told. */
+export const TYPING_EVERY_MS = 4_000;
+export const TYPING_SHOWN_MS = 6_000;
 /** How many of the reader's opportunities the share list offers. */
 const OPPORTUNITIES_SHOWN = 20;
 /** How many members a group has at most. */
@@ -64,7 +68,11 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   private readonly projects = inject(ProjectService);
   private readonly auth = inject(AuthService);
   private readonly confidentiality = inject(ConfidentialityGuardService);
+  private readonly stream = inject(NetworkStreamService);
   private polling: Subscription | null = null;
+  private typingTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Who is typing in the conversation, by their first name; none while nobody is. */
+  typing: string | null = null;
   private scrollDown = false;
 
   @Input({ required: true }) conversationId!: number;
@@ -92,7 +100,42 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   replyTo: Message | null = null;
   editing: Message | null = null;
 
+  constructor() {
+    this.stream.events.pipe(filter(event => event.conversationId === this.conversationId), takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => {
+        if (event.type === 'typing') {
+          this.showTyping(event.name ?? '');
+        } else {
+          this.showTyping(null);
+          this.load(false);
+        }
+      });
+    this.draft.valueChanges.pipe(filter(text => text.trim() !== '' && this.editing === null), throttleTime(TYPING_EVERY_MS),
+      takeUntilDestroyed(this.destroyRef)).subscribe(() => this.api.typing(this.conversationId).pipe(catchError(() => of(null))).subscribe());
+    this.destroyRef.onDestroy(() => this.showTyping(null));
+  }
+
+  /** Shows who is typing for a few seconds, or stops showing it. */
+  private showTyping(name: string | null): void {
+    if (this.typingTimer !== null) {
+      clearTimeout(this.typingTimer);
+      this.typingTimer = null;
+    }
+    this.typing = name;
+    if (name !== null) {
+      this.typingTimer = setTimeout(() => this.showTyping(null), TYPING_SHOWN_MS);
+    }
+    this.changes.markForCheck();
+  }
+
+  /** The latest of the reader's messages the other member read, while both show read receipts. */
+  get seenId(): number | null {
+    const seenAt = this.conversation?.seenAt;
+    return seenAt ? this.messages.filter(message => message.mine && message.sentAt <= seenAt).at(-1)?.id ?? null : null;
+  }
+
   ngOnChanges(): void {
+    this.showTyping(null);
     this.conversation = null;
     this.messages = [];
     this.replyTo = null;
@@ -102,7 +145,7 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
     this.load(true);
     this.polling?.unsubscribe();
     this.polling = interval(THREAD_REFRESH_MS).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      if (!document.hidden) {
+      if (!document.hidden && !this.stream.connected) {
         this.load(false);
       }
     });

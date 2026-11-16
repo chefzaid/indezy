@@ -12,6 +12,7 @@ import dev.swirlit.indezy.pdf.ConversationPdfRenderer;
 import dev.swirlit.indezy.repository.NetworkConversationMemberRepository;
 import dev.swirlit.indezy.repository.NetworkConversationRepository;
 import dev.swirlit.indezy.repository.NetworkMessageRepository;
+import dev.swirlit.indezy.realtime.NetworkEvents;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,7 @@ public class NetworkConversationService {
     private final NetworkMessageRepository messages;
     private final ConversationPdfRenderer pdf;
     private final Clock clock;
+    private final NetworkEvents events;
 
     /**
      * The conversation with the member holding the handle: the one already open, or a new one when the member follows the
@@ -143,6 +145,8 @@ public class NetworkConversationService {
     public NetworkMessageDtos.Conversation read(Long userId, Long conversationId) {
         network.requireMember(userId);
         shared.mine(userId, conversationId).setLastReadAt(shared.now());
+        events.read(participants.findByConversationId(conversationId).stream().map(NetworkConversationMember::getUserId).toList(),
+            conversationId);
         return view(conversations.findById(conversationId).orElseThrow(), userId);
     }
 

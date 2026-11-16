@@ -36,6 +36,14 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       return route.fulfill({ json: membership });
     });
     await page.route('**/api/network/restrictions', route => route.fulfill({ json: { muted: [], blocked: [] } }));
+    let messaging = { readReceipts: true, typing: true };
+    await page.route('**/api/network/messages/settings', route => {
+      if (route.request().method() === 'PUT') {
+        messaging = { ...messaging, ...route.request().postDataJSON() };
+        calls.push(route.request().postDataJSON());
+      }
+      return route.fulfill({ json: messaging });
+    });
     let notices: Record<string, unknown> = { off: [], emailed: [] };
     await page.route('**/api/network/notifications/settings', route => {
       if (route.request().method() === 'PUT') {
@@ -72,7 +80,10 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.locator('[data-notice-channel="LIKE"]').getByRole('radio', { name: en ? 'Email too' : 'E-mail aussi' }).click();
     await expect(page.locator('[data-notice-channel="LIKE"]').getByRole('radio', { name: en ? 'Email too' : 'E-mail aussi' }))
       .toHaveAttribute('aria-checked', 'true');
-    const audit = await new AxeBuilder({ page }).include('[data-profile-network]').include('[data-network-notices]')
+    const typing = page.locator('[data-messaging="typing"]').getByRole('switch');
+    await typing.click();
+    await expect(typing).toHaveAttribute('aria-checked', 'false');
+    const audit = await new AxeBuilder({ page }).include('[data-profile-network]').include('[data-network-notices]').include('[data-network-messaging]')
       .include('[data-network-preview]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -82,7 +93,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(page.locator('[data-network-preview]')).toHaveCount(0);
     await expect(tab.locator('[data-network-handle]')).toHaveValue('camille_d');
     expect(calls).toEqual([{ handle: 'camille_d', fields: { ...fields, location: false, remote: true },
-      availability: { mode: 'ON_MISSION', date: '2027-03-31' } }, { off: [], emailed: ['LIKE'] }, 'leave']);
+      availability: { mode: 'ON_MISSION', date: '2027-03-31' } }, { off: [], emailed: ['LIKE'] }, { typing: false }, 'leave']);
   });
 }
 
