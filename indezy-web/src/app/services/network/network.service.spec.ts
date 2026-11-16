@@ -16,6 +16,8 @@ describe('NetworkService', () => {
     expect(count).toBe(3);
     service.trendingTags().subscribe();
     http.expectOne(call => call.url.endsWith('/network/tags/trending'));
+    service.mentions('ca').subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/mentions')).request.params.get('q')).toBe('ca');
     service.suggestTags('ka').subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/tags/suggest')).request.params.get('q')).toBe('ka');
     http.verify();

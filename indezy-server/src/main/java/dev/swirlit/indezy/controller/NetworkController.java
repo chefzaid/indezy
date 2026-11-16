@@ -83,6 +83,12 @@ public class NetworkController {
         return directory.search(SecurityUtils.getCurrentUserId(), new NetworkDirectoryService.Search(skill, city, availability, remote, page));
     }
 
+    @Operation(summary = "Members to mention: handle, first or last name starting with what was typed, those followed first, 5 at most")
+    @GetMapping("/mentions")
+    public List<NetworkDtos.MemberCard> mentions(@RequestParam(defaultValue = "") String q) {
+        return directory.mentions(SecurityUtils.getCurrentUserId(), q);
+    }
+
     @Operation(summary = "Members to follow, each with its reason: followed by members the viewer follows, same skills or city")
     @GetMapping("/suggestions")
     public List<NetworkDtos.Suggestion> suggestions() {

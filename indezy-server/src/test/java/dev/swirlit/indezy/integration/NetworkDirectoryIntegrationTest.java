@@ -88,6 +88,27 @@ class NetworkDirectoryIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    void suggestsMembersToMentionThoseFollowedFirst() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        String run = UUID.randomUUID().toString().replace("-", "").substring(0, 6).replaceAll("[0-9]", "x");
+        join(alice, "Lyon", List.of("Java"), ALL_SHOWN, Map.of("mode", "AUTO"));
+        String first = join(register("zo" + run + "a"), "Lyon", List.of("Java"), ALL_SHOWN, Map.of("mode", "AUTO"));
+        String followed = join(register("zo" + run + "b"), "Lyon", List.of("Java"), ALL_SHOWN, Map.of("mode", "AUTO"));
+        Account blocker = register("zo" + run + "c");
+        String blocking = join(blocker, "Lyon", List.of("Java"), ALL_SHOWN, Map.of("mode", "AUTO"));
+        call(alice, HttpMethod.PUT, "/network/members/" + followed + "/follow", null, Map.class);
+        call(blocker, HttpMethod.PUT, "/network/members/" + call(alice, HttpMethod.GET, "/network/membership", null, Map.class).getBody()
+            .get("handle") + "/block", null, Map.class);
+
+        List<Map<String, Object>> found = call(alice, HttpMethod.GET, "/network/mentions?q=ZO" + run, null, List.class).getBody();
+        assertThat(found).extracting(card -> card.get("handle")).containsExactly(followed, first).doesNotContain(blocking);
+        assertThat(call(alice, HttpMethod.GET, "/network/mentions?q=" + first.substring(0, 12), null, List.class).getBody())
+            .extracting(card -> ((Map<String, Object>) card).get("handle")).contains(first);
+        assertThat(call(alice, HttpMethod.GET, "/network/mentions?q=", null, List.class).getBody()).isEmpty();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     void suggestsMembersToFollowWithTheirReason() {
         flags.set(FeatureFlag.SOCIAL_NETWORK, true);
         String run = UUID.randomUUID().toString().replace("-", "").substring(0, 6);

@@ -184,6 +184,11 @@ export class NetworkService {
     return this.http.get<TrendingTag[]>(`${this.API_URL}/tags/trending`);
   }
 
+  /** Members to mention for what was typed after an @, those followed first. */
+  mentions(typed: string): Observable<MemberCard[]> {
+    return this.http.get<MemberCard[]>(`${this.API_URL}/mentions`, { params: { q: typed } });
+  }
+
   /** The tags in use starting with what was typed, the most used first. */
   suggestTags(typed: string): Observable<string[]> {
     return this.http.get<string[]>(`${this.API_URL}/tags/suggest`, { params: { q: typed } });

@@ -3659,6 +3659,9 @@
       "title": "Tendances de la semaine",
       "postsOne": "1 publication",
       "postsMany": "{{count}} publications"
+    },
+    "mentions": {
+      "label": "Membres et tags à insérer"
     }
   }
 }

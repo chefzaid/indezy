@@ -14,6 +14,8 @@ public interface NetworkFollowRepository extends JpaRepository<NetworkFollow, Lo
 
     Optional<NetworkFollow> findByFollowerIdAndFollowedId(Long followerId, Long followedId);
 
+    List<NetworkFollow> findByFollowerId(Long followerId);
+
     long countByFollowerIdAndCreatedAtAfter(Long followerId, LocalDateTime since);
 
     /** The members, still in the network, who follow the account, the latest first. */

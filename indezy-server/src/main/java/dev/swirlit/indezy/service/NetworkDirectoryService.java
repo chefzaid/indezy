@@ -13,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -26,6 +28,8 @@ import java.util.Set;
 public class NetworkDirectoryService {
 
     static final int PAGE_SIZE = 20;
+    /** How many members a mention suggests. */
+    static final int MENTIONED = 5;
 
     private final NetworkService network;
     private final NetworkMemberRepository members;
@@ -69,6 +73,31 @@ public class NetworkDirectoryService {
         List<String> privateCards = shown.stream().filter(hit -> hit.member().isPrivate()).map(Found::handle).toList();
         return new NetworkDtos.Directory(shown.stream().map(Found::card).toList(), found.size(), page, PAGE_SIZE, followed, requested,
             privateCards);
+    }
+
+    /**
+     * The members to mention for what was typed after an @: those whose handle, first or last name starts with it, accents
+     * and case aside, the members the viewer follows first, then by last name; five at most, never the viewer nor a member
+     * either one blocks.
+     */
+    @Transactional(readOnly = true)
+    public List<NetworkDtos.MemberCard> mentions(Long viewerId, String typed) {
+        network.requireMember(viewerId);
+        String start = plain(Optional.ofNullable(typed).orElse("").strip().replaceFirst("^@", ""));
+        if (start.isEmpty()) {
+            return List.of();
+        }
+        Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(viewerId));
+        Set<Long> followed = new HashSet<>();
+        follows.findByFollowerId(viewerId).forEach(follow -> followed.add(follow.getFollowedId()));
+        return members.findByActiveTrue().stream()
+            .filter(member -> !member.getUserId().equals(viewerId) && !blocked.contains(member.getUserId()))
+            .flatMap(member -> network.liveCard(member).map(card -> new Found(member, card)).stream())
+            .filter(hit -> plain(hit.handle()).startsWith(start) || plain(hit.card().firstName()).startsWith(start) ||
+                plain(hit.card().lastName()).startsWith(start))
+            .sorted(Comparator.comparing((Found hit) -> !followed.contains(hit.member().getUserId()))
+                .thenComparing(hit -> plain(hit.card().lastName())).thenComparing(Found::handle))
+            .limit(MENTIONED).map(Found::card).toList();
     }
 
     /** Lower case, accents and surrounding spaces dropped, to compare as people type. */

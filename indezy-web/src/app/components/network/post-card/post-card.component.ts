@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MentionsDirective } from '../mentions/mentions.directive';
 
 import { MemberCard, NetworkPost, NetworkPostVersion, POST_EDIT_WINDOW, Poll, PostDetails } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
@@ -52,7 +53,7 @@ export function segments(text: string): PostSegment[] {
 /** A post: its author (opening their page), when it was posted, its text with mentions and tags, and its own actions. */
 @Component({
   selector: 'app-post-card',
-  imports: [MemberAvatarComponent, TimeAgoPipe, MissionTakeComponent, DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
+  imports: [MentionsDirective, MemberAvatarComponent, TimeAgoPipe, MissionTakeComponent, DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
     TranslateModule, PostCommentsComponent],
   templateUrl: './post-card.component.html',
   styleUrls: ['./post-card.component.scss'],

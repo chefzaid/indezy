@@ -86,7 +86,7 @@
     <form class="composer" (submit)="$event.preventDefault(); send()" data-comment-form>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>{{ replyTo ? ('network.post.writeReply' | translate: { name: replyTo.author.firstName }) : ('network.post.writeComment' | translate) }}</mat-label>
-        <textarea matInput [formControl]="draft" rows="1" [maxlength]="max" data-comment-text></textarea>
+        <textarea matInput appMentions [formControl]="draft" rows="1" [maxlength]="max" data-comment-text></textarea>
       </mat-form-field>
       <div class="actions">
         @if (replyTo) {

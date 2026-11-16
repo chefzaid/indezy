@@ -69,7 +69,7 @@
     <form class="edit" (submit)="$event.preventDefault(); saveEdit()" data-post-edit-form>
       <mat-form-field appearance="outline">
         <mat-label>{{ 'network.post.editLabel' | translate }}</mat-label>
-        <textarea matInput [formControl]="editing" rows="3" maxlength="3000" data-post-edit-text></textarea>
+        <textarea matInput appMentions [formControl]="editing" rows="3" maxlength="3000" data-post-edit-text></textarea>
       </mat-form-field>
       <div class="actions">
         <button mat-button type="button" (click)="editing = null">{{ 'network.post.cancel' | translate }}</button>
@@ -242,7 +242,7 @@
     <form class="edit" (submit)="$event.preventDefault(); repost()" data-repost-form>
       <mat-form-field appearance="outline">
         <mat-label>{{ 'network.post.repostComment' | translate }}</mat-label>
-        <textarea matInput [formControl]="reposting" rows="2" maxlength="3000" data-repost-text></textarea>
+        <textarea matInput appMentions [formControl]="reposting" rows="2" maxlength="3000" data-repost-text></textarea>
       </mat-form-field>
       <div class="actions">
         <button mat-button type="button" (click)="reposting = null">{{ 'network.post.cancel' | translate }}</button>

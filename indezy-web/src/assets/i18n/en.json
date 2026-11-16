@@ -3659,6 +3659,9 @@
       "title": "Trending this week",
       "postsOne": "1 post",
       "postsMany": "{{count}} posts"
+    },
+    "mentions": {
+      "label": "Members and tags to insert"
     }
   }
 }

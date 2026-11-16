@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
+import { MentionsDirective } from '../mentions/mentions.directive';
 
 import { NetworkComment, NetworkPost, isHeld } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
@@ -28,7 +29,7 @@ export const COMMENT_MAX = 1500;
  */
 @Component({
   selector: 'app-post-comments',
-  imports: [MemberAvatarComponent, TimeAgoPipe, DatePipe, NgTemplateOutlet, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
+  imports: [MentionsDirective, MemberAvatarComponent, TimeAgoPipe, DatePipe, NgTemplateOutlet, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
     TranslateModule],
   templateUrl: './post-comments.component.html',
   styleUrls: ['./post-comments.component.scss'],

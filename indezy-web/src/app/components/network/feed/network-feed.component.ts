@@ -12,6 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AsyncPipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MentionsDirective } from '../mentions/mentions.directive';
 
 import { MemberCard, MemberSuggestion, NetworkPost, TrendingTag, isHeld } from '../../../models';
 import { InViewDirective } from '../../../shared/directives/in-view.directive';
@@ -32,7 +33,7 @@ export const NEWER_EVERY_MS = 60_000;
 /** The home feed (`/network`): writing a post, then the reader's posts and those of the members they follow, newest first. */
 @Component({
   selector: 'app-network-feed',
-  imports: [AsyncPipe, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [MentionsDirective, AsyncPipe, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslateModule, PostCardComponent],
   templateUrl: './network-feed.component.html',
   styleUrls: ['./network-feed.component.scss', './network-feed-side.scss'],
