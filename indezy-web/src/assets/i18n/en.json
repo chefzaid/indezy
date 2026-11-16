@@ -3393,7 +3393,9 @@
       "tabs": "Feed",
       "following": "Following",
       "forYou": "For you",
-      "composePlaceholder": "What’s new? A mission to pass on, a question, a lesson learned…"
+      "composePlaceholder": "What’s new? A mission to pass on, a question, a lesson learned…",
+      "newerOne": "1 new post",
+      "newerMany": "{{count}} new posts"
     },
     "post": {
       "actions": "Actions on the post",
@@ -3652,6 +3654,11 @@
     "postPage": {
       "back": "Back to the feed",
       "missing": "This post is gone, or you cannot read it."
+    },
+    "trending": {
+      "title": "Trending this week",
+      "postsOne": "1 post",
+      "postsMany": "{{count}} posts"
     }
   }
 }

@@ -1,0 +1,255 @@
+// The feed's side columns: the network's navigation and followed tags, the trending tags and the members to follow.
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: var(--app-text);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 120ms ease;
+
+  mat-icon {
+    color: var(--app-text-muted);
+  }
+
+  &:hover {
+    background: var(--app-hover);
+  }
+
+  &.active {
+    background: var(--app-selected-bg);
+    color: var(--app-link);
+
+    mat-icon {
+      color: var(--app-link);
+    }
+  }
+
+  .count {
+    margin-left: auto;
+    min-width: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 20px;
+    text-align: center;
+  }
+}
+
+.followed-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  a {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--app-chip-indigo-bg);
+    color: var(--app-chip-indigo-text);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Trending tags: ranked, each with how many posts named it this week.
+.trending {
+  ol {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    grid-template-areas: 'rank name' 'rank count';
+    column-gap: 8px;
+    padding: 6px 8px;
+    border-radius: 10px;
+    color: var(--app-text);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--app-hover);
+    }
+  }
+
+  .rank {
+    grid-area: rank;
+    align-self: center;
+    color: var(--app-text-faint);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .name {
+    grid-area: name;
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .count {
+    grid-area: count;
+    color: var(--app-text-muted);
+    font-size: 0.75rem;
+  }
+}
+
+.suggestions {
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .who {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+
+    a {
+      overflow: hidden;
+      color: var(--app-text);
+      font-weight: 600;
+      text-decoration: none;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .why {
+    overflow: hidden;
+    color: var(--app-text-muted);
+    font-size: 0.75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  button {
+    flex: none;
+    border-radius: 999px;
+  }
+}
+
+// Medium: the navigation as a row of pills above the feed.
+@media (max-width: 1499.98px) {
+  .nav-links {
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .nav-link {
+    flex: none;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    font-size: 0.875rem;
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+  }
+
+  .tags-card {
+    display: none;
+  }
+}
+
+// Narrow: the trending tags and the members to follow as strips between the composer and the posts.
+@media (max-width: 1099.98px) {
+  .trending {
+    padding: 12px;
+
+    ol {
+      flex-direction: row;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    li {
+      flex: none;
+    }
+
+    a {
+      border: 1px solid var(--app-border);
+      border-radius: 12px;
+    }
+  }
+
+  .suggestions {
+    padding: 12px;
+
+    ul {
+      flex-direction: row;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scroll-snap-type: x mandatory;
+    }
+
+    li {
+      flex: 0 0 156px;
+      flex-direction: column;
+      gap: 6px;
+      padding: 12px;
+      border: 1px solid var(--app-border);
+      border-radius: 12px;
+      text-align: center;
+      scroll-snap-align: start;
+    }
+
+    .who {
+      align-items: center;
+      width: 100%;
+    }
+
+    .why {
+      display: -webkit-box;
+      white-space: normal;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+  }
+}

@@ -31,6 +31,20 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
     Page<NetworkPost> feed(@Param("authors") Collection<Long> authors, @Param("tags") Collection<String> tags,
                            @Param("excluded") Collection<Long> excluded, Pageable page);
 
+    /** How many posts of the home feed (as {@link #feed}) by others than the reader came after the given time. */
+    @Query("select count(distinct p) from NetworkPost p left join p.tags t where (p.authorId in :authors or t in :tags) " +
+        "and p.authorId not in :excluded and p.authorId <> :reader and p.createdAt > :since")
+    long feedNewer(@Param("authors") Collection<Long> authors, @Param("tags") Collection<String> tags,
+                   @Param("excluded") Collection<Long> excluded, @Param("reader") Long reader, @Param("since") LocalDateTime since);
+
+    /** The posts since then, with their tags. */
+    @Query("select distinct p from NetworkPost p left join fetch p.tags where p.createdAt >= :since")
+    List<NetworkPost> recentWithTags(@Param("since") LocalDateTime since);
+
+    /** The tags in use matching a LIKE pattern (an underscore escaped by a backslash), the most used first. */
+    @Query("select t from NetworkPost p join p.tags t where t like :pattern escape '\\' group by t order by count(p) desc, t asc")
+    List<String> tagsStartingWith(@Param("pattern") String pattern, Pageable page);
+
     /** The posts naming one of these tags since then, with their tags. */
     @Query("select distinct p from NetworkPost p join fetch p.tags t where p.id in " +
         "(select q.id from NetworkPost q join q.tags u where u in :tags and q.createdAt >= :since)")

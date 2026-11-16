@@ -252,6 +252,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'shared/components/public-page-header/public-page-header.component',
   'shared/components/refused-by-badge/refused-by-badge.component',
   'shared/directives/enter-opens.directive',
+  'shared/directives/in-view.directive',
   'shared/i18n/translated-paginator-intl',
   'shared/locale/app-locale',
   'shared/services/confirm-dialog.service',

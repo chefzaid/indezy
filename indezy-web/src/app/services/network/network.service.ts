@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions, ReportReason, ReportTarget, HeldForReview, ConfidentialMatch, NewPoll, PostDetails, PostKind, ProjectDto } from '../../models';
+import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, TrendingTag, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions, ReportReason, ReportTarget, HeldForReview, ConfidentialMatch, NewPoll, PostDetails, PostKind, ProjectDto } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 @Injectable({
@@ -174,6 +174,21 @@ export class NetworkService {
   feed(page = 0): Observable<NetworkPosts> {
     return this.http.get<NetworkPosts>(`${this.API_URL}/feed`, { params: { page } });
   }
+  /** How many posts by others reached the home feed after the given time (a post's `createdAt`). */
+  newerCount(since: string): Observable<number> {
+    return this.http.get<{ count: number }>(`${this.API_URL}/feed/newer`, { params: { since } }).pipe(map(found => found.count));
+  }
+
+  /** The tags most named in the last seven days by the posts the reader can read. */
+  trendingTags(): Observable<TrendingTag[]> {
+    return this.http.get<TrendingTag[]>(`${this.API_URL}/tags/trending`);
+  }
+
+  /** The tags in use starting with what was typed, the most used first. */
+  suggestTags(typed: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.API_URL}/tags/suggest`, { params: { q: typed } });
+  }
+
   /** For you: the recent posts of every member the reader can read, ranked by what they share with the reader. */
   forYou(page = 0): Observable<NetworkPosts> {
     return this.http.get<NetworkPosts>(`${this.API_URL}/feed/for-you`, { params: { page } });

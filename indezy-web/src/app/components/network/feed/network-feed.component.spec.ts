@@ -1,16 +1,16 @@
 import { MATERIAL_ANIMATIONS } from '@angular/material/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 
-import { MemberPage, MemberSuggestion, NetworkPost } from '../../../models';
+import { MemberPage, MemberSuggestion, NetworkPost, NetworkPosts } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
-import { NetworkFeedComponent } from './network-feed.component';
+import { NEWER_EVERY_MS, NetworkFeedComponent } from './network-feed.component';
 import en from '../../../../assets/i18n/en.json';
 
 describe('NetworkFeedComponent', () => {
@@ -27,7 +27,8 @@ describe('NetworkFeedComponent', () => {
       city: 'Lyon' } });
 
   function create(feed = of({ posts: [post(2), post(1, true)], page: 0, more: true })): ComponentFixture<NetworkFeedComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft', 'forYou', 'membership']);
+    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft', 'forYou', 'membership', 'trendingTags', 'newerCount']);
+    network.trendingTags.and.returnValue(of([{ tag: 'kafka', posts: 4 }, { tag: 'java', posts: 1 }]));
     network.feed.and.returnValue(feed);
     network.followedTags.and.returnValue(of(['kafka']));
     network.membership.and.returnValue(of({ joined: true, handle: 'camille', card: null, privateCard: false,
@@ -52,6 +53,53 @@ describe('NetworkFeedComponent', () => {
     fixture.detectChanges();
     return fixture;
   }
+
+  it('loads the next page once, near the end, shows the trending tags and offers the newer posts', fakeAsync(() => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-trending-tag="kafka"]')?.textContent).toContain('4 posts');
+    expect(element.querySelector('[data-trending-tag="java"]')?.textContent).toContain('1 post');
+    expect(element.querySelector('[data-trending-tag="kafka"]')?.getAttribute('href')).toBe('/network/tags/kafka');
+
+    const next = new Subject<NetworkPosts>();
+    network.feed.and.returnValue(next);
+    component.loadMore();
+    component.loadMore();
+    fixture.detectChanges();
+    expect(network.feed).toHaveBeenCalledTimes(2);
+    expect(element.querySelector('[data-feed-more]')).toBeNull();
+    next.next({ posts: [post(0)], page: 1, more: false });
+    component.loadMore();
+    expect(network.feed).toHaveBeenCalledTimes(2);
+
+    network.newerCount.and.returnValue(of(3));
+    tick(NEWER_EVERY_MS);
+    fixture.detectChanges();
+    expect(network.newerCount).toHaveBeenCalledWith('2026-11-14T10:00:00');
+    expect(element.querySelector('[data-feed-newer]')?.textContent).toContain('3 new posts');
+    network.feed.and.returnValue(of({ posts: [post(5), post(2)], page: 0, more: false }));
+    (element.querySelector('[data-feed-newer]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(component.posts.map(item => item.id)).toEqual([5, 2]);
+    expect(element.querySelector('[data-feed-newer]')).toBeNull();
+    network.newerCount.and.returnValue(of(1));
+    component.checkNewer();
+    fixture.detectChanges();
+    expect(element.querySelector('[data-feed-newer]')?.textContent).toContain('1 new post');
+
+    // Not on For you, nor when the server cannot say.
+    network.forYou.and.returnValue(of({ posts: [post(4)], page: 0, more: false }));
+    component.show('forYou');
+    expect(component.newer).toBe(0);
+    component.checkNewer();
+    expect(network.newerCount).toHaveBeenCalledTimes(2);
+    component.show('following');
+    network.newerCount.and.returnValue(throwError(() => new Error('down')));
+    component.checkNewer();
+    expect(component.newer).toBe(0);
+    discardPeriodicTasks();
+  }));
 
   it('shows the posts, pages through them, publishes a post on top and deletes one once confirmed', () => {
     const fixture = create();

@@ -206,8 +206,12 @@ the full date on hover. **Network** in the menu (`/network`) is the home feed: a
 `@handle` links to the member's page and `#tag` names a skill or a city, opening the tag's page
 (`/network/tags/<tag>`): the posts naming it, the members whose cards show the skill, and **Follow the tag**. The feed
 then holds the reader's posts, those of the members they follow and those naming a tag they follow (listed above
-it), the newest first, 20 at a time with **Show
-more**, but those of members muted or blocked either way, or away from the network. **Keep as draft** keeps the text
+it), the newest first, 20 at a time, the next page coming as the reader nears the end (or with **Show more**), but
+those of members muted or blocked either way, or away from the network. Every minute, while the page is seen, the
+feed asks whether posts by others reached it since its newest one; a **1 new post** pill then floats over the feed
+and reads it again from the top. **Trending this week**, beside the feed (a strip above the posts on a phone), ranks
+the 8 tags most named in the last seven days by the posts the reader can read, each with how many posts named it and
+opening its page. **Keep as draft** keeps the text
 for later, and with a time (a minute to 30 days ahead) **Schedule** publishes it on its own within a minute of that
 time; **Drafts** (`/network/drafts`) lists them, the scheduled first, each to publish now or delete (50 at most). A member's page shows their posts
 too. Its author **edits** a post in the 15 minutes after posting it; it then reads **edited**, which opens its earlier

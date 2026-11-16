@@ -3393,7 +3393,9 @@
       "tabs": "Fil",
       "following": "Abonnements",
       "forYou": "Pour vous",
-      "composePlaceholder": "Quoi de neuf ? Une mission à transmettre, une question, un retour…"
+      "composePlaceholder": "Quoi de neuf ? Une mission à transmettre, une question, un retour…",
+      "newerOne": "1 nouvelle publication",
+      "newerMany": "{{count}} nouvelles publications"
     },
     "post": {
       "actions": "Actions sur la publication",
@@ -3652,6 +3654,11 @@
     "postPage": {
       "back": "Retour au fil",
       "missing": "Cette publication n’existe plus, ou vous ne pouvez pas la lire."
+    },
+    "trending": {
+      "title": "Tendances de la semaine",
+      "postsOne": "1 publication",
+      "postsMany": "{{count}} publications"
     }
   }
 }

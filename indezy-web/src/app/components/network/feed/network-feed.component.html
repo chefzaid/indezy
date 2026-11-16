@@ -90,7 +90,7 @@
 
   <main class="feed-column">
     @if (!notMember) {
-      <div class="tabs" role="tablist" [attr.aria-label]="'network.feed.tabs' | translate" data-feed-tabs>
+      <div class="tabs" role="tablist" #feedTop [attr.aria-label]="'network.feed.tabs' | translate" data-feed-tabs>
         <button type="button" role="tab" class="tab" [class.active]="tab === 'following'" [attr.aria-selected]="tab === 'following'"
           (click)="show('following')" data-feed-tab-following>{{ 'network.feed.following' | translate }}</button>
         <button type="button" role="tab" class="tab" [class.active]="tab === 'forYou'" [attr.aria-selected]="tab === 'forYou'"
@@ -111,13 +111,25 @@
             <p>{{ 'network.feed.empty' | translate }}</p>
           </section>
         }
+        @if (newer > 0) {
+          <button type="button" class="new-posts" (click)="showNewer()" data-feed-newer>
+            <mat-icon aria-hidden="true">arrow_upward</mat-icon>
+            {{ (newer === 1 ? 'network.feed.newerOne' : 'network.feed.newerMany') | translate: { count: newer } }}
+          </button>
+        }
         <ul class="posts">
           @for (post of posts; track post.id) {
             <li><app-post-card [post]="post" (deleted)="remove($event)" (reposted)="posts = [$event].concat(posts)"></app-post-card></li>
           }
         </ul>
         @if (more) {
-          <button mat-stroked-button type="button" class="more" (click)="load(page + 1)" data-feed-more>{{ 'network.feed.more' | translate }}</button>
+          <div class="more-zone" (appInView)="loadMore()">
+            @if (loadingMore) {
+              <mat-spinner diameter="28" [attr.aria-label]="'common.loading' | translate"></mat-spinner>
+            } @else {
+              <button mat-stroked-button type="button" class="more" (click)="loadMore()" data-feed-more>{{ 'network.feed.more' | translate }}</button>
+            }
+          </div>
         }
       }
     }
@@ -139,6 +151,22 @@
             </li>
           }
         </ul>
+      </section>
+    }
+    @if (trending.length) {
+      <section class="side-card trending" data-trending>
+        <h2>{{ 'network.trending.title' | translate }}</h2>
+        <ol>
+          @for (item of trending; track item.tag; let index = $index) {
+            <li>
+              <a [routerLink]="['/network/tags', item.tag]" [attr.data-trending-tag]="item.tag">
+                <span class="rank" aria-hidden="true">{{ index + 1 }}</span>
+                <span class="name">#{{ item.tag }}</span>
+                <span class="count">{{ (item.posts === 1 ? 'network.trending.postsOne' : 'network.trending.postsMany') | translate: { count: item.posts } }}</span>
+              </a>
+            </li>
+          }
+        </ol>
       </section>
     }
     <section class="side-card about">

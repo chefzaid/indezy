@@ -164,6 +164,12 @@ export interface NetworkPosts {
 }
 
 /** A member to follow, and why: one of the reader's contacts, followed by members the reader follows, the same skills or city. */
+/** A tag trending in the last seven days, and how many posts named it. */
+export interface TrendingTag {
+  tag: string;
+  posts: number;
+}
+
 export interface MemberSuggestion {
   card: MemberCard;
   reason: 'CONTACT' | 'FOLLOWED_BY' | 'SAME_STACK' | 'SAME_CITY';

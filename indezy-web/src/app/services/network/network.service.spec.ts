@@ -4,6 +4,23 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { NetworkService } from './network.service';
 
 describe('NetworkService', () => {
+  it('asks how many posts are newer, the trending tags and the tags starting with what was typed', () => {
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    const service = TestBed.inject(NetworkService);
+    const http = TestBed.inject(HttpTestingController);
+    let count = -1;
+    service.newerCount('2026-11-16T10:00:00').subscribe(found => count = found);
+    const newer = http.expectOne(call => call.url.endsWith('/network/feed/newer'));
+    expect(newer.request.params.get('since')).toBe('2026-11-16T10:00:00');
+    newer.flush({ count: 3 });
+    expect(count).toBe(3);
+    service.trendingTags().subscribe();
+    http.expectOne(call => call.url.endsWith('/network/tags/trending'));
+    service.suggestTags('ka').subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/tags/suggest')).request.params.get('q')).toBe('ka');
+    http.verify();
+  });
+
   it('reads, joins and leaves the network, checks handles and reads members\' cards', () => {
     TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
     const service = TestBed.inject(NetworkService);

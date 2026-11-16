@@ -5,6 +5,7 @@ import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.service.NetworkCommentService;
 import dev.swirlit.indezy.service.NetworkConfidentialityService;
 import dev.swirlit.indezy.service.NetworkDraftService;
+import dev.swirlit.indezy.service.NetworkFeedService;
 import dev.swirlit.indezy.service.NetworkForYouService;
 import dev.swirlit.indezy.service.NetworkPipelineService;
 import dev.swirlit.indezy.service.NetworkPollService;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,6 +54,7 @@ public class NetworkPostController {
     private final NetworkPipelineService pipeline;
     private final NetworkUsefulService usefuls;
     private final NetworkForYouService forYou;
+    private final NetworkFeedService feed;
 
     @Operation(summary = "Post to the network",
         description = "Text of up to 3,000 characters; its #tags are kept. 202 when the spam score holds it for review")
@@ -290,7 +294,25 @@ public class NetworkPostController {
     @Operation(summary = "The home feed: the viewer's posts, those of the members and tags they follow, the newest first, 20 a page")
     @GetMapping("/feed")
     public NetworkDtos.Posts feed(@RequestParam(defaultValue = "0") int page) {
-        return posts.feed(SecurityUtils.getCurrentUserId(), page);
+        return feed.feed(SecurityUtils.getCurrentUserId(), page);
+    }
+
+    @Operation(summary = "How many posts by others reached the home feed after the given time")
+    @GetMapping("/feed/newer")
+    public NetworkDtos.Newer newer(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime since) {
+        return feed.newer(SecurityUtils.getCurrentUserId(), since);
+    }
+
+    @Operation(summary = "The tags most named in the last seven days by the posts the reader can read, 8 at most")
+    @GetMapping("/tags/trending")
+    public List<NetworkDtos.TrendingTag> trending() {
+        return feed.trending(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "The tags in use starting with what was typed, the most used first, 5 at most")
+    @GetMapping("/tags/suggest")
+    public List<String> suggestTags(@RequestParam(defaultValue = "") String q) {
+        return feed.suggestTags(SecurityUtils.getCurrentUserId(), q);
     }
 
     @Operation(summary = "A member's posts, the newest first, 20 a page")

@@ -42,6 +42,7 @@ public class NetworkTagService {
 
     private final NetworkService network;
     private final NetworkPostService posts;
+    private final NetworkFeedService feed;
     private final NetworkDirectoryService directory;
     private final NetworkTagFollowRepository follows;
     private final NetworkMemberRepository members;
@@ -55,7 +56,7 @@ public class NetworkTagService {
         String name = normalized(tag);
         List<NetworkDtos.MemberCard> shown = directory.search(userId, new NetworkDirectoryService.Search(name, null, null, null, 0))
             .members().stream().limit(MEMBERS_SHOWN).toList();
-        return new NetworkDtos.TagPage(name, follows.findByUserIdAndTag(userId, name).isPresent(), posts.tagPosts(userId, name, page, byUseful), shown);
+        return new NetworkDtos.TagPage(name, follows.findByUserIdAndTag(userId, name).isPresent(), feed.tagPosts(userId, name, page, byUseful), shown);
     }
 
     /** Follows a tag, or no longer; answers the tags the member follows, in order. */

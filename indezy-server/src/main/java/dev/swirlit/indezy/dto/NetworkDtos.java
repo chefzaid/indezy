@@ -288,6 +288,14 @@ public final class NetworkDtos {
         }
     }
 
+    /** How many posts reached the home feed since the reader's latest. */
+    public record Newer(long count) {
+    }
+
+    /** A tag trending in the last seven days, and how many posts named it. */
+    public record TrendingTag(String tag, long posts) {
+    }
+
     /**
      * A page of the member directory, how many members match in all, and, among the members shown, those the viewer
      * follows, has asked to follow, and whose cards are private (to ask rather than follow).

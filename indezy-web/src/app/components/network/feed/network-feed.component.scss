@@ -71,75 +71,6 @@
   }
 }
 
-.nav-links {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.nav-link {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  color: var(--app-text);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: background-color 120ms ease;
-
-  mat-icon {
-    color: var(--app-text-muted);
-  }
-
-  &:hover {
-    background: var(--app-hover);
-  }
-
-  &.active {
-    background: var(--app-selected-bg);
-    color: var(--app-link);
-
-    mat-icon {
-      color: var(--app-link);
-    }
-  }
-
-  .count {
-    margin-left: auto;
-    min-width: 20px;
-    padding: 0 6px;
-    border-radius: 10px;
-    background: var(--mat-sys-primary);
-    color: var(--mat-sys-on-primary);
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 20px;
-    text-align: center;
-  }
-}
-
-.followed-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-
-  a {
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: var(--app-chip-indigo-bg);
-    color: var(--app-chip-indigo-text);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}
-
 .feed-header {
   h1 {
     margin: 0;
@@ -336,7 +267,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .skeleton .bone {
+  .skeleton .bone,
+  .new-posts {
     animation: none;
   }
 }
@@ -363,58 +295,54 @@
   }
 }
 
+.more-zone {
+  display: flex;
+  justify-content: center;
+  min-height: 40px;
+}
+
 .more {
-  align-self: center;
   border-radius: 999px;
 }
 
-.suggestions {
-  ul {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+// Newer posts: a pill floating over the top of the feed, scrolling back up to them.
+.new-posts {
+  position: sticky;
+  top: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  gap: 6px;
+  margin-bottom: -4px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 999px;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(15, 12, 40, 0.2);
+  cursor: pointer;
+  animation: drop-in 200ms ease-out;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
   }
 
-  li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: 2px;
   }
+}
 
-  .who {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 0;
-
-    a {
-      overflow: hidden;
-      color: var(--app-text);
-      font-weight: 600;
-      text-decoration: none;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-
-  .why {
-    overflow: hidden;
-    color: var(--app-text-muted);
-    font-size: 0.75rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  button {
-    flex: none;
-    border-radius: 999px;
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
   }
 }
 
@@ -433,33 +361,6 @@
   .side-nav {
     position: static;
   }
-
-  .nav-links {
-    flex-direction: row;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scrollbar-width: none;
-  }
-
-  .nav-link {
-    flex: none;
-    gap: 8px;
-    padding: 6px 14px;
-    border: 1px solid var(--app-border);
-    background: var(--app-surface);
-    font-size: 0.875rem;
-
-    mat-icon {
-      width: 18px;
-      height: 18px;
-      font-size: 18px;
-    }
-  }
-
-  .tags-card {
-    display: none;
-  }
 }
 
 // Narrow: one column, the members to follow as a strip between the composer and the posts.
@@ -476,40 +377,6 @@
 
   .about {
     display: none;
-  }
-
-  .suggestions {
-    padding: 12px;
-
-    ul {
-      flex-direction: row;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      scroll-snap-type: x mandatory;
-    }
-
-    li {
-      flex: 0 0 156px;
-      flex-direction: column;
-      gap: 6px;
-      padding: 12px;
-      border: 1px solid var(--app-border);
-      border-radius: 12px;
-      text-align: center;
-      scroll-snap-align: start;
-    }
-
-    .who {
-      align-items: center;
-      width: 100%;
-    }
-
-    .why {
-      display: -webkit-box;
-      white-space: normal;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
   }
 }
 

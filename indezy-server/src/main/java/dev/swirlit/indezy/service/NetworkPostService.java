@@ -14,7 +14,6 @@ import dev.swirlit.indezy.model.NetworkPostVersion;
 import dev.swirlit.indezy.model.NetworkTagFollow;
 import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.model.enums.NetworkPostKind;
-import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
 import dev.swirlit.indezy.repository.NetworkBookmarkRepository;
 import dev.swirlit.indezy.repository.NetworkCommentLikeRepository;
 import dev.swirlit.indezy.repository.NetworkCommentRepository;
@@ -153,42 +152,6 @@ public class NetworkPostService {
         bookmarks.deleteByPostId(post.getId());
         notificationRepository.deleteByPostId(post.getId());
         posts.delete(post);
-    }
-
-    /**
-     * The reader's posts, those of the members they follow and those naming a tag they follow, still in the network, but
-     * those of members muted or blocked either way.
-     */
-    @Transactional(readOnly = true)
-    public NetworkDtos.Posts feed(Long userId, int page) {
-        network.requireMember(userId);
-        Set<Long> authors = new HashSet<>();
-        authors.add(userId);
-        followRepository.following(userId).forEach(member -> authors.add(member.getUserId()));
-        Set<Long> excluded = new HashSet<>(restrictions.blockedEitherWay(userId));
-        restrictions.targets(userId, NetworkRestrictionKind.MUTE).forEach(member -> excluded.add(member.getUserId()));
-        excluded.addAll(follows.locked(userId));
-        authors.removeAll(excluded);
-        List<String> tags = tagFollows.findByUserIdOrderByTagAsc(userId).stream().map(NetworkTagFollow::getTag).toList();
-        // An empty IN list is not valid everywhere: a value no row holds stands in for none.
-        Page<NetworkPost> found = posts.feed(authors, tags.isEmpty() ? List.of("") : tags, excluded.isEmpty() ? List.of(-1L) : excluded,
-            PageRequest.of(Math.max(0, page), PAGE_SIZE));
-        return page(found, userId);
-    }
-
-    /**
-     * A tag's posts, from every member the reader can read, but those muted or blocked either way: the newest first, or
-     * the most found useful first.
-     */
-    @Transactional(readOnly = true)
-    public NetworkDtos.Posts tagPosts(Long userId, String tag, int page, boolean byUseful) {
-        network.requireMember(userId);
-        Set<Long> excluded = new HashSet<>(restrictions.blockedEitherWay(userId));
-        restrictions.targets(userId, NetworkRestrictionKind.MUTE).forEach(member -> excluded.add(member.getUserId()));
-        excluded.addAll(follows.locked(userId));
-        List<Long> left = excluded.isEmpty() ? List.of(-1L) : List.copyOf(excluded);
-        PageRequest asked = PageRequest.of(Math.max(0, page), PAGE_SIZE);
-        return page(byUseful ? posts.tagByUseful(tag, left, asked) : posts.feed(List.of(-1L), List.of(tag), left, asked), userId);
     }
 
     /** A member's posts, for the members their page shows to; none of a private card to a member not following it. */

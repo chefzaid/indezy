@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, OnInit, inject, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval } from 'rxjs';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
@@ -11,7 +13,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AsyncPipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { MemberCard, MemberSuggestion, NetworkPost, isHeld } from '../../../models';
+import { MemberCard, MemberSuggestion, NetworkPost, TrendingTag, isHeld } from '../../../models';
+import { InViewDirective } from '../../../shared/directives/in-view.directive';
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
 import { NetworkService } from '../../../services/network/network.service';
@@ -23,14 +26,16 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 import { PostCardComponent } from '../post-card/post-card.component';
 
 export const POST_MAX = 3000;
+/** How often the feed asks whether newer posts reached it. */
+export const NEWER_EVERY_MS = 60_000;
 
 /** The home feed (`/network`): writing a post, then the reader's posts and those of the members they follow, newest first. */
 @Component({
   selector: 'app-network-feed',
-  imports: [AsyncPipe, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [AsyncPipe, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslateModule, PostCardComponent],
   templateUrl: './network-feed.component.html',
-  styleUrls: ['./network-feed.component.scss'],
+  styleUrls: ['./network-feed.component.scss', './network-feed-side.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class NetworkFeedComponent implements OnInit {
@@ -40,17 +45,26 @@ export class NetworkFeedComponent implements OnInit {
   private readonly confirm = inject(ConfirmDialogService);
   private readonly changes = inject(ChangeDetectorRef);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
   /** The notifications not read yet, counted beside Notifications. */
   readonly unread$ = inject(NetworkNoticesService).unread$;
 
   readonly max = POST_MAX;
   /** What the post is, and the facts of a mission or an availability. */
   @ViewChild('kindFields') kindFields?: PostKindFieldsComponent;
+  /** The top of the feed, scrolled back to for the newer posts. */
+  @ViewChild('feedTop') feedTop?: ElementRef<HTMLElement>;
   readonly draft = new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(POST_MAX)] });
   posts: NetworkPost[] = [];
   page = 0;
   more = false;
   loading = true;
+  /** The next page is on its way. */
+  loadingMore = false;
+  /** How many newer posts reached the feed since it was read. */
+  newer = 0;
+  /** The tags trending this week. */
+  trending: TrendingTag[] = [];
   notMember = false;
   isPosting = false;
   /** The tags the reader follows, each opening its page. */
@@ -67,6 +81,8 @@ export class NetworkFeedComponent implements OnInit {
     this.load(0);
     this.network.followedTags().subscribe({ next: tags => this.tags = tags, error: () => this.tags = [] });
     this.network.suggestions().subscribe({ next: suggestions => this.suggestions = suggestions, error: () => this.suggestions = [] });
+    this.network.trendingTags().subscribe({ next: trending => this.trending = trending, error: () => this.trending = [] });
+    interval(NEWER_EVERY_MS).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.checkNewer());
     this.network.membership().subscribe({ next: membership => this.me = membership.card, error: () => this.me = null });
   }
 
@@ -130,20 +146,52 @@ export class NetworkFeedComponent implements OnInit {
     }
     this.tab = tab;
     this.loading = true;
+    this.newer = 0;
     this.load(0);
   }
 
+  /** The next page, once the end of the feed comes near or **More** is pressed. */
+  loadMore(): void {
+    if (this.more && !this.loading && !this.loadingMore) {
+      this.load(this.page + 1);
+    }
+  }
+
+  /** Asks whether newer posts reached the Following tab, while the page is seen. */
+  checkNewer(): void {
+    if (this.tab !== 'following' || this.loading || this.posts.length === 0 || document.hidden) {
+      return;
+    }
+    this.network.newerCount(this.posts[0].createdAt).subscribe({
+      next: count => {
+        this.newer = count;
+        this.changes.markForCheck();
+      },
+      error: () => this.newer = 0
+    });
+  }
+
+  /** Reads the feed again from the top, with the newer posts. */
+  showNewer(): void {
+    this.newer = 0;
+    this.load(0);
+    this.feedTop?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   load(page: number): void {
+    this.loadingMore = page > 0;
     (this.tab === 'forYou' ? this.network.forYou(page) : this.network.feed(page)).subscribe({
       next: found => {
         this.posts = page === 0 ? found.posts : [...this.posts, ...found.posts];
         this.page = found.page;
         this.more = found.more;
         this.loading = false;
+        this.loadingMore = false;
         this.changes.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
         this.loading = false;
+        this.loadingMore = false;
         this.notMember = error.status === 409;
         if (!this.notMember) {
           this.notifications.error('network.feed.loadError');
