@@ -174,3 +174,54 @@
     color: var(--app-text-muted);
   }
 }
+
+// A link's card: the site, the page's title and description, opening the page; never an image.
+.link-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-subtle);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 120ms ease;
+
+  &:hover {
+    background: var(--app-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: 2px;
+  }
+
+  .link-site {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--app-text-muted);
+    font-size: 0.75rem;
+
+    mat-icon {
+      width: 14px;
+      height: 14px;
+      font-size: 14px;
+    }
+  }
+
+  .link-title {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .link-description {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--app-text-muted);
+    font-size: 0.8125rem;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+}

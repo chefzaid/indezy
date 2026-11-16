@@ -7,7 +7,7 @@ const leo = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: nu
 const conversation = { id: 4, with: leo, last: { mine: false, text: 'Une mission Kafka ?', deleted: false, sentAt: '2026-11-16T09:00:00' },
   unread: 1, muted: false, archived: false, closed: null, lastMessageAt: '2026-11-16T09:00:00' };
 const message = (id: number, mine: boolean, text: string, extra: Record<string, unknown> = {}) => ({ id, mine, text,
-  sentAt: `2026-11-16T09:0${id}:00`, edited: false, deleted: false, editable: mine, replyTo: null, reactions: [], myReaction: null, ...extra });
+  sentAt: `2026-11-16T09:0${id}:00`, edited: false, deleted: false, editable: mine, replyTo: null, reactions: [], myReaction: null, preview: null, ...extra });
 
 for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
   test(`writes to a member from their page, replies and reacts in the conversation (${language}, ${width}px)`, async ({ page }) => {

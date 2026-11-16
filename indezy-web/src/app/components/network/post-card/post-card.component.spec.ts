@@ -12,7 +12,7 @@ import { ReportDialogComponent } from '../report-dialog/report-dialog.component'
 
 describe('PostCardComponent', () => {
   const post: NetworkPost = { id: 4, text: 'Merci @leo_m pour #Kafka !\n<b>pas du HTML</b> mail@example.com', tags: ['kafka'],
-    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, useful: null, reactions: [], myReaction: null, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
+    createdAt: '2026-11-14T10:00:00', own: true, likes: 2, liked: false, comments: 3, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, useful: null, reactions: [], myReaction: null, preview: null, author: { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null,
       headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false } };
 
   it('splits the text into plain text, mentions and tags, leaving an address or a word alone', () => {
@@ -204,6 +204,23 @@ describe('PostCardComponent', () => {
     fixture.componentRef.setInput('post', { ...post, own: false });
     fixture.detectChanges();
     expect(element.querySelector('[data-post-actions]')).not.toBeNull();
+  });
+
+  it('shows the card of its first link, opening the page apart', () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', { ...post, preview: { url: 'https://blog.example.org/kafka', site: 'Le blog', title: 'Kafka en prod',
+      description: 'Un retour' } });
+    fixture.detectChanges();
+    const card = (fixture.nativeElement as HTMLElement).querySelector('[data-post-preview]') as HTMLAnchorElement;
+    expect(card.href).toBe('https://blog.example.org/kafka');
+    expect(card.rel).toContain('noopener');
+    expect(card.target).toBe('_blank');
+    expect(card.textContent).toContain('Kafka en prod');
+    expect(card.textContent).toContain('Un retour');
+    fixture.componentRef.setInput('post', { ...post, preview: { url: 'https://blog.example.org/a', site: null, title: 'A', description: null } });
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.link-description')).toBeNull();
   });
 
   it('reports another member\'s post to the moderators', () => {

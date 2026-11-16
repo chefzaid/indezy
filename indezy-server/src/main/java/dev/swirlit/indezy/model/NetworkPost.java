@@ -75,6 +75,10 @@ public class NetworkPost extends BaseEntity {
     @Column(name = "answer_comment_id")
     private Long answerCommentId;
 
+    /** The card of its first link, read once it went out; none without a link or a page to read. */
+    @Embedded
+    private NetworkLinkPreview preview;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "network_post_tags", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "tag", length = 40)

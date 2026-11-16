@@ -252,6 +252,10 @@ included), its publisher or client left out, to read again before publishing; on
 last 90 days' trends, and the yearly review shares **A year of freelancing** (missions, days worked and the skills most
 asked for as tags), never a client nor the revenue.
 
+A post's first link shows as a card under its text (the site, the page's title and description, opening the page
+apart), read once in the background after the post goes out, never an image, so readers load nothing from the linked
+site; a page out of reach leaves no card.
+
 **Comments** open under a post: comments and, under each, replies (one level), the oldest first. Each writer deletes
 their own comment, its replies going with it. The post's author **pins** one comment on top, **hides** one (then only
 the author sees it, marked hidden) or **closes** the comments, after which none is added. A member likes a comment, once,

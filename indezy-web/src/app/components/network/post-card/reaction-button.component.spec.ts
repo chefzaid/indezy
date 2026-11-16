@@ -15,7 +15,7 @@ describe('ReactionButtonComponent', () => {
   let emitted: NetworkPost[];
   const post: NetworkPost = { id: 4, text: 'Mission signée', tags: [], createdAt: '2026-11-14T10:00:00', own: false, likes: 3, liked: true,
     comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST',
-    details: null, answerCommentId: null, poll: null, taken: null, useful: null, myReaction: 'LIKE',
+    details: null, answerCommentId: null, poll: null, taken: null, useful: null, myReaction: 'LIKE', preview: null,
     reactions: [{ reaction: 'LIKE', count: 2 }, { reaction: 'BRAVO', count: 1 }], author: { handle: 'leo_m', firstName: 'Léo',
       lastName: 'Martin', avatar: null, headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null,
       languages: [], verified: false } };
@@ -39,9 +39,9 @@ describe('ReactionButtonComponent', () => {
   it('counts the reactions as the reader reacts, changes or takes theirs back', () => {
     expect(ReactionButtonComponent.applied(post, 'BRAVO')).toEqual(jasmine.objectContaining({ likes: 3, liked: true, myReaction: 'BRAVO',
       reactions: [{ reaction: 'BRAVO', count: 2 }, { reaction: 'LIKE', count: 1 }] }));
-    expect(ReactionButtonComponent.applied(post, null)).toEqual(jasmine.objectContaining({ likes: 2, liked: false, myReaction: null,
+    expect(ReactionButtonComponent.applied(post, null)).toEqual(jasmine.objectContaining({ likes: 2, liked: false, myReaction: null, preview: null,
       reactions: [{ reaction: 'LIKE', count: 1 }, { reaction: 'BRAVO', count: 1 }] }));
-    const none = { ...post, likes: 0, liked: false, myReaction: null, reactions: [] };
+    const none = { ...post, likes: 0, liked: false, myReaction: null, preview: null, reactions: [] };
     expect(ReactionButtonComponent.applied(none, 'WOW')).toEqual(jasmine.objectContaining({ likes: 1,
       reactions: [{ reaction: 'WOW', count: 1 }] }));
   });
@@ -64,7 +64,7 @@ describe('ReactionButtonComponent', () => {
   });
 
   it('likes with a press, popping, and shows the reaction the server kept', fakeAsync(() => {
-    const button = create({ ...post, likes: 0, liked: false, myReaction: null, reactions: [] });
+    const button = create({ ...post, likes: 0, liked: false, myReaction: null, preview: null, reactions: [] });
     network.react.and.returnValue(of({ ...post, myReaction: 'LIKE' }));
     button.click();
     fixture.detectChanges();

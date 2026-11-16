@@ -7,6 +7,7 @@ import dev.swirlit.indezy.model.NetworkBookmark;
 import dev.swirlit.indezy.model.NetworkComment;
 import dev.swirlit.indezy.model.NetworkCommentLike;
 import dev.swirlit.indezy.model.NetworkLike;
+import dev.swirlit.indezy.model.NetworkLinkPreview;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkPostDetails;
@@ -96,6 +97,7 @@ public class NetworkPostService {
     private final NetworkPollVoteRepository pollVotes;
     private final NetworkNotificationService notices;
     private final NetworkNotificationRepository notificationRepository;
+    private final NetworkLinkPreviews previews;
 
     /** Posts the text, unless the spam score holds it for review: then nothing is published yet. */
     @Transactional
@@ -129,6 +131,7 @@ public class NetworkPostService {
         }
         post.setTags(tags(post.getText()));
         posts.save(post);
+        previews.refresh(post);
         notices.mentions(post.getText(), userId, post.getId());
         log.info("Member {} posted {}", userId, post.getId());
         return toDto(post, network.card(author), userId, List.of(), new Seen(0, false, null, 0, polls.views(List.of(post), userId)
@@ -245,7 +248,12 @@ public class NetworkPostService {
             seen.comments(), post.isCommentsClosed(), post.getEditedAt() != null, seen.bookmarked(), seen.original(), seen.reposts(),
             post.isRepostsOff(), post.getKind(), NetworkPostKinds.toDto(post.getDetails()), post.getAnswerCommentId(), seen.poll(),
             seen.taken(), seen.useful(), reactions(postLikes), postLikes.stream().filter(like -> like.getUserId().equals(readerId))
-            .map(NetworkLike::reactionOrLike).findFirst().orElse(null));
+            .map(NetworkLike::reactionOrLike).findFirst().orElse(null), preview(post.getPreview()));
+    }
+
+    private static NetworkDtos.LinkPreview preview(NetworkLinkPreview card) {
+        return card == null || card.getTitle() == null ? null : new NetworkDtos.LinkPreview(card.getUrl(), card.getSite(), card.getTitle(),
+            card.getDescription());
     }
 
     /** How many members reacted each way, the most frequent first. */
@@ -377,6 +385,7 @@ public class NetworkPostService {
             post.setText(text);
             post.setTags(tags(text));
             post.setEditedAt(clock.instant());
+            previews.refresh(post);
         }
         return reread(post, userId);
     }

@@ -103,6 +103,15 @@ export interface NetworkPost {
   reactions: ReactionCount[];
   /** The reader's reaction, if any. */
   myReaction: Reaction | null;
+  /** The card of its first link, read once it went out: the site, the title, the description; never an image. */
+  preview: LinkPreview | null;
+}
+
+export interface LinkPreview {
+  url: string;
+  site: string | null;
+  title: string;
+  description: string | null;
 }
 
 /** How a member reacts to a post: a like, or another reaction. */

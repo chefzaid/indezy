@@ -59,6 +59,10 @@ public final class NetworkDtos {
      * reposts (null when that is gone or out of the reader's reach); how many reposts it has and whether its author turned
      * them off.
      */
+    /** The card of a post's first link: the site, the title and the description the page gave. */
+    public record LinkPreview(String url, String site, String title, String description) {
+    }
+
     /** How many members reacted to a post this way. */
     public record ReactionCount(NetworkReaction reaction, int count) {
     }
@@ -66,7 +70,7 @@ public final class NetworkDtos {
     public record Post(Long id, MemberCard author, String text, List<String> tags, LocalDateTime createdAt, boolean own, int likes,
                        boolean liked, int comments, boolean commentsClosed, boolean edited, boolean bookmarked, Original repostOf,
                        int reposts, boolean repostsOff, NetworkPostKind kind, PostDetails details, Long answerCommentId, Poll poll,
-                       Taken taken, Useful useful, List<ReactionCount> reactions, NetworkReaction myReaction) {
+                       Taken taken, Useful useful, List<ReactionCount> reactions, NetworkReaction myReaction, LinkPreview preview) {
 
         public Post {
             tags = List.copyOf(tags);
