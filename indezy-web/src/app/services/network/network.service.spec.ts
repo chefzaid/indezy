@@ -123,6 +123,9 @@ describe('NetworkService', () => {
     service.saveNotificationSettings(['LIKE']).subscribe();
     expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/notifications/settings')).request.body)
       .toEqual({ off: ['LIKE'] });
+    service.saveNotificationSettings([], ['LIKE']).subscribe();
+    expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/notifications/settings')).request.body)
+      .toEqual({ off: [], emailed: ['LIKE'] });
     service.suggestions().subscribe();
     http.expectOne(call => call.url.endsWith('/network/suggestions'));
     service.member('camille').subscribe();

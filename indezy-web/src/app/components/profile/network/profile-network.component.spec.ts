@@ -6,7 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { MemberCard, MemberPage, NetworkMembership } from '../../../models';
-import { NetworkService } from '../../../services/network/network.service';
+import { NetworkService, NoticeSettings } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { ProfileNetworkComponent } from './profile-network.component';
@@ -28,7 +28,7 @@ describe('ProfileNetworkComponent', () => {
     network = jasmine.createSpyObj('NetworkService', ['membership', 'join', 'leave', 'handle', 'verify', 'restrictions', 'mute', 'block',
       'notificationSettings', 'saveNotificationSettings', 'followRequests']);
     network.followRequests.and.returnValue(of([]));
-    network.notificationSettings.and.returnValue(of({ off: ['REPOST'] }));
+    network.notificationSettings.and.returnValue(of({ off: ['REPOST'], emailed: ['LIKE'] }));
     network.membership.and.returnValue(membership);
     network.restrictions.and.returnValue(of({ muted: [], blocked: [] }));
     network.handle.and.returnValue(of({ handle: 'x', available: true }));
@@ -163,21 +163,28 @@ describe('ProfileNetworkComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');
   });
 
-  it('turns kinds of notification on and off', () => {
+  it('sends each kind of notification nowhere, to the app, or by email too', () => {
     const fixture = create(of(member));
     const component = fixture.componentInstance;
     fixture.detectChanges();
     const element: HTMLElement = fixture.nativeElement;
-    expect(element.querySelector('[data-notice-toggle="REPOST"] input')?.getAttribute('aria-checked') ?? 'false').toBe('false');
-    network.saveNotificationSettings.and.returnValue(of({ off: ['LIKE', 'REPOST'] }));
-    component.toggleNotice('LIKE', false);
-    expect(network.saveNotificationSettings).toHaveBeenCalledWith(['REPOST', 'LIKE']);
-    expect(component.noticesOff).toEqual(['LIKE', 'REPOST']);
-    network.saveNotificationSettings.and.returnValue(of({ off: ['LIKE'] }));
-    component.toggleNotice('REPOST', true);
-    expect(network.saveNotificationSettings).toHaveBeenCalledWith(['LIKE']);
+    expect(element.querySelector('[data-notice-channel="REPOST"] .mat-button-toggle-checked')?.textContent).toContain('Off');
+    expect(component.channel('LIKE')).toBe('EMAIL');
+    expect(component.channel('FOLLOW')).toBe('APP');
+    network.saveNotificationSettings.and.returnValue(of({ off: ['REPOST', 'LIKE'], emailed: [] }));
+    component.setChannel('LIKE', 'OFF');
+    expect(network.saveNotificationSettings).toHaveBeenCalledWith(['REPOST', 'LIKE'], []);
+    expect(component.noticesOff).toEqual(['REPOST', 'LIKE']);
+    expect(component.noticesEmailed).toEqual([]);
+    network.saveNotificationSettings.and.returnValue(of({ off: ['LIKE'], emailed: ['REPOST'] }));
+    component.setChannel('REPOST', 'EMAIL');
+    expect(network.saveNotificationSettings).toHaveBeenCalledWith(['LIKE'], ['REPOST']);
+    network.saveNotificationSettings.and.returnValue(of({ off: [] } as unknown as NoticeSettings));
+    component.setChannel('LIKE', 'APP');
+    expect(network.saveNotificationSettings).toHaveBeenCalledWith([], ['REPOST']);
+    expect(component.noticesEmailed).toEqual([]);
     network.saveNotificationSettings.and.returnValue(throwError(() => new Error('down')));
-    component.toggleNotice('FOLLOW', false);
+    component.setChannel('FOLLOW', 'OFF');
     expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');
   });
 

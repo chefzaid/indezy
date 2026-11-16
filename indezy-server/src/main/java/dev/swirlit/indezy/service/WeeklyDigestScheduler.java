@@ -18,6 +18,7 @@ public class WeeklyDigestScheduler {
     private final WeeklyDigestService digests;
     private final BookingNoticeService bookingNotices;
     private final NetworkMessageEmailService messageEmails;
+    private final NetworkNoticeEmailService noticeEmails;
 
     @Scheduled(initialDelayString = "PT3M", fixedDelayString = "PT15M")
     public void sendDue() {
@@ -28,11 +29,12 @@ public class WeeklyDigestScheduler {
         }
     }
 
-    /** Emails the member network's messages still unread after an hour, every quarter of an hour. */
+    /** Emails the member network's messages and chosen notifications still unread after an hour, every quarter of an hour. */
     @Scheduled(initialDelayString = "PT4M", fixedDelayString = "PT15M")
     public void sendMessageEmails() {
         try {
             messageEmails.sendDue();
+            noticeEmails.sendDue();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

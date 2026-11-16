@@ -212,6 +212,9 @@ The member network (`/api/network`) is on unless an administrator turns it off (
   reach, and a reported message's text goes to the moderators with the report (as a post's does), a removal emptying it
   for both; the unread messages email names the senders and counts their messages, never their text, and its
   one-click unsubscribe token (`/api/public/network-messages/unsubscribe/{token}`) only turns these emails off;
+- the notifications email is claimed in a transaction before it goes out (given back when Resend refuses it), holds
+  names, counts and the reader's own posts' first words, and its one-click unsubscribe
+  (`/api/public/network-notifications/unsubscribe/{token}`, the same 256-bit token) only stops these emails;
 - a post or a comment is scored before it goes out (`NetworkSpamFilter`): 2 points for 3 links or more, 1 for a link
   from a member who joined in the last day, 3 for the same text (case and spaces aside) as one of the author's posts,
   comments or held texts of the last day, 1 for 5 mentions or more, 1 for 30 letters or more mostly in capitals; at 3

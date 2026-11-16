@@ -5,6 +5,12 @@ import { environment } from '../../../environments/environment';
 import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, TrendingTag, Reaction, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions, ReportReason, ReportTarget, HeldForReview, ConfidentialMatch, NewPoll, PostDetails, PostKind, ProjectDto } from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
+/** The kinds of notification turned off, and those also emailed. */
+export interface NoticeSettings {
+  off: NetworkNotificationType[];
+  emailed: NetworkNotificationType[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -245,12 +251,14 @@ export class NetworkService {
   }
 
   /** The kinds of notification the reader turned off. */
-  notificationSettings(): Observable<{ off: NetworkNotificationType[] }> {
-    return this.http.get<{ off: NetworkNotificationType[] }>(`${this.API_URL}/notifications/settings`);
+  /** The kinds of notification turned off, and those also emailed. */
+  notificationSettings(): Observable<NoticeSettings> {
+    return this.http.get<NoticeSettings>(`${this.API_URL}/notifications/settings`);
   }
 
-  saveNotificationSettings(off: NetworkNotificationType[]): Observable<{ off: NetworkNotificationType[] }> {
-    return this.http.put<{ off: NetworkNotificationType[] }>(`${this.API_URL}/notifications/settings`, { off });
+  /** Turns kinds off, and chooses those also emailed (left as they are when none are given). */
+  saveNotificationSettings(off: NetworkNotificationType[], emailed?: NetworkNotificationType[]): Observable<NoticeSettings> {
+    return this.http.put<NoticeSettings>(`${this.API_URL}/notifications/settings`, emailed === undefined ? { off } : { off, emailed });
   }
 
   /** Members to follow, each with its reason. */

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface NetworkNotificationRepository extends JpaRepository<NetworkNotification, Long> {
@@ -16,6 +17,16 @@ public interface NetworkNotificationRepository extends JpaRepository<NetworkNoti
     List<NetworkNotification> findByRecipientIdOrderByCreatedAtDescIdDesc(Long recipientId, Pageable page);
 
     long countByRecipientIdAndReadFalse(Long recipientId);
+
+    /** The members with notifications unread and not emailed, from before the given time. */
+    @Query("select distinct n.recipientId from NetworkNotification n where n.read = false and (n.emailed is null or n.emailed = false) " +
+        "and n.createdAt <= :before")
+    List<Long> recipientsToEmail(@Param("before") LocalDateTime before);
+
+    /** A member's notifications unread and not emailed, from before the given time, the newest first. */
+    @Query("select n from NetworkNotification n where n.recipientId = :recipientId and n.read = false and (n.emailed is null or " +
+        "n.emailed = false) and n.createdAt <= :before order by n.createdAt desc, n.id desc")
+    List<NetworkNotification> toEmail(@Param("recipientId") Long recipientId, @Param("before") LocalDateTime before);
 
     boolean existsByRecipientIdAndActorIdAndTypeAndPostId(Long recipientId, Long actorId, NetworkNotificationType type, Long postId);
 

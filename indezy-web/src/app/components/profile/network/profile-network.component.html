@@ -75,11 +75,20 @@
 @if (membership?.joined && noticesOff) {
   <section class="restrictions" data-network-notices>
     <h3>{{ 'profile.network.noticesTitle' | translate }}</h3>
-    @for (type of noticeTypes; track type) {
-      <mat-slide-toggle [checked]="!noticesOff.includes(type)" (change)="toggleNotice(type, $event.checked)" [attr.data-notice-toggle]="type">
-        {{ 'profile.network.notices.' + type | translate }}
-      </mat-slide-toggle>
-    }
+    <p class="empty">{{ 'profile.network.noticesHint' | translate }}</p>
+    <ul class="channels">
+      @for (type of noticeTypes; track type) {
+        <li>
+          <span class="channel-label" [id]="'notice-' + type">{{ 'profile.network.notices.' + type | translate }}</span>
+          <mat-button-toggle-group [value]="channel(type)" (change)="setChannel(type, $event.value)" hideSingleSelectionIndicator
+            [attr.aria-labelledby]="'notice-' + type" [attr.data-notice-channel]="type">
+            <mat-button-toggle value="OFF">{{ 'profile.network.channels.OFF' | translate }}</mat-button-toggle>
+            <mat-button-toggle value="APP">{{ 'profile.network.channels.APP' | translate }}</mat-button-toggle>
+            <mat-button-toggle value="EMAIL">{{ 'profile.network.channels.EMAIL' | translate }}</mat-button-toggle>
+          </mat-button-toggle-group>
+        </li>
+      }
+    </ul>
   </section>
 }
 

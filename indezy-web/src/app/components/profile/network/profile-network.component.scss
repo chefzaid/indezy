@@ -130,3 +130,26 @@
     font-size: 1rem;
   }
 }
+
+// Where each kind of notification goes: off, in the app, or by email too.
+.channels {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+  }
+
+  mat-button-toggle-group {
+    --mat-standard-button-toggle-height: 32px;
+    font-size: 0.8125rem;
+  }
+}

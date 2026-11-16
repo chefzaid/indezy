@@ -1478,7 +1478,13 @@
       "esnLabel": "Suggest members who went through the same ESNs",
       "esnHint": "Both of you had an opportunity with that ESN; only between members who both turn this on. The ESN is named to each.",
       "esnOn": "Members who went through the same ESNs will be suggested",
-      "esnOff": "No more suggestions through ESNs"
+      "esnOff": "No more suggestions through ESNs",
+      "noticesHint": "In the app, by email too (one email for all, an hour after, at most every three hours), or off.",
+      "channels": {
+        "OFF": "Off",
+        "APP": "In the app",
+        "EMAIL": "Email too"
+      }
     }
   },
   "errors": {

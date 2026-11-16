@@ -77,6 +77,14 @@ public class NetworkMember extends BaseEntity {
     @Column(name = "notifications_off", length = 100)
     private String notificationsOff;
 
+    /** The kinds of notification also emailed, comma-separated; none (null or empty) by default. */
+    @Column(name = "notifications_emailed", length = 100)
+    private String notificationsEmailed;
+
+    /** When the latest notifications email was sent, so at most one goes every three hours. */
+    @Column(name = "notification_email_sent_at")
+    private Instant notificationEmailSentAt;
+
     /** Works remotely: the card says so beside, or instead of, the city. */
     @Column(name = "remote", nullable = false)
     private boolean remote;

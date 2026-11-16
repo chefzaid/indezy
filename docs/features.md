@@ -289,7 +289,10 @@ message it replies to, edited or deleted) in the page's language. The account ex
 member who followed them, liked, commented or reposted their post, liked or replied to their comment or mentioned them by
 `@handle`, grouped as they read ("Léo and 2 others liked your post", with the post's first words), the newest first, under
 **Today**, **This week** and **Earlier**; unread ones are tinted with a dot, and each opens the post, or the member for a
-follow. Opening the page marks them read.
+follow. Opening the page marks them read. **Profile → Network** sends each kind nowhere, to the app (the default) or by
+email too: an hour after a notification of a kind chosen for email is still unread, one email groups all those still
+unread (at most one every three hours, names and the post's first words, never a comment's text), with a one-click
+unsubscribe that stops every kind.
 
 A post has its own page, `/network/posts/<id>`, with its comments open: its time on the card opens it, **Copy link** in
 its menu copies its address, and a notification or the global search lead there. The page says the post is gone when

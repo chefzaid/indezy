@@ -33,4 +33,8 @@ public class NetworkNotification extends BaseEntity {
 
     @Column(name = "is_read", nullable = false)
     private boolean read;
+
+    /** Emailed to its recipient; none (null) reads as not emailed. */
+    @Column(name = "emailed")
+    private Boolean emailed;
 }

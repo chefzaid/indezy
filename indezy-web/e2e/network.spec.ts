@@ -35,6 +35,14 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       return route.fulfill({ json: membership });
     });
     await page.route('**/api/network/restrictions', route => route.fulfill({ json: { muted: [], blocked: [] } }));
+    let notices: Record<string, unknown> = { off: [], emailed: [] };
+    await page.route('**/api/network/notifications/settings', route => {
+      if (route.request().method() === 'PUT') {
+        notices = route.request().postDataJSON();
+        calls.push(notices);
+      }
+      return route.fulfill({ json: notices });
+    });
     await page.route('**/api/network/handles/*', route => {
       const handle = decodeURIComponent(route.request().url().split('/').at(-1)!);
       return route.fulfill({ json: { handle, available: handle !== 'taken' } });
@@ -60,8 +68,11 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(card.locator('[data-card-availability]')).toContainText(en ? 'On a mission until March 2027' : 'En mission jusqu');
     await expect(card).not.toContainText('Lyon');
     await expect(tab.locator('[data-network-joined]')).toContainText('@camille_d');
-    const audit = await new AxeBuilder({ page }).include('[data-profile-network]').include('[data-network-preview]')
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    await page.locator('[data-notice-channel="LIKE"]').getByRole('radio', { name: en ? 'Email too' : 'E-mail aussi' }).click();
+    await expect(page.locator('[data-notice-channel="LIKE"]').getByRole('radio', { name: en ? 'Email too' : 'E-mail aussi' }))
+      .toHaveAttribute('aria-checked', 'true');
+    const audit = await new AxeBuilder({ page }).include('[data-profile-network]').include('[data-network-notices]')
+      .include('[data-network-preview]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
@@ -70,7 +81,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(page.locator('[data-network-preview]')).toHaveCount(0);
     await expect(tab.locator('[data-network-handle]')).toHaveValue('camille_d');
     expect(calls).toEqual([{ handle: 'camille_d', fields: { ...fields, location: false, remote: true },
-      availability: { mode: 'ON_MISSION', date: '2027-03-31' } }, 'leave']);
+      availability: { mode: 'ON_MISSION', date: '2027-03-31' } }, { off: [], emailed: ['LIKE'] }, 'leave']);
   });
 }
 

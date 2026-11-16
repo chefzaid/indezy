@@ -1478,7 +1478,13 @@
       "esnLabel": "Suggérer les membres passés par les mêmes ESN",
       "esnHint": "Vous avez tous deux eu une opportunité avec cette ESN ; seulement entre membres qui l'activent tous les deux. L'ESN est nommée à chacun.",
       "esnOn": "Les membres passés par les mêmes ESN seront suggérés",
-      "esnOff": "Plus de suggestions par les ESN"
+      "esnOff": "Plus de suggestions par les ESN",
+      "noticesHint": "Dans l'application, par e-mail aussi (un seul e-mail, une heure après, au plus toutes les trois heures), ou désactivé.",
+      "channels": {
+        "OFF": "Désactivé",
+        "APP": "Dans l'appli",
+        "EMAIL": "E-mail aussi"
+      }
     }
   },
   "errors": {

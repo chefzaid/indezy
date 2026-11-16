@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, debounceTime, distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs';
 
@@ -42,9 +43,12 @@ export const CARD_FIELDS: (keyof NetworkFields)[] = ['photo', 'headline', 'stack
  * Profile → Network: joining the member network with a handle no other member holds, choosing what the member card
  * shows, and leaving, which hides the card at once.
  */
+/** Where a kind of notification goes. */
+export type NoticeChannel = 'OFF' | 'APP' | 'EMAIL';
+
 @Component({
   selector: 'app-profile-network',
-  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, MatSlideToggleModule, TranslateModule,
+  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, MatSlideToggleModule, MatButtonToggleModule, TranslateModule,
     MemberCardComponent, ProfileFollowRequestsComponent],
   templateUrl: './profile-network.component.html',
   styleUrls: ['./profile-network.component.scss'],
@@ -81,14 +85,26 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
     'COMMENT', 'REPLY', 'MENTION', 'REPOST'];
   /** The kinds of notification turned off; read once joined. */
   noticesOff: NetworkNotificationType[] | null = null;
+  /** The kinds also emailed. */
+  noticesEmailed: NetworkNotificationType[] = [];
 
-  /** Turns a kind of notification on or off. */
-  toggleNotice(type: NetworkNotificationType, on: boolean): void {
-    const off = on ? this.noticesOff!.filter(item => item !== type) : [...this.noticesOff!, type];
-    this.network.saveNotificationSettings(off).subscribe({
-      next: settings => this.noticesOff = settings.off,
-      error: () => this.notifications.error('profile.network.saveError')
-    });
+  /** How a kind reaches the member: off, in the app, or by email too. */
+  channel(type: NetworkNotificationType): NoticeChannel {
+    return this.noticesOff!.includes(type) ? 'OFF' : this.noticesEmailed.includes(type) ? 'EMAIL' : 'APP';
+  }
+
+  /** Sends a kind of notification nowhere, to the app, or by email too. */
+  setChannel(type: NetworkNotificationType, channel: NoticeChannel): void {
+    const off = this.noticesOff!.filter(item => item !== type);
+    const emailed = this.noticesEmailed.filter(item => item !== type);
+    this.network.saveNotificationSettings(channel === 'OFF' ? [...off, type] : off, channel === 'EMAIL' ? [...emailed, type] : emailed)
+      .subscribe({
+        next: settings => {
+          this.noticesOff = settings.off;
+          this.noticesEmailed = settings.emailed ?? [];
+        },
+        error: () => this.notifications.error('profile.network.saveError')
+      });
   }
 
   ngOnInit(): void {
@@ -193,7 +209,10 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
   private show(membership: NetworkMembership): void {
     if (membership.joined && !this.noticesOff) {
       this.network.notificationSettings().pipe(takeUntil(this.destroy$)).subscribe({
-        next: settings => this.noticesOff = settings.off,
+        next: settings => {
+          this.noticesOff = settings.off;
+          this.noticesEmailed = settings.emailed ?? [];
+        },
         error: () => this.noticesOff = null
       });
     }

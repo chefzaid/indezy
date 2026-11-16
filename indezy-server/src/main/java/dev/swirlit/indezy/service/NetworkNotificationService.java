@@ -142,7 +142,8 @@ public class NetworkNotificationService {
 
     @Transactional(readOnly = true)
     public NetworkDtos.NotificationSettings settings(Long userId) {
-        return new NetworkDtos.NotificationSettings(List.copyOf(off(network.requireMember(userId))));
+        NetworkMember member = network.requireMember(userId);
+        return new NetworkDtos.NotificationSettings(List.copyOf(off(member)), List.copyOf(emailed(member)));
     }
 
     /** Turns off the kinds named, and on the others. */
@@ -150,15 +151,31 @@ public class NetworkNotificationService {
     public NetworkDtos.NotificationSettings saveSettings(Long userId, NetworkDtos.NotificationSettings settings) {
         NetworkMember member = network.requireMember(userId);
         member.setNotificationsOff(settings.off().stream().filter(type -> !MODERATION.contains(type)).distinct().sorted().map(Enum::name).collect(Collectors.joining(",")));
+        if (settings.emailed() != null) {
+            // A kind turned off is emailed no more.
+            member.setNotificationsEmailed(settings.emailed().stream().filter(type -> !MODERATION.contains(type) && !settings.off().contains(type))
+                .distinct().sorted().map(Enum::name).collect(Collectors.joining(",")));
+        }
         members.save(member);
         return settings(userId);
     }
 
     private static Set<NetworkNotificationType> off(NetworkMember member) {
-        String off = member.getNotificationsOff();
+        return kinds(member.getNotificationsOff());
+    }
+
+    /** The kinds the member also has emailed, but those turned off. */
+    static Set<NetworkNotificationType> emailed(NetworkMember member) {
+        Set<NetworkNotificationType> emailed = kinds(member.getNotificationsEmailed());
+        emailed.removeAll(kinds(member.getNotificationsOff()));
+        return emailed;
+    }
+
+    private static Set<NetworkNotificationType> kinds(String names) {
         Set<NetworkNotificationType> types = EnumSet.noneOf(NetworkNotificationType.class);
-        if (off != null && !off.isBlank()) {
-            Arrays.stream(off.split(",")).map(String::strip).forEach(name -> types.add(NetworkNotificationType.valueOf(name)));
+        if (names != null && !names.isBlank()) {
+            Arrays.stream(names.split(",")).map(String::strip).filter(name -> !name.isEmpty())
+                .forEach(name -> types.add(NetworkNotificationType.valueOf(name)));
         }
         return types;
     }

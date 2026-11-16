@@ -266,10 +266,12 @@ public final class NetworkDtos {
     }
 
     /** The kinds of notification the member turned off. */
-    public record NotificationSettings(@NotNull List<NetworkNotificationType> off) {
+    /** The kinds of notification turned off, and those also emailed (none given keeps them as they are). */
+    public record NotificationSettings(@NotNull List<NetworkNotificationType> off, List<NetworkNotificationType> emailed) {
 
         public NotificationSettings {
             off = off == null ? null : List.copyOf(off);
+            emailed = emailed == null ? null : List.copyOf(emailed);
         }
     }
 
