@@ -4,5 +4,6 @@ package dev.swirlit.indezy.model.enums;
 public enum NetworkReportTarget {
     POST,
     COMMENT,
-    MEMBER
+    MEMBER,
+    MESSAGE
 }

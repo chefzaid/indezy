@@ -21,6 +21,10 @@ describe('NetworkMessagesService', () => {
     expect(http.expectOne(call => call.url.endsWith('/network/conversations/4')).request.params.has('before')).toBeFalse();
     service.thread(4, 30).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/conversations/4')).request.params.get('before')).toBe('30');
+    service.search('kafka').subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/conversations/search')).request.params.get('q')).toBe('kafka');
+    service.pdf(4, 'EN').subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/conversations/4/pdf')).request.params.get('language')).toBe('EN');
     service.read(4).subscribe();
     http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/conversations/4/read'));
     service.settings(4, { muted: true }).subscribe();

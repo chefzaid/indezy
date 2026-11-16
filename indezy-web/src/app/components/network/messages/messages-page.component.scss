@@ -92,6 +92,46 @@
   }
 }
 
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 12px 4px;
+  padding: 0 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-subtle);
+  color: var(--app-text-muted);
+
+  &:focus-within {
+    border-color: var(--app-link);
+    background: var(--app-surface);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--app-text);
+    font: inherit;
+    font-size: 0.875rem;
+  }
+}
+
+.found {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+
+  .found-text {
+    white-space: normal;
+  }
+}
+
 .conversations {
   flex: 1;
   margin: 0;

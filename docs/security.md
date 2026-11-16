@@ -202,7 +202,9 @@ The member network (`/api/network`) is on unless an administrator turns it off (
 - a conversation opens only towards a member who follows the sender; once they stop following, either blocks the other
   or one leaves, new messages are refused (`409` with the reason); a conversation with a member who left or with whom
   either blocks the other is not found, nor is one the reader is not in; only a message's sender edits or deletes it,
-  within 15 minutes, a deletion emptying its text for both;
+  within 15 minutes, a deletion emptying its text for both; a search reads only the reader's conversations still in
+  reach, and a reported message's text goes to the moderators with the report (as a post's does), a removal emptying it
+  for both;
 - a post or a comment is scored before it goes out (`NetworkSpamFilter`): 2 points for 3 links or more, 1 for a link
   from a member who joined in the last day, 3 for the same text (case and spaces aside) as one of the author's posts,
   comments or held texts of the last day, 1 for 5 mentions or more, 1 for 30 letters or more mostly in capitals; at 3

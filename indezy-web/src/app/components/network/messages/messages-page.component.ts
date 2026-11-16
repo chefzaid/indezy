@@ -4,9 +4,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
-import { interval } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, interval, of, switchMap } from 'rxjs';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
-import { Conversation } from '../../../models';
+import { Conversation, FoundMessage } from '../../../models';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
@@ -15,6 +16,8 @@ import { MessageThreadComponent } from './message-thread.component';
 
 /** How often the list of conversations is read again. */
 export const CONVERSATIONS_REFRESH_MS = 30_000;
+/** How long the search waits for the typing to pause. */
+export const SEARCH_DELAY_MS = 300;
 
 /**
  * Messages (`/network/messages`, `/network/messages/<id>`): the reader's conversations, the latest first, beside the one
@@ -22,7 +25,7 @@ export const CONVERSATIONS_REFRESH_MS = 30_000;
  */
 @Component({
   selector: 'app-messages-page',
-  imports: [MemberAvatarComponent, MessageThreadComponent, TimeAgoPipe, RouterLink, MatIconModule, TranslateModule],
+  imports: [ReactiveFormsModule, MemberAvatarComponent, MessageThreadComponent, TimeAgoPipe, RouterLink, MatIconModule, TranslateModule],
   templateUrl: './messages-page.component.html',
   styleUrls: ['./messages-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -40,6 +43,9 @@ export class MessagesPageComponent implements OnInit {
   notMember = false;
   /** The conversation open beside the list. */
   openId: number | null = null;
+  readonly query = new FormControl('', { nonNullable: true });
+  /** The messages found, while a search of two characters or more is typed. */
+  found: FoundMessage[] | null = null;
 
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
@@ -48,6 +54,14 @@ export class MessagesPageComponent implements OnInit {
       this.changes.markForCheck();
     });
     this.load();
+    this.query.valueChanges.pipe(debounceTime(SEARCH_DELAY_MS), distinctUntilChanged(), switchMap(typed => typed.trim().length < 2 ? of(null)
+      : this.api.search(typed.trim()).pipe(catchError(() => {
+        this.notifications.error('network.messages.loadError');
+        return of([]);
+      }))), takeUntilDestroyed(this.destroyRef)).subscribe(found => {
+      this.found = found;
+      this.changes.markForCheck();
+    });
     interval(CONVERSATIONS_REFRESH_MS).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       if (!document.hidden) {
         this.load();

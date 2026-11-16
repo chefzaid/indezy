@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.NetworkMessageDtos;
+import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
 import dev.swirlit.indezy.service.NetworkConversationService;
 import dev.swirlit.indezy.service.NetworkMessageService;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,6 +48,12 @@ public class NetworkMessageController {
         return conversations.open(SecurityUtils.getCurrentUserId(), request.handle());
     }
 
+    @Operation(summary = "The messages of the reader's conversations holding what was typed (2 characters or more), 20 at most")
+    @GetMapping("/conversations/search")
+    public List<NetworkMessageDtos.Found> search(@RequestParam(defaultValue = "") String q) {
+        return messages.search(SecurityUtils.getCurrentUserId(), q);
+    }
+
     @Operation(summary = "How many conversations have unread messages, the muted aside")
     @GetMapping("/conversations/unread")
     public NetworkMessageDtos.Unread unread() {
@@ -56,6 +64,12 @@ public class NetworkMessageController {
     @GetMapping("/conversations/{id}")
     public NetworkMessageDtos.Thread thread(@PathVariable Long id, @RequestParam(required = false) Long before) {
         return messages.thread(SecurityUtils.getCurrentUserId(), id, before);
+    }
+
+    @Operation(summary = "The whole conversation as a PDF")
+    @GetMapping("/conversations/{id}/pdf")
+    public ResponseEntity<byte[]> pdf(@PathVariable Long id, @RequestParam(defaultValue = "FR") DocumentLanguage language) {
+        return PdfResponses.attachment(conversations.pdf(SecurityUtils.getCurrentUserId(), id, language));
     }
 
     @Operation(summary = "Mark a conversation read up to now")

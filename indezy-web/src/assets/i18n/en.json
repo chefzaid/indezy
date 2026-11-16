@@ -2654,7 +2654,8 @@
       "targets": {
         "POST": "Post",
         "COMMENT": "Comment",
-        "MEMBER": "Member"
+        "MEMBER": "Member",
+        "MESSAGE": "Message"
       },
       "outcomes": {
         "DISMISSED": "Dismiss",
@@ -3547,7 +3548,8 @@
       "title": {
         "posts": "Report this post",
         "comments": "Report this comment",
-        "members": "Report this member"
+        "members": "Report this member",
+        "messages": "Report this message"
       },
       "reason": "Reason",
       "reasonRequired": "Choose a reason",
@@ -3713,7 +3715,12 @@
       "closedError": "This conversation is closed to new messages",
       "tooMany": "Too many messages: try again later",
       "changeError": "This could not be changed. Try again in a moment.",
-      "openError": "The conversation could not be opened"
+      "openError": "The conversation could not be opened",
+      "search": "Search messages",
+      "results": "Messages found",
+      "noResult": "No message holds these words.",
+      "pdf": "Download as PDF",
+      "pdfError": "The PDF could not be made"
     }
   }
 }

@@ -263,7 +263,11 @@ latest first, read again every 30 seconds; an open conversation asks for new mes
 delivery waits on a decision, see TODO.md). In a conversation, Enter sends and Shift+Enter starts a new line; a
 message is replied to (quoting it), reacted to with one of the five reactions, and edited or deleted for both by its
 sender within 15 minutes. **Mute** keeps a conversation out of the unread count; **Archive** moves it to **Archived**
-until a new message comes. The account export includes the messages sent.
+until a new message comes. **Search messages**, above the list, finds the reader's messages holding what is typed (two
+characters or more, case aside), the latest first, each opening its conversation. Another member's message is
+reported like a post (**Report**, with a reason): its text goes to the moderators, who can remove it for both sides.
+**Download as PDF**, in a conversation's menu, gives the whole conversation (each message with its sender and time, the
+message it replies to, edited or deleted) in the page's language. The account export includes the messages sent.
 
 **Notifications** (`/network/notifications`, counted on **Network** in the menu, read again every minute) tell a
 member who followed them, liked, commented or reposted their post, liked or replied to their comment or mentioned them by

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { Conversation, Message, MessageThread, Reaction } from '../../models';
+import { Conversation, FoundMessage, Message, MessageThread, Reaction } from '../../models';
 
 /** Conversations between members and their messages. */
 @Injectable({
@@ -22,6 +22,11 @@ export class NetworkMessagesService {
     return this.http.post<Conversation>(`${this.API_URL}/conversations`, { handle });
   }
 
+  /** The reader's messages holding what was typed, the latest first. */
+  search(typed: string): Observable<FoundMessage[]> {
+    return this.http.get<FoundMessage[]>(`${this.API_URL}/conversations/search`, { params: { q: typed } });
+  }
+
   /** How many conversations have unread messages, the muted aside. */
   unread(): Observable<number> {
     return this.http.get<{ conversations: number }>(`${this.API_URL}/conversations/unread`).pipe(map(found => found.conversations));
@@ -30,6 +35,11 @@ export class NetworkMessagesService {
   /** The conversation with its latest messages, or those before one already shown. */
   thread(id: number, before: number | null = null): Observable<MessageThread> {
     return this.http.get<MessageThread>(`${this.API_URL}/conversations/${id}`, before === null ? {} : { params: { before } });
+  }
+
+  /** The whole conversation as a PDF, in the language asked. */
+  pdf(id: number, language: 'FR' | 'EN'): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/conversations/${id}/pdf`, { params: { language }, responseType: 'blob' });
   }
 
   read(id: number): Observable<Conversation> {

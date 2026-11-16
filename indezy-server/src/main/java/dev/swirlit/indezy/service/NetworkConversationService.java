@@ -8,6 +8,8 @@ import dev.swirlit.indezy.model.NetworkConversation;
 import dev.swirlit.indezy.model.NetworkConversationMember;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkMessage;
+import dev.swirlit.indezy.model.enums.DocumentLanguage;
+import dev.swirlit.indezy.pdf.ConversationPdfRenderer;
 import dev.swirlit.indezy.repository.NetworkConversationMemberRepository;
 import dev.swirlit.indezy.repository.NetworkConversationRepository;
 import dev.swirlit.indezy.repository.NetworkMessageRepository;
@@ -16,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -43,6 +47,8 @@ public class NetworkConversationService {
     private final NetworkConversationRepository conversations;
     private final NetworkConversationMemberRepository participants;
     private final NetworkMessageRepository messages;
+    private final ConversationPdfRenderer pdf;
+    private final Clock clock;
 
     /**
      * The conversation with the member holding the handle: the one already open, or a new one when the member follows the
@@ -144,6 +150,28 @@ public class NetworkConversationService {
         network.requireMember(userId);
         shared.mine(userId, conversationId).setLastReadAt(shared.now());
         return view(conversations.findById(conversationId).orElseThrow(), userId);
+    }
+
+    /** The whole conversation as a PDF for its reader, in the language asked. */
+    @Transactional(readOnly = true)
+    public ActivityReportService.PdfFile pdf(Long userId, Long conversationId, DocumentLanguage language) {
+        NetworkMember reader = network.requireMember(userId);
+        NetworkConversation conversation = conversations.findById(conversationId)
+            .orElseThrow(() -> new ResourceNotFoundException(NetworkConversations.NOT_FOUND));
+        NetworkMessageDtos.Conversation view = view(conversation, userId);
+        List<NetworkMessage> all = messages.findByConversationIdOrderByIdAsc(conversationId);
+        Map<Long, NetworkMessage> byId = all.stream().collect(Collectors.toMap(NetworkMessage::getId, Function.identity()));
+        String withName = (view.with().firstName() + " " + view.with().lastName()).strip();
+        List<ConversationPdfRenderer.Line> lines = all.stream().map(message -> {
+            NetworkMessage replied = message.getReplyToId() == null ? null : byId.get(message.getReplyToId());
+            String reply = replied == null ? null : replied.isDeleted() ? "…" : NetworkConversations.excerpt(replied.getText());
+            return new ConversationPdfRenderer.Line(message.getSenderId().equals(userId) ? null : withName, message.getCreatedAt(),
+                message.getText(), message.getEditedAt() != null, message.isDeleted(), reply);
+        }).toList();
+        String readerName = network.liveCard(reader).map(card -> (card.firstName() + " " + card.lastName()).strip()).orElse(null);
+        LocalDate today = LocalDate.now(clock);
+        byte[] content = pdf.render(new ConversationPdfRenderer.Conversation(readerName, withName, view.with().handle(), lines), language, today);
+        return new ActivityReportService.PdfFile("conversation-" + view.with().handle() + "-" + today + ".pdf", content);
     }
 
     /** The messages the account sent, for its data export. */

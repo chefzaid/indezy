@@ -22,7 +22,9 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -38,6 +40,7 @@ public class NetworkMessageService {
 
     static final int PAGE_SIZE = 30;
     static final String MESSAGE_NOT_FOUND = "No such message";
+    static final int SEARCHED = 20;
 
     private final NetworkService network;
     private final NetworkConversations shared;
@@ -134,8 +137,44 @@ public class NetworkMessageService {
         return conversations.findById(conversationId).orElseThrow(() -> new ResourceNotFoundException(NetworkConversations.NOT_FOUND));
     }
 
+    /** Empties a message the moderators removed, for both sides. */
+    @Transactional
+    public void removeByModerators(Long messageId) {
+        messages.findById(messageId).filter(message -> !message.isDeleted()).ifPresent(message -> {
+            message.setText("");
+            message.setDeletedAt(clock.instant());
+            reactions.deleteAll(reactions.findByMessageIdIn(List.of(messageId)));
+        });
+    }
+
+    /**
+     * The messages of the reader's conversations whose text holds what was typed (case aside), the latest first, 20 at
+     * most, but those of conversations out of their reach.
+     */
+    @Transactional(readOnly = true)
+    public List<NetworkMessageDtos.Found> search(Long userId, String typed) {
+        network.requireMember(userId);
+        String words = typed == null ? "" : typed.strip().toLowerCase(Locale.ROOT);
+        if (words.length() < 2) {
+            return List.of();
+        }
+        Map<Long, NetworkDtos.MemberCard> reachable = new HashMap<>();
+        for (NetworkConversationMember participant : participants.findByUserId(userId)) {
+            Long other = shared.other(participant.getConversationId(), userId);
+            shared.visible(userId, other).ifPresent(card -> reachable.put(participant.getConversationId(), card));
+        }
+        if (reachable.isEmpty()) {
+            return List.of();
+        }
+        String pattern = "%" + words.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
+        return messages.search(reachable.keySet(), pattern, PageRequest.of(0, SEARCHED)).stream()
+            .map(message -> new NetworkMessageDtos.Found(message.getConversationId(), reachable.get(message.getConversationId()),
+                message.getId(), message.getSenderId().equals(userId), NetworkConversations.excerpt(message.getText()),
+                message.getCreatedAt())).toList();
+    }
+
     /** A message of a conversation the reader is in, with its other member still in reach. */
-    private NetworkMessage readable(Long userId, Long messageId) {
+    NetworkMessage readable(Long userId, Long messageId) {
         NetworkMessage message = messages.findById(messageId).orElseThrow(() -> new ResourceNotFoundException(MESSAGE_NOT_FOUND));
         try {
             conversationService.view(conversation(message.getConversationId()), userId);

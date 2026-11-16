@@ -9,7 +9,7 @@ import { Conversation } from '../../../models';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
 import { NotificationService } from '../../../services/notification/notification.service';
-import { CONVERSATIONS_REFRESH_MS, MessagesPageComponent } from './messages-page.component';
+import { CONVERSATIONS_REFRESH_MS, MessagesPageComponent, SEARCH_DELAY_MS } from './messages-page.component';
 import en from '../../../../assets/i18n/en.json';
 
 describe('MessagesPageComponent', () => {
@@ -24,7 +24,7 @@ describe('MessagesPageComponent', () => {
     lastMessageAt: `2026-11-16T0${9 - id}:00:00`, ...changes });
 
   function create(list = of([conversation(1), conversation(2)]), id: string | null = null): HTMLElement {
-    api = jasmine.createSpyObj('NetworkMessagesService', ['conversations', 'thread', 'read']);
+    api = jasmine.createSpyObj('NetworkMessagesService', ['conversations', 'thread', 'read', 'search']);
     api.conversations.and.returnValue(list);
     api.thread.and.returnValue(of({ conversation: conversation(1), messages: [], more: false }));
     api.read.and.returnValue(of(conversation(1, { unread: 0 })));
@@ -83,6 +83,36 @@ describe('MessagesPageComponent', () => {
     expect(api.conversations).toHaveBeenCalledWith(true);
     expect(api.conversations).toHaveBeenCalledTimes(3);
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-messages-empty]')?.textContent).toContain('No archived conversation.');
+    discardPeriodicTasks();
+  }));
+
+  it('searches the messages once two characters are typed, each found opening its conversation', fakeAsync(() => {
+    const element = create();
+    const component = fixture.componentInstance;
+    api.search.and.returnValue(of([{ conversationId: 1, with: conversation(1).with, messageId: 9, mine: true, excerpt: 'Une mission Kafka',
+      sentAt: '2026-11-16T09:00:00' }]));
+    component.query.setValue('k');
+    tick(SEARCH_DELAY_MS);
+    expect(api.search).not.toHaveBeenCalled();
+    expect(component.found).toBeNull();
+    component.query.setValue(' kafka ');
+    tick(SEARCH_DELAY_MS);
+    fixture.detectChanges();
+    expect(api.search).toHaveBeenCalledWith('kafka');
+    const hit = element.querySelector('[data-found-message="9"]')!;
+    expect(hit.getAttribute('href')).toBe('/network/messages/1');
+    expect(hit.textContent).toContain('You: Une mission Kafka');
+    expect(element.querySelector('[data-conversation]')).toBeNull();
+    api.search.and.returnValue(throwError(() => new Error('down')));
+    component.query.setValue('java');
+    tick(SEARCH_DELAY_MS);
+    fixture.detectChanges();
+    expect(notifications.error).toHaveBeenCalledWith('network.messages.loadError');
+    expect(element.querySelector('[data-messages-found]')?.textContent).toContain('No message holds these words.');
+    component.query.setValue('');
+    tick(SEARCH_DELAY_MS);
+    fixture.detectChanges();
+    expect(element.querySelectorAll('[data-conversation]').length).toBe(2);
     discardPeriodicTasks();
   }));
 

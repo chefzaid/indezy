@@ -41,6 +41,14 @@ public class NetworkModerationController {
         moderation.reportComment(SecurityUtils.getCurrentUserId(), id, request);
     }
 
+    @Operation(summary = "Report a message of one's conversation to the moderators, its text going with the report",
+        description = "Once while the report is open")
+    @PostMapping("/network/messages/{id}/report")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reportMessage(@PathVariable Long id, @Valid @RequestBody NetworkModerationDtos.NewReport request) {
+        moderation.reportMessage(SecurityUtils.getCurrentUserId(), id, request);
+    }
+
     @Operation(summary = "Report a member to the moderators", description = "Once while the report is open")
     @PostMapping("/network/members/{handle}/report")
     @ResponseStatus(HttpStatus.NO_CONTENT)

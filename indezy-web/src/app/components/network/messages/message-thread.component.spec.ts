@@ -11,6 +11,7 @@ import { NetworkNoticesService } from '../../../services/network/network-notices
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MessageThreadComponent, THREAD_REFRESH_MS } from './message-thread.component';
+import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import en from '../../../../assets/i18n/en.json';
 
 describe('MessageThreadComponent', () => {
@@ -30,7 +31,7 @@ describe('MessageThreadComponent', () => {
     ...changes });
 
   function create(first = of(thread([message(1), message(2), message(3, { mine: true, editable: true })], { more: true }))): HTMLElement {
-    api = jasmine.createSpyObj('NetworkMessagesService', ['thread', 'read', 'send', 'edit', 'remove', 'react', 'settings']);
+    api = jasmine.createSpyObj('NetworkMessagesService', ['thread', 'read', 'send', 'edit', 'remove', 'react', 'settings', 'pdf']);
     api.thread.and.returnValue(first);
     api.read.and.returnValue(of({ ...conversation, unread: 0 }));
     notices = jasmine.createSpyObj('NetworkNoticesService', ['refreshMessages']);
@@ -133,6 +134,31 @@ describe('MessageThreadComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('network.messages.changeError');
     component.submit();
     expect(api.send).toHaveBeenCalledTimes(1);
+    discardPeriodicTasks();
+  }));
+
+  it('reports another member\'s message, never the reader\'s own', fakeAsync(() => {
+    const element = create();
+    expect(element.querySelector('[data-message="3"] [data-message-report]')).toBeNull();
+    const open = spyOn(ReportDialogComponent, 'open').and.returnValue(of(true));
+    (element.querySelector('[data-message="1"] [data-message-report]') as HTMLButtonElement).click();
+    expect(open).toHaveBeenCalledWith(jasmine.anything(), { target: 'messages', id: 1 });
+    discardPeriodicTasks();
+  }));
+
+  it('downloads the conversation as a PDF in the page\'s language, or says it could not', fakeAsync(() => {
+    create();
+    const component = fixture.componentInstance;
+    const click = spyOn(HTMLAnchorElement.prototype, 'click');
+    api.pdf.and.returnValue(of(new Blob(['%PDF'], { type: 'application/pdf' })));
+    component.downloadPdf();
+    expect(api.pdf).toHaveBeenCalledWith(4, 'EN');
+    expect(click).toHaveBeenCalled();
+    TestBed.inject(TranslateService).use('fr');
+    api.pdf.and.returnValue(throwError(() => new Error('down')));
+    component.downloadPdf();
+    expect(api.pdf).toHaveBeenCalledWith(4, 'FR');
+    expect(notifications.error).toHaveBeenCalledWith('network.messages.pdfError');
     discardPeriodicTasks();
   }));
 

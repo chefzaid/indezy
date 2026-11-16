@@ -13,7 +13,35 @@
         data-messages-archived>{{ 'network.messages.archived' | translate }}</button>
     </div>
 
-    @if (notMember) {
+    <label class="search">
+      <mat-icon aria-hidden="true">search</mat-icon>
+      <input type="search" [formControl]="query" maxlength="100" [placeholder]="'network.messages.search' | translate"
+        [attr.aria-label]="'network.messages.search' | translate" data-messages-search>
+    </label>
+
+    @if (found !== null) {
+      <section class="found" [attr.aria-label]="'network.messages.results' | translate" aria-live="polite" data-messages-found>
+        @if (found.length === 0) {
+          <p class="empty">{{ 'network.messages.noResult' | translate }}</p>
+        }
+        <ul class="conversations">
+          @for (hit of found; track hit.messageId) {
+            <li>
+              <a [routerLink]="['/network/messages', hit.conversationId]" class="row" [attr.data-found-message]="hit.messageId">
+                <app-member-avatar [subject]="hit.with" [size]="40"></app-member-avatar>
+                <span class="summary">
+                  <span class="top">
+                    <span class="name">{{ hit.with.firstName }} {{ hit.with.lastName }}</span>
+                    <span class="when">{{ hit.sentAt | timeAgo }}</span>
+                  </span>
+                  <span class="preview found-text">{{ hit.mine ? ('network.messages.youPrefix' | translate) + ' ' : '' }}{{ hit.excerpt }}</span>
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    } @else if (notMember) {
       <p class="empty" data-messages-not-member>{{ 'network.directory.notMember' | translate }}</p>
     } @else if (loading) {
       <span class="cdk-visually-hidden" role="status">{{ 'common.loading' | translate }}</span>

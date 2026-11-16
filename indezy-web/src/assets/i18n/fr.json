@@ -2654,7 +2654,8 @@
       "targets": {
         "POST": "Publication",
         "COMMENT": "Commentaire",
-        "MEMBER": "Membre"
+        "MEMBER": "Membre",
+        "MESSAGE": "Message"
       },
       "outcomes": {
         "DISMISSED": "Classer",
@@ -3547,7 +3548,8 @@
       "title": {
         "posts": "Signaler cette publication",
         "comments": "Signaler ce commentaire",
-        "members": "Signaler ce membre"
+        "members": "Signaler ce membre",
+        "messages": "Signaler ce message"
       },
       "reason": "Motif",
       "reasonRequired": "Choisissez un motif",
@@ -3713,7 +3715,12 @@
       "closedError": "Cette conversation est fermée aux nouveaux messages",
       "tooMany": "Trop de messages : réessayez plus tard",
       "changeError": "Cela n'a pas pu être modifié. Réessayez dans un instant.",
-      "openError": "La conversation n'a pas pu être ouverte"
+      "openError": "La conversation n'a pas pu être ouverte",
+      "search": "Rechercher dans les messages",
+      "results": "Messages trouvés",
+      "noResult": "Aucun message ne contient ces mots.",
+      "pdf": "Télécharger en PDF",
+      "pdfError": "Le PDF n'a pas pu être créé"
     }
   }
 }

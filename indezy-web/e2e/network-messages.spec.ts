@@ -59,6 +59,22 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.locator('[data-message-reaction="BRAVO"]').click();
     await expect(thread.locator('[data-message="1"] [data-message-reactions]')).toContainText('👏 1');
 
+    // Another member's message is reported to the moderators with a reason.
+    let reported: unknown = null;
+    await page.route('**/api/network/messages/1/report', route => {
+      reported = route.request().postDataJSON();
+      return route.fulfill({ status: 204 });
+    });
+    await thread.locator('[data-message="1"]').hover();
+    await thread.locator('[data-message="1"] [data-message-report]').click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toContainText(en ? 'Report this message' : 'Signaler ce message');
+    await dialog.locator('[data-report-reason]').click();
+    await page.locator('[data-report-option="SPAM"]').click();
+    await dialog.locator('[data-report-send]').click();
+    await expect(dialog).toHaveCount(0);
+    expect(reported).toEqual({ reason: 'SPAM', details: null });
+
     const audit = await new AxeBuilder({ page }).include('[data-messages-page]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);

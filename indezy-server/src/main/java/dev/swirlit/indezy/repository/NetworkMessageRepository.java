@@ -27,6 +27,13 @@ public interface NetworkMessageRepository extends JpaRepository<NetworkMessage, 
         "and (:since is null or m.createdAt > :since)")
     long unread(@Param("conversationId") Long conversationId, @Param("readerId") Long readerId, @Param("since") LocalDateTime since);
 
+    /** The messages of these conversations matching a LIKE pattern on their text, case aside, the latest first. */
+    @Query("select m from NetworkMessage m where m.conversationId in :ids and m.deletedAt is null and lower(m.text) like :pattern " +
+        "escape '\\' order by m.id desc")
+    List<NetworkMessage> search(@Param("ids") Collection<Long> conversationIds, @Param("pattern") String pattern, Pageable page);
+
+    List<NetworkMessage> findByConversationIdOrderByIdAsc(Long conversationId);
+
     long countBySenderIdAndCreatedAtAfter(Long senderId, LocalDateTime since);
 
     List<NetworkMessage> findBySenderIdOrderByCreatedAtAsc(Long senderId);

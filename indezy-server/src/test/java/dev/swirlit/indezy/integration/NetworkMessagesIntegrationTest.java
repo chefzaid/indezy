@@ -58,6 +58,14 @@ class NetworkMessagesIntegrationTest extends TwoAccountsIntegrationTest {
         return call(account, HttpMethod.POST, "/network/conversations/" + conversation + "/messages", body, Map.class).getBody();
     }
 
+    private static String pdfText(byte[] pdf) {
+        try (var document = org.apache.pdfbox.Loader.loadPDF(pdf)) {
+            return new org.apache.pdfbox.text.PDFTextStripper().getText(document);
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
     @Test
     @SuppressWarnings("unchecked")
     void writesOnlyToAFollowerAndKeepsThePastReadable() {
@@ -124,6 +132,15 @@ class NetworkMessagesIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(carol, HttpMethod.PUT, "/network/messages/" + reply.get("id") + "/reaction", null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.NOT_FOUND);
 
+        // A search finds the reader's messages holding the words, case aside, but no deleted text nor other conversations.
+        List<Map<String, Object>> hits = call(bob, HttpMethod.GET, "/network/conversations/search?q=PLAISIR", null, List.class).getBody();
+        assertThat(hits).singleElement().satisfies(hit -> assertThat(hit).containsEntry("conversationId", conversation)
+            .containsEntry("messageId", reply.get("id")).containsEntry("mine", true).containsEntry("excerpt", "Avec plaisir"));
+        assertThat(call(bob, HttpMethod.GET, "/network/conversations/search?q=Java", null, List.class).getBody()).isEmpty();
+        assertThat(call(bob, HttpMethod.GET, "/network/conversations/search?q=_", null, List.class).getBody()).isEmpty();
+        assertThat(call(bob, HttpMethod.GET, "/network/conversations/search?q=%25%25", null, List.class).getBody()).isEmpty();
+        assertThat(call(carol, HttpMethod.GET, "/network/conversations/search?q=plaisir", null, List.class).getBody()).isEmpty();
+
         // Muted, the conversation counts in no unread total; archived, it leaves the list until a new message comes.
         call(alice, HttpMethod.PUT, "/network/conversations/" + conversation + "/settings", Map.of("muted", true), Map.class);
         send(bob, conversation, Map.of("text", "Tu es là ?"));
@@ -136,6 +153,19 @@ class NetworkMessagesIntegrationTest extends TwoAccountsIntegrationTest {
             .containsEntry("muted", true));
         send(bob, conversation, Map.of("text", "Je reviens vers toi"));
         assertThat(list(alice, "")).singleElement().satisfies(found -> assertThat(found).containsEntry("unread", 3));
+
+        // The whole conversation downloads as a PDF for each side, in the language asked; never for a member outside it.
+        ResponseEntity<byte[]> pdf = call(alice, HttpMethod.GET, "/network/conversations/" + conversation + "/pdf?language=EN", null, byte[].class);
+        assertThat(pdf.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(pdf.getHeaders().getContentDisposition().getFilename()).isEqualTo("conversation-" + bobHandle + "-" +
+            java.time.LocalDate.now() + ".pdf");
+        String text = pdfText(pdf.getBody());
+        assertThat(text).contains("Conversation with bob Test (@" + bobHandle + ")").contains("Message deleted").contains("Avec plaisir")
+            .contains("> Replying to: …").contains("You");
+        assertThat(pdfText(call(bob, HttpMethod.GET, "/network/conversations/" + conversation + "/pdf", null, byte[].class).getBody()))
+            .contains("Conversation avec alice Test").contains("Message supprimé");
+        assertThat(call(carol, HttpMethod.GET, "/network/conversations/" + conversation + "/pdf", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
 
         // Once Bob stops following Alice, she reads the past but cannot write; blocked, the conversation is gone for both.
         call(bob, HttpMethod.DELETE, "/network/members/" + aliceHandle + "/follow", null, Map.class);

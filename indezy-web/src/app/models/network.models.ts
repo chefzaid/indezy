@@ -203,7 +203,7 @@ export const MODERATION_NOTICES: readonly NetworkNotificationType[] = ['WARNED',
   'REPORT_DISMISSED'];
 
 /** What a member reports to the moderators. */
-export type ReportTarget = 'posts' | 'comments' | 'members';
+export type ReportTarget = 'posts' | 'comments' | 'members' | 'messages';
 export type ReportReason = 'SPAM' | 'HARASSMENT' | 'HATE' | 'MISLEADING' | 'CONFIDENTIAL' | 'IMPERSONATION' | 'OTHER';
 export const REPORT_REASONS: readonly ReportReason[] = ['SPAM', 'HARASSMENT', 'HATE', 'MISLEADING', 'CONFIDENTIAL', 'IMPERSONATION',
   'OTHER'];
@@ -219,7 +219,7 @@ export interface ReportParty {
 /** A report in the moderation queue, open or decided. */
 export interface NetworkReport {
   id: number;
-  targetType: 'POST' | 'COMMENT' | 'MEMBER';
+  targetType: 'POST' | 'COMMENT' | 'MEMBER' | 'MESSAGE';
   targetId: number;
   target: ReportParty;
   excerpt: string | null;

@@ -147,6 +147,38 @@ class NetworkModerationIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(rejoin.getBody()).containsEntry("message", "The moderators ended this account's membership");
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    void aReportedMessageIsRemovedForBothSides() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        String aliceHandle = join(alice);
+        String bobHandle = join(bob);
+        Account admin = chief();
+        call(bob, HttpMethod.PUT, "/network/members/" + aliceHandle + "/follow", null, Map.class);
+        Object conversation = call(alice, HttpMethod.POST, "/network/conversations", Map.of("handle", bobHandle), Map.class).getBody().get("id");
+        Object message = call(alice, HttpMethod.POST, "/network/conversations/" + conversation + "/messages", Map.of("text", "Achète mes formations"),
+            Map.class).getBody().get("id");
+
+        // Only a member of the conversation reports it, never its sender, once while open.
+        Map<String, Object> spam = Map.of("reason", "SPAM");
+        assertThat(report(alice, "/network/messages/" + message + "/report", spam)).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(report(admin, "/network/messages/" + message + "/report", spam)).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(report(bob, "/network/messages/" + message + "/report", spam)).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(report(bob, "/network/messages/" + message + "/report", spam)).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(report(bob, "/network/messages/999999999/report", spam)).isEqualTo(HttpStatus.NOT_FOUND);
+
+        // The administrator reads its text and removes it: both sides read "Message deleted"; Alice and Bob are told.
+        List<Map<String, Object>> onMessage = open(admin, "MESSAGE", message);
+        assertThat(onMessage).singleElement().satisfies(found -> assertThat(found).containsEntry("excerpt", "Achète mes formations"));
+        call(admin, HttpMethod.PUT, "/admin/network/reports/" + onMessage.getFirst().get("id"), Map.of("outcome", "REMOVED"), Map.class);
+        List<Map<String, Object>> read = (List<Map<String, Object>>) call(bob, HttpMethod.GET, "/network/conversations/" + conversation, null,
+            Map.class).getBody().get("messages");
+        assertThat(read).singleElement().satisfies(found -> assertThat(found).containsEntry("deleted", true).containsEntry("text", ""));
+        assertThat(notices(alice)).contains("CONTENT_REMOVED");
+        assertThat(notices(bob)).contains("REPORT_ACTED");
+        assertThat(report(bob, "/network/messages/" + message + "/report", spam)).isEqualTo(HttpStatus.CONFLICT);
+    }
+
     private Account chief() {
         ResponseEntity<Map> signedIn = login(AdminIntegrationTest.CHIEF);
         if (signedIn.getStatusCode() != HttpStatus.OK) {

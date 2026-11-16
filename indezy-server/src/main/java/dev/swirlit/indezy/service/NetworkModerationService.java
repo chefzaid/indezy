@@ -6,6 +6,7 @@ import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.NetworkComment;
 import dev.swirlit.indezy.model.NetworkHeld;
 import dev.swirlit.indezy.model.NetworkMember;
+import dev.swirlit.indezy.model.NetworkMessage;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkReport;
 import dev.swirlit.indezy.model.User;
@@ -36,8 +37,8 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Reports and the moderation queue (see docs/features.md#member-network): a member reports a post, a comment or a member
- * they can see, once while it is open; an administrator decides, the decision falling on every open report of the same
+ * Reports and the moderation queue (see docs/features.md#member-network): a member reports a post, a comment, a message
+ * or a member they can see, once while it is open; an administrator decides, the decision falling on every open report of the same
  * target, the author told of a sanction and each reporter of the outcome. Decided reports stay as the audit trail.
  */
 @Slf4j
@@ -52,6 +53,7 @@ public class NetworkModerationService {
     private final NetworkFollowService follows;
     private final NetworkPostService postService;
     private final NetworkCommentService commentService;
+    private final NetworkMessageService messageService;
     private final NetworkNotificationService notices;
     private final NetworkLimits limits;
     private final NetworkReportRepository reports;
@@ -79,6 +81,17 @@ public class NetworkModerationService {
             throw new ResourceNotFoundException(NetworkCommentService.NOT_FOUND);
         }
         save(userId, NetworkReportTarget.COMMENT, comment.getId(), comment.getAuthorId(), comment.getText(), request);
+    }
+
+    /** Reports a message of the reporter's conversation: its text goes to the moderators with the report. */
+    @Transactional
+    public void reportMessage(Long userId, Long messageId, NetworkModerationDtos.NewReport request) {
+        network.requireMember(userId);
+        NetworkMessage message = messageService.readable(userId, messageId);
+        if (message.isDeleted()) {
+            throw new InvalidStateException("A deleted message cannot be reported");
+        }
+        save(userId, NetworkReportTarget.MESSAGE, message.getId(), message.getSenderId(), message.getText(), request);
     }
 
     @Transactional
@@ -191,6 +204,8 @@ public class NetworkModerationService {
             case REMOVED -> {
                 if (report.getTargetType() == NetworkReportTarget.POST) {
                     posts.findById(report.getTargetId()).ifPresent(postService::remove);
+                } else if (report.getTargetType() == NetworkReportTarget.MESSAGE) {
+                    messageService.removeByModerators(report.getTargetId());
                 } else {
                     comments.findById(report.getTargetId()).ifPresent(commentService::remove);
                 }

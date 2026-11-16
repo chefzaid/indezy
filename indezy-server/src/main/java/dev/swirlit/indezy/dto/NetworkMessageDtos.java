@@ -94,6 +94,15 @@ public final class NetworkMessageDtos {
     public record Settings(Boolean muted, Boolean archived) {
     }
 
+    /** A message found by a search, with its conversation and the other member. */
+    public record Found(Long conversationId, NetworkDtos.MemberCard with, Long messageId, boolean mine, String excerpt, LocalDateTime sentAt) {
+
+        @Override
+        public String toString() {
+            return "Found[messageId=" + messageId + "]";
+        }
+    }
+
     /** How many conversations have unread messages, the muted aside. */
     public record Unread(int conversations) {
     }

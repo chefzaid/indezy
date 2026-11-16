@@ -25,6 +25,9 @@
         <mat-icon>{{ current.muted ? 'notifications' : 'notifications_off' }}</mat-icon>
         {{ (current.muted ? 'network.messages.unmute' : 'network.messages.mute') | translate }}
       </button>
+      <button mat-menu-item type="button" (click)="downloadPdf()" data-thread-pdf>
+        <mat-icon>picture_as_pdf</mat-icon>{{ 'network.messages.pdf' | translate }}
+      </button>
       <button mat-menu-item type="button" (click)="set({ archived: !current.archived })" data-thread-archive>
         <mat-icon>{{ current.archived ? 'unarchive' : 'archive' }}</mat-icon>
         {{ (current.archived ? 'network.messages.unarchive' : 'network.messages.archive') | translate }}
@@ -81,6 +84,12 @@
                   <button mat-icon-button type="button" class="tool" (click)="reply(message)" [attr.aria-label]="'network.messages.reply' | translate"
                     data-message-reply>
                     <mat-icon>reply</mat-icon>
+                  </button>
+                }
+                @if (!message.mine) {
+                  <button mat-icon-button type="button" class="tool" (click)="report(message)" [attr.aria-label]="'network.report.action' | translate"
+                    data-message-report>
+                    <mat-icon>flag</mat-icon>
                   </button>
                 }
                 @if (message.editable) {

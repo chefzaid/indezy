@@ -8,8 +8,9 @@ import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, interval } from 'rxjs';
 
 import { Conversation, MESSAGE_MAX, Message, REACTIONS, Reaction } from '../../../models';
@@ -18,6 +19,8 @@ import { NetworkNoticesService } from '../../../services/network/network-notices
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
+import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
+import { saveBlob } from '../../../shared/utils/download-file';
 
 /** How often an open conversation asks for new messages. */
 export const THREAD_REFRESH_MS = 10_000;
@@ -47,6 +50,8 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   private readonly confirm = inject(ConfirmDialogService);
   private readonly changes = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
   private polling: Subscription | null = null;
   private scrollDown = false;
 
@@ -239,6 +244,20 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
     this.api.react(message.id, message.myReaction === reaction ? null : reaction).subscribe({
       next: updated => this.messages = this.messages.map(item => item.id === updated.id ? updated : item),
       error: () => this.notifications.error('network.messages.changeError')
+    });
+  }
+
+  /** Reports another member's message to the moderators, its text going with the report. */
+  report(message: Message): void {
+    ReportDialogComponent.open(this.dialog, { target: 'messages', id: message.id }).subscribe();
+  }
+
+  /** Downloads the whole conversation as a PDF, in the page's language. */
+  downloadPdf(): void {
+    const language = this.translate.currentLang === 'en' ? 'EN' : 'FR';
+    this.api.pdf(this.conversationId, language).subscribe({
+      next: pdf => saveBlob(pdf, `conversation-${this.conversation?.with.handle ?? this.conversationId}.pdf`),
+      error: () => this.notifications.error('network.messages.pdfError')
     });
   }
 

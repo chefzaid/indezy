@@ -37,4 +37,14 @@ export interface MessageThread {
   more: boolean;
 }
 
+/** A message found by a search, with its conversation and the other member. */
+export interface FoundMessage {
+  conversationId: number;
+  with: MemberCard;
+  messageId: number;
+  mine: boolean;
+  excerpt: string;
+  sentAt: string;
+}
+
 export const MESSAGE_MAX = 3000;
