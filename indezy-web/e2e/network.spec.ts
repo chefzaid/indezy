@@ -227,6 +227,9 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.locator('[data-comment="11"] [data-comment-like]').click();
     await expect(page.locator('[data-comment="11"] [data-comment-like]')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('[data-comment="11"] [data-comment-like]')).toContainText('1');
+    if (width < 600) {
+      await page.locator('[data-composer-open]').click();
+    }
     await expect(page.locator('[data-publish]')).toBeDisabled();
     await page.locator('[data-composer-text]').fill('Merci @leo_m pour le retour sur #Kafka');
     await page.locator('[data-publish]').click();

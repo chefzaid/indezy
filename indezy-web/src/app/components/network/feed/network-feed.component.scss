@@ -380,9 +380,96 @@
   }
 }
 
+// On a phone: a one-line teaser and a floating button open the composer full screen.
+.composer-teaser,
+.fab,
+.composer-top {
+  display: none;
+}
+
 @media (max-width: 599.98px) {
   .composer {
     padding: 12px;
+
+    &:not(.full) {
+      display: none;
+    }
+  }
+
+  .composer-teaser {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 14px;
+    color: var(--app-text-faint);
+    font: inherit;
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--app-link);
+      outline-offset: 2px;
+    }
+  }
+
+  .fab {
+    position: fixed;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    z-index: 900;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 18px;
+    background: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
+    box-shadow: 0 6px 18px rgba(15, 12, 40, 0.25);
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 3px solid var(--app-link);
+      outline-offset: 2px;
+    }
+  }
+
+  // Under the app's toolbar, which stays above the page's own layers.
+  .composer.full {
+    position: fixed;
+    inset: 56px 0 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+
+    .composer-top {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin: 0 -8px 8px;
+
+      .title {
+        font-size: 1.0625rem;
+        font-weight: 700;
+      }
+    }
+
+    .composer-main {
+      flex: 1;
+    }
+
+    .composer-text {
+      min-height: 160px;
+      max-height: none;
+    }
   }
 
   .composer-main > app-member-avatar,

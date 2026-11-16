@@ -3395,7 +3395,9 @@
       "forYou": "Pour vous",
       "composePlaceholder": "Quoi de neuf ? Une mission à transmettre, une question, un retour…",
       "newerOne": "1 nouvelle publication",
-      "newerMany": "{{count}} nouvelles publications"
+      "newerMany": "{{count}} nouvelles publications",
+      "teaser": "Quoi de neuf ?",
+      "newPost": "Nouvelle publication"
     },
     "post": {
       "actions": "Actions sur la publication",

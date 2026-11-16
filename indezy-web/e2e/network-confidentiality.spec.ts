@@ -24,6 +24,9 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     });
 
     await page.goto('/network');
+    if (width < 600) {
+      await page.locator('[data-composer-open]').click();
+    }
     await page.locator('[data-composer-text]').fill('Fin de mission chez Société Générale');
     await page.locator('[data-publish]').click();
     const dialog = page.getByRole('dialog');

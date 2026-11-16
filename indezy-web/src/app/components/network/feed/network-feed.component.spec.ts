@@ -28,6 +28,7 @@ describe('NetworkFeedComponent', () => {
 
   function create(feed = of({ posts: [post(2), post(1, true)], page: 0, more: true })): ComponentFixture<NetworkFeedComponent> {
     network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft', 'forYou', 'membership', 'trendingTags', 'newerCount']);
+    network.newerCount.and.returnValue(of(0));
     network.trendingTags.and.returnValue(of([{ tag: 'kafka', posts: 4 }, { tag: 'java', posts: 1 }]));
     network.feed.and.returnValue(feed);
     network.followedTags.and.returnValue(of(['kafka']));
@@ -98,6 +99,49 @@ describe('NetworkFeedComponent', () => {
     network.newerCount.and.returnValue(throwError(() => new Error('down')));
     component.checkNewer();
     expect(component.newer).toBe(0);
+    discardPeriodicTasks();
+  }));
+
+  it('opens the composer full screen on a phone, focused, and closes it on Escape or once published', fakeAsync(() => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    const opener = element.querySelector('[data-composer-open]') as HTMLButtonElement;
+    spyOnProperty(document, 'activeElement').and.returnValue(opener);
+    const refocus = spyOn(opener, 'focus');
+    opener.click();
+    fixture.detectChanges();
+    tick();
+    const form = element.querySelector('[data-composer]')!;
+    expect(form.classList).toContain('full');
+    expect(form.getAttribute('role')).toBe('dialog');
+    expect(element.querySelector('[data-composer-fab]')).toBeNull();
+    form.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    tick();
+    expect(component.composerOpen).toBeFalse();
+    expect(refocus).toHaveBeenCalled();
+    component.closeComposer();
+    expect(component.composerOpen).toBeFalse();
+
+    (element.querySelector('[data-composer-fab]') as HTMLButtonElement).click();
+    network.post.and.returnValue(of(post(9, true)));
+    component.draft.setValue('Bonjour');
+    component.publish();
+    tick();
+    expect(component.composerOpen).toBeFalse();
+    discardPeriodicTasks();
+  }));
+
+  it('opens the composer on a phone with what was shared to the network', fakeAsync(() => {
+    expect(NetworkFeedComponent.onPhone()).toBe(window.innerWidth < 600);
+    spyOn(NetworkFeedComponent, 'onPhone').and.returnValue(true);
+    spyOnProperty(history, 'state').and.returnValue({ networkShare: { text: 'Un an de freelance', kind: 'POST', details: null } });
+    spyOn(history, 'replaceState');
+    const fixture = create();
+    tick();
+    expect(fixture.componentInstance.composerOpen).toBeTrue();
+    expect(fixture.componentInstance.draft.value).toBe('Un an de freelance');
     discardPeriodicTasks();
   }));
 

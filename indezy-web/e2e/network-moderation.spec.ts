@@ -42,6 +42,9 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     expect(reports).toEqual([{ reason: 'SPAM', details: 'Publicité' }]);
 
     // A post the spam score holds is not shown, and its author is told why.
+    if (width < 600) {
+      await page.locator('[data-composer-open]').click();
+    }
     await page.locator('[data-composer-text]').fill('Voir https://a.example https://b.example https://c.example');
     await page.locator('[data-publish]').click();
     await expect(page.getByText(en ? 'Held for review' : 'Retenu pour vérification')).toBeVisible();

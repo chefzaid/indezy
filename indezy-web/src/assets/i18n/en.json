@@ -3395,7 +3395,9 @@
       "forYou": "For you",
       "composePlaceholder": "What’s new? A mission to pass on, a question, a lesson learned…",
       "newerOne": "1 new post",
-      "newerMany": "{{count}} new posts"
+      "newerMany": "{{count}} new posts",
+      "teaser": "What's new?",
+      "newPost": "New post"
     },
     "post": {
       "actions": "Actions on the post",

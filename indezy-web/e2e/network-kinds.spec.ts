@@ -21,6 +21,9 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     });
 
     await page.goto('/network');
+    if (width < 600) {
+      await page.locator('[data-composer-open]').click();
+    }
     await page.locator('[data-composer-text]').fill('Je ne peux pas la prendre');
     await page.locator('[data-post-kind]').click();
     await page.locator('[data-post-kind-option="MISSION"]').click();

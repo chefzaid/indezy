@@ -202,7 +202,8 @@ On wide screens the network's page has three columns: its navigation (Home, Noti
 Members, Saved, Drafts, My page) and the tags followed, the feed, and the members to follow; two columns at medium
 widths and one on a phone, the navigation as a row of pills and the members to follow as a strip. Posts show their
 author's avatar (their photo, else their initials on a color their handle keeps) and how long ago they were posted,
-the full date on hover. **Network** in the menu (`/network`) is the home feed: a post of up to 3,000 characters, paragraphs kept, where
+the full date on hover. On a phone, a one-line **What's new?** and a floating button open the composer full screen.
+**Network** in the menu (`/network`) is the home feed: a post of up to 3,000 characters, paragraphs kept, where
 `@handle` links to the member's page and `#tag` names a skill or a city (typing either lists, under the text, the
 members whose handle or name starts with what follows, those followed first, or the tags in use, the most used first;
 the arrows move through them and Enter or Tab writes the one chosen), opening the tag's page

@@ -19,7 +19,15 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/network/tags/suggest?**', route => route.fulfill({ json: ['kafka', 'kafka-streams'] }));
 
     await page.goto('/network');
+    if (width < 600) {
+      await page.locator('[data-composer-open]').click();
+    }
     const text = page.locator('[data-composer-text]');
+    if (width < 600) {
+      await expect(page.locator('[data-composer-close]')).toBeVisible();
+      expect(await page.locator('[data-composer-close]').evaluate(close => document.elementFromPoint(close.getBoundingClientRect().x + 10,
+        close.getBoundingClientRect().y + 10)?.closest('[data-composer-close]') !== null)).toBe(true);
+    }
     await text.click();
     await text.pressSequentially('Merci @cam');
     await expect(page.locator('[data-mention-choice]')).toHaveCount(2);

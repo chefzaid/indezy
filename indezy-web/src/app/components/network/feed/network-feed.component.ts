@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, ElementRef, OnInit, inject, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { A11yModule } from '@angular/cdk/a11y';
 import { interval } from 'rxjs';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -29,11 +30,13 @@ import { PostCardComponent } from '../post-card/post-card.component';
 export const POST_MAX = 3000;
 /** How often the feed asks whether newer posts reached it. */
 export const NEWER_EVERY_MS = 60_000;
+/** Where the composer opens full screen. */
+const PHONE = '(max-width: 599.98px)';
 
 /** The home feed (`/network`): writing a post, then the reader's posts and those of the members they follow, newest first. */
 @Component({
   selector: 'app-network-feed',
-  imports: [MentionsDirective, AsyncPipe, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [A11yModule, MentionsDirective, AsyncPipe, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslateModule, PostCardComponent],
   templateUrl: './network-feed.component.html',
   styleUrls: ['./network-feed.component.scss', './network-feed-side.scss'],
@@ -55,6 +58,11 @@ export class NetworkFeedComponent implements OnInit {
   @ViewChild('kindFields') kindFields?: PostKindFieldsComponent;
   /** The top of the feed, scrolled back to for the newer posts. */
   @ViewChild('feedTop') feedTop?: ElementRef<HTMLElement>;
+  @ViewChild('composerText') composerText?: ElementRef<HTMLTextAreaElement>;
+  /** On a phone, the composer is open full screen. */
+  composerOpen = false;
+  /** What opened the composer, focused again once it closes. */
+  private opener: HTMLElement | null = null;
   readonly draft = new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(POST_MAX)] });
   posts: NetworkPost[] = [];
   page = 0;
@@ -122,7 +130,30 @@ export class NetworkFeedComponent implements OnInit {
     }
     this.shared = share;
     this.draft.setValue(share.text.slice(0, POST_MAX));
+    if (NetworkFeedComponent.onPhone()) {
+      this.openComposer();
+    }
     history.replaceState({ ...state, [SHARE_STATE]: null }, '');
+  }
+
+  /** Whether the screen is a phone's, where the composer opens full screen. */
+  static onPhone(): boolean {
+    return window.matchMedia(PHONE).matches;
+  }
+
+  /** On a phone, opens the composer full screen, its text focused. */
+  openComposer(): void {
+    this.opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    this.composerOpen = true;
+    setTimeout(() => this.composerText?.nativeElement.focus());
+  }
+
+  closeComposer(): void {
+    if (!this.composerOpen) {
+      return;
+    }
+    this.composerOpen = false;
+    setTimeout(() => this.opener?.focus());
   }
 
   /** Follows a suggested member, who leaves the suggestions, and reads the feed again with their posts. */
@@ -231,10 +262,12 @@ export class NetworkFeedComponent implements OnInit {
         this.draft.reset('');
         this.kindFields?.reset();
         if (isHeld(post)) {
+          this.closeComposer();
           this.notifications.success('network.feed.held');
           return;
         }
         this.posts = [post, ...this.posts];
+        this.closeComposer();
         this.notifications.success('network.feed.posted');
       },
       error: (error: HttpErrorResponse) => {
@@ -261,6 +294,7 @@ export class NetworkFeedComponent implements OnInit {
         this.draft.reset('');
         this.scheduleAt.reset('');
         this.scheduling = false;
+        this.closeComposer();
         this.notifications.success(at ? 'network.drafts.scheduledDone' : 'network.drafts.keptDone');
       },
       error: (error: HttpErrorResponse) => {

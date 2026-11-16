@@ -49,7 +49,22 @@
       <a mat-flat-button routerLink="/profile">{{ 'network.directory.join' | translate }}</a>
     </section>
   } @else {
-    <form class="composer card compose-area" (submit)="$event.preventDefault(); publish()" data-composer>
+    <button type="button" class="composer-teaser card compose-area" (click)="openComposer()" data-composer-open>
+      @if (me) {
+        <app-member-avatar [subject]="me" [size]="36"></app-member-avatar>
+      }
+      <span>{{ 'network.feed.teaser' | translate }}</span>
+    </button>
+    <form class="composer card compose-area" [class.full]="composerOpen" (submit)="$event.preventDefault(); publish()" data-composer
+      [attr.role]="composerOpen ? 'dialog' : null" [attr.aria-modal]="composerOpen || null"
+      [attr.aria-label]="composerOpen ? ('network.feed.newPost' | translate) : null" [cdkTrapFocus]="composerOpen"
+      (keydown.escape)="closeComposer()">
+      <div class="composer-top">
+        <button mat-icon-button type="button" (click)="closeComposer()" [attr.aria-label]="'common.close' | translate" data-composer-close>
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="title">{{ 'network.feed.newPost' | translate }}</span>
+      </div>
       <div class="composer-main">
         @if (me) {
           <app-member-avatar [subject]="me" [size]="44"></app-member-avatar>
@@ -57,7 +72,7 @@
           <span class="avatar-placeholder" aria-hidden="true"><mat-icon>person</mat-icon></span>
         }
         <div class="composer-body">
-          <textarea appMentions class="composer-text" [formControl]="draft" rows="2" [maxlength]="max" data-composer-text
+          <textarea #composerText appMentions class="composer-text" [formControl]="draft" rows="2" [maxlength]="max" data-composer-text
             [attr.aria-label]="'network.feed.compose' | translate" [placeholder]="'network.feed.composePlaceholder' | translate"></textarea>
           <span class="hint">{{ 'network.feed.composeHint' | translate }}</span>
           <app-post-kind-fields #kindFields [initial]="shared"></app-post-kind-fields>
@@ -86,6 +101,11 @@
         </button>
       </div>
     </form>
+    @if (!composerOpen) {
+      <button type="button" class="fab" (click)="openComposer()" [attr.aria-label]="'network.feed.newPost' | translate" data-composer-fab>
+        <mat-icon>edit</mat-icon>
+      </button>
+    }
   }
 
   <main class="feed-column">
