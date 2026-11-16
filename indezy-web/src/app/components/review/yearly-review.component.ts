@@ -12,6 +12,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { YearlyReview } from '../../models';
 import { AuthService } from '../../services/auth/auth.service';
 import { NotificationService } from '../../services/notification/notification.service';
+import { NetworkShare, ShareToNetworkComponent } from '../network/share/share-to-network.component';
 import { YearlyReviewService } from '../../services/review/yearly-review.service';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { saveBlob } from '../../shared/utils/download-file';
@@ -27,7 +28,7 @@ export const FIRST_REVIEW_YEAR = 2000;
  */
 @Component({
   selector: 'app-yearly-review',
-  imports: [PageHeaderComponent, 
+  imports: [ShareToNetworkComponent, PageHeaderComponent, 
     CommonModule, RouterModule, MatButtonModule, MatCardModule, MatChipsModule, MatIconModule, MatProgressSpinnerModule,
     TranslateModule, LoadingComponent
   ],
@@ -44,6 +45,17 @@ export class YearlyReviewComponent implements OnInit, OnDestroy {
   isDownloading = false;
 
   private freelanceId?: number;
+  /**
+   * The year as a post, "Un an de freelance": the missions, the days worked and the skills most asked for as tags, never a
+   * client nor the revenue, to read again before publishing.
+   */
+  readonly share = (): NetworkShare => {
+    const review = this.review!;
+    const tags = review.topSkills.slice(0, 3).map(skill => '#' + skill.skill.replace(/[^\p{L}\p{N}_-]/gu, '')).filter(tag => tag.length > 1);
+    return { text: this.translate.instant('review.share', { year: review.year, missions: review.totals.missions, days: review.totals.days,
+      skills: tags.join(' ') }).trim(), kind: 'EXPERIENCE', details: null };
+  };
+
   private readonly destroy$ = new Subject<void>();
   private readonly cancel$ = new Subject<void>();
 

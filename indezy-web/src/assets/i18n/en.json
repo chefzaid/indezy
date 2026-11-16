@@ -268,7 +268,9 @@
       },
       "change": "{{change}} % vs the 90 days before",
       "noComparison": "Nothing to compare with",
-      "previous": "Before: {{value}}"
+      "previous": "Before: {{value}}",
+      "shareIntro": "My last 90 days as a freelancer:",
+      "shareLine": "{{label}}: {{value}}{{change}}"
     },
     "billedDays": {
       "title": "Billed days {{year}}",
@@ -289,7 +291,8 @@
       "rate": "€{{rate}} a day now",
       "market": "market median €{{median}} for {{skill}}",
       "ask": "Ask for the new rate"
-    }
+    },
+    "rateShare": "My average daily rate obtained: {{obtained}} €, for an objective of {{target}} €."
   },
   "projects": {
     "title": "Opportunities",
@@ -2481,7 +2484,8 @@
     "clients": "New final clients",
     "esns": "New ESNs",
     "contacts": "New contacts",
-    "exchanges": "Exchanges recorded"
+    "exchanges": "Exchanges recorded",
+    "share": "A year of freelancing, {{year}}: {{missions}} missions, {{days}} days worked. Skills most asked for: {{skills}}"
   },
   "onboarding": {
     "title": "Welcome to Indezy, {{name}}",

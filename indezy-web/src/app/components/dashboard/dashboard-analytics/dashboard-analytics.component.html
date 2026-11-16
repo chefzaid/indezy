@@ -16,7 +16,10 @@
     }
     @if (trends.length > 0) {
       <section class="insight-card wide" data-trends>
-        <h3 class="insight-title"><mat-icon>compare_arrows</mat-icon>{{ 'dashboard.trends.title' | translate }}</h3>
+        <div class="insight-head">
+          <h3 class="insight-title"><mat-icon>compare_arrows</mat-icon>{{ 'dashboard.trends.title' | translate }}</h3>
+          <app-share-to-network [build]="trendsShare" data-share-trends></app-share-to-network>
+        </div>
         <div class="trends">
           @for (trend of trends; track trend.metric) {
             <div class="trend" [attr.data-trend]="trend.metric">

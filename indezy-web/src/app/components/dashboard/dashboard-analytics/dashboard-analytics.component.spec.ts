@@ -159,6 +159,9 @@ describe('DashboardAnalyticsComponent', () => {
     expect(value('OBTAINED_RATE')).toBe('650 €');
     expect(trend('OBTAINED_RATE')).toContain('Nothing to compare with');
     expect(trend('OBTAINED_RATE')).toContain('Before: —');
+    expect(element.querySelector('[data-share-trends]')).not.toBeNull();
+    expect(fixture.componentInstance.trendsShare()).toEqual({ kind: 'POST', details: null, text: ['My last 90 days as a freelancer:',
+      'Opportunities added: 3 (+50 %)', 'Interviews: 1 (-67 %)', 'Missions won: 2 (0 %)', 'Daily rate won: 650 €'].join('\n') });
     render(stats({ trends: [{ metric: 'OBTAINED_RATE', current: null, previous: 500, change: null }] }));
     expect(value('OBTAINED_RATE')).toBe('—');
   });

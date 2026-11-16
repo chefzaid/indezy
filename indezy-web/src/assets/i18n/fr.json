@@ -268,7 +268,9 @@
       },
       "change": "{{change}} % par rapport aux 90 jours précédents",
       "noComparison": "Rien à comparer",
-      "previous": "Avant : {{value}}"
+      "previous": "Avant : {{value}}",
+      "shareIntro": "Mes 90 derniers jours de freelance :",
+      "shareLine": "{{label}} : {{value}}{{change}}"
     },
     "billedDays": {
       "title": "Jours facturés {{year}}",
@@ -289,7 +291,8 @@
       "rate": "{{rate}} € par jour actuellement",
       "market": "médiane du marché {{median}} € pour {{skill}}",
       "ask": "Demander le nouveau TJM"
-    }
+    },
+    "rateShare": "Mon TJM moyen obtenu : {{obtained}} €, pour un objectif de {{target}} €."
   },
   "projects": {
     "title": "Opportunités",
@@ -2481,7 +2484,8 @@
     "clients": "Nouveaux clients finaux",
     "esns": "Nouvelles ESN",
     "contacts": "Nouveaux contacts",
-    "exchanges": "Échanges enregistrés"
+    "exchanges": "Échanges enregistrés",
+    "share": "Un an de freelance, {{year}} : {{missions}} missions, {{days}} jours travaillés. Compétences les plus demandées : {{skills}}"
   },
   "onboarding": {
     "title": "Bienvenue sur Indezy, {{name}}",

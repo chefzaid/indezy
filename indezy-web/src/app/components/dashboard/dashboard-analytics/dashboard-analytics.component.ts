@@ -1,7 +1,8 @@
-import { Component, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnChanges, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NetworkShare, ShareToNetworkComponent } from '../../network/share/share-to-network.component';
 import {
   DashboardStatsDto, SourceRoi, DailyRateEvolution, ConversionFunnelStage, FunnelBreakdown, SkillTrend, ProcessDuration, ActivityDay, Trend
 } from '../../../models';
@@ -16,7 +17,7 @@ import { RateTargetComponent } from '../rate-target/rate-target.component';
  */
 @Component({
   selector: 'app-dashboard-analytics',
-  imports: [CommonModule, MatIconModule, TranslateModule, ActivityHeatmapComponent, RateTargetComponent, BilledDaysComponent, CommuteStatsComponent],
+  imports: [ShareToNetworkComponent, CommonModule, MatIconModule, TranslateModule, ActivityHeatmapComponent, RateTargetComponent, BilledDaysComponent, CommuteStatsComponent],
   templateUrl: './dashboard-analytics.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./dashboard-analytics.component.scss']
@@ -24,6 +25,19 @@ import { RateTargetComponent } from '../rate-target/rate-target.component';
 export class DashboardAnalyticsComponent implements OnChanges {
   static readonly TOP_SKILLS = 8;
   @Input() stats: DashboardStatsDto | null = null;
+
+  private readonly translate = inject(TranslateService);
+
+  /** The last 90 days' trends as a post, the counts and the obtained rate only, to read again before publishing. */
+  readonly trendsShare = (): NetworkShare => {
+    const lines = this.trends.filter(trend => trend.current !== null).map(trend => {
+      const label = this.translate.instant('dashboard.trends.metrics.' + trend.metric);
+      const value = `${trend.current}${trend.metric === 'OBTAINED_RATE' ? ' €' : ''}`;
+      const change = trend.change === null ? '' : ` (${trend.change > 0 ? '+' : ''}${trend.change} %)`;
+      return this.translate.instant('dashboard.trends.shareLine', { label, value, change });
+    });
+    return { text: [this.translate.instant('dashboard.trends.shareIntro'), ...lines].join('\n'), kind: 'POST', details: null };
+  };
 
   get trends(): Trend[] {
     return this.stats?.trends ?? [];

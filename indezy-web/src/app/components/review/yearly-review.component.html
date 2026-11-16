@@ -11,6 +11,9 @@
           <mat-icon>chevron_right</mat-icon>
         </button>
       </div>
+      @if (review && review.totals.missions > 0) {
+        <app-share-to-network [build]="share" data-share-review></app-share-to-network>
+      }
       <button mat-flat-button type="button" data-review-pdf (click)="downloadPdf()" [disabled]="!review || isDownloading">
         @if (isDownloading) {
           <mat-spinner diameter="18" [attr.aria-label]="'common.loading' | translate"></mat-spinner>

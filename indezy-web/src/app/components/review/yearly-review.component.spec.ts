@@ -90,6 +90,18 @@ describe('YearlyReviewComponent', () => {
     expect(query('[data-review-empty]')).toBeNull();
   });
 
+  it('shares the year as a post, its skills as tags, never a client nor the revenue', () => {
+    TestBed.inject(TranslateService).setTranslation('en', { review: { share: '{{year}}: {{missions}} missions, {{days}} days. {{skills}}' } }, true);
+    TestBed.inject(TranslateService).use('en');
+    fixture.detectChanges();
+    expect(query('[data-share-review]')).not.toBeNull();
+    const shared = component.share();
+    expect(shared.kind).toBe('EXPERIENCE');
+    expect(shared.text).toContain('#Java #Kafka');
+    expect(shared.text).not.toContain('Acme');
+    expect(shared.text).not.toContain('95');
+  });
+
   it('moves between years without going past the current one', () => {
     fixture.detectChanges();
     const next = query<HTMLButtonElement>('[data-year-next]')!;

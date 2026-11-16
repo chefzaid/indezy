@@ -248,7 +248,9 @@ client the one named or else the workspace's **Client confidentiel**, its source
 or not. Its author sees how many members took it, and who among those who chose to tell. **Share to the network**, on an
 offer's page and on a declined opportunity's page, opens the feed with such a mission filled in from it (an offer's link
 included), its publisher or client left out, to read again before publishing; on a won opportunity, it shares the
-**Mission signed** milestone, its role only.
+**Mission signed** milestone, its role only. The dashboard shares the average rate obtained against the objective and the
+last 90 days' trends, and the yearly review shares **A year of freelancing** (missions, days worked and the skills most
+asked for as tags), never a client nor the revenue.
 
 **Comments** open under a post: comments and, under each, replies (one level), the oldest first. Each writer deletes
 their own comment, its replies going with it. The post's author **pins** one comment on top, **hides** one (then only
