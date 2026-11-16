@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { mockWorkspaceSession } from './helpers/workspace';
+import { mockWorkspaceSession, themeByWidth } from './helpers/workspace';
 
 const leo = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: 'Data engineer', stack: ['Kafka'],
   city: 'Nantes', remote: true, availability: null, availabilityDate: null, languages: [], verified: false };
@@ -14,6 +14,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const en = language === 'en';
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, language);
+    await themeByWidth(page, language, width);
     await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
     await page.route('**/api/network/members/leo_m/page', route => route.fulfill({ json: { card: leo, followers: 4, following: 2,
       sharedSkills: [], followed: true, followsYou: true, own: false, muted: false, blocked: false, privateCard: false, requested: false } }));
@@ -24,7 +25,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/network/conversations?**', route => route.fulfill({ json: [conversation] }));
     await page.route('**/api/network/conversations/4', route => route.fulfill({ json: { conversation, more: false,
       messages: [message(1, false, 'Une mission Kafka ?', { card: { role: 'Lead Kafka', dailyRate: 720, city: 'Lyon', startDate: null,
-        remoteDaysPerMonth: null, stack: ['Kafka'], takenProjectId: null } })] } }));
+        remoteDaysPerMonth: null, stack: ['Kafka'], takenProjectId: null }, preview: { url: 'https://blog.example.org/kafka', site: 'Le blog',
+        title: 'Kafka en production', description: 'Un retour sur deux ans' } })] } }));
     await page.route('**/api/network/conversations/4/read', route => route.fulfill({ json: { ...conversation, unread: 0 } }));
     await page.route('**/api/network/conversations/4/messages', route => {
       const body = route.request().postDataJSON();
@@ -46,8 +48,19 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       await expect(page.locator('[data-conversation="4"]')).toBeHidden();
     }
 
-    await thread.locator('[data-message="1"]').hover();
-    await thread.locator('[data-message="1"] [data-message-reply]').click();
+    if (width >= 900) {
+      await thread.locator('[data-message="1"]').hover();
+      await thread.locator('[data-message="1"] [data-message-reply]').click();
+    } else {
+      // On a phone, swiping the message to the right replies to it.
+      const bubble = thread.locator('[data-message="1"] .bubble');
+      const touch = (type: string, clientX: number) => bubble.dispatchEvent(type, { pointerType: 'touch', isPrimary: true, clientX, clientY: 0 });
+      await touch('pointerdown', 20);
+      await touch('pointermove', 60);
+      await expect(bubble).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 40, 0)');
+      await touch('pointermove', 110);
+      await touch('pointerup', 110);
+    }
     await expect(thread.locator('[data-thread-context]')).toContainText('Une mission Kafka ?');
     await thread.locator('[data-thread-text]').fill('Avec plaisir');
     await thread.locator('[data-thread-text]').press('Enter');
@@ -83,6 +96,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await expect(dialog).toHaveCount(0);
     expect(reported).toEqual({ reason: 'SPAM', details: null });
 
+    await expect(thread.locator('[data-message="1"] [data-message-preview]')).toHaveAttribute('href', 'https://blog.example.org/kafka');
+    await expect(thread.locator('[data-message="1"] [data-message-preview]')).toContainText('Kafka en production');
     await thread.locator('[data-message="1"] [data-card-take]').click();
     await expect(thread.locator('[data-message="1"] [data-card-open]')).toHaveAttribute('href', '/projects/77');
 

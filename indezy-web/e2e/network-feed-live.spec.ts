@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { mockWorkspaceSession } from './helpers/workspace';
+import { mockWorkspaceSession, themeByWidth } from './helpers/workspace';
 
 const leo = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [], city: null, remote: false,
   availability: null, availabilityDate: null, languages: [], verified: false };
@@ -14,6 +14,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.clock.install({ time: new Date('2026-11-16T11:00:00') });
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, language);
+    await themeByWidth(page, language, width);
     await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
     await page.route('**/api/network/tags/trending', route => route.fulfill({ json: [{ tag: 'kafka', posts: 12 }, { tag: 'java', posts: 1 }] }));
     let fresh = false;

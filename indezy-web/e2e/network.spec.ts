@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { mockWorkspaceSession } from './helpers/workspace';
+import { mockWorkspaceSession, themeByWidth } from './helpers/workspace';
 
 const fields = { photo: true, headline: true, stack: true, location: true, availability: true, languages: true, remote: false };
 
@@ -9,6 +9,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const en = language === 'en';
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, language);
+    await themeByWidth(page, language, width);
     await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
     await page.route('**/api/users/profile', route => route.fulfill({ json: { id: 1, firstName: 'Camille', lastName: 'Durand',
       email: 'workspace@example.test' } }));
@@ -101,6 +102,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const en = language === 'en';
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, language);
+    await themeByWidth(page, language, width);
     await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
     const leo = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: 'Data engineer', stack: ['Kafka', 'Spark'],
       city: 'Nantes', remote: true, availability: 'AVAILABLE', availabilityDate: '2026-12-02', languages: ['Français'], verified: true };
@@ -165,6 +167,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const en = language === 'en';
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, language);
+    await themeByWidth(page, language, width);
     await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
     const member = (handle: string, firstName: string) => ({ handle, firstName, lastName: 'Martin', avatar: null, headline: 'Data engineer',
       stack: ['Kafka'], city: 'Lyon', remote: true, availability: 'LISTENING', availabilityDate: null, languages: [], verified: false });
@@ -196,6 +199,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const en = language === 'en';
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, language);
+    await themeByWidth(page, language, width);
     await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
     const author = (handle: string, firstName: string) => ({ handle, firstName, lastName: 'Durand', avatar: null, headline: null, stack: [],
       city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false });
@@ -282,6 +286,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const en = language === 'en';
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, language);
+    await themeByWidth(page, language, width);
     await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false,
       features: { SOCIAL_NETWORK: true, OFFER_FEED: true } } }));
     await page.route('**/api/offers?**', route => route.fulfill({ json: { content: [{ id: 41, site: 'FREEWORK', siteName: 'Free-Work',
@@ -320,6 +325,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const en = language === 'en';
     await page.setViewportSize({ width, height: 900 });
     await mockWorkspaceSession(page, language);
+    await themeByWidth(page, language, width);
     await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
     const member = (handle: string, firstName: string) => ({ handle, firstName, lastName: 'Martin', avatar: null, headline: null, stack: [],
       city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false });

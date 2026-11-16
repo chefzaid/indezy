@@ -25,6 +25,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { saveBlob } from '../../../shared/utils/download-file';
+import { SwipeReplyDirective } from '../../../shared/directives/swipe-reply.directive';
 
 /** How often an open conversation asks for new messages. */
 export const THREAD_REFRESH_MS = 10_000;
@@ -46,9 +47,9 @@ interface Day {
 @Component({
   selector: 'app-message-thread',
   imports: [MemberAvatarComponent, DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatIconModule, MatMenuModule,
-    MatTooltipModule, TranslateModule],
+    MatTooltipModule, TranslateModule, SwipeReplyDirective],
   templateUrl: './message-thread.component.html',
-  styleUrls: ['./message-thread.component.scss'],
+  styleUrls: ['./message-thread.component.scss', './message-cards.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class MessageThreadComponent implements OnChanges, AfterViewChecked {

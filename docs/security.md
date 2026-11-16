@@ -229,7 +229,7 @@ The member network (`/api/network`) is on unless an administrator turns it off (
   (`NETWORK_SANCTIONED`);
 - posts, comments and messages are plain text: the page shows them as text nodes, `@handle` and `#tag` as links it builds, never
   HTML; their bodies leave the logs (`toString` gives the id or length only), as do the member cards' and the messages';
-- a post's link is read for its card in the background, through the same guard as a pasted offer link (`PublicHosts`:
+- a post's or a message's first link is read for its card in the background, after it was saved, through the same guard as a pasted offer link (`PublicHosts`:
   public names only, every address and redirect checked, no port but the default, a size cap), its title and
   description kept as text and no image;
 - the verification sends the billing SIRET alone to the public registry, read afresh;

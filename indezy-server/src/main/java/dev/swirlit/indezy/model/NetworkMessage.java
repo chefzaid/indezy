@@ -48,6 +48,10 @@ public class NetworkMessage extends BaseEntity {
     @Embedded
     private NetworkOpportunityCard card;
 
+    /** The card of its first link, read once it was sent; none without a link or a page to read. */
+    @Embedded
+    private NetworkLinkPreview preview;
+
     public boolean isDeleted() {
         return deletedAt != null;
     }

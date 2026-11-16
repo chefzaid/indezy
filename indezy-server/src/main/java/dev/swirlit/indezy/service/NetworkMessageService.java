@@ -55,6 +55,7 @@ public class NetworkMessageService {
     private final NetworkMessageRepository messages;
     private final NetworkMessageReactionRepository reactions;
     private final NetworkPipelineService pipeline;
+    private final NetworkLinkPreviews previews;
     private final Clock clock;
 
     /** The conversation with a page of its messages before the given one (the latest with none), the oldest first. */
@@ -99,6 +100,7 @@ public class NetworkMessageService {
             message.setCard(pipeline.card(userId, request.opportunityId()));
         }
         messages.save(message);
+        previews.refresh(message);
         conversation.setLastMessageAt(message.getCreatedAt() == null ? shared.now() : message.getCreatedAt());
         mine.setLastReadAt(conversation.getLastMessageAt());
         // A new message brings an archived conversation back to the list.
@@ -112,6 +114,7 @@ public class NetworkMessageService {
         NetworkMessage message = ownInWindow(userId, messageId, "edited");
         message.setText(request.text().strip());
         message.setEditedAt(clock.instant());
+        previews.refresh(message);
         return views(List.of(message), userId).getFirst();
     }
 
@@ -121,6 +124,7 @@ public class NetworkMessageService {
         NetworkMessage message = ownInWindow(userId, messageId, "deleted");
         message.setText("");
         message.setCard(null);
+        message.setPreview(null);
         message.setDeletedAt(clock.instant());
         reactions.deleteAll(reactions.findByMessageIdIn(List.of(messageId)));
         return views(List.of(message), userId).getFirst();
@@ -171,6 +175,7 @@ public class NetworkMessageService {
         messages.findById(messageId).filter(message -> !message.isDeleted()).ifPresent(message -> {
             message.setText("");
             message.setCard(null);
+            message.setPreview(null);
             message.setDeletedAt(clock.instant());
             reactions.deleteAll(reactions.findByMessageIdIn(List.of(messageId)));
         });
@@ -262,7 +267,8 @@ public class NetworkMessageService {
             return new NetworkMessageDtos.Message(message.getId(), mine, from, message.getText(), message.getCreatedAt(),
                 message.getEditedAt() != null, message.isDeleted(), mine && shared.editable(message), reply, counts(given),
                 given.stream().filter(reaction -> reaction.getUserId().equals(readerId)).map(NetworkMessageReaction::getReaction)
-                    .findFirst().orElse(null), card(message, mine));
+                    .findFirst().orElse(null), card(message, mine),
+                NetworkLinkPreviews.view(message.getPreview()));
         }).toList();
     }
 

@@ -86,6 +86,36 @@ describe('MessageThreadComponent', () => {
     discardPeriodicTasks();
   }));
 
+  it('shows the card of a message\'s first link, opening the page in a new tab', fakeAsync(() => {
+    const element = create(of(thread([message(1, { text: 'Lu sur https://blog.example.org/kafka', preview: { url: 'https://blog.example.org/kafka',
+      site: 'Le blog', title: 'Kafka en prod', description: 'Un retour' } }), message(2, { preview: { url: 'https://a.example.org', site: 'A',
+      title: 'Sans description', description: null } })])));
+    const link = element.querySelector('[data-message="1"] [data-message-preview]') as HTMLAnchorElement;
+    expect(link.href).toBe('https://blog.example.org/kafka');
+    expect(link.target).toBe('_blank');
+    expect(link.rel).toContain('noopener');
+    expect(link.textContent).toContain('Kafka en prod');
+    expect(link.textContent).toContain('Un retour');
+    expect(element.querySelector('[data-message="2"] .link-description')).toBeNull();
+    discardPeriodicTasks();
+  }));
+
+  it('replies to a message swiped to the right on a touch screen, unless it was deleted', fakeAsync(() => {
+    const element = create(of(thread([message(1), message(2, { deleted: true, text: '' })])));
+    const swipe = (id: number): void => {
+      const bubble = element.querySelector(`[data-message="${id}"] .bubble`)!;
+      for (const [type, clientX] of [['pointerdown', 0], ['pointermove', 70], ['pointerup', 70]] as const) {
+        bubble.dispatchEvent(new PointerEvent(type, { clientX, pointerType: 'touch', isPrimary: true }));
+      }
+      fixture.detectChanges();
+    };
+    swipe(2);
+    expect(fixture.componentInstance.replyTo).toBeNull();
+    swipe(1);
+    expect(fixture.componentInstance.replyTo?.id).toBe(1);
+    discardPeriodicTasks();
+  }));
+
   it('asks for new messages every ten seconds while seen, keeping the earlier ones loaded', fakeAsync(() => {
     create();
     api.thread.and.returnValue(of(thread([message(2, { edited: true }), message(3, { mine: true }), message(4)],

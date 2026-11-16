@@ -1,4 +1,4 @@
-import { MemberCard, Reaction, ReactionCount } from './network.models';
+import { LinkPreview, MemberCard, Reaction, ReactionCount } from './network.models';
 
 /** Why no message can go in a conversation: the other member does not follow the reader, either blocks the other, or left. */
 export type ConversationClosed = 'NOT_FOLLOWED' | 'BLOCKED' | 'LEFT';
@@ -44,6 +44,8 @@ export interface Message {
   myReaction: Reaction | null;
   /** An opportunity shared as a card; for its recipient, the opportunity it became once added to their pipeline. */
   card: OpportunityCard | null;
+  /** The card of its first link, once its page was read. */
+  preview?: LinkPreview | null;
 }
 
 /** An opportunity shared in a message: its facts, never its client. */

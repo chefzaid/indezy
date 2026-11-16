@@ -77,7 +77,7 @@ public final class NetworkMessageDtos {
     /** A message as its reader reads it; {@code from} is its sender, none for the reader's own. */
     public record Message(Long id, boolean mine, NetworkDtos.MemberCard from, String text, LocalDateTime sentAt, boolean edited,
                           boolean deleted, boolean editable, Reply replyTo, List<NetworkDtos.ReactionCount> reactions,
-                          NetworkReaction myReaction, Card card) {
+                          NetworkReaction myReaction, Card card, NetworkDtos.LinkPreview preview) {
 
         public Message {
             reactions = List.copyOf(reactions);

@@ -7,7 +7,6 @@ import dev.swirlit.indezy.model.NetworkBookmark;
 import dev.swirlit.indezy.model.NetworkComment;
 import dev.swirlit.indezy.model.NetworkCommentLike;
 import dev.swirlit.indezy.model.NetworkLike;
-import dev.swirlit.indezy.model.NetworkLinkPreview;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkPostDetails;
@@ -248,13 +247,9 @@ public class NetworkPostService {
             seen.comments(), post.isCommentsClosed(), post.getEditedAt() != null, seen.bookmarked(), seen.original(), seen.reposts(),
             post.isRepostsOff(), post.getKind(), NetworkPostKinds.toDto(post.getDetails()), post.getAnswerCommentId(), seen.poll(),
             seen.taken(), seen.useful(), reactions(postLikes), postLikes.stream().filter(like -> like.getUserId().equals(readerId))
-            .map(NetworkLike::reactionOrLike).findFirst().orElse(null), preview(post.getPreview()));
+            .map(NetworkLike::reactionOrLike).findFirst().orElse(null), NetworkLinkPreviews.view(post.getPreview()));
     }
 
-    private static NetworkDtos.LinkPreview preview(NetworkLinkPreview card) {
-        return card == null || card.getTitle() == null ? null : new NetworkDtos.LinkPreview(card.getUrl(), card.getSite(), card.getTitle(),
-            card.getDescription());
-    }
 
     /** How many members reacted each way, the most frequent first. */
     private static List<NetworkDtos.ReactionCount> reactions(List<NetworkLike> postLikes) {

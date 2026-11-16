@@ -19,3 +19,9 @@ export const emptyDashboardStats = {
   activeProjects: 0, wonProjects: 0, lostProjects: 0, totalBenchDays: 0, benchPeriods: 0,
   estimatedBenchCost: 0, projectsByStatus: {}, projectsByWorkMode: {}, dailyRateRanges: []
 };
+
+/** Shows the app in the dark theme on a phone and in the light one on a wide screen, so each scenario audits both. */
+export async function themeByWidth(page: Page, language: 'en' | 'fr', width: number): Promise<void> {
+  await page.route('**/api/users/preferences', route => route.fulfill({ json: { theme: width < 900 ? 'dark' : 'light', language,
+    inactivityDays: 14 } }));
+}

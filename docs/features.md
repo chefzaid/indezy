@@ -252,8 +252,9 @@ included), its publisher or client left out, to read again before publishing; on
 last 90 days' trends, and the yearly review shares **A year of freelancing** (missions, days worked and the skills most
 asked for as tags), never a client nor the revenue.
 
-A post's first link shows as a card under its text (the site, the page's title and description, opening the page
-apart), read once in the background after the post goes out, never an image, so readers load nothing from the linked
+A post's first link, and a message's, shows as a card under its text (the site, the page's title and description, opening the page
+apart), read once in the background after the post or the message goes out (again when its link changes, never for a
+deleted message), never an image, so readers load nothing from the linked
 site; a page out of reach leaves no card.
 
 **Comments** open under a post: comments and, under each, replies (one level), the oldest first. Each writer deletes
@@ -272,7 +273,7 @@ goes, the conversation saying why. The list shows each conversation's latest mes
 latest first, read again every 30 seconds; an open conversation asks for new messages every 10 seconds, and, as before
 a post, the workspace's client, ESN and contact names in a message are pointed out before it goes (real-time
 delivery waits on a decision, see TODO.md). In a conversation, Enter sends and Shift+Enter starts a new line; a
-message is replied to (quoting it), reacted to with one of the five reactions, and edited or deleted for both by its
+message is replied to (quoting it; on a touch screen, by swiping it to the right), reacted to with one of the five reactions, and edited or deleted for both by its
 sender within 15 minutes. The briefcase beside the field shares one of the reader's opportunities as a card (role, daily
 rate, city, start, remote days, stack, never the client); its recipient **Adds it to their pipeline** in one click, at
 **Contact** with a confidential client and the sender as its source (who referred it), the card then linking to it.

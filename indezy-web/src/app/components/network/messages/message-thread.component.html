@@ -81,7 +81,7 @@
       <ul class="messages">
         @for (message of day.messages; track message.id) {
           <li class="message" [class.mine]="message.mine" [attr.data-message]="message.id">
-            <div class="bubble" [class.deleted]="message.deleted">
+            <div class="bubble" [class.deleted]="message.deleted" (appSwipeReply)="current.closed || message.deleted || reply(message)">
               @if (current.group && message.from) {
                 <span class="sender" data-message-sender>{{ message.from.firstName }} {{ message.from.lastName }}</span>
               }
@@ -95,6 +95,15 @@
                 <span class="text">{{ 'network.messages.deleted' | translate }}</span>
               } @else if (message.text) {
                 <span class="text">{{ message.text }}</span>
+              }
+              @if (message.preview; as link) {
+                <a class="link-card" [href]="link.url" target="_blank" rel="noopener noreferrer nofollow ugc" data-message-preview>
+                  <span class="link-site"><mat-icon aria-hidden="true">link</mat-icon>{{ link.site }}</span>
+                  <span class="link-title">{{ link.title }}</span>
+                  @if (link.description) {
+                    <span class="link-description">{{ link.description }}</span>
+                  }
+                </a>
               }
               @if (message.card; as card) {
                 <span class="opportunity" data-message-card>
