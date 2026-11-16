@@ -1,0 +1,31 @@
+@if (images.length) {
+  <div class="images" [class.compact]="compact" [attr.data-count]="images.length" data-files-images>
+    @for (image of images; track image.id) {
+      <a class="image" [href]="address(image.url)" target="_blank" rel="noopener" [attr.data-file]="image.id">
+        <img [src]="address(image.url)" [alt]="image.alt ?? ''" loading="lazy" decoding="async"
+          [attr.width]="image.width" [attr.height]="image.height">
+      </a>
+    }
+  </div>
+}
+@if (documents.length) {
+  <ul class="documents" [class.compact]="compact" data-files-documents>
+    @for (document of documents; track document.id) {
+      <li>
+        <a class="document" [href]="address(document.url)" target="_blank" rel="noopener" [attr.data-file]="document.id">
+          @if (document.previewUrl && !compact) {
+            <img class="page" [src]="address(document.previewUrl)" alt="" loading="lazy" decoding="async">
+          }
+          <span class="about">
+            <mat-icon aria-hidden="true">{{ icon(document) }}</mat-icon>
+            <span class="what">
+              <span class="name">{{ document.name }}</span>
+              <span class="facts">{{ extension(document) }} · {{ size(document.size) }}@if (document.pages) { · {{ 'network.files.pages' | translate: { count: document.pages } }}}</span>
+            </span>
+            <mat-icon class="open" aria-hidden="true">{{ document.contentType === 'application/pdf' ? 'open_in_new' : 'download' }}</mat-icon>
+          </span>
+        </a>
+      </li>
+    }
+  </ul>
+}

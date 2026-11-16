@@ -3477,7 +3477,8 @@
       "all": "All",
       "filter": "Filter by tag",
       "empty": "No saved post. Save a post with its Save button to find it here.",
-      "loadError": "Your saved posts could not be loaded"
+      "loadError": "Your saved posts could not be loaded",
+      "noDocuments": "None of the saved posts carries a document."
     },
     "tags": {
       "followed": "Tags you follow",
@@ -3774,6 +3775,25 @@
       "leaveConfirm": "Leave {{title}}? You will no longer read it.",
       "refused": "Every member of a group must follow you",
       "error": "The group could not be changed"
+    },
+    "files": {
+      "addImages": "Add images",
+      "addDocument": "Add a document",
+      "alt": "Description",
+      "altHint": "What the image shows",
+      "remove": "Remove {{name}}",
+      "uploading": "Uploading…",
+      "tooLarge": "A file holds 10 MB at most.",
+      "tooManyImages": "4 images at most.",
+      "tooManyDocuments": "3 documents at most.",
+      "tooManyToday": "60 files a day at most: try again tomorrow.",
+      "imageRefused": "This image cannot be read: send a PNG, a JPEG or a GIF.",
+      "documentRefused": "Send a PDF, slides or a spreadsheet (pptx, xlsx, docx, or their OpenDocument forms), without macros.",
+      "uploadError": "The file could not be added.",
+      "confidential": "This document names {{names}}, known to your workspace.",
+      "keep": "Keep it",
+      "pages": "{{count}} pages",
+      "documents": "Documents"
     }
   }
 }

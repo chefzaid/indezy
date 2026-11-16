@@ -1,3 +1,5 @@
+import { NetworkFile } from './network-files.models';
+
 /** Lower-case letters, digits and underscores, 3 to 30, starting with a letter: a member's handle. */
 export const HANDLE_PATTERN = /^[a-z][a-z0-9_]{2,29}$/;
 
@@ -105,6 +107,8 @@ export interface NetworkPost {
   myReaction: Reaction | null;
   /** The card of its first link, read once it went out: the site, the title, the description; never an image. */
   preview: LinkPreview | null;
+  /** Its images and documents, in their order. */
+  files?: NetworkFile[];
 }
 
 export interface LinkPreview {

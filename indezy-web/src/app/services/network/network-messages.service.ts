@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { Conversation, FoundMessage, Message, MessageThread, MessagingSettings, ProjectDto, Reaction } from '../../models';
+import { Conversation, FileRef, FoundMessage, Message, MessageThread, MessagingSettings, ProjectDto, Reaction } from '../../models';
 
 /** Conversations between members and their messages. */
 @Injectable({
@@ -82,8 +82,10 @@ export class NetworkMessagesService {
   }
 
   /** Sends a message: its text, the message it replies to, and one of the reader's opportunities shared as a card. */
-  send(id: number, text: string, replyTo: number | null = null, opportunityId: number | null = null): Observable<Message> {
-    return this.http.post<Message>(`${this.API_URL}/conversations/${id}/messages`, { text, replyTo, opportunityId });
+  send(id: number, text: string, replyTo: number | null = null, opportunityId: number | null = null, files: FileRef[] = []):
+    Observable<Message> {
+    return this.http.post<Message>(`${this.API_URL}/conversations/${id}/messages`, files.length ? { text, replyTo, opportunityId, files }
+      : { text, replyTo, opportunityId });
   }
 
   /** Adds the opportunity a message shares to the reader's pipeline. */

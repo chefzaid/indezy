@@ -220,9 +220,24 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/network/posts', route => {
       const body = route.request().postDataJSON();
       posted.push(body);
+      const files = (body.files ?? []).map((ref: { id: number; alt?: string }) => ({ ...uploads[ref.id], alt: ref.alt ?? null }));
       return route.fulfill({ status: 201, json: { id: 2, text: body.text, tags: ['kafka'], createdAt: '2026-11-14T10:00:00', own: true,
-        likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, author: author('camille', 'Camille') } });
+        likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, author: author('camille', 'Camille'), files } });
     });
+    // An image and a PDF added to the post, served through their signed addresses.
+    const uploads: Record<number, Record<string, unknown>> = {
+      21: { id: 21, kind: 'IMAGE', name: 'tableau.jpg', contentType: 'image/jpeg', size: 52_000, alt: null, width: 1200, height: 800, pages: null,
+        url: '/public/network-files/21/full?e=1&s=a', previewUrl: null },
+      22: { id: 22, kind: 'DOCUMENT', name: 'retour.pdf', contentType: 'application/pdf', size: 840_000, alt: null, width: null, height: null,
+        pages: 4, url: '/public/network-files/22/full?e=1&s=b', previewUrl: '/public/network-files/22/preview?e=1&s=c' } };
+    let uploaded = 20;
+    await page.route('**/api/network/files', route => {
+      uploaded++;
+      return route.fulfill({ status: 201, json: { file: uploads[uploaded], confidential: uploaded === 22 ? [{ found: 'Banque Martin',
+        kind: 'CLIENT', city: 'Paris' }] : [] } });
+    });
+    const pixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+    await page.route('**/api/public/network-files/**', route => route.fulfill({ status: 200, contentType: 'image/png', body: pixel }));
 
     await page.route('**/api/network/suggestions', route => route.fulfill({ json: [{ card: author('ines_b', 'Inès'), reason: 'SAME_STACK',
       followedBy: 0, followedByName: null, sharedSkills: ['Kafka'] }] }));
@@ -258,12 +273,23 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     }
     await expect(page.locator('[data-publish]')).toBeDisabled();
     await page.locator('[data-composer-text]').fill('Merci @leo_m pour le retour sur #Kafka');
+    await page.locator('[data-pick-images-input]').setInputFiles({ name: 'tableau.jpg', mimeType: 'image/jpeg', buffer: pixel });
+    await page.locator('[data-pick-documents-input]').setInputFiles({ name: 'retour.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.7') });
+    await expect(page.locator('[data-picked-confidential]')).toContainText(en ? 'This document names Banque Martin' : 'Ce document cite Banque Martin');
+    await page.locator('[data-picked-keep]').click();
+    // Each image is described before the post goes.
+    await expect(page.locator('[data-publish]')).toBeDisabled();
+    await page.locator('[data-picked-alt]').fill('Le tableau blanc de la rétro');
     await page.locator('[data-publish]').click();
     const mine = page.locator('[data-post="2"]');
     await expect(mine).toContainText('Merci');
     await expect(mine.locator('.mention')).toHaveAttribute('href', '/m/leo_m');
     await expect(page.locator('[data-post]').first()).toHaveAttribute('data-post', '2');
-    expect(posted).toEqual([{ text: 'Merci @leo_m pour le retour sur #Kafka', kind: 'POST', details: null, poll: null }]);
+    expect(posted).toEqual([{ text: 'Merci @leo_m pour le retour sur #Kafka', kind: 'POST', details: null, poll: null,
+      files: [{ id: 21, alt: 'Le tableau blanc de la rétro' }, { id: 22 }] }]);
+    await expect(mine.locator('[data-files-images] img')).toHaveAttribute('alt', 'Le tableau blanc de la rétro');
+    await expect(mine.locator('[data-files-documents]')).toContainText('retour.pdf');
+    await expect(mine.locator('[data-files-documents]')).toContainText(en ? 'PDF · 820 KB · 4 pages' : 'PDF · 820 KB · 4 pages');
     await expect(page.locator('[data-feed-members]')).toHaveAttribute('href', '/network/members');
     const audit = await new AxeBuilder({ page }).include('app-network-feed').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);

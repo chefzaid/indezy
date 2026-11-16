@@ -78,6 +78,9 @@
     </form>
   } @else if (post.text) {
     <p class="text">@for (part of parts; track $index) {@if (handleOf(part); as handle) {<a [routerLink]="['/m', handle]" class="mention">&#64;{{ handle }}</a>} @else if (tagOf(part); as tag) {<a [routerLink]="['/network/tags', tag.toLowerCase()]" class="tag">#{{ tag }}</a>} @else {{{ textOf(part) }}}}</p>
+    @if (post.files?.length) {
+      <app-network-files [files]="post.files"></app-network-files>
+    }
     @if (post.preview; as link) {
       <a class="link-card" [href]="link.url" target="_blank" rel="noopener noreferrer nofollow ugc" data-post-preview>
         <span class="link-site"><mat-icon aria-hidden="true">link</mat-icon>{{ link.site }}</span>

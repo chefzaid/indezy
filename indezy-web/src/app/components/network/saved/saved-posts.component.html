@@ -2,9 +2,12 @@
   <app-page-header icon="bookmarks" [title]="'network.savedPosts.title' | translate" [subtitle]="'network.savedPosts.subtitle' | translate">
   </app-page-header>
 
-  @if (tags.length) {
+  @if (tags.length || documents.length) {
     <mat-chip-listbox [attr.aria-label]="'network.savedPosts.filter' | translate" data-saved-tags>
-      <mat-chip-option [selected]="tag === null" (click)="filter(null)">{{ 'network.savedPosts.all' | translate }}</mat-chip-option>
+      <mat-chip-option [selected]="documentsOnly" (click)="showDocuments(!documentsOnly)" data-saved-documents>
+        {{ 'network.files.documents' | translate }}
+      </mat-chip-option>
+      <mat-chip-option [selected]="tag === null && !documentsOnly" (click)="showDocuments(false); filter(null)">{{ 'network.savedPosts.all' | translate }}</mat-chip-option>
       @for (name of tags; track name) {
         <mat-chip-option [selected]="tag === name" (click)="filter(name)" [attr.data-saved-tag]="name">#{{ name }}</mat-chip-option>
       }
@@ -14,11 +17,18 @@
   @if (loaded && posts.length === 0) {
     <p class="empty" data-saved-empty>{{ 'network.savedPosts.empty' | translate }}</p>
   }
-  <ul class="posts">
-    @for (post of posts; track post.id) {
-      <li><app-post-card [post]="post" (unsaved)="changed($event)"></app-post-card></li>
+  @if (documentsOnly) {
+    @if (documents.length === 0) {
+      <p class="empty" data-saved-no-documents>{{ 'network.savedPosts.noDocuments' | translate }}</p>
     }
-  </ul>
+    <app-network-files [files]="documents" data-saved-document-list></app-network-files>
+  } @else {
+    <ul class="posts">
+      @for (post of posts; track post.id) {
+        <li><app-post-card [post]="post" (unsaved)="changed($event)"></app-post-card></li>
+      }
+    </ul>
+  }
   @if (more) {
     <button mat-stroked-button type="button" (click)="load(page + 1)" data-saved-more>{{ 'network.feed.more' | translate }}</button>
   }

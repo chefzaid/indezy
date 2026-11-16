@@ -257,6 +257,16 @@ apart), read once in the background after the post or the message goes out (agai
 deleted message), never an image, so readers load nothing from the linked
 site; a page out of reach leaves no card.
 
+A post, and a message, carries up to four **images** and three **documents** (PDF, slides or spreadsheets: pptx, xlsx,
+docx and their OpenDocument forms; 10 MB each, 60 files a day), added from the composer and uploaded at once. Each image
+needs a description (its alternative text) before the post goes; it is made anew, upright as the camera said, at most
+2048 pixels on its longest side, so that nothing the file carried beside its pixels (place, camera, date) is kept.
+Images show as a grid (one wide, two side by side, three with one tall, four in a square), each opening at full size; a
+document shows as a card with its name, type, size and, for a PDF, its first page and number of pages. A document whose
+text names one of the workspace's clients, ESNs or contacts says so in the composer, to remove it or **keep it**. Files
+of a deleted post or message go with it; those added but never sent are dropped after a day. The **Saved** list shows
+the documents of the saved posts alone with **Documents**.
+
 **Comments** open under a post: comments and, under each, replies (one level), the oldest first. Each writer deletes
 their own comment, its replies going with it. The post's author **pins** one comment on top, **hides** one (then only
 the author sees it, marked hidden) or **closes** the comments, after which none is added. A member likes a comment, once,

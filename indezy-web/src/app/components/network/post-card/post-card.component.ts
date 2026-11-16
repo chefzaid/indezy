@@ -17,6 +17,7 @@ import { ReactionButtonComponent } from './reaction-button.component';
 import { NetworkService } from '../../../services/network/network.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { NotificationService } from '../../../services/notification/notification.service';
+import { NetworkFilesComponent } from '../files/network-files.component';
 import { PostCommentsComponent } from '../post-comments/post-comments.component';
 import { MissionTakeComponent } from '../mission-take/mission-take.component';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
@@ -55,7 +56,7 @@ export function segments(text: string): PostSegment[] {
 @Component({
   selector: 'app-post-card',
   imports: [ReactionButtonComponent, MentionsDirective, MemberAvatarComponent, TimeAgoPipe, MissionTakeComponent, DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatMenuModule,
-    TranslateModule, PostCommentsComponent],
+    TranslateModule, PostCommentsComponent, NetworkFilesComponent],
   templateUrl: './post-card.component.html',
   styleUrls: ['./post-card.component.scss', './post-card-content.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

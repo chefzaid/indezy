@@ -1,0 +1,61 @@
+<div class="add" [class.compact]="compact">
+  <input #imageInput type="file" [accept]="imageAccept" multiple hidden (change)="pick(imageInput, true)" data-pick-images-input>
+  <input #documentInput type="file" [accept]="documentAccept" multiple hidden (change)="pick(documentInput, false)" data-pick-documents-input>
+  <button mat-icon-button type="button" (click)="imageInput.click()" [disabled]="images.length >= 4"
+    [attr.aria-label]="'network.files.addImages' | translate" [matTooltip]="'network.files.addImages' | translate" data-pick-images>
+    <mat-icon>image</mat-icon>
+  </button>
+  <button mat-icon-button type="button" (click)="documentInput.click()" [disabled]="documents.length >= 3"
+    [attr.aria-label]="'network.files.addDocument' | translate" [matTooltip]="'network.files.addDocument' | translate" data-pick-documents>
+    <mat-icon>attach_file</mat-icon>
+  </button>
+</div>
+
+@if (picked.length) {
+  <ul class="picked" data-picked>
+    @for (item of picked; track item.key) {
+      <li class="item" [class.image]="item.image" [class.failed]="item.failed" [attr.data-picked-file]="item.name">
+        @if (item.image) {
+          <span class="thumb">
+            @if (item.local) {
+              <img [src]="item.local" alt="">
+            }
+            @if (!item.file && !item.failed) {
+              <mat-spinner diameter="24" [attr.aria-label]="'network.files.uploading' | translate"></mat-spinner>
+            }
+          </span>
+          <label class="alt">
+            <span class="alt-label">{{ 'network.files.alt' | translate }}</span>
+            <input type="text" [formControl]="item.alt" maxlength="300" [placeholder]="'network.files.altHint' | translate"
+              [attr.aria-invalid]="item.file !== null && !item.alt.value.trim()" data-picked-alt>
+          </label>
+        } @else {
+          <span class="doc">
+            @if (item.file) {
+              <mat-icon aria-hidden="true">{{ icon(item.file) }}</mat-icon>
+            } @else if (!item.failed) {
+              <mat-spinner diameter="20" [attr.aria-label]="'network.files.uploading' | translate"></mat-spinner>
+            } @else {
+              <mat-icon aria-hidden="true">error</mat-icon>
+            }
+            <span class="name">{{ item.name }}</span>
+            @if (item.file) {
+              <span class="facts">{{ size(item.file.size) }}</span>
+            }
+          </span>
+        }
+        <button mat-icon-button type="button" class="remove" (click)="remove(item)"
+          [attr.aria-label]="'network.files.remove' | translate: { name: item.name }" data-picked-remove>
+          <mat-icon>close</mat-icon>
+        </button>
+        @if (item.confidential.length) {
+          <p class="confidential" role="alert" data-picked-confidential>
+            <mat-icon aria-hidden="true">visibility</mat-icon>
+            <span>{{ 'network.files.confidential' | translate: { names: names(item) } }}</span>
+            <button mat-button type="button" (click)="keep(item)" data-picked-keep>{{ 'network.files.keep' | translate }}</button>
+          </p>
+        }
+      </li>
+    }
+  </ul>
+}

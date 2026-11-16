@@ -75,7 +75,7 @@ public class NetworkCommentService {
         check(readerId, postId, request.parentId());
         limits.comment(readerId);
         String text = request.text().strip();
-        return spam.hold(readerId, postId, request.parentId(), text) ? Optional.empty() :
+        return spam.hold(readerId, postId, request.parentId(), text).isPresent() ? Optional.empty() :
             Optional.of(publish(readerId, postId, request.parentId(), text));
     }
 

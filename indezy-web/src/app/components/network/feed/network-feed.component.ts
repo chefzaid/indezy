@@ -25,6 +25,7 @@ import { PostKindFieldsComponent } from '../post-kind/post-kind-fields.component
 import { NetworkShare, SHARE_STATE } from '../share/share-to-network.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { FilePickerComponent } from '../files/file-picker.component';
 import { PostCardComponent } from '../post-card/post-card.component';
 
 export const POST_MAX = 3000;
@@ -37,7 +38,7 @@ const PHONE = '(max-width: 599.98px)';
 @Component({
   selector: 'app-network-feed',
   imports: [A11yModule, MentionsDirective, AsyncPipe, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
-    MatProgressSpinnerModule, TranslateModule, PostCardComponent],
+    MatProgressSpinnerModule, TranslateModule, PostCardComponent, FilePickerComponent],
   templateUrl: './network-feed.component.html',
   styleUrls: ['./network-feed.component.scss', './network-feed-side.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -47,7 +48,7 @@ export class NetworkFeedComponent implements OnInit {
   private readonly confidentiality = inject(ConfidentialityGuardService);
   private readonly notifications = inject(NotificationService);
   private readonly confirm = inject(ConfirmDialogService);
-  private readonly changes = inject(ChangeDetectorRef);
+  readonly changes = inject(ChangeDetectorRef);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
   /** The notifications not read yet, counted beside Notifications. */
@@ -58,6 +59,7 @@ export class NetworkFeedComponent implements OnInit {
   readonly max = POST_MAX;
   /** What the post is, and the facts of a mission or an availability. */
   @ViewChild('kindFields') kindFields?: PostKindFieldsComponent;
+  @ViewChild('filePicker') filePicker?: FilePickerComponent;
   /** The top of the feed, scrolled back to for the newer posts. */
   @ViewChild('feedTop') feedTop?: ElementRef<HTMLElement>;
   @ViewChild('composerText') composerText?: ElementRef<HTMLTextAreaElement>;
@@ -239,7 +241,7 @@ export class NetworkFeedComponent implements OnInit {
 
   publish(): void {
     const text = this.draft.value.trim();
-    if (!text || this.draft.invalid || this.isPosting) {
+    if (!text || this.draft.invalid || this.isPosting || (this.filePicker && !this.filePicker.valid)) {
       this.draft.markAsTouched();
       return;
     }
@@ -260,11 +262,12 @@ export class NetworkFeedComponent implements OnInit {
   /** Posts the text checked for the workspace's names. */
   private postNow(text: string): void {
     const kind = this.kindFields?.kind.value ?? 'POST';
-    this.network.post(text, kind, this.kindFields?.facts() ?? null, this.kindFields?.poll() ?? null).subscribe({
+    this.network.post(text, kind, this.kindFields?.facts() ?? null, this.kindFields?.poll() ?? null, this.filePicker?.refs() ?? []).subscribe({
       next: post => {
         this.isPosting = false;
         this.draft.reset('');
         this.kindFields?.reset();
+        this.filePicker?.clear();
         if (isHeld(post)) {
           this.closeComposer();
           this.notifications.success('network.feed.held');

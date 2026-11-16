@@ -97,6 +97,9 @@
               } @else if (message.text) {
                 <span class="text">{{ message.text }}</span>
               }
+              @if (message.files?.length && !message.deleted) {
+                <app-network-files [files]="message.files" [compact]="true"></app-network-files>
+              }
               @if (message.preview; as link) {
                 <a class="link-card" [href]="link.url" target="_blank" rel="noopener noreferrer nofollow ugc" data-message-preview>
                   <span class="link-site"><mat-icon aria-hidden="true">link</mat-icon>{{ link.site }}</span>
@@ -233,6 +236,9 @@
           </button>
         </div>
       }
+      @if (!editing) {
+        <app-file-picker class="files" [compact]="true" (changed)="changes.markForCheck()"></app-file-picker>
+      }
       <div class="write">
         <button mat-icon-button type="button" class="share" [matMenuTriggerFor]="opportunityMenu" (menuOpened)="loadOpportunities()"
           [disabled]="sending || !!editing" [attr.aria-label]="'network.messages.share' | translate" [matTooltip]="'network.messages.share' | translate"
@@ -255,7 +261,8 @@
         <textarea #field [formControl]="draft" rows="1" [maxlength]="max" (keydown)="onKeydown($event)" data-thread-text
           [attr.aria-label]="'network.messages.write' | translate: { name: label }"
           [placeholder]="'network.messages.write' | translate: { name: label }"></textarea>
-        <button mat-icon-button type="submit" class="send" [disabled]="sending || !draft.value.trim()"
+        <button mat-icon-button type="submit" class="send"
+          [disabled]="sending || (!draft.value.trim() && !picker?.picked?.length) || (!editing && picker && !picker.valid)"
           [attr.aria-label]="(editing ? 'common.save' : 'network.messages.send') | translate" data-thread-send>
           <mat-icon>{{ editing ? 'check' : 'send' }}</mat-icon>
         </button>

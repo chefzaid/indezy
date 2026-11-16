@@ -65,6 +65,7 @@ public class NetworkModerationService {
     private final UserRepository users;
     private final AccountEventService events;
     private final Clock clock;
+    private final NetworkFileService files;
 
     @Transactional
     public void reportPost(Long userId, Long postId, NetworkModerationDtos.NewReport request) {
@@ -150,7 +151,7 @@ public class NetworkModerationService {
         if (publish) {
             try {
                 if (kept.getPostId() == null) {
-                    postService.publish(kept.getAuthorId(), kept.getText());
+                    files.release(kept.getId(), postService.publish(kept.getAuthorId(), kept.getText()).id());
                 } else {
                     commentService.publish(kept.getAuthorId(), kept.getPostId(), kept.getParentId(), kept.getText());
                 }
@@ -158,6 +159,7 @@ public class NetworkModerationService {
                 throw new InvalidStateException("It can no longer be published: reject it");
             }
         } else {
+            files.deleteForHeld(kept.getId());
             notices.moderation(kept.getAuthorId(), NetworkNotificationType.CONTENT_REMOVED);
             events.record(kept.getAuthorId(), AccountEventType.NETWORK_SANCTIONED, NetworkReportOutcome.REMOVED.name());
         }

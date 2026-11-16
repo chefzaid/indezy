@@ -3477,7 +3477,8 @@
       "all": "Toutes",
       "filter": "Filtrer par tag",
       "empty": "Aucune publication enregistrée. Enregistrez une publication avec son bouton Enregistrer pour la retrouver ici.",
-      "loadError": "Vos publications enregistrées n'ont pas pu être chargées"
+      "loadError": "Vos publications enregistrées n'ont pas pu être chargées",
+      "noDocuments": "Aucune des publications enregistrées ne porte de document."
     },
     "tags": {
       "followed": "Tags que vous suivez",
@@ -3774,6 +3775,25 @@
       "leaveConfirm": "Quitter {{title}} ? Vous ne le lirez plus.",
       "refused": "Chaque membre d'un groupe doit vous suivre",
       "error": "Le groupe n'a pas pu être modifié"
+    },
+    "files": {
+      "addImages": "Ajouter des images",
+      "addDocument": "Ajouter un document",
+      "alt": "Description",
+      "altHint": "Ce que montre l’image",
+      "remove": "Retirer {{name}}",
+      "uploading": "Envoi…",
+      "tooLarge": "Un fichier fait 10 Mo au plus.",
+      "tooManyImages": "4 images au plus.",
+      "tooManyDocuments": "3 documents au plus.",
+      "tooManyToday": "60 fichiers par jour au plus : réessayez demain.",
+      "imageRefused": "Cette image ne peut être lue : envoyez un PNG, un JPEG ou un GIF.",
+      "documentRefused": "Envoyez un PDF, des slides ou un tableur (pptx, xlsx, docx, ou leurs formats OpenDocument), sans macros.",
+      "uploadError": "Le fichier n’a pas pu être ajouté.",
+      "confidential": "Ce document cite {{names}}, connu de votre espace.",
+      "keep": "Le garder",
+      "pages": "{{count}} pages",
+      "documents": "Documents"
     }
   }
 }

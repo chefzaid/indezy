@@ -81,6 +81,7 @@
           <textarea #composerText appMentions class="composer-text" [formControl]="draft" rows="2" [maxlength]="max" data-composer-text
             [attr.aria-label]="'network.feed.compose' | translate" [placeholder]="'network.feed.composePlaceholder' | translate"></textarea>
           <span class="hint">{{ 'network.feed.composeHint' | translate }}</span>
+          <app-file-picker #filePicker (changed)="changes.markForCheck()"></app-file-picker>
           <app-post-kind-fields #kindFields [initial]="shared"></app-post-kind-fields>
           @if (scheduling) {
             <mat-form-field appearance="outline" class="schedule" subscriptSizing="dynamic">
@@ -96,12 +97,14 @@
           [attr.aria-label]="'network.drafts.scheduleAt' | translate" [matTooltip]="'network.drafts.scheduleAt' | translate" data-schedule-toggle>
           <mat-icon>schedule</mat-icon>
         </button>
-        <button mat-button type="button" (click)="keep()" [disabled]="isPosting || !draft.value.trim() || kindFields.kind.value !== 'POST'"
+        <button mat-button type="button" (click)="keep()"
+          [disabled]="isPosting || !draft.value.trim() || kindFields.kind.value !== 'POST' || filePicker.picked.length > 0"
           data-keep-draft>
           <mat-icon>{{ scheduleAt.value ? 'schedule_send' : 'save_as' }}</mat-icon>
           <span class="label">{{ (scheduleAt.value ? 'network.drafts.schedule' : 'network.drafts.keep') | translate }}</span>
         </button>
-        <button mat-flat-button type="submit" class="publish" [disabled]="isPosting || !draft.value.trim() || !!scheduleAt.value || !kindFields.valid"
+        <button mat-flat-button type="submit" class="publish"
+          [disabled]="isPosting || !draft.value.trim() || !!scheduleAt.value || !kindFields.valid || !filePicker.valid"
           data-publish>
           {{ 'network.feed.publish' | translate }}
         </button>

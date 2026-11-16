@@ -169,6 +169,24 @@ describe('MessageThreadComponent', () => {
     discardPeriodicTasks();
   }));
 
+  it('sends the files picked, a message of files alone going without a text', fakeAsync(() => {
+    create();
+    tick();
+    const component = fixture.componentInstance;
+    const picker = { refs: () => [{ id: 8 }], valid: true, picked: [{}], clear: jasmine.createSpy('clear') };
+    component.picker = picker as never;
+    api.send.and.returnValue(of(message(9, { mine: true, text: '', files: [] })));
+    component.submit();
+    expect(guard.review).not.toHaveBeenCalled();
+    expect(api.send).toHaveBeenCalledWith(4, '', null, null, [{ id: 8 }]);
+    expect(picker.clear).toHaveBeenCalled();
+    picker.valid = false;
+    component.draft.setValue('Avec la photo');
+    component.submit();
+    expect(api.send).toHaveBeenCalledTimes(1);
+    discardPeriodicTasks();
+  }));
+
   it('asks for new messages every ten seconds while seen, keeping the earlier ones loaded', fakeAsync(() => {
     create();
     api.thread.and.returnValue(of(thread([message(2, { edited: true }), message(3, { mine: true }), message(4)],
@@ -197,7 +215,7 @@ describe('MessageThreadComponent', () => {
     expect(api.send).not.toHaveBeenCalled();
     field.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
     fixture.detectChanges();
-    expect(api.send).toHaveBeenCalledWith(4, 'Avec plaisir', 1);
+    expect(api.send).toHaveBeenCalledWith(4, 'Avec plaisir', 1, null, []);
     expect(element.querySelector('[data-message="5"] [data-message-quote]')?.textContent).toContain('Message 1');
     expect(emitted.at(-1)?.last?.text).toBe('Avec plaisir');
     expect(component.draft.value).toBe('');

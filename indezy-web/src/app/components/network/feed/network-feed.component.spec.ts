@@ -162,7 +162,7 @@ describe('NetworkFeedComponent', () => {
     network.post.and.returnValue(of(post(9, true)));
     component.draft.setValue('  Bonjour #Kafka  ');
     component.publish();
-    expect(network.post).toHaveBeenCalledWith('Bonjour #Kafka', 'POST', null, null);
+    expect(network.post).toHaveBeenCalledWith('Bonjour #Kafka', 'POST', null, null, []);
     expect(component.posts[0].id).toBe(9);
     expect(component.draft.value).toBe('');
     guard.review.and.returnValue(of({ action: 'edit' as const, text: 'Chez un client à Paris' }));

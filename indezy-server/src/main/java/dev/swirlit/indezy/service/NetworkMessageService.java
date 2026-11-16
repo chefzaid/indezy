@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
+import dev.swirlit.indezy.dto.NetworkFileDtos;
 import dev.swirlit.indezy.dto.NetworkMessageDtos;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
@@ -58,6 +59,7 @@ public class NetworkMessageService {
     private final NetworkPipelineService pipeline;
     private final NetworkLinkPreviews previews;
     private final NetworkEvents events;
+    private final NetworkFileService files;
     private final Clock clock;
 
     /** The conversation with a page of its messages before the given one (the latest with none), the oldest first. */
@@ -86,8 +88,9 @@ public class NetworkMessageService {
         }
         limits.message(userId);
         String text = request.text() == null ? "" : request.text().strip();
-        if (text.isEmpty() && request.opportunityId() == null) {
-            throw new IllegalArgumentException("A message needs a text or an opportunity");
+        boolean carries = request.files() != null && !request.files().isEmpty();
+        if (text.isEmpty() && request.opportunityId() == null && !carries) {
+            throw new IllegalArgumentException("A message needs a text, a file or an opportunity");
         }
         if (request.replyTo() != null && messages.findById(request.replyTo())
             .filter(replied -> replied.getConversationId().equals(conversationId)).isEmpty()) {
@@ -102,6 +105,7 @@ public class NetworkMessageService {
             message.setCard(pipeline.card(userId, request.opportunityId()));
         }
         messages.save(message);
+        files.attachToMessage(userId, request.files(), message.getId());
         previews.refresh(message);
         conversation.setLastMessageAt(message.getCreatedAt() == null ? shared.now() : message.getCreatedAt());
         mine.setLastReadAt(conversation.getLastMessageAt());
@@ -132,6 +136,7 @@ public class NetworkMessageService {
         message.setPreview(null);
         message.setDeletedAt(clock.instant());
         reactions.deleteAll(reactions.findByMessageIdIn(List.of(messageId)));
+        files.deleteForMessage(messageId);
         changed(message);
         return views(List.of(message), userId).getFirst();
     }
@@ -185,6 +190,7 @@ public class NetworkMessageService {
             message.setPreview(null);
             message.setDeletedAt(clock.instant());
             reactions.deleteAll(reactions.findByMessageIdIn(List.of(messageId)));
+            files.deleteForMessage(messageId);
             changed(message);
         });
     }
@@ -270,6 +276,7 @@ public class NetworkMessageService {
         List<Long> replied = shown.stream().map(NetworkMessage::getReplyToId).filter(id -> id != null).distinct().toList();
         Map<Long, NetworkMessage> replies = replied.isEmpty() ? Map.of() : messages.findAllById(replied).stream()
             .collect(Collectors.toMap(NetworkMessage::getId, Function.identity()));
+        Map<Long, List<NetworkFileDtos.File>> carried = files.forMessages(ids);
         return shown.stream().map(message -> {
             List<NetworkMessageReaction> given = reacted.getOrDefault(message.getId(), List.of());
             NetworkMessage original = message.getReplyToId() == null ? null : replies.get(message.getReplyToId());
@@ -282,7 +289,7 @@ public class NetworkMessageService {
                 message.getEditedAt() != null, message.isDeleted(), mine && shared.editable(message), reply, counts(given),
                 given.stream().filter(reaction -> reaction.getUserId().equals(readerId)).map(NetworkMessageReaction::getReaction)
                     .findFirst().orElse(null), card(message, mine),
-                NetworkLinkPreviews.view(message.getPreview()));
+                NetworkLinkPreviews.view(message.getPreview()), carried.getOrDefault(message.getId(), List.of()));
         }).toList();
     }
 

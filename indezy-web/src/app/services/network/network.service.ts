@@ -2,7 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DirectorySearch, MemberCard, MemberDirectory, MemberPage, MemberSuggestion, TrendingTag, Reaction, NetworkDraft, NetworkNotificationType, NotificationGroup, NetworkComment, NetworkPost, NetworkPostVersion, NetworkPosts, SavedPosts, TagPage, NetworkAvailabilitySetting, NetworkFields, NetworkMembership, NetworkRestrictions, ReportReason, ReportTarget, HeldForReview, ConfidentialMatch, NewPoll, PostDetails, PostKind, ProjectDto } from '../../models';
+import {
+  ConfidentialMatch, DirectorySearch, FileRef, HeldForReview, MemberCard, MemberDirectory, MemberPage, MemberSuggestion,
+  NetworkAvailabilitySetting, NetworkComment, NetworkDraft, NetworkFields, NetworkMembership, NetworkNotificationType, NetworkPost,
+  NetworkPostVersion, NetworkPosts, NetworkRestrictions, NewPoll, NotificationGroup, PostDetails, PostKind, ProjectDto, Reaction,
+  ReportReason, ReportTarget, SavedPosts, TagPage, TrendingTag
+} from '../../models';
 
 /** The member network: the account's membership, handles and the members' cards. */
 /** The kinds of notification turned off, and those also emailed. */
@@ -41,9 +46,10 @@ export class NetworkService {
   }
 
   /** Posts the text, of a kind with its facts; the spam score may hold it for review. */
-  post(text: string, kind: PostKind = 'POST', details: PostDetails | null = null, poll: NewPoll | null = null):
+  post(text: string, kind: PostKind = 'POST', details: PostDetails | null = null, poll: NewPoll | null = null, files: FileRef[] = []):
     Observable<NetworkPost | HeldForReview> {
-    return this.http.post<NetworkPost | HeldForReview>(`${this.API_URL}/posts`, { text, kind, details, poll });
+    return this.http.post<NetworkPost | HeldForReview>(`${this.API_URL}/posts`, files.length ? { text, kind, details, poll, files }
+      : { text, kind, details, poll });
   }
 
   /** Adds a mission passed on to the reader's pipeline; named lets its author see who took it. */

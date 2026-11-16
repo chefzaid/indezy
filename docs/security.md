@@ -237,6 +237,20 @@ The member network (`/api/network`) is on unless an administrator turns it off (
   comment its replies and their likes; the account export holds the membership, the posts and what the account did
   (`networkActivity`: its comments, the posts and comments it liked, the posts it saved, the members and tags it
   follows), and the messages it sent (`networkMessagesSent`, with the recipient's handle).
+- the network's files are kept in the database ([ADR 0013](./adr/0013-network-files-in-postgresql.md)) and checked on
+  upload, their type read from their content, never from the name or what the browser says: images (PNG, JPEG, GIF)
+  are decoded (refused beyond 50 million pixels, so that a small file cannot unpack into a huge picture), turned upright
+  and written again at most 2048 pixels wide, keeping none of the original file's metadata (EXIF place, camera, date);
+  documents are PDF, OOXML or OpenDocument files, refused with macros (`vbaProject.bin`, `Basic/`, `Scripts/`, or a
+  macro-enabled extension) and in the older binary formats, an archive read at most 30 MB unpacked and 5,000 entries; a
+  member uploads 60 files a day at most, and attaches only their own files not attached yet; a malware scan waits (see
+  TODO.md);
+- a file is served only through a signed address (`/api/public/network-files/{id}/{full|preview}?e=&s=`, HMAC-SHA256
+  with a key derived from the token secret) handed to a reader who may read its post or message, valid until the end
+  of the next hour (one to two hours), `404` once expired, forged or for a file gone; it is served `nosniff`, with a
+  sandboxing `Content-Security-Policy`, `Cross-Origin-Resource-Policy: same-site`, `Referrer-Policy: no-referrer`,
+  cached privately until it expires, inline for images and PDF and as a download otherwise;
+- the text of a document is read on upload for the confidentiality check only, and not kept;
 - the stream of what changes (`GET /api/network/stream`, server-sent events) opens with the bearer token for a member
   only (`401` without one, `404` away from the network), and names only which conversation changed, who is typing by
   first name, or that a notification came, never a message's text: the page reads what changed through the usual

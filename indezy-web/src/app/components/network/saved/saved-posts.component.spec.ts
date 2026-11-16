@@ -54,4 +54,23 @@ describe('SavedPostsComponent', () => {
     component.filter(null);
     expect(notifications.error).toHaveBeenCalledWith('network.savedPosts.loadError');
   });
+
+  it('shows the documents of the saved posts alone, when asked', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    const pdf = { id: 9, kind: 'DOCUMENT' as const, name: 'mission.pdf', contentType: 'application/pdf', size: 1024, alt: null, width: null,
+      height: null, pages: 2, url: '/public/network-files/9/full', previewUrl: null };
+    component.showDocuments(true);
+    fixture.detectChanges();
+    expect(element.querySelector('[data-saved-no-documents]')).not.toBeNull();
+    component.posts = [{ ...component.posts[0], files: [pdf, { ...pdf, id: 10, kind: 'IMAGE' as const }] }, component.posts[1]];
+    fixture.detectChanges();
+    expect(component.documents.map(file => file.id)).toEqual([9]);
+    expect(element.querySelector('[data-saved-document-list]')?.textContent).toContain('mission.pdf');
+    expect(element.querySelector('app-post-card')).toBeNull();
+    (element.querySelector('[data-saved-documents]') as HTMLElement).click();
+    fixture.detectChanges();
+    expect(element.querySelector('app-post-card')).not.toBeNull();
+  });
 });

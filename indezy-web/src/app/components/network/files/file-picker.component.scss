@@ -1,0 +1,151 @@
+// The images and documents being added to a post or a message.
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.add {
+  display: flex;
+  gap: 2px;
+  margin-left: -8px;
+
+  &.compact {
+    margin-left: 0;
+  }
+}
+
+.picked {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px 6px 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-surface);
+
+  &.image {
+    flex-direction: column;
+    align-items: stretch;
+    width: 160px;
+    padding: 6px;
+  }
+
+  &.failed {
+    border-color: var(--app-danger);
+  }
+
+  .remove {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+  }
+
+  &:not(.image) .remove {
+    position: static;
+  }
+}
+
+.thumb {
+  display: grid;
+  place-items: center;
+  height: 96px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--app-subtle);
+
+  img,
+  mat-spinner {
+    grid-area: 1 / 1;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.alt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+
+  .alt-label {
+    color: var(--app-text-muted);
+  }
+
+  input {
+    padding: 6px 8px;
+    border: 1px solid var(--app-border);
+    border-radius: 8px;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+
+    &[aria-invalid='true'] {
+      border-color: var(--app-danger);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--app-link);
+      outline-offset: 1px;
+    }
+  }
+}
+
+.doc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 260px;
+  min-width: 0;
+
+  .name {
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .facts {
+    color: var(--app-text-muted);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+}
+
+.confidential {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--app-chip-warning-bg);
+  color: var(--app-chip-warning-text);
+  font-size: 0.8125rem;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}

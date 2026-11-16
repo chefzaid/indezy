@@ -13,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, catchError, filter, interval, of, throttleTime } from 'rxjs';
 
-import { Conversation, MESSAGE_MAX, MemberCard, Message, ProjectDto, REACTIONS, Reaction } from '../../../models';
+import { Conversation, MESSAGE_MAX, Message, ProjectDto, REACTIONS, Reaction } from '../../../models';
 import { GroupDialogComponent } from './group-dialog.component';
 import { ProjectService } from '../../../services/project/project.service';
 import { AuthService } from '../../../services/auth/auth.service';
@@ -27,6 +27,9 @@ import { MemberAvatarComponent } from '../avatar/member-avatar.component';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { saveBlob } from '../../../shared/utils/download-file';
 import { SwipeReplyDirective } from '../../../shared/directives/swipe-reply.directive';
+import { ThreadDay, byDay, memberNames, reactionEmoji, seenMessageId } from './message-thread.utils';
+import { FilePickerComponent } from '../files/file-picker.component';
+import { NetworkFilesComponent } from '../files/network-files.component';
 
 /** How often an open conversation asks for new messages, while the stream is closed. */
 export const THREAD_REFRESH_MS = 10_000;
@@ -38,11 +41,6 @@ const OPPORTUNITIES_SHOWN = 20;
 /** How many members a group has at most. */
 const GROUP_MAX = 20;
 
-/** A day of the conversation and its messages. */
-interface Day {
-  date: string;
-  messages: Message[];
-}
 
 /**
  * A conversation: its messages as bubbles by day, the reader's on the right, then the field to write; a message is
@@ -51,7 +49,7 @@ interface Day {
 @Component({
   selector: 'app-message-thread',
   imports: [MemberAvatarComponent, DatePipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatIconModule, MatMenuModule,
-    MatTooltipModule, TranslateModule, SwipeReplyDirective],
+    MatTooltipModule, TranslateModule, SwipeReplyDirective, FilePickerComponent, NetworkFilesComponent],
   templateUrl: './message-thread.component.html',
   styleUrls: ['./message-thread.component.scss', './message-cards.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -61,7 +59,7 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   private readonly notices = inject(NetworkNoticesService);
   private readonly notifications = inject(NotificationService);
   private readonly confirm = inject(ConfirmDialogService);
-  private readonly changes = inject(ChangeDetectorRef);
+  readonly changes = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
@@ -85,6 +83,7 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   @Output() readonly left = new EventEmitter<number>();
   @ViewChild('scroller') scroller?: ElementRef<HTMLElement>;
   @ViewChild('field') field?: ElementRef<HTMLTextAreaElement>;
+  @ViewChild(FilePickerComponent) picker?: FilePickerComponent;
 
   readonly max = MESSAGE_MAX;
   readonly reactions = REACTIONS;
@@ -130,8 +129,7 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
 
   /** The latest of the reader's messages the other member read, while both show read receipts. */
   get seenId(): number | null {
-    const seenAt = this.conversation?.seenAt;
-    return seenAt ? this.messages.filter(message => message.mine && message.sentAt <= seenAt).at(-1)?.id ?? null : null;
+    return seenMessageId(this.messages, this.conversation?.seenAt);
   }
 
   ngOnChanges(): void {
@@ -210,21 +208,11 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   }
 
   /** The messages grouped by the day they were sent. */
-  get days(): Day[] {
-    const days: Day[] = [];
-    for (const message of this.messages) {
-      const date = message.sentAt.slice(0, 10);
-      if (days.at(-1)?.date !== date) {
-        days.push({ date, messages: [] });
-      }
-      days.at(-1)!.messages.push(message);
-    }
-    return days;
+  get days(): ThreadDay[] {
+    return byDay(this.messages);
   }
 
-  emoji(reaction: Reaction): string {
-    return REACTIONS.find(item => item.reaction === reaction)!.emoji;
-  }
+  readonly emoji = reactionEmoji;
 
   /** Enter sends, Shift+Enter goes to the next line. */
   onKeydown(event: KeyboardEvent): void {
@@ -239,10 +227,16 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   /** Sends the message, or saves the one being edited. */
   submit(): void {
     const text = this.draft.value.trim();
-    if (!text || this.draft.invalid || this.sending || !this.conversation || (this.conversation.closed && !this.editing)) {
+    const files = this.editing ? [] : this.picker?.refs() ?? [];
+    if ((!text && !files.length) || this.draft.hasError('maxlength') || this.sending || !this.conversation ||
+      (this.conversation.closed && !this.editing) || (!this.editing && this.picker && !this.picker.valid)) {
       return;
     }
     this.sending = true;
+    if (!text) {
+      this.deliver('');
+      return;
+    }
     // The workspace's client, ESN and contact names are pointed out before the message goes, as before a post.
     this.confidentiality.review(text).subscribe(choice => {
       if (choice?.action === 'publish') {
@@ -260,10 +254,14 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   /** Sends the text checked, or saves the message being edited. */
   private deliver(text: string): void {
     const editing = this.editing;
-    (editing ? this.api.edit(editing.id, text) : this.api.send(this.conversationId, text, this.replyTo?.id ?? null)).subscribe({
+    (editing ? this.api.edit(editing.id, text) : this.api.send(this.conversationId, text, this.replyTo?.id ?? null, null,
+      this.picker?.refs() ?? [])).subscribe({
       next: message => {
         this.sending = false;
         this.draft.reset('');
+        if (!editing) {
+          this.picker?.clear();
+        }
         this.replyTo = null;
         this.editing = null;
         this.messages = editing ? this.messages.map(item => item.id === message.id ? message : item) : [...this.messages, message];
@@ -393,9 +391,7 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
     return this.conversation?.group?.title ?? this.conversation?.with?.firstName ?? '';
   }
 
-  memberNames(members: MemberCard[]): string {
-    return members.map(member => `${member.firstName} ${member.lastName}`).join(', ');
-  }
+  readonly memberNames = memberNames;
 
   /** Adds members to the reader's own group, among their followers. */
   addMembers(): void {

@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
+import dev.swirlit.indezy.dto.NetworkFileDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.NetworkBookmark;
@@ -97,6 +98,7 @@ public class NetworkPostService {
     private final NetworkNotificationService notices;
     private final NetworkNotificationRepository notificationRepository;
     private final NetworkLinkPreviews previews;
+    private final NetworkFileService files;
 
     /** Posts the text, unless the spam score holds it for review: then nothing is published yet. */
     @Transactional
@@ -110,15 +112,18 @@ public class NetworkPostService {
         if (kind == NetworkPostKind.POLL && poll == null) {
             throw new IllegalArgumentException("A poll has two to four choices");
         }
-        return spam.hold(userId, null, null, text) ? Optional.empty() : Optional.of(publish(userId, text, kind, details, poll));
+        Optional<Long> held = spam.hold(userId, null, null, text);
+        held.ifPresent(heldId -> files.attachToHeld(userId, request.files(), heldId));
+        return held.isPresent() ? Optional.empty() : Optional.of(publish(userId, text, kind, details, poll, request.files()));
     }
 
     /** Publishes the member's post: posted, or let go by an administrator once held (then as a plain post). */
     NetworkDtos.Post publish(Long userId, String text) {
-        return publish(userId, text, NetworkPostKind.POST, null, null);
+        return publish(userId, text, NetworkPostKind.POST, null, null, null);
     }
 
-    private NetworkDtos.Post publish(Long userId, String text, NetworkPostKind kind, NetworkPostDetails details, NetworkDtos.NewPoll poll) {
+    private NetworkDtos.Post publish(Long userId, String text, NetworkPostKind kind, NetworkPostDetails details, NetworkDtos.NewPoll poll,
+                                     List<NetworkFileDtos.Ref> attached) {
         NetworkMember author = network.requireMember(userId);
         NetworkPost post = new NetworkPost();
         post.setAuthorId(userId);
@@ -130,11 +135,13 @@ public class NetworkPostService {
         }
         post.setTags(tags(post.getText()));
         posts.save(post);
+        files.attachToPost(userId, attached, post.getId());
         previews.refresh(post);
         notices.mentions(post.getText(), userId, post.getId());
         log.info("Member {} posted {}", userId, post.getId());
         return toDto(post, network.card(author), userId, List.of(), new Seen(0, false, null, 0, polls.views(List.of(post), userId)
-            .get(post.getId()), missionTakes.views(List.of(post), userId).get(post.getId()), new NetworkDtos.Useful(0, false)));
+            .get(post.getId()), missionTakes.views(List.of(post), userId).get(post.getId()), new NetworkDtos.Useful(0, false),
+            files.forPosts(List.of(post.getId())).getOrDefault(post.getId(), List.of())));
     }
 
     /** Deletes the reader's own post; another member's, like an unknown one, is not found. */
@@ -155,6 +162,7 @@ public class NetworkPostService {
         versions.deleteByPostId(post.getId());
         bookmarks.deleteByPostId(post.getId());
         notificationRepository.deleteByPostId(post.getId());
+        files.deleteForPost(post.getId());
         posts.delete(post);
     }
 
@@ -208,12 +216,13 @@ public class NetworkPostService {
         Map<Long, NetworkDtos.Poll> pollViews = polls.views(found.getContent(), readerId);
         Map<Long, NetworkDtos.Taken> taken = missionTakes.views(found.getContent(), readerId);
         Map<Long, NetworkDtos.Useful> useful = usefuls.views(found.getContent(), readerId, blocked);
+        Map<Long, List<NetworkFileDtos.File>> carried = files.forPosts(ids);
         List<NetworkDtos.Post> shown = found.getContent().stream()
             .map(post -> cards.computeIfAbsent(post.getAuthorId(), this::authorCard)
                 .map(card -> toDto(post, card, readerId, liked.getOrDefault(post.getId(), List.of()),
                     new Seen(seenComments(post, readerId, blocked, commented.getOrDefault(post.getId(), List.of())), saved.contains(post.getId()),
                         originals.get(post.getId()), reposts.getOrDefault(post.getId(), 0), pollViews.get(post.getId()),
-                        taken.get(post.getId()), useful.get(post.getId())))))
+                        taken.get(post.getId()), useful.get(post.getId()), carried.getOrDefault(post.getId(), List.of())))))
             .flatMap(Optional::stream).toList();
         return new NetworkDtos.Posts(shown, found.getNumber(), found.hasNext());
     }
@@ -235,9 +244,9 @@ public class NetworkPostService {
 
     /** What a post shows its reader beyond itself: the comments they see, whether they saved it, its original and reposts. */
     private record Seen(int comments, boolean bookmarked, NetworkDtos.Original original, int reposts, NetworkDtos.Poll poll,
-                        NetworkDtos.Taken taken, NetworkDtos.Useful useful) {
+                        NetworkDtos.Taken taken, NetworkDtos.Useful useful, List<NetworkFileDtos.File> files) {
 
-        static final Seen NOTHING = new Seen(0, false, null, 0, null, null, null);
+        static final Seen NOTHING = new Seen(0, false, null, 0, null, null, null, List.of());
     }
 
     private static NetworkDtos.Post toDto(NetworkPost post, NetworkDtos.MemberCard author, Long readerId, List<NetworkLike> postLikes,
@@ -247,7 +256,7 @@ public class NetworkPostService {
             seen.comments(), post.isCommentsClosed(), post.getEditedAt() != null, seen.bookmarked(), seen.original(), seen.reposts(),
             post.isRepostsOff(), post.getKind(), NetworkPostKinds.toDto(post.getDetails()), post.getAnswerCommentId(), seen.poll(),
             seen.taken(), seen.useful(), reactions(postLikes), postLikes.stream().filter(like -> like.getUserId().equals(readerId))
-            .map(NetworkLike::reactionOrLike).findFirst().orElse(null), NetworkLinkPreviews.view(post.getPreview()));
+            .map(NetworkLike::reactionOrLike).findFirst().orElse(null), NetworkLinkPreviews.view(post.getPreview()), seen.files());
     }
 
 
@@ -321,7 +330,7 @@ public class NetworkPostService {
                 bookmarks.findByUserIdAndPostId(readerId, post.getId()).isPresent(), originals(List.of(post), blocked).get(post.getId()),
                 repostCounts(List.of(post.getId())).getOrDefault(post.getId(), 0), polls.views(List.of(post), readerId).get(post.getId()),
                 missionTakes.views(List.of(post), readerId).get(post.getId()), usefuls.views(List.of(post), readerId, blocked)
-                .get(post.getId())));
+                .get(post.getId()), files.forPosts(List.of(post.getId())).getOrDefault(post.getId(), List.of())));
     }
 
     /** Saves a post the reader can read to their private list, or takes it off. */

@@ -152,6 +152,7 @@ NNNN-short-title.md
 | [0010: Keep Opportunity Files In PostgreSQL](./adr/0010-attachments-in-postgresql.md) | Accepted |
 | [0011: Organizations For The Teams Tier](./adr/0011-organizations-for-the-teams-tier.md) | Proposed |
 | [0012: Network Events Over Server-Sent Events And PostgreSQL Notifications](./adr/0012-network-events-over-server-sent-events.md) | Accepted |
+| [0013: Keep The Network's Files In PostgreSQL Behind Signed Addresses](./adr/0013-network-files-in-postgresql.md) | Accepted |
 
 ## Decisions Still Open
 

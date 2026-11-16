@@ -1,4 +1,5 @@
 import { LinkPreview, MemberCard, Reaction, ReactionCount } from './network.models';
+import { NetworkFile } from './network-files.models';
 
 /** Why no message can go in a conversation: the other member does not follow the reader, either blocks the other, or left. */
 export type ConversationClosed = 'NOT_FOLLOWED' | 'BLOCKED' | 'LEFT';
@@ -54,6 +55,8 @@ export interface Message {
   card: OpportunityCard | null;
   /** The card of its first link, once its page was read. */
   preview?: LinkPreview | null;
+  /** Its images and documents, in their order. */
+  files?: NetworkFile[];
 }
 
 /** An opportunity shared in a message: its facts, never its client. */

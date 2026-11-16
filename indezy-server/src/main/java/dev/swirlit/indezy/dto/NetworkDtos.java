@@ -70,11 +70,13 @@ public final class NetworkDtos {
     public record Post(Long id, MemberCard author, String text, List<String> tags, LocalDateTime createdAt, boolean own, int likes,
                        boolean liked, int comments, boolean commentsClosed, boolean edited, boolean bookmarked, Original repostOf,
                        int reposts, boolean repostsOff, NetworkPostKind kind, PostDetails details, Long answerCommentId, Poll poll,
-                       Taken taken, Useful useful, List<ReactionCount> reactions, NetworkReaction myReaction, LinkPreview preview) {
+                       Taken taken, Useful useful, List<ReactionCount> reactions, NetworkReaction myReaction, LinkPreview preview,
+                       List<NetworkFileDtos.File> files) {
 
         public Post {
             tags = List.copyOf(tags);
             reactions = List.copyOf(reactions);
+            files = files == null ? List.of() : List.copyOf(files);
         }
 
         // Spring MVC logs bodies through toString at DEBUG: not the text a member wrote.
@@ -129,10 +131,15 @@ public final class NetworkDtos {
     }
 
     /** A new post: its text, paragraphs kept. */
-    public record NewPost(@NotBlank @Size(max = 3000) String text, NetworkPostKind kind, @Valid PostDetails details, @Valid NewPoll poll) {
+    public record NewPost(@NotBlank @Size(max = 3000) String text, NetworkPostKind kind, @Valid PostDetails details, @Valid NewPoll poll,
+                          @Size(max = 7) List<NetworkFileDtos.@Valid Ref> files) {
+
+        public NewPost {
+            files = files == null ? null : List.copyOf(files);
+        }
 
         public NewPost(String text) {
-            this(text, null, null, null);
+            this(text, null, null, null, null);
         }
 
         @Override

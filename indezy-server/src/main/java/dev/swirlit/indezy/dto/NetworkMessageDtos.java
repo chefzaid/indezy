@@ -2,6 +2,7 @@ package dev.swirlit.indezy.dto;
 
 import dev.swirlit.indezy.model.NetworkMessage;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -77,10 +78,11 @@ public final class NetworkMessageDtos {
     /** A message as its reader reads it; {@code from} is its sender, none for the reader's own. */
     public record Message(Long id, boolean mine, NetworkDtos.MemberCard from, String text, LocalDateTime sentAt, boolean edited,
                           boolean deleted, boolean editable, Reply replyTo, List<NetworkDtos.ReactionCount> reactions,
-                          NetworkReaction myReaction, Card card, NetworkDtos.LinkPreview preview) {
+                          NetworkReaction myReaction, Card card, NetworkDtos.LinkPreview preview, List<NetworkFileDtos.File> files) {
 
         public Message {
             reactions = List.copyOf(reactions);
+            files = files == null ? List.of() : List.copyOf(files);
         }
 
         // Spring MVC logs bodies through toString at DEBUG: not what members wrote each other.
@@ -124,7 +126,16 @@ public final class NetworkMessageDtos {
     }
 
     /** A message: its text, which may stay empty with an opportunity shared, the message it replies to, the opportunity. */
-    public record NewMessage(@Size(max = NetworkMessage.TEXT_MAX) String text, Long replyTo, Long opportunityId) {
+    public record NewMessage(@Size(max = NetworkMessage.TEXT_MAX) String text, Long replyTo, Long opportunityId,
+                             @Size(max = 7) List<NetworkFileDtos.@Valid Ref> files) {
+
+        public NewMessage {
+            files = files == null ? null : List.copyOf(files);
+        }
+
+        public NewMessage(String text, Long replyTo, Long opportunityId) {
+            this(text, replyTo, opportunityId, null);
+        }
 
         @Override
         public String toString() {

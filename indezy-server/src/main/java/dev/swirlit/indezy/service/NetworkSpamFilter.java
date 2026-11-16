@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,11 +76,11 @@ public class NetworkSpamFilter {
     private final NetworkHeldRepository held;
     private final Clock clock;
 
-    /** Holds the text when it scores {@value #HOLD_AT} or more; answers whether it did. */
-    boolean hold(Long authorId, Long postId, Long parentId, String text) {
+    /** Holds the text when it scores {@value #HOLD_AT} or more; answers what holds it, none when it goes out. */
+    Optional<Long> hold(Long authorId, Long postId, Long parentId, String text) {
         Set<Reason> reasons = reasons(authorId, text);
         if (reasons.stream().mapToInt(Reason::points).sum() < HOLD_AT) {
-            return false;
+            return Optional.empty();
         }
         NetworkHeld kept = new NetworkHeld();
         kept.setAuthorId(authorId);
@@ -89,7 +90,7 @@ public class NetworkSpamFilter {
         kept.setReasons(reasons.stream().map(Enum::name).collect(Collectors.joining(",")));
         held.save(kept);
         log.info("Held a {} of member {} for review: {}", postId == null ? "post" : "comment", authorId, kept.getReasons());
-        return true;
+        return Optional.of(kept.getId());
     }
 
     private Set<Reason> reasons(Long authorId, String text) {
