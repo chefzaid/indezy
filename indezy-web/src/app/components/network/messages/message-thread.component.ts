@@ -16,6 +16,7 @@ import { Subscription, interval } from 'rxjs';
 import { Conversation, MESSAGE_MAX, Message, ProjectDto, REACTIONS, Reaction } from '../../../models';
 import { ProjectService } from '../../../services/project/project.service';
 import { AuthService } from '../../../services/auth/auth.service';
+import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -58,6 +59,7 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   private readonly translate = inject(TranslateService);
   private readonly projects = inject(ProjectService);
   private readonly auth = inject(AuthService);
+  private readonly confidentiality = inject(ConfidentialityGuardService);
   private polling: Subscription | null = null;
   private scrollDown = false;
 
@@ -189,6 +191,22 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
       return;
     }
     this.sending = true;
+    // The workspace's client, ESN and contact names are pointed out before the message goes, as before a post.
+    this.confidentiality.review(text).subscribe(choice => {
+      if (choice?.action === 'publish') {
+        this.deliver(choice.text);
+        return;
+      }
+      this.sending = false;
+      if (choice) {
+        this.draft.setValue(choice.text);
+        this.notifications.success('network.confidentiality.anonymized');
+      }
+    });
+  }
+
+  /** Sends the text checked, or saves the message being edited. */
+  private deliver(text: string): void {
     const editing = this.editing;
     (editing ? this.api.edit(editing.id, text) : this.api.send(this.conversationId, text, this.replyTo?.id ?? null)).subscribe({
       next: message => {

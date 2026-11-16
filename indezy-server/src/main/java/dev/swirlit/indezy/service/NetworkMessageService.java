@@ -200,6 +200,20 @@ public class NetworkMessageService {
                 message.getCreatedAt())).toList();
     }
 
+    /**
+     * The messages of the reader's conversations holding every word (as the global search reads them), the latest first,
+     * {@code max} at most: found by the first word, then kept when the others are there too.
+     */
+    @Transactional(readOnly = true)
+    public List<NetworkMessageDtos.Found> searchAll(Long userId, List<String> words, int max) {
+        if (words.isEmpty()) {
+            return List.of();
+        }
+        List<NetworkMessageDtos.Found> found = search(userId, words.getFirst());
+        return found.stream().filter(hit -> messages.findById(hit.messageId())
+            .filter(message -> GlobalSearchService.containsAll(message.getText(), words)).isPresent()).limit(max).toList();
+    }
+
     /** A message of a conversation the reader is in, with its other member still in reach. */
     NetworkMessage readable(Long userId, Long messageId) {
         NetworkMessage message = messages.findById(messageId).orElseThrow(() -> new ResourceNotFoundException(MESSAGE_NOT_FOUND));

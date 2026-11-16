@@ -260,7 +260,8 @@ on the choice of their store.
 menu) holds one-to-one conversations. **Message** on a member's page opens one when the member follows the reader;
 once they stop following, either blocks the other or one leaves the network, the past stays readable but no new message
 goes, the conversation saying why. The list shows each conversation's latest message and how many are unread, the
-latest first, read again every 30 seconds; an open conversation asks for new messages every 10 seconds (real-time
+latest first, read again every 30 seconds; an open conversation asks for new messages every 10 seconds, and, as before
+a post, the workspace's client, ESN and contact names in a message are pointed out before it goes (real-time
 delivery waits on a decision, see TODO.md). In a conversation, Enter sends and Shift+Enter starts a new line; a
 message is replied to (quoting it), reacted to with one of the five reactions, and edited or deleted for both by its
 sender within 15 minutes. The briefcase beside the field shares one of the reader's opportunities as a card (role, daily
@@ -920,8 +921,8 @@ type, usefulness) and the archive. The global search is under [Keyboard Shortcut
 search, `Alt+Shift+M` stage menu of the current opportunity or focused card, and `Alt+Shift+S` (or the top bar's
 button) the **global search**: words of two characters or more found in one field of an opportunity, client, contact or
 journal note, accents and case aside, up to 8 hits of each kind, highlighted; while the member network is on, a member
-also finds members (by what their card shows) and posts (among the latest 1,000), but those of members blocked either
-way, each opening the member's page or the post's. In the offer feed, `J` / `K` move between
+also finds members (by what their card shows), posts (among the latest 1,000) and their own messages, but those of
+members blocked either way, each opening the member's page, the post's or the conversation. In the offer feed, `J` / `K` move between
 offers, `O` opens, `S` saves, `H` hides, `A` adds to the pipeline, `D` shows details, `N` opens the note and `X` selects.
 Shortcuts never run in editable fields, menus or dialogs. Every page works from the keyboard alone.
 

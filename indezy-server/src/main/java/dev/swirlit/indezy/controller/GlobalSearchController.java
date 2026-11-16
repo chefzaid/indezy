@@ -21,7 +21,7 @@ public class GlobalSearchController {
     private final GlobalSearchService searchService;
     private final AccessGuard accessGuard;
 
-    @Operation(summary = "Search the workspace's opportunities, clients, contacts and notes, and the network's members and posts, at once",
+    @Operation(summary = "Search the workspace's opportunities, clients, contacts and notes, and the network's members, posts and one's messages, at once",
         description = "Accents and case aside, every word typed must appear in one field; at most 8 hits of each kind")
     @GetMapping
     public GlobalSearchResultDto search(@RequestParam String q, @RequestParam(required = false) Long freelanceId) {

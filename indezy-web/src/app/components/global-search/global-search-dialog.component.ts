@@ -28,7 +28,8 @@ const KINDS: { kind: Kind; icon: string; link: (hit: SearchHit) => (string | num
   { kind: 'contacts', icon: 'person', link: hit => ['/contacts', hit.id] },
   { kind: 'notes', icon: 'sticky_note_2', link: hit => ['/projects', hit.projectId ?? hit.id] },
   { kind: 'members', icon: 'diversity_3', link: hit => ['/m', hit.handle ?? ''] },
-  { kind: 'posts', icon: 'forum', link: hit => ['/network/posts', hit.id] }
+  { kind: 'posts', icon: 'forum', link: hit => ['/network/posts', hit.id] },
+  { kind: 'messages', icon: 'chat', link: hit => ['/network/messages', hit.id] }
 ];
 
 /**

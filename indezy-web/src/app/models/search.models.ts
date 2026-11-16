@@ -15,7 +15,8 @@ export interface GlobalSearchResult {
   clients: SearchHit[];
   contacts: SearchHit[];
   notes: SearchHit[];
-  /** The network's members and posts, for a member while the network is on. */
+  /** The network's members and posts, and the reader's messages (a hit's id is its conversation's), for a member. */
   members: SearchHit[];
   posts: SearchHit[];
+  messages: SearchHit[];
 }

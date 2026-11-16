@@ -69,7 +69,7 @@ public class GlobalSearchService {
             .map(note -> noteHit(words, note))
             .filter(Objects::nonNull).limit(HITS_PER_KIND).toList();
         NetworkSearchService.Found network = networkSearch.search(userId, words, HITS_PER_KIND);
-        return new GlobalSearchResultDto(projectHits, clientHits, contactHits, noteHits, network.members(), network.posts());
+        return new GlobalSearchResultDto(projectHits, clientHits, contactHits, noteHits, network.members(), network.posts(), network.messages());
     }
 
     /**

@@ -14,6 +14,7 @@ import { MessageThreadComponent, THREAD_REFRESH_MS } from './message-thread.comp
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
 import { ProjectService } from '../../../services/project/project.service';
 import { AuthService } from '../../../services/auth/auth.service';
+import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
 import en from '../../../../assets/i18n/en.json';
 
 describe('MessageThreadComponent', () => {
@@ -22,6 +23,7 @@ describe('MessageThreadComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
   let projects: jasmine.SpyObj<ProjectService>;
+  let guard: jasmine.SpyObj<ConfidentialityGuardService>;
   let fixture: ComponentFixture<MessageThreadComponent>;
   let emitted: Conversation[];
   const conversation: Conversation = { id: 4, with: { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null,
@@ -41,12 +43,15 @@ describe('MessageThreadComponent', () => {
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     projects = jasmine.createSpyObj('ProjectService', ['getByFreelanceId']);
+    guard = jasmine.createSpyObj('ConfidentialityGuardService', ['review']);
+    guard.review.and.callFake((text: string) => of({ action: 'publish' as const, text }));
     TestBed.configureTestingModule({
       imports: [MessageThreadComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: NetworkMessagesService, useValue: api }, { provide: NetworkNoticesService, useValue: notices },
         { provide: NotificationService, useValue: notifications }, { provide: ConfirmDialogService, useValue: confirm },
-        { provide: ProjectService, useValue: projects }, { provide: AuthService, useValue: { getUser: () => ({ id: 3 }) } }]
+        { provide: ProjectService, useValue: projects }, { provide: AuthService, useValue: { getUser: () => ({ id: 3 }) } },
+        { provide: ConfidentialityGuardService, useValue: guard }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
@@ -216,6 +221,23 @@ describe('MessageThreadComponent', () => {
     component.downloadPdf();
     expect(api.pdf).toHaveBeenCalledWith(4, 'FR');
     expect(notifications.error).toHaveBeenCalledWith('network.messages.pdfError');
+    discardPeriodicTasks();
+  }));
+
+  it('points out the workspace\'s names before a message goes, sending what the reader chose', fakeAsync(() => {
+    create();
+    const component = fixture.componentInstance;
+    guard.review.and.returnValue(of({ action: 'edit' as const, text: 'Une mission chez un client à Paris' }));
+    component.draft.setValue('Une mission chez Société Générale');
+    component.submit();
+    expect(guard.review).toHaveBeenCalledWith('Une mission chez Société Générale');
+    expect(api.send).not.toHaveBeenCalled();
+    expect(component.draft.value).toBe('Une mission chez un client à Paris');
+    expect(notifications.success).toHaveBeenCalledWith('network.confidentiality.anonymized');
+    guard.review.and.returnValue(of(null));
+    component.submit();
+    expect(api.send).not.toHaveBeenCalled();
+    expect(component.sending).toBeFalse();
     discardPeriodicTasks();
   }));
 

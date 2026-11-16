@@ -2436,7 +2436,8 @@
       "contacts": "Contacts",
       "notes": "Notes",
       "members": "Members",
-      "posts": "Posts"
+      "posts": "Posts",
+      "messages": "Messages"
     }
   },
   "review": {

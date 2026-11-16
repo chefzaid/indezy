@@ -185,6 +185,13 @@ class NetworkMessagesIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.GET, "/network/conversations/search?q=_", null, List.class).getBody()).isEmpty();
         assertThat(call(bob, HttpMethod.GET, "/network/conversations/search?q=%25%25", null, List.class).getBody()).isEmpty();
         assertThat(call(carol, HttpMethod.GET, "/network/conversations/search?q=plaisir", null, List.class).getBody()).isEmpty();
+        // The global search finds the reader's messages holding every word, each opening its conversation.
+        List<Map<String, Object>> global = (List<Map<String, Object>>) call(bob, HttpMethod.GET, "/search?q=avec+plaisir", null, Map.class)
+            .getBody().get("messages");
+        assertThat(global).singleElement().satisfies(hit -> assertThat(hit).containsEntry("id", conversation)
+            .containsEntry("handle", aliceHandle).containsEntry("excerpt", "Avec plaisir"));
+        assertThat((List<?>) call(bob, HttpMethod.GET, "/search?q=avec+kafka", null, Map.class).getBody().get("messages")).isEmpty();
+        assertThat((List<?>) call(carol, HttpMethod.GET, "/search?q=plaisir", null, Map.class).getBody().get("messages")).isEmpty();
 
         // Muted, the conversation counts in no unread total; archived, it leaves the list until a new message comes.
         call(alice, HttpMethod.PUT, "/network/conversations/" + conversation + "/settings", Map.of("muted", true), Map.class);

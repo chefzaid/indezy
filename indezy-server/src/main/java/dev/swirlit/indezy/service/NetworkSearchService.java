@@ -25,8 +25,8 @@ import java.util.stream.Stream;
 
 /**
  * The member network in the global search (see docs/features.md#keyboard-shortcuts): the members whose card shows every word
- * typed, by what it shows only, and the latest posts holding every word, but those of members blocked either way, away or
- * private to the reader;
+ * typed, by what it shows only, the latest posts holding every word, but those of members blocked either way, away or
+ * private to the reader, and the reader's own messages holding every word;
  * nothing while the network is off or the account is not a member.
  */
 @Service
@@ -44,6 +44,7 @@ public class NetworkSearchService {
     private final NetworkPostRepository postRepository;
     private final NetworkRestrictionRepository restrictions;
     private final NetworkFollowService follows;
+    private final NetworkMessageService messages;
 
     /** What the network holds for these words: members, then posts, at most {@code max} of each; nothing for no account. */
     public Found search(Long userId, List<String> words, int max) {
@@ -63,7 +64,9 @@ public class NetworkSearchService {
             .filter(post -> !unread.contains(post.getAuthorId()) && GlobalSearchService.containsAll(post.getText(), words))
             .map(post -> authors.computeIfAbsent(post.getAuthorId(), posts::authorCard).map(author -> postHit(words, post, author)))
             .flatMap(Optional::stream).limit(max).toList();
-        return new Found(memberHits, postHits);
+        List<Hit> messageHits = messages.searchAll(userId, words, max).stream().map(found -> new Hit(found.conversationId(),
+            name(found.with()), "@" + found.with().handle(), found.excerpt(), null, found.with().handle())).toList();
+        return new Found(memberHits, postHits, messageHits);
     }
 
     /** The member when one field of their card holds every word: the name, the handle, the headline, a skill, the city. */
@@ -94,14 +97,15 @@ public class NetworkSearchService {
     private record Seen(Long id, NetworkDtos.MemberCard card) {
     }
 
-    /** The members and the posts found. */
-    public record Found(List<Hit> members, List<Hit> posts) {
+    /** The members, the posts and the reader's messages found. */
+    public record Found(List<Hit> members, List<Hit> posts, List<Hit> messages) {
 
-        static final Found NOTHING = new Found(List.of(), List.of());
+        static final Found NOTHING = new Found(List.of(), List.of(), List.of());
 
         public Found {
             members = List.copyOf(members);
             posts = List.copyOf(posts);
+            messages = List.copyOf(messages);
         }
     }
 }

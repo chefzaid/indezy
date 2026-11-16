@@ -6,7 +6,7 @@ import java.util.List;
 
 /** What the global search found in a workspace, by kind, each list at most a few hits, best first. */
 public record GlobalSearchResultDto(List<Hit> projects, List<Hit> clients, List<Hit> contacts, List<Hit> notes, List<Hit> members,
-                                    List<Hit> posts) {
+                                    List<Hit> posts, List<Hit> messages) {
 
     public GlobalSearchResultDto {
         projects = List.copyOf(projects);
@@ -15,12 +15,14 @@ public record GlobalSearchResultDto(List<Hit> projects, List<Hit> clients, List<
         notes = List.copyOf(notes);
         members = List.copyOf(members);
         posts = List.copyOf(posts);
+        messages = List.copyOf(messages);
     }
 
     /**
      * One record found: its title (an opportunity's role, a client's or contact's name, a note's opportunity), what places
      * it (a client, a city), and, when the words were found elsewhere, the passage they were found in. A note's hit
-     * names its opportunity's {@code projectId}; a member's or a post's names the member's {@code handle}.
+     * names its opportunity's {@code projectId}; a member's or a post's names the member's {@code handle}; a message's id is
+     * its conversation's, its handle the other member's.
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record Hit(Long id, String title, String subtitle, String excerpt, Long projectId, String handle) {
