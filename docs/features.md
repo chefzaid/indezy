@@ -263,7 +263,10 @@ goes, the conversation saying why. The list shows each conversation's latest mes
 latest first, read again every 30 seconds; an open conversation asks for new messages every 10 seconds (real-time
 delivery waits on a decision, see TODO.md). In a conversation, Enter sends and Shift+Enter starts a new line; a
 message is replied to (quoting it), reacted to with one of the five reactions, and edited or deleted for both by its
-sender within 15 minutes. **Mute** keeps a conversation out of the unread count; **Archive** moves it to **Archived**
+sender within 15 minutes. The briefcase beside the field shares one of the reader's opportunities as a card (role, daily
+rate, city, start, remote days, stack, never the client); its recipient **Adds it to their pipeline** in one click, at
+**Contact** with a confidential client and the sender as its source (who referred it), the card then linking to it.
+**Mute** keeps a conversation out of the unread count; **Archive** moves it to **Archived**
 until a new message comes. **Search messages**, above the list, finds the reader's messages holding what is typed (two
 characters or more, case aside), the latest first, each opening its conversation. Another member's message is
 reported like a post (**Report**, with a reason): its text goes to the moderators, who can remove it for both sides.

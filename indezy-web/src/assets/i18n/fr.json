@@ -3723,7 +3723,14 @@
       "results": "Messages trouvés",
       "noResult": "Aucun message ne contient ces mots.",
       "pdf": "Télécharger en PDF",
-      "pdfError": "Le PDF n'a pas pu être créé"
+      "pdfError": "Le PDF n'a pas pu être créé",
+      "share": "Partager une opportunité",
+      "noOpportunity": "Aucune opportunité à partager pour l'instant.",
+      "cardRate": "{{rate}} € par jour",
+      "cardStart": "à partir du {{date}}",
+      "cardRemote": "{{days}} jours de télétravail par mois",
+      "cardAlready": "Cette opportunité est déjà dans votre pipeline",
+      "cardError": "L'opportunité n'a pas pu être ajoutée"
     }
   }
 }

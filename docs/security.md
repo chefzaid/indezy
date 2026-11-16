@@ -202,7 +202,9 @@ The member network (`/api/network`) is on unless an administrator turns it off (
 - a conversation opens only towards a member who follows the sender; once they stop following, either blocks the other
   or one leaves, new messages are refused (`409` with the reason); a conversation with a member who left or with whom
   either blocks the other is not found, nor is one the reader is not in; only a message's sender edits or deletes it,
-  within 15 minutes, a deletion emptying its text for both; a search reads only the reader's conversations still in
+  within 15 minutes, a deletion emptying its text (and its opportunity card) for both; a card copies only the sender's
+  own opportunity (`404` for another workspace's), never its client, and the opportunity it became shows to its
+  recipient alone; a search reads only the reader's conversations still in
   reach, and a reported message's text goes to the moderators with the report (as a post's does), a removal emptying it
   for both; the unread messages email names the senders and counts their messages, never their text, and its
   one-click unsubscribe token (`/api/public/network-messages/unsubscribe/{token}`) only turns these emails off;

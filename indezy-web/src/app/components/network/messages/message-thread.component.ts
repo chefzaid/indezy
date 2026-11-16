@@ -13,7 +13,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, interval } from 'rxjs';
 
-import { Conversation, MESSAGE_MAX, Message, REACTIONS, Reaction } from '../../../models';
+import { Conversation, MESSAGE_MAX, Message, ProjectDto, REACTIONS, Reaction } from '../../../models';
+import { ProjectService } from '../../../services/project/project.service';
+import { AuthService } from '../../../services/auth/auth.service';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -24,6 +26,8 @@ import { saveBlob } from '../../../shared/utils/download-file';
 
 /** How often an open conversation asks for new messages. */
 export const THREAD_REFRESH_MS = 10_000;
+/** How many of the reader's opportunities the share list offers. */
+const OPPORTUNITIES_SHOWN = 20;
 
 /** A day of the conversation and its messages. */
 interface Day {
@@ -52,6 +56,8 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  private readonly projects = inject(ProjectService);
+  private readonly auth = inject(AuthService);
   private polling: Subscription | null = null;
   private scrollDown = false;
 
@@ -63,6 +69,8 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
 
   readonly max = MESSAGE_MAX;
   readonly reactions = REACTIONS;
+  /** The reader's opportunities to share; none loaded yet while null. */
+  opportunities: ProjectDto[] | null = null;
   readonly draft = new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(MESSAGE_MAX)] });
   conversation: Conversation | null = null;
   messages: Message[] = [];
@@ -244,6 +252,55 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
     this.api.react(message.id, message.myReaction === reaction ? null : reaction).subscribe({
       next: updated => this.messages = this.messages.map(item => item.id === updated.id ? updated : item),
       error: () => this.notifications.error('network.messages.changeError')
+    });
+  }
+
+  /** The reader's opportunities to share, loaded when the list opens, the latest first. */
+  loadOpportunities(): void {
+    if (this.opportunities !== null) {
+      return;
+    }
+    const user = this.auth.getUser();
+    this.projects.getByFreelanceId(user?.id ?? 0).subscribe({
+      next: found => this.opportunities = [...found].filter(project => !project.archivedAt).reverse().slice(0, OPPORTUNITIES_SHOWN),
+      error: () => {
+        this.opportunities = [];
+        this.notifications.error('network.messages.loadError');
+      }
+    });
+  }
+
+  /** Shares one of the reader's opportunities as a card, with what is written as its message. */
+  share(project: ProjectDto): void {
+    if (this.sending || !this.conversation || this.conversation.closed) {
+      return;
+    }
+    this.sending = true;
+    this.api.send(this.conversationId, this.draft.value.trim(), this.replyTo?.id ?? null, project.id ?? null).subscribe({
+      next: message => {
+        this.sending = false;
+        this.draft.reset('');
+        this.replyTo = null;
+        this.messages = [...this.messages, message];
+        this.scrollDown = true;
+        this.changes.markForCheck();
+      },
+      error: () => {
+        this.sending = false;
+        this.notifications.error('network.messages.sendError');
+      }
+    });
+  }
+
+  /** Adds the opportunity a message shares to the reader's pipeline, the card then linking to it. */
+  take(message: Message): void {
+    this.api.take(message.id).subscribe({
+      next: project => {
+        this.messages = this.messages.map(item => item.id === message.id && item.card ? { ...item, card: { ...item.card,
+          takenProjectId: project.id ?? null } } : item);
+        this.notifications.success('network.pipeline.added');
+      },
+      error: (error: HttpErrorResponse) => this.notifications.error(error.status === 409 ? 'network.messages.cardAlready' : 'network.messages.cardError')
     });
   }
 

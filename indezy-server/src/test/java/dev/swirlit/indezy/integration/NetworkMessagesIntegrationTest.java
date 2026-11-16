@@ -58,6 +58,51 @@ class NetworkMessagesIntegrationTest extends TwoAccountsIntegrationTest {
         return call(account, HttpMethod.POST, "/network/conversations/" + conversation + "/messages", body, Map.class).getBody();
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    void sharesAnOpportunityAsACardTheRecipientAddsToTheirPipeline() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        String aliceHandle = join(alice);
+        String bobHandle = join(bob);
+        call(bob, HttpMethod.PUT, "/network/members/" + aliceHandle + "/follow", null, Map.class);
+        call(alice, HttpMethod.PUT, "/network/members/" + bobHandle + "/follow", null, Map.class);
+        Object conversation = call(alice, HttpMethod.POST, "/network/conversations", Map.of("handle", bobHandle), Map.class).getBody().get("id");
+        Map<String, Object> opportunity = new HashMap<>(Map.of("role", "Lead Kafka", "dailyRate", 720, "freelanceId", alice.freelanceId(),
+            "clientId", aliceClientId, "status", "CONTACT", "techStack", "Kafka, Java", "workAddress", "Lyon"));
+        Object projectId = call(alice, HttpMethod.POST, "/projects", opportunity, Map.class).getBody().get("id");
+
+        // A message needs a text or an opportunity; only one's own opportunity is shared, its client never.
+        assertThat(call(alice, HttpMethod.POST, "/network/conversations/" + conversation + "/messages", Map.of("text", " "), String.class)
+            .getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(bob, HttpMethod.POST, "/network/conversations/" + conversation + "/messages", Map.of("opportunityId", projectId),
+            String.class).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        Map<String, Object> shared = send(alice, conversation, Map.of("text", "Pour toi ?", "opportunityId", projectId));
+        assertThat((Map<String, Object>) shared.get("card")).containsEntry("role", "Lead Kafka").containsEntry("dailyRate", 720)
+            .containsEntry("city", "Lyon").containsEntry("stack", List.of("Kafka", "Java")).containsEntry("takenProjectId", null);
+        assertThat(call(bob, HttpMethod.GET, "/network/conversations/" + conversation, null, String.class).getBody()).doesNotContain("Alice Corp");
+
+        // Bob adds it to his pipeline once, the card then pointing to his opportunity; Alice cannot add her own.
+        assertThat(call(alice, HttpMethod.POST, "/network/messages/" + shared.get("id") + "/pipeline", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+        ResponseEntity<Map> taken = call(bob, HttpMethod.POST, "/network/messages/" + shared.get("id") + "/pipeline", null, Map.class);
+        assertThat(taken.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(taken.getBody()).containsEntry("role", "Lead Kafka").containsEntry("status", "CONTACT").containsEntry("dailyRate", 720)
+            .containsEntry("sourceName", "Indezy @" + aliceHandle).containsEntry("clientName", "Client confidentiel")
+            .containsEntry("description", "— @" + aliceHandle);
+        assertThat(((Number) taken.getBody().get("freelanceId")).longValue()).isEqualTo(bob.freelanceId());
+        assertThat(call(bob, HttpMethod.POST, "/network/messages/" + shared.get("id") + "/pipeline", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+        assertThat((Map<String, Object>) messages(bob, conversation).getFirst().get("card")).containsEntry("takenProjectId", taken.getBody().get("id"));
+        assertThat((Map<String, Object>) messages(alice, conversation).getFirst().get("card")).containsEntry("takenProjectId", null);
+        Map<String, Object> plain = send(alice, conversation, Map.of("text", "Et sinon ?"));
+        assertThat(plain).containsEntry("card", null);
+        assertThat(call(bob, HttpMethod.POST, "/network/messages/" + plain.get("id") + "/pipeline", null, String.class).getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+        Map<String, Object> cardOnly = send(alice, conversation, Map.of("opportunityId", projectId));
+        assertThat(cardOnly).containsEntry("text", "");
+        assertThat(call(alice, HttpMethod.DELETE, "/network/messages/" + cardOnly.get("id"), null, Map.class).getBody()).containsEntry("card", null);
+    }
+
     private static String pdfText(byte[] pdf) {
         try (var document = org.apache.pdfbox.Loader.loadPDF(pdf)) {
             return new org.apache.pdfbox.text.PDFTextStripper().getText(document);

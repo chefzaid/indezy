@@ -3723,7 +3723,14 @@
       "results": "Messages found",
       "noResult": "No message holds these words.",
       "pdf": "Download as PDF",
-      "pdfError": "The PDF could not be made"
+      "pdfError": "The PDF could not be made",
+      "share": "Share an opportunity",
+      "noOpportunity": "No opportunity to share yet.",
+      "cardRate": "{{rate}} € a day",
+      "cardStart": "from {{date}}",
+      "cardRemote": "{{days}} remote days a month",
+      "cardAlready": "This opportunity is already in your pipeline",
+      "cardError": "The opportunity could not be added"
     }
   }
 }

@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.NetworkMessageDtos;
+import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.model.enums.DocumentLanguage;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
 import dev.swirlit.indezy.service.NetworkConversationService;
@@ -101,6 +102,14 @@ public class NetworkMessageController {
     @DeleteMapping("/messages/{id}")
     public NetworkMessageDtos.Message delete(@PathVariable Long id) {
         return messages.delete(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "Add the opportunity a message shares to one's pipeline, once",
+        description = "At Contact, a confidential client, the sender as its source; 409 for one's own or one already added")
+    @PostMapping("/messages/{id}/pipeline")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProjectDto take(@PathVariable Long id) {
+        return messages.take(SecurityUtils.getCurrentUserId(), id);
     }
 
     @Operation(summary = "React to a message, one reaction each, the latest kept")

@@ -30,7 +30,13 @@ describe('NetworkMessagesService', () => {
     service.settings(4, { muted: true }).subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/conversations/4/settings')).request.body).toEqual({ muted: true });
     service.send(4, 'Bonjour', 7).subscribe();
-    expect(http.expectOne(call => call.url.endsWith('/network/conversations/4/messages')).request.body).toEqual({ text: 'Bonjour', replyTo: 7 });
+    expect(http.expectOne(call => call.url.endsWith('/network/conversations/4/messages')).request.body)
+      .toEqual({ text: 'Bonjour', replyTo: 7, opportunityId: null });
+    service.send(4, '', null, 12).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/conversations/4/messages')).request.body)
+      .toEqual({ text: '', replyTo: null, opportunityId: 12 });
+    service.take(9).subscribe();
+    http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/messages/9/pipeline'));
     service.edit(9, 'Bonsoir').subscribe();
     expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/messages/9')).request.body).toEqual({ text: 'Bonsoir' });
     service.remove(9).subscribe();

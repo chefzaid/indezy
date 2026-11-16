@@ -205,6 +205,7 @@ public class NetworkModerationService {
                 if (report.getTargetType() == NetworkReportTarget.POST) {
                     posts.findById(report.getTargetId()).ifPresent(postService::remove);
                 } else if (report.getTargetType() == NetworkReportTarget.MESSAGE) {
+                    // The removed message's card goes with its text.
                     messageService.removeByModerators(report.getTargetId());
                 } else {
                     comments.findById(report.getTargetId()).ifPresent(commentService::remove);

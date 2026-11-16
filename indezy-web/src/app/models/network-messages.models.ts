@@ -28,6 +28,19 @@ export interface Message {
   replyTo: { id: number; mine: boolean; excerpt: string; deleted: boolean } | null;
   reactions: ReactionCount[];
   myReaction: Reaction | null;
+  /** An opportunity shared as a card; for its recipient, the opportunity it became once added to their pipeline. */
+  card: OpportunityCard | null;
+}
+
+/** An opportunity shared in a message: its facts, never its client. */
+export interface OpportunityCard {
+  role: string;
+  dailyRate: number | null;
+  city: string | null;
+  startDate: string | null;
+  remoteDaysPerMonth: number | null;
+  stack: string[];
+  takenProjectId: number | null;
 }
 
 /** A conversation with a page of its messages, the oldest first, and whether older ones remain. */

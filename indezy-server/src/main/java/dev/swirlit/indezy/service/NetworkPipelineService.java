@@ -8,8 +8,10 @@ import dev.swirlit.indezy.model.Client;
 import dev.swirlit.indezy.model.Freelance;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkMissionTake;
+import dev.swirlit.indezy.model.NetworkOpportunityCard;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkPostDetails;
+import dev.swirlit.indezy.model.Project;
 import dev.swirlit.indezy.model.Source;
 import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import dev.swirlit.indezy.model.enums.ProjectStatus;
@@ -67,8 +69,7 @@ public class NetworkPipelineService {
         if (earlier.isPresent() && projectRepository.existsById(earlier.get().getProjectId())) {
             throw new InvalidStateException("This mission is already in your pipeline");
         }
-        Freelance freelance = users.findById(userId).flatMap(user -> freelances.findByEmail(user.getEmail()))
-            .orElseThrow(() -> new InvalidStateException("Your workspace is not set up yet"));
+        Freelance freelance = workspace(userId);
         String handle = members.findByUserId(post.getAuthorId()).map(NetworkMember::getHandle).orElse("member");
         NetworkPostDetails facts = post.getDetails();
         ProjectDto project = new ProjectDto();
@@ -82,7 +83,7 @@ public class NetworkPipelineService {
         project.setStartDate(facts.getStart());
         project.setWorkAddress(facts.getCity());
         project.setFreelanceId(freelance.getId());
-        project.setClientId(client(freelance, facts).getId());
+        project.setClientId(client(freelance, facts.getClient() != null ? facts.getClient() : CONFIDENTIAL_CLIENT, facts.getCity()).getId());
         project.setSourceId(source(freelance, handle).getId());
         ProjectDto created = projects.create(project);
         NetworkMissionTake take = earlier.orElseGet(NetworkMissionTake::new);
@@ -92,6 +93,51 @@ public class NetworkPipelineService {
         take.setNamed(named);
         takes.save(take);
         log.info("Member {} took mission {} into project {}", userId, postId, created.getId());
+        return created;
+    }
+
+    /** The reader's own opportunity, as a card to share in a message: its facts, never its client. */
+    @Transactional(readOnly = true)
+    public NetworkOpportunityCard card(Long userId, Long projectId) {
+        Freelance freelance = workspace(userId);
+        Project project = projectRepository.findById(projectId).filter(found -> found.getFreelance() != null &&
+            found.getFreelance().getId().equals(freelance.getId())).orElseThrow(() -> new ResourceNotFoundException("No such opportunity"));
+        NetworkOpportunityCard card = new NetworkOpportunityCard();
+        card.setRole(project.getRole());
+        card.setDailyRate(project.getDailyRate());
+        card.setCity(project.getWorkAddress() != null ? project.getWorkAddress() : project.getClient() == null ? null : project.getClient().getCity());
+        card.setStartDate(project.getStartDate());
+        card.setRemoteDaysPerMonth(project.getRemoteDaysPerMonth());
+        card.setTechStack(project.getTechStack());
+        return card;
+    }
+
+    /**
+     * Adds an opportunity shared in a message to the reader's pipeline, once: at Contact, its client a confidential one,
+     * its source the sender on the network, as the one who referred it.
+     */
+    @Transactional
+    public ProjectDto takeCard(Long userId, NetworkOpportunityCard card, Long senderId) {
+        if (card.getTakenProjectId() != null && projectRepository.existsById(card.getTakenProjectId())) {
+            throw new InvalidStateException("This opportunity is already in your pipeline");
+        }
+        Freelance freelance = workspace(userId);
+        String handle = members.findByUserId(senderId).map(NetworkMember::getHandle).orElse("member");
+        ProjectDto project = new ProjectDto();
+        project.setRole(card.getRole());
+        project.setStatus(ProjectStatus.CONTACT);
+        project.setDescription("— @" + handle);
+        project.setTechStack(card.getTechStack());
+        project.setDailyRate(card.getDailyRate() != null ? card.getDailyRate() : freelances.findTargetDailyRate(freelance.getId()).orElse(0));
+        project.setRemoteDaysPerMonth(card.getRemoteDaysPerMonth());
+        project.setStartDate(card.getStartDate());
+        project.setWorkAddress(card.getCity());
+        project.setFreelanceId(freelance.getId());
+        project.setClientId(client(freelance, CONFIDENTIAL_CLIENT, card.getCity()).getId());
+        project.setSourceId(source(freelance, handle).getId());
+        ProjectDto created = projects.create(project);
+        card.setTakenProjectId(created.getId());
+        log.info("Member {} took a shared opportunity into project {}", userId, created.getId());
         return created;
     }
 
@@ -107,13 +153,17 @@ public class NetworkPipelineService {
             .flatMap(Optional::stream).toList();
     }
 
-    /** The client the author named, else the workspace's confidential client, created when missing. */
-    private Client client(Freelance freelance, NetworkPostDetails facts) {
-        String name = facts.getClient() != null ? facts.getClient() : CONFIDENTIAL_CLIENT;
+    private Freelance workspace(Long userId) {
+        return users.findById(userId).flatMap(user -> freelances.findByEmail(user.getEmail()))
+            .orElseThrow(() -> new InvalidStateException("Your workspace is not set up yet"));
+    }
+
+    /** The workspace's client of this name, created when missing in the city given (France when none). */
+    private Client client(Freelance freelance, String name, String city) {
         return clients.findFirstByFreelanceIdAndCompanyNameIgnoreCase(freelance.getId(), name).orElseGet(() -> {
             Client client = new Client();
             client.setCompanyName(name);
-            client.setCity(facts.getCity() != null ? facts.getCity() : "France");
+            client.setCity(city != null ? city : "France");
             client.setIsFinal(true);
             client.setFreelance(freelance);
             return clients.save(client);

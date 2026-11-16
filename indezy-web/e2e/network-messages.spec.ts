@@ -23,7 +23,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/network/conversations', route => route.fulfill({ json: conversation }));
     await page.route('**/api/network/conversations?**', route => route.fulfill({ json: [conversation] }));
     await page.route('**/api/network/conversations/4', route => route.fulfill({ json: { conversation, more: false,
-      messages: [message(1, false, 'Une mission Kafka ?')] } }));
+      messages: [message(1, false, 'Une mission Kafka ?', { card: { role: 'Lead Kafka', dailyRate: 720, city: 'Lyon', startDate: null,
+        remoteDaysPerMonth: null, stack: ['Kafka'], takenProjectId: null } })] } }));
     await page.route('**/api/network/conversations/4/read', route => route.fulfill({ json: { ...conversation, unread: 0 } }));
     await page.route('**/api/network/conversations/4/messages', route => {
       const body = route.request().postDataJSON();
@@ -52,12 +53,19 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await thread.locator('[data-thread-text]').press('Enter');
     await expect(thread.locator('[data-message="2"]')).toContainText('Avec plaisir');
     await expect(thread.locator('[data-message="2"] [data-message-quote]')).toContainText('Une mission Kafka ?');
-    expect(sent).toEqual([{ text: 'Avec plaisir', replyTo: 1 }]);
+    expect(sent).toEqual([{ text: 'Avec plaisir', replyTo: 1, opportunityId: null }]);
 
     await thread.locator('[data-message="1"]').hover();
     await thread.locator('[data-message="1"] [data-message-react]').click();
     await page.locator('[data-message-reaction="BRAVO"]').click();
     await expect(thread.locator('[data-message="1"] [data-message-reactions]')).toContainText('👏 1');
+
+    // An opportunity of the reader's goes as a card; Léo's card goes to the reader's pipeline in one click.
+    await page.route('**/api/projects/by-freelance/**', route => route.fulfill({ json: [{ id: 12, role: 'Lead Java', dailyRate: 650 }] }));
+    await page.route('**/api/network/messages/1/pipeline', route => route.fulfill({ status: 201, json: { id: 77, role: 'Lead Kafka' } }));
+    await thread.locator('[data-thread-share]').click();
+    await page.locator('[data-share-opportunity="12"]').click();
+    expect(sent.at(-1)).toEqual({ text: '', replyTo: null, opportunityId: 12 });
 
     // Another member's message is reported to the moderators with a reason.
     let reported: unknown = null;
@@ -74,6 +82,9 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await dialog.locator('[data-report-send]').click();
     await expect(dialog).toHaveCount(0);
     expect(reported).toEqual({ reason: 'SPAM', details: null });
+
+    await thread.locator('[data-message="1"] [data-card-take]').click();
+    await expect(thread.locator('[data-message="1"] [data-card-open]')).toHaveAttribute('href', '/projects/77');
 
     const audit = await new AxeBuilder({ page }).include('[data-messages-page]').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
       .analyze();

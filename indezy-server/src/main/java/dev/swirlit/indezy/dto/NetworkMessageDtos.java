@@ -5,6 +5,7 @@ import dev.swirlit.indezy.model.enums.NetworkReaction;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public final class NetworkMessageDtos {
 
     /** A message as its reader reads it. */
     public record Message(Long id, boolean mine, String text, LocalDateTime sentAt, boolean edited, boolean deleted, boolean editable,
-                          Reply replyTo, List<NetworkDtos.ReactionCount> reactions, NetworkReaction myReaction) {
+                          Reply replyTo, List<NetworkDtos.ReactionCount> reactions, NetworkReaction myReaction, Card card) {
 
         public Message {
             reactions = List.copyOf(reactions);
@@ -50,6 +51,18 @@ public final class NetworkMessageDtos {
         @Override
         public String toString() {
             return "Message[id=" + id + "]";
+        }
+    }
+
+    /**
+     * An opportunity shared as a card: its facts, and, for its recipient, the opportunity it became in their pipeline once
+     * added (none before).
+     */
+    public record Card(String role, Integer dailyRate, String city, LocalDate startDate, Integer remoteDaysPerMonth, List<String> stack,
+                       Long takenProjectId) {
+
+        public Card {
+            stack = List.copyOf(stack);
         }
     }
 
@@ -74,11 +87,12 @@ public final class NetworkMessageDtos {
     public record Open(@NotBlank @Size(max = 60) String handle) {
     }
 
-    public record NewMessage(@NotBlank @Size(max = NetworkMessage.TEXT_MAX) String text, Long replyTo) {
+    /** A message: its text, which may stay empty with an opportunity shared, the message it replies to, the opportunity. */
+    public record NewMessage(@Size(max = NetworkMessage.TEXT_MAX) String text, Long replyTo, Long opportunityId) {
 
         @Override
         public String toString() {
-            return "NewMessage[replyTo=" + replyTo + "]";
+            return "NewMessage[replyTo=" + replyTo + ", opportunityId=" + opportunityId + "]";
         }
     }
 

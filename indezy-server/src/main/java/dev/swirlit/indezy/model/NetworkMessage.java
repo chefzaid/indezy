@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.model;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
@@ -9,7 +10,10 @@ import lombok.Setter;
 
 import java.time.Instant;
 
-/** A message in a conversation: its text, the message it replies to, and whether its sender edited or deleted it. */
+/**
+ * A message in a conversation: its text, the message it replies to, an opportunity shared as a card, and whether its sender
+ * edited or deleted it.
+ */
 @Entity
 @Table(name = "network_messages", indexes = {
     @Index(name = "idx_network_messages_conversation", columnList = "conversation_id"),
@@ -39,6 +43,10 @@ public class NetworkMessage extends BaseEntity {
     /** Deleted for both sides, within the edit window: "Message deleted" stands in its place. */
     @Column(name = "deleted_at")
     private Instant deletedAt;
+
+    /** An opportunity the sender shared, as a card; none for a plain message. */
+    @Embedded
+    private NetworkOpportunityCard card;
 
     public boolean isDeleted() {
         return deletedAt != null;

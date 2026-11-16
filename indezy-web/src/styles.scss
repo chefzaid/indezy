@@ -431,3 +431,10 @@ html.dark-theme .status-dot {
     background: var(--app-selected-bg);
   }
 }
+
+// The opportunities offered to share in a conversation: a note while loading or when there is none.
+.opportunity-menu .menu-note {
+  margin: 8px 16px;
+  color: var(--app-text-muted);
+  font-size: 0.875rem;
+}

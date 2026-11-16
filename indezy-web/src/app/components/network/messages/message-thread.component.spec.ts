@@ -5,13 +5,15 @@ import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { Conversation, Message, MessageThread } from '../../../models';
+import { Conversation, Message, MessageThread, ProjectDto } from '../../../models';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NetworkNoticesService } from '../../../services/network/network-notices.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MessageThreadComponent, THREAD_REFRESH_MS } from './message-thread.component';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
+import { ProjectService } from '../../../services/project/project.service';
+import { AuthService } from '../../../services/auth/auth.service';
 import en from '../../../../assets/i18n/en.json';
 
 describe('MessageThreadComponent', () => {
@@ -19,6 +21,7 @@ describe('MessageThreadComponent', () => {
   let notices: jasmine.SpyObj<NetworkNoticesService>;
   let notifications: jasmine.SpyObj<NotificationService>;
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
+  let projects: jasmine.SpyObj<ProjectService>;
   let fixture: ComponentFixture<MessageThreadComponent>;
   let emitted: Conversation[];
   const conversation: Conversation = { id: 4, with: { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null,
@@ -26,22 +29,24 @@ describe('MessageThreadComponent', () => {
     muted: false, archived: false, closed: null, lastMessageAt: '2026-11-16T09:00:00' };
   const message = (id: number, changes: Partial<Message> = {}): Message => ({ id, mine: false, text: `Message ${id}`,
     sentAt: `2026-11-1${id < 3 ? 5 : 6}T09:0${id}:00`, edited: false, deleted: false, editable: false, replyTo: null, reactions: [],
-    myReaction: null, ...changes });
+    myReaction: null, card: null, ...changes });
   const thread = (messages: Message[], changes: Partial<MessageThread> = {}): MessageThread => ({ conversation, messages, more: false,
     ...changes });
 
   function create(first = of(thread([message(1), message(2), message(3, { mine: true, editable: true })], { more: true }))): HTMLElement {
-    api = jasmine.createSpyObj('NetworkMessagesService', ['thread', 'read', 'send', 'edit', 'remove', 'react', 'settings', 'pdf']);
+    api = jasmine.createSpyObj('NetworkMessagesService', ['thread', 'read', 'send', 'edit', 'remove', 'react', 'settings', 'pdf', 'take']);
     api.thread.and.returnValue(first);
     api.read.and.returnValue(of({ ...conversation, unread: 0 }));
     notices = jasmine.createSpyObj('NetworkNoticesService', ['refreshMessages']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
+    projects = jasmine.createSpyObj('ProjectService', ['getByFreelanceId']);
     TestBed.configureTestingModule({
       imports: [MessageThreadComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: NetworkMessagesService, useValue: api }, { provide: NetworkNoticesService, useValue: notices },
-        { provide: NotificationService, useValue: notifications }, { provide: ConfirmDialogService, useValue: confirm }]
+        { provide: NotificationService, useValue: notifications }, { provide: ConfirmDialogService, useValue: confirm },
+        { provide: ProjectService, useValue: projects }, { provide: AuthService, useValue: { getUser: () => ({ id: 3 }) } }]
     });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
@@ -134,6 +139,58 @@ describe('MessageThreadComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('network.messages.changeError');
     component.submit();
     expect(api.send).toHaveBeenCalledTimes(1);
+    discardPeriodicTasks();
+  }));
+
+  it('shares one of the reader\'s opportunities as a card, which the other member adds to their pipeline once', fakeAsync(() => {
+    const card = { role: 'Lead Kafka', dailyRate: 720, city: 'Lyon', startDate: '2026-12-01', remoteDaysPerMonth: 8, stack: ['Kafka'],
+      takenProjectId: null };
+    const element = create(of(thread([message(1, { text: '', card })])));
+    const component = fixture.componentInstance;
+    const shown = element.querySelector('[data-message="1"] [data-message-card]')!;
+    expect(shown.textContent).toContain('Lead Kafka');
+    expect(shown.textContent).toContain('720 € a day');
+    expect(shown.textContent).toContain('8 remote days a month');
+    expect(element.querySelector('[data-message="1"] .text')).toBeNull();
+
+    api.take.and.returnValue(of({ id: 42 } as ProjectDto));
+    (shown.querySelector('[data-card-take]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(api.take).toHaveBeenCalledWith(1);
+    expect(notifications.success).toHaveBeenCalledWith('network.pipeline.added');
+    expect(element.querySelector('[data-card-open]')?.getAttribute('href')).toBe('/projects/42');
+    api.take.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+    component.take(component.messages[0]);
+    expect(notifications.error).toHaveBeenCalledWith('network.messages.cardAlready');
+    api.take.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    component.take(component.messages[0]);
+    expect(notifications.error).toHaveBeenCalledWith('network.messages.cardError');
+
+    projects.getByFreelanceId.and.returnValue(of([{ id: 7, role: 'Lead Java', dailyRate: 650 }, { id: 8, role: 'Ancienne', archivedAt: '2026-01-01' },
+      { id: 9, role: 'Data' }] as ProjectDto[]));
+    component.loadOpportunities();
+    component.loadOpportunities();
+    expect(projects.getByFreelanceId).toHaveBeenCalledOnceWith(3);
+    expect(component.opportunities?.map(project => project.id)).toEqual([9, 7]);
+    api.send.and.returnValue(of(message(5, { mine: true, text: 'Pour toi', card: { ...card, role: 'Lead Java' } })));
+    component.draft.setValue('Pour toi');
+    component.share(component.opportunities![1]);
+    fixture.detectChanges();
+    expect(api.send).toHaveBeenCalledWith(4, 'Pour toi', null, 7);
+    expect(element.querySelector('[data-message="5"] [data-message-card]')?.textContent).toContain('Lead Java');
+    expect(element.querySelector('[data-message="5"] [data-card-take]')).toBeNull();
+    api.send.and.returnValue(throwError(() => new Error('down')));
+    component.share(component.opportunities![0]);
+    expect(notifications.error).toHaveBeenCalledWith('network.messages.sendError');
+    discardPeriodicTasks();
+  }));
+
+  it('says when the opportunities to share cannot be loaded', fakeAsync(() => {
+    create();
+    projects.getByFreelanceId.and.returnValue(throwError(() => new Error('down')));
+    fixture.componentInstance.loadOpportunities();
+    expect(fixture.componentInstance.opportunities).toEqual([]);
+    expect(notifications.error).toHaveBeenCalledWith('network.messages.loadError');
     discardPeriodicTasks();
   }));
 

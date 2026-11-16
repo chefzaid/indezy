@@ -2,12 +2,14 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.dto.NetworkMessageDtos;
+import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
 import dev.swirlit.indezy.model.NetworkConversation;
 import dev.swirlit.indezy.model.NetworkConversationMember;
 import dev.swirlit.indezy.model.NetworkMessage;
 import dev.swirlit.indezy.model.NetworkMessageReaction;
+import dev.swirlit.indezy.model.NetworkOpportunityCard;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
 import dev.swirlit.indezy.repository.NetworkConversationMemberRepository;
 import dev.swirlit.indezy.repository.NetworkConversationRepository;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -50,6 +53,7 @@ public class NetworkMessageService {
     private final NetworkConversationMemberRepository participants;
     private final NetworkMessageRepository messages;
     private final NetworkMessageReactionRepository reactions;
+    private final NetworkPipelineService pipeline;
     private final Clock clock;
 
     /** The conversation with a page of its messages before the given one (the latest with none), the oldest first. */
@@ -76,6 +80,10 @@ public class NetworkMessageService {
             throw new InvalidStateException(NetworkConversationService.reason(closed));
         });
         limits.message(userId);
+        String text = request.text() == null ? "" : request.text().strip();
+        if (text.isEmpty() && request.opportunityId() == null) {
+            throw new IllegalArgumentException("A message needs a text or an opportunity");
+        }
         if (request.replyTo() != null && messages.findById(request.replyTo())
             .filter(replied -> replied.getConversationId().equals(conversationId)).isEmpty()) {
             throw new IllegalArgumentException("A reply answers a message of the same conversation");
@@ -83,8 +91,11 @@ public class NetworkMessageService {
         NetworkMessage message = new NetworkMessage();
         message.setConversationId(conversationId);
         message.setSenderId(userId);
-        message.setText(request.text().strip());
+        message.setText(text);
         message.setReplyToId(request.replyTo());
+        if (request.opportunityId() != null) {
+            message.setCard(pipeline.card(userId, request.opportunityId()));
+        }
         messages.save(message);
         conversation.setLastMessageAt(message.getCreatedAt() == null ? shared.now() : message.getCreatedAt());
         mine.setLastReadAt(conversation.getLastMessageAt());
@@ -107,6 +118,7 @@ public class NetworkMessageService {
     public NetworkMessageDtos.Message delete(Long userId, Long messageId) {
         NetworkMessage message = ownInWindow(userId, messageId, "deleted");
         message.setText("");
+        message.setCard(null);
         message.setDeletedAt(clock.instant());
         reactions.deleteAll(reactions.findByMessageIdIn(List.of(messageId)));
         return views(List.of(message), userId).getFirst();
@@ -137,11 +149,26 @@ public class NetworkMessageService {
         return conversations.findById(conversationId).orElseThrow(() -> new ResourceNotFoundException(NetworkConversations.NOT_FOUND));
     }
 
+    /** Adds the opportunity a message of the reader's conversation shares to their pipeline, once; answers the opportunity. */
+    @Transactional
+    public ProjectDto take(Long userId, Long messageId) {
+        network.requireMember(userId);
+        NetworkMessage message = readable(userId, messageId);
+        if (message.getCard() == null || message.isDeleted()) {
+            throw new InvalidStateException("This message shares no opportunity");
+        }
+        if (message.getSenderId().equals(userId)) {
+            throw new InvalidStateException("This opportunity is yours");
+        }
+        return pipeline.takeCard(userId, message.getCard(), message.getSenderId());
+    }
+
     /** Empties a message the moderators removed, for both sides. */
     @Transactional
     public void removeByModerators(Long messageId) {
         messages.findById(messageId).filter(message -> !message.isDeleted()).ifPresent(message -> {
             message.setText("");
+            message.setCard(null);
             message.setDeletedAt(clock.instant());
             reactions.deleteAll(reactions.findByMessageIdIn(List.of(messageId)));
         });
@@ -213,8 +240,20 @@ public class NetworkMessageService {
             return new NetworkMessageDtos.Message(message.getId(), mine, message.getText(), message.getCreatedAt(),
                 message.getEditedAt() != null, message.isDeleted(), mine && shared.editable(message), reply, counts(given),
                 given.stream().filter(reaction -> reaction.getUserId().equals(readerId)).map(NetworkMessageReaction::getReaction)
-                    .findFirst().orElse(null));
+                    .findFirst().orElse(null), card(message, mine));
         }).toList();
+    }
+
+    /** The card a message shares, its pipeline opportunity shown to its recipient alone; none for a plain or deleted message. */
+    private static NetworkMessageDtos.Card card(NetworkMessage message, boolean mine) {
+        NetworkOpportunityCard card = message.getCard();
+        if (card == null || message.isDeleted() || card.getRole() == null) {
+            return null;
+        }
+        List<String> stack = card.getTechStack() == null ? List.of() : Arrays.stream(card.getTechStack().split(","))
+            .map(String::strip).filter(skill -> !skill.isEmpty()).toList();
+        return new NetworkMessageDtos.Card(card.getRole(), card.getDailyRate(), card.getCity(), card.getStartDate(), card.getRemoteDaysPerMonth(),
+            stack, mine ? null : card.getTakenProjectId());
     }
 
     private static List<NetworkDtos.ReactionCount> counts(List<NetworkMessageReaction> given) {

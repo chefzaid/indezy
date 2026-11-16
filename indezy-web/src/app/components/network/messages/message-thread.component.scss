@@ -168,6 +168,77 @@
   }
 }
 
+// An opportunity shared as a card, inside its bubble.
+.opportunity {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--app-border);
+  border-left: 4px solid var(--app-accent);
+  border-radius: 12px;
+  background: var(--app-surface);
+  color: var(--app-text);
+
+  .opp-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+      color: var(--app-accent);
+    }
+  }
+
+  .opp-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    color: var(--app-text-muted);
+    font-size: 0.8125rem;
+  }
+
+  .opp-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+
+    span {
+      padding: 1px 8px;
+      border-radius: 999px;
+      background: var(--app-chip-indigo-bg);
+      color: var(--app-chip-indigo-text);
+      font-size: 0.75rem;
+    }
+  }
+
+  .opp-action {
+    align-self: flex-start;
+    border-radius: 999px;
+  }
+
+  a.opp-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--app-chip-positive-text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
+}
+
 .quote {
   display: block;
   margin-bottom: 4px;
@@ -305,6 +376,12 @@
   .send {
     flex: none;
     color: var(--app-link);
+  }
+
+  .share {
+    flex: none;
+    margin-left: -10px;
+    color: var(--app-text-muted);
   }
 }
 

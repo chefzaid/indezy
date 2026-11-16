@@ -56,8 +56,45 @@
               }
               @if (message.deleted) {
                 <span class="text">{{ 'network.messages.deleted' | translate }}</span>
-              } @else {
+              } @else if (message.text) {
                 <span class="text">{{ message.text }}</span>
+              }
+              @if (message.card; as card) {
+                <span class="opportunity" data-message-card>
+                  <span class="opp-title"><mat-icon aria-hidden="true">work</mat-icon>{{ card.role }}</span>
+                  <span class="opp-facts">
+                    @if (card.dailyRate) {
+                      <span>{{ 'network.messages.cardRate' | translate: { rate: card.dailyRate } }}</span>
+                    }
+                    @if (card.city) {
+                      <span>{{ card.city }}</span>
+                    }
+                    @if (card.startDate) {
+                      <span>{{ 'network.messages.cardStart' | translate: { date: (card.startDate | date: 'mediumDate') } }}</span>
+                    }
+                    @if (card.remoteDaysPerMonth) {
+                      <span>{{ 'network.messages.cardRemote' | translate: { days: card.remoteDaysPerMonth } }}</span>
+                    }
+                  </span>
+                  @if (card.stack.length) {
+                    <span class="opp-stack">
+                      @for (skill of card.stack; track skill) {
+                        <span>{{ skill }}</span>
+                      }
+                    </span>
+                  }
+                  @if (!message.mine) {
+                    @if (card.takenProjectId) {
+                      <a class="opp-action" [routerLink]="['/projects', card.takenProjectId]" data-card-open>
+                        <mat-icon aria-hidden="true">check_circle</mat-icon>{{ 'network.pipeline.inPipeline' | translate }}
+                      </a>
+                    } @else {
+                      <button mat-flat-button type="button" class="opp-action" (click)="take(message)" data-card-take>
+                        {{ 'network.pipeline.add' | translate }}
+                      </button>
+                    }
+                  }
+                </span>
               }
               <span class="meta">
                 {{ message.sentAt | date: 'shortTime' }}
@@ -141,6 +178,24 @@
         </div>
       }
       <div class="write">
+        <button mat-icon-button type="button" class="share" [matMenuTriggerFor]="opportunityMenu" (menuOpened)="loadOpportunities()"
+          [disabled]="sending || !!editing" [attr.aria-label]="'network.messages.share' | translate" [matTooltip]="'network.messages.share' | translate"
+          data-thread-share>
+          <mat-icon>work_outline</mat-icon>
+        </button>
+        <mat-menu #opportunityMenu="matMenu" class="opportunity-menu">
+          @if (opportunities === null) {
+            <p class="menu-note">{{ 'common.loading' | translate }}</p>
+          } @else if (opportunities.length === 0) {
+            <p class="menu-note">{{ 'network.messages.noOpportunity' | translate }}</p>
+          }
+          @for (project of opportunities ?? []; track project.id) {
+            <button mat-menu-item type="button" (click)="share(project)" [attr.data-share-opportunity]="project.id">
+              <mat-icon>work</mat-icon>
+              <span>{{ project.role }}@if (project.dailyRate) { · {{ project.dailyRate }} €}</span>
+            </button>
+          }
+        </mat-menu>
         <textarea #field [formControl]="draft" rows="1" [maxlength]="max" (keydown)="onKeydown($event)" data-thread-text
           [attr.aria-label]="'network.messages.write' | translate: { name: current.with.firstName }"
           [placeholder]="'network.messages.write' | translate: { name: current.with.firstName }"></textarea>
