@@ -174,4 +174,32 @@ describe('AppComponent offer alerts', () => {
     user$.next({ id: 2, email: 'jane@example.com', firstName: 'Jane', lastName: 'Doe' });
     expect(alerts.start).toHaveBeenCalled();
   });
+
+  it('folds the side menu to its icons with the burger, remembering it, and opens the drawer on a narrow screen', () => {
+    localStorage.removeItem(AppComponent.MENU_COLLAPSED_KEY);
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.componentInstance;
+    component.isCompactLayout = false;
+    expect(component.railed).toBeFalse();
+    component.toggleMenu();
+    expect(component.menuCollapsed).toBeTrue();
+    expect(component.railed).toBeTrue();
+    expect(localStorage.getItem(AppComponent.MENU_COLLAPSED_KEY)).toBe('true');
+    component.toggleMenu();
+    expect(localStorage.getItem(AppComponent.MENU_COLLAPSED_KEY)).toBe('false');
+
+    component.menuCollapsed = true;
+    component.isCompactLayout = true;
+    expect(component.railed).toBeFalse();
+    const toggle = jasmine.createSpy('toggle');
+    component.sidenav = { toggle } as never;
+    component.toggleMenu();
+    expect(toggle).toHaveBeenCalled();
+    expect(component.menuCollapsed).toBeTrue();
+
+    spyOn(localStorage, 'setItem').and.throwError('blocked');
+    component.isCompactLayout = false;
+    expect(() => component.toggleMenu()).not.toThrow();
+    localStorage.removeItem(AppComponent.MENU_COLLAPSED_KEY);
+  });
 });

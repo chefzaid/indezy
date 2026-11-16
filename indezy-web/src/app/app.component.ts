@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, ChangeDetectionStrategy, HostListener, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, ChangeDetectionStrategy, HostListener, ViewChild, inject } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { Observable, filter, map } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -8,7 +8,7 @@ import { NavigationEnd, Router, RouterOutlet, RouterModule } from '@angular/rout
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -68,7 +68,11 @@ export class AppComponent implements OnInit {
   currentLang = 'fr';
   /** Below this width the navigation becomes an overlay drawer instead of a permanent side panel. */
   static readonly COMPACT_LAYOUT_QUERY = '(max-width: 1023.98px)';
+  /** Where this browser remembers the menu folded to its icons. */
+  static readonly MENU_COLLAPSED_KEY = 'indezy.menuCollapsed';
   isCompactLayout = false;
+  /** The side menu shows its icons only, each name on hover; kept in this browser. */
+  menuCollapsed = AppComponent.savedCollapsed();
 
   private readonly destroyRef = inject(DestroyRef);
   private readonly breakpointObserver = inject(BreakpointObserver);
@@ -77,6 +81,7 @@ export class AppComponent implements OnInit {
   private readonly networkNotices = inject(NetworkNoticesService);
   private readonly capabilities = inject(CapabilitiesService);
   readonly themeService = inject(ThemeService);
+  @ViewChild('sidenav') sidenav?: MatSidenav;
   readonly connectivity = inject(ConnectivityService);
   private readonly router = inject(Router);
   /** The presentation page shows without the app's menu, signed in or not. */
@@ -154,6 +159,33 @@ export class AppComponent implements OnInit {
     this.breakpointObserver.observe(AppComponent.COMPACT_LAYOUT_QUERY)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(state => this.isCompactLayout = state.matches);
+  }
+
+  /** Whether the menu shows as a rail of icons: folded, on a screen wide enough for the menu to stay. */
+  get railed(): boolean {
+    return this.menuCollapsed && !this.isCompactLayout;
+  }
+
+  /** The burger: folds the side menu to its icons, or unfolds it; on a narrow screen, opens or closes the drawer. */
+  toggleMenu(): void {
+    if (this.isCompactLayout) {
+      void this.sidenav?.toggle();
+      return;
+    }
+    this.menuCollapsed = !this.menuCollapsed;
+    try {
+      localStorage.setItem(AppComponent.MENU_COLLAPSED_KEY, String(this.menuCollapsed));
+    } catch {
+      // Not remembered in this browser; the menu still folds.
+    }
+  }
+
+  private static savedCollapsed(): boolean {
+    try {
+      return localStorage.getItem(AppComponent.MENU_COLLAPSED_KEY) === 'true';
+    } catch {
+      return false;
+    }
   }
 
   switchLanguage(lang: string): void {

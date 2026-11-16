@@ -2,8 +2,8 @@
   @if (authService.isAuthenticated() && !onHomePage()) {
     <!-- Top Navigation -->
     <mat-toolbar class="app-toolbar">
-      <button mat-icon-button (click)="sidenav.toggle()" class="menu-button"
-        [attr.aria-label]="'nav.toggleMenu' | translate">
+      <button mat-icon-button (click)="toggleMenu()" class="menu-button" data-menu-toggle
+        [attr.aria-label]="'nav.toggleMenu' | translate" [attr.aria-expanded]="isCompactLayout ? sidenav.opened : !menuCollapsed">
         <mat-icon>menu</mat-icon>
       </button>
       <a routerLink="/dashboard" class="app-logo-link">
@@ -60,9 +60,10 @@
       </div>
     }
     <!-- Sidenav Container -->
-    <mat-sidenav-container class="app-sidenav-container">
+    <mat-sidenav-container class="app-sidenav-container" autosize>
       <mat-sidenav #sidenav
         class="app-sidenav"
+        [class.collapsed]="railed"
         [mode]="isCompactLayout ? 'over' : 'side'"
         [opened]="!isCompactLayout">
         <mat-nav-list>
@@ -70,6 +71,7 @@
             <a mat-list-item
               [routerLink]="item.route"
               routerLinkActive="active-nav-item"
+              [matTooltip]="item.labelKey | translate" matTooltipPosition="right" [matTooltipDisabled]="!railed"
               (click)="isCompactLayout && sidenav.close()">
               <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
               <span matListItemTitle>{{ item.labelKey | translate }}</span>

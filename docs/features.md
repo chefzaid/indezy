@@ -14,7 +14,9 @@ interview steps; run won missions (activity reports, purchase orders, invoices);
 attention.
 
 The menu lists **Dashboard**, **Calendar**, **Offers**, **Opportunities**, **Clients**, **Contacts**, **Sources**,
-**Year in review**, **Timesheets** (CRA), **Invoices**, **Documents** and **Archive**, then **Admin** for administrators.
+**Network**, **Year in review**, **Timesheets** (CRA), **Invoices**, **Quotes**, **Documents** and **Archive**, then
+**Admin** for administrators. The toolbar's menu button folds it to its icons, each name shown on hover, and unfolds it
+again; the browser remembers the choice. Below 1,024 pixels wide the menu is a drawer the button opens and closes.
 
 ## Presentation Page
 
