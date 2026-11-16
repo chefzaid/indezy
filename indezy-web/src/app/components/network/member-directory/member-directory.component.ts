@@ -3,24 +3,27 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { MemberDirectory, NetworkAvailability } from '../../../models';
+import { MemberCard, MemberDirectory, NetworkAvailability } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { MemberCardComponent } from '../member-card/member-card.component';
+import { MemberAvatarComponent, memberGradient } from '../avatar/member-avatar.component';
 
-/** The member directory (`/network/members`): the members found by a skill, a city, an availability or remote work. */
+type Availability = Exclude<NetworkAvailability, 'AUTO'>;
+
+/** How many skills a member's tile lists before "+n". */
+const SKILLS_SHOWN = 3;
+
+/**
+ * The member directory (`/network/members`): a search by skill and city, chips for the availability and remote work,
+ * and the members found as a grid of tiles, each with **Follow**.
+ */
 @Component({
   selector: 'app-member-directory',
-  imports: [PageHeaderComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatInputModule, MatPaginatorModule,
-    MatProgressSpinnerModule, MatSelectModule, TranslateModule, MemberCardComponent],
+  imports: [ReactiveFormsModule, RouterLink, MatButtonModule, MatIconModule, MatPaginatorModule, TranslateModule, MemberAvatarComponent],
   templateUrl: './member-directory.component.html',
   styleUrls: ['./member-directory.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -30,16 +33,19 @@ export class MemberDirectoryComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
 
-  readonly availabilities: Exclude<NetworkAvailability, 'AUTO'>[] = ['AVAILABLE', 'ON_MISSION', 'LISTENING'];
+  readonly availabilities: Availability[] = ['AVAILABLE', 'ON_MISSION', 'LISTENING'];
+  readonly remotes: (boolean | null)[] = [null, true, false];
   readonly form = inject(FormBuilder).nonNullable.group({
     skill: '',
     city: '',
-    availability: null as Exclude<NetworkAvailability, 'AUTO'> | null,
+    availability: null as Availability | null,
     remote: null as boolean | null
   });
   directory: MemberDirectory | null = null;
   notMember = false;
   loading = false;
+  /** The handles whose follow is on its way. */
+  readonly pending = new Set<string>();
 
   ngOnInit(): void {
     this.search();
@@ -66,5 +72,73 @@ export class MemberDirectoryComponent implements OnInit {
 
   onPage(event: PageEvent): void {
     this.search(event.pageIndex);
+  }
+
+  /** Picks an availability chip (null for any) and searches again. */
+  pickAvailability(availability: Availability | null): void {
+    this.form.controls.availability.setValue(availability);
+    this.search();
+  }
+
+  /** Picks a remote-work chip (null for either) and searches again. */
+  pickRemote(remote: boolean | null): void {
+    this.form.controls.remote.setValue(remote);
+    this.search();
+  }
+
+  remoteLabel(remote: boolean | null): string {
+    return remote === null ? 'network.directory.remoteAny' : remote ? 'network.directory.remoteYes' : 'network.directory.remoteNo';
+  }
+
+  cover(handle: string): string {
+    return memberGradient(handle, 120);
+  }
+
+  skills(member: MemberCard): string[] {
+    return member.stack.slice(0, SKILLS_SHOWN);
+  }
+
+  moreSkills(member: MemberCard): number {
+    return Math.max(0, member.stack.length - SKILLS_SHOWN);
+  }
+
+  isFollowed(handle: string): boolean {
+    return this.directory?.followed.includes(handle) ?? false;
+  }
+
+  isRequested(handle: string): boolean {
+    return this.directory?.requested.includes(handle) ?? false;
+  }
+
+  /** Following, Request sent, Ask to follow a private card, or Follow. */
+  followLabel(handle: string): string {
+    if (this.isFollowed(handle)) {
+      return 'network.directory.following';
+    }
+    if (this.isRequested(handle)) {
+      return 'network.page.requested';
+    }
+    return this.directory?.privateCards.includes(handle) ? 'network.page.askToFollow' : 'network.page.follow';
+  }
+
+  /** Follows the member (or asks to), or undoes the follow or the request. */
+  toggleFollow(handle: string): void {
+    const undo = this.isFollowed(handle) || this.isRequested(handle);
+    this.pending.add(handle);
+    (undo ? this.network.unfollow(handle) : this.network.follow(handle)).subscribe({
+      next: page => {
+        this.pending.delete(handle);
+        const directory = this.directory!;
+        const without = (handles: string[]): string[] => handles.filter(item => item !== handle);
+        this.directory = { ...directory, followed: page.followed ? [...without(directory.followed), handle] : without(directory.followed),
+          requested: page.requested ? [...without(directory.requested), handle] : without(directory.requested) };
+        this.changes.markForCheck();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.pending.delete(handle);
+        this.notifications.error(error.status === 429 ? 'network.page.tooManyFollows' : 'network.page.followError');
+        this.changes.markForCheck();
+      }
+    });
   }
 }

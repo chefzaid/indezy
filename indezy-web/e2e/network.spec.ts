@@ -162,16 +162,16 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
       const query = new URL(route.request().url()).searchParams;
       asked.push(query.toString());
       const members = query.get('skill') === 'Kafka' ? [member('leo_m', 'Léo')] : [member('leo_m', 'Léo'), member('ines_b', 'Inès')];
-      return route.fulfill({ json: { members, total: members.length, page: 0, size: 20 } });
+      return route.fulfill({ json: { members, total: members.length, page: 0, size: 20, followed: [], requested: [], privateCards: [] } });
     });
 
     await page.goto('/network/members');
     await expect(page.locator('[data-directory-count]')).toContainText(en ? 'Members found: 2' : 'Membres trouvés : 2');
     await page.locator('[data-directory-skill]').fill('Kafka');
-    await page.locator('[data-directory-availability]').click();
-    await page.getByRole('option', { name: en ? 'Open to offers' : "À l'écoute" }).click();
     await page.locator('[data-directory-search]').click();
     await expect(page.locator('[data-directory-count]')).toContainText(en ? 'Members found: 1' : 'Membres trouvés : 1');
+    await page.locator('[data-directory-availability-option="LISTENING"]').click();
+    await expect(page.locator('[data-directory-availability-option="LISTENING"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('[data-directory-member="leo_m"]')).toHaveAttribute('href', '/m/leo_m');
     expect(asked.at(-1)).toBe('page=0&skill=Kafka&availability=LISTENING');
     const audit = await new AxeBuilder({ page }).include('app-member-directory').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();

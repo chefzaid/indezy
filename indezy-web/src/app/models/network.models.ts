@@ -265,6 +265,10 @@ export interface MemberDirectory {
   total: number;
   page: number;
   size: number;
+  /** Among the members shown, those the viewer follows, has asked to follow, and whose cards are private. */
+  followed: string[];
+  requested: string[];
+  privateCards: string[];
 }
 
 /** The members the viewer mutes and blocks. */

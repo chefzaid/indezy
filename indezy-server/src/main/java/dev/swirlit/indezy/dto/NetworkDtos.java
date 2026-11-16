@@ -288,11 +288,18 @@ public final class NetworkDtos {
         }
     }
 
-    /** A page of the member directory, and how many members match in all. */
-    public record Directory(List<MemberCard> members, int total, int page, int size) {
+    /**
+     * A page of the member directory, how many members match in all, and, among the members shown, those the viewer
+     * follows, has asked to follow, and whose cards are private (to ask rather than follow).
+     */
+    public record Directory(List<MemberCard> members, int total, int page, int size, List<String> followed, List<String> requested,
+                            List<String> privateCards) {
 
         public Directory {
             members = List.copyOf(members);
+            followed = List.copyOf(followed);
+            requested = List.copyOf(requested);
+            privateCards = List.copyOf(privateCards);
         }
     }
 

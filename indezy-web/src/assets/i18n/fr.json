@@ -3352,9 +3352,9 @@
       "skill": "Compétence",
       "city": "Ville",
       "availability": "Disponibilité",
-      "any": "Toutes",
+      "any": "Toute disponibilité",
       "remote": "Travail à distance",
-      "remoteAny": "Indifférent",
+      "remoteAny": "À distance ou sur site",
       "remoteYes": "À distance",
       "remoteNo": "Sur site",
       "search": "Rechercher",
@@ -3367,7 +3367,11 @@
         "AVAILABLE": "Disponible",
         "ON_MISSION": "En mission",
         "LISTENING": "À l'écoute"
-      }
+      },
+      "skillPlaceholder": "Une compétence : Kafka, React…",
+      "cityPlaceholder": "Une ville",
+      "skills": "Compétences",
+      "following": "Abonné"
     },
     "feed": {
       "title": "Réseau",

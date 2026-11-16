@@ -282,8 +282,10 @@ with the moderator's note, under **Latest decisions**, and a sanction is in the 
 comment that looks like spam (see [Security](./security.md#member-network)) is held instead of published, its author
 told so; **Moderation** lists what is held, with why, to **Publish** as its author's or **Reject**.
 
-**Members** on the feed (`/network/members`) is the member directory: the members found by a skill, a city, an
-availability or remote work, 20 a page by last name, each card opening the member's page. It searches what each card
+**Members** on the feed (`/network/members`) is the member directory: the members found by a skill and a city typed in
+its search bar, an availability and remote work picked as chips, 20 a page by last name, as a grid of tiles (the
+member's color, avatar, headline, city, availability and first three skills), each opening the member's page and with
+its own **Follow** (or **Ask to follow** a private card, **Request sent**, **Following**). It searches what each card
 shows only, so a hidden skill or city is never found, and leaves out the viewer and any member either one blocks.
 
 ## Projects And Opportunities

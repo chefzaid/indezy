@@ -3352,9 +3352,9 @@
       "skill": "Skill",
       "city": "City",
       "availability": "Availability",
-      "any": "Any",
+      "any": "Any availability",
       "remote": "Remote work",
-      "remoteAny": "Either",
+      "remoteAny": "Remote or on site",
       "remoteYes": "Works remotely",
       "remoteNo": "On site",
       "search": "Search",
@@ -3367,7 +3367,11 @@
         "AVAILABLE": "Available",
         "ON_MISSION": "On a mission",
         "LISTENING": "Open to offers"
-      }
+      },
+      "skillPlaceholder": "A skill: Kafka, React…",
+      "cityPlaceholder": "A city",
+      "skills": "Skills",
+      "following": "Following"
     },
     "feed": {
       "title": "Network",

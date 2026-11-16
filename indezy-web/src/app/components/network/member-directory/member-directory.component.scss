@@ -1,60 +1,428 @@
+// The member directory: a search bar, chips for the availability and remote work, then the members as a grid of tiles.
 .directory-page {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  max-width: 1080px;
+  margin: 0 auto;
 }
 
-.filters {
+.card {
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  box-shadow: 0 1px 2px rgba(15, 12, 40, 0.04);
+}
+
+.head {
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: var(--app-text-muted);
+    font-size: 0.875rem;
+  }
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 16px;
+  border-radius: 999px;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+
+  &:focus-within {
+    border-color: var(--app-link);
+    box-shadow: 0 0 0 3px var(--app-selected-bg);
+  }
+
+  .field {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--app-text-muted);
+
+    & + .field {
+      padding-left: 12px;
+      border-left: 1px solid var(--app-border);
+    }
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--app-text);
+    font: inherit;
+    font-size: 0.9375rem;
+
+    &::placeholder {
+      color: var(--app-text-faint);
+    }
+  }
+
+  .go {
+    flex: none;
+    border-radius: 999px;
+  }
+}
+
+.chips {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 0 12px;
+  gap: 8px 16px;
+}
 
-  mat-form-field {
-    flex: 1 1 180px;
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+
+  &:hover {
+    background: var(--app-hover);
   }
 
-  button {
-    margin-top: 8px;
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: 2px;
+  }
+
+  &.on {
+    border-color: var(--app-link);
+    background: var(--app-selected-bg);
+    color: var(--app-link);
+    font-weight: 600;
   }
 }
 
-.loading {
-  display: flex;
-  justify-content: center;
-  padding: 32px 0;
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+
+  &[data-mode='AVAILABLE'] {
+    background: var(--app-chip-positive-text);
+  }
+
+  &[data-mode='ON_MISSION'] {
+    background: var(--app-chip-warning-text);
+  }
+
+  &[data-mode='LISTENING'] {
+    background: var(--app-chip-indigo-text);
+  }
 }
 
-.problem,
-.count,
-.empty {
-  color: var(--text-secondary);
+.count {
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: 0.875rem;
 }
 
-.problem {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.results {
+.grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 16px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.result {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-  border-radius: 12px;
+// A member's tile: their color as a band, the avatar over it, then who they are and Follow; the whole tile opens their page.
+.member {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  padding: 0 16px 16px;
+  text-align: center;
+  transition: box-shadow 150ms ease, transform 150ms ease;
 
-  &:focus-visible,
   &:hover {
-    outline: 2px solid var(--mat-sys-primary);
+    box-shadow: 0 6px 20px rgba(15, 12, 40, 0.09);
+    transform: translateY(-1px);
+  }
+
+  .cover {
+    align-self: stretch;
+    height: 64px;
+    margin: 0 -16px;
+  }
+
+  .face {
+    display: inline-flex;
+    margin-top: -36px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px var(--app-surface);
+  }
+
+  .name {
+    margin-top: 6px;
+    color: var(--app-text);
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+
+    // The name's link covers the tile, so a click anywhere opens the page; Follow sits above it.
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+    }
+
+    &:focus-visible {
+      outline: none;
+
+      &::after {
+        outline: 2px solid var(--app-link);
+        outline-offset: -2px;
+      }
+    }
+  }
+
+  .verified {
+    position: absolute;
+    top: 72px;
+    right: 16px;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: var(--app-link);
+  }
+
+  .handle {
+    color: var(--app-text-muted);
+    font-size: 0.8125rem;
+  }
+
+  .headline {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 4px 0 0;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .where {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 12px;
+    margin: 2px 0 0;
+    color: var(--app-text-muted);
+    font-size: 0.8125rem;
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
+
+  .availability {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+
+    &[data-mode='AVAILABLE'] {
+      color: var(--app-chip-positive-text);
+    }
+
+    &[data-mode='ON_MISSION'] {
+      color: var(--app-chip-warning-text);
+    }
+
+    &[data-mode='LISTENING'] {
+      color: var(--app-chip-indigo-text);
+    }
+  }
+
+  .skills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: var(--app-chip-indigo-bg);
+      color: var(--app-chip-indigo-text);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .more {
+      background: var(--app-chip-neutral-bg);
+      color: var(--app-chip-neutral-text);
+    }
+  }
+
+  .follow {
+    position: relative;
+    z-index: 1;
+    align-self: stretch;
+    margin-top: auto;
+    border-radius: 999px;
+
+    &.following {
+      --mat-button-filled-container-color: var(--app-selected-bg);
+      --mat-button-filled-label-text-color: var(--app-link);
+    }
+  }
+
+  // Follow keeps to the bottom of tiles of different heights.
+  .skills + .follow,
+  .availability + .follow,
+  .where + .follow {
+    margin-top: 12px;
+  }
+}
+
+.skeleton {
+  height: 240px;
+
+  .cover {
+    background: var(--app-subtle);
+  }
+
+  .face {
+    display: block;
+    width: 72px;
+    height: 72px;
+    background: var(--app-hover);
+  }
+
+  &:hover {
+    box-shadow: 0 1px 2px rgba(15, 12, 40, 0.04);
+    transform: none;
+  }
+}
+
+.problem,
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  color: var(--app-text-muted);
+  text-align: center;
+
+  mat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+    color: var(--app-link);
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+// A phone: the search fields one above the other, two tiles a row.
+@media (max-width: 599.98px) {
+  .search {
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    border-radius: 16px;
+
+    .field {
+      flex-basis: 100%;
+
+      & + .field {
+        padding-left: 0;
+        border-left: none;
+        border-top: 1px solid var(--app-border);
+      }
+    }
+
+    .go {
+      flex: 1;
+    }
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .member {
+    padding: 0 10px 12px;
+
+    .cover {
+      height: 48px;
+      margin: 0 -10px;
+    }
+
+    .face {
+      margin-top: -30px;
+    }
+
+    .verified {
+      top: 56px;
+      right: 10px;
+    }
+
+    .where span:nth-child(2) {
+      display: none;
+    }
   }
 }

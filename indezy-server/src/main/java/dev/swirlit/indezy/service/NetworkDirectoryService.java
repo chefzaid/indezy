@@ -2,6 +2,9 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
+import dev.swirlit.indezy.model.NetworkMember;
+import dev.swirlit.indezy.repository.NetworkFollowRepository;
+import dev.swirlit.indezy.repository.NetworkFollowRequestRepository;
 import dev.swirlit.indezy.repository.NetworkMemberRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +15,6 @@ import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -28,9 +30,19 @@ public class NetworkDirectoryService {
     private final NetworkService network;
     private final NetworkMemberRepository members;
     private final NetworkRestrictionRepository restrictions;
+    private final NetworkFollowRepository follows;
+    private final NetworkFollowRequestRepository requests;
 
     /** What the directory is asked for; every criterion is optional. */
     public record Search(String skill, String city, NetworkAvailability availability, Boolean remote, int page) {
+    }
+
+    /** A member found, with the card the viewer reads. */
+    private record Found(NetworkMember member, NetworkDtos.MemberCard card) {
+
+        String handle() {
+            return card.handle();
+        }
     }
 
     @Transactional(readOnly = true)
@@ -39,18 +51,24 @@ public class NetworkDirectoryService {
         Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(viewerId));
         String skill = plain(search.skill());
         String city = plain(search.city());
-        List<NetworkDtos.MemberCard> found = members.findByActiveTrue().stream()
+        List<Found> found = members.findByActiveTrue().stream()
             .filter(member -> !member.getUserId().equals(viewerId) && !blocked.contains(member.getUserId()))
-            .map(network::liveCard).flatMap(Optional::stream)
-            .filter(card -> skill.isEmpty() || card.stack().stream().anyMatch(name -> plain(name).equals(skill)))
-            .filter(card -> city.isEmpty() || (card.city() != null && plain(card.city()).contains(city)))
-            .filter(card -> search.availability() == null || card.availability() == search.availability())
-            .filter(card -> search.remote() == null || card.remote() == search.remote())
-            .sorted(Comparator.comparing((NetworkDtos.MemberCard card) -> plain(card.lastName())).thenComparing(card -> plain(card.firstName())))
+            .flatMap(member -> network.liveCard(member).map(card -> new Found(member, card)).stream())
+            .filter(hit -> skill.isEmpty() || hit.card().stack().stream().anyMatch(name -> plain(name).equals(skill)))
+            .filter(hit -> city.isEmpty() || (hit.card().city() != null && plain(hit.card().city()).contains(city)))
+            .filter(hit -> search.availability() == null || hit.card().availability() == search.availability())
+            .filter(hit -> search.remote() == null || hit.card().remote() == search.remote())
+            .sorted(Comparator.comparing((Found hit) -> plain(hit.card().lastName())).thenComparing(hit -> plain(hit.card().firstName())))
             .toList();
         int page = Math.max(0, search.page());
-        List<NetworkDtos.MemberCard> shown = found.stream().skip((long) page * PAGE_SIZE).limit(PAGE_SIZE).toList();
-        return new NetworkDtos.Directory(shown, found.size(), page, PAGE_SIZE);
+        List<Found> shown = found.stream().skip((long) page * PAGE_SIZE).limit(PAGE_SIZE).toList();
+        List<String> followed = shown.stream()
+            .filter(hit -> follows.findByFollowerIdAndFollowedId(viewerId, hit.member().getUserId()).isPresent()).map(Found::handle).toList();
+        List<String> requested = shown.stream()
+            .filter(hit -> requests.findByRequesterIdAndMemberId(viewerId, hit.member().getUserId()).isPresent()).map(Found::handle).toList();
+        List<String> privateCards = shown.stream().filter(hit -> hit.member().isPrivate()).map(Found::handle).toList();
+        return new NetworkDtos.Directory(shown.stream().map(Found::card).toList(), found.size(), page, PAGE_SIZE, followed, requested,
+            privateCards);
     }
 
     /** Lower case, accents and surrounding spaces dropped, to compare as people type. */

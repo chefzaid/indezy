@@ -1,55 +1,109 @@
 <div class="directory-page">
-  <app-page-header icon="diversity_3" [title]="'network.directory.title' | translate" [subtitle]="'network.directory.subtitle' | translate">
-  </app-page-header>
+  <header class="head">
+    <h1>{{ 'network.directory.title' | translate }}</h1>
+    <p>{{ 'network.directory.subtitle' | translate }}</p>
+  </header>
 
   @if (notMember) {
-    <section class="problem" data-directory-not-member>
+    <section class="problem card" data-directory-not-member>
+      <mat-icon aria-hidden="true">diversity_3</mat-icon>
       <p>{{ 'network.directory.notMember' | translate }}</p>
       <a mat-flat-button routerLink="/profile">{{ 'network.directory.join' | translate }}</a>
     </section>
   } @else {
-    <form [formGroup]="form" (ngSubmit)="search()" class="filters" data-directory-filters>
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'network.directory.skill' | translate }}</mat-label>
-        <input matInput formControlName="skill" data-directory-skill maxlength="60">
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'network.directory.city' | translate }}</mat-label>
-        <input matInput formControlName="city" data-directory-city maxlength="60">
-      </mat-form-field>
-      <mat-form-field appearance="outline" data-directory-availability>
-        <mat-label>{{ 'network.directory.availability' | translate }}</mat-label>
-        <mat-select formControlName="availability">
-          <mat-option [value]="null">{{ 'network.directory.any' | translate }}</mat-option>
-          @for (mode of availabilities; track mode) {
-            <mat-option [value]="mode">{{ 'network.directory.modes.' + mode | translate }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="outline" data-directory-remote>
-        <mat-label>{{ 'network.directory.remote' | translate }}</mat-label>
-        <mat-select formControlName="remote">
-          <mat-option [value]="null">{{ 'network.directory.remoteAny' | translate }}</mat-option>
-          <mat-option [value]="true">{{ 'network.directory.remoteYes' | translate }}</mat-option>
-          <mat-option [value]="false">{{ 'network.directory.remoteNo' | translate }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <button mat-flat-button type="submit" data-directory-search>{{ 'network.directory.search' | translate }}</button>
+    <form [formGroup]="form" (ngSubmit)="search()" class="search card" role="search" data-directory-filters>
+      <label class="field">
+        <mat-icon aria-hidden="true">search</mat-icon>
+        <input formControlName="skill" data-directory-skill maxlength="60" [placeholder]="'network.directory.skillPlaceholder' | translate"
+          [attr.aria-label]="'network.directory.skill' | translate">
+      </label>
+      <label class="field">
+        <mat-icon aria-hidden="true">place</mat-icon>
+        <input formControlName="city" data-directory-city maxlength="60" [placeholder]="'network.directory.cityPlaceholder' | translate"
+          [attr.aria-label]="'network.directory.city' | translate">
+      </label>
+      <button mat-flat-button type="submit" class="go" data-directory-search>{{ 'network.directory.search' | translate }}</button>
     </form>
 
+    <div class="chips">
+      <div class="chip-group" role="group" [attr.aria-label]="'network.directory.availability' | translate" data-directory-availability>
+        <button type="button" class="chip" [class.on]="!form.value.availability" [attr.aria-pressed]="!form.value.availability"
+          (click)="pickAvailability(null)" data-directory-availability-option="ANY">{{ 'network.directory.any' | translate }}</button>
+        @for (mode of availabilities; track mode) {
+          <button type="button" class="chip" [class.on]="form.value.availability === mode" [attr.aria-pressed]="form.value.availability === mode"
+            (click)="pickAvailability(mode)" [attr.data-directory-availability-option]="mode">
+            <span class="dot" [attr.data-mode]="mode" aria-hidden="true"></span>{{ 'network.directory.modes.' + mode | translate }}
+          </button>
+        }
+      </div>
+      <div class="chip-group" role="group" [attr.aria-label]="'network.directory.remote' | translate" data-directory-remote>
+        @for (remote of remotes; track $index) {
+          <button type="button" class="chip" [class.on]="form.value.remote === remote" [attr.aria-pressed]="form.value.remote === remote"
+            (click)="pickRemote(remote)" [attr.data-directory-remote-option]="remote === null ? 'ANY' : remote">
+            {{ remoteLabel(remote) | translate }}
+          </button>
+        }
+      </div>
+    </div>
+
     @if (loading && !directory) {
-      <div class="loading"><mat-spinner diameter="36" [attr.aria-label]="'common.loading' | translate"></mat-spinner></div>
+      <ul class="grid" aria-hidden="true">
+        @for (bone of [1, 2, 3, 4, 5, 6]; track bone) {
+          <li class="member card skeleton"><span class="cover"></span><span class="face"></span></li>
+        }
+      </ul>
     } @else if (directory) {
       <p class="count" data-directory-count aria-live="polite">{{ 'network.directory.count' | translate: { count: directory.total } }}</p>
       @if (directory.members.length === 0) {
-        <p class="empty">{{ 'network.directory.none' | translate }}</p>
+        <section class="empty card">
+          <mat-icon aria-hidden="true">person_search</mat-icon>
+          <p>{{ 'network.directory.none' | translate }}</p>
+        </section>
       }
-      <ul class="results">
+      <ul class="grid">
         @for (member of directory.members; track member.handle) {
-          <li>
-            <a [routerLink]="['/m', member.handle]" class="result" [attr.data-directory-member]="member.handle">
-              <app-member-card [card]="member"></app-member-card>
+          <li class="member card" [attr.data-directory-tile]="member.handle">
+            <span class="cover" [style.background]="cover(member.handle)"></span>
+            <app-member-avatar class="face" [subject]="member" [size]="72"></app-member-avatar>
+            <a [routerLink]="['/m', member.handle]" class="name" [attr.data-directory-member]="member.handle">
+              {{ member.firstName }} {{ member.lastName }}
             </a>
+            @if (member.verified) {
+              <mat-icon class="verified" [attr.aria-label]="'network.card.verified' | translate">verified</mat-icon>
+            }
+            <span class="handle">&#64;{{ member.handle }}</span>
+            @if (member.headline) {
+              <p class="headline">{{ member.headline }}</p>
+            }
+            <p class="where">
+              @if (member.city) {
+                <span><mat-icon aria-hidden="true">place</mat-icon>{{ member.city }}</span>
+              }
+              @if (member.remote) {
+                <span><mat-icon aria-hidden="true">home_work</mat-icon>{{ 'network.directory.remoteYes' | translate }}</span>
+              }
+            </p>
+            @if (member.availability) {
+              <span class="availability" [attr.data-mode]="member.availability">
+                <span class="dot" [attr.data-mode]="member.availability" aria-hidden="true"></span>
+                {{ 'network.directory.modes.' + member.availability | translate }}
+              </span>
+            }
+            @if (member.stack.length) {
+              <ul class="skills" [attr.aria-label]="'network.directory.skills' | translate">
+                @for (skill of skills(member); track skill) {
+                  <li>{{ skill }}</li>
+                }
+                @if (moreSkills(member)) {
+                  <li class="more">+{{ moreSkills(member) }}</li>
+                }
+              </ul>
+            }
+            <button mat-flat-button type="button" class="follow" [class.following]="isFollowed(member.handle) || isRequested(member.handle)"
+              [disabled]="pending.has(member.handle)" (click)="toggleFollow(member.handle)"
+              [attr.aria-pressed]="isFollowed(member.handle) || isRequested(member.handle)" [attr.data-directory-follow]="member.handle">
+              {{ followLabel(member.handle) | translate }}
+            </button>
           </li>
         }
       </ul>

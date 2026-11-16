@@ -72,6 +72,14 @@ class NetworkDirectoryIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(alice, HttpMethod.GET, "/network/members?skill=" + skill + "&page=1", null, Map.class).getBody())
             .containsEntry("total", 2).containsEntry("page", 1).containsEntry("size", 20);
 
+        // Among the members shown, those the viewer follows, has asked to follow, and whose cards are private.
+        call(alice, HttpMethod.PUT, "/network/members/" + lyon + "/follow", null, Map.class);
+        call(carolAccount, HttpMethod.PUT, "/network/membership/private?private=true", null, Map.class);
+        call(alice, HttpMethod.PUT, "/network/members/" + saintEtienne + "/follow", null, Map.class);
+        Map<String, Object> relations = call(alice, HttpMethod.GET, "/network/members?skill=" + skill, null, Map.class).getBody();
+        assertThat(relations).containsEntry("followed", List.of(lyon)).containsEntry("requested", List.of(saintEtienne))
+            .containsEntry("privateCards", List.of(saintEtienne));
+
         // A member either one blocks leaves the directory both ways.
         call(carolAccount, HttpMethod.PUT, "/network/members/" + viewer + "/block", null, Map.class);
         assertThat(found(alice, "skill=" + skill)).containsExactly(lyon);
