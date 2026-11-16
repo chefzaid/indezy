@@ -90,11 +90,18 @@ describe('FilePickerComponent', () => {
     choose(element, [file('big.pdf', 10 * 1024 * 1024 + 1)], false);
     expect(notifications.error).toHaveBeenCalledWith('network.files.tooLarge');
     api.upload.and.returnValues(throwError(() => new HttpErrorResponse({ status: 400 })), throwError(() => new HttpErrorResponse({ status: 400 })),
-      throwError(() => new HttpErrorResponse({ status: 409 })), throwError(() => new HttpErrorResponse({ status: 500 })));
+      throwError(() => new HttpErrorResponse({ status: 409 })), throwError(() => new HttpErrorResponse({ status: 500 })),
+      throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'This document holds malware (Eicar) and was not added' } })),
+      throwError(() => new HttpErrorResponse({ status: 503 })));
     choose(element, [file('notes.exe')], false);
     choose(element, [file('x.webp')], true);
     choose(element, [file('c.pdf')], false);
     choose(element, [file('d.pdf')], false);
+    fixture.componentInstance.clear();
+    choose(element, [file('e.pdf')], false);
+    choose(element, [file('f.pdf')], false);
+    expect(notifications.error).toHaveBeenCalledWith('network.files.malware');
+    expect(notifications.error).toHaveBeenCalledWith('network.files.scanUnavailable');
     expect(notifications.error).toHaveBeenCalledWith('network.files.documentRefused');
     expect(notifications.error).toHaveBeenCalledWith('network.files.imageRefused');
     expect(notifications.error).toHaveBeenCalledWith('network.files.tooManyToday');

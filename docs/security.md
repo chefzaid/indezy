@@ -243,8 +243,12 @@ The member network (`/api/network`) is on unless an administrator turns it off (
   and written again at most 2048 pixels wide, keeping none of the original file's metadata (EXIF place, camera, date);
   documents are PDF, OOXML or OpenDocument files, refused with macros (`vbaProject.bin`, `Basic/`, `Scripts/`, or a
   macro-enabled extension) and in the older binary formats, an archive read at most 30 MB unpacked and 5,000 entries; a
-  member uploads 60 files a day at most, and attaches only their own files not attached yet; a malware scan waits (see
-  TODO.md);
+  member uploads 60 files a day at most, and attaches only their own files not attached yet; each document is scanned
+  by the platform's ClamAV before it is kept (`MalwareScanner`, clamd's `INSTREAM` over TCP 3310 to
+  `clamav.infra.svc.cluster.local`, run by swirl-cloud, not by Indezy): one found infected is refused (`400`, the
+  signature logged with the member), and while the scanner cannot answer documents are refused (`503`, try again)
+  rather than kept unchecked; images are not scanned, being decoded and written again from their pixels; without
+  `INDEZY_CLAMAV_HOST` (a laptop, the tests) documents are not scanned;
 - a file is served only through a signed address (`/api/public/network-files/{id}/{full|preview}?e=&s=`, HMAC-SHA256
   with a key derived from the token secret) handed to a reader who may read its post or message, valid until the end
   of the next hour (one to two hours), `404` once expired, forged or for a file gone; it is served `nosniff`, with a

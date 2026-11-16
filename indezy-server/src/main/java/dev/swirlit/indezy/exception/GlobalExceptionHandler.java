@@ -77,6 +77,12 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
     }
 
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleServiceUnavailable(ServiceUnavailableException ex) {
+        log.warn("Service unavailable: {} ({})", ex.getMessage(), ex.getCause() == null ? "no cause" : ex.getCause().getClass().getSimpleName());
+        return buildResponse(HttpStatus.SERVICE_UNAVAILABLE, "Service Unavailable", ex.getMessage());
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         // The message can quote user input (e.g. "Email already exists: ..."), so only where it was thrown is logged.

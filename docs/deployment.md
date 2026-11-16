@@ -61,6 +61,14 @@ External Secrets projects these Vault KV paths into `apps` (`infra/k8s/external-
 
 Onboarding generates missing `apps/indezy/runtime` fields (24 random bytes for the database password and 48 for the JWT secret, hex encoded) and keeps existing values. Never commit plaintext or base64-encoded secret values. `GOOGLE_MAPS_API_KEY` (commute times) is not projected; add it to the contract before enabling the feature in production.
 
+## Malware scanning
+
+The server scans each document members share with the platform's ClamAV, which swirl-cloud runs in `infra`
+(`k8s/platform/clamav.yaml` there). The `kubernetes` profile calls `clamav.infra.svc.cluster.local:3310`
+(`INDEZY_CLAMAV_HOST`, `INDEZY_CLAMAV_PORT` to change it), and the server's NetworkPolicy allows it. While ClamAV
+restarts or loads its signatures (a minute or more), uploads of documents answer `503` and members are asked to try
+again; images are not affected. Locally, leave `INDEZY_CLAMAV_HOST` empty and documents are not scanned.
+
 ## Administrators
 
 The admin console (`/admin`) opens to the accounts whose emails `INDEZY_ADMIN_EMAILS` lists, comma-separated; the

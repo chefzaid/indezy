@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.dto.NetworkFileDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
+import dev.swirlit.indezy.media.MalwareScanner;
 import dev.swirlit.indezy.media.NetworkDocuments;
 import dev.swirlit.indezy.media.NetworkImages;
 import dev.swirlit.indezy.model.NetworkFile;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 
 /**
  * The images and documents of the network's posts and messages (see docs/features.md#member-network), kept in the
- * database: uploaded one at a time (images made anew, documents checked), then attached when the post or the message
+ * database: uploaded one at a time (images made anew, documents checked and scanned for malware), then attached when the post or the message
  * goes out, up to 4 images and 3 documents; served through short-lived signed addresses; those never attached are
  * dropped after a day.
  */
@@ -57,6 +58,7 @@ public class NetworkFileService {
     private final NetworkFileContentRepository contents;
     private final NetworkFileLinks links;
     private final NetworkConfidentialityService confidentiality;
+    private final MalwareScanner scanner;
     private final Clock clock;
 
     /** A file as served: its name, type, bytes, whether the browser shows it, and how long it may keep it. */
@@ -104,6 +106,10 @@ public class NetworkFileService {
             content.setContent(made.content());
         } else {
             NetworkDocuments.Type type = NetworkDocuments.detect(name, bytes);
+            scanner.scan(bytes).ifPresent(signature -> {
+                log.warn("Member {} uploaded a document holding {}: refused", userId, signature);
+                throw new IllegalArgumentException("This document holds malware (" + signature + ") and was not added");
+            });
             file.setKind(NetworkFileKind.DOCUMENT);
             file.setContentType(type.contentType());
             file.setFileName(renamed(name, type.extension()));

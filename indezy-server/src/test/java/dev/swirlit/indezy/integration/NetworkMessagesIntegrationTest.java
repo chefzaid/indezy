@@ -210,7 +210,7 @@ class NetworkMessagesIntegrationTest extends TwoAccountsIntegrationTest {
         ResponseEntity<byte[]> pdf = call(alice, HttpMethod.GET, "/network/conversations/" + conversation + "/pdf?language=EN", null, byte[].class);
         assertThat(pdf.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(pdf.getHeaders().getContentDisposition().getFilename()).isEqualTo("conversation-" + bobHandle + "-" +
-            java.time.LocalDate.now() + ".pdf");
+            java.time.LocalDate.now(dev.swirlit.indezy.scraping.FrenchDates.PARIS) + ".pdf");
         String text = pdfText(pdf.getBody());
         assertThat(text).contains("Conversation with bob Test (@" + bobHandle + ")").contains("Message deleted").contains("Avec plaisir")
             .contains("> Replying to: …").contains("You");

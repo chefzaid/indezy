@@ -13,6 +13,7 @@ import dev.swirlit.indezy.repository.NetworkConversationMemberRepository;
 import dev.swirlit.indezy.repository.NetworkConversationRepository;
 import dev.swirlit.indezy.repository.NetworkMessageRepository;
 import dev.swirlit.indezy.realtime.NetworkEvents;
+import dev.swirlit.indezy.scraping.FrenchDates;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -169,7 +170,8 @@ public class NetworkConversationService {
                 message.isDeleted(), reply);
         }).toList();
         String readerName = network.liveCard(reader).map(card -> (card.firstName() + " " + card.lastName()).strip()).orElse(null);
-        LocalDate today = LocalDate.now(clock);
+        // The day as members read it, in Paris, not the server's UTC.
+        LocalDate today = LocalDate.now(clock.withZone(FrenchDates.PARIS));
         byte[] content = pdf.render(new ConversationPdfRenderer.Conversation(readerName, seen.label(), seen.handle(), lines), language, today);
         String name = seen.handle() != null ? seen.handle() : "group-" + conversationId;
         return new ActivityReportService.PdfFile("conversation-" + name + "-" + today + ".pdf", content);

@@ -3793,7 +3793,9 @@
       "confidential": "Ce document cite {{names}}, connu de votre espace.",
       "keep": "Le garder",
       "pages": "{{count}} pages",
-      "documents": "Documents"
+      "documents": "Documents",
+      "malware": "Ce document contient un logiciel malveillant : il n’a pas été ajouté.",
+      "scanUnavailable": "Les documents ne peuvent pas être vérifiés pour l’instant : réessayez dans quelques minutes."
     }
   }
 }

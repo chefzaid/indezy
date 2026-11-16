@@ -35,5 +35,6 @@ other members, so the page cannot fetch each one with the session's token as the
 
 - The database grows with the images; at about 300 KB an image after resizing, 10,000 images are about 3 GB.
 - A copied address works until it expires (two hours at most), for anyone who has it.
-- A malware scan of documents is not done yet (TODO.md).
+- Documents are scanned by the platform's ClamAV before they are kept (swirl-cloud runs it; Indezy only calls it), and
+  refused while it cannot answer.
 - Should the files outgrow the database, `network_file_contents` can move to an object store behind the same addresses.

@@ -3793,7 +3793,9 @@
       "confidential": "This document names {{names}}, known to your workspace.",
       "keep": "Keep it",
       "pages": "{{count}} pages",
-      "documents": "Documents"
+      "documents": "Documents",
+      "malware": "This document holds malware: it was not added.",
+      "scanUnavailable": "Documents cannot be checked for malware right now: try again in a few minutes."
     }
   }
 }

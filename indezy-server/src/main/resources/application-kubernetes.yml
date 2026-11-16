@@ -6,3 +6,8 @@ logging:
   structured:
     format:
       console: logstash
+
+indezy:
+  clamav:
+    # The platform's scanner in infra (TCP 3310, reachable from apps only).
+    host: ${INDEZY_CLAMAV_HOST:clamav.infra.svc.cluster.local}

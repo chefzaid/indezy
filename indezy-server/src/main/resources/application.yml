@@ -54,6 +54,12 @@ indezy:
   admin:
     # Accounts that open the admin console, by email (comma-separated); none by default.
     emails: ${INDEZY_ADMIN_EMAILS:}
+  clamav:
+    # The platform's ClamAV, which scans the documents members share (swirl-cloud's k8s/platform/clamav.yaml); none
+    # leaves documents unscanned, as on a laptop; when set, a scanner that cannot answer refuses the document.
+    host: ${INDEZY_CLAMAV_HOST:}
+    port: ${INDEZY_CLAMAV_PORT:3310}
+    timeout: PT30S
   mail:
     # Saved search emails go through Resend (see docs/deployment.md#saved-search-email-credentials); without a key
     # nothing is sent and the app says so.

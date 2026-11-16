@@ -47,7 +47,7 @@ spec:
         - protocol: TCP
           port: 8080
 ---
-# The API's outbound traffic: DNS, the shared PostgreSQL and Keycloak in infra, and the public internet for the job
+# The API's outbound traffic: DNS, the shared PostgreSQL, Keycloak and ClamAV in infra, and the public internet for the job
 # boards, geocoding and mail. Private ranges stay closed, so a pasted posting link whose name passed PublicHosts and
 # then resolves to a cluster or home-network address (DNS rebinding) is refused by the network too.
 apiVersion: networking.k8s.io/v1
@@ -101,6 +101,17 @@ spec:
       ports:
         - protocol: TCP
           port: 8080
+    # The platform's ClamAV, which scans the documents members share.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: infra
+          podSelector:
+            matchLabels:
+              app: clamav
+      ports:
+        - protocol: TCP
+          port: 3310
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0

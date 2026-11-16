@@ -140,12 +140,26 @@ export class FilePickerComponent {
       },
       error: (error: HttpErrorResponse) => {
         item.failed = true;
-        this.notifications.error(error.status === 409 ? 'network.files.tooManyToday' : error.status === 400
-          ? (image ? 'network.files.imageRefused' : 'network.files.documentRefused') : 'network.files.uploadError');
+        this.notifications.error(FilePickerComponent.reason(error, image));
         this.changed.emit();
         this.changes.markForCheck();
       }
     });
+  }
+
+  /** What to tell the member when a file is refused. */
+  private static reason(error: HttpErrorResponse, image: boolean): string {
+    if (error.status === 409) {
+      return 'network.files.tooManyToday';
+    }
+    if (error.status === 503) {
+      return 'network.files.scanUnavailable';
+    }
+    if (error.status === 400) {
+      const message = typeof error.error?.message === 'string' ? error.error.message : '';
+      return message.includes('malware') ? 'network.files.malware' : image ? 'network.files.imageRefused' : 'network.files.documentRefused';
+    }
+    return 'network.files.uploadError';
   }
 
   private revoke(item: PickedFile): void {
