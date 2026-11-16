@@ -1471,7 +1471,11 @@
       "privateOn": "Your card is private",
       "privateOff": "Your card is public: the requests waiting are approved",
       "requestApproved": "Request approved",
-      "requestDeclined": "Request declined"
+      "requestDeclined": "Request declined",
+      "esnLabel": "Suggest members who went through the same ESNs",
+      "esnHint": "Both of you had an opportunity with that ESN; only between members who both turn this on. The ESN is named to each.",
+      "esnOn": "Members who went through the same ESNs will be suggested",
+      "esnOff": "No more suggestions through ESNs"
     }
   },
   "errors": {
@@ -3485,7 +3489,8 @@
       "sameCity": "Also in {{city}}",
       "followedByOne": "Followed by {{name}}, whom you follow",
       "followedByMany": "Followed by {{name}} and {{others}} other members you follow",
-      "contact": "In your contacts"
+      "contact": "In your contacts",
+      "sameEsn": "Also through {{esn}}"
     },
     "notices": {
       "title": "Notifications",

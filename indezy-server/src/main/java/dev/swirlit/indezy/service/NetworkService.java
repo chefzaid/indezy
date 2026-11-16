@@ -68,7 +68,8 @@ public class NetworkService {
             .orElseGet(() -> new NetworkDtos.Membership(false, members.findByUserId(userId).map(NetworkMember::getHandle)
                 .orElseGet(() -> suggestion(user)), members.findByUserId(userId).map(NetworkService::fields).orElse(ALL_SHOWN),
                 members.findByUserId(userId).map(NetworkService::availability).orElse(AUTO), null,
-                members.findByUserId(userId).map(NetworkMember::isPrivate).orElse(false)));
+                members.findByUserId(userId).map(NetworkMember::isPrivate).orElse(false),
+                members.findByUserId(userId).map(NetworkMember::isEsnSuggestions).orElse(false)));
     }
 
     /** Joins with the handle and the fields chosen, or changes them; a handle another member holds is refused. */
@@ -134,6 +135,14 @@ public class NetworkService {
             .orElseThrow(() -> new InvalidStateException("Join the network to see its members"));
     }
 
+    /** Turns on or off the suggestions of members who went through the same ESNs, both ways. */
+    @Transactional
+    public NetworkDtos.Membership setEsnSuggestions(Long userId, boolean on) {
+        NetworkMember member = requireMember(userId);
+        member.setEsnSuggestions(on);
+        return membership(member, user(userId));
+    }
+
     /** Whether the account is in the network. */
     boolean isMember(Long userId) {
         return members.findByUserId(userId).filter(NetworkMember::isActive).isPresent();
@@ -185,7 +194,7 @@ public class NetworkService {
 
     private NetworkDtos.Membership membership(NetworkMember member, User user) {
         return new NetworkDtos.Membership(true, member.getHandle(), fields(member), availability(member), card(member, user),
-            member.isPrivate());
+            member.isPrivate(), member.isEsnSuggestions());
     }
 
     private static NetworkDtos.Availability availability(NetworkMember member) {

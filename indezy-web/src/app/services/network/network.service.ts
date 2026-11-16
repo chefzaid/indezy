@@ -314,6 +314,11 @@ export class NetworkService {
   }
 
   /** Turns the member's card private, or public again, approving every request waiting. */
+  /** Suggests members who went through the same ESNs, or no longer; only between members who both allow it. */
+  setEsnSuggestions(on: boolean): Observable<NetworkMembership> {
+    return this.http.put<NetworkMembership>(`${this.API_URL}/membership/esn-suggestions`, null, { params: new HttpParams().set('on', on) });
+  }
+
   setPrivate(privateCard: boolean): Observable<NetworkMembership> {
     return this.http.put<NetworkMembership>(`${this.API_URL}/membership/private`, null, { params: new HttpParams().set('private', privateCard) });
   }

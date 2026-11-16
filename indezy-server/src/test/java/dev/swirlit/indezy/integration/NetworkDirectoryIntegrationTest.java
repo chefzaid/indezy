@@ -109,6 +109,35 @@ class NetworkDirectoryIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    void suggestsMembersThroughTheSameEsnOnlyWhenBothAllowIt() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        String run = UUID.randomUUID().toString().replace("-", "").substring(0, 6);
+        join(alice, "Ailleurs" + run, List.of(), ALL_SHOWN, Map.of("mode", "AUTO"));
+        String bobHandle = join(bob, "Autre" + run, List.of(), ALL_SHOWN, Map.of("mode", "AUTO"));
+        for (Account account : List.of(alice, bob)) {
+            Object esn = call(account, HttpMethod.POST, "/clients", Map.of("companyName", account == alice ? "Ésn Conseil " + run : "esn conseil " + run,
+                "city", "Paris", "isFinal", false, "freelanceId", account.freelanceId()), Map.class).getBody().get("id");
+            call(account, HttpMethod.POST, "/projects", Map.of("role", "Lead Java", "dailyRate", 600, "freelanceId", account.freelanceId(),
+                "clientId", esn, "status", "CONTACT"), Map.class);
+        }
+        java.util.function.Supplier<List<Map<String, Object>>> sameEsn = () -> ((List<Map<String, Object>>) call(alice, HttpMethod.GET,
+            "/network/suggestions", null, List.class).getBody()).stream().filter(found -> "SAME_ESN".equals(found.get("reason")))
+            .filter(found -> bobHandle.equals(((Map<String, Object>) found.get("card")).get("handle"))).toList();
+
+        // Off by default; on for one side only, nothing either.
+        assertThat(sameEsn.get()).isEmpty();
+        assertThat(call(alice, HttpMethod.PUT, "/network/membership/esn-suggestions?on=true", null, Map.class).getBody())
+            .containsEntry("esnSuggestions", true);
+        assertThat(sameEsn.get()).isEmpty();
+        call(bob, HttpMethod.PUT, "/network/membership/esn-suggestions?on=true", null, Map.class);
+        assertThat(sameEsn.get()).singleElement().satisfies(found -> assertThat(found).containsEntry("esn", "Ésn Conseil " + run));
+        call(bob, HttpMethod.PUT, "/network/membership/esn-suggestions?on=false", null, Map.class);
+        assertThat(sameEsn.get()).isEmpty();
+        assertThat(call(bob, HttpMethod.GET, "/network/membership", null, Map.class).getBody()).containsEntry("esnSuggestions", false);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     void suggestsMembersToFollowWithTheirReason() {
         flags.set(FeatureFlag.SOCIAL_NETWORK, true);
         String run = UUID.randomUUID().toString().replace("-", "").substring(0, 6);

@@ -37,6 +37,22 @@ export class ProfileFollowRequestsComponent implements OnInit {
     });
   }
 
+  /** Suggests members who went through the same ESNs, or no longer. */
+  setEsnSuggestions(on: boolean): void {
+    this.saving = true;
+    this.network.setEsnSuggestions(on).subscribe({
+      next: membership => {
+        this.saving = false;
+        this.changed.emit(membership);
+        this.notifications.success(on ? 'profile.network.esnOn' : 'profile.network.esnOff');
+      },
+      error: () => {
+        this.saving = false;
+        this.notifications.error('profile.network.saveError');
+      }
+    });
+  }
+
   /** Turns the card private, or public again: the requests waiting are then approved. */
   setPrivate(privateCard: boolean): void {
     this.saving = true;

@@ -33,7 +33,7 @@ public final class NetworkDtos {
      * and the card as members see it (null before joining).
      */
     public record Membership(boolean joined, String handle, Fields fields, Availability availability, MemberCard card,
-                             boolean privateCard) {
+                             boolean privateCard, boolean esnSuggestions) {
     }
 
     /** How the card tells the availability: from the won missions, or set by hand with the day it names, if any. */
@@ -235,13 +235,14 @@ public final class NetworkDtos {
      * Why a member is suggested: one of the viewer's Indezy contacts, followed by members the viewer follows, sharing
      * skills, or in the same city.
      */
-    public enum SuggestionReason { CONTACT, FOLLOWED_BY, SAME_STACK, SAME_CITY }
+    public enum SuggestionReason { CONTACT, FOLLOWED_BY, SAME_ESN, SAME_STACK, SAME_CITY }
 
     /**
      * A member to follow and why: how many members the viewer follows follow them (and one's name), the skills shared,
      * or the city, the strongest reason first.
      */
-    public record Suggestion(MemberCard card, SuggestionReason reason, int followedBy, String followedByName, List<String> sharedSkills) {
+    public record Suggestion(MemberCard card, SuggestionReason reason, int followedBy, String followedByName, List<String> sharedSkills,
+                             String esn) {
 
         public Suggestion {
             sharedSkills = List.copyOf(sharedSkills);

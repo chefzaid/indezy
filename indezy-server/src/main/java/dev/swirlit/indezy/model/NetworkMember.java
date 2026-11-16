@@ -93,6 +93,17 @@ public class NetworkMember extends BaseEntity {
     @Column(name = "private_card")
     private Boolean privateCard;
 
+    /**
+     * Whether members who went through the same ESNs (both had an opportunity with it) are suggested to follow, both ways;
+     * none (null) reads as off: only between members who both turn it on.
+     */
+    @Column(name = "esn_suggestions")
+    private Boolean esnSuggestions;
+
+    public boolean isEsnSuggestions() {
+        return Boolean.TRUE.equals(esnSuggestions);
+    }
+
     public boolean isPrivate() {
         return Boolean.TRUE.equals(privateCard);
     }

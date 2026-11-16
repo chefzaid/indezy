@@ -17,10 +17,10 @@ describe('ProfileFollowRequestsComponent', () => {
     stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false });
   const membership: NetworkMembership = { joined: true, handle: 'camille', availability: { mode: 'AUTO', date: null }, card: null,
     fields: { photo: true, headline: true, stack: true, location: true, availability: true, languages: true, remote: false },
-    privateCard: true };
+    privateCard: true, esnSuggestions: false };
 
   function create(requests = of([card('leo_m', 'Léo'), card('ines_b', 'Inès')])) {
-    network = jasmine.createSpyObj('NetworkService', ['followRequests', 'answerFollowRequest', 'setPrivate']);
+    network = jasmine.createSpyObj('NetworkService', ['followRequests', 'answerFollowRequest', 'setPrivate', 'setEsnSuggestions']);
     network.followRequests.and.returnValue(requests);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({
@@ -61,11 +61,11 @@ describe('ProfileFollowRequestsComponent', () => {
     const component = fixture.componentInstance;
     const changed = jasmine.createSpy('changed');
     component.changed.subscribe(changed);
-    network.setPrivate.and.returnValue(of({ ...membership, privateCard: false }));
+    network.setPrivate.and.returnValue(of({ ...membership, privateCard: false, esnSuggestions: false }));
     component.setPrivate(false);
     expect(network.setPrivate).toHaveBeenCalledWith(false);
     expect(component.requests).toEqual([]);
-    expect(changed).toHaveBeenCalledWith({ ...membership, privateCard: false });
+    expect(changed).toHaveBeenCalledWith({ ...membership, privateCard: false, esnSuggestions: false });
     expect(notifications.success).toHaveBeenCalledWith('profile.network.privateOff');
     network.setPrivate.and.returnValue(of(membership));
     component.setPrivate(true);
@@ -74,6 +74,25 @@ describe('ProfileFollowRequestsComponent', () => {
     component.setPrivate(true);
     expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');
     expect(component.saving).toBeFalse();
+  });
+
+  it('suggests members who went through the same ESNs, or no longer, telling the profile', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const changed = jasmine.createSpy('changed');
+    component.changed.subscribe(changed);
+    network.setEsnSuggestions.and.returnValue(of({ ...membership, esnSuggestions: true }));
+    ((fixture.nativeElement as HTMLElement).querySelector('[data-esn-toggle] input, [data-esn-toggle] button') as HTMLElement).click();
+    expect(network.setEsnSuggestions).toHaveBeenCalledWith(true);
+    expect(changed).toHaveBeenCalledWith(jasmine.objectContaining({ esnSuggestions: true }));
+    expect(notifications.success).toHaveBeenCalledWith('profile.network.esnOn');
+    network.setEsnSuggestions.and.returnValue(of(membership));
+    component.setEsnSuggestions(false);
+    expect(notifications.success).toHaveBeenCalledWith('profile.network.esnOff');
+    network.setEsnSuggestions.and.returnValue(throwError(() => new Error('down')));
+    component.setEsnSuggestions(true);
+    expect(component.saving).toBeFalse();
+    expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');
   });
 
   it('shows no request when they cannot be read', () => {

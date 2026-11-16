@@ -4,6 +4,10 @@
     {{ 'profile.network.privateLabel' | translate }}
   </mat-slide-toggle>
   <p class="empty">{{ 'profile.network.privateHint' | translate }}</p>
+  <mat-slide-toggle [checked]="membership.esnSuggestions" [disabled]="saving" (change)="setEsnSuggestions($event.checked)" data-esn-toggle>
+    {{ 'profile.network.esnLabel' | translate }}
+  </mat-slide-toggle>
+  <p class="empty">{{ 'profile.network.esnHint' | translate }}</p>
   @if (requests.length) {
     <h4>{{ 'profile.network.requestsTitle' | translate: { count: requests.length } }}</h4>
     <ul>

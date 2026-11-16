@@ -188,10 +188,12 @@ export interface TrendingTag {
 
 export interface MemberSuggestion {
   card: MemberCard;
-  reason: 'CONTACT' | 'FOLLOWED_BY' | 'SAME_STACK' | 'SAME_CITY';
+  reason: 'CONTACT' | 'FOLLOWED_BY' | 'SAME_ESN' | 'SAME_STACK' | 'SAME_CITY';
   followedBy: number;
   followedByName: string | null;
   sharedSkills: string[];
+  /** The ESN both went through, by its name in the reader's workspace. */
+  esn: string | null;
 }
 
 /** What a network notification tells. */
@@ -308,6 +310,8 @@ export interface NetworkMembership {
   card: MemberCard | null;
   /** Only the followers the member approves read their posts. */
   privateCard: boolean;
+  /** Members who went through the same ESNs are suggested, only between members who both allow it. */
+  esnSuggestions: boolean;
 }
 
 /** A name of the workspace found in a text about to go out, as written there. */

@@ -102,6 +102,8 @@ export class NetworkFeedComponent implements OnInit {
     switch (suggestion.reason) {
       case 'CONTACT':
         return this.translate.instant('network.suggestions.contact');
+      case 'SAME_ESN':
+        return this.translate.instant('network.suggestions.sameEsn', { esn: suggestion.esn });
       case 'FOLLOWED_BY':
         return this.translate.instant(suggestion.followedBy > 1 ? 'network.suggestions.followedByMany' : 'network.suggestions.followedByOne',
           { name: suggestion.followedByName, others: suggestion.followedBy - 1 });

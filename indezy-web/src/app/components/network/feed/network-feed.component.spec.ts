@@ -23,7 +23,7 @@ describe('NetworkFeedComponent', () => {
       availability: null, availabilityDate: null, languages: [], verified: false } });
 
   const suggestion = (handle: string, reason: MemberSuggestion['reason'], followedBy = 0): MemberSuggestion => ({ reason, followedBy,
-    followedByName: followedBy ? 'Léo' : null, sharedSkills: reason === 'SAME_STACK' ? ['Kafka'] : [], card: { ...post(0).author, handle,
+    followedByName: followedBy ? 'Léo' : null, sharedSkills: reason === 'SAME_STACK' ? ['Kafka'] : [], esn: reason === 'SAME_ESN' ? 'Acme Conseil' : null, card: { ...post(0).author, handle,
       city: 'Lyon' } });
 
   function create(feed = of({ posts: [post(2), post(1, true)], page: 0, more: true })): ComponentFixture<NetworkFeedComponent> {
@@ -32,7 +32,7 @@ describe('NetworkFeedComponent', () => {
     network.trendingTags.and.returnValue(of([{ tag: 'kafka', posts: 4 }, { tag: 'java', posts: 1 }]));
     network.feed.and.returnValue(feed);
     network.followedTags.and.returnValue(of(['kafka']));
-    network.membership.and.returnValue(of({ joined: true, handle: 'camille', card: null, privateCard: false,
+    network.membership.and.returnValue(of({ joined: true, handle: 'camille', card: null, privateCard: false, esnSuggestions: false,
       availability: { mode: 'AUTO', date: null }, fields: { photo: true, headline: true, stack: true, location: true, availability: true,
         languages: true, remote: false } }));
     network.suggestions.and.returnValue(of([suggestion('ines_b', 'FOLLOWED_BY', 3), suggestion('paul_d', 'SAME_STACK'),
@@ -289,11 +289,12 @@ describe('NetworkFeedComponent', () => {
     const card = { handle: 'paul_d', firstName: 'Paul', lastName: 'Dupont', avatar: null, headline: null, stack: [], city: 'Lyon',
       remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
     const suggestion = (reason: MemberSuggestion['reason'], followedBy = 0): MemberSuggestion =>
-      ({ card, reason, followedBy, followedByName: 'Léo', sharedSkills: ['Kafka'] });
+      ({ card, reason, followedBy, followedByName: 'Léo', sharedSkills: ['Kafka'], esn: 'Acme Conseil' });
     expect(component.reason(suggestion('CONTACT'))).toBe('In your contacts');
     expect(component.reason(suggestion('FOLLOWED_BY', 1))).toBe('Followed by Léo, whom you follow');
     expect(component.reason(suggestion('FOLLOWED_BY', 3))).toBe('Followed by Léo and 2 other members you follow');
     expect(component.reason(suggestion('SAME_STACK'))).toBe('Also on Kafka');
+    expect(component.reason(suggestion('SAME_ESN'))).toBe('Also through Acme Conseil');
     expect(component.reason(suggestion('SAME_CITY'))).toBe('Also in Lyon');
 
     const element: HTMLElement = fixture.nativeElement;

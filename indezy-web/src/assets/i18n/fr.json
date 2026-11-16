@@ -1471,7 +1471,11 @@
       "privateOn": "Votre carte est privée",
       "privateOff": "Votre carte est publique : les demandes en attente sont acceptées",
       "requestApproved": "Demande acceptée",
-      "requestDeclined": "Demande refusée"
+      "requestDeclined": "Demande refusée",
+      "esnLabel": "Suggérer les membres passés par les mêmes ESN",
+      "esnHint": "Vous avez tous deux eu une opportunité avec cette ESN ; seulement entre membres qui l'activent tous les deux. L'ESN est nommée à chacun.",
+      "esnOn": "Les membres passés par les mêmes ESN seront suggérés",
+      "esnOff": "Plus de suggestions par les ESN"
     }
   },
   "errors": {
@@ -3485,7 +3489,8 @@
       "sameCity": "Aussi à {{city}}",
       "followedByOne": "Suivi par {{name}}, que vous suivez",
       "followedByMany": "Suivi par {{name}} et {{others}} autres membres que vous suivez",
-      "contact": "Dans vos contacts"
+      "contact": "Dans vos contacts",
+      "sameEsn": "Aussi passé par {{esn}}"
     },
     "notices": {
       "title": "Notifications",

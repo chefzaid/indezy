@@ -199,6 +199,12 @@ public class NetworkController {
         follows.removeFollower(SecurityUtils.getCurrentUserId(), handle);
     }
 
+    @Operation(summary = "Suggest members who went through the same ESNs, or no longer", description = "Only between members who both turn it on")
+    @PutMapping("/membership/esn-suggestions")
+    public NetworkDtos.Membership setEsnSuggestions(@RequestParam boolean on) {
+        return network.setEsnSuggestions(SecurityUtils.getCurrentUserId(), on);
+    }
+
     @Operation(summary = "Turn the member's card private, or public again",
         description = "Private: following asks the member, and only their followers read their posts. Public again approves every request")
     @PutMapping("/membership/private")

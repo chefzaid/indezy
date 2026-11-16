@@ -21,8 +21,8 @@ describe('ProfileNetworkComponent', () => {
     stack: ['Java', 'Kafka'], city: 'Lyon', remote: true, availability: 'AVAILABLE', availabilityDate: '2026-12-02', languages: ['Français'],
     verified: false };
   const auto = { mode: 'AUTO' as const, date: null };
-  const outside: NetworkMembership = { joined: false, handle: 'camille', fields, availability: auto, card: null, privateCard: false };
-  const member: NetworkMembership = { joined: true, handle: 'camille', fields, availability: auto, card, privateCard: false };
+  const outside: NetworkMembership = { joined: false, handle: 'camille', fields, availability: auto, card: null, privateCard: false, esnSuggestions: false };
+  const member: NetworkMembership = { joined: true, handle: 'camille', fields, availability: auto, card, privateCard: false, esnSuggestions: false };
 
   function create(membership = of(outside)): ComponentFixture<ProfileNetworkComponent> {
     network = jasmine.createSpyObj('NetworkService', ['membership', 'join', 'leave', 'handle', 'verify', 'restrictions', 'mute', 'block',
