@@ -148,6 +148,12 @@ spec:
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 3
+          # On a rollout the old pod keeps serving while Traefik and the Service drop it: without this pause it stops
+          # accepting at once and the requests still routed to it answer 502, which the app shows as a server error.
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "10"]
           readinessProbe:
             httpGet:
               path: /api/actuator/health/readiness

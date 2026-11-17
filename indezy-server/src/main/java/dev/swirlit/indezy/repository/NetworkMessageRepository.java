@@ -12,6 +12,13 @@ import java.util.List;
 
 public interface NetworkMessageRepository extends JpaRepository<NetworkMessage, Long> {
 
+    /**
+     * Stands for "no time given" in the queries below. PostgreSQL cannot type a null timestamp parameter in a
+     * {@code :time is null or ...} test ("could not determine data type of parameter"), which H2 accepts, so a missing
+     * time is sent as this day, older than any message, and the queries never test a parameter for null.
+     */
+    LocalDateTime BEGINNING = LocalDateTime.of(2000, 1, 1, 0, 0);
+
     /** A conversation's messages before the given id (all with none), the newest first. */
     @Query("select m from NetworkMessage m where m.conversationId = :conversationId and (:before is null or m.id < :before) " +
         "order by m.id desc")
@@ -23,9 +30,13 @@ public interface NetworkMessageRepository extends JpaRepository<NetworkMessage, 
     List<NetworkMessage> latest(@Param("ids") Collection<Long> conversationIds);
 
     /** How many messages others sent in a conversation after the given time (all with none). */
+    default long unread(Long conversationId, Long readerId, LocalDateTime since) {
+        return unreadAfter(conversationId, readerId, since == null ? BEGINNING : since);
+    }
+
     @Query("select count(m) from NetworkMessage m where m.conversationId = :conversationId and m.senderId <> :readerId " +
-        "and (:since is null or m.createdAt > :since)")
-    long unread(@Param("conversationId") Long conversationId, @Param("readerId") Long readerId, @Param("since") LocalDateTime since);
+        "and m.createdAt > :since")
+    long unreadAfter(@Param("conversationId") Long conversationId, @Param("readerId") Long readerId, @Param("since") LocalDateTime since);
 
     /** The messages of these conversations matching a LIKE pattern on their text, case aside, the latest first. */
     @Query("select m from NetworkMessage m where m.conversationId in :ids and m.deletedAt is null and lower(m.text) like :pattern " +
@@ -34,17 +45,25 @@ public interface NetworkMessageRepository extends JpaRepository<NetworkMessage, 
 
     List<NetworkMessage> findByConversationIdOrderByIdAsc(Long conversationId);
 
-    /** How many messages others sent in a conversation between the two times, the deleted aside. */
+    /** How many messages others sent in a conversation between the two times (from the start with none), the deleted aside. */
+    default long between(Long conversationId, Long readerId, LocalDateTime after, LocalDateTime before) {
+        return countBetween(conversationId, readerId, after == null ? BEGINNING : after, before);
+    }
+
     @Query("select count(m) from NetworkMessage m where m.conversationId = :conversationId and m.senderId <> :readerId " +
-        "and m.deletedAt is null and (:after is null or m.createdAt > :after) and m.createdAt <= :before")
-    long between(@Param("conversationId") Long conversationId, @Param("readerId") Long readerId, @Param("after") LocalDateTime after,
-                 @Param("before") LocalDateTime before);
+        "and m.deletedAt is null and m.createdAt > :after and m.createdAt <= :before")
+    long countBetween(@Param("conversationId") Long conversationId, @Param("readerId") Long readerId, @Param("after") LocalDateTime after,
+                      @Param("before") LocalDateTime before);
 
     /** When the latest of those messages was sent. */
+    default LocalDateTime latestBetween(Long conversationId, Long readerId, LocalDateTime after, LocalDateTime before) {
+        return latestSentBetween(conversationId, readerId, after == null ? BEGINNING : after, before);
+    }
+
     @Query("select max(m.createdAt) from NetworkMessage m where m.conversationId = :conversationId and m.senderId <> :readerId " +
-        "and m.deletedAt is null and (:after is null or m.createdAt > :after) and m.createdAt <= :before")
-    LocalDateTime latestBetween(@Param("conversationId") Long conversationId, @Param("readerId") Long readerId,
-                                @Param("after") LocalDateTime after, @Param("before") LocalDateTime before);
+        "and m.deletedAt is null and m.createdAt > :after and m.createdAt <= :before")
+    LocalDateTime latestSentBetween(@Param("conversationId") Long conversationId, @Param("readerId") Long readerId,
+                                    @Param("after") LocalDateTime after, @Param("before") LocalDateTime before);
 
     long countBySenderIdAndCreatedAtAfter(Long senderId, LocalDateTime since);
 
