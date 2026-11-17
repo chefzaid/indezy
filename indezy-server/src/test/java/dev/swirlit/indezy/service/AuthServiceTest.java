@@ -60,6 +60,9 @@ class AuthServiceTest {
     @Mock
     private JobBoardSources jobBoardSources;
 
+    @Mock
+    private dev.swirlit.indezy.service.account.AccountDeletionService deletion;
+
     @InjectMocks
     private AuthService authService;
 
@@ -308,5 +311,33 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> authService.loginWithKeycloak("keycloak-token"))
                 .isInstanceOf(BadCredentialsException.class);
+    }
+
+    @Test
+    void login_ShouldSayAnAccountIsOnHoldAndRestoreItWhenAsked() {
+        testUser.setDeletedAt(java.time.LocalDateTime.of(2026, 11, 17, 9, 0));
+        LoginRequest request = new LoginRequest();
+        request.setEmail("test@example.com");
+        request.setPassword("password");
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(deletion.restorable(testUser)).thenReturn(true);
+        when(passwordEncoder.matches("password", testUser.getPasswordHash())).thenReturn(true);
+
+        assertThatThrownBy(() -> authService.login(request)).isInstanceOf(dev.swirlit.indezy.exception.AccountOnHoldException.class)
+            .satisfies(e -> assertThat(((dev.swirlit.indezy.exception.AccountOnHoldException) e).getPurgeOn())
+                .isEqualTo(java.time.LocalDate.of(2026, 12, 17)));
+        verify(deletion, never()).restore(any());
+
+        request.setRestore(true);
+        org.mockito.Mockito.doAnswer(call -> {
+            testUser.setDeletedAt(null);
+            return null;
+        }).when(deletion).restore(testUser);
+        try {
+            authService.login(request);
+        } catch (RuntimeException ignored) {
+            // What follows the restore (the workspace, the session) is covered by the sign-in tests.
+        }
+        verify(deletion).restore(testUser);
     }
 }

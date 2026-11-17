@@ -15,6 +15,8 @@ public enum AccountEventType {
     DATA_IMPORTED,
     ACCOUNT_DISABLED,
     ACCOUNT_ENABLED,
+    ACCOUNT_DELETION_REQUESTED,
+    ACCOUNT_RESTORED,
     API_TOKEN_CREATED,
     API_TOKEN_REVOKED,
     /** A contact's data handed out on their request; the detail names the contact by id only. */

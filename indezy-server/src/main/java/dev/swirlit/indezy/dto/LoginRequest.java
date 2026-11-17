@@ -20,4 +20,8 @@ public class LoginRequest {
     /** Six-digit authenticator code; required once two-factor authentication is enabled. */
     @ToString.Exclude
     private String totpCode;
+
+    /** Takes the account off hold when it is waiting to be deleted. */
+    @ToString.Exclude
+    private Boolean restore;
 }

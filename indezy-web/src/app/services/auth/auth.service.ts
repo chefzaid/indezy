@@ -4,7 +4,7 @@ import { BehaviorSubject, firstValueFrom, Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, LoginResponse, RegisterRequest, User } from '../../models/auth.models';
+import { AccountOnHold, LoginRequest, LoginResponse, RegisterRequest, User } from '../../models/auth.models';
 import { clearOfflineData } from '../../shared/utils/offline-data';
 
 /**
@@ -77,6 +77,7 @@ export class AuthService {
       return;
     }
 
+    let held: string | null = null;
     const sessionExchanged = await firstValueFrom(
       this.http.get<LoginResponse>(`${this.API_URL}/sso`).pipe(
         tap((response: LoginResponse) => {
@@ -86,13 +87,42 @@ export class AuthService {
           sessionStorage.removeItem(this.SSO_ATTEMPT_KEY);
         }),
         map(() => true),
-        catchError(() => of(false))
+        catchError((error: { status?: number; error?: Partial<AccountOnHold> }) => {
+          held = error?.status === 409 && error.error?.accountOnHold ? error.error.purgeOn ?? '' : null;
+          return of(false);
+        })
       )
     );
+
+    // An account on hold signs in to nothing but the choice to restore it.
+    if (held !== null) {
+      sessionStorage.removeItem(this.SSO_ATTEMPT_KEY);
+      await this.router.navigate(['/login'], { queryParams: { onHold: held, sso: 1 } });
+      return;
+    }
 
     if (!sessionExchanged && !HOME_PAGE_PATHS.includes(path) && sessionStorage.getItem(this.SSO_ATTEMPT_KEY) !== 'pending') {
       this.startSsoLogin();
     }
+  }
+
+  /** Takes the account signed in through Keycloak off hold, and opens its session. */
+  restoreSso(): Observable<LoginResponse> {
+    return this.http.get<LoginResponse>(`${this.API_URL}/sso`, { params: { restore: true } }).pipe(
+      tap((response: LoginResponse) => {
+        this.setToken(response.token);
+        this.setUser(response.user);
+        this.currentUserSubject.next(response.user);
+      })
+    );
+  }
+
+  /** Forgets the session here, which the server already ended (the account went on hold). */
+  forgetSession(): void {
+    clearOfflineData().catch(() => undefined);
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    this.currentUserSubject.next(null);
   }
 
   startSsoLogin(returnUrl = window.location.href): void {

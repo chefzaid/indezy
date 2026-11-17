@@ -388,7 +388,7 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
 
   /** Who the reader writes to: the other member's first name, or the group's name. */
   get label(): string {
-    return this.conversation?.group?.title ?? this.conversation?.with?.firstName ?? '';
+    return this.conversation?.group?.title ?? this.conversation?.with?.firstName ?? this.translate.instant('network.messages.formerMember');
   }
 
   readonly memberNames = memberNames;

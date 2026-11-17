@@ -136,7 +136,13 @@
     "hideConfirmPassword": "Masquer la confirmation du mot de passe",
     "totpRequired": "Saisissez le code de votre application d'authentification",
     "totpCode": "Code à 6 chiffres",
-    "totpHint": "Code affiché par votre application d'authentification"
+    "totpHint": "Code affiché par votre application d'authentification",
+    "onHoldTitle": "Ce compte est suspendu",
+    "onHold": "Il sera supprimé définitivement le {{date}}, comme demandé. Restaurez-le pour continuer à l’utiliser.",
+    "onHoldHint": "Saisissez votre e-mail et votre mot de passe ci-dessus, puis restaurez-le.",
+    "restoreAccount": "Restaurer mon compte",
+    "restored": "Votre compte est restauré.",
+    "restoreError": "Le compte n’a pas pu être restauré."
   },
   "dashboard": {
     "rateTargetComparison": "TJM cible et obtenu",
@@ -1208,7 +1214,9 @@
         "CONTACT_DATA_EXPORTED": "Données d’un contact exportées à sa demande",
         "CONTACT_ERASED": "Un contact effacé à sa demande",
         "CONTACTS_ANONYMIZED": "{{count}} contacts anonymisés après la durée de conservation",
-        "NETWORK_SANCTIONED": "Sanction des modérateurs du réseau : {{outcome}}"
+        "NETWORK_SANCTIONED": "Sanction des modérateurs du réseau : {{outcome}}",
+        "ACCOUNT_DELETION_REQUESTED": "Suppression du compte demandée",
+        "ACCOUNT_RESTORED": "Compte restauré"
       },
       "outcomes": {
         "WARNED": "avertissement",
@@ -1489,6 +1497,18 @@
       "messagingHint": "Chacun vaut dans les deux sens : désactivé, vous ne le voyez plus chez les autres non plus.",
       "readReceipts": "Montrer quand je lis un message (Vu)",
       "typing": "Montrer quand j’écris"
+    },
+    "deletion": {
+      "title": "Supprimer mon compte",
+      "description": "Votre compte est suspendu aussitôt, puis tout ce qu’il contient est supprimé au bout de 30 jours.",
+      "delete": "Supprimer mon compte",
+      "hold": "Aussitôt : vous êtes déconnecté partout, personne ne peut se connecter, et votre carte, vos publications et votre page publique sont masquées.",
+      "purge": "Le {{date}} : tout est supprimé définitivement, votre espace, vos documents, vos factures et vos publications compris. Exportez vos données avant si vous voulez les garder.",
+      "restore": "D’ici là, se connecter propose de restaurer le compte tel qu’il était.",
+      "messages": "Les messages que vous avez envoyés restent chez les membres à qui vous avez écrit, signés d’un ancien membre.",
+      "typeEmail": "Saisissez {{email}} pour confirmer",
+      "confirm": "Supprimer mon compte",
+      "error": "Le compte n’a pas pu être supprimé."
     }
   },
   "errors": {
@@ -3756,7 +3776,8 @@
       "cardAlready": "Cette opportunité est déjà dans votre pipeline",
       "cardError": "L'opportunité n'a pas pu être ajoutée",
       "seen": "Vu",
-      "typing": "{{name}} écrit…"
+      "typing": "{{name}} écrit…",
+      "formerMember": "Ancien membre"
     },
     "groups": {
       "new": "Nouveau groupe",

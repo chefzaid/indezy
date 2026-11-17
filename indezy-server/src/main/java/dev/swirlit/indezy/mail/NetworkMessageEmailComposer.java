@@ -55,8 +55,9 @@ public class NetworkMessageEmailComposer {
         StringBuilder text = new StringBuilder(hello).append("\n\n").append(lead).append('\n');
         for (Waiting waiting : unread.waiting()) {
             String count = waiting.count() == 1 ? "1 message" : waiting.count() + " messages";
-            html.append("<li><strong>").append(escape(waiting.name())).append("</strong> · ").append(escape(count)).append("</li>");
-            text.append("- ").append(waiting.name()).append(" · ").append(count).append('\n');
+            String name = waiting.name() != null ? waiting.name() : english ? "A former member" : "Un ancien membre";
+            html.append("<li><strong>").append(escape(name)).append("</strong> · ").append(escape(count)).append("</li>");
+            text.append("- ").append(name).append(" · ").append(count).append('\n');
         }
         html.append("</ul>");
         String messages = properties.appUrl() + "/network/messages";

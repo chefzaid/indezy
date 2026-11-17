@@ -16,14 +16,14 @@ describe('LoginComponent', () => {
   let navigateByUrl: jasmine.Spy;
 
   /** Creates the page as opened from `/login`, optionally with the `returnUrl` a guard added. */
-  function create(returnUrl?: string): LoginComponent {
-    auth = jasmine.createSpyObj('AuthService', ['login', 'isAuthenticated', 'startSsoLogin']);
-    notification = jasmine.createSpyObj('NotificationService', ['success', 'info', 'errorText']);
+  function create(returnUrl?: string, params: Record<string, string> = {}): LoginComponent {
+    auth = jasmine.createSpyObj('AuthService', ['login', 'isAuthenticated', 'startSsoLogin', 'restoreSso']);
+    notification = jasmine.createSpyObj('NotificationService', ['success', 'info', 'errorText', 'error']);
     TestBed.configureTestingModule({
       imports: [LoginComponent, TranslateModule.forRoot()],
       providers: [
         provideRouter([]),
-        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(returnUrl ? { returnUrl } : {}) } } },
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(returnUrl ? { returnUrl, ...params } : params) } } },
         { provide: AuthService, useValue: auth },
         { provide: NotificationService, useValue: notification }
       ]
@@ -126,6 +126,49 @@ describe('LoginComponent', () => {
     create().onSsoLogin();
     expect(auth.startSsoLogin).toHaveBeenCalled();
   });
+
+  it('says an account is on hold and restores it with the password given', () => {
+    const component = create();
+    fill(component);
+    failWith(new HttpErrorResponse({ status: 409, error: { accountOnHold: true, purgeOn: '2026-12-17' } }));
+    component.onSubmit();
+    expect(component.onHold).toBe('2026-12-17');
+    expect(component.heldThroughSso).toBeFalse();
+    auth.login.and.returnValue(of({ token: 'jwt' } as LoginResponse));
+    component.restore();
+    expect(auth.login).toHaveBeenCalledWith(jasmine.objectContaining({ email: 'jean.dupont@example.test', restore: true }));
+    expect(notification.success).toHaveBeenCalledWith('auth.restored');
+    expect(navigateByUrl).toHaveBeenCalledWith('/dashboard');
+    expect(component.onHold).toBeNull();
+  });
+
+  it('restores an account on hold through Keycloak, or says it could not', () => {
+    const component = create(undefined, { onHold: '2026-12-17', sso: '1' });
+    auth.isAuthenticated.and.returnValue(true);
+    component.ngOnInit();
+    expect(navigateByUrl).not.toHaveBeenCalled();
+    expect(component.heldThroughSso).toBeTrue();
+    auth.restoreSso.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    component.restore();
+    expect(notification.error).toHaveBeenCalledWith('auth.restoreError');
+    auth.restoreSso.and.returnValue(of({ token: 'jwt' } as LoginResponse));
+    component.restore();
+    expect(notification.success).toHaveBeenCalledWith('auth.restored');
+    expect(navigateByUrl).toHaveBeenCalledWith('/dashboard');
+  });
+
+  it('shows the hold and its restore button, in French too', () => {
+    create(undefined, { onHold: '2026-12-17' });
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('fr', fr);
+    translate.use('fr');
+    const fixture = TestBed.createComponent(LoginComponent);
+    auth.isAuthenticated.and.returnValue(false);
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-account-on-hold]')?.textContent).toContain('Ce compte est suspendu');
+    expect((element.querySelector('[data-restore-account]') as HTMLButtonElement).disabled).toBeTrue();
+  });
 });
 
 describe('LoginComponent template', () => {
@@ -152,4 +195,5 @@ describe('LoginComponent template', () => {
     fixture.detectChanges();
     expect(email().placeholder).toBe('your@email.com');
   });
+
 });

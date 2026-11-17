@@ -1,0 +1,166 @@
+package dev.swirlit.indezy.service.account;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Deletes everything an account holds once its 30 days on hold are over (see docs/security.md#data-privacy): its
+ * workspace (opportunities, clients, contacts, documents, invoices, quotes, activity reports, settings), its network
+ * presence (card, posts with everything under them, comments, reactions, follows, notifications, files) and the account
+ * itself. The messages it sent stay with the members it wrote to, from a former member. Each table is named in
+ * {@link #PURGED} or {@link #SHARED}, which a test checks against the schema, so a new table is never forgotten.
+ */
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class AccountPurge {
+
+    /** The tables that hold an account's data, deleted in this order (children before what they point to). */
+    static final List<String> PURGED = List.of(
+        "network_post_tags", "network_post_versions", "network_likes", "network_comment_likes", "network_usefuls",
+        "network_mission_takes", "network_poll_votes", "network_bookmarks", "network_notifications", "network_comments",
+        "network_file_contents", "network_files", "network_held", "network_posts", "network_follows",
+        "network_follow_requests", "network_restrictions", "network_tag_follows", "network_drafts", "network_reports",
+        "network_message_reactions", "network_conversation_members", "network_members",
+        "webhook_events", "webhook_deliveries", "webhooks", "activity_report_days", "interview_step_checklist",
+        "interview_steps", "contact_interactions", "contact_relations", "project_attachments", "project_notes",
+        "purchase_orders", "project_contract_checks", "project_documents", "job_offer_states", "invoice_lines", "invoices",
+        "invoice_counters", "activity_reports", "quote_lines", "quotes", "quote_counters", "testimonials", "projects",
+        "pipeline_template_steps", "pipeline_templates", "contacts", "clients", "sources", "seasons", "email_templates",
+        "offer_board_visits", "offer_publisher_blocks", "offer_site_exclusions", "offer_suggestion_dismissals",
+        "saved_offer_searches", "trainings", "booking_windows", "bookings", "booking_pages", "compliance_pack_documents",
+        "compliance_packs", "compliance_documents", "freelances", "api_token_scopes", "api_tokens", "account_sessions",
+        "account_events", "user_skills", "user_skill_details", "user_languages", "users");
+
+    /**
+     * Tables that hold no account's data: the shared offer feed and its indexes, places, flags; and the conversations
+     * and messages, kept for the other side (an account's own conversations go with their last member).
+     */
+    static final Set<String> SHARED = Set.of("job_offers", "job_offer_skills", "job_offer_changes", "offer_appearances",
+        "offer_mentions", "offer_rate_benchmarks", "offer_rate_history", "offer_site_statuses", "offer_skips", "offer_terms",
+        "geo_places", "feature_flags", "network_conversations", "network_messages");
+
+    private static final String POSTS = "(SELECT id FROM network_posts WHERE author_id = ?)";
+    private static final String COMMENTS = "(SELECT id FROM network_comments WHERE author_id = ? OR post_id IN " + POSTS + ")";
+    private static final String PROJECTS = "(SELECT id FROM projects WHERE freelance_id = ?)";
+    private static final String CONTACTS = "(SELECT id FROM contacts WHERE freelance_id = ?)";
+
+    private final JdbcTemplate jdbc;
+
+    /** The tables deleted with an account, in their order. */
+    public static List<String> purgedTables() {
+        return PURGED;
+    }
+
+    /** The tables that hold no account's data. */
+    public static Set<String> sharedTables() {
+        return SHARED;
+    }
+
+    /** Deletes the account and everything it holds; answers how many rows went. */
+    public int purge(Long userId) {
+        String email = jdbc.query("SELECT email FROM users WHERE id = ?", rs -> rs.next() ? rs.getString(1) : null, userId);
+        if (email == null) {
+            return 0;
+        }
+        Long freelanceId = jdbc.query("SELECT id FROM freelances WHERE LOWER(email) = LOWER(?)", rs -> rs.next() ? rs.getLong(1) : null, email);
+        int rows = network(userId);
+        if (freelanceId != null) {
+            rows += workspace(freelanceId);
+        }
+        rows += account(userId);
+        log.info("Purged account {} after its time on hold: {} rows", userId, rows);
+        return rows;
+    }
+
+    private int network(Long u) {
+        int rows = 0;
+        // Others' posts no longer answer or pin the account's comments.
+        rows += jdbc.update("UPDATE network_posts SET answer_comment_id = NULL WHERE answer_comment_id IN " + COMMENTS, u, u);
+        rows += jdbc.update("UPDATE network_posts SET pinned_comment_id = NULL WHERE pinned_comment_id IN " + COMMENTS, u, u);
+        for (String table : List.of("network_post_tags", "network_post_versions", "network_likes", "network_usefuls",
+            "network_mission_takes", "network_poll_votes", "network_bookmarks", "network_notifications")) {
+            rows += jdbc.update("DELETE FROM " + table + " WHERE post_id IN " + POSTS, u);
+        }
+        rows += jdbc.update("DELETE FROM network_comment_likes WHERE post_id IN " + POSTS + " OR comment_id IN " + COMMENTS +
+            " OR comment_id IN (SELECT id FROM network_comments WHERE parent_id IN " + COMMENTS + ")", u, u, u, u, u);
+        // Replies first: they point to the comments they answer.
+        rows += jdbc.update("DELETE FROM network_comments WHERE parent_id IN " + COMMENTS, u, u);
+        rows += jdbc.update("DELETE FROM network_comments WHERE author_id = ? OR post_id IN " + POSTS, u, u);
+        // Files of the posts and of what waits for review; those of the messages sent stay with them.
+        String files = "(SELECT id FROM network_files WHERE post_id IN " + POSTS +
+            " OR held_id IN (SELECT id FROM network_held WHERE author_id = ?) OR (owner_id = ? AND message_id IS NULL))";
+        rows += jdbc.update("DELETE FROM network_file_contents WHERE file_id IN " + files, u, u, u);
+        rows += jdbc.update("DELETE FROM network_files WHERE id IN " + files, u, u, u);
+        rows += jdbc.update("DELETE FROM network_held WHERE author_id = ?", u);
+        rows += jdbc.update("DELETE FROM network_posts WHERE author_id = ?", u);
+        for (String table : List.of("network_likes", "network_comment_likes", "network_usefuls", "network_mission_takes",
+            "network_poll_votes", "network_bookmarks", "network_tag_follows", "network_message_reactions",
+            "network_conversation_members", "network_members")) {
+            rows += jdbc.update("DELETE FROM " + table + " WHERE user_id = ?", u);
+        }
+        rows += jdbc.update("DELETE FROM network_notifications WHERE recipient_id = ? OR actor_id = ?", u, u);
+        rows += jdbc.update("DELETE FROM network_follows WHERE follower_id = ? OR followed_id = ?", u, u);
+        rows += jdbc.update("DELETE FROM network_follow_requests WHERE member_id = ? OR requester_id = ?", u, u);
+        rows += jdbc.update("DELETE FROM network_restrictions WHERE owner_id = ? OR target_id = ?", u, u);
+        rows += jdbc.update("DELETE FROM network_drafts WHERE author_id = ?", u);
+        rows += jdbc.update("DELETE FROM network_reports WHERE reporter_id = ? OR target_user_id = ?", u, u);
+        return rows;
+    }
+
+    private int workspace(Long f) {
+        int rows = 0;
+        rows += jdbc.update("DELETE FROM webhook_events WHERE webhook_id IN (SELECT id FROM webhooks WHERE freelance_id = ?)", f);
+        rows += jdbc.update("DELETE FROM webhook_deliveries WHERE webhook_id IN (SELECT id FROM webhooks WHERE freelance_id = ?)", f);
+        rows += jdbc.update("DELETE FROM webhooks WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM activity_report_days WHERE report_id IN (SELECT id FROM activity_reports WHERE project_id IN " +
+            PROJECTS + ")", f);
+        rows += jdbc.update("DELETE FROM interview_step_checklist WHERE step_id IN (SELECT id FROM interview_steps WHERE project_id IN " +
+            PROJECTS + ")", f);
+        rows += jdbc.update("DELETE FROM interview_steps WHERE project_id IN " + PROJECTS, f);
+        rows += jdbc.update("DELETE FROM contact_interactions WHERE contact_id IN " + CONTACTS + " OR project_id IN " + PROJECTS, f, f);
+        rows += jdbc.update("DELETE FROM contact_relations WHERE first_contact_id IN " + CONTACTS + " OR second_contact_id IN " + CONTACTS, f, f);
+        for (String table : List.of("project_attachments", "project_notes", "project_contract_checks", "project_documents")) {
+            rows += jdbc.update("DELETE FROM " + table + " WHERE project_id IN " + PROJECTS, f);
+        }
+        rows += jdbc.update("UPDATE purchase_orders SET amends_id = NULL WHERE project_id IN " + PROJECTS, f);
+        rows += jdbc.update("DELETE FROM purchase_orders WHERE project_id IN " + PROJECTS, f);
+        rows += jdbc.update("DELETE FROM job_offer_states WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM invoice_lines WHERE invoice_id IN (SELECT id FROM invoices WHERE freelance_id = ?)", f);
+        rows += jdbc.update("UPDATE invoices SET credited_invoice_id = NULL WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM invoices WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM invoice_counters WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM activity_reports WHERE project_id IN " + PROJECTS, f);
+        rows += jdbc.update("DELETE FROM quote_lines WHERE quote_id IN (SELECT id FROM quotes WHERE freelance_id = ?)", f);
+        rows += jdbc.update("DELETE FROM quotes WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM quote_counters WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM testimonials WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM projects WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM pipeline_template_steps WHERE template_id IN (SELECT id FROM pipeline_templates WHERE freelance_id = ?)", f);
+        rows += jdbc.update("DELETE FROM pipeline_templates WHERE freelance_id = ?", f);
+        rows += jdbc.update("UPDATE contacts SET manager_id = NULL WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM contacts WHERE freelance_id = ?", f);
+        rows += jdbc.update("DELETE FROM booking_windows WHERE page_id IN (SELECT id FROM booking_pages WHERE freelance_id = ?)", f);
+        rows += jdbc.update("DELETE FROM compliance_pack_documents WHERE pack_id IN (SELECT id FROM compliance_packs WHERE freelance_id = ?)", f);
+        for (String table : List.of("clients", "sources", "seasons", "email_templates", "offer_board_visits", "offer_publisher_blocks",
+            "offer_site_exclusions", "offer_suggestion_dismissals", "saved_offer_searches", "trainings", "bookings", "booking_pages",
+            "compliance_packs", "compliance_documents")) {
+            rows += jdbc.update("DELETE FROM " + table + " WHERE freelance_id = ?", f);
+        }
+        rows += jdbc.update("DELETE FROM freelances WHERE id = ?", f);
+        return rows;
+    }
+
+    private int account(Long u) {
+        int rows = jdbc.update("DELETE FROM api_token_scopes WHERE token_id IN (SELECT id FROM api_tokens WHERE user_id = ?)", u);
+        for (String table : List.of("api_tokens", "account_sessions", "account_events", "user_skills", "user_skill_details", "user_languages")) {
+            rows += jdbc.update("DELETE FROM " + table + " WHERE user_id = ?", u);
+        }
+        return rows + jdbc.update("DELETE FROM users WHERE id = ?", u);
+    }
+}

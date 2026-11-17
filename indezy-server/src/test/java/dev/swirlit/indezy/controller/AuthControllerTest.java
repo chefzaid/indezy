@@ -232,9 +232,9 @@ class AuthControllerTest {
 
     @Test
     void sso_ShouldReturnUnauthorizedAndLogTheReasonAtWarn_WhenIngressIdentityIsMissing(CapturedOutput output) {
-        when(authService.loginWithKeycloak(null)).thenThrow(new BadCredentialsException("Keycloak access token is missing"));
+        when(authService.loginWithKeycloak(null, false)).thenThrow(new BadCredentialsException("Keycloak access token is missing"));
 
-        ResponseEntity<LoginResponse> response = authController.sso(null);
+        ResponseEntity<LoginResponse> response = authController.sso(null, false);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertLoggedAtWarnOnly(output, "Keycloak SSO exchange rejected: Keycloak access token is missing");
@@ -243,9 +243,9 @@ class AuthControllerTest {
 
     @Test
     void sso_ShouldReturnUnauthorizedAndLogTheReasonAtWarn_WhenTheTokenIsInvalid(CapturedOutput output) {
-        when(authService.loginWithKeycloak("expired-token")).thenThrow(new BadJwtException("Jwt expired at 2026-10-14T08:00:00Z"));
+        when(authService.loginWithKeycloak("expired-token", false)).thenThrow(new BadJwtException("Jwt expired at 2026-10-14T08:00:00Z"));
 
-        ResponseEntity<LoginResponse> response = authController.sso("expired-token");
+        ResponseEntity<LoginResponse> response = authController.sso("expired-token", false);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertLoggedAtWarnOnly(output, "Keycloak SSO exchange rejected: Jwt expired at 2026-10-14T08:00:00Z");
@@ -254,9 +254,9 @@ class AuthControllerTest {
 
     @Test
     void sso_WhenTheKeySetCannotBeFetched_ShouldReturnUnauthorizedAndLogItAtError(CapturedOutput output) {
-        when(authService.loginWithKeycloak("keycloak-token")).thenThrow(new JwtException("Couldn't retrieve remote JWK set"));
+        when(authService.loginWithKeycloak("keycloak-token", false)).thenThrow(new JwtException("Couldn't retrieve remote JWK set"));
 
-        ResponseEntity<LoginResponse> response = authController.sso("keycloak-token");
+        ResponseEntity<LoginResponse> response = authController.sso("keycloak-token", false);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(logLine(output, "Keycloak SSO exchange failed with an unexpected error")).contains("ERROR");
@@ -265,9 +265,9 @@ class AuthControllerTest {
 
     @Test
     void sso_WhenAConcurrentSignInCreatesTheAccount_ShouldLogTheConstraintAtWarnWithoutTheEmail(CapturedOutput output) {
-        when(authService.loginWithKeycloak("keycloak-token")).thenThrow(new DataIntegrityViolationException(DUPLICATE_KEY_MESSAGE));
+        when(authService.loginWithKeycloak("keycloak-token", false)).thenThrow(new DataIntegrityViolationException(DUPLICATE_KEY_MESSAGE));
 
-        ResponseEntity<LoginResponse> response = authController.sso("keycloak-token");
+        ResponseEntity<LoginResponse> response = authController.sso("keycloak-token", false);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertLoggedAtWarnOnly(output, "Keycloak SSO exchange rejected by a database constraint");
@@ -278,9 +278,9 @@ class AuthControllerTest {
     void sso_ShouldReturnSession_WhenIngressIdentityIsValid() {
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken("jwt-token");
-        when(authService.loginWithKeycloak("keycloak-token")).thenReturn(loginResponse);
+        when(authService.loginWithKeycloak("keycloak-token", false)).thenReturn(loginResponse);
 
-        ResponseEntity<LoginResponse> response = authController.sso("keycloak-token");
+        ResponseEntity<LoginResponse> response = authController.sso("keycloak-token", false);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isSameAs(loginResponse);
@@ -318,5 +318,22 @@ class AuthControllerTest {
     /** Only the controller's own lines: the capture also holds JVM and Mockito warnings. */
     private static List<String> controllerLines(CapturedOutput output) {
         return output.getAll().lines().filter(line -> line.contains(AuthController.class.getSimpleName())).toList();
+    }
+
+    @Test
+    void signInToAnAccountOnHoldAnswersConflictWithItsDeletionDay() {
+        LoginRequest request = new LoginRequest();
+        request.setEmail("held@example.com");
+        request.setPassword("Password123!");
+        when(authService.login(request)).thenThrow(new dev.swirlit.indezy.exception.AccountOnHoldException(java.time.LocalDate.of(2026, 12, 17)));
+        ResponseEntity<LoginResponse> response = authController.login(request);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(response.getBody().getAccountOnHold()).isTrue();
+        assertThat(response.getBody().getPurgeOn()).isEqualTo(java.time.LocalDate.of(2026, 12, 17));
+        assertThat(response.getBody().getToken()).isNull();
+
+        when(authService.loginWithKeycloak("held-token", false)).thenThrow(new dev.swirlit.indezy.exception.AccountOnHoldException(
+            java.time.LocalDate.of(2026, 12, 17)));
+        assertThat(authController.sso("held-token", false).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
 }

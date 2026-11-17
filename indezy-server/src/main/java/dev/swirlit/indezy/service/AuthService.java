@@ -14,6 +14,8 @@ import dev.swirlit.indezy.model.enums.EmploymentStatus;
 import dev.swirlit.indezy.repository.FreelanceRepository;
 import dev.swirlit.indezy.repository.UserRepository;
 import dev.swirlit.indezy.util.SecurityUtils;
+import dev.swirlit.indezy.exception.AccountOnHoldException;
+import dev.swirlit.indezy.service.account.AccountDeletionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,6 +42,7 @@ public class AuthService {
     private final JwtDecoder keycloakJwtDecoder;
     private final TotpService totpService;
     private final JobBoardSources jobBoardSources;
+    private final AccountDeletionService deletion;
 
     public LoginResponse login(LoginRequest request) {
         log.debug("Attempting login");
@@ -47,8 +50,9 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid email or password"));
 
-        // Deleted and disabled accounts cannot log in; report the same generic error to avoid leaking state.
-        if (!user.isActive()) {
+        // Disabled accounts, and deleted ones past their hold, cannot log in; report the same generic error to avoid
+        // leaking state. An account on hold is told so only once its credentials are checked.
+        if (!user.isActive() && !deletion.restorable(user)) {
             throw new ResourceNotFoundException("Invalid email or password");
         }
 
@@ -57,6 +61,7 @@ public class AuthService {
             throw new ResourceNotFoundException("Invalid email or password");
         }
         requireTwoFactorCode(user, request.getTotpCode());
+        offHold(user, request.getRestore());
 
         Freelance freelance = ensureFreelanceProfile(user);
         String token = sessions.open(user, SignInMethod.PASSWORD);
@@ -102,7 +107,22 @@ public class AuthService {
         return toLoginResponse(user, freelance.getId(), token);
     }
 
+    /** An account on hold is restored when asked, and otherwise told it is on hold, with the day it goes. */
+    private void offHold(User user, Boolean restore) {
+        if (user.getDeletedAt() == null) {
+            return;
+        }
+        if (!Boolean.TRUE.equals(restore)) {
+            throw new AccountOnHoldException(AccountDeletionService.purgeOn(user));
+        }
+        deletion.restore(user);
+    }
+
     public LoginResponse loginWithKeycloak(String accessToken) {
+        return loginWithKeycloak(accessToken, false);
+    }
+
+    public LoginResponse loginWithKeycloak(String accessToken, Boolean restore) {
         if (accessToken == null || accessToken.isBlank()) {
             throw new BadCredentialsException("Keycloak access token is missing");
         }
@@ -128,9 +148,10 @@ public class AuthService {
             created.setOnboardingPending(true);
             return userRepository.save(created);
         });
-        if (!user.isActive()) {
+        if (!user.isActive() && !deletion.restorable(user)) {
             throw new BadCredentialsException("Invalid account");
         }
+        offHold(user, restore);
 
         Freelance freelance = ensureFreelanceProfile(user);
         // The app exchanges the Keycloak identity on every load: the session its token belongs to goes on.

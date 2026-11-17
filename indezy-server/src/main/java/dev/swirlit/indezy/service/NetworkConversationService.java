@@ -173,7 +173,7 @@ public class NetworkConversationService {
         // The day as members read it, in Paris, not the server's UTC.
         LocalDate today = LocalDate.now(clock.withZone(FrenchDates.PARIS));
         byte[] content = pdf.render(new ConversationPdfRenderer.Conversation(readerName, seen.label(), seen.handle(), lines), language, today);
-        String name = seen.handle() != null ? seen.handle() : "group-" + conversationId;
+        String name = seen.handle() != null ? seen.handle() : (seen.group() != null ? "group-" : "former-member-") + conversationId;
         return new ActivityReportService.PdfFile("conversation-" + name + "-" + today + ".pdf", content);
     }
 

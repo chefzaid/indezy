@@ -33,6 +33,11 @@
           <span class="handle" [matTooltip]="memberNames(group.members)">{{ 'network.groups.size' | translate: { count: group.size } }}</span>
         </span>
       </span>
+    } @else {
+      <span class="who" data-thread-former-member>
+        <span class="group-avatar" aria-hidden="true"><mat-icon>person_off</mat-icon></span>
+        <span class="names"><span class="name">{{ 'network.messages.formerMember' | translate }}</span></span>
+      </span>
     }
     @if (current.muted) {
       <mat-icon class="muted" [attr.aria-label]="'network.messages.muted' | translate" data-thread-muted>notifications_off</mat-icon>

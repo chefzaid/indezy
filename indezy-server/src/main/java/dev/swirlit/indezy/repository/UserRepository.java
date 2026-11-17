@@ -45,4 +45,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByWeeklyDigestToken(String token);
 
     Optional<User> findByMessageEmailToken(String token);
+
+    /** The accounts put on hold before the date, and not disabled: due to be deleted for good. */
+    @Query("SELECT u.id FROM User u WHERE u.deletedAt IS NOT NULL AND u.deletedAt < :before AND u.disabledAt IS NULL ORDER BY u.id")
+    List<Long> heldBefore(@Param("before") LocalDateTime before);
 }

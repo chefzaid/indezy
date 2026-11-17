@@ -15,7 +15,7 @@ const EVENT_ICONS: Record<AccountEventType, string> = {
   SIGNED_IN: 'login', SIGN_IN_REFUSED: 'gpp_bad', SIGNED_OUT: 'logout', SESSION_REVOKED: 'phonelink_erase',
   OTHER_SESSIONS_REVOKED: 'phonelink_erase', PASSWORD_CHANGED: 'password', TWO_FACTOR_ENABLED: 'verified_user',
   TWO_FACTOR_DISABLED: 'gpp_maybe', DATA_EXPORTED: 'download', DATA_IMPORTED: 'upload', ACCOUNT_DISABLED: 'block',
-  ACCOUNT_ENABLED: 'check_circle', API_TOKEN_CREATED: 'key', API_TOKEN_REVOKED: 'key_off', CONTACT_DATA_EXPORTED: 'download',
+  ACCOUNT_ENABLED: 'check_circle', ACCOUNT_DELETION_REQUESTED: 'delete_forever', ACCOUNT_RESTORED: 'restore', API_TOKEN_CREATED: 'key', API_TOKEN_REVOKED: 'key_off', CONTACT_DATA_EXPORTED: 'download',
   CONTACT_ERASED: 'person_remove', CONTACTS_ANONYMIZED: 'visibility_off', NETWORK_SANCTIONED: 'gavel'
 };
 

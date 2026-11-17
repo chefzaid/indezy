@@ -14,7 +14,23 @@
       </mat-card-header>
 
       <mat-card-content>
-        @if (ssoEnabled) {
+        @if (onHold !== null) {
+          <section class="on-hold" role="status" data-account-on-hold>
+            <mat-icon aria-hidden="true">schedule</mat-icon>
+            <div>
+              <p class="on-hold-title">{{ 'auth.onHoldTitle' | translate }}</p>
+              <p>{{ 'auth.onHold' | translate: { date: (onHold | date: 'longDate') } }}</p>
+              @if (!heldThroughSso) {
+                <p class="on-hold-hint">{{ 'auth.onHoldHint' | translate }}</p>
+              }
+              <button mat-flat-button color="primary" type="button" (click)="restore()"
+                [disabled]="isLoading || (!heldThroughSso && loginForm.invalid)" data-restore-account>
+                {{ 'auth.restoreAccount' | translate }}
+              </button>
+            </div>
+          </section>
+        }
+        @if (ssoEnabled && !heldThroughSso) {
           <button mat-flat-button
             color="primary"
             type="button"

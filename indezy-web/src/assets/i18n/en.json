@@ -136,7 +136,13 @@
     "hideConfirmPassword": "Hide password confirmation",
     "totpRequired": "Enter the code from your authenticator app",
     "totpCode": "6-digit code",
-    "totpHint": "Code shown by your authenticator app"
+    "totpHint": "Code shown by your authenticator app",
+    "onHoldTitle": "This account is on hold",
+    "onHold": "It will be deleted for good on {{date}}, as asked. Restore it to keep using it.",
+    "onHoldHint": "Enter your email and password above, then restore it.",
+    "restoreAccount": "Restore my account",
+    "restored": "Your account is restored.",
+    "restoreError": "The account could not be restored."
   },
   "dashboard": {
     "rateTargetComparison": "Target and obtained daily rates",
@@ -1208,7 +1214,9 @@
         "CONTACT_DATA_EXPORTED": "A contact’s data exported on their request",
         "CONTACT_ERASED": "A contact erased on their request",
         "CONTACTS_ANONYMIZED": "{{count}} contacts anonymized after the retention period",
-        "NETWORK_SANCTIONED": "Sanctioned by the network’s moderators: {{outcome}}"
+        "NETWORK_SANCTIONED": "Sanctioned by the network’s moderators: {{outcome}}",
+        "ACCOUNT_DELETION_REQUESTED": "Account deletion asked for",
+        "ACCOUNT_RESTORED": "Account restored from its hold"
       },
       "outcomes": {
         "WARNED": "warned",
@@ -1489,6 +1497,18 @@
       "messagingHint": "Each works both ways: turned off, you no longer see it from others either.",
       "readReceipts": "Show when I read a message (Seen)",
       "typing": "Show when I am typing"
+    },
+    "deletion": {
+      "title": "Delete my account",
+      "description": "Your account goes on hold at once, then everything it holds is deleted after 30 days.",
+      "delete": "Delete my account",
+      "hold": "At once: you are signed out everywhere, nobody can sign in, and your card, posts and public page are hidden.",
+      "purge": "On {{date}}: everything is deleted for good, your workspace, documents, invoices and network posts included. Export your data first if you want to keep it.",
+      "restore": "Until then, signing in offers to restore the account as it was.",
+      "messages": "Messages you sent stay with the members you wrote to, from a former member.",
+      "typeEmail": "Type {{email}} to confirm",
+      "confirm": "Delete my account",
+      "error": "The account could not be deleted."
     }
   },
   "errors": {
@@ -3756,7 +3776,8 @@
       "cardAlready": "This opportunity is already in your pipeline",
       "cardError": "The opportunity could not be added",
       "seen": "Seen",
-      "typing": "{{name}} is typing…"
+      "typing": "{{name}} is typing…",
+      "formerMember": "Former member"
     },
     "groups": {
       "new": "New group",

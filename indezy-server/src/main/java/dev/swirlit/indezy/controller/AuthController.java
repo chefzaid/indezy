@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.LoginRequest;
 import dev.swirlit.indezy.dto.LoginResponse;
 import dev.swirlit.indezy.dto.RegisterRequest;
+import dev.swirlit.indezy.exception.AccountOnHoldException;
 import dev.swirlit.indezy.exception.AccountAlreadyExistsException;
 import dev.swirlit.indezy.exception.ExceptionLogDetails;
 import dev.swirlit.indezy.exception.ResourceNotFoundException;
@@ -48,6 +49,10 @@ public class AuthController {
             LoginResponse response = authService.login(request);
             loginAttemptService.loginSucceeded(request.getEmail());
             return ResponseEntity.ok(response);
+        } catch (AccountOnHoldException e) {
+            // The credentials were right: the account waits for its deletion, and signing in with restore takes it back.
+            loginAttemptService.loginSucceeded(request.getEmail());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(onHold(e));
         } catch (TwoFactorRequiredException e) {
             // Not a failed attempt: the password was right, the client must now ask for the code.
             LoginResponse challenge = new LoginResponse();
@@ -89,9 +94,12 @@ public class AuthController {
     @GetMapping("/sso")
     @Operation(summary = "Keycloak SSO", description = "Exchange the ingress-validated Keycloak identity for an Indezy session")
     public ResponseEntity<LoginResponse> sso(
-            @RequestHeader(value = "X-Auth-Request-Access-Token", required = false) String accessToken) {
+            @RequestHeader(value = "X-Auth-Request-Access-Token", required = false) String accessToken,
+            @RequestParam(defaultValue = "false") boolean restore) {
         try {
-            return ResponseEntity.ok(authService.loginWithKeycloak(accessToken));
+            return ResponseEntity.ok(authService.loginWithKeycloak(accessToken, restore));
+        } catch (AccountOnHoldException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(onHold(e));
         } catch (AuthenticationException | BadJwtException exception) {
             // Fixed text or a token validation error (expired, wrong issuer or audience), never a claim value.
             log.warn("Keycloak SSO exchange rejected: {}", exception.getMessage());
@@ -100,6 +108,13 @@ public class AuthController {
             logFailure("Keycloak SSO exchange", exception);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+    }
+
+    private static LoginResponse onHold(AccountOnHoldException e) {
+        LoginResponse response = new LoginResponse();
+        response.setAccountOnHold(true);
+        response.setPurgeOn(e.getPurgeOn());
+        return response;
     }
 
     /**

@@ -23,6 +23,7 @@ import { ThemeService } from '../../shared/theme/theme.service';
 import { passwordMaxBytes } from '../../shared/utils/password-max-bytes';
 import { saveBlob } from '../../shared/utils/download-file';
 import { rejectedPasswordField } from './password-rejection';
+import { ProfileAccountDeletionComponent } from './account-deletion/profile-account-deletion.component';
 import { ProfileDataImportComponent } from './data-import/profile-data-import.component';
 import { ProfilePublicPageComponent } from './public-page/profile-public-page.component';
 import { ProfileNetworkComponent } from './network/profile-network.component';
@@ -39,7 +40,7 @@ import { DossierButtonComponent } from './dossier-button/dossier-button.componen
     selector: 'app-profile',
     imports: [DossierButtonComponent, PageHeaderComponent, 
     ProfileDataImportComponent, ProfilePublicPageComponent, ProfileNetworkComponent, ProfileSessionsComponent, ProfileApiTokensComponent,
-    ProfileWebhooksComponent,
+    ProfileWebhooksComponent, ProfileAccountDeletionComponent,
     ProfileNotificationsComponent, ProfileBillingComponent, ProfilePersonalInfoComponent,
     BlockedPublishersComponent, EmailTemplatesSettingsComponent, ReactiveFormsModule, FormsModule, TranslateModule,
     MatCardModule, MatButtonModule, MatIconModule, MatTabsModule, MatFormFieldModule, MatInputModule, MatSelectModule,

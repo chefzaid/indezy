@@ -56,9 +56,9 @@ class NetworkConversations {
      */
     record Seen(NetworkConversation conversation, Long otherId, NetworkDtos.MemberCard with, NetworkMessageDtos.Group group) {
 
-        /** The other member's name, or the group's. */
+        /** The other member's name, or the group's; none for a former member (who left, is on hold or was deleted). */
         String label() {
-            return group != null ? group.title() : (with.firstName() + " " + with.lastName()).strip();
+            return group != null ? group.title() : with == null ? null : (with.firstName() + " " + with.lastName()).strip();
         }
 
         /** The other member's handle; none for a group. */
@@ -75,8 +75,13 @@ class NetworkConversations {
             return Optional.empty();
         }
         if (!conversation.isGroup()) {
+            // The other member left, is on hold or was deleted: the past stays readable, from a former member; a block
+            // either way hides it.
             Long other = everyone.stream().filter(userId -> !userId.equals(readerId)).findFirst().orElse(null);
-            return other == null ? Optional.empty() : visible(readerId, other).map(card -> new Seen(conversation, other, card, null));
+            if (other != null && restrictions.blockedEitherWay(readerId).contains(other)) {
+                return Optional.empty();
+            }
+            return Optional.of(new Seen(conversation, other, other == null ? null : visible(readerId, other).orElse(null), null));
         }
         Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(readerId));
         List<NetworkDtos.MemberCard> others = everyone.stream().filter(userId -> !userId.equals(readerId) && !blocked.contains(userId))
@@ -106,7 +111,8 @@ class NetworkConversations {
 
     /** Why the sender cannot write to the recipient: the recipient left, either blocks the other, or does not follow the sender. */
     Optional<NetworkMessageDtos.Closed> closed(Long senderId, Long recipientId) {
-        if (members.findByUserId(recipientId).filter(NetworkMember::isActive).isEmpty()) {
+        // A member who left, or whose account is on hold before its deletion, reads as gone.
+        if (members.findByUserId(recipientId).filter(NetworkMember::isActive).flatMap(network::liveCard).isEmpty()) {
             return Optional.of(NetworkMessageDtos.Closed.LEFT);
         }
         if (restrictions.blockedEitherWay(senderId).contains(recipientId)) {

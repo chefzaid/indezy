@@ -187,6 +187,14 @@ describe('MessageThreadComponent', () => {
     discardPeriodicTasks();
   }));
 
+  it('reads a conversation with a former member, closed to new messages', fakeAsync(() => {
+    const element = create(of(thread([message(1)], { conversation: { ...conversation, with: null, closed: 'LEFT' } })));
+    expect(element.querySelector('[data-thread-former-member]')?.textContent).toContain('Former member');
+    expect(fixture.componentInstance.label).toBe('Former member');
+    expect(element.querySelector('[data-thread-closed]')).not.toBeNull();
+    discardPeriodicTasks();
+  }));
+
   it('asks for new messages every ten seconds while seen, keeping the earlier ones loaded', fakeAsync(() => {
     create();
     api.thread.and.returnValue(of(thread([message(2, { edited: true }), message(3, { mine: true }), message(4)],

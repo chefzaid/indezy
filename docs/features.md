@@ -40,6 +40,18 @@ profile page has the tabs **Personal information**, **Preferences**, **Notificat
 **Emails**, **Public profile**, **Offer feed** and **Account**, where **Export my data** downloads every piece of the
 account's data as JSON.
 
+### Account Deletion
+
+**Profile → Account → Delete my account** asks for the account's email, typed to confirm, then puts the account on
+hold at once: every session ends, nobody can sign in, and its member card, posts and public page no longer show (its
+conversations read as with a former member, closed to new messages). An email says the day it goes. Signing in within
+30 days, with the password or through Keycloak, says the account is on hold and offers **Restore my account**, which
+brings it back as it was. After 30 days, every night at 04:20 Paris time, everything the account held is deleted for
+good: its workspace (opportunities, clients, contacts, documents, invoices, quotes, activity reports and settings),
+its network presence (card, posts with their comments and reactions, its comments, reactions, follows and files) and
+the account. The messages it sent stay with the members it wrote to, from a **Former member**. An administrator's
+disabling of an account is separate: a disabled account is never purged.
+
 ### Sessions And Account Activity
 
 **Profile → Security** lists every open session with its browser and system (no address is kept), how it was opened
@@ -982,8 +994,7 @@ The interface is in French and English, chosen in **Profile → Preferences** an
 
 Not implemented, even where a field or a dependency hints at it:
 
-- password reset and email verification for local accounts, two-factor recovery codes, self-service account deletion
-  and social login;
+- password reset and email verification for local accounts, two-factor recovery codes and social login;
 - push notifications and a mobile app (TODO.md, Needs Input);
 - mailbox (Gmail, Outlook), LinkedIn and calendar sync;
 - AI parsing, ranking or recommendations;

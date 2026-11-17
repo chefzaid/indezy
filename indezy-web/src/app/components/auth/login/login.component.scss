@@ -134,3 +134,25 @@
     font-size: 20px;
   }
 }
+
+.on-hold {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--app-chip-warning-bg);
+  color: var(--app-chip-warning-text);
+
+  p {
+    margin: 0 0 8px;
+  }
+
+  .on-hold-title {
+    font-weight: 600;
+  }
+
+  .on-hold-hint {
+    font-size: 0.875rem;
+  }
+}

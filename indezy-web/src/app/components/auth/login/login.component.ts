@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
 
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -29,7 +30,8 @@ import { environment } from '../../../../environments/environment';
     MatSnackBarModule,
     MatProgressSpinnerModule,
     TranslateModule,
-    LogoComponent
+    LogoComponent,
+    DatePipe
 ],
     templateUrl: './login.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -42,6 +44,10 @@ export class LoginComponent implements OnInit {
   hidePassword = true;
   /** Set when the API accepted the password but asks for the authenticator code. */
   needsTotpCode = false;
+  /** The day the account signing in will be deleted, while it is on hold; none otherwise. */
+  onHold: string | null = null;
+  /** The account on hold signed in through Keycloak, so restoring it needs no password. */
+  heldThroughSso = false;
   readonly ssoEnabled = environment.production;
 
   constructor(
@@ -59,22 +65,55 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const params = this.route.snapshot.queryParamMap;
+    this.onHold = params.get('onHold');
+    this.heldThroughSso = this.onHold !== null && params.get('sso') === '1';
     // Redirect if already authenticated
-    if (this.authService.isAuthenticated()) {
+    if (this.onHold === null && this.authService.isAuthenticated()) {
       this.openDestination();
     }
   }
 
-  onSubmit(): void {
+  /** Takes the account off hold: through Keycloak, or signing in again with the password given. */
+  restore(): void {
+    if (this.heldThroughSso) {
+      this.isLoading = true;
+      this.authService.restoreSso().subscribe({
+        next: () => this.restored(),
+        error: () => {
+          this.isLoading = false;
+          this.notificationService.error('auth.restoreError');
+        }
+      });
+      return;
+    }
+    this.onSubmit(true);
+  }
+
+  private restored(): void {
+    this.isLoading = false;
+    this.onHold = null;
+    this.notificationService.success('auth.restored');
+    this.router.navigateByUrl('/dashboard');
+  }
+
+  onSubmit(restore = false): void {
     if (this.loginForm.valid) {
       this.isLoading = true;
       const { totpCode, ...credentials } = this.loginForm.value;
       if (this.needsTotpCode) {
         credentials.totpCode = totpCode;
       }
+      if (restore) {
+        credentials.restore = true;
+      }
 
       this.authService.login(credentials).subscribe({
         next: () => {
+          if (restore) {
+            this.restored();
+            return;
+          }
           this.isLoading = false;
           this.notificationService.success('auth.loginSuccess');
           this.openDestination();
@@ -82,6 +121,11 @@ export class LoginComponent implements OnInit {
         error: (error) => {
           this.isLoading = false;
           let errorMessage = this.translateService.instant('auth.loginError');
+          if (error.status === 409 && error.error?.accountOnHold) {
+            this.onHold = error.error.purgeOn;
+            this.heldThroughSso = false;
+            return;
+          }
           
           if (error.status === 401 && error.error?.twoFactorRequired) {
             this.needsTotpCode = true;

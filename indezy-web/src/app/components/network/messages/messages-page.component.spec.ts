@@ -171,4 +171,9 @@ describe('MessagesPageComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('network.messages.loadError');
     discardPeriodicTasks();
   }));
+
+  it('names a conversation with a former member as such', () => {
+    const element = create(of([conversation(1, { with: null })]));
+    expect(element.querySelector('[data-conversation="1"]')?.textContent).toContain('Former member');
+  });
 });

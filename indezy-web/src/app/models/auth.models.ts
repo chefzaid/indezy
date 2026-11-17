@@ -5,6 +5,14 @@ export interface LoginRequest {
   password: string;
   /** Authenticator code, sent once the API asked for it. */
   totpCode?: string;
+  /** Takes an account on hold before its deletion off hold. */
+  restore?: boolean;
+}
+
+/** What signing in to an account on hold answers (409): the day it will be deleted for good. */
+export interface AccountOnHold {
+  accountOnHold: true;
+  purgeOn: string;
 }
 
 export interface LoginResponse {

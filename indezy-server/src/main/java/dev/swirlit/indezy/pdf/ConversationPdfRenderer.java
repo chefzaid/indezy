@@ -58,7 +58,8 @@ public final class ConversationPdfRenderer {
         boolean french = language == DocumentLanguage.FR;
         DateTimeFormatter day = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(language.locale());
         DateTimeFormatter time = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(language.locale());
-        String title = (french ? "Conversation avec " : "Conversation with ") + conversation.withName() +
+        String withName = conversation.withName() != null ? conversation.withName() : french ? "un ancien membre" : "a former member";
+        String title = (french ? "Conversation avec " : "Conversation with ") + withName +
             (conversation.withHandle() == null ? "" : " (@" + conversation.withHandle() + ")");
         try (PDDocument document = new PDDocument()) {
             PDFont regular = PDType0Font.load(document, new ByteArrayInputStream(regularFont));

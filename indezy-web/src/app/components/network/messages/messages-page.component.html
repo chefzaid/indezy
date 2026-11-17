@@ -39,7 +39,7 @@
                 }
                 <span class="summary">
                   <span class="top">
-                    <span class="name">{{ hit.title }}</span>
+                    <span class="name">{{ hit.title ?? ('network.messages.formerMember' | translate) }}</span>
                     <span class="when">{{ hit.sentAt | timeAgo }}</span>
                   </span>
                   <span class="preview found-text">{{ hit.mine ? ('network.messages.youPrefix' | translate) + ' ' : '' }}{{ hit.excerpt }}</span>
@@ -68,11 +68,12 @@
               @if (conversation.with) {
                 <app-member-avatar [subject]="conversation.with" [size]="48"></app-member-avatar>
               } @else {
-                <span class="group-avatar" aria-hidden="true"><mat-icon>groups</mat-icon></span>
+                <span class="group-avatar" aria-hidden="true"><mat-icon>{{ conversation.group ? 'groups' : 'person_off' }}</mat-icon></span>
               }
               <span class="summary">
                 <span class="top">
-                  <span class="name">{{ conversation.group?.title ?? conversation.with?.firstName + ' ' + conversation.with?.lastName }}</span>
+                  <span class="name">{{ conversation.group?.title ?? (conversation.with ? conversation.with.firstName + ' ' + conversation.with.lastName
+                    : ('network.messages.formerMember' | translate)) }}</span>
                   @if (conversation.lastMessageAt) {
                     <span class="when">{{ conversation.lastMessageAt | timeAgo }}</span>
                   }

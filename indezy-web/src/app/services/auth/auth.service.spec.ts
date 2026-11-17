@@ -288,6 +288,26 @@ describe('AuthService', () => {
     });
   });
 
+  describe('accounts on hold', () => {
+    it('sends an account on hold to the choice of restoring it rather than to Keycloak again', async () => {
+      routerSpy.navigate.and.returnValue(Promise.resolve(true));
+      const initialization = service.initializeSso(true, '/dashboard');
+      httpMock.expectOne('http://localhost:8080/api/auth/sso').flush({ accountOnHold: true, purgeOn: '2026-12-17' },
+        { status: 409, statusText: 'Conflict' });
+      await initialization;
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/login'], { queryParams: { onHold: '2026-12-17', sso: 1 } });
+    });
+
+    it('restores an account on hold through Keycloak and forgets a session the server ended', () => {
+      service.restoreSso().subscribe();
+      const request = httpMock.expectOne('http://localhost:8080/api/auth/sso?restore=true');
+      request.flush(mockLoginResponse);
+      expect(localStorage.setItem).toHaveBeenCalledWith('indezy_token', mockLoginResponse.token);
+      service.forgetSession();
+      expect(localStorage.removeItem).toHaveBeenCalledWith('indezy_token');
+    });
+  });
+
   describe('completeOnboarding', () => {
     it('ends the welcome steps and keeps the stored user in step', () => {
       localStorageSpy.and.returnValue(JSON.stringify({ ...mockLoginResponse.user, onboardingPending: true }));
