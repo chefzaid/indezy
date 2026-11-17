@@ -26,7 +26,7 @@ import java.time.LocalDate;
 @Setter
 public class ComplianceDocument extends BaseEntity {
 
-    public static final int MAX_BYTES = 10 * 1024 * 1024;
+    public static final int MAX_BYTES = 50 * 1024 * 1024;
 
     @Column(name = "freelance_id", nullable = false)
     private Long freelanceId;

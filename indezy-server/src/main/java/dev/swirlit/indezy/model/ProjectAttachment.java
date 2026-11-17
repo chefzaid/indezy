@@ -22,7 +22,7 @@ import org.hibernate.type.SqlTypes;
 @Setter
 public class ProjectAttachment extends BaseEntity {
 
-    public static final int MAX_BYTES = 10 * 1024 * 1024;
+    public static final int MAX_BYTES = 50 * 1024 * 1024;
     public static final int NAME_MAX = 255;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -22,7 +22,7 @@ describe('ComplianceDocumentDialogComponent', () => {
 
   const picked = (file: File | null): Event => ({ target: { files: file ? [file] : [] } }) as unknown as Event;
 
-  it('stores a new document only with a PDF or image file of 10 MB at most', () => {
+  it('stores a new document only with a PDF or image file of 50 MB at most', () => {
     const component = create({});
     expect(component.validityMonths).toBe(6);
     component.save();
@@ -32,7 +32,7 @@ describe('ComplianceDocumentDialogComponent', () => {
     component.pick(picked(new File(['x'], 'page.html')));
     expect(component.fileError).toBe('type');
     const big = new File(['x'], 'big.pdf');
-    Object.defineProperty(big, 'size', { value: 11 * 1024 * 1024 });
+    Object.defineProperty(big, 'size', { value: 51 * 1024 * 1024 });
     component.pick(picked(big));
     expect(component.fileError).toBe('tooLarge');
     component.pick(picked(null));

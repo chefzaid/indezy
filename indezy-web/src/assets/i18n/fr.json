@@ -609,7 +609,7 @@
       "deleteConfirm": "Supprimer le fichier « {{name}} » ?",
       "uploaded": "Fichier joint",
       "deleted": "Fichier supprimé",
-      "tooLarge": "« {{name}} » dépasse 10 Mo",
+      "tooLarge": "« {{name}} » dépasse 50 Mo",
       "refused": "« {{name}} » n'a pas pu être joint : seuls les PDF, images, fichiers Word (.docx), OpenDocument (.odt) et texte sont acceptés",
       "limit": "Une opportunité garde au plus 20 fichiers",
       "uploadError": "Le fichier n'a pas pu être joint",
@@ -1150,7 +1150,7 @@
       "title": "Importer des données",
       "description": "Ajoutez à cet espace un export Indezy : ses sources, clients, contacts, saisons, opportunités avec leurs étapes, et notes du journal. Vous voyez ce qu'il ajoute avant tout enregistrement.",
       "choose": "Choisir un fichier d'export",
-      "tooLarge": "Le fichier dépasse 10 Mo",
+      "tooLarge": "Le fichier dépasse 50 Mo",
       "invalidFile": "Ce fichier n'est pas un export Indezy",
       "error": "L'import a échoué, rien n'a été enregistré",
       "done": "Données importées",
@@ -2934,13 +2934,13 @@
     "label": "Libellé",
     "issuedOn": "Délivré le",
     "expiresOn": "Expire le",
-    "file": "Fichier PDF, PNG ou JPEG, 10 Mo au plus",
+    "file": "Fichier PDF, PNG ou JPEG, 50 Mo au plus",
     "validityHint": "Vide : {{months}} mois après la délivrance",
     "labelRequired": "Nommez ce document.",
     "expiresBeforeIssue": "Il ne peut pas expirer avant d'être délivré.",
     "fileErrors": {
       "required": "Choisissez le fichier.",
-      "tooLarge": "Le fichier dépasse 10 Mo.",
+      "tooLarge": "Le fichier dépasse 50 Mo.",
       "type": "Choisissez un fichier PDF, PNG ou JPEG."
     },
     "issued": "délivré le {{date}}",
@@ -2951,7 +2951,7 @@
     "saved": "Enregistré",
     "deleted": "Document supprimé",
     "saveError": "Le document n'a pas pu être enregistré. Veuillez réessayer.",
-    "refused": "Ce fichier a été refusé : seuls les PDF, PNG et JPEG de 10 Mo au plus sont conservés.",
+    "refused": "Ce fichier a été refusé : seuls les PDF, PNG et JPEG de 50 Mo au plus sont conservés.",
     "full": "Le coffre contient 30 documents au plus : supprimez-en un d'abord.",
     "loadError": "Les documents n'ont pas pu être chargés.",
     "downloadError": "Le document n'a pas pu être téléchargé.",
@@ -3824,7 +3824,7 @@
       "altHint": "Ce que montre l’image",
       "remove": "Retirer {{name}}",
       "uploading": "Envoi…",
-      "tooLarge": "Un fichier fait 10 Mo au plus.",
+      "tooLarge": "Un fichier fait 50 Mo au plus.",
       "tooManyImages": "4 images au plus.",
       "tooManyDocuments": "3 documents au plus.",
       "tooManyToday": "60 fichiers par jour au plus : réessayez demain.",
@@ -3836,7 +3836,10 @@
       "pages": "{{count}} pages",
       "documents": "Documents",
       "malware": "Ce document contient un logiciel malveillant : il n’a pas été ajouté.",
-      "scanUnavailable": "Les documents ne peuvent pas être vérifiés pour l’instant : réessayez dans quelques minutes."
+      "scanUnavailable": "Les documents ne peuvent pas être vérifiés pour l’instant : réessayez dans quelques minutes.",
+      "encrypted": "Ce document demande un mot de passe pour s'ouvrir, il ne peut donc pas être vérifié : envoyez-le sans.",
+      "unscannable": "Ce document est trop volumineux ou contient trop de choses pour être vérifié : envoyez-le en plusieurs parties.",
+      "unsafe": "Ce document a été refusé par la vérification de sécurité : il contient un contenu souvent utilisé dans des attaques."
     }
   }
 }

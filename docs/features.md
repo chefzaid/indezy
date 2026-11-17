@@ -105,7 +105,7 @@ one digest a week whatever the number of servers; the email has a one-click unsu
 
 ### Data Import
 
-**Profile → Account → Import data** previews an Indezy export (up to 10 MB) section by section: sources, clients and
+**Profile → Account → Import data** previews an Indezy export (up to 50 MB) section by section: sources, clients and
 ESNs, contacts, seasons, opportunities with their steps and checklists, and journal notes, each record **new**,
 **already here** or **left out** with why. **Import** saves the new ones in one go; nothing is written before.
 
@@ -270,7 +270,7 @@ deleted message), never an image, so readers load nothing from the linked
 site; a page out of reach leaves no card.
 
 A post, and a message, carries up to four **images** and three **documents** (PDF, slides or spreadsheets: pptx, xlsx,
-docx and their OpenDocument forms; 10 MB each, 60 files a day), added from the composer and uploaded at once. Each image
+docx and their OpenDocument forms; 50 MB each, 60 files a day), added from the composer and uploaded at once. Each image
 needs a description (its alternative text) before the post goes; it is made anew, upright as the camera said, at most
 2048 pixels on its longest side, so that nothing the file carried beside its pixels (place, camera, date) is kept.
 Images show as a grid (one wide, two side by side, three with one tall, four in a square), each opening at full size; a
@@ -370,7 +370,7 @@ tech stack, dates, duration, work mode and remote days, an opportunity holds:
 - the client daily rate, from which the margin is shown, and the asked and offered rates beside the agreed one;
 - once refused, optionally why, asked on every move to Abandonné (refused by the recruiter) or Désisté (refused by the
   freelancer);
-- **Files** in its **Documents and links** card: PDF, images, Word, OpenDocument or text, up to 10 MB each and 20 per
+- **Files** in its **Documents and links** card: PDF, images, Word, OpenDocument or text, up to 50 MB each and 20 per
   opportunity.
 
 Its page changes the stage in place and shows the tech stack as tags with how well they match the profile (a tag can
@@ -843,7 +843,7 @@ spreadsheet in the interface language.
 **Documents** keeps the papers ESNs ask for and shares them through one link.
 
 - **Add a document**: URSSAF vigilance certificate, company registration extract (Kbis), professional insurance, bank
-  details (RIB), identity or other (with a label), with its dates, as a PDF, PNG or JPEG of 10 MB at most (the type read
+  details (RIB), identity or other (with a label), with its dates, as a PDF, PNG or JPEG of 50 MB at most (the type read
   from the content). Without an expiry, an URSSAF certificate expires six months after issue and a registration
   extract three. Up to 30 documents.
 - Documents expired or expiring within 30 days show on the dashboard (**Documents to renew**).

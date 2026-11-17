@@ -2,6 +2,7 @@ package dev.swirlit.indezy.service;
 
 import dev.swirlit.indezy.dto.ComplianceDtos;
 import dev.swirlit.indezy.exception.InvalidStateException;
+import dev.swirlit.indezy.model.ComplianceDocument;
 import dev.swirlit.indezy.model.enums.ComplianceDocumentType;
 import dev.swirlit.indezy.repository.ComplianceDocumentRepository;
 import dev.swirlit.indezy.repository.CompliancePackRepository;
@@ -31,8 +32,8 @@ class ComplianceDocumentServiceTest {
         assertThatThrownBy(() -> service.upload(7L, null, urssaf)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> service.upload(7L, new MockMultipartFile("file", new byte[0]), urssaf))
             .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> service.upload(7L, new MockMultipartFile("file", "big.pdf", "application/pdf", new byte[10 * 1024 * 1024 + 1]),
-            urssaf)).isInstanceOf(IllegalArgumentException.class).hasMessage("A document is 10 MB at most");
+        assertThatThrownBy(() -> service.upload(7L, new MockMultipartFile("file", "big.pdf", "application/pdf", new byte[ComplianceDocument.MAX_BYTES + 1]),
+            urssaf)).isInstanceOf(IllegalArgumentException.class).hasMessage("A document is 50 MB at most");
         when(documents.countByFreelanceId(7L)).thenReturn(30L);
         assertThatThrownBy(() -> service.upload(7L, new MockMultipartFile("file", "a.pdf", "application/pdf", "%PDF-1.7".getBytes()), urssaf))
             .isInstanceOf(InvalidStateException.class);

@@ -80,7 +80,7 @@ export class FilePickerComponent {
     return this.picked.filter(item => item.file).map(item => item.image ? { id: item.file!.id, alt: item.alt.value.trim() } : { id: item.file!.id });
   }
 
-  /** Uploads the files chosen, those beyond the limits or 10 MB left out with a word why. */
+  /** Uploads the files chosen, those beyond the limits or 50 MB left out with a word why. */
   pick(input: HTMLInputElement, image: boolean): void {
     const chosen = Array.from(input.files ?? []);
     input.value = '';
@@ -157,7 +157,20 @@ export class FilePickerComponent {
     }
     if (error.status === 400) {
       const message = typeof error.error?.message === 'string' ? error.error.message : '';
-      return message.includes('malware') ? 'network.files.malware' : image ? 'network.files.imageRefused' : 'network.files.documentRefused';
+      // The server's wording for ClamAV's refusals (MalwareScanner.refusal); macros fall to documentRefused.
+      if (message.includes('malware')) {
+        return 'network.files.malware';
+      }
+      if (message.includes('password')) {
+        return 'network.files.encrypted';
+      }
+      if (message.includes('too large or')) {
+        return 'network.files.unscannable';
+      }
+      if (message.includes('safety check')) {
+        return 'network.files.unsafe';
+      }
+      return image ? 'network.files.imageRefused' : 'network.files.documentRefused';
     }
     return 'network.files.uploadError';
   }

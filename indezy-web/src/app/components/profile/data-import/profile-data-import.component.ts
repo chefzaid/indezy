@@ -11,7 +11,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { UserManagementService } from '../../../services/user-management/user-management.service';
 
 /** Largest file the server takes, as its upload limit. */
-export const IMPORT_FILE_MAX_BYTES = 10 * 1024 * 1024;
+export const IMPORT_FILE_MAX_BYTES = 50 * 1024 * 1024;
 
 /**
  * Imports an Indezy account export into the workspace, preview first: each section says what is new, already there or

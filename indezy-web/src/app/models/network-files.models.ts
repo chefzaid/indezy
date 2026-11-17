@@ -32,7 +32,7 @@ export interface FileRef {
 
 export const MAX_POST_IMAGES = 4;
 export const MAX_POST_DOCUMENTS = 3;
-export const NETWORK_FILE_MAX_BYTES = 10 * 1024 * 1024;
+export const NETWORK_FILE_MAX_BYTES = 50 * 1024 * 1024;
 /** What the pickers offer; the server reads the real type from the content. */
 export const IMAGE_ACCEPT = 'image/png,image/jpeg,image/gif';
 export const DOCUMENT_ACCEPT = '.pdf,.pptx,.xlsx,.docx,.odp,.ods,.odt';

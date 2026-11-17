@@ -54,8 +54,11 @@ public final class NetworkDocuments {
         "ods", new Type("application/vnd.oasis.opendocument.spreadsheet", "ods"),
         "odp", new Type("application/vnd.oasis.opendocument.presentation", "odp"));
     private static final List<String> MACRO_EXTENSIONS = List.of("docm", "xlsm", "pptm", "dotm", "xltm", "potm", "ppsm", "xlsb");
-    /** Read at most this much of an archive, entries this many, so that a small file cannot unpack into a huge one. */
-    static final long MAX_UNPACKED = 30L * 1024 * 1024;
+    /**
+     * Read at most this much of an archive, three times its largest size, and entries this many, so that a small file
+     * cannot unpack into a huge one.
+     */
+    static final long MAX_UNPACKED = 150L * 1024 * 1024;
     static final int MAX_ENTRIES = 5_000;
     static final int TEXT_MAX = 50_000;
     private static final int TEXT_PAGES = 30;
@@ -176,7 +179,7 @@ public final class NetworkDocuments {
         boolean visit(String name, InputStream entry) throws IOException;
     }
 
-    /** Visits the archive's entries, refused beyond 5,000 entries or 30 MB unpacked. */
+    /** Visits the archive's entries, refused beyond 5,000 entries or 150 MB unpacked. */
     private static void walk(byte[] content, EntryVisitor visitor) throws IOException {
         long unpacked = 0;
         int entries = 0;

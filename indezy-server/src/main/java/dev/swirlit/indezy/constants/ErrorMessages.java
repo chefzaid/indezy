@@ -61,7 +61,7 @@ public final class ErrorMessages {
     public static final String CONTACT_MANAGER_LOOP = "This contact already manages, directly or not, the chosen manager";
     public static final String ATTACHMENT_NOT_FOUND = "Attachment not found with id: %d";
     public static final String ATTACHMENT_EMPTY = "The file is empty";
-    public static final String ATTACHMENT_TOO_LARGE = "The file is larger than 10 MB";
+    public static final String ATTACHMENT_TOO_LARGE = "The file is larger than 50 MB";
     public static final String ATTACHMENT_TYPE = "Only PDF, PNG, JPEG, GIF, WebP, Word (.docx), OpenDocument (.odt) and text files are accepted";
     public static final String ATTACHMENTS_LIMIT = "An opportunity keeps at most %d files";
     public static final String PIPELINE_TEMPLATE_NOT_FOUND = "Pipeline template not found with id: %d";

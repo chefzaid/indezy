@@ -107,11 +107,13 @@ describe('ProjectAttachmentsComponent', () => {
     expect(notifications.success).toHaveBeenCalledWith('projects.attachments.uploaded');
   });
 
-  it('refuses a file over 10 MB before sending it, and explains what the server refuses', () => {
+  it('refuses a file over 50 MB before sending it, and explains what the server refuses', () => {
     const component = create().componentInstance;
-    component.upload(picked(new File([new Uint8Array(10 * 1024 * 1024 + 1)], 'Huge.pdf')));
+    const huge = new File(['x'], 'Huge.pdf');
+    Object.defineProperty(huge, 'size', { value: 50 * 1024 * 1024 + 1 });
+    component.upload(picked(huge));
     expect(attachments.upload).not.toHaveBeenCalled();
-    expect(notifications.errorText).toHaveBeenCalledWith('"Huge.pdf" is larger than 10 MB');
+    expect(notifications.errorText).toHaveBeenCalledWith('"Huge.pdf" is larger than 50 MB');
 
     attachments.upload.and.returnValues(
       throwError(() => new HttpErrorResponse({ status: 400 })),

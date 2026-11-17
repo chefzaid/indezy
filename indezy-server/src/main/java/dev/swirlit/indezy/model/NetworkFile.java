@@ -25,7 +25,7 @@ import lombok.Setter;
 @Setter
 public class NetworkFile extends BaseEntity {
 
-    public static final int MAX_BYTES = 10 * 1024 * 1024;
+    public static final int MAX_BYTES = 50 * 1024 * 1024;
     public static final int NAME_MAX = 255;
     public static final int ALT_MAX = 300;
 

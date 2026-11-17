@@ -16,7 +16,7 @@ backups only). Indezy already keeps avatars in its database, as data URLs of at 
 
 - Store each file in the `project_attachments` table: its opportunity, name, type, size and content (`bytea` on
   PostgreSQL, through Hibernate's `VARBINARY` type so it is not a large object). Lists read everything but the content.
-- Accept files of up to 10 MB, 20 per opportunity, of the types recognised from their first bytes (PDF, PNG, JPEG,
+- Accept files of up to 50 MB (10 MB until 2026-11-17), 20 per opportunity, of the types recognised from their first bytes (PDF, PNG, JPEG,
   GIF, WebP; Word and OpenDocument archives by their name; UTF-8 text): the type the browser declares is ignored.
 - Serve the content only to the workspace that owns it, with the recognised type, `inline` for PDF and images and
   `attachment` otherwise, `X-Content-Type-Options: nosniff`, a sandboxing `Content-Security-Policy` and `no-store`
@@ -30,7 +30,8 @@ opportunity (a few documents of a few hundred kilobytes), PostgreSQL stores and 
 
 ## Consequences
 
-- The database grows with the files: 20 files of 10 MB per opportunity is the most one opportunity can hold.
-- Reading a file loads it whole in the backend's memory, which the 10 MB cap bounds.
+- The database grows with the files: 20 files of 50 MB per opportunity is the most one opportunity can hold.
+- Reading a file loads it whole in the backend's memory, which the 50 MB cap bounds (the server's memory limit is 2 GiB
+  for it).
 - Should the files outgrow the database, an object store can take their content behind the same API, the table
   keeping the metadata.

@@ -26,7 +26,7 @@ other members, so the page cannot fetch each one with the session's token as the
 
 ## Rationale
 
-- One store, backed up and removed with the rest; the 10 MB cap and the resizing keep each row small.
+- One store, backed up and removed with the rest; the 50 MB cap (10 MB until 2026-11-17) and the resizing keep each row bounded.
 - Signed addresses let the browser load images as images without exposing the token, and the access check stays where
   the post or the message is read.
 - Addresses that change each hour keep the browser's copy useful while bounding how long a copied address works.

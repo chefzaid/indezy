@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * The files kept with an opportunity: up to {@value #MAX_PER_PROJECT} of 10 MB each, of the types
+ * The files kept with an opportunity: up to {@value #MAX_PER_PROJECT} of 50 MB each, of the types
  * {@link AttachmentTypes} recognises from their content.
  */
 @Service

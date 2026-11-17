@@ -243,11 +243,13 @@ The member network (`/api/network`) is on unless an administrator turns it off (
   are decoded (refused beyond 50 million pixels, so that a small file cannot unpack into a huge picture), turned upright
   and written again at most 2048 pixels wide, keeping none of the original file's metadata (EXIF place, camera, date);
   documents are PDF, OOXML or OpenDocument files, refused with macros (`vbaProject.bin`, `Basic/`, `Scripts/`, or a
-  macro-enabled extension) and in the older binary formats, an archive read at most 30 MB unpacked and 5,000 entries; a
+  macro-enabled extension) and in the older binary formats, an archive read at most 150 MB unpacked and 5,000 entries; a
   member uploads 60 files a day at most, and attaches only their own files not attached yet; each document is scanned
   by the platform's ClamAV before it is kept (`MalwareScanner`, clamd's `INSTREAM` over TCP 3310 to
   `clamav.infra.svc.cluster.local`, run by swirl-cloud, not by Indezy): one found infected is refused (`400`, the
-  signature logged with the member), and while the scanner cannot answer documents are refused (`503`, try again)
+  signature logged with the member), as is one ClamAV cannot check or refuses by policy (a password to open it, past
+  its scan limits, macros, content often used in attacks: `Heuristics.*` and `PUA.*`, told by their reason, not as
+  malware, `MalwareScanner.refusal`), and while the scanner cannot answer within 90 seconds documents are refused (`503`, try again)
   rather than kept unchecked; images are not scanned, being decoded and written again from their pixels; without
   `INDEZY_CLAMAV_HOST` (a laptop, the tests) documents are not scanned;
 - a file is served only through a signed address (`/api/public/network-files/{id}/{full|preview}?e=&s=`, HMAC-SHA256
@@ -344,7 +346,7 @@ Account deletion and data portability:
 - an account deletes itself (`POST /api/users/me/deletion`, its email typed to confirm; `AccountDeletionService`): `User.deletedAt` is set, every session ends at once (its tokens stop working) and the account is on hold for 30 days, hidden from the network and its public profile, an email telling the day it goes; signing in during the hold answers `409` (`accountOnHold`, `purgeOn`) only once the password (and two-factor code) or the Keycloak identity is checked, so it tells nothing to someone without the credentials, and signing in with `restore` takes it off hold; after 30 days `AccountPurge` deletes every row the account and its workspace hold, table by table in one transaction (a test fails when a table of the schema is neither purged nor named as shared), except the messages it sent and their files, kept for the members it wrote to; a disabled account is never purged; the identity in Keycloak is not removed by Indezy
 - `GET /api/users/export` returns a GDPR data-portability export (`UserDataExportService`): a JSON document with the user's profile plus every project, client, contact, source and activity report they own, downloaded as an attachment, with dates in ISO-8601. It also lists the job offers the workspace saved, hid, opened or imported (`jobOffers`), the opportunities' journal notes (`projectNotes`), the job-hunting seasons (`seasons`), the quotes (`quotes`), the network membership, posts and activity (`networkMembership`, `networkPosts`, `networkActivity`), the testimonials asked and received (`testimonials`) and the workspace's freelance record (`freelance`: employment status, notice period, reversion and income tax rates).
 - `GET /api/public/profiles/{slug}` is read without a token, like every `/api/public` path (the ingress lets it past the SSO): it answers only profiles their owner turned on, the same `404` for a hidden profile and an unknown address, no email, phone, address or workspace record, and only `http(s)` links, so a `javascript:` link saved on the profile is never served. Its `toString` prints nothing about the person.
-- `POST /api/users/import/preview` and `POST /api/users/import` bring an export into the signed-in account's own workspace only, whatever ids or workspace the file names: every record is created afresh under the caller's workspace through the same services and validation as the API, references are remapped to the records just created or matched, and the upload is bounded by the 10 MB multipart limit. The report lists records by name, and its `toString` (logged at DEBUG) prints statuses only. The profile comes from the signed-in account and every other section from its workspace, found through the account's email like every other resource (`AccessGuard`), never from the account id: account and workspace ids are numbered separately.
+- `POST /api/users/import/preview` and `POST /api/users/import` bring an export into the signed-in account's own workspace only, whatever ids or workspace the file names: every record is created afresh under the caller's workspace through the same services and validation as the API, references are remapped to the records just created or matched, and the upload is bounded by the 50 MB multipart limit. The report lists records by name, and its `toString` (logged at DEBUG) prints statuses only. The profile comes from the signed-in account and every other section from its workspace, found through the account's email like every other resource (`AccessGuard`), never from the account id: account and workspace ids are numbered separately.
 
 Privacy expectations:
 
@@ -484,12 +486,13 @@ Backend multipart limits are:
 spring:
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 11MB
+      max-file-size: 50MB
+      max-request-size: 51MB
 ```
 
-The 10 MB file limit matches an opportunity's files; avatars keep their own 512 KB limit in `UserService`. The 11 MB
-request limit leaves room for multipart encoding, under the ingress's 16 MiB body limit. Both standard and
+The 50 MB file limit covers opportunity files, compliance documents, the network's files and imports; avatars keep
+their own 512 KB limit in `UserService`. The 51 MB request limit leaves room for multipart encoding, under the
+ingress's 52 MiB body limit (`indezy-upload-limit`) and the platform's ClamAV, which takes 52 MiB. Both standard and
 devcontainer profiles enforce it.
 
 Opportunity files (`/api/projects/{id}/attachments`, see [ADR 0010](./adr/0010-attachments-in-postgresql.md)):
@@ -511,7 +514,7 @@ uploaded it.
 ## Shared Compliance Documents
 
 The compliance vault holds sensitive papers (identity, bank details), stored in PostgreSQL like opportunity files: PDF,
-PNG or JPEG recognised from their first bytes, 10 MB at most, read and changed only by their workspace (`404` to
+PNG or JPEG recognised from their first bytes, 50 MB at most, read and changed only by their workspace (`404` to
 another), served with `X-Content-Type-Options: nosniff`, `Content-Security-Policy: sandbox; default-src 'none'` and
 `Cache-Control: no-store, private`.
 

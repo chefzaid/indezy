@@ -44,7 +44,7 @@ public class ComplianceController {
         return documents.list(workspace());
     }
 
-    @Operation(summary = "Store a PDF, PNG or JPEG document of up to 10 MB",
+    @Operation(summary = "Store a PDF, PNG or JPEG document of up to 50 MB",
         description = "Without an end date, an URSSAF certificate expires six months after its issue and a registration extract three")
     @PostMapping(value = "/compliance-documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)

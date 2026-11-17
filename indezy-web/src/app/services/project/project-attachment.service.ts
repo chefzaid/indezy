@@ -10,7 +10,7 @@ import { ProjectAttachment } from '../../models/project.models';
 })
 export class ProjectAttachmentService {
   /** The largest file the server keeps. */
-  static readonly MAX_BYTES = 10 * 1024 * 1024;
+  static readonly MAX_BYTES = 50 * 1024 * 1024;
   private readonly API_URL = `${environment.apiUrl}/projects`;
 
   constructor(private readonly http: HttpClient) {}

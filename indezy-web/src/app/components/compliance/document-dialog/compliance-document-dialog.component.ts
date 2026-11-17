@@ -21,9 +21,9 @@ export interface ComplianceDocumentDialogResult {
   details: ComplianceDetails;
 }
 
-const MAX_BYTES = 10 * 1024 * 1024;
+const MAX_BYTES = 50 * 1024 * 1024;
 
-/** Stores a document (a PDF or image of 10 MB at most) or changes what it is: type, label and dates. */
+/** Stores a document (a PDF or image of 50 MB at most) or changes what it is: type, label and dates. */
 @Component({
   selector: 'app-compliance-document-dialog',
   imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule,

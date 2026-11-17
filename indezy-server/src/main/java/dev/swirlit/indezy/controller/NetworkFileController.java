@@ -27,7 +27,7 @@ public class NetworkFileController {
 
     @Operation(summary = "Upload an image or a document, then attach it to a post or a message",
         description = "Images (PNG, JPEG, GIF) are made anew, upright, 2048 pixels at most; documents are PDF, slides or spreadsheets " +
-            "without macros, 10 MB at most; the answer names the workspace's clients, ESNs and contacts the document's text holds. " +
+            "without macros, 50 MB at most; the answer names the workspace's clients, ESNs and contacts the document's text holds. " +
             "400 for another type, 409 beyond 60 a day")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)

@@ -40,7 +40,7 @@ public class ProjectAttachmentController {
         return attachmentService.list(projectId);
     }
 
-    @Operation(summary = "Attach a PDF, image, Word, OpenDocument or text file of up to 10 MB to an opportunity")
+    @Operation(summary = "Attach a PDF, image, Word, OpenDocument or text file of up to 50 MB to an opportunity")
     @PostMapping(value = "/{projectId}/attachments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ProjectAttachmentDto> upload(@PathVariable Long projectId, @RequestParam("file") MultipartFile file)

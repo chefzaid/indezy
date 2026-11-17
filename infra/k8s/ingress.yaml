@@ -100,7 +100,8 @@ metadata:
   namespace: apps
 spec:
   buffering:
-    maxRequestBodyBytes: 16777216
+    # A 50 MB file and the rest of its form (max-request-size 51MB in application.yml).
+    maxRequestBodyBytes: 54525952
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware

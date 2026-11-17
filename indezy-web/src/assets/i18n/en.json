@@ -609,7 +609,7 @@
       "deleteConfirm": "Delete the file \"{{name}}\"?",
       "uploaded": "File attached",
       "deleted": "File deleted",
-      "tooLarge": "\"{{name}}\" is larger than 10 MB",
+      "tooLarge": "\"{{name}}\" is larger than 50 MB",
       "refused": "\"{{name}}\" could not be attached: only PDF, images, Word (.docx), OpenDocument (.odt) and text files are accepted",
       "limit": "An opportunity keeps at most 20 files",
       "uploadError": "The file could not be attached",
@@ -1150,7 +1150,7 @@
       "title": "Import data",
       "description": "Bring an Indezy export into this workspace: its sources, clients, contacts, seasons, opportunities with their steps, and journal notes. You see what it adds before anything is saved.",
       "choose": "Choose an export file",
-      "tooLarge": "The file is over 10 MB",
+      "tooLarge": "The file is over 50 MB",
       "invalidFile": "This file is not an Indezy export",
       "error": "The import failed, nothing was saved",
       "done": "Data imported",
@@ -2934,13 +2934,13 @@
     "label": "Label",
     "issuedOn": "Issued on",
     "expiresOn": "Expires on",
-    "file": "PDF, PNG or JPEG file, 10 MB at most",
+    "file": "PDF, PNG or JPEG file, 50 MB at most",
     "validityHint": "Empty: {{months}} months after the issue date",
     "labelRequired": "Name this document.",
     "expiresBeforeIssue": "It cannot expire before it was issued.",
     "fileErrors": {
       "required": "Choose the file.",
-      "tooLarge": "The file is over 10 MB.",
+      "tooLarge": "The file is over 50 MB.",
       "type": "Choose a PDF, PNG or JPEG file."
     },
     "issued": "issued {{date}}",
@@ -2951,7 +2951,7 @@
     "saved": "Saved",
     "deleted": "Document deleted",
     "saveError": "The document could not be saved. Please try again.",
-    "refused": "This file was refused: only PDF, PNG and JPEG files of 10 MB at most are kept.",
+    "refused": "This file was refused: only PDF, PNG and JPEG files of 50 MB at most are kept.",
     "full": "The vault holds 30 documents at most: delete one first.",
     "loadError": "The documents could not be loaded.",
     "downloadError": "The document could not be downloaded.",
@@ -3824,7 +3824,7 @@
       "altHint": "What the image shows",
       "remove": "Remove {{name}}",
       "uploading": "Uploading…",
-      "tooLarge": "A file holds 10 MB at most.",
+      "tooLarge": "A file holds 50 MB at most.",
       "tooManyImages": "4 images at most.",
       "tooManyDocuments": "3 documents at most.",
       "tooManyToday": "60 files a day at most: try again tomorrow.",
@@ -3836,7 +3836,10 @@
       "pages": "{{count}} pages",
       "documents": "Documents",
       "malware": "This document holds malware: it was not added.",
-      "scanUnavailable": "Documents cannot be checked for malware right now: try again in a few minutes."
+      "scanUnavailable": "Documents cannot be checked for malware right now: try again in a few minutes.",
+      "encrypted": "This document needs a password to open, so it cannot be checked: send it without one.",
+      "unscannable": "This document is too large or holds too much to be checked: send it in smaller parts.",
+      "unsafe": "This document was refused by the safety check: it holds content often used in attacks."
     }
   }
 }

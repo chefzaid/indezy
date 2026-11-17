@@ -82,7 +82,7 @@ public class NetworkFileService {
             throw new InvalidStateException("60 files a day at most: try again tomorrow");
         }
         if (upload.isEmpty() || upload.getSize() > NetworkFile.MAX_BYTES) {
-            throw new IllegalArgumentException("A file holds 10 MB at most");
+            throw new IllegalArgumentException("A file holds 50 MB at most");
         }
         byte[] bytes;
         try {
@@ -108,7 +108,7 @@ public class NetworkFileService {
             NetworkDocuments.Type type = NetworkDocuments.detect(name, bytes);
             scanner.scan(bytes).ifPresent(signature -> {
                 log.warn("Member {} uploaded a document holding {}: refused", userId, signature);
-                throw new IllegalArgumentException("This document holds malware (" + signature + ") and was not added");
+                throw new IllegalArgumentException(MalwareScanner.refusal(signature));
             });
             file.setKind(NetworkFileKind.DOCUMENT);
             file.setContentType(type.contentType());

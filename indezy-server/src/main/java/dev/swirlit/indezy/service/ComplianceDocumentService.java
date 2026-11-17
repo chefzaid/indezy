@@ -27,7 +27,7 @@ import java.util.Set;
 
 /**
  * The compliance vault (see docs/features.md#compliance-documents): up to {@value #MAX_DOCUMENTS} PDF or image
- * documents of 10 MB each, with when they were issued and expire, and the ones to renew within
+ * documents of 50 MB each, with when they were issued and expire, and the ones to renew within
  * {@value #EXPIRING_DAYS} days among the dashboard's reminders.
  */
 @Service
@@ -76,7 +76,7 @@ public class ComplianceDocumentService {
             throw new IllegalArgumentException("The file is empty");
         }
         if (file.getSize() > ComplianceDocument.MAX_BYTES) {
-            throw new IllegalArgumentException("A document is 10 MB at most");
+            throw new IllegalArgumentException("A document is 50 MB at most");
         }
         if (documents.countByFreelanceId(freelanceId) >= MAX_DOCUMENTS) {
             throw new InvalidStateException("The vault holds " + MAX_DOCUMENTS + " documents at most: delete one first");

@@ -30,7 +30,7 @@ The public endpoint is `https://indezy.swirlit.dev`. Application resources run i
 | `indezy-api-ingress` | `/api` | `indezy-server` | `indezy-sso` ForwardAuth, upload limit |
 | `indezy-public-api-ingress` | `/api/public` | `indezy-server` | upload limit |
 
-The `indezy-sso` Middleware sends requests to the shared Keycloak OAuth2 Proxy, preserves login return URLs and backend `401`s, and forwards the signed access token. `/api/public` skips it: shared links are opened by people without an account, and each request is authorized by its own token (see [Security](./security.md#activity-report-validation-links)). Traefik prefers the longer path. The same file owns the 16 MiB request-body limit and the `indezy-backend` ServersTransport (120 seconds for response headers). TLS uses the cluster's `swirlit-dev-tls` Secret; connection timeouts and HTTP-to-HTTPS redirects are platform settings. `indezy-ingress` publishes Indezy in the Homepage `Applications - PROD` group.
+The `indezy-sso` Middleware sends requests to the shared Keycloak OAuth2 Proxy, preserves login return URLs and backend `401`s, and forwards the signed access token. `/api/public` skips it: shared links are opened by people without an account, and each request is authorized by its own token (see [Security](./security.md#activity-report-validation-links)). Traefik prefers the longer path. The same file owns the 52 MiB request-body limit and the `indezy-backend` ServersTransport (120 seconds for response headers). TLS uses the cluster's `swirlit-dev-tls` Secret; connection timeouts and HTTP-to-HTTPS redirects are platform settings. `indezy-ingress` publishes Indezy in the Homepage `Applications - PROD` group.
 
 The Keycloak issuer, internal JWKS URI and required audience live in `infra/k8s/server.yaml`; identity-provider secrets stay platform-owned.
 
@@ -65,9 +65,11 @@ Onboarding generates missing `apps/indezy/runtime` fields (24 random bytes for t
 
 The server scans each document members share with the platform's ClamAV, which swirl-cloud runs in `infra`
 (`k8s/platform/clamav.yaml` there). The `kubernetes` profile calls `clamav.infra.svc.cluster.local:3310`
-(`INDEZY_CLAMAV_HOST`, `INDEZY_CLAMAV_PORT` to change it), and the server's NetworkPolicy allows it. While ClamAV
-restarts or loads its signatures (a minute or more), uploads of documents answer `503` and members are asked to try
-again; images are not affected. Locally, leave `INDEZY_CLAMAV_HOST` empty and documents are not scanned.
+(`INDEZY_CLAMAV_HOST`, `INDEZY_CLAMAV_PORT` to change it), and the server's NetworkPolicy allows it. ClamAV runs two
+replicas, restarted one at a time and loading new signatures without pausing; only when neither answers within 90
+seconds (`indezy.clamav.timeout`) do uploads of documents answer `503`, and members are asked to try again; images are
+not affected. ClamAV takes files up to 52 MiB, above the server's 50 MB limit. Locally, leave `INDEZY_CLAMAV_HOST`
+empty and documents are not scanned.
 
 ## Administrators
 

@@ -48,7 +48,11 @@ describe('FilePickerComponent', () => {
     fixture.detectChanges();
   }
 
-  const file = (name: string, size = 10): File => new File([new Uint8Array(size)], name);
+  const file = (name: string, size = 10): File => {
+    const made = new File([new Uint8Array(10)], name);
+    Object.defineProperty(made, 'size', { value: size });
+    return made;
+  };
 
   it('uploads images at once, each needing a description before the post or the message goes', () => {
     const element = create();
@@ -79,7 +83,7 @@ describe('FilePickerComponent', () => {
     expect(component.picked).toEqual([]);
   });
 
-  it('says what it leaves out: beyond the limits, beyond 10 MB, refused, or too many today', () => {
+  it('says what it leaves out: beyond the limits, beyond 50 MB, refused, or too many today', () => {
     const element = create();
     api.upload.and.returnValue(of(uploaded(1, 'IMAGE')));
     choose(element, [1, 2, 3, 4, 5].map(i => file(`p${i}.png`)), true);
@@ -87,12 +91,15 @@ describe('FilePickerComponent', () => {
     expect(fixture.componentInstance.images.length).toBe(4);
     expect((element.querySelector('[data-pick-images]') as HTMLButtonElement).disabled).toBeTrue();
     fixture.componentInstance.clear();
-    choose(element, [file('big.pdf', 10 * 1024 * 1024 + 1)], false);
+    choose(element, [file('big.pdf', 50 * 1024 * 1024 + 1)], false);
     expect(notifications.error).toHaveBeenCalledWith('network.files.tooLarge');
     api.upload.and.returnValues(throwError(() => new HttpErrorResponse({ status: 400 })), throwError(() => new HttpErrorResponse({ status: 400 })),
       throwError(() => new HttpErrorResponse({ status: 409 })), throwError(() => new HttpErrorResponse({ status: 500 })),
       throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'This document holds malware (Eicar) and was not added' } })),
-      throwError(() => new HttpErrorResponse({ status: 503 })));
+      throwError(() => new HttpErrorResponse({ status: 503 })),
+      throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'This document needs a password to open, so it cannot be checked' } })),
+      throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'This document is too large or holds too much to be checked' } })),
+      throwError(() => new HttpErrorResponse({ status: 400, error: { message: 'This document was refused by the safety check (PUA.Pdf.X)' } })));
     choose(element, [file('notes.exe')], false);
     choose(element, [file('x.webp')], true);
     choose(element, [file('c.pdf')], false);
@@ -100,6 +107,13 @@ describe('FilePickerComponent', () => {
     fixture.componentInstance.clear();
     choose(element, [file('e.pdf')], false);
     choose(element, [file('f.pdf')], false);
+    fixture.componentInstance.clear();
+    choose(element, [file('g.pdf')], false);
+    choose(element, [file('h.pdf')], false);
+    choose(element, [file('i.pdf')], false);
+    expect(notifications.error).toHaveBeenCalledWith('network.files.encrypted');
+    expect(notifications.error).toHaveBeenCalledWith('network.files.unscannable');
+    expect(notifications.error).toHaveBeenCalledWith('network.files.unsafe');
     expect(notifications.error).toHaveBeenCalledWith('network.files.malware');
     expect(notifications.error).toHaveBeenCalledWith('network.files.scanUnavailable');
     expect(notifications.error).toHaveBeenCalledWith('network.files.documentRefused');
