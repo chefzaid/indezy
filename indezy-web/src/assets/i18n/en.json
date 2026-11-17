@@ -298,7 +298,26 @@
       "market": "market median €{{median}} for {{skill}}",
       "ask": "Ask for the new rate"
     },
-    "rateShare": "My average daily rate obtained: {{obtained}} €, for an objective of {{target}} €."
+    "rateShare": "My average daily rate obtained: {{obtained}} €, for an objective of {{target}} €.",
+    "heatmap": {
+      "total": "{{activities}} in the last year",
+      "activeDays": "{{days}} with activity",
+      "longestStreak": "Longest streak: {{days}}",
+      "busiest": "Busiest day: {{date}} ({{count}})",
+      "activities": "{{count}} activities",
+      "none": "No opportunity created, no interview held.",
+      "untitled": "Untitled",
+      "more": "and {{count}} more",
+      "hint": "Click to open its opportunities.",
+      "activity": "1 activity",
+      "noActivity": "No activity",
+      "opportunities": "{{count}} opportunities",
+      "opportunity": "1 opportunity",
+      "interviews": "{{count}} interviews",
+      "interview": "1 interview",
+      "days": "{{count}} days",
+      "day": "1 day"
+    }
   },
   "projects": {
     "title": "Opportunities",

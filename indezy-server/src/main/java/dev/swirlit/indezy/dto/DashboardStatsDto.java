@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -299,7 +300,8 @@ public class DashboardStatsDto {
 
     /**
      * Prospection activity on a single day: opportunities created plus interview steps dated that
-     * day, used to render an activity heatmap that highlights busy and quiet periods.
+     * day, used to render an activity heatmap that highlights busy and quiet periods; with how many
+     * of each, and the first few of them for the day's card.
      */
     @Data
     @Builder
@@ -308,6 +310,25 @@ public class DashboardStatsDto {
     public static class ActivityDay {
         private LocalDate date;
         private int count;
+        private int opportunities;
+        private int interviews;
+        /** The first {@code ACTIVITY_ITEMS} of the day, opportunities first. */
+        @Builder.Default
+        private List<ActivityItem> items = new ArrayList<>();
+    }
+
+    /** One opportunity created or interview step held on a day of the heatmap, with the opportunity it belongs to. */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ActivityItem {
+        /** {@code OPPORTUNITY} or {@code INTERVIEW}. */
+        private String kind;
+        /** The opportunity's role, or the step's title. */
+        private String label;
+        private String client;
+        private Long projectId;
     }
 
     /**

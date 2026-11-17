@@ -284,5 +284,43 @@ class DashboardAnalyticsTest extends DashboardStatsTestSupport {
             .filter(day -> day.getDate().equals(today)).findFirst().orElseThrow();
         // One opportunity created + one interview step dated today.
         assertThat(todaysActivity.getCount()).isEqualTo(2);
+        assertThat(todaysActivity.getOpportunities()).isOne();
+        assertThat(todaysActivity.getInterviews()).isOne();
+        assertThat(todaysActivity.getItems()).extracting(DashboardStatsDto.ActivityItem::getKind).containsExactly("OPPORTUNITY", "INTERVIEW");
+        assertThat(todaysActivity.getItems().getFirst().getLabel()).isEqualTo(testProject.getRole());
+        assertThat(todaysActivity.getItems().getFirst().getProjectId()).isEqualTo(testProject.getId());
+    }
+
+    @Test
+    void buildActivityHeatmap_ShouldListTheFirstFiveOfABusyDayAndCountTheRest() {
+        LocalDate today = LocalDate.of(2026, 11, 17);
+        Client client = new Client();
+        client.setCompanyName("Banque Martin");
+        List<Project> created = new java.util.ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            Project project = new Project();
+            project.setId((long) i);
+            project.setRole("Lead " + i);
+            project.setClient(i == 0 ? client : null);
+            project.setCreatedAt(today.atTime(9, i));
+            created.add(project);
+        }
+        Project old = new Project();
+        old.setRole("Trop ancien");
+        old.setCreatedAt(today.minusDays(400).atStartOfDay());
+        created.add(old);
+        InterviewStep orphan = new InterviewStep();
+        orphan.setTitle("Appel");
+        orphan.setDate(today.minusDays(1).atTime(10, 0));
+
+        List<DashboardStatsDto.ActivityDay> days = DashboardAnalytics.buildActivityHeatmap(created, List.of(orphan), today);
+
+        assertThat(days).extracting(DashboardStatsDto.ActivityDay::getDate).containsExactly(today.minusDays(1), today);
+        DashboardStatsDto.ActivityDay busy = days.get(1);
+        assertThat(busy.getCount()).isEqualTo(7);
+        assertThat(busy.getItems()).hasSize(DashboardAnalytics.ACTIVITY_ITEMS);
+        assertThat(busy.getItems().getFirst().getClient()).isEqualTo("Banque Martin");
+        assertThat(busy.getItems().get(1).getClient()).isNull();
+        assertThat(days.getFirst().getItems().getFirst().getProjectId()).isNull();
     }
 }

@@ -81,7 +81,7 @@ export interface MessageThread {
 export interface FoundMessage {
   conversationId: number;
   /** The other member's name, or the group's. */
-  title: string;
+  title: string | null;
   /** Who to show beside it: the other member, or in a group its sender (none for the reader's own). */
   with: MemberCard | null;
   messageId: number;

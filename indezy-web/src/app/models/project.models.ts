@@ -335,6 +335,20 @@ export interface ProcessDuration {
 export interface ActivityDay {
   date: string;
   count: number;
+  /** Opportunities created and interview steps held that day. */
+  opportunities?: number;
+  interviews?: number;
+  /** The first few of the day's activity, opportunities first. */
+  items?: ActivityItem[];
+}
+
+/** An opportunity created or an interview step held on a day of the activity heatmap. */
+export interface ActivityItem {
+  kind: 'OPPORTUNITY' | 'INTERVIEW';
+  /** The opportunity's role, or the step's title. */
+  label: string | null;
+  client: string | null;
+  projectId: number | null;
 }
 
 export interface ProjectNote {

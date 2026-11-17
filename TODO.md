@@ -429,7 +429,7 @@ Increments, implemented in order:
 - [x] Extend existing dashboard graphs and stats (projects by status, work mode distribution, daily rate chart, trend comparisons). Done on 2026-10-27: the status, work mode and daily rate charts were there; the analytics now open with **Last 90 days**, comparing opportunities, interviews, missions won and the rate won with the 90 days before.
 - [x] Bench time tracking (gaps between missions, cost of bench)
 - [x] Source ROI ranking (which job board/contact yields signed contracts)
-- [x] Prospection activity heatmap (calendar view of applications/calls/interviews to spot active and quiet periods)
+- [x] Prospection activity heatmap (calendar view of applications/calls/interviews to spot active and quiet periods). GitHub-style since 2026-11-17: months and weekdays, the year summed up, and each day's tile growing on hover or focus to tell what happened (its opportunities and interviews, a click away), the arrows moving between days (`docs/features.md#dashboard-and-analytics`).
 - [x] Skill demand trends: which skills/stacks appear most in captured opportunities over time, and at what rates
 - [x] Personal yearly review (missions, revenue, top skills, network growth), exportable as a polished PDF report
 

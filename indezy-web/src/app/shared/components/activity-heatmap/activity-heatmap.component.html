@@ -1,21 +1,94 @@
-<div class="heatmap">
-  <div class="heatmap-grid">
-    @for (week of weeks; track $index) {
-      <div class="heatmap-week">
-        @for (cell of week; track cell.date) {
-          <div class="heatmap-cell" [class]="'level-' + intensity(cell.count)"
-               [title]="cell.date + ' · ' + cell.count"></div>
-        }
-      </div>
+<div class="heatmap" data-heatmap>
+  <p class="summary" data-heatmap-summary>
+    <strong>{{ 'dashboard.heatmap.total' | translate: { activities: activities(total) } }}</strong>
+    @if (activeDays) {
+      <span>{{ 'dashboard.heatmap.activeDays' | translate: { days: counted(activeDays, 'day', 'days') } }}</span>
+      <span>{{ 'dashboard.heatmap.longestStreak' | translate: { days: counted(longestStreak, 'day', 'days') } }}</span>
+      @if (busiest) {
+        <span>{{ 'dashboard.heatmap.busiest' | translate: { date: (parse(busiest.date) | date: 'mediumDate'), count: busiest.count } }}</span>
+      }
     }
+  </p>
+
+  <div class="scroller" #scroller>
+    <div class="calendar" role="group" [attr.aria-label]="'dashboard.charts.activityHeatmap' | translate"
+      [style.--weeks]="weeks.length">
+      @for (month of months; track month.week) {
+        <span class="month" aria-hidden="true" [style.grid-column]="month.week + 2">{{ month.name }}</span>
+      }
+      @for (name of weekdays; track $index) {
+        <span class="weekday" aria-hidden="true" [style.grid-row]="$index + 2">{{ name }}</span>
+      }
+      @for (cell of cells; track cell.date) {
+        <button #day type="button" class="cell" [class]="'cell level-' + intensity(cell.count)"
+          [class.active]="shown === cell" [style.grid-column]="cell.week + 2" [style.grid-row]="cell.weekday + 2"
+          [attr.tabindex]="cell.date === focusDate ? 0 : -1" [attr.aria-label]="label(cell)"
+          [attr.aria-expanded]="shown === cell && pinned" aria-haspopup="dialog" [attr.data-heatmap-day]="cell.date"
+          (mouseenter)="preview(cell, day)" (mouseleave)="leave(cell)" (focus)="preview(cell, day)" (blur)="leave(cell)"
+          (click)="toggle(cell, day)" (keydown)="onKeydown($event, cell)"></button>
+      }
+    </div>
   </div>
-  <div class="heatmap-legend">
+
+  <div class="legend" aria-hidden="true">
     <span>{{ 'dashboard.charts.heatmapLess' | translate }}</span>
-    <span class="heatmap-cell level-0"></span>
-    <span class="heatmap-cell level-1"></span>
-    <span class="heatmap-cell level-2"></span>
-    <span class="heatmap-cell level-3"></span>
-    <span class="heatmap-cell level-4"></span>
+    @for (level of [0, 1, 2, 3, 4]; track level) {
+      <span class="cell" [class]="'cell level-' + level"></span>
+    }
     <span>{{ 'dashboard.charts.heatmapMore' | translate }}</span>
   </div>
 </div>
+
+<ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="shownOrigin!" [cdkConnectedOverlayOpen]="!!shown && !!shownOrigin"
+  [cdkConnectedOverlayPositions]="positions" [cdkConnectedOverlayPush]="true" (overlayOutsideClick)="pinned && close()"
+  (detach)="close()">
+  @if (shown; as day) {
+    <section class="heatmap-card" [attr.role]="pinned ? 'dialog' : 'tooltip'" [attr.aria-label]="label(day)" data-heatmap-card
+      [cdkTrapFocus]="pinned" [cdkTrapFocusAutoCapture]="pinned" (keydown.escape)="closeAndFocus()">
+      <header>
+        <span class="when">{{ parse(day.date) | date: 'fullDate' }}</span>
+        @if (pinned) {
+          <button type="button" class="close" (click)="closeAndFocus()" [attr.aria-label]="'common.close' | translate" data-heatmap-close>
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </header>
+      @if (day.count === 0) {
+        <p class="none">{{ 'dashboard.heatmap.none' | translate }}</p>
+      } @else {
+        <p class="counts">
+          <span class="swatch" [class]="'swatch level-' + intensity(day.count)" aria-hidden="true"></span>
+          <strong>{{ activities(day.count) }}</strong>
+          @if (day.opportunities || day.interviews) {
+            <span class="split">{{ split(day) }}</span>
+          }
+        </p>
+        @if (day.items.length) {
+          <ul class="items">
+            @for (item of day.items; track $index) {
+              <li>
+                <mat-icon aria-hidden="true">{{ icon(item) }}</mat-icon>
+                @if (item.projectId && pinned) {
+                  <a [routerLink]="['/projects', item.projectId]" (click)="close()" [attr.data-heatmap-item]="item.projectId">
+                    {{ item.label || ('dashboard.heatmap.untitled' | translate) }}
+                  </a>
+                } @else {
+                  <span>{{ item.label || ('dashboard.heatmap.untitled' | translate) }}</span>
+                }
+                @if (item.client) {
+                  <span class="client">· {{ item.client }}</span>
+                }
+              </li>
+            }
+          </ul>
+          @if (day.count > day.items.length) {
+            <p class="more">{{ 'dashboard.heatmap.more' | translate: { count: day.count - day.items.length } }}</p>
+          }
+        }
+        @if (!pinned && day.items.length) {
+          <p class="hint">{{ 'dashboard.heatmap.hint' | translate }}</p>
+        }
+      }
+    </section>
+  }
+</ng-template>

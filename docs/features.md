@@ -876,6 +876,14 @@ mode. **Customize** shows, hides and orders its six blocks, saved with the accou
   ESN, skills in demand and the year's prospection activity.
 - **Recent opportunities**.
 
+**Prospection activity** shows the last year as GitHub does: a tile a day (opportunities created and interview steps
+held), a column a week from Monday, the months above and Monday, Wednesday and Friday beside, shaded in five steps, with
+the year's total, the days with activity, the longest run of active days and the busiest day. A tile grows on hover or
+focus and tells its day: the date, how many opportunities and interviews, and the first five of them with their client;
+a click (or Enter) keeps its card open, each opportunity a click away, and Escape closes it. The arrows move a day up or
+down and a week left or right, Home and End to the first and last day. The tiles share the card's width; on a phone the
+year scrolls, opening on the latest weeks, the weekdays staying in view.
+
 ### Trends
 
 **Last 90 days** compares opportunities added, interviews held, missions won and their average rate with the 90 days

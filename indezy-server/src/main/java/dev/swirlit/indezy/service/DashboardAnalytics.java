@@ -26,6 +26,8 @@ final class DashboardAnalytics {
 
     /** Days of prospection activity surfaced in the heatmap. */
     static final int HEATMAP_WINDOW_DAYS = 365;
+    /** What a heatmap day lists of its activity, at most. */
+    static final int ACTIVITY_ITEMS = 5;
 
     private static final int TOP_SKILLS_LIMIT = 12;
 
@@ -40,30 +42,40 @@ final class DashboardAnalytics {
     static List<DashboardStatsDto.ActivityDay> buildActivityHeatmap(
             List<Project> projects, List<InterviewStep> steps, LocalDate today) {
         LocalDate from = today.minusDays(HEATMAP_WINDOW_DAYS);
-        Map<LocalDate, Integer> counts = new HashMap<>();
+        Map<LocalDate, DashboardStatsDto.ActivityDay> days = new TreeMap<>();
 
-        for (Project project : projects) {
-            if (project.getCreatedAt() == null) {
-                continue;
-            }
-            LocalDate day = project.getCreatedAt().toLocalDate();
-            if (!day.isBefore(from) && !day.isAfter(today)) {
-                counts.merge(day, 1, Integer::sum);
-            }
-        }
-        for (InterviewStep step : steps) {
-            if (step.getDate() != null) {
-                counts.merge(step.getDate().toLocalDate(), 1, Integer::sum);
-            }
-        }
+        projects.stream().filter(project -> project.getCreatedAt() != null)
+            .sorted(Comparator.comparing(Project::getCreatedAt))
+            .forEach(project -> {
+                LocalDate day = project.getCreatedAt().toLocalDate();
+                if (!day.isBefore(from) && !day.isAfter(today)) {
+                    DashboardStatsDto.ActivityDay activity = day(days, day);
+                    activity.setOpportunities(activity.getOpportunities() + 1);
+                    add(activity, "OPPORTUNITY", project.getRole(), project);
+                }
+            });
+        steps.stream().filter(step -> step.getDate() != null)
+            .sorted(Comparator.comparing(InterviewStep::getDate))
+            .forEach(step -> {
+                DashboardStatsDto.ActivityDay activity = day(days, step.getDate().toLocalDate());
+                activity.setInterviews(activity.getInterviews() + 1);
+                add(activity, "INTERVIEW", step.getTitle(), step.getProject());
+            });
+        return List.copyOf(days.values());
+    }
 
-        return counts.entrySet().stream()
-            .sorted(Map.Entry.comparingByKey())
-            .map(entry -> DashboardStatsDto.ActivityDay.builder()
-                .date(entry.getKey())
-                .count(entry.getValue())
-                .build())
-            .toList();
+    private static DashboardStatsDto.ActivityDay day(Map<LocalDate, DashboardStatsDto.ActivityDay> days, LocalDate date) {
+        return days.computeIfAbsent(date, key -> DashboardStatsDto.ActivityDay.builder().date(key).build());
+    }
+
+    /** Counts one activity of the day, and lists it among the first few. */
+    private static void add(DashboardStatsDto.ActivityDay day, String kind, String label, Project project) {
+        day.setCount(day.getCount() + 1);
+        if (day.getItems().size() < ACTIVITY_ITEMS) {
+            day.getItems().add(DashboardStatsDto.ActivityItem.builder().kind(kind).label(label)
+                .client(project == null || project.getClient() == null ? null : project.getClient().getCompanyName())
+                .projectId(project == null ? null : project.getId()).build());
+        }
     }
 
     /** Maps each project id to the date of its latest validated interview step (its "signature"). */

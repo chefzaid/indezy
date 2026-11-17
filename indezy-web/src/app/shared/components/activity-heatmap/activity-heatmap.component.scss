@@ -1,25 +1,82 @@
-.heatmap {
+// A GitHub-style year of prospection: months above, weekdays beside, a tile a day that grows to tell what happened.
+:host {
+  --cell: 11px;
+  --gap: 3px;
+  display: block;
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+  margin: 0 0 12px;
+  color: var(--app-text-muted);
+  font-size: 0.8125rem;
+
+  strong {
+    color: var(--app-text);
+    font-size: 0.9375rem;
+  }
+}
+
+.scroller {
+  container-type: inline-size;
   overflow-x: auto;
-  padding: 4px 0;
+  // Room for a tile to grow at the edges without being cut.
+  padding: 10px 10px 8px 0;
+  scrollbar-width: thin;
 }
 
-.heatmap-grid {
+.calendar {
+  // The tiles share the card's width (11 to 18 pixels): the year fits a wide card and scrolls on a phone, the grid
+  // keeping its own width so that the weekdays stay in view.
+  --cell: clamp(11px, calc((100cqw - 48px) / var(--weeks) - var(--gap)), 18px);
+  display: grid;
+  grid-template-columns: auto repeat(var(--weeks), var(--cell));
+  grid-template-rows: auto repeat(7, var(--cell));
+  gap: var(--gap);
+  width: max-content;
+}
+
+.month {
+  grid-row: 1;
+  overflow: visible;
+  color: var(--app-text-muted);
+  font-size: 0.6875rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.weekday {
+  // Stays in view while the weeks scroll on a phone.
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  grid-column: 1;
+  align-self: stretch;
   display: flex;
-  gap: 3px;
-  min-width: min-content;
+  align-items: center;
+  justify-content: flex-end;
+  background: var(--app-surface);
+  padding-right: 6px;
+  color: var(--app-text-muted);
+  font-size: 0.6875rem;
+  line-height: 1;
+  text-align: right;
 }
 
-.heatmap-week {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.heatmap-cell {
-  width: 11px;
-  height: 11px;
-  border-radius: 2px;
+.cell {
+  display: block;
+  width: var(--cell);
+  height: var(--cell);
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(27, 31, 36, 0.06);
+  border-radius: 3px;
   background-color: var(--heatmap-l0);
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
 
   // Tones of the brand colour, deeper with more activity (lighter in the dark theme).
   &.level-1 { background-color: var(--heatmap-l1); }
@@ -28,13 +85,36 @@
   &.level-4 { background-color: var(--heatmap-l4); }
 }
 
-.heatmap-legend {
+button.cell {
+  position: relative;
+
+  &:hover,
+  &:focus-visible,
+  &.active {
+    z-index: 2;
+    transform: scale(1.9);
+    border-color: var(--app-surface);
+    box-shadow: 0 2px 8px rgba(15, 12, 40, 0.25);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: 1px;
+  }
+}
+
+.legend {
   display: flex;
   align-items: center;
-  gap: 3px;
-  margin-top: 8px;
+  justify-content: flex-end;
+  gap: var(--gap);
+  margin-top: 6px;
+  color: var(--app-text-muted);
   font-size: 0.75rem;
-  color: var(--text-secondary);
+
+  .cell {
+    cursor: default;
+  }
 
   span:first-child {
     margin-right: 4px;
@@ -45,3 +125,139 @@
   }
 }
 
+// The card a day opens, rendered in the overlay above the page.
+.heatmap-card {
+  width: max-content;
+  min-width: 200px;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 10px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  box-shadow: 0 8px 24px rgba(15, 12, 40, 0.18);
+  font-size: 0.8125rem;
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .when {
+    font-weight: 700;
+
+    // "Samedi 14 novembre": only the first letter, as French writes it.
+    &::first-letter {
+      text-transform: uppercase;
+    }
+  }
+
+  .close {
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin: -4px -6px -4px 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--app-text-muted);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--app-hover);
+    }
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .counts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+  }
+
+  .swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background-color: var(--heatmap-l0);
+
+    &.level-1 { background-color: var(--heatmap-l1); }
+    &.level-2 { background-color: var(--heatmap-l2); }
+    &.level-3 { background-color: var(--heatmap-l3); }
+    &.level-4 { background-color: var(--heatmap-l4); }
+  }
+
+  .split,
+  .none,
+  .more,
+  .hint,
+  .client {
+    color: var(--app-text-muted);
+  }
+
+  .items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    mat-icon {
+      flex: none;
+      width: 16px;
+      height: 16px;
+      color: var(--app-text-muted);
+      font-size: 16px;
+    }
+
+    a,
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    a {
+      color: var(--app-link);
+      font-weight: 600;
+    }
+  }
+
+  .more {
+    margin-top: 4px;
+  }
+
+  .hint {
+    margin-top: 6px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    transition: none;
+  }
+}

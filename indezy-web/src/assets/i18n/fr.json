@@ -298,7 +298,26 @@
       "market": "médiane du marché {{median}} € pour {{skill}}",
       "ask": "Demander le nouveau TJM"
     },
-    "rateShare": "Mon TJM moyen obtenu : {{obtained}} €, pour un objectif de {{target}} €."
+    "rateShare": "Mon TJM moyen obtenu : {{obtained}} €, pour un objectif de {{target}} €.",
+    "heatmap": {
+      "total": "{{activities}} sur les 12 derniers mois",
+      "activeDays": "{{days}} avec activité",
+      "longestStreak": "Plus longue série : {{days}}",
+      "busiest": "Jour le plus actif : {{date}} ({{count}})",
+      "activities": "{{count}} activités",
+      "none": "Aucune opportunité créée, aucun entretien.",
+      "untitled": "Sans titre",
+      "more": "et {{count}} de plus",
+      "hint": "Cliquez pour ouvrir ses opportunités.",
+      "activity": "1 activité",
+      "noActivity": "Aucune activité",
+      "opportunities": "{{count}} opportunités",
+      "opportunity": "1 opportunité",
+      "interviews": "{{count}} entretiens",
+      "interview": "1 entretien",
+      "days": "{{count}} jours",
+      "day": "1 jour"
+    }
   },
   "projects": {
     "title": "Opportunités",
