@@ -720,9 +720,9 @@ found nothing.
 - **Sites to visit yourself** lists, as cards, every site Indezy does not read, in three groups: where missions can
   still be found in person (HiTechPros, Opteamis, LookingForTechs, Capgemini TalentNet, LinkedIn, Mon Consultant
   Indépendant), matching services (Malt, Freelance.com, WheelOfWork, Comet, Amazing.dev, Crème de la Crème), and
-  sites mostly or only about permanent jobs, worth a visit when looking for a salaried position too (HelloWork and
-  Welcome to the Jungle, **Mostly CDI**; Urban Linker, Bluecoders, UNLCK and Konekt, **CDI only**). Each card says what
-  it takes or which contracts it holds; **Mark as visited** records the last visit.
+  **Orienté CDI** (CDI-oriented): HelloWork, Welcome to the Jungle, Urban Linker, Bluecoders, UNLCK and Konekt, worth a
+  visit when looking for a salaried position too. Each card says what it takes; **Mark as visited** records the last
+  visit.
 
 ### From An Offer Link
 

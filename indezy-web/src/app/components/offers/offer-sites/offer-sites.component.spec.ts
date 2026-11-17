@@ -38,7 +38,7 @@ describe('OfferSitesComponent', () => {
         site({ site: 'KOINO', name: 'Koïno', status: 'WAITING', lastRunAt: null, lastSuccessAt: null, nextRunAt: null, lastFound: null,
           newestOfferAt: null, refreshAvailableAt: minutes(10) })
       ],
-      leftOut: [{ site: 'KONEKT', name: 'Konekt', homeUrl: 'https://www.konekt.fr', kind: 'PERMANENT', access: 'PERMANENT_ONLY' },
+      leftOut: [{ site: 'KONEKT', name: 'Konekt', homeUrl: 'https://www.konekt.fr', kind: 'PERMANENT' },
         { site: 'MALT', name: 'Malt', homeUrl: 'https://www.malt.fr', kind: 'MATCHING', access: 'PROFILE' }],
       refreshEnabled: true,
       ...overrides
@@ -100,7 +100,7 @@ describe('OfferSitesComponent', () => {
     expect(text(fixture, '[data-site="KOINO"] [data-fact="newest"]')).toBe('Aucune');
     // No site is left out any more: the CDI-oriented ones are among the sites to visit.
     expect(fixture.nativeElement.querySelector('[data-left-out]')).toBeNull();
-    expect(text(fixture, '#sites-to-visit [data-visit="KONEKT"]')).toContain('CDI uniquement');
+    expect(text(fixture, '#sites-to-visit [data-visit="KONEKT"]')).toContain('cabinet de recrutement tech');
     expect(text(fixture, '#sites-to-visit [data-visit="MALT"]')).toContain('créez votre profil');
   });
 

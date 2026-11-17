@@ -401,7 +401,7 @@ export interface OfferSiteHealthEntry {
 /** Whether a site Indezy does not read is to visit, a matching service, or left out. */
 export type OfferLeftOutKind = 'VISIT' | 'MATCHING' | 'PERMANENT';
 /** What seeing a site's missions takes. */
-export type OfferLeftOutAccess = 'MEMBERSHIP' | 'SIGN_IN' | 'CRAWLERS' | 'PROFILE' | 'MOSTLY_PERMANENT' | 'PERMANENT_ONLY';
+export type OfferLeftOutAccess = 'MEMBERSHIP' | 'SIGN_IN' | 'CRAWLERS' | 'PROFILE';
 
 export interface OfferLeftOutSite {
   site: string;

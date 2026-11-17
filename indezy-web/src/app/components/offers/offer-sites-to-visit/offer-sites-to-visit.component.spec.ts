@@ -19,9 +19,8 @@ describe('OfferSitesToVisitComponent', () => {
     { site: 'HITECHPROS', name: 'HiTechPros', homeUrl: 'https://www.hitechpros.com', kind: 'VISIT', access: 'MEMBERSHIP' },
     { site: 'OPTEAMIS', name: 'Opteamis', homeUrl: 'https://www.opteamis.com', kind: 'VISIT', access: 'SIGN_IN', visitedAt: twoDaysAgo },
     { site: 'MALT', name: 'Malt', homeUrl: 'https://www.malt.fr', kind: 'MATCHING', access: 'PROFILE' },
-    { site: 'WELCOME_TO_THE_JUNGLE', name: 'Welcome to the Jungle', homeUrl: 'https://www.welcometothejungle.com', kind: 'PERMANENT',
-      access: 'MOSTLY_PERMANENT' },
-    { site: 'URBAN_LINKER', name: 'Urban Linker', homeUrl: 'https://urbanlinker.com', kind: 'PERMANENT', access: 'PERMANENT_ONLY' }
+    { site: 'WELCOME_TO_THE_JUNGLE', name: 'Welcome to the Jungle', homeUrl: 'https://www.welcometothejungle.com', kind: 'PERMANENT' },
+    { site: 'URBAN_LINKER', name: 'Urban Linker', homeUrl: 'https://urbanlinker.com', kind: 'PERMANENT' }
   ];
 
   function create(): ComponentFixture<OfferSitesToVisitComponent> {
@@ -52,13 +51,15 @@ describe('OfferSitesToVisitComponent', () => {
     const headings = Array.from(fixture.nativeElement.querySelectorAll('h3') as NodeListOf<HTMLElement>).map(heading => heading.innerText);
 
     expect(headings).toEqual(['Missions à consulter en personne', 'Services de mise en relation : créez votre profil une fois, ils vous appellent',
-      'Surtout des CDI : utiles si vous cherchez aussi un poste salarié']);
+      'Orienté CDI']);
     expect(text(fixture, '[data-visit="HITECHPROS"] [data-access]')).toBe('Abonnement payant');
     expect(text(fixture, '[data-visit="OPTEAMIS"]')).toContain('Consulté avant-hier');
     expect(text(fixture, '[data-visit="MALT"]')).toContain('Pas encore consulté');
-    expect(text(fixture, '[data-visit="WELCOME_TO_THE_JUNGLE"] [data-access]')).toBe('Surtout du CDI');
-    expect(text(fixture, '[data-visit="WELCOME_TO_THE_JUNGLE"]')).toContain('surtout en CDI');
-    expect(text(fixture, '[data-visit="URBAN_LINKER"] [data-access]')).toBe('CDI uniquement');
+    // The CDI-oriented sites all sit under the one heading, no card saying more about their contracts.
+    expect(fixture.nativeElement.querySelector('[data-visit="WELCOME_TO_THE_JUNGLE"] [data-access]')).toBeNull();
+    expect(text(fixture, '[data-visit="WELCOME_TO_THE_JUNGLE"]')).toContain('tous contrats');
+    expect(fixture.nativeElement.querySelector('[data-visit="URBAN_LINKER"] [data-access]')).toBeNull();
+    expect(text(fixture, '[data-visit="URBAN_LINKER"]')).toContain('cabinet de recrutement tech');
     expect(fixture.nativeElement.querySelector('[data-visit="MALT"] a').getAttribute('href')).toBe('https://www.malt.fr');
   });
 

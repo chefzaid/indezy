@@ -2103,16 +2103,16 @@
         "LOOKINGFORTECHS": "devenu Sharebound : chaque mission demande une connexion LinkedIn.",
         "MON_CONSULTANT_INDEPENDANT": "ses missions s’affichent dans le navigateur, pas pour les robots ; Free-Work et Collective en republient une partie.",
         "CAPGEMINI_TALENTNET": "le réseau freelance de Capgemini : ses missions s'affichent sans connexion, mais ses données sont fermées aux robots.",
-        "HELLOWORK": "des emplois de tous contrats, surtout en CDI : filtrez sur le contrat Freelance pour ses missions.",
+        "HELLOWORK": "des emplois de tous contrats : filtrez sur le contrat Freelance pour ses missions.",
         "MALT": "créez votre profil : les clients vous contactent avec des missions.",
         "FREELANCE_COM": "inscrivez votre profil : ses consultants vous appellent quand une mission correspond.",
         "WHEELOFWORK": "inscrivez votre profil : il propose les missions tech, ingénierie et management de transition qui correspondent.",
         "CREMEDELACREME": "rejoignez la communauté : les missions sont proposées à ses membres (ses pages publiques de missions ont cessé en décembre 2024).",
-        "WELCOME_TO_THE_JUNGLE": "des emplois de tous contrats, surtout en CDI ; les missions freelance y sont rares et ne se filtrent pas.",
-        "URBAN_LINKER": "un cabinet de recrutement aux offres en CDI uniquement.",
-        "BLUECODERS": "un cabinet de recrutement aux offres en CDI uniquement.",
-        "UNLCK": "un cabinet de recrutement aux offres en CDI uniquement.",
-        "KONEKT": "un cabinet de recrutement aux offres en CDI uniquement."
+        "WELCOME_TO_THE_JUNGLE": "des emplois de tous contrats ; les missions freelance y sont rares et ne se filtrent pas.",
+        "URBAN_LINKER": "un cabinet de recrutement tech.",
+        "BLUECODERS": "un cabinet de recrutement tech.",
+        "UNLCK": "un cabinet de recrutement tech.",
+        "KONEKT": "un cabinet de recrutement tech."
       },
       "visit": {
         "title": "Sites à consulter vous-même",
@@ -2120,15 +2120,13 @@
         "groups": {
           "VISIT": "Missions à consulter en personne",
           "MATCHING": "Services de mise en relation : créez votre profil une fois, ils vous appellent",
-          "PERMANENT": "Surtout des CDI : utiles si vous cherchez aussi un poste salarié"
+          "PERMANENT": "Orienté CDI"
         },
         "access": {
           "MEMBERSHIP": "Abonnement payant",
           "SIGN_IN": "Compte nécessaire",
           "CRAWLERS": "Ouvert aux personnes, pas aux robots",
-          "PROFILE": "Profil, puis un appel",
-          "MOSTLY_PERMANENT": "Surtout du CDI",
-          "PERMANENT_ONLY": "CDI uniquement"
+          "PROFILE": "Profil, puis un appel"
         },
         "visited": "Consulté {{when}}",
         "notVisited": "Pas encore consulté",

@@ -261,8 +261,7 @@ cannot, each doing nothing once the schema is current, in this order:
    narrows, so stored rows and the version still running during a rollout keep working.
 3. `RefusedByBackfill`: gives refused opportunities without `refused_by` the side their reason tells.
 4. `ReversionRateMigration`: moves an old `reversion_rate` (the share taken) to `reversion_share` (100 less it) and
-   empties the old column. `RetiredSitesCleanup` deletes the sources of job boards Indezy no longer lists (Nexoris)
-   that no opportunity names.
+   empties the old column.
 5. `RefusalStatusMigration`: moves the opportunities refused by the freelancer from `LOST` to `WITHDRAWN`, and says
    the recruiter refused the other `LOST` ones that did not say who.
 

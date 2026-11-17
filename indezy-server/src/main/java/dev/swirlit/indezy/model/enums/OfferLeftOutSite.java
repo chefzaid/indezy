@@ -18,12 +18,12 @@ public enum OfferLeftOutSite {
     COMET("Comet", "https://www.comet.co", Kind.MATCHING, Access.PROFILE),
     AMAZING_DEV("Amazing.dev", "https://amazing.dev", Kind.MATCHING, Access.PROFILE),
     CREMEDELACREME("Crème de la Crème", "https://www.cremedelacreme.io", Kind.MATCHING, Access.PROFILE),
-    HELLOWORK("HelloWork", "https://www.hellowork.com", Kind.PERMANENT, Access.MOSTLY_PERMANENT),
-    WELCOME_TO_THE_JUNGLE("Welcome to the Jungle", "https://www.welcometothejungle.com", Kind.PERMANENT, Access.MOSTLY_PERMANENT),
-    URBAN_LINKER("Urban Linker", "https://urbanlinker.com", Kind.PERMANENT, Access.PERMANENT_ONLY),
-    BLUECODERS("Bluecoders", "https://www.bluecoders.com", Kind.PERMANENT, Access.PERMANENT_ONLY),
-    UNLCK("UNLCK", "https://unlck.fr", Kind.PERMANENT, Access.PERMANENT_ONLY),
-    KONEKT("Konekt", "https://www.konekt.fr", Kind.PERMANENT, Access.PERMANENT_ONLY);
+    HELLOWORK("HelloWork", "https://www.hellowork.com", Kind.PERMANENT, null),
+    WELCOME_TO_THE_JUNGLE("Welcome to the Jungle", "https://www.welcometothejungle.com", Kind.PERMANENT, null),
+    URBAN_LINKER("Urban Linker", "https://urbanlinker.com", Kind.PERMANENT, null),
+    BLUECODERS("Bluecoders", "https://www.bluecoders.com", Kind.PERMANENT, null),
+    UNLCK("UNLCK", "https://unlck.fr", Kind.PERMANENT, null),
+    KONEKT("Konekt", "https://www.konekt.fr", Kind.PERMANENT, null);
 
     /** How a freelancer uses a site Indezy does not read. */
     public enum Kind {
@@ -31,7 +31,7 @@ public enum OfferLeftOutSite {
         VISIT,
         /** A profile is created once and the service calls back when a mission matches. */
         MATCHING,
-        /** Mostly or only permanent jobs (CDI): worth a visit when looking for a salaried position too. */
+        /** CDI-oriented: permanent jobs above all, worth a visit when looking for a salaried position too. */
         PERMANENT
     }
 
@@ -44,11 +44,7 @@ public enum OfferLeftOutSite {
         /** Nothing for a person, but the site refuses crawlers. */
         CRAWLERS,
         /** A profile the service matches with missions. */
-        PROFILE,
-        /** Jobs of every contract, mostly permanent ones. */
-        MOSTLY_PERMANENT,
-        /** Permanent jobs only. */
-        PERMANENT_ONLY
+        PROFILE
     }
 
     private final String displayName;

@@ -70,7 +70,7 @@ function siteHealth(): Record<string, unknown> {
     leftOut: [{ site: 'HITECHPROS', name: 'HiTechPros', homeUrl: 'https://www.hitechpros.com', kind: 'VISIT', access: 'MEMBERSHIP' },
       { site: 'MALT', name: 'Malt', homeUrl: 'https://www.malt.fr', kind: 'MATCHING', access: 'PROFILE' },
       { site: 'LINKEDIN', name: 'LinkedIn', homeUrl: 'https://www.linkedin.com', kind: 'VISIT', access: 'SIGN_IN' },
-      { site: 'URBAN_LINKER', name: 'Urban Linker', homeUrl: 'https://urbanlinker.com', kind: 'PERMANENT', access: 'PERMANENT_ONLY' }],
+      { site: 'URBAN_LINKER', name: 'Urban Linker', homeUrl: 'https://urbanlinker.com', kind: 'PERMANENT' }],
     refreshEnabled: true
   };
 }
