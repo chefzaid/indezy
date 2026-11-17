@@ -218,6 +218,12 @@ public class NetworkController {
         return followRequests.requests(SecurityUtils.getCurrentUserId());
     }
 
+    @Operation(summary = "The members the member asked to follow, waiting for their answer, the latest asked first")
+    @GetMapping("/follow-requests/sent")
+    public List<NetworkDtos.MemberCard> sentFollowRequests() {
+        return followRequests.sent(SecurityUtils.getCurrentUserId());
+    }
+
     @Operation(summary = "Approve a member's request to follow", description = "They follow, and are told")
     @PutMapping("/follow-requests/{handle}")
     public List<NetworkDtos.MemberCard> approveFollowRequest(@PathVariable String handle) {

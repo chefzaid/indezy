@@ -113,13 +113,15 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
   });
 }
 
-test('creates a group among the followers and writes in it, each message showing who wrote it', async ({ page }) => {
+test('creates a group among the members followed or following and writes in it, each message showing who wrote it', async ({ page }) => {
   await mockWorkspaceSession(page, 'en');
   await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
   await page.route('**/api/network/conversations/unread', route => route.fulfill({ json: { conversations: 0 } }));
   await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille' } }));
   const ines = { ...leo, handle: 'ines_b', firstName: 'Inès', lastName: 'Bernard' };
-  await page.route('**/api/network/members/camille/followers', route => route.fulfill({ json: [leo, ines] }));
+  await page.route('**/api/network/members/camille/followers', route => route.fulfill({ json: [leo] }));
+  // A group gathers the members the reader follows too.
+  await page.route('**/api/network/members/camille/following', route => route.fulfill({ json: [ines, leo] }));
   const group = { id: 9, with: null, group: { title: 'Mission Kafka', members: [leo, ines], size: 3, creator: 'camille', admin: true },
     last: null, unread: 0, muted: false, archived: false, closed: null, lastMessageAt: null };
   let created: unknown = null;
@@ -146,3 +148,39 @@ test('creates a group among the followers and writes in it, each message showing
   await expect(page.locator('[data-thread-group]')).toContainText('3 members');
   await expect(page.locator('[data-message="1"] [data-message-sender]')).toContainText('Inès Bernard');
 });
+
+for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
+  test(`writes to one member from New message, picked among those followed or following (${language}, ${width}px)`, async ({ page }) => {
+    const en = language === 'en';
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, language);
+    await themeByWidth(page, language, width);
+    await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+    await page.route('**/api/network/conversations/unread', route => route.fulfill({ json: { conversations: 0 } }));
+    await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille' } }));
+    const ines = { ...leo, handle: 'ines_b', firstName: 'Inès', lastName: 'Bernard' };
+    await page.route('**/api/network/members/camille/followers', route => route.fulfill({ json: [] }));
+    await page.route('**/api/network/members/camille/following', route => route.fulfill({ json: [ines, leo] }));
+    let opened: unknown = null;
+    await page.route('**/api/network/conversations', route => {
+      opened = route.request().postDataJSON();
+      return route.fulfill({ json: { ...conversation, with: ines, last: null, unread: 0 } });
+    });
+    await page.route('**/api/network/conversations?**', route => route.fulfill({ json: opened ? [{ ...conversation, with: ines }] : [] }));
+    await page.route('**/api/network/conversations/4', route => route.fulfill({ json: { conversation: { ...conversation, with: ines },
+      more: false, messages: [] } }));
+    await page.route('**/api/network/conversations/4/read', route => route.fulfill({ json: { ...conversation, with: ines, unread: 0 } }));
+
+    await page.goto('/network/messages');
+    await page.getByRole('button', { name: en ? 'New message' : 'Nouveau message' }).click();
+    const dialog = page.getByRole('dialog', { name: en ? 'New message' : 'Nouveau message' });
+    await expect(dialog.locator('[data-direct-choice]')).toHaveCount(2);
+    await expect(dialog.locator('[data-group-done]')).toHaveCount(0);
+    const audit = await new AxeBuilder({ page }).include('mat-dialog-container').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
+    await dialog.locator('[data-direct-choice="ines_b"]').click();
+    await expect(page).toHaveURL(/\/network\/messages\/4$/);
+    expect(opened).toEqual({ handle: 'ines_b' });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}

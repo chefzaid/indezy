@@ -15,7 +15,7 @@ describe('ReactionButtonComponent', () => {
   let emitted: NetworkPost[];
   const post: NetworkPost = { id: 4, text: 'Mission signée', tags: [], createdAt: '2026-11-14T10:00:00', own: false, likes: 3, liked: true,
     comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST',
-    details: null, answerCommentId: null, poll: null, taken: null, useful: null, myReaction: 'LIKE', preview: null,
+    details: null, answerCommentId: null, poll: null, taken: null, myReaction: 'LIKE', preview: null,
     reactions: [{ reaction: 'LIKE', count: 2 }, { reaction: 'BRAVO', count: 1 }], author: { handle: 'leo_m', firstName: 'Léo',
       lastName: 'Martin', avatar: null, headline: null, stack: [], city: null, remote: false, availability: null, availabilityDate: null,
       languages: [], verified: false } };

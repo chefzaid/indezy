@@ -12,7 +12,6 @@ import dev.swirlit.indezy.service.NetworkPipelineService;
 import dev.swirlit.indezy.service.NetworkPollService;
 import dev.swirlit.indezy.service.NetworkPostService;
 import dev.swirlit.indezy.service.NetworkTagService;
-import dev.swirlit.indezy.service.NetworkUsefulService;
 import dev.swirlit.indezy.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,7 +52,6 @@ public class NetworkPostController {
     private final NetworkConfidentialityService confidentiality;
     private final NetworkPollService pollVotes;
     private final NetworkPipelineService pipeline;
-    private final NetworkUsefulService usefuls;
     private final NetworkForYouService forYou;
     private final NetworkFeedService feed;
 
@@ -211,18 +209,6 @@ public class NetworkPostController {
         return pipeline.takers(SecurityUtils.getCurrentUserId(), id);
     }
 
-    @Operation(summary = "Find a post useful", description = "The second reaction, once; never on one's own post")
-    @PutMapping("/posts/{id}/useful")
-    public NetworkDtos.Post useful(@PathVariable Long id) {
-        return usefuls.useful(SecurityUtils.getCurrentUserId(), id, true);
-    }
-
-    @Operation(summary = "No longer find a post useful")
-    @DeleteMapping("/posts/{id}/useful")
-    public NetworkDtos.Post notUseful(@PathVariable Long id) {
-        return usefuls.useful(SecurityUtils.getCurrentUserId(), id, false);
-    }
-
     @Operation(summary = "Vote in a poll, or change one's vote", description = "While it is open; the choice counts from 0")
     @PutMapping("/posts/{id}/vote")
     public NetworkDtos.Post vote(@PathVariable Long id, @RequestParam int choice) {
@@ -261,11 +247,12 @@ public class NetworkPostController {
         return posts.saved(SecurityUtils.getCurrentUserId(), tag, page);
     }
 
-    @Operation(summary = "A tag's page: whether the viewer follows it, its posts (20 a page) and members whose cards show the skill")
+    @Operation(summary = "A tag's page: whether the viewer follows it, its posts (20 a page, the newest or, sort=liked, the most liked first) " +
+        "and members whose cards show the skill")
     @GetMapping("/tags/{tag}")
     public NetworkDtos.TagPage tag(@PathVariable String tag, @RequestParam(defaultValue = "0") int page,
                                    @RequestParam(defaultValue = "recent") String sort) {
-        return tags.page(SecurityUtils.getCurrentUserId(), tag, page, "useful".equals(sort));
+        return tags.page(SecurityUtils.getCurrentUserId(), tag, page, "liked".equals(sort));
     }
 
     @Operation(summary = "The tags the viewer follows")

@@ -3506,7 +3506,6 @@
       "repostsOffError": "Son auteur a interdit les republications de cette publication.",
       "originalGone": "La publication d'origine n'est plus disponible.",
       "commentLikes": "Mentions J’aime du commentaire :",
-      "useful": "Utile ({{count}})",
       "copyLink": "Copier le lien",
       "linkCopied": "Lien copié",
       "linkCopyError": "Le lien n'a pas pu être copié"
@@ -3533,10 +3532,10 @@
       "subtitle": "Les publications qui nomment ce tag, et les membres dont la carte affiche la compétence",
       "order": "Ordre des publications",
       "recent": "Plus récentes",
-      "mostUseful": "Plus utiles",
       "missions": "Missions ouvertes pour #{{tag}}",
       "noMissions": "Aucune mission ouverte ne cite cette compétence pour l'instant.",
-      "allMissions": "Les voir toutes dans le fil des offres"
+      "allMissions": "Les voir toutes dans le fil des offres",
+      "mostLiked": "Les plus aimés"
     },
     "suggestions": {
       "title": "Membres à suivre",
@@ -3797,16 +3796,20 @@
       "cardError": "L'opportunité n'a pas pu être ajoutée",
       "seen": "Vu",
       "typing": "{{name}} écrit…",
-      "formerMember": "Ancien membre"
+      "formerMember": "Ancien membre",
+      "new": "Nouveau message",
+      "newTitle": "Nouveau message",
+      "newHint": "Les membres que vous suivez et ceux qui vous suivent.",
+      "noOne": "Personne à qui écrire pour l'instant : suivez un membre, ou attendez qu'un membre vous suive."
     },
     "groups": {
       "new": "Nouveau groupe",
       "newTitle": "Nouveau groupe",
       "addTitle": "Ajouter des membres à {{title}}",
       "name": "Nom du groupe",
-      "hint": "Des membres qui vous suivent, {{room}} au plus.",
-      "filter": "Trouver un abonné",
-      "noFollower": "Aucun abonné à ajouter pour l'instant : un groupe réunit des membres qui vous suivent.",
+      "hint": "Des membres que vous suivez ou qui vous suivent, {{room}} au plus.",
+      "filter": "Trouver un membre",
+      "noFollower": "Aucun membre à ajouter pour l'instant : un groupe réunit des membres que vous suivez ou qui vous suivent.",
       "create": "Créer le groupe ({{count}})",
       "add": "Ajouter ({{count}})",
       "size": "{{count}} membres",
@@ -3814,7 +3817,7 @@
       "rename": "Renommer le groupe",
       "leave": "Quitter le groupe",
       "leaveConfirm": "Quitter {{title}} ? Vous ne le lirez plus.",
-      "refused": "Chaque membre d'un groupe doit vous suivre",
+      "refused": "Chaque membre d'un groupe doit vous suivre ou être suivi par vous",
       "error": "Le groupe n'a pas pu être modifié"
     },
     "files": {
@@ -3840,6 +3843,29 @@
       "encrypted": "Ce document demande un mot de passe pour s'ouvrir, il ne peut donc pas être vérifié : envoyez-le sans.",
       "unscannable": "Ce document est trop volumineux ou contient trop de choses pour être vérifié : envoyez-le en plusieurs parties.",
       "unsafe": "Ce document a été refusé par la vérification de sécurité : il contient un contenu souvent utilisé dans des attaques."
+    },
+    "members": {
+      "tabs": "Membres",
+      "tab": {
+        "all": "Tous les membres",
+        "following": "Abonnements",
+        "followers": "Abonnés",
+        "received": "Demandes reçues",
+        "sent": "Demandes envoyées"
+      },
+      "waiting": "{{count}} en attente",
+      "approve": "Accepter",
+      "decline": "Refuser",
+      "approved": "Demande acceptée : ce membre vous suit",
+      "declined": "Demande refusée",
+      "answerError": "La demande n'a pas pu être traitée",
+      "messageTo": "Écrire à {{name}}",
+      "empty": {
+        "following": "Vous ne suivez encore personne : trouvez des membres dans « Tous les membres ».",
+        "followers": "Personne ne vous suit encore.",
+        "received": "Aucune demande en attente. Elles arrivent quand votre carte est privée.",
+        "sent": "Aucune demande envoyée en attente."
+      }
     }
   }
 }

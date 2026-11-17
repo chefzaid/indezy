@@ -6,13 +6,16 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, forkJoin, switchMap } from 'rxjs';
 
 import { MemberCard } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
 
-/** What the dialog asks: a new group's name and members, or members to add to a group (its title and members known). */
+/**
+ * What the dialog asks: a new group's name and members, members to add to a group (its title and members known), or, with
+ * `direct`, the one member to write to.
+ */
 export interface GroupRequest {
   /** The group's current name when adding members; none to create one. */
   title: string | null;
@@ -20,6 +23,8 @@ export interface GroupRequest {
   present: string[];
   /** How many more members the group takes. */
   room: number;
+  /** Picks one member to write to, the dialog closing on the choice. */
+  direct?: boolean;
 }
 
 /** What the reader chose: the group's name (for a new group) and the handles of the members. */
@@ -29,8 +34,8 @@ export interface GroupChoice {
 }
 
 /**
- * Names a group and picks its members among the reader's followers (a group's members all follow its creator), or picks
- * the members to add to one.
+ * Names a group and picks its members among the members the reader can write to (those following them or followed by
+ * them), picks the members to add to one, or picks the one member a new conversation goes to.
  */
 @Component({
   selector: 'app-group-dialog',
@@ -48,6 +53,7 @@ export class GroupDialogComponent implements OnInit {
 
   readonly title = new FormControl(this.request.title ?? '', { nonNullable: true, validators: [Validators.required, Validators.maxLength(80)] });
   readonly filter = new FormControl('', { nonNullable: true });
+  /** The members the reader can write to: their followers and the members they follow, each once, by name. */
   followers: MemberCard[] | null = null;
   readonly chosen = new Set<string>();
 
@@ -57,9 +63,12 @@ export class GroupDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.network.membership().pipe(switchMap(membership => this.network.followers(membership.handle ?? ''))).subscribe({
-      next: followers => {
-        this.followers = followers.filter(member => !this.request.present.includes(member.handle));
+    this.network.membership().pipe(switchMap(membership => forkJoin([this.network.followers(membership.handle ?? ''),
+      this.network.following(membership.handle ?? '')]))).subscribe({
+      next: ([followers, following]) => {
+        const byHandle = new Map([...followers, ...following].map(member => [member.handle, member]));
+        this.followers = [...byHandle.values()].filter(member => !this.request.present.includes(member.handle))
+          .sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`));
         this.changes.markForCheck();
       },
       error: () => {
@@ -85,6 +94,11 @@ export class GroupDialogComponent implements OnInit {
 
   get valid(): boolean {
     return this.chosen.size > 0 && (this.request.title !== null || this.title.valid);
+  }
+
+  /** Writes to this member: the dialog closes with them alone. */
+  pick(handle: string): void {
+    this.dialogRef.close({ title: '', handles: [handle] });
   }
 
   done(): void {

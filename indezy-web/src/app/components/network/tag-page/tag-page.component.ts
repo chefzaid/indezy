@@ -42,8 +42,8 @@ export class TagPageComponent implements OnInit {
 
   page: TagPage | null = null;
   posts: NetworkPost[] = [];
-  /** The posts the newest first, or the most found useful first. */
-  sort: 'recent' | 'useful' = 'recent';
+  /** The posts the newest first, or the most liked (whatever the reaction) first. */
+  sort: 'recent' | 'liked' = 'recent';
   /** The feed's newest open missions for the skill; none asked while the offer feed is off. */
   missions: Offer[] | null = null;
   /** The offer feed's address for every mission of the skill. */
@@ -68,7 +68,7 @@ export class TagPageComponent implements OnInit {
   }
 
   /** Lists the posts in the other order, from the first page. */
-  order(sort: 'recent' | 'useful'): void {
+  order(sort: 'recent' | 'liked'): void {
     if (sort === this.sort) {
       return;
     }

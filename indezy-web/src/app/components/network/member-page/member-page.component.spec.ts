@@ -132,7 +132,7 @@ describe('MemberPageComponent', () => {
     expect(fixture.componentInstance.followLabel({ ...page, privateCard: true, followed: true })).toBe('network.page.unfollow');
   });
 
-  it('writes to a member who follows the viewer, opening the conversation', () => {
+  it('writes to a member once either follows the other, opening the conversation', () => {
     const fixture = create();
     const element: HTMLElement = fixture.nativeElement;
     const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
@@ -144,7 +144,11 @@ describe('MemberPageComponent', () => {
     fixture.componentInstance.message();
     expect(fixture.componentInstance.isOpening).toBeFalse();
     expect(notifications.error).toHaveBeenCalledWith('network.messages.openError');
-    fixture.componentInstance.page = { ...page, followsYou: false };
+    // Following them is enough; a request waiting is not.
+    fixture.componentInstance.page = { ...page, followsYou: false, followed: true };
+    fixture.detectChanges();
+    expect(element.querySelector('[data-message]')).not.toBeNull();
+    fixture.componentInstance.page = { ...page, followsYou: false, followed: false, requested: true };
     fixture.detectChanges();
     expect(element.querySelector('[data-message]')).toBeNull();
   });
@@ -203,7 +207,7 @@ describe('MemberPageComponent', () => {
   });
 
   it('shows the member\'s posts, pages through them, and lets the viewer delete their own', () => {
-    const post = (id: number) => ({ id, text: `Post ${id}`, tags: [], createdAt: '2026-11-14T10:00:00', own: true, likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, useful: null, reactions: [], myReaction: null, preview: null,
+    const post = (id: number) => ({ id, text: `Post ${id}`, tags: [], createdAt: '2026-11-14T10:00:00', own: true, likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, reactions: [], myReaction: null, preview: null,
       author: card('camille') });
     const fixture = create();
     const component = fixture.componentInstance;

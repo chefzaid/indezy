@@ -14,11 +14,12 @@ describe('GroupDialogComponent', () => {
   const card = (handle: string, firstName: string): MemberCard => ({ handle, firstName, lastName: 'Durand', avatar: null, headline: null,
     stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false });
 
-  function create(request: GroupRequest, followers = of([card('leo_m', 'Léo'), card('ines_b', 'Inès'), card('paul_d', 'Paul')]))
-    : ComponentFixture<GroupDialogComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['membership', 'followers']);
+  function create(request: GroupRequest, followers = of([card('leo_m', 'Léo'), card('paul_d', 'Paul')]),
+                  following = of([card('ines_b', 'Inès'), card('leo_m', 'Léo')])): ComponentFixture<GroupDialogComponent> {
+    network = jasmine.createSpyObj('NetworkService', ['membership', 'followers', 'following']);
     network.membership.and.returnValue(of({ handle: 'camille' } as NetworkMembership));
     network.followers.and.returnValue(followers);
+    network.following.and.returnValue(following);
     close = jasmine.createSpy('close');
     TestBed.configureTestingModule({
       imports: [GroupDialogComponent, TranslateModule.forRoot()],
@@ -30,12 +31,14 @@ describe('GroupDialogComponent', () => {
     return fixture;
   }
 
-  it('names a new group and picks its members among the reader\'s followers, as many as there is room for', () => {
+  it('names a new group and picks its members among those following the reader or followed by them, as many as there is room for', () => {
     const fixture = create({ title: null, present: ['paul_d'], room: 2 });
     const component = fixture.componentInstance;
     const element: HTMLElement = fixture.nativeElement;
     expect(network.followers).toHaveBeenCalledWith('camille');
-    expect(component.followers?.map(member => member.handle)).toEqual(['leo_m', 'ines_b']);
+    expect(network.following).toHaveBeenCalledWith('camille');
+    // Each once, by name.
+    expect(component.followers?.map(member => member.handle)).toEqual(['ines_b', 'leo_m']);
     component.filter.setValue('inè');
     expect(component.shown.map(member => member.handle)).toEqual(['ines_b']);
     component.filter.setValue('');
@@ -63,6 +66,20 @@ describe('GroupDialogComponent', () => {
     fixture = create({ title: 'Mission Kafka', present: [], room: 5 }, throwError(() => new Error('down')));
     expect(fixture.componentInstance.followers).toEqual([]);
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-group-none]')).not.toBeNull();
+  });
+
+  it('picks the one member to write to, closing on the choice', () => {
+    const fixture = create({ title: null, present: [], room: 1, direct: true });
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('h2')?.textContent).toContain('network.messages.newTitle');
+    expect(element.querySelector('[data-group-title]')).toBeNull();
+    expect(element.querySelector('[data-group-done]')).toBeNull();
+    expect(element.querySelectorAll('[data-direct-choice]').length).toBe(3);
+    (element.querySelector('[data-direct-choice="paul_d"]') as HTMLButtonElement).click();
+    expect(close).toHaveBeenCalledWith({ title: '', handles: ['paul_d'] });
+    TestBed.resetTestingModule();
+    const none = create({ title: null, present: [], room: 1, direct: true }, of([]), of([]));
+    expect((none.nativeElement as HTMLElement).querySelector('[data-group-none]')?.textContent).toContain('network.messages.noOne');
   });
 
   it('opens as a dialog and answers what was chosen', () => {

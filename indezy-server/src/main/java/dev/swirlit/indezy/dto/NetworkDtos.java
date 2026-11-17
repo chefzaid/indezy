@@ -70,7 +70,7 @@ public final class NetworkDtos {
     public record Post(Long id, MemberCard author, String text, List<String> tags, LocalDateTime createdAt, boolean own, int likes,
                        boolean liked, int comments, boolean commentsClosed, boolean edited, boolean bookmarked, Original repostOf,
                        int reposts, boolean repostsOff, NetworkPostKind kind, PostDetails details, Long answerCommentId, Poll poll,
-                       Taken taken, Useful useful, List<ReactionCount> reactions, NetworkReaction myReaction, LinkPreview preview,
+                       Taken taken, List<ReactionCount> reactions, NetworkReaction myReaction, LinkPreview preview,
                        List<NetworkFileDtos.File> files) {
 
         public Post {
@@ -168,10 +168,6 @@ public final class NetworkDtos {
     }
 
     public record PollChoice(String text, Integer votes) {
-    }
-
-    /** How many members found the post useful, and whether the reader did. */
-    public record Useful(int count, boolean mine) {
     }
 
     /** A mission passed on: how many members took it into their pipeline (to its author only), and whether the reader did. */

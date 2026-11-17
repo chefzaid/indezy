@@ -22,8 +22,8 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Group conversations (see docs/features.md#member-network): a member names a group and adds up to 19 members who all
- * follow them, for a collective or a mission team; its creator renames it and adds members, every member writes in it and
+ * Group conversations (see docs/features.md#member-network): a member names a group and adds up to 19 members, each
+ * following them or followed by them, for a collective or a mission team; its creator renames it and adds members, every member writes in it and
  * may leave it.
  */
 @Service
@@ -43,7 +43,7 @@ public class NetworkGroupService {
     private final NetworkRestrictionRepository restrictions;
     private final NetworkEvents events;
 
-    /** Creates a group with its name and members, who all follow the reader. */
+    /** Creates a group with its name and members, each following the reader or followed by them. */
     @Transactional
     public NetworkMessageDtos.Conversation create(Long userId, NetworkMessageDtos.NewGroup request) {
         NetworkMember creator = network.requireMember(userId);
@@ -60,7 +60,7 @@ public class NetworkGroupService {
         return conversationService.view(group, userId);
     }
 
-    /** Adds members to the reader's own group, who all follow them, up to 20 members in all. */
+    /** Adds members to the reader's own group, each following them or followed by them, up to 20 members in all. */
     @Transactional
     public NetworkMessageDtos.Conversation addMembers(Long userId, Long groupId, NetworkMessageDtos.NewMembers request) {
         NetworkMember creator = network.requireMember(userId);
@@ -109,8 +109,8 @@ public class NetworkGroupService {
     }
 
     /**
-     * The members the handles name, but those already in: each in the network, following the creator, neither blocking
-     * the other; refused (409) with the first handle that is not.
+     * The members the handles name, but those already in: each in the network, following the creator or followed by them,
+     * neither blocking the other; refused (409) with the first handle that is not.
      */
     private Set<Long> joining(NetworkMember creator, List<String> handles, Set<Long> present) {
         Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(creator.getUserId()));
@@ -121,8 +121,10 @@ public class NetworkGroupService {
                 continue;
             }
             if (blocked.contains(member.getUserId()) ||
-                followRepository.findByFollowerIdAndFollowedId(member.getUserId(), creator.getUserId()).isEmpty()) {
-                throw new InvalidStateException("Every member of a group follows its creator: @" + member.getHandle() + " does not");
+                followRepository.findByFollowerIdAndFollowedId(member.getUserId(), creator.getUserId()).isEmpty() &&
+                    followRepository.findByFollowerIdAndFollowedId(creator.getUserId(), member.getUserId()).isEmpty()) {
+                throw new InvalidStateException("Every member of a group follows its creator or is followed by them: @" +
+                    member.getHandle() + " is neither");
             }
             joining.add(member.getUserId());
         }

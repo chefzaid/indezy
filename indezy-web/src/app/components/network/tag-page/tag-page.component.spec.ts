@@ -17,7 +17,7 @@ describe('TagPageComponent', () => {
   const leo: MemberCard = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: ['Kafka'], city: null,
     remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
   const post = (id: number): NetworkPost => ({ id, text: `#kafka ${id}`, tags: ['kafka'], createdAt: '2026-11-14T10:00:00', own: false,
-    likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, useful: null, reactions: [], myReaction: null, preview: null, author: leo });
+    likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, reactions: [], myReaction: null, preview: null, author: leo });
   const page: TagPage = { tag: 'kafka', followed: false, posts: { posts: [post(2)], page: 0, more: true }, members: [leo] };
 
   let offers: jasmine.SpyObj<OfferService>;
@@ -97,15 +97,15 @@ describe('TagPageComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('network.tags.loadError');
   });
 
-  it('lists the posts the most useful first, or the newest first again', () => {
+  it('lists the posts the most liked first, or the newest first again', () => {
     const fixture = create();
     const component = fixture.componentInstance;
     network.tagPage.and.returnValue(of({ ...page, posts: { posts: [post(7)], page: 0, more: false } }));
-    component.order('useful');
-    expect(network.tagPage).toHaveBeenCalledWith('kafka', 0, 'useful');
+    component.order('liked');
+    expect(network.tagPage).toHaveBeenCalledWith('kafka', 0, 'liked');
     expect(component.posts.map(found => found.id)).toEqual([7]);
     network.tagPage.calls.reset();
-    component.order('useful');
+    component.order('liked');
     expect(network.tagPage).not.toHaveBeenCalled();
     network.tagPage.and.returnValue(throwError(() => new Error('down')));
     component.order('recent');

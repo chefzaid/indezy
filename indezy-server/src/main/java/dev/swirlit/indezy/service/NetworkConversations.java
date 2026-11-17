@@ -109,7 +109,10 @@ class NetworkConversations {
         return members.findByUserId(otherId).filter(NetworkMember::isActive).flatMap(network::liveCard);
     }
 
-    /** Why the sender cannot write to the recipient: the recipient left, either blocks the other, or does not follow the sender. */
+    /**
+     * Why the sender cannot write to the recipient: the recipient left, either blocks the other, or neither follows the
+     * other (a follow counts once accepted, a request waiting does not).
+     */
     Optional<NetworkMessageDtos.Closed> closed(Long senderId, Long recipientId) {
         // A member who left, or whose account is on hold before its deletion, reads as gone.
         if (members.findByUserId(recipientId).filter(NetworkMember::isActive).flatMap(network::liveCard).isEmpty()) {
@@ -118,7 +121,8 @@ class NetworkConversations {
         if (restrictions.blockedEitherWay(senderId).contains(recipientId)) {
             return Optional.of(NetworkMessageDtos.Closed.BLOCKED);
         }
-        if (follows.findByFollowerIdAndFollowedId(recipientId, senderId).isEmpty()) {
+        if (follows.findByFollowerIdAndFollowedId(recipientId, senderId).isEmpty() &&
+            follows.findByFollowerIdAndFollowedId(senderId, recipientId).isEmpty()) {
             return Optional.of(NetworkMessageDtos.Closed.NOT_FOLLOWED);
         }
         return Optional.empty();

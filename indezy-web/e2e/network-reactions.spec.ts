@@ -5,7 +5,7 @@ import { mockWorkspaceSession } from './helpers/workspace';
 const post = (myReaction: string | null, reactions: { reaction: string; count: number }[]) => ({ id: 3, text: 'Mission signée !', tags: [],
   createdAt: '2026-11-16T09:00:00', own: false, likes: reactions.reduce((sum, item) => sum + item.count, 0), liked: myReaction !== null,
   comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST',
-  details: null, answerCommentId: null, poll: null, taken: null, useful: { count: 0, mine: false }, myReaction, reactions,
+  details: null, answerCommentId: null, poll: null, taken: null, myReaction, reactions,
   author: { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [], city: null, remote: false,
     availability: null, availabilityDate: null, languages: [], verified: false } });
 

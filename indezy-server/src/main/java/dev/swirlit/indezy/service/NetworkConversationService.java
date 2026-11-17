@@ -33,8 +33,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Conversations between two members (see docs/features.md#member-network): opened only towards a member who follows the
- * sender, listed by their latest message, each with what its reader has not read, muted or archived for them alone.
+ * Conversations between two members (see docs/features.md#member-network): opened once either follows the other,
+ * listed by their latest message, each with what its reader has not read, muted or archived for them alone.
  */
 @Service
 @RequiredArgsConstructor
@@ -53,8 +53,8 @@ public class NetworkConversationService {
     private final NetworkEvents events;
 
     /**
-     * The conversation with the member holding the handle: the one already open, or a new one when the member follows the
-     * reader; refused (409) with the reason otherwise.
+     * The conversation with the member holding the handle: the one already open, or a new one when either follows the
+     * other; refused (409) with the reason otherwise.
      */
     @Transactional
     public NetworkMessageDtos.Conversation open(Long userId, String handle) {
@@ -200,7 +200,7 @@ public class NetworkConversationService {
 
     static String reason(NetworkMessageDtos.Closed closed) {
         return switch (closed) {
-            case NOT_FOLLOWED -> "Messages are open only when the other member follows you";
+            case NOT_FOLLOWED -> "Messages are open once you follow this member or they follow you";
             case BLOCKED -> "No message between members when either blocks the other";
             case LEFT -> "This member left the network";
         };

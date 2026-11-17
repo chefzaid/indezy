@@ -6,7 +6,7 @@ const leo = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: nu
   remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
 const post = { id: 7, text: 'Retour sur #Kafka en prod.', tags: ['kafka'], createdAt: new Date().toISOString(), own: false, likes: 2,
   liked: false, comments: 1, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false,
-  kind: 'POST', details: null, answerCommentId: null, poll: null, taken: null, useful: null, reactions: [], myReaction: null, preview: null, author: leo };
+  kind: 'POST', details: null, answerCommentId: null, poll: null, taken: null, reactions: [], myReaction: null, preview: null, author: leo };
 
 for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
   test(`opens a post from its notification, its comments open (${language}, ${width}px)`, async ({ page }) => {

@@ -29,7 +29,6 @@ import dev.swirlit.indezy.repository.NetworkPostRepository;
 import dev.swirlit.indezy.repository.NetworkPostVersionRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
 import dev.swirlit.indezy.repository.NetworkTagFollowRepository;
-import dev.swirlit.indezy.repository.NetworkUsefulRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -91,8 +90,6 @@ public class NetworkPostService {
     private final NetworkSpamFilter spam;
     private final NetworkPolls polls;
     private final NetworkMissionTakes missionTakes;
-    private final NetworkUsefuls usefuls;
-    private final NetworkUsefulRepository usefulRepository;
     private final NetworkMissionTakeRepository takeRepository;
     private final NetworkPollVoteRepository pollVotes;
     private final NetworkNotificationService notices;
@@ -140,7 +137,7 @@ public class NetworkPostService {
         notices.mentions(post.getText(), userId, post.getId());
         log.info("Member {} posted {}", userId, post.getId());
         return toDto(post, network.card(author), userId, List.of(), new Seen(0, false, null, 0, polls.views(List.of(post), userId)
-            .get(post.getId()), missionTakes.views(List.of(post), userId).get(post.getId()), new NetworkDtos.Useful(0, false),
+            .get(post.getId()), missionTakes.views(List.of(post), userId).get(post.getId()),
             files.forPosts(List.of(post.getId())).getOrDefault(post.getId(), List.of())));
     }
 
@@ -157,7 +154,6 @@ public class NetworkPostService {
         commentLikes.deleteByPostId(post.getId());
         pollVotes.deleteByPostId(post.getId());
         takeRepository.deleteByPostId(post.getId());
-        usefulRepository.deleteByPostId(post.getId());
         comments.deleteByPostId(post.getId());
         versions.deleteByPostId(post.getId());
         bookmarks.deleteByPostId(post.getId());
@@ -215,14 +211,13 @@ public class NetworkPostService {
         Map<Long, Integer> reposts = repostCounts(ids);
         Map<Long, NetworkDtos.Poll> pollViews = polls.views(found.getContent(), readerId);
         Map<Long, NetworkDtos.Taken> taken = missionTakes.views(found.getContent(), readerId);
-        Map<Long, NetworkDtos.Useful> useful = usefuls.views(found.getContent(), readerId, blocked);
         Map<Long, List<NetworkFileDtos.File>> carried = files.forPosts(ids);
         List<NetworkDtos.Post> shown = found.getContent().stream()
             .map(post -> cards.computeIfAbsent(post.getAuthorId(), this::authorCard)
                 .map(card -> toDto(post, card, readerId, liked.getOrDefault(post.getId(), List.of()),
                     new Seen(seenComments(post, readerId, blocked, commented.getOrDefault(post.getId(), List.of())), saved.contains(post.getId()),
                         originals.get(post.getId()), reposts.getOrDefault(post.getId(), 0), pollViews.get(post.getId()),
-                        taken.get(post.getId()), useful.get(post.getId()), carried.getOrDefault(post.getId(), List.of())))))
+                        taken.get(post.getId()), carried.getOrDefault(post.getId(), List.of())))))
             .flatMap(Optional::stream).toList();
         return new NetworkDtos.Posts(shown, found.getNumber(), found.hasNext());
     }
@@ -244,9 +239,9 @@ public class NetworkPostService {
 
     /** What a post shows its reader beyond itself: the comments they see, whether they saved it, its original and reposts. */
     private record Seen(int comments, boolean bookmarked, NetworkDtos.Original original, int reposts, NetworkDtos.Poll poll,
-                        NetworkDtos.Taken taken, NetworkDtos.Useful useful, List<NetworkFileDtos.File> files) {
+                        NetworkDtos.Taken taken, List<NetworkFileDtos.File> files) {
 
-        static final Seen NOTHING = new Seen(0, false, null, 0, null, null, null, List.of());
+        static final Seen NOTHING = new Seen(0, false, null, 0, null, null, List.of());
     }
 
     private static NetworkDtos.Post toDto(NetworkPost post, NetworkDtos.MemberCard author, Long readerId, List<NetworkLike> postLikes,
@@ -255,7 +250,7 @@ public class NetworkPostService {
             post.getAuthorId().equals(readerId), postLikes.size(), postLikes.stream().anyMatch(like -> like.getUserId().equals(readerId)),
             seen.comments(), post.isCommentsClosed(), post.getEditedAt() != null, seen.bookmarked(), seen.original(), seen.reposts(),
             post.isRepostsOff(), post.getKind(), NetworkPostKinds.toDto(post.getDetails()), post.getAnswerCommentId(), seen.poll(),
-            seen.taken(), seen.useful(), reactions(postLikes), postLikes.stream().filter(like -> like.getUserId().equals(readerId))
+            seen.taken(), reactions(postLikes), postLikes.stream().filter(like -> like.getUserId().equals(readerId))
             .map(NetworkLike::reactionOrLike).findFirst().orElse(null), NetworkLinkPreviews.view(post.getPreview()), seen.files());
     }
 
@@ -329,8 +324,7 @@ public class NetworkPostService {
             new Seen(seenComments(post, readerId, blocked, comments.findByPostIdIn(List.of(post.getId()))),
                 bookmarks.findByUserIdAndPostId(readerId, post.getId()).isPresent(), originals(List.of(post), blocked).get(post.getId()),
                 repostCounts(List.of(post.getId())).getOrDefault(post.getId(), 0), polls.views(List.of(post), readerId).get(post.getId()),
-                missionTakes.views(List.of(post), readerId).get(post.getId()), usefuls.views(List.of(post), readerId, blocked)
-                .get(post.getId()), files.forPosts(List.of(post.getId())).getOrDefault(post.getId(), List.of())));
+                missionTakes.views(List.of(post), readerId).get(post.getId()), files.forPosts(List.of(post.getId())).getOrDefault(post.getId(), List.of())));
     }
 
     /** Saves a post the reader can read to their private list, or takes it off. */

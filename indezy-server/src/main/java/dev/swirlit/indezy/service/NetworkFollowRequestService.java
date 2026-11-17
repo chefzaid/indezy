@@ -47,6 +47,17 @@ public class NetworkFollowRequestService {
             .flatMap(Optional::stream).toList();
     }
 
+    /** The members the member asked to follow and who have not answered yet, the latest asked first, but those blocked either way or away. */
+    @Transactional(readOnly = true)
+    public List<NetworkDtos.MemberCard> sent(Long userId) {
+        network.requireMember(userId);
+        Set<Long> blocked = Set.copyOf(restrictions.blockedEitherWay(userId));
+        return requests.findByRequesterIdOrderByCreatedAtDescIdDesc(userId).stream()
+            .filter(request -> !blocked.contains(request.getMemberId()))
+            .map(request -> members.findByUserId(request.getMemberId()).filter(NetworkMember::isActive).flatMap(network::liveCard))
+            .flatMap(Optional::stream).toList();
+    }
+
     /** Approves a member's request, who then follows and is told, or declines it, untold; answers the requests left. */
     @Transactional
     public List<NetworkDtos.MemberCard> answer(Long userId, String handle, boolean approve) {

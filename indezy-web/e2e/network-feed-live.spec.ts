@@ -6,7 +6,7 @@ const leo = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: nu
   availability: null, availabilityDate: null, languages: [], verified: false };
 const post = (id: number) => ({ id, text: `Publication ${id}`, tags: [], createdAt: `2026-11-16T10:${String(id).padStart(2, '0')}:00`,
   own: false, likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0,
-  repostsOff: false, kind: 'POST', details: null, answerCommentId: null, poll: null, taken: null, useful: null, reactions: [], myReaction: null, preview: null, author: leo });
+  repostsOff: false, kind: 'POST', details: null, answerCommentId: null, poll: null, taken: null, reactions: [], myReaction: null, preview: null, author: leo });
 
 for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
   test(`loads more posts on scrolling, offers the newer ones and shows the trending tags (${language}, ${width}px)`, async ({ page }) => {

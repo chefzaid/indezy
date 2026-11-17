@@ -15,7 +15,7 @@
           <mat-button-toggle-group [value]="sort" (change)="order($event.value)" [attr.aria-label]="'network.tags.order' | translate"
             hideSingleSelectionIndicator data-tag-order>
             <mat-button-toggle value="recent" data-tag-order-recent>{{ 'network.tags.recent' | translate }}</mat-button-toggle>
-            <mat-button-toggle value="useful" data-tag-order-useful>{{ 'network.tags.mostUseful' | translate }}</mat-button-toggle>
+            <mat-button-toggle value="liked" data-tag-order-liked>{{ 'network.tags.mostLiked' | translate }}</mat-button-toggle>
           </mat-button-toggle-group>
         </div>
         @if (posts.length === 0) {

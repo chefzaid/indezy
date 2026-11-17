@@ -264,6 +264,8 @@ cannot, each doing nothing once the schema is current, in this order:
    empties the old column.
 5. `RefusalStatusMigration`: moves the opportunities refused by the freelancer from `LOST` to `WITHDRAWN`, and says
    the recruiter refused the other `LOST` ones that did not say who.
+6. `RetiredUsefulReactions`: empties `network_usefuls`, the **Useful** reaction being gone; the table stays, empty, for
+   the version still running during a rollout.
 
 `OfferSearchIndex` builds the trigram index, and `JobBoardSourcesBackfill` gives workspaces that lack them the job
 boards as sources once the server is ready. The constraint, index and column runners act on PostgreSQL only.

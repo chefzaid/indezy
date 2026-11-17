@@ -18,7 +18,7 @@ describe('NetworkFeedComponent', () => {
   let notifications: jasmine.SpyObj<NotificationService>;
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
   let guard: jasmine.SpyObj<ConfidentialityGuardService>;
-  const post = (id: number, own = false): NetworkPost => ({ id, text: `Post ${id}`, tags: [], createdAt: '2026-11-14T10:00:00', own, likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, useful: null, reactions: [], myReaction: null, preview: null,
+  const post = (id: number, own = false): NetworkPost => ({ id, text: `Post ${id}`, tags: [], createdAt: '2026-11-14T10:00:00', own, likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST' as const, details: null, answerCommentId: null, poll: null, taken: null, reactions: [], myReaction: null, preview: null,
     author: { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [], city: null, remote: false,
       availability: null, availabilityDate: null, languages: [], verified: false } });
 

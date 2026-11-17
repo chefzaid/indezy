@@ -99,8 +99,6 @@ export interface NetworkPost {
   poll: Poll | null;
   /** A mission passed on: how many took it into their pipeline (to its author only), and whether the reader did. */
   taken: { count: number | null; mine: boolean } | null;
-  /** How many members found it useful, and whether the reader did. */
-  useful: { count: number; mine: boolean } | null;
   /** How many members reacted each way, the most frequent first; `likes` counts them all. */
   reactions: ReactionCount[];
   /** The reader's reaction, if any. */

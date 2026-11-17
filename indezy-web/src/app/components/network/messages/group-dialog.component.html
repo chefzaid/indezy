@@ -1,12 +1,12 @@
-<h2 mat-dialog-title>{{ (request.title === null ? 'network.groups.newTitle' : 'network.groups.addTitle') | translate: { title: request.title } }}</h2>
+<h2 mat-dialog-title>{{ (request.direct ? 'network.messages.newTitle' : request.title === null ? 'network.groups.newTitle' : 'network.groups.addTitle') | translate: { title: request.title } }}</h2>
 <mat-dialog-content>
-  @if (request.title === null) {
+  @if (request.title === null && !request.direct) {
     <mat-form-field appearance="outline" class="full">
       <mat-label>{{ 'network.groups.name' | translate }}</mat-label>
       <input matInput [formControl]="title" maxlength="80" data-group-title>
     </mat-form-field>
   }
-  <p class="hint">{{ 'network.groups.hint' | translate: { room: request.room } }}</p>
+  <p class="hint">{{ (request.direct ? 'network.messages.newHint' : 'network.groups.hint') | translate: { room: request.room } }}</p>
   <mat-form-field appearance="outline" class="full" subscriptSizing="dynamic">
     <mat-label>{{ 'network.groups.filter' | translate }}</mat-label>
     <input matInput [formControl]="filter" data-group-filter>
@@ -14,25 +14,36 @@
   @if (followers === null) {
     <p class="hint" role="status">{{ 'common.loading' | translate }}</p>
   } @else if (followers.length === 0) {
-    <p class="hint" data-group-none>{{ 'network.groups.noFollower' | translate }}</p>
+    <p class="hint" data-group-none>{{ (request.direct ? 'network.messages.noOne' : 'network.groups.noFollower') | translate }}</p>
   }
   <ul class="choices" data-group-choices>
     @for (member of shown; track member.handle) {
       <li>
-        <mat-checkbox [checked]="chosen.has(member.handle)" [disabled]="!chosen.has(member.handle) && chosen.size >= request.room"
-          (change)="toggle(member.handle, $event.checked)" [attr.data-group-choice]="member.handle">
-          <span class="who">
-            <app-member-avatar [subject]="member" [size]="32"></app-member-avatar>
-            <span class="name">{{ member.firstName }} {{ member.lastName }} <span class="handle">&#64;{{ member.handle }}</span></span>
-          </span>
-        </mat-checkbox>
+        @if (request.direct) {
+          <button type="button" class="direct" (click)="pick(member.handle)" [attr.data-direct-choice]="member.handle">
+            <span class="who">
+              <app-member-avatar [subject]="member" [size]="32"></app-member-avatar>
+              <span class="name">{{ member.firstName }} {{ member.lastName }} <span class="handle">&#64;{{ member.handle }}</span></span>
+            </span>
+          </button>
+        } @else {
+          <mat-checkbox [checked]="chosen.has(member.handle)" [disabled]="!chosen.has(member.handle) && chosen.size >= request.room"
+            (change)="toggle(member.handle, $event.checked)" [attr.data-group-choice]="member.handle">
+            <span class="who">
+              <app-member-avatar [subject]="member" [size]="32"></app-member-avatar>
+              <span class="name">{{ member.firstName }} {{ member.lastName }} <span class="handle">&#64;{{ member.handle }}</span></span>
+            </span>
+          </mat-checkbox>
+        }
       </li>
     }
   </ul>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button type="button" mat-dialog-close>{{ 'network.post.cancel' | translate }}</button>
-  <button mat-flat-button type="button" [disabled]="!valid" (click)="done()" data-group-done>
-    {{ (request.title === null ? 'network.groups.create' : 'network.groups.add') | translate: { count: chosen.size } }}
-  </button>
+  @if (!request.direct) {
+    <button mat-flat-button type="button" [disabled]="!valid" (click)="done()" data-group-done>
+      {{ (request.title === null ? 'network.groups.create' : 'network.groups.add') | translate: { count: chosen.size } }}
+    </button>
+  }
 </mat-dialog-actions>

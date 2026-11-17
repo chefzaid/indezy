@@ -4,12 +4,46 @@
     <p>{{ 'network.directory.subtitle' | translate }}</p>
   </header>
 
+  @if (!notMember) {
+    <nav class="tabs card" role="tablist" [attr.aria-label]="'network.members.tabs' | translate" data-members-tabs>
+      @for (item of tabs; track item) {
+        <button type="button" role="tab" class="tab" [class.active]="tab === item" [attr.aria-selected]="tab === item" (click)="show(item)"
+          [attr.data-members-tab]="item">
+          {{ 'network.members.tab.' + item | translate }}
+          @if (item === 'received' && received) {
+            <span class="badge" [attr.aria-label]="'network.members.waiting' | translate: { count: received }">{{ received }}</span>
+          }
+        </button>
+      }
+    </nav>
+  }
+
   @if (notMember) {
     <section class="problem card" data-directory-not-member>
       <mat-icon aria-hidden="true">diversity_3</mat-icon>
       <p>{{ 'network.directory.notMember' | translate }}</p>
       <a mat-flat-button routerLink="/profile">{{ 'network.directory.join' | translate }}</a>
     </section>
+  } @else if (tab !== 'all') {
+    @if (list === null) {
+      <ul class="grid" aria-hidden="true">
+        @for (bone of [1, 2, 3]; track bone) {
+          <li class="member card skeleton"><span class="cover"></span><span class="face"></span></li>
+        }
+      </ul>
+      <span class="cdk-visually-hidden" role="status">{{ 'common.loading' | translate }}</span>
+    } @else if (list.length === 0) {
+      <section class="empty card" [attr.data-members-empty]="tab">
+        <mat-icon aria-hidden="true">{{ tab === 'received' || tab === 'sent' ? 'mark_email_read' : 'group' }}</mat-icon>
+        <p>{{ 'network.members.empty.' + tab | translate }}</p>
+      </section>
+    } @else {
+      <ul class="grid" [attr.data-members-list]="tab">
+        @for (member of list; track member.handle) {
+          <ng-container *ngTemplateOutlet="tile; context: { $implicit: member }"></ng-container>
+        }
+      </ul>
+    }
   } @else {
     <form [formGroup]="form" (ngSubmit)="search()" class="search card" role="search" data-directory-filters>
       <label class="field">
@@ -62,49 +96,7 @@
       }
       <ul class="grid">
         @for (member of directory.members; track member.handle) {
-          <li class="member card" [attr.data-directory-tile]="member.handle">
-            <span class="cover" [style.background]="cover(member.handle)"></span>
-            <app-member-avatar class="face" [subject]="member" [size]="72"></app-member-avatar>
-            <a [routerLink]="['/m', member.handle]" class="name" [attr.data-directory-member]="member.handle">
-              {{ member.firstName }} {{ member.lastName }}
-            </a>
-            @if (member.verified) {
-              <mat-icon class="verified" [attr.aria-label]="'network.card.verified' | translate">verified</mat-icon>
-            }
-            <span class="handle">&#64;{{ member.handle }}</span>
-            @if (member.headline) {
-              <p class="headline">{{ member.headline }}</p>
-            }
-            <p class="where">
-              @if (member.city) {
-                <span><mat-icon aria-hidden="true">place</mat-icon>{{ member.city }}</span>
-              }
-              @if (member.remote) {
-                <span><mat-icon aria-hidden="true">home_work</mat-icon>{{ 'network.directory.remoteYes' | translate }}</span>
-              }
-            </p>
-            @if (member.availability) {
-              <span class="availability" [attr.data-mode]="member.availability">
-                <span class="dot" [attr.data-mode]="member.availability" aria-hidden="true"></span>
-                {{ 'network.directory.modes.' + member.availability | translate }}
-              </span>
-            }
-            @if (member.stack.length) {
-              <ul class="skills" [attr.aria-label]="'network.directory.skills' | translate">
-                @for (skill of skills(member); track skill) {
-                  <li>{{ skill }}</li>
-                }
-                @if (moreSkills(member)) {
-                  <li class="more">+{{ moreSkills(member) }}</li>
-                }
-              </ul>
-            }
-            <button mat-flat-button type="button" class="follow" [class.following]="isFollowed(member.handle) || isRequested(member.handle)"
-              [disabled]="pending.has(member.handle)" (click)="toggleFollow(member.handle)"
-              [attr.aria-pressed]="isFollowed(member.handle) || isRequested(member.handle)" [attr.data-directory-follow]="member.handle">
-              {{ followLabel(member.handle) | translate }}
-            </button>
-          </li>
+          <ng-container *ngTemplateOutlet="tile; context: { $implicit: member }"></ng-container>
         }
       </ul>
       @if (directory.total > directory.size) {
@@ -114,3 +106,68 @@
     }
   }
 </div>
+
+<ng-template #tile let-member>
+  <li class="member card" [attr.data-directory-tile]="member.handle">
+    <span class="cover" [style.background]="cover(member.handle)"></span>
+    <app-member-avatar class="face" [subject]="member" [size]="72"></app-member-avatar>
+    <a [routerLink]="['/m', member.handle]" class="name" [attr.data-directory-member]="member.handle">
+      {{ member.firstName }} {{ member.lastName }}
+    </a>
+    @if (member.verified) {
+      <mat-icon class="verified" [attr.aria-label]="'network.card.verified' | translate">verified</mat-icon>
+    }
+    <span class="handle">&#64;{{ member.handle }}</span>
+    @if (member.headline) {
+      <p class="headline">{{ member.headline }}</p>
+    }
+    <p class="where">
+      @if (member.city) {
+        <span><mat-icon aria-hidden="true">place</mat-icon>{{ member.city }}</span>
+      }
+      @if (member.remote) {
+        <span><mat-icon aria-hidden="true">home_work</mat-icon>{{ 'network.directory.remoteYes' | translate }}</span>
+      }
+    </p>
+    @if (member.availability) {
+      <span class="availability" [attr.data-mode]="member.availability">
+        <span class="dot" [attr.data-mode]="member.availability" aria-hidden="true"></span>
+        {{ 'network.directory.modes.' + member.availability | translate }}
+      </span>
+    }
+    @if (member.stack.length) {
+      <ul class="skills" [attr.aria-label]="'network.directory.skills' | translate">
+        @for (skill of skills(member); track skill) {
+          <li>{{ skill }}</li>
+        }
+        @if (moreSkills(member)) {
+          <li class="more">+{{ moreSkills(member) }}</li>
+        }
+      </ul>
+    }
+    <div class="tile-actions">
+      @switch (tab) {
+        @case ('received') {
+          <button mat-flat-button type="button" class="follow" [disabled]="pending.has(member.handle)" (click)="answer(member.handle, true)"
+            [attr.data-approve]="member.handle">{{ 'network.members.approve' | translate }}</button>
+          <button mat-stroked-button type="button" class="decline" [disabled]="pending.has(member.handle)" (click)="answer(member.handle, false)"
+            [attr.data-decline]="member.handle">{{ 'network.members.decline' | translate }}</button>
+        }
+        @default {
+          <button mat-flat-button type="button" class="follow" [class.following]="isFollowed(member.handle) || isRequested(member.handle)"
+            [disabled]="pending.has(member.handle)" (click)="toggleFollow(member.handle)"
+            [attr.aria-pressed]="isFollowed(member.handle) || isRequested(member.handle)" [attr.data-directory-follow]="member.handle">
+            {{ followLabel(member.handle) | translate }}
+          </button>
+          @if (canMessage(member.handle)) {
+            <button mat-stroked-button type="button" class="round" [disabled]="pending.has(member.handle)" (click)="message(member.handle)"
+              [attr.aria-label]="'network.members.messageTo' | translate: { name: member.firstName }"
+              [matTooltip]="'network.messages.message' | translate" [attr.data-directory-message]="member.handle">
+              <mat-icon>chat</mat-icon>
+            </button>
+          }
+        }
+      }
+    </div>
+  </li>
+</ng-template>

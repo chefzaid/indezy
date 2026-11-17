@@ -25,7 +25,7 @@
                 <mat-icon>{{ page.followed ? 'how_to_reg' : page.requested ? 'schedule' : 'person_add' }}</mat-icon>
                 {{ followLabel(page) | translate }}
               </button>
-              @if (page.followsYou) {
+              @if (page.followsYou || page.followed) {
                 <button mat-stroked-button type="button" class="round message" (click)="message()" [disabled]="isOpening"
                   [attr.aria-label]="'network.messages.message' | translate" [matTooltip]="'network.messages.message' | translate" data-message>
                   <mat-icon>chat</mat-icon>

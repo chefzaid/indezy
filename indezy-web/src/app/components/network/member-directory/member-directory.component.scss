@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 1080px;
+  max-width: 1320px;
   margin: 0 auto;
 }
 
@@ -304,24 +304,87 @@
     }
   }
 
-  .follow {
+  // Follow (and Message, or Approve and Decline) keep to the bottom of tiles of different heights.
+  .tile-actions {
     position: relative;
     z-index: 1;
+    display: flex;
     align-self: stretch;
+    gap: 8px;
     margin-top: auto;
-    border-radius: 999px;
-
-    &.following {
-      --mat-button-filled-container-color: var(--app-selected-bg);
-      --mat-button-filled-label-text-color: var(--app-link);
-    }
+    padding-top: 12px;
   }
 
-  // Follow keeps to the bottom of tiles of different heights.
-  .skills + .follow,
-  .availability + .follow,
-  .where + .follow {
-    margin-top: 12px;
+  .follow,
+  .decline {
+    flex: 1;
+    border-radius: 999px;
+  }
+
+  .follow.following {
+    --mat-button-filled-container-color: var(--app-selected-bg);
+    --mat-button-filled-label-text-color: var(--app-link);
+  }
+
+  .round {
+    flex: none;
+    min-width: 40px;
+    padding: 0;
+    border-radius: 999px;
+
+    mat-icon {
+      margin: 0;
+    }
+  }
+}
+
+// Every member, the follows, the followers and the requests: underlined tabs, scrolling sideways on a phone.
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  padding: 0 8px;
+  scrollbar-width: none;
+}
+
+.tab {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 14px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--app-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: -2px;
+  }
+
+  &.active {
+    border-bottom-color: var(--app-link);
+    color: var(--app-link);
+  }
+
+  .badge {
+    min-width: 20px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--app-link);
+    color: var(--app-surface);
+    font-size: 0.75rem;
+    line-height: 18px;
+    text-align: center;
   }
 }
 

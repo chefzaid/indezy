@@ -3506,7 +3506,6 @@
       "repostsOffError": "Its author turned reposts off for this post.",
       "originalGone": "The original post is no longer available.",
       "commentLikes": "Likes on this comment:",
-      "useful": "Useful ({{count}})",
       "copyLink": "Copy link",
       "linkCopied": "Link copied",
       "linkCopyError": "The link could not be copied"
@@ -3533,10 +3532,10 @@
       "subtitle": "Posts naming this tag, and the members whose cards show the skill",
       "order": "Order of the posts",
       "recent": "Newest",
-      "mostUseful": "Most useful",
       "missions": "Open missions for #{{tag}}",
       "noMissions": "No open mission names this skill right now.",
-      "allMissions": "See them all in the offer feed"
+      "allMissions": "See them all in the offer feed",
+      "mostLiked": "Most liked"
     },
     "suggestions": {
       "title": "Members to follow",
@@ -3797,16 +3796,20 @@
       "cardError": "The opportunity could not be added",
       "seen": "Seen",
       "typing": "{{name}} is typing…",
-      "formerMember": "Former member"
+      "formerMember": "Former member",
+      "new": "New message",
+      "newTitle": "New message",
+      "newHint": "The members you follow and those who follow you.",
+      "noOne": "No one to write to yet: follow a member, or wait for one to follow you."
     },
     "groups": {
       "new": "New group",
       "newTitle": "New group",
       "addTitle": "Add members to {{title}}",
       "name": "Group name",
-      "hint": "Members who follow you, {{room}} at most.",
-      "filter": "Find a follower",
-      "noFollower": "No follower to add yet: a group gathers members who follow you.",
+      "hint": "Members you follow or who follow you, {{room}} at most.",
+      "filter": "Find a member",
+      "noFollower": "No member to add yet: a group gathers members you follow or who follow you.",
       "create": "Create the group ({{count}})",
       "add": "Add ({{count}})",
       "size": "{{count}} members",
@@ -3814,7 +3817,7 @@
       "rename": "Rename the group",
       "leave": "Leave the group",
       "leaveConfirm": "Leave {{title}}? You will no longer read it.",
-      "refused": "Every member of a group must follow you",
+      "refused": "Every member of a group must follow you or be followed by you",
       "error": "The group could not be changed"
     },
     "files": {
@@ -3840,6 +3843,29 @@
       "encrypted": "This document needs a password to open, so it cannot be checked: send it without one.",
       "unscannable": "This document is too large or holds too much to be checked: send it in smaller parts.",
       "unsafe": "This document was refused by the safety check: it holds content often used in attacks."
+    },
+    "members": {
+      "tabs": "Members",
+      "tab": {
+        "all": "All members",
+        "following": "Following",
+        "followers": "Followers",
+        "received": "Requests received",
+        "sent": "Requests sent"
+      },
+      "waiting": "{{count}} waiting",
+      "approve": "Approve",
+      "decline": "Decline",
+      "approved": "Request approved: this member follows you",
+      "declined": "Request declined",
+      "answerError": "The request could not be answered",
+      "messageTo": "Write to {{name}}",
+      "empty": {
+        "following": "You follow no one yet: find members under \"All members\".",
+        "followers": "No one follows you yet.",
+        "received": "No request waiting. They come when your card is private.",
+        "sent": "No request sent waiting."
+      }
     }
   }
 }

@@ -12,4 +12,7 @@ public interface NetworkFollowRequestRepository extends JpaRepository<NetworkFol
 
     /** The requests a member has to answer, the oldest first. */
     List<NetworkFollowRequest> findByMemberIdOrderByCreatedAtAscIdAsc(Long memberId);
+
+    /** The requests a member sent and that wait for an answer, the latest first. */
+    List<NetworkFollowRequest> findByRequesterIdOrderByCreatedAtDescIdDesc(Long requesterId);
 }

@@ -122,7 +122,7 @@ test('switches the feed to For you and back', async ({ page }) => {
     remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
   const post = (id: number, text: string) => ({ id, text, tags: [], createdAt: '2026-11-15T09:00:00', own: false, likes: 0, liked: false,
     comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST',
-    details: null, answerCommentId: null, poll: null, taken: null, useful: { count: 0, mine: false }, author });
+    details: null, answerCommentId: null, poll: null, taken: null, author });
   await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [post(1, 'Suivi')], page: 0, more: false } }));
   await page.route('**/api/network/feed/for-you?**', route => route.fulfill({ json: { posts: [post(2, 'Pour vous')], page: 0, more: false } }));
 

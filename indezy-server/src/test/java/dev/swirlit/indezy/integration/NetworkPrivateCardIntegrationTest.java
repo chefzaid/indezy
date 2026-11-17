@@ -88,11 +88,16 @@ class NetworkPrivateCardIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(noticeTypes(alice)).contains("FOLLOW_REQUEST");
         call(carol, HttpMethod.PUT, "/network/members/" + aliceHandle + "/follow", null, Map.class);
         assertThat(handles(alice, "/network/follow-requests")).containsExactly(bobHandle, carolHandle);
+        // Each asker reads the request they sent, waiting; Alice sent none.
+        assertThat(handles(bob, "/network/follow-requests/sent")).containsExactly(aliceHandle);
+        assertThat(handles(carol, "/network/follow-requests/sent")).containsExactly(aliceHandle);
+        assertThat(handles(alice, "/network/follow-requests/sent")).isEmpty();
         assertThat(handles(alice, "/network/members/" + aliceHandle + "/followers")).isEmpty();
         assertThat(call(alice, HttpMethod.PUT, "/network/follow-requests/" + bobHandle, null, List.class).getBody()).hasSize(1);
         assertThat(call(bob, HttpMethod.GET, "/network/members/" + aliceHandle + "/page", null, Map.class).getBody())
             .containsEntry("followed", true).containsEntry("requested", false);
         assertThat(noticeTypes(bob)).contains("FOLLOW_ACCEPTED");
+        assertThat(handles(bob, "/network/follow-requests/sent")).isEmpty();
         assertThat(postsOf(bob, aliceHandle)).containsExactly(post);
         assertThat(call(bob, HttpMethod.GET, "/network/posts/" + post + "/comments", null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.OK);

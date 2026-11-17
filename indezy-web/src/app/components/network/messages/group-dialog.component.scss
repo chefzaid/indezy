@@ -1,4 +1,4 @@
-// Picking a group's members among the reader's followers.
+// Picking a group's members, or the one member to write to, among those the reader can write to.
 .full {
   width: 100%;
 }
@@ -33,4 +33,23 @@
 .handle {
   color: var(--app-text-muted);
   font-weight: 400;
+}
+
+// A member to write to: the whole row picks them.
+.direct {
+  display: flex;
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--app-hover);
+  }
 }

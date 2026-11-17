@@ -239,20 +239,6 @@ export class PostCardComponent {
       this.translate.instant('network.kinds.rateUpTo', { rate: facts.rateMax });
   }
 
-  /** Finds the post useful, or no longer. */
-  toggleUseful(): void {
-    const before = this.post;
-    const mine = !(before.useful?.mine ?? false);
-    this.post = { ...before, useful: { count: (before.useful?.count ?? 0) + (mine ? 1 : -1), mine } };
-    this.network.useful(before.id, mine).subscribe({
-      next: updated => this.post = updated,
-      error: () => {
-        this.post = before;
-        this.notifications.error('network.post.likeError');
-      }
-    });
-  }
-
   /** Votes for a choice of the poll, or changes the vote. */
   vote(choice: number): void {
     this.isVoting = true;

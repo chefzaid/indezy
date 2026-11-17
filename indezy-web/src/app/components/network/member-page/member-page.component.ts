@@ -200,7 +200,7 @@ export class MemberPageComponent implements OnInit {
     });
   }
 
-  /** Opens the conversation with the member, who follows the viewer. */
+  /** Opens the conversation with the member, once either follows the other (a follow accepted, not a request waiting). */
   message(): void {
     this.isOpening = true;
     this.messages.open(this.page!.card.handle).subscribe({

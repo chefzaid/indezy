@@ -231,16 +231,6 @@
         <span class="label">{{ 'network.post.repost' | translate }}</span>
       </button>
     }
-    @if (!post.own) {
-      <button type="button" class="action useful" (click)="toggleUseful()" [attr.aria-pressed]="post.useful?.mine ?? false" data-useful
-        [class.on]="post.useful?.mine">
-        <mat-icon>{{ post.useful?.mine ? 'lightbulb' : 'lightbulb_outline' }}</mat-icon>
-        <span class="label">{{ 'network.post.useful' | translate: { count: post.useful?.count ?? 0 } }}</span>
-      </button>
-    } @else if (post.useful?.count) {
-      <span class="action static" data-useful-count><mat-icon aria-hidden="true">lightbulb</mat-icon>
-        <span class="label">{{ 'network.post.useful' | translate: { count: post.useful.count } }}</span></span>
-    }
     <button type="button" class="action save" (click)="toggleBookmark()" [attr.aria-pressed]="post.bookmarked" data-bookmark [class.on]="post.bookmarked">
       <mat-icon>{{ post.bookmarked ? 'bookmark' : 'bookmark_border' }}</mat-icon>
       <span class="label">{{ (post.bookmarked ? 'network.post.saved' : 'network.post.save') | translate }}</span>

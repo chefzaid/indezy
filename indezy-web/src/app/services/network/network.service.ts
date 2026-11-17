@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 import {
   ConfidentialMatch, DirectorySearch, FileRef, HeldForReview, MemberCard, MemberDirectory, MemberPage, MemberSuggestion,
   NetworkAvailabilitySetting, NetworkComment, NetworkDraft, NetworkFields, NetworkMembership, NetworkNotificationType, NetworkPost,
@@ -60,12 +61,6 @@ export class NetworkService {
   /** The members who took the reader's own mission and let them know. */
   takers(postId: number): Observable<MemberCard[]> {
     return this.http.get<MemberCard[]>(`${this.API_URL}/posts/${postId}/takers`);
-  }
-
-  /** Finds a post useful, or no longer: the second reaction, for knowledge posts. */
-  useful(postId: number, useful: boolean): Observable<NetworkPost> {
-    const url = `${this.API_URL}/posts/${postId}/useful`;
-    return useful ? this.http.put<NetworkPost>(url, null) : this.http.delete<NetworkPost>(url);
   }
 
   /** Votes in a poll, or changes the vote, while it is open. */
@@ -217,8 +212,8 @@ export class NetworkService {
     return this.http.get<NetworkPosts>(`${this.member$(handle)}/posts`, { params: { page } });
   }
 
-  /** A tag's page, its posts the newest first or the most found useful first. */
-  tagPage(tag: string, page = 0, sort: 'recent' | 'useful' = 'recent'): Observable<TagPage> {
+  /** A tag's page, its posts the newest first or the most liked first. */
+  tagPage(tag: string, page = 0, sort: 'recent' | 'liked' = 'recent'): Observable<TagPage> {
     return this.http.get<TagPage>(`${this.API_URL}/tags/${encodeURIComponent(tag)}`, { params: { page, sort } });
   }
 
@@ -337,9 +332,14 @@ export class NetworkService {
     return this.http.put<NetworkMembership>(`${this.API_URL}/membership/private`, null, { params: new HttpParams().set('private', privateCard) });
   }
 
-  /** The members asking to follow the member. */
-  followRequests(): Observable<MemberCard[]> {
-    return this.http.get<MemberCard[]>(`${this.API_URL}/follow-requests`);
+  /** The members asking to follow the member; silent, its failure told by the caller, when only counted in the background. */
+  followRequests(silent = false): Observable<MemberCard[]> {
+    return this.http.get<MemberCard[]>(`${this.API_URL}/follow-requests`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, silent) });
+  }
+
+  /** The members the member asked to follow, waiting for their answer, the latest asked first. */
+  sentFollowRequests(): Observable<MemberCard[]> {
+    return this.http.get<MemberCard[]>(`${this.API_URL}/follow-requests/sent`);
   }
 
   /** Approves a member's request to follow, or declines it; answers the requests left. */

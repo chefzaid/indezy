@@ -28,7 +28,7 @@ describe('MessagesPageComponent', () => {
     lastMessageAt: `2026-11-16T0${9 - id}:00:00`, ...changes });
 
   function create(list = of([conversation(1), conversation(2)]), id: string | null = null): HTMLElement {
-    api = jasmine.createSpyObj('NetworkMessagesService', ['conversations', 'thread', 'read', 'search', 'createGroup']);
+    api = jasmine.createSpyObj('NetworkMessagesService', ['conversations', 'thread', 'read', 'search', 'createGroup', 'open']);
     api.conversations.and.returnValue(list);
     api.thread.and.returnValue(of({ conversation: conversation(1), messages: [], more: false }));
     api.read.and.returnValue(of(conversation(1, { unread: 0 })));
@@ -133,7 +133,7 @@ describe('MessagesPageComponent', () => {
     discardPeriodicTasks();
   }));
 
-  it('creates a group among the reader\'s followers and opens it, shows groups by their name, and leaves one', fakeAsync(() => {
+  it('creates a group among the members the reader can write to and opens it, shows groups by their name, and leaves one', fakeAsync(() => {
     const element = create(of([conversation(1), conversation(5, { with: null, group: { title: 'Mission Kafka', members: [], size: 3,
       creator: 'camille', admin: true } })]));
     const component = fixture.componentInstance;
@@ -160,6 +160,26 @@ describe('MessagesPageComponent', () => {
     component.left(5);
     expect(component.conversations.map(item => item.id)).not.toContain(5);
     expect(navigate).toHaveBeenCalledWith(['/network/messages']);
+    discardPeriodicTasks();
+  }));
+
+  it('writes to one member picked from those followed or following, opening their conversation', fakeAsync(() => {
+    const element = create(of([conversation(1)]));
+    const component = fixture.componentInstance;
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    const open = spyOn(GroupDialogComponent, 'open').and.returnValue(of(undefined));
+    (element.querySelector('[data-messages-new]') as HTMLButtonElement).click();
+    expect(open).toHaveBeenCalledWith(jasmine.anything(), { title: null, present: [], room: 1, direct: true });
+    expect(api.open).not.toHaveBeenCalled();
+    open.and.returnValue(of({ title: '', handles: ['leo_m'] }));
+    api.open.and.returnValue(of(conversation(12)));
+    component.newMessage();
+    expect(api.open).toHaveBeenCalledWith('leo_m');
+    expect(navigate).toHaveBeenCalledWith(['/network/messages', 12]);
+    expect(component.conversations[0].id).toBe(12);
+    api.open.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+    component.newMessage();
+    expect(notifications.error).toHaveBeenCalledWith('network.messages.openError');
     discardPeriodicTasks();
   }));
 

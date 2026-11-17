@@ -109,6 +109,23 @@ export class MessagesPageComponent implements OnInit {
   }
 
   /** Names a group and picks its members among the reader's followers, then opens it. */
+  /** Writes to one member the reader follows or is followed by: their conversation opens, a new one if none. */
+  newMessage(): void {
+    GroupDialogComponent.open(this.dialog, { title: null, present: [], room: 1, direct: true }).subscribe(choice => {
+      const handle = choice?.handles[0];
+      if (!handle) {
+        return;
+      }
+      this.api.open(handle).subscribe({
+        next: conversation => {
+          this.updated(conversation);
+          void this.router.navigate(['/network/messages', conversation.id]);
+        },
+        error: () => this.notifications.error('network.messages.openError')
+      });
+    });
+  }
+
   newGroup(): void {
     GroupDialogComponent.open(this.dialog, { title: null, present: [], room: GROUP_ROOM }).subscribe(choice => {
       if (!choice) {

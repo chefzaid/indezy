@@ -1,8 +1,11 @@
 // The member network's home: a navigation column, the feed, and members to follow; fewer columns on narrower screens.
 .network-layout {
   display: grid;
-  grid-template-columns: 220px minmax(0, 640px) 300px;
+  // The feed takes the room left between the two side columns, the whole page kept to a readable width.
+  grid-template-columns: 240px minmax(0, 1fr) 320px;
   grid-template-rows: auto auto 1fr;
+  max-width: 1440px;
+  margin: 0 auto;
   grid-template-areas:
     'nav head extra'
     'nav compose extra'
@@ -349,7 +352,7 @@
 // Medium: the feed and the members to follow, the navigation as a row of pills above.
 @media (max-width: 1499.98px) {
   .network-layout {
-    grid-template-columns: minmax(0, 640px) 280px;
+    grid-template-columns: minmax(0, 1fr) 300px;
     grid-template-rows: auto auto auto 1fr;
     grid-template-areas:
       'nav nav'
@@ -366,7 +369,7 @@
 // Narrow: one column, the members to follow as a strip between the composer and the posts.
 @media (max-width: 1099.98px) {
   .network-layout {
-    grid-template-columns: minmax(0, 680px);
+    grid-template-columns: minmax(0, 760px);
     grid-template-rows: none;
     grid-template-areas: 'nav' 'head' 'compose' 'extra' 'feed';
   }

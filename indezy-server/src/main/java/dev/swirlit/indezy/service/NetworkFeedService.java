@@ -76,14 +76,14 @@ public class NetworkFeedService {
 
     /**
      * A tag's posts, from every member the reader can read, but those muted or blocked either way: the newest first, or
-     * the most found useful first.
+     * the most liked first.
      */
     @Transactional(readOnly = true)
-    public NetworkDtos.Posts tagPosts(Long userId, String tag, int page, boolean byUseful) {
+    public NetworkDtos.Posts tagPosts(Long userId, String tag, int page, boolean byLikes) {
         network.requireMember(userId);
         List<Long> left = placeholder(excluded(userId), -1L);
         PageRequest asked = PageRequest.of(Math.max(0, page), NetworkPostService.PAGE_SIZE);
-        return postService.page(byUseful ? posts.tagByUseful(tag, left, asked) : posts.feed(List.of(-1L), List.of(tag), left, asked), userId);
+        return postService.page(byLikes ? posts.tagByLikes(tag, left, asked) : posts.feed(List.of(-1L), List.of(tag), left, asked), userId);
     }
 
     /**

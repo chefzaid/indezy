@@ -16,7 +16,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Group conversations over HTTP: Alice gathers Bob and Carol, who both follow her; everyone writes and reads who wrote;
+ * Group conversations over HTTP: Alice gathers Bob, who follows her, and Carol, whom she follows; everyone writes and reads who wrote;
  * Alice renames the group and adds Dan; Carol leaves and reads it no more.
  */
 class NetworkGroupsIntegrationTest extends TwoAccountsIntegrationTest {
@@ -58,14 +58,14 @@ class NetworkGroupsIntegrationTest extends TwoAccountsIntegrationTest {
         call(bob, HttpMethod.PUT, "/network/members/" + aliceHandle + "/follow", null, Map.class);
         call(dan, HttpMethod.PUT, "/network/members/" + aliceHandle + "/follow", null, Map.class);
 
-        // Every member follows the creator.
+        // Every member follows the creator or is followed by them.
         ResponseEntity<Map> refused = call(alice, HttpMethod.POST, "/network/groups", Map.of("title", "Mission Kafka",
             "handles", List.of(bobHandle, carolHandle)), Map.class);
         assertThat(refused.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        assertThat((String) refused.getBody().get("message")).endsWith("@" + carolHandle + " does not");
+        assertThat((String) refused.getBody().get("message")).endsWith("@" + carolHandle + " is neither");
         assertThat(call(alice, HttpMethod.POST, "/network/groups", Map.of("title", " ", "handles", List.of(bobHandle)), String.class)
             .getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        call(carol, HttpMethod.PUT, "/network/members/" + aliceHandle + "/follow", null, Map.class);
+        call(alice, HttpMethod.PUT, "/network/members/" + carolHandle + "/follow", null, Map.class);
         Map<String, Object> created = call(alice, HttpMethod.POST, "/network/groups", Map.of("title", " Mission Kafka ",
             "handles", List.of(bobHandle, carolHandle, aliceHandle, bobHandle)), Map.class).getBody();
         Object id = created.get("id");
@@ -93,7 +93,7 @@ class NetworkGroupsIntegrationTest extends TwoAccountsIntegrationTest {
             .getContentDisposition().getFilename()).startsWith("conversation-group-" + id + "-");
         assertThat(call(alice, HttpMethod.GET, "/network/conversations/unread", null, Map.class).getBody()).containsEntry("conversations", 1);
 
-        // Only Alice renames the group and adds members, who follow her; outsiders read nothing.
+        // Only Alice renames the group and adds members, who follow her or whom she follows; outsiders read nothing.
         assertThat(call(bob, HttpMethod.PUT, "/network/groups/" + id + "/title", Map.of("title", "À moi"), String.class).getStatusCode())
             .isEqualTo(HttpStatus.CONFLICT);
         assertThat(group(call(alice, HttpMethod.PUT, "/network/groups/" + id + "/title", Map.of("title", "Équipe Kafka"), Map.class).getBody()))

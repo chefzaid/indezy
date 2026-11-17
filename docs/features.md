@@ -238,14 +238,15 @@ filtered by the tags of the posts saved; a post taken off, deleted or from a mem
 original; once the original is gone or out of reach, the repost says so); a post's author turns its reposts off.
 **For you**, the feed's second tab, gathers the posts of the last 30 days from every member the reader can read (but
 their own and those muted), ranked by what they share with the reader (3 points a tag they follow, 2 a tag among the
-skills their card shows, 2 the author in their city) and by the members who found them useful (1 each, 5 at most) and
-liked them (half each, 5 at most), the whole divided by 1 plus a third of the post's age in days.
+skills their card shows, 2 the author in their city) and by the members who reacted to them (1 each, 5 at most), the
+whole divided by 1 plus a third of the post's age in days.
 
-**Useful**, the second reaction meant for questions answered and retours d'expérience, marks another member's post
-once, its count shown, and a tag's page lists its posts **Newest** or **Most useful** first. **Like** a post, once, or no longer; a hover, a long press or the up arrow on **Like** offers the other reactions
+A tag's page lists its posts **Newest** or **Most liked** (whatever the reaction) first. **Like** a post, once, or no
+longer; a hover, a long press or the up arrow on **Like** offers the other reactions
 (❤️ Like, 👏 Bravo, 😄 Funny, 🤝 Support, 😮 Wow), a member keeping one, the latest. The counts line shows the most
-frequent reactions and how many there are, opening who reacted (but members blocked either way). A like, a reaction,
-**Useful** and **Save** show at once, coming back if the server refuses. A member
+frequent reactions and how many there are, opening who reacted (but members blocked either way). A like, a reaction
+and **Save** show at once, coming back if the server refuses. (A third action, **Useful**, said much what Like and its
+reactions say, and Save keeps a post for oneself: it was taken out on 2026-11-17, with what members had marked.) A member
 deletes their own posts, their likes and comments going with them, and they are part of the data export.
 
 A post is of a kind, chosen in the composer, each with its card: a plain **Post**, a **Mission to pass on** (its role,
@@ -287,11 +288,13 @@ block each other, and those of members away from the network, are not shown. Ima
 on the choice of their store.
 
 **Messages** (`/network/messages`, from the network's navigation, counted with the notifications on **Network** in the
-menu) holds one-to-one conversations and groups. **New group** names a group and gathers up to 19 of the reader's
-followers (a group's members all follow its creator), for a collective or a mission team: every member writes in it,
-each message showing who wrote it; its creator renames it and adds members, and anyone leaves it, reading it no more. **Message** on a member's page opens one when the member follows the reader;
-once they stop following, either blocks the other or one leaves the network, the past stays readable but no new message
-goes, the conversation saying why. The list shows each conversation's latest message and how many are unread, the
+menu) holds one-to-one conversations and groups. Messages are open between two members once either follows the other
+(a follow accepted; a request waiting does not count). **New message** picks one member among those the reader follows
+or who follow them and opens their conversation (a new one if none); **Message** on a member's page, or on their tile in
+**Members**, does the same. **New group** names a group and gathers up to 19 of those members, for a collective or a
+mission team: every member writes in it, each message showing who wrote it; its creator renames it and adds members, and
+anyone leaves it, reading it no more. Once neither follows the other any more, either blocks the other or one leaves the
+network, the past stays readable but no new message goes, the conversation saying why. The list shows each conversation's latest message and how many are unread, the
 latest first. New messages, reactions and reads reach the list, the open conversation and the counts on **Network** as
 they happen; while that stream is closed (it opens again by itself), the list is read again every 30 seconds and an
 open conversation every 10. Between two members, **Seen** shows under the latest of the reader's messages the other
@@ -354,11 +357,16 @@ with the moderator's note, under **Latest decisions**, and a sanction is in the 
 comment that looks like spam (see [Security](./security.md#member-network)) is held instead of published, its author
 told so; **Moderation** lists what is held, with why, to **Publish** as its author's or **Reject**.
 
-**Members** on the feed (`/network/members`) is the member directory: the members found by a skill and a city typed in
-its search bar, an availability and remote work picked as chips, 20 a page by last name, as a grid of tiles (the
-member's color, avatar, headline, city, availability and first three skills), each opening the member's page and with
-its own **Follow** (or **Ask to follow** a private card, **Request sent**, **Following**). It searches what each card
-shows only, so a hidden skill or city is never found, and leaves out the viewer and any member either one blocks.
+**Members** on the feed (`/network/members`) has five tabs, the one open kept in the address (`?tab=`). **All members**
+is the member directory: the members found by a skill and a city typed in its search bar, an availability and remote
+work picked as chips, 20 a page by last name, as a grid of tiles (the member's color, avatar, headline, city,
+availability and first three skills), each opening the member's page and with its own **Follow** (or **Ask to follow** a
+private card, **Request sent**, **Following**). It searches what each card shows only, so a hidden skill or city is never
+found, and leaves out the viewer and any member either one blocks. **Following** and **Followers** list the reader's
+follows and followers as the same tiles, **Requests received** the requests to follow their private card (counted on the
+tab) with **Approve** and **Decline**, and **Requests sent** those they wait an answer for, withdrawn from the tile
+(`GET /api/network/follow-requests/sent`). Following goes one way, as on Instagram: there are no friends, and a follow
+counts once accepted (at once for a public card). A tile shows **Message** once either follows the other.
 
 ## Projects And Opportunities
 

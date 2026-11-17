@@ -113,7 +113,7 @@ class NetworkMessagesIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void writesOnlyToAFollowerAndKeepsThePastReadable() {
+    void writesOnceEitherFollowsTheOtherAndKeepsThePastReadable() {
         flags.set(FeatureFlag.SOCIAL_NETWORK, true);
         assertThat(unread(alice)).isEqualTo(0);
         String aliceHandle = join(alice);
@@ -121,10 +121,10 @@ class NetworkMessagesIntegrationTest extends TwoAccountsIntegrationTest {
         Account carol = register("carol");
         join(carol);
 
-        // Open only towards a member who follows the sender, once.
+        // Open once either follows the other (here Bob following Alice), once.
         ResponseEntity<Map> refused = call(alice, HttpMethod.POST, "/network/conversations", Map.of("handle", bobHandle), Map.class);
         assertThat(refused.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        assertThat(refused.getBody()).containsEntry("message", "Messages are open only when the other member follows you");
+        assertThat(refused.getBody()).containsEntry("message", "Messages are open once you follow this member or they follow you");
         assertThat(call(alice, HttpMethod.POST, "/network/conversations", Map.of("handle", aliceHandle), String.class).getStatusCode())
             .isEqualTo(HttpStatus.CONFLICT);
         call(bob, HttpMethod.PUT, "/network/members/" + aliceHandle + "/follow", null, Map.class);
@@ -141,16 +141,14 @@ class NetworkMessagesIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(first).containsEntry("mine", true).containsEntry("text", "Bonjour Bob, une mission Kafka ?").containsEntry("editable", true);
         assertThat(unread(bob)).isEqualTo(1);
         assertThat(list(bob, "")).singleElement().satisfies(found -> {
-            assertThat(found).containsEntry("unread", 1).containsEntry("closed", "NOT_FOLLOWED");
+            assertThat(found).containsEntry("unread", 1).containsEntry("closed", null);
             assertThat((Map<String, Object>) found.get("last")).containsEntry("mine", false).containsEntry("text", "Bonjour Bob, une mission Kafka ?");
         });
         assertThat(messages(bob, conversation)).singleElement().satisfies(message -> assertThat(message).containsEntry("mine", false)
             .containsEntry("editable", false));
         call(bob, HttpMethod.PUT, "/network/conversations/" + conversation + "/read", null, Map.class);
         assertThat(unread(bob)).isEqualTo(0);
-        assertThat(call(bob, HttpMethod.POST, "/network/conversations/" + conversation + "/messages", Map.of("text", "Oui"), String.class)
-            .getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        call(alice, HttpMethod.PUT, "/network/members/" + bobHandle + "/follow", null, Map.class);
+        // Bob writes back too: he follows Alice.
         Map<String, Object> reply = send(bob, conversation, Map.of("text", "Avec plaisir", "replyTo", first.get("id")));
         assertThat((Map<String, Object>) reply.get("replyTo")).containsEntry("mine", false).containsEntry("excerpt", "Bonjour Bob, une mission Kafka ?");
         assertThat(call(bob, HttpMethod.POST, "/network/conversations/" + conversation + "/messages", Map.of("text", "x", "replyTo", 999999999),
@@ -232,5 +230,24 @@ class NetworkMessagesIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(call(bob, HttpMethod.GET, "/network/conversations/" + conversation, null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(unread(bob)).isEqualTo(0);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void writesToAMemberOneFollowsThoughTheyDoNotFollowBack() {
+        flags.set(FeatureFlag.SOCIAL_NETWORK, true);
+        join(alice);
+        String bobHandle = join(bob);
+        assertThat(call(alice, HttpMethod.POST, "/network/conversations", Map.of("handle", bobHandle), String.class).getStatusCode())
+            .isEqualTo(HttpStatus.CONFLICT);
+        call(alice, HttpMethod.PUT, "/network/members/" + bobHandle + "/follow", null, Map.class);
+        ResponseEntity<Map> toBob = call(alice, HttpMethod.POST, "/network/conversations", Map.of("handle", bobHandle), Map.class);
+        assertThat(toBob.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(toBob.getBody()).containsEntry("closed", null);
+        Object conversation = toBob.getBody().get("id");
+        assertThat(send(alice, conversation, Map.of("text", "Bonjour Bob"))).containsEntry("mine", true);
+        // Bob answers: Alice follows him.
+        assertThat(send(bob, conversation, Map.of("text", "Bonjour Alice"))).containsEntry("mine", true);
+        assertThat(list(bob, "")).singleElement().satisfies(found -> assertThat(found).containsEntry("closed", null));
     }
 }

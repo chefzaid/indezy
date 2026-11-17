@@ -5,6 +5,10 @@
         <mat-icon>arrow_back</mat-icon>
       </a>
       <h1>{{ 'network.messages.title' | translate }}</h1>
+      <button mat-icon-button type="button" class="new-message" (click)="newMessage()" [attr.aria-label]="'network.messages.new' | translate"
+        [matTooltip]="'network.messages.new' | translate" data-messages-new>
+        <mat-icon>edit_square</mat-icon>
+      </button>
       <button mat-icon-button type="button" class="new-group" (click)="newGroup()" [attr.aria-label]="'network.groups.new' | translate"
         [matTooltip]="'network.groups.new' | translate" data-messages-new-group>
         <mat-icon>group_add</mat-icon>
