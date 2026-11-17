@@ -1,6 +1,5 @@
 package dev.swirlit.indezy.service;
 
-import dev.swirlit.indezy.constants.ErrorMessages;
 import dev.swirlit.indezy.dto.OfferBoardVisitDto;
 import dev.swirlit.indezy.dto.OfferSiteExclusionDto;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto;
@@ -122,12 +121,9 @@ public class OfferSiteHealthService {
         return new OfferSiteExclusionDto(site, excluded);
     }
 
-    /** Records that the workspace visited a site to visit or a matching service now. */
+    /** Records that the workspace visited one of the sites to visit now. */
     @Transactional
     public OfferBoardVisitDto visit(Long freelanceId, OfferLeftOutSite site) {
-        if (site.getKind() == OfferLeftOutSite.Kind.OTHER) {
-            throw new IllegalArgumentException(String.format(ErrorMessages.OFFER_SITE_NOT_TO_VISIT, site.getDisplayName()));
-        }
         OfferBoardVisit visit = visits.findByFreelanceIdAndSite(freelanceId, site).orElseGet(() -> {
             OfferBoardVisit created = new OfferBoardVisit();
             created.setFreelance(freelances.getReferenceById(freelanceId));

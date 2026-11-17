@@ -84,7 +84,7 @@ public class DashboardStatsService {
             .filter(p -> ProjectStatus.WON.equals(p.getStatus()) && p.getDailyRate() != null)
             .mapToInt(Project::getDailyRate)
             .average();
-        long lostProjects = countWithStatus(projects, ProjectStatus.LOST);
+        long lostProjects = countWithStatus(projects, ProjectStatus.LOST) + countWithStatus(projects, ProjectStatus.WITHDRAWN);
         long activeProjects = totalProjects - wonProjects - lostProjects;
 
         Map<String, Long> projectsByStatus = countsByEnum(ProjectStatus.values(), projects, Project::getStatus);
@@ -96,7 +96,7 @@ public class DashboardStatsService {
             lostReasonsBreakdown.put(reason.name(), 0L);
         }
         projects.stream()
-            .filter(p -> ProjectStatus.LOST.equals(p.getStatus()) && p.getLostReason() != null)
+            .filter(p -> p.getStatus() != null && p.getStatus().isRefused() && p.getLostReason() != null)
             .forEach(p -> lostReasonsBreakdown.merge(p.getLostReason().name(), 1L, Long::sum));
 
         List<DashboardStatsDto.DailyRateRange> dailyRateRanges = buildDailyRateRanges(projects);

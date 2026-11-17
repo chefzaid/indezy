@@ -147,13 +147,16 @@ Deletion rules:
 
 ### Project
 
-- `refused_by` and `lost_reason` only mean something for `LOST`, and `ended_on` and `end_reason` for `WON`: the entity
-  clears them whenever the opportunity leaves that status.
+- A refused opportunity is `LOST` (abandoned by the recruiter) or `WITHDRAWN` (the freelancer withdrew). `refused_by`
+  follows the status (`RECRUITER`, `FREELANCE`; a `LOST` sent with `FREELANCE`, as before the two statuses, becomes
+  `WITHDRAWN`), and with `lost_reason` only means something for those two; `ended_on` and `end_reason` only for `WON`.
+  The entity clears them whenever the opportunity leaves that status.
 - `archived_at` takes the opportunity out of the pipeline without changing its status; clearing it restores it. It is
   set only by the archive actions and the nightly archiving, never by a project update.
 - `board_position` is the manual order within a Kanban column; `tech_stack` holds comma-separated tags, 255
   characters at most.
-- `ProjectStatus` keeps `WON` before `LOST`, the funnel's order; the board shows the refused column first.
+- `ProjectStatus` keeps `WON` before `LOST` and `WITHDRAWN`, the funnel's order; the board shows the refused columns
+  first.
 - The mission's last day is `ended_on`, else its start plus its duration.
 
 ### Contacts
@@ -258,7 +261,10 @@ cannot, each doing nothing once the schema is current, in this order:
    narrows, so stored rows and the version still running during a rollout keep working.
 3. `RefusedByBackfill`: gives refused opportunities without `refused_by` the side their reason tells.
 4. `ReversionRateMigration`: moves an old `reversion_rate` (the share taken) to `reversion_share` (100 less it) and
-   empties the old column.
+   empties the old column. `RetiredSitesCleanup` deletes the sources of job boards Indezy no longer lists (Nexoris)
+   that no opportunity names.
+5. `RefusalStatusMigration`: moves the opportunities refused by the freelancer from `LOST` to `WITHDRAWN`, and says
+   the recruiter refused the other `LOST` ones that did not say who.
 
 `OfferSearchIndex` builds the trigram index, and `JobBoardSourcesBackfill` gives workspaces that lack them the job
 boards as sources once the server is ready. The constraint, index and column runners act on PostgreSQL only.

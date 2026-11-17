@@ -156,7 +156,10 @@ test('checks the job boards, keeps one out of the feed and reads another on requ
   await expect(freeWork.locator('[data-fact="last-success"]')).toHaveText('30 minutes ago');
   await expect(freeWork.locator('[data-fact="collected"]')).toHaveText('40 in 24 h · 210 in 7 days');
   await expect(freeWork.locator('[data-fact="last-run"]')).toHaveText('120 offers, 4 new');
-  await expect(page.locator('[data-left-out="LINKEDIN"]')).toContainText('its robots.txt and user agreement forbid crawling');
+  await expect(page.locator('[data-visit="LINKEDIN"]')).toContainText('Account needed');
+  await expect(page.locator('[data-visit="URBAN_LINKER"]')).toContainText('CDI only');
+  await expect(page.locator('#sites-to-visit')).toContainText('Mostly permanent jobs (CDI)');
+  await expect(page.locator('[data-left-out]')).toHaveCount(0);
   const malt = page.locator('[data-visit="MALT"]');
   await expect(malt).toContainText('Profile, then a call');
   await malt.getByRole('button', { name: 'Mark Malt as visited' }).click();
@@ -193,7 +196,9 @@ test('reads the job boards on a phone (fr)', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Sites à consulter vous-même' })).toBeInViewport();
   await expect(page.locator('[data-site="YEETS"] [data-status]')).toHaveText('En échec');
   await expect(page.locator('[data-site="FREE_WORK"] [data-fact="collected"]')).toHaveText('40 en 24 h · 210 en 7 jours');
-  await expect(page.getByRole('heading', { name: 'Sites écartés' })).toBeVisible();
+  // The permanent-job boards make a group of their own among the sites to visit, carded like the others.
+  await expect(page.getByRole('heading', { name: /^Surtout des CDI/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Sites écartés' })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await settle(page);
   await page.screenshot({ path: test.info().outputPath('offer-sites-fr-mobile.png'), fullPage: true });

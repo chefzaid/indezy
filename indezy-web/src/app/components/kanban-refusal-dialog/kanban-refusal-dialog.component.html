@@ -1,25 +1,16 @@
 <div class="refusal-dialog">
   <h2 mat-dialog-title>
-    <mat-icon>thumb_down</mat-icon>
-    {{ 'kanban.refusalTitle' | translate }}
+    <mat-icon>{{ icons[data.status] }}</mat-icon>
+    {{ 'kanban.refusalTitle.' + data.status | translate }}
   </h2>
 
   <mat-dialog-content>
     <p class="project-role">{{ data.role }}</p>
 
     <form [formGroup]="refusalForm" (ngSubmit)="onConfirm()">
-      <p class="side-label" id="refused-by-label">{{ 'projects.refusedBy.label' | translate }}</p>
-      <mat-radio-group class="sides" formControlName="refusedBy" aria-labelledby="refused-by-label" required>
-        @for (side of sides; track side) {
-          <mat-radio-button [value]="side" [class.by-recruiter]="side === 'RECRUITER'" [attr.data-refused-by-option]="side">
-            {{ 'projects.refusedBy.' + side | translate }}
-          </mat-radio-button>
-        }
-      </mat-radio-group>
-
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>{{ 'projects.lostReason.label' | translate }}</mat-label>
-        <mat-select formControlName="lostReason">
+        <mat-select formControlName="lostReason" data-lost-reason-field>
           <mat-option [value]="null">{{ 'projects.lostReason.none' | translate }}</mat-option>
           @for (reason of lostReasons; track reason) {
             <mat-option [value]="reason">
@@ -35,7 +26,7 @@
     <button mat-button type="button" (click)="onCancel()">
       {{ 'common.cancel' | translate }}
     </button>
-    <button mat-flat-button color="primary" (click)="onConfirm()" [disabled]="refusalForm.invalid">
+    <button mat-flat-button color="primary" (click)="onConfirm()" data-refusal-confirm>
       {{ 'common.confirm' | translate }}
     </button>
   </mat-dialog-actions>

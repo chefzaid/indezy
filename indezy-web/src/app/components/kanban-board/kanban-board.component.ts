@@ -25,7 +25,6 @@ import {
   KanbanRefusalDialogComponent,
   KanbanRefusalDialogData
 } from '../kanban-refusal-dialog/kanban-refusal-dialog.component';
-import { RefusedByBadgeComponent } from '../../shared/components/refused-by-badge/refused-by-badge.component';
 import { ProjectSelectionBarComponent } from '../project-selection-bar/project-selection-bar.component';
 import {
   KanbanBoardDto,
@@ -54,7 +53,6 @@ import { commuteDistance, commuteRange } from '../../shared/utils/trip-time';
     MatTooltipModule,
     MatCheckboxModule,
     ProjectSelectionBarComponent,
-    RefusedByBadgeComponent,
     DragDropModule,
     TranslateModule
 ],
@@ -205,8 +203,8 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
           event.currentIndex
         );
 
-        if (newStatus === ProjectStatus.LOST) {
-          this.promptRefusalAndPersist(card);
+        if (newStatus === ProjectStatus.LOST || newStatus === ProjectStatus.WITHDRAWN) {
+          this.promptRefusalAndPersist(card, newStatus);
         } else {
           this.persistStatusChange(card, newStatus as ProjectStatus);
         }
@@ -214,15 +212,15 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  /** Asks who refused the opportunity, and why, before persisting; reverts the move if cancelled. */
-  private promptRefusalAndPersist(card: KanbanProjectCardDto): void {
-    const dialogData: KanbanRefusalDialogData = { role: card.role };
+  /** Asks why the opportunity was abandoned or withdrawn before persisting; reverts the move if cancelled. */
+  private promptRefusalAndPersist(card: KanbanProjectCardDto, status: ProjectStatus.LOST | ProjectStatus.WITHDRAWN): void {
+    const dialogData: KanbanRefusalDialogData = { role: card.role, status };
     KanbanRefusalDialogComponent.open(this.dialog, dialogData)
       .afterClosed()
       .pipe(takeUntil(this.destroy$))
       .subscribe((refusal?: Refusal) => {
         if (refusal) {
-          this.persistStatusChange(card, ProjectStatus.LOST, refusal);
+          this.persistStatusChange(card, status, refusal);
         } else {
           this.loadKanbanBoard();
         }
@@ -235,7 +233,6 @@ export class KanbanBoardComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe({
         next: () => {
           card.status = newStatus;
-          card.refusedBy = refusal?.refusedBy;
           card.lostReason = refusal?.lostReason;
           this.notificationService.successText(
             `"${card.role}" → ${this.getColumnLabel(newStatus)}`,

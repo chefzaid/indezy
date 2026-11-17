@@ -40,7 +40,6 @@ public final class ErrorMessages {
     public static final String OFFER_DISTANCE_NEEDS_CITY = "Add your city to your profile to filter offers by distance";
     public static final String OFFER_COLLECTION_OFF = "Offer collection is off on this server";
     public static final String OFFER_REFRESH_TOO_SOON = "%s is read on request at most once every 15 minutes, and not while a reading runs";
-    public static final String OFFER_SITE_NOT_TO_VISIT = "%s is not one of the sites to visit";
     public static final String OFFER_LINK_INVALID = "This is not the address of a web page";
     public static final String OFFER_LINK_READS_LIMIT = "Offers are read from their link at most %d times an hour";
     public static final String OFFER_PUBLISHER_NAME_REQUIRED = "A publisher's name needs a letter or a digit";

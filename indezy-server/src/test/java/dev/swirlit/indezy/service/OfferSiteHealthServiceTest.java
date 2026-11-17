@@ -3,6 +3,7 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.dto.OfferBoardVisitDto;
 import dev.swirlit.indezy.dto.OfferSiteExclusionDto;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto;
+import dev.swirlit.indezy.dto.OfferSiteHealthDto.LeftOut;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto.Site;
 import dev.swirlit.indezy.dto.OfferSiteHealthDto.Status;
 import dev.swirlit.indezy.model.Freelance;
@@ -28,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -93,7 +93,10 @@ class OfferSiteHealthServiceTest {
                 assertThat(malt.visitedAt()).isEqualTo(NOW.minus(Duration.ofDays(2)));
             });
         assertThat(health.leftOut()).filteredOn(site -> site.site() == OfferLeftOutSite.LINKEDIN).singleElement()
-            .satisfies(linkedin -> assertThat(linkedin.access()).isNull());
+            .satisfies(linkedin -> assertThat(linkedin.access()).isEqualTo(OfferLeftOutSite.Access.SIGN_IN));
+        assertThat(health.leftOut()).filteredOn(site -> site.kind() == OfferLeftOutSite.Kind.PERMANENT).extracting(LeftOut::site)
+            .containsExactly(OfferLeftOutSite.HELLOWORK, OfferLeftOutSite.WELCOME_TO_THE_JUNGLE, OfferLeftOutSite.URBAN_LINKER,
+                OfferLeftOutSite.BLUECODERS, OfferLeftOutSite.UNLCK, OfferLeftOutSite.KONEKT);
     }
 
     @Test
@@ -137,8 +140,8 @@ class OfferSiteHealthServiceTest {
         assertThat(known.getVisitedAt()).isEqualTo(NOW);
         assertThat(service.clearVisit(3L, OfferLeftOutSite.MALT)).isEqualTo(new OfferBoardVisitDto(OfferLeftOutSite.MALT, null));
         verify(visits).deleteByFreelanceIdAndSite(3L, OfferLeftOutSite.MALT);
-        assertThatThrownBy(() -> service.visit(3L, OfferLeftOutSite.LINKEDIN)).isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("LinkedIn is not one of the sites to visit");
+        when(visits.findByFreelanceIdAndSite(3L, OfferLeftOutSite.KONEKT)).thenReturn(Optional.empty());
+        assertThat(service.visit(3L, OfferLeftOutSite.KONEKT).site()).isEqualTo(OfferLeftOutSite.KONEKT);
         when(visits.findByFreelanceIdOrderBySite(3L)).thenReturn(List.of(known));
         assertThat(service.visits(3L)).containsExactly(new OfferBoardVisitDto(OfferLeftOutSite.OPTEAMIS, NOW));
     }

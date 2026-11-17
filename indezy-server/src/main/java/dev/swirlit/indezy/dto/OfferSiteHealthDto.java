@@ -43,8 +43,8 @@ public record OfferSiteHealthDto(List<Site> sites, List<LeftOut> leftOut, boolea
     }
 
     /**
-     * @param kind      whether it is to visit, a matching service, or left out
-     * @param access    what seeing its missions takes; {@code null} for a site left out
+     * @param kind      whether it is to visit, a matching service, or mostly permanent jobs
+     * @param access    what seeing its missions takes, or which contracts it holds
      * @param visitedAt when the workspace last visited it, if it did
      */
     public record LeftOut(OfferLeftOutSite site, String name, String homeUrl, OfferLeftOutSite.Kind kind, OfferLeftOutSite.Access access,

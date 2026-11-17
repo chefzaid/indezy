@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * LeGratin (Nexoris's mission board): its missions page lists every open mission with its daily rate, context,
+ * LeGratin: its missions page lists every open mission with its daily rate, context,
  * duration and place. Missions are identified by a MongoDB id, whose first four bytes are its creation time.
  */
 @Component

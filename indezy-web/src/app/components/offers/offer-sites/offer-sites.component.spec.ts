@@ -38,7 +38,7 @@ describe('OfferSitesComponent', () => {
         site({ site: 'KOINO', name: 'Koïno', status: 'WAITING', lastRunAt: null, lastSuccessAt: null, nextRunAt: null, lastFound: null,
           newestOfferAt: null, refreshAvailableAt: minutes(10) })
       ],
-      leftOut: [{ site: 'LINKEDIN', name: 'LinkedIn', homeUrl: 'https://www.linkedin.com', kind: 'OTHER' },
+      leftOut: [{ site: 'KONEKT', name: 'Konekt', homeUrl: 'https://www.konekt.fr', kind: 'PERMANENT', access: 'PERMANENT_ONLY' },
         { site: 'MALT', name: 'Malt', homeUrl: 'https://www.malt.fr', kind: 'MATCHING', access: 'PROFILE' }],
       refreshEnabled: true,
       ...overrides
@@ -98,9 +98,9 @@ describe('OfferSitesComponent', () => {
     expect(text(fixture, '[data-site="FREE_WORK"] [data-fact="last-run"]')).toBe('120 offres, dont 4 nouvelles');
     expect(text(fixture, '[data-site="LEHIBOU"] [data-fact="next-run"]')).toBe('Imminente');
     expect(text(fixture, '[data-site="KOINO"] [data-fact="newest"]')).toBe('Aucune');
-    expect(text(fixture, '[data-left-out="LINKEDIN"]')).toContain('LinkedIn son robots.txt');
-    expect(fixture.nativeElement.querySelector('[data-left-out="LINKEDIN"] a').getAttribute('href')).toBe('https://www.linkedin.com');
-    expect(fixture.nativeElement.querySelector('[data-left-out="MALT"]')).toBeNull();
+    // No site is left out any more: the CDI-oriented ones are among the sites to visit.
+    expect(fixture.nativeElement.querySelector('[data-left-out]')).toBeNull();
+    expect(text(fixture, '#sites-to-visit [data-visit="KONEKT"]')).toContain('CDI uniquement');
     expect(text(fixture, '#sites-to-visit [data-visit="MALT"]')).toContain('créez votre profil');
   });
 

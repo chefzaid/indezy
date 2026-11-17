@@ -34,7 +34,7 @@ final class DashboardReminders {
     }
 
     /**
-     * Lists active (in-pipeline, i.e. neither WON nor LOST, nor archived) opportunities whose last update is at
+     * Lists active (in-pipeline, i.e. neither accepted nor refused, nor archived) opportunities whose last update is at
      * least the account's configured inactivity period old, so they can be followed up on or archived before
      * going cold. Most stale first.
      */
@@ -43,7 +43,7 @@ final class DashboardReminders {
         List<DashboardStatsDto.StaleOpportunity> stale = new ArrayList<>();
         for (Project project : projects) {
             ProjectStatus status = project.getStatus();
-            if (status == null || status == ProjectStatus.WON || status == ProjectStatus.LOST ||
+            if (status == null || status == ProjectStatus.WON || status.isRefused() ||
                 project.getUpdatedAt() == null || project.getArchivedAt() != null) {
                 continue;
             }

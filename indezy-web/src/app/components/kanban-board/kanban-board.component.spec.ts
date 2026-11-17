@@ -204,24 +204,23 @@ describe('KanbanBoardComponent', () => {
     } as unknown as CdkDragDrop<KanbanProjectCardDto[]>;
   }
 
-  it('badges who refused each refused card, the recruiter in red and the freelance in orange', () => {
+  it('shows why a card was refused, with no badge, and tells on hover who refuses in each refused column', () => {
     mockProjectService.getKanbanBoard.and.returnValue(of({
       ...mockBoard,
-      columns: { ...mockBoard.columns, [ProjectStatus.LOST]: [
-        { ...mockCard, projectId: 7, status: ProjectStatus.LOST, refusedBy: 'RECRUITER', lostReason: 'NO_RESPONSE' },
-        { ...mockCard, projectId: 8, status: ProjectStatus.LOST, refusedBy: 'FREELANCE' }] },
-      columnOrder: [...mockBoard.columnOrder, ProjectStatus.LOST]
+      columns: { ...mockBoard.columns,
+        [ProjectStatus.LOST]: [{ ...mockCard, projectId: 7, status: ProjectStatus.LOST, refusedBy: 'RECRUITER', lostReason: 'NO_RESPONSE' }],
+        [ProjectStatus.WITHDRAWN]: [{ ...mockCard, projectId: 8, status: ProjectStatus.WITHDRAWN, refusedBy: 'FREELANCE' }] },
+      columnOrder: [...mockBoard.columnOrder, ProjectStatus.LOST, ProjectStatus.WITHDRAWN]
     }));
     fixture.detectChanges();
 
     const card = (id: number) => fixture.nativeElement.querySelector(`[data-project-id="${id}"]`) as HTMLElement;
-    expect(card(7).querySelector('[data-refused-by]')?.getAttribute('data-refused-by')).toBe('RECRUITER');
-    expect(card(7).querySelector('.by-recruiter')).not.toBeNull();
-    expect(card(7).textContent).toContain('projects.refusedBy.badge.RECRUITER');
+    expect(fixture.nativeElement.querySelector('[data-refused-by]')).toBeNull();
     expect(card(7).textContent).toContain('projects.lostReason.NO_RESPONSE');
-    expect(card(8).querySelector('[data-refused-by]')?.getAttribute('data-refused-by')).toBe('FREELANCE');
-    expect(card(8).querySelector('.by-recruiter')).toBeNull();
     expect(card(8).querySelector('.card-lost-reason')).toBeNull();
+    const title = (status: string) => fixture.nativeElement.querySelector(`[data-column-title="${status}"]`) as HTMLElement;
+    expect(title(ProjectStatus.LOST).textContent?.trim()).toBe('projects.statuses.LOST');
+    expect(title(ProjectStatus.WITHDRAWN).textContent?.trim()).toBe('projects.statuses.WITHDRAWN');
   });
 
   describe('Card drag and drop', () => {
@@ -254,22 +253,24 @@ describe('KanbanBoardComponent', () => {
       expect(mockProjectService.getKanbanBoard).toHaveBeenCalledTimes(2);
     });
 
-    it('should ask who refused the card and why, and persist it when dropping into the refused column', () => {
-      spyOn(fixture.debugElement.injector.get(MatDialog), 'open')
-        .and.returnValue({ afterClosed: () => of({ refusedBy: 'FREELANCE', lostReason: 'RATE_TOO_LOW' }) } as MatDialogRef<unknown>);
-      mockProjectService.updateStatus.and.returnValue(of({} as ProjectDto));
-      const card: KanbanProjectCardDto = { ...mockCard };
+    for (const status of [ProjectStatus.LOST, ProjectStatus.WITHDRAWN] as const) {
+      it(`should ask why the card was refused, and persist it when dropping into the ${status} column`, () => {
+        const open = spyOn(fixture.debugElement.injector.get(MatDialog), 'open')
+          .and.returnValue({ afterClosed: () => of({ lostReason: 'RATE_TOO_LOW' }) } as MatDialogRef<unknown>);
+        mockProjectService.updateStatus.and.returnValue(of({} as ProjectDto));
+        const card: KanbanProjectCardDto = { ...mockCard };
 
-      component.onCardDrop(dropEvent(
-        `kanban-col-${ProjectStatus.CONTACT}`,
-        `kanban-col-${ProjectStatus.LOST}`,
-        card
-      ));
+        component.onCardDrop(dropEvent(
+          `kanban-col-${ProjectStatus.CONTACT}`,
+          `kanban-col-${status}`,
+          card
+        ));
 
-      expect(mockProjectService.updateStatus).toHaveBeenCalledWith(42, ProjectStatus.LOST,
-        { refusedBy: 'FREELANCE', lostReason: 'RATE_TOO_LOW' });
-      expect(card).toEqual(jasmine.objectContaining({ status: ProjectStatus.LOST, refusedBy: 'FREELANCE', lostReason: 'RATE_TOO_LOW' }));
-    });
+        expect(open.calls.mostRecent().args[1]?.data).toEqual({ role: mockCard.role, status });
+        expect(mockProjectService.updateStatus).toHaveBeenCalledWith(42, status, { lostReason: 'RATE_TOO_LOW' });
+        expect(card).toEqual(jasmine.objectContaining({ status, lostReason: 'RATE_TOO_LOW' }));
+      });
+    }
 
     it('should revert the move when the refusal prompt is cancelled', () => {
       spyOn(fixture.debugElement.injector.get(MatDialog), 'open')

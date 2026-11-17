@@ -120,12 +120,12 @@ public class Project extends BaseEntity {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
-    /** Who refused the opportunity, the freelance or the recruiter; only meaningful when status is LOST. */
+    /** Who refused the opportunity, as its status says: the recruiter when LOST, the freelance when WITHDRAWN. */
     @Enumerated(EnumType.STRING)
     @Column(name = "refused_by")
     private RefusedBy refusedBy;
 
-    /** Why the opportunity was refused, when it was said; only meaningful when status is LOST. */
+    /** Why the opportunity was refused, when it was said; only meaningful when it was refused. */
     @Enumerated(EnumType.STRING)
     @Column(name = "lost_reason")
     private LostReason lostReason;
@@ -221,11 +221,19 @@ public class Project extends BaseEntity {
     }
 
     /**
-     * Keeps what only one outcome says: who refused and why for a refused opportunity, the end of the mission for a won
-     * one. Called once the status is set.
+     * Keeps what only one outcome says: why for a refused opportunity, the end of the mission for a won one; and who
+     * refused, which the status tells: abandoned by the recruiter, withdrawn by the freelance (a refusal sent as abandoned
+     * by the freelance, as before the two statuses, is withdrawn). Called once the status is set.
      */
     public void clearOtherOutcomes() {
-        if (status != ProjectStatus.LOST) {
+        if (status == ProjectStatus.LOST && refusedBy == RefusedBy.FREELANCE) {
+            status = ProjectStatus.WITHDRAWN;
+        }
+        if (status == ProjectStatus.LOST) {
+            refusedBy = RefusedBy.RECRUITER;
+        } else if (status == ProjectStatus.WITHDRAWN) {
+            refusedBy = RefusedBy.FREELANCE;
+        } else {
             refusedBy = null;
             lostReason = null;
         }

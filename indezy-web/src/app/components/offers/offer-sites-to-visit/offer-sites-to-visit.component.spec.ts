@@ -19,7 +19,9 @@ describe('OfferSitesToVisitComponent', () => {
     { site: 'HITECHPROS', name: 'HiTechPros', homeUrl: 'https://www.hitechpros.com', kind: 'VISIT', access: 'MEMBERSHIP' },
     { site: 'OPTEAMIS', name: 'Opteamis', homeUrl: 'https://www.opteamis.com', kind: 'VISIT', access: 'SIGN_IN', visitedAt: twoDaysAgo },
     { site: 'MALT', name: 'Malt', homeUrl: 'https://www.malt.fr', kind: 'MATCHING', access: 'PROFILE' },
-    { site: 'LINKEDIN', name: 'LinkedIn', homeUrl: 'https://www.linkedin.com', kind: 'OTHER' }
+    { site: 'WELCOME_TO_THE_JUNGLE', name: 'Welcome to the Jungle', homeUrl: 'https://www.welcometothejungle.com', kind: 'PERMANENT',
+      access: 'MOSTLY_PERMANENT' },
+    { site: 'URBAN_LINKER', name: 'Urban Linker', homeUrl: 'https://urbanlinker.com', kind: 'PERMANENT', access: 'PERMANENT_ONLY' }
   ];
 
   function create(): ComponentFixture<OfferSitesToVisitComponent> {
@@ -45,15 +47,18 @@ describe('OfferSitesToVisitComponent', () => {
     return ((fixture.nativeElement as HTMLElement).querySelector(selector) as HTMLElement).innerText.replace(/\s+/g, ' ').trim();
   }
 
-  it('groups the sites to see in person and the matching services, with what each takes', () => {
+  it('groups the sites to see in person, the matching services and the CDI-oriented sites, with what each takes', () => {
     const fixture = create();
     const headings = Array.from(fixture.nativeElement.querySelectorAll('h3') as NodeListOf<HTMLElement>).map(heading => heading.innerText);
 
-    expect(headings).toEqual(['Missions à consulter en personne', 'Services de mise en relation : créez votre profil une fois, ils vous appellent']);
+    expect(headings).toEqual(['Missions à consulter en personne', 'Services de mise en relation : créez votre profil une fois, ils vous appellent',
+      'Surtout des CDI : utiles si vous cherchez aussi un poste salarié']);
     expect(text(fixture, '[data-visit="HITECHPROS"] [data-access]')).toBe('Abonnement payant');
     expect(text(fixture, '[data-visit="OPTEAMIS"]')).toContain('Consulté avant-hier');
     expect(text(fixture, '[data-visit="MALT"]')).toContain('Pas encore consulté');
-    expect(fixture.nativeElement.querySelector('[data-visit="LINKEDIN"]')).toBeNull();
+    expect(text(fixture, '[data-visit="WELCOME_TO_THE_JUNGLE"] [data-access]')).toBe('Surtout du CDI');
+    expect(text(fixture, '[data-visit="WELCOME_TO_THE_JUNGLE"]')).toContain('surtout en CDI');
+    expect(text(fixture, '[data-visit="URBAN_LINKER"] [data-access]')).toBe('CDI uniquement');
     expect(fixture.nativeElement.querySelector('[data-visit="MALT"] a').getAttribute('href')).toBe('https://www.malt.fr');
   });
 

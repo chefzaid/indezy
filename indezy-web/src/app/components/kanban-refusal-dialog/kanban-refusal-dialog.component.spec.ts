@@ -4,6 +4,8 @@ import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { ProjectStatus } from '../../models/project.models';
+
 import {
   KanbanRefusalDialogComponent,
   KanbanRefusalDialogData
@@ -14,9 +16,10 @@ describe('KanbanRefusalDialogComponent', () => {
   let fixture: ComponentFixture<KanbanRefusalDialogComponent>;
   let mockDialogRef: jasmine.SpyObj<MatDialogRef<KanbanRefusalDialogComponent>>;
 
-  const mockData: KanbanRefusalDialogData = { role: 'Backend Developer' };
+  let mockData: KanbanRefusalDialogData;
 
-  beforeEach(async () => {
+  async function create(status: ProjectStatus.LOST | ProjectStatus.WITHDRAWN): Promise<HTMLElement> {
+    mockData = { role: 'Backend Developer', status };
     mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
 
     await TestBed.configureTestingModule({
@@ -36,47 +39,50 @@ describe('KanbanRefusalDialogComponent', () => {
     fixture = TestBed.createComponent(KanbanRefusalDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+    return fixture.nativeElement;
+  }
 
-  it('should offer both sides, the recruiter first, and the full list of reasons', () => {
-    expect(component.sides).toEqual(['RECRUITER', 'FREELANCE']);
+  it('asks only why, the side being the column it was dropped on, with the full list of reasons', async () => {
+    const element = await create(ProjectStatus.LOST);
     expect(component.lostReasons.length).toBe(7);
-    const options = (fixture.nativeElement as HTMLElement).querySelectorAll('[data-refused-by-option]');
-    expect(Array.from(options).map(option => option.getAttribute('data-refused-by-option'))).toEqual(['RECRUITER', 'FREELANCE']);
+    expect(element.querySelector('h2')?.textContent).toContain('kanban.refusalTitle.LOST');
+    expect(element.querySelector('h2 mat-icon')?.textContent).toBe('thumb_down');
+    expect(element.querySelector('mat-radio-group')).toBeNull();
+    expect(element.querySelector('[data-lost-reason-field]')).not.toBeNull();
   });
 
-  it('should not close while nobody is said to have refused', () => {
-    component.refusalForm.setValue({ refusedBy: null, lostReason: 'NO_RESPONSE' });
+  it('titles a withdrawal as one', async () => {
+    const element = await create(ProjectStatus.WITHDRAWN);
+    expect(element.querySelector('h2')?.textContent).toContain('kanban.refusalTitle.WITHDRAWN');
+    expect(element.querySelector('h2 mat-icon')?.textContent).toBe('back_hand');
+  });
+
+  it('should close with why on confirm', async () => {
+    await create(ProjectStatus.LOST);
+    component.refusalForm.setValue({ lostReason: 'NO_RESPONSE' });
 
     component.onConfirm();
 
-    expect(mockDialogRef.close).not.toHaveBeenCalled();
+    expect(mockDialogRef.close).toHaveBeenCalledWith({ lostReason: 'NO_RESPONSE' });
   });
 
-  it('should close with who refused and why on confirm', () => {
-    component.refusalForm.setValue({ refusedBy: 'RECRUITER', lostReason: 'NO_RESPONSE' });
+  it('should close without a reason, the reason being optional', async () => {
+    await create(ProjectStatus.WITHDRAWN);
 
     component.onConfirm();
 
-    expect(mockDialogRef.close).toHaveBeenCalledWith({ refusedBy: 'RECRUITER', lostReason: 'NO_RESPONSE' });
+    expect(mockDialogRef.close).toHaveBeenCalledWith({});
   });
 
-  it('should close with who refused alone, the reason being optional', () => {
-    component.refusalForm.setValue({ refusedBy: 'FREELANCE', lostReason: null });
-
-    component.onConfirm();
-
-    expect(mockDialogRef.close).toHaveBeenCalledWith({ refusedBy: 'FREELANCE' });
-  });
-
-  it('should close with no value on cancel', () => {
+  it('should close with no value on cancel', async () => {
+    await create(ProjectStatus.LOST);
     component.onCancel();
     expect(mockDialogRef.close).toHaveBeenCalledWith();
   });
 
   it('opens focused on the dialog itself, so the Enter that opened it cannot open the reason select', () => {
     const dialog = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
-    const data: KanbanRefusalDialogData = { role: 'Tech Lead' };
+    const data: KanbanRefusalDialogData = { role: 'Tech Lead', status: ProjectStatus.WITHDRAWN };
 
     KanbanRefusalDialogComponent.open(dialog, data);
 

@@ -75,7 +75,7 @@ class ProjectBoardServiceTest extends ProjectServiceTestSupport {
 
         // Then
         assertThat(board.getColumnOrder()).containsExactly(
-                "CONTACT", "INTERVIEW", "OFFER", "LOST", "WON");
+                "CONTACT", "INTERVIEW", "OFFER", "LOST", "WITHDRAWN", "WON");
         assertThat(board.getColumns().get("INTERVIEW")).hasSize(1);
         assertThat(board.getColumns().get("CONTACT")).hasSize(1); // null status defaults to CONTACT
 

@@ -87,11 +87,16 @@ class ProjectBulkUpdateIntegrationTest {
         assertThat(rows("status", "refused_by", "lost_reason").get(0))
             .isEqualTo(Map.of("STATUS", "LOST", "REFUSED_BY", "RECRUITER", "LOST_REASON", "NO_RESPONSE"));
 
-        // The reason is optional.
+        // The reason is optional; refused by the freelance, as before the two statuses, is withdrawn.
         bulk("""
             {"projectIds": [2], "action": "STATUS", "status": "LOST", "refusedBy": "FREELANCE"}""")
             .andExpect(status().isOk());
-        assertThat(rows("status", "refused_by", "lost_reason").get(1)).isEqualTo(Map.of("STATUS", "LOST", "REFUSED_BY", "FREELANCE"));
+        assertThat(rows("status", "refused_by", "lost_reason").get(1)).isEqualTo(Map.of("STATUS", "WITHDRAWN", "REFUSED_BY", "FREELANCE"));
+        bulk("""
+            {"projectIds": [3], "action": "STATUS", "status": "WITHDRAWN", "lostReason": "ACCEPTED_OTHER_OFFER"}""")
+            .andExpect(status().isOk());
+        assertThat(rows("status", "refused_by", "lost_reason").get(2))
+            .isEqualTo(Map.of("STATUS", "WITHDRAWN", "REFUSED_BY", "FREELANCE", "LOST_REASON", "ACCEPTED_OTHER_OFFER"));
     }
 
     @Test

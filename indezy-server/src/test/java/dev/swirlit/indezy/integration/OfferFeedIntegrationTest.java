@@ -329,7 +329,15 @@ class OfferFeedIntegrationTest extends OfferIntegrationTestSupport {
         assertThat(leftOut(call(alice, HttpMethod.GET, "/offers/sites/health", null), "MALT")).containsEntry("kind", "MATCHING")
             .containsEntry("access", "PROFILE").containsKey("visitedAt");
         assertThat(leftOut(call(bob, HttpMethod.GET, "/offers/sites/health", null), "MALT").get("visitedAt")).isNull();
-        assertThat(call(alice, HttpMethod.PUT, "/offers/sites/left-out/LINKEDIN/visit", null).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        // Every site is one to visit now, the CDI-oriented ones included; Nexoris is gone.
+        assertThat(call(alice, HttpMethod.PUT, "/offers/sites/left-out/LINKEDIN/visit", null).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(leftOut(call(alice, HttpMethod.GET, "/offers/sites/health", null), "LINKEDIN")).containsEntry("kind", "VISIT")
+            .containsEntry("access", "SIGN_IN");
+        assertThat(leftOut(call(alice, HttpMethod.GET, "/offers/sites/health", null), "KONEKT")).containsEntry("kind", "PERMANENT")
+            .containsEntry("access", "PERMANENT_ONLY");
+        assertThat(leftOut(call(alice, HttpMethod.GET, "/offers/sites/health", null), "HELLOWORK")).containsEntry("kind", "PERMANENT")
+            .containsEntry("access", "MOSTLY_PERMANENT");
+        assertThat(call(alice, HttpMethod.PUT, "/offers/sites/left-out/NEXORIS/visit", null).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         call(alice, HttpMethod.DELETE, "/offers/sites/left-out/MALT/visit", null);
         assertThat(leftOut(call(alice, HttpMethod.GET, "/offers/sites/health", null), "MALT").get("visitedAt")).isNull();
     }

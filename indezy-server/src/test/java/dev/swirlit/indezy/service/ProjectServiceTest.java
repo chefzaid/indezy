@@ -333,12 +333,21 @@ class ProjectServiceTest extends ProjectServiceTestSupport {
         when(projectMapper.toDto(testProject)).thenReturn(testProjectDto);
 
         // When
-        projectService.updateStatus(1L, ProjectStatus.LOST, RefusedBy.FREELANCE, LostReason.RATE_TOO_LOW);
+        projectService.updateStatus(1L, ProjectStatus.WITHDRAWN, null, LostReason.RATE_TOO_LOW);
 
-        // Then
-        assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.LOST);
+        // Then: withdrawn says the freelance refused, and the reason stays.
+        assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.WITHDRAWN);
         assertThat(testProject.getRefusedBy()).isEqualTo(RefusedBy.FREELANCE);
         assertThat(testProject.getLostReason()).isEqualTo(LostReason.RATE_TOO_LOW);
+
+        // Abandoned says the recruiter did; abandoned by the freelance, as clients sent it before, is withdrawn.
+        projectService.updateStatus(1L, ProjectStatus.LOST, null, LostReason.NO_RESPONSE);
+        assertThat(testProject.getRefusedBy()).isEqualTo(RefusedBy.RECRUITER);
+        projectService.updateStatus(1L, ProjectStatus.LOST, RefusedBy.FREELANCE, null);
+        assertThat(testProject.getStatus()).isEqualTo(ProjectStatus.WITHDRAWN);
+        projectService.updateStatus(1L, ProjectStatus.OFFER, RefusedBy.FREELANCE, LostReason.OTHER);
+        assertThat(testProject.getRefusedBy()).isNull();
+        assertThat(testProject.getLostReason()).isNull();
     }
 
     @Test

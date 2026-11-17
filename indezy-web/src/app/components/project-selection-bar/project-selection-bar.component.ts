@@ -68,12 +68,12 @@ export class ProjectSelectionBarComponent implements OnInit {
   }
 
   moveTo(status: ProjectStatus): void {
-    if (status !== ProjectStatus.LOST) {
+    if (status !== ProjectStatus.LOST && status !== ProjectStatus.WITHDRAWN) {
       this.apply({ action: 'STATUS', status });
       return;
     }
     const role = this.translate.instant('kanban.selection.lostRole', { count: this.projectIds.length });
-    KanbanRefusalDialogComponent.open(this.dialog, { role }).afterClosed().subscribe((refusal?: Refusal) => {
+    KanbanRefusalDialogComponent.open(this.dialog, { role, status }).afterClosed().subscribe((refusal?: Refusal) => {
       if (refusal) {
         this.apply({ action: 'STATUS', status, ...refusal });
       }

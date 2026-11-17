@@ -2,24 +2,39 @@ import { PurchaseOrderAlert } from './purchase-order.models';
 import { ExpiringDocument } from './compliance.models';
 // Project related interfaces and types
 
-/** The pipeline stages in the order of the Kanban columns: a refused opportunity's column comes before the accepted one's. */
+/**
+ * The pipeline stages in the order of the Kanban columns: the refused opportunities' columns come before the accepted
+ * one's. A refused opportunity is abandoned by the recruiter (LOST) or withdrawn by the freelance (WITHDRAWN).
+ */
 export enum ProjectStatus {
   CONTACT = 'CONTACT',
   INTERVIEW = 'INTERVIEW',
   OFFER = 'OFFER',
   LOST = 'LOST',
+  WITHDRAWN = 'WITHDRAWN',
   WON = 'WON'
+}
+
+/** Whether a status says the opportunity was refused, by the recruiter or by the freelance. */
+export function isRefusedStatus(status?: ProjectStatus | string | null): boolean {
+  return status === ProjectStatus.LOST || status === ProjectStatus.WITHDRAWN;
+}
+
+/** Whether an opportunity's pipeline is over: accepted or refused. */
+export function isClosedStatus(status?: ProjectStatus | string | null): boolean {
+  return status === ProjectStatus.WON || isRefusedStatus(status);
 }
 
 /**
  * Pipeline stage colors, dark enough to carry white text in status pills (4.5:1 contrast at least). A lost
- * opportunity is a muted rose, not an alarm red: losing one is part of the pipeline, not an error.
+ * opportunity is a muted rose, a withdrawn one a slate, not an alarm red: losing one is part of the pipeline, not an error.
  */
 export const PROJECT_STATUS_COLORS: { [key in ProjectStatus]: string } = {
   [ProjectStatus.CONTACT]: '#2563eb',
   [ProjectStatus.INTERVIEW]: '#b45309',
   [ProjectStatus.OFFER]: '#7c3aed',
   [ProjectStatus.LOST]: '#8f5a68',
+  [ProjectStatus.WITHDRAWN]: '#5b6475',
   [ProjectStatus.WON]: '#15803d'
 };
 
@@ -28,6 +43,7 @@ export const PROJECT_STATUS_ICONS: { [key in ProjectStatus]: string } = {
   [ProjectStatus.INTERVIEW]: 'groups',
   [ProjectStatus.OFFER]: 'handshake',
   [ProjectStatus.LOST]: 'thumb_down',
+  [ProjectStatus.WITHDRAWN]: 'back_hand',
   [ProjectStatus.WON]: 'emoji_events'
 };
 
@@ -65,14 +81,11 @@ export interface KanbanProjectCardDto {
 
 export type WorkMode = 'REMOTE' | 'ONSITE' | 'HYBRID';
 
-/** Who turned a refused opportunity down: the freelance, or the recruiter (the client or the ESN). */
+/** Who turned a refused opportunity down, which its status tells: the freelance, or the recruiter (the client or the ESN). */
 export type RefusedBy = 'FREELANCE' | 'RECRUITER';
 
-export const REFUSED_BY: RefusedBy[] = ['RECRUITER', 'FREELANCE'];
-
-/** Who refused an opportunity, and why when it was said. */
+/** Why an opportunity was refused, when it was said; who refused it is its status. */
 export interface Refusal {
-  refusedBy: RefusedBy;
   lostReason?: LostReason;
 }
 
@@ -394,8 +407,7 @@ export interface ProjectBulkUpdate {
   projectIds: number[];
   action: 'STATUS' | 'SOURCE' | 'TAG' | 'ARCHIVE' | 'DELETE';
   status?: ProjectStatus;
-  /** Who refused them, and why when it was said, when moved to LOST. */
-  refusedBy?: RefusedBy;
+  /** Why they were refused, when it was said, when moved to LOST or WITHDRAWN. */
   lostReason?: LostReason;
   sourceId?: number;
   /** The tag added to their tech stack. */

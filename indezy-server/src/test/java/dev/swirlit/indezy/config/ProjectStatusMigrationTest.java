@@ -28,6 +28,6 @@ class ProjectStatusMigrationTest {
 
         assertThat(ProjectStatusMigration.isUpToDate(rebuilt)).isTrue();
         assertThat(ProjectStatusMigration.allowedValues())
-            .isEqualTo("'CONTACT', 'INTERVIEW', 'OFFER', 'WON', 'LOST'");
+            .isEqualTo("'CONTACT', 'INTERVIEW', 'OFFER', 'WON', 'LOST', 'WITHDRAWN'");
     }
 }

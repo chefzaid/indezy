@@ -41,12 +41,9 @@ export class ProjectService {
     return this.http.delete<void>(`${this.API_URL}/${id}`);
   }
 
-  /** Moves an opportunity to another stage, saying who refused it and why when it goes to LOST. */
+  /** Moves an opportunity to another stage, saying why when it is refused (abandoned or withdrawn). */
   updateStatus(id: number, status: ProjectStatus, refusal?: Refusal): Observable<ProjectDto> {
     let params = new HttpParams().set('status', status);
-    if (refusal) {
-      params = params.set('refusedBy', refusal.refusedBy);
-    }
     if (refusal?.lostReason) {
       params = params.set('lostReason', refusal.lostReason);
     }

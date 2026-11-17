@@ -1,21 +1,22 @@
 import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { LostReason, LOST_REASONS, Refusal, RefusedBy, REFUSED_BY } from '../../models/project.models';
+import { LostReason, LOST_REASONS, PROJECT_STATUS_ICONS, ProjectStatus, Refusal } from '../../models/project.models';
 
 export interface KanbanRefusalDialogData {
   role: string;
+  /** Abandoned by the recruiter (LOST) or withdrawn by the freelance (WITHDRAWN): who refused is the status. */
+  status: ProjectStatus.LOST | ProjectStatus.WITHDRAWN;
 }
 
-/** Asks who refused an opportunity, the recruiter or the freelance, and why if they want to say; closes with the refusal. */
+/** Asks why an opportunity was abandoned or withdrawn, if they want to say; closes with the refusal. */
 @Component({
   selector: 'app-kanban-refusal-dialog',
   imports: [
@@ -23,7 +24,6 @@ export interface KanbanRefusalDialogData {
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
-    MatRadioModule,
     MatSelectModule,
     MatIconModule,
     TranslateModule
@@ -41,7 +41,7 @@ export class KanbanRefusalDialogComponent {
     return dialog.open(KanbanRefusalDialogComponent, { data, autoFocus: 'dialog' });
   }
 
-  readonly sides = REFUSED_BY;
+  readonly icons = PROJECT_STATUS_ICONS;
   readonly lostReasons = LOST_REASONS;
   refusalForm: FormGroup;
 
@@ -51,16 +51,13 @@ export class KanbanRefusalDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: KanbanRefusalDialogData
   ) {
     this.refusalForm = this.fb.group({
-      refusedBy: [null as RefusedBy | null, Validators.required],
       lostReason: [null as LostReason | null]
     });
   }
 
   onConfirm(): void {
-    if (this.refusalForm.valid) {
-      const { refusedBy, lostReason } = this.refusalForm.value;
-      this.dialogRef.close(lostReason ? { refusedBy, lostReason } : { refusedBy });
-    }
+    const { lostReason } = this.refusalForm.value;
+    this.dialogRef.close(lostReason ? { lostReason } : {});
   }
 
   onCancel(): void {

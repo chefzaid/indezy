@@ -59,10 +59,7 @@
             }
             <span class="subtitle-sep">•</span>
             <span>{{ project.dailyRate | number:'1.0-0' }} €{{ 'common.perDay' | translate }}</span>
-            @if (project.status === 'LOST' && project.refusedBy) {
-              <app-refused-by-badge [refusedBy]="project.refusedBy"></app-refused-by-badge>
-            }
-            @if (project.status === 'LOST' && project.lostReason) {
+            @if (refused(project.status) && project.lostReason) {
               <span class="subtitle-sep">•</span>
               <span class="lost-reason">{{ 'projects.lostReason.' + project.lostReason | translate }}</span>
             }
@@ -89,7 +86,7 @@
           <app-project-email-button [project]="project"></app-project-email-button>
           <app-mission-end-action [project]="project" (changed)="project = $event"></app-mission-end-action>
           <app-project-archive-action [project]="project" (changed)="project = $event"></app-project-archive-action>
-          @if (project.status === 'LOST') {
+          @if (refused(project.status)) {
             <app-share-to-network [build]="networkShare"></app-share-to-network>
           } @else if (project.status === 'WON') {
             <app-share-to-network [build]="signedShare"></app-share-to-network>

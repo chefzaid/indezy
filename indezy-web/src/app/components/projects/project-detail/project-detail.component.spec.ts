@@ -153,13 +153,12 @@ describe('ProjectDetailComponent', () => {
     expect(fixture.componentInstance.calculateTotalRevenue()).toBe(0);
   });
 
-  it('shows who refused an opportunity, and why', () => {
-    const fixture = create({ ...mission, status: ProjectStatus.LOST, refusedBy: 'FREELANCE', lostReason: 'RATE_TOO_LOW' });
+  it('shows why an opportunity was withdrawn, with no badge, its status saying who refused', () => {
+    const fixture = create({ ...mission, status: ProjectStatus.WITHDRAWN, refusedBy: 'FREELANCE', lostReason: 'RATE_TOO_LOW' });
 
     expect(text(fixture)).toContain('projects.lostReason.RATE_TOO_LOW');
-    const badge = fixture.nativeElement.querySelector('[data-refused-by]') as HTMLElement;
-    expect(badge.getAttribute('data-refused-by')).toBe('FREELANCE');
-    expect(badge.textContent).toContain('projects.refusedBy.badge.FREELANCE');
+    expect(fixture.nativeElement.querySelector('[data-refused-by]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-share-to-network')).not.toBeNull();
   });
 
   it('goes back to the list of a project that does not exist', () => {
@@ -210,7 +209,7 @@ describe('ProjectDetailComponent', () => {
     fixture.detectChanges();
 
     const items = document.querySelectorAll('.mat-mdc-menu-panel button[mat-menu-item]');
-    expect(items.length).toBe(5);
+    expect(items.length).toBe(6);
   });
 
   describe('status', () => {
@@ -229,29 +228,32 @@ describe('ProjectDetailComponent', () => {
       expect(text(fixture)).toContain('projects.statuses.OFFER');
     });
 
-    it('asks who refused the opportunity and why', () => {
+    it('asks why the opportunity was abandoned', () => {
       const fixture = create();
       const component = fixture.componentInstance;
-      dialog.open.and.returnValue(closingWith({ refusedBy: 'RECRUITER', lostReason: 'POSITION_FILLED' }));
+      dialog.open.and.returnValue(closingWith({ lostReason: 'POSITION_FILLED' }));
       projectService.updateStatus.and.returnValue(of({ ...mission, status: ProjectStatus.LOST,
         refusedBy: 'RECRUITER', lostReason: 'POSITION_FILLED' }));
 
       component.changeStatus(ProjectStatus.LOST);
 
       expect(dialog.open).toHaveBeenCalledWith(KanbanRefusalDialogComponent, jasmine.objectContaining({
-        data: { role: 'Développeur Java' }
+        data: { role: 'Développeur Java', status: ProjectStatus.LOST }
       }));
-      expect(projectService.updateStatus).toHaveBeenCalledWith(12, ProjectStatus.LOST,
-        { refusedBy: 'RECRUITER', lostReason: 'POSITION_FILLED' });
+      expect(projectService.updateStatus).toHaveBeenCalledWith(12, ProjectStatus.LOST, { lostReason: 'POSITION_FILLED' });
       expect(component.project?.refusedBy).toBe('RECRUITER');
       expect(component.project?.lostReason).toBe('POSITION_FILLED');
     });
 
-    it('keeps the stage when the refusal dialog is cancelled', () => {
+    it('asks why the freelance withdraws too, and keeps the stage when the dialog is cancelled', () => {
       const component = create().componentInstance;
       dialog.open.and.returnValue(closingWith(undefined));
 
-      component.changeStatus(ProjectStatus.LOST);
+      component.changeStatus(ProjectStatus.WITHDRAWN);
+
+      expect(dialog.open).toHaveBeenCalledWith(KanbanRefusalDialogComponent, jasmine.objectContaining({
+        data: { role: 'Développeur Java', status: ProjectStatus.WITHDRAWN }
+      }));
 
       expect(projectService.updateStatus).not.toHaveBeenCalled();
     });

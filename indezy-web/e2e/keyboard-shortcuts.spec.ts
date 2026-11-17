@@ -26,7 +26,7 @@ for (const language of ['en', 'fr']) {
     });
     await page.route('**/api/projects/stats/dashboard/1*', route => route.fulfill({ json: emptyDashboardStats }));
     await page.route('**/api/projects/kanban/1*', route => route.fulfill({ json: {
-      columnOrder: ['CONTACT', 'INTERVIEW', 'OFFER', 'LOST', 'WON'],
+      columnOrder: ['CONTACT', 'INTERVIEW', 'OFFER', 'LOST', 'WITHDRAWN', 'WON'],
       columns: { [project.status]: [{ ...project, projectId: project.id }] }
     } }));
 
@@ -72,7 +72,7 @@ for (const language of ['en', 'fr']) {
     await expect(page.locator('[data-project-status]')).toBeEnabled();
     await expect(page.locator('[data-project-status]')).toContainText(language === 'en' ? 'Offer' : 'Offre');
     await page.keyboard.press('Alt+Shift+KeyM');
-    await page.getByRole('menuitem', { name: language === 'en' ? 'Declined' : 'Refusé', exact: true }).focus();
+    await page.getByRole('menuitem', { name: language === 'en' ? 'Abandoned' : 'Abandonné', exact: true }).focus();
     await page.keyboard.press('Enter');
     const refusal = page.getByRole('dialog');
     await expect(refusal).toBeVisible();

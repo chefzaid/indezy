@@ -39,7 +39,8 @@
   // The stage colour drawn on the column: its icon only, so the cards hold the eye.
   --column-tone: var(--column-color);
   flex: 1 1 0;
-  min-width: 172px;
+  // Wide enough for the longest one-word stage ("Abandonné", "Withdrawn") beside its icon, add button and count.
+  min-width: 188px;
   max-width: 320px;
   background-color: var(--app-subtle);
   border-radius: 10px;
@@ -66,6 +67,8 @@
       font-size: 18px;
       width: 18px;
       height: 18px;
+      // A long single-word title ("Abandonné") must not squeeze the column's icon away.
+      flex-shrink: 0;
       color: var(--column-tone);
     }
 

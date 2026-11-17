@@ -90,7 +90,7 @@
   },
   "archive": {
     "title": "Archive",
-    "subtitle": "Your past opportunities (accepted and declined) and the ones taken out of the pipeline",
+    "subtitle": "Your past opportunities (accepted, abandoned or withdrawn) and the ones taken out of the pipeline",
     "search": "Search",
     "searchPlaceholder": "Role, tech stack, client, notes...",
     "empty": "No matching opportunities",
@@ -172,7 +172,7 @@
       "dailyRateDistribution": "Daily Rate Distribution",
       "projects": "Projects",
       "won": "Accepted",
-      "lost": "Declined",
+      "lost": "Abandoned or withdrawn",
       "active": "Active",
       "lostReasons": "Why opportunities were declined",
       "sourceRoi": "Source ROI (signed contracts)",
@@ -451,15 +451,6 @@
       "ACCEPTED_OTHER_OFFER": "Accepted another offer",
       "OTHER": "Other"
     },
-    "refusedBy": {
-      "label": "Declined by",
-      "RECRUITER": "The recruiter",
-      "FREELANCE": "Me",
-      "badge": {
-        "RECRUITER": "Declined by the recruiter",
-        "FREELANCE": "Declined by me"
-      }
-    },
     "detail": {
       "loading": "Loading project...",
       "projectInfo": "Project information",
@@ -489,8 +480,17 @@
       "CONTACT": "Contact",
       "INTERVIEW": "Tests & Interviews",
       "OFFER": "Offer",
-      "WON": "Accepted",
-      "LOST": "Declined"
+      "LOST": "Abandoned",
+      "WITHDRAWN": "Withdrawn",
+      "WON": "Accepted"
+    },
+    "statusHints": {
+      "CONTACT": "First exchange with the recruiter",
+      "INTERVIEW": "Tests and interviews under way",
+      "OFFER": "An offer is on the table",
+      "LOST": "Declined by the recruiter",
+      "WITHDRAWN": "Declined by you (the consultant)",
+      "WON": "Mission accepted"
     },
     "durations": {
       "1-3": "1-3 months",
@@ -963,7 +963,10 @@
     "quickAddTitle": "New opportunity – {{status}}",
     "quickAddSuccess": "Opportunity added",
     "quickAddError": "Error adding opportunity",
-    "refusalTitle": "Who declined this opportunity?",
+    "refusalTitle": {
+      "LOST": "Abandoned by the recruiter",
+      "WITHDRAWN": "You withdraw"
+    },
     "perDayShort": "/d",
     "selectCard": "Select \"{{role}}\"",
     "selection": {
@@ -2091,41 +2094,41 @@
         "refresh": "{{site}} could not be read now.",
         "refreshTooSoon": "{{site}} can be read again {{when}}."
       },
-      "leftOutTitle": "Boards left out",
-      "leftOutIntro": "Indezy looked at these boards and does not read them:",
       "leftOut": {
-        "LINKEDIN": "its robots.txt and user agreement forbid crawling, and it answers with a CAPTCHA.",
+        "LINKEDIN": "freelance missions are among its jobs (filter on the Freelance contract) and need an account; Indezy may not read it, its user agreement forbids crawling.",
         "HITECHPROS": "missions are shown to paying members only; the public site shows counters.",
         "OPTEAMIS": "freelance missions are inside its app, after sign-up; the public site lists its own permanent jobs.",
         "COMET": "a matching service without a public list of missions.",
         "AMAZING_DEV": "a matching service without a public list of missions.",
         "LOOKINGFORTECHS": "now Sharebound: every mission page needs a LinkedIn sign-in.",
-        "MON_CONSULTANT_INDEPENDANT": "its list is drawn in the browser with no public source; Free-Work and Collective republish its missions.",
-        "NEXORIS": "a corporate site: its missions are LeGratin's, which the feed reads.",
+        "MON_CONSULTANT_INDEPENDANT": "its missions show in the browser, not to crawlers; Free-Work and Collective republish some of them.",
         "CAPGEMINI_TALENTNET": "Capgemini's freelance network: its missions show without signing in, but its data is closed to crawlers.",
-        "HELLOWORK": "it lists freelance offers among its jobs (filter on the Freelance contract), but it is closed to crawlers.",
+        "HELLOWORK": "jobs of every contract, mostly permanent: filter on the Freelance contract for its missions.",
         "MALT": "create your profile: clients contact you with missions.",
         "FREELANCE_COM": "register your profile: its consultants call you when a mission matches.",
         "WHEELOFWORK": "register your profile: it proposes tech, engineering and interim management missions that match.",
         "CREMEDELACREME": "join the community: missions are proposed to its members (its public mission pages stopped in December 2024).",
-        "WELCOME_TO_THE_JUNGLE": "jobs of every contract, mostly salaried: freelance ones cannot be told apart, and its lists are closed to crawlers.",
-        "URBAN_LINKER": "a recruitment firm whose open jobs are all CDI.",
-        "BLUECODERS": "a recruitment firm whose open jobs are CDI.",
-        "UNLCK": "a recruitment firm with CDI jobs only.",
-        "KONEKT": "a recruitment firm with no public job list."
+        "WELCOME_TO_THE_JUNGLE": "jobs of every contract, mostly permanent (CDI); freelance ones are rare and cannot be filtered.",
+        "URBAN_LINKER": "a recruitment firm with permanent (CDI) jobs only.",
+        "BLUECODERS": "a recruitment firm with permanent (CDI) jobs only.",
+        "UNLCK": "a recruitment firm with permanent (CDI) jobs only.",
+        "KONEKT": "a recruitment firm with permanent (CDI) jobs only."
       },
       "visit": {
         "title": "Sites to visit yourself",
         "intro": "Indezy cannot read these sites, but you can find missions on them yourself. Opening one records your visit.",
         "groups": {
           "VISIT": "Missions to see in person",
-          "MATCHING": "Matching services: create your profile once, they call you"
+          "MATCHING": "Matching services: create your profile once, they call you",
+          "PERMANENT": "Mostly permanent jobs (CDI): worth a visit if you also look for a salaried position"
         },
         "access": {
           "MEMBERSHIP": "Paid membership",
           "SIGN_IN": "Account needed",
           "CRAWLERS": "Open to people, not to crawlers",
-          "PROFILE": "Profile, then a call"
+          "PROFILE": "Profile, then a call",
+          "MOSTLY_PERMANENT": "Mostly CDI",
+          "PERMANENT_ONLY": "CDI only"
         },
         "visited": "Visited {{when}}",
         "notVisited": "Not visited yet",
@@ -2524,7 +2527,7 @@
     "pipelineTitle": "Opportunities",
     "opened": "Added",
     "won": "Won",
-    "lost": "Declined",
+    "lost": "Abandoned or withdrawn",
     "conversion": "Won out of decided",
     "lostReasons": "Why they were declined",
     "skillsTitle": "Skills most asked for",
@@ -3081,7 +3084,7 @@
       "eyebrow": "For IT freelancers in France",
       "title": "Find the mission, win it at the right rate, then run it.",
       "lead": "Indezy gathers the freelance missions of the French job boards, follows each opportunity from first contact to signature, and once the mission is signed, writes its activity reports and its invoices.",
-      "sceneLabel": "An Indezy pipeline: opportunities in five stages, from first contact to accepted or declined, each with its role, client and daily rate."
+      "sceneLabel": "An Indezy pipeline: opportunities from first contact to accepted, abandoned or withdrawn, each with its role, client and daily rate."
     },
     "features": {
       "title": "What Indezy does today",

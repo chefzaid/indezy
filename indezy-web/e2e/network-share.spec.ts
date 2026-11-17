@@ -12,7 +12,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/freelances/1', route => route.fulfill({ json: { id: 1 } }));
     await page.route('**/api/seasons/by-freelance/1', route => route.fulfill({ json: [] }));
     await page.route('**/api/projects/stats/dashboard/1*', route => route.fulfill({ json: emptyDashboardStats }));
-    const project = { id: 42, role: 'Lead Java', status: 'LOST', refusedBy: 'FREELANCE', clientId: 3, clientName: 'Acme', dailyRate: 700,
+    const project = { id: 42, role: 'Lead Java', status: 'WITHDRAWN', refusedBy: 'FREELANCE', clientId: 3, clientName: 'Acme', dailyRate: 700,
       techStack: 'Java, Kafka', remoteDaysPerMonth: 9, workAddress: 'Lyon', startDate: '2027-01-04', freelanceId: 1 };
     await page.route('**/api/projects/42', route => route.fulfill({ json: project }));
     await page.route('**/api/projects/42/notes', route => route.fulfill({ json: [] }));

@@ -126,9 +126,9 @@ public class YearlyReviewService {
 
     static YearlyReviewDto.Pipeline pipeline(List<Project> opened) {
         int won = (int) opened.stream().filter(project -> project.getStatus() == ProjectStatus.WON).count();
-        int lost = (int) opened.stream().filter(project -> project.getStatus() == ProjectStatus.LOST).count();
+        int lost = (int) opened.stream().filter(project -> project.getStatus() != null && project.getStatus().isRefused()).count();
         Map<LostReason, Integer> reasons = new EnumMap<>(LostReason.class);
-        opened.stream().filter(project -> project.getStatus() == ProjectStatus.LOST && project.getLostReason() != null)
+        opened.stream().filter(project -> project.getStatus() != null && project.getStatus().isRefused() && project.getLostReason() != null)
             .forEach(project -> reasons.merge(project.getLostReason(), 1, Integer::sum));
         return new YearlyReviewDto.Pipeline(opened.size(), won, lost,
             won + lost == 0 ? null : Math.round(won * 100f / (won + lost)),

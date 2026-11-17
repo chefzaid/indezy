@@ -26,6 +26,7 @@ import {
   PROJECT_STATUS_ICONS,
   ProjectDto,
   ProjectStatus,
+  isRefusedStatus,
   Refusal,
   STEP_STATUS_COLORS,
   StepStatus
@@ -41,7 +42,6 @@ import {
   KanbanRefusalDialogData
 } from '../../kanban-refusal-dialog/kanban-refusal-dialog.component';
 import { MissionEndActionComponent } from '../mission-end-action/mission-end-action.component';
-import { RefusedByBadgeComponent } from '../../../shared/components/refused-by-badge/refused-by-badge.component';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -73,7 +73,6 @@ import { CompanyHealthComponent } from '../../../shared/components/company-healt
         ProjectArchiveActionComponent,
         StepTemplatesComponent,
         ProjectEmailButtonComponent,
-        RefusedByBadgeComponent,
         MissionEndActionComponent,
         CommonModule,
         RouterModule,
@@ -235,20 +234,20 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  /** Moves the opportunity to another pipeline stage, asking who refused it and why when it is refused. */
+  /** Moves the opportunity to another pipeline stage, asking why when it is abandoned or withdrawn. */
   changeStatus(status: ProjectStatus): void {
     if (!this.project?.id || status === this.project.status || this.isUpdatingStatus) { return; }
-    if (status !== ProjectStatus.LOST) {
+    if (status !== ProjectStatus.LOST && status !== ProjectStatus.WITHDRAWN) {
       this.persistStatus(status);
       return;
     }
-    const dialogData: KanbanRefusalDialogData = { role: this.project.role };
+    const dialogData: KanbanRefusalDialogData = { role: this.project.role, status };
     KanbanRefusalDialogComponent.open(this.dialog, dialogData)
       .afterClosed()
       .pipe(takeUntil(this.destroy$))
       .subscribe((refusal?: Refusal) => {
         if (refusal) {
-          this.persistStatus(ProjectStatus.LOST, refusal);
+          this.persistStatus(status, refusal);
         }
       });
   }
@@ -396,6 +395,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     }
     return stars;
   }
+
+  readonly refused = isRefusedStatus;
 
   getStatusColor(status?: ProjectStatus): string {
     return this.statusColors[status ?? ProjectStatus.CONTACT];

@@ -13,8 +13,8 @@ missions in the offer feed or add opportunities by hand or from a link; track th
 interview steps; run won missions (activity reports, purchase orders, invoices); let the dashboard say what needs
 attention.
 
-The menu lists **Dashboard**, **Calendar**, **Offers**, **Opportunities**, **Clients**, **Contacts**, **Sources**,
-**Network**, **Year in review**, **Timesheets** (CRA), **Invoices**, **Quotes**, **Documents** and **Archive**, then
+The menu lists **Dashboard**, **Calendar**, **Offers**, **Opportunities**, **Network**, **Clients**, **Contacts**,
+**Sources**, **Year in review**, **Timesheets** (CRA), **Invoices**, **Quotes**, **Documents** and **Archive**, then
 **Admin** for administrators. The toolbar's menu button folds it to its icons, each name shown on hover, and unfolds it
 again; the browser remembers the choice. Below 1,024 pixels wide the menu is a drawer the button opens and closes.
 
@@ -368,7 +368,8 @@ tech stack, dates, duration, work mode and remote days, an opportunity holds:
 - its **client** (the final client, or the ESN when the final client is unknown, as for offers added from the feed), an
   optional ESN or intermediary, a source and a season;
 - the client daily rate, from which the margin is shown, and the asked and offered rates beside the agreed one;
-- who refused it (the recruiter or the freelancer, asked on every move to Refusé) and optionally why;
+- once refused, optionally why, asked on every move to Abandonné (refused by the recruiter) or Désisté (refused by the
+  freelancer);
 - **Files** in its **Documents and links** card: PDF, images, Word, OpenDocument or text, up to 10 MB each and 20 per
   opportunity.
 
@@ -390,7 +391,8 @@ starting this year as CSV.
 | `CONTACT` | Contact |
 | `INTERVIEW` | Tests & Entretiens / Tests & Interviews |
 | `OFFER` | Offre / Offer |
-| `LOST` | Refusé / Declined |
+| `LOST` | Abandonné / Abandoned (refused by the recruiter) |
+| `WITHDRAWN` | Désisté / Withdrawn (refused by the freelancer) |
 | `WON` | Accepté / Accepted |
 
 ### Non-Solicitation Clauses
@@ -412,10 +414,12 @@ once; editing the mission leaves it as it is, and the account export carries it 
 
 ## Kanban And Pipeline View
 
-The dashboard's Kanban mode shows the pipeline in the five stage columns and follows the selected season.
+The dashboard's Kanban mode shows the pipeline in the six stage columns and follows the selected season. Hovering a
+column's title says what it holds (**Refusé par le recruteur** on Abandonné, **Refusé par vous (consultant)** on
+Désisté).
 
-- Dragging a card changes its stage; into Refusé it asks who refused and why, then shows **Refusé par le recruteur** or
-  **Refusé par moi**. Within a column, cards keep a manual order under the favorites (the star).
+- Dragging a card changes its stage; into Abandonné or Désisté it asks why (optional), shown on the card. Who refused is
+  the column itself. Within a column, cards keep a manual order under the favorites (the star).
 - A card shows its days since last activity and is highlighted once idle for the inactivity period (14 days by
   default, 1 to 365 in **Profile → Preferences**), which also drives the dashboard's stale opportunities.
 - A column's quick add creates an opportunity from a role, client and rate. Cards sharing a client and role with
@@ -423,7 +427,7 @@ The dashboard's Kanban mode shows the pipeline in the five stage columns and fol
 
 **Archive** on an opportunity's page takes it off the board and the reminders but keeps its stage for the statistics.
 **Archive idle opportunities every night** (Preferences, off by default) archives at 03:30 Paris time every opportunity
-the board highlights. The **Archive** page lists and searches them with the won and refused ones; **Restore** puts one
+the board highlights. The **Archive** page lists and searches them with the accepted, abandoned and withdrawn ones; **Restore** puts one
 back in its column and restarts its inactivity period.
 
 Checkboxes on the board's cards and the list's cards open a bar acting on up to 200 opportunities: **Move to**,
@@ -713,11 +717,12 @@ found nothing.
 
 - **Show in my feed** switched off keeps a board out of the workspace's feed, saved searches and snapshot.
 - **Read now** reads a board at once, at most once every 15 minutes whoever asks.
-- **Sites to visit yourself** lists sites Indezy does not read where missions can still be found (HiTechPros,
-  Opteamis, LookingForTechs, Capgemini TalentNet, HelloWork) and matching services (Malt, Freelance.com, WheelOfWork,
-  Comet, Amazing.dev, Crème de la Crème), with what each takes; **Mark as visited** records the last visit. The boards
-  left out for other reasons (LinkedIn, Mon Consultant Indépendant, Nexoris, Welcome to the Jungle, recruitment firms
-  with salaried jobs only) come last.
+- **Sites to visit yourself** lists, as cards, every site Indezy does not read, in three groups: where missions can
+  still be found in person (HiTechPros, Opteamis, LookingForTechs, Capgemini TalentNet, LinkedIn, Mon Consultant
+  Indépendant), matching services (Malt, Freelance.com, WheelOfWork, Comet, Amazing.dev, Crème de la Crème), and
+  sites mostly or only about permanent jobs, worth a visit when looking for a salaried position too (HelloWork and
+  Welcome to the Jungle, **Mostly CDI**; Urban Linker, Bluecoders, UNLCK and Konekt, **CDI only**). Each card says what
+  it takes or which contracts it holds; **Mark as visited** records the last visit.
 
 ### From An Offer Link
 

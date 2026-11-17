@@ -66,10 +66,12 @@ describe('ProjectArchiveActionComponent', () => {
     expect(notifications.success).toHaveBeenCalledWith('archive.restoredSuccess');
   });
 
-  it('offers nothing for a won or lost opportunity, already in the archive', () => {
+  it('offers nothing for a won, abandoned or withdrawn opportunity, already in the archive', () => {
     expect(text(create({ ...offer, status: ProjectStatus.WON }))).toBe('');
     TestBed.resetTestingModule();
     expect(text(create({ ...offer, status: ProjectStatus.LOST }))).toBe('');
+    TestBed.resetTestingModule();
+    expect(text(create({ ...offer, status: ProjectStatus.WITHDRAWN }))).toBe('');
   });
 
   it('says when archiving or restoring fails', () => {

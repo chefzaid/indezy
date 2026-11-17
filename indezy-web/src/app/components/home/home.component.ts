@@ -56,7 +56,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   readonly steps = ['profile', 'network', 'opportunities', 'pipeline', 'reports'];
   readonly trust = ['yours', 'export', 'links'];
   readonly questions = ['who', 'sites', 'data', 'languages'];
-  /** The Kanban scene of the hero: five columns, a card or two each. */
+  /** The Kanban scene of the hero: five of its columns, a card or two each. */
   readonly board = [
     { column: 'CONTACT', cards: [{ role: 'Lead Java', client: 'ESN · Lyon', rate: 650 }, { role: 'DevOps AWS', client: 'Remote', rate: 600 }] },
     { column: 'INTERVIEW', cards: [{ role: 'Architecte cloud', client: 'Banque · Paris', rate: 750 }] },

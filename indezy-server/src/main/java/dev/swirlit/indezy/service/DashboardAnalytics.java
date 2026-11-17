@@ -225,7 +225,7 @@ final class DashboardAnalytics {
         long[] reached = new long[stages.length];
         for (Project project : projects) {
             ProjectStatus status = project.getStatus();
-            if (status == null || status == ProjectStatus.LOST) {
+            if (status == null || status.isRefused()) {
                 continue;
             }
             for (int i = 0; i < stages.length; i++) {

@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ProjectDto } from '../../../models';
+import { ProjectDto, isClosedStatus } from '../../../models';
 import { ProjectService } from '../../../services/project/project.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 
@@ -25,6 +25,8 @@ export class ProjectArchiveActionComponent {
   /** The opportunity as saved, archived or restored. */
   @Output() readonly changed = new EventEmitter<ProjectDto>();
   busy = false;
+  /** A closed opportunity, accepted or refused, is already in the archive. */
+  readonly closed = isClosedStatus;
 
   constructor(
     private readonly projectService: ProjectService,

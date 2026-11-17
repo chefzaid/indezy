@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslateModule } from '@ngx-translate/core';
 import { interval } from 'rxjs';
-import { OfferLeftOutSite, OfferSiteHealth, OfferSiteHealthEntry } from '../../../models/offer.models';
+import { OfferSiteHealth, OfferSiteHealthEntry } from '../../../models/offer.models';
 import { OfferService } from '../../../services/offer/offer.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { relativeTime } from '../../../shared/utils/relative-time';
@@ -35,7 +35,6 @@ const CLOCK_TICK_MS = 30_000;
 export class OfferSitesComponent implements OnInit {
   health: OfferSiteHealth | null = null;
   /** The sites left out, neither to visit nor matching services. */
-  leftOutOnly: OfferLeftOutSite[] = [];
   loading = true;
   failed = false;
   readonly saving = new Set<string>();
@@ -65,7 +64,6 @@ export class OfferSitesComponent implements OnInit {
     this.offerService.siteHealth().subscribe({
       next: health => {
         this.health = health;
-        this.leftOutOnly = health.leftOut.filter(site => site.kind === 'OTHER');
         this.now = Date.now();
         this.loading = false;
         this.changes.markForCheck();

@@ -23,7 +23,8 @@ describe('ArchiveComponent', () => {
   const projects: ProjectDto[] = [
     project({ id: 1, status: ProjectStatus.WON, role: 'Angular Lead', startDate: '2025-01-01', techStack: 'Angular' }),
     project({ id: 2, status: ProjectStatus.LOST, role: 'Java Dev', startDate: '2025-06-01', clientName: 'Acme' }),
-    project({ id: 3, status: ProjectStatus.CONTACT, role: 'Open Role', startDate: '2025-03-01' })
+    project({ id: 3, status: ProjectStatus.CONTACT, role: 'Open Role', startDate: '2025-03-01' }),
+    project({ id: 5, status: ProjectStatus.WITHDRAWN, role: 'Go Dev', startDate: '2024-09-01' })
   ];
 
   beforeEach(async () => {
@@ -45,14 +46,14 @@ describe('ArchiveComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('shows only closed opportunities, most recent first', () => {
+  it('shows only closed opportunities, accepted, abandoned or withdrawn, most recent first', () => {
     authServiceSpy.getUser.and.returnValue({ id: 7 } as User);
     projectServiceSpy.getByFreelanceId.and.returnValue(of(projects));
 
     fixture.detectChanges();
 
     expect(projectServiceSpy.getByFreelanceId).toHaveBeenCalledWith(7);
-    expect(component.filteredProjects.map(p => p.id)).toEqual([2, 1]);
+    expect(component.filteredProjects.map(p => p.id)).toEqual([2, 1, 5]);
   });
 
   it('filters by a full-text query across fields', () => {
@@ -60,7 +61,7 @@ describe('ArchiveComponent', () => {
 
     expect(component.matchQuery(archived, 'acme').map(p => p.id)).toEqual([2]);
     expect(component.matchQuery(archived, 'angular').map(p => p.id)).toEqual([1]);
-    expect(component.matchQuery(archived, '').map(p => p.id)).toEqual([2, 1]);
+    expect(component.matchQuery(archived, '').map(p => p.id)).toEqual([2, 1, 5]);
   });
 
   it('does not query when no user is authenticated', () => {
@@ -83,7 +84,7 @@ describe('ArchiveComponent', () => {
     it('lists them with the closed ones, by when they were archived, with a way back', () => {
       show([...projects, idle]);
 
-      expect(component.filteredProjects.map(p => p.id)).toEqual([4, 2, 1]);
+      expect(component.filteredProjects.map(p => p.id)).toEqual([4, 2, 1, 5]);
       const buttons = (fixture.nativeElement as HTMLElement).querySelectorAll('.archive-archived button');
       expect(buttons.length).toBe(1);
     });
@@ -98,7 +99,7 @@ describe('ArchiveComponent', () => {
 
       expect(stop).toHaveBeenCalled();
       expect(projectServiceSpy.restore).toHaveBeenCalledWith(4);
-      expect(component.filteredProjects.map(p => p.id)).toEqual([2, 1]);
+      expect(component.filteredProjects.map(p => p.id)).toEqual([2, 1, 5]);
       expect(notifications.success).toHaveBeenCalledWith('archive.restoredSuccess');
     });
 

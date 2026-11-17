@@ -7,7 +7,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { OfferService } from '../../../services/offer/offer.service';
 import { relativeTime } from '../../../shared/utils/relative-time';
 
-const GROUPS: OfferLeftOutKind[] = ['VISIT', 'MATCHING'];
+const GROUPS: OfferLeftOutKind[] = ['VISIT', 'MATCHING', 'PERMANENT'];
 
 /**
  * The sites Indezy does not read but where a freelancer finds missions independently: those to see in person (an

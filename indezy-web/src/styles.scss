@@ -59,12 +59,6 @@ body { margin: 0; font-family: $font-family; }
   --app-positive: light-dark(#276c2b, #81c784);
   --app-danger: light-dark(#c62828, #ef9a9a);
   --app-info-bg: light-dark(#e2dfff, rgba(195, 192, 255, 0.14));
-  /* Who refused an opportunity: the recruiter in red, the freelance in orange. Solid, each with a text colour reading
-     at 4.5:1 at least on it, so the badge looks the same in either theme. */
-  --app-refused-by-recruiter: #c62828;
-  --app-refused-by-recruiter-text: #ffffff;
-  --app-refused-by-freelance: #f57c00;
-  --app-refused-by-freelance-text: #212121;
   /* Text that reads as a warning, an accent or a booked call. */
   --app-warning: light-dark(#8a4b00, #ffb74d);
   --app-accent: light-dark(#6d28d9, #c4b5fd);

@@ -24,7 +24,8 @@
             <div class="archive-card-header">
               <span class="archive-role">{{ project.role }}</span>
               <mat-chip [class.status-won]="project.status === 'WON'"
-                        [class.status-lost]="project.status === 'LOST'">
+                        [class.status-lost]="project.status === 'LOST'"
+                        [class.status-withdrawn]="project.status === 'WITHDRAWN'">
                 {{ 'projects.statuses.' + project.status | translate }}
               </mat-chip>
             </div>

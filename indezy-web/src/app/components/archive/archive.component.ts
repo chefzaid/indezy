@@ -12,7 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { ProjectService } from '../../services/project/project.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { ProjectDto, ProjectStatus } from '../../models';
+import { ProjectDto, isClosedStatus } from '../../models';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { NotificationService } from '../../services/notification/notification.service';
 import { EnterOpensDirective } from '../../shared/directives/enter-opens.directive';
@@ -70,9 +70,8 @@ export class ArchiveComponent implements OnInit {
 
   /** Keeps closed (won/lost) and archived opportunities, most recent first: archived ones by when they were archived. */
   toArchived(projects: ProjectDto[]): ProjectDto[] {
-    const closed = new Set([ProjectStatus.WON, ProjectStatus.LOST]);
     return projects
-      .filter(project => !!project.archivedAt || (!!project.status && closed.has(project.status)))
+      .filter(project => !!project.archivedAt || isClosedStatus(project.status))
       .sort((a, b) => this.time(b) - this.time(a));
   }
 

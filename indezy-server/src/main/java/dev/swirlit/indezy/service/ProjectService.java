@@ -80,6 +80,7 @@ public class ProjectService {
         ProjectStatus.INTERVIEW,
         ProjectStatus.OFFER,
         ProjectStatus.LOST,
+        ProjectStatus.WITHDRAWN,
         ProjectStatus.WON
     );
 
