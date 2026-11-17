@@ -34,6 +34,8 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
         last: null, unread: 0, muted: false, archived: false, closed: null, lastMessageAt: null }, more: false, messages: [] } }));
 
       await page.goto('/network/members');
+      // Opened first, Back goes to the feed.
+      await expect(page.locator('[data-network-back]')).toBeVisible();
       const tab = (name: string) => page.getByRole('tab', { name, exact: false });
       await expect(page.getByRole('tab')).toHaveText(en ? ['All members', 'Following', 'Followers', 'Requests received 1', 'Requests sent']
         : ['Tous les membres', 'Abonnements', 'Abonnés', 'Demandes reçues 1', 'Demandes envoyées']);

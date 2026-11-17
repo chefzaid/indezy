@@ -16,6 +16,7 @@ import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PostCardComponent } from '../post-card/post-card.component';
+import { NetworkBackComponent } from '../back/network-back.component';
 
 /** How many of the skill's open missions the page shows. */
 const MISSIONS_SHOWN = 5;
@@ -26,7 +27,7 @@ const MISSIONS_SHOWN = 5;
  */
 @Component({
   selector: 'app-tag-page',
-  imports: [MemberAvatarComponent, MatButtonToggleModule, PageHeaderComponent, RouterLink, MatButtonModule, MatIconModule, TranslateModule, PostCardComponent],
+  imports: [NetworkBackComponent, MemberAvatarComponent, MatButtonToggleModule, PageHeaderComponent, RouterLink, MatButtonModule, MatIconModule, TranslateModule, PostCardComponent],
   templateUrl: './tag-page.component.html',
   styleUrls: ['./tag-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

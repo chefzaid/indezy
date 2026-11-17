@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { map, switchMap } from 'rxjs';
@@ -12,13 +11,14 @@ import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { PostCardComponent } from '../post-card/post-card.component';
+import { NetworkBackComponent } from '../back/network-back.component';
 
 /** A post's own page (`/network/posts/:id`): the post with its comments open, reached from notifications, search and links. */
 @Component({
   selector: 'app-post-page',
-  imports: [RouterLink, MatButtonModule, MatIconModule, TranslateModule, PostCardComponent],
+  imports: [NetworkBackComponent, MatIconModule, TranslateModule, PostCardComponent],
   template: `<div class="post-page">
-    <a mat-button routerLink="/network" class="back"><mat-icon>arrow_back</mat-icon>{{ 'network.postPage.back' | translate }}</a>
+    <app-network-back></app-network-back>
     @if (post) {
       <app-post-card [post]="post" [commentsOpen]="true" (deleted)="remove($event)" data-post-page></app-post-card>
     } @else if (missing) {
@@ -29,7 +29,6 @@ import { PostCardComponent } from '../post-card/post-card.component';
     }
   </div>`,
   styles: [`.post-page { display: flex; flex-direction: column; gap: 12px; max-width: 820px; margin: 0 auto; }
-    .back { align-self: flex-start; }
     .missing { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 32px 16px; color: var(--app-text-muted);
       text-align: center; border: 1px solid var(--app-border); border-radius: 16px; background: var(--app-surface); }
     .missing mat-icon { width: 40px; height: 40px; font-size: 40px; }`],

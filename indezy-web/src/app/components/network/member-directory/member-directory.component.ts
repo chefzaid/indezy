@@ -15,6 +15,7 @@ import { NetworkService } from '../../../services/network/network.service';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { MemberAvatarComponent, memberGradient } from '../avatar/member-avatar.component';
+import { NetworkBackComponent } from '../back/network-back.component';
 
 type Availability = Exclude<NetworkAvailability, 'AUTO'>;
 
@@ -36,7 +37,7 @@ export const MEMBERS_TABS: MembersTab[] = ['all', 'following', 'followers', 'rec
  */
 @Component({
   selector: 'app-member-directory',
-  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, MatButtonModule, MatIconModule, MatTooltipModule, MatPaginatorModule, TranslateModule,
+  imports: [NetworkBackComponent, ReactiveFormsModule, RouterLink, NgTemplateOutlet, MatButtonModule, MatIconModule, MatTooltipModule, MatPaginatorModule, TranslateModule,
     MemberAvatarComponent],
   templateUrl: './member-directory.component.html',
   styleUrls: ['./member-directory.component.scss'],

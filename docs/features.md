@@ -357,6 +357,9 @@ with the moderator's note, under **Latest decisions**, and a sanction is in the 
 comment that looks like spam (see [Security](./security.md#member-network)) is held instead of published, its author
 told so; **Moderation** lists what is held, with why, to **Publish** as its author's or **Reject**.
 
+Every page of the network but the feed opens with **Back**: to the page the reader came from within the app, or to the
+feed when they opened it first, from a link or a bookmark (Messages keeps its own arrow to the feed).
+
 **Members** on the feed (`/network/members`) has five tabs, the one open kept in the address (`?tab=`). **All members**
 is the member directory: the members found by a skill and a city typed in its search bar, an availability and remote
 work picked as chips, 20 a page by last name, as a grid of tiles (the member's color, avatar, headline, city,

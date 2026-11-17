@@ -354,6 +354,9 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     const audit = await new AxeBuilder({ page }).include('app-tag-page').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    // Back returns to the feed the tag was reached from.
+    await page.getByRole('button', { name: en ? 'Back' : 'Retour' }).click();
+    await expect(page).toHaveURL(/\/network$/);
   });
 }
 

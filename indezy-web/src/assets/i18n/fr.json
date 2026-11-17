@@ -3722,7 +3722,6 @@
       "now": "à l’instant"
     },
     "postPage": {
-      "back": "Retour au fil",
       "missing": "Cette publication n’existe plus, ou vous ne pouvez pas la lire."
     },
     "trending": {
@@ -3866,6 +3865,7 @@
         "received": "Aucune demande en attente. Elles arrivent quand votre carte est privée.",
         "sent": "Aucune demande envoyée en attente."
       }
-    }
+    },
+    "back": "Retour"
   }
 }

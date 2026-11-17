@@ -3722,7 +3722,6 @@
       "now": "now"
     },
     "postPage": {
-      "back": "Back to the feed",
       "missing": "This post is gone, or you cannot read it."
     },
     "trending": {
@@ -3866,6 +3865,7 @@
         "received": "No request waiting. They come when your card is private.",
         "sent": "No request sent waiting."
       }
-    }
+    },
+    "back": "Back"
   }
 }
