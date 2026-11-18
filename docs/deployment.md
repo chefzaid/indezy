@@ -137,6 +137,8 @@ tests) fails with the threads of the JVMs still running.
 
 GitLab keeps test, coverage, browser, quality, security and release artifacts for seven days; Maven, npm, Sonar and Trivy caches and a cached Kaniko executor avoid repeated downloads. `01-build` writes the Maven (`indezy-server-dependencies-v1`) and npm (`indezy-web-dependencies-v1`) caches, which `02-test: [server]` and `02-test: [web]` only read, each its own. The SonarQube project keeps the long-lived quality history.
 
+Kaniko, in `03-package` and `01-release` (`infra/scripts/ci-container-build.sh`), pulls the Docker Hub base images through the `swirl` group's GitLab Dependency Proxy (`--registry-mirror "$CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX"`, with the job's proxy credentials), as Docker Hub limits anonymous pulls, and falls back to Docker Hub when the proxy cannot serve an image.
+
 ### Automatic Sonar analysis
 
 `.sonar-auto.json` declares the contract the platform uses to request a scan when analysis is missing or older than 24 hours: a default-branch pipeline with `SONAR_SCAN_ONLY=true`, which runs only `01-build`, the two `02-test` jobs, `02-coverage` and `02-quality`. The platform provisions the Sonar project and the masked `SONAR_TOKEN`. A submission failure fails the quality job visibly, without affecting delivery.
