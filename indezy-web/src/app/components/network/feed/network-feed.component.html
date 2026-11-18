@@ -31,22 +31,12 @@
         </a>
       }
     </nav>
-    @if (tags.length) {
-      <section class="side-card tags-card">
-        <h2>{{ 'network.tags.followed' | translate }}</h2>
-        <nav class="followed-tags" [attr.aria-label]="'network.tags.followed' | translate" data-followed-tags>
-          @for (tag of tags; track tag) {
-            <a [routerLink]="['/network/tags', tag]">#{{ tag }}</a>
-          }
-        </nav>
-      </section>
-    }
   </aside>
 
-  <header class="feed-header">
-    <h1>{{ 'network.feed.title' | translate }}</h1>
-    <p>{{ 'network.feed.subtitle' | translate }}</p>
-  </header>
+  <div class="feed-header">
+    <app-page-header icon="diversity_3" [title]="'network.feed.title' | translate" [subtitle]="'network.feed.subtitle' | translate">
+    </app-page-header>
+  </div>
 
   @if (notMember) {
     <section class="problem card compose-area" data-feed-not-member>
@@ -165,6 +155,16 @@
   </main>
 
   <aside class="side-extra">
+    @if (tags.length) {
+      <section class="side-card tags-card">
+        <h2>{{ 'network.tags.followed' | translate }}</h2>
+        <nav class="followed-tags" [attr.aria-label]="'network.tags.followed' | translate" data-followed-tags>
+          @for (tag of tags; track tag) {
+            <a [routerLink]="['/network/tags', tag]">#{{ tag }}</a>
+          }
+        </nav>
+      </section>
+    }
     @if (suggestions.length) {
       <section class="side-card suggestions" data-suggestions>
         <h2>{{ 'network.suggestions.title' | translate }}</h2>

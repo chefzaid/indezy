@@ -1,24 +1,33 @@
-// The feed's side columns: the network's navigation and followed tags, the trending tags and the members to follow.
+// The feed's sides: the network's navigation, then the followed tags, the trending tags and the members to follow.
 .nav-links {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
 }
 
+// The network's navigation: a row of pills above the feed.
 .nav-link {
   display: flex;
+  flex: none;
   align-items: center;
-  gap: 14px;
-  padding: 10px 14px;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid var(--app-border);
   border-radius: 999px;
+  background: var(--app-surface);
   color: var(--app-text);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
   transition: background-color 120ms ease;
 
   mat-icon {
+    width: 18px;
+    height: 18px;
     color: var(--app-text-muted);
+    font-size: 18px;
   }
 
   &:hover {
@@ -164,36 +173,6 @@
   button {
     flex: none;
     border-radius: 999px;
-  }
-}
-
-// Medium: the navigation as a row of pills above the feed.
-@media (max-width: 1499.98px) {
-  .nav-links {
-    flex-direction: row;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scrollbar-width: none;
-  }
-
-  .nav-link {
-    flex: none;
-    gap: 8px;
-    padding: 6px 14px;
-    border: 1px solid var(--app-border);
-    background: var(--app-surface);
-    font-size: 0.875rem;
-
-    mat-icon {
-      width: 18px;
-      height: 18px;
-      font-size: 18px;
-    }
-  }
-
-  .tags-card {
-    display: none;
   }
 }
 

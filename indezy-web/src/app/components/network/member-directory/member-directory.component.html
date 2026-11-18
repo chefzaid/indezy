@@ -1,9 +1,7 @@
 <div class="directory-page">
   <app-network-back></app-network-back>
-  <header class="head">
-    <h1>{{ 'network.directory.title' | translate }}</h1>
-    <p>{{ 'network.directory.subtitle' | translate }}</p>
-  </header>
+  <app-page-header icon="group" [title]="'network.directory.title' | translate" [subtitle]="'network.directory.subtitle' | translate">
+  </app-page-header>
 
   @if (!notMember) {
     <nav class="tabs card" role="tablist" [attr.aria-label]="'network.members.tabs' | translate" data-members-tabs>

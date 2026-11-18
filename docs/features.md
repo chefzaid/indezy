@@ -211,9 +211,11 @@ follows, keeps either from following the other, takes each out of the lists the 
 page from the blocked member, as if no member held the handle; the blocked member is not told. **Profile → Network**
 lists the members muted and blocked, each to unmute or unblock.
 
-On wide screens the network's page has three columns: its navigation (Home, Notifications with the unread count,
-Members, Saved, Drafts, My page) and the tags followed, the feed, and the members to follow; two columns at medium
-widths and one on a phone, the navigation as a row of pills and the members to follow as a strip. Posts show their
+Every page of the network takes the same width, centered: 976 pixels, the most a small laptop shows whole (1280 pixels
+wide, the menu open and a classic scrollbar), all of a narrower screen. The feed's page opens with its navigation as a row
+of pills (Home, Notifications with the unread count, Messages, Members, Saved, Drafts, My page), then the feed beside a
+column of the tags followed, the trending tags and the members to follow; one column below 1,100 pixels, the members to
+follow as a strip. Posts show their
 author's avatar (their photo, else their initials on a color their handle keeps) and how long ago they were posted,
 the full date on hover. On a phone, a one-line **What's new?** and a floating button open the composer full screen.
 **Network** in the menu (`/network`) is the home feed: a post of up to 3,000 characters, paragraphs kept, where

@@ -1,27 +1,27 @@
-// The member network's home: a navigation column, the feed, and members to follow; fewer columns on narrower screens.
+// The member network's home, as wide as its other pages: the navigation as a row of pills, the feed, and the members to
+// follow beside it; one column on narrower screens.
 .network-layout {
   display: grid;
-  // The feed takes the room left between the two side columns, the whole page kept to a readable width.
-  grid-template-columns: 240px minmax(0, 1fr) 320px;
-  grid-template-rows: auto auto 1fr;
-  max-width: 1440px;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-rows: auto auto auto 1fr;
+  width: 100%;
+  max-width: var(--app-network-width);
   margin: 0 auto;
   grid-template-areas:
-    'nav head extra'
-    'nav compose extra'
-    'nav feed extra';
-  justify-content: center;
+    'nav nav'
+    'head extra'
+    'compose extra'
+    'feed extra';
   align-items: start;
   gap: 16px 24px;
 }
 
 .side-nav {
   grid-area: nav;
-  position: sticky;
-  top: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 .feed-header {
@@ -71,21 +71,6 @@
     color: var(--app-text-muted);
     font-size: 0.875rem;
     line-height: 1.5;
-  }
-}
-
-.feed-header {
-  h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-  }
-
-  p {
-    margin: 4px 0 0;
-    color: var(--app-text-muted);
-    font-size: 0.875rem;
   }
 }
 
@@ -349,27 +334,10 @@
   }
 }
 
-// Medium: the feed and the members to follow, the navigation as a row of pills above.
-@media (max-width: 1499.98px) {
-  .network-layout {
-    grid-template-columns: minmax(0, 1fr) 300px;
-    grid-template-rows: auto auto auto 1fr;
-    grid-template-areas:
-      'nav nav'
-      'head extra'
-      'compose extra'
-      'feed extra';
-  }
-
-  .side-nav {
-    position: static;
-  }
-}
-
 // Narrow: one column, the members to follow as a strip between the composer and the posts.
 @media (max-width: 1099.98px) {
   .network-layout {
-    grid-template-columns: minmax(0, 760px);
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
     grid-template-areas: 'nav' 'head' 'compose' 'extra' 'feed';
   }

@@ -1,8 +1,10 @@
 .drafts-page {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-width: 820px;
+  gap: 16px;
+  width: 100%;
+  max-width: var(--app-network-width);
+  margin: 0 auto;
 }
 
 .empty,

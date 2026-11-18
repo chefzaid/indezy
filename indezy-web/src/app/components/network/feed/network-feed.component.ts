@@ -27,6 +27,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { FilePickerComponent } from '../files/file-picker.component';
 import { PostCardComponent } from '../post-card/post-card.component';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 export const POST_MAX = 3000;
 /** How often the feed asks whether newer posts reached it. */
@@ -37,7 +38,7 @@ const PHONE = '(max-width: 599.98px)';
 /** The home feed (`/network`): writing a post, then the reader's posts and those of the members they follow, newest first. */
 @Component({
   selector: 'app-network-feed',
-  imports: [A11yModule, MentionsDirective, AsyncPipe, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [PageHeaderComponent, A11yModule, MentionsDirective, AsyncPipe, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslateModule, PostCardComponent, FilePickerComponent],
   templateUrl: './network-feed.component.html',
   styleUrls: ['./network-feed.component.scss', './network-feed-side.scss'],

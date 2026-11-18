@@ -28,7 +28,7 @@ import { NetworkBackComponent } from '../back/network-back.component';
       </section>
     }
   </div>`,
-  styles: [`.post-page { display: flex; flex-direction: column; gap: 12px; max-width: 820px; margin: 0 auto; }
+  styles: [`.post-page { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: var(--app-network-width); margin: 0 auto; }
     .missing { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 32px 16px; color: var(--app-text-muted);
       text-align: center; border: 1px solid var(--app-border); border-radius: 16px; background: var(--app-surface); }
     .missing mat-icon { width: 40px; height: 40px; font-size: 40px; }`],

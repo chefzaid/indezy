@@ -43,6 +43,11 @@ body { margin: 0; font-family: $font-family; }
    tones of the generated neutral palette (page 96 / 6, cards 100 / 12), the brand tones its primary palette (40 / 80).
    Text reads at 4.5:1 at least on the page, on cards and on the recessed --app-subtle in both themes. */
 :root {
+  /*
+   * The width every page of the member network takes: the most a small laptop shows whole (1280 pixels wide, the menu
+   * open and a classic 16-pixel scrollbar), so the pages line up and none scrolls sideways; narrower screens take it all.
+   */
+  --app-network-width: 976px;
   --app-bg: light-dark(#f5f2ff, #13121b);
   --app-surface: light-dark(#ffffff, #1f1f28);
   /* A recessed area: board columns, tiles inside a card. */
