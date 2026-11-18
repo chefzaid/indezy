@@ -17,7 +17,12 @@ test "$CI_COMMIT_SHA" = "$(git rev-parse "origin/$CI_DEFAULT_BRANCH")" || {
 }
 git checkout -B "$CI_DEFAULT_BRANCH" "origin/$CI_DEFAULT_BRANCH"
 
-current_major="${VERSION%%.*}"
+current_version="$(cat VERSION)"
+[[ "$current_version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || {
+  echo "VERSION must contain a canonical semantic version, got: $current_version" >&2
+  exit 1
+}
+current_major="${BASH_REMATCH[1]}"
 (( NEW_MAJOR_VERSION > current_major )) || {
   echo "NEW_MAJOR_VERSION must be greater than the current major version ($current_major)" >&2
   exit 2
