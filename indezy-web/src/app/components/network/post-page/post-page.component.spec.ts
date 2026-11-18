@@ -45,6 +45,9 @@ describe('PostPageComponent', () => {
     expect(network.onePost).toHaveBeenCalledWith(7);
     expect(element.querySelector('[data-post="7"]')).not.toBeNull();
     expect(element.querySelector('app-post-comments')).not.toBeNull();
+    // Its author's card beside it, opening their page.
+    expect(element.querySelector('[data-post-author] app-member-card')).not.toBeNull();
+    expect(element.querySelector('[data-post-author-page]')?.getAttribute('href')).toBe(`/m/${post.author.handle}`);
     const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
     confirm.confirm.and.returnValue(of(false));
     fixture.componentInstance.remove(post);

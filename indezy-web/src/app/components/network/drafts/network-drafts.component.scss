@@ -13,9 +13,10 @@
 }
 
 .drafts {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  align-items: start;
+  gap: 16px;
   margin: 0;
   padding: 0;
   list-style: none;

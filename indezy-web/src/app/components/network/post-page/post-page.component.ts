@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { map, switchMap } from 'rxjs';
@@ -11,16 +12,25 @@ import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { PostCardComponent } from '../post-card/post-card.component';
+import { MemberCardComponent } from '../member-card/member-card.component';
 import { NetworkBackComponent } from '../back/network-back.component';
 
 /** A post's own page (`/network/posts/:id`): the post with its comments open, reached from notifications, search and links. */
 @Component({
   selector: 'app-post-page',
-  imports: [NetworkBackComponent, MatIconModule, TranslateModule, PostCardComponent],
+  imports: [NetworkBackComponent, MemberCardComponent, RouterLink, MatButtonModule, MatIconModule, TranslateModule, PostCardComponent],
   template: `<div class="post-page">
     <app-network-back></app-network-back>
     @if (post) {
-      <app-post-card [post]="post" [commentsOpen]="true" (deleted)="remove($event)" data-post-page></app-post-card>
+      <div class="post-layout">
+        <app-post-card [post]="post" [commentsOpen]="true" (deleted)="remove($event)" data-post-page></app-post-card>
+        <aside class="author" [attr.aria-label]="'network.postPage.author' | translate" data-post-author>
+          <app-member-card [card]="post.author"></app-member-card>
+          <a mat-stroked-button [routerLink]="['/m', post.author.handle]" class="author-page" data-post-author-page>
+            {{ 'network.postPage.authorPage' | translate }}
+          </a>
+        </aside>
+      </div>
     } @else if (missing) {
       <section class="missing" data-post-missing>
         <mat-icon aria-hidden="true">search_off</mat-icon>
@@ -29,6 +39,11 @@ import { NetworkBackComponent } from '../back/network-back.component';
     }
   </div>`,
   styles: [`.post-page { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: var(--app-network-width); margin: 0 auto; }
+    /* The post and its comments in a readable column, its author beside it on a wide screen, under it on a narrow one. */
+    .post-layout { display: grid; grid-template-columns: minmax(0, 880px) 320px; justify-content: start; align-items: start; gap: 24px; }
+    .author { position: sticky; top: 0; display: flex; flex-direction: column; gap: 12px; }
+    .author-page { border-radius: 999px; }
+    @media (max-width: 1199.98px) { .post-layout { grid-template-columns: minmax(0, 1fr); } .author { position: static; } }
     .missing { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 32px 16px; color: var(--app-text-muted);
       text-align: center; border: 1px solid var(--app-border); border-radius: 16px; background: var(--app-surface); }
     .missing mat-icon { width: 40px; height: 40px; font-size: 40px; }`],

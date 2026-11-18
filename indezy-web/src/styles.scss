@@ -44,10 +44,10 @@ body { margin: 0; font-family: $font-family; }
    Text reads at 4.5:1 at least on the page, on cards and on the recessed --app-subtle in both themes. */
 :root {
   /*
-   * The width every page of the member network takes: the most a small laptop shows whole (1280 pixels wide, the menu
-   * open and a classic 16-pixel scrollbar), so the pages line up and none scrolls sideways; narrower screens take it all.
+   * The width every page of the member network takes: all the room the page has, as the workspace's other pages, so the
+   * network's pages line up with them and with each other, and follow the screen.
    */
-  --app-network-width: 976px;
+  --app-network-width: none;
   --app-bg: light-dark(#f5f2ff, #13121b);
   --app-surface: light-dark(#ffffff, #1f1f28);
   /* A recessed area: board columns, tiles inside a card. */

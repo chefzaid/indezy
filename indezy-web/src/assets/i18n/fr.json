@@ -3722,7 +3722,9 @@
       "now": "à l’instant"
     },
     "postPage": {
-      "missing": "Cette publication n’existe plus, ou vous ne pouvez pas la lire."
+      "missing": "Cette publication n’existe plus, ou vous ne pouvez pas la lire.",
+      "author": "L'auteur",
+      "authorPage": "Voir sa page"
     },
     "trending": {
       "title": "Tendances de la semaine",
@@ -3746,9 +3748,9 @@
       "message": "Message",
       "inbox": "Boîte de réception",
       "archived": "Archivées",
-      "none": "Aucune conversation pour l'instant. Écrivez à un membre qui vous suit depuis sa page.",
+      "none": "Aucune conversation pour l'instant. Écrivez à un membre que vous suivez ou qui vous suit avec Nouveau message.",
       "noneArchived": "Aucune conversation archivée.",
-      "pick": "Choisissez une conversation, ou écrivez à un membre qui vous suit depuis sa page.",
+      "pick": "Choisissez une conversation, ou écrivez à un membre que vous suivez ou qui vous suit avec Nouveau message.",
       "noMessage": "Pas encore de message",
       "youPrefix": "Vous :",
       "you": "Vous",

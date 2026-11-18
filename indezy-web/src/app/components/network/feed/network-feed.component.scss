@@ -334,6 +334,24 @@
   }
 }
 
+// Wide: the navigation as a column on the left, the posts in the middle, the tags and members to follow on the right.
+@media (min-width: 1440px) {
+  .network-layout {
+    grid-template-columns: 220px minmax(0, 1fr) 320px;
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas:
+      'nav head extra'
+      'nav compose extra'
+      'nav feed extra';
+    column-gap: 32px;
+  }
+
+  .side-nav {
+    position: sticky;
+    top: 0;
+  }
+}
+
 // Narrow: one column, the members to follow as a strip between the composer and the posts.
 @media (max-width: 1099.98px) {
   .network-layout {

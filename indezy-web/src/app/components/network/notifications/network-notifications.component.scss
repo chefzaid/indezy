@@ -133,6 +133,25 @@ a.row {
   min-width: 0;
 }
 
+// On a wide screen a row reads like an inbox: what happened on the left, when on the right.
+@media (min-width: 900px) {
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 24px;
+
+    > * {
+      grid-column: 1;
+    }
+
+    time {
+      grid-row: 1;
+      grid-column: 2;
+      white-space: nowrap;
+    }
+  }
+}
+
 .text {
   margin: 0;
   line-height: 1.4;

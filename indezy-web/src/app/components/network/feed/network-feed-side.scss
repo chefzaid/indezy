@@ -176,6 +176,30 @@
   }
 }
 
+// Wide: the navigation as a column of links, as a sidebar.
+@media (min-width: 1440px) {
+  .nav-links {
+    flex-direction: column;
+    gap: 2px;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .nav-link {
+    gap: 14px;
+    padding: 10px 14px;
+    border-color: transparent;
+    background: none;
+    font-size: 0.9375rem;
+
+    mat-icon {
+      width: 24px;
+      height: 24px;
+      font-size: 24px;
+    }
+  }
+}
+
 // Narrow: the trending tags and the members to follow as strips between the composer and the posts.
 @media (max-width: 1099.98px) {
   .trending {

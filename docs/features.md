@@ -211,11 +211,14 @@ follows, keeps either from following the other, takes each out of the lists the 
 page from the blocked member, as if no member held the handle; the blocked member is not told. **Profile → Network**
 lists the members muted and blocked, each to unmute or unblock.
 
-Every page of the network takes the same width, centered: 976 pixels, the most a small laptop shows whole (1280 pixels
-wide, the menu open and a classic scrollbar), all of a narrower screen. The feed's page opens with its navigation as a row
-of pills (Home, Notifications with the unread count, Messages, Members, Saved, Drafts, My page), then the feed beside a
-column of the tags followed, the trending tags and the members to follow; one column below 1,100 pixels, the members to
-follow as a strip. Posts show their
+Every page of the network takes the full width of the page, as the workspace's other pages do, following the screen, and
+lays itself out for it: lists of posts (saved, a tag's, a member's) and drafts as many columns of cards as the width holds,
+a notification reading like an inbox row (when it happened on the right), a single post in a readable column with its
+author's card beside it, and the members' search bar kept to a comfortable length. The feed's page shows, from 1,440
+pixels, its navigation as a column on the left (Home, Notifications with the unread count, Messages, Members, Saved,
+Drafts, My page), the posts in the middle and the tags followed, the trending tags and the members to follow on the right;
+narrower, the navigation is a row of pills above, and below 1,100 pixels everything is one column, the members to follow
+as a strip. Posts show their
 author's avatar (their photo, else their initials on a color their handle keeps) and how long ago they were posted,
 the full date on hover. On a phone, a one-line **What's new?** and a floating button open the composer full screen.
 **Network** in the menu (`/network`) is the home feed: a post of up to 3,000 characters, paragraphs kept, where

@@ -3722,7 +3722,9 @@
       "now": "now"
     },
     "postPage": {
-      "missing": "This post is gone, or you cannot read it."
+      "missing": "This post is gone, or you cannot read it.",
+      "author": "The author",
+      "authorPage": "See their page"
     },
     "trending": {
       "title": "Trending this week",
@@ -3746,9 +3748,9 @@
       "message": "Message",
       "inbox": "Inbox",
       "archived": "Archived",
-      "none": "No conversation yet. Write to a member who follows you from their page.",
+      "none": "No conversation yet. Write to a member you follow or who follows you with New message.",
       "noneArchived": "No archived conversation.",
-      "pick": "Choose a conversation, or write to a member who follows you from their page.",
+      "pick": "Choose a conversation, or write to a member you follow or who follows you with New message.",
       "noMessage": "No message yet",
       "youPrefix": "You:",
       "you": "You",
