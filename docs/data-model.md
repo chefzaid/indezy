@@ -266,6 +266,9 @@ cannot, each doing nothing once the schema is current, in this order:
    the recruiter refused the other `LOST` ones that did not say who.
 6. `RetiredUsefulReactions`: empties `network_usefuls`, the **Useful** reaction being gone; the table stays, empty, for
    the version still running during a rollout.
+7. `RetiredOfferSites`: deletes the rows of a job board the feed no longer reads (any value missing from `OfferSite`
+   in a site column: its offers with what refers to them, runs, skips, copies, visits and workspace exclusions), which
+   Hibernate could not load.
 
 `OfferSearchIndex` builds the trigram index, and `JobBoardSourcesBackfill` gives workspaces that lack them the job
 boards as sources once the server is ready. The constraint, index and column runners act on PostgreSQL only.

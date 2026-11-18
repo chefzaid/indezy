@@ -301,7 +301,6 @@ Sites checked on 2026-10-19, and how each one is read:
 | silkhom.com (also upway.io, which redirects to it) | the single listing page `/nos-offres-demploi/` | card date | keeps cards with the `contrat-Freelance` class |
 | legratin.io | the `/missions` page, which describes every mission | creation time encoded in the MongoDB id | daily rate, context, duration, city, remote days |
 | freelance-informatique.fr | server-rendered `/offres-freelance?page=` (50 a page) | the date encoded in the reference (`261015I001` = 2026-10-15) | skills, department and city, start, duration; some titles link through a Base64 `data-obf` attribute; no daily rate in the list |
-| espace-freelance.fr | `/missions-disponibles/page/<n>/` (nine a page) | card date | trade, agency, reference, start, daily rate; city in the title |
 | beyondskillsit.com | Webflow listing `/offres-disponibles` and the sitemap | sitemap `lastmod` | keeps cards labelled Freelance; place, work mode and daily rate on the card |
 | koino.fr | `sitemap-missions.xml` (its open missions; the main sitemap lists none since November 2026), then each page | the page's publication day | keeps missions labelled "Mission freelance" whose application is open (`data-mission-etat="ouverte"`); place and daily rate from the page's facts |
 | sixiemehomme.io | the missions shown on the home page, then their public pages | first seen | only the showcased missions are public; daily rate, location, remote, start, duration |
@@ -331,7 +330,7 @@ Sites left out for other reasons:
 - unlck.fr: CDI jobs only.
 - konekt.fr: a recruitment firm with no public job list.
 - hiresweet.com: recruiting software (ATS, CRM and sourcing), not a job board.
-- None of the readable sites is dead: each published offers within the last three months (Next Mondays' newest is 2026-09-02, every other site published in October 2026). Espace Freelance is close to it: on 2026-10-19 its newest mission was from 2026-10-14 and the eight before it from September and October 2025.
+- None of the readable sites is dead: each published offers within the last three months (Next Mondays' newest is 2026-09-02, every other site published in October 2026).
 
 Rules for every increment:
 
@@ -346,7 +345,7 @@ Increments, implemented in order:
 
 - [x] Offer feed core: data model (site catalog, offers, per-workspace offer state), the collection engine and scheduler with the rules above, the Free-Work, Collective.work, Cherry Pick, LeHibou and Yeets readers, and an **Offers** page in the navigation. The page lists offers newest first with server-side pagination and filters: keywords (title, description, skills), daily rate min/max with "hide offers without a rate", location (region, department, city) and distance from the profile's city, remote mode and minimum remote days, duration, start before a date or ASAP, published within (24 h, 3 days, 7 days, 30 days), sites, seniority and skills; filters live in the URL so a search can be bookmarked. Each card shows the site, title, company, rate, location, remote mode, duration, start, relative publication date and skills, with actions to open the original, save, hide, mark as seen and import into the pipeline (a `CONTACT` opportunity with the role, rate, work mode, location, duration, start date, description, tech stack and original link, its source set to the site). Fully localized FR/EN.
 - [x] Structured-data sites: a generic sitemap and schema.org `JobPosting` reader used for WorkDispo, Next Mondays and Mindquest, the Freelance Factory WordPress reader and the Little Big Connection reader.
-- [x] HTML sites: Silkhom, LeGratin, Freelance-Informatique, Espace Freelance, Beyond Skills IT, Koïno and Sixième Homme readers, each tested on a sample shaped like the site's page.
+- [x] HTML sites: Silkhom, LeGratin, Freelance-Informatique, Beyond Skills IT, Koïno and Sixième Homme readers, each tested on a sample shaped like the site's page.
 - [x] Cross-site duplicates: the same mission published on several sites (WorkDispo republishes Cherry Pick, Collective.work and Free-Work republish Mon Consultant Indépendant) shows as one card, with "Also on" links to each site and the earliest publication date.
 - [x] Saved searches and alerts: save the current filters under a name, see how many new offers match each saved search since it was last opened, and a badge on **Offers** in the navigation.
 - [x] Profile match: a match score from the profile's skills, target daily rate and city, shown on each card, as a sort option and as a "matches my profile" filter.

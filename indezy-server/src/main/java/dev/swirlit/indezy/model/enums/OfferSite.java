@@ -22,7 +22,6 @@ public enum OfferSite {
     SILKHOM("Silkhom", "https://www.silkhom.com", Duration.ofHours(6)),
     LEGRATIN("LeGratin", "https://www.legratin.io", Duration.ofHours(3)),
     FREELANCE_INFORMATIQUE("Freelance-Informatique", "https://www.freelance-informatique.fr", Duration.ofHours(2)),
-    ESPACE_FREELANCE("Espace Freelance", "https://www.espace-freelance.fr", Duration.ofHours(12)),
     BEYOND_SKILLS_IT("Beyond Skills IT", "https://www.beyondskillsit.com", Duration.ofHours(12)),
     KOINO("Koïno", "https://www.koino.fr", Duration.ofHours(12)),
     SIXIEME_HOMME("Sixième Homme", "https://sixiemehomme.io", Duration.ofHours(12)),

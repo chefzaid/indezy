@@ -17,7 +17,6 @@ export type OfferSite =
   | 'SILKHOM'
   | 'LEGRATIN'
   | 'FREELANCE_INFORMATIQUE'
-  | 'ESPACE_FREELANCE'
   | 'BEYOND_SKILLS_IT'
   | 'KOINO'
   | 'SIXIEME_HOMME'

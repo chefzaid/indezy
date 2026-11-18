@@ -4,7 +4,6 @@ import dev.swirlit.indezy.model.enums.OfferSite;
 import dev.swirlit.indezy.model.enums.Seniority;
 import dev.swirlit.indezy.scraping.FakeFetcher;
 import dev.swirlit.indezy.scraping.ScrapedOffer;
-import dev.swirlit.indezy.scraping.SiteResponseException;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 
@@ -13,12 +12,10 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.tuple;
 
 /**
- * Silkhom, LeGratin, Freelance-Informatique, Espace Freelance, Beyond Skills IT, Koïno, Sixième Homme, Castor Network and
- * OuiDesk, read from samples of their pages.
+ * Silkhom, LeGratin, Freelance-Informatique, Beyond Skills IT, Koïno, Sixième Homme, Castor Network and OuiDesk, read from
+ * samples of their pages.
  */
 class HtmlSitesReaderTest {
 
@@ -106,35 +103,6 @@ class HtmlSitesReaderTest {
         assertThat(sap.getStartDate()).isNull();
         assertThat(reader.site()).isEqualTo(OfferSite.FREELANCE_INFORMATIQUE);
         assertThat(reader.domain()).isEqualTo("freelance-informatique.fr");
-    }
-
-    @Test
-    void readsEspaceFreelanceMissionsUntilThePagesEnd() throws Exception {
-        FakeFetcher fetcher = new FakeFetcher().resource(EspaceFreelanceReader.LIST_URL, "espace-freelance-list.html");
-        WorkDispoReaderTest.Batch batch = new WorkDispoReaderTest.Batch(Set.of());
-        EspaceFreelanceReader reader = new EspaceFreelanceReader();
-
-        // Page 2 answers 404, as WordPress does past the last page.
-        reader.read(fetcher, batch);
-
-        assertThat(batch.offers).extracting(ScrapedOffer::getExternalId).containsExactly("14136", "14135");
-        ScrapedOffer soc = batch.offers.get(0);
-        assertThat(soc.getUrl()).isEqualTo("https://www.espace-freelance.fr/missions-disponibles/expert-soc-_-lille-h-f/");
-        assertThat(soc.getCity()).isEqualTo("Lille");
-        assertThat(soc.getDescription()).isEqualTo("Métier : Ingénieur Sécurité\nAgence : Agence Nord\nRéférence : EFN/EXPSOC/DVHH");
-        assertThat(soc.getRateText()).isEqualTo("550 € HT");
-        assertThat(soc.getStartDate()).isEqualTo(LocalDate.of(2026, 11, 1));
-        assertThat(soc.getPublishedAt()).isEqualTo(Instant.parse("2026-10-13T22:00:00Z"));
-        ScrapedOffer network = batch.offers.get(1);
-        assertThat(network.getTitle()).isEqualTo("Technicien Systèmes & Réseaux (F/H) – Lille");
-        assertThat(network.getCity()).isEqualTo("Lille");
-        assertThat(network.getStartAsap()).isTrue();
-        assertThat(network.getStartDate()).isNull();
-        assertThat(network.getDescription()).isNull();
-        assertThat(EspaceFreelanceReader.city("Business Analyst")).isNull();
-        assertThatThrownBy(() -> reader.read(new FakeFetcher(), batch)).isInstanceOf(SiteResponseException.class);
-        assertThat(reader.site()).isEqualTo(OfferSite.ESPACE_FREELANCE);
-        assertThat(reader.domain()).isEqualTo("espace-freelance.fr");
     }
 
     @Test
@@ -347,12 +315,6 @@ class HtmlSitesReaderTest {
                 assertThat(offer.getStartAsap()).isNull();
                 assertThat(offer.getStartDate()).isNotNull();
             });
-        assertThat(new EspaceFreelanceReader().offers(Jsoup.parse("<div class=\"uk-card\"><input class=\"mission_id\" value=\"1\">" +
-            "<a href=\"/missions-disponibles/a/\"><h2>Développeur _ </h2></a></div>" +
-            "<div class=\"uk-card\"><input class=\"mission_id\" value=\"2\"><a href=\"/missions-disponibles/b/\"><h2>Data</h2></a>" +
-            "<ul><li id=\"mission-date-demarrage\">Démarrage : <strong>janvier</strong></li></ul></div>")))
-            .extracting(ScrapedOffer::getCity, ScrapedOffer::getPublishedAt, ScrapedOffer::getStartDate, ScrapedOffer::getStartAsap)
-            .containsExactly(tuple(null, null, null, null), tuple(null, null, null, null));
         ScrapedOffer bare = new SixiemeHommeReader().offer(null, Jsoup.parse("<div class=\"mission-details-header\"><h1>PMO</h1></div>" +
             "<div class=\"mission-row\"><span class=\"row-label\">Début :</span><span class=\"row-value\">Janvier</span></div>"));
         assertThat(bare.getStartAsap()).isNull();

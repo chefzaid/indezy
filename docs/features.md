@@ -591,7 +591,6 @@ kept only when its site marks it as freelance and its title names no CDI or CDD 
 | Silkhom | freelance cards of its offers page | every 6 hours |
 | LeGratin | its missions page | every 3 hours |
 | Freelance-Informatique | its freelance offers, page after page | every 2 hours |
-| Espace Freelance | its missions, page after page | every 12 hours |
 | Beyond Skills IT | offers labelled Freelance | every 12 hours |
 | Koïno | sitemap missions open to applications | every 12 hours |
 | Sixième Homme | the missions its home page showcases (the only public ones) | every 12 hours |

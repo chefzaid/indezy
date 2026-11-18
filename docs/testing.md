@@ -69,6 +69,8 @@ A few suites enforce a rule for all new code:
   every example under `src/main/resources/openapi/examples/` fits its schema.
 - `EnumCheckConstraintsTest` and `ColumnLengthsTest`: a new enum value or a longer column reaches a schema created
   before it.
+- `RetiredOfferSitesTest`: a job board removed from `OfferSite` leaves no row in a site column, nor anything referring
+  to its offers.
 - `app.routes.spec.ts`: every page loads lazily.
 - `i18n.spec.ts`: `en.json` and `fr.json` have the same keys and no empty value.
 - `coverage-sources.spec.ts`: imports every source file listed in `src/app/coverage-sources.ts`, so the coverage report
