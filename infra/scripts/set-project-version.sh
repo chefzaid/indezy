@@ -12,7 +12,7 @@ version="${1:-}"
 
 printf '%s\n' "$version" > VERSION
 mvn --batch-mode --quiet --file indezy-server/pom.xml \
-  org.codehaus.mojo:versions-maven-plugin:2.19.1:set \
+  org.codehaus.mojo:versions-maven-plugin:2.23.0:set \
   -DnewVersion="$version" -DgenerateBackupPoms=false
 
 for manifest in indezy-web/package.json indezy-web/package-lock.json; do

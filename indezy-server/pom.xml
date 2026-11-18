@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.1</version>
+        <version>4.1.2</version>
         <relativePath/>
     </parent>
     
@@ -24,17 +24,15 @@
         <java.version>25</java.version>
         <!-- The reader canaries read live sites and the load test needs a PostgreSQL: each runs on request only (see docs/testing.md). -->
         <test.excludedGroups>canary,load</test.excludedGroups>
-        <!-- Security fixes pending inclusion in the Spring Boot dependency BOM. -->
-        <tomcat.version>11.0.25</tomcat.version>
-        <jjwt.version>0.12.6</jjwt.version>
+        <jjwt.version>0.13.0</jjwt.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <pdfbox.version>3.0.8</pdfbox.version>
         <jsoup.version>1.23.2</jsoup.version>
 
         <!-- Code Quality Plugin Versions -->
-        <jacoco.version>0.8.13</jacoco.version>
+        <jacoco.version>0.8.16</jacoco.version>
         <spotbugs.version>4.9.8.5</spotbugs.version>
-        <checkstyle.version>3.5.0</checkstyle.version>
+        <checkstyle.version>3.6.0</checkstyle.version>
     </properties>
     
     <dependencies>
@@ -144,7 +142,7 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <!-- The 3.x line is built for Spring Boot 4 and Spring Framework 7. -->
-            <version>3.1.1</version>
+            <version>3.2.0</version>
         </dependency>
 
         <!-- PDF documents (activity reports), see ADR 0008 -->
@@ -225,7 +223,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.0</version>
+                <version>3.16.0</version>
                 <configuration>
                     <annotationProcessorPaths>
                         <!-- Lombok must be processed first -->
@@ -257,7 +255,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>3.5.6</version>
                 <configuration>
                     <excludedGroups>${test.excludedGroups}</excludedGroups>
                     <!-- Tests run in the business time zone the server dates invoices and reminders in, so a test's

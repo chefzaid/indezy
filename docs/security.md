@@ -635,10 +635,10 @@ GitLab job credentials.
 
 ### Runtime dependency maintenance
 
-Spring Boot 4.1.1 supplies patched Jackson, Log4j and PostgreSQL JDBC
-dependencies. Tomcat remains overridden to 11.0.25 for CVE-2026-65182,
-CVE-2026-65905 and CVE-2026-68525 until Spring Boot manages a fixed version.
-The web runtime uses digest-pinned NGINX 1.30.4 on Alpine, and both
+Spring Boot 4.1.2 supplies patched Jackson, Log4j, PostgreSQL JDBC and Tomcat
+dependencies, without overrides; its Tomcat 11.0.27 includes the fixes for
+CVE-2026-65182, CVE-2026-65905 and CVE-2026-68525.
+The web runtime uses digest-pinned NGINX 1.30.6 on Alpine, and both
 `Dockerfile.runtime` files run `apk upgrade` before dropping privileges. Rebuild
 and scan packaged images to verify both application and OS dependencies.
 NGINX runs directly as PID 1 and supervises its own workers; the web image and

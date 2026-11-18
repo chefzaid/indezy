@@ -45,12 +45,12 @@ variables:
   SONAR_USER_HOME: "$CI_PROJECT_DIR/.cache/sonar"
   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.cache/maven"
   NPM_CONFIG_CACHE: "$CI_PROJECT_DIR/.cache/npm"
-  KANIKO_IMAGE: "gcr.io/kaniko-project/executor@sha256:c3109d5926a997b100c4343944e06c6b30a6804b2f9abe0994d3de6ef92b028e"
+  KANIKO_IMAGE: "gcr.io/kaniko-project/executor@sha256:2562c4fe551399514277ffff7dcca9a3b1628c4ea38cb017d7286dc6ea52f4cd"
   KANIKO_EXECUTOR: "$CI_PROJECT_DIR/.cache/kaniko/executor"
 
 01-build:
   stage: build
-  image: docker.io/library/maven@sha256:8df9a1dbc464977482f726f28a8a1985dcef4e4e68bdda1ae0330711bcb3a192
+  image: docker.io/library/maven@sha256:583d61cfc8455fc01a8f2fbc614f498ef0d5bf4a4e297d34c64ed8b7d602e02c
   cache:
     - key: indezy-maven-v2
       paths:
@@ -61,7 +61,7 @@ variables:
         - .cache/npm/
       policy: pull-push
   before_script:
-    - apk add --no-cache bash git jq kubectl nodejs npm python3 py3-yaml
+    - apk add --no-cache bash git jq kubectl nodejs-current npm python3 py3-yaml
     - export APP_VERSION="$(infra/scripts/current-version.sh)"
   script:
     - infra/scripts/ci-verify.sh build
@@ -83,7 +83,7 @@ variables:
   needs:
     - job: 01-build
       artifacts: false
-  image: docker.io/library/maven@sha256:8df9a1dbc464977482f726f28a8a1985dcef4e4e68bdda1ae0330711bcb3a192
+  image: docker.io/library/maven@sha256:583d61cfc8455fc01a8f2fbc614f498ef0d5bf4a4e297d34c64ed8b7d602e02c
   cache:
     - key: indezy-maven-v2
       paths:
@@ -94,7 +94,7 @@ variables:
         - .cache/npm/
       policy: pull-push
   before_script:
-    - apk add --no-cache bash chromium git nodejs npm python3
+    - apk add --no-cache bash chromium git nodejs-current npm python3
     - export APP_VERSION="$(infra/scripts/current-version.sh)"
   script:
     - infra/scripts/ci-verify.sh test
@@ -135,10 +135,10 @@ variables:
     - job: 02-test
       artifacts: false
   image:
-    name: docker.io/library/maven@sha256:8df9a1dbc464977482f726f28a8a1985dcef4e4e68bdda1ae0330711bcb3a192
+    name: docker.io/library/maven@sha256:583d61cfc8455fc01a8f2fbc614f498ef0d5bf4a4e297d34c64ed8b7d602e02c
     entrypoint: [""]
   cache:
-    - key: indezy-kaniko-executor-v1
+    - key: indezy-kaniko-executor-v2
       paths:
         - .cache/kaniko/
       policy: pull-push
@@ -167,7 +167,7 @@ variables:
     - job: 03-package
       artifacts: false
   image:
-    name: mcr.microsoft.com/playwright@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e
+    name: mcr.microsoft.com/playwright@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
     entrypoint: [""]
   cache:
     - key: indezy-playwright-npm-v2
@@ -210,7 +210,7 @@ variables:
     - job: 02-test
       artifacts: true
   image:
-    name: node:24.15.0-bookworm-slim@sha256:4e6b70dd6cbfc88c8157ba19aa3d9f9cce6ba4703576d55459e45efcbc9c5f5d
+    name: node:26.13.1-bookworm-slim@sha256:5df79989ed685e09f0a98019db4cebfb22fb9df1a53c0161664a011f7ff6b0f1
     entrypoint: [""]
   cache:
     - key: indezy-maven-v2
@@ -225,7 +225,7 @@ variables:
     - apt-get update -qq
     - apt-get install -y -qq --no-install-recommends git ca-certificates
     - export APP_VERSION="$("$CI_PROJECT_DIR/infra/scripts/current-version.sh")"
-    - npm install --global @sonar/scan@5.0.0
+    - npm install --global @sonar/scan@5.0.2
   script:
     - bash infra/scripts/test-quality.sh
     - bash infra/scripts/ci-quality.sh
@@ -256,7 +256,7 @@ variables:
 03-security:
   stage: verify
   image:
-    name: docker.io/aquasec/trivy:0.74.0@sha256:ee940acbf1f58ebadb42d01434ce4609530bf1b52536afbd1eee66cd7123c5c9
+    name: docker.io/aquasec/trivy:0.76.2@sha256:6fa071ef8daa2e58b90cbf1710bedca91adbb3bf98693533226f442035b836a6
     entrypoint: [""]
   variables:
     TRIVY_CACHE_DIR: .cache/trivy
@@ -304,10 +304,10 @@ variables:
     - job: 03-package
       artifacts: false
   image:
-    name: docker.io/library/maven@sha256:8df9a1dbc464977482f726f28a8a1985dcef4e4e68bdda1ae0330711bcb3a192
+    name: docker.io/library/maven@sha256:583d61cfc8455fc01a8f2fbc614f498ef0d5bf4a4e297d34c64ed8b7d602e02c
     entrypoint: [""]
   cache:
-    - key: indezy-kaniko-executor-v1
+    - key: indezy-kaniko-executor-v2
       paths:
         - .cache/kaniko/
       policy: pull-push
@@ -352,14 +352,14 @@ variables:
     - job: 01-release
       artifacts: true
   image:
-    name: docker.io/library/maven@sha256:8df9a1dbc464977482f726f28a8a1985dcef4e4e68bdda1ae0330711bcb3a192
+    name: docker.io/library/maven@sha256:583d61cfc8455fc01a8f2fbc614f498ef0d5bf4a4e297d34c64ed8b7d602e02c
     entrypoint: [""]
   resource_group: indezy-production
   interruptible: false
   before_script:
     - apk add --no-cache bash curl git jq
-    - curl --fail --silent --show-error --location --output /usr/local/bin/kubectl "https://dl.k8s.io/release/v1.35.4/bin/linux/amd64/kubectl"
-    - echo "b529430df69a688fd61b64ad2299edb5fd71cb58be2a4779dba624c7d3510efd  /usr/local/bin/kubectl" | sha256sum -c
+    - curl --fail --silent --show-error --location --output /usr/local/bin/kubectl "https://dl.k8s.io/release/v1.35.10/bin/linux/amd64/kubectl"
+    - echo "c49a28f1f4efc4d475ed05f47f2ce8e563bf7bef69ed77fe1b924ea6d83b6327  /usr/local/bin/kubectl" | sha256sum -c
     - chmod 0755 /usr/local/bin/kubectl
   script:
     - infra/scripts/ci-release.sh deploy
@@ -379,7 +379,7 @@ variables:
 set-major-version:
   stage: version
   image:
-    name: docker.io/library/maven@sha256:8df9a1dbc464977482f726f28a8a1985dcef4e4e68bdda1ae0330711bcb3a192
+    name: docker.io/library/maven@sha256:583d61cfc8455fc01a8f2fbc614f498ef0d5bf4a4e297d34c64ed8b7d602e02c
     entrypoint: [""]
   needs: []
   dependencies: []
@@ -404,7 +404,7 @@ set-major-version:
 04-reader-canary:
   stage: verify
   needs: []
-  image: docker.io/library/maven@sha256:8df9a1dbc464977482f726f28a8a1985dcef4e4e68bdda1ae0330711bcb3a192
+  image: docker.io/library/maven@sha256:583d61cfc8455fc01a8f2fbc614f498ef0d5bf4a4e297d34c64ed8b7d602e02c
   cache:
     - key: indezy-maven-v2
       paths:
