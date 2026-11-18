@@ -1,6 +1,6 @@
 {
   "name": "indezy-web",
-  "version": "1.29.0",
+  "version": "1.29.7",
   "description": "Job tracking application for freelancers - Frontend",
   "scripts": {
     "ng": "ng",
