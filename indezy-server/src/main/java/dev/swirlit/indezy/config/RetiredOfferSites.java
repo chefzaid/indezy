@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
  * <p>Every site column stores the {@link OfferSite} name, which Hibernate cannot load once the board has left the enum,
  * so a retired board's rows would break the offer feed, the site health page and the collection. Before the
  * application takes traffic, this runner deletes the rows that name another value in every column mapped to
- * {@link OfferSite}: the board's offers with the rows that refer to them, its runs, skips, copies, visits and
- * workspace exclusions. It changes nothing once no row names a retired board, and nothing on another database.
+ * {@link OfferSite}: the board's offers with the rows that refer to them, its runs, skips, copies and workspace
+ * exclusions. It changes nothing once no row names a retired board, and nothing on another database.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 6)

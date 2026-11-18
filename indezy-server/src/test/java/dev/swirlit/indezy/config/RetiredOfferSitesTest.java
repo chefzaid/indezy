@@ -42,9 +42,10 @@ class RetiredOfferSitesTest {
         List<String> columns = RetiredOfferSites.siteColumns(EnumCheckConstraints.enumColumns(
             entityManagerFactory.unwrap(SessionFactoryImplementor.class).getMappingMetamodel()));
 
-        assertThat(columns).contains("job_offers.site", "offer_appearances.site", "offer_board_visits.site",
-            "offer_site_exclusions.site", "offer_site_statuses.site", "offer_skips.site");
-        assertThat(columns).doesNotContain("projects.status", "job_offer_states.applied_via");
+        assertThat(columns).contains("job_offers.site", "offer_appearances.site", "offer_site_exclusions.site",
+            "offer_site_statuses.site", "offer_skips.site");
+        // The visits name the sites the feed does not read (OfferLeftOutSite), which stay.
+        assertThat(columns).doesNotContain("offer_board_visits.site", "projects.status", "job_offer_states.applied_via");
     }
 
     @Test
