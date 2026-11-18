@@ -169,10 +169,13 @@ per account. A hidden profile and an unknown address both answer "No profile her
 
 ### Testimonials
 
-**Profile → Public profile → Testimonials** asks a client contact, or someone named, for a short recommendation through a
-link to copy or send by email. Its author writes it without an account (20 to 1,500 characters, with their name and
-optionally their title), agreeing to be named with it; the link is shown once, stays open 30 days and is answered
-once. A received testimonial waits **To review** until **Show on my public page** puts it on `/p/<address>`, under
+**Profile → Public profile → Testimonials** asks a client contact, or an **External person (outside your contacts)**, for
+a short recommendation. An external person is asked by their first name, last name and email; Indezy emails them their
+own link, as it does a contact with an email (in the freelancer's language: who asks, what for, until when the link
+opens, and that it can be ignored), at most 20 emailed a day. The link is also shown once, to copy or send by hand, and
+the page says whether the email went. Its author writes it without an account (20 to 1,500 characters, with their name
+and optionally their title), agreeing to be named with it; the link stays open 30 days and is answered once. Once
+written, the page offers to create an Indezy account, never needed (while sign-up is open). A received testimonial waits **To review** until **Show on my public page** puts it on `/p/<address>`, under
 **Testimonials**; **Hide** takes it off and deleting it closes its link. Testimonials are part of the data export.
 
 ### Member Network

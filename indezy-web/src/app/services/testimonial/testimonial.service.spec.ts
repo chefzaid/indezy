@@ -10,9 +10,9 @@ describe('TestimonialService', () => {
     const http = TestBed.inject(HttpTestingController);
     service.list().subscribe();
     http.expectOne(call => call.method === 'GET' && call.url.endsWith('/testimonials'));
-    service.request(7, null).subscribe();
+    service.request({ contactId: 7 }).subscribe();
     expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/testimonials')).request.body)
-      .toEqual({ contactId: 7, recipientName: null });
+      .toEqual({ contactId: 7 });
     service.setStatus(3, 'APPROVED').subscribe();
     expect(http.expectOne(call => call.url.endsWith('/testimonials/3/status')).request.body).toEqual({ status: 'APPROVED' });
     service.delete(3).subscribe();

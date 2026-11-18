@@ -55,3 +55,32 @@ h1 {
   justify-content: flex-end;
   margin-top: 12px;
 }
+
+// Once written, an optional invitation to Indezy: set apart from the thanks, never in its way.
+.join {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--app-border);
+
+  h2 {
+    margin: 0;
+    font-size: 1.0625rem;
+  }
+
+  p {
+    max-width: 52ch;
+    margin: 0;
+    color: var(--app-text-muted);
+    font-size: 0.875rem;
+  }
+
+  a {
+    margin-top: 4px;
+    border-radius: 999px;
+  }
+}

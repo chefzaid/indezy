@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { PublicTestimonialRequest, Testimonial, TestimonialAnswer, TestimonialLink, TestimonialStatus } from '../../models';
+import { PublicTestimonialRequest, Testimonial, TestimonialAnswer, TestimonialLink, TestimonialRequest, TestimonialStatus } from '../../models';
 
 export const TESTIMONIAL_TOKEN_HEADER = 'X-Testimonial-Token';
 
@@ -17,8 +17,9 @@ export class TestimonialService {
     return this.http.get<Testimonial[]>(this.url);
   }
 
-  request(contactId: number | null, recipientName: string | null): Observable<TestimonialLink> {
-    return this.http.post<TestimonialLink>(this.url, { contactId, recipientName });
+  /** Asks a contact, or an external person, the link emailed when an address is known. */
+  request(request: TestimonialRequest): Observable<TestimonialLink> {
+    return this.http.post<TestimonialLink>(this.url, request);
   }
 
   setStatus(id: number, status: Extract<TestimonialStatus, 'APPROVED' | 'HIDDEN'>): Observable<Testimonial> {

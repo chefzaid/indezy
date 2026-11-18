@@ -3,23 +3,38 @@
   <p class="intro">{{ 'profile.testimonials.intro' | translate }}</p>
 
   <form [formGroup]="form" (ngSubmit)="ask()" class="ask">
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" class="recipient" subscriptSizing="dynamic">
       <mat-label>{{ 'profile.testimonials.contact' | translate }}</mat-label>
-      <mat-select formControlName="contactId" data-testimonial-contact>
-        <mat-option [value]="null">{{ 'profile.testimonials.someoneElse' | translate }}</mat-option>
+      <mat-select formControlName="contactId" [panelWidth]="null" data-testimonial-contact>
+        <mat-option [value]="EXTERNAL" data-testimonial-external-option>{{ 'profile.testimonials.someoneElse' | translate }}</mat-option>
         @for (contact of contacts; track contact.id) {
           <mat-option [value]="contact.id">{{ contact.firstName }} {{ contact.lastName }}{{ contact.clientName ? ' · ' + contact.clientName : '' }}</mat-option>
         }
       </mat-select>
+      @if (form.controls.contactId.value === EXTERNAL) {
+        <mat-hint>{{ 'profile.testimonials.externalHint' | translate }}</mat-hint>
+      }
     </mat-form-field>
-    @if (!form.controls.contactId.value) {
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'profile.testimonials.recipientName' | translate }}</mat-label>
-        <input matInput formControlName="recipientName" maxlength="120" data-testimonial-name>
-        <mat-error>{{ 'profile.testimonials.recipientRequired' | translate }}</mat-error>
-      </mat-form-field>
+    @if (form.controls.contactId.value === EXTERNAL) {
+      <div class="external" data-testimonial-external>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'profile.testimonials.firstName' | translate }}</mat-label>
+          <input matInput formControlName="firstName" maxlength="60" autocomplete="off" data-testimonial-first-name>
+          <mat-error>{{ 'profile.testimonials.firstNameRequired' | translate }}</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'profile.testimonials.lastName' | translate }}</mat-label>
+          <input matInput formControlName="lastName" maxlength="60" autocomplete="off" data-testimonial-last-name>
+          <mat-error>{{ 'profile.testimonials.lastNameRequired' | translate }}</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="email">
+          <mat-label>{{ 'profile.testimonials.recipientEmail' | translate }}</mat-label>
+          <input matInput type="email" formControlName="email" maxlength="254" autocomplete="off" data-testimonial-email>
+          <mat-error>{{ 'profile.testimonials.emailInvalid' | translate }}</mat-error>
+        </mat-form-field>
+      </div>
     }
-    <button mat-stroked-button type="submit" data-ask-testimonial>
+    <button mat-flat-button type="submit" [disabled]="asking" data-ask-testimonial>
       <mat-icon>rate_review</mat-icon>{{ 'profile.testimonials.ask' | translate }}
     </button>
   </form>
@@ -28,6 +43,13 @@
     <mat-card class="asked-link" data-testimonial-link>
       <mat-card-content>
         <p><strong>{{ 'profile.testimonials.linkFor' | translate:{ name: asked.recipient } }}</strong></p>
+        @if (asked.emailed) {
+          <p class="sent" data-testimonial-emailed>
+            <mat-icon aria-hidden="true">mark_email_read</mat-icon>{{ 'profile.testimonials.emailed' | translate:{ email: asked.email } }}
+          </p>
+        } @else if (asked.email) {
+          <p class="not-sent" data-testimonial-not-emailed>{{ 'profile.testimonials.notEmailed' | translate:{ email: asked.email } }}</p>
+        }
         <p class="hint">{{ 'profile.testimonials.linkOnce' | translate }}</p>
         <code class="url">{{ asked.url }}</code>
         <div class="actions">
@@ -44,7 +66,11 @@
     <mat-card class="testimonial" [attr.data-testimonial]="testimonial.id">
       <mat-card-content>
         <div class="head">
-          <span class="who">{{ testimonial.authorName ?? testimonial.recipientName }}{{ testimonial.authorTitle ? ' · ' + testimonial.authorTitle : '' }}</span>
+          <span class="who">{{ testimonial.authorName ?? testimonial.recipientName }}{{ testimonial.authorTitle ? ' · ' + testimonial.authorTitle : '' }}
+            @if (testimonial.recipientEmail && testimonial.status === 'REQUESTED') {
+              <span class="to">{{ testimonial.recipientEmail }}</span>
+            }
+          </span>
           <span class="status" [class]="'status status-' + testimonial.status" data-testimonial-status>
             {{ 'profile.testimonials.statuses.' + testimonial.status | translate }}
           </span>

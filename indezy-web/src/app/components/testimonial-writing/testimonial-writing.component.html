@@ -18,6 +18,13 @@
           <mat-icon class="state-icon done" aria-hidden="true">check_circle</mat-icon>
           <h1>{{ 'testimonialWriting.thanksTitle' | translate }}</h1>
           <p>{{ 'testimonialWriting.thanksMessage' | translate:{ name: request.freelancerName } }}</p>
+          @if (signUpOpen) {
+            <section class="join" data-testimonial-join>
+              <h2>{{ 'testimonialWriting.joinTitle' | translate }}</h2>
+              <p>{{ 'testimonialWriting.joinMessage' | translate }}</p>
+              <a mat-stroked-button routerLink="/register" data-testimonial-join-link>{{ 'testimonialWriting.joinAction' | translate }}</a>
+            </section>
+          }
         </div>
       } @else {
         <h1>{{ 'testimonialWriting.title' | translate:{ name: request.freelancerName } }}</h1>

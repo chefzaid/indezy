@@ -11,19 +11,61 @@
     font-size: 0.875rem;
   }
 
+  // Whom to ask, on a line of its own so that its choice reads in full; then, for an external person, their names and
+  // email side by side (stacked on a phone), and the button.
   .ask {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: flex-start;
-    gap: 0 12px;
+    gap: 4px;
     margin-top: 12px;
 
-    mat-form-field {
-      flex: 1 1 220px;
+    .recipient {
+      width: 100%;
+      max-width: 520px;
+      margin-bottom: 12px;
+    }
+
+    .external {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr);
+      gap: 0 12px;
+      width: 100%;
+      max-width: 880px;
     }
 
     button {
-      margin-top: 8px;
+      margin-top: 4px;
+      border-radius: 999px;
+    }
+  }
+
+  .sent,
+  .not-sent {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+  }
+
+  .sent {
+    color: var(--app-positive);
+  }
+
+  .not-sent {
+    color: var(--app-warning);
+  }
+
+  .to {
+    margin-left: 8px;
+    color: var(--app-text-muted);
+    font-weight: 400;
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 719.98px) {
+    .ask .external {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 

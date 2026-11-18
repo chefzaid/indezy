@@ -18,7 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -34,6 +37,8 @@ public class TestimonialService {
     static final Duration LINK_VALIDITY = Duration.ofDays(30);
     /** Requests not yet answered a workspace may have at once. */
     static final int MAX_OPEN_REQUESTS = 50;
+    /** Requests emailed a workspace may ask in a day, so that Indezy's address is never a way to reach many strangers. */
+    static final int MAX_EMAILED_A_DAY = 20;
     private static final int MAX_TOKEN_LENGTH = 128;
     private static final String LINK_INVALID = "This testimonial link is not valid or has expired";
 
@@ -47,23 +52,46 @@ public class TestimonialService {
         return testimonials.findByFreelanceIdOrderByIdDesc(freelanceId).stream().map(TestimonialService::dto).toList();
     }
 
-    /** Asks a testimonial of a contact of the workspace (checked by the caller) or of someone named; the token is shown once. */
+    /**
+     * Asks a testimonial of a contact of the workspace (checked by the caller), with their email when they have one, or of
+     * an external person, named with the email their link goes to (or, as before, of someone named, the link given by
+     * hand); the token is shown once.
+     */
     @Transactional
     public TestimonialDtos.Link request(Long freelanceId, TestimonialDtos.Request request) {
         if (testimonials.countByFreelanceIdAndStatus(freelanceId, TestimonialStatus.REQUESTED) >= MAX_OPEN_REQUESTS) {
             throw new InvalidStateException("At most " + MAX_OPEN_REQUESTS + " testimonials can wait for their author at once");
         }
-        String recipient = request.contactId() != null ?
-            contacts.findById(request.contactId()).map(TestimonialService::name).orElseThrow(() -> new ResourceNotFoundException("Contact not found")) :
-            blankToNull(request.recipientName());
+        String recipient;
+        String email;
+        if (request.contactId() != null) {
+            Contact contact = contacts.findById(request.contactId()).orElseThrow(() -> new ResourceNotFoundException("Contact not found"));
+            recipient = name(contact);
+            email = blankToNull(contact.getEmail());
+        } else if (request.recipientEmail() != null || request.recipientFirstName() != null || request.recipientLastName() != null) {
+            recipient = join(request.recipientFirstName(), request.recipientLastName());
+            email = blankToNull(request.recipientEmail());
+            if (blankToNull(request.recipientFirstName()) == null || blankToNull(request.recipientLastName()) == null || email == null) {
+                throw new IllegalArgumentException("An external person is asked with their first name, last name and email");
+            }
+        } else {
+            recipient = blankToNull(request.recipientName());
+            email = null;
+        }
         if (recipient == null || recipient.isBlank()) {
             throw new IllegalArgumentException("A testimonial is asked of a contact or of someone named");
+        }
+        // Creation times are written in the server's zone.
+        if (email != null && testimonials.countByFreelanceIdAndRecipientEmailIsNotNullAndCreatedAtAfter(freelanceId,
+            LocalDateTime.ofInstant(clock.instant().minus(Duration.ofDays(1)), ZoneId.systemDefault())) >= MAX_EMAILED_A_DAY) {
+            throw new InvalidStateException("At most " + MAX_EMAILED_A_DAY + " testimonials can be emailed a day");
         }
         String token = Tokens.random();
         Testimonial testimonial = new Testimonial();
         testimonial.setFreelanceId(freelanceId);
         testimonial.setContactId(request.contactId());
         testimonial.setRecipientName(recipient);
+        testimonial.setRecipientEmail(email == null ? null : email.toLowerCase(Locale.ROOT));
         testimonial.setTokenHash(Tokens.sha256Hex(token));
         testimonial.setExpiresAt(clock.instant().plus(LINK_VALIDITY));
         Testimonial saved = testimonials.save(testimonial);
@@ -154,7 +182,7 @@ public class TestimonialService {
 
     private static TestimonialDtos.Testimonial dto(Testimonial testimonial) {
         return new TestimonialDtos.Testimonial(testimonial.getId(), testimonial.getContactId(), testimonial.getRecipientName(),
-            testimonial.getStatus(), testimonial.getExpiresAt(), testimonial.getAuthorName(), testimonial.getAuthorTitle(),
+            testimonial.getRecipientEmail(), testimonial.getStatus(), testimonial.getExpiresAt(), testimonial.getAuthorName(), testimonial.getAuthorTitle(),
             testimonial.getText(), testimonial.getReceivedAt());
     }
 

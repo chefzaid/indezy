@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { environment } from '../../../environments/environment';
+import { SIGN_UP_OPEN } from '../../shared/utils/sign-up';
 import { AuthService } from '../../services/auth/auth.service';
 import { AppLanguage, LANGUAGE_STORAGE_KEY } from '../../shared/locale/app-locale';
 import { LogoComponent } from '../../shared/components/logo/logo.component';
@@ -64,8 +65,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     { column: 'LOST', cards: [{ role: 'Dev Python', client: 'Startup', rate: 500 }] },
     { column: 'WON', cards: [{ role: 'Data engineer', client: 'Énergie · Nantes', rate: 680 }] }
   ];
-  /** Sign-up opens to the public before launch (TODO.md, Needs Input): until then it is offered in development only. */
-  readonly signUpOpen = !environment.production;
+  readonly signUpOpen = SIGN_UP_OPEN;
 
   private readonly added: Element[] = [];
   private previousTitle = '';

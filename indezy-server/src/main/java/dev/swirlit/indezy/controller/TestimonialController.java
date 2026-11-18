@@ -2,6 +2,7 @@ package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.TestimonialDtos;
 import dev.swirlit.indezy.service.AccessGuard;
+import dev.swirlit.indezy.service.TestimonialRequestEmails;
 import dev.swirlit.indezy.service.TestimonialService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,6 +27,7 @@ import java.util.List;
 public class TestimonialController {
 
     private final TestimonialService testimonials;
+    private final TestimonialRequestEmails emails;
     private final AccessGuard accessGuard;
 
     @Operation(summary = "The workspace's testimonials, the latest asked first")
@@ -34,13 +36,14 @@ public class TestimonialController {
         return testimonials.list(workspace());
     }
 
-    @Operation(summary = "Ask a testimonial", description = "Of a contact or of someone named; the link's token is answered once")
+    @Operation(summary = "Ask a testimonial", description = "Of a contact, or of an external person by email; the link's token is answered once, " +
+        "and emailed to the person when an address is known (emailed says whether it went)")
     @PostMapping("/testimonials")
     @ResponseStatus(HttpStatus.CREATED)
     public TestimonialDtos.Link request(@Valid @RequestBody TestimonialDtos.Request request) {
         Long freelanceId = workspace();
         accessGuard.requireContactIfPresent(request.contactId());
-        return testimonials.request(freelanceId, request);
+        return emails.send(freelanceId, testimonials.request(freelanceId, request));
     }
 
     @Operation(summary = "Show a received testimonial on the public profile, or hide it")

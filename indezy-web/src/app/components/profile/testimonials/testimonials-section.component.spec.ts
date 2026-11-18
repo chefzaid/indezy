@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
@@ -41,26 +42,49 @@ describe('TestimonialsSectionComponent', () => {
     expect(element.querySelector('[data-testimonial="2"] [data-approve-testimonial]')).toBeNull();
   });
 
-  it('asks a contact or someone named, and builds the link from its token', () => {
+  it('asks a contact, or an external person by their names and email, and builds the link from its token', () => {
     create([], [{ id: 7, firstName: 'Léa', lastName: 'Martin', clientId: 3 } as ContactDto]);
     const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    // An external person is the default: their names and email are asked, each required.
+    expect(element.querySelector('[data-testimonial-external]')).not.toBeNull();
+    component.ask();
+    expect(testimonials.request).not.toHaveBeenCalled();
+    component.form.patchValue({ firstName: 'Marie', lastName: 'Durand', email: 'not-an-email' });
     component.ask();
     expect(testimonials.request).not.toHaveBeenCalled();
 
-    testimonials.request.and.returnValue(of({ token: 'abc', testimonial: { ...asked, id: 3, recipientName: 'Léa Martin' } }));
-    component.form.patchValue({ contactId: 7, recipientName: 'ignored' });
+    testimonials.request.and.returnValue(of({ token: 'abc', emailed: true, testimonial: { ...asked, id: 3, recipientName: 'Marie Durand',
+      recipientEmail: 'marie@acme.example' } }));
+    component.form.patchValue({ firstName: ' Marie ', lastName: 'Durand', email: ' marie@acme.example ' });
     component.ask();
-    expect(testimonials.request).toHaveBeenCalledWith(7, null);
-    expect(component.asked).toEqual({ recipient: 'Léa Martin', url: `${location.origin}/testimonial#abc` });
+    expect(testimonials.request).toHaveBeenCalledWith({ recipientFirstName: 'Marie', recipientLastName: 'Durand',
+      recipientEmail: 'marie@acme.example' });
+    expect(component.asked).toEqual({ recipient: 'Marie Durand', url: `${location.origin}/testimonial#abc`, email: 'marie@acme.example',
+      emailed: true });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-testimonial-emailed]')?.textContent).toContain('profile.testimonials.emailed');
     expect(component.mailto(component.asked!)).toContain(encodeURIComponent('/testimonial#abc'));
 
-    component.form.patchValue({ recipientName: ' Paul ' });
+    // A contact: no names asked, and an email that could not go says so.
+    testimonials.request.and.returnValue(of({ token: 'def', emailed: false, testimonial: { ...asked, id: 4, recipientName: 'Léa Martin',
+      recipientEmail: 'lea@acme.example' } }));
+    component.form.patchValue({ contactId: 7 });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-testimonial-external]')).toBeNull();
     component.ask();
-    expect(testimonials.request).toHaveBeenCalledWith(null, 'Paul');
-    testimonials.request.and.returnValue(throwError(() => new Error('down')));
-    component.form.patchValue({ recipientName: 'Paul' });
+    expect(testimonials.request).toHaveBeenCalledWith({ contactId: 7 });
+    fixture.detectChanges();
+    expect(element.querySelector('[data-testimonial-not-emailed]')).not.toBeNull();
+
+    testimonials.request.and.returnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+    component.form.patchValue({ contactId: 7 });
+    component.ask();
+    expect(notifications.error).toHaveBeenCalledWith('profile.testimonials.askLimit');
+    testimonials.request.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
     component.ask();
     expect(notifications.error).toHaveBeenCalledWith('profile.testimonials.askError');
+    expect(component.asking).toBeFalse();
   });
 
   it('shows, hides and deletes a testimonial once confirmed', () => {
@@ -86,7 +110,7 @@ describe('TestimonialsSectionComponent', () => {
     create(new Error('down'), new Error('down'));
     expect(notifications.error).toHaveBeenCalledWith('profile.testimonials.loadError');
     spyOn(navigator.clipboard, 'writeText').and.returnValue(Promise.resolve());
-    fixture.componentInstance.copy({ recipient: 'Paul', url: 'https://x/testimonial#t' });
+    fixture.componentInstance.copy({ recipient: 'Paul', url: 'https://x/testimonial#t', email: null, emailed: false });
     await Promise.resolve();
     expect(notifications.success).toHaveBeenCalledWith('profile.testimonials.copied');
   });

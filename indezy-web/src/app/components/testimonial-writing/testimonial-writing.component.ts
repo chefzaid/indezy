@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule } from '@ngx-translate/core';
+import { SIGN_UP_OPEN } from '../../shared/utils/sign-up';
 
 import { PublicTestimonialRequest } from '../../models';
 import { NotificationService } from '../../services/notification/notification.service';
@@ -23,7 +24,7 @@ import { PublicPageHeaderComponent } from '../../shared/components/public-page-h
  */
 @Component({
   selector: 'app-testimonial-writing',
-  imports: [ReactiveFormsModule, MatButtonModule, MatCardModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [RouterLink, ReactiveFormsModule, MatButtonModule, MatCardModule, MatCheckboxModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslateModule, PublicPageHeaderComponent],
   templateUrl: './testimonial-writing.component.html',
   styleUrls: ['./testimonial-writing.component.scss'],
@@ -42,6 +43,8 @@ export class TestimonialWritingComponent implements OnInit {
     consent: [false, Validators.requiredTrue]
   });
 
+  /** Once written, its author may create an account, without having to. */
+  readonly signUpOpen = SIGN_UP_OPEN;
   request?: PublicTestimonialRequest;
   isLoading = true;
   invalidLink = false;

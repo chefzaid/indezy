@@ -1403,11 +1403,9 @@
     },
     "testimonials": {
       "title": "Testimonials",
-      "intro": "Ask a client contact for a short recommendation through a link: they write it without an account, and you choose whether it shows on your public page.",
+      "intro": "Ask a client contact, or an external person by email, for a short recommendation: they write it from a personal link, without an account, and you choose whether to show it on your public page.",
       "contact": "Ask",
-      "someoneElse": "Someone who is not a contact",
-      "recipientName": "Their name",
-      "recipientRequired": "Pick a contact or type a name.",
+      "someoneElse": "External person (outside your contacts)",
       "ask": "Ask for a testimonial",
       "linkFor": "Link for {{name}}",
       "linkOnce": "Copy it now: it is shown once. It stays open 30 days, until it is written.",
@@ -1429,7 +1427,17 @@
         "RECEIVED": "To review",
         "APPROVED": "Shown",
         "HIDDEN": "Hidden"
-      }
+      },
+      "externalHint": "They will receive a personal link by email to write their recommendation, without creating an account.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "recipientEmail": "Email",
+      "firstNameRequired": "Their first name is required.",
+      "lastNameRequired": "Their last name is required.",
+      "emailInvalid": "Enter a valid email address.",
+      "emailed": "An email with their personal link was sent to {{email}}.",
+      "notEmailed": "The email to {{email}} could not go: send them the link below.",
+      "askLimit": "Too many recommendations asked: 50 at most waiting, and 20 emailed a day."
     },
     "network": {
       "intro": "Join the member network of freelancers on Indezy: members see your card, and soon follow you and read your posts. You choose what your card shows, and leaving hides it at once.",
@@ -3284,7 +3292,10 @@
     "invalidTitle": "This link is not valid",
     "invalidMessage": "It may have expired or been withdrawn. Ask its sender for a new one.",
     "alreadyWritten": "This testimonial has already been written.",
-    "sendError": "Your testimonial could not be sent. Try again in a moment."
+    "sendError": "Your testimonial could not be sent. Try again in a moment.",
+    "joinTitle": "Are you a freelancer?",
+    "joinMessage": "Indezy gathers your opportunities, clients, timesheets and invoices, and lets you ask for recommendations too. An account is not needed for the recommendation you just wrote.",
+    "joinAction": "Create my account (optional)"
   },
   "quotes": {
     "title": "Quotes",

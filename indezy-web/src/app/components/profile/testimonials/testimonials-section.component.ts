@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -16,10 +17,15 @@ import { NotificationService } from '../../../services/notification/notification
 import { TestimonialService } from '../../../services/testimonial/testimonial.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 
-/** A testimonial's link, built from its token once: the page an author opens without an account. */
+/** The choice of someone outside the contacts, who is then asked by their names and email. */
+const EXTERNAL = 'EXTERNAL';
+
+/** A testimonial's link, built from its token once: the page an author opens without an account, and where it was emailed. */
 interface AskedLink {
   recipient: string;
   url: string;
+  email: string | null;
+  emailed: boolean;
 }
 
 /**
@@ -41,14 +47,20 @@ export class TestimonialsSectionComponent implements OnInit {
   private readonly notifications = inject(NotificationService);
   private readonly changes = inject(ChangeDetectorRef);
 
-  readonly form = inject(FormBuilder).group({
-    contactId: [null as number | null],
-    recipientName: ['', Validators.maxLength(120)]
+  /** A contact, or an external person: their first and last names and the email their link goes to. */
+  readonly form = inject(FormBuilder).nonNullable.group({
+    contactId: [EXTERNAL as number | typeof EXTERNAL],
+    firstName: ['', [Validators.required, Validators.maxLength(60)]],
+    lastName: ['', [Validators.required, Validators.maxLength(60)]],
+    // An address the link can reach: a domain with its extension, as the server asks.
+    email: ['', [Validators.required, Validators.email, Validators.pattern(/^[^@\s]+@[^@\s]+\.[^@\s]+$/), Validators.maxLength(254)]]
   });
 
   testimonials: Testimonial[] = [];
   contacts: ContactDto[] = [];
   asked: AskedLink | null = null;
+  readonly EXTERNAL = EXTERNAL;
+  asking = false;
 
   ngOnInit(): void {
     this.testimonialService.list().subscribe({
@@ -65,20 +77,30 @@ export class TestimonialsSectionComponent implements OnInit {
   }
 
   ask(): void {
-    const { contactId, recipientName } = this.form.getRawValue();
-    const name = recipientName?.trim() || null;
-    if (!contactId && !name) {
-      this.form.controls.recipientName.setErrors({ required: true });
-      this.form.markAllAsTouched();
-      return;
+    const { contactId, firstName, lastName, email } = this.form.getRawValue();
+    const external = { firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim() };
+    if (contactId === EXTERNAL) {
+      this.form.patchValue(external);
+      if (this.form.controls.firstName.invalid || this.form.controls.lastName.invalid || this.form.controls.email.invalid) {
+        this.form.markAllAsTouched();
+        return;
+      }
     }
-    this.testimonialService.request(contactId ?? null, contactId ? null : name).subscribe({
+    this.asking = true;
+    this.testimonialService.request(contactId !== EXTERNAL ? { contactId } : { recipientFirstName: external.firstName,
+      recipientLastName: external.lastName, recipientEmail: external.email }).subscribe({
       next: link => {
-        this.asked = { recipient: link.testimonial.recipientName, url: `${globalThis.location.origin}/testimonial#${link.token}` };
-        this.form.reset({ contactId: null, recipientName: '' });
+        this.asking = false;
+        this.asked = { recipient: link.testimonial.recipientName, url: `${globalThis.location.origin}/testimonial#${link.token}`,
+          email: link.testimonial.recipientEmail ?? null, emailed: link.emailed };
+        this.form.reset();
         this.show([link.testimonial, ...this.testimonials]);
       },
-      error: () => this.notifications.error('profile.testimonials.askError')
+      error: (error: HttpErrorResponse) => {
+        this.asking = false;
+        this.notifications.error(error.status === 409 ? 'profile.testimonials.askLimit' : 'profile.testimonials.askError');
+        this.changes.markForCheck();
+      }
     });
   }
 

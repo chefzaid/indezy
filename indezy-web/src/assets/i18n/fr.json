@@ -1403,11 +1403,9 @@
     },
     "testimonials": {
       "title": "Recommandations",
-      "intro": "Demandez une courte recommandation à un contact client par un lien : il l'écrit sans compte, et vous choisissez de l'afficher ou non sur votre page publique.",
+      "intro": "Demandez une courte recommandation à un contact client, ou à une personne externe par e-mail : elle l'écrit depuis un lien personnel, sans compte, et vous choisissez de l'afficher ou non sur votre page publique.",
       "contact": "Demander à",
-      "someoneElse": "Une personne hors de vos contacts",
-      "recipientName": "Son nom",
-      "recipientRequired": "Choisissez un contact ou saisissez un nom.",
+      "someoneElse": "Personne externe (hors de vos contacts)",
       "ask": "Demander une recommandation",
       "linkFor": "Lien pour {{name}}",
       "linkOnce": "Copiez-le maintenant : il n'est affiché qu'une fois. Il reste ouvert 30 jours, jusqu'à ce que la recommandation soit écrite.",
@@ -1429,7 +1427,17 @@
         "RECEIVED": "À relire",
         "APPROVED": "Affichée",
         "HIDDEN": "Masquée"
-      }
+      },
+      "externalHint": "Elle recevra par e-mail un lien personnel pour écrire sa recommandation, sans créer de compte.",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "recipientEmail": "E-mail",
+      "firstNameRequired": "Son prénom est obligatoire.",
+      "lastNameRequired": "Son nom est obligatoire.",
+      "emailInvalid": "Saisissez une adresse e-mail valide.",
+      "emailed": "Un e-mail avec son lien personnel a été envoyé à {{email}}.",
+      "notEmailed": "L'e-mail à {{email}} n'a pas pu partir : envoyez-lui le lien ci-dessous.",
+      "askLimit": "Trop de recommandations demandées : 50 au plus en attente, et 20 envoyées par e-mail par jour."
     },
     "network": {
       "intro": "Rejoignez le réseau des freelances d'Indezy : les membres voient votre carte, et bientôt vous suivent et lisent vos publications. Vous choisissez ce que montre votre carte, et la quitter la masque aussitôt.",
@@ -3284,7 +3292,10 @@
     "invalidTitle": "Ce lien n'est pas valide",
     "invalidMessage": "Il a peut-être expiré ou été retiré. Demandez-en un nouveau à son expéditeur.",
     "alreadyWritten": "Cette recommandation a déjà été écrite.",
-    "sendError": "Votre recommandation n'a pas pu être envoyée. Réessayez dans un instant."
+    "sendError": "Votre recommandation n'a pas pu être envoyée. Réessayez dans un instant.",
+    "joinTitle": "Vous êtes freelance ?",
+    "joinMessage": "Indezy réunit vos opportunités, vos clients, vos CRA et vos factures, et vous permet de demander vous aussi des recommandations. Créer un compte n'est pas nécessaire pour la recommandation que vous venez d'écrire.",
+    "joinAction": "Créer mon compte (facultatif)"
   },
   "quotes": {
     "title": "Devis",

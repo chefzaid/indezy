@@ -6,6 +6,8 @@ export interface Testimonial {
   id: number;
   contactId?: number | null;
   recipientName: string;
+  /** Where the link was emailed, when it was. */
+  recipientEmail?: string | null;
   status: TestimonialStatus;
   expiresAt: string;
   authorName?: string | null;
@@ -14,10 +16,19 @@ export interface Testimonial {
   receivedAt?: string | null;
 }
 
-/** The asked testimonial and its link's token, shown once. */
+/** The asked testimonial and its link's token, shown once, and whether the link went by email. */
 export interface TestimonialLink {
   token: string;
   testimonial: Testimonial;
+  emailed: boolean;
+}
+
+/** Ask a contact, or an external person by their names and the email their link goes to. */
+export interface TestimonialRequest {
+  contactId?: number | null;
+  recipientFirstName?: string | null;
+  recipientLastName?: string | null;
+  recipientEmail?: string | null;
 }
 
 /** What the author sees behind the link. */

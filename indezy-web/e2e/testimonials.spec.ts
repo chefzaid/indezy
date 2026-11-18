@@ -3,17 +3,19 @@ import { expect, test } from '@playwright/test';
 import { mockWorkspaceSession } from './helpers/workspace';
 import { mockWorkspaceData } from './helpers/workspace-data';
 
-test('asks a contact for a testimonial, then shows it once written', async ({ page }) => {
+test('asks an external person by email for a testimonial, then shows it once written', async ({ page }) => {
   await mockWorkspaceSession(page, 'en');
   await mockWorkspaceData(page, 'en');
   let testimonials: Record<string, unknown>[] = [];
   await page.route('**/api/users/public-profile', route => route.fulfill({ json: { enabled: true, slug: 'workspace-test' } }));
   await page.route('**/api/testimonials', route => {
     if (route.request().method() === 'POST') {
-      expect(route.request().postDataJSON()).toEqual({ contactId: null, recipientName: 'Paul Durand' });
-      const asked = { id: 4, recipientName: 'Paul Durand', status: 'REQUESTED', expiresAt: '2026-12-14T10:00:00Z' };
+      expect(route.request().postDataJSON()).toEqual({ recipientFirstName: 'Paul', recipientLastName: 'Durand',
+        recipientEmail: 'paul@acme.example' });
+      const asked = { id: 4, recipientName: 'Paul Durand', recipientEmail: 'paul@acme.example', status: 'REQUESTED',
+        expiresAt: '2026-12-14T10:00:00Z' };
       testimonials = [asked];
-      return route.fulfill({ status: 201, json: { token: 'paul-token', testimonial: asked } });
+      return route.fulfill({ status: 201, json: { token: 'paul-token', testimonial: asked, emailed: true } });
     }
     return route.fulfill({ json: testimonials });
   });
@@ -22,8 +24,17 @@ test('asks a contact for a testimonial, then shows it once written', async ({ pa
   await page.goto('/profile');
   await page.getByRole('tab', { name: 'Public profile' }).click();
   const section = page.locator('[data-testimonials]');
-  await section.locator('[data-testimonial-name]').fill('Paul Durand');
+  // The choice reads in full, and an external person is asked by their names and email.
+  await expect(section.locator('[data-testimonial-contact]')).toContainText('External person (outside your contacts)');
+  await section.locator('[data-testimonial-first-name]').fill('Paul');
+  await section.locator('[data-testimonial-last-name]').fill('Durand');
+  await section.locator('[data-testimonial-email]').fill('paul@acme');
   await section.locator('[data-ask-testimonial]').click();
+  await expect(section.getByText('Enter a valid email address.')).toBeVisible();
+  await section.locator('[data-testimonial-email]').fill('paul@acme.example');
+  await section.locator('form').screenshot({ path: test.info().outputPath('testimonial-ask.png') });
+  await section.locator('[data-ask-testimonial]').click();
+  await expect(section.locator('[data-testimonial-emailed]')).toContainText('An email with their personal link was sent to paul@acme.example.');
   await expect(section.locator('[data-testimonial-link] .url')).toHaveText(/\/testimonial#paul-token$/);
   await expect(section.locator('[data-testimonial="4"] [data-testimonial-status]')).toHaveText('Asked');
 
@@ -63,6 +74,8 @@ for (const { language, width } of [{ language: 'en', width: 1280 }, { language: 
     expect(audit.violations.map(violation => violation.id)).toEqual([]);
     await page.locator('[data-send-testimonial]').click();
     await expect(page.locator('[data-testimonial-thanks]')).toBeVisible();
+    // Creating an account is offered, never needed.
+    await expect(page.locator('[data-testimonial-join-link]')).toHaveAttribute('href', '/register');
     expect(sent).toEqual([{ authorName: 'Léa Martin', authorTitle: 'CTO, Acme',
       text: 'Un consultant rigoureux, qui a mené la refonte en temps et en heure.', consent: true }]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

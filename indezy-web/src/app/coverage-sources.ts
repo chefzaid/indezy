@@ -290,6 +290,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'shared/utils/offline-data',
   'shared/utils/password-max-bytes',
   'shared/utils/relative-time',
+  'shared/utils/sign-up',
   'shared/utils/skill-match',
   'shared/utils/skill-names',
   'shared/utils/trimmed-email',

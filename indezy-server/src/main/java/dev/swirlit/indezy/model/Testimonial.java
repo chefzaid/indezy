@@ -32,6 +32,10 @@ public class Testimonial extends BaseEntity {
     @Column(name = "recipient_name", nullable = false, length = 120)
     private String recipientName;
 
+    /** Where the link was emailed: the external person's address, or the contact's; none when only the link was given. */
+    @Column(name = "recipient_email", length = 254)
+    private String recipientEmail;
+
     @Column(name = "token_hash", length = 64, unique = true)
     private String tokenHash;
 
