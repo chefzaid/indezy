@@ -140,6 +140,11 @@
   padding: 24px;
   box-sizing: border-box;
   min-height: 100%;
+
+  // The messenger corner rests at the bottom right: the page's end scrolls clear of it.
+  &.with-messenger {
+    padding-bottom: 72px;
+  }
 }
 
 @media (max-width: 599.98px) {

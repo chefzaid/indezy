@@ -17,12 +17,16 @@ export interface Conversation {
   lastMessageAt: string | null;
   /** When the other member of a conversation between two last read it, while both show read receipts. */
   seenAt?: string | null;
+  /** Between two members, whether the other has the app open now, while both show it. */
+  online?: boolean;
 }
 
 /** Whether the member shows and sees read receipts and who is typing, both ways. */
 export interface MessagingSettings {
   readReceipts: boolean;
   typing: boolean;
+  /** Whether the member shows and sees who is online, both ways. */
+  presence: boolean;
 }
 
 /**

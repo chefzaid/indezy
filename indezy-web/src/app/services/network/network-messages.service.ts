@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 import { Conversation, FileRef, FoundMessage, Message, MessageThread, MessagingSettings, ProjectDto, Reaction } from '../../models';
 
 /** Conversations between members and their messages. */
@@ -13,8 +14,10 @@ export class NetworkMessagesService {
   private readonly http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/network`;
 
-  conversations(archived = false): Observable<Conversation[]> {
-    return this.http.get<Conversation[]>(`${this.API_URL}/conversations`, { params: { archived } });
+  /** The reader's conversations; silent, its failure told by the caller, when read in the background (the messenger corner). */
+  conversations(archived = false, silent = false): Observable<Conversation[]> {
+    return this.http.get<Conversation[]>(`${this.API_URL}/conversations`,
+      { params: { archived }, context: new HttpContext().set(SILENT_HTTP_ERRORS, silent) });
   }
 
   /** The conversation with a member: the one open, or a new one when they follow the reader (409 with the reason otherwise). */

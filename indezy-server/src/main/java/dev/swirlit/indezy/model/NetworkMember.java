@@ -116,6 +116,18 @@ public class NetworkMember extends BaseEntity {
     @Column(name = "typing_shown")
     private Boolean typingShown;
 
+    /** Whether the members the member writes to see when they are online, and the member when they are; none reads as on. */
+    @Column(name = "presence_shown")
+    private Boolean presenceShown;
+
+    /** The last time the member had the app open (a live stream on some replica), at most a heartbeat ago while they do. */
+    @Column(name = "last_seen_at")
+    private Instant lastSeenAt;
+
+    public boolean showsPresence() {
+        return !Boolean.FALSE.equals(presenceShown);
+    }
+
     public boolean showsReadReceipts() {
         return !Boolean.FALSE.equals(readReceipts);
     }

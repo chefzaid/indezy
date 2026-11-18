@@ -1,0 +1,99 @@
+@if (shown) {
+  <div class="dock" data-messenger-dock>
+    @for (chat of windows; track chat.id) {
+      @let current = conversation(chat.id);
+      <section class="chat" [class.folded]="chat.folded" [attr.aria-label]="'network.dock.chatWith' | translate: { name: title(current) }"
+        [attr.data-dock-chat]="chat.id">
+        <header class="chat-head">
+          <button type="button" class="who" (click)="fold(chat)" [attr.aria-expanded]="!chat.folded"
+            [matTooltip]="(chat.folded ? 'network.dock.unfold' : 'network.dock.fold') | translate" data-dock-fold>
+            @if (current?.with; as other) {
+              <span class="presence">
+                <app-member-avatar [subject]="other" [size]="32"></app-member-avatar>
+                @if (current?.online) {
+                  <span class="online-dot" role="img" [attr.aria-label]="'network.messages.online' | translate" data-dock-online></span>
+                }
+              </span>
+            } @else {
+              <span class="group-avatar" aria-hidden="true"><mat-icon>groups</mat-icon></span>
+            }
+            <span class="names">
+              <span class="name">{{ title(current) }}</span>
+              @if (current?.online) {
+                <span class="status">{{ 'network.messages.online' | translate }}</span>
+              }
+            </span>
+            @if (chat.folded && current?.unread) {
+              <span class="count">{{ current!.unread }}</span>
+            }
+          </button>
+          <a mat-icon-button [routerLink]="['/network/messages', chat.id]" [attr.aria-label]="'network.dock.full' | translate"
+            [matTooltip]="'network.dock.full' | translate" data-dock-full>
+            <mat-icon>open_in_full</mat-icon>
+          </a>
+          <button mat-icon-button type="button" (click)="close(chat.id)" [attr.aria-label]="'network.dock.closeChat' | translate"
+            [matTooltip]="'network.dock.closeChat' | translate" data-dock-close>
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+        @if (!chat.folded) {
+          <app-message-thread class="chat-body" [conversationId]="chat.id" [compact]="true" (changed)="changed($event)"
+            (left)="left($event)"></app-message-thread>
+        }
+      </section>
+    }
+
+    <section class="bar" [class.open]="listOpen" [attr.aria-label]="'network.dock.title' | translate">
+      <button type="button" class="bar-head" (click)="toggleList()" [attr.aria-expanded]="listOpen"
+        [matTooltip]="(listOpen ? 'network.dock.close' : 'network.dock.open') | translate" data-dock-toggle>
+        <mat-icon aria-hidden="true">chat</mat-icon>
+        <span class="bar-title">{{ 'network.dock.title' | translate }}</span>
+        @if (unread) {
+          <span class="count" [attr.aria-label]="'network.dock.unread' | translate: { count: unread }" data-dock-unread>{{ unread }}</span>
+        }
+        <mat-icon class="chevron" aria-hidden="true">{{ listOpen ? 'expand_more' : 'expand_less' }}</mat-icon>
+      </button>
+      @if (listOpen) {
+        <div class="list" data-dock-list>
+          @if (conversations.length === 0) {
+            <p class="empty">{{ 'network.dock.none' | translate }}</p>
+          }
+          <ul>
+            @for (item of conversations; track item.id) {
+              <li>
+                <button type="button" class="row" [class.unread]="item.unread > 0" (click)="openChat(item.id)" [attr.data-dock-conversation]="item.id">
+                  @if (item.with; as other) {
+                    <span class="presence">
+                      <app-member-avatar [subject]="other" [size]="40"></app-member-avatar>
+                      @if (item.online) {
+                        <span class="online-dot" role="img" [attr.aria-label]="'network.messages.online' | translate"></span>
+                      }
+                    </span>
+                  } @else {
+                    <span class="group-avatar" aria-hidden="true"><mat-icon>{{ item.group ? 'groups' : 'person_off' }}</mat-icon></span>
+                  }
+                  <span class="summary">
+                    <span class="top">
+                      <span class="name">{{ title(item) || ('network.messages.formerMember' | translate) }}</span>
+                      @if (item.last) {
+                        <span class="when">{{ item.last.sentAt | timeAgo }}</span>
+                      }
+                    </span>
+                    @if (item.last) {
+                      <span class="preview">{{ item.last.mine ? ('network.messages.youPrefix' | translate) + ' ' : '' }}{{ item.last.deleted
+                        ? ('network.messages.deleted' | translate) : item.last.text }}</span>
+                    }
+                  </span>
+                  @if (item.unread > 0) {
+                    <span class="count">{{ item.unread }}</span>
+                  }
+                </button>
+              </li>
+            }
+          </ul>
+          <a routerLink="/network/messages" class="all" data-dock-all>{{ 'network.dock.all' | translate }}</a>
+        </div>
+      }
+    </section>
+  </div>
+}

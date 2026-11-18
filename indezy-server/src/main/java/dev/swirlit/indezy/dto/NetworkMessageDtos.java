@@ -31,8 +31,9 @@ public final class NetworkMessageDtos {
      * A conversation in the list: the other member (none for a group), the group, its latest message, what is unread and
      * whether a message can go.
      */
+    /** {@code online}: between two members, whether the other has the app open, while both show it; false in a group. */
     public record Conversation(Long id, NetworkDtos.MemberCard with, Group group, Preview last, int unread, boolean muted, boolean archived,
-                               Closed closed, LocalDateTime lastMessageAt, LocalDateTime seenAt) {
+                               Closed closed, LocalDateTime lastMessageAt, LocalDateTime seenAt, boolean online) {
     }
 
     /**
@@ -172,8 +173,12 @@ public final class NetworkMessageDtos {
     public record Unread(int conversations) {
     }
 
-    /** Whether the member shows and sees read receipts and who is typing; each left as it is when not given. */
-    public record Messaging(Boolean readReceipts, Boolean typing) {
+    /** Whether the member shows and sees read receipts, who is typing and who is online; each left as it is when not given. */
+    public record Messaging(Boolean readReceipts, Boolean typing, Boolean presence) {
+
+        public Messaging(Boolean readReceipts, Boolean typing) {
+            this(readReceipts, typing, null);
+        }
     }
 
     /** A message the account sent, for its data export. */

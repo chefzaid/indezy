@@ -9,6 +9,7 @@ import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.model.NetworkMessage;
 import dev.swirlit.indezy.repository.NetworkConversationMemberRepository;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
+import dev.swirlit.indezy.realtime.NetworkPresence;
 import dev.swirlit.indezy.repository.NetworkMemberRepository;
 import dev.swirlit.indezy.repository.NetworkMessageRepository;
 import dev.swirlit.indezy.repository.NetworkRestrictionRepository;
@@ -43,6 +44,7 @@ class NetworkConversations {
     private final NetworkConversationMemberRepository participants;
     private final NetworkMessageRepository messages;
     private final Clock clock;
+    private final NetworkPresence presence;
 
     /** The reader's place in the conversation; not found when they are not in it. */
     NetworkConversationMember mine(Long readerId, Long conversationId) {
@@ -137,7 +139,15 @@ class NetworkConversations {
         // In a group, its members write while they are in it.
         NetworkMessageDtos.Closed closed = seen.group() != null ? null : closed(mine.getUserId(), seen.otherId()).orElse(null);
         return new NetworkMessageDtos.Conversation(conversation.getId(), seen.with(), seen.group(), preview, unread, mine.isMuted(),
-            mine.isArchived(), closed, conversation.getLastMessageAt(), seenAt(seen, mine));
+            mine.isArchived(), closed, conversation.getLastMessageAt(), seenAt(seen, mine), online(seen, mine));
+    }
+
+    /** Whether the other member of a conversation between two has the app open, while both show it. */
+    private boolean online(Seen seen, NetworkConversationMember mine) {
+        if (seen.group() != null || seen.otherId() == null || seen.with() == null) {
+            return false;
+        }
+        return presence.online(members.findByUserId(mine.getUserId()).orElse(null), members.findByUserId(seen.otherId()).orElse(null));
     }
 
     /** When the other member of a conversation between two last read it, while both show read receipts; none in a group. */

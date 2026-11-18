@@ -70,7 +70,12 @@
               [class.unread]="conversation.unread > 0" [attr.aria-current]="conversation.id === openId ? 'page' : null"
               [attr.data-conversation]="conversation.id">
               @if (conversation.with) {
-                <app-member-avatar [subject]="conversation.with" [size]="48"></app-member-avatar>
+                <span class="presence">
+                  <app-member-avatar [subject]="conversation.with" [size]="48"></app-member-avatar>
+                  @if (conversation.online) {
+                    <span class="online-dot" role="img" [attr.aria-label]="'network.messages.online' | translate" data-online></span>
+                  }
+                </span>
               } @else {
                 <span class="group-avatar" aria-hidden="true"><mat-icon>{{ conversation.group ? 'groups' : 'person_off' }}</mat-icon></span>
               }

@@ -1526,7 +1526,8 @@
       "messagingTitle": "Messages",
       "messagingHint": "Chacun vaut dans les deux sens : désactivé, vous ne le voyez plus chez les autres non plus.",
       "readReceipts": "Montrer quand je lis un message (Vu)",
-      "typing": "Montrer quand j’écris"
+      "typing": "Montrer quand j’écris",
+      "presence": "Afficher quand je suis en ligne, et voir qui l'est"
     },
     "deletion": {
       "title": "Supprimer mon compte",
@@ -3812,7 +3813,8 @@
       "new": "Nouveau message",
       "newTitle": "Nouveau message",
       "newHint": "Les membres que vous suivez et ceux qui vous suivent.",
-      "noOne": "Personne à qui écrire pour l'instant : suivez un membre, ou attendez qu'un membre vous suive."
+      "noOne": "Personne à qui écrire pour l'instant : suivez un membre, ou attendez qu'un membre vous suive.",
+      "online": "En ligne"
     },
     "groups": {
       "new": "Nouveau groupe",
@@ -3879,6 +3881,19 @@
         "sent": "Aucune demande envoyée en attente."
       }
     },
-    "back": "Retour"
+    "back": "Retour",
+    "dock": {
+      "title": "Messagerie",
+      "open": "Ouvrir la messagerie",
+      "close": "Réduire la messagerie",
+      "none": "Aucune conversation pour l'instant.",
+      "all": "Toutes les conversations",
+      "fold": "Réduire",
+      "unfold": "Agrandir",
+      "closeChat": "Fermer la conversation",
+      "full": "Ouvrir en grand",
+      "unread": "{{count}} non lus",
+      "chatWith": "Conversation avec {{name}}"
+    }
   }
 }

@@ -1526,7 +1526,8 @@
       "messagingTitle": "Messages",
       "messagingHint": "Each works both ways: turned off, you no longer see it from others either.",
       "readReceipts": "Show when I read a message (Seen)",
-      "typing": "Show when I am typing"
+      "typing": "Show when I am typing",
+      "presence": "Show when I am online, and see who is"
     },
     "deletion": {
       "title": "Delete my account",
@@ -3812,7 +3813,8 @@
       "new": "New message",
       "newTitle": "New message",
       "newHint": "The members you follow and those who follow you.",
-      "noOne": "No one to write to yet: follow a member, or wait for one to follow you."
+      "noOne": "No one to write to yet: follow a member, or wait for one to follow you.",
+      "online": "Online"
     },
     "groups": {
       "new": "New group",
@@ -3879,6 +3881,19 @@
         "sent": "No request sent waiting."
       }
     },
-    "back": "Back"
+    "back": "Back",
+    "dock": {
+      "title": "Messaging",
+      "open": "Open messaging",
+      "close": "Fold messaging",
+      "none": "No conversation yet.",
+      "all": "All conversations",
+      "fold": "Fold",
+      "unfold": "Unfold",
+      "closeChat": "Close the conversation",
+      "full": "Open in full",
+      "unread": "{{count}} unread",
+      "chatWith": "Conversation with {{name}}"
+    }
   }
 }

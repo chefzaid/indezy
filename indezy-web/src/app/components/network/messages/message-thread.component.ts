@@ -74,6 +74,8 @@ export class MessageThreadComponent implements OnChanges, AfterViewChecked {
   private scrollDown = false;
 
   @Input({ required: true }) conversationId!: number;
+  /** In a small chat window (the messenger corner): without its own head, the window showing who it is with. */
+  @Input() compact = false;
   /** The conversation as it now reads, for the list beside it. */
   @Output() readonly changed = new EventEmitter<Conversation>();
   /** The group's name being changed; none while not renaming. */

@@ -313,6 +313,17 @@ message is replied to (quoting it; on a touch screen, by swiping it to the right
 sender within 15 minutes. The briefcase beside the field shares one of the reader's opportunities as a card (role, daily
 rate, city, start, remote days, stack, never the client); its recipient **Adds it to their pipeline** in one click, at
 **Contact** with a confidential client and the sender as its source (who referred it), the card then linking to it.
+**The messenger corner**, as on LinkedIn or Facebook: on every page of the app but Messages itself, on a screen wide
+enough for the menu to stay (1,024 pixels), a **Messaging** bar rests at the bottom right with how many conversations are
+unread (the muted aside). It unfolds the conversations, the latest first, each with its last message and a green dot on
+the members **online** now; one opens as a small chat window beside the bar (three at most on a wide screen, fewer on a
+narrower one, the oldest closing first), to read and answer without leaving the page, folded to its head or closed with
+×, **Open in full** going to its Messages page. The corner follows the live stream and reads itself again every 30 seconds.
+A member is online while their app is open (its live stream marks them seen at each heartbeat, whichever server holds it),
+and reads as offline about a minute after it closes. Who is online shows only in a conversation between two, and only
+between members who both show it: **Show when I am online, and see who is**, in **Profile → Network** beside read receipts
+and typing, turns it off both ways.
+
 **Mute** keeps a conversation out of the unread count; **Archive** moves it to **Archived**
 until a new message comes. **Search messages**, above the list, finds the reader's messages holding what is typed (two
 characters or more, case aside), the latest first, each opening its conversation. Another member's message is

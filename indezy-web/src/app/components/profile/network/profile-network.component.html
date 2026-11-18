@@ -102,6 +102,9 @@
     <mat-slide-toggle [checked]="messaging.typing" (change)="setMessaging('typing', $event.checked)" data-messaging="typing">
       {{ 'profile.network.typing' | translate }}
     </mat-slide-toggle>
+    <mat-slide-toggle [checked]="messaging.presence" (change)="setMessaging('presence', $event.checked)" data-messaging="presence">
+      {{ 'profile.network.presence' | translate }}
+    </mat-slide-toggle>
   </section>
 }
 

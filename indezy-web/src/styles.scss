@@ -437,3 +437,21 @@ html.dark-theme .status-dot {
   color: var(--app-text-muted);
   font-size: 0.875rem;
 }
+
+/* A member seen online (their app open): a green dot at the bottom right of their avatar, wrapped in .presence. */
+.presence {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.online-dot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22a55a;
+  box-shadow: 0 0 0 2px var(--app-surface);
+}

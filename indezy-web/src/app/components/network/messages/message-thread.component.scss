@@ -8,6 +8,12 @@
 
 .thread-head {
   display: flex;
+
+  // In a chat window, the window says who it is with.
+  &[hidden] {
+    display: none;
+  }
+
   flex: none;
   align-items: center;
   gap: 8px;
@@ -378,4 +384,8 @@
   .tools {
     transition: none;
   }
+}
+
+.online-text {
+  color: var(--app-positive);
 }

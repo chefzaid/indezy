@@ -4,14 +4,18 @@
     <p>{{ 'network.messages.missing' | translate }}</p>
   </section>
 } @else if (conversation; as current) {
-  <header class="thread-head">
+  <header class="thread-head" [hidden]="compact">
     <ng-content select="[back]"></ng-content>
     @if (current.with; as other) {
       <a [routerLink]="['/m', other.handle]" class="who">
         <app-member-avatar [subject]="other" [size]="40"></app-member-avatar>
         <span class="names">
           <span class="name">{{ other.firstName }} {{ other.lastName }}</span>
-          <span class="handle">&#64;{{ other.handle }}</span>
+          <span class="handle">&#64;{{ other.handle }}
+            @if (current.online) {
+              <span class="online-text" data-thread-online> · {{ 'network.messages.online' | translate }}</span>
+            }
+          </span>
         </span>
       </a>
     } @else if (current.group && renaming) {

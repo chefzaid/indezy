@@ -4,6 +4,7 @@ import dev.swirlit.indezy.dto.NetworkMessageDtos;
 import dev.swirlit.indezy.model.NetworkConversationMember;
 import dev.swirlit.indezy.model.NetworkMember;
 import dev.swirlit.indezy.realtime.NetworkEventHub;
+import dev.swirlit.indezy.realtime.NetworkPresence;
 import dev.swirlit.indezy.realtime.NetworkEvents;
 import dev.swirlit.indezy.repository.NetworkConversationMemberRepository;
 import dev.swirlit.indezy.repository.NetworkMemberRepository;
@@ -30,13 +31,16 @@ public class NetworkLiveService {
     private final NetworkMemberRepository members;
     private final NetworkRestrictionRepository restrictions;
     private final NetworkEventHub hub;
+    private final NetworkPresence presence;
     private final NetworkEvents events;
 
     /** Opens the member's stream. */
     @Transactional(readOnly = true)
     public SseEmitter stream(Long userId) {
         network.requireMember(userId);
-        return hub.open(userId);
+        SseEmitter stream = hub.open(userId);
+        presence.seen(userId);
+        return stream;
     }
 
     /**
@@ -73,10 +77,13 @@ public class NetworkLiveService {
         if (settings.typing() != null) {
             member.setTypingShown(settings.typing());
         }
+        if (settings.presence() != null) {
+            member.setPresenceShown(settings.presence());
+        }
         return view(member);
     }
 
     private static NetworkMessageDtos.Messaging view(NetworkMember member) {
-        return new NetworkMessageDtos.Messaging(member.showsReadReceipts(), member.showsTyping());
+        return new NetworkMessageDtos.Messaging(member.showsReadReceipts(), member.showsTyping(), member.showsPresence());
     }
 }

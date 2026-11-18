@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -55,6 +56,11 @@ public class NetworkEventHub {
                 mine.forEach(emitter -> send(userId, emitter, SseEmitter.event().name(event.type()).data(event, MediaType.APPLICATION_JSON)));
             }
         }
+    }
+
+    /** The members with a stream open on this replica: those who have the app open. */
+    public Set<Long> members() {
+        return Set.copyOf(streams.keySet());
     }
 
     /** How many streams are open on this replica. */

@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,10 @@ class AccountDeletionIntegrationTest extends TwoAccountsIntegrationTest {
 
     @Autowired
     private AccountDeletionService deletion;
+
+    /** The application's clock, which says the day the deletion is asked (its zone may not be the JVM's, near midnight). */
+    @Autowired
+    private Clock clock;
 
     @AfterEach
     void reopenTheNetwork() {
@@ -121,7 +126,7 @@ class AccountDeletionIntegrationTest extends TwoAccountsIntegrationTest {
         ResponseEntity<Map> held = call(alice, HttpMethod.POST, "/users/me/deletion", Map.of("confirmation", " " + aliceEmail.toUpperCase() + " "),
             Map.class);
         assertThat(held.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
-        assertThat(held.getBody().get("purgeOn")).isEqualTo(LocalDate.now().plusDays(30).toString());
+        assertThat(held.getBody().get("purgeOn")).isEqualTo(LocalDate.now(clock).plusDays(30).toString());
         assertThat(call(alice, HttpMethod.GET, "/users/profile", null, String.class).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(call(bob, HttpMethod.GET, "/network/members/" + aliceHandle + "/page", null, String.class).getStatusCode())
             .isEqualTo(HttpStatus.NOT_FOUND);
@@ -131,7 +136,7 @@ class AccountDeletionIntegrationTest extends TwoAccountsIntegrationTest {
         // Signing in says the account is on hold; with restore, it comes back as it was.
         ResponseEntity<Map> signIn = login(false);
         assertThat(signIn.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        assertThat(signIn.getBody()).containsEntry("accountOnHold", true).containsEntry("purgeOn", LocalDate.now().plusDays(30).toString())
+        assertThat(signIn.getBody()).containsEntry("accountOnHold", true).containsEntry("purgeOn", LocalDate.now(clock).plusDays(30).toString())
             .containsEntry("token", null);
         ResponseEntity<Map> restored = login(true);
         assertThat(restored.getStatusCode()).isEqualTo(HttpStatus.OK);

@@ -37,7 +37,7 @@ describe('ProfileNetworkComponent', () => {
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     messagesApi = jasmine.createSpyObj('NetworkMessagesService', ['messaging', 'saveMessaging']);
-    messagesApi.messaging.and.returnValue(of({ readReceipts: true, typing: true }));
+    messagesApi.messaging.and.returnValue(of({ readReceipts: true, typing: true, presence: true }));
     TestBed.configureTestingModule({
       imports: [ProfileNetworkComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } }, { provide: NetworkService, useValue: network },
@@ -193,20 +193,21 @@ describe('ProfileNetworkComponent', () => {
     expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');
   });
 
-  it('shows or hides read receipts and who is typing, saying when it cannot', () => {
+  it('shows or hides read receipts, who is typing and who is online, saying when it cannot', () => {
     const fixture = create(of(member));
     fixture.detectChanges();
     const element: HTMLElement = fixture.nativeElement;
     expect(element.querySelector('[data-messaging="readReceipts"] button')?.getAttribute('aria-checked')).toBe('true');
-    messagesApi.saveMessaging.and.returnValue(of({ readReceipts: false, typing: true }));
+    expect(element.querySelector('[data-messaging="presence"] button')?.getAttribute('aria-checked')).toBe('true');
+    messagesApi.saveMessaging.and.returnValue(of({ readReceipts: false, typing: true, presence: true }));
     (element.querySelector('[data-messaging="readReceipts"] button') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(messagesApi.saveMessaging).toHaveBeenCalledWith({ readReceipts: false });
-    expect(fixture.componentInstance.messaging).toEqual({ readReceipts: false, typing: true });
+    expect(fixture.componentInstance.messaging).toEqual({ readReceipts: false, typing: true, presence: true });
     messagesApi.saveMessaging.and.returnValue(throwError(() => new Error('down')));
     fixture.componentInstance.setMessaging('typing', false);
     expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');
-    expect(fixture.componentInstance.messaging).toEqual({ readReceipts: false, typing: true });
+    expect(fixture.componentInstance.messaging).toEqual({ readReceipts: false, typing: true, presence: true });
   });
 
   it('leaves once confirmed, keeping the handle, and says when the membership cannot be read', () => {

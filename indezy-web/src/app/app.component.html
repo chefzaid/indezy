@@ -86,11 +86,14 @@
       </mat-sidenav>
       <!-- Main Content -->
       <mat-sidenav-content class="app-main-content">
-        <div class="app-content">
+        <div class="app-content" [class.with-messenger]="messengerShown">
           <router-outlet></router-outlet>
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
+    @if (messengerShown) {
+      <app-messenger-dock></app-messenger-dock>
+    }
   } @else {
     <router-outlet></router-outlet>
   }

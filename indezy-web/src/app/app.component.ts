@@ -24,6 +24,7 @@ import { OfferAlertsService } from './services/offer/offer-alerts.service';
 import { NetworkNoticesService } from './services/network/network-notices.service';
 import { CapabilitiesService } from './services/admin/capabilities.service';
 import { FeatureFlag } from './models';
+import { MessengerDockComponent } from './components/network/messenger-dock/messenger-dock.component';
 
 interface MenuItem {
   labelKey: string;
@@ -51,7 +52,8 @@ interface MenuItem {
     MatTooltipModule,
     TranslateModule,
     AsyncPipe,
-    LogoComponent
+    LogoComponent,
+    MessengerDockComponent
 ],
     templateUrl: './app.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
@@ -109,6 +111,11 @@ export class AppComponent implements OnInit {
     { labelKey: 'nav.archive', route: '/archive', icon: 'inventory_2' },
     { labelKey: 'nav.admin', route: '/admin', icon: 'admin_panel_settings', admin: true }
   ];
+
+  /** The messenger corner shows while the member network is on, on a screen wide enough for the menu to stay. */
+  get messengerShown(): boolean {
+    return this.capabilities.snapshot().features.SOCIAL_NETWORK === true && !this.isCompactLayout;
+  }
 
   /** The items the account may open: features left on, and the admin console for administrators. */
   get visibleMenuItems(): MenuItem[] {

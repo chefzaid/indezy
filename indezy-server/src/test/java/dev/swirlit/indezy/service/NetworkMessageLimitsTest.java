@@ -57,7 +57,7 @@ class NetworkMessageLimitsTest {
 
     @Test
     void keepsTheEditWindowAndSaysWhyAMessageCannotGo() {
-        NetworkConversations shared = new NetworkConversations(null, null, null, null, null, null, clock);
+        NetworkConversations shared = new NetworkConversations(null, null, null, null, null, null, clock, null);
         NetworkMessage message = new NetworkMessage();
         message.setCreatedAt(LocalDateTime.ofInstant(now, ZoneId.systemDefault()).minusMinutes(14));
         assertThat(shared.editable(message)).isTrue();
