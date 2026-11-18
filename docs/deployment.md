@@ -98,17 +98,28 @@ idempotency key (`saved-search/<id>/<cutoff>`), so a retry within Resend's 24 ho
 
 `.gitlab-ci.yml` runs a branch pipeline, or a merge request pipeline when the branch has an open merge request. Jobs run on the platform's instance runner (tag `swirl-cloud`) as unprivileged Kubernetes pods.
 
-| Job | Stage | Runs | What it does |
-|---|---|---|---|
-| `01-build` | build | every pipeline | required: validates the manifests and onboarding contract, packages the JAR (with SpotBugs and Checkstyle) and the production web archive |
-| `02-test` | build | every pipeline | allowed to fail: backend and frontend tests, lint and the coverage policy; each server test class's output goes to its surefire report, and a step past its time limit (40 minutes for the server, 30 for Karma) fails with the threads of the JVMs still running |
-| `03-package` | build | every pipeline except Sonar scan-only | required: builds both runtime images with Kaniko, without pushing |
-| `01-e2e` | verify | manual | allowed to fail: the Playwright suite |
-| `02-quality` | verify | automatic on the default branch and in full mode, manual otherwise | allowed to fail: Sonar analysis from the test artifacts |
-| `03-security` | verify | automatic in full mode, manual otherwise | allowed to fail: Trivy scan of dependencies, IaC and secrets, failing on high or critical findings |
-| `01-release` | release | default branch, manual with confirmation | publishes the release (below) |
-| `02-deploy` | release | default branch, after `01-release` | deploys it (below) |
-| `set-major-version` | version | default branch, manual | prepares `<NEW_MAJOR_VERSION>.0.0` and synchronizes the Maven and npm manifests |
+| Job | Stage | Needs | Runs | What it does |
+|---|---|---|---|---|
+| `01-build` | build | | every pipeline | required: validates the manifests and onboarding contract, packages the JAR (with SpotBugs and Checkstyle) and the production web archive |
+| `02-test: [server]` | build | | every pipeline | allowed to fail: the server tests with Checkstyle, JaCoCo and SpotBugs (`mvn verify`), in forked JVMs; each test class's output goes to its surefire report |
+| `02-test: [web]` | build | | every pipeline | allowed to fail: lint, the Karma unit tests and the Node tests of the extension and build scripts |
+| `02-coverage` | build | both `02-test` jobs | every pipeline | allowed to fail: the combined line coverage policy, as a JUnit result |
+| `03-package` | build | `01-build` | every pipeline except Sonar scan-only | required: builds both runtime images with Kaniko, without pushing |
+| `01-e2e` | verify | | manual | allowed to fail: the Playwright suite, on the Angular development server |
+| `02-quality` | verify | both `02-test` jobs | automatic on the default branch and in full mode, manual otherwise | allowed to fail: Sonar analysis from the test artifacts |
+| `03-security` | verify | | automatic in full mode, manual otherwise | allowed to fail: Trivy scan of dependencies, IaC and secrets, failing on high or critical findings |
+| `01-release` | release | `01-build`, `03-package` | default branch, manual with confirmation | publishes the release (below) |
+| `02-deploy` | release | `01-release` | default branch, after `01-release` | deploys it (below) |
+| `set-major-version` | version | | default branch, manual | prepares `<NEW_MAJOR_VERSION>.0.0` and synchronizes the Maven and npm manifests |
+
+Each job starts once the jobs in its Needs column are done (a blank Needs column: when the pipeline starts), so the
+two test suites run beside the build, and the package and the release do not wait for the tests, which never gate
+them. The test jobs run with 8 CPUs and 12 GiB (`KUBERNETES_CPU_LIMIT`, `KUBERNETES_MEMORY_LIMIT`), the other jobs with
+the runner's default 4 CPUs and 8 GiB. `infra/scripts/ci-verify.sh` reads the job's CPU quota from its cgroup, as `nproc`
+and Node count the node's 16 threads: the server tests fork one JVM per two CPUs (four at most, their heaps sharing
+60 percent of the memory), Angular's build workers take one CPU less than the job and esbuild's `GOMAXPROCS` as many. A
+step past its time limit (40 minutes for the server tests, 30 for Karma, 15 for `npm ci` and lint, 10 for the Node
+tests) fails with the threads of the JVMs still running.
 
 `PIPELINE_MODE=full` runs quality and security automatically, and a pipeline started from the GitLab UI in full mode on the default branch also releases and deploys without the manual step; E2E stays manual. The schedules set `PLAYWRIGHT_SCHEDULE=true` (build, tests, package and the [nightly E2E suite](./testing.md#scheduled-e2e-runs), nothing after) or `READER_CANARY=true` (the [reader canaries](./testing.md#reader-canaries) only).
 
@@ -124,11 +135,11 @@ idempotency key (`saved-search/<id>/<cutoff>`), so a retry within Resend's 24 ho
 
 `VERSION` holds the base version; each first-parent commit after the one that last changed it adds one to the patch, so releasing `1.17.3` prepares `1.18.0`. Release, deploy and `set-major-version` share the `indezy-production` resource group. Argo CD, not CI, creates the namespace, reconciles, prunes and self-heals.
 
-GitLab keeps test, coverage, browser, quality, security and release artifacts for seven days; Maven, npm, Sonar and Trivy caches and a cached Kaniko executor avoid repeated downloads. The SonarQube project keeps the long-lived quality history.
+GitLab keeps test, coverage, browser, quality, security and release artifacts for seven days; Maven, npm, Sonar and Trivy caches and a cached Kaniko executor avoid repeated downloads. `01-build` writes the Maven (`indezy-server-dependencies-v1`) and npm (`indezy-web-dependencies-v1`) caches, which `02-test: [server]` and `02-test: [web]` only read, each its own. The SonarQube project keeps the long-lived quality history.
 
 ### Automatic Sonar analysis
 
-`.sonar-auto.json` declares the contract the platform uses to request a scan when analysis is missing or older than 24 hours: a default-branch pipeline with `SONAR_SCAN_ONLY=true`, which runs only `01-build`, `02-test` and `02-quality`. The platform provisions the Sonar project and the masked `SONAR_TOKEN`. A submission failure fails the quality job visibly, without affecting delivery.
+`.sonar-auto.json` declares the contract the platform uses to request a scan when analysis is missing or older than 24 hours: a default-branch pipeline with `SONAR_SCAN_ONLY=true`, which runs only `01-build`, the two `02-test` jobs, `02-coverage` and `02-quality`. The platform provisions the Sonar project and the masked `SONAR_TOKEN`. A submission failure fails the quality job visibly, without affecting delivery.
 
 ## Add or reconfigure this repository
 

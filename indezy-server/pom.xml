@@ -24,6 +24,9 @@
         <java.version>25</java.version>
         <!-- The reader canaries read live sites and the load test needs a PostgreSQL: each runs on request only (see docs/testing.md). -->
         <test.excludedGroups>canary,load</test.excludedGroups>
+        <!-- Test JVMs: one here; CI forks one per two CPUs of its job, with a heap share (infra/scripts/ci-verify.sh). -->
+        <test.forkCount>1</test.forkCount>
+        <test.jvmArgs></test.jvmArgs>
         <jjwt.version>0.13.0</jjwt.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <pdfbox.version>3.0.8</pdfbox.version>
@@ -258,9 +261,12 @@
                 <version>3.5.6</version>
                 <configuration>
                     <excludedGroups>${test.excludedGroups}</excludedGroups>
+                    <!-- Each test class runs whole in one forked JVM, which then takes the next class. -->
+                    <forkCount>${test.forkCount}</forkCount>
+                    <reuseForks>true</reuseForks>
                     <!-- Tests run in the business time zone the server dates invoices and reminders in, so a test's
                          "today" is the server's even between 22:00 UTC and midnight. -->
-                    <argLine>@{argLine} -Duser.timezone=Europe/Paris</argLine>
+                    <argLine>@{argLine} -Duser.timezone=Europe/Paris ${test.jvmArgs}</argLine>
                 </configuration>
             </plugin>
 

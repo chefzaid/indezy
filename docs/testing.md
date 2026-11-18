@@ -79,9 +79,15 @@ A few suites enforce a rule for all new code:
 
 ## Coverage
 
-`./mvnw verify` fails when JaCoCo's instruction or branch coverage falls under 80 percent. CI's `02-test` runs the same
-suites with that check reporting only (`-Djacoco.haltOnFailure=false`), then checks the combined backend and frontend
-line coverage against 80 percent and reports a miss as a failed JUnit result, without blocking delivery.
+`./mvnw verify` fails when JaCoCo's instruction or branch coverage falls under 80 percent. CI runs the same suites in
+two parallel jobs, `02-test: [server]` with that check reporting only (`-Djacoco.haltOnFailure=false`) and
+`02-test: [web]`; then `02-coverage` checks the combined backend and frontend line coverage against 80 percent and
+reports a miss as a failed JUnit result, without blocking delivery.
+
+The server tests run in one JVM locally. CI forks one JVM per two CPUs of its job (`-Dtest.forkCount`, four at most),
+each taking whole test classes in turn; the forks share no state: each has its own in-memory H2 databases and Spring
+contexts, the fake servers listen on free ports, and the JaCoCo agents append to the one `target/jacoco.exec` the report
+reads. To run them as CI does: `./mvnw verify -Dtest.forkCount=4 -Dtest.jvmArgs=-XX:MaxRAMPercentage=15`.
 
 ## Playwright E2E
 
@@ -120,8 +126,8 @@ Schedules, for instance `0 6 * * 1` in `Europe/Paris`) with the variable `READER
 ## Scheduled E2E Runs
 
 On a push or merge request the Playwright suite (`01-e2e`) waits to be started by hand. A pipeline whose
-`PLAYWRIGHT_SCHEDULE` variable is `true`, started by a schedule or by hand, builds, tests and packages, then runs the
-suite on its own and fails when it fails; the quality and security reports, the release and the deploy skip such a
+`PLAYWRIGHT_SCHEDULE` variable is `true`, started by a schedule or by hand, builds, tests and packages, and runs the
+suite beside them (it serves the sources, so it waits for none of them) and fails when it fails; the quality and security reports, the release and the deploy skip such a
 pipeline. To run it every night, create a pipeline schedule on `main` (CI/CD → Schedules, for instance `30 2 * * *` in
 `Europe/Paris`) with the variable `PLAYWRIGHT_SCHEDULE` set to `true`. Its report is kept 7 days, as on any pipeline.
 

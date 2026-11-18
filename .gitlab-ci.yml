@@ -51,12 +51,17 @@ variables:
 01-build:
   stage: build
   image: docker.io/library/maven@sha256:583d61cfc8455fc01a8f2fbc614f498ef0d5bf4a4e297d34c64ed8b7d602e02c
+  # One dependency cache per test suite, written here and read by 02-test: [server] and 02-test: [web].
   cache:
-    - key: indezy-maven-v2
+    - key: indezy-server-dependencies-v1
+      fallback_keys:
+        - indezy-maven-v2
       paths:
         - .cache/maven/
       policy: pull-push
-    - key: indezy-npm-v2
+    - key: indezy-web-dependencies-v1
+      fallback_keys:
+        - indezy-npm-v2
       paths:
         - .cache/npm/
       policy: pull-push
@@ -78,47 +83,77 @@ variables:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH'
 
+# The server and web suites run side by side from the sources, without waiting for 01-build.
 02-test:
   stage: build
-  needs:
-    - job: 01-build
-      artifacts: false
+  needs: []
+  parallel:
+    matrix:
+      - SUITE: [server, web]
   image: docker.io/library/maven@sha256:583d61cfc8455fc01a8f2fbc614f498ef0d5bf4a4e297d34c64ed8b7d602e02c
+  variables:
+    KUBERNETES_CPU_LIMIT: "8"
+    KUBERNETES_MEMORY_LIMIT: "12Gi"
   cache:
-    - key: indezy-maven-v2
+    - key: indezy-$SUITE-dependencies-v1
       paths:
         - .cache/maven/
-      policy: pull-push
-    - key: indezy-npm-v2
-      paths:
         - .cache/npm/
-      policy: pull-push
+      policy: pull
   before_script:
-    - apk add --no-cache bash chromium git nodejs-current npm python3
+    - apk add --no-cache bash git
+    - if [ "$SUITE" = web ]; then apk add --no-cache chromium nodejs-current npm; fi
     - export APP_VERSION="$(infra/scripts/current-version.sh)"
   script:
-    - infra/scripts/ci-verify.sh test
-  coverage: '/TOTAL_COVERAGE=([0-9]+(?:\.[0-9]+)?)%/'
+    - infra/scripts/ci-verify.sh "test-$SUITE"
   allow_failure: true
   artifacts:
-    name: "indezy-tests-$CI_COMMIT_SHORT_SHA"
+    name: "indezy-tests-$SUITE-$CI_COMMIT_SHORT_SHA"
     when: always
     expire_in: 7 days
     reports:
       junit:
         - indezy-server/target/surefire-reports/*.xml
         - indezy-web/test-results/karma-junit.xml
-        - coverage-policy-junit.xml
       coverage_report:
         coverage_format: cobertura
         path: indezy-web/coverage/cobertura-coverage.xml
-      dotenv: coverage-policy.env
     paths:
       - indezy-server/target/site/jacoco/
       - indezy-server/target/surefire-reports/
       - indezy-server/target/classes/
       - indezy-web/coverage/
       - indezy-web/test-results/
+  rules:
+    - if: '$READER_CANARY == "true"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+02-coverage:
+  stage: build
+  needs:
+    - job: 02-test
+      parallel:
+        matrix:
+          - SUITE: server
+          - SUITE: web
+      artifacts: true
+  image: docker.io/library/maven@sha256:583d61cfc8455fc01a8f2fbc614f498ef0d5bf4a4e297d34c64ed8b7d602e02c
+  before_script:
+    - apk add --no-cache bash python3
+  script:
+    - infra/scripts/ci-verify.sh coverage
+  coverage: '/TOTAL_COVERAGE=([0-9]+(?:\.[0-9]+)?)%/'
+  allow_failure: true
+  artifacts:
+    name: "indezy-coverage-$CI_COMMIT_SHORT_SHA"
+    when: always
+    expire_in: 7 days
+    reports:
+      junit: coverage-policy-junit.xml
+      dotenv: coverage-policy.env
+    paths:
       - coverage-policy-junit.xml
       - coverage-policy.env
   rules:
@@ -132,8 +167,6 @@ variables:
   needs:
     - job: 01-build
       artifacts: true
-    - job: 02-test
-      artifacts: false
   image:
     name: docker.io/library/maven@sha256:583d61cfc8455fc01a8f2fbc614f498ef0d5bf4a4e297d34c64ed8b7d602e02c
     entrypoint: [""]
@@ -161,11 +194,8 @@ variables:
 
 01-e2e:
   stage: verify
-  needs:
-    - job: 01-build
-      artifacts: true
-    - job: 03-package
-      artifacts: false
+  # The suite serves the sources with the Angular development server: it needs no build output.
+  needs: []
   image:
     name: mcr.microsoft.com/playwright@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
     entrypoint: [""]
@@ -208,12 +238,16 @@ variables:
   stage: verify
   needs:
     - job: 02-test
+      parallel:
+        matrix:
+          - SUITE: server
+          - SUITE: web
       artifacts: true
   image:
     name: node:26.13.1-bookworm-slim@sha256:5df79989ed685e09f0a98019db4cebfb22fb9df1a53c0161664a011f7ff6b0f1
     entrypoint: [""]
   cache:
-    - key: indezy-maven-v2
+    - key: indezy-server-dependencies-v1
       paths:
         - .cache/maven/
       policy: pull
@@ -255,6 +289,7 @@ variables:
 
 03-security:
   stage: verify
+  needs: []
   image:
     name: docker.io/aquasec/trivy:0.76.2@sha256:6fa071ef8daa2e58b90cbf1710bedca91adbb3bf98693533226f442035b836a6
     entrypoint: [""]
@@ -406,7 +441,7 @@ set-major-version:
   needs: []
   image: docker.io/library/maven@sha256:583d61cfc8455fc01a8f2fbc614f498ef0d5bf4a4e297d34c64ed8b7d602e02c
   cache:
-    - key: indezy-maven-v2
+    - key: indezy-server-dependencies-v1
       paths:
         - .cache/maven/
       policy: pull

@@ -34,3 +34,4 @@ Indezy needs automatic code feedback, explicit control over browser and producti
 
 - 2026-09-07: default-branch `02-quality` became automatic, with the `SONAR_SCAN_ONLY` contract for the platform's scheduled analysis.
 - 2026-10-23: `01-build` runs `spotbugs:check`, so SpotBugs blocks delivery as Checkstyle does; it adds about 11 seconds to the job.
+- 2026-11-18: `02-test` runs as `02-test: [server]` and `02-test: [web]` (`parallel: matrix` on `SUITE`), beside `01-build`, with 8 CPUs each; the coverage policy moved to `02-coverage`, which needs both. Jobs start from their `needs`: `03-package` needs only `01-build`, `02-quality` the two test jobs, and `01-e2e` and `03-security` nothing, so release no longer waits for the tests, which never gated it.
