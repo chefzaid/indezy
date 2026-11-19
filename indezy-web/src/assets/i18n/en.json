@@ -3423,7 +3423,11 @@
       "aboutTitle": "About {{name}}",
       "sharedCount": "Skills in common with you: {{count}}",
       "followersOne": "{{count}} follower",
-      "followingOne": "{{count}} following"
+      "followingOne": "{{count}} following",
+      "recommendations": "Recommendations",
+      "recommendationsOwn": "Your recommendations, as members read them. Ask a client or a colleague for another one.",
+      "recommendationsNone": "No recommendation yet. Ask a client or a colleague: once you approve it, members read it here, and visitors on your public page.",
+      "askRecommendation": "Ask for a recommendation"
     },
     "directory": {
       "title": "Members",
@@ -3942,10 +3946,29 @@
       "following": "following",
       "posts": "My posts",
       "followersOne": "follower",
-      "followingOne": "following"
+      "followingOne": "following",
+      "viewers": "{{count}} views of your page",
+      "viewersOne": "1 view of your page"
     },
     "side": {
       "allMembers": "See all members"
+    },
+    "viewers": {
+      "title": "Who viewed my page",
+      "tab": "Viewers",
+      "members": "members viewed your page in 90 days",
+      "membersOne": "member viewed your page in 90 days",
+      "week": "views this week",
+      "weekOne": "view this week",
+      "private": "Browse privately",
+      "privateOn": "You open pages without being named, and you see no names among your viewers either.",
+      "privateOff": "Members whose page you open see your name. Browse privately to visit without being named; you will then see no names either.",
+      "none": "No member viewed your page in the last 90 days yet. A card with a headline and skills is found more often.",
+      "anonymous": "{{count}} members browsing privately",
+      "anonymousOne": "1 member browsing privately",
+      "hiddenYou": "{{count}} viewers, unnamed while you browse privately",
+      "loadError": "Your viewers could not be loaded.",
+      "saveError": "The setting could not be saved. Try again."
     }
   }
 }

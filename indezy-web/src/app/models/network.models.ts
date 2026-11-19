@@ -197,6 +197,21 @@ export interface TrendingTag {
   posts: number;
 }
 
+/** A member who opened the reader's page, and the last time they did. */
+export interface PageViewer {
+  card: MemberCard;
+  viewedAt: string;
+}
+
+/** Who viewed the reader's page in the last 90 days; no name while the reader browses privately. */
+export interface PageViews {
+  viewers: number;
+  viewsThisWeek: number;
+  named: PageViewer[];
+  anonymous: number;
+  privateViewing: boolean;
+}
+
 export interface MemberSuggestion {
   card: MemberCard;
   reason: 'CONTACT' | 'FOLLOWED_BY' | 'SAME_ESN' | 'SAME_STACK' | 'SAME_CITY';

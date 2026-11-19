@@ -143,6 +143,17 @@ describe('NetworkService', () => {
     http.expectOne(call => call.url.endsWith('/network/suggestions'));
     service.member('camille').subscribe();
     http.expectOne(call => call.url.endsWith('/network/members/camille'));
+    service.recommendations('camille').subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/members/camille/recommendations')).request.context.get(SILENT_HTTP_ERRORS))
+      .toBeTrue();
+    service.recordView('camille').subscribe();
+    expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/members/camille/views')).request.context
+      .get(SILENT_HTTP_ERRORS)).toBeTrue();
+    service.pageViews(true).subscribe();
+    http.expectOne(call => call.method === 'GET' && call.url.endsWith('/network/page-views'));
+    service.setPrivateViewing(true).subscribe();
+    expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/page-views/private')).request.params.get('on'))
+      .toBe('true');
     service.page('camille').subscribe();
     http.expectOne(call => call.url.endsWith('/network/members/camille/page'));
     service.follow('camille').subscribe();

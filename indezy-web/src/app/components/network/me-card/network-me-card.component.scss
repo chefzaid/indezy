@@ -95,6 +95,30 @@
   }
 }
 
+.viewed {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  gap: 8px;
+  margin: 0 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  font-size: 0.8125rem;
+  text-decoration: none;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--app-link);
+    font-size: 18px;
+  }
+
+  &:hover {
+    color: var(--app-link);
+  }
+}
+
 .links {
   display: flex;
   flex-direction: column;
@@ -144,7 +168,8 @@
 
   .cover,
   .headline,
-  .counts {
+  .counts,
+  .viewed {
     display: none;
   }
 

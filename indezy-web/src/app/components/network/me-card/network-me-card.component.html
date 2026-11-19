@@ -11,12 +11,18 @@
     }
     <div class="counts">
       <a [routerLink]="['/m', me.card.handle]" [queryParams]="{ tab: 'followers' }" data-me-followers>
-        <strong>{{ me.followers }}</strong><span>{{ (me.followers === 1 ? 'network.me.followersOne' : 'network.me.followers') | translate }}</span>
+        <strong>{{ me.followers }}</strong>&ngsp;<span>{{ (me.followers === 1 ? 'network.me.followersOne' : 'network.me.followers') | translate }}</span>
       </a>
       <a [routerLink]="['/m', me.card.handle]" [queryParams]="{ tab: 'following' }" data-me-following>
-        <strong>{{ me.following }}</strong><span>{{ (me.following === 1 ? 'network.me.followingOne' : 'network.me.following') | translate }}</span>
+        <strong>{{ me.following }}</strong>&ngsp;<span>{{ (me.following === 1 ? 'network.me.followingOne' : 'network.me.following') | translate }}</span>
       </a>
     </div>
+    @if (viewers !== null) {
+      <a class="viewed" [routerLink]="['/m', me.card.handle]" [queryParams]="{ tab: 'viewers' }" data-me-viewers>
+        <mat-icon aria-hidden="true">visibility</mat-icon>
+        <span>{{ (viewers === 1 ? 'network.me.viewersOne' : 'network.me.viewers') | translate: { count: viewers } }}</span>
+      </a>
+    }
     <nav class="links" [attr.aria-label]="'network.nav.myPage' | translate">
       <a [routerLink]="['/m', me.card.handle]" data-me-posts><mat-icon aria-hidden="true">article</mat-icon>{{ 'network.me.posts' | translate }}</a>
       <a [routerLink]="['/m', me.card.handle]" [queryParams]="{ tab: 'saved' }" data-me-saved>

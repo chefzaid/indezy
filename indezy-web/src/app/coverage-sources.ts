@@ -98,6 +98,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'components/network/side/suggestion-reason',
   'components/network/tag-page/tag-page.component',
   'components/network/time-ago/time-ago.pipe',
+  'components/network/viewers/network-viewers.component',
   'components/offers/offer-apply-dialog/offer-apply-dialog.component',
   'components/offers/offer-bar-chart/offer-bar-chart.component',
   'components/offers/offer-card/offer-card.component',

@@ -104,15 +104,48 @@
         (click)="show('following')" data-following>
         {{ (page.following === 1 ? 'network.page.followingOne' : 'network.page.following') | translate: { count: page.following } }}
       </button>
+      @if (recommendations.length || page.own) {
+        <button type="button" role="tab" class="tab" [class.active]="list === 'recommendations'" [attr.aria-selected]="list === 'recommendations'"
+          (click)="show('recommendations')" data-tab-recommendations>
+          {{ 'network.page.recommendations' | translate }}@if (recommendations.length) {<span class="tab-count">{{ recommendations.length }}</span>}
+        </button>
+      }
       @if (page.own) {
         <button type="button" role="tab" class="tab" [class.active]="list === 'saved'" [attr.aria-selected]="list === 'saved'"
           (click)="show('saved')" data-tab-saved>{{ 'network.feed.saved' | translate }}</button>
         <button type="button" role="tab" class="tab" [class.active]="list === 'drafts'" [attr.aria-selected]="list === 'drafts'"
           (click)="show('drafts')" data-tab-drafts>{{ 'network.drafts.title' | translate }}</button>
+        <button type="button" role="tab" class="tab" [class.active]="list === 'viewers'" [attr.aria-selected]="list === 'viewers'"
+          (click)="show('viewers')" data-tab-viewers>{{ 'network.viewers.tab' | translate }}</button>
       }
     </div>
 
-    @if (list === 'saved') {
+    @if (list === 'recommendations') {
+      <section class="recommendations" data-recommendations [attr.aria-label]="'network.page.recommendations' | translate">
+        @if (page.own) {
+          <div class="ask card">
+            <p>{{ (recommendations.length ? 'network.page.recommendationsOwn' : 'network.page.recommendationsNone') | translate }}</p>
+            <a mat-stroked-button routerLink="/profile" [queryParams]="{ tab: 'public' }" data-ask-recommendation>
+              <mat-icon>rate_review</mat-icon>{{ 'network.page.askRecommendation' | translate }}
+            </a>
+          </div>
+        }
+        @for (recommendation of recommendations; track $index) {
+          <figure class="recommendation card" data-recommendation>
+            <mat-icon class="quote" aria-hidden="true">format_quote</mat-icon>
+            <blockquote>{{ recommendation.text }}</blockquote>
+            <figcaption>
+              <strong>{{ recommendation.authorName }}</strong>
+              @if (recommendation.authorTitle) {
+                <span>{{ recommendation.authorTitle }}</span>
+              }
+            </figcaption>
+          </figure>
+        }
+      </section>
+    } @else if (list === 'viewers') {
+      <app-network-viewers></app-network-viewers>
+    } @else if (list === 'saved') {
       <app-saved-posts [embedded]="true"></app-saved-posts>
     } @else if (list === 'drafts') {
       <app-network-drafts [embedded]="true"></app-network-drafts>

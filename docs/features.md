@@ -176,7 +176,8 @@ opens, and that it can be ignored), at most 20 emailed a day. The link is also s
 the page says whether the email went. Its author writes it without an account (20 to 1,500 characters, with their name
 and optionally their title), agreeing to be named with it; the link stays open 30 days and is answered once. Once
 written, the page offers to create an Indezy account, never needed (while sign-up is open). A received testimonial waits **To review** until **Show on my public page** puts it on `/p/<address>`, under
-**Testimonials**; **Hide** takes it off and deleting it closes its link. Testimonials are part of the data export.
+**Testimonials**; **Hide** takes it off and deleting it closes its link. An approved testimonial also shows to members on the freelancer's
+network page, under **Recommendations**. Testimonials are part of the data export.
 
 ### Member Network
 
@@ -209,7 +210,16 @@ follow (each opening their page); a member's own page adds **Saved** and **Draft
 address (`?tab=followers`, `following`, `saved` or `drafts`), so the card beside the feed opens each directly, and the
 former addresses `/network/saved` and `/network/drafts` lead to them. Beside another member's page, **About Léo** says
 how many follow them and whom they follow, whether they follow the reader and how many skills both cards show. On their
-own page a member **removes** a follower, without them being told. A member who left the network leaves every count and list while away, and a visitor who has not joined is asked
+own page a member **removes** a follower, without them being told. **Viewers**, a tab of one's own page (and **n views of your page** on the card beside the
+feed), tells **who viewed my page**: how many members opened it in the last 90 days and how many times in the last 7, the
+members named, the latest first (50 at most, never one blocked either way or away from the network), and how many browsed
+privately. A member's page is counted once a day per viewer, as it opens (`POST /api/network/members/<handle>/views`, never
+for one's own), and kept 90 days, dropped every night after. **Browse privately**, in that tab
+(`PUT /api/network/page-views/private?on=`), opens pages without being named, counted among the private viewers; as on
+LinkedIn, the member then sees no names among their own viewers either. (always on one's own), shows the
+testimonials the member approved for their public page (see [Testimonials](#testimonials)), each as a quote with its
+author's name and title, the latest first (`GET /api/network/members/<handle>/recommendations`; a private card's to its
+followers only); on one's own page, **Ask for a recommendation** opens **Profile → Public profile** (`/profile?tab=public`). A member who left the network leaves every count and list while away, and a visitor who has not joined is asked
 to join first.
 
 From a member's page, **Mute** hides their posts while the follow stays, and **Block** (once confirmed) ends both

@@ -120,9 +120,20 @@ public class NetworkMember extends BaseEntity {
     @Column(name = "presence_shown")
     private Boolean presenceShown;
 
+    /**
+     * Whether the member opens pages without being named among their viewers (counted, but anonymous); they then see no
+     * names among their own viewers either. None (null) reads as off.
+     */
+    @Column(name = "private_viewing")
+    private Boolean privateViewing;
+
     /** The last time the member had the app open (a live stream on some replica), at most a heartbeat ago while they do. */
     @Column(name = "last_seen_at")
     private Instant lastSeenAt;
+
+    public boolean viewsPrivately() {
+        return Boolean.TRUE.equals(privateViewing);
+    }
 
     public boolean showsPresence() {
         return !Boolean.FALSE.equals(presenceShown);

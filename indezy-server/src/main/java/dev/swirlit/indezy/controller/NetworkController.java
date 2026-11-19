@@ -1,11 +1,14 @@
 package dev.swirlit.indezy.controller;
 
 import dev.swirlit.indezy.dto.NetworkDtos;
+import dev.swirlit.indezy.dto.TestimonialDtos;
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
 import dev.swirlit.indezy.service.NetworkDirectoryService;
 import dev.swirlit.indezy.service.NetworkFollowRequestService;
 import dev.swirlit.indezy.service.NetworkFollowService;
 import dev.swirlit.indezy.service.NetworkNotificationService;
+import dev.swirlit.indezy.service.NetworkPageViewService;
+import dev.swirlit.indezy.service.NetworkRecommendationService;
 import dev.swirlit.indezy.service.NetworkService;
 import dev.swirlit.indezy.service.NetworkSuggestionService;
 import dev.swirlit.indezy.util.SecurityUtils;
@@ -41,6 +44,8 @@ public class NetworkController {
     private final NetworkDirectoryService directory;
     private final NetworkSuggestionService suggestions;
     private final NetworkNotificationService notices;
+    private final NetworkRecommendationService recommendations;
+    private final NetworkPageViewService pageViews;
 
     @Operation(summary = "Whether the account joined, its handle and what its card shows")
     @GetMapping("/membership")
@@ -87,6 +92,33 @@ public class NetworkController {
     @GetMapping("/mentions")
     public List<NetworkDtos.MemberCard> mentions(@RequestParam(defaultValue = "") String q) {
         return directory.mentions(SecurityUtils.getCurrentUserId(), q);
+    }
+
+    @Operation(summary = "The viewer opened a member's page", description = "Kept once a day per pair for 90 days; one's own page counts nothing")
+    @PostMapping("/members/{handle}/views")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void viewed(@PathVariable String handle) {
+        pageViews.record(SecurityUtils.getCurrentUserId(), handle);
+    }
+
+    @Operation(summary = "Who viewed the member's page in the last 90 days",
+        description = "Those browsing privately are counted without a name; a member browsing privately sees no names")
+    @GetMapping("/page-views")
+    public NetworkDtos.PageViews pageViews() {
+        return pageViews.viewers(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Browse other members' pages privately, or no longer")
+    @PutMapping("/page-views/private")
+    public NetworkDtos.PageViews privateViewing(@RequestParam boolean on) {
+        return pageViews.setPrivateViewing(SecurityUtils.getCurrentUserId(), on);
+    }
+
+    @Operation(summary = "A member's recommendations: the testimonials they approved for their public page, the latest first",
+        description = "None for a private card the viewer does not follow; 404 as for the member's card")
+    @GetMapping("/members/{handle}/recommendations")
+    public List<TestimonialDtos.Shown> recommendations(@PathVariable String handle) {
+        return recommendations.recommendations(SecurityUtils.getCurrentUserId(), handle);
     }
 
     @Operation(summary = "The network's search for members",

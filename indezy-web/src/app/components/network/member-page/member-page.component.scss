@@ -368,3 +368,71 @@
     font-size: 0.8125rem;
   }
 }
+
+// Recommendations: the testimonials the member approved, as quotes signed by their authors.
+.tab-count {
+  margin-left: 6px;
+  padding: 0 7px;
+  border-radius: 10px;
+  background: var(--app-border);
+  font-size: 0.75rem;
+  line-height: 18px;
+}
+
+.recommendations {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ask {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+
+  p {
+    margin: 0;
+    color: var(--app-text-muted);
+    flex: 1 1 260px;
+  }
+
+  a {
+    border-radius: 999px;
+  }
+}
+
+.recommendation {
+  position: relative;
+  margin: 0;
+  padding: 20px 20px 16px 56px;
+
+  .quote {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 28px;
+    height: 28px;
+    color: var(--app-link);
+    font-size: 28px;
+  }
+
+  blockquote {
+    margin: 0 0 12px;
+    line-height: 1.55;
+    white-space: pre-line;
+  }
+
+  figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.875rem;
+
+    span {
+      color: var(--app-text-muted);
+    }
+  }
+}

@@ -26,7 +26,7 @@ public class AccountPurge {
         "network_mission_takes", "network_poll_votes", "network_bookmarks", "network_notifications", "network_comments",
         "network_file_contents", "network_files", "network_held", "network_posts", "network_follows",
         "network_follow_requests", "network_restrictions", "network_tag_follows", "network_drafts", "network_reports",
-        "network_message_reactions", "network_conversation_members", "network_members",
+        "network_message_reactions", "network_conversation_members", "network_page_views", "network_members",
         "webhook_events", "webhook_deliveries", "webhooks", "activity_report_days", "interview_step_checklist",
         "interview_steps", "contact_interactions", "contact_relations", "project_attachments", "project_notes",
         "purchase_orders", "project_contract_checks", "project_documents", "job_offer_states", "invoice_lines", "invoices",
@@ -109,6 +109,7 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM network_follow_requests WHERE member_id = ? OR requester_id = ?", u, u);
         rows += jdbc.update("DELETE FROM network_restrictions WHERE owner_id = ? OR target_id = ?", u, u);
         rows += jdbc.update("DELETE FROM network_drafts WHERE author_id = ?", u);
+        rows += jdbc.update("DELETE FROM network_page_views WHERE viewer_id = ? OR member_id = ?", u, u);
         rows += jdbc.update("DELETE FROM network_reports WHERE reporter_id = ? OR target_user_id = ?", u, u);
         return rows;
     }

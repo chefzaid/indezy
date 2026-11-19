@@ -28,12 +28,23 @@ export class NetworkMeCardComponent implements OnInit {
 
   /** The reader's page; none while it loads, or for a visitor not in the network. */
   page: MemberPage | null = null;
+  /** How many members viewed the reader's page in the last 90 days; none until read. */
+  viewers: number | null = null;
 
   ngOnInit(): void {
     this.network.membership(true).pipe(switchMap(membership => this.network.page(membership.handle))).subscribe({
       next: page => {
         this.page = page.own ? page : null;
         this.changes.markForCheck();
+        if (this.page) {
+          this.network.pageViews(true).subscribe({
+            next: views => {
+              this.viewers = views.viewers;
+              this.changes.markForCheck();
+            },
+            error: () => this.viewers = null
+          });
+        }
       },
       error: () => this.page = null
     });

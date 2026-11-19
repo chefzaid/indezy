@@ -115,6 +115,7 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `NetworkComment` | `network_comments` | member and post (by id) | by its author or the moderators, with its replies; with its post, or its author's account |
 | `NetworkLike` | `network_likes` | member and post (by id) | by hand, or with its post or either account |
 | `NetworkCommentLike` | `network_comment_likes` | member and comment (by id) | by hand, or with its comment, its post or either account |
+| `NetworkPageView` | `network_page_views` | viewer and member (by id), once a day per pair | nightly, 90 days after it; with either account |
 | `NetworkPollVote` | `network_poll_votes` | member and post (by id) | with its post or either account; a change rewrites it |
 | `NetworkMissionTake` | `network_mission_takes` | member and post (by id) | with its post or either account; kept when its project is deleted, and reused if the mission is taken again |
 | `NetworkBookmark` | `network_bookmarks` | member and post (by id) | by hand, or with its post or either account |
@@ -179,6 +180,8 @@ Deletion rules:
   reports it made or drew, drafts, held posts and files. The conversations and the messages it sent, with their files,
   stay for the other side, from a former member.
 - Files never attached to a post, a message or a held post are dropped every night a day after upload.
+- Page views are dropped every night 90 days after they happened; `network_members.private_viewing` keeps a member
+  out of the names their views show, and their own viewers' names from them.
 
 ## Entity Rules
 

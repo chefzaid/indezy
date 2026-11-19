@@ -349,6 +349,21 @@ public final class NetworkDtos {
         }
     }
 
+    /** A member who opened the reader's page, and the last time they did. */
+    public record PageViewer(MemberCard card, LocalDateTime viewedAt) {
+    }
+
+    /**
+     * Who viewed the reader's page in the last 90 days: how many members, how many views in the last 7 days, those named
+     * (the latest first, 50 at most) and how many browsed privately; no name while the reader browses privately themselves.
+     */
+    public record PageViews(int viewers, int viewsThisWeek, List<PageViewer> named, int anonymous, boolean privateViewing) {
+
+        public PageViews {
+            named = List.copyOf(named);
+        }
+    }
+
     /**
      * What members see of a member: the name always, the rest as the member chose; a hidden field is null or empty. The
      * availability is a status (available, on a mission, open to hear of one) with the day it names, if any; verified when

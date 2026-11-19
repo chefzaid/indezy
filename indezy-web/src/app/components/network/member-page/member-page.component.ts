@@ -11,6 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Observable, distinctUntilChanged, map, skip, switchMap } from 'rxjs';
 
 import { MemberCard, MemberPage, NetworkPost } from '../../../models';
+import { ShownTestimonial } from '../../../models/testimonial.models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
@@ -24,10 +25,13 @@ import { SavedPostsComponent } from '../saved/saved-posts.component';
 import { NetworkDraftsComponent } from '../drafts/network-drafts.component';
 import { NetworkMeCardComponent } from '../me-card/network-me-card.component';
 import { NetworkSideComponent } from '../side/network-side.component';
+import { NetworkViewersComponent } from '../viewers/network-viewers.component';
 
 /** Which list of the page is open: the member's followers or follows, or, on the reader's own page, their saved posts or drafts. */
-export type MemberList = 'followers' | 'following' | 'saved' | 'drafts';
-const LISTS: MemberList[] = ['followers', 'following', 'saved', 'drafts'];
+export type MemberList = 'followers' | 'following' | 'saved' | 'drafts' | 'recommendations' | 'viewers';
+const LISTS: MemberList[] = ['followers', 'following', 'saved', 'drafts', 'recommendations', 'viewers'];
+/** The tabs of the reader's own page alone. */
+const OWN_LISTS: MemberList[] = ['saved', 'drafts', 'viewers'];
 
 /**
  * A member's page (`/m/<handle>`): the card, the members following them and they follow, the skills they share with
@@ -35,7 +39,7 @@ const LISTS: MemberList[] = ['followers', 'following', 'saved', 'drafts'];
  */
 @Component({
   selector: 'app-member-page',
-  imports: [SavedPostsComponent, NetworkDraftsComponent, NetworkMeCardComponent, NetworkSideComponent, NetworkNavComponent, MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
+  imports: [SavedPostsComponent, NetworkDraftsComponent, NetworkViewersComponent, NetworkMeCardComponent, NetworkSideComponent, NetworkNavComponent, MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
   templateUrl: './member-page.component.html',
   styleUrls: ['./member-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -56,6 +60,8 @@ export class MemberPageComponent implements OnInit {
   problem: 'notMember' | 'notFound' | 'error' | null = null;
   loading = true;
   list: MemberList | null = null;
+  /** The testimonials the member approved, signed by their authors. */
+  recommendations: ShownTestimonial[] = [];
   members: MemberCard[] = [];
   isFollowing = false;
   isOpening = false;
@@ -74,6 +80,11 @@ export class MemberPageComponent implements OnInit {
         this.problem = null;
         this.loading = false;
         this.loadPosts(0);
+        this.loadRecommendations(page.card.handle);
+        if (!page.own) {
+          // Told to the member under **Who viewed my page**, in the background.
+          this.network.recordView(page.card.handle).subscribe({ error: () => undefined });
+        }
         this.openTab(this.route.snapshot.queryParamMap.get('tab'));
         this.changes.markForCheck();
       },
@@ -132,11 +143,23 @@ export class MemberPageComponent implements OnInit {
   /** Opens the tab the address names (the saved posts and drafts are the reader's own), else the posts. */
   private openTab(asked: string | null): void {
     const tab = asked as MemberList | null;
-    if (tab && LISTS.includes(tab) && (this.page?.own || tab === 'followers' || tab === 'following')) {
+    if (tab && LISTS.includes(tab) && (this.page?.own || !OWN_LISTS.includes(tab))) {
       this.show(tab);
     } else {
       this.list = null;
     }
+  }
+
+  /** The member's recommendations, for their tab (shown once there is one, or on one's own page to ask for some). */
+  private loadRecommendations(handle: string): void {
+    this.recommendations = [];
+    this.network.recommendations(handle).subscribe({
+      next: found => {
+        this.recommendations = found;
+        this.changes.markForCheck();
+      },
+      error: () => this.recommendations = []
+    });
   }
 
   /** Back to the member's posts from a list. */
@@ -148,7 +171,7 @@ export class MemberPageComponent implements OnInit {
   show(list: MemberList): void {
     const handle = this.page!.card.handle;
     this.list = list;
-    if (list === 'saved' || list === 'drafts') {
+    if (list === 'saved' || list === 'drafts' || list === 'recommendations' || list === 'viewers') {
       return;
     }
     (list === 'followers' ? this.network.followers(handle) : this.network.following(handle)).subscribe({

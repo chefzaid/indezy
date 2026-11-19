@@ -6,6 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { Conversation, MemberCard, MemberPage } from '../../../models';
+import { ShownTestimonial } from '../../../models/testimonial.models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
@@ -29,9 +30,12 @@ describe('MemberPageComponent', () => {
 
   let query: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
 
-  function create(read = of(page), tab: string | null = null): ComponentFixture<MemberPageComponent> {
+  function create(read = of(page), tab: string | null = null, recommended = of([] as ShownTestimonial[])): ComponentFixture<MemberPageComponent> {
     network = jasmine.createSpyObj('NetworkService', ['page', 'follow', 'unfollow', 'followers', 'following', 'removeFollower', 'mute',
-      'block', 'memberPosts', 'deletePost', 'saved', 'drafts']);
+      'block', 'memberPosts', 'deletePost', 'saved', 'drafts', 'recommendations', 'recordView', 'pageViews']);
+    network.recordView.and.returnValue(of(undefined));
+    network.pageViews.and.returnValue(of({ viewers: 0, viewsThisWeek: 0, named: [], anonymous: 0, privateViewing: false }));
+    network.recommendations.and.returnValue(recommended);
     network.memberPosts.and.returnValue(of({ posts: [], page: 0, more: false }));
     network.saved.and.returnValue(of({ page: { posts: [], page: 0, more: false }, tags: [] }));
     network.drafts.and.returnValue(of([]));
@@ -144,12 +148,46 @@ describe('MemberPageComponent', () => {
     expect(component.list).toBeNull();
   });
 
+  it('shows the recommendations the member approved in their tab, and asks for some on one\'s own page', () => {
+    let fixture = create();
+    let element: HTMLElement = fixture.nativeElement;
+    expect(network.recommendations).toHaveBeenCalledWith('camille');
+    // None approved: no tab on another member's page.
+    expect(element.querySelector('[data-tab-recommendations]')).toBeNull();
+    TestBed.resetTestingModule();
+    const recommended = [{ authorName: 'Léa Martin', authorTitle: 'CTO, Acme', text: 'Rigoureuse et claire.' },
+      { authorName: 'Paul Durand', authorTitle: null, text: 'Une refonte menée à temps.' }];
+    fixture = create(of(page), 'recommendations', of(recommended));
+    element = fixture.nativeElement;
+    expect(element.querySelector('[data-tab-recommendations]')?.textContent).toContain('2');
+    expect(element.querySelectorAll('[data-recommendation]').length).toBe(2);
+    expect(element.querySelector('[data-recommendation]')?.textContent).toContain('CTO, Acme');
+    expect(element.querySelector('[data-ask-recommendation]')).toBeNull();
+    TestBed.resetTestingModule();
+    fixture = create(of({ ...page, own: true }), 'recommendations');
+    element = fixture.nativeElement;
+    expect(element.querySelector('[data-tab-recommendations]')).not.toBeNull();
+    expect(element.querySelector('[data-ask-recommendation]')?.getAttribute('href')).toBe('/profile?tab=public');
+  });
+
+  it('tells the member their page was viewed, never for one\'s own, and opens one\'s viewers in a tab', () => {
+    let fixture = create();
+    expect(network.recordView).toHaveBeenCalledWith('camille');
+    expect(fixture.nativeElement.querySelector('[data-tab-viewers]')).toBeNull();
+    TestBed.resetTestingModule();
+    fixture = create(of({ ...page, own: true }), 'viewers');
+    expect(network.recordView).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.list).toBe('viewers');
+    expect(fixture.nativeElement.querySelector('app-network-viewers')).not.toBeNull();
+  });
+
   it('keeps another member\'s page off the saved and drafts tabs', () => {
     const fixture = create(of(page), 'drafts');
     const element: HTMLElement = fixture.nativeElement;
     expect(fixture.componentInstance.list).toBeNull();
     expect(element.querySelector('[data-tab-saved]')).toBeNull();
     expect(element.querySelector('[data-tab-drafts]')).toBeNull();
+    expect(element.querySelector('[data-tab-viewers]')).toBeNull();
     expect(element.querySelector('[data-member-posts]')).not.toBeNull();
   });
 

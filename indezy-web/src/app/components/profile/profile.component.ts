@@ -88,8 +88,13 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     // `?tab=network` opens the network's settings, as the notifications page links them.
-    if (this.route.snapshot.queryParamMap.get('tab') === 'network' && this.capabilities.snapshot().features.SOCIAL_NETWORK) {
-      this.selectedTabIndex = PROFILE_TABS_BEFORE_NETWORK + (this.capabilities.snapshot().features.PUBLIC_PROFILES ? 1 : 0);
+    const features = this.capabilities.snapshot().features;
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    if (tab === 'network' && features.SOCIAL_NETWORK) {
+      this.selectedTabIndex = PROFILE_TABS_BEFORE_NETWORK + (features.PUBLIC_PROFILES ? 1 : 0);
+    } else if (tab === 'public' && features.PUBLIC_PROFILES) {
+      // `?tab=public` opens the public page, where testimonials are asked, as a member's page links it.
+      this.selectedTabIndex = PROFILE_TABS_BEFORE_NETWORK;
     }
     this.loadUserProfile();
     this.loadSecuritySettings();

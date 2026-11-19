@@ -1,0 +1,51 @@
+<section class="viewers" data-viewers [attr.aria-label]="'network.viewers.title' | translate">
+  @if (views; as seen) {
+    <div class="summary card">
+      <div class="figure" data-viewers-total>
+        <strong>{{ seen.viewers }}</strong>&ngsp;
+        <span>{{ (seen.viewers === 1 ? 'network.viewers.membersOne' : 'network.viewers.members') | translate }}</span>
+      </div>
+      <div class="figure" data-viewers-week>
+        <strong>{{ seen.viewsThisWeek }}</strong>&ngsp;
+        <span>{{ (seen.viewsThisWeek === 1 ? 'network.viewers.weekOne' : 'network.viewers.week') | translate }}</span>
+      </div>
+      <mat-slide-toggle class="private" [checked]="seen.privateViewing" [disabled]="saving" (change)="setPrivate($event)" data-private-viewing>
+        {{ 'network.viewers.private' | translate }}
+      </mat-slide-toggle>
+      <p class="hint">{{ (seen.privateViewing ? 'network.viewers.privateOn' : 'network.viewers.privateOff') | translate }}</p>
+    </div>
+
+    @if (seen.viewers === 0) {
+      <div class="empty card" data-viewers-none>
+        <mat-icon aria-hidden="true">visibility</mat-icon>
+        <p>{{ 'network.viewers.none' | translate }}</p>
+      </div>
+    } @else {
+      <div class="card list">
+        @if (seen.named.length) {
+          <ul>
+            @for (viewer of seen.named; track viewer.card.handle) {
+              <li [attr.data-viewer]="viewer.card.handle">
+                <app-member-avatar [subject]="viewer.card" [size]="44"></app-member-avatar>
+                <div class="who">
+                  <a [routerLink]="['/m', viewer.card.handle]">{{ viewer.card.firstName }} {{ viewer.card.lastName }}</a>
+                  @if (viewer.card.headline) {
+                    <span class="headline">{{ viewer.card.headline }}</span>
+                  }
+                </div>
+                <time [attr.datetime]="viewer.viewedAt" [title]="viewer.viewedAt | date:'medium'">{{ viewer.viewedAt | timeAgo }}</time>
+              </li>
+            }
+          </ul>
+        }
+        @if (seen.anonymous) {
+          <p class="anonymous" data-viewers-anonymous>
+            <mat-icon aria-hidden="true">visibility_off</mat-icon>
+            {{ (seen.privateViewing ? 'network.viewers.hiddenYou' : (seen.anonymous === 1 ? 'network.viewers.anonymousOne' : 'network.viewers.anonymous'))
+              | translate: { count: seen.anonymous } }}
+          </p>
+        }
+      </div>
+    }
+  }
+</section>

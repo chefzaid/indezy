@@ -3423,7 +3423,11 @@
       "aboutTitle": "À propos de {{name}}",
       "sharedCount": "Compétences en commun avec vous : {{count}}",
       "followersOne": "{{count}} abonné",
-      "followingOne": "{{count}} abonnement"
+      "followingOne": "{{count}} abonnement",
+      "recommendations": "Recommandations",
+      "recommendationsOwn": "Vos recommandations, telles que les membres les lisent. Demandez-en une autre à un client ou un collègue.",
+      "recommendationsNone": "Aucune recommandation pour l’instant. Demandez-en une à un client ou un collègue : une fois approuvée, les membres la lisent ici, et les visiteurs sur votre page publique.",
+      "askRecommendation": "Demander une recommandation"
     },
     "directory": {
       "title": "Membres",
@@ -3942,10 +3946,29 @@
       "following": "abonnements",
       "posts": "Mes publications",
       "followersOne": "abonné",
-      "followingOne": "abonnement"
+      "followingOne": "abonnement",
+      "viewers": "{{count}} vues de votre page",
+      "viewersOne": "1 vue de votre page"
     },
     "side": {
       "allMembers": "Voir tous les membres"
+    },
+    "viewers": {
+      "title": "Qui a consulté ma page",
+      "tab": "Visiteurs",
+      "members": "membres ont consulté votre page en 90 jours",
+      "membersOne": "membre a consulté votre page en 90 jours",
+      "week": "vues cette semaine",
+      "weekOne": "vue cette semaine",
+      "private": "Navigation privée",
+      "privateOn": "Vous consultez les pages sans être nommé, et ne voyez pas non plus le nom de vos visiteurs.",
+      "privateOff": "Les membres dont vous ouvrez la page voient votre nom. Passez en navigation privée pour consulter sans être nommé ; vous ne verrez alors plus de noms non plus.",
+      "none": "Aucun membre n’a encore consulté votre page ces 90 derniers jours. Une carte avec un titre et des compétences est trouvée plus souvent.",
+      "anonymous": "{{count}} membres en navigation privée",
+      "anonymousOne": "1 membre en navigation privée",
+      "hiddenYou": "{{count}} visiteurs, sans leur nom tant que vous naviguez en privé",
+      "loadError": "Vos visiteurs n’ont pas pu être chargés.",
+      "saveError": "Le réglage n’a pas pu être enregistré. Réessayez."
     }
   }
 }

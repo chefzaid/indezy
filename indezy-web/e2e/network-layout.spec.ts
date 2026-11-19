@@ -150,3 +150,77 @@ for (const [language, width] of [['fr', 1600], ['en', 390]] as const) {
     }
   });
 }
+
+for (const [language, width] of [['fr', 1600], ['en', 390]] as const) {
+  test(`reads a member's recommendations, and asks for one from one's own page (${language}, ${width}px)`, async ({ page }) => {
+    const en = language === 'en';
+    await page.setViewportSize({ width, height: 900 });
+    await mockWorkspaceSession(page, language);
+    await themeByWidth(page, language, width);
+    await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false,
+      features: { SOCIAL_NETWORK: true, PUBLIC_PROFILES: true } } }));
+    await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+    const memberPage = (handle: string, own: boolean) => ({ card: card(handle, own ? 'Camille' : 'Léo'), followers: 3, following: 1,
+      sharedSkills: [], followed: true, followsYou: true, own, muted: false, blocked: false, privateCard: false, requested: false });
+    await page.route('**/api/network/members/camille/page', route => route.fulfill({ json: memberPage('camille', true) }));
+    await page.route('**/api/network/members/leo_m/page', route => route.fulfill({ json: memberPage('leo_m', false) }));
+    await page.route('**/api/network/members/*/posts?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+    await page.route('**/api/network/members/leo_m/recommendations', route => route.fulfill({ json: [
+      { authorName: 'Léa Martin', authorTitle: 'CTO, Acme', text: 'Un consultant rigoureux, qui a mené la refonte en temps et en heure.' }] }));
+    await page.route('**/api/network/members/camille/recommendations', route => route.fulfill({ json: [] }));
+
+    await page.goto('/m/leo_m');
+    await page.locator('[data-tab-recommendations]').click();
+    await expect(page.locator('[data-recommendation]')).toContainText('CTO, Acme');
+    await expect(page.locator('[data-ask-recommendation]')).toHaveCount(0);
+    const audit = await new AxeBuilder({ page }).include('app-member-page').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(audit.violations.map(violation => violation.id)).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
+    await page.goto('/m/camille?tab=recommendations');
+    await expect(page.locator('[data-recommendations]')).toContainText(en ? 'No recommendation yet' : 'Aucune recommandation');
+    await expect(page.locator('[data-ask-recommendation]')).toHaveAttribute('href', '/profile?tab=public');
+  });
+}
+
+test('tells a member who viewed their page, and browses privately', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await mockWorkspaceSession(page, 'en');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+  const memberPage = (handle: string, own: boolean) => ({ card: card(handle, own ? 'Camille' : 'Léo'), followers: 3, following: 1,
+    sharedSkills: [], followed: false, followsYou: false, own, muted: false, blocked: false, privateCard: false, requested: false });
+  await page.route('**/api/network/members/camille/page', route => route.fulfill({ json: memberPage('camille', true) }));
+  await page.route('**/api/network/members/leo_m/page', route => route.fulfill({ json: memberPage('leo_m', false) }));
+  await page.route('**/api/network/members/*/posts?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+  await page.route('**/api/network/members/*/recommendations', route => route.fulfill({ json: [] }));
+  const viewed: string[] = [];
+  await page.route('**/api/network/members/*/views', route => {
+    viewed.push(route.request().url().split('/').at(-2)!);
+    return route.fulfill({ status: 204 });
+  });
+  let views = { viewers: 2, viewsThisWeek: 3, named: [{ card: card('leo_m', 'Léo'), viewedAt: new Date().toISOString() }], anonymous: 1,
+    privateViewing: false };
+  await page.route('**/api/network/page-views', route => route.fulfill({ json: views }));
+  await page.route('**/api/network/page-views/private?**', route => {
+    views = { ...views, named: [], anonymous: 2, privateViewing: true };
+    return route.fulfill({ json: views });
+  });
+
+  await page.goto('/m/leo_m');
+  await expect.poll(() => viewed).toEqual(['leo_m']);
+  await page.goto('/network/members');
+  await page.goto('/m/camille');
+  await expect(page.locator('[data-me-viewers]:visible')).toContainText('2 views of your page');
+  await page.locator('[data-me-viewers]:visible').click();
+  await expect(page).toHaveURL(/tab=viewers/);
+  await expect(page.locator('[data-viewer="leo_m"]')).toBeVisible();
+  await expect(page.locator('[data-viewers-anonymous]')).toContainText('1 member browsing privately');
+  const audit = await new AxeBuilder({ page }).include('app-network-viewers').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  await page.locator('[data-private-viewing] button').click();
+  await expect(page.locator('[data-viewer]')).toHaveCount(0);
+  await expect(page.locator('[data-viewers-anonymous]')).toContainText('unnamed while you browse privately');
+  // One's own page is never counted.
+  expect(viewed).toEqual(['leo_m']);
+});

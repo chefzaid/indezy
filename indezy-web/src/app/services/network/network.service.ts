@@ -3,10 +3,11 @@ import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
+import { ShownTestimonial } from '../../models/testimonial.models';
 import {
   ConfidentialMatch, DirectorySearch, FileRef, HeldForReview, MemberCard, MemberDirectory, MemberPage, MemberSuggestion,
   NetworkAvailabilitySetting, NetworkComment, NetworkDraft, NetworkFields, NetworkMembership, NetworkNotificationType, NetworkPost,
-  NetworkPostVersion, NetworkPosts, NetworkRestrictions, NewPoll, NotificationGroup, PostDetails, PostKind, ProjectDto, Reaction,
+  NetworkPostVersion, NetworkPosts, PageViews, NetworkRestrictions, NewPoll, NotificationGroup, PostDetails, PostKind, ProjectDto, Reaction,
   ReportReason, ReportTarget, SavedPosts, TagPage, TrendingTag
 } from '../../models';
 
@@ -234,6 +235,28 @@ export class NetworkService {
   }
 
   /** The members found by a skill, a city, an availability or remote work, 20 a page. */
+  /** The reader opened a member's page (kept once a day; nothing for their own), in the background. */
+  recordView(handle: string): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/members/${encodeURIComponent(handle)}/views`, null,
+      { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
+  /** Who viewed the reader's page in the last 90 days. */
+  pageViews(silent = false): Observable<PageViews> {
+    return this.http.get<PageViews>(`${this.API_URL}/page-views`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, silent) });
+  }
+
+  /** Browses other members' pages privately, or no longer. */
+  setPrivateViewing(on: boolean): Observable<PageViews> {
+    return this.http.put<PageViews>(`${this.API_URL}/page-views/private`, null, { params: { on } });
+  }
+
+  /** A member's recommendations: the testimonials they approved, the latest first (none for a private card not followed). */
+  recommendations(handle: string): Observable<ShownTestimonial[]> {
+    return this.http.get<ShownTestimonial[]>(`${this.API_URL}/members/${encodeURIComponent(handle)}/recommendations`,
+      { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
   /** The network's search for members: every word typed names them (name, handle, skill, city or headline), 20 a page. */
   searchMembers(typed: string, page = 0): Observable<MemberDirectory> {
     return this.http.get<MemberDirectory>(`${this.API_URL}/search/members`, { params: { q: typed, page } });
