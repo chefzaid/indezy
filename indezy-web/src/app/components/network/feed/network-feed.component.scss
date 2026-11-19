@@ -4,7 +4,7 @@
 // right, the room left going between the columns. Two columns on a laptop, one on a phone.
 .network-layout {
   display: grid;
-  grid-template-columns: minmax(240px, 300px) minmax(0, 680px) minmax(300px, 400px);
+  grid-template-columns: minmax(240px, 320px) minmax(0, 720px) minmax(300px, 420px);
   grid-template-rows: auto auto auto 1fr;
   grid-template-areas:
     'nav nav nav'
@@ -32,7 +32,7 @@
 
 @media (max-width: 1439.98px) {
   .network-layout {
-    grid-template-columns: minmax(0, 680px) minmax(300px, 380px);
+    grid-template-columns: minmax(0, 720px) minmax(300px, 400px);
     grid-template-areas:
       'nav nav'
       'head extra'

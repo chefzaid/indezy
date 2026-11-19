@@ -176,6 +176,12 @@ export const routes: Routes = [
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK'), ownNetworkTab('saved')]
   },
   {
+    // The network's search results: members, posts and tags for what was typed (`?q=`), a tab in `?tab=`.
+    path: 'network/search',
+    loadComponent: () => import('./components/network/search-results/network-search-results.component').then(m => m.NetworkSearchResultsComponent),
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+  },
+  {
     path: 'network/members',
     loadComponent: () => import('./components/network/member-directory/member-directory.component').then(m => m.MemberDirectoryComponent),
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]

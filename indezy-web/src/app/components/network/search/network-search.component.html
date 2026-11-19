@@ -11,9 +11,14 @@
             <span>{{ option.member.firstName }} {{ option.member.lastName }} <span class="handle">&#64;{{ option.member.handle }}</span></span>
           </span>
         </mat-option>
-      } @else {
+      } @else if (option.kind === 'tag') {
         <mat-option [value]="option" [attr.data-search-tag]="option.tag">
           <span class="option"><mat-icon aria-hidden="true">tag</mat-icon><span>#{{ option.tag }}</span></span>
+        </mat-option>
+      } @else {
+        <mat-option [value]="option" class="all-results" data-search-all>
+          <span class="option"><mat-icon aria-hidden="true">search</mat-icon>
+            <span>{{ 'network.search.seeAll' | translate: { query: option.query } }}</span></span>
         </mat-option>
       }
     }

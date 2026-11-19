@@ -309,6 +309,13 @@ public class NetworkPostController {
         return feed.suggestTags(SecurityUtils.getCurrentUserId(), q);
     }
 
+    @Operation(summary = "The network's search for posts", description = "The posts the reader can read holding what was typed, case aside, " +
+        "the newest first, 20 a page; nothing under two characters")
+    @GetMapping("/search/posts")
+    public NetworkDtos.Posts searchPosts(@RequestParam(defaultValue = "") String q, @RequestParam(defaultValue = "0") int page) {
+        return feed.search(SecurityUtils.getCurrentUserId(), q, page);
+    }
+
     @Operation(summary = "A member's posts, the newest first, 20 a page")
     @GetMapping("/members/{handle}/posts")
     public NetworkDtos.Posts memberPosts(@PathVariable String handle, @RequestParam(defaultValue = "0") int page) {

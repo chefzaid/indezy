@@ -3419,7 +3419,11 @@
       "askToFollow": "Demander à suivre",
       "privatePosts": "La carte de {{name}} est privée : seuls les abonnés qu’elle ou il accepte lisent ses publications.",
       "editCard": "Modifier ma carte",
-      "tabs": "Publications et listes du membre"
+      "tabs": "Publications et listes du membre",
+      "aboutTitle": "À propos de {{name}}",
+      "sharedCount": "Compétences en commun avec vous : {{count}}",
+      "followersOne": "{{count}} abonné",
+      "followingOne": "{{count}} abonnement"
     },
     "directory": {
       "title": "Membres",
@@ -3603,7 +3607,21 @@
         "today": "Aujourd’hui",
         "week": "Cette semaine",
         "earlier": "Plus tôt"
-      }
+      },
+      "filters": {
+        "title": "Afficher",
+        "label": "Filtrer les notifications",
+        "all": "Toutes",
+        "unread": "Non lues",
+        "mentions": "Mentions",
+        "comments": "Commentaires et réponses",
+        "reactions": "Réactions et partages",
+        "follows": "Abonnements",
+        "moderation": "Modération"
+      },
+      "settings": "Réglages des notifications",
+      "noneFiltered": "Aucune notification de ce type.",
+      "showAll": "Tout afficher"
     },
     "drafts": {
       "title": "Brouillons",
@@ -3899,13 +3917,35 @@
       "chatWith": "Conversation avec {{name}}"
     },
     "search": {
-      "placeholder": "Rechercher un membre, un #tag…",
-      "label": "Rechercher dans le réseau"
+      "placeholder": "Rechercher dans le réseau…",
+      "label": "Rechercher dans le réseau",
+      "seeAll": "Voir tous les résultats pour « {{query}} »",
+      "title": "Rechercher dans le réseau",
+      "resultsFor": "Résultats pour « {{query}} »",
+      "tabs": "Que montrer",
+      "tab": {
+        "all": "Tout",
+        "members": "Membres",
+        "posts": "Publications",
+        "tags": "Tags"
+      },
+      "short": "Tapez deux caractères ou plus pour chercher parmi les membres, les publications et les tags.",
+      "none": "Aucun résultat pour « {{query}} ».",
+      "noneHint": "Essayez un autre mot : un nom, une compétence, une ville ou un mot d’une publication.",
+      "noneHere": "Rien de ce type pour cette recherche.",
+      "seeAllMembers": "Voir les {{count}} membres",
+      "seeAllPosts": "Voir toutes les publications",
+      "error": "La recherche n’a pas abouti. Réessayez."
     },
     "me": {
       "followers": "abonnés",
       "following": "abonnements",
-      "posts": "Mes publications"
+      "posts": "Mes publications",
+      "followersOne": "abonné",
+      "followingOne": "abonnement"
+    },
+    "side": {
+      "allMembers": "Voir tous les membres"
     }
   }
 }

@@ -1,0 +1,34 @@
+@if (suggestions.length) {
+  <section class="side-card suggestions" data-side-suggestions>
+    <h2>{{ 'network.suggestions.title' | translate }}</h2>
+    <ul>
+      @for (suggestion of suggestions; track suggestion.card.handle) {
+        <li [attr.data-side-suggestion]="suggestion.card.handle">
+          <app-member-avatar [subject]="suggestion.card" [size]="40"></app-member-avatar>
+          <div class="who">
+            <a [routerLink]="['/m', suggestion.card.handle]">{{ suggestion.card.firstName }} {{ suggestion.card.lastName }}</a>
+            <span class="why">{{ reason(suggestion) }}</span>
+          </div>
+          <button mat-stroked-button type="button" (click)="follow(suggestion)" data-side-follow>{{ 'network.page.follow' | translate }}</button>
+        </li>
+      }
+    </ul>
+    <a class="all" routerLink="/network/members" data-side-all-members>{{ 'network.side.allMembers' | translate }}</a>
+  </section>
+}
+@if (trending.length) {
+  <section class="side-card trending" data-side-trending>
+    <h2>{{ 'network.trending.title' | translate }}</h2>
+    <ol>
+      @for (item of trending; track item.tag; let index = $index) {
+        <li>
+          <a [routerLink]="['/network/tags', item.tag]" [attr.data-side-tag]="item.tag">
+            <span class="rank" aria-hidden="true">{{ index + 1 }}</span>
+            <span class="name">#{{ item.tag }}</span>
+            <span class="count">{{ (item.posts === 1 ? 'network.trending.postsOne' : 'network.trending.postsMany') | translate: { count: item.posts } }}</span>
+          </a>
+        </li>
+      }
+    </ol>
+  </section>
+}

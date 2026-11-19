@@ -1,0 +1,36 @@
+// The cards of the network's right column, as beside the feed.
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.side-card {
+  padding: 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  box-shadow: 0 1px 2px rgba(15, 12, 40, 0.04);
+
+  h2 {
+    margin: 0 0 12px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+}
+
+.all {
+  display: block;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--app-border);
+  color: var(--app-link);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

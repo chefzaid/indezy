@@ -207,8 +207,9 @@ card the viewer's card has too and **Follows you** when they do, with **Follow**
 report), or **Edit my card** on one's own page. Tabs show their posts, the members following them and the members they
 follow (each opening their page); a member's own page adds **Saved** and **Drafts**, theirs alone. The tab is kept in the
 address (`?tab=followers`, `following`, `saved` or `drafts`), so the card beside the feed opens each directly, and the
-former addresses `/network/saved` and `/network/drafts` lead to them. On their own page a member **removes** a follower,
-without them being told. A member who left the network leaves every count and list while away, and a visitor who has not joined is asked
+former addresses `/network/saved` and `/network/drafts` lead to them. Beside another member's page, **About Léo** says
+how many follow them and whom they follow, whether they follow the reader and how many skills both cards show. On their
+own page a member **removes** a follower, without them being told. A member who left the network leaves every count and list while away, and a visitor who has not joined is asked
 to join first.
 
 From a member's page, **Mute** hides their posts while the follow stays, and **Block** (once confirmed) ends both
@@ -217,17 +218,21 @@ page from the blocked member, as if no member held the handle; the blocked membe
 lists the members muted and blocked, each to unmute or unblock.
 
 Every page of the network takes the full width of the page, as the workspace's other pages do, following the screen, so
-that nothing moves from one tab to the next, and lays itself out for it: lists of posts (saved, a tag's, a member's) and
-drafts as many columns of cards as the width holds, a notification reading like an inbox row (when it happened on the
+that nothing moves from one tab to the next, and lays itself out for it: lists of posts (a tag's, the saved ones on a wide
+page) as many columns of cards as the width holds, a notification reading like an inbox row (when it happened on the
 right, up to three lines of the post or comment it is about, 280 characters at most, rather than one line cut short), a
 single post in a readable column with its author's card beside it, and the members' search bar kept to a comfortable
-length. The feed's page is in three columns from 1,440 pixels, as on the social networks: on the left the reader's own
+length. The feed, a member's page, the notifications and the search results share the same three columns from 1,440
+pixels, as on LinkedIn, so that their middle column stays in place from one to the other: on the left the reader's own
 page in short (their cover, avatar, name and headline, how many follow them and whom they follow, and **My posts**,
-**Saved** and **Drafts**, each one click away), in the middle the composer and the posts at a reading width (680 pixels
-at most, the text never stretching out), and on the right, wider, the tags followed, the trending tags and the members to
-follow, the room left going between the columns. From 1,100 pixels the reader's page heads the right column; below, the
-page is one column and the reader's page a one-line strip above the posts (their name, then **My posts**, **Saved** and
-**Drafts** as chips), the members to follow a strip too. Posts show their
+**Saved** and **Drafts**, each one click away), in the middle the page's content at a reading width (720 pixels at most,
+the text never stretching out), and on the right, wider (420 pixels at most), the cards to go further, the room left going
+between the columns. Beside the feed the right column holds the tags followed, the members to follow and the trending
+tags; on the other pages, four members to follow (each with its reason and **Follow**, never the member whose page it is,
+and **See all members**) and the five tags trending, each card left out while empty or when it cannot be read. From
+1,100 pixels the left column goes (the reader's page then heads the feed's right column); below, the page is one column,
+the right column under the content, and beside the feed the reader's page a one-line strip above the posts (their name,
+then **My posts**, **Saved** and **Drafts** as chips), the members to follow a strip too. Posts show their
 author's avatar (their photo, else their initials on a color their handle keeps) and how long ago they were posted,
 the full date on hover. On a phone, a one-line **What's new?** and a floating button open the composer full screen.
 **Network** in the menu (`/network`) is the home feed: a post of up to 3,000 characters, paragraphs kept, where
@@ -347,7 +352,10 @@ stream is closed) tell a
 member who followed them, liked, commented or reposted their post, liked or replied to their comment or mentioned them by
 `@handle`, grouped as they read ("Léo and 2 others liked your post", with the post's first words), the newest first, under
 **Today**, **This week** and **Earlier**; unread ones are tinted with a dot, and each opens the post, or the member for a
-follow. Opening the page marks them read. **Profile → Network** sends each kind nowhere, to the app (the default) or by
+follow. Opening the page marks them read. A menu on the left (chips above the list below 1,440 pixels) shows them **All**
+or only the **Unread** ones (those unread when the page opened), the **Mentions**, the **Comments and replies**, the
+**Reactions and reposts**, the **Follows** or the moderators' word, each with how many it holds, and links to
+**Notification settings** (`/profile?tab=network`, the profile opening on its Network tab). **Profile → Network** sends each kind nowhere, to the app (the default) or by
 email too: an hour after a notification of a kind chosen for email is still unread, one email groups all those still
 unread (at most one every three hours, names and the post's first words, never a comment's text), with a one-click
 unsubscribe that stops every kind.
@@ -388,10 +396,24 @@ told so; **Moderation** lists what is held, with why, to **Publish** as its auth
 Every page of the network opens with the same bar, staying at the top as the page scrolls: the network's **search**,
 then its sections as a row of tabs, **Home**, **Messages** (with how many are unread), **Members** and **Notifications**
 (with how many are unread), the one open marked, so that any section is one click away; on a phone the search takes the
-whole row and the four tabs share the one under it as icons with their counts, the open one named too. The reader's own page, with their saved posts and drafts, is the card
-beside the feed. The search suggests, from two letters typed, up to five members whose name or handle starts with them
-and up to five tags in use (`@` looks for members only, `#` for tags only), each opening its page; **Enter** finds the
-members showing what was typed as a skill, in **Members**. A post's, a tag's or a member's page puts **Back** before the
+whole row and the four tabs share the one under it as icons with their counts, the open one named too. The reader's own
+page, with their saved posts and drafts, is the card on the left.
+
+The **search** suggests, from two characters typed, up to five members and up to five tags in use, each opening its page,
+then **See all results**: a member is found when every word typed starts their handle, their first or last name (a word
+of it, for a compound name: "bob mar" finds Bob Martin), one of their card's skills or its city, or is in its headline,
+accents and case aside, on what their card shows only; a tag when it starts with the one word typed. `@` looks for members
+only, `#` for tags only. **Enter**, or **See all results**, opens the results (`/network/search?q=`): **All** shows the
+first three members found (those named by their name first, the whole name before a word of it, then those the reader
+follows, then by last name; with their headline, city and first skills, and **Follow**, **Ask to follow** a private card
+or **Following**), the tags, and the first three posts holding what was typed (case aside, the newest first, from every
+member the reader can read, their own included, but those muted or blocked either way and the private cards they do not
+follow); **Members**, **Posts** and **Tags** show each kind alone, 20 at a time, the tab kept in the address
+(`?tab=`). The server searches members with `GET /api/network/search/members?q=&page=` and posts with
+`GET /api/network/search/posts?q=&page=` (nothing under two characters; `%` and `_` searched as written). Mentions in the
+composer match names the same way, every word typed.
+
+A post's, a tag's or a member's page puts **Back** before the
 search: to the page the reader came from within the app, or to the feed when they opened it first, from a link or a
 bookmark.
 

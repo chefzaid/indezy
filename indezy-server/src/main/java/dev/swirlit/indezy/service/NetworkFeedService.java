@@ -39,6 +39,8 @@ public class NetworkFeedService {
     static final Duration TRENDING_WINDOW = Duration.ofDays(7);
     static final int TRENDING_SHOWN = 8;
     static final int SUGGESTED = 5;
+    /** How many characters a search for posts needs. */
+    static final int SEARCHED_AT_LEAST = 2;
     /** What a tag may start with: what tags hold, so the search cannot be a pattern. */
     private static final Pattern TAG_START = Pattern.compile("[\\p{L}\\p{N}_-]{0,40}");
 
@@ -78,6 +80,22 @@ public class NetworkFeedService {
         left.add(userId);
         return postService.page(posts.ofKind(NetworkPostKind.MISSION, List.copyOf(left), PageRequest.of(Math.max(0, page),
             NetworkPostService.PAGE_SIZE)), userId);
+    }
+
+    /**
+     * The network's search for posts: those holding what was typed (case aside, a # or @ before it kept as typed), from
+     * every member the reader can read (their own included, but those muted or blocked either way), the newest first.
+     */
+    @Transactional(readOnly = true)
+    public NetworkDtos.Posts search(Long userId, String typed, int page) {
+        network.requireMember(userId);
+        String phrase = Optional.ofNullable(typed).orElse("").strip().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+        PageRequest asked = PageRequest.of(Math.max(0, page), NetworkPostService.PAGE_SIZE);
+        if (phrase.length() < SEARCHED_AT_LEAST) {
+            return new NetworkDtos.Posts(List.of(), asked.getPageNumber(), false);
+        }
+        String pattern = "%" + phrase.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
+        return postService.page(posts.search(pattern, placeholder(excluded(userId), -1L), asked), userId);
     }
 
     /** How many posts by others reached the home feed after the given time, for the feed to offer them. */

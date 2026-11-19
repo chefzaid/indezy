@@ -1,10 +1,155 @@
+@use '../layout/network-columns' as columns;
+
+// The notifications in the feed's columns: the filters (and the reader's page) on the left, the list at a reading
+// width in the middle, the members to follow and the trending tags on the right. Narrower, the filters are chips.
 .notices-page {
+  @include columns.grid;
+}
+
+.left {
+  @include columns.left;
+}
+
+.main {
+  @include columns.main;
+}
+
+.right {
+  @include columns.right;
+}
+
+.filters-card {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  width: 100%;
-  max-width: var(--app-network-width);
-  margin: 0 auto;
+  padding: 12px 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  box-shadow: 0 1px 2px rgba(15, 12, 40, 0.04);
+
+  h2 {
+    margin: 4px 10px 8px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+}
+
+.filter,
+.settings {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--app-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--app-text-muted);
+    font-size: 20px;
+  }
+
+  .name {
+    flex: 1;
+  }
+
+  &:hover {
+    background: var(--app-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: -2px;
+  }
+
+  &.active {
+    background: var(--app-selected-bg);
+    color: var(--app-link);
+
+    mat-icon {
+      color: var(--app-link);
+    }
+  }
+}
+
+.settings {
+  margin-top: 6px;
+  border-top: 1px solid var(--app-border);
+  border-radius: 0 0 10px 10px;
+  padding-top: 12px;
+  color: var(--app-link);
+}
+
+.n {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--app-border);
+  color: var(--app-text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: center;
+}
+
+// Below 1,440 pixels, where the left column goes: the filters as a row of chips above the list.
+.chips {
+  display: none;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 0 4px;
+  scrollbar-width: none;
+
+  @media (max-width: 1439.98px) {
+    display: flex;
+  }
+}
+
+.chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &.active {
+    border-color: transparent;
+    background: var(--app-selected-bg);
+    color: var(--app-link);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: 2px;
+  }
+}
+
+.reset {
+  padding: 6px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: none;
+  color: var(--app-link);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
 }
 
 .empty {

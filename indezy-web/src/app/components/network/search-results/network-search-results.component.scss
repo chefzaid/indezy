@@ -1,0 +1,255 @@
+@use '../layout/network-columns' as columns;
+
+// The search's results in the feed's columns: the reader's page on the left, the results at a reading width in the
+// middle (members as rows to follow from, the tags as chips, the posts as in the feed), the cards to go further on the right.
+.results-page {
+  @include columns.grid;
+}
+
+.left {
+  @include columns.left;
+}
+
+.main {
+  @include columns.main;
+}
+
+.right {
+  @include columns.right;
+}
+
+.card {
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  box-shadow: 0 1px 2px rgba(15, 12, 40, 0.04);
+}
+
+.head h1 {
+  margin: 4px 0 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tab {
+  flex: none;
+  padding: 6px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &.active {
+    border-color: transparent;
+    background: var(--app-selected-bg);
+    color: var(--app-link);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-link);
+    outline-offset: 2px;
+  }
+}
+
+.status {
+  color: var(--app-text-muted);
+}
+
+h2 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+
+  .total {
+    color: var(--app-text-muted);
+    font-weight: 500;
+  }
+}
+
+.members,
+.tags {
+  padding: 16px;
+}
+
+.members ul,
+.posts ul {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.members li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+
+  & + li {
+    border-top: 1px solid var(--app-border);
+  }
+}
+
+.who {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  .name {
+    color: var(--app-text);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .handle,
+  .facts {
+    color: var(--app-text-muted);
+    font-size: 0.8125rem;
+  }
+
+  .headline {
+    font-size: 0.875rem;
+  }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
+}
+
+.follow {
+  flex: none;
+  border-radius: 999px;
+
+  &.on {
+    color: var(--app-text-muted);
+  }
+}
+
+.see-all {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px;
+  border: 0;
+  border-top: 1px solid var(--app-border);
+  background: none;
+  color: var(--app-link);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.posts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  ul {
+    gap: 16px;
+  }
+
+  .see-all.card {
+    border: 1px solid var(--app-border);
+  }
+
+  .more {
+    align-self: center;
+    border-radius: 999px;
+  }
+}
+
+.section-title {
+  margin: 4px 0 0;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  a {
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--app-chip-indigo-bg);
+    color: var(--app-chip-indigo-text);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 40px 16px;
+  color: var(--app-text-muted);
+  text-align: center;
+
+  mat-icon {
+    width: 40px;
+    height: 40px;
+    color: var(--app-link);
+    font-size: 40px;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .hint {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 599.98px) {
+  .members li {
+    flex-wrap: wrap;
+  }
+
+  .follow {
+    margin-left: 68px;
+  }
+}

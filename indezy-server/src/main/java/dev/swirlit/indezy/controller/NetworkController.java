@@ -89,6 +89,14 @@ public class NetworkController {
         return directory.mentions(SecurityUtils.getCurrentUserId(), q);
     }
 
+    @Operation(summary = "The network's search for members",
+        description = "Every word typed names the member by the start of their handle, first or last name, a skill or their city, or within " +
+            "their headline, on what their cards show; by name first, then those followed; 20 a page")
+    @GetMapping("/search/members")
+    public NetworkDtos.Directory searchMembers(@RequestParam(defaultValue = "") String q, @RequestParam(defaultValue = "0") int page) {
+        return directory.find(SecurityUtils.getCurrentUserId(), q, page);
+    }
+
     @Operation(summary = "Members to follow, each with its reason: followed by members the viewer follows, same skills or city")
     @GetMapping("/suggestions")
     public List<NetworkDtos.Suggestion> suggestions() {

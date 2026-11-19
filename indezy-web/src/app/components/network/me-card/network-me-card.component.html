@@ -11,10 +11,10 @@
     }
     <div class="counts">
       <a [routerLink]="['/m', me.card.handle]" [queryParams]="{ tab: 'followers' }" data-me-followers>
-        <strong>{{ me.followers }}</strong><span>{{ 'network.me.followers' | translate }}</span>
+        <strong>{{ me.followers }}</strong><span>{{ (me.followers === 1 ? 'network.me.followersOne' : 'network.me.followers') | translate }}</span>
       </a>
       <a [routerLink]="['/m', me.card.handle]" [queryParams]="{ tab: 'following' }" data-me-following>
-        <strong>{{ me.following }}</strong><span>{{ 'network.me.following' | translate }}</span>
+        <strong>{{ me.following }}</strong><span>{{ (me.following === 1 ? 'network.me.followingOne' : 'network.me.following') | translate }}</span>
       </a>
     </div>
     <nav class="links" [attr.aria-label]="'network.nav.myPage' | translate">

@@ -32,6 +32,12 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
     Page<NetworkPost> feed(@Param("authors") Collection<Long> authors, @Param("tags") Collection<String> tags,
                            @Param("excluded") Collection<Long> excluded, Pageable page);
 
+    /** The posts whose text holds what was searched (a LIKE pattern on the lower-case text) but the excluded authors', the newest first. */
+    @Query(value = "select p from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId not in :excluded " +
+        "order by p.createdAt desc, p.id desc",
+        countQuery = "select count(p) from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId not in :excluded")
+    Page<NetworkPost> search(@Param("pattern") String pattern, @Param("excluded") Collection<Long> excluded, Pageable page);
+
     /** The posts of a kind (the missions passed on, say) but those of the excluded authors, the newest first. */
     @Query(value = "select p from NetworkPost p where p.kind = :kind and p.authorId not in :excluded order by p.createdAt desc, p.id desc",
         countQuery = "select count(p) from NetworkPost p where p.kind = :kind and p.authorId not in :excluded")

@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { AbstractControlOptions, ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -36,6 +36,9 @@ import { ProfileBillingComponent } from './billing/profile-billing.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { DossierButtonComponent } from './dossier-button/dossier-button.component';
 
+/** The tabs before **Network** (personal information to billing), the public page aside when it shows. */
+const PROFILE_TABS_BEFORE_NETWORK = 7;
+
 @Component({
     selector: 'app-profile',
     imports: [DossierButtonComponent, PageHeaderComponent, 
@@ -58,6 +61,7 @@ export class ProfileComponent implements OnInit {
 
   private readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   readonly capabilities = inject(CapabilitiesService);
 
   userProfile: UserProfile | null = null;
@@ -83,6 +87,10 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // `?tab=network` opens the network's settings, as the notifications page links them.
+    if (this.route.snapshot.queryParamMap.get('tab') === 'network' && this.capabilities.snapshot().features.SOCIAL_NETWORK) {
+      this.selectedTabIndex = PROFILE_TABS_BEFORE_NETWORK + (this.capabilities.snapshot().features.PUBLIC_PROFILES ? 1 : 0);
+    }
     this.loadUserProfile();
     this.loadSecuritySettings();
   }

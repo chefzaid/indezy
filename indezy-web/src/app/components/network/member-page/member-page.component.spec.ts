@@ -14,6 +14,7 @@ import { ReportDialogComponent } from '../report-dialog/report-dialog.component'
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
 import en from '../../../../assets/i18n/en.json';
 import { stubNetworkNav } from '../nav/network-nav.stub';
+import { stubNetworkColumns } from '../side/network-columns.stub';
 
 describe('MemberPageComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
@@ -48,6 +49,7 @@ describe('MemberPageComponent', () => {
         { provide: ConfirmDialogService, useValue: confirm }, { provide: NetworkMessagesService, useValue: messages }]
     });
     stubNetworkNav(MemberPageComponent);
+    stubNetworkColumns(MemberPageComponent);
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
     translate.use('en');

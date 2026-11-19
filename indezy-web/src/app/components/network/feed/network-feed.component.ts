@@ -11,7 +11,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AsyncPipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MentionsDirective } from '../mentions/mentions.directive';
 
@@ -29,6 +28,7 @@ import { FilePickerComponent } from '../files/file-picker.component';
 import { PostCardComponent } from '../post-card/post-card.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { NetworkNavComponent } from '../nav/network-nav.component';
+import { suggestionReason } from '../side/suggestion-reason';
 import { NetworkMeCardComponent } from '../me-card/network-me-card.component';
 
 export const POST_MAX = 3000;
@@ -43,7 +43,7 @@ export type FeedTab = 'following' | 'forYou' | 'missions';
 
 @Component({
   selector: 'app-network-feed',
-  imports: [NetworkNavComponent, NetworkMeCardComponent, PageHeaderComponent, A11yModule, MentionsDirective, AsyncPipe, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [NetworkNavComponent, NetworkMeCardComponent, PageHeaderComponent, A11yModule, MentionsDirective, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslateModule, PostCardComponent, FilePickerComponent],
   templateUrl: './network-feed.component.html',
   styleUrls: ['./network-feed.component.scss', './network-feed-side.scss'],
@@ -107,19 +107,7 @@ export class NetworkFeedComponent implements OnInit {
 
   /** Why a member is suggested, in words. */
   reason(suggestion: MemberSuggestion): string {
-    switch (suggestion.reason) {
-      case 'CONTACT':
-        return this.translate.instant('network.suggestions.contact');
-      case 'SAME_ESN':
-        return this.translate.instant('network.suggestions.sameEsn', { esn: suggestion.esn });
-      case 'FOLLOWED_BY':
-        return this.translate.instant(suggestion.followedBy > 1 ? 'network.suggestions.followedByMany' : 'network.suggestions.followedByOne',
-          { name: suggestion.followedByName, others: suggestion.followedBy - 1 });
-      case 'SAME_STACK':
-        return this.translate.instant('network.suggestions.sameStack', { skills: suggestion.sharedSkills.join(', ') });
-      default:
-        return this.translate.instant('network.suggestions.sameCity', { city: suggestion.card.city });
-    }
+    return suggestionReason(this.translate, suggestion);
   }
 
   /** Shows the time to publish on its own, or hides it, the time then forgotten. */

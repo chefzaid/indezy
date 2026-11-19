@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { NetworkService } from './network.service';
+import { SILENT_HTTP_ERRORS } from '../../interceptors/error.interceptor';
 
 describe('NetworkService', () => {
   it('asks how many posts are newer, the trending tags and the tags starting with what was typed', () => {
@@ -20,6 +21,18 @@ describe('NetworkService', () => {
     expect(http.expectOne(call => call.url.endsWith('/network/mentions')).request.params.get('q')).toBe('ca');
     service.suggestTags('ka').subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/tags/suggest')).request.params.get('q')).toBe('ka');
+    service.trendingTags(true).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/tags/trending')).request.context.get(SILENT_HTTP_ERRORS)).toBeTrue();
+    service.suggestions(true).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/suggestions')).request.context.get(SILENT_HTTP_ERRORS)).toBeTrue();
+    service.searchMembers('bob mar', 1).subscribe();
+    const members = http.expectOne(call => call.url.endsWith('/network/search/members'));
+    expect(members.request.params.get('q')).toBe('bob mar');
+    expect(members.request.params.get('page')).toBe('1');
+    service.searchPosts('kafka').subscribe();
+    const posts = http.expectOne(call => call.url.endsWith('/network/search/posts'));
+    expect(posts.request.params.get('q')).toBe('kafka');
+    expect(posts.request.params.get('page')).toBe('0');
     http.verify();
   });
 

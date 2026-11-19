@@ -1,0 +1,120 @@
+<div class="results-page">
+  <app-network-nav></app-network-nav>
+  <aside class="left">
+    <app-network-me-card></app-network-me-card>
+  </aside>
+
+  <main class="main">
+    <header class="head">
+      <h1 data-search-title>
+        @if (query) {
+          {{ 'network.search.resultsFor' | translate: { query: query } }}
+        } @else {
+          {{ 'network.search.title' | translate }}
+        }
+      </h1>
+      <div class="tabs" role="tablist" [attr.aria-label]="'network.search.tabs' | translate">
+        @for (key of tabs; track key) {
+          <button type="button" role="tab" class="tab" [class.active]="tab === key" [attr.aria-selected]="tab === key" (click)="open(key)"
+            [attr.data-search-tab]="key">{{ 'network.search.tab.' + key | translate }}</button>
+        }
+      </div>
+    </header>
+
+    @if (loading) {
+      <p class="status" role="status">{{ 'common.loading' | translate }}</p>
+    } @else if (query.length < 2) {
+      <section class="empty card" data-search-short>
+        <mat-icon aria-hidden="true">search</mat-icon>
+        <p>{{ 'network.search.short' | translate }}</p>
+      </section>
+    } @else if (nothing) {
+      <section class="empty card" data-search-none>
+        <mat-icon aria-hidden="true">search_off</mat-icon>
+        <p>{{ 'network.search.none' | translate: { query: query } }}</p>
+        <p class="hint">{{ 'network.search.noneHint' | translate }}</p>
+      </section>
+    } @else {
+      @if ((tab === 'all' || tab === 'members') && members.length) {
+        <section class="card members" data-search-members [attr.aria-label]="'network.search.tab.members' | translate">
+          <h2>{{ 'network.search.tab.members' | translate }} <span class="total">{{ membersTotal }}</span></h2>
+          <ul>
+            @for (member of (tab === 'all' ? members.slice(0, preview) : members); track member.handle) {
+              <li [attr.data-search-result-member]="member.handle">
+                <app-member-avatar [subject]="member" [size]="56"></app-member-avatar>
+                <div class="who">
+                  <a [routerLink]="['/m', member.handle]" class="name">{{ member.firstName }} {{ member.lastName }}</a>
+                  <span class="handle">&#64;{{ member.handle }}</span>
+                  @if (member.headline) {
+                    <span class="headline">{{ member.headline }}</span>
+                  }
+                  @if (member.city || member.stack.length) {
+                    <span class="facts">
+                      @if (member.city) {
+                        <span><mat-icon aria-hidden="true">place</mat-icon>{{ member.city }}</span>
+                      }
+                      @if (member.stack.length) {
+                        <span>{{ member.stack.slice(0, 4).join(' · ') }}</span>
+                      }
+                    </span>
+                  }
+                </div>
+                <button mat-stroked-button type="button" class="follow" [class.on]="isFollowing(member.handle)" [disabled]="pending.has(member.handle)"
+                  [attr.aria-pressed]="isFollowing(member.handle)" (click)="toggleFollow(member.handle)" [attr.data-search-follow]="member.handle">
+                  {{ followLabel(member.handle) | translate }}
+                </button>
+              </li>
+            }
+          </ul>
+          @if (tab === 'all' && members.length > preview) {
+            <button type="button" class="see-all" (click)="open('members')" data-search-all-members>
+              {{ 'network.search.seeAllMembers' | translate: { count: membersTotal } }}
+            </button>
+          } @else if (tab === 'members' && hasMoreMembers) {
+            <button type="button" class="see-all" (click)="moreMembers()" data-search-more-members>{{ 'network.feed.more' | translate }}</button>
+          }
+        </section>
+      }
+
+      @if ((tab === 'all' || tab === 'tags') && tags.length) {
+        <section class="card tags" data-search-tags [attr.aria-label]="'network.search.tab.tags' | translate">
+          <h2>{{ 'network.search.tab.tags' | translate }}</h2>
+          <nav class="tag-list">
+            @for (tag of tags; track tag) {
+              <a [routerLink]="['/network/tags', tag]" [attr.data-search-result-tag]="tag">#{{ tag }}</a>
+            }
+          </nav>
+        </section>
+      }
+
+      @if ((tab === 'all' || tab === 'posts') && posts.length) {
+        <section class="posts" data-search-posts [attr.aria-label]="'network.search.tab.posts' | translate">
+          @if (tab === 'all') {
+            <h2 class="section-title">{{ 'network.search.tab.posts' | translate }}</h2>
+          }
+          <ul>
+            @for (post of (tab === 'all' ? posts.slice(0, preview) : posts); track post.id) {
+              <li><app-post-card [post]="post" (deleted)="removePost($event)"></app-post-card></li>
+            }
+          </ul>
+          @if (tab === 'all' && (posts.length > preview || morePosts)) {
+            <button type="button" class="see-all card" (click)="open('posts')" data-search-all-posts>{{ 'network.search.seeAllPosts' | translate }}</button>
+          } @else if (tab === 'posts' && morePosts) {
+            <button mat-stroked-button type="button" class="more" (click)="loadMorePosts()" data-search-more-posts>{{ 'network.feed.more' | translate }}</button>
+          }
+        </section>
+      }
+
+      @if (tab !== 'all' && ((tab === 'members' && !members.length) || (tab === 'posts' && !posts.length) || (tab === 'tags' && !tags.length))) {
+        <section class="empty card" data-search-tab-none>
+          <mat-icon aria-hidden="true">search_off</mat-icon>
+          <p>{{ 'network.search.noneHere' | translate }}</p>
+        </section>
+      }
+    }
+  </main>
+
+  <aside class="right">
+    <app-network-side></app-network-side>
+  </aside>
+</div>

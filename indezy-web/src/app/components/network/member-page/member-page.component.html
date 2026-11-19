@@ -1,5 +1,9 @@
 <div class="member-page">
   <app-network-nav [back]="true"></app-network-nav>
+  <aside class="left">
+    <app-network-me-card></app-network-me-card>
+  </aside>
+  <main class="main">
   @if (loading) {
     <section class="profile card skeleton" aria-hidden="true"><span class="cover"></span><span class="bone avatar"></span></section>
     <span class="cdk-visually-hidden" role="status">{{ 'common.loading' | translate }}</span>
@@ -94,11 +98,11 @@
       </button>
       <button type="button" role="tab" class="tab" [class.active]="list === 'followers'" [attr.aria-selected]="list === 'followers'"
         (click)="show('followers')" data-followers>
-        {{ 'network.page.followers' | translate: { count: page.followers } }}
+        {{ (page.followers === 1 ? 'network.page.followersOne' : 'network.page.followers') | translate: { count: page.followers } }}
       </button>
       <button type="button" role="tab" class="tab" [class.active]="list === 'following'" [attr.aria-selected]="list === 'following'"
         (click)="show('following')" data-following>
-        {{ 'network.page.following' | translate: { count: page.following } }}
+        {{ (page.following === 1 ? 'network.page.followingOne' : 'network.page.following') | translate: { count: page.following } }}
       </button>
       @if (page.own) {
         <button type="button" role="tab" class="tab" [class.active]="list === 'saved'" [attr.aria-selected]="list === 'saved'"
@@ -160,4 +164,23 @@
       </section>
     }
   }
+  </main>
+  <aside class="right">
+    @if (page && !page.own) {
+      <section class="side-card about-member" data-member-about>
+        <h2>{{ 'network.page.aboutTitle' | translate: { name: page.card.firstName } }}</h2>
+        <ul>
+          <li><mat-icon aria-hidden="true">group</mat-icon>{{ (page.followers === 1 ? 'network.page.followersOne' : 'network.page.followers') | translate: { count: page.followers } }}
+            · {{ (page.following === 1 ? 'network.page.followingOne' : 'network.page.following') | translate: { count: page.following } }}</li>
+          @if (page.followsYou) {
+            <li><mat-icon aria-hidden="true">how_to_reg</mat-icon>{{ 'network.page.followsYou' | translate }}</li>
+          }
+          @if (page.sharedSkills.length) {
+            <li><mat-icon aria-hidden="true">join_inner</mat-icon>{{ 'network.page.sharedCount' | translate: { count: page.sharedSkills.length } }}</li>
+          }
+        </ul>
+      </section>
+    }
+    <app-network-side [exclude]="page?.card?.handle ?? null"></app-network-side>
+  </aside>
 </div>

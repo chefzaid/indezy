@@ -1,0 +1,73 @@
+// The network's pages in the feed's columns, so that its middle column stays in place from one tab to the next: the
+// reader's page (or the page's own menu) on the left, the page's content at a reading width in the middle, the cards to
+// go further on the right, wider, the room left going between them. Two columns on a laptop, one below 1,100 pixels.
+@mixin grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) minmax(0, 720px) minmax(300px, 420px);
+  grid-template-areas:
+    'nav nav nav'
+    'left main right';
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px 24px;
+  width: 100%;
+  max-width: var(--app-network-width);
+  margin: 0 auto;
+
+  > app-network-nav {
+    grid-area: nav;
+  }
+
+  @media (max-width: 1439.98px) {
+    grid-template-columns: minmax(0, 720px) minmax(300px, 400px);
+    grid-template-areas:
+      'nav nav'
+      'main right';
+  }
+
+  @media (max-width: 1099.98px) {
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: stretch;
+    grid-template-areas:
+      'nav'
+      'main'
+      'right';
+  }
+}
+
+// The left column, under the network's bar as the page scrolls; gone below 1,440 pixels.
+@mixin left {
+  grid-area: left;
+  position: sticky;
+  top: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media (max-width: 1439.98px) {
+    display: none;
+  }
+}
+
+@mixin main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+// The right column, sticky beside the content; under it, unstuck, on one column.
+@mixin right {
+  grid-area: right;
+  position: sticky;
+  top: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+
+  @media (max-width: 1099.98px) {
+    position: static;
+  }
+}

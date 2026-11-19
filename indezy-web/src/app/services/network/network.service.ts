@@ -189,8 +189,8 @@ export class NetworkService {
   }
 
   /** The tags most named in the last seven days by the posts the reader can read. */
-  trendingTags(): Observable<TrendingTag[]> {
-    return this.http.get<TrendingTag[]>(`${this.API_URL}/tags/trending`);
+  trendingTags(silent = false): Observable<TrendingTag[]> {
+    return this.http.get<TrendingTag[]>(`${this.API_URL}/tags/trending`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, silent) });
   }
 
   /** Members to mention for what was typed after an @, those followed first. */
@@ -234,6 +234,16 @@ export class NetworkService {
   }
 
   /** The members found by a skill, a city, an availability or remote work, 20 a page. */
+  /** The network's search for members: every word typed names them (name, handle, skill, city or headline), 20 a page. */
+  searchMembers(typed: string, page = 0): Observable<MemberDirectory> {
+    return this.http.get<MemberDirectory>(`${this.API_URL}/search/members`, { params: { q: typed, page } });
+  }
+
+  /** The network's search for posts: those holding what was typed, case aside, the newest first, 20 a page. */
+  searchPosts(typed: string, page = 0): Observable<NetworkPosts> {
+    return this.http.get<NetworkPosts>(`${this.API_URL}/search/posts`, { params: { q: typed, page } });
+  }
+
   directory(search: DirectorySearch): Observable<MemberDirectory> {
     let params = new HttpParams().set('page', search.page ?? 0);
     for (const key of ['skill', 'city', 'availability', 'remote'] as const) {
@@ -269,8 +279,8 @@ export class NetworkService {
   }
 
   /** Members to follow, each with its reason. */
-  suggestions(): Observable<MemberSuggestion[]> {
-    return this.http.get<MemberSuggestion[]>(`${this.API_URL}/suggestions`);
+  suggestions(silent = false): Observable<MemberSuggestion[]> {
+    return this.http.get<MemberSuggestion[]>(`${this.API_URL}/suggestions`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, silent) });
   }
 
   member(handle: string): Observable<MemberCard> {

@@ -6,18 +6,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The global search over HTTP finds Bob, a member, by his handle and his post by its words, for Alice once she joined,
- * while the network is on and neither blocks the other.
+ * The network's search over HTTP: Bob finds members by their whole name, a word of it, a skill or their city, those named
+ * by name first, never one who blocks him; and the posts holding what he typed, case aside, but those of a member he mutes.
  */
 class NetworkSearchIntegrationTest extends TwoAccountsIntegrationTest {
 
@@ -32,46 +31,70 @@ class NetworkSearchIntegrationTest extends TwoAccountsIntegrationTest {
         flags.set(FeatureFlag.SOCIAL_NETWORK, true);
     }
 
-    private String join(Account account) {
+    private String join(Account account, String firstName, String lastName, String city, List<String> skills) {
+        Map<String, Object> profile = call(account, HttpMethod.GET, "/users/profile", null, Map.class).getBody();
+        profile.put("firstName", firstName);
+        profile.put("lastName", lastName);
+        profile.put("city", city);
+        profile.put("skills", skills);
+        call(account, HttpMethod.PUT, "/users/profile", profile, Map.class);
         String handle = "member_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
         call(account, HttpMethod.PUT, "/network/membership", Map.of("handle", handle, "fields", ALL_SHOWN), Map.class);
         return handle;
     }
 
     @SuppressWarnings("unchecked")
-    private List<Map<String, Object>> found(Account account, String kind, String query) {
-        return (List<Map<String, Object>>) call(account, HttpMethod.GET, "/search?q=" + query, null, Map.class).getBody().get(kind);
+    private List<String> members(Account viewer, String query) {
+        Map<String, Object> found = call(viewer, HttpMethod.GET, "/network/search/members?q=" + query, null, Map.class).getBody();
+        return ((List<Map<String, Object>>) found.get("members")).stream().map(card -> (String) card.get("handle")).toList();
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Object> posts(Account viewer, String query) {
+        Map<String, Object> found = call(viewer, HttpMethod.GET, "/network/search/posts?q=" + query, null, Map.class).getBody();
+        return ((List<Map<String, Object>>) found.get("posts")).stream().map(post -> post.get("id")).toList();
     }
 
     @Test
-    void findsMembersAndPostsForAMemberOnly() {
-        String word = "kafka" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
-        assertThat(found(alice, "members", word)).isEmpty();
+    @SuppressWarnings("unchecked")
+    void findsMembersAndPostsByWhatWasTyped() {
         flags.set(FeatureFlag.SOCIAL_NETWORK, true);
-        String bobHandle = join(bob);
-        Object post = call(bob, HttpMethod.POST, "/network/posts", Map.of("text", "Un retour sur " + word + " en production"), Map.class)
+        // A word no other test's member or post holds: letters only, as names and words are.
+        String word = "zq" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).chars()
+            .mapToObj(c -> String.valueOf((char) ('a' + c % 26))).collect(Collectors.joining());
+        String skill = "Skill" + word;
+        String bobHandle = join(bob, "Bob", "Martin", "Lyon", List.of("Java"));
+        String named = join(alice, "Élodie", word + "-Durand", "Nantes", List.of("Kafka"));
+        Account carol = register("carol");
+        String skilled = join(carol, "Carol", "Petit", "Lyon", List.of(skill));
+        Account dan = register("dan");
+        String blocker = join(dan, "Dan", word, "Lyon", List.of(skill));
+        call(dan, HttpMethod.PUT, "/network/members/" + bobHandle + "/block", null, Map.class);
+
+        // A word of a compound last name, the whole name accents aside, a skill, by name first; never a member blocking Bob.
+        assertThat(members(bob, word)).containsExactly(named);
+        assertThat(members(bob, "elodie " + word)).containsExactly(named);
+        assertThat(members(bob, skill.toUpperCase())).containsExactly(skilled);
+        assertThat(members(bob, "carol lyon")).contains(skilled);
+        assertThat(members(bob, "")).isEmpty();
+        // Mentions take every word typed on the names.
+        Object mention = call(bob, HttpMethod.GET, "/network/mentions?q=elod " + word.substring(0, 4), null, List.class).getBody();
+        assertThat((List<Map<String, Object>>) mention).extracting(card -> card.get("handle")).containsExactly(named);
+
+        Object kafka = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Retour sur " + word + " et Kafka"), Map.class)
             .getBody().get("id");
-        assertThat(found(alice, "posts", word)).isEmpty();
-
-        join(alice);
-        assertThat(found(alice, "members", bobHandle)).singleElement().satisfies(hit -> assertThat(hit)
-            .containsEntry("handle", bobHandle).containsEntry("subtitle", "@" + bobHandle).containsKey("id"));
-        assertThat(found(alice, "posts", word.toUpperCase())).singleElement().satisfies(hit -> assertThat(hit)
-            .containsEntry("id", post).containsEntry("handle", bobHandle).containsEntry("excerpt", "Un retour sur " + word + " en production"));
-        assertThat(found(bob, "members", bobHandle)).isEmpty();
-        // An API token reads the workspace only, never the network.
-        String secret = (String) call(alice, HttpMethod.POST, "/users/api-tokens", Map.of("name", "Script", "expiresInDays", 90), Map.class)
-            .getBody().get("secret");
-        ResponseEntity<String> byToken = call(new Account(secret, alice.freelanceId()), HttpMethod.GET, "/search?q=" + word, null,
-            String.class);
-        assertThat(byToken.getStatusCode()).as(byToken.getBody()).isEqualTo(HttpStatus.OK);
-        assertThat(byToken.getBody()).contains("\"posts\":[]");
-        assertThat(call(new Account(secret, alice.freelanceId()), HttpMethod.GET, "/network/feed", null, String.class).getStatusCode())
-            .isEqualTo(HttpStatus.FORBIDDEN);
-
-        call(alice, HttpMethod.PUT, "/network/members/" + bobHandle + "/block", null, Map.class);
-        assertThat(found(alice, "members", bobHandle)).isEmpty();
-        assertThat(found(alice, "posts", word)).isEmpty();
-        assertThat(found(bob, "posts", word)).singleElement();
+        Object own = call(bob, HttpMethod.POST, "/network/posts", Map.of("text", "Mon avis sur " + word.toUpperCase()), Map.class)
+            .getBody().get("id");
+        Object carols = call(carol, HttpMethod.POST, "/network/posts", Map.of("text", "Atelier " + word + " 100"), Map.class)
+            .getBody().get("id");
+        assertThat(posts(bob, word)).containsExactly(carols, own, kafka);
+        assertThat(posts(bob, word + " et kafka")).containsExactly(kafka);
+        // The pattern's own characters are searched as written: an underscore is no wildcard.
+        assertThat(posts(bob, word + " 100")).containsExactly(carols);
+        assertThat(posts(bob, word + " 1_0")).isEmpty();
+        assertThat(posts(bob, "a")).isEmpty();
+        call(bob, HttpMethod.PUT, "/network/members/" + skilled + "/mute", null, Map.class);
+        assertThat(posts(bob, word)).containsExactly(own, kafka);
+        assertThat(blocker).isNotBlank();
     }
 }

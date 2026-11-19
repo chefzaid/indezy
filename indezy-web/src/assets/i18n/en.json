@@ -3419,7 +3419,11 @@
       "askToFollow": "Ask to follow",
       "privatePosts": "{{name}}’s card is private: only the followers they approve read their posts.",
       "editCard": "Edit my card",
-      "tabs": "The member’s posts and lists"
+      "tabs": "The member’s posts and lists",
+      "aboutTitle": "About {{name}}",
+      "sharedCount": "Skills in common with you: {{count}}",
+      "followersOne": "{{count}} follower",
+      "followingOne": "{{count}} following"
     },
     "directory": {
       "title": "Members",
@@ -3603,7 +3607,21 @@
         "today": "Today",
         "week": "This week",
         "earlier": "Earlier"
-      }
+      },
+      "filters": {
+        "title": "Show",
+        "label": "Filter the notifications",
+        "all": "All",
+        "unread": "Unread",
+        "mentions": "Mentions",
+        "comments": "Comments and replies",
+        "reactions": "Reactions and reposts",
+        "follows": "Follows",
+        "moderation": "Moderation"
+      },
+      "settings": "Notification settings",
+      "noneFiltered": "No notification of this kind.",
+      "showAll": "Show them all"
     },
     "drafts": {
       "title": "Drafts",
@@ -3899,13 +3917,35 @@
       "chatWith": "Conversation with {{name}}"
     },
     "search": {
-      "placeholder": "Search a member, a #tag…",
-      "label": "Search the network"
+      "placeholder": "Search the network…",
+      "label": "Search the network",
+      "seeAll": "See all results for “{{query}}”",
+      "title": "Search the network",
+      "resultsFor": "Results for “{{query}}”",
+      "tabs": "What to show",
+      "tab": {
+        "all": "All",
+        "members": "Members",
+        "posts": "Posts",
+        "tags": "Tags"
+      },
+      "short": "Type two characters or more to search the members, the posts and the tags.",
+      "none": "Nothing found for “{{query}}”.",
+      "noneHint": "Try another word: a name, a skill, a city, or a word from a post.",
+      "noneHere": "Nothing of this kind for this search.",
+      "seeAllMembers": "See all {{count}} members",
+      "seeAllPosts": "See all posts",
+      "error": "The search could not be done. Try again."
     },
     "me": {
       "followers": "followers",
       "following": "following",
-      "posts": "My posts"
+      "posts": "My posts",
+      "followersOne": "follower",
+      "followingOne": "following"
+    },
+    "side": {
+      "allMembers": "See all members"
     }
   }
 }

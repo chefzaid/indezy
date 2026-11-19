@@ -22,6 +22,8 @@ import { MemberAvatarComponent, memberGradient } from '../avatar/member-avatar.c
 import { NetworkNavComponent } from '../nav/network-nav.component';
 import { SavedPostsComponent } from '../saved/saved-posts.component';
 import { NetworkDraftsComponent } from '../drafts/network-drafts.component';
+import { NetworkMeCardComponent } from '../me-card/network-me-card.component';
+import { NetworkSideComponent } from '../side/network-side.component';
 
 /** Which list of the page is open: the member's followers or follows, or, on the reader's own page, their saved posts or drafts. */
 export type MemberList = 'followers' | 'following' | 'saved' | 'drafts';
@@ -33,7 +35,7 @@ const LISTS: MemberList[] = ['followers', 'following', 'saved', 'drafts'];
  */
 @Component({
   selector: 'app-member-page',
-  imports: [SavedPostsComponent, NetworkDraftsComponent, NetworkNavComponent, MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
+  imports: [SavedPostsComponent, NetworkDraftsComponent, NetworkMeCardComponent, NetworkSideComponent, NetworkNavComponent, MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
   templateUrl: './member-page.component.html',
   styleUrls: ['./member-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

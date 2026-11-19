@@ -1,12 +1,48 @@
 <div class="notices-page">
   <app-network-nav></app-network-nav>
+
+  <aside class="left">
+    <ng-template #filterList let-chips="chips">
+      @for (key of filters; track key) {
+        <button type="button" [class.filter]="!chips" [class.chip]="chips" [class.active]="filter === key" [attr.aria-pressed]="filter === key"
+          (click)="choose(key)" [attr.data-notice-filter]="chips ? null : key" [attr.data-notice-chip]="chips ? key : null">
+          @if (!chips) {
+            <mat-icon aria-hidden="true">{{ filterIcons[key] }}</mat-icon>
+          }
+          <span class="name">{{ 'network.notices.filters.' + key | translate }}</span>
+          @if (loaded && key !== 'all' && count(key)) {
+            <span class="n">{{ count(key) }}</span>
+          }
+        </button>
+      }
+    </ng-template>
+    <nav class="filters-card" [attr.aria-label]="'network.notices.filters.label' | translate" data-notice-filters>
+      <h2>{{ 'network.notices.filters.title' | translate }}</h2>
+      <ng-container *ngTemplateOutlet="filterList; context: { chips: false }"></ng-container>
+      <a class="settings" routerLink="/profile" [queryParams]="{ tab: 'network' }" data-notice-settings>
+        <mat-icon aria-hidden="true">tune</mat-icon>{{ 'network.notices.settings' | translate }}
+      </a>
+    </nav>
+    <app-network-me-card></app-network-me-card>
+  </aside>
+
+  <main class="main">
   <app-page-header icon="notifications" [title]="'network.notices.title' | translate" [subtitle]="'network.notices.subtitle' | translate">
   </app-page-header>
+  <div class="chips" role="group" [attr.aria-label]="'network.notices.filters.label' | translate" data-notice-chips>
+    <ng-container *ngTemplateOutlet="filterList; context: { chips: true }"></ng-container>
+  </div>
 
   @if (loaded && groups.length === 0) {
     <section class="empty" data-notices-empty>
       <mat-icon aria-hidden="true">notifications_none</mat-icon>
       <p>{{ 'network.notices.empty' | translate }}</p>
+    </section>
+  } @else if (loaded && sections.length === 0) {
+    <section class="empty" data-notices-none-filtered>
+      <mat-icon aria-hidden="true">filter_alt_off</mat-icon>
+      <p>{{ 'network.notices.noneFiltered' | translate }}</p>
+      <button type="button" class="reset" (click)="choose('all')">{{ 'network.notices.showAll' | translate }}</button>
     </section>
   }
   @for (section of sections; track section.key) {
@@ -59,4 +95,9 @@
       </ul>
     </section>
   }
+  </main>
+
+  <aside class="right">
+    <app-network-side></app-network-side>
+  </aside>
 </div>

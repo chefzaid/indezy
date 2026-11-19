@@ -1,11 +1,60 @@
-// A member's page: a profile header with a cover in their color, then tabs over their posts and their lists.
+@use '../layout/network-columns' as columns;
+
+// A member's page in the feed's columns: the reader's page on the left, in the middle at a reading width a profile
+// header with a cover in their color, then tabs over their posts and their lists, and on the right a word about the
+// member and the members to follow, as on LinkedIn.
 .member-page {
+  @include columns.grid;
+}
+
+.left {
+  @include columns.left;
+}
+
+.main {
+  @include columns.main;
+}
+
+.right {
+  @include columns.right;
+}
+
+.side-card {
+  padding: 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  box-shadow: 0 1px 2px rgba(15, 12, 40, 0.04);
+
+  h2 {
+    margin: 0 0 12px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+}
+
+.about-member ul {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  width: 100%;
-  max-width: var(--app-network-width);
-  margin: 0 auto;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  color: var(--app-text-muted);
+  font-size: 0.875rem;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--app-text-faint);
+    font-size: 20px;
+  }
 }
 
 .card {
@@ -282,10 +331,9 @@
 }
 
 .posts {
-  // As many columns of posts as the width holds, none narrower than a phone's.
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr));
-  align-items: start;
+  // One column, at the reading width of the feed's.
+  display: flex;
+  flex-direction: column;
   gap: 16px;
   margin: 0;
   padding: 0;

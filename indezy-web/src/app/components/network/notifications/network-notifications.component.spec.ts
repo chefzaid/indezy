@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
@@ -10,11 +10,14 @@ import { NotificationService } from '../../../services/notification/notification
 import { NetworkNotificationsComponent } from './network-notifications.component';
 import en from '../../../../assets/i18n/en.json';
 import { stubNetworkNav } from '../nav/network-nav.stub';
+import { stubNetworkColumns } from '../side/network-columns.stub';
 
 describe('NetworkNotificationsComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
   let notices: jasmine.SpyObj<NetworkNoticesService>;
   let notifications: jasmine.SpyObj<NotificationService>;
+  let fixture: ComponentFixture<NetworkNotificationsComponent>;
+  const detect = (_element: HTMLElement) => fixture.detectChanges();
   const member = (handle: string, firstName: string): MemberCard => ({ handle, firstName, lastName: 'Martin', avatar: null, headline: null,
     stack: [], city: null, remote: false, availability: null, availabilityDate: null, languages: [], verified: false });
   const group = (type: NotificationGroup['type'], count: number, read = false): NotificationGroup => ({ type, count, read,
@@ -33,10 +36,11 @@ describe('NetworkNotificationsComponent', () => {
         { provide: NotificationService, useValue: notifications }]
     });
     stubNetworkNav(NetworkNotificationsComponent);
+    stubNetworkColumns(NetworkNotificationsComponent);
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
     translate.use('en');
-    const fixture = TestBed.createComponent(NetworkNotificationsComponent);
+    fixture = TestBed.createComponent(NetworkNotificationsComponent);
     fixture.detectChanges();
     return fixture.nativeElement;
   }
@@ -71,6 +75,28 @@ describe('NetworkNotificationsComponent', () => {
     TestBed.resetTestingModule();
     create(throwError(() => new Error('down')));
     expect(notifications.error).toHaveBeenCalledWith('network.notices.loadError');
+  });
+
+  it('filters the notifications by kind from the menu or the chips, with how many each holds, and opens their settings', () => {
+    const element = create(of([group('LIKE', 4), group('MENTION', 1), group('FOLLOW', 1, true), group('REPLY', 1, true)]));
+    const shown = () => Array.from(element.querySelectorAll('[data-notice]')).map(item => item.getAttribute('data-notice'));
+    expect(shown()).toEqual(['LIKE', 'MENTION', 'FOLLOW', 'REPLY']);
+    expect(element.querySelector('[data-notice-filter="unread"] .n')?.textContent?.trim()).toBe('2');
+    expect(element.querySelector('[data-notice-filter="moderation"] .n')).toBeNull();
+    (element.querySelector('[data-notice-filter="comments"]') as HTMLButtonElement).click();
+    detect(element);
+    expect(shown()).toEqual(['REPLY']);
+    expect(element.querySelector('[data-notice-filter="comments"]')?.getAttribute('aria-pressed')).toBe('true');
+    (element.querySelector('[data-notice-chip="unread"]') as HTMLButtonElement).click();
+    detect(element);
+    expect(shown()).toEqual(['LIKE', 'MENTION']);
+    (element.querySelector('[data-notice-filter="moderation"]') as HTMLButtonElement).click();
+    detect(element);
+    expect(element.querySelector('[data-notices-none-filtered]')).not.toBeNull();
+    (element.querySelector('[data-notices-none-filtered] button') as HTMLButtonElement).click();
+    detect(element);
+    expect(shown().length).toBe(4);
+    expect(element.querySelector('[data-notice-settings]')?.getAttribute('href')).toBe('/profile?tab=network');
   });
 
   it('groups by period and leads to the post, the member, or nowhere for the moderators', () => {
