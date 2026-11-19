@@ -1,6 +1,7 @@
 package dev.swirlit.indezy.repository;
 
 import dev.swirlit.indezy.model.NetworkPost;
+import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,6 +31,11 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
             "and p.authorId not in :excluded")
     Page<NetworkPost> feed(@Param("authors") Collection<Long> authors, @Param("tags") Collection<String> tags,
                            @Param("excluded") Collection<Long> excluded, Pageable page);
+
+    /** The posts of a kind (the missions passed on, say) but those of the excluded authors, the newest first. */
+    @Query(value = "select p from NetworkPost p where p.kind = :kind and p.authorId not in :excluded order by p.createdAt desc, p.id desc",
+        countQuery = "select count(p) from NetworkPost p where p.kind = :kind and p.authorId not in :excluded")
+    Page<NetworkPost> ofKind(@Param("kind") NetworkPostKind kind, @Param("excluded") Collection<Long> excluded, Pageable page);
 
     /** How many posts of the home feed (as {@link #feed}) by others than the reader came after the given time. */
     @Query("select count(distinct p) from NetworkPost p left join p.tags t where (p.authorId in :authors or t in :tags) " +

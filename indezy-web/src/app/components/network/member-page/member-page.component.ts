@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
-import { Observable, map, switchMap } from 'rxjs';
+import { Observable, distinctUntilChanged, map, skip, switchMap } from 'rxjs';
 
 import { MemberCard, MemberPage, NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
@@ -20,9 +20,12 @@ import { MemberCardComponent } from '../member-card/member-card.component';
 import { PostCardComponent } from '../post-card/post-card.component';
 import { MemberAvatarComponent, memberGradient } from '../avatar/member-avatar.component';
 import { NetworkNavComponent } from '../nav/network-nav.component';
+import { SavedPostsComponent } from '../saved/saved-posts.component';
+import { NetworkDraftsComponent } from '../drafts/network-drafts.component';
 
-/** Which list of the page is open. */
-export type MemberList = 'followers' | 'following';
+/** Which list of the page is open: the member's followers or follows, or, on the reader's own page, their saved posts or drafts. */
+export type MemberList = 'followers' | 'following' | 'saved' | 'drafts';
+const LISTS: MemberList[] = ['followers', 'following', 'saved', 'drafts'];
 
 /**
  * A member's page (`/m/<handle>`): the card, the members following them and they follow, the skills they share with
@@ -30,7 +33,7 @@ export type MemberList = 'followers' | 'following';
  */
 @Component({
   selector: 'app-member-page',
-  imports: [NetworkNavComponent, MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
+  imports: [SavedPostsComponent, NetworkDraftsComponent, NetworkNavComponent, MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
   templateUrl: './member-page.component.html',
   styleUrls: ['./member-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -69,6 +72,7 @@ export class MemberPageComponent implements OnInit {
         this.problem = null;
         this.loading = false;
         this.loadPosts(0);
+        this.openTab(this.route.snapshot.queryParamMap.get('tab'));
         this.changes.markForCheck();
       },
       error: (error: HttpErrorResponse) => {
@@ -77,6 +81,14 @@ export class MemberPageComponent implements OnInit {
         this.changes.markForCheck();
       }
     });
+    // A tab asked from elsewhere on the same page (the card beside the feed).
+    this.route.queryParamMap.pipe(map(params => params.get('tab')), distinctUntilChanged(), skip(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe(tab => {
+        if (this.page) {
+          this.openTab(tab);
+          this.changes.markForCheck();
+        }
+      });
   }
 
   /** Follow, Ask to follow a private card, Request sent (to withdraw it), or Unfollow. */
@@ -115,6 +127,16 @@ export class MemberPageComponent implements OnInit {
     return memberGradient(this.page?.card.handle ?? '', 120);
   }
 
+  /** Opens the tab the address names (the saved posts and drafts are the reader's own), else the posts. */
+  private openTab(asked: string | null): void {
+    const tab = asked as MemberList | null;
+    if (tab && LISTS.includes(tab) && (this.page?.own || tab === 'followers' || tab === 'following')) {
+      this.show(tab);
+    } else {
+      this.list = null;
+    }
+  }
+
   /** Back to the member's posts from a list. */
   showPosts(): void {
     this.list = null;
@@ -124,6 +146,9 @@ export class MemberPageComponent implements OnInit {
   show(list: MemberList): void {
     const handle = this.page!.card.handle;
     this.list = list;
+    if (list === 'saved' || list === 'drafts') {
+      return;
+    }
     (list === 'followers' ? this.network.followers(handle) : this.network.following(handle)).subscribe({
       next: members => this.members = members,
       error: () => this.notifications.error('network.page.listError')

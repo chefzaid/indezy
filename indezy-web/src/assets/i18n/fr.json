@@ -3472,7 +3472,10 @@
       "newerOne": "1 nouvelle publication",
       "newerMany": "{{count}} nouvelles publications",
       "teaser": "Quoi de neuf ?",
-      "newPost": "Nouvelle publication"
+      "newPost": "Nouvelle publication",
+      "missions": "Missions",
+      "missionsHint": "Les missions que les membres transmettent, de tout le réseau : ajoutez celles qui vous intéressent à votre pipeline.",
+      "missionsNone": "Aucune mission transmise pour l'instant."
     },
     "post": {
       "actions": "Actions sur la publication",
@@ -3894,6 +3897,15 @@
       "full": "Ouvrir en grand",
       "unread": "{{count}} non lus",
       "chatWith": "Conversation avec {{name}}"
+    },
+    "search": {
+      "placeholder": "Rechercher un membre, un #tag…",
+      "label": "Rechercher dans le réseau"
+    },
+    "me": {
+      "followers": "abonnés",
+      "following": "abonnements",
+      "posts": "Mes publications"
     }
   }
 }

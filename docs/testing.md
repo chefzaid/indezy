@@ -71,7 +71,8 @@ A few suites enforce a rule for all new code:
   before it.
 - `RetiredOfferSitesTest`: a job board removed from `OfferSite` leaves no row in a site column, nor anything referring
   to its offers.
-- `app.routes.spec.ts`: every page loads lazily.
+- `app.routes.spec.ts`: every page loads lazily (a redirect, or a route whose guard always leads elsewhere, such as
+  `/network/saved`, loads none).
 - `i18n.spec.ts`: `en.json` and `fr.json` have the same keys and no empty value.
 - `coverage-sources.spec.ts`: imports every source file listed in `src/app/coverage-sources.ts`, so the coverage report
   counts files no spec imports. Run `npm run coverage-sources` after adding or removing a file; `npm run lint` fails

@@ -201,12 +201,14 @@ another person named, the tab says so; when the registry cannot be reached, it a
 **Leave the network** hides the card at once and keeps the handle the account's for its return. The membership is part
 of the data export.
 
-A member's page, `/m/<handle>` (**See my page** on the Network tab for one's own), opens on a cover band in the
-member's color under their avatar, their name, the card, the skills on their card the viewer's card has too and
-**Follows you** when they do, with **Follow** / **Unfollow** and a menu (mute, block, report), or **Edit my card** on
-one's own page. Tabs show their posts, the members following them and the members they follow (each opening their
-page). On their own page a member **removes** a follower, without them being
-told. A member who left the network leaves every count and list while away, and a visitor who has not joined is asked
+A member's page, `/m/<handle>` (**See my page** in **Profile → Network**, or the card beside the feed, for
+one's own), opens on a cover band in the member's color under their avatar, their name, the card, the skills on their
+card the viewer's card has too and **Follows you** when they do, with **Follow** / **Unfollow** and a menu (mute, block,
+report), or **Edit my card** on one's own page. Tabs show their posts, the members following them and the members they
+follow (each opening their page); a member's own page adds **Saved** and **Drafts**, theirs alone. The tab is kept in the
+address (`?tab=followers`, `following`, `saved` or `drafts`), so the card beside the feed opens each directly, and the
+former addresses `/network/saved` and `/network/drafts` lead to them. On their own page a member **removes** a follower,
+without them being told. A member who left the network leaves every count and list while away, and a visitor who has not joined is asked
 to join first.
 
 From a member's page, **Mute** hides their posts while the follow stays, and **Block** (once confirmed) ends both
@@ -214,12 +216,18 @@ follows, keeps either from following the other, takes each out of the lists the 
 page from the blocked member, as if no member held the handle; the blocked member is not told. **Profile → Network**
 lists the members muted and blocked, each to unmute or unblock.
 
-Every page of the network takes the full width of the page, as the workspace's other pages do, following the screen, and
-lays itself out for it: lists of posts (saved, a tag's, a member's) and drafts as many columns of cards as the width holds,
-a notification reading like an inbox row (when it happened on the right), a single post in a readable column with its
-author's card beside it, and the members' search bar kept to a comfortable length. The feed's page shows the posts beside a
-column of the tags followed, the trending tags and the members to follow; below 1,100 pixels everything is one column, the
-members to follow as a strip. Posts show their
+Every page of the network takes the full width of the page, as the workspace's other pages do, following the screen, so
+that nothing moves from one tab to the next, and lays itself out for it: lists of posts (saved, a tag's, a member's) and
+drafts as many columns of cards as the width holds, a notification reading like an inbox row (when it happened on the
+right, up to three lines of the post or comment it is about, 280 characters at most, rather than one line cut short), a
+single post in a readable column with its author's card beside it, and the members' search bar kept to a comfortable
+length. The feed's page is in three columns from 1,440 pixels, as on the social networks: on the left the reader's own
+page in short (their cover, avatar, name and headline, how many follow them and whom they follow, and **My posts**,
+**Saved** and **Drafts**, each one click away), in the middle the composer and the posts at a reading width (680 pixels
+at most, the text never stretching out), and on the right, wider, the tags followed, the trending tags and the members to
+follow, the room left going between the columns. From 1,100 pixels the reader's page heads the right column; below, the
+page is one column and the reader's page a one-line strip above the posts (their name, then **My posts**, **Saved** and
+**Drafts** as chips), the members to follow a strip too. Posts show their
 author's avatar (their photo, else their initials on a color their handle keeps) and how long ago they were posted,
 the full date on hover. On a phone, a one-line **What's new?** and a floating button open the composer full screen.
 **Network** in the menu (`/network`) is the home feed: a post of up to 3,000 characters, paragraphs kept, where
@@ -236,16 +244,19 @@ and reads it again from the top. **Trending this week**, beside the feed (a stri
 the 8 tags most named in the last seven days by the posts the reader can read, each with how many posts named it and
 opening its page. **Keep as draft** keeps the text
 for later, and with a time (a minute to 30 days ahead) **Schedule** publishes it on its own within a minute of that
-time; **Drafts** (`/network/drafts`) lists them, the scheduled first, each to publish now or delete (50 at most). A member's page shows their posts
-too. Its author **edits** a post in the 15 minutes after posting it; it then reads **edited**, which opens its earlier
-texts. **Save** keeps a post in the reader's private **Saved** list (`/network/saved`), the latest saved first and
+time; **Drafts**, a tab of the reader's own page, lists them, the scheduled first, each to publish now or delete (50 at
+most). A member's page shows their posts too. Its author **edits** a post in the 15 minutes after posting it; it then reads **edited**, which opens its earlier
+texts. **Save** keeps a post in the reader's private **Saved** list, a tab of their own page, the latest saved first and
 filtered by the tags of the posts saved; a post taken off, deleted or from a member blocked either way leaves it.
 **Repost** shares a post with an optional comment, the original shown inside it (a repost of a repost reposts the
 original; once the original is gone or out of reach, the repost says so); a post's author turns its reposts off.
 **For you**, the feed's second tab, gathers the posts of the last 30 days from every member the reader can read (but
 their own and those muted), ranked by what they share with the reader (3 points a tag they follow, 2 a tag among the
 skills their card shows, 2 the author in their city) and by the members who reacted to them (1 each, 5 at most), the
-whole divided by 1 plus a third of the post's age in days.
+whole divided by 1 plus a third of the post's age in days. **Missions**, the third tab, is the job board of the network:
+every **Mission to pass on** the reader can read, from all members and not only those followed (but their own, and those
+of members muted, blocked either way or away from the network), the newest first, 20 at a time
+(`GET /api/network/feed/missions`); each card has **Add to my pipeline**, which turns it into an opportunity (below).
 
 A tag's page lists its posts **Newest** or **Most liked** (whatever the reaction) first. **Like** a post, once, or no
 longer; a hover, a long press or the up arrow on **Like** offers the other reactions
@@ -374,10 +385,15 @@ with the moderator's note, under **Latest decisions**, and a sanction is in the 
 comment that looks like spam (see [Security](./security.md#member-network)) is held instead of published, its author
 told so; **Moderation** lists what is held, with why, to **Publish** as its author's or **Reject**.
 
-Every page of the network opens with its sections as a row of tabs (Home, Notifications and Messages with what is unread,
-Members, Saved, Drafts, My page), the one open marked, staying at the top as the page scrolls: any section is one click
-away. A post's, a tag's or a member's page puts **Back** before them: to the page the reader came from within the app, or
-to the feed when they opened it first, from a link or a bookmark.
+Every page of the network opens with the same bar, staying at the top as the page scrolls: the network's **search**,
+then its sections as a row of tabs, **Home**, **Messages** (with how many are unread), **Members** and **Notifications**
+(with how many are unread), the one open marked, so that any section is one click away; on a phone the search takes the
+whole row and the four tabs share the one under it as icons with their counts, the open one named too. The reader's own page, with their saved posts and drafts, is the card
+beside the feed. The search suggests, from two letters typed, up to five members whose name or handle starts with them
+and up to five tags in use (`@` looks for members only, `#` for tags only), each opening its page; **Enter** finds the
+members showing what was typed as a skill, in **Members**. A post's, a tag's or a member's page puts **Back** before the
+search: to the page the reader came from within the app, or to the feed when they opened it first, from a link or a
+bookmark.
 
 **Members** on the feed (`/network/members`) has five tabs, the one open kept in the address (`?tab=`). **All members**
 is the member directory: the members found by a skill and a city typed in its search bar, an availability and remote

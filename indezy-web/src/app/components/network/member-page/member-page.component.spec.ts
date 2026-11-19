@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { Conversation, MemberCard, MemberPage } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
@@ -26,10 +26,15 @@ describe('MemberPageComponent', () => {
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
   let messages: jasmine.SpyObj<NetworkMessagesService>;
 
-  function create(read = of(page)): ComponentFixture<MemberPageComponent> {
+  let query: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+
+  function create(read = of(page), tab: string | null = null): ComponentFixture<MemberPageComponent> {
     network = jasmine.createSpyObj('NetworkService', ['page', 'follow', 'unfollow', 'followers', 'following', 'removeFollower', 'mute',
-      'block', 'memberPosts', 'deletePost']);
+      'block', 'memberPosts', 'deletePost', 'saved', 'drafts']);
     network.memberPosts.and.returnValue(of({ posts: [], page: 0, more: false }));
+    network.saved.and.returnValue(of({ page: { posts: [], page: 0, more: false }, tags: [] }));
+    network.drafts.and.returnValue(of([]));
+    query = new BehaviorSubject(convertToParamMap(tab ? { tab } : {}));
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirm']);
     messages = jasmine.createSpyObj('NetworkMessagesService', ['open']);
     network.page.and.returnValue(read);
@@ -37,7 +42,8 @@ describe('MemberPageComponent', () => {
     TestBed.configureTestingModule({
       imports: [MemberPageComponent, TranslateModule.forRoot()],
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
-        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ handle: 'camille' })) } },
+        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ handle: 'camille' })), queryParamMap: query,
+          get snapshot() { return { queryParamMap: query.value }; } } },
         { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
         { provide: ConfirmDialogService, useValue: confirm }, { provide: NetworkMessagesService, useValue: messages }]
     });
@@ -113,6 +119,35 @@ describe('MemberPageComponent', () => {
     (element.querySelector('[data-tab-posts]') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(component.list).toBeNull();
+    expect(element.querySelector('[data-member-posts]')).not.toBeNull();
+  });
+
+  it('opens the reader\'s saved posts and drafts as tabs of their own page, from the address too', () => {
+    const fixture = create(of({ ...page, own: true }), 'saved');
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    expect(component.list).toBe('saved');
+    expect(element.querySelector('app-saved-posts')).not.toBeNull();
+    expect(element.querySelector('[data-tab-saved]')?.getAttribute('aria-selected')).toBe('true');
+    expect(network.followers).not.toHaveBeenCalled();
+    (element.querySelector('[data-tab-drafts]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(element.querySelector('app-network-drafts')).not.toBeNull();
+    // The card beside the feed asks for another tab of the same page.
+    network.following.and.returnValue(of([card('leo')]));
+    query.next(convertToParamMap({ tab: 'following' }));
+    fixture.detectChanges();
+    expect(component.list).toBe('following');
+    query.next(convertToParamMap({ tab: 'nonsense' }));
+    expect(component.list).toBeNull();
+  });
+
+  it('keeps another member\'s page off the saved and drafts tabs', () => {
+    const fixture = create(of(page), 'drafts');
+    const element: HTMLElement = fixture.nativeElement;
+    expect(fixture.componentInstance.list).toBeNull();
+    expect(element.querySelector('[data-tab-saved]')).toBeNull();
+    expect(element.querySelector('[data-tab-drafts]')).toBeNull();
     expect(element.querySelector('[data-member-posts]')).not.toBeNull();
   });
 

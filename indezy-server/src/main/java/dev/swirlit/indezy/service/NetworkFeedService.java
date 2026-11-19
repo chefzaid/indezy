@@ -3,6 +3,7 @@ package dev.swirlit.indezy.service;
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.model.NetworkPost;
 import dev.swirlit.indezy.model.NetworkTagFollow;
+import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import dev.swirlit.indezy.model.enums.NetworkRestrictionKind;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
 import dev.swirlit.indezy.repository.NetworkPostRepository;
@@ -64,6 +65,19 @@ public class NetworkFeedService {
         Sources sources = sources(userId);
         return postService.page(posts.feed(sources.authors(), sources.tags(), sources.excluded(),
             PageRequest.of(Math.max(0, page), NetworkPostService.PAGE_SIZE)), userId);
+    }
+
+    /**
+     * The **Missions** tab: the missions members pass on, from every member the reader can read (but their own, and those
+     * muted or blocked either way), the newest first, each to add to the reader's pipeline.
+     */
+    @Transactional(readOnly = true)
+    public NetworkDtos.Posts missions(Long userId, int page) {
+        network.requireMember(userId);
+        Set<Long> left = excluded(userId);
+        left.add(userId);
+        return postService.page(posts.ofKind(NetworkPostKind.MISSION, List.copyOf(left), PageRequest.of(Math.max(0, page),
+            NetworkPostService.PAGE_SIZE)), userId);
     }
 
     /** How many posts by others reached the home feed after the given time, for the feed to offer them. */

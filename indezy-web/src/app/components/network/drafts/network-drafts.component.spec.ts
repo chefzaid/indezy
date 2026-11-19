@@ -66,4 +66,23 @@ describe('NetworkDraftsComponent', () => {
     create(throwError(() => new Error('down')));
     expect(notifications.error).toHaveBeenCalledWith('network.drafts.loadError');
   });
+
+  it('leaves out the bar and the title once a tab of the reader\'s page', () => {
+    network = jasmine.createSpyObj('NetworkService', ['drafts']);
+    network.drafts.and.returnValue(of(drafts));
+    TestBed.configureTestingModule({
+      imports: [NetworkDraftsComponent, TranslateModule.forRoot()],
+      providers: [{ provide: NetworkService, useValue: network },
+        { provide: NotificationService, useValue: jasmine.createSpyObj('NotificationService', ['error']) },
+        { provide: ConfirmDialogService, useValue: jasmine.createSpyObj('ConfirmDialogService', ['confirm']) }]
+    });
+    stubNetworkNav(NetworkDraftsComponent);
+    const fixture = TestBed.createComponent(NetworkDraftsComponent);
+    fixture.componentRef.setInput('embedded', true);
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-network-nav]')).toBeNull();
+    expect(element.querySelector('app-page-header')).toBeNull();
+    expect(element.querySelector('[data-draft="2"]')).not.toBeNull();
+  });
 });

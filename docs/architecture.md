@@ -104,6 +104,7 @@ What changes in the member network reaches the open pages as it happens ([ADR 00
 2. `NetworkEventRelay` sends the event and the members it is for as a PostgreSQL `NOTIFY` on `indezy_network`, out of the request's thread; every replica listens on a connection of its own (on H2 the replica delivers at once).
 3. `NetworkEventHub` writes it to the members' streams open on that replica (`GET /api/network/stream`), with a heartbeat every 25 seconds.
 4. The page (`NetworkStreamService`) reads the stream with `fetch` and the token, and the menu's counts, the conversations and the open conversation read themselves again; they poll only while the stream is closed.
+5. As the stream opens and at each heartbeat, `NetworkPresence` marks the member seen (`network_members.last_seen_at`, in a transaction of its own, the stream's being read-only), whichever replica holds it; the messenger corner shows a member online for 70 seconds after.
 
 ### Offer search at scale
 

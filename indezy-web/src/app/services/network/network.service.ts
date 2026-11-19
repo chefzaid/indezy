@@ -204,6 +204,11 @@ export class NetworkService {
   }
 
   /** For you: the recent posts of every member the reader can read, ranked by what they share with the reader. */
+  /** The missions members pass on, from every member the reader can read but themselves, the newest first. */
+  missions(page = 0): Observable<NetworkPosts> {
+    return this.http.get<NetworkPosts>(`${this.API_URL}/feed/missions`, { params: new HttpParams().set('page', page) });
+  }
+
   forYou(page = 0): Observable<NetworkPosts> {
     return this.http.get<NetworkPosts>(`${this.API_URL}/feed/for-you`, { params: { page } });
   }

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { ownNetworkTab } from './guards/own-network-tab.guard';
 import { authGuard } from './guards/auth.guard';
 import { projectLinkGuard } from './guards/project-link.guard';
 import { onboardingGuard } from './guards/onboarding.guard';
@@ -164,14 +165,15 @@ export const routes: Routes = [
     canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
   },
   {
+    // The drafts and the saved posts are tabs of the reader's own page; their former addresses lead there.
     path: 'network/drafts',
-    loadComponent: () => import('./components/network/drafts/network-drafts.component').then(m => m.NetworkDraftsComponent),
-    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+    children: [],
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK'), ownNetworkTab('drafts')]
   },
   {
     path: 'network/saved',
-    loadComponent: () => import('./components/network/saved/saved-posts.component').then(m => m.SavedPostsComponent),
-    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK')]
+    children: [],
+    canActivate: [authGuard, featureGuard('SOCIAL_NETWORK'), ownNetworkTab('saved')]
   },
   {
     path: 'network/members',

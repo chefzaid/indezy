@@ -35,10 +35,20 @@ erDiagram
     FREELANCE ||--o{ JOB_OFFER_STATE : keeps
     PROJECT |o--o| JOB_OFFER_STATE : imported_as
     JOB_OFFER ||--o{ OFFER_CHANGE : changed
+    USER ||..o| NETWORK_MEMBER : joins
+    NETWORK_MEMBER ||..o{ NETWORK_POST : writes
+    NETWORK_POST ||..o{ NETWORK_COMMENT : under
+    NETWORK_MEMBER ||..o{ NETWORK_FOLLOW : follows
+    NETWORK_POST ||..o{ NETWORK_MISSION_TAKE : taken_as
+    NETWORK_MISSION_TAKE |o..o| PROJECT : creates
+    NETWORK_CONVERSATION ||..o{ NETWORK_CONVERSATION_MEMBER : gathers
+    NETWORK_CONVERSATION ||..o{ NETWORK_MESSAGE : holds
+    FREELANCE ||..o{ TESTIMONIAL : asks
 ```
 
-Dotted lines are links by value, without a foreign key. The account and offer bookkeeping tables are left out of the
-diagram and listed in [Entities](#entities).
+Dotted lines are links by value, without a foreign key (every link of the member network is one). The account, offer
+and network bookkeeping tables (likes, saves, votes, notifications, reports...) are left out of the diagram and listed in
+[Entities](#entities).
 
 `User` backs authentication and the account's settings; `Freelance` is the workspace that owns the business records.
 They are matched by email: a request's workspace is the `Freelance` with its account's email, created at registration
@@ -99,10 +109,37 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `OfferSkip` | `offer_skips` | shared | after 30 days |
 | `GeoPlace` | `geo_places` | shared geocoding cache | never |
 | `FeatureFlagState` | `feature_flags` | the platform | never: a flag without a row is on |
+| `NetworkMember` | `network_members` | user (by id), one each | never by the app: leaving or a ban sets it inactive (`banned_at` for a ban), keeping the handle; with its account |
+| `NetworkPost` | `network_posts` (embeds `NetworkPostDetails` and `NetworkLinkPreview`), `network_post_tags` | member (by id) | by its author or the moderators, with everything under it; with its account |
+| `NetworkPostVersion` | `network_post_versions` | post (by id) | with its post |
+| `NetworkComment` | `network_comments` | member and post (by id) | by its author or the moderators, with its replies; with its post, or its author's account |
+| `NetworkLike` | `network_likes` | member and post (by id) | by hand, or with its post or either account |
+| `NetworkCommentLike` | `network_comment_likes` | member and comment (by id) | by hand, or with its comment, its post or either account |
+| `NetworkPollVote` | `network_poll_votes` | member and post (by id) | with its post or either account; a change rewrites it |
+| `NetworkMissionTake` | `network_mission_takes` | member and post (by id) | with its post or either account; kept when its project is deleted, and reused if the mission is taken again |
+| `NetworkBookmark` | `network_bookmarks` | member and post (by id) | by hand, or with its post or either account |
+| `NetworkDraft` | `network_drafts` | member (by id) | by hand, once published (by hand or at its time), or with its account |
+| `NetworkHeld` | `network_held` | member (by id) | when an administrator publishes or rejects it, or with its account |
+| `NetworkFile` | `network_files` | member (by id), and its post, message or held post | with what it is attached to; nightly, a day after upload if never attached; with its account, but those of messages sent |
+| `NetworkFileContent` | `network_file_contents` | file (by id), one each | with its file |
+| `NetworkFollow` | `network_follows` | two members (by id) | by hand (unfollow, remove a follower), on a block, or with either account |
+| `NetworkFollowRequest` | `network_follow_requests` | two members (by id) | once answered or withdrawn, on a block, when the card turns public (approved), or with either account |
+| `NetworkRestriction` | `network_restrictions` | member (by id), on another | by hand, or with either account |
+| `NetworkTagFollow` | `network_tag_follows` | member (by id) | by hand, or with its account |
+| `NetworkNotification` | `network_notifications` | member (by id) | with its post, or the recipient's or actor's account; never otherwise, read or not |
+| `NetworkReport` | `network_reports` | member (by id), on a post, comment, message or member | never once decided (the audit trail); with the reporter's or target's account |
+| `NetworkConversation` | `network_conversations` | shared by its members | never, not even once its last member's account is gone (TODO.md, Bugs to fix) |
+| `NetworkConversationMember` | `network_conversation_members` | conversation and member (by id) | on leaving a group, or with its account |
+| `NetworkMessage` | `network_messages` (embeds `NetworkOpportunityCard` and `NetworkLinkPreview`) | conversation and sender (by id) | never: deleting within 15 minutes, or by the moderators, empties it and sets `deleted_at`; kept with its sender's account |
+| `NetworkMessageReaction` | `network_message_reactions` | member and message (by id) | by hand, when its message is deleted, or with its account |
+| `Testimonial` | `testimonials` | freelance (by id); a contact (by id) or an external person by name and email, asked through a hashed one-time link | by hand, or with its account; an expired request stays, and deleting the contact leaves it |
 
 Element collections (`user_skills`, `interview_step_checklist`, `invoice_lines`, `booking_windows`...) hold simple
 values owned by one row and go with it. Use them for owned scalar lists; use an entity when values need identity,
 auditing, search, permissions or relationships.
+
+`network_usefuls` (the retired **Useful** reaction) has no entity: databases created before keep it, emptied at startup by
+`RetiredUsefulReactions` (see [Migration Reality](#migration-reality)); a schema created since has no such table.
 
 ## Ownership Rules
 
@@ -113,6 +150,10 @@ auditing, search, permissions or relationships.
   freelance. Sessions, account events and API tokens belong to one user.
 - An activity report belongs to one project, one per month.
 - A job offer belongs to no workspace; a job offer state belongs to one freelance and one offer.
+- A network member belongs to one account (one each, its handle unique); posts, comments, reactions, votes, saves,
+  drafts, files, follows, mutes, blocks, notifications and reports name members by account id, without a foreign key.
+- A conversation belongs to no account: each member's reading, muting and archiving is theirs alone, in
+  `network_conversation_members`. A testimonial belongs to one freelance.
 - Every service checks that a record belongs to the caller's workspace; another workspace's record answers `404` or
   `403`, never its data.
 
@@ -128,6 +169,16 @@ Deletion rules:
 - Deleting a source or a season keeps its projects, which lose that reference.
 - Deleting a compliance document removes it from the packs that shared it.
 - Invoices hold their client, project and activity report as plain ids, so deleting those leaves every invoice.
+- Deleting a post deletes its likes, comment likes, votes, mission takes, comments, versions, saves, notifications and
+  files; its reports stay, and its reposts stay, showing the original as gone. Deleting a comment deletes its replies
+  and their likes, and unpins or unmarks it as the answer.
+- Leaving the network, being banned or being on hold for deletion deletes nothing: the card is hidden, a former member
+  comes back with the same card, and a banned one cannot. A scheduled draft waits while its author is away.
+- An account deleted after its 30 days on hold takes its network rows with it: its card, posts with everything under
+  them, comments, reactions, follows both ways, requests, mutes and blocks both ways, notifications it got or caused,
+  reports it made or drew, drafts, held posts and files. The conversations and the messages it sent, with their files,
+  stay for the other side, from a former member.
+- Files never attached to a post, a message or a held post are dropped every night a day after upload.
 
 ## Entity Rules
 
@@ -222,6 +273,13 @@ running season that started last.
   email so it is sent once.
 - A webhook delivery's `next_attempt_at` doubles as a two-minute lease while a replica sends it; 20 consecutive
   failures set the webhook inactive.
+
+### Member Network
+
+- `network_members.last_seen_at` is presence, not activity: the live stream sets it as it opens and at each 25-second
+  heartbeat, and a member reads as online for 70 seconds after, only between two members who both show it.
+- The network's rows name members and posts by plain id columns, without foreign keys: the services delete what
+  hangs from a post, a comment or an account themselves (see [Ownership Rules](#ownership-rules)).
 
 ## Sensitive Data
 

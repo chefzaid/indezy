@@ -279,6 +279,12 @@ public class NetworkPostController {
         return forYou.forYou(SecurityUtils.getCurrentUserId(), page);
     }
 
+    @Operation(summary = "The missions members pass on, from every member the viewer can read but themselves, the newest first, 20 a page")
+    @GetMapping("/feed/missions")
+    public NetworkDtos.Posts missions(@RequestParam(defaultValue = "0") int page) {
+        return feed.missions(SecurityUtils.getCurrentUserId(), page);
+    }
+
     @Operation(summary = "The home feed: the viewer's posts, those of the members and tags they follow, the newest first, 20 a page")
     @GetMapping("/feed")
     public NetworkDtos.Posts feed(@RequestParam(defaultValue = "0") int page) {

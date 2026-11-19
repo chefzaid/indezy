@@ -297,7 +297,7 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
   });
 }
 
-test('finds the saved posts by tag on the saved page', async ({ page }) => {
+test('finds the saved posts by tag on the saved tab of the reader\'s page', async ({ page }) => {
   await mockWorkspaceSession(page, 'en');
   await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
   const leo = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [], city: null, remote: false,
@@ -309,7 +309,15 @@ test('finds the saved posts by tag on the saved page', async ({ page }) => {
     const posts = tag === 'kafka' ? [post(1, 'Retour #Kafka', ['kafka'])] : [post(2, 'Atelier #Spark', ['spark']), post(1, 'Retour #Kafka', ['kafka'])];
     return route.fulfill({ json: { page: { posts, page: 0, more: false }, tags: ['kafka', 'spark'] } });
   });
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+  await page.route('**/api/network/members/camille/page', route => route.fulfill({ json: { card: { ...leo, handle: 'camille',
+    firstName: 'Camille', lastName: 'Durand' }, followers: 0, following: 0, sharedSkills: [], followed: false, followsYou: false, own: true,
+    muted: false, blocked: false, privateCard: false, requested: false } }));
+  await page.route('**/api/network/members/camille/posts?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+  // The saved posts are a tab of the reader's own page now; the old address leads there.
   await page.goto('/network/saved');
+  await expect(page).toHaveURL(/\/m\/camille\?tab=saved$/);
+  await expect(page.locator('[data-tab-saved]')).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('[data-post]')).toHaveCount(2);
   await page.locator('[data-saved-tag="kafka"]').click();
   await expect(page.locator('[data-post]')).toHaveCount(1);
@@ -413,11 +421,19 @@ test('keeps a draft from the feed, then publishes it from the drafts', async ({ 
     asked.push('publish');
     return route.fulfill({ status: 201, json: {} });
   });
+  const camille = { handle: 'camille', firstName: 'Camille', lastName: 'Durand', avatar: null, headline: null, stack: [], city: null,
+    remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+  await page.route('**/api/network/members/camille/page', route => route.fulfill({ json: { card: camille, followers: 0, following: 0,
+    sharedSkills: [], followed: false, followsYou: false, own: true, muted: false, blocked: false, privateCard: false, requested: false } }));
+  await page.route('**/api/network/members/camille/posts?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
   await page.goto('/network');
   await page.locator('[data-composer-text]').fill('À relire avant lundi');
   await page.locator('[data-keep-draft]').click();
   await expect(page.locator('[data-composer-text]')).toHaveValue('');
-  await page.locator('[data-feed-drafts]').click();
+  // The drafts are a tab of the reader's page, one click away from the card beside the feed.
+  await page.locator('[data-me-drafts]:visible').click();
+  await expect(page).toHaveURL(/\/m\/camille\?tab=drafts$/);
   await expect(page.locator('[data-draft="5"]')).toContainText('À relire avant lundi');
   const audit = await new AxeBuilder({ page }).include('app-network-drafts').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(audit.violations.map(violation => violation.id)).toEqual([]);

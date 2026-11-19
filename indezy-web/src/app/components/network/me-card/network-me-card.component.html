@@ -1,0 +1,30 @@
+@if (page; as me) {
+  <section class="me card" [attr.aria-label]="'network.nav.myPage' | translate" data-me-card>
+    <span class="cover" [style.background]="cover" aria-hidden="true"></span>
+    <a [routerLink]="['/m', me.card.handle]" class="who" data-me-page>
+      <app-member-avatar class="face" [subject]="me.card" [size]="avatarSize"></app-member-avatar>
+      <span class="name">{{ me.card.firstName }} {{ me.card.lastName }}</span>
+      <span class="handle">&#64;{{ me.card.handle }}</span>
+    </a>
+    @if (me.card.headline) {
+      <p class="headline">{{ me.card.headline }}</p>
+    }
+    <div class="counts">
+      <a [routerLink]="['/m', me.card.handle]" [queryParams]="{ tab: 'followers' }" data-me-followers>
+        <strong>{{ me.followers }}</strong><span>{{ 'network.me.followers' | translate }}</span>
+      </a>
+      <a [routerLink]="['/m', me.card.handle]" [queryParams]="{ tab: 'following' }" data-me-following>
+        <strong>{{ me.following }}</strong><span>{{ 'network.me.following' | translate }}</span>
+      </a>
+    </div>
+    <nav class="links" [attr.aria-label]="'network.nav.myPage' | translate">
+      <a [routerLink]="['/m', me.card.handle]" data-me-posts><mat-icon aria-hidden="true">article</mat-icon>{{ 'network.me.posts' | translate }}</a>
+      <a [routerLink]="['/m', me.card.handle]" [queryParams]="{ tab: 'saved' }" data-me-saved>
+        <mat-icon aria-hidden="true">bookmarks</mat-icon>{{ 'network.feed.saved' | translate }}
+      </a>
+      <a [routerLink]="['/m', me.card.handle]" [queryParams]="{ tab: 'drafts' }" data-me-drafts>
+        <mat-icon aria-hidden="true">edit_note</mat-icon>{{ 'network.drafts.title' | translate }}
+      </a>
+    </nav>
+  </section>
+}

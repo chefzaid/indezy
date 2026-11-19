@@ -75,4 +75,22 @@ describe('SavedPostsComponent', () => {
     fixture.detectChanges();
     expect(element.querySelector('app-post-card')).not.toBeNull();
   });
+
+  it('leaves out the bar and the title once a tab of the reader\'s page', () => {
+    network = jasmine.createSpyObj('NetworkService', ['saved']);
+    network.saved.and.returnValue(of({ page: { posts: [], page: 0, more: false }, tags: [] }));
+    TestBed.configureTestingModule({
+      imports: [SavedPostsComponent, TranslateModule.forRoot()],
+      providers: [provideRouter([]), { provide: NetworkService, useValue: network },
+        { provide: NotificationService, useValue: jasmine.createSpyObj('NotificationService', ['error']) }]
+    });
+    stubNetworkNav(SavedPostsComponent);
+    const fixture = TestBed.createComponent(SavedPostsComponent);
+    fixture.componentRef.setInput('embedded', true);
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-network-nav]')).toBeNull();
+    expect(element.querySelector('app-page-header')).toBeNull();
+    expect(element.querySelector('[data-saved-empty]')).not.toBeNull();
+  });
 });

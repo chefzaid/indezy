@@ -84,3 +84,35 @@
     text-align: center;
   }
 }
+
+// On a phone: the search on a line of its own, the four tabs under it sharing the width, each an icon with its count
+// and the open one named too, so that none is out of sight (the names stay for screen readers).
+@media (max-width: 599.98px) {
+  .network-nav {
+    flex-wrap: wrap;
+  }
+
+  app-network-search {
+    flex: 1 1 100%;
+  }
+
+  .links {
+    flex: 1 1 100%;
+  }
+
+  .nav-link {
+    flex: 1 1 auto;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 10px;
+
+    &:not(.active) .label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+}

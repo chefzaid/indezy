@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, Input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,6 +19,9 @@ import { NetworkNavComponent } from '../nav/network-nav.component';
   changeDetection: ChangeDetectionStrategy.Eager
 })
 export class NetworkDraftsComponent implements OnInit {
+  /** Within the reader's own page, as one of its tabs: without the network's tabs and its own header. */
+  @Input() embedded = false;
+
   private readonly network = inject(NetworkService);
   private readonly notifications = inject(NotificationService);
   private readonly confirm = inject(ConfirmDialogService);

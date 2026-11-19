@@ -82,7 +82,12 @@
           (click)="show('following')" data-feed-tab-following>{{ 'network.feed.following' | translate }}</button>
         <button type="button" role="tab" class="tab" [class.active]="tab === 'forYou'" [attr.aria-selected]="tab === 'forYou'"
           (click)="show('forYou')" data-feed-tab-for-you>{{ 'network.feed.forYou' | translate }}</button>
+        <button type="button" role="tab" class="tab" [class.active]="tab === 'missions'" [attr.aria-selected]="tab === 'missions'"
+          (click)="show('missions')" data-feed-tab-missions>{{ 'network.feed.missions' | translate }}</button>
       </div>
+      @if (tab === 'missions') {
+        <p class="tab-hint" data-feed-missions-hint>{{ 'network.feed.missionsHint' | translate }}</p>
+      }
 
       @if (loading) {
         <ul class="posts" aria-hidden="true">
@@ -95,7 +100,7 @@
         @if (posts.length === 0) {
           <section class="empty card" data-feed-empty>
             <mat-icon aria-hidden="true">forum</mat-icon>
-            <p>{{ 'network.feed.empty' | translate }}</p>
+            <p>{{ (tab === 'missions' ? 'network.feed.missionsNone' : 'network.feed.empty') | translate }}</p>
           </section>
         }
         @if (newer > 0) {
@@ -122,7 +127,12 @@
     }
   </main>
 
+  <aside class="me-area">
+    <app-network-me-card></app-network-me-card>
+  </aside>
+
   <aside class="side-extra">
+    <app-network-me-card class="me-in-extra"></app-network-me-card>
     @if (tags.length) {
       <section class="side-card tags-card">
         <h2>{{ 'network.tags.followed' | translate }}</h2>

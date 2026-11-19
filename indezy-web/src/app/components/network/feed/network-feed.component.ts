@@ -29,6 +29,7 @@ import { FilePickerComponent } from '../files/file-picker.component';
 import { PostCardComponent } from '../post-card/post-card.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { NetworkNavComponent } from '../nav/network-nav.component';
+import { NetworkMeCardComponent } from '../me-card/network-me-card.component';
 
 export const POST_MAX = 3000;
 /** How often the feed asks whether newer posts reached it. */
@@ -37,9 +38,12 @@ export const NEWER_EVERY_MS = 60_000;
 const PHONE = '(max-width: 599.98px)';
 
 /** The home feed (`/network`): writing a post, then the reader's posts and those of the members they follow, newest first. */
+/** The feed's tabs: the members and tags followed, For you, and the missions members pass on (each to add to the pipeline). */
+export type FeedTab = 'following' | 'forYou' | 'missions';
+
 @Component({
   selector: 'app-network-feed',
-  imports: [NetworkNavComponent, PageHeaderComponent, A11yModule, MentionsDirective, AsyncPipe, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
+  imports: [NetworkNavComponent, NetworkMeCardComponent, PageHeaderComponent, A11yModule, MentionsDirective, AsyncPipe, InViewDirective, MatTooltipModule, MemberAvatarComponent, PostKindFieldsComponent, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslateModule, PostCardComponent, FilePickerComponent],
   templateUrl: './network-feed.component.html',
   styleUrls: ['./network-feed.component.scss', './network-feed-side.scss'],
@@ -176,11 +180,11 @@ export class NetworkFeedComponent implements OnInit {
     });
   }
 
-  /** Which tab of the feed is shown: the members and tags followed, or For you. */
-  tab: 'following' | 'forYou' = 'following';
+  /** Which tab of the feed is shown: the members and tags followed, For you, or the missions members pass on. */
+  tab: FeedTab = 'following';
 
-  /** Shows the other tab, from its first page. */
-  show(tab: 'following' | 'forYou'): void {
+  /** Shows another tab, from its first page. */
+  show(tab: FeedTab): void {
     if (tab === this.tab) {
       return;
     }
@@ -220,7 +224,7 @@ export class NetworkFeedComponent implements OnInit {
 
   load(page: number): void {
     this.loadingMore = page > 0;
-    (this.tab === 'forYou' ? this.network.forYou(page) : this.network.feed(page)).subscribe({
+    (this.tab === 'forYou' ? this.network.forYou(page) : this.tab === 'missions' ? this.network.missions(page) : this.network.feed(page)).subscribe({
       next: found => {
         this.posts = page === 0 ? found.posts : [...this.posts, ...found.posts];
         this.page = found.page;

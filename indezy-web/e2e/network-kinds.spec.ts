@@ -89,12 +89,13 @@ test('asks a poll and votes in another member\'s', async ({ page }) => {
     poll: { choices: ['Java', 'Kotlin', 'Scala'], days: 3 } }]);
 });
 
-test('adds another member\'s mission to the pipeline, letting them know', async ({ page }) => {
+test('adds a mission from the Missions tab to the pipeline, letting its author know', async ({ page }) => {
   await mockWorkspaceSession(page, 'en');
   await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
   const author = { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null, headline: null, stack: [], city: null,
     remote: false, availability: null, availabilityDate: null, languages: [], verified: false };
-  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [{ id: 6, text: 'Je ne peux pas la prendre', tags: [],
+  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [], page: 0, more: false } }));
+  await page.route('**/api/network/feed/missions?**', route => route.fulfill({ json: { posts: [{ id: 6, text: 'Je ne peux pas la prendre', tags: [],
     createdAt: '2026-11-15T09:00:00', own: false, likes: 0, liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false,
     repostOf: null, reposts: 0, repostsOff: false, kind: 'MISSION', details: { role: 'Lead Java', rateMin: 600, rateMax: 700, city: 'Lyon',
       remoteDays: 2, start: null, client: null, stack: [] }, answerCommentId: null, poll: null, taken: { count: null, mine: false },
@@ -106,6 +107,8 @@ test('adds another member\'s mission to the pipeline, letting them know', async 
   });
 
   await page.goto('/network');
+  await page.locator('[data-feed-tab-missions]').click();
+  await expect(page.locator('[data-feed-missions-hint]')).toBeVisible();
   await page.locator('[data-post="6"] [data-mission-add]').click();
   await page.locator('[data-mission-add-named]').click();
   await expect(page.locator('[data-post="6"] [data-mission-taken]')).toContainText('In your pipeline');

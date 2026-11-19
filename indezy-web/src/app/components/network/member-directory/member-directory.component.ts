@@ -80,6 +80,11 @@ export class MemberDirectoryComponent implements OnInit {
 
   ngOnInit(): void {
     const asked = this.route.snapshot.queryParamMap.get('tab') as MembersTab | null;
+    // A skill searched from the network's tabs.
+    const skill = this.route.snapshot.queryParamMap.get('skill');
+    if (skill) {
+      this.form.controls.skill.setValue(skill.slice(0, 60));
+    }
     this.tab = asked && MEMBERS_TABS.includes(asked) ? asked : 'all';
     if (this.tab === 'all') {
       this.search();

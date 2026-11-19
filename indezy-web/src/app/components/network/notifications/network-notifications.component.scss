@@ -162,11 +162,16 @@ a.row {
 }
 
 .excerpt {
+  // The post's start, wrapped over three lines at most rather than cut on one.
+  display: -webkit-box;
   overflow: hidden;
   color: var(--app-text-muted);
   font-size: 0.8125rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
 time {

@@ -210,6 +210,15 @@ describe('MemberDirectoryComponent', () => {
     expect(fixture.componentInstance.received).toBeNull();
   });
 
+  it('searches the skill typed in the network\'s search', async () => {
+    setUp();
+    await TestBed.inject(Router).navigateByUrl('/?skill=Kafka');
+    const fixture = TestBed.createComponent(MemberDirectoryComponent);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.form.controls.skill.value).toBe('Kafka');
+    expect(network.directory).toHaveBeenCalledWith({ skill: 'Kafka', city: '', availability: null, remote: null, page: 0 });
+  });
+
   it('asks a visitor to join first, and says when the members cannot be loaded', () => {
     let fixture = create(throwError(() => new HttpErrorResponse({ status: 409 })));
     expect((fixture.nativeElement as HTMLElement).querySelector('[data-directory-not-member]')).not.toBeNull();

@@ -28,7 +28,8 @@ describe('NetworkFeedComponent', () => {
       city: 'Lyon' } });
 
   function create(feed = of({ posts: [post(2), post(1, true)], page: 0, more: true })): ComponentFixture<NetworkFeedComponent> {
-    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft', 'forYou', 'membership', 'trendingTags', 'newerCount']);
+    network = jasmine.createSpyObj('NetworkService', ['feed', 'post', 'deletePost', 'followedTags', 'suggestions', 'follow', 'createDraft', 'forYou', 'membership', 'trendingTags', 'newerCount', 'missions', 'page']);
+    network.page.and.returnValue(throwError(() => new Error('not here')));
     network.newerCount.and.returnValue(of(0));
     network.trendingTags.and.returnValue(of([{ tag: 'kafka', posts: 4 }, { tag: 'java', posts: 1 }]));
     network.feed.and.returnValue(feed);
@@ -283,6 +284,26 @@ describe('NetworkFeedComponent', () => {
     network.feed.calls.reset();
     component.show('following');
     expect(network.feed).toHaveBeenCalledWith(0);
+  });
+
+  it('shows the missions members pass on in their own tab, with what the tab is for', () => {
+    const fixture = create();
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('[data-feed-missions-hint]')).toBeNull();
+    network.missions.and.returnValue(of({ posts: [{ ...post(5), kind: 'MISSION' as const }], page: 0, more: true }));
+    (element.querySelector('[data-feed-tab-missions]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(network.missions).toHaveBeenCalledWith(0);
+    expect(component.posts.map(found => found.id)).toEqual([5]);
+    expect(element.querySelector('[data-feed-tab-missions]')?.getAttribute('aria-selected')).toBe('true');
+    expect(element.querySelector('[data-feed-missions-hint]')).not.toBeNull();
+    network.missions.and.returnValue(of({ posts: [], page: 1, more: false }));
+    component.loadMore();
+    expect(network.missions).toHaveBeenCalledWith(1);
+    component.posts = [];
+    fixture.detectChanges();
+    expect(element.textContent).toContain(en.network.feed.missionsNone);
   });
 
   it('says why each member is suggested, opens the time to publish on its own, and shows the reader\'s avatar', () => {

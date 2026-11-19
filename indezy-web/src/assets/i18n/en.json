@@ -3472,7 +3472,10 @@
       "newerOne": "1 new post",
       "newerMany": "{{count}} new posts",
       "teaser": "What's new?",
-      "newPost": "New post"
+      "newPost": "New post",
+      "missions": "Missions",
+      "missionsHint": "The missions members pass on, from the whole network: add those you like to your pipeline.",
+      "missionsNone": "No mission passed on yet."
     },
     "post": {
       "actions": "Actions on the post",
@@ -3894,6 +3897,15 @@
       "full": "Open in full",
       "unread": "{{count}} unread",
       "chatWith": "Conversation with {{name}}"
+    },
+    "search": {
+      "placeholder": "Search a member, a #tag…",
+      "label": "Search the network"
+    },
+    "me": {
+      "followers": "followers",
+      "following": "following",
+      "posts": "My posts"
     }
   }
 }

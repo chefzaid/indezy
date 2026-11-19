@@ -1,0 +1,21 @@
+<form class="search" role="search" (submit)="search($event)" data-network-search>
+  <mat-icon aria-hidden="true">search</mat-icon>
+  <input type="search" [formControl]="query" [matAutocomplete]="suggestions" maxlength="60"
+    [placeholder]="'network.search.placeholder' | translate" [attr.aria-label]="'network.search.label' | translate" data-network-search-field>
+  <mat-autocomplete #suggestions="matAutocomplete" [displayWith]="display" (optionSelected)="pick($event)" class="network-search-panel">
+    @for (option of options; track $index) {
+      @if (option.kind === 'member') {
+        <mat-option [value]="option" [attr.data-search-member]="option.member.handle">
+          <span class="option">
+            <app-member-avatar [subject]="option.member" [size]="28"></app-member-avatar>
+            <span>{{ option.member.firstName }} {{ option.member.lastName }} <span class="handle">&#64;{{ option.member.handle }}</span></span>
+          </span>
+        </mat-option>
+      } @else {
+        <mat-option [value]="option" [attr.data-search-tag]="option.tag">
+          <span class="option"><mat-icon aria-hidden="true">tag</mat-icon><span>#{{ option.tag }}</span></span>
+        </mat-option>
+      }
+    }
+  </mat-autocomplete>
+</form>

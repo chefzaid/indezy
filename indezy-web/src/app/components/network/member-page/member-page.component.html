@@ -100,9 +100,19 @@
         (click)="show('following')" data-following>
         {{ 'network.page.following' | translate: { count: page.following } }}
       </button>
+      @if (page.own) {
+        <button type="button" role="tab" class="tab" [class.active]="list === 'saved'" [attr.aria-selected]="list === 'saved'"
+          (click)="show('saved')" data-tab-saved>{{ 'network.feed.saved' | translate }}</button>
+        <button type="button" role="tab" class="tab" [class.active]="list === 'drafts'" [attr.aria-selected]="list === 'drafts'"
+          (click)="show('drafts')" data-tab-drafts>{{ 'network.drafts.title' | translate }}</button>
+      }
     </div>
 
-    @if (list) {
+    @if (list === 'saved') {
+      <app-saved-posts [embedded]="true"></app-saved-posts>
+    } @else if (list === 'drafts') {
+      <app-network-drafts [embedded]="true"></app-network-drafts>
+    } @else if (list) {
       <section class="members card" [attr.data-member-list]="list" [attr.aria-label]="'network.page.' + list + 'Title' | translate">
         @if (members.length === 0) {
           <p class="empty">{{ 'network.page.none' | translate }}</p>

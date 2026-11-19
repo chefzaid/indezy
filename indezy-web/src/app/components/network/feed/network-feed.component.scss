@@ -1,19 +1,52 @@
-// The member network's home, as wide as its other pages: the network's sections as a row of tabs, the feed, and the
-// tags and members to follow beside it; one column on narrower screens.
+// The member network's home, as wide as its other pages (so that nothing moves from one tab to the next): the network's
+// sections as a row of tabs across the page, then the reader's own page on the left, the posts in the middle at a
+// reading width (as on the social networks, the text never stretching out), and the tags and members to follow on the
+// right, the room left going between the columns. Two columns on a laptop, one on a phone.
 .network-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 680px) minmax(300px, 400px);
   grid-template-rows: auto auto auto 1fr;
+  grid-template-areas:
+    'nav nav nav'
+    'me head extra'
+    'me compose extra'
+    'me feed extra';
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px 24px;
   width: 100%;
   max-width: var(--app-network-width);
   margin: 0 auto;
-  grid-template-areas:
-    'nav nav'
-    'head extra'
-    'compose extra'
-    'feed extra';
-  align-items: start;
-  gap: 16px 24px;
+}
+
+.me-area {
+  grid-area: me;
+  position: sticky;
+  top: 64px;
+}
+
+// The reader's own page shows in the right column when the left one is gone.
+.me-in-extra {
+  display: none;
+}
+
+@media (max-width: 1439.98px) {
+  .network-layout {
+    grid-template-columns: minmax(0, 680px) minmax(300px, 380px);
+    grid-template-areas:
+      'nav nav'
+      'head extra'
+      'compose extra'
+      'feed extra';
+  }
+
+  .me-area {
+    display: none;
+  }
+
+  .me-in-extra {
+    display: block;
+  }
 }
 
 .side-nav {
@@ -335,6 +368,7 @@
 @media (max-width: 1099.98px) {
   .network-layout {
     grid-template-columns: minmax(0, 1fr);
+    justify-content: stretch;
     grid-template-rows: none;
     grid-template-areas: 'nav' 'head' 'compose' 'extra' 'feed';
   }
@@ -456,4 +490,10 @@
   .feed-header h1 {
     font-size: 1.25rem;
   }
+}
+
+.tab-hint {
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: 0.875rem;
 }

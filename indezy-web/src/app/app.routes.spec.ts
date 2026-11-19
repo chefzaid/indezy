@@ -39,6 +39,15 @@ describe('application routes', () => {
     expect(routes.find((route) => route.path === 'timeline')?.redirectTo).toBe('/calendar?view=upcoming');
   });
 
+  it('sends the former saved and drafts addresses to the tabs of the reader\'s own page', () => {
+    for (const path of ['network/saved', 'network/drafts']) {
+      const route = routes.find((candidate) => candidate.path === path);
+      expect(route?.children).withContext(path).toEqual([]);
+      expect(route?.canActivate?.[0]).withContext(path).toBe(authGuard);
+      expect(route?.canActivate?.length).withContext(path).toBe(3);
+    }
+  });
+
   it('opens the admin console to signed-in administrators only', () => {
     const admin = routes.find((route) => route.path === 'admin');
 
@@ -55,7 +64,8 @@ describe('lazy loading', () => {
   };
 
   async function expectLazy(list: Routes): Promise<void> {
-    for (const route of list.filter((candidate) => !candidate.redirectTo)) {
+    // A redirect, or a route whose guard always leads elsewhere (no page of its own), loads nothing.
+    for (const route of list.filter((candidate) => !candidate.redirectTo && !candidate.children)) {
       expect(route.component).withContext(`${route.path} is bundled eagerly`).toBeUndefined();
       const loaded = await (route.loadComponent ?? route.loadChildren)?.();
       expect(loaded).withContext(`${route.path} loads nothing`).toBeDefined();

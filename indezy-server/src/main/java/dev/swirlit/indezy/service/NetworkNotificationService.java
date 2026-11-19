@@ -42,7 +42,8 @@ public class NetworkNotificationService {
     static final int GROUPS_SHOWN = 30;
     static final int ACTORS_SHOWN = 3;
     static final int MAX_MENTIONS = 10;
-    private static final int EXCERPT = 80;
+    /** The start of the post a notification is about: enough to tell which, read in full on a wide screen. */
+    private static final int EXCERPT = 280;
     /** An @handle not inside a word or an address. */
     private static final Pattern MENTION = Pattern.compile("(?<![\\p{L}\\p{N}_@.])@([a-z][a-z0-9_]{2,29})");
     /** Kinds told once per member and post (or once per member for a follow), whatever happens after. */
