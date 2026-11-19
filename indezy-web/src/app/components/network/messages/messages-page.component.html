@@ -1,17 +1,16 @@
+<div class="messages-shell">
+<app-network-nav></app-network-nav>
 <div class="messages-page card" [class.open]="openId !== null" data-messages-page>
   <section class="list-pane" [attr.aria-label]="'network.messages.title' | translate">
     <header class="list-head">
-      <a routerLink="/network" class="back" [attr.aria-label]="'network.back' | translate">
-        <mat-icon>arrow_back</mat-icon>
-      </a>
       <h1>{{ 'network.messages.title' | translate }}</h1>
-      <button mat-icon-button type="button" class="new-message" (click)="newMessage()" [attr.aria-label]="'network.messages.new' | translate"
-        [matTooltip]="'network.messages.new' | translate" data-messages-new>
-        <mat-icon>edit_square</mat-icon>
-      </button>
       <button mat-icon-button type="button" class="new-group" (click)="newGroup()" [attr.aria-label]="'network.groups.new' | translate"
         [matTooltip]="'network.groups.new' | translate" data-messages-new-group>
         <mat-icon>group_add</mat-icon>
+      </button>
+      <button mat-icon-button type="button" class="new-message" (click)="newMessage()" [attr.aria-label]="'network.messages.new' | translate"
+        [matTooltip]="'network.messages.new' | translate" data-messages-new>
+        <mat-icon>edit_square</mat-icon>
       </button>
     </header>
     <div class="tabs" role="tablist" [attr.aria-label]="'network.messages.title' | translate">
@@ -124,4 +123,5 @@
       </div>
     }
   </section>
+</div>
 </div>

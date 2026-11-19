@@ -1,37 +1,5 @@
 <div class="network-layout" data-network-layout>
-  <aside class="side-nav" [attr.aria-label]="'network.feed.title' | translate">
-    <nav class="nav-links">
-      <a routerLink="/network" class="nav-link active" aria-current="page">
-        <mat-icon>home</mat-icon><span>{{ 'network.nav.home' | translate }}</span>
-      </a>
-      <a routerLink="/network/notifications" class="nav-link" data-feed-notifications>
-        <mat-icon>notifications</mat-icon><span>{{ 'network.notices.title' | translate }}</span>
-        @if (unread$ | async; as unread) {
-          <span class="count" data-feed-unread>{{ unread > 99 ? '99+' : unread }}</span>
-        }
-      </a>
-      <a routerLink="/network/messages" class="nav-link" data-feed-messages>
-        <mat-icon>chat</mat-icon><span>{{ 'network.messages.title' | translate }}</span>
-        @if (unreadMessages$ | async; as unreadMessages) {
-          <span class="count" data-feed-unread-messages>{{ unreadMessages > 99 ? '99+' : unreadMessages }}</span>
-        }
-      </a>
-      <a routerLink="/network/members" class="nav-link" data-feed-members>
-        <mat-icon>group</mat-icon><span>{{ 'network.feed.members' | translate }}</span>
-      </a>
-      <a routerLink="/network/saved" class="nav-link" data-feed-saved>
-        <mat-icon>bookmarks</mat-icon><span>{{ 'network.feed.saved' | translate }}</span>
-      </a>
-      <a routerLink="/network/drafts" class="nav-link" data-feed-drafts>
-        <mat-icon>edit_note</mat-icon><span>{{ 'network.drafts.title' | translate }}</span>
-      </a>
-      @if (me) {
-        <a [routerLink]="['/m', me.handle]" class="nav-link" data-feed-me>
-          <mat-icon>account_circle</mat-icon><span>{{ 'network.nav.myPage' | translate }}</span>
-        </a>
-      }
-    </nav>
-  </aside>
+  <app-network-nav class="side-nav"></app-network-nav>
 
   <div class="feed-header">
     <app-page-header icon="diversity_3" [title]="'network.feed.title' | translate" [subtitle]="'network.feed.subtitle' | translate">

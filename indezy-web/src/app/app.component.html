@@ -86,7 +86,7 @@
       </mat-sidenav>
       <!-- Main Content -->
       <mat-sidenav-content class="app-main-content">
-        <div class="app-content" [class.with-messenger]="messengerShown">
+        <div class="app-content" [class.with-messenger]="messengerShown && !onMessagesPage()">
           <router-outlet></router-outlet>
         </div>
       </mat-sidenav-content>

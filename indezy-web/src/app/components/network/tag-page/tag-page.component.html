@@ -1,6 +1,6 @@
 @if (page) {
   <div class="tag-page" [attr.data-tag-page]="page.tag">
-    <app-network-back></app-network-back>
+    <app-network-nav [back]="true"></app-network-nav>
     <app-page-header icon="tag" [title]="'#' + page.tag" [subtitle]="'network.tags.subtitle' | translate">
       <button mat-flat-button type="button" class="follow" [class.following]="page.followed" (click)="toggleFollow()"
         [attr.aria-pressed]="page.followed" data-follow-tag>

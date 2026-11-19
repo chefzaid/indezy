@@ -8,6 +8,7 @@ import { NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { SavedPostsComponent } from './saved-posts.component';
+import { stubNetworkNav } from '../nav/network-nav.stub';
 
 describe('SavedPostsComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
@@ -26,6 +27,7 @@ describe('SavedPostsComponent', () => {
       providers: [provideRouter([]), { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications }]
     });
+    stubNetworkNav(SavedPostsComponent);
     const fixture = TestBed.createComponent(SavedPostsComponent);
     fixture.detectChanges();
     return fixture;

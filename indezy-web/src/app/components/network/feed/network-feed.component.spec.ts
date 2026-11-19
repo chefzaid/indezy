@@ -12,6 +12,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 import { ConfidentialityGuardService } from '../confidentiality/confidentiality-guard.service';
 import { NEWER_EVERY_MS, NetworkFeedComponent } from './network-feed.component';
 import en from '../../../../assets/i18n/en.json';
+import { stubNetworkNav } from '../nav/network-nav.stub';
 
 describe('NetworkFeedComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
@@ -47,6 +48,7 @@ describe('NetworkFeedComponent', () => {
         { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
         { provide: ConfirmDialogService, useValue: confirm }, { provide: ConfidentialityGuardService, useValue: guard }]
     });
+    stubNetworkNav(NetworkFeedComponent);
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
     translate.use('en');
@@ -310,6 +312,7 @@ describe('NetworkFeedComponent', () => {
     component.me = card;
     fixture.detectChanges();
     expect(element.querySelector('[data-composer] app-member-avatar')).not.toBeNull();
-    expect(element.querySelector('[data-feed-me]')?.getAttribute('href')).toBe('/m/paul_d');
+    // The network's sections, My page among them, are the bar's (network-nav.component.spec.ts).
+    expect(element.querySelector('[data-network-nav]')).not.toBeNull();
   });
 });

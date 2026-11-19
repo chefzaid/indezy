@@ -172,6 +172,12 @@ for (const [language, width] of [['en', 1280], ['fr', 390]] as const) {
     await page.route('**/api/network/conversations/4/read', route => route.fulfill({ json: { ...conversation, with: ines, unread: 0 } }));
 
     await page.goto('/network/messages');
+    // New group and New message sit together at the right of the title, New message last.
+    const head = page.locator('.list-head button');
+    await expect(head).toHaveCount(2);
+    expect(await head.evaluateAll(buttons => buttons.map(button => button.getAttribute('data-messages-new') !== null ? 'message' : 'group')))
+      .toEqual(['group', 'message']);
+    await page.locator('.list-head').screenshot({ path: test.info().outputPath(`messages-head-${width}.png`) });
     await page.getByRole('button', { name: en ? 'New message' : 'Nouveau message' }).click();
     const dialog = page.getByRole('dialog', { name: en ? 'New message' : 'Nouveau message' });
     await expect(dialog.locator('[data-direct-choice]')).toHaveCount(2);

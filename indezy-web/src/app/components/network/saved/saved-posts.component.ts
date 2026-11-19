@@ -9,12 +9,12 @@ import { NotificationService } from '../../../services/notification/notification
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PostCardComponent } from '../post-card/post-card.component';
 import { NetworkFilesComponent } from '../files/network-files.component';
-import { NetworkBackComponent } from '../back/network-back.component';
+import { NetworkNavComponent } from '../nav/network-nav.component';
 
 /** The reader's saved posts (`/network/saved`), only theirs, filtered by tag, or the documents they carry. */
 @Component({
   selector: 'app-saved-posts',
-  imports: [NetworkBackComponent, PageHeaderComponent, MatButtonModule, MatChipsModule, TranslateModule, PostCardComponent, NetworkFilesComponent],
+  imports: [NetworkNavComponent, PageHeaderComponent, MatButtonModule, MatChipsModule, TranslateModule, PostCardComponent, NetworkFilesComponent],
   templateUrl: './saved-posts.component.html',
   styleUrls: ['./saved-posts.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

@@ -74,8 +74,9 @@ h2 {
 }
 
 .side {
+  // Under the network's sections, which stay at the top as the page scrolls.
   position: sticky;
-  top: 0;
+  top: 64px;
   display: flex;
   flex-direction: column;
   gap: 16px;

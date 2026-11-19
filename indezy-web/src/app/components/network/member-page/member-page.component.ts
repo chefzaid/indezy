@@ -19,7 +19,7 @@ import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.se
 import { MemberCardComponent } from '../member-card/member-card.component';
 import { PostCardComponent } from '../post-card/post-card.component';
 import { MemberAvatarComponent, memberGradient } from '../avatar/member-avatar.component';
-import { NetworkBackComponent } from '../back/network-back.component';
+import { NetworkNavComponent } from '../nav/network-nav.component';
 
 /** Which list of the page is open. */
 export type MemberList = 'followers' | 'following';
@@ -30,7 +30,7 @@ export type MemberList = 'followers' | 'following';
  */
 @Component({
   selector: 'app-member-page',
-  imports: [NetworkBackComponent, MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
+  imports: [NetworkNavComponent, MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
   templateUrl: './member-page.component.html',
   styleUrls: ['./member-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

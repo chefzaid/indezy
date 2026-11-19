@@ -217,11 +217,9 @@ lists the members muted and blocked, each to unmute or unblock.
 Every page of the network takes the full width of the page, as the workspace's other pages do, following the screen, and
 lays itself out for it: lists of posts (saved, a tag's, a member's) and drafts as many columns of cards as the width holds,
 a notification reading like an inbox row (when it happened on the right), a single post in a readable column with its
-author's card beside it, and the members' search bar kept to a comfortable length. The feed's page shows, from 1,440
-pixels, its navigation as a column on the left (Home, Notifications with the unread count, Messages, Members, Saved,
-Drafts, My page), the posts in the middle and the tags followed, the trending tags and the members to follow on the right;
-narrower, the navigation is a row of pills above, and below 1,100 pixels everything is one column, the members to follow
-as a strip. Posts show their
+author's card beside it, and the members' search bar kept to a comfortable length. The feed's page shows the posts beside a
+column of the tags followed, the trending tags and the members to follow; below 1,100 pixels everything is one column, the
+members to follow as a strip. Posts show their
 author's avatar (their photo, else their initials on a color their handle keeps) and how long ago they were posted,
 the full date on hover. On a phone, a one-line **What's new?** and a floating button open the composer full screen.
 **Network** in the menu (`/network`) is the home feed: a post of up to 3,000 characters, paragraphs kept, where
@@ -376,8 +374,10 @@ with the moderator's note, under **Latest decisions**, and a sanction is in the 
 comment that looks like spam (see [Security](./security.md#member-network)) is held instead of published, its author
 told so; **Moderation** lists what is held, with why, to **Publish** as its author's or **Reject**.
 
-Every page of the network but the feed opens with **Back**: to the page the reader came from within the app, or to the
-feed when they opened it first, from a link or a bookmark (Messages keeps its own arrow to the feed).
+Every page of the network opens with its sections as a row of tabs (Home, Notifications and Messages with what is unread,
+Members, Saved, Drafts, My page), the one open marked, staying at the top as the page scrolls: any section is one click
+away. A post's, a tag's or a member's page puts **Back** before them: to the page the reader came from within the app, or
+to the feed when they opened it first, from a link or a bookmark.
 
 **Members** on the feed (`/network/members`) has five tabs, the one open kept in the address (`?tab=`). **All members**
 is the member directory: the members found by a skill and a city typed in its search bar, an availability and remote

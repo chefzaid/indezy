@@ -24,8 +24,9 @@ export class NetworkService {
   private readonly http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/network`;
 
-  membership(): Observable<NetworkMembership> {
-    return this.http.get<NetworkMembership>(`${this.API_URL}/membership`);
+  /** The account's membership; silent, its failure told by the caller, when read in the background (the network's tabs). */
+  membership(silent = false): Observable<NetworkMembership> {
+    return this.http.get<NetworkMembership>(`${this.API_URL}/membership`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, silent) });
   }
 
   /** Joins, or changes the handle and the card. */

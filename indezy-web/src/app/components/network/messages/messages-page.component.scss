@@ -1,9 +1,16 @@
-// Messages: the conversations on the left, the one open on the right; on a phone, one or the other.
+// Messages: the network's sections above, then the conversations on the left and the one open on the right; on a phone,
+// one or the other.
+.messages-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .messages-page {
   display: grid;
   grid-template-columns: 360px minmax(0, 1fr);
   box-sizing: border-box;
-  height: calc(100vh - 128px);
+  height: calc(100vh - 180px);
   min-height: 420px;
   width: 100%;
   max-width: var(--app-network-width);
@@ -31,7 +38,10 @@
   gap: 8px;
   padding: 14px 16px 6px;
 
+  // The title takes the room: New group and New message sit together at the right, New message last.
   h1 {
+    flex: 1;
+    min-width: 0;
     margin: 0;
     font-size: 1.375rem;
     font-weight: 700;
@@ -39,8 +49,9 @@
   }
 }
 
+.new-message,
 .new-group {
-  margin-left: auto;
+  flex: none;
   color: var(--app-link);
 }
 
@@ -61,7 +72,6 @@
   }
 }
 
-.back,
 .thread-back {
   display: inline-flex;
   align-items: center;

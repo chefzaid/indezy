@@ -10,6 +10,7 @@ import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { PostPageComponent } from './post-page.component';
+import { stubNetworkNav } from '../nav/network-nav.stub';
 
 describe('PostPageComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
@@ -34,6 +35,7 @@ describe('PostPageComponent', () => {
         { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
         { provide: ConfirmDialogService, useValue: confirm }]
     });
+    stubNetworkNav(PostPageComponent);
     const fixture = TestBed.createComponent(PostPageComponent);
     fixture.detectChanges();
     return fixture;

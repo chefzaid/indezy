@@ -18,6 +18,7 @@ import { MemberAvatarComponent } from '../avatar/member-avatar.component';
 import { TimeAgoPipe } from '../time-ago/time-ago.pipe';
 import { MessageThreadComponent } from './message-thread.component';
 import { GroupDialogComponent } from './group-dialog.component';
+import { NetworkNavComponent } from '../nav/network-nav.component';
 
 /** How often the list of conversations is read again. */
 export const CONVERSATIONS_REFRESH_MS = 30_000;
@@ -34,7 +35,7 @@ const GROUP_ROOM = 19;
  */
 @Component({
   selector: 'app-messages-page',
-  imports: [MatButtonModule, MatTooltipModule, ReactiveFormsModule, MemberAvatarComponent, MessageThreadComponent, TimeAgoPipe, RouterLink, MatIconModule, TranslateModule],
+  imports: [NetworkNavComponent, MatButtonModule, MatTooltipModule, ReactiveFormsModule, MemberAvatarComponent, MessageThreadComponent, TimeAgoPipe, RouterLink, MatIconModule, TranslateModule],
   templateUrl: './messages-page.component.html',
   styleUrls: ['./messages-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

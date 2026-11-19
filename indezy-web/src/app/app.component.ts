@@ -91,6 +91,11 @@ export class AppComponent implements OnInit {
     filter(event => event instanceof NavigationEnd),
     map(event => HOME_PAGE_PATHS.includes((event as NavigationEnd).urlAfterRedirects.split(/[?#]/)[0]))
   ), { initialValue: false });
+  /** The Messages page, which the messenger corner leaves to itself: no room is kept for the corner there. */
+  readonly onMessagesPage = toSignal(this.router.events.pipe(
+    filter(event => event instanceof NavigationEnd),
+    map(event => (event as NavigationEnd).urlAfterRedirects.startsWith('/network/messages'))
+  ), { initialValue: false });
   /** Account id whose saved theme preference has been applied. */
   private themeSyncedFor: number | null = null;
 

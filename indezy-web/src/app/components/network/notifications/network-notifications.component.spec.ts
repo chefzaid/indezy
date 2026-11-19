@@ -9,6 +9,7 @@ import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { NetworkNotificationsComponent } from './network-notifications.component';
 import en from '../../../../assets/i18n/en.json';
+import { stubNetworkNav } from '../nav/network-nav.stub';
 
 describe('NetworkNotificationsComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
@@ -31,6 +32,7 @@ describe('NetworkNotificationsComponent', () => {
       providers: [provideRouter([]), { provide: NetworkService, useValue: network }, { provide: NetworkNoticesService, useValue: notices },
         { provide: NotificationService, useValue: notifications }]
     });
+    stubNetworkNav(NetworkNotificationsComponent);
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
     translate.use('en');

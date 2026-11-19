@@ -7,6 +7,7 @@ import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { NetworkDraftsComponent } from './network-drafts.component';
+import { stubNetworkNav } from '../nav/network-nav.stub';
 
 describe('NetworkDraftsComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
@@ -25,6 +26,7 @@ describe('NetworkDraftsComponent', () => {
       providers: [{ provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
         { provide: ConfirmDialogService, useValue: confirm }]
     });
+    stubNetworkNav(NetworkDraftsComponent);
     const fixture = TestBed.createComponent(NetworkDraftsComponent);
     fixture.detectChanges();
     return fixture;

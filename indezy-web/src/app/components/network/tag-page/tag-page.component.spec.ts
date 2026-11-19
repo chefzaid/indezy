@@ -10,6 +10,7 @@ import { CapabilitiesService, DEFAULT_CAPABILITIES } from '../../../services/adm
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { TagPageComponent } from './tag-page.component';
+import { stubNetworkNav } from '../nav/network-nav.stub';
 
 describe('TagPageComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
@@ -41,6 +42,7 @@ describe('TagPageComponent', () => {
         { provide: OfferService, useValue: offers }, { provide: CapabilitiesService, useValue: { snapshot: () => ({ admin: false,
           features: { ...DEFAULT_CAPABILITIES.features, OFFER_FEED: offerFeed } }) } }]
     });
+    stubNetworkNav(TagPageComponent);
     const fixture = TestBed.createComponent(TagPageComponent);
     fixture.detectChanges();
     return fixture;

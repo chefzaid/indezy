@@ -8,12 +8,12 @@ import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
-import { NetworkBackComponent } from '../back/network-back.component';
+import { NetworkNavComponent } from '../nav/network-nav.component';
 
 /** The reader's drafts (`/network/drafts`): the scheduled ones first, each to publish now or delete. */
 @Component({
   selector: 'app-network-drafts',
-  imports: [NetworkBackComponent, DatePipe, MatButtonModule, TranslateModule, PageHeaderComponent],
+  imports: [NetworkNavComponent, DatePipe, MatButtonModule, TranslateModule, PageHeaderComponent],
   templateUrl: './network-drafts.component.html',
   styleUrls: ['./network-drafts.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

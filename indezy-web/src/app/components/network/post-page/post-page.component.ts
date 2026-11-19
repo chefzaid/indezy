@@ -13,14 +13,14 @@ import { NotificationService } from '../../../services/notification/notification
 import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
 import { PostCardComponent } from '../post-card/post-card.component';
 import { MemberCardComponent } from '../member-card/member-card.component';
-import { NetworkBackComponent } from '../back/network-back.component';
+import { NetworkNavComponent } from '../nav/network-nav.component';
 
 /** A post's own page (`/network/posts/:id`): the post with its comments open, reached from notifications, search and links. */
 @Component({
   selector: 'app-post-page',
-  imports: [NetworkBackComponent, MemberCardComponent, RouterLink, MatButtonModule, MatIconModule, TranslateModule, PostCardComponent],
+  imports: [NetworkNavComponent, MemberCardComponent, RouterLink, MatButtonModule, MatIconModule, TranslateModule, PostCardComponent],
   template: `<div class="post-page">
-    <app-network-back></app-network-back>
+    <app-network-nav [back]="true"></app-network-nav>
     @if (post) {
       <div class="post-layout">
         <app-post-card [post]="post" [commentsOpen]="true" (deleted)="remove($event)" data-post-page></app-post-card>
@@ -41,7 +41,7 @@ import { NetworkBackComponent } from '../back/network-back.component';
   styles: [`.post-page { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: var(--app-network-width); margin: 0 auto; }
     /* The post and its comments in a readable column, its author beside it on a wide screen, under it on a narrow one. */
     .post-layout { display: grid; grid-template-columns: minmax(0, 880px) 320px; justify-content: start; align-items: start; gap: 24px; }
-    .author { position: sticky; top: 0; display: flex; flex-direction: column; gap: 12px; }
+    .author { position: sticky; top: 64px; display: flex; flex-direction: column; gap: 12px; }
     .author-page { border-radius: 999px; }
     @media (max-width: 1199.98px) { .post-layout { grid-template-columns: minmax(0, 1fr); } .author { position: static; } }
     .missing { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 32px 16px; color: var(--app-text-muted);

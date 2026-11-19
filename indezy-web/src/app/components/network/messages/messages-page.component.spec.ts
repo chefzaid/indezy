@@ -13,6 +13,7 @@ import { CONVERSATIONS_REFRESH_MS, MessagesPageComponent, SEARCH_DELAY_MS, STREA
 import { NetworkEvent, NetworkStreamService } from '../../../services/network/network-stream.service';
 import { GroupDialogComponent } from './group-dialog.component';
 import en from '../../../../assets/i18n/en.json';
+import { stubNetworkNav } from '../nav/network-nav.stub';
 
 describe('MessagesPageComponent', () => {
   let api: jasmine.SpyObj<NetworkMessagesService>;
@@ -43,6 +44,7 @@ describe('MessagesPageComponent', () => {
         { provide: NetworkNoticesService, useValue: jasmine.createSpyObj('NetworkNoticesService', ['refreshMessages']) },
         { provide: NotificationService, useValue: notifications }, { provide: NetworkStreamService, useValue: stream }]
     });
+    stubNetworkNav(MessagesPageComponent);
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
     translate.use('en');

@@ -11,6 +11,7 @@ import { NetworkMessagesService } from '../../../services/network/network-messag
 import { NotificationService } from '../../../services/notification/notification.service';
 import { MemberDirectoryComponent } from './member-directory.component';
 import en from '../../../../assets/i18n/en.json';
+import { stubNetworkNav } from '../nav/network-nav.stub';
 
 describe('MemberDirectoryComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
@@ -40,6 +41,7 @@ describe('MemberDirectoryComponent', () => {
         { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
         { provide: NetworkMessagesService, useValue: messages }]
     });
+    stubNetworkNav(MemberDirectoryComponent);
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', en);
     translate.use('en');

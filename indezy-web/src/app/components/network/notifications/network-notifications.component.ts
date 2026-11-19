@@ -11,7 +11,7 @@ import { NotificationService } from '../../../services/notification/notification
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
 import { TimeAgoPipe } from '../time-ago/time-ago.pipe';
-import { NetworkBackComponent } from '../back/network-back.component';
+import { NetworkNavComponent } from '../nav/network-nav.component';
 
 /** The icon of each kind of notification. */
 export const NOTICE_ICONS: Record<NetworkNotificationType, string> = {
@@ -25,7 +25,7 @@ export const NOTICE_ICONS: Record<NetworkNotificationType, string> = {
  */
 @Component({
   selector: 'app-network-notifications',
-  imports: [NetworkBackComponent, DatePipe, NgTemplateOutlet, MemberAvatarComponent, TimeAgoPipe, RouterLink, MatIconModule, TranslateModule, PageHeaderComponent],
+  imports: [NetworkNavComponent, DatePipe, NgTemplateOutlet, MemberAvatarComponent, TimeAgoPipe, RouterLink, MatIconModule, TranslateModule, PageHeaderComponent],
   templateUrl: './network-notifications.component.html',
   styleUrls: ['./network-notifications.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager

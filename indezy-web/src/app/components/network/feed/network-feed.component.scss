@@ -1,5 +1,5 @@
-// The member network's home, as wide as its other pages: the navigation as a row of pills, the feed, and the members to
-// follow beside it; one column on narrower screens.
+// The member network's home, as wide as its other pages: the network's sections as a row of tabs, the feed, and the
+// tags and members to follow beside it; one column on narrower screens.
 .network-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
@@ -18,10 +18,6 @@
 
 .side-nav {
   grid-area: nav;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-width: 0;
 }
 
 .feed-header {
@@ -42,8 +38,9 @@
 
 .side-extra {
   grid-area: extra;
+  // Under the network's sections, which stay at the top as the page scrolls.
   position: sticky;
-  top: 0;
+  top: 64px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -296,7 +293,7 @@
 // Newer posts: a pill floating over the top of the feed, scrolling back up to them.
 .new-posts {
   position: sticky;
-  top: 12px;
+  top: 64px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
@@ -331,24 +328,6 @@
   from {
     opacity: 0;
     transform: translateY(-8px);
-  }
-}
-
-// Wide: the navigation as a column on the left, the posts in the middle, the tags and members to follow on the right.
-@media (min-width: 1440px) {
-  .network-layout {
-    grid-template-columns: 220px minmax(0, 1fr) 320px;
-    grid-template-rows: auto auto 1fr;
-    grid-template-areas:
-      'nav head extra'
-      'nav compose extra'
-      'nav feed extra';
-    column-gap: 32px;
-  }
-
-  .side-nav {
-    position: sticky;
-    top: 0;
   }
 }
 
