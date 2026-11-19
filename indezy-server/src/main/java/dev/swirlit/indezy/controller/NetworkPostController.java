@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
+import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import dev.swirlit.indezy.service.NetworkAnalyticsService;
 import dev.swirlit.indezy.service.NetworkCommentService;
 import dev.swirlit.indezy.service.NetworkConfidentialityService;
@@ -348,8 +349,10 @@ public class NetworkPostController {
     @Operation(summary = "The network's search for posts", description = "The posts the reader can read holding what was typed, case aside, " +
         "the newest first, 20 a page; nothing under two characters")
     @GetMapping("/search/posts")
-    public NetworkDtos.Posts searchPosts(@RequestParam(defaultValue = "") String q, @RequestParam(defaultValue = "0") int page) {
-        return feed.search(SecurityUtils.getCurrentUserId(), q, page);
+    public NetworkDtos.Posts searchPosts(@RequestParam(defaultValue = "") String q, @RequestParam(defaultValue = "0") int page,
+                                         @RequestParam(required = false) List<NetworkPostKind> kind, @RequestParam(required = false) Integer days,
+                                         @RequestParam(defaultValue = "false") boolean followed) {
+        return feed.search(SecurityUtils.getCurrentUserId(), q, page, new NetworkFeedService.PostFilters(kind, days, followed));
     }
 
     @Operation(summary = "A member's posts, the newest first, 20 a page")

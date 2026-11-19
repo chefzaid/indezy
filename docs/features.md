@@ -430,8 +430,8 @@ follows, then by last name; with their headline, city and first skills, and **Fo
 or **Following**), the tags, and the first three posts holding what was typed (case aside, the newest first, from every
 member the reader can read, their own included, but those muted or blocked either way and the private cards they do not
 follow); **Members**, **Posts** and **Tags** show each kind alone, 20 at a time, the tab kept in the address
-(`?tab=`). The server searches members with `GET /api/network/search/members?q=&page=` and posts with
-`GET /api/network/search/posts?q=&page=` (nothing under two characters; `%` and `_` searched as written). Mentions in the
+(`?tab=`). **Members** narrows the members found by availability (available, open to offers, on a mission), remote work and a city, and **Posts** the posts by kind, to the last 7 or 30 days, or to the members followed, as chips kept in the address with **Clear filters**. The empty field offers the last five searches made on the device (kept in the browser only), with **Clear recent searches**. The server searches members with `GET /api/network/search/members?q=&page=&city=&availability=&remote=` and posts with
+`GET /api/network/search/posts?q=&page=&kind=&days=&followed=` (nothing under two characters; `%` and `_` searched as written). Mentions in the
 composer match names the same way, every word typed.
 
 A post's, a tag's or a member's page puts **Back** before the

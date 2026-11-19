@@ -3955,7 +3955,13 @@
       "noneHere": "Nothing of this kind for this search.",
       "seeAllMembers": "See all {{count}} members",
       "seeAllPosts": "See all posts",
-      "error": "The search could not be done. Try again."
+      "error": "The search could not be done. Try again.",
+      "filters": "Filters",
+      "city": "City",
+      "clearFilters": "Clear filters",
+      "lastDays": "Last {{days}} days",
+      "followedOnly": "From members I follow",
+      "forget": "Clear recent searches"
     },
     "me": {
       "followers": "followers",

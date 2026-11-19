@@ -22,7 +22,9 @@ describe('SharedPostComponent', () => {
 
   it('shows the post sent as a card opening it, or says it is gone', () => {
     const post = { id: 4, text: 'x'.repeat(300), author: { handle: 'leo_m', firstName: 'Léo', lastName: 'Martin', avatar: null } } as NetworkPost;
-    let { element, network } = create(of(post));
+    const first = create(of(post));
+    const network = first.network;
+    let element = first.element;
     expect(network.onePost).toHaveBeenCalledWith(4, true);
     expect(element.querySelector('[data-shared-post]')?.getAttribute('href')).toBe('/network/posts/4');
     expect(element.querySelector('[data-shared-post]')?.textContent).toContain('Léo Martin');

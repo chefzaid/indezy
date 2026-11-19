@@ -33,6 +33,17 @@ describe('NetworkService', () => {
     const posts = http.expectOne(call => call.url.endsWith('/network/search/posts'));
     expect(posts.request.params.get('q')).toBe('kafka');
     expect(posts.request.params.get('page')).toBe('0');
+    expect(posts.request.params.has('kind')).toBeFalse();
+    service.searchPosts('kafka', 0, { kinds: ['MISSION', 'POLL'], days: 7, followed: true }).subscribe();
+    const filtered = http.expectOne(call => call.url.endsWith('/network/search/posts'));
+    expect(filtered.request.params.getAll('kind')).toEqual(['MISSION', 'POLL']);
+    expect(filtered.request.params.get('days')).toBe('7');
+    expect(filtered.request.params.get('followed')).toBe('true');
+    service.searchMembers('kafka', 0, { city: 'Lyon', availability: 'LISTENING', remote: true }).subscribe();
+    const narrowed = http.expectOne(call => call.url.endsWith('/network/search/members'));
+    expect(narrowed.request.params.get('city')).toBe('Lyon');
+    expect(narrowed.request.params.get('availability')).toBe('LISTENING');
+    expect(narrowed.request.params.get('remote')).toBe('true');
     http.verify();
   });
 

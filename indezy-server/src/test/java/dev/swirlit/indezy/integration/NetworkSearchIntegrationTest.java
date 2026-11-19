@@ -95,6 +95,17 @@ class NetworkSearchIntegrationTest extends TwoAccountsIntegrationTest {
         assertThat(posts(bob, "a")).isEmpty();
         call(bob, HttpMethod.PUT, "/network/members/" + skilled + "/mute", null, Map.class);
         assertThat(posts(bob, word)).containsExactly(own, kafka);
+        // Filters: a city, remote work, an availability; posts of a kind, recent, from members followed.
+        assertThat(members(bob, "carol&city=lyo")).contains(skilled);
+        assertThat(members(bob, "carol&city=nantes")).doesNotContain(skilled);
+        assertThat(members(bob, word + "&remote=true")).isEmpty();
+        assertThat(members(bob, word + "&availability=LISTENING")).isEmpty();
+        Object mission = call(alice, HttpMethod.POST, "/network/posts", Map.of("text", "Mission " + word, "kind", "MISSION", "details",
+            Map.of("role", "Lead Java")), Map.class).getBody().get("id");
+        assertThat(posts(bob, word + "&kind=MISSION")).containsExactly(mission);
+        assertThat(posts(bob, word + "&kind=MISSION&kind=POST&days=7")).contains(mission, own, kafka);
+        call(bob, HttpMethod.PUT, "/network/members/" + named + "/follow", null, Map.class);
+        assertThat(posts(bob, word + "&followed=true")).containsExactly(mission, kafka);
         assertThat(blocker).isNotBlank();
     }
 }

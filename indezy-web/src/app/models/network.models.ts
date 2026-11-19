@@ -199,6 +199,20 @@ export interface TrendingTag {
   posts: number;
 }
 
+/** The filters of the search for members. */
+export interface MemberSearchFilters {
+  city?: string | null;
+  availability?: NetworkAvailability | null;
+  remote?: boolean;
+}
+
+/** The filters of the search for posts: kinds (none for all), the last days (none for any time), the members followed only. */
+export interface PostSearchFilters {
+  kinds?: PostKind[];
+  days?: number | null;
+  followed?: boolean;
+}
+
 /** What the member writes about themselves, and whether their page lists their won missions. */
 export interface NetworkAbout {
   about: string | null;

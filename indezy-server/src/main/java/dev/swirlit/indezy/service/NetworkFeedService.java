@@ -41,6 +41,8 @@ public class NetworkFeedService {
     static final int SUGGESTED = 5;
     /** How many characters a search for posts needs. */
     static final int SEARCHED_AT_LEAST = 2;
+    /** A time before any post, standing for "any time" (a null time would not do on PostgreSQL). */
+    static final LocalDateTime SEARCH_BEGINNING = LocalDateTime.of(2000, 1, 1, 0, 0);
     /** What a tag may start with: what tags hold, so the search cannot be a pattern. */
     private static final Pattern TAG_START = Pattern.compile("[\\p{L}\\p{N}_-]{0,40}");
 
@@ -82,12 +84,29 @@ public class NetworkFeedService {
             NetworkPostService.PAGE_SIZE)), userId);
     }
 
-    /**
-     * The network's search for posts: those holding what was typed (case aside, a # or @ before it kept as typed), from
-     * every member the reader can read (their own included, but those muted or blocked either way), the newest first.
-     */
+    /** The filters of the search for posts: kinds (none for every kind), the last days (none for any time), the members followed only. */
+    public record PostFilters(List<NetworkPostKind> kinds, Integer days, boolean followedOnly) {
+
+        public static final PostFilters NONE = new PostFilters(List.of(), null, false);
+
+        public PostFilters {
+            kinds = kinds == null ? List.of() : List.copyOf(kinds);
+        }
+    }
+
+    /** The search for posts without filters. */
     @Transactional(readOnly = true)
     public NetworkDtos.Posts search(Long userId, String typed, int page) {
+        return search(userId, typed, page, PostFilters.NONE);
+    }
+
+    /**
+     * The network's search for posts: those holding what was typed (case aside, a # or @ before it kept as typed), from
+     * every member the reader can read (their own included, but those muted or blocked either way), the newest first;
+     * of the kinds asked, in the last days asked, from the members followed only when asked.
+     */
+    @Transactional(readOnly = true)
+    public NetworkDtos.Posts search(Long userId, String typed, int page, PostFilters filters) {
         network.requireMember(userId);
         String phrase = Optional.ofNullable(typed).orElse("").strip().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
         PageRequest asked = PageRequest.of(Math.max(0, page), NetworkPostService.PAGE_SIZE);
@@ -95,7 +114,14 @@ public class NetworkFeedService {
             return new NetworkDtos.Posts(List.of(), asked.getPageNumber(), false);
         }
         String pattern = "%" + phrase.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
-        return postService.page(posts.search(pattern, placeholder(excluded(userId), -1L), asked), userId);
+        List<Long> excluded = placeholder(excluded(userId), -1L);
+        List<NetworkPostKind> kinds = filters.kinds().isEmpty() ? List.of(NetworkPostKind.values()) : filters.kinds();
+        LocalDateTime since = filters.days() == null ? SEARCH_BEGINNING : LocalDateTime.now(clock).minusDays(Math.max(1, filters.days()));
+        if (filters.followedOnly()) {
+            List<Long> authors = placeholder(followRepository.following(userId).stream().map(member -> member.getUserId()).toList(), -1L);
+            return postService.page(posts.searchFrom(pattern, authors, excluded, kinds, since, asked), userId);
+        }
+        return postService.page(posts.searchFiltered(pattern, excluded, kinds, since, asked), userId);
     }
 
     /** How many posts by others reached the home feed after the given time, for the feed to offer them. */

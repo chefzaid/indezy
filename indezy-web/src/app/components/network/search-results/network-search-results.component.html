@@ -19,6 +19,42 @@
             [attr.data-search-tab]="key">{{ 'network.search.tab.' + key | translate }}</button>
         }
       </div>
+      @if (tab === 'members') {
+        <div class="filters" role="group" [attr.aria-label]="'network.search.filters' | translate" data-search-member-filters>
+          @for (mode of availabilities; track mode) {
+            <button type="button" class="chip" [class.on]="memberFilters.availability === mode" [attr.aria-pressed]="memberFilters.availability === mode"
+              (click)="setFilter({ availability: memberFilters.availability === mode ? null : mode })" [attr.data-filter-availability]="mode">
+              {{ 'network.directory.modes.' + mode | translate }}
+            </button>
+          }
+          <button type="button" class="chip" [class.on]="memberFilters.remote" [attr.aria-pressed]="!!memberFilters.remote"
+            (click)="setFilter({ remote: memberFilters.remote ? null : true })" data-filter-remote>{{ 'network.directory.remoteYes' | translate }}</button>
+          <input class="city" [formControl]="cityField" (keydown.enter)="setFilter({ city: cityField.value.trim() || null })"
+            (blur)="setFilter({ city: cityField.value.trim() || null })" [placeholder]="'network.search.city' | translate"
+            [attr.aria-label]="'network.search.city' | translate" maxlength="60" data-filter-city>
+          @if (filtering) {
+            <button type="button" class="clear" (click)="clearFilters()" data-filter-clear>{{ 'network.search.clearFilters' | translate }}</button>
+          }
+        </div>
+      } @else if (tab === 'posts') {
+        <div class="filters" role="group" [attr.aria-label]="'network.search.filters' | translate" data-search-post-filters>
+          @for (kind of kinds; track kind) {
+            <button type="button" class="chip" [class.on]="postFilters.kinds?.includes(kind)" [attr.aria-pressed]="!!postFilters.kinds?.includes(kind)"
+              (click)="toggleKind(kind)" [attr.data-filter-kind]="kind">{{ 'network.kinds.' + kind | translate }}</button>
+          }
+          @for (days of periods; track days) {
+            <button type="button" class="chip" [class.on]="postFilters.days === days" [attr.aria-pressed]="postFilters.days === days"
+              (click)="setFilter({ days: postFilters.days === days ? null : days })" [attr.data-filter-days]="days">
+              {{ 'network.search.lastDays' | translate: { days: days } }}
+            </button>
+          }
+          <button type="button" class="chip" [class.on]="postFilters.followed" [attr.aria-pressed]="!!postFilters.followed"
+            (click)="setFilter({ followed: postFilters.followed ? null : true })" data-filter-followed>{{ 'network.search.followedOnly' | translate }}</button>
+          @if (filtering) {
+            <button type="button" class="clear" (click)="clearFilters()" data-filter-clear>{{ 'network.search.clearFilters' | translate }}</button>
+          }
+        </div>
+      }
     </header>
 
     @if (loading) {

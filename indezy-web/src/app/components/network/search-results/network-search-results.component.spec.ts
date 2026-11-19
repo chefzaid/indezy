@@ -53,8 +53,8 @@ describe('NetworkSearchResultsComponent', () => {
   it('shows the first members, tags and posts found under All, each with See all', () => {
     const fixture = create();
     const element: HTMLElement = fixture.nativeElement;
-    expect(network.searchMembers).toHaveBeenCalledWith('kafka', 0);
-    expect(network.searchPosts).toHaveBeenCalledWith('kafka', 0);
+    expect(network.searchMembers).toHaveBeenCalledWith('kafka', 0, { city: null, availability: null, remote: false });
+    expect(network.searchPosts).toHaveBeenCalledWith('kafka', 0, { kinds: [], days: null, followed: false });
     expect(element.querySelector('[data-search-title]')?.textContent).toContain('Results for “kafka”');
     expect(element.querySelectorAll('[data-search-result-member]').length).toBe(SEARCH_PREVIEW);
     expect(element.querySelector('[data-search-members] h2')?.textContent).toContain('24');
@@ -76,7 +76,7 @@ describe('NetworkSearchResultsComponent', () => {
     expect(element.querySelector('[data-search-posts]')).toBeNull();
     network.searchMembers.and.returnValue(of(directory(['jade_k'], 24, 1)));
     (element.querySelector('[data-search-more-members]') as HTMLButtonElement).click();
-    expect(network.searchMembers).toHaveBeenCalledWith('kafka', 1);
+    expect(network.searchMembers).toHaveBeenCalledWith('kafka', 1, jasmine.anything());
     expect(component.members.length).toBe(5);
 
     query.next(convertToParamMap({ q: 'kafka', tab: 'posts' }));
@@ -96,6 +96,33 @@ describe('NetworkSearchResultsComponent', () => {
     fixture.detectChanges();
     expect(network.suggestTags).toHaveBeenCalledTimes(1);
     expect(element.querySelector('[data-search-none]')?.textContent).toContain('nothing at all');
+  });
+
+  it('narrows the members and the posts with filters kept in the address, read again as they change', () => {
+    const fixture = create({ q: 'kafka', tab: 'members', city: 'Lyon', availability: 'LISTENING', remote: 'true' });
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    expect(network.searchMembers).toHaveBeenCalledWith('kafka', 0, { city: 'Lyon', availability: 'LISTENING', remote: true });
+    expect(element.querySelector('[data-filter-availability="LISTENING"]')?.getAttribute('aria-pressed')).toBe('true');
+    expect(component.cityField.value).toBe('Lyon');
+    expect(component.filtering).toBeTrue();
+    const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    (element.querySelector('[data-filter-remote]') as HTMLButtonElement).click();
+    expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { remote: null }, queryParamsHandling: 'merge' }));
+    component.clearFilters();
+    expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { city: null, availability: null, remote: null } }));
+
+    query.next(convertToParamMap({ q: 'kafka', tab: 'posts', kind: ['MISSION', 'NOPE'], days: '7', followed: 'true' }));
+    fixture.detectChanges();
+    expect(network.searchPosts).toHaveBeenCalledWith('kafka', 0, { kinds: ['MISSION'], days: 7, followed: true });
+    expect(element.querySelector('[data-filter-days="7"]')?.getAttribute('aria-pressed')).toBe('true');
+    component.toggleKind('MISSION');
+    expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { kind: [] } }));
+    component.toggleKind('POLL');
+    expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { kind: ['MISSION', 'POLL'] } }));
+    component.clearFilters();
+    expect(navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { kind: null, days: null, followed: null } }));
+    expect(NetworkSearchResultsComponent.postFilters(convertToParamMap({ days: '12' })).days).toBeNull();
   });
 
   it('follows a member found, asks to follow a private card, and undoes it', () => {

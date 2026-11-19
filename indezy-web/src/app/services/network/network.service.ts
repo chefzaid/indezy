@@ -7,7 +7,7 @@ import { ShownTestimonial } from '../../models/testimonial.models';
 import {
   ConfidentialMatch, DirectorySearch, FileRef, HeldForReview, MemberCard, MemberDirectory, MemberPage, MemberSuggestion,
   NetworkAvailabilitySetting, NetworkComment, NetworkDraft, NetworkFields, NetworkMembership, NetworkNotificationType, NetworkPost,
-  NetworkPostVersion, NetworkPosts, PageViews, PostStats, AuthorActivity, MutualFollows, MemberAbout, NetworkAbout, NetworkRestrictions, NewPoll, NotificationGroup, PostDetails, PostKind, ProjectDto, Reaction,
+  NetworkPostVersion, NetworkPosts, PageViews, PostStats, AuthorActivity, MutualFollows, MemberAbout, NetworkAbout, MemberSearchFilters, PostSearchFilters, NetworkRestrictions, NewPoll, NotificationGroup, PostDetails, PostKind, ProjectDto, Reaction,
   ReportReason, ReportTarget, SavedPosts, TagPage, TrendingTag
 } from '../../models';
 
@@ -294,13 +294,31 @@ export class NetworkService {
   }
 
   /** The network's search for members: every word typed names them (name, handle, skill, city or headline), 20 a page. */
-  searchMembers(typed: string, page = 0): Observable<MemberDirectory> {
-    return this.http.get<MemberDirectory>(`${this.API_URL}/search/members`, { params: { q: typed, page } });
+  searchMembers(typed: string, page = 0, filters: MemberSearchFilters = {}): Observable<MemberDirectory> {
+    let params = new HttpParams().set('q', typed).set('page', page);
+    if (filters.city) {
+      params = params.set('city', filters.city);
+    }
+    if (filters.availability) {
+      params = params.set('availability', filters.availability);
+    }
+    if (filters.remote) {
+      params = params.set('remote', true);
+    }
+    return this.http.get<MemberDirectory>(`${this.API_URL}/search/members`, { params });
   }
 
   /** The network's search for posts: those holding what was typed, case aside, the newest first, 20 a page. */
-  searchPosts(typed: string, page = 0): Observable<NetworkPosts> {
-    return this.http.get<NetworkPosts>(`${this.API_URL}/search/posts`, { params: { q: typed, page } });
+  searchPosts(typed: string, page = 0, filters: PostSearchFilters = {}): Observable<NetworkPosts> {
+    let params = new HttpParams().set('q', typed).set('page', page);
+    (filters.kinds ?? []).forEach(kind => params = params.append('kind', kind));
+    if (filters.days) {
+      params = params.set('days', filters.days);
+    }
+    if (filters.followed) {
+      params = params.set('followed', true);
+    }
+    return this.http.get<NetworkPosts>(`${this.API_URL}/search/posts`, { params });
   }
 
   directory(search: DirectorySearch): Observable<MemberDirectory> {

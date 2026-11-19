@@ -20,7 +20,40 @@ const SHOWN = 5;
 const TAG_WORD = /^[\p{L}\p{N}_-]{1,40}$/u;
 
 /** What the search suggests: a member, opening their page, or a tag, opening its page. */
-export type NetworkSearchOption = { kind: 'member'; member: MemberCard } | { kind: 'tag'; tag: string } | { kind: 'all'; query: string };
+export type NetworkSearchOption = { kind: 'member'; member: MemberCard } | { kind: 'tag'; tag: string } | { kind: 'all'; query: string } |
+  { kind: 'recent'; query: string } | { kind: 'forget' };
+
+/** Where the last searches are kept, on this device only. */
+export const RECENT_SEARCHES_KEY = 'indezy-network-recent-searches';
+/** How many are kept. */
+export const RECENT_KEPT = 5;
+
+/** The last searches made on this device, the latest first; none when the browser keeps nothing. */
+export function recentSearches(): string[] {
+  try {
+    const kept = JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) ?? '[]');
+    return Array.isArray(kept) ? kept.filter((item): item is string => typeof item === 'string').slice(0, RECENT_KEPT) : [];
+  } catch {
+    return [];
+  }
+}
+
+function remember(query: string): void {
+  try {
+    const kept = [query, ...recentSearches().filter(item => item.toLowerCase() !== query.toLowerCase())].slice(0, RECENT_KEPT);
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(kept));
+  } catch {
+    // Nothing kept: the browser refuses storage.
+  }
+}
+
+function forgetAll(): void {
+  try {
+    localStorage.removeItem(RECENT_SEARCHES_KEY);
+  } catch {
+    // Nothing to forget.
+  }
+}
 
 /**
  * The network's search, at the start of its tabs: as one types, the members every word names (name, handle, skill, city
@@ -48,7 +81,7 @@ export class NetworkSearchComponent implements OnInit {
       const typed = typeof value === 'string' ? value.trim() : '';
       const word = typed.replace(/^[@#]/, '');
       if (word.length < 2) {
-        return of([] as NetworkSearchOption[]);
+        return of(typed ? [] : this.recentOptions());
       }
       const members = typed.startsWith('#') ? of([] as MemberCard[]) :
         this.network.searchMembers(word).pipe(map(found => found.members), catchError(() => of([] as MemberCard[])));
@@ -65,14 +98,30 @@ export class NetworkSearchComponent implements OnInit {
     });
   }
 
+  /** The last searches, offered while the field is empty, with **Clear**. */
+  recentOptions(): NetworkSearchOption[] {
+    const recent = recentSearches();
+    return recent.length ? [...recent.map(query => ({ kind: 'recent', query }) as NetworkSearchOption), { kind: 'forget' }] : [];
+  }
+
+  /** The field gets the focus empty: the last searches are offered. */
+  focused(): void {
+    if (!this.query.value.trim()) {
+      this.options = this.recentOptions();
+      this.changes.markForCheck();
+    }
+  }
+
   /** Keeps the field showing what was typed once an option is picked. */
   readonly display = (): string => this.query.value;
 
   pick(event: MatAutocompleteSelectedEvent): void {
     const option = event.option.value as NetworkSearchOption;
     this.clear();
-    if (option.kind === 'all') {
+    if (option.kind === 'all' || option.kind === 'recent') {
       this.results(option.query);
+    } else if (option.kind === 'forget') {
+      forgetAll();
     } else {
       void this.router.navigate(option.kind === 'member' ? ['/m', option.member.handle] : ['/network/tags', option.tag]);
     }
@@ -90,6 +139,7 @@ export class NetworkSearchComponent implements OnInit {
   }
 
   private results(typed: string): void {
+    remember(typed);
     void this.router.navigate(['/network/search'], { queryParams: { q: typed } });
   }
 

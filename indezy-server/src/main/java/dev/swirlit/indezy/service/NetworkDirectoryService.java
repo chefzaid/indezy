@@ -103,6 +103,12 @@ public class NetworkDirectoryService {
      */
     @Transactional(readOnly = true)
     public NetworkDtos.Directory find(Long viewerId, String typed, int page) {
+        return find(viewerId, typed, page, new Search(null, null, null, null, page));
+    }
+
+    /** The search for members, narrowed by a city, an availability and remote work, as the directory's chips are. */
+    @Transactional(readOnly = true)
+    public NetworkDtos.Directory find(Long viewerId, String typed, int page, Search filters) {
         network.requireMember(viewerId);
         String whole = plain(Optional.ofNullable(typed).orElse("").replaceFirst("^[@#]", ""));
         List<String> words = words(whole);
@@ -111,8 +117,12 @@ public class NetworkDirectoryService {
             return new NetworkDtos.Directory(List.of(), 0, asked, PAGE_SIZE, List.of(), List.of(), List.of());
         }
         Set<Long> followed = followedBy(viewerId);
+        String city = plain(filters.city());
         List<Found> found = visible(viewerId).stream()
             .filter(hit -> words.stream().allMatch(word -> namedBy(hit, word) || describedBy(hit, word)))
+            .filter(hit -> city.isEmpty() || (hit.card().city() != null && plain(hit.card().city()).contains(city)))
+            .filter(hit -> filters.availability() == null || hit.card().availability() == filters.availability())
+            .filter(hit -> filters.remote() == null || hit.card().remote() == filters.remote())
             .sorted(Comparator.comparingInt((Found hit) -> rank(hit, whole, words))
                 .thenComparing(hit -> !followed.contains(hit.member().getUserId()))
                 .thenComparing(hit -> plain(hit.card().lastName())).thenComparing(Found::handle))

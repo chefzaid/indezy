@@ -253,3 +253,57 @@ h2 {
     margin-left: 68px;
   }
 }
+
+// The filters of the tab open: chips, and a city for the members.
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+
+  .chip {
+    padding: 4px 12px;
+    border: 1px solid var(--app-border);
+    border-radius: 999px;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    font-size: 0.8125rem;
+    cursor: pointer;
+
+    &.on {
+      border-color: transparent;
+      background: var(--app-selected-bg);
+      color: var(--app-link);
+      font-weight: 600;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--app-link);
+      outline-offset: 2px;
+    }
+  }
+
+  .city {
+    width: 140px;
+    padding: 5px 12px;
+    border: 1px solid var(--app-border);
+    border-radius: 999px;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    font-size: 0.8125rem;
+  }
+
+  .clear {
+    padding: 4px 8px;
+    border: 0;
+    background: none;
+    color: var(--app-link);
+    font: inherit;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+}

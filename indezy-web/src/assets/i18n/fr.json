@@ -3955,7 +3955,13 @@
       "noneHere": "Rien de ce type pour cette recherche.",
       "seeAllMembers": "Voir les {{count}} membres",
       "seeAllPosts": "Voir toutes les publications",
-      "error": "La recherche n’a pas abouti. Réessayez."
+      "error": "La recherche n’a pas abouti. Réessayez.",
+      "filters": "Filtres",
+      "city": "Ville",
+      "clearFilters": "Effacer les filtres",
+      "lastDays": "{{days}} derniers jours",
+      "followedOnly": "Des membres que je suis",
+      "forget": "Effacer les recherches récentes"
     },
     "me": {
       "followers": "abonnés",

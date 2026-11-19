@@ -38,6 +38,23 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
         countQuery = "select count(p) from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId not in :excluded")
     Page<NetworkPost> search(@Param("pattern") String pattern, @Param("excluded") Collection<Long> excluded, Pageable page);
 
+    /** The search with its filters: posts of the kinds given, since a time, but the excluded authors', the newest first. */
+    @Query(value = "select p from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId not in :excluded " +
+        "and p.kind in :kinds and p.createdAt >= :since order by p.createdAt desc, p.id desc",
+        countQuery = "select count(p) from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId not in :excluded " +
+            "and p.kind in :kinds and p.createdAt >= :since")
+    Page<NetworkPost> searchFiltered(@Param("pattern") String pattern, @Param("excluded") Collection<Long> excluded,
+                                     @Param("kinds") Collection<NetworkPostKind> kinds, @Param("since") LocalDateTime since, Pageable page);
+
+    /** The same, from the authors given only (the members the reader follows). */
+    @Query(value = "select p from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId in :authors " +
+        "and p.authorId not in :excluded and p.kind in :kinds and p.createdAt >= :since order by p.createdAt desc, p.id desc",
+        countQuery = "select count(p) from NetworkPost p where lower(p.text) like :pattern escape '\\' and p.authorId in :authors " +
+            "and p.authorId not in :excluded and p.kind in :kinds and p.createdAt >= :since")
+    Page<NetworkPost> searchFrom(@Param("pattern") String pattern, @Param("authors") Collection<Long> authors,
+                                 @Param("excluded") Collection<Long> excluded, @Param("kinds") Collection<NetworkPostKind> kinds,
+                                 @Param("since") LocalDateTime since, Pageable page);
+
     /** The posts of a kind (the missions passed on, say) but those of the excluded authors, the newest first. */
     @Query(value = "select p from NetworkPost p where p.kind = :kind and p.authorId not in :excluded order by p.createdAt desc, p.id desc",
         countQuery = "select count(p) from NetworkPost p where p.kind = :kind and p.authorId not in :excluded")

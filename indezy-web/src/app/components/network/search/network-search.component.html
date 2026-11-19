@@ -1,6 +1,6 @@
 <form class="search" role="search" (submit)="search($event)" data-network-search>
   <mat-icon aria-hidden="true">search</mat-icon>
-  <input type="search" [formControl]="query" [matAutocomplete]="suggestions" maxlength="60"
+  <input type="search" [formControl]="query" [matAutocomplete]="suggestions" (focus)="focused()" maxlength="60"
     [placeholder]="'network.search.placeholder' | translate" [attr.aria-label]="'network.search.label' | translate" data-network-search-field>
   <mat-autocomplete #suggestions="matAutocomplete" [displayWith]="display" (optionSelected)="pick($event)" class="network-search-panel">
     @for (option of options; track $index) {
@@ -14,6 +14,14 @@
       } @else if (option.kind === 'tag') {
         <mat-option [value]="option" [attr.data-search-tag]="option.tag">
           <span class="option"><mat-icon aria-hidden="true">tag</mat-icon><span>#{{ option.tag }}</span></span>
+        </mat-option>
+      } @else if (option.kind === 'recent') {
+        <mat-option [value]="option" [attr.data-search-recent]="option.query">
+          <span class="option"><mat-icon aria-hidden="true">history</mat-icon><span>{{ option.query }}</span></span>
+        </mat-option>
+      } @else if (option.kind === 'forget') {
+        <mat-option [value]="option" class="forget" data-search-forget>
+          <span class="option"><mat-icon aria-hidden="true">delete_sweep</mat-icon><span>{{ 'network.search.forget' | translate }}</span></span>
         </mat-option>
       } @else {
         <mat-option [value]="option" class="all-results" data-search-all>

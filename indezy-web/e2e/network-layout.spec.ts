@@ -340,3 +340,45 @@ test('sends a post in a message, read there as the post\'s card', async ({ page 
   await expect(page.locator('[data-shared-post]')).toContainText('Retour sur une migration Kafka');
   await expect(page.locator('[data-shared-post]')).toHaveAttribute('href', '/network/posts/8');
 });
+
+test('narrows the search results with filters, and offers the last searches', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 900 });
+  await mockWorkspaceSession(page, 'fr');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+  const asked: string[] = [];
+  const askedPosts: string[] = [];
+  await page.route('**/api/network/search/members?**', route => {
+    asked.push(new URL(route.request().url()).search);
+    return route.fulfill({ json: { members: [card('leo_m', 'Léo')], total: 1, page: 0, size: 20, followed: [], requested: [], privateCards: [] } });
+  });
+  await page.route('**/api/network/search/posts?**', route => {
+    askedPosts.push(new URL(route.request().url()).search);
+    return route.fulfill({ json: { posts: [], page: 0, more: false } });
+  });
+  await page.route('**/api/network/tags/suggest?**', route => route.fulfill({ json: [] }));
+  await page.addInitScript(() => localStorage.setItem('indezy-network-recent-searches', JSON.stringify(['spark', 'lyon'])));
+
+  await page.goto('/network/search?q=kafka&tab=members');
+  await page.locator('[data-filter-availability="LISTENING"]').click();
+  await expect(page).toHaveURL(/availability=LISTENING/);
+  await expect.poll(() => asked.at(-1)).toContain('availability=LISTENING');
+  await page.locator('[data-filter-city]').fill('Lyon');
+  await page.locator('[data-filter-city]').press('Enter');
+  await expect.poll(() => asked.at(-1)).toContain('city=Lyon');
+  const audit = await new AxeBuilder({ page }).include('app-network-search-results').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+  await page.locator('[data-search-tab="posts"]').click();
+  await page.locator('[data-filter-kind="MISSION"]').click();
+  await page.locator('[data-filter-days="30"]').click();
+  await expect.poll(() => askedPosts.at(-1)).toMatch(/kind=MISSION.*days=30|days=30.*kind=MISSION/);
+  await page.locator('[data-filter-clear]').click();
+  await expect(page).not.toHaveURL(/kind=/);
+
+  // The field, empty, offers the last searches, this one first.
+  await page.locator('[data-network-search-field]').click();
+  await expect(page.locator('[data-search-recent]').first()).toHaveAttribute('data-search-recent', 'spark');
+  await page.locator('[data-search-recent="lyon"]').click();
+  await expect(page).toHaveURL(/\/network\/search\?q=lyon$/);
+});

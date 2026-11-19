@@ -152,8 +152,11 @@ public class NetworkController {
         description = "Every word typed names the member by the start of their handle, first or last name, a skill or their city, or within " +
             "their headline, on what their cards show; by name first, then those followed; 20 a page")
     @GetMapping("/search/members")
-    public NetworkDtos.Directory searchMembers(@RequestParam(defaultValue = "") String q, @RequestParam(defaultValue = "0") int page) {
-        return directory.find(SecurityUtils.getCurrentUserId(), q, page);
+    public NetworkDtos.Directory searchMembers(@RequestParam(defaultValue = "") String q, @RequestParam(defaultValue = "0") int page,
+                                               @RequestParam(required = false) String city,
+                                               @RequestParam(required = false) NetworkAvailability availability,
+                                               @RequestParam(required = false) Boolean remote) {
+        return directory.find(SecurityUtils.getCurrentUserId(), q, page, new NetworkDirectoryService.Search(null, city, availability, remote, page));
     }
 
     @Operation(summary = "Members to follow, each with its reason: followed by members the viewer follows, same skills or city")

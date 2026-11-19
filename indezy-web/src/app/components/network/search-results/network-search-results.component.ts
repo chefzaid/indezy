@@ -1,13 +1,15 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, ParamMap, Params, Router, RouterLink } from '@angular/router';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, catchError, distinctUntilChanged, forkJoin, map, of } from 'rxjs';
 
-import { MemberCard, MemberDirectory, NetworkPost, NetworkPosts } from '../../../models';
+import { MemberCard, MemberDirectory, MemberSearchFilters, NetworkAvailability, NetworkPost, NetworkPosts, POST_KINDS, PostKind,
+  PostSearchFilters } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { MemberAvatarComponent } from '../avatar/member-avatar.component';
@@ -19,6 +21,10 @@ import { NetworkSideComponent } from '../side/network-side.component';
 /** The tabs of the results, as on LinkedIn: everything found, then members, posts or tags alone. */
 export type SearchTab = 'all' | 'members' | 'posts' | 'tags';
 const TABS: SearchTab[] = ['all', 'members', 'posts', 'tags'];
+/** The periods the posts may be narrowed to, in days. */
+const PERIODS = [7, 30];
+/** The availabilities the members may be narrowed to. */
+const AVAILABILITIES: NetworkAvailability[] = ['AVAILABLE', 'LISTENING', 'ON_MISSION'];
 /** How many members and posts **All** shows before **See all**. */
 export const SEARCH_PREVIEW = 3;
 
@@ -29,7 +35,7 @@ export const SEARCH_PREVIEW = 3;
  */
 @Component({
   selector: 'app-network-search-results',
-  imports: [RouterLink, MatButtonModule, MatIconModule, TranslateModule, MemberAvatarComponent, NetworkMeCardComponent, NetworkNavComponent,
+  imports: [RouterLink, ReactiveFormsModule, MatButtonModule, MatIconModule, TranslateModule, MemberAvatarComponent, NetworkMeCardComponent, NetworkNavComponent,
     PostCardComponent, NetworkSideComponent],
   templateUrl: './network-search-results.component.html',
   styleUrls: ['./network-search-results.component.scss'],
@@ -59,18 +65,63 @@ export class NetworkSearchResultsComponent implements OnInit {
   private requested = new Set<string>();
   private privateCards = new Set<string>();
   readonly pending = new Set<string>();
+  readonly kinds = POST_KINDS;
+  readonly periods = PERIODS;
+  readonly availabilities = AVAILABILITIES;
+  memberFilters: MemberSearchFilters = { city: null, availability: null, remote: false };
+  postFilters: PostSearchFilters = { kinds: [], days: null, followed: false };
+  readonly cityField = new FormControl('', { nonNullable: true });
 
   ngOnInit(): void {
-    this.route.queryParamMap.pipe(map(params => ({ q: (params.get('q') ?? '').trim(), tab: params.get('tab') })),
-      distinctUntilChanged((a, b) => a.q === b.q && a.tab === b.tab), takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ q, tab }) => {
+    this.route.queryParamMap.pipe(map(params => ({ q: (params.get('q') ?? '').trim(), tab: params.get('tab'),
+      members: NetworkSearchResultsComponent.memberFilters(params), posts: NetworkSearchResultsComponent.postFilters(params) })),
+    distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)), takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ q, tab, members, posts }) => {
         this.tab = TABS.includes(tab as SearchTab) ? tab as SearchTab : 'all';
-        if (q !== this.query || !this.loading && this.members.length + this.posts.length + this.tags.length === 0) {
+        const filtered = JSON.stringify([members, posts]) !== JSON.stringify([this.memberFilters, this.postFilters]);
+        this.memberFilters = members;
+        this.postFilters = posts;
+        this.cityField.setValue(members.city ?? '', { emitEvent: false });
+        if (q !== this.query || filtered || !this.loading && this.members.length + this.posts.length + this.tags.length === 0) {
           this.query = q;
           this.search();
         }
         this.changes.markForCheck();
       });
+  }
+
+  /** The members' filters the address holds. */
+  static memberFilters(params: ParamMap): MemberSearchFilters {
+    const availability = params.get('availability') as NetworkAvailability | null;
+    return { city: params.get('city') || null, availability: availability && AVAILABILITIES.includes(availability) ? availability : null,
+      remote: params.get('remote') === 'true' };
+  }
+
+  /** The posts' filters the address holds. */
+  static postFilters(params: ParamMap): PostSearchFilters {
+    const days = Number(params.get('days'));
+    return { kinds: params.getAll('kind').filter((kind): kind is PostKind => POST_KINDS.includes(kind as PostKind)),
+      days: PERIODS.includes(days) ? days : null, followed: params.get('followed') === 'true' };
+  }
+
+  /** Changes a filter, kept in the address; the results are read again. */
+  setFilter(changes: Params): void {
+    void this.router.navigate([], { relativeTo: this.route, queryParams: changes, queryParamsHandling: 'merge' });
+  }
+
+  toggleKind(kind: PostKind): void {
+    const kinds = this.postFilters.kinds ?? [];
+    this.setFilter({ kind: kinds.includes(kind) ? kinds.filter(item => item !== kind) : [...kinds, kind] });
+  }
+
+  /** Clears every filter of the tab open. */
+  clearFilters(): void {
+    this.setFilter(this.tab === 'posts' ? { kind: null, days: null, followed: null } : { city: null, availability: null, remote: null });
+  }
+
+  get filtering(): boolean {
+    return this.tab === 'posts' ? !!(this.postFilters.kinds?.length || this.postFilters.days || this.postFilters.followed) :
+      !!(this.memberFilters.city || this.memberFilters.availability || this.memberFilters.remote);
   }
 
   /** Opens a tab, kept in the address. */
@@ -95,8 +146,8 @@ export class NetworkSearchResultsComponent implements OnInit {
     this.loading = true;
     const word = this.query.replace(/^[@#]/, '');
     forkJoin([
-      this.network.searchMembers(this.query, 0).pipe(catchError(() => this.failed<MemberDirectory | null>(null))),
-      this.network.searchPosts(this.query, 0).pipe(catchError(() => this.failed<NetworkPosts | null>(null))),
+      this.network.searchMembers(this.query, 0, this.memberFilters).pipe(catchError(() => this.failed<MemberDirectory | null>(null))),
+      this.network.searchPosts(this.query, 0, this.postFilters).pipe(catchError(() => this.failed<NetworkPosts | null>(null))),
       /^[\p{L}\p{N}_-]+$/u.test(word) ? this.network.suggestTags(word).pipe(catchError(() => of([] as string[]))) : of([] as string[])
     ]).subscribe(([members, posts, tags]) => {
       this.loading = false;
@@ -118,7 +169,7 @@ export class NetworkSearchResultsComponent implements OnInit {
 
   /** The next members found. */
   moreMembers(): void {
-    this.network.searchMembers(this.query, this.membersPage + 1).subscribe({
+    this.network.searchMembers(this.query, this.membersPage + 1, this.memberFilters).subscribe({
       next: found => this.takeMembers(found, true),
       error: () => this.notifications.error('network.search.error')
     });
@@ -126,7 +177,7 @@ export class NetworkSearchResultsComponent implements OnInit {
 
   /** The next posts found. */
   loadMorePosts(): void {
-    this.network.searchPosts(this.query, this.postsPage + 1).subscribe({
+    this.network.searchPosts(this.query, this.postsPage + 1, this.postFilters).subscribe({
       next: found => this.takePosts(found, true),
       error: () => this.notifications.error('network.search.error')
     });

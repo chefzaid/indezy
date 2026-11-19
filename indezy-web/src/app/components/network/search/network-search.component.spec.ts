@@ -7,7 +7,7 @@ import { of, throwError } from 'rxjs';
 
 import { MemberCard } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
-import { NETWORK_SEARCH_DELAY_MS, NetworkSearchComponent, NetworkSearchOption } from './network-search.component';
+import { NETWORK_SEARCH_DELAY_MS, NetworkSearchComponent, NetworkSearchOption, RECENT_SEARCHES_KEY, recentSearches } from './network-search.component';
 
 describe('NetworkSearchComponent', () => {
   let network: jasmine.SpyObj<NetworkService>;
@@ -64,6 +64,27 @@ describe('NetworkSearchComponent', () => {
     expect(component.options).toEqual([{ kind: 'all', query: '@leo' }]);
   }));
 
+  it('offers the last searches when the field is empty, keeps five, and forgets them', () => {
+    localStorage.removeItem(RECENT_SEARCHES_KEY);
+    const component = create().componentInstance;
+    spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+    component.focused();
+    expect(component.options).toEqual([]);
+    for (const typed of ['kafka', 'java', 'lyon', 'spark', 'go', 'Kafka']) {
+      component.query.setValue(typed, { emitEvent: false });
+      component.search();
+    }
+    expect(recentSearches()).toEqual(['Kafka', 'go', 'spark', 'lyon', 'java']);
+    component.focused();
+    expect(component.options.length).toBe(6);
+    expect(component.options[0]).toEqual({ kind: 'recent', query: 'Kafka' });
+    component.pick(picked({ kind: 'forget' }));
+    expect(recentSearches()).toEqual([]);
+    localStorage.setItem(RECENT_SEARCHES_KEY, 'not json');
+    expect(recentSearches()).toEqual([]);
+    localStorage.removeItem(RECENT_SEARCHES_KEY);
+  });
+
   it('opens the page of what is picked, and the results for what was typed on Enter or See all', () => {
     const component = create().componentInstance;
     const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
@@ -79,6 +100,8 @@ describe('NetworkSearchComponent', () => {
     expect(navigate).toHaveBeenCalledWith(['/network/search'], { queryParams: { q: '#Spark' } });
     expect(component.query.value).toBe('');
     component.pick(picked({ kind: 'all', query: 'kafka lyon' }));
+    component.pick(picked({ kind: 'recent', query: 'spark' }));
+    expect(navigate).toHaveBeenCalledWith(['/network/search'], { queryParams: { q: 'spark' } });
     expect(navigate).toHaveBeenCalledWith(['/network/search'], { queryParams: { q: 'kafka lyon' } });
     navigate.calls.reset();
     component.search();
