@@ -262,3 +262,34 @@ test('shows an author their post\'s analytics and their activity, and counts oth
   await expect(page.locator('[data-post="8"]')).toBeVisible();
   await expect.poll(() => shown.flat(), { timeout: 8000 }).toEqual([8]);
 });
+
+test('shows the post a member pinned first, their About section and the missions they won', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await mockWorkspaceSession(page, 'fr');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+  await page.route('**/api/network/members/leo_m/page', route => route.fulfill({ json: { card: card('leo_m', 'Léo'), followers: 3, following: 1,
+    sharedSkills: [], followed: true, followsYou: false, own: false, muted: false, blocked: false, privateCard: false, requested: false,
+    pinnedPostId: 5 } }));
+  const post = (id: number, text: string) => ({ id, text, tags: [], createdAt: '2026-11-15T09:00:00', own: false, likes: 0, liked: false,
+    comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false, kind: 'POST',
+    details: null, answerCommentId: null, poll: null, taken: null, author: card('leo_m', 'Léo') });
+  await page.route('**/api/network/posts/5', route => route.fulfill({ json: post(5, 'Qui je suis, ce que je cherche') }));
+  await page.route('**/api/network/members/leo_m/posts?**', route => route.fulfill({ json: { posts: [post(6, 'Un retour récent'),
+    post(5, 'Qui je suis, ce que je cherche')], page: 0, more: false } }));
+  await page.route('**/api/network/members/leo_m/about', route => route.fulfill({ json: { about: 'Architecte Java depuis 12 ans.',
+    missions: [{ role: 'Lead Kafka', stack: ['Java', 'Kafka'], start: '2026-02-02', end: null }] } }));
+  await page.route('**/api/network/members/leo_m/recommendations', route => route.fulfill({ json: [] }));
+  await page.route('**/api/network/members/leo_m/mutual', route => route.fulfill({ json: { count: 0, members: [] } }));
+  await page.route('**/api/network/members/leo_m/views', route => route.fulfill({ status: 204 }));
+
+  await page.goto('/m/leo_m');
+  await expect(page.locator('[data-about-text]')).toHaveText('Architecte Java depuis 12 ans.');
+  await expect(page.locator('[data-past-mission]')).toContainText('Lead Kafka');
+  await expect(page.locator('[data-past-mission]')).toContainText('aujourd’hui');
+  await expect(page.locator('[data-post]').first()).toHaveAttribute('data-post', '5');
+  await expect(page.locator('[data-post="5"] [data-post-pinned]')).toContainText('Épinglé');
+  await expect(page.locator('[data-post]')).toHaveCount(2);
+  const audit = await new AxeBuilder({ page }).include('app-member-page').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+});

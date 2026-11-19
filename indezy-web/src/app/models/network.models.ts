@@ -64,6 +64,8 @@ export interface MemberPage {
   privateCard: boolean;
   /** The viewer asked to follow them and waits for their answer. */
   requested: boolean;
+  /** Their post pinned at the top of their page, if any. */
+  pinnedPostId?: number | null;
 }
 
 /** A post as members read it. */
@@ -195,6 +197,26 @@ export interface NetworkPosts {
 export interface TrendingTag {
   tag: string;
   posts: number;
+}
+
+/** What the member writes about themselves, and whether their page lists their won missions. */
+export interface NetworkAbout {
+  about: string | null;
+  showMissions: boolean;
+}
+
+/** A mission the member won, as their page lists it: never its client. */
+export interface PastMission {
+  role: string;
+  stack: string[];
+  start: string;
+  end: string | null;
+}
+
+/** A member's About section and the missions they list. */
+export interface MemberAbout {
+  about: string | null;
+  missions: PastMission[];
 }
 
 /** The members the viewer follows who follow the member too: how many, and the first three. */

@@ -211,7 +211,12 @@ address (`?tab=followers`, `following`, `saved` or `drafts`), so the card beside
 former addresses `/network/saved` and `/network/drafts` lead to them. Under another member's name, **Followed by Léo and
 2 other members you follow** names the members the reader follows who follow them too, with their faces, the latest
 followers first (`GET /api/network/members/<handle>/mutual`; never a member blocked either way), opening their followers.
-Beside another member's page, **About Léo** says
+**Pin to my page**, in the menu of one's own post, pins it at the top of one's page, marked **Pinned** (one at a time:
+pinning another replaces it; deleting it unpins it; `PUT`/`DELETE /api/network/posts/<id>/pin`). **About**, under the
+card, shows what the member wrote about themselves (1,000 characters) and, when they choose, the missions they won (role,
+stack, from when to when; never the client), the latest first, ten at most; both are set in **Profile → Network**
+(`PUT /api/network/membership/about`) and read like the member's posts (a private card's by its followers only,
+`GET /api/network/members/<handle>/about`); one's own page invites one to write it. Beside another member's page, **About Léo** says
 how many follow them and whom they follow, whether they follow the reader and how many skills both cards show. On their
 own page a member **removes** a follower, without them being told. **Viewers**, a tab of one's own page (and **n views of your page** on the card beside the
 feed), tells **who viewed my page**: how many members opened it in the last 90 days and how many times in the last 7, the

@@ -150,6 +150,19 @@ public class NetworkPostService {
         remove(posts.findByIdAndAuthorId(postId, userId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND)));
     }
 
+    /** Pins one of the reader's own posts at the top of their page (replacing the one pinned), or unpins it. */
+    @Transactional
+    public void pin(Long userId, Long postId, boolean pinned) {
+        NetworkMember member = network.requireMember(userId);
+        NetworkPost post = posts.findByIdAndAuthorId(postId, userId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
+        if (pinned) {
+            member.setPinnedPostId(post.getId());
+        } else if (post.getId().equals(member.getPinnedPostId())) {
+            member.setPinnedPostId(null);
+        }
+        members.save(member);
+    }
+
     /** Deletes the post with its likes, comments, versions, saves, impressions and notifications: by its author or the moderators. */
     void remove(NetworkPost post) {
         likes.deleteByPostId(post.getId());
@@ -162,6 +175,10 @@ public class NetworkPostService {
         notificationRepository.deleteByPostId(post.getId());
         impressions.deleteByPostId(post.getId());
         files.deleteForPost(post.getId());
+        members.findByUserId(post.getAuthorId()).filter(author -> post.getId().equals(author.getPinnedPostId())).ifPresent(author -> {
+            author.setPinnedPostId(null);
+            members.save(author);
+        });
         posts.delete(post);
     }
 

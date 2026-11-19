@@ -343,10 +343,31 @@ public final class NetworkDtos {
      * whether the viewer mutes or blocks them.
      */
     public record MemberPage(MemberCard card, int followers, int following, List<String> sharedSkills, boolean followed,
-                             boolean followsYou, boolean own, boolean muted, boolean blocked, boolean privateCard, boolean requested) {
+                             boolean followsYou, boolean own, boolean muted, boolean blocked, boolean privateCard, boolean requested,
+                             Long pinnedPostId) {
 
         public MemberPage {
             sharedSkills = List.copyOf(sharedSkills);
+        }
+    }
+
+    /** What the member writes about themselves, and whether their page lists their won missions. */
+    public record About(@Size(max = 1000) String about, boolean showMissions) {
+    }
+
+    /** A mission the member won, as their page lists it: never its client. */
+    public record PastMission(String role, List<String> stack, LocalDate start, LocalDate end) {
+
+        public PastMission {
+            stack = List.copyOf(stack);
+        }
+    }
+
+    /** A member's About section and the missions they chose to list. */
+    public record MemberAbout(String about, List<PastMission> missions) {
+
+        public MemberAbout {
+            missions = List.copyOf(missions);
         }
     }
 

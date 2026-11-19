@@ -211,7 +211,7 @@ public class NetworkFollowService {
             follows.findByFollowerIdAndFollowedId(member.getUserId(), viewer.getUserId()).isPresent(), own,
             restricted(viewer.getUserId(), member.getUserId(), NetworkRestrictionKind.MUTE),
             restricted(viewer.getUserId(), member.getUserId(), NetworkRestrictionKind.BLOCK), member.isPrivate(),
-            requests.findByRequesterIdAndMemberId(viewer.getUserId(), member.getUserId()).isPresent());
+            requests.findByRequesterIdAndMemberId(viewer.getUserId(), member.getUserId()).isPresent(), member.getPinnedPostId());
     }
 
     /**

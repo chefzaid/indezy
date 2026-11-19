@@ -29,7 +29,7 @@ describe('PostCardComponent', () => {
 
   function configure(): void {
     network = jasmine.createSpyObj('NetworkService', ['react', 'likers', 'closeComments', 'comments', 'editPost', 'postVersions', 'bookmark',
-      'repost', 'repostsOff', 'vote', 'postStats']);
+      'repost', 'repostsOff', 'vote', 'postStats', 'pinPost']);
     network.comments.and.returnValue(of([]));
     impressions = jasmine.createSpyObj('PostImpressionsService', ['seen']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -37,6 +37,29 @@ describe('PostCardComponent', () => {
       { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
       { provide: PostImpressionsService, useValue: impressions }] });
   }
+
+  it('pins the author\'s post on their page, then unpins it, and says when it cannot', () => {
+    configure();
+    const fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', post);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    const changes: boolean[] = [];
+    component.pinChanged.subscribe(pinned => changes.push(pinned));
+    network.pinPost.and.returnValue(of(undefined));
+    component.togglePin();
+    fixture.detectChanges();
+    expect(network.pinPost).toHaveBeenCalledWith(4, true);
+    expect(fixture.nativeElement.querySelector('[data-post-pinned]')).not.toBeNull();
+    expect(notifications.success).toHaveBeenCalledWith('network.post.pinnedDone');
+    component.togglePin();
+    expect(network.pinPost).toHaveBeenCalledWith(4, false);
+    expect(changes).toEqual([true, false]);
+    network.pinPost.and.returnValue(throwError(() => new Error('down')));
+    component.togglePin();
+    expect(component.pinned).toBeFalse();
+    expect(notifications.error).toHaveBeenCalledWith('network.post.pinError');
+  });
 
   it('shows its author the post\'s analytics, and counts another member\'s post once half of it is seen', async () => {
     configure();

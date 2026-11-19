@@ -485,3 +485,70 @@
     text-decoration: underline;
   }
 }
+
+// About the member: their own words, then the missions they won (never the client).
+.about-section {
+  padding: 16px 20px;
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  h3 {
+    margin: 16px 0 8px;
+    color: var(--app-text-muted);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .about-text {
+    margin: 0;
+    line-height: 1.55;
+    white-space: pre-line;
+  }
+
+  .about-empty {
+    margin: 0;
+    color: var(--app-text-muted);
+    font-size: 0.875rem;
+
+    a {
+      color: var(--app-link);
+    }
+  }
+}
+
+.missions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: 12px;
+  }
+
+  mat-icon {
+    flex: none;
+    color: var(--app-link);
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .period,
+  .stack {
+    color: var(--app-text-muted);
+    font-size: 0.8125rem;
+  }
+}

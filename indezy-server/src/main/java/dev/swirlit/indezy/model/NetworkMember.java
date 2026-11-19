@@ -120,6 +120,18 @@ public class NetworkMember extends BaseEntity {
     @Column(name = "presence_shown")
     private Boolean presenceShown;
 
+    /** A few words about the member, shown on their page (1,000 characters at most); none until written. */
+    @Column(name = "about", length = 1000)
+    private String about;
+
+    /** Whether the member's page lists their won missions (role, stack, period; never the client); none reads as off. */
+    @Column(name = "show_missions")
+    private Boolean showMissions;
+
+    /** The member's own post pinned at the top of their page, if any: one at a time. */
+    @Column(name = "pinned_post_id")
+    private Long pinnedPostId;
+
     /**
      * Whether the member opens pages without being named among their viewers (counted, but anonymous); they then see no
      * names among their own viewers either. None (null) reads as off.

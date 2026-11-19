@@ -70,6 +70,20 @@ public class NetworkPostController {
         return posts.one(SecurityUtils.getCurrentUserId(), id);
     }
 
+    @Operation(summary = "Pin one's own post at the top of one's page", description = "One at a time: pinning another replaces it")
+    @PutMapping("/posts/{id}/pin")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void pin(@PathVariable Long id) {
+        posts.pin(SecurityUtils.getCurrentUserId(), id, true);
+    }
+
+    @Operation(summary = "Unpin one's own post")
+    @DeleteMapping("/posts/{id}/pin")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unpin(@PathVariable Long id) {
+        posts.pin(SecurityUtils.getCurrentUserId(), id, false);
+    }
+
     @Operation(summary = "Edit one's own post", description = "In the 15 minutes after posting it (409 later); the earlier text is kept")
     @PutMapping("/posts/{id}")
     public NetworkDtos.Post editPost(@PathVariable Long id, @Valid @RequestBody NetworkDtos.NewPost request) {

@@ -24,6 +24,9 @@
         }
       </div>
     </div>
+    @if (pinned) {
+      <span class="pinned-badge" data-post-pinned><mat-icon aria-hidden="true">push_pin</mat-icon>{{ 'network.post.pinned' | translate }}</span>
+    }
     @if (post.kind && post.kind !== 'POST') {
       <span class="kind-badge" [attr.data-kind]="post.kind" [attr.data-post-kind-badge]="post.kind">
         <mat-icon aria-hidden="true">{{ kindIcons[post.kind] }}</mat-icon><span class="kind-name">{{ 'network.kinds.' + post.kind | translate }}</span>
@@ -50,6 +53,9 @@
             <mat-icon>edit</mat-icon>{{ 'network.post.edit' | translate }}
           </button>
         }
+        <button mat-menu-item type="button" (click)="togglePin()" data-post-pin>
+          <mat-icon>{{ pinned ? 'push_pin' : 'keep' }}</mat-icon>{{ (pinned ? 'network.post.unpin' : 'network.post.pin') | translate }}
+        </button>
         <button mat-menu-item type="button" (click)="toggleRepostsOff()" data-post-reposts-off>
           <mat-icon>{{ post.repostsOff ? 'repeat' : 'repeat_one' }}</mat-icon>
           {{ (post.repostsOff ? 'network.post.repostsOn' : 'network.post.repostsOff') | translate }}

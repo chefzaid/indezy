@@ -1527,7 +1527,12 @@
       "messagingHint": "Chacun vaut dans les deux sens : désactivé, vous ne le voyez plus chez les autres non plus.",
       "readReceipts": "Montrer quand je lis un message (Vu)",
       "typing": "Montrer quand j’écris",
-      "presence": "Afficher quand je suis en ligne, et voir qui l'est"
+      "presence": "Afficher quand je suis en ligne, et voir qui l'est",
+      "aboutTitle": "À propos et missions réalisées",
+      "aboutHint": "Affiché sur votre page pour les membres. Vos missions gagnées sont listées par poste, stack et période, jamais leur client.",
+      "about": "À propos de vous",
+      "showMissions": "Lister mes missions gagnées sur ma page",
+      "aboutSaved": "Votre section À propos est enregistrée"
     },
     "deletion": {
       "title": "Supprimer mon compte",
@@ -3430,7 +3435,12 @@
       "askRecommendation": "Demander une recommandation",
       "mutualOne": "Suivi par {{name}}, que vous suivez",
       "mutualTwo": "Suivi par {{name}} et {{other}}, que vous suivez",
-      "mutualMany": "Suivi par {{name}} et {{others}} autres membres que vous suivez"
+      "mutualMany": "Suivi par {{name}} et {{others}} autres membres que vous suivez",
+      "aboutHeading": "À propos",
+      "aboutEmpty": "Dites aux membres qui vous êtes, ce que vous faites le mieux et ce que vous cherchez.",
+      "aboutEdit": "Le rédiger",
+      "missionsHeading": "Missions réalisées",
+      "missionOngoing": "aujourd’hui"
     },
     "directory": {
       "title": "Membres",
@@ -3501,8 +3511,8 @@
       "send": "Envoyer",
       "reply": "Répondre",
       "cancel": "Annuler",
-      "pin": "Épingler en haut",
-      "unpin": "Désépingler",
+      "pin": "Épingler sur ma page",
+      "unpin": "Désépingler de ma page",
       "hide": "Masquer",
       "unhide": "Afficher à nouveau",
       "pinned": "Épinglé",
@@ -3534,7 +3544,10 @@
       "commentLikes": "Mentions J’aime du commentaire :",
       "copyLink": "Copier le lien",
       "linkCopied": "Lien copié",
-      "linkCopyError": "Le lien n'a pas pu être copié"
+      "linkCopyError": "Le lien n'a pas pu être copié",
+      "pinnedDone": "Épinglé en haut de votre page",
+      "unpinnedDone": "Désépinglé",
+      "pinError": "La publication n’a pas pu être épinglée. Réessayez."
     },
     "savedPosts": {
       "title": "Publications enregistrées",

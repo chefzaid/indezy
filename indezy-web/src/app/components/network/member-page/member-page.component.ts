@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +11,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, distinctUntilChanged, map, skip, switchMap } from 'rxjs';
 
-import { AuthorActivity, MemberCard, MemberPage, MutualFollows, NetworkPost } from '../../../models';
+import { AuthorActivity, MemberAbout, MemberCard, MemberPage, MutualFollows, NetworkPost } from '../../../models';
 import { ShownTestimonial } from '../../../models/testimonial.models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
@@ -39,7 +40,7 @@ const OWN_LISTS: MemberList[] = ['saved', 'drafts', 'viewers'];
  */
 @Component({
   selector: 'app-member-page',
-  imports: [SavedPostsComponent, NetworkDraftsComponent, NetworkViewersComponent, NetworkMeCardComponent, NetworkSideComponent, NetworkNavComponent, MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
+  imports: [DatePipe, SavedPostsComponent, NetworkDraftsComponent, NetworkViewersComponent, NetworkMeCardComponent, NetworkSideComponent, NetworkNavComponent, MatTooltipModule, MemberAvatarComponent, RouterLink, MatButtonModule, MatIconModule, MatMenuModule, TranslateModule, MemberCardComponent, PostCardComponent],
   templateUrl: './member-page.component.html',
   styleUrls: ['./member-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
@@ -60,6 +61,10 @@ export class MemberPageComponent implements OnInit {
   problem: 'notMember' | 'notFound' | 'error' | null = null;
   loading = true;
   list: MemberList | null = null;
+  /** The member's About section and the missions they list. */
+  about: MemberAbout | null = null;
+  /** The post the member pinned at the top of their page, when the viewer may read it. */
+  pinnedPost: NetworkPost | null = null;
   /** The members the reader follows who follow this member too. */
   mutual: MutualFollows | null = null;
   /** The reader's activity, beside their own page. */
@@ -85,6 +90,15 @@ export class MemberPageComponent implements OnInit {
         this.loading = false;
         this.loadPosts(0);
         this.loadRecommendations(page.card.handle);
+        this.loadPinned(page.pinnedPostId ?? null);
+        this.about = null;
+        this.network.memberAbout(page.card.handle).subscribe({
+          next: about => {
+            this.about = about;
+            this.changes.markForCheck();
+          },
+          error: () => this.about = null
+        });
         if (!page.own) {
           // Told to the member under **Who viewed my page**, in the background.
           this.network.recordView(page.card.handle).subscribe({ error: () => undefined });
@@ -167,6 +181,34 @@ export class MemberPageComponent implements OnInit {
       this.show(tab);
     } else {
       this.list = null;
+    }
+  }
+
+  /** The pinned post, read as the viewer may read it (none when it cannot be). */
+  private loadPinned(id: number | null): void {
+    this.pinnedPost = null;
+    if (id === null) {
+      return;
+    }
+    this.network.onePost(id).subscribe({
+      next: post => {
+        this.pinnedPost = post;
+        this.changes.markForCheck();
+      },
+      error: () => this.pinnedPost = null
+    });
+  }
+
+  /** The member's own posts below the pinned one. */
+  get listedPosts(): NetworkPost[] {
+    return this.pinnedPost ? this.posts.filter(post => post.id !== this.pinnedPost!.id) : this.posts;
+  }
+
+  /** The reader pinned a post, or unpinned the one pinned: the page shows it first, or no longer. */
+  pinChanged(post: NetworkPost, pinned: boolean): void {
+    this.pinnedPost = pinned ? post : null;
+    if (this.page) {
+      this.page = { ...this.page, pinnedPostId: pinned ? post.id : null };
     }
   }
 
@@ -263,7 +305,12 @@ export class MemberPageComponent implements OnInit {
     this.confirm.confirm({ messageKey: 'network.feed.deleteConfirm', confirmKey: 'common.delete', danger: true }).subscribe(confirmed => {
       if (confirmed) {
         this.network.deletePost(post.id).subscribe({
-          next: () => this.posts = this.posts.filter(item => item.id !== post.id),
+          next: () => {
+            this.posts = this.posts.filter(item => item.id !== post.id);
+            if (this.pinnedPost?.id === post.id) {
+              this.pinnedPost = null;
+            }
+          },
           error: () => this.notifications.error('network.feed.postError')
         });
       }

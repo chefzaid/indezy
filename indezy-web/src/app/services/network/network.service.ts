@@ -7,7 +7,7 @@ import { ShownTestimonial } from '../../models/testimonial.models';
 import {
   ConfidentialMatch, DirectorySearch, FileRef, HeldForReview, MemberCard, MemberDirectory, MemberPage, MemberSuggestion,
   NetworkAvailabilitySetting, NetworkComment, NetworkDraft, NetworkFields, NetworkMembership, NetworkNotificationType, NetworkPost,
-  NetworkPostVersion, NetworkPosts, PageViews, PostStats, AuthorActivity, MutualFollows, NetworkRestrictions, NewPoll, NotificationGroup, PostDetails, PostKind, ProjectDto, Reaction,
+  NetworkPostVersion, NetworkPosts, PageViews, PostStats, AuthorActivity, MutualFollows, MemberAbout, NetworkAbout, NetworkRestrictions, NewPoll, NotificationGroup, PostDetails, PostKind, ProjectDto, Reaction,
   ReportReason, ReportTarget, SavedPosts, TagPage, TrendingTag
 } from '../../models';
 
@@ -71,6 +71,11 @@ export class NetworkService {
   }
 
   /** One post, as the reader may read it. */
+  /** Pins one of the reader's posts at the top of their page (replacing the one pinned), or unpins it. */
+  pinPost(id: number, pinned: boolean): Observable<void> {
+    return pinned ? this.http.put<void>(`${this.API_URL}/posts/${id}/pin`, null) : this.http.delete<void>(`${this.API_URL}/posts/${id}/pin`);
+  }
+
   onePost(id: number): Observable<NetworkPost> {
     return this.http.get<NetworkPost>(`${this.API_URL}/posts/${id}`);
   }
@@ -235,6 +240,21 @@ export class NetworkService {
   }
 
   /** The members found by a skill, a city, an availability or remote work, 20 a page. */
+  /** A member's About section and the missions they list. */
+  memberAbout(handle: string): Observable<MemberAbout> {
+    return this.http.get<MemberAbout>(`${this.API_URL}/members/${encodeURIComponent(handle)}/about`,
+      { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
+  /** The reader's own About section, and whether their won missions show. */
+  myAbout(): Observable<NetworkAbout> {
+    return this.http.get<NetworkAbout>(`${this.API_URL}/membership/about`);
+  }
+
+  saveAbout(about: NetworkAbout): Observable<NetworkAbout> {
+    return this.http.put<NetworkAbout>(`${this.API_URL}/membership/about`, about);
+  }
+
   /** The members the reader follows who follow the member too. */
   mutual(handle: string): Observable<MutualFollows> {
     return this.http.get<MutualFollows>(`${this.API_URL}/members/${encodeURIComponent(handle)}/mutual`,

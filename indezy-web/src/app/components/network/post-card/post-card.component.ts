@@ -76,6 +76,10 @@ export class PostCardComponent implements AfterViewInit, OnDestroy {
   loadingInsights = false;
 
   @Input({ required: true }) post!: NetworkPost;
+  /** Whether the post is the one its author pinned on their page (shown there with a badge). */
+  @Input() pinned = false;
+  /** The author pinned or unpinned the post. */
+  @Output() readonly pinChanged = new EventEmitter<boolean>();
   /** The members who like the post, once asked for. */
   likers: MemberCard[] | null = null;
   /** The icon of each kind of post, on its badge. */
@@ -303,6 +307,20 @@ export class PostCardComponent implements AfterViewInit, OnDestroy {
         this.notifications.error('network.insights.loadError');
         this.cardChanges.markForCheck();
       }
+    });
+  }
+
+  /** Pins the post at the top of its author's page, replacing the one pinned, or unpins it. */
+  togglePin(): void {
+    const pin = !this.pinned;
+    this.network.pinPost(this.post.id, pin).subscribe({
+      next: () => {
+        this.pinned = pin;
+        this.pinChanged.emit(pin);
+        this.notifications.success(pin ? 'network.post.pinnedDone' : 'network.post.unpinnedDone');
+        this.cardChanges.markForCheck();
+      },
+      error: () => this.notifications.error('network.post.pinError')
     });
   }
 }

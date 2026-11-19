@@ -146,6 +146,17 @@ describe('NetworkService', () => {
     service.recommendations('camille').subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/members/camille/recommendations')).request.context.get(SILENT_HTTP_ERRORS))
       .toBeTrue();
+    service.pinPost(4, true).subscribe();
+    http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/posts/4/pin'));
+    service.pinPost(4, false).subscribe();
+    http.expectOne(call => call.method === 'DELETE' && call.url.endsWith('/network/posts/4/pin'));
+    service.memberAbout('camille').subscribe();
+    http.expectOne(call => call.url.endsWith('/network/members/camille/about'));
+    service.myAbout().subscribe();
+    http.expectOne(call => call.method === 'GET' && call.url.endsWith('/network/membership/about'));
+    service.saveAbout({ about: 'Hi', showMissions: true }).subscribe();
+    expect(http.expectOne(call => call.method === 'PUT' && call.url.endsWith('/network/membership/about')).request.body)
+      .toEqual({ about: 'Hi', showMissions: true });
     service.mutual('camille').subscribe();
     http.expectOne(call => call.url.endsWith('/network/members/camille/mutual'));
     service.postStats(4).subscribe();

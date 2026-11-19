@@ -158,3 +158,19 @@
   display: block;
   margin: 8px 0;
 }
+
+// The About section shown on the member's page.
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .about-field {
+    width: 100%;
+  }
+
+  .about-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+}

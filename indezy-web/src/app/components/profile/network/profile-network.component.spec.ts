@@ -28,8 +28,9 @@ describe('ProfileNetworkComponent', () => {
 
   function create(membership = of(outside)): ComponentFixture<ProfileNetworkComponent> {
     network = jasmine.createSpyObj('NetworkService', ['membership', 'join', 'leave', 'handle', 'verify', 'restrictions', 'mute', 'block',
-      'notificationSettings', 'saveNotificationSettings', 'followRequests']);
+      'notificationSettings', 'saveNotificationSettings', 'followRequests', 'myAbout', 'saveAbout']);
     network.followRequests.and.returnValue(of([]));
+    network.myAbout.and.returnValue(of({ about: 'Architecte Java', showMissions: false }));
     network.notificationSettings.and.returnValue(of({ off: ['REPOST'], emailed: ['LIKE'] }));
     network.membership.and.returnValue(membership);
     network.restrictions.and.returnValue(of({ muted: [], blocked: [] }));
@@ -208,6 +209,29 @@ describe('ProfileNetworkComponent', () => {
     fixture.componentInstance.setMessaging('typing', false);
     expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');
     expect(fixture.componentInstance.messaging).toEqual({ readReceipts: false, typing: true, presence: true });
+  });
+
+  it('writes the About section and lists the won missions, saying when it cannot be saved', () => {
+    const fixture = create(of(member));
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    expect(component.aboutForm.getRawValue()).toEqual({ about: 'Architecte Java', showMissions: false });
+    expect((element.querySelector('[data-network-about-save]') as HTMLButtonElement).disabled).toBeTrue();
+    component.aboutForm.setValue({ about: 'Architecte Java, 12 ans', showMissions: true });
+    component.aboutForm.markAsDirty();
+    network.saveAbout.and.returnValue(of({ about: 'Architecte Java, 12 ans', showMissions: true }));
+    component.saveAbout();
+    expect(network.saveAbout).toHaveBeenCalledWith({ about: 'Architecte Java, 12 ans', showMissions: true });
+    expect(notifications.success).toHaveBeenCalledWith('profile.network.aboutSaved');
+    expect(component.aboutForm.pristine).toBeTrue();
+    network.saveAbout.and.returnValue(throwError(() => new Error('down')));
+    component.saveAbout();
+    expect(notifications.error).toHaveBeenCalledWith('profile.network.saveError');
+    expect(component.isSavingAbout).toBeFalse();
+    component.aboutForm.controls.about.setValue('x'.repeat(1001));
+    component.saveAbout();
+    expect(network.saveAbout).toHaveBeenCalledTimes(2);
   });
 
   it('leaves once confirmed, keeping the handle, and says when the membership cannot be read', () => {

@@ -3,9 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 
-import { Conversation, MemberCard, MemberPage } from '../../../models';
+import { Conversation, MemberCard, MemberPage, NetworkPost, PastMission } from '../../../models';
 import { ShownTestimonial } from '../../../models/testimonial.models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NotificationService } from '../../../services/notification/notification.service';
@@ -30,16 +30,21 @@ describe('MemberPageComponent', () => {
 
   let query: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
   let mutualFollows = of({ count: 0, members: [] as MemberCard[] });
+  let pinnedAnswer: Observable<NetworkPost> = throwError(() => new Error('not readable'));
+  let postsAnswer = of({ posts: [] as NetworkPost[], page: 0, more: false });
+  let aboutAnswer = of({ about: null as string | null, missions: [] as PastMission[] });
 
   function create(read = of(page), tab: string | null = null, recommended = of([] as ShownTestimonial[])): ComponentFixture<MemberPageComponent> {
     network = jasmine.createSpyObj('NetworkService', ['page', 'follow', 'unfollow', 'followers', 'following', 'removeFollower', 'mute',
-      'block', 'memberPosts', 'deletePost', 'saved', 'drafts', 'recommendations', 'recordView', 'pageViews', 'activity', 'mutual']);
+      'block', 'memberPosts', 'deletePost', 'saved', 'drafts', 'recommendations', 'recordView', 'pageViews', 'activity', 'mutual', 'onePost', 'memberAbout']);
+    network.memberAbout.and.returnValue(aboutAnswer);
+    network.onePost.and.returnValue(pinnedAnswer);
     network.mutual.and.returnValue(mutualFollows);
     network.activity.and.returnValue(of({ postsThisWeek: 2, reachedThisWeek: 40, followersGained: 3, missionsPassedOn: 1, missionsTaken: 4 }));
     network.recordView.and.returnValue(of(undefined));
     network.pageViews.and.returnValue(of({ viewers: 0, viewsThisWeek: 0, named: [], anonymous: 0, privateViewing: false }));
     network.recommendations.and.returnValue(recommended);
-    network.memberPosts.and.returnValue(of({ posts: [], page: 0, more: false }));
+    network.memberPosts.and.returnValue(postsAnswer);
     network.saved.and.returnValue(of({ page: { posts: [], page: 0, more: false }, tags: [] }));
     network.drafts.and.returnValue(of([]));
     query = new BehaviorSubject(convertToParamMap(tab ? { tab } : {}));
@@ -204,6 +209,49 @@ describe('MemberPageComponent', () => {
     TestBed.resetTestingModule();
     fixture = create(of({ ...page, own: true }));
     expect(network.mutual).not.toHaveBeenCalled();
+  });
+
+  it('shows the post the member pinned first, once, and follows the reader pinning another', () => {
+    const post = (id: number): NetworkPost => ({ id, text: `Post ${id}`, tags: [], createdAt: '2026-11-14T10:00:00', own: false, likes: 0,
+      liked: false, comments: 0, commentsClosed: false, edited: false, bookmarked: false, repostOf: null, reposts: 0, repostsOff: false,
+      kind: 'POST', details: null, answerCommentId: null, poll: null, taken: null, reactions: [], myReaction: null, preview: null,
+      author: card('camille') });
+    pinnedAnswer = of(post(2));
+    postsAnswer = of({ posts: [post(2), post(1)], page: 0, more: false });
+    const fixture = create(of({ ...page, pinnedPostId: 2 }));
+    const component = fixture.componentInstance;
+    const element: HTMLElement = fixture.nativeElement;
+    expect(network.onePost).toHaveBeenCalledWith(2);
+    expect(element.querySelector('[data-pinned-post] [data-post-pinned]')).not.toBeNull();
+    expect(element.querySelectorAll('[data-post]').length).toBe(2);
+    expect(component.listedPosts.map(item => item.id)).toEqual([1]);
+    component.pinChanged(post(1), true);
+    expect(component.pinnedPost?.id).toBe(1);
+    expect(component.page?.pinnedPostId).toBe(1);
+    component.pinChanged(post(1), false);
+    expect(component.pinnedPost).toBeNull();
+    pinnedAnswer = throwError(() => new Error('not readable'));
+    postsAnswer = of({ posts: [], page: 0, more: false });
+  });
+
+  it('shows what the member wrote about themselves and their missions, and invites one to write it on one\'s own page', () => {
+    aboutAnswer = of({ about: 'Architecte Java, 12 ans.', missions: [{ role: 'Lead Kafka', stack: ['Java', 'Kafka'], start: '2026-02-02',
+      end: null }, { role: 'Lead Java', stack: [], start: '2025-01-06', end: '2025-07-05' }] });
+    let fixture = create();
+    let element: HTMLElement = fixture.nativeElement;
+    expect(network.memberAbout).toHaveBeenCalledWith('camille');
+    expect(element.querySelector('[data-about-text]')?.textContent).toContain('Architecte Java, 12 ans.');
+    expect(element.querySelectorAll('[data-past-mission]').length).toBe(2);
+    expect(element.querySelector('[data-past-mission]')?.textContent).toContain('Java · Kafka');
+    expect(element.querySelector('[data-past-mission]')?.textContent).toContain('now');
+    TestBed.resetTestingModule();
+    aboutAnswer = of({ about: null, missions: [] });
+    fixture = create();
+    expect(fixture.nativeElement.querySelector('[data-member-about-section]')).toBeNull();
+    TestBed.resetTestingModule();
+    fixture = create(of({ ...page, own: true }));
+    element = fixture.nativeElement;
+    expect(element.querySelector('[data-about-edit]')?.getAttribute('href')).toBe('/profile?tab=network');
   });
 
   it('keeps another member\'s page off the saved and drafts tabs', () => {

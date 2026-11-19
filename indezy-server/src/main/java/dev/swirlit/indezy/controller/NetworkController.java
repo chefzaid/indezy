@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.dto.TestimonialDtos;
 import dev.swirlit.indezy.model.enums.NetworkAvailability;
+import dev.swirlit.indezy.service.NetworkAboutService;
 import dev.swirlit.indezy.service.NetworkDirectoryService;
 import dev.swirlit.indezy.service.NetworkFollowRequestService;
 import dev.swirlit.indezy.service.NetworkFollowService;
@@ -46,6 +47,7 @@ public class NetworkController {
     private final NetworkNotificationService notices;
     private final NetworkRecommendationService recommendations;
     private final NetworkPageViewService pageViews;
+    private final NetworkAboutService about;
 
     @Operation(summary = "Whether the account joined, its handle and what its card shows")
     @GetMapping("/membership")
@@ -92,6 +94,25 @@ public class NetworkController {
     @GetMapping("/mentions")
     public List<NetworkDtos.MemberCard> mentions(@RequestParam(defaultValue = "") String q) {
         return directory.mentions(SecurityUtils.getCurrentUserId(), q);
+    }
+
+    @Operation(summary = "A member's About section and the missions they won, if they list them",
+        description = "Never the client; nothing of a private card to a member not following it")
+    @GetMapping("/members/{handle}/about")
+    public NetworkDtos.MemberAbout about(@PathVariable String handle) {
+        return about.of(SecurityUtils.getCurrentUserId(), handle);
+    }
+
+    @Operation(summary = "The member's own About section, and whether their won missions show")
+    @GetMapping("/membership/about")
+    public NetworkDtos.About myAbout() {
+        return about.mine(SecurityUtils.getCurrentUserId());
+    }
+
+    @Operation(summary = "Save the member's About section (1,000 characters at most) and whether their won missions show")
+    @PutMapping("/membership/about")
+    public NetworkDtos.About saveAbout(@Valid @RequestBody NetworkDtos.About request) {
+        return about.save(SecurityUtils.getCurrentUserId(), request);
     }
 
     @Operation(summary = "The members the viewer follows who follow the member too", description = "How many, and the first three")

@@ -1527,7 +1527,12 @@
       "messagingHint": "Each works both ways: turned off, you no longer see it from others either.",
       "readReceipts": "Show when I read a message (Seen)",
       "typing": "Show when I am typing",
-      "presence": "Show when I am online, and see who is"
+      "presence": "Show when I am online, and see who is",
+      "aboutTitle": "About and past missions",
+      "aboutHint": "Shown on your page to members. Your won missions are listed by role, stack and period, never their client.",
+      "about": "About you",
+      "showMissions": "List my won missions on my page",
+      "aboutSaved": "Your About section is saved"
     },
     "deletion": {
       "title": "Delete my account",
@@ -3430,7 +3435,12 @@
       "askRecommendation": "Ask for a recommendation",
       "mutualOne": "Followed by {{name}}, whom you follow",
       "mutualTwo": "Followed by {{name}} and {{other}}, whom you follow",
-      "mutualMany": "Followed by {{name}} and {{others}} other members you follow"
+      "mutualMany": "Followed by {{name}} and {{others}} other members you follow",
+      "aboutHeading": "About",
+      "aboutEmpty": "Tell members who you are, what you do best and what you are looking for.",
+      "aboutEdit": "Write it",
+      "missionsHeading": "Missions done",
+      "missionOngoing": "now"
     },
     "directory": {
       "title": "Members",
@@ -3501,8 +3511,8 @@
       "send": "Send",
       "reply": "Reply",
       "cancel": "Cancel",
-      "pin": "Pin on top",
-      "unpin": "Unpin",
+      "pin": "Pin to my page",
+      "unpin": "Unpin from my page",
       "hide": "Hide",
       "unhide": "Show again",
       "pinned": "Pinned",
@@ -3534,7 +3544,10 @@
       "commentLikes": "Likes on this comment:",
       "copyLink": "Copy link",
       "linkCopied": "Link copied",
-      "linkCopyError": "The link could not be copied"
+      "linkCopyError": "The link could not be copied",
+      "pinnedDone": "Pinned at the top of your page",
+      "unpinnedDone": "Unpinned",
+      "pinError": "The post could not be pinned. Try again."
     },
     "savedPosts": {
       "title": "Saved posts",

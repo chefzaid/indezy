@@ -92,6 +92,24 @@
   </section>
 }
 
+@if (membership?.joined) {
+  <form class="restrictions about" [formGroup]="aboutForm" (ngSubmit)="saveAbout()" data-network-about>
+    <h3>{{ 'profile.network.aboutTitle' | translate }}</h3>
+    <p class="empty">{{ 'profile.network.aboutHint' | translate }}</p>
+    <mat-form-field appearance="outline" class="about-field">
+      <mat-label>{{ 'profile.network.about' | translate }}</mat-label>
+      <textarea matInput formControlName="about" rows="4" maxlength="1000" data-network-about-text></textarea>
+      <mat-hint align="end">{{ aboutForm.controls.about.value.length }} / 1000</mat-hint>
+    </mat-form-field>
+    <mat-slide-toggle formControlName="showMissions" data-network-show-missions>{{ 'profile.network.showMissions' | translate }}</mat-slide-toggle>
+    <div class="about-actions">
+      <button mat-flat-button type="submit" [disabled]="aboutForm.pristine || aboutForm.invalid || isSavingAbout" data-network-about-save>
+        {{ 'common.save' | translate }}
+      </button>
+    </div>
+  </form>
+}
+
 @if (membership?.joined && messaging) {
   <section class="restrictions" data-network-messaging>
     <h3>{{ 'profile.network.messagingTitle' | translate }}</h3>

@@ -73,6 +73,32 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
     availability: this.fb.group({ mode: 'AUTO' as NetworkAvailability, date: '' })
   });
   readonly modes: NetworkAvailability[] = ['AUTO', 'AVAILABLE', 'ON_MISSION', 'LISTENING'];
+  /** The About section shown on the member's page, and whether their won missions are listed there. */
+  readonly aboutForm = this.fb.group({ about: ['', Validators.maxLength(1000)], showMissions: false });
+  private aboutLoaded = false;
+  isSavingAbout = false;
+
+  /** Saves the About section and whether the won missions show. */
+  saveAbout(): void {
+    if (this.aboutForm.invalid || this.isSavingAbout) {
+      return;
+    }
+    this.isSavingAbout = true;
+    this.network.saveAbout(this.aboutForm.getRawValue()).subscribe({
+      next: about => {
+        this.isSavingAbout = false;
+        this.aboutForm.setValue({ about: about.about ?? '', showMissions: about.showMissions });
+        this.aboutForm.markAsPristine();
+        this.notifications.success('profile.network.aboutSaved');
+        this.changes.markForCheck();
+      },
+      error: () => {
+        this.isSavingAbout = false;
+        this.notifications.error('profile.network.saveError');
+        this.changes.markForCheck();
+      }
+    });
+  }
 
   /** Available from a day, or on a mission until one: the modes that name a day. */
   get dated(): boolean {
@@ -228,6 +254,17 @@ export class ProfileNetworkComponent implements OnInit, OnDestroy {
   }
 
   private show(membership: NetworkMembership): void {
+    if (membership.joined && !this.aboutLoaded) {
+      this.aboutLoaded = true;
+      this.network.myAbout().pipe(takeUntil(this.destroy$)).subscribe({
+        next: about => {
+          this.aboutForm.setValue({ about: about.about ?? '', showMissions: about.showMissions });
+          this.aboutForm.markAsPristine();
+          this.changes.markForCheck();
+        },
+        error: () => this.aboutLoaded = false
+      });
+    }
     if (membership.joined && !this.messaging) {
       this.messagesApi.messaging().pipe(takeUntil(this.destroy$)).subscribe({
         next: settings => {

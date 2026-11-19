@@ -102,6 +102,35 @@
       }
     </section>
 
+    @if (about?.about || about?.missions?.length || page.own) {
+      <section class="card about-section" data-member-about-section [attr.aria-label]="'network.page.aboutHeading' | translate">
+        <h2>{{ 'network.page.aboutHeading' | translate }}</h2>
+        @if (about?.about) {
+          <p class="about-text" data-about-text>{{ about!.about }}</p>
+        } @else if (page.own) {
+          <p class="about-empty">{{ 'network.page.aboutEmpty' | translate }}
+            <a routerLink="/profile" [queryParams]="{ tab: 'network' }" data-about-edit>{{ 'network.page.aboutEdit' | translate }}</a></p>
+        }
+        @if (about?.missions?.length) {
+          <h3>{{ 'network.page.missionsHeading' | translate }}</h3>
+          <ul class="missions" data-past-missions>
+            @for (mission of about!.missions; track $index) {
+              <li data-past-mission>
+                <mat-icon aria-hidden="true">work_history</mat-icon>
+                <div>
+                  <strong>{{ mission.role }}</strong>
+                  <span class="period">{{ mission.start | date:'MMM y' }} – {{ mission.end ? (mission.end | date:'MMM y') : ('network.page.missionOngoing' | translate) }}</span>
+                  @if (mission.stack.length) {
+                    <span class="stack">{{ mission.stack.join(' · ') }}</span>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+
     <div class="tabs" role="tablist" [attr.aria-label]="'network.page.tabs' | translate">
       <button type="button" role="tab" class="tab" [class.active]="!list" [attr.aria-selected]="!list" (click)="showPosts()" data-tab-posts>
         {{ 'network.page.posts' | translate }}
@@ -190,15 +219,19 @@
             <mat-icon aria-hidden="true">lock</mat-icon>
             <p>{{ 'network.page.privatePosts' | translate: { name: page.card.firstName } }}</p>
           </div>
-        } @else if (posts.length === 0) {
+        } @else if (posts.length === 0 && !pinnedPost) {
           <div class="empty card">
             <mat-icon aria-hidden="true">article</mat-icon>
             <p>{{ 'network.page.noPosts' | translate }}</p>
           </div>
         }
         <ul class="posts">
-          @for (post of posts; track post.id) {
-            <li><app-post-card [post]="post" (deleted)="removePost($event)"></app-post-card></li>
+          @if (pinnedPost; as first) {
+            <li><app-post-card [post]="first" [pinned]="true" (pinChanged)="pinChanged(first, $event)" (deleted)="removePost($event)"
+              data-pinned-post></app-post-card></li>
+          }
+          @for (post of listedPosts; track post.id) {
+            <li><app-post-card [post]="post" (pinChanged)="pinChanged(post, $event)" (deleted)="removePost($event)"></app-post-card></li>
           }
         </ul>
         @if (morePosts) {

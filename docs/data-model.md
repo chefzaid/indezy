@@ -181,6 +181,9 @@ Deletion rules:
   reports it made or drew, drafts, held posts and files. The conversations and the messages it sent, with their files,
   stay for the other side, from a former member.
 - Files never attached to a post, a message or a held post are dropped every night a day after upload.
+- `network_members.pinned_post_id` names the member's own post pinned on their page, cleared when that post is deleted;
+  `about` and `show_missions` hold their About section and whether their won missions are listed (read from the
+  workspace's projects, never stored twice).
 - Page views are dropped every night 90 days after they happened; `network_members.private_viewing` keeps a member
   out of the names their views show, and their own viewers' names from them.
 
