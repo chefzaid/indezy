@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -12,7 +12,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MentionsDirective } from '../mentions/mentions.directive';
 
-import { MemberCard, NetworkPost, NetworkPostVersion, POST_EDIT_WINDOW, Poll, PostDetails, REACTIONS } from '../../../models';
+import { MemberCard, NetworkPost, NetworkPostVersion, POST_EDIT_WINDOW, Poll, PostDetails, PostStats, REACTIONS } from '../../../models';
+import { PostImpressionsService } from '../../../services/network/post-impressions.service';
 import { ReactionButtonComponent } from './reaction-button.component';
 import { NetworkService } from '../../../services/network/network.service';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
@@ -61,11 +62,18 @@ export function segments(text: string): PostSegment[] {
   styleUrls: ['./post-card.component.scss', './post-card-content.scss'],
   changeDetection: ChangeDetectionStrategy.Eager
 })
-export class PostCardComponent {
+export class PostCardComponent implements AfterViewInit, OnDestroy {
   private readonly network = inject(NetworkService);
   private readonly dialog = inject(MatDialog);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
+  private readonly impressions = inject(PostImpressionsService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly cardChanges = inject(ChangeDetectorRef);
+  private observer?: IntersectionObserver;
+  /** The post's analytics, for its author, once asked for. */
+  insights: PostStats | null = null;
+  loadingInsights = false;
 
   @Input({ required: true }) post!: NetworkPost;
   /** The members who like the post, once asked for. */
@@ -257,5 +265,44 @@ export class PostCardComponent {
   /** The share of the votes a choice has, in whole percents. */
   share(poll: Poll, index: number): number {
     return poll.total ? Math.round(100 * (poll.choices[index].votes ?? 0) / poll.total) : 0;
+  }
+
+  /** Counts the post shown to its reader once half of it is in view (an author's own posts aside), for its author's analytics. */
+  ngAfterViewInit(): void {
+    if (this.post.own || typeof IntersectionObserver === 'undefined') {
+      return;
+    }
+    this.observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        this.impressions.seen(this.post.id);
+        this.observer?.disconnect();
+      }
+    }, { threshold: 0.5 });
+    this.observer.observe(this.host.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.observer?.disconnect();
+  }
+
+  /** Shows the post's analytics to its author, or hides them. */
+  toggleInsights(): void {
+    if (this.insights) {
+      this.insights = null;
+      return;
+    }
+    this.loadingInsights = true;
+    this.network.postStats(this.post.id).subscribe({
+      next: stats => {
+        this.insights = stats;
+        this.loadingInsights = false;
+        this.cardChanges.markForCheck();
+      },
+      error: () => {
+        this.loadingInsights = false;
+        this.notifications.error('network.insights.loadError');
+        this.cardChanges.markForCheck();
+      }
+    });
   }
 }

@@ -240,6 +240,7 @@ export const COVERAGE_SOURCES: readonly string[] = [
   'services/network/network-notices.service',
   'services/network/network-stream.service',
   'services/network/network.service',
+  'services/network/post-impressions.service',
   'services/notification/notification.service',
   'services/offer/offer-alerts.service',
   'services/offer/offer-history',

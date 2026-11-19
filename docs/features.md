@@ -208,7 +208,10 @@ card the viewer's card has too and **Follows you** when they do, with **Follow**
 report), or **Edit my card** on one's own page. Tabs show their posts, the members following them and the members they
 follow (each opening their page); a member's own page adds **Saved** and **Drafts**, theirs alone. The tab is kept in the
 address (`?tab=followers`, `following`, `saved` or `drafts`), so the card beside the feed opens each directly, and the
-former addresses `/network/saved` and `/network/drafts` lead to them. Beside another member's page, **About Léo** says
+former addresses `/network/saved` and `/network/drafts` lead to them. Under another member's name, **Followed by Léo and
+2 other members you follow** names the members the reader follows who follow them too, with their faces, the latest
+followers first (`GET /api/network/members/<handle>/mutual`; never a member blocked either way), opening their followers.
+Beside another member's page, **About Léo** says
 how many follow them and whom they follow, whether they follow the reader and how many skills both cards show. On their
 own page a member **removes** a follower, without them being told. **Viewers**, a tab of one's own page (and **n views of your page** on the card beside the
 feed), tells **who viewed my page**: how many members opened it in the last 90 days and how many times in the last 7, the

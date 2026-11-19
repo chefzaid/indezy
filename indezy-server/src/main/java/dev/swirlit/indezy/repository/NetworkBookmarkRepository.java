@@ -23,4 +23,6 @@ public interface NetworkBookmarkRepository extends JpaRepository<NetworkBookmark
     @Modifying
     @Query("delete from NetworkBookmark b where b.postId = :postId")
     void deleteByPostId(@Param("postId") Long postId);
+
+    long countByPostId(Long postId);
 }

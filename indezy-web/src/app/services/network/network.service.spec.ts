@@ -146,6 +146,12 @@ describe('NetworkService', () => {
     service.recommendations('camille').subscribe();
     expect(http.expectOne(call => call.url.endsWith('/network/members/camille/recommendations')).request.context.get(SILENT_HTTP_ERRORS))
       .toBeTrue();
+    service.mutual('camille').subscribe();
+    http.expectOne(call => call.url.endsWith('/network/members/camille/mutual'));
+    service.postStats(4).subscribe();
+    http.expectOne(call => call.url.endsWith('/network/posts/4/stats'));
+    service.activity(true).subscribe();
+    expect(http.expectOne(call => call.url.endsWith('/network/activity')).request.context.get(SILENT_HTTP_ERRORS)).toBeTrue();
     service.recordView('camille').subscribe();
     expect(http.expectOne(call => call.method === 'POST' && call.url.endsWith('/network/members/camille/views')).request.context
       .get(SILENT_HTTP_ERRORS)).toBeTrue();

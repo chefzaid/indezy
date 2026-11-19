@@ -10,7 +10,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, distinctUntilChanged, map, skip, switchMap } from 'rxjs';
 
-import { MemberCard, MemberPage, NetworkPost } from '../../../models';
+import { AuthorActivity, MemberCard, MemberPage, MutualFollows, NetworkPost } from '../../../models';
 import { ShownTestimonial } from '../../../models/testimonial.models';
 import { NetworkService } from '../../../services/network/network.service';
 import { NetworkMessagesService } from '../../../services/network/network-messages.service';
@@ -60,6 +60,10 @@ export class MemberPageComponent implements OnInit {
   problem: 'notMember' | 'notFound' | 'error' | null = null;
   loading = true;
   list: MemberList | null = null;
+  /** The members the reader follows who follow this member too. */
+  mutual: MutualFollows | null = null;
+  /** The reader's activity, beside their own page. */
+  activity: AuthorActivity | null = null;
   /** The testimonials the member approved, signed by their authors. */
   recommendations: ShownTestimonial[] = [];
   members: MemberCard[] = [];
@@ -84,6 +88,22 @@ export class MemberPageComponent implements OnInit {
         if (!page.own) {
           // Told to the member under **Who viewed my page**, in the background.
           this.network.recordView(page.card.handle).subscribe({ error: () => undefined });
+          this.mutual = null;
+          this.network.mutual(page.card.handle).subscribe({
+            next: mutual => {
+              this.mutual = mutual.count ? mutual : null;
+              this.changes.markForCheck();
+            },
+            error: () => this.mutual = null
+          });
+        } else {
+          this.network.activity(true).subscribe({
+            next: activity => {
+              this.activity = activity;
+              this.changes.markForCheck();
+            },
+            error: () => this.activity = null
+          });
         }
         this.openTab(this.route.snapshot.queryParamMap.get('tab'));
         this.changes.markForCheck();
@@ -160,6 +180,16 @@ export class MemberPageComponent implements OnInit {
       },
       error: () => this.recommendations = []
     });
+  }
+
+  /** "Followed by Léo, whom you follow", "… Léo and Inès", or "… Léo and 3 other members you follow". */
+  mutualText(mutual: MutualFollows): { key: string; params: Record<string, unknown> } {
+    const [first, second] = mutual.members;
+    if (mutual.count === 1) {
+      return { key: 'network.page.mutualOne', params: { name: first.firstName } };
+    }
+    return mutual.count === 2 ? { key: 'network.page.mutualTwo', params: { name: first.firstName, other: second.firstName } } :
+      { key: 'network.page.mutualMany', params: { name: first.firstName, others: mutual.count - 1 } };
   }
 
   /** Back to the member's posts from a list. */

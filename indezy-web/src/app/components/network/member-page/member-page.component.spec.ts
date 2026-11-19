@@ -29,10 +29,13 @@ describe('MemberPageComponent', () => {
   let messages: jasmine.SpyObj<NetworkMessagesService>;
 
   let query: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+  let mutualFollows = of({ count: 0, members: [] as MemberCard[] });
 
   function create(read = of(page), tab: string | null = null, recommended = of([] as ShownTestimonial[])): ComponentFixture<MemberPageComponent> {
     network = jasmine.createSpyObj('NetworkService', ['page', 'follow', 'unfollow', 'followers', 'following', 'removeFollower', 'mute',
-      'block', 'memberPosts', 'deletePost', 'saved', 'drafts', 'recommendations', 'recordView', 'pageViews']);
+      'block', 'memberPosts', 'deletePost', 'saved', 'drafts', 'recommendations', 'recordView', 'pageViews', 'activity', 'mutual']);
+    network.mutual.and.returnValue(mutualFollows);
+    network.activity.and.returnValue(of({ postsThisWeek: 2, reachedThisWeek: 40, followersGained: 3, missionsPassedOn: 1, missionsTaken: 4 }));
     network.recordView.and.returnValue(of(undefined));
     network.pageViews.and.returnValue(of({ viewers: 0, viewsThisWeek: 0, named: [], anonymous: 0, privateViewing: false }));
     network.recommendations.and.returnValue(recommended);
@@ -179,6 +182,28 @@ describe('MemberPageComponent', () => {
     expect(network.recordView).not.toHaveBeenCalled();
     expect(fixture.componentInstance.list).toBe('viewers');
     expect(fixture.nativeElement.querySelector('app-network-viewers')).not.toBeNull();
+    // Beside one's own page, one's activity.
+    expect(network.activity).toHaveBeenCalledWith(true);
+    expect(fixture.nativeElement.querySelector('[data-activity-reached]')?.textContent).toContain('40');
+    expect(fixture.nativeElement.querySelector('[data-activity-taken]')?.textContent).toContain('4');
+  });
+
+  it('says which members the viewer follows follow this one too', () => {
+    mutualFollows = of({ count: 3, members: [card('leo', { firstName: 'Léo' }), card('ines', { firstName: 'Inès' })] });
+    let fixture = create();
+    const component = fixture.componentInstance;
+    expect(network.mutual).toHaveBeenCalledWith('camille');
+    expect(fixture.nativeElement.querySelector('[data-mutual]')?.textContent).toContain('Followed by Léo and 2 other members you follow');
+    expect(fixture.nativeElement.querySelector('[data-mutual]')?.getAttribute('href')).toBe('/m/camille?tab=followers');
+    expect(component.mutualText({ count: 1, members: [card('leo', { firstName: 'Léo' })] }).key).toBe('network.page.mutualOne');
+    expect(component.mutualText({ count: 2, members: [card('leo'), card('ines')] }).key).toBe('network.page.mutualTwo');
+    TestBed.resetTestingModule();
+    mutualFollows = of({ count: 0, members: [] });
+    fixture = create();
+    expect(fixture.nativeElement.querySelector('[data-mutual]')).toBeNull();
+    TestBed.resetTestingModule();
+    fixture = create(of({ ...page, own: true }));
+    expect(network.mutual).not.toHaveBeenCalled();
   });
 
   it('keeps another member\'s page off the saved and drafts tabs', () => {

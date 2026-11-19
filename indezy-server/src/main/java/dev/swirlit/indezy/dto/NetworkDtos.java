@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /** The member network: an account's membership, its member card, and the requests that join, change and leave. */
 public final class NetworkDtos {
@@ -347,6 +348,33 @@ public final class NetworkDtos {
         public MemberPage {
             sharedSkills = List.copyOf(sharedSkills);
         }
+    }
+
+    /** The members the viewer follows who follow the member too: how many, and the first three. */
+    public record MutualFollows(int count, List<MemberCard> members) {
+
+        public MutualFollows {
+            members = List.copyOf(members);
+        }
+    }
+
+    /** A post's analytics, for its author: how many times it was shown, to how many members, and how many saved it. */
+    public record PostStats(long impressions, long reached, long saves) {
+    }
+
+    /** The impressions a page of posts reports: the posts shown, 50 at most. */
+    public record Impressions(@NotNull @Size(max = 50) List<Long> ids) {
+
+        public Impressions {
+            ids = ids == null ? null : List.copyOf(ids.stream().filter(Objects::nonNull).toList());
+        }
+    }
+
+    /**
+     * The author's activity: the posts of the last 7 days and the members they reached, the followers gained in the last
+     * 30 days, and the missions passed on and taken by members in the last 30.
+     */
+    public record AuthorActivity(long postsThisWeek, long reachedThisWeek, long followersGained, long missionsPassedOn, long missionsTaken) {
     }
 
     /** A member who opened the reader's page, and the last time they did. */

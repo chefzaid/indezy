@@ -436,3 +436,52 @@
     }
   }
 }
+
+// The reader's activity beside their own page: this week's posts and reach, the month's followers and missions.
+.activity dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+
+  div {
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--app-hover);
+  }
+
+  dt {
+    color: var(--app-text-muted);
+    font-size: 0.75rem;
+  }
+
+  dd {
+    margin: 2px 0 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+}
+
+// "Followed by Léo and 2 other members you follow", with their faces, opening the followers.
+.mutual {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 20px 0;
+  color: var(--app-text-muted);
+  font-size: 0.8125rem;
+  text-decoration: none;
+
+  .faces {
+    display: inline-flex;
+
+    app-member-avatar + app-member-avatar {
+      margin-left: -8px;
+    }
+  }
+
+  &:hover {
+    color: var(--app-link);
+    text-decoration: underline;
+  }
+}

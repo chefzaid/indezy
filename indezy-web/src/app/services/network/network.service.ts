@@ -7,7 +7,7 @@ import { ShownTestimonial } from '../../models/testimonial.models';
 import {
   ConfidentialMatch, DirectorySearch, FileRef, HeldForReview, MemberCard, MemberDirectory, MemberPage, MemberSuggestion,
   NetworkAvailabilitySetting, NetworkComment, NetworkDraft, NetworkFields, NetworkMembership, NetworkNotificationType, NetworkPost,
-  NetworkPostVersion, NetworkPosts, PageViews, NetworkRestrictions, NewPoll, NotificationGroup, PostDetails, PostKind, ProjectDto, Reaction,
+  NetworkPostVersion, NetworkPosts, PageViews, PostStats, AuthorActivity, MutualFollows, NetworkRestrictions, NewPoll, NotificationGroup, PostDetails, PostKind, ProjectDto, Reaction,
   ReportReason, ReportTarget, SavedPosts, TagPage, TrendingTag
 } from '../../models';
 
@@ -235,6 +235,22 @@ export class NetworkService {
   }
 
   /** The members found by a skill, a city, an availability or remote work, 20 a page. */
+  /** The members the reader follows who follow the member too. */
+  mutual(handle: string): Observable<MutualFollows> {
+    return this.http.get<MutualFollows>(`${this.API_URL}/members/${encodeURIComponent(handle)}/mutual`,
+      { context: new HttpContext().set(SILENT_HTTP_ERRORS, true) });
+  }
+
+  /** A post's analytics, for its author. */
+  postStats(id: number): Observable<PostStats> {
+    return this.http.get<PostStats>(`${this.API_URL}/posts/${id}/stats`);
+  }
+
+  /** The reader's activity on the network. */
+  activity(silent = false): Observable<AuthorActivity> {
+    return this.http.get<AuthorActivity>(`${this.API_URL}/activity`, { context: new HttpContext().set(SILENT_HTTP_ERRORS, silent) });
+  }
+
   /** The reader opened a member's page (kept once a day; nothing for their own), in the background. */
   recordView(handle: string): Observable<void> {
     return this.http.post<void>(`${this.API_URL}/members/${encodeURIComponent(handle)}/views`, null,

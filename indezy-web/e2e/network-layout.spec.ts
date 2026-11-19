@@ -224,3 +224,41 @@ test('tells a member who viewed their page, and browses privately', async ({ pag
   // One's own page is never counted.
   expect(viewed).toEqual(['leo_m']);
 });
+
+test('shows an author their post\'s analytics and their activity, and counts others\' posts shown', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await mockWorkspaceSession(page, 'fr');
+  await page.route('**/api/users/capabilities', route => route.fulfill({ json: { admin: false, features: { SOCIAL_NETWORK: true } } }));
+  await page.route('**/api/network/membership', route => route.fulfill({ json: { joined: true, handle: 'camille', fields } }));
+  await page.route('**/api/network/members/camille/page', route => route.fulfill({ json: { card: card('camille', 'Camille'), followers: 3,
+    following: 1, sharedSkills: [], followed: false, followsYou: false, own: true, muted: false, blocked: false, privateCard: false,
+    requested: false } }));
+  const post = (id: number, own: boolean) => ({ id, text: own ? 'Mon retour sur Kafka' : 'Le retour de Léo', tags: [],
+    createdAt: '2026-11-15T09:00:00', own, likes: 4, liked: false, comments: 2, commentsClosed: false, edited: false, bookmarked: false,
+    repostOf: null, reposts: 1, repostsOff: false, kind: 'POST', details: null, answerCommentId: null, poll: null, taken: null,
+    author: own ? card('camille', 'Camille') : card('leo_m', 'Léo') });
+  await page.route('**/api/network/members/camille/posts?**', route => route.fulfill({ json: { posts: [post(3, true)], page: 0, more: false } }));
+  await page.route('**/api/network/members/camille/recommendations', route => route.fulfill({ json: [] }));
+  await page.route('**/api/network/activity', route => route.fulfill({ json: { postsThisWeek: 2, reachedThisWeek: 48, followersGained: 5,
+    missionsPassedOn: 1, missionsTaken: 3 } }));
+  await page.route('**/api/network/posts/3/stats', route => route.fulfill({ json: { impressions: 130, reached: 48, saves: 6 } }));
+  const shown: number[][] = [];
+  await page.route('**/api/network/posts/impressions', route => {
+    shown.push(route.request().postDataJSON().ids);
+    return route.fulfill({ status: 204 });
+  });
+  await page.route('**/api/network/feed?**', route => route.fulfill({ json: { posts: [post(8, false), post(3, true)], page: 0, more: false } }));
+
+  await page.goto('/m/camille');
+  await expect(page.locator('[data-activity-reached]')).toHaveText('48');
+  await page.locator('[data-post="3"] [data-post-insights]').click();
+  await expect(page.locator('[data-post-figures]')).toContainText('130');
+  await expect(page.locator('[data-post-figures]')).toContainText('Membres atteints');
+  const audit = await new AxeBuilder({ page }).include('app-member-page').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  expect(audit.violations.map(violation => violation.id)).toEqual([]);
+
+  // Another member's post shown in the feed is counted for its author; one's own is not.
+  await page.goto('/network');
+  await expect(page.locator('[data-post="8"]')).toBeVisible();
+  await expect.poll(() => shown.flat(), { timeout: 8000 }).toEqual([8]);
+});

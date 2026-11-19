@@ -72,4 +72,6 @@ public interface NetworkPostRepository extends JpaRepository<NetworkPost, Long> 
         "order by (select count(l) from NetworkLike l where l.postId = p.id) desc, p.createdAt desc, p.id desc",
         countQuery = "select count(p) from NetworkPost p join p.tags t where t = :tag and p.authorId not in :excluded")
     Page<NetworkPost> tagByLikes(@Param("tag") String tag, @Param("excluded") Collection<Long> excluded, Pageable page);
+
+    long countByAuthorIdAndKindAndCreatedAtAfter(Long authorId, NetworkPostKind kind, LocalDateTime since);
 }

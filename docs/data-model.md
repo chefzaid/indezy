@@ -116,6 +116,7 @@ optimistic-locking `version`. Use it for new entities. The offer collection's bo
 | `NetworkLike` | `network_likes` | member and post (by id) | by hand, or with its post or either account |
 | `NetworkCommentLike` | `network_comment_likes` | member and comment (by id) | by hand, or with its comment, its post or either account |
 | `NetworkPageView` | `network_page_views` | viewer and member (by id), once a day per pair | nightly, 90 days after it; with either account |
+| `NetworkPostImpression` | `network_post_impressions` | post and viewer (by id), one row per pair with how many times | with its post, or the viewer's account |
 | `NetworkPollVote` | `network_poll_votes` | member and post (by id) | with its post or either account; a change rewrites it |
 | `NetworkMissionTake` | `network_mission_takes` | member and post (by id) | with its post or either account; kept when its project is deleted, and reused if the mission is taken again |
 | `NetworkBookmark` | `network_bookmarks` | member and post (by id) | by hand, or with its post or either account |
@@ -170,8 +171,8 @@ Deletion rules:
 - Deleting a source or a season keeps its projects, which lose that reference.
 - Deleting a compliance document removes it from the packs that shared it.
 - Invoices hold their client, project and activity report as plain ids, so deleting those leaves every invoice.
-- Deleting a post deletes its likes, comment likes, votes, mission takes, comments, versions, saves, notifications and
-  files; its reports stay, and its reposts stay, showing the original as gone. Deleting a comment deletes its replies
+- Deleting a post deletes its likes, comment likes, votes, mission takes, comments, versions, saves, impressions,
+  notifications and files; its reports stay, and its reposts stay, showing the original as gone. Deleting a comment deletes its replies
   and their likes, and unpins or unmarks it as the answer.
 - Leaving the network, being banned or being on hold for deletion deletes nothing: the card is hidden, a former member
   comes back with the same card, and a banned one cannot. A scheduled draft waits while its author is away.

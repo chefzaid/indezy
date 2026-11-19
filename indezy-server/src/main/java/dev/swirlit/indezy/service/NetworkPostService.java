@@ -17,6 +17,7 @@ import dev.swirlit.indezy.model.enums.NetworkNotificationType;
 import dev.swirlit.indezy.model.enums.NetworkPostKind;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
 import dev.swirlit.indezy.repository.NetworkBookmarkRepository;
+import dev.swirlit.indezy.repository.NetworkPostImpressionRepository;
 import dev.swirlit.indezy.repository.NetworkCommentLikeRepository;
 import dev.swirlit.indezy.repository.NetworkCommentRepository;
 import dev.swirlit.indezy.repository.NetworkFollowRepository;
@@ -84,6 +85,7 @@ public class NetworkPostService {
     private final NetworkCommentRepository comments;
     private final NetworkPostVersionRepository versions;
     private final NetworkBookmarkRepository bookmarks;
+    private final NetworkPostImpressionRepository impressions;
     private final NetworkTagFollowRepository tagFollows;
     private final Clock clock;
     private final NetworkLimits limits;
@@ -148,7 +150,7 @@ public class NetworkPostService {
         remove(posts.findByIdAndAuthorId(postId, userId).orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND)));
     }
 
-    /** Deletes the post with its likes, comments, versions, saves and notifications: by its author or the moderators. */
+    /** Deletes the post with its likes, comments, versions, saves, impressions and notifications: by its author or the moderators. */
     void remove(NetworkPost post) {
         likes.deleteByPostId(post.getId());
         commentLikes.deleteByPostId(post.getId());
@@ -158,6 +160,7 @@ public class NetworkPostService {
         versions.deleteByPostId(post.getId());
         bookmarks.deleteByPostId(post.getId());
         notificationRepository.deleteByPostId(post.getId());
+        impressions.deleteByPostId(post.getId());
         files.deleteForPost(post.getId());
         posts.delete(post);
     }

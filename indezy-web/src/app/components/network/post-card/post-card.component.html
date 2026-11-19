@@ -209,6 +209,24 @@
       }
     </div>
   }
+  @if (post.own) {
+    <div class="insights">
+      <button type="button" class="insights-toggle" (click)="toggleInsights()" [disabled]="loadingInsights" [attr.aria-expanded]="insights !== null"
+        data-post-insights>
+        <mat-icon aria-hidden="true">insights</mat-icon>{{ 'network.insights.show' | translate }}
+      </button>
+      @if (insights; as stats) {
+        <dl class="figures" data-post-figures>
+          <div><dt>{{ 'network.insights.impressions' | translate }}</dt><dd>{{ stats.impressions }}</dd></div>
+          <div><dt>{{ 'network.insights.reached' | translate }}</dt><dd>{{ stats.reached }}</dd></div>
+          <div><dt>{{ 'network.insights.reactions' | translate }}</dt><dd>{{ post.likes }}</dd></div>
+          <div><dt>{{ 'network.insights.comments' | translate }}</dt><dd>{{ post.comments }}</dd></div>
+          <div><dt>{{ 'network.insights.reposts' | translate }}</dt><dd>{{ post.reposts }}</dd></div>
+          <div><dt>{{ 'network.insights.saves' | translate }}</dt><dd>{{ stats.saves }}</dd></div>
+        </dl>
+      }
+    </div>
+  }
   @if (likers) {
     <ul class="likers" data-likers>
       @for (member of likers; track member.handle) {

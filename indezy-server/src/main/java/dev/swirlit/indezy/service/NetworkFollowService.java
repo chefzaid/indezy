@@ -34,6 +34,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NetworkFollowService {
 
+    /** How many members followed by both a mutual follow names. */
+    static final int MUTUAL_SHOWN = 3;
+
     private final NetworkService network;
     private final NetworkFollowRepository follows;
     private final NetworkFollowRequestRepository requests;
@@ -105,6 +108,23 @@ public class NetworkFollowService {
     public List<NetworkDtos.MemberCard> following(Long viewerId, String handle) {
         NetworkMember viewer = network.requireMember(viewerId);
         return seen(viewerId, follows.following(visible(viewer, handle).getUserId()));
+    }
+
+    /**
+     * The members the viewer follows who follow the member too ("Followed by Léo and 2 others you follow"): how many, and
+     * the first three, the latest followers first; none on the viewer's own page.
+     */
+    @Transactional(readOnly = true)
+    public NetworkDtos.MutualFollows mutual(Long viewerId, String handle) {
+        NetworkMember viewer = network.requireMember(viewerId);
+        NetworkMember member = visible(viewer, handle);
+        if (member.getUserId().equals(viewerId)) {
+            return new NetworkDtos.MutualFollows(0, List.of());
+        }
+        Set<Long> followed = follows.following(viewerId).stream().map(NetworkMember::getUserId).collect(Collectors.toSet());
+        List<NetworkDtos.MemberCard> both = seen(viewerId, follows.followers(member.getUserId()).stream()
+            .filter(follower -> followed.contains(follower.getUserId())).toList());
+        return new NetworkDtos.MutualFollows(both.size(), both.stream().limit(MUTUAL_SHOWN).toList());
     }
 
     /** Mutes a member, or no longer: their posts are hidden from the viewer, who still follows them. */

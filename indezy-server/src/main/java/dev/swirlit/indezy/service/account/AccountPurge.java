@@ -22,7 +22,7 @@ public class AccountPurge {
 
     /** The tables that hold an account's data, deleted in this order (children before what they point to). */
     static final List<String> PURGED = List.of(
-        "network_post_tags", "network_post_versions", "network_likes", "network_comment_likes",
+        "network_post_tags", "network_post_versions", "network_post_impressions", "network_likes", "network_comment_likes",
         "network_mission_takes", "network_poll_votes", "network_bookmarks", "network_notifications", "network_comments",
         "network_file_contents", "network_files", "network_held", "network_posts", "network_follows",
         "network_follow_requests", "network_restrictions", "network_tag_follows", "network_drafts", "network_reports",
@@ -84,7 +84,7 @@ public class AccountPurge {
         rows += jdbc.update("UPDATE network_posts SET answer_comment_id = NULL WHERE answer_comment_id IN " + COMMENTS, u, u);
         rows += jdbc.update("UPDATE network_posts SET pinned_comment_id = NULL WHERE pinned_comment_id IN " + COMMENTS, u, u);
         for (String table : List.of("network_post_tags", "network_post_versions", "network_likes",
-            "network_mission_takes", "network_poll_votes", "network_bookmarks", "network_notifications")) {
+            "network_mission_takes", "network_poll_votes", "network_bookmarks", "network_notifications", "network_post_impressions")) {
             rows += jdbc.update("DELETE FROM " + table + " WHERE post_id IN " + POSTS, u);
         }
         rows += jdbc.update("DELETE FROM network_comment_likes WHERE post_id IN " + POSTS + " OR comment_id IN " + COMMENTS +
@@ -110,6 +110,7 @@ public class AccountPurge {
         rows += jdbc.update("DELETE FROM network_restrictions WHERE owner_id = ? OR target_id = ?", u, u);
         rows += jdbc.update("DELETE FROM network_drafts WHERE author_id = ?", u);
         rows += jdbc.update("DELETE FROM network_page_views WHERE viewer_id = ? OR member_id = ?", u, u);
+        rows += jdbc.update("DELETE FROM network_post_impressions WHERE viewer_id = ?", u);
         rows += jdbc.update("DELETE FROM network_reports WHERE reporter_id = ? OR target_user_id = ?", u, u);
         return rows;
     }

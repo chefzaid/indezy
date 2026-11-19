@@ -197,6 +197,28 @@ export interface TrendingTag {
   posts: number;
 }
 
+/** The members the viewer follows who follow the member too: how many, and the first three. */
+export interface MutualFollows {
+  count: number;
+  members: MemberCard[];
+}
+
+/** A post's analytics, for its author. */
+export interface PostStats {
+  impressions: number;
+  reached: number;
+  saves: number;
+}
+
+/** The author's activity: this week's posts and members reached, the last 30 days' followers gained and missions. */
+export interface AuthorActivity {
+  postsThisWeek: number;
+  reachedThisWeek: number;
+  followersGained: number;
+  missionsPassedOn: number;
+  missionsTaken: number;
+}
+
 /** A member who opened the reader's page, and the last time they did. */
 export interface PageViewer {
   card: MemberCard;

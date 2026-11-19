@@ -3427,7 +3427,10 @@
       "recommendations": "Recommendations",
       "recommendationsOwn": "Your recommendations, as members read them. Ask a client or a colleague for another one.",
       "recommendationsNone": "No recommendation yet. Ask a client or a colleague: once you approve it, members read it here, and visitors on your public page.",
-      "askRecommendation": "Ask for a recommendation"
+      "askRecommendation": "Ask for a recommendation",
+      "mutualOne": "Followed by {{name}}, whom you follow",
+      "mutualTwo": "Followed by {{name}} and {{other}}, whom you follow",
+      "mutualMany": "Followed by {{name}} and {{others}} other members you follow"
     },
     "directory": {
       "title": "Members",
@@ -3969,6 +3972,24 @@
       "hiddenYou": "{{count}} viewers, unnamed while you browse privately",
       "loadError": "Your viewers could not be loaded.",
       "saveError": "The setting could not be saved. Try again."
+    },
+    "insights": {
+      "show": "Analytics",
+      "impressions": "Impressions",
+      "reached": "Members reached",
+      "reactions": "Reactions",
+      "comments": "Comments",
+      "reposts": "Reposts",
+      "saves": "Saves",
+      "loadError": "The analytics could not be loaded."
+    },
+    "activity": {
+      "title": "Your activity",
+      "posts": "Posts this week",
+      "reached": "Members reached this week",
+      "followers": "Followers gained in 30 days",
+      "missions": "Missions passed on in 30 days",
+      "taken": "Taken by members in 30 days"
     }
   }
 }

@@ -6,6 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { NetworkPost } from '../../../models';
 import { NetworkService } from '../../../services/network/network.service';
+import { PostImpressionsService } from '../../../services/network/post-impressions.service';
 import { NotificationService } from '../../../services/notification/notification.service';
 import { PostCardComponent, segments } from './post-card.component';
 import { ReportDialogComponent } from '../report-dialog/report-dialog.component';
@@ -24,15 +25,52 @@ describe('PostCardComponent', () => {
 
   let network: jasmine.SpyObj<NetworkService>;
   let notifications: jasmine.SpyObj<NotificationService>;
+  let impressions: jasmine.SpyObj<PostImpressionsService>;
 
   function configure(): void {
     network = jasmine.createSpyObj('NetworkService', ['react', 'likers', 'closeComments', 'comments', 'editPost', 'postVersions', 'bookmark',
-      'repost', 'repostsOff', 'vote']);
+      'repost', 'repostsOff', 'vote', 'postStats']);
     network.comments.and.returnValue(of([]));
+    impressions = jasmine.createSpyObj('PostImpressionsService', ['seen']);
     notifications = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     TestBed.configureTestingModule({ imports: [PostCardComponent, TranslateModule.forRoot()], providers: [provideRouter([]),
-      { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications }] });
+      { provide: NetworkService, useValue: network }, { provide: NotificationService, useValue: notifications },
+      { provide: PostImpressionsService, useValue: impressions }] });
   }
+
+  it('shows its author the post\'s analytics, and counts another member\'s post once half of it is seen', async () => {
+    configure();
+    let fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', post);
+    fixture.detectChanges();
+    let element: HTMLElement = fixture.nativeElement;
+    network.postStats.and.returnValue(of({ impressions: 120, reached: 45, saves: 3 }));
+    (element.querySelector('[data-post-insights]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(network.postStats).toHaveBeenCalledWith(4);
+    expect(element.querySelector('[data-post-figures]')?.textContent).toContain('120');
+    expect(element.querySelector('[data-post-figures]')?.textContent).toContain('45');
+    (element.querySelector('[data-post-insights]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(element.querySelector('[data-post-figures]')).toBeNull();
+    network.postStats.and.returnValue(throwError(() => new Error('down')));
+    fixture.componentInstance.toggleInsights();
+    expect(notifications.error).toHaveBeenCalledWith('network.insights.loadError');
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(impressions.seen).not.toHaveBeenCalled();
+    fixture.destroy();
+
+    fixture = TestBed.createComponent(PostCardComponent);
+    fixture.componentRef.setInput('post', { ...post, id: 9, own: false });
+    fixture.detectChanges();
+    element = fixture.nativeElement;
+    document.body.appendChild(element);
+    expect(element.querySelector('[data-post-insights]')).toBeNull();
+    await new Promise(resolve => setTimeout(resolve, 200));
+    expect(impressions.seen).toHaveBeenCalledOnceWith(9);
+    element.remove();
+    fixture.destroy();
+  });
 
   it('likes the post, or no longer, and lists who likes it', () => {
     configure();

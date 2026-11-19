@@ -94,6 +94,12 @@ public class NetworkController {
         return directory.mentions(SecurityUtils.getCurrentUserId(), q);
     }
 
+    @Operation(summary = "The members the viewer follows who follow the member too", description = "How many, and the first three")
+    @GetMapping("/members/{handle}/mutual")
+    public NetworkDtos.MutualFollows mutual(@PathVariable String handle) {
+        return follows.mutual(SecurityUtils.getCurrentUserId(), handle);
+    }
+
     @Operation(summary = "The viewer opened a member's page", description = "Kept once a day per pair for 90 days; one's own page counts nothing")
     @PostMapping("/members/{handle}/views")
     @ResponseStatus(HttpStatus.NO_CONTENT)

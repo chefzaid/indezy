@@ -81,6 +81,16 @@
           }
         </p>
       </div>
+      @if (mutual; as both) {
+        <a class="mutual" [routerLink]="['/m', page.card.handle]" [queryParams]="{ tab: 'followers' }" data-mutual>
+          <span class="faces" aria-hidden="true">
+            @for (member of both.members; track member.handle) {
+              <app-member-avatar [subject]="member" [size]="24"></app-member-avatar>
+            }
+          </span>
+          {{ mutualText(both).key | translate: mutualText(both).params }}
+        </a>
+      }
       <app-member-card [card]="page.card" [bare]="true"></app-member-card>
       @if (page.sharedSkills.length) {
         <div class="shared" data-shared-skills>
@@ -212,6 +222,18 @@
             <li><mat-icon aria-hidden="true">join_inner</mat-icon>{{ 'network.page.sharedCount' | translate: { count: page.sharedSkills.length } }}</li>
           }
         </ul>
+      </section>
+    }
+    @if (page?.own && activity; as mine) {
+      <section class="side-card activity" data-activity>
+        <h2>{{ 'network.activity.title' | translate }}</h2>
+        <dl>
+          <div><dt>{{ 'network.activity.posts' | translate }}</dt><dd data-activity-posts>{{ mine.postsThisWeek }}</dd></div>
+          <div><dt>{{ 'network.activity.reached' | translate }}</dt><dd data-activity-reached>{{ mine.reachedThisWeek }}</dd></div>
+          <div><dt>{{ 'network.activity.followers' | translate }}</dt><dd data-activity-followers>{{ mine.followersGained }}</dd></div>
+          <div><dt>{{ 'network.activity.missions' | translate }}</dt><dd data-activity-missions>{{ mine.missionsPassedOn }}</dd></div>
+          <div><dt>{{ 'network.activity.taken' | translate }}</dt><dd data-activity-taken>{{ mine.missionsTaken }}</dd></div>
+        </dl>
       </section>
     }
     <app-network-side [exclude]="page?.card?.handle ?? null"></app-network-side>

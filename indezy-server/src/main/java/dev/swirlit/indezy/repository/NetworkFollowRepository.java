@@ -27,4 +27,6 @@ public interface NetworkFollowRepository extends JpaRepository<NetworkFollow, Lo
     @Query("select m from NetworkFollow f join NetworkMember m on m.userId = f.followedId " +
         "where f.followerId = :userId and m.active = true order by f.createdAt desc")
     List<NetworkMember> following(@Param("userId") Long userId);
+
+    long countByFollowedIdAndCreatedAtAfter(Long followedId, LocalDateTime since);
 }

@@ -3,6 +3,7 @@ package dev.swirlit.indezy.controller;
 import dev.swirlit.indezy.dto.NetworkDtos;
 import dev.swirlit.indezy.dto.ProjectDto;
 import dev.swirlit.indezy.model.enums.NetworkReaction;
+import dev.swirlit.indezy.service.NetworkAnalyticsService;
 import dev.swirlit.indezy.service.NetworkCommentService;
 import dev.swirlit.indezy.service.NetworkConfidentialityService;
 import dev.swirlit.indezy.service.NetworkDraftService;
@@ -54,6 +55,7 @@ public class NetworkPostController {
     private final NetworkPipelineService pipeline;
     private final NetworkForYouService forYou;
     private final NetworkFeedService feed;
+    private final NetworkAnalyticsService analytics;
 
     @Operation(summary = "Post to the network",
         description = "Text of up to 3,000 characters; its #tags are kept. 202 when the spam score holds it for review")
@@ -307,6 +309,26 @@ public class NetworkPostController {
     @GetMapping("/tags/suggest")
     public List<String> suggestTags(@RequestParam(defaultValue = "") String q) {
         return feed.suggestTags(SecurityUtils.getCurrentUserId(), q);
+    }
+
+    @Operation(summary = "The posts a page showed the reader, for their authors' analytics", description = "50 at most; one's own count nothing")
+    @PostMapping("/posts/impressions")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void impressions(@Valid @RequestBody NetworkDtos.Impressions request) {
+        analytics.shown(SecurityUtils.getCurrentUserId(), request.ids());
+    }
+
+    @Operation(summary = "A post's analytics, for its author", description = "How many times it was shown, to how many members, and saved")
+    @GetMapping("/posts/{id}/stats")
+    public NetworkDtos.PostStats stats(@PathVariable Long id) {
+        return analytics.stats(SecurityUtils.getCurrentUserId(), id);
+    }
+
+    @Operation(summary = "The member's activity", description = "This week's posts and members reached, the last 30 days' followers gained " +
+        "and missions passed on and taken")
+    @GetMapping("/activity")
+    public NetworkDtos.AuthorActivity activity() {
+        return analytics.activity(SecurityUtils.getCurrentUserId());
     }
 
     @Operation(summary = "The network's search for posts", description = "The posts the reader can read holding what was typed, case aside, " +
